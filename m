@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWHBCNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWHBCOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWHBCNU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 22:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWHBCNU
+	id S1751038AbWHBCOa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 22:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWHBCOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 22:13:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27092 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751038AbWHBCNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 22:13:19 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 18/33] x86_64: Kill temp_boot_pmds II
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<11544302392378-git-send-email-ebiederm@xmission.com>
-	<p73psfk1dnh.fsf_-_@verdi.suse.de>
-Date: Tue, 01 Aug 2006 20:11:48 -0600
-In-Reply-To: <p73psfk1dnh.fsf_-_@verdi.suse.de> (Andi Kleen's message of "01
-	Aug 2006 21:04:02 +0200")
-Message-ID: <m18xm7yjh7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 1 Aug 2006 22:14:30 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:25587 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751035AbWHBCO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 22:14:29 -0400
+Date: Tue, 1 Aug 2006 19:14:11 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
+       hch@infradead.org
+Subject: Re: [PATCH 04/28] OCFS2 is screwy
+Message-ID: <20060802021411.GG29686@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235243.EA4890B4@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060801235243.EA4890B4@localhost.localdomain>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tue, Aug 01, 2006 at 04:52:43PM -0700, Dave Hansen wrote:
+> OCFS2 plays some games with i_nlink.  It modifies it a bunch in
+> its unlink function, but rolls back the changes if an error
+> occurs.  So, we can't just assume that iput_final() will happen
+> whenever i_nlink hits 0 in ocfs's unlink().
+Huh? Did you read the code? Or is it just easier to call things "screwy" and
+start hacking away?
 
-> "Eric W. Biederman" <ebiederm@xmission.com> writes:
->> 
->> I also modify the early page table initialization code
->> to use early_ioreamp and early_iounmap, instead of the
->> special case version of those functions that they are
->> now calling.
->
-> Or rather I tried to apply it - it doesn't apply at all
-> on its own:
->
-> patching file arch/x86_64/mm/init.c
-> Hunk #1 FAILED at 167.
-> Hunk #2 succeeded at 274 with fuzz 1 (offset 28 lines).
-> Hunk #3 FAILED at 286.
-> Hunk #4 FAILED at 341.
-> 3 out of 4 hunks FAILED -- rejects in file arch/x86_64/mm/init.c
+i_nlink only gets rolled back in the case that the file system wasn't able to
+actually complete the unlink / orphan operation. The idea is to keep it in
+sync with what's actually on disk. So when we call iput() in the unlink
+path, disk and struct inode should be accurate.
 
-It is probably patch 17:
-"x86_64: Separate normal memory map initialization from the hotplug case"
+> Create a helper function to do the hard work of i_nlink hitting
+> zero, and use it in ocfs2.
+Anyway, it's only done that way because at the time it seemed the cleanest
+approach - there's no technical reason why we must roll it back. So a helper
+function doesn't seem necessary - you'd just have to look through the small
+amount of code and re-order things a bit.
 
-I don't see any other patches that touch arch/x86_64/mm/init.c
-before that.  At least not in 2.6.18-rc3, which is the base of
-my patchset.
+Unfortunately you didn't actually put the contents of
+__inode_set_awaiting_final_iput() in this patch, so I'll have to dig through
+the others to see what exactly you're up to. In the meantime I'd say this
+patch is either unecessary or just plain wrong.
+	--Mark
 
-Eric
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

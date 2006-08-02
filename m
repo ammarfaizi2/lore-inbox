@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWHBWLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWHBWNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWHBWLO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 18:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWHBWLO
+	id S932275AbWHBWNX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 18:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWHBWNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 18:11:14 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:50101 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S932266AbWHBWLN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 18:11:13 -0400
-Message-Id: <200608022211.k72MAwZq030604@zeus2.kernel.org>
-From: "Miss.Amina Idris" <a_2004@she.com>
-Reply-To: aminatari@gmail.com
-To: linux-kernel@vger.kernel.org
-Date: Thu, 3 Aug 2006 05:11:16 +0700
-Subject: INVESTMENT  NEGOTIATION
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	Wed, 2 Aug 2006 18:13:23 -0400
+Received: from mx1.suse.de ([195.135.220.2]:46001 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932275AbWHBWNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 18:13:22 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] x86: rename is_at_popf(), add iret to tests and fix insn length
+Date: Thu, 3 Aug 2006 00:12:07 +0200
+User-Agent: KMail/1.9.3
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <acahalan@gmail.com>
+References: <200608020937_MC3-1-C6D7-3958@compuserve.com>
+In-Reply-To: <200608020937_MC3-1-C6D7-3958@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608030012.07247.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear  Sir,
-   
-I am Amina Idris from the State of Kassala in the Eastern part of Sudan. I recently lost my husband who until his death was a serving officer with the SPLA here in Sudan. He died in the cause of performing his duties under the United Nations Mission in Sudan (UNMIS).
+On Wednesday 02 August 2006 15:35, Chuck Ebbert wrote:
+> In-Reply-To: <200608021454.33685.ak@suse.de>
+> 
+> On Wed, 2 Aug 2006 14:54:33 +0200. Andi Kleen wrote:
+> 
+> > > is_at_popf() needs to test for the iret instruction as well as
+> > > popf.  So add that test and rename it to is_setting_trap_flag().
+> > 
+> > Do you have a single real example where anybody is actually using IRET
+> > in user space? 
+> 
+> No, but Albert Cahalan complained so I figured it should be fixed.
 
-Before his death he was privileged to have served close the powers that be in my country and this exposed him to huge sums of money of which about $7.5 Million was left to my surviving son and I.
+I suppose he just collected all the obscure FIXMEs in the code he could find.
+Ok I merged it, but only because it is so little code.
 
-I am contacting you because I need a big favor from you as regards receiving these funds on our behalf and help us invest it in a profitable venture. Due to my inexperience in matters of business, I am willing to give free rein of affairs to you in the day to day running of such a business venture.
-
-Please if you are willing to assist me, don’t hesitate to reply and indicate your interest as soon as possible.
-
-Thanks and best regards.
-
-
-Amina Idris
-
-
+-Andi

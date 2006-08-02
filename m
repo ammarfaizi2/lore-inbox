@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWHBCUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWHBCU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWHBCUI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 22:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWHBCUI
+	id S1751051AbWHBCU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 22:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWHBCU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 22:20:08 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:669
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1751033AbWHBCUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 22:20:07 -0400
-Date: Tue, 1 Aug 2006 19:19:56 -0700
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rt8 crash amd64
-Message-ID: <20060802021956.GC26364@gnuppy.monkey.org>
-References: <20060802011809.GA26313@gnuppy.monkey.org> <1154482302.30391.14.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 22:20:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20164 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751045AbWHBCU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 22:20:58 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 2/33] i386: define __pa_symbol
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<11544302293540-git-send-email-ebiederm@xmission.com>
+	<p73lkq81djg.fsf@verdi.suse.de>
+Date: Tue, 01 Aug 2006 20:19:21 -0600
+In-Reply-To: <p73lkq81djg.fsf@verdi.suse.de> (Andi Kleen's message of "01 Aug
+	2006 21:06:27 +0200")
+Message-ID: <m14pwvyj4m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154482302.30391.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 09:31:42PM -0400, Steven Rostedt wrote:
-> On Tue, 2006-08-01 at 18:18 -0700, Bill Huey wrote:
-> > [   42.124525]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
-> > [   42.131032]        <ffffffff8025fd89>{schedule+236}
-> > [   42.136195]        <ffffffff8026078f>{rt_lock_slowlock+351}
-> > [   42.142086]        <ffffffff8026117d>{__lock_text_start+13}
-> > [   42.147966]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
-> > [   42.154476]        <ffffffff8020c4e9>{dput+57}
-> > [   42.159194]        <ffffffff802093f3>{__link_path_walk+1710}
-> > [   42.165166]        <ffffffff802617ad>{_raw_spin_unlock+46}
-> > [   42.170961]        <ffffffff8020db81>{link_path_walk+103}
-> > [   42.176672]        <ffffffff8020be5a>{do_path_lookup+644}
-> > [   42.182379]        <ffffffff80223829>{__user_walk_fd+63}
-> > [   42.187994]        <ffffffff8023fce4>{vfs_lstat_fd+33}
-> > [   42.193434]        <ffffffff8022b3e4>{sys_newlstat+34}
-> > [   42.198871]        <ffffffff8025ce3d>{error_exit+0}
-> > [   42.204040]        <ffffffff8025bf22>{system_call+126}
-> 
-> This back trace is definitely ugly.  Do you get this all the time? And
-> if so, could you compile in frame pointers and try again.  (I'll dig
-> through this in the mean time.) 
+Andi Kleen <ak@suse.de> writes:
 
-Not sure, I'm getting hard reboots as well from what looks like more
-atomic scheduling violations. I'll tweek my kernel config to be more
-friendly about these things. It looked like it was in the rtmutex code,
-which is why I CCed you.
+> "Eric W. Biederman" <ebiederm@xmission.com> writes:
+>
+>> On x86_64 we have to be careful with calculating the physical
+>> address of kernel symbols.  Both because of compiler odditities
+>> and because the symbols live in a different range of the virtual
+>> address space.
+>> 
+>> Having a defintition of __pa_symbol that works on both x86_64 and
+>> i386 simplifies writing code that works for both x86_64 and
+>> i386 that has these kinds of dependencies.
+>> 
+>> So this patch adds the trivial i386 __pa_symbol definition.
+>> 
+>> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+>> ---
+>>  include/asm-i386/page.h |    1 +
+>>  1 files changed, 1 insertions(+), 0 deletions(-)
+>> 
+>> diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
+>> index f5bf544..eceb7f5 100644
+>> --- a/include/asm-i386/page.h
+>> +++ b/include/asm-i386/page.h
+>> @@ -124,6 +124,7 @@ #define PAGE_OFFSET		((unsigned long)__P
+>>  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+>>  #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
+>>  #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
+>> +#define __pa_symbol(x)		__pa(x)
+>
+> Actually PAGE_OFFSET arithmetic on symbols is outside ISO C and gcc 
+> misoptimizes it occassionally. You would need to use HIDE_RELOC
+> or similar. That is why x86-64 has the magic.
 
-Any other configuration suggestions ?
+Yes.  ISO C only defines pointer arithmetic with in arrays.  
+I believe gnu C makes it a well defined case.
 
-bill
+Currently we do not appear to have any problems on i386.
+But I have at least one case of code that is shared between
+i386 and x86_64 and it is appropriate to use __pa_symbol on
+x86_64.
 
+So I added __pa_symbol for that practical reason.
+
+I would have no problems with generalizing this but I wanted to
+at least make it possible to use the concept on i386.
+
+I will be happy to add in the assembly magic, if you don't have
+any other problems with this.
+
+Eric

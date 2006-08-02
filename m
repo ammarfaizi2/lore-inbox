@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWHBDz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWHBEQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWHBDz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 23:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWHBDz7
+	id S1751124AbWHBEQz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWHBEQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 23:55:59 -0400
-Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:39098 "HELO
-	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751123AbWHBDz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 23:55:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:From:Organization:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=N3oQOMUim361lLnGkWunxMBvdqgsQC9ixeIXExAzgb2FGLuuAow1a0eMk/bUJopuLKWOUh/43K9B3xNnF+bidgGYKvh34MLLSFlW49utzhMA4jUKmcxysezOM+d0iVWVUeAmYah5wIzkyNIvoJ4zTXvRabhiEthxYEy4TomvX3E=  ;
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Subject: Re: [2.6.18-rc2][e1000][swsusp] - Regression - Suspend to disk and resume breaks e1000 - RESOLVED Bug #6867
-Date: Tue, 1 Aug 2006 23:55:28 -0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, NetDev <netdev@vger.kernel.org>
-References: <200607160509.52930.shawn.starr@rogers.com> <44BA6A4A.5090007@intel.com>
-In-Reply-To: <44BA6A4A.5090007@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 2 Aug 2006 00:16:54 -0400
+Received: from ozlabs.org ([203.10.76.45]:42946 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751124AbWHBEQy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 00:16:54 -0400
+Subject: Re: [PATCH 1 of 13] Add apply_to_page_range() which applies a
+	function to a pte range
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Chris Wright <chrisw@sous-sol.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Gerd Hoffmann <kraxel@suse.de>, Hollis Blanchard <hollisb@us.ibm.com>,
+       Ian Pratt <ian.pratt@xensource.com>, Zachary Amsden <zach@vmware.com>,
+       npiggin@suse.de, Ian Wienand <ianw@gelato.unsw.edu.au>
+In-Reply-To: <Pine.LNX.4.64.0608011421080.19146@schroedinger.engr.sgi.com>
+References: <79a98a10911fc4e77dce.1154421372@ezr.goop.org>
+	 <m1ejw0zmic.fsf@ebiederm.dsl.xmission.com>
+	 <20060801211410.GH2654@sequoia.sous-sol.org>
+	 <Pine.LNX.4.64.0608011421080.19146@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Wed, 02 Aug 2006 14:16:50 +1000
+Message-Id: <1154492211.2570.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608012355.28504.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 July 2006 12:33 pm, Auke Kok wrote:
-> [adding netdev to the cc]
->
-> unfortunately I didn't.
->
-> e1000 has a special e1000_pci_save_state/e1000_pci_restore_state set of
-> routines that save and restore the configuration space. the fact that it
-> works for suspend to memory to me suggests that there is nothing wrong with
-> that.
->
-> I'm surprised that the t42 comes with a PCI/PCI-X e1000, which changes the
-> need for this special routine, and the routine does the exact same thing as
-> pci_save_state in your case. These special routines are made to handle
-> PCI-E cards properly.
->
-> Also there are no config_pm changes related to this in 2.6.18-rc2. Most of
-> this code has been in the kernel for a few major releases afaik. This code
-> worked fine before, so I don't rule out any suspend-related issues. You
-> should certainly compare with 2.6.18-rc1 and make sure it was a regression,
-> perhaps even bisect the e1000-related changes if you have the time, which
-> is about 22 patches or so.
->
-> I'll see if I can find out some more once I get back to work.
->
-> Auke
+On Tue, 2006-08-01 at 14:31 -0700, Christoph Lameter wrote:
+> On Tue, 1 Aug 2006, Chris Wright wrote:
+> 
+> > We got the opposite feedback the first time we posted this function.
+> > Xen has some users, and I believe there's a couple in-tree functions we could
+> > convert easily w/out overhead issues.  It's generic and this is just the
+> > infrastructure, I think we should leave it.
+> 
+> Th generic method was proposed a number of times in the past including 
+> by Nick Piggin and more recently by the page table abstraction layer 
+> posted by Ian Wienand. See also 
+> 
+> http://www.gelato.org/pdf/apr2006/gelato_ICE06apr_unsw.pdf
+> http://www.gelato.org/pdf/may2005/gelato_may2005_ia64vm_chubb_unsw.pdf.
+> http://lwn.net/Articles/124961/
+> 
+> Special functionality may be attached at various levels, and we are very 
+> sensitive to changes in this area.
 
-Hi Auke,
+Hi Christoph,
 
-It appears 2.6.18-rc3 this does not occur anymore. I suspended to disk/ram and 
-the interface pci registers were restored. Bugzilla #6867
+	Thanks for the pointers, but as you've been debating for 18 months now,
+no patches are in the -mm tree or obviously about to go in, and this new
+helper function is orthogonal to your work, I don't think it's
+reasonable to delay this patch.
 
-Thanks, 
+	All we can reasonably do is push this function back into the xen part
+of the kernel tree for now.
 
-Shawn.
-
-
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

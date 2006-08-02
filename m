@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWHBVit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWHBVku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWHBVit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWHBVit
+	id S932235AbWHBVku (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWHBVkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:38:49 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:31758 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932232AbWHBVis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:38:48 -0400
-Date: Wed, 2 Aug 2006 22:38:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
-       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: Re: Linux v2.6.18-rc3
-Message-ID: <20060802213834.GB17599@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Dave Jones <davej@redhat.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-	Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
-	linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-References: <20060731081112.05427677.akpm@osdl.org> <20060801215919.8596da9d.akpm@osdl.org> <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com> <200608022216.54797.rjw@sisk.pl> <20060802202309.GD7173@flint.arm.linux.org.uk> <20060802203236.GC23389@redhat.com> <20060802205824.GA17599@flint.arm.linux.org.uk> <Pine.LNX.4.64.0608021416200.4168@g5.osdl.org>
+	Wed, 2 Aug 2006 17:40:49 -0400
+Received: from xenotime.net ([66.160.160.81]:22251 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932235AbWHBVkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 17:40:49 -0400
+Date: Wed, 2 Aug 2006 14:43:27 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Brian D. McGrew" <brian@visionpro.com>
+Cc: "For users of Fedora Core releases" <fedora-list@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with mtpscsih kernel module
+Message-Id: <20060802144327.c757c40c.rdunlap@xenotime.net>
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B3941@chicken.machinevisionproducts.com>
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B3941@chicken.machinevisionproducts.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608021416200.4168@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 02:18:55PM -0700, Linus Torvalds wrote:
-> Well, more importantly, why would we do something like this in the first 
-> place?
+On Wed, 2 Aug 2006 14:26:48 -0700 Brian D. McGrew wrote:
 
-The low level drivers can do that already if they so wish.  We provide
-a library function to allow them to do the generic parts, which is
-what we're talking about here.
+> Running on a Dell PowerEdge 1800 using Fedora Core 3 and a 2.6.16.16
+> kernel.
+> 
+> I've built up this new kernel to roll out to our production systems and
+> it's been in test on a PE1800 for a long time and working fine.
+> However, the machine that it's been testing on has SATA drives.
+> Yesterday I moved it to a production system, another PE1800 with SCSI
+> drives and I'm getting an error
+> 
+> Insmod /lib/modules/mptscshih.ko: -l unknown symbol
+> 
+> The only differences I can find between the two machines is that the
+> original build/test machine has gcc-3.4.4 and the new machine has
+> gcc-3.4.2; but it looks like all the system libraries are the same and
+> everything else.
+> 
+> I even went so far as to move the entire source tree to this machine and
+> do a make clean and rebuild and reinstall and I'm still having the same
+> problem.  What am I missing here???  
 
-> The serial layer should use set_termios() when users set the termios state 
-> (surprise surprise), not to emulate suspend/restore.
+The kernel message log should have a list of the missing
+symbol(s) that are needed.  Please post that.
 
-Yes Linus, you're obviously right.  Would you mind re-engineering this
-while I'm away for the next few days.  For _ALL_ serial drivers, not
-just 8250.  Thanks.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+---
+~Randy

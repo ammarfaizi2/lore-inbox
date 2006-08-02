@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWHBVqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWHBVrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWHBVqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWHBVqE
+	id S932242AbWHBVrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWHBVrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:46:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56291 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932238AbWHBVqC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:46:02 -0400
-Subject: Re: [PATCH] PCMCIA: Add few IDs into ide-cs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marcin Juszkiewicz <openembedded@hrw.one.pl>
-Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <200608022310.03388.openembedded@hrw.one.pl>
-References: <200608022310.03388.openembedded@hrw.one.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Aug 2006 23:04:56 +0100
-Message-Id: <1154556296.23655.27.camel@localhost.localdomain>
+	Wed, 2 Aug 2006 17:47:00 -0400
+Received: from mga06.intel.com ([134.134.136.21]:27958 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932242AbWHBVq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 17:46:59 -0400
+X-IronPort-AV: i="4.07,206,1151910000"; 
+   d="scan'208"; a="101077354:sNHT55691146"
+Date: Wed, 2 Aug 2006 14:36:11 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
+       nickpiggin@yahoo.com.au, vatsa@in.ibm.com, Simon.Derr@bull.net,
+       steiner@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [BUG] sched: big numa dynamic sched domain memory corruption
+Message-ID: <20060802143611.A19038@unix-os.sc.intel.com>
+References: <20060731070734.19126.40501.sendpatchset@v0> <20060731071242.GA31377@elte.hu> <20060731090440.A2311@unix-os.sc.intel.com> <20060731095429.d2b8801d.pj@sgi.com> <20060731101542.A2817@unix-os.sc.intel.com> <20060801235752.28519bda.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060801235752.28519bda.pj@sgi.com>; from pj@sgi.com on Tue, Aug 01, 2006 at 11:57:52PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-02 am 23:10 +0200, ysgrifennodd Marcin Juszkiewicz:
-> From: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+On Tue, Aug 01, 2006 at 11:57:52PM -0700, Paul Jackson wrote:
+> Suresh wrote:
+> > Basically SLES10 has to backport all these patches:
+> > 
+> > sched: fix group power for allnodes_domains
+> > sched_domai: Allocate sched_group structures dynamically
+> > sched: build_sched_domains() fix
 > 
-> Few cards informations submitted by OpenZaurus users.
 > 
-> Seagate 8GB microdrive:
->  product info: "SEAGATE", "ST1"
->  manfid 0x0111, 0x0000
+> A few questions on this, centered around the question of which dynamic
+> sched domain patches we should backport to SLES10.
 > 
-> One CF card:
->  product info: "SAMSUNG", "04/05/06", "", ""
->  manfid : 0x0000, 0x0000
-> 
-> Ridata 8GB Pro 150X Compact Flash Card:
->  product info: "SMI VENDOR", "SMI PRODUCT", ""
->  manfid: 0x000a, 0x0000
-> 
->  product info: "M-Systems", "CF500", ""
->  manfid: 0x000a, 0x0000
-> 
-> Signed-off-by: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+> Readers not seriously interested in sched domains on 2.6.16.* kernels
+> will probably want to ignore this post.
 
-Acked-by: Alan Cox <alan@redhat.com>
+Paul, I will answer your questions on Suse bugzilla as that is a better
+forum than lkml.
 
-(and I'll merge them into the libata pata_pcmcia driver too)
-
-
+thanks,
+suresh

@@ -1,80 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWHBBSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWHBBWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWHBBSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 21:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWHBBSZ
+	id S1750939AbWHBBWI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 21:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWHBBWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 21:18:25 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:59370
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1750932AbWHBBSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 21:18:24 -0400
-Date: Tue, 1 Aug 2006 18:18:09 -0700
-To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Cc: "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: 2.6.17-rt8 crash amd64
-Message-ID: <20060802011809.GA26313@gnuppy.monkey.org>
+	Tue, 1 Aug 2006 21:22:08 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:11955 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750939AbWHBBWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 21:22:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=GsK702T4t6/lSJSlUtsYhKKF5L3rVmm4qlvQlk4R3C7JNZAVo6aDHeKL54hrKGDYNe6MKKch9IAHAMg11AsDNy1NOyTdpW/tefsW6N/J69Nx1FlEwTgAWjPZLQoRbdmPIbuw7gDJTvFX+nwN3ARnFgTLjMCNFfy/Rh3yJuAHcFw=
+Message-ID: <44CFFDF1.6030909@gmail.com>
+Date: Wed, 02 Aug 2006 09:20:49 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Roland Dreier <rdreier@cisco.com>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fbcon: Use persistent allocation for cursor blinking.
+References: <20060801185618.GS22240@redhat.com>  <adairlc5ktk.fsf@cisco.com> <1154470813.15540.95.camel@localhost.localdomain>
+In-Reply-To: <1154470813.15540.95.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Dave Jones <davej@redhat.com>
 
-Hello folks,
+Every time the console cursor blinks, we do a kmalloc/kfree pair.
+This patch turns that into a single allocation.
 
-I'm getting this:
+This allocation was the most frequent kmalloc I saw on my test box.
 
-[   41.989355] BUG: scheduling while atomic: udevd/0x00000001/1101
-[   41.995501]
-[   41.995502] Call Trace:
-[   41.999458]        <ffffffff8025ef65>{__schedule+155}
-[   42.004805]        <ffffffff80261702>{_raw_spin_unlock_irqrestore+72}
-[   42.011583]        <ffffffff802996c5>{task_blocks_on_rt_mutex+497}
-[   42.018095]        <ffffffff802a86a4>{free_pages_bulk+42}
-[   42.023799]        <ffffffff80291be3>{find_task_by_pid_type+24}
-[   42.030039]        <ffffffff802a86a4>{free_pages_bulk+42}
-[   42.035742]        <ffffffff8025fd89>{schedule+236}
-[   42.040907]        <ffffffff8026078f>{rt_lock_slowlock+351}
-[   42.046798]        <ffffffff80261702>{_raw_spin_unlock_irqrestore+72}
-[   42.053577]        <ffffffff8026117d>{__lock_text_start+13}
-[   42.059459]        <ffffffff802a86a4>{free_pages_bulk+42}
-[   42.065161]        <ffffffff802616e6>{_raw_spin_unlock_irqrestore+44}
-[   42.071940]        <ffffffff802a8b5a>{__free_pages_ok+428}
-[   42.077733]        <ffffffff8022e29f>{__free_pages+48}
-[   42.083168]        <ffffffff802365bb>{free_pages+133}
-[   42.088514]        <ffffffff8025a92a>{free_task+24}
-[   42.093678]        <ffffffff802474b7>{__put_task_struct+189}
-[   42.099650]        <ffffffff8025fac4>{thread_return+208}
-[   42.105264]        <ffffffff802996c5>{task_blocks_on_rt_mutex+497}
-[   42.111774]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
-[   42.118284]        <ffffffff80291be3>{find_task_by_pid_type+24}
-[   42.124525]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
-[   42.131032]        <ffffffff8025fd89>{schedule+236}
-[   42.136195]        <ffffffff8026078f>{rt_lock_slowlock+351}
-[   42.142086]        <ffffffff8026117d>{__lock_text_start+13}
-[   42.147966]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
-[   42.154476]        <ffffffff8020c4e9>{dput+57}
-[   42.159194]        <ffffffff802093f3>{__link_path_walk+1710}
-[   42.165166]        <ffffffff802617ad>{_raw_spin_unlock+46}
-[   42.170961]        <ffffffff8020db81>{link_path_walk+103}
-[   42.176672]        <ffffffff8020be5a>{do_path_lookup+644}
-[   42.182379]        <ffffffff80223829>{__user_walk_fd+63}
-[   42.187994]        <ffffffff8023fce4>{vfs_lstat_fd+33}
-[   42.193434]        <ffffffff8022b3e4>{sys_newlstat+34}
-[   42.198871]        <ffffffff8025ce3d>{error_exit+0}
-[   42.204040]        <ffffffff8025bf22>{system_call+126}
-[   42.209715] ---------------------------
-[   42.213716] | preempt count: 00000001 ]
-[   42.217715] | 1-level deep critical section nesting:
-[   42.222879] ----------------------------------------
-[   42.228043] .. [<ffffffff8025ef7d>] .... __schedule+0xb3/0xb2a
-[   42.234150] .....[<ffffffff8025fd89>] ..   ( <= schedule+0xec/0x11e)
-[   42.240796]
-[   53.347726] NET: Registered protocol family 10
-[   53.353240] IPv6 over IPv4 tunneling driver
+[adaplas]
+Per Alan's suggestion, move global variables to fbcon's private structure.
+This would also avoid resource leaks when fbcon is unloaded.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+Acked-by: Alan Cox <alan@redhat.com>
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
+
+Alan Cox wrote:
+> Ar Maw, 2006-08-01 am 12:15 -0700, ysgrifennodd Roland Dreier:
+>>  > Every time the console cursor blinks, we do a kmalloc/kfree pair.
+>>  > This patch turns that into a single allocation.
+
+Thanks for doing this.
+
+>>
+>> A naiive question from someone who knows nothing about this subsystem:
+>> is there any possibility of concurrent calls into this function, for
+>> example if there are multiple cursors on a multiheaded system?
+> 
+> We don't do console multihead so its basically OK. Moving all the
+> console globals into a struct so we can have multiple instances would be
+> a good thing [tm] and it would make sense for the variable to end up in
+> said structure if it was done.
+> 
+
+Here's an update. Taking Alan's cue, I just moved the global variables
+to struct fbcon_ops.
+
+Tony
+
+
+ drivers/video/console/fbcon.c      |    3 +++
+ drivers/video/console/fbcon.h      |    2 ++
+ drivers/video/console/softcursor.c |   31 +++++++++++++++++++++----------
+ 3 files changed, 26 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+index 390439b..6165fd9 100644
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -3225,7 +3225,10 @@ #endif
+ 			module_put(info->fbops->owner);
+ 
+ 			if (info->fbcon_par) {
++				struct fbcon_ops *ops = info->fbcon_par;
++
+ 				fbcon_del_cursor_timer(info);
++				kfree(ops->cursor_src);
+ 				kfree(info->fbcon_par);
+ 				info->fbcon_par = NULL;
+ 			}
+diff --git a/drivers/video/console/fbcon.h b/drivers/video/console/fbcon.h
+index f244ad0..0b73ae9 100644
+--- a/drivers/video/console/fbcon.h
++++ b/drivers/video/console/fbcon.h
+@@ -80,6 +80,8 @@ struct fbcon_ops {
+ 	char  *cursor_data;
+ 	u8    *fontbuffer;
+ 	u8    *fontdata;
++	u8    *cursor_src;
++	u8     cursor_size;
+ 	u32    fd_size;
+ };
+     /*
+diff --git a/drivers/video/console/softcursor.c b/drivers/video/console/softcursor.c
+index 557c563..7d07d83 100644
+--- a/drivers/video/console/softcursor.c
++++ b/drivers/video/console/softcursor.c
+@@ -20,11 +20,12 @@ #include "fbcon.h"
+ 
+ int soft_cursor(struct fb_info *info, struct fb_cursor *cursor)
+ {
++	struct fbcon_ops *ops = info->fbcon_par;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	unsigned int i, size, dsize, s_pitch, d_pitch;
+ 	struct fb_image *image;
+-	u8 *dst, *src;
++	u8 *dst;
+ 
+ 	if (info->state != FBINFO_STATE_RUNNING)
+ 		return 0;
+@@ -32,11 +33,19 @@ int soft_cursor(struct fb_info *info, st
+ 	s_pitch = (cursor->image.width + 7) >> 3;
+ 	dsize = s_pitch * cursor->image.height;
+ 
+-	src = kmalloc(dsize + sizeof(struct fb_image), GFP_ATOMIC);
+-	if (!src)
+-		return -ENOMEM;
++	if (dsize + sizeof(struct fb_image) != ops->cursor_size) {
++		if (ops->cursor_src != NULL)
++			kfree(ops->cursor_src);
++		ops->cursor_size = dsize + sizeof(struct fb_image);
+ 
+-	image = (struct fb_image *) (src + dsize);
++		ops->cursor_src = kmalloc(ops->cursor_size, GFP_ATOMIC);
++		if (!ops->cursor_src) {
++			ops->cursor_size = 0;
++			return -ENOMEM;
++		}
++	}
++
++	image = (struct fb_image *) (ops->cursor_src + dsize);
+ 	*image = cursor->image;
+ 	d_pitch = (s_pitch + scan_align) & ~scan_align;
+ 
+@@ -48,21 +57,23 @@ int soft_cursor(struct fb_info *info, st
+ 		switch (cursor->rop) {
+ 		case ROP_XOR:
+ 			for (i = 0; i < dsize; i++)
+-				src[i] = image->data[i] ^ cursor->mask[i];
++				ops->cursor_src[i] = image->data[i] ^
++					cursor->mask[i];
+ 			break;
+ 		case ROP_COPY:
+ 		default:
+ 			for (i = 0; i < dsize; i++)
+-				src[i] = image->data[i] & cursor->mask[i];
++				ops->cursor_src[i] = image->data[i] &
++					cursor->mask[i];
+ 			break;
+ 		}
+ 	} else
+-		memcpy(src, image->data, dsize);
++		memcpy(ops->cursor_src, image->data, dsize);
+ 
+-	fb_pad_aligned_buffer(dst, d_pitch, src, s_pitch, image->height);
++	fb_pad_aligned_buffer(dst, d_pitch, ops->cursor_src, s_pitch,
++			      image->height);
+ 	image->data = dst;
+ 	info->fbops->fb_imageblit(info, image);
+-	kfree(src);
+ 	return 0;
+ }
+ 
 
 

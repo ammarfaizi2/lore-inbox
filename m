@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWHBVqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWHBVqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWHBVqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWHBVqQ
+	id S932238AbWHBVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWHBVqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:46:16 -0400
-Received: from 1wt.eu ([62.212.114.60]:12813 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932239AbWHBVqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:46:14 -0400
-Date: Wed, 2 Aug 2006 23:46:08 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: mtosatti@redhat.com
-Cc: linux-kernel@vger.kernel.org, Grant Coady <gcoady.lk@gmail.com>
-Subject: [PATCH] 2.4.33-rc3 needs to export memchr() for smbfs
-Message-ID: <20060802214608.GA1987@1wt.eu>
+	Wed, 2 Aug 2006 17:46:04 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56291 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932238AbWHBVqC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 17:46:02 -0400
+Subject: Re: [PATCH] PCMCIA: Add few IDs into ide-cs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <200608022310.03388.openembedded@hrw.one.pl>
+References: <200608022310.03388.openembedded@hrw.one.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 02 Aug 2006 23:04:56 +0100
+Message-Id: <1154556296.23655.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Ar Mer, 2006-08-02 am 23:10 +0200, ysgrifennodd Marcin Juszkiewicz:
+> From: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+> 
+> Few cards informations submitted by OpenZaurus users.
+> 
+> Seagate 8GB microdrive:
+>  product info: "SEAGATE", "ST1"
+>  manfid 0x0111, 0x0000
+> 
+> One CF card:
+>  product info: "SAMSUNG", "04/05/06", "", ""
+>  manfid : 0x0000, 0x0000
+> 
+> Ridata 8GB Pro 150X Compact Flash Card:
+>  product info: "SMI VENDOR", "SMI PRODUCT", ""
+>  manfid: 0x000a, 0x0000
+> 
+>  product info: "M-Systems", "CF500", ""
+>  manfid: 0x000a, 0x0000
+> 
+> Signed-off-by: Marcin Juszkiewicz <openembedded@hrw.one.pl>
 
-just finished building 2.4.33-rc3 on my dual-CPU Sun U60 (works
-fine BTW). I noticed that smbfs built as a module needs memchr()
-since a recent fix, so this one now needs to be exported, which
-this patch does.  Sources show that the lp driver would need it
-too is console on LP is enabled and LP is set as a module (which
-seems stupid to me anyway). I've pushed it into -upstream if you
-prefer to pull from it.
+Acked-by: Alan Cox <alan@redhat.com>
 
-Overall, 2.4.33-rc3 seems to be OK to me. I don't think that
-an additionnal -rc4 would be needed just for this export (Grant
-CCed in case he's wishing to do a few more builds, you know
-him...  :-) ).
+(and I'll merge them into the libata pata_pcmcia driver too)
 
-Regards,
-Willy
-
-
->From e3523609bec99d5c607fc00b4f68386d3390fb82 Mon Sep 17 00:00:00 2001
-From: Willy Tarreau <w@1wt.eu>
-Date: Wed, 2 Aug 2006 23:30:22 +0200
-Subject: [PATCH] export memchr() which is used by smbfs and lp driver.
-
-Recently, an smbfs fix added a dependency on memchr() which is
-not exported if smbfs is built as a module.
-
-Signed-Off-By: Willy Tarreau <w@1wt.eu>
----
- kernel/ksyms.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/kernel/ksyms.c b/kernel/ksyms.c
-index d1e66c7..73ad3e9 100644
---- a/kernel/ksyms.c
-+++ b/kernel/ksyms.c
-@@ -579,6 +579,7 @@ EXPORT_SYMBOL(get_write_access);
- EXPORT_SYMBOL(strnicmp);
- EXPORT_SYMBOL(strspn);
- EXPORT_SYMBOL(strsep);
-+EXPORT_SYMBOL(memchr);
- 
- #ifdef CONFIG_CRC32
- EXPORT_SYMBOL(crc32_le);
--- 
-1.4.1
 

@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWHBHqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWHBHqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWHBHqg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWHBHqe
+	id S1751360AbWHBHqd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWHBHqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:46:34 -0400
-Received: from bld-mail01.adl2.internode.on.net ([203.16.214.65]:63632 "EHLO
-	mail.internode.on.net") by vger.kernel.org with ESMTP
-	id S1751358AbWHBHqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 2 Aug 2006 03:46:32 -0400
-From: Marek Wawrzyczny <marekw1977@yahoo.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Generic battery interface
-Date: Wed, 2 Aug 2006 17:46:13 +1000
-User-Agent: KMail/1.9.3
-Cc: Jean Delvare <khali@linux-fr.org>, Pavel Machek <pavel@suse.cz>,
-       Shem Multinymous <multinymous@gmail.com>,
-       Vojtech Pavlik <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@debian.org>,
-       Mark Underwood <basicmark@yahoo.com>, Greg KH <greg@kroah.com>
-References: <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060731230145.GF3612@elf.ucw.cz> <20060802091841.8585a72a.khali@linux-fr.org>
-In-Reply-To: <20060802091841.8585a72a.khali@linux-fr.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:42885 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751357AbWHBHq3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:46:29 -0400
+Date: Wed, 2 Aug 2006 11:46:07 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>
+Cc: zach.brown@oracle.com, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org
+Subject: Re: [take2 1/4] kevent: core files.
+Message-ID: <20060802074606.GA15289@2ka.mipt.ru>
+References: <11544248451203@2ka.mipt.ru> <44CFEA4B.3060200@oracle.com> <20060802063918.GB6378@2ka.mipt.ru> <20060802.002505.34764840.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200608021746.13612.marekw1977@yahoo.com.au>
+In-Reply-To: <20060802.002505.34764840.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 02 Aug 2006 11:46:13 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 August 2006 17:18, Jean Delvare wrote:
-> Hi Pavel,
->
-> > > frequently it can read from the chip. And no hardware monitoring chip I
-> > > know of can tell when the monitored value has changed - you have to
-> > > read the chip registers to know.
-> >
-> > ACPI battery can tell when values change in significant way. (Like
-> > battery becoming critical).
->
-> Ah, good to know. But is there a practical use for this? I'd suspect
-> that the user wants to know the battery charge% all the time anyway,
-> critical or not.
+On Wed, Aug 02, 2006 at 12:25:05AM -0700, David Miller (davem@davemloft.net) wrote:
+> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> Date: Wed, 2 Aug 2006 10:39:18 +0400
+> 
+> > u64 is not aligned, so I prefer to use u32 as much as possible.
+> 
+> We have aligned_u64 exactly for this purpose, netfilter makes
+> use of it to avoid the x86_64 vs. x86 u64 alignment discrepency.
 
-Yes, the user may want to know the battery state all the time, but will not 
-notice the difference between the system reporting battery changes every 100 
-microseconds or every 10 seconds, unless the hardware eats its battery 
-sources for breakfast? 
+Ok, I will use that type.
 
-The system cares though, very much so in fact:
-
-If the battery becomes critical the system should either shut down or suspend 
-to disk (if this is supported). 
-This obviously would be triggered by some sort of daemon (powersaved comes to 
-mind).
-Ideally the suspend to disk or shutdown event triggers another event that 
-allows any desktop to save it's state or possibly unmount shares that could 
-otherwise be corrupted.
-
-This scenario is quite different to an application reading the battery level.
-
-
-Marek Wawrzyczny
+-- 
+	Evgeniy Polyakov

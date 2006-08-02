@@ -1,54 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWHBFp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWHBFtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWHBFp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 01:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWHBFp0
+	id S1750987AbWHBFtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 01:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWHBFtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 01:45:26 -0400
-Received: from ns2.suse.de ([195.135.220.15]:6808 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751256AbWHBFpZ (ORCPT
+	Wed, 2 Aug 2006 01:49:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39318 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750987AbWHBFtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 01:45:25 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
-Date: Wed, 2 Aug 2006 07:44:40 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <200608020510.07569.ak@suse.de> <m1odv3vhaz.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1odv3vhaz.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 2 Aug 2006 01:49:08 -0400
+Date: Tue, 1 Aug 2006 22:48:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: clear vm_reclaimable when we free pages.
+Message-Id: <20060801224857.2459184e.akpm@osdl.org>
+In-Reply-To: <20060801175716.GB22240@redhat.com>
+References: <20060801175716.GB22240@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608020744.40888.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> The function pointers in the console structure are also a problem.
-> static struct console simnow_console = {
-> 	.name =		"simnow",
-> 	.write =	simnow_write,
-> 	.flags =	CON_PRINTBUFFER,
-> 	.index =	-1,
-> };
+On Tue, 1 Aug 2006 13:57:16 -0400
+Dave Jones <davej@redhat.com> wrote:
 
-Yes just patch them at runtime.
+> There are two places where we reclaim free pages, but we never
+> update the all_unreclaimable flag for the relevant zone.
+> This patch helped reduce the frequency of oom-kills under high load
+> for us a while back, and we've been carrying it since.
+> I posted this a few months back and from what I recall it didn't
+> get a great deal of interest.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6/mm/filemap.c~	2005-12-10 01:47:15.000000000 -0500
+> +++ linux-2.6/mm/filemap.c	2005-12-10 01:47:46.000000000 -0500
+> @@ -471,11 +471,18 @@ EXPORT_SYMBOL(unlock_page);
+>   */
+>  void end_page_writeback(struct page *page)
+>  {
+> +	struct zone *zone = page_zone(page);
+>  	if (!TestClearPageReclaim(page) || rotate_reclaimable_page(page)) {
+>  		if (!test_clear_page_writeback(page))
+>  			BUG();
+>  	}
+>  	smp_mb__after_clear_bit();
+> +	if (zone->all_unreclaimable) {
+> +		spin_lock(&zone->lock);
+> +		zone->all_unreclaimable = 0;
+> +		zone->pages_scanned = 0;
+> +		spin_unlock(&zone->lock);
+> +	}
+>  	wake_up_page(page, PG_writeback);
+>  }
 
+We're not actually freeing the page here though.  We _might_ be making it
+reclaimable, but we don't know that.  If page reclaim later _does_ reclaim
+the page, then ->all_unreclaimable will get cleared then.  A little later,
+but if that's enough to make a difference, I suspect we're already rather
+doomed.
 
-> Ideally the code would be setup so you can compile out consoles
-> the user finds uninteresting.
+Also, if rotate_reclaimable_page() returned non-zero we know this page
+isn't immediately reclaimable, so the patch shouldn't be clearing
+->all_unreclaimable in that case.
 
-Seems overkill for early_printk
- 
-> It is annoying to have to call strlen on all of the strings
-> you want to print..
+And zone->lock is supposed to be irq-safe.  Yes, we're in an interrupt, but
+many different interrupt sources will vector into this code - if we take an
+interrupt from /dev/sda while serving a /dev/hda interrupt we'll deadlock
+here.  File a bug against lockdep ;)
 
-What strlen? 
+>  EXPORT_SYMBOL(end_page_writeback);
+> --- linux-2.6/mm/page_alloc.c~	2006-01-09 13:40:03.000000000 -0500
+> +++ linux-2.6/mm/page_alloc.c	2006-01-09 13:40:50.000000000 -0500
+> @@ -722,6 +722,11 @@ static void fastcall free_hot_cold_page(
+>  	if (pcp->count >= pcp->high) {
+>  		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
+>  		pcp->count -= pcp->batch;
+> +	} else if (zone->all_unreclaimable) {
+> +		spin_lock(&zone->lock);
+> +		zone->all_unreclaimable = 0;
+> +		zone->pages_scanned = 0;
+> +		spin_unlock(&zone->lock);
+>  	}
+>  	local_irq_restore(flags);
+>  	put_cpu();
 
--Andi
+free_pages_bulk() will clear ->all_unreclaimable.  If this really makes a
+difference then we're already skating along the raggedy edge.
+
+There is a string of oom-killer patches in -mm from Nick.  I suspect we'll
+be in much better shape after those are merged.

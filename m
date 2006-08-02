@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWHBHYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWHBH0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWHBHYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWHBHYe
+	id S1751321AbWHBH0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWHBH0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:24:34 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:667 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1751333AbWHBHYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:24:33 -0400
-Message-Id: <200608020724.k727OHiJ009496@zeus2.kernel.org>
-From: "Jerrold Tovar" <268barnabe@zipolite.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: perspective business
-Date: Wed, 2 Aug 2006 15:23:52 +0800
+	Wed, 2 Aug 2006 03:26:19 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31394 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751321AbWHBH0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:26:17 -0400
+Message-ID: <44D0538A.3090600@sgi.com>
+Date: Wed, 02 Aug 2006 09:26:02 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: GIT3fYYgwEMYKVyakM4C5nuXrEfiOEiUApKo
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 8bit
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Jay Lan <jlan@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Balbir Singh <balbir@in.ibm.com>,
+       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
+Subject: Re: [patch 3/3] convert CONFIG tag for a few accounting data used
+ by CSA
+References: <44CE58AF.7030200@sgi.com> <44CE6AE7.8020304@watson.ibm.com>
+In-Reply-To: <44CE6AE7.8020304@watson.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linux-kernel!!
-Important international company looks for employees to cover jobs of half time in AU.     
+Shailabh Nagar wrote:
+> Jay Lan wrote:
+>> There were a few accounting data/macros that are used in CSA
+>> but are #ifdef'ed inside CONFIG_BSD_PROCESS_ACCT. This patch is
+>> to change those ifdef's from CONFIG_BSD_PROCESS_ACCT to
+>> CONFIG_CSA_ACCT. A few defines are moved from kernel/acct.c and
+>> include/linux/acct.h to kernel/csa.c and include/linux/csa_kern.h.
+>>
+>>
+>> Signed-off-by:  Jay Lan <jlan@sgi.com>
 
-The search aims at responsible, dynamic and honest people, Ages between 18 and 50 years old, with desires to work in equipment and relation of dependency. That time was signed contract by a month of test, so if your performance is correct and effective in our company we will provide new contract and also possibility of other career in our company. 
-The vacancies are for covering jobs of  part time 1 to 4 hours  a day.    
+[snip]
 
+>> +#ifdef CONFIG_CSA_ACCT
+>> +extern void acct_update_integrals(struct task_struct *tsk);
+>> +extern void acct_clear_integrals(struct task_struct *tsk);
+>> +#else
+>> +#define acct_update_integrals(x)	do { } while (0)
+>> +#define acct_clear_integrals(task)	do { } while (0)
+>> +#endif
+>> +
+> 
+> static inlines preferred
 
+Huh? Is that a preference to the taskstat project? For the kernel
+itself it makes no difference.
 
-
-The offered weekly wage is between ˆ 300-1200.     
-
-Requirements   
-Handling of PC, Knowledge of Microsoft office, Internet Explorer, msn or icq.  (No excluding).     
-
-
-If you wish to enter the process of selection write to our RRHH area. 
-mail to:
-support@mitroncorporation.com
-  
-The answers you would be accepted until day 10 of August of the 2006.
-
-
-
-
-
-
-  
-Wed, 2 Aug 2006 15:23:52 +0800
-
-
-
+Cheers,
+Jes

@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWHBOli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWHBOnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWHBOli (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 10:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWHBOli
+	id S1750968AbWHBOnP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 10:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWHBOnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 10:41:38 -0400
-Received: from mx1.dg.gov.cn ([61.145.199.108]:26120 "HELO dg.gov.cn")
-	by vger.kernel.org with SMTP id S1750882AbWHBOli (ORCPT
+	Wed, 2 Aug 2006 10:43:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29360 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750960AbWHBOnP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 10:41:38 -0400
-Date: Wed, 2 Aug 2006 22:42:59 +0800
-From: Kenneth Lee <kenlee@dg.gov.cn>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] kernel: bug fixing for kernel/kmod.c
-Message-ID: <20060802144259.GA5827@kenny>
-References: <20060802143046.GA5645@kenny>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060802143046.GA5645@kenny>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 2 Aug 2006 10:43:15 -0400
+Date: Wed, 2 Aug 2006 07:43:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Blunck <jblunck@suse.de>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: [PATCH] fix vmstat per cpu usage
+Message-Id: <20060802074308.babd264e.akpm@osdl.org>
+In-Reply-To: <20060802133006.GP4995@hasse.suse.de>
+References: <20060801173620.GM4995@hasse.suse.de>
+	<20060801140707.a55a0513.akpm@osdl.org>
+	<20060802133006.GP4995@hasse.suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Rusty Russell's mail server reject my mail. Anybody can tell me
-where I should deliver the patch?
+On Wed, 2 Aug 2006 15:30:06 +0200
+Jan Blunck <jblunck@suse.de> wrote:
 
-On Wed, Aug 02, 2006 at 10:30:46PM +0800, Kenneth Lee wrote:
-> Subject: [Patch] kernel: bug fixing for kernel/kmod.c
+> Here comes another idea. To find further wrong usage of percpu variables I
+> wrote the following patch. It still needs some work for the other archs but
+> I'm interested in your feedback about that.
 > 
-> I think there is a bug in kmod.c: In __call_usermodehelper(), when 
-> kernel_thread(wait_for_helper, ...) return success, since
-> wait_for_helper() might call complete() at any time, the sub_info should
-> not be used any more.
+> ...
 > 
-> Normally wait_for_helper() take a long time to finish, you may not get 
-> problem for most of the case. But if you remove /sbin/modprobe, it may
-> become easier for you to get a oop in khelper.
-> 
-> the following patch is made in 2.6.17.7
-> 
-> --- linux-2.6.17.7/kernel/kmod.c.orig   2006-08-02 22:13:21.805902750
-> +0800
-> +++ linux-2.6.17.7/kernel/kmod.c        2006-08-02 22:15:36.946348500
-> +0800
-> @@ -198,6 +198,7 @@ static void __call_usermodehelper(void *
->  {
->         struct subprocess_info *sub_info = data;
->         pid_t pid;
-> +       int wait = sub_info->wait;
-> 
->         /* CLONE_VFORK: wait until the usermode helper has execve'd
->          * successfully We need the data structures to stay around
-> @@ -212,7 +213,7 @@ static void __call_usermodehelper(void *
->         if (pid < 0) {
->                 sub_info->retval = pid;
->                 complete(sub_info->complete);
-> -       } else if (!sub_info->wait)
-> +       } else if (!wait)
->                 complete(sub_info->complete);
->  }
-> 
-> -- 
+> Index: linux-2.6/include/asm-generic/percpu.h
+> ===================================================================
+> --- linux-2.6.orig/include/asm-generic/percpu.h
+> +++ linux-2.6/include/asm-generic/percpu.h
+> @@ -14,7 +14,9 @@ extern unsigned long __per_cpu_offset[NR
+>      __attribute__((__section__(".data.percpu"))) __typeof__(type) per_cpu__##name
+>  
+>  /* var is in discarded region: offset to particular copy we want */
+> -#define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
+> +#define per_cpu(var, cpu) (*({				\
+> +	int user_error_##var __attribute__ ((unused));	\
+> +	RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]); }))
 
--- 
+What's it do?  Forces a syntax error if `var' isn't a simple identifier?
+
+Seems sane, although I'd check that the compiler doesn't accidentally
+waste a stack slot for that local.  Perhaps it's be safer to make
+it a non-existing function:
+
+	extern int user_error#var(void);
+

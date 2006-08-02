@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWHBEeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWHBEfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWHBEeq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 00:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWHBEeq
+	id S1751158AbWHBEfE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWHBEfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 00:34:46 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:5445 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751148AbWHBEep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 00:34:45 -0400
-Date: Tue, 1 Aug 2006 21:34:27 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
-       hch@infradead.org
-Subject: Re: [PATCH 04/28] OCFS2 is screwy
-Message-ID: <20060802043427.GH29686@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235243.EA4890B4@localhost.localdomain> <20060802021411.GG29686@ca-server1.us.oracle.com> <1154488906.7232.20.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154488906.7232.20.camel@localhost.localdomain>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 2 Aug 2006 00:35:01 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:28626 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751153AbWHBEe7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 00:34:59 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: john stultz <johnstul@us.ibm.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Airlie <airlied@gmail.com>, Neil Horman <nhorman@tuxdriver.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <44D0296F.70707@zytor.com>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
+	 <20060725182833.GE4608@hmsreliant.homelinux.net>
+	 <44C66C91.8090700@zytor.com>
+	 <20060725192138.GI4608@hmsreliant.homelinux.net>
+	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
+	 <20060725194733.GJ4608@hmsreliant.homelinux.net>
+	 <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com>
+	 <1154490859.17171.12.camel@cog.beaverton.ibm.com>
+	 <44D0296F.70707@zytor.com>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 21:34:52 -0700
+Message-Id: <1154493292.17171.15.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+On Tue, 2006-08-01 at 21:26 -0700, H. Peter Anvin wrote:
+> john stultz wrote:
+> > 
+> > Only lightly tested, so beware, and I've only added support so far for
+> > the TSC (so don't be surprised if you don't see a performance
+> > improvement if you using a different clocksource).
+> > 
+> 
+> We should be able to use HPET in userspace, too.
 
-On Tue, Aug 01, 2006 at 08:21:46PM -0700, Dave Hansen wrote:
-> Please ignore that last one.  It didn't correctly handle directories'
-> with a remaining i_nlink of 2.
-Thanks for following up with this patch - it looks pretty good. One comment
-below.
+Oh yes, HPET and Cyclone as well. It just requires mapping their mmio
+page as user readable. I just haven't gotten to it yet. :)
 
+-john
 
-> @@ -888,7 +890,9 @@
->  	/* We can set nlink on the dinode now. clear the saved version
->  	 * so that it doesn't get set later. */
->  	fe->i_links_count = cpu_to_le16(inode->i_nlink);
-> -	saved_nlink = 0;
-> +	inode_drop_nlink(inode);
-> +	if (S_ISDIR(inode->i_mode))
-> +		inode_drop_nlink(inode);
-The set of 'i_links_count' on 'fe' should be below the inode_drop_nlink()
-calls - otherwise we'll be setting the old nlink value on the disk inode :)
-
-While you're there you can just remove that comment - it's no longer
-accurate :)
-
-Thanks again,
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com

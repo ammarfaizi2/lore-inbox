@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWHBE2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWHBEbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWHBE2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 00:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWHBE2Z
+	id S1751145AbWHBEbY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWHBEbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 00:28:25 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:38633 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751140AbWHBE2Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 00:28:25 -0400
-Message-ID: <44D0296F.70707@zytor.com>
-Date: Tue, 01 Aug 2006 21:26:23 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 2 Aug 2006 00:31:24 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:1525 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751145AbWHBEbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 00:31:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FAn4JFe5QZ2C9QMqV83+PDbXksUEDI9CN6pyX/EfJMa73jjvaLhO6v4V64S1xOZk1J+anewZ9e167mh5ZCLGC0ZQt1IVwqIDcQqCIjv8LCIwyziZPSeAxCRbvNTwmINGD4ehRHUHO/lB13UlZpKurZ+QByXuZPiiYR5So/aV2sk=
+Message-ID: <4807377b0608012131mf160bc3iff724910191b521@mail.gmail.com>
+Date: Tue, 1 Aug 2006 21:31:22 -0700
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Subject: Re: Linux v2.6.18-rc3
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Kernel development list" <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, cpufreq@www.linux.org.uk
+In-Reply-To: <Pine.LNX.4.44L0.0607311627240.5805-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Dave Airlie <airlied@gmail.com>, Neil Horman <nhorman@tuxdriver.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>	 <20060725182833.GE4608@hmsreliant.homelinux.net>	 <44C66C91.8090700@zytor.com>	 <20060725192138.GI4608@hmsreliant.homelinux.net>	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>	 <20060725194733.GJ4608@hmsreliant.homelinux.net>	 <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <1154490859.17171.12.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1154490859.17171.12.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060731081112.05427677.akpm@osdl.org>
+	 <Pine.LNX.4.44L0.0607311627240.5805-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> 
-> Only lightly tested, so beware, and I've only added support so far for
-> the TSC (so don't be surprised if you don't see a performance
-> improvement if you using a different clocksource).
-> 
+On 7/31/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Mon, 31 Jul 2006, Andrew Morton wrote:
+>
+> > core_initcall() would suit.  That's actually a bit late for this sort of
+> > thing, but we can always add a new section later if it becomes a problem.
+> > I'd suggest that we ensure that srcu_notifier_chain_register() performs a
+> > reliable BUG() if it gets called too early.
+>
+> Here's a patch to test.  I can't try it out on my machine because
+> 2.6.18-rc2-mm1 (even without the patch) crashes partway through a
+> suspend-to-disk, in a way that's extremely hard to debug.  Some sort of
+> spinlock-related bug occurs within ioapic_write_entry.
 
-We should be able to use HPET in userspace, too.
+can't test because I also can't suspend or hibernate with rc2-mm1
+(resume causes hard hang with the backlight and screen off)  The issue
+i reported was against linus' 2.6.18-rc3 kernel.
 
-	-hpa
+patch didn't apply to 2.6.18-rc3.
+
+Thanks,
+  Jesse

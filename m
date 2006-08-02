@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWHBJYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWHBJ3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWHBJYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 05:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWHBJYf
+	id S1751207AbWHBJ3M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 05:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWHBJ3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 05:24:35 -0400
-Received: from cantor.suse.de ([195.135.220.2]:36771 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751201AbWHBJYf (ORCPT
+	Wed, 2 Aug 2006 05:29:12 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:36041 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751207AbWHBJ3L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 05:24:35 -0400
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] Replace i386 open-coded cmdline parsing with early_param/parse_early_param
-Date: Wed, 2 Aug 2006 11:24:22 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Christoph Lameter <clameter@sgi.com>
-References: <0adfc39039c79e4f4121.1154462446@ezr> <200608020724.23583.ak@suse.de> <1154509680.10326.5.camel@localhost.localdomain>
-In-Reply-To: <1154509680.10326.5.camel@localhost.localdomain>
+	Wed, 2 Aug 2006 05:29:11 -0400
+Date: Wed, 2 Aug 2006 11:28:51 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Sven Anders <s.anders@digitec.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What happens if the klogd dies
+In-Reply-To: <200608020915.25369.s.anders@digitec.de>
+Message-ID: <Pine.LNX.4.61.0608021125150.24592@yvahk01.tjqt.qr>
+References: <200608020915.25369.s.anders@digitec.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608021124.22125.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 August 2006 11:08, Rusty Russell wrote:
-> This patch replaces the open-coded early commandline parsing
-> throughout the i386 boot code with the generic mechanism (already used
-> by ppc, powerpc, ia64 and s390).  The code was inconsistent with
-> whether it deletes the option from the cmdline or not, meaning some of
-> these will get passed through the environment into init.
+>Hi,
+>I wander what happens it the klog-daemon do not work.
 
-Both merged now thanks.
+Nothing. Messages just do not get logged.
 
--Andi
+>Is it posible that, after a amount of time the kernel crash, bescause of that?
+
+Unlikely, because it would require a kernel crash in a place that would 
+very likely bring the whole system down (procfs, sockfs).
+
+

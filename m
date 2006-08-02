@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWHBFZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWHBF2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWHBFZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 01:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWHBFZQ
+	id S1751248AbWHBF2y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 01:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWHBF2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 01:25:16 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:21398 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751198AbWHBFZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 01:25:14 -0400
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Xen-devel] Re: [PATCH 8 of 13] Add a bootparameter to reserve high linear address space for hypervisors
-Date: Wed, 2 Aug 2006 07:24:23 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>,
-       virtualization@lists.osdl.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Christoph Lameter <clameter@sgi.com>
-References: <0adfc39039c79e4f4121.1154462446@ezr> <200608020636.58133.ak@suse.de> <1154496058.2570.57.camel@localhost.localdomain>
-In-Reply-To: <1154496058.2570.57.camel@localhost.localdomain>
+	Wed, 2 Aug 2006 01:28:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5345 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751248AbWHBF2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 01:28:53 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<p73zmeoz2l4.fsf@verdi.suse.de>
+	<m1ejvzx2dw.fsf@ebiederm.dsl.xmission.com>
+	<200608020510.07569.ak@suse.de>
+Date: Tue, 01 Aug 2006 23:27:00 -0600
+In-Reply-To: <200608020510.07569.ak@suse.de> (Andi Kleen's message of "Wed, 2
+	Aug 2006 05:10:07 +0200")
+Message-ID: <m1odv3vhaz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608020724.23583.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 August 2006 07:20, Rusty Russell wrote:
-> On Wed, 2006-08-02 at 06:36 +0200, Andi Kleen wrote:
-> > Please just make a proper patch - either add a call to it to all setup_archs,
-> > or add a call to before setup_arch in init/main.c. While such ifdefs
-> > for specific architecture hacks are more popular lately it doesn't mean they are a good idea.
-> 
-> It's been around for two years, but if you fix x86_64 to use
-> early_param(), and I'll patch the other setup_archs to call
-> parse_early_param and remove the init/main.c call 8)
+Andi Kleen <ak@suse.de> writes:
 
-Ok. I will do x86-64.
+>> > /* WARNING!!
+>> >  * This code is compiled with -fPIC and it is relocated dynamically
+>> >  * at run time, but no relocation processing is performed.
+>> >  * This means that it is not safe to place pointers in static structures.
+>> >  */
+>
+> iirc the only static relocation in early_printk is the one to initialize
+> the console pointers - that could certainly be moved to be at run
+> time.
 
-I can also merge the i386 patch (which is really independent from
-the paravirt patchkit) 
+The function pointers in the console structure are also a problem.
+static struct console simnow_console = {
+	.name =		"simnow",
+	.write =	simnow_write,
+	.flags =	CON_PRINTBUFFER,
+	.index =	-1,
+};
 
--Andi
+>> lib/string.c might be useful.  The fact that the functions are not
+>> static slightly concerns me.  I have a vague memory of non-static
+>> functions generating relocations for no good reason.
+>
+> Would surprise me.
+
+The context where it bit me was memtest86, if I recall correctly.
+The problem there was I did process relocations and I discovered simply
+by making functions static or at least non-exported I had many fewer
+relocations to process.
+
+Since I am relying on a very clever trick to generate code that
+doesn't have relocations at run time I have to be careful.
+
+So if I want to continue not processing relocations.
+I need to be careful not to use constructs that will generate
+a procedure linkage table, which I think only kicks in with
+external functions and multiple files. 
+
+I need to be careful not to put pointers in statically allocated
+data structures.
+
+Ideally the code would be setup so you can compile out consoles
+the user finds uninteresting.
+
+It is annoying to have to call strlen on all of the strings
+you want to print..
+
+So there are plenty of mismatches, there.
+But we may be able to harmonized them, and reuse early_printk.
+
+Eric
+

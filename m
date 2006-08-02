@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWHBBKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWHBBNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWHBBKW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 21:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWHBBKV
+	id S1750930AbWHBBNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 21:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWHBBNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 21:10:21 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:63406 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750924AbWHBBKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 21:10:20 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=ytXtoOAgH5l9DBCtpp8Vr7y3e5bzjKZz6UG1jRFFU8EfJdNKsDJ0koVNNm9Ns7rSs
-	yxCU9cLH28ow4naWQxxsA==
-Message-ID: <e561bacc0608011810r1313a361h28263b2fa0bf876e@mail.google.com>
-Date: Tue, 1 Aug 2006 21:10:08 -0400
-From: "Alex Polvi" <polvi@google.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] sunrpc/auth_gss: NULL pointer deref in gss_pipe_release()
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1154378242.13744.14.camel@localhost>
+	Tue, 1 Aug 2006 21:13:09 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:37813 "EHLO
+	asav14.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1750930AbWHBBNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 21:13:08 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KADqZz0SBUg
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: get_device in device_create_file
+Date: Tue, 1 Aug 2006 21:13:05 -0400
+User-Agent: KMail/1.9.3
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+References: <20060801132509.27269013.zaitcev@redhat.com>
+In-Reply-To: <20060801132509.27269013.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
-	 <1154378242.13744.14.camel@localhost>
+Message-Id: <200608012113.06191.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/31/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Mon, 2006-07-31 at 10:50 -0400, Alex Polvi wrote:
-> > Proposed (trivial) patch to fix a NULL pointer deref in
-> > gss_pipe_release(). While this does seem to fix the problem, I'm not
-> > entirely sure it is the correct place to handle the NULL pointer.
-> >
-> > Included below is the script I used to recreate the problem, the oops,
-> > and the patch.
+On Tuesday 01 August 2006 16:25, Pete Zaitcev wrote:
+> Hi, Greg:
+> 
+> This code makes no sense to me:
+> 
+> > int device_create_file(struct device * dev, struct device_attribute * attr)
+> > {
+> > 	int error = 0;
+> > 	if (get_device(dev)) {
+> > 		error = sysfs_create_file(&dev->kobj, &attr->attr);
+> > 		put_device(dev);
+> > 	}
+> > 	return error;
+> > }
+> 
+> If the struct device *dev, and its presumably enclosing structure,
+> can be freed by a different CPU (or pre-empt), then get_device
+> does not protect it. It can be freed before get_device is reached.
+
+*nod*
+
+> Buf it not, and the caller has a reference, then the call to
+> get_device is redundant.
 >
-> Sorry, but that is not the correct fix. The problem here is rather that
-> something is causing us to call rpc_close_pipes() on the file after the
-> call to gss_destroy(). That is supposed to be illegal.
 
-Would you be willing to explain what should happen? I.e. what is the
-lifecycle of an RPC inode?
+Yes it is. There are few of redundant gets and puts sprinkled around
+in the driver core, but the last time I mentioned that Greg was not
+quite ready to get rid of them ;)
+ 
 
-Thanks,
-
--Alex
+-- 
+Dmitry

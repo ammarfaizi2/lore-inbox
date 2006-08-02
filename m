@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWHBVJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWHBVKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWHBVJy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWHBVJy
+	id S932182AbWHBVKz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWHBVKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:09:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932127AbWHBVJx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:09:53 -0400
-Date: Wed, 2 Aug 2006 14:09:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: balbir@in.ibm.com
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, Jay Lan <jlan@sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
-Subject: Re: [patch 1/3] add basic accounting fields to taskstats
-Message-Id: <20060802140945.de650d95.akpm@osdl.org>
-In-Reply-To: <44D0DE13.7090205@in.ibm.com>
-References: <44CE57EF.2090409@sgi.com>
-	<44CF6433.50108@in.ibm.com>
-	<44CFCCE4.7060702@sgi.com>
-	<44D0C56C.3030505@watson.ibm.com>
-	<44D0DE13.7090205@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 2 Aug 2006 17:10:55 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:35514
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932161AbWHBVKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 17:10:54 -0400
+Date: Wed, 02 Aug 2006 14:11:03 -0700 (PDT)
+Message-Id: <20060802.141103.35507776.davem@davemloft.net>
+To: cxzhang@watson.ibm.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jmorris@namei.org,
+       sds@tycho.nsa.org, catalin.marinas@gmail.com,
+       michal.k.k.piotrowski@gmail.com, czhang.us@gmail.com
+Subject: Re: [Patch] kernel memory leak fix for af_unix datagram getpeersec
+ patch
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060802064752.GA21407@jiayuguan.watson.ibm.com>
+References: <20060802064752.GA21407@jiayuguan.watson.ibm.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Aug 2006 22:47:07 +0530
-Balbir Singh <balbir@in.ibm.com> wrote:
 
-> I am not sure if there is a version of BUG_ON() for compile time
-> asserts
+Catherine you really must begin to remember to add
+proper "Signed-off-by: " lines to your patch submissions.
 
-We have BUILD_BUG_ON()
+I'll sign off on this bug fix, but in the future I will not
+do so for you any more as you've been told at least 3 or 4
+times about this.
+
+Thank you.

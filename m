@@ -1,83 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWHBUT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWHBUVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWHBUT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 16:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWHBUT5
+	id S932218AbWHBUVT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 16:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWHBUVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 16:19:57 -0400
-Received: from xenotime.net ([66.160.160.81]:20142 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932208AbWHBUT4 (ORCPT
+	Wed, 2 Aug 2006 16:21:19 -0400
+Received: from mail.isohunt.com ([69.64.61.20]:18146 "EHLO mail.isohunt.com")
+	by vger.kernel.org with ESMTP id S932218AbWHBUVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 16:19:56 -0400
-Date: Wed, 2 Aug 2006 13:22:29 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: torvalds <torvalds@osdl.org>, akpm <akpm@osdl.org>
-Subject: ARCH_HAS / HAVE_ARCH
-Message-Id: <20060802132229.31bf78e2.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 2 Aug 2006 16:21:18 -0400
+X-Spam-Check-By: mail.isohunt.com
+Date: Wed, 2 Aug 2006 13:20:02 -0700
+From: "Robin H. Johnson" <robbat2@orbis-terrarum.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17.7 leading to doubling system CPU usage?
+Message-ID: <20060802202002.GH31144@curie-int.orbis-terrarum.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qoTlaiD+Y2fIM3Ll"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jul 2006 10:13:12 -0700 (PDT) Linus Torvalds wrote:
 
-> On Sun, 2 Jul 2006, Andrew Morton wrote:
-> > 
-> > The requirement "if you implement this then you must do so as a macro" is a
-> > bit regrettable.  The ARCH_HAS_HANDLE_DYNAMIC_TICK approach would eliminate
-> > that requirement.
-> 
-> Btw, this is WRONG.
-> 
-> The whole "ARCH_HAS_XYZZY" is nothing but crap. It's totally unreadable, 
+--qoTlaiD+Y2fIM3Ll
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I agree that ARCH_HAS_* (and HAVE_ARCH_*) are unreadable.  However, the
-#define xyzzy	xyzzy
+(Please CC on responses, I'm not subscribed to LKML).
 
-solution isn't much better IMO and it will be confuzing
-to people in a few years.
+Short problem summary:=20
+Between 2.6.17.4 and 2.6.17.7, SYS cpu usage doubled.
 
+In short, before the upgrade, our DB cpu usage breakdown was:
+		SYS	USER NICE IDLE IOWAIT IRQ SOFTIRQ
+BEFORE  28% 71%  0%   80%  15%    1%  5%=20
+AFTER   57% 93%  0%   41%  0%     1%  7%
+(See the graphs for more detail.  http://isohunt.com/img/stuff/munin-captur=
+e/db.isohunt.com-cpu.html)
 
-> compared to the _much_ simpler
-> 
-> 	#ifndef xyzzy
-> 	#define zyzzy() /* empty */
-> 	#endif
-> 
-> which is a hell of a lot more obvious to everybody involved, not to 
-> mention being a lot easier to "grep" for (try it - "grep xyzzy" ends up 
-> showing _exactly_ what is going on for cases like this, unlike the 
-> ARCH_HAS_XYZZY crap).
-> 
-> And no, it does not require implementing xyzzy as a macro AT ALL. 
-> 
-> You can very easily just do
-> 
-> 	/*
-> 	 * We have a very complex xyzzy, we don't even want to
-> 	 * inline it!
-> 	 */
-> 	extern void xyxxy(...);
-> 
-> 	/* Tell the rest of the world that we do it! */
-> 	#define xyzzy xyzzy
-> 
-> and you're now all set. No need for a new stupid name like ARCH_HAS_XYZZY, 
-> which adds _nothing_ but unnecessary complexity ("What was the condition 
-> for using that symbol again?" and ungreppability).
-> 
-> WE SHOULD GET RID OF ARCH_HAS_XYZZY. It's a disease.
+Notice the big jump in SYS. USER is up a little as well.
 
-I have about 10 patches ready, but I'm not terribly happy with them.
-Using Kconfig symbols for some of them seems more appropriate to me,
-i.e., moving the symbol definitions from "random" header files to
-Kconfig files.  After all, these are just hidden config settings.
+IOWAIT should be ignored as we did a RAM upgrade to try and alleviate
+some of the work on this box.
 
-Would that be acceptable?
+The userspace load on this box doesn't vary by more than 10% when
+examined at the same time each day.
 
----
-~Randy
+Here is a complete snapshot set of graphs for the machine in question:
+http://isohunt.com/img/stuff/munin-capture/db.isohunt.com.html
+
+Other misc answers before they get asked of me:
+- The motherboard used is the Tyan S2881.
+- There are two reboots in the graph timeline. The first on 29th was for
+  the upgrade to 2.6.17.7. The second reboot was on the 31st, was the
+  RAM being doubled.
+
+Kernel config:
+http://isohunt.com/img/stuff/munin-capture/kernel-config-2.6.17.7
+http://isohunt.com/img/stuff/munin-capture/kernel-config-2.6.17.4
+(oldconfig on .7 added CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG=3Dy).
+
+--=20
+Robin Hugh Johnson
+E-Mail     : robbat2@orbis-terrarum.net
+Home Page  : http://www.orbis-terrarum.net/?l=3Dpeople.robbat2
+ICQ#       : 30269588 or 41961639
+GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
+
+--qoTlaiD+Y2fIM3Ll
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Robbat2 @ Orbis-Terrarum Networks
+
+iD8DBQFE0QjyPpIsIjIzwiwRAop2AKCCIIHcBYOrjso+uRwyMQhbq5kqrgCg4liy
+j2lohAYcksBX1zaRWTWQf1g=
+=YN6M
+-----END PGP SIGNATURE-----
+
+--qoTlaiD+Y2fIM3Ll--

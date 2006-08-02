@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWHBWL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWHBWLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWHBWL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 18:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWHBWLZ
+	id S932266AbWHBWLO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 18:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWHBWLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 18:11:25 -0400
-Received: from mail.suse.de ([195.135.220.2]:35249 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932267AbWHBWLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 18:11:24 -0400
-From: Andi Kleen <ak@suse.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: WARN_ON causes recursive unwind panic
-Date: Thu, 3 Aug 2006 00:11:15 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060802145945.5d24e126@localhost.localdomain>
-In-Reply-To: <20060802145945.5d24e126@localhost.localdomain>
+	Wed, 2 Aug 2006 18:11:14 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:50101 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932266AbWHBWLN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 18:11:13 -0400
+Message-Id: <200608022211.k72MAwZq030604@zeus2.kernel.org>
+From: "Miss.Amina Idris" <a_2004@she.com>
+Reply-To: aminatari@gmail.com
+To: linux-kernel@vger.kernel.org
+Date: Thu, 3 Aug 2006 05:11:16 +0700
+Subject: INVESTMENT  NEGOTIATION
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608030011.15871.ak@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 August 2006 23:59, Stephen Hemminger wrote:
+Dear  Sir,
+   
+I am Amina Idris from the State of Kassala in the Eastern part of Sudan. I recently lost my husband who until his death was a serving officer with the SPLA here in Sudan. He died in the cause of performing his duties under the United Nations Mission in Sudan (UNMIS).
 
-> [ 4202.665764]  [<ffffffff8103440e>] run_timer_softirq+0x147/0x1d0
-> [ 4202.683541]  [<ffffffff81030bc0>] __do_softirq+0x67/0xf4
-> [ 4202.699506]  [<ffffffff8100ab66>] call_softirq+0x1e/0x28
+Before his death he was privileged to have served close the powers that be in my country and this exposed him to huge sums of money of which about $7.5 Million was left to my surviving son and I.
 
-That is already fixed and submitted, but L. hasn't merged the patch yet.
+I am contacting you because I need a big favor from you as regards receiving these funds on our behalf and help us invest it in a profitable venture. Due to my inexperience in matters of business, I am willing to give free rein of affairs to you in the day to day running of such a business venture.
 
-ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/entry-more-unwind
+Please if you are willing to assist me, don’t hesitate to reply and indicate your interest as soon as possible.
 
-Also please cc Jan Beulich <jbeulich@novell.com> with unwinder problems.
+Thanks and best regards.
 
--Andi
+
+Amina Idris
+
+

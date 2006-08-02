@@ -1,115 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWHBNSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWHBNaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWHBNSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 09:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWHBNSP
+	id S1751126AbWHBNaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 09:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWHBNaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 09:18:15 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:6074 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1751022AbWHBNSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 09:18:15 -0400
-From: Paul Cameron Davies <pauld@cse.unsw.EDU.AU>
-To: Chris Wright <chrisw@sous-sol.org>
-Date: Wed, 2 Aug 2006 23:17:58 +1000 (EST)
-X-X-Sender: pauld@weill.orchestra.cse.unsw.EDU.AU
-cc: Ian Wienand <ianw@gelato.unsw.edu.au>,
-       Christoph Lameter <clameter@sgi.com>,
-       Paul Davies <pauld@gelato.unsw.edu.au>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Gerd Hoffmann <kraxel@suse.de>, Hollis Blanchard <hollisb@us.ibm.com>,
-       Ian Pratt <ian.pratt@xensource.com>, Zachary Amsden <zach@vmware.com>,
-       npiggin@suse.de
-Subject: Re: [PATCH 1 of 13] Add apply_to_page_range() which applies a function
- to a pte range
-In-Reply-To: <20060802065424.GL2654@sequoia.sous-sol.org>
-Message-ID: <Pine.LNX.4.64.0608022314520.23202@weill.orchestra.cse.unsw.EDU.AU>
-References: <79a98a10911fc4e77dce.1154421372@ezr.goop.org>
- <m1ejw0zmic.fsf@ebiederm.dsl.xmission.com> <20060801211410.GH2654@sequoia.sous-sol.org>
- <Pine.LNX.4.64.0608011421080.19146@schroedinger.engr.sgi.com>
- <1154492211.2570.43.camel@localhost.localdomain>
- <Pine.LNX.4.64.0608012214440.21242@schroedinger.engr.sgi.com>
- <20060802064453.GA10986@cse.unsw.EDU.AU> <20060802065424.GL2654@sequoia.sous-sol.org>
+	Wed, 2 Aug 2006 09:30:09 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:22980 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751126AbWHBNaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 09:30:07 -0400
+Date: Wed, 2 Aug 2006 15:30:06 +0200
+From: Jan Blunck <jblunck@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] fix vmstat per cpu usage
+Message-ID: <20060802133006.GP4995@hasse.suse.de>
+References: <20060801173620.GM4995@hasse.suse.de> <20060801140707.a55a0513.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/mixed; boundary="Y5rl02BVI9TCfPar"
+Content-Disposition: inline
+In-Reply-To: <20060801140707.a55a0513.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006, Chris Wright wrote:
 
-> * Ian Wienand (ianw@gelato.unsw.edu.au) wrote:
->> On Tue, Aug 01, 2006 at 10:18:33PM -0700, Christoph Lameter wrote:
->>> I have not been involved in this issue for a long time now.
->>> You need to contact the people actively working on code like this.
->>> Most important is likely Ian Wienand.
->>
->> Paul Davies <pauld@gelato.unsw.edu.au> is the person actively working
->> on this project.  I might note he has not been doing it un-announced;
->> see
->>
->> http://marc.theaimsgroup.com/?l=linux-mm&m=115276500100695&w=2
->>
->> for the latest patches, or some of the other links Cristoph pointed
->> out.  I'm sure he'd love to talk to anyone about it :)
->
-> Well that looks closer to the iterator here than some of the eariler
-> links.  The apply_to_page_range is pretty trivial, will have to look at
-> Paul's patches to see if there's something we can use.  This is just for
-> Xen's use ATM, so we can always revert to keeping it Xen local if Paul's
-> changes are heading upstream, and use them once they're in.
->
-> thanks,
-> -chris
->
-Hi Chris
+--Y5rl02BVI9TCfPar
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I understand you are looking for a generic iterator to operate on a set
-of ptes within a given address range.
+Here comes another idea. To find further wrong usage of percpu variables I
+wrote the following patch. It still needs some work for the other archs but
+I'm interested in your feedback about that.
 
-Unfortunately just about every iteration in the kernel now varies slightly
-(usually at the pte directory level) in such a way that abstracting out
-each iteration into generic iterators becomes somewhat problematic.
+Jan
 
-I classify them into read, build and dual iterators.
+--Y5rl02BVI9TCfPar
+Content-Type: text/x-patch; charset=us-ascii
+Content-Disposition: attachment; filename="percpu_var-error.diff"
 
-READ iterators: read a page table within a range and operate on the ptes
-eg: unmap_page_range, change protection, msync ...
+---
+ include/asm-generic/percpu.h |    4 +++-
+ include/asm-s390/percpu.h    |    6 ++++--
+ include/linux/percpu.h       |    5 ++++-
+ 3 files changed, 11 insertions(+), 4 deletions(-)
 
-BUILD iterators: build a page table in a range while operating on the 
-ptes.
-eg: vmap_pte_range, remap_pfn_range, ...
+Index: linux-2.6/include/asm-generic/percpu.h
+===================================================================
+--- linux-2.6.orig/include/asm-generic/percpu.h
++++ linux-2.6/include/asm-generic/percpu.h
+@@ -14,7 +14,9 @@ extern unsigned long __per_cpu_offset[NR
+     __attribute__((__section__(".data.percpu"))) __typeof__(type) per_cpu__##name
+ 
+ /* var is in discarded region: offset to particular copy we want */
+-#define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
++#define per_cpu(var, cpu) (*({				\
++	int user_error_##var __attribute__ ((unused));	\
++	RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]); }))
+ #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+ #define __raw_get_cpu_var(var) per_cpu(var, raw_smp_processor_id())
+ 
+Index: linux-2.6/include/asm-s390/percpu.h
+===================================================================
+--- linux-2.6.orig/include/asm-s390/percpu.h
++++ linux-2.6/include/asm-s390/percpu.h
+@@ -16,7 +16,8 @@
+ #if defined(__s390x__) && defined(MODULE)
+ 
+ #define __reloc_hide(var,offset) \
+-  (*({ unsigned long *__ptr; \
++  (*({ int user_error_##var __attribute__ ((unused)); \
++       unsigned long *__ptr; \
+        asm ( "larl %0,per_cpu__"#var"@GOTENT" \
+              : "=a" (__ptr) : "X" (per_cpu__##var) ); \
+        (typeof(&per_cpu__##var))((*__ptr) + (offset)); }))
+@@ -24,7 +25,8 @@
+ #else
+ 
+ #define __reloc_hide(var, offset) \
+-  (*({ unsigned long __ptr; \
++  (*({ int user_error_##var __attribute__ ((unused)); \
++       unsigned long __ptr; \
+        asm ( "" : "=a" (__ptr) : "0" (&per_cpu__##var) ); \
+        (typeof(&per_cpu__##var)) (__ptr + (offset)); }))
+ 
+Index: linux-2.6/include/linux/percpu.h
+===================================================================
+--- linux-2.6.orig/include/linux/percpu.h
++++ linux-2.6/include/linux/percpu.h
+@@ -12,7 +12,10 @@
+ #endif
+ 
+ /* Must be an lvalue. */
+-#define get_cpu_var(var) (*({ preempt_disable(); &__get_cpu_var(var); }))
++#define get_cpu_var(var) (*({				\
++	int user_error_##var __attribute__ ((unused));	\
++	preempt_disable();				\
++	&__get_cpu_var(var); }))
+ #define put_cpu_var(var) preempt_enable()
+ 
+ #ifdef CONFIG_SMP
 
-DUAL iterators: read and build a page table within a range and operate on 
-the ptes.
-eg: copy_page_range (src and dst page tables different)
-eg: mremap iterator (src and dst page tables the same)
-
-A little over a year ago it was possible to abstract the iterators
-into these classes because they were relatively untailored.  During the
-last year a fair bit of customisation has occured on many iterators and
-some additional iterations added.  Some of these iterators are performance
-critical and their tailoring necessary.  The ones that are less important
-would need to be tidied up so that abstraction to generic iterators can 
-occur.
-
-Because of the continual divergence of the iterators I have removed the
-generic iterators where I would pass it a function across the interface
-because they became too unweildy.
-
-One possible solution is to have a set of critical and non critical 
-iterators. The non critical iterators would comprise a generic read and 
-build iterator.
-
-However at this stage the Linux community seems relatively content to
-access the page table data structure in an open fashion with tailored cut
-and paste iterators.  This method does have its advantages but it makes
-changing the page table implementation more difficult.
-
-Cheers
-
-Paul Davies
-
+--Y5rl02BVI9TCfPar--

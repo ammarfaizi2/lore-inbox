@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWHBGWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWHBGYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWHBGWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 02:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWHBGWn
+	id S1751245AbWHBGYr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 02:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWHBGYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 02:22:43 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:10895 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751268AbWHBGWm (ORCPT
+	Wed, 2 Aug 2006 02:24:47 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:41960 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751245AbWHBGYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 02:22:42 -0400
-Date: Wed, 2 Aug 2006 08:23:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-Message-ID: <20060802062309.GH20108@suse.de>
-References: <20060801072315.GH31908@suse.de> <E1G83hL-00035h-00@gondolin.me.apana.org.au> <20060801233221.GA11913@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801233221.GA11913@gondor.apana.org.au>
+	Wed, 2 Aug 2006 02:24:46 -0400
+Date: Wed, 2 Aug 2006 08:22:02 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Scott J. Harmon" <harmon@ksu.edu>
+cc: Pavel Machek <pavel@ucw.cz>, Hans Reiser <reiser@namesys.com>,
+       Denis Vlasenko <vda.linux@googlemail.com>, linux-kernel@vger.kernel.org
+Subject: Re: reiser4: maybe just fix bugs?
+In-Reply-To: <44CF5E26.50702@ksu.edu>
+Message-ID: <Pine.LNX.4.61.0608020818010.7593@yvahk01.tjqt.qr>
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
+ <44CEBCBC.9070707@namesys.com> <20060801103714.GA2310@elf.ucw.cz>
+ <44CF5E26.50702@ksu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02 2006, Herbert Xu wrote:
-> On Wed, Aug 02, 2006 at 09:30:51AM +1000, Herbert Xu wrote:
-> > 
-> > OK, I used a WARN_ON mainly because ext3 has been doing this for years
-> > without killing anyone until now :)
-> > 
-> > [BLOCK] bh: Ensure bh fits within a page
-> 
-> Actually, the other reason is that we can't BUG_ON until ext3 is fixed
-> to not do this.  So I suppose we should keep the WARN_ON until that
-> happens.
+>> fsck.ext2/fsck.vfat/... follow some convention including naming,
+>> command line switches, and behaviour.
+>> 
+>> Like fsck.ext2 /dev/something is enough to check the fielsystem.
+>
+>
+>> reiserfsck is missnamed (should be fsck.reiser), and it likes to chat
+>> with you -- which is unexpected for tools.
+>
+>Yeah, I would never imagine that for ext2 and ext3 fsck might be called
+>'e2fsck'. ;-)
 
-Yep, the ext3 bits need to go in first.
+So everyone plays his game...
 
+xfs_check
+jfs_fsck
+dosfsck
+
+I don't see why reiserfsck should be out of line...
+
+
+
+Jan Engelhardt
 -- 
-Jens Axboe
-

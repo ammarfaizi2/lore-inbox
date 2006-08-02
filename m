@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWHBC7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWHBDHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWHBC7k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 22:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWHBC7k
+	id S1751090AbWHBDHv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 23:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWHBDHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 22:59:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:24295 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751084AbWHBC7j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 22:59:39 -0400
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Christoph Lameter <clameter@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 8 of 13] Add a bootparameter to reserve high linear address space for hypervisors
-References: <0adfc39039c79e4f4121.1154462446@ezr>
-	<200608012347.20556.ak@suse.de>
-	<1154479684.2570.14.camel@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Aug 2006 04:59:32 +0200
-In-Reply-To: <1154479684.2570.14.camel@localhost.localdomain>
-Message-ID: <p73lkq7zvu3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 1 Aug 2006 23:07:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27336 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751090AbWHBDHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 23:07:50 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<115443023544-git-send-email-ebiederm@xmission.com>
+	<p73zmeoz2l4.fsf@verdi.suse.de>
+Date: Tue, 01 Aug 2006 21:06:19 -0600
+In-Reply-To: <p73zmeoz2l4.fsf@verdi.suse.de> (Andi Kleen's message of "01 Aug
+	2006 21:19:03 +0200")
+Message-ID: <m1ejvzx2dw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
-> 
-> I only implemented parse_early_param two years ago; maybe it is time for
-> i386 to use it...
+Andi Kleen <ak@suse.de> writes:
 
-Problem is that it's too late. Some of the stuff is already needed
-in setup_arch. You would need to move it before it first.
+> "Eric W. Biederman" <ebiederm@xmission.com> writes:
+>>  			}
+>> @@ -200,6 +224,178 @@ static void putstr(const char *s)
+>>  	outb_p(0xff & (pos >> 1), vidport+1);
+>>  }
+>>  
+>> +static void vid_console_init(void)
+>
+> Please just use early_printk instead of reimplementing this. 
+> I think it should work in this context too.
 
-Unfortunately touching the order might cause very subtle problem
-on other architectures - this tends to be fragile.
+There is certainly some value in that.  To do that I would
+need to refactor early_printk to make it useable.
 
--Andi
+This comment from one of patches summaries the worst of the problems.
+
+> /* WARNING!!
+>  * This code is compiled with -fPIC and it is relocated dynamically
+>  * at run time, but no relocation processing is performed.
+>  * This means that it is not safe to place pointers in static structures.
+>  */
+
+lib/string.c might be useful.  The fact that the functions are not
+static slightly concerns me.  I have a vague memory of non-static
+functions generating relocations for no good reason.
+
+Eric

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWHBHpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWHBHqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWHBHpu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWHBHpt
+	id S1751354AbWHBHqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWHBHqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:45:49 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:63948 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1751352AbWHBHpt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:45:49 -0400
-Date: Wed, 2 Aug 2006 09:45:29 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
-Message-ID: <20060802094529.09db5532@cad-250-152.norway.atmel.com>
-In-Reply-To: <1154450847.5605.21.camel@localhost>
-References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-	<20060731174659.72da734f@cad-250-152.norway.atmel.com>
-	<1154371259.13744.4.camel@localhost>
-	<20060801101210.0548a382@cad-250-152.norway.atmel.com>
-	<1154450847.5605.21.camel@localhost>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Aug 2006 03:46:07 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8102 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751354AbWHBHqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:46:06 -0400
+Message-ID: <44D05821.1040209@sgi.com>
+Date: Wed, 02 Aug 2006 09:45:37 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: nagar@watson.ibm.com, jlan@sgi.com, linux-kernel@vger.kernel.org,
+       balbir@in.ibm.com, csturtiv@sgi.com, tee@sgi.com
+Subject: Re: [patch 3/3] convert CONFIG tag for a few accounting data used
+ by CSA
+References: <44CE58AF.7030200@sgi.com>	<44CE6AE7.8020304@watson.ibm.com>	<44D0538A.3090600@sgi.com> <20060802003102.c8cb1a47.akpm@osdl.org>
+In-Reply-To: <20060802003102.c8cb1a47.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Aug 2006 09:47:27 -0700
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Andrew Morton wrote:
+> On Wed, 02 Aug 2006 09:26:02 +0200
+> Jes Sorensen <jes@sgi.com> wrote:
+>> Shailabh Nagar wrote:
+>>> static inlines preferred
+>> Huh? Is that a preference to the taskstat project? For the kernel
+>> itself it makes no difference.
+> 
+> static inlines provide typechecking and typo checking and presence-of-x
+> checking when the option is configged off.  They can also suppress unused
+> variable warnings.
+> 
+> And they're C, not cpp ;)
 
-> That 'sec=null' would explain why you are seeing a problem, and the
-> attached patch ought to fix it.
+That I agree with, I guess I normally just draw the line between
+functions that do actual work versus empty dummies like in this case.
 
-That does explain it, but unfortunately the patch doesn't fix it
-because data->version is 6. I added "case 6:" on the line after "case
-5:", and it solved the problem.
-
-I don't know what the difference between version 5 and 6 is, but I
-suspect it has something to do with data->context?
-
-Haavard
+Cheers,
+Jes

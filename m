@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWHBO32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWHBO2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWHBO32 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 10:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWHBO32
+	id S1750884AbWHBO2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 10:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWHBO2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 10:29:28 -0400
-Received: from mx1.dg.gov.cn ([61.145.199.108]:18693 "HELO dg.gov.cn")
-	by vger.kernel.org with SMTP id S1750886AbWHBO31 (ORCPT
+	Wed, 2 Aug 2006 10:28:25 -0400
+Received: from khc.piap.pl ([195.187.100.11]:20884 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750771AbWHBO2Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 10:29:27 -0400
-Date: Wed, 2 Aug 2006 22:30:46 +0800
-From: Kenneth Lee <kenlee@dg.gov.cn>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch] kernel: bug fixing for kernel/kmod.c
-Message-ID: <20060802143046.GA5645@kenny>
+	Wed, 2 Aug 2006 10:28:24 -0400
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Ian Stirling <ian.stirling@mauve.plus.com>,
+       David Masover <ninja@slaphack.com>,
+       David Lang <dlang@digitalinsight.com>,
+       Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       LKML Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux
+References: <20060731175958.1626513b.reiser4@blinkenlights.ch>
+	<200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
+	<20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>
+	<44CE7C31.5090402@gmx.de>
+	<5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
+	<Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
+	<5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
+	<Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
+	<5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
+	<20060801010215.GA24946@merlin.emma.line.org>
+	<44CEAEF4.9070100@slaphack.com>
+	<Pine.LNX.4.63.0607312114500.15179@qynat.qvtvafvgr.pbz>
+	<44CED95C.10709@slaphack.com> <44CFE8D9.9090606@mauve.plus.com>
+	<0DA0B214-50BC-4E20-A520-B7AB121BB38B@mac.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 02 Aug 2006 16:28:20 +0200
+In-Reply-To: <0DA0B214-50BC-4E20-A520-B7AB121BB38B@mac.com> (Kyle Moffett's message of "Tue, 1 Aug 2006 22:29:20 -0400")
+Message-ID: <m3ejvzqkjf.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Signed-off-by: Kenneth Lee <kenlee@dg.gov.cn>
-User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think there is a bug in kmod.c: In __call_usermodehelper(), when 
-kernel_thread(wait_for_helper, ...) return success, since
-wait_for_helper() might call complete() at any time, the sub_info should
-not be used any more.
+Kyle Moffett <mrmacman_g4@mac.com> writes:
 
-Normally wait_for_helper() take a long time to finish, you may not get 
-problem for most of the case. But if you remove /sbin/modprobe, it may
-become easier for you to get a oop in khelper.
+> IMHO the best alternative for a situation like that is a storage
+> controller with a battery-backed cache and a hunk of flash NVRAM for
+> when the power shuts off (just in case you run out of battery), as
+> well as a separate 1GB battery-backed PCI ramdisk for an external
+> journal device (likewise equipped with flash NVRAM).  It doesn't take
+> much power at all to write a gig of stuff to a small flash chip
+> (Think about your digital camera which runs off a couple AA's), so
+> with a fair-sized on-board battery pack you could easily transfer its
+> data to NVRAM and still have power left to back up data in RAM for 12
+> hours or so.  That way bootup is fast (no reading 1GB of data from
+> NVRAM) but there's no risk of data loss.
 
-the following patch is made in 2.6.17.7
-
---- linux-2.6.17.7/kernel/kmod.c.orig   2006-08-02 22:13:21.805902750
-+0800
-+++ linux-2.6.17.7/kernel/kmod.c        2006-08-02 22:15:36.946348500
-+0800
-@@ -198,6 +198,7 @@ static void __call_usermodehelper(void *
- {
-        struct subprocess_info *sub_info = data;
-        pid_t pid;
-+       int wait = sub_info->wait;
-
-        /* CLONE_VFORK: wait until the usermode helper has execve'd
-         * successfully We need the data structures to stay around
-@@ -212,7 +213,7 @@ static void __call_usermodehelper(void *
-        if (pid < 0) {
-                sub_info->retval = pid;
-                complete(sub_info->complete);
--       } else if (!sub_info->wait)
-+       } else if (!wait)
-                complete(sub_info->complete);
- }
-
+Not sure - reading flash is fast, but writing is quite slow.
+A digital camera can consume a set of 2 or 4 2500 mAh AA cells
+for a fraction of 1 GB (of course, only a part of power goes
+to flash).
 -- 
+Krzysztof Halasa

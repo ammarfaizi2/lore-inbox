@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWHBAsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWHBBJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWHBAsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 20:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWHBAsK
+	id S1750928AbWHBBJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 21:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWHBBJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 20:48:10 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:31658 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750878AbWHBAsJ (ORCPT
+	Tue, 1 Aug 2006 21:09:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42695 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750926AbWHBBJ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 20:48:09 -0400
-Subject: Re: [PATCH 8 of 13] Add a bootparameter to reserve high linear
-	address space for hypervisors
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Christoph Lameter <clameter@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <200608012347.20556.ak@suse.de>
-References: <0adfc39039c79e4f4121.1154462446@ezr>
-	 <200608012347.20556.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 10:48:04 +1000
-Message-Id: <1154479684.2570.14.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 21:09:26 -0400
+Date: Tue, 1 Aug 2006 21:09:15 -0400
+From: Dave Jones <davej@redhat.com>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: arjan@infradead.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: deprecate and convert some sleep_on variants.
+Message-ID: <20060802010915.GC22589@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Nish Aravamudan <nish.aravamudan@gmail.com>, arjan@infradead.org,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20060801180643.GD22240@redhat.com> <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-01 at 23:47 +0200, Andi Kleen wrote:
->  > +		/*
-> > +		 * reservedtop=size reserves a hole at the top of the kernel
-> > +		 * address space which a hypervisor can load into later.
-> > +		 * Needed for dynamically loaded hypervisors, so relocating
-> > +		 * the fixmap can be done before paging initialization.
-> > +		 * This hole must be a multiple of 4M.
-> > +		 */
-> > +		else if (!memcmp(from, "reservedtop=", 12)) {
-> > +			unsigned long reserved = memparse(from+12, &from);
-> > +			reserved &= ~0x3fffff;
-> > +			set_fixaddr_top(-reserved);
-> > +		}
-> 
-> You need to add a dummy __setup for it, otherwise it will end up in
-> init's environments or be warned about.
+On Tue, Aug 01, 2006 at 01:20:28PM -0500, Nish Aravamudan wrote:
 
-Ewww, it's not the only one.  This whole function should be replaced
-with a whole heap of early_param()s and a call to parse_early_param().
+ > >+  wait_queue_t __wait;
+ > >+
+ > >+  init_waitqueue_entry(&__wait, current);
+ > >
+ > >   spin_lock_irqsave(&Controller->queue_lock, flags);
+ > >   while ((Command = DAC960_AllocateCommand(Controller)) == NULL)
+ > >@@ -6314,11 +6317,18 @@ static boolean DAC960_V2_ExecuteUserComm
+ > >                                        .SegmentByteCount =
+ > >            CommandMailbox->ControllerInfo.DataTransferSize;
+ > >          DAC960_ExecuteCommand(Command);
+ > >+         add_wait_queue(&Controller->CommandWaitQueue, &__wait);
+ > >+         set_current_state(TASK_UNINTERRUPTIBLE);
+ > 
+ > Could this use prepare_to_wait()
 
-I only implemented parse_early_param two years ago; maybe it is time for
-i386 to use it...
+Maybe, though I'd rather not do that conversion with the hardware to test it.
+sidenote: prepare_to_wait() and friends could really use some kerneldoc explaining
+their purpose rather than their internal workings.
 
-I'll create a patch,
-Rusty.
+ > >          while 
+ > >          (Controller->V2.NewControllerInformation->PhysicalScanActive)
+ > >            {
+ > >              DAC960_ExecuteCommand(Command);
+ > >-             sleep_on_timeout(&Controller->CommandWaitQueue, HZ);
+ > >+             schedule_timeout(HZ);
+ > >+             set_current_state(TASK_UNINTERRUPTIBLE);
+ > 
+ > and schedule_timeout_uninterruptible() (which is redundant for the
+ > first invocation, I suppose)
+
+Makes sense.
+
+ > >+         current->state = TASK_RUNNING;
+ > >+         remove_wait_queue(&Controller->CommandWaitQueue, &__wait);
+ > 
+ > and finish_wait()?
+ > 
+ > Same for ibmtr.c ?
+
+Same comments as above.
+
+ > Also, would these changes:
+ > 
+ > >diff -urNp --exclude-from=/home/davej/.exclude 
+ > >linux-1060/include/linux/wait.h linux-1070/include/linux/wait.h
+ > >--- linux-1060/include/linux/wait.h
+ > >+++ linux-1070/include/linux/wait.h
+ > 
+ > Be better in a separate patch?
+
+A split-up patchset would for sure make sense for committing upstream.
+Though, at least each file touched here is a separate cset.
+
+		Dave
+
 -- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+http://www.codemonkey.org.uk

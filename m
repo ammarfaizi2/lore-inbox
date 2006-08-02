@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWHBCM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWHBCNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbWHBCM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 22:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWHBCM2
+	id S1751041AbWHBCNU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 22:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWHBCNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 22:12:28 -0400
-Received: from web36713.mail.mud.yahoo.com ([209.191.85.47]:59223 "HELO
-	web36713.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751001AbWHBCM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 22:12:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=IqpQc/dhQZylNsLENTdyUY9rlc3sCG+uKZsXODJHnWterXvm3cdF75QYHwIidnxnUHS2HwrBIX/IgMK7PrwWcQ1cliLeq3pmzFn/ud5e4zwWcszUNjuQ7HFsc4S/Vt/0FS3KRDR9A0HvQnu1SJpOVQkF2vMRklgKxbjmye3iUd8=  ;
-Message-ID: <20060802021227.19174.qmail@web36713.mail.mud.yahoo.com>
-Date: Tue, 1 Aug 2006 19:12:27 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44CE3FC0.6080500@drzeus.cx>
+	Tue, 1 Aug 2006 22:13:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27092 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751038AbWHBCNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 22:13:19 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 18/33] x86_64: Kill temp_boot_pmds II
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<11544302392378-git-send-email-ebiederm@xmission.com>
+	<p73psfk1dnh.fsf_-_@verdi.suse.de>
+Date: Tue, 01 Aug 2006 20:11:48 -0600
+In-Reply-To: <p73psfk1dnh.fsf_-_@verdi.suse.de> (Andi Kleen's message of "01
+	Aug 2006 21:04:02 +0200")
+Message-ID: <m18xm7yjh7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was working on making some sense from all the
-constants and discovered that many flashmedia mmc
-registers are very similar in bit assignment to OMAP
-mmc ones (which are documented). Pity I haven't
-noticed it before. I'll take some time now to review
-the driver given this new information.
+Andi Kleen <ak@suse.de> writes:
 
+> "Eric W. Biederman" <ebiederm@xmission.com> writes:
+>> 
+>> I also modify the early page table initialization code
+>> to use early_ioreamp and early_iounmap, instead of the
+>> special case version of those functions that they are
+>> now calling.
+>
+> Or rather I tried to apply it - it doesn't apply at all
+> on its own:
+>
+> patching file arch/x86_64/mm/init.c
+> Hunk #1 FAILED at 167.
+> Hunk #2 succeeded at 274 with fuzz 1 (offset 28 lines).
+> Hunk #3 FAILED at 286.
+> Hunk #4 FAILED at 341.
+> 3 out of 4 hunks FAILED -- rejects in file arch/x86_64/mm/init.c
 
-> Ah, ok, I see. The socket structure would then be
-> similar to a device
-> structure in the kernel. Perhaps you should use the
-> name "host" instead
-> of "card" then as that is widely used in the other
-> mmc host drivers.
+It is probably patch 17:
+"x86_64: Separate normal memory map initialization from the hotplug case"
 
-But what with mmc_host structure that also hangs
-around? I think it deserves the name "host" even more.
+I don't see any other patches that touch arch/x86_64/mm/init.c
+before that.  At least not in 2.6.18-rc3, which is the base of
+my patchset.
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Eric

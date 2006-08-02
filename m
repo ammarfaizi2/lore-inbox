@@ -1,166 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWHBUNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWHBURU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWHBUNo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 16:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWHBUNo
+	id S932154AbWHBURU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 16:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHBURU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 16:13:44 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:15014 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932217AbWHBUNn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 16:13:43 -0400
+	Wed, 2 Aug 2006 16:17:20 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:16550 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932154AbWHBURT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 16:17:19 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH 1/3] swsusp: Fix mark_free_pages
-Date: Wed, 2 Aug 2006 22:12:48 +0200
+To: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+Subject: Re: Linux v2.6.18-rc3
+Date: Wed, 2 Aug 2006 22:16:54 +0200
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200608021842.21774.rjw@sisk.pl> <200608021848.54374.rjw@sisk.pl> <1154548279.7232.34.camel@localhost.localdomain>
-In-Reply-To: <1154548279.7232.34.camel@localhost.localdomain>
+Cc: "Andrew Morton" <akpm@osdl.org>, stern@rowland.harvard.edu,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       cpufreq@www.linux.org.uk
+References: <20060731081112.05427677.akpm@osdl.org> <20060801215919.8596da9d.akpm@osdl.org> <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com>
+In-Reply-To: <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608022212.48293.rjw@sisk.pl>
+Message-Id: <200608022216.54797.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 August 2006 21:51, Dave Hansen wrote:
-> On Wed, 2006-08-02 at 18:48 +0200, Rafael J. Wysocki wrote:
-> > +       max_zone_pfn = zone->zone_start_pfn + zone->spanned_pages;
-> > +       for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++) {
-> > +               struct page *page = pfn_to_page(pfn);
-> > +
-> > +               if (!PageNosave(page))
-> > +                       ClearPageNosaveFree(page);
-> > +       } 
+On Wednesday 02 August 2006 21:57, Jesse Brandeburg wrote:
+> On 8/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> > On Tue, 1 Aug 2006 21:31:22 -0700
+> > "Jesse Brandeburg" <jesse.brandeburg@gmail.com> wrote:
+> >
+> > > On 7/31/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > > > On Mon, 31 Jul 2006, Andrew Morton wrote:
+> > > >
+> > > > > core_initcall() would suit.  That's actually a bit late for this sort of
+> > > > > thing, but we can always add a new section later if it becomes a problem.
+> > > > > I'd suggest that we ensure that srcu_notifier_chain_register() performs a
+> > > > > reliable BUG() if it gets called too early.
+> > > >
+> > > > Here's a patch to test.  I can't try it out on my machine because
+> > > > 2.6.18-rc2-mm1 (even without the patch) crashes partway through a
+> > > > suspend-to-disk, in a way that's extremely hard to debug.  Some sort of
+> > > > spinlock-related bug occurs within ioapic_write_entry.
+> > >
+> > > can't test because I also can't suspend or hibernate with rc2-mm1
+> > > (resume causes hard hang with the backlight and screen off)  The issue
+> > > i reported was against linus' 2.6.18-rc3 kernel.
+> > >
+> >
+> > This might help?
+> >
+> >
+> > author Jiri Slaby <ku@bellona.localdomain> Tue, 01 Aug 2006 01:16:13 +0159
+> >
+> > --- a/arch/i386/kernel/io_apic.c
+> > +++ b/arch/i386/kernel/io_apic.c
+> > @@ -2360,6 +2360,7 @@ static int ioapic_resume(struct sys_devi
+> >                 reg_00.bits.ID = mp_ioapics[dev->id].mpc_apicid;
+> >                 io_apic_write(dev->id, 0, reg_00.raw);
+> >         }
+> > +       spin_unlock_irqrestore(&ioapic_lock, flags);
+> >         for (i = 0; i < nr_ioapic_registers[dev->id]; i ++)
+> >                 ioapic_write_entry(dev->id, i, entry[i]);
+> >
+> > -
+> >
+> >
 > 
-> This is certainly not the only place in swsusp where there is a bug like
-> this,
+> after applying this patch from jiri as well as the patch from alan, I
+> can now suspend and resume, and the patch from alan seems to work too,
+> but I have no idea if it executed.
+> 
+> BTW, I get junk out the serial port with the first bits of printk (and
+> during resume from S3 too) but then something manages to init the
+> serial port to the right speed and text starts coming out correctly.
 
-Well, I don't think so.  They have been hunted for and dealt whith, except
-for this one. ;-)
+Please try the following patch from Russell King and see if it helps.
 
-> but it is not correct to assume that each page inside of a zone is 
-> valid.
+ drivers/char/tty_io.c        |   13 +++++++++++++
+ drivers/serial/serial_core.c |   12 ++++++------
+ include/linux/tty.h          |    2 ++
+ 3 files changed, 21 insertions(+), 6 deletions(-)
 
-Obviously, I just forgot about it.
-
----
-Clean up mm/page_alloc.c#mark_free_pages() and make it avoid clearing
-PageNosaveFree for PageNosave pages.  This allows us to get rid of an ugly
-hack in kernel/power/snapshot.c#copy_data_pages().
-
-Additionally, the page-copying loop in copy_data_pages() is moved to an
-inline function.
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- kernel/power/snapshot.c |   27 +++++++++++++--------------
- mm/page_alloc.c         |   24 ++++++++++++++++--------
- 2 files changed, 29 insertions(+), 22 deletions(-)
-
-Index: linux-2.6.18-rc2-mm1/mm/page_alloc.c
+Index: linux-2.6.18-rc1-mm2/drivers/char/tty_io.c
 ===================================================================
---- linux-2.6.18-rc2-mm1.orig/mm/page_alloc.c
-+++ linux-2.6.18-rc2-mm1/mm/page_alloc.c
-@@ -703,7 +703,8 @@ static void __drain_pages(unsigned int c
- 
- void mark_free_pages(struct zone *zone)
- {
--	unsigned long zone_pfn, flags;
-+	unsigned long pfn, max_zone_pfn;
-+	unsigned long flags;
- 	int order;
- 	struct list_head *curr;
- 
-@@ -711,18 +712,25 @@ void mark_free_pages(struct zone *zone)
- 		return;
- 
- 	spin_lock_irqsave(&zone->lock, flags);
--	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
--		ClearPageNosaveFree(pfn_to_page(zone_pfn + zone->zone_start_pfn));
-+
-+	max_zone_pfn = zone->zone_start_pfn + zone->spanned_pages;
-+	for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++)
-+		if (pfn_valid(pfn)) {
-+			struct page *page = pfn_to_page(pfn);
-+
-+			if (!PageNosave(page))
-+				ClearPageNosaveFree(page);
-+		}
- 
- 	for (order = MAX_ORDER - 1; order >= 0; --order)
- 		list_for_each(curr, &zone->free_area[order].free_list) {
--			unsigned long start_pfn, i;
-+			unsigned long i;
- 
--			start_pfn = page_to_pfn(list_entry(curr, struct page, lru));
-+			pfn = page_to_pfn(list_entry(curr, struct page, lru));
-+			for (i = 0; i < (1UL << order); i++)
-+				SetPageNosaveFree(pfn_to_page(pfn + i));
-+		}
- 
--			for (i=0; i < (1<<order); i++)
--				SetPageNosaveFree(pfn_to_page(start_pfn+i));
--	}
- 	spin_unlock_irqrestore(&zone->lock, flags);
+--- linux-2.6.18-rc1-mm2.orig/drivers/char/tty_io.c
++++ linux-2.6.18-rc1-mm2/drivers/char/tty_io.c
+@@ -1663,6 +1663,19 @@ release_mem_out:
  }
  
-Index: linux-2.6.18-rc2-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.18-rc2-mm1.orig/kernel/power/snapshot.c
-+++ linux-2.6.18-rc2-mm1/kernel/power/snapshot.c
-@@ -208,37 +208,36 @@ unsigned int count_data_pages(void)
- 	return n;
- }
- 
-+static inline void copy_data_page(long *dst, long *src)
+ /*
++ * Get a copy of the termios structure for the driver/index
++ */
++void tty_get_termios(struct tty_driver *driver, int idx, struct termios *tio)
 +{
-+	int n;
-+
-+	/* copy_page and memcpy are not usable for copying task structs. */
-+	for (n = PAGE_SIZE / sizeof(long); n; n--)
-+		*dst++ = *src++;
++	lock_kernel();
++	if (driver->termios[idx])
++		*tio = *driver->termios[idx];
++	else
++		*tio = driver->init_termios;
++	unlock_kernel();
 +}
 +
- static void copy_data_pages(struct pbe *pblist)
- {
- 	struct zone *zone;
- 	unsigned long pfn, max_zone_pfn;
--	struct pbe *pbe, *p;
-+	struct pbe *pbe;
++/*
+  * Releases memory associated with a tty structure, and clears out the
+  * driver table slots.
+  */
+Index: linux-2.6.18-rc1-mm2/drivers/serial/serial_core.c
+===================================================================
+--- linux-2.6.18-rc1-mm2.orig/drivers/serial/serial_core.c
++++ linux-2.6.18-rc1-mm2/drivers/serial/serial_core.c
+@@ -1981,16 +1981,16 @@ int uart_resume_port(struct uart_driver 
+ 		struct termios termios;
  
- 	pbe = pblist;
- 	for_each_zone (zone) {
- 		if (is_highmem(zone))
- 			continue;
- 		mark_free_pages(zone);
--		/* This is necessary for swsusp_free() */
--		for_each_pb_page (p, pblist)
--			SetPageNosaveFree(virt_to_page(p));
--		for_each_pbe (p, pblist)
--			SetPageNosaveFree(virt_to_page(p->address));
- 		max_zone_pfn = zone->zone_start_pfn + zone->spanned_pages;
- 		for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++) {
- 			struct page *page = saveable_page(pfn);
+ 		/*
+-		 * First try to use the console cflag setting.
++		 * Get the termios for this line
+ 		 */
+-		memset(&termios, 0, sizeof(struct termios));
+-		termios.c_cflag = port->cons->cflag;
++		tty_get_termios(drv->tty_driver, port->line, &termios);
  
- 			if (page) {
--				long *src, *dst;
--				int n;
-+				void *ptr = page_address(page);;
+ 		/*
+-		 * If that's unset, use the tty termios setting.
++		 * If the console cflag is still set, subsitute that
++		 * for the termios cflag.
+ 		 */
+-		if (state->info && state->info->tty && termios.c_cflag == 0)
+-			termios = *state->info->tty->termios;
++		if (port->cons->cflag)
++			termios.c_cflag = port->cons->cflag;
  
- 				BUG_ON(!pbe);
--				pbe->orig_address = (unsigned long)page_address(page);
--				/* copy_page and memcpy are not usable for copying task structs. */
--				dst = (long *)pbe->address;
--				src = (long *)pbe->orig_address;
--				for (n = PAGE_SIZE / sizeof(long); n; n--)
--					*dst++ = *src++;
-+				copy_data_page((void *)pbe->address, ptr);
-+				pbe->orig_address = (unsigned long)ptr;
- 				pbe = pbe->next;
- 			}
- 		}
+ 		port->ops->set_termios(port, &termios, NULL);
+ 		console_start(port->cons);
+Index: linux-2.6.18-rc1-mm2/include/linux/tty.h
+===================================================================
+--- linux-2.6.18-rc1-mm2.orig/include/linux/tty.h
++++ linux-2.6.18-rc1-mm2/include/linux/tty.h
+@@ -284,6 +284,8 @@ extern int tty_read_raw_data(struct tty_
+ 			     int buflen);
+ extern void tty_write_message(struct tty_struct *tty, char *msg);
+ 
++extern void tty_get_termios(struct tty_driver *drv, int idx, struct termios *tio);
++
+ extern int is_orphaned_pgrp(int pgrp);
+ extern int is_ignored(int sig);
+ extern int tty_signal(int sig, struct tty_struct *tty);

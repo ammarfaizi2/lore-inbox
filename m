@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWHBKgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWHBKft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWHBKgF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 06:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWHBKgE
+	id S1750892AbWHBKft (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 06:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWHBKfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 06:36:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42757 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750898AbWHBKgD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 06:36:03 -0400
-Date: Wed, 2 Aug 2006 10:03:14 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Alessandro Guido <alessandro.guido.box@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: Sony ACPI extras mainline inclusion
-Message-ID: <20060802100314.GF7601@ucw.cz>
-References: <44CB288A.1010702@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44CB288A.1010702@gmail.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 2 Aug 2006 06:35:48 -0400
+Received: from pool-72-70-229-85.spfdma.east.verizon.net ([72.70.229.85]:32197
+	"EHLO ROSE.aej0p.org") by vger.kernel.org with ESMTP
+	id S1750875AbWHBKfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 06:35:47 -0400
+Message-ID: <41349637707673.EAC5205B78@FWTG>
+From: "Jeffery" <artisanclear@iname.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Low prices, handy delivery, everything for your convenience. Be delighted with 
+Date: Wed, 2 Aug 2006 06:37:59 -0400
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: e7Q0R9KuUuJAykGKjySVZ9FmN8PRXlmcDwwb
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello my friend! 
+ You gape for shooting like you had seen in those films… Now you could grant your wish 
+ Order now and benefit from lowest costs and convenient shipment Achieve astounding results in bed with these products designed to make any man a winner 
 
-> I own a Sony VAIO laptop that uses ACPI for setting 
-> screen brightness
-> through the "2.6-sony_acpi4.patch" patch that has been 
-> living in -mm for a while.
-> I'd like this patch to be merged in mainline, so that I 
-> won't be forced anymore to patch
-> the kernel by hand or to use the -mm patchset.
-> Is there something that prevents this to happen?
+ Just take a look: http://www.wangheeni.com
 
-Wrong interface?
 
-Convert it to use /sys/class/backlight sysfs interface...
+ Hot deals on stuff produced by well-known brands from worldwide. 
 
-						Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Jeffery Witt
+
+Speak softly and carry a cellular phone. Yuh gat fuh blow yuh nose where yuh stump yuh toe.	 What's good for the goose is good for the gander.
+
+Forgive and forget Accidents happen. Like the measles, love is most dangerous when it comes late in life A squirrel is just a rat with good PR. When the student is ready, the master will appear 
+
+Two Dogs Fight for a Bone, and a Third Runs Away With it 
+

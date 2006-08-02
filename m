@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWHBVTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWHBVUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWHBVTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWHBVTb
+	id S932206AbWHBVUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWHBVUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:19:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48829 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932166AbWHBVTa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:19:30 -0400
-Date: Wed, 2 Aug 2006 14:18:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Dave Jones <davej@redhat.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
-       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: Re: Linux v2.6.18-rc3
-In-Reply-To: <20060802205824.GA17599@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0608021416200.4168@g5.osdl.org>
-References: <20060731081112.05427677.akpm@osdl.org> <20060801215919.8596da9d.akpm@osdl.org>
- <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com>
- <200608022216.54797.rjw@sisk.pl> <20060802202309.GD7173@flint.arm.linux.org.uk>
- <20060802203236.GC23389@redhat.com> <20060802205824.GA17599@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Aug 2006 17:20:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40597
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932206AbWHBVUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 17:20:25 -0400
+Date: Wed, 02 Aug 2006 14:20:34 -0700 (PDT)
+Message-Id: <20060802.142034.94556682.davem@davemloft.net>
+To: chris.leech@gmail.com, christopher.leech@intel.com
+Cc: dan.j.williams@intel.com, linux-kernel@vger.kernel.org, neilb@suse.de,
+       galak@kernel.crashing.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] I/OAT: remove CPU hotplug lock from net_dma_rebalance
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <41b516cb0608011133r2332161dx4b43a845bfa74062@mail.gmail.com>
+References: <41b516cb0608011133r2332161dx4b43a845bfa74062@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Chris Leech" <christopher.leech@intel.com>
+Date: Tue, 1 Aug 2006 11:33:02 -0700
 
-
-On Wed, 2 Aug 2006, Russell King wrote:
+>         if (net_dma_count == 0) {
+>                 for_each_online_cpu(cpu)
 > 
-> Rafael has reported that it fixes his problem, which is great - and is
-> the first bit of feedback I've received on it (thanks Rafael.)
-> 
-> I've no idea why it doesn't work for you though.
+> rcu_assign_pointer(per_cpu(softnet_data.net_dma, cpu), NULL);
+> -               unlock_cpu_hotplug();
 
-Well, more importantly, why would we do something like this in the first 
-place?
+Why is proper patch submission so damn difficult for people?
+This patch is corrupted severely.
 
-Wouldn't it be a _lot_ better to just use the bog-standard 
-"suspend/resume" callbacks, and let serial drivers just suspend/resume on 
-their own, instead of having upper layers generate these fake 
-"set_termios()" calls?
-
-The serial layer should use set_termios() when users set the termios state 
-(surprise surprise), not to emulate suspend/restore. 
-
-Real hardware tends to want to do a lot more _anyway_ for suspend/restore, 
-so the argument that "set_termios()" already exists as an interface is 
-pretty bogus.
-
-			Linus
+I'm fixing this up since it's such an obvious patch, but this
+issue is getting really rediculious.  I can't believe how many
+people submit line-wrapped, tab destroyed, patches these days.

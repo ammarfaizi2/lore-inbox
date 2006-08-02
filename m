@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWHBP4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWHBP7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWHBP4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 11:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWHBP4z
+	id S932068AbWHBP7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 11:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWHBP7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 11:56:55 -0400
-Received: from kurby.webscope.com ([204.141.84.54]:34450 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751214AbWHBP4y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 11:56:54 -0400
-Message-ID: <44D0CB36.3050303@linuxtv.org>
-Date: Wed, 02 Aug 2006 11:56:38 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Wed, 2 Aug 2006 11:59:25 -0400
+Received: from mail.gmx.net ([213.165.64.21]:6822 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932068AbWHBP7Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 11:59:24 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.18-rc1-mm2 and 2.6.18-rc3 (bttv: NULL pointer derefernce)
+Date: Wed, 2 Aug 2006 18:00:23 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>, Greg KH <greg@kroah.com>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org> <200607141830.01858.dominik.karall@gmx.net>
+In-Reply-To: <200607141830.01858.dominik.karall@gmx.net>
 MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: akpm@osdl.org, jayakumar.video@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: quickcam_messenger compilation fix
-References: <20060802163004.6ebf2cd7.diegocg@gmail.com>
-In-Reply-To: <20060802163004.6ebf2cd7.diegocg@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608021800.23905.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
-> In bugzilla #6943, Maxim Britov reported:
-> 
-> "I can enable Logitech quickcam support in .config, but it want be compile.
-> I have to add into drivers/media/video/Makefile:
-> obj-$(CONFIG_USB_QUICKCAM_MESSENGER)    += usbvideo/"
-> 
-> He's right, just enable that driver as module while disabling every other
-> driver that gets into that directory, nothing will get compiled.
-> This patch fixes the Makefile.
-> 
-> Signed-off-by: Diego Calleja <diegocg@gmail.com>
-> 
-> Index: 2.6/drivers/media/video/Makefile
-> ===================================================================
-> --- 2.6.orig/drivers/media/video/Makefile	2006-08-02 16:22:40.000000000 +0200
-> +++ 2.6/drivers/media/video/Makefile	2006-08-02 16:22:51.000000000 +0200
-> @@ -91,6 +91,7 @@
->  obj-$(CONFIG_USB_IBMCAM)        += usbvideo/
->  obj-$(CONFIG_USB_KONICAWC)      += usbvideo/
->  obj-$(CONFIG_USB_VICAM)         += usbvideo/
-> +obj-$(CONFIG_USB_QUICKCAM_MESSENGER)	+= usbvideo/
->  
->  obj-$(CONFIG_VIDEO_VIVI) += vivi.o
->  
+hi!
 
-Acked-by: Michael Krufky <mkrufky@linuxtv.org>
+I'm not sure if anybody is working on this bug (see below), but as it 
+happens with 2.6.18-rc3 too, I think it's important to inform you to 
+avoid that this bug hits the final release.
 
+thx,
+dominik
+
+On Friday, 14. July 2006 18:30, Dominik Karall wrote:
+> On Friday, 14. July 2006 07:48, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6
+> >.1 8-rc1/2.6.18-rc1-mm2/
+>
+> Hi,
+> just want to inform you that the bug is present in 2.6.18-rc1-mm2
+> too. But I took a better screenshot which should be readable:
+> http://stud4.tuwien.ac.at/~e0227135/kernel/IMG_5614.JPG
+>
+> I hope it's useful for you, please let me know if I should test any
+> patches!
+>
+> cheers,
+> dominik

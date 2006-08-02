@@ -1,174 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWHBUsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWHBUto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWHBUsU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 16:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWHBUsU
+	id S1751353AbWHBUto (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 16:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWHBUto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 16:48:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:62751 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751345AbWHBUsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 16:48:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=oeERECqU4fw8eMy+ZZXhm8P30mixSsSzdmY6VDu6dmoj7N+uM7+uHSRZhV6CVxfG+ZLgRWwFB9C+zCnI71vJPzkJZ05661XpTfw+TJmBMr3RU8SjFspvavAaf8XqmoS7x24U7ZA8Stp7fwQk8ACmYv0EBkxHbjFE/b3ILEDpNx8=
-Message-ID: <44D10FA1.2010206@gmail.com>
-Date: Wed, 02 Aug 2006 14:48:33 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 2 Aug 2006 16:49:44 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:39846 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751353AbWHBUtn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 16:49:43 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH 1/3] swsusp: Fix mark_free_pages
+Date: Wed, 2 Aug 2006 22:48:54 +0200
+User-Agent: KMail/1.9.3
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200608021842.21774.rjw@sisk.pl> <200608022212.48293.rjw@sisk.pl> <20060802203005.GF8124@elf.ucw.cz>
+In-Reply-To: <20060802203005.GF8124@elf.ucw.cz>
 MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Robert Schwebel <r.schwebel@pengutronix.de>, Chris Boot <bootc@bootc.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Proposal: common kernel-wide GPIO interface
-References: <44CA7738.4050102@bootc.net> <20060730130811.GI10495@pengutronix.de> <44CFC6CC.8020106@gmail.com> <20060802175834.GA13641@csclub.uwaterloo.ca>
-In-Reply-To: <20060802175834.GA13641@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608022248.54162.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Tue, Aug 01, 2006 at 03:25:32PM -0600, Jim Cromie wrote:
->   
->> this is cool to see.  Using a class-driver is very different from the 
->> vtable-approach
->> that I used (struct nsc_gpio_ops) in pc8736x_gpio and scx200_gpio.
->>
->> Are any of the limitation youve cited above related to the 
->> /sys/class/gpio paths below ?
->>
->> +	  To set pin 63 to low (to start the motor) do a:
->> +	   $ echo 0 > /sys/class/gpio/gpio63/level
->> +	  Or to stop the motor again:
->> +	   $ echo 1 > /sys/class/gpio/gpio63/level
->> +	  To get the level of the key (pin 8) do:
->> +	   $ cat /sys/class/gpio/gpio8/level
->> +	  The result will be 1 or 0.
->> +
->> +	  To add new GPIO pins at runtime (lets say pin 88 should be an 
->> input)
->> +	  you can do a:
->> +	   $ echo 88:in > /sys/class/gpio/map_gpio
->> +	  The same with a new GPIO pin 95, it should be an output and at 
->> high level:
->> +	   $ echo 95:out:hi > /sys/class/gpio/map_gpio
->> +
->>     
->
-> How do you deal with having multiple places that provide GPIOs then? 
+On Wednesday 02 August 2006 22:30, Pavel Machek wrote:
+> Hi!
+> 
+> Looks good to me (ACK).
+> 
+> >  			if (page) {
+> > -				long *src, *dst;
+> > -				int n;
+> > +				void *ptr = page_address(page);;
+> 
+> You probably want to remove one of ";"s.
 
-pc8736x_gpio and scx200_gpio appear here:
+Ouch.
 
-soekris:/sys/devices/platform# ls pc8736x_gpio.0/
-Display all 292 possibilities? (y or n)
+I hope this is the final one.
+---
+Clean up mm/page_alloc.c#mark_free_pages() and make it avoid clearing
+PageNosaveFree for PageNosave pages.  This allows us to get rid of an ugly
+hack in kernel/power/snapshot.c#copy_data_pages().
 
-soekris:/sys/devices/platform# ls scx200_gpio.0/
-Display all 532 possibilities? (y or n)
+Additionally, the page-copying loop in copy_data_pages() is moved to an
+inline function.
 
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ kernel/power/snapshot.c |   27 +++++++++++++--------------
+ mm/page_alloc.c         |   24 ++++++++++++++++--------
+ 2 files changed, 29 insertions(+), 22 deletions(-)
 
-soekris:/sys/devices/platform# ls scx200_gpio.0/bit_0.0_*
-scx200_gpio.0/bit_0.0_current_output  scx200_gpio.0/bit_0.0_pullup_enabled
-scx200_gpio.0/bit_0.0_debounced       scx200_gpio.0/bit_0.0_status
-scx200_gpio.0/bit_0.0_locked          scx200_gpio.0/bit_0.0_totem
-scx200_gpio.0/bit_0.0_output_enabled  scx200_gpio.0/bit_0.0_value
-
-
-Did you mean to ask that question of Robert ?
-
-I'll rephrase my Q here.
-
-/sys/class/gpio/gpio63/
-
-this suggests that either
-- only 1 GPIO device can register (bad)
-- reservations might be taken in module-load order, and assigned 
-numerically (bad-subtle)
-
-Using another path (like /sys/devices/platform/scx200_gpio.%d/ )
-which names the driver (or some other structural info) seems much more
-stable in the face of combinations of GPIO hardware.
-
-FWIW, I didnt add the .0 to the directories, I think that was added for 
-me by the device-core,
-(warmfuzzy) so Id expect it to handle .1,2,3 etc..
-
-
->  I
-> may have 8 pins on a PCI UART chip, 22 on my super io chip, 16 on my
-> cpu, etc.  How would this be mapped if you only have one map_gpio
-> method?  It is much simpler to code for knowing pin 0 to 7 of device
-> uartgpio is where my UART pins are, and some other device has 22 pins
-> for the super io chip.  If they all ended up in one place with
-> consequative numbers it would be a real pain.  
->
-> Sometimes it is also nice to be able to control multiple pins as a block,
-> which only a few gpio interfaces seem to provide (they all seem to think
-> they should only be moved one pin at a time, which makes for a lot more
-> system calls to get things done).
->   
-Both GPIO chips Ive touched have port-wide read and write.
-I consider it an essential minimum feature in the driver, for hardware 
-that supports it.
-Other pin features (OE, etc) are only controllable per-pin.
-If we synthesize port-wide from per-pin, then we get a bit/port agnostic 
-interface.
-( driver users must still be cognizant of the limitations of synthetic 
-OutputEnable,
-where tri-stating would take many bus cycles )
-
-> Right now I am working on adding some stuff to the jsm driver to use an
-> Exar uart along with using the gpios, and so far I added gpio access
-> similar to how scx200_gpio does things, using minors 0 to 7 for the 8
-> pins on the first uart, 8 to 15 for the second, and so on.  What to name
-> the /dev entries is a different issue.  I can identify which device to
-> look for based on the /sys info for which pci slot the uart is connected
-> to.  I am not sure how this would tie into a generic gpio design.
->
-> Does your gpio design 
-I want to separate my answers -
-
-- pc8736x_gpio , scx200_gpio went thru mm into mainline-rc - they 
-support the legacy gpio-bit
-access via char-device-file.  They expose port-wide read/write inside 
-the kernel, via struct nsc_gpio_ops,
-but it seems a bad idea to expose them as device-files. ;-)
-
-- This thread is about a new interface, I think we're all tacitly 
-agreeing on :
-    a sysfs based GPIO-attr representation
-    some of us want/demand a port-interface where hardware has portwide 
-read/write
-    a reservation scheme.
-
-- Im working on a patch, which rendered the ls output I pasted above.
-    bits_ and ports_ agnostic
-    interfaces are nearly identical - its 0/1 vs 0xFF (hw dependent width)
-    no reservations yet :-/
-
-
-> deal with all the things gpios often do:
->   
-char-dev interfaces in scx200_gpio 18-rc are compatible with legacy, 
-pc87360 is new (and same).
-my sysfs-gpio patch actually has a half-baked compatibly hack on the 
-_status attr,
-platform# more scx200_gpio.0/bit_0.0_status
-io00: 0x0044 TS OD PUE  EDGE LO DEBOUNCE        io:1/1
-
-> input/output/tristate
-> high/low
->   
-not yet on these:  patches/clues welcome.
-> generate interrupt
-> edge/level trigger
-> high or low level/leading or trailing edge trigger
->
-> --
-> Len Sorensen
->
->   
-
-thanks for the input
-Jim Cromie
+Index: linux-2.6.18-rc2-mm1/mm/page_alloc.c
+===================================================================
+--- linux-2.6.18-rc2-mm1.orig/mm/page_alloc.c
++++ linux-2.6.18-rc2-mm1/mm/page_alloc.c
+@@ -703,7 +703,8 @@ static void __drain_pages(unsigned int c
+ 
+ void mark_free_pages(struct zone *zone)
+ {
+-	unsigned long zone_pfn, flags;
++	unsigned long pfn, max_zone_pfn;
++	unsigned long flags;
+ 	int order;
+ 	struct list_head *curr;
+ 
+@@ -711,18 +712,25 @@ void mark_free_pages(struct zone *zone)
+ 		return;
+ 
+ 	spin_lock_irqsave(&zone->lock, flags);
+-	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
+-		ClearPageNosaveFree(pfn_to_page(zone_pfn + zone->zone_start_pfn));
++
++	max_zone_pfn = zone->zone_start_pfn + zone->spanned_pages;
++	for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++)
++		if (pfn_valid(pfn)) {
++			struct page *page = pfn_to_page(pfn);
++
++			if (!PageNosave(page))
++				ClearPageNosaveFree(page);
++		}
+ 
+ 	for (order = MAX_ORDER - 1; order >= 0; --order)
+ 		list_for_each(curr, &zone->free_area[order].free_list) {
+-			unsigned long start_pfn, i;
++			unsigned long i;
+ 
+-			start_pfn = page_to_pfn(list_entry(curr, struct page, lru));
++			pfn = page_to_pfn(list_entry(curr, struct page, lru));
++			for (i = 0; i < (1UL << order); i++)
++				SetPageNosaveFree(pfn_to_page(pfn + i));
++		}
+ 
+-			for (i=0; i < (1<<order); i++)
+-				SetPageNosaveFree(pfn_to_page(start_pfn+i));
+-	}
+ 	spin_unlock_irqrestore(&zone->lock, flags);
+ }
+ 
+Index: linux-2.6.18-rc2-mm1/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.18-rc2-mm1.orig/kernel/power/snapshot.c
++++ linux-2.6.18-rc2-mm1/kernel/power/snapshot.c
+@@ -208,37 +208,36 @@ unsigned int count_data_pages(void)
+ 	return n;
+ }
+ 
++static inline void copy_data_page(long *dst, long *src)
++{
++	int n;
++
++	/* copy_page and memcpy are not usable for copying task structs. */
++	for (n = PAGE_SIZE / sizeof(long); n; n--)
++		*dst++ = *src++;
++}
++
+ static void copy_data_pages(struct pbe *pblist)
+ {
+ 	struct zone *zone;
+ 	unsigned long pfn, max_zone_pfn;
+-	struct pbe *pbe, *p;
++	struct pbe *pbe;
+ 
+ 	pbe = pblist;
+ 	for_each_zone (zone) {
+ 		if (is_highmem(zone))
+ 			continue;
+ 		mark_free_pages(zone);
+-		/* This is necessary for swsusp_free() */
+-		for_each_pb_page (p, pblist)
+-			SetPageNosaveFree(virt_to_page(p));
+-		for_each_pbe (p, pblist)
+-			SetPageNosaveFree(virt_to_page(p->address));
+ 		max_zone_pfn = zone->zone_start_pfn + zone->spanned_pages;
+ 		for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++) {
+ 			struct page *page = saveable_page(pfn);
+ 
+ 			if (page) {
+-				long *src, *dst;
+-				int n;
++				void *ptr = page_address(page);
+ 
+ 				BUG_ON(!pbe);
+-				pbe->orig_address = (unsigned long)page_address(page);
+-				/* copy_page and memcpy are not usable for copying task structs. */
+-				dst = (long *)pbe->address;
+-				src = (long *)pbe->orig_address;
+-				for (n = PAGE_SIZE / sizeof(long); n; n--)
+-					*dst++ = *src++;
++				copy_data_page((void *)pbe->address, ptr);
++				pbe->orig_address = (unsigned long)ptr;
+ 				pbe = pbe->next;
+ 			}
+ 		}

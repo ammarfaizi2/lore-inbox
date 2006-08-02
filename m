@@ -1,162 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWHBRBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWHBRIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWHBRBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 13:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWHBRAt
+	id S1751255AbWHBRIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 13:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWHBRIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 13:00:49 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:65444 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751255AbWHBRAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 13:00:47 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/3] swsusp: Reorder memory-allocating functions
-Date: Wed, 2 Aug 2006 18:53:46 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200608021842.21774.rjw@sisk.pl>
-In-Reply-To: <200608021842.21774.rjw@sisk.pl>
+	Wed, 2 Aug 2006 13:08:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:65227 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751255AbWHBRIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 13:08:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hxziwcw6yh3cTYBwbx4VH7yFQ+CcHfm/xLyPAVSzCFHPw4WdI/iYTp3KFlKYMi6ESq1IlEovEjqYnJYfxBgldJlAcotRl7zfBVwLTBIXMz+Zbe65t39OJ6CoIDrIDXFtrMsRjz1sTCqobKQEMtrFZUVkmvCv9qufOJV9230uLoM=
+Message-ID: <dda83e780608021008t44778d98g8cdecaee35807d3f@mail.gmail.com>
+Date: Wed, 2 Aug 2006 10:08:13 -0700
+From: "Bret Towe" <magnade@gmail.com>
+To: "Dominik Karall" <dominik.karall@gmx.net>
+Subject: Re: 2.6.18-rc1-mm2 and 2.6.18-rc3 (bttv: NULL pointer derefernce)
+Cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       "Mauro Carvalho Chehab" <mchehab@infradead.org>,
+       "Greg KH" <greg@kroah.com>
+In-Reply-To: <200608021800.23905.dominik.karall@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608021853.47040.rjw@sisk.pl>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	 <200607141830.01858.dominik.karall@gmx.net>
+	 <200608021800.23905.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move some functions in kernel/power/snapshot.c to a better place
-(in the same file) and introduce free_image_page() (will be necessary in the
-future).
+On 8/2/06, Dominik Karall <dominik.karall@gmx.net> wrote:
+> hi!
+>
+> I'm not sure if anybody is working on this bug (see below), but as it
+> happens with 2.6.18-rc3 too, I think it's important to inform you to
+> avoid that this bug hits the final release.
+>
+> thx,
+> dominik
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- kernel/power/snapshot.c |   93 +++++++++++++++++++++++++++---------------------
- 1 file changed, 53 insertions(+), 40 deletions(-)
+work around at least is to enable
+Enable Video For Linux API 1 (DEPRECATED)
+Enable Video For Linux API 1 compatible Layer
+worked for me on -rc3
 
-Index: linux-2.6.18-rc2-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.18-rc2-mm1.orig/kernel/power/snapshot.c	2006-08-01 08:58:45.000000000 +0200
-+++ linux-2.6.18-rc2-mm1/kernel/power/snapshot.c	2006-08-01 22:15:41.000000000 +0200
-@@ -156,6 +156,58 @@ static inline int save_highmem(void) {re
- static inline int restore_highmem(void) {return 0;}
- #endif
- 
-+/**
-+ *	@safe_needed - on resume, for storing the PBE list and the image,
-+ *	we can only use memory pages that do not conflict with the pages
-+ *	used before suspend.
-+ *
-+ *	The unsafe pages are marked with the PG_nosave_free flag
-+ *	and we count them using unsafe_pages
-+ */
-+
-+static unsigned int unsafe_pages;
-+
-+static void *alloc_image_page(gfp_t gfp_mask, int safe_needed)
-+{
-+	void *res;
-+
-+	res = (void *)get_zeroed_page(gfp_mask);
-+	if (safe_needed)
-+		while (res && PageNosaveFree(virt_to_page(res))) {
-+			/* The page is unsafe, mark it for swsusp_free() */
-+			SetPageNosave(virt_to_page(res));
-+			unsafe_pages++;
-+			res = (void *)get_zeroed_page(gfp_mask);
-+		}
-+	if (res) {
-+		SetPageNosave(virt_to_page(res));
-+		SetPageNosaveFree(virt_to_page(res));
-+	}
-+	return res;
-+}
-+
-+unsigned long get_safe_page(gfp_t gfp_mask)
-+{
-+	return (unsigned long)alloc_image_page(gfp_mask, 1);
-+}
-+
-+/**
-+ *	free_image_page - free page represented by @addr, allocated with
-+ *	alloc_image_page (page flags set by it must be cleared)
-+ */
-+
-+static inline void free_image_page(void *addr, int clear_nosave_free)
-+{
-+	ClearPageNosave(virt_to_page(addr));
-+	if (clear_nosave_free)
-+		ClearPageNosaveFree(virt_to_page(addr));
-+	free_page((unsigned long)addr);
-+}
-+
-+/**
-+ *	pfn_is_nosave - check if given pfn is in the 'nosave' section
-+ */
-+
- static inline int pfn_is_nosave(unsigned long pfn)
- {
- 	unsigned long nosave_begin_pfn = __pa(&__nosave_begin) >> PAGE_SHIFT;
-@@ -245,7 +297,6 @@ static void copy_data_pages(struct pbe *
- 	BUG_ON(pbe);
- }
- 
--
- /**
-  *	free_pagedir - free pages allocated with alloc_pagedir()
-  */
-@@ -256,10 +307,7 @@ static void free_pagedir(struct pbe *pbl
- 
- 	while (pblist) {
- 		pbe = (pblist + PB_PAGE_SKIP)->next;
--		ClearPageNosave(virt_to_page(pblist));
--		if (clear_nosave_free)
--			ClearPageNosaveFree(virt_to_page(pblist));
--		free_page((unsigned long)pblist);
-+		free_image_page(pblist, clear_nosave_free);
- 		pblist = pbe;
- 	}
- }
-@@ -303,41 +351,6 @@ static inline void create_pbe_list(struc
- 	}
- }
- 
--static unsigned int unsafe_pages;
--
--/**
-- *	@safe_needed - on resume, for storing the PBE list and the image,
-- *	we can only use memory pages that do not conflict with the pages
-- *	used before suspend.
-- *
-- *	The unsafe pages are marked with the PG_nosave_free flag
-- *	and we count them using unsafe_pages
-- */
--
--static void *alloc_image_page(gfp_t gfp_mask, int safe_needed)
--{
--	void *res;
--
--	res = (void *)get_zeroed_page(gfp_mask);
--	if (safe_needed)
--		while (res && PageNosaveFree(virt_to_page(res))) {
--			/* The page is unsafe, mark it for swsusp_free() */
--			SetPageNosave(virt_to_page(res));
--			unsafe_pages++;
--			res = (void *)get_zeroed_page(gfp_mask);
--		}
--	if (res) {
--		SetPageNosave(virt_to_page(res));
--		SetPageNosaveFree(virt_to_page(res));
--	}
--	return res;
--}
--
--unsigned long get_safe_page(gfp_t gfp_mask)
--{
--	return (unsigned long)alloc_image_page(gfp_mask, 1);
--}
--
- /**
-  *	alloc_pagedir - Allocate the page directory.
-  *
+>
+> On Friday, 14. July 2006 18:30, Dominik Karall wrote:
+> > On Friday, 14. July 2006 07:48, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6
+> > >.1 8-rc1/2.6.18-rc1-mm2/
+> >
+> > Hi,
+> > just want to inform you that the bug is present in 2.6.18-rc1-mm2
+> > too. But I took a better screenshot which should be readable:
+> > http://stud4.tuwien.ac.at/~e0227135/kernel/IMG_5614.JPG
+> >
+> > I hope it's useful for you, please let me know if I should test any
+> > patches!
+> >
+> > cheers,
+> > dominik
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

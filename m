@@ -1,94 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWHBAQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWHBAsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWHBAQl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 20:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWHBAQl
+	id S1750878AbWHBAsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 20:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWHBAsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 20:16:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28338 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750849AbWHBAQk (ORCPT
+	Tue, 1 Aug 2006 20:48:10 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:31658 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750878AbWHBAsJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 20:16:40 -0400
-Date: Tue, 1 Aug 2006 20:16:26 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andreas Schwab <schwab@suse.de>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-Message-ID: <20060802001626.GA14689@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andreas Schwab <schwab@suse.de>,
-	Alexey Dobriyan <adobriyan@gmail.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com> <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com> <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com>
+	Tue, 1 Aug 2006 20:48:09 -0400
+Subject: Re: [PATCH 8 of 13] Add a bootparameter to reserve high linear
+	address space for hypervisors
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christoph Lameter <clameter@sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <200608012347.20556.ak@suse.de>
+References: <0adfc39039c79e4f4121.1154462446@ezr>
+	 <200608012347.20556.ak@suse.de>
+Content-Type: text/plain
+Date: Wed, 02 Aug 2006 10:48:04 +1000
+Message-Id: <1154479684.2570.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801235109.GB12102@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 07:51:09PM -0400, Dave Jones wrote:
- > I'm going for the record of 'most times a patch gets submitted in one day'.
- > And to think we were complaining that patches don't get enough review ? :)
- > If every change had this much polish, we'd be awesome.
+On Tue, 2006-08-01 at 23:47 +0200, Andi Kleen wrote:
+>  > +		/*
+> > +		 * reservedtop=size reserves a hole at the top of the kernel
+> > +		 * address space which a hypervisor can load into later.
+> > +		 * Needed for dynamically loaded hypervisors, so relocating
+> > +		 * the fixmap can be done before paging initialization.
+> > +		 * This hole must be a multiple of 4M.
+> > +		 */
+> > +		else if (!memcmp(from, "reservedtop=", 12)) {
+> > +			unsigned long reserved = memparse(from+12, &from);
+> > +			reserved &= ~0x3fffff;
+> > +			set_fixaddr_top(-reserved);
+> > +		}
+> 
+> You need to add a dummy __setup for it, otherwise it will end up in
+> init's environments or be warned about.
 
-Sigh. Spaces before printk. Whatever next.
-I am now officially bored of seeing this patch.
+Ewww, it's not the only one.  This whole function should be replaced
+with a whole heap of early_param()s and a call to parse_early_param().
 
-		Dave
+I only implemented parse_early_param two years ago; maybe it is time for
+i386 to use it...
 
-
-In case where we detect a single bit has been flipped, we spew
-the usual slab corruption message, which users instantly think
-is a kernel bug.  In a lot of cases, single bit errors are
-down to bad memory, or other hardware failure.
-
-This patch adds an extra line to the slab debug messages
-in those cases, in the hope that users will try memtest before
-they report a bug.
-
-000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Single bit error detected. Possibly bad RAM. Run memtest86.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
-
-diff --git a/mm/slab.c b/mm/slab.c
-index 21ba060..39f1183 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1638,10 +1638,28 @@ static void poison_obj(struct kmem_cache
- static void dump_line(char *data, int offset, int limit)
- {
- 	int i;
-+	unsigned char total = 0, bad_count = 0, errors;
- 	printk(KERN_ERR "%03x:", offset);
--	for (i = 0; i < limit; i++)
-+	for (i = 0; i < limit; i++) {
-+		if (data[offset + i] != POISON_FREE) {
-+			total += data[offset + i];
-+			bad_count++;
-+		}
- 		printk(" %02x", (unsigned char)data[offset + i]);
-+	}
- 	printk("\n");
-+
-+	if (bad_count == 1) {
-+		errors = total ^ POISON_FREE;
-+		if (errors && !(errors & (errors-1))) {
-+			printk(KERN_ERR "Single bit error detected. Probably bad RAM.\n");
-+#ifdef CONFIG_X86
-+			printk(KERN_ERR "Run memtest86+ or a similar memory test tool.\n");
-+#else
-+			printk(KERN_ERR "Run a memory test tool.\n");
-+#endif
-+		}
-+	}
- }
- #endif
- 
-
+I'll create a patch,
+Rusty.
 -- 
-http://www.codemonkey.org.uk
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+

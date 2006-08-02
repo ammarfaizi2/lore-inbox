@@ -1,60 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWHBFVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWHBFZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWHBFVD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 01:21:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWHBFVD
+	id S1751246AbWHBFZS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 01:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWHBFZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 01:21:03 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:43470 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751230AbWHBFVC (ORCPT
+	Wed, 2 Aug 2006 01:25:17 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:22678 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751246AbWHBFZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 01:21:02 -0400
-Subject: Re: [Xen-devel] Re: [PATCH 8 of 13] Add a bootparameter to reserve
-	high linear address space for hypervisors
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>,
-       virtualization@lists.osdl.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Christoph Lameter <clameter@sgi.com>
-In-Reply-To: <200608020636.58133.ak@suse.de>
-References: <0adfc39039c79e4f4121.1154462446@ezr>
-	 <200608020621.22827.ak@suse.de>
-	 <1154493226.2570.50.camel@localhost.localdomain>
-	 <200608020636.58133.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 15:20:57 +1000
-Message-Id: <1154496058.2570.57.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 2 Aug 2006 01:25:15 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
+Date: Wed, 2 Aug 2006 07:21:44 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <200608020507.50590.ak@suse.de> <m1slkfvinh.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1slkfvinh.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608020721.44139.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-02 at 06:36 +0200, Andi Kleen wrote:
-> Please just make a proper patch - either add a call to it to all setup_archs,
-> or add a call to before setup_arch in init/main.c. While such ifdefs
-> for specific architecture hacks are more popular lately it doesn't mean they are a good idea.
+On Wednesday 02 August 2006 06:57, Eric W. Biederman wrote:
+> Andi Kleen <ak@suse.de> writes:
+> 
+> >> > Actually the best way to reuse would be to first do 64bit uncompressor
+> >> > and linker directly, but short of that #includes would be fine too.
+> >> 
+> >> > Would be better to just pull in lib/string.c
+> >> 
+> >> Maybe.  Size is fairly important 
+> >
+> > Why is size important here?
+> 
+> For the same reason that we compress the kernel. ;)
+> 
+> This is the one chunk of code that we don't compress so every extra
+> byte makes our executable bigger.  Now I think the code size is
+> actually in the 32k - 64k range so as long as it is a minor change
+> it doesn't really matter.
 
-It's been around for two years, but if you fix x86_64 to use
-early_param(), and I'll patch the other setup_archs to call
-parse_early_param and remove the init/main.c call 8)
+   text    data     bss     dec     hex filename
+   1909     352      12    2273     8e1 arch/x86_64/kernel/early_printk.o
+   2212       0       0    2212     8a4 lib/string.o
 
-> I hope there aren't any existing architectures that use it in the middle
-> of setup_arch or rely on it being after setup_arch.
+It's minor.
 
-setup_arch is responsible for grabbing the command line, so that has to
-happen first.  Even on x86, functions later in setup_arch rely on
-cmdline parsing having happened.  So for the moment setup_arch has to
-call parse_early_param.
+> 
+> The big pain with using lib/string.c and
+> arch/x86_64/kernel/early_printk.c is that it is significant change
+> in how the code of misc.c is constructed.  
 
-Maybe one day we can create a new "char *arch_get_cmdline()", implement
-that everywhere, then call it and parse_early_param from core code.  But
-baby steps...
+Not if you use #include
 
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+> Which means some 
+> serious reevaluation of all kinds of things need to be considered.
+> Making it a lot of work :)
+> 
+> One of the practical dangers is that we make it more likely
+> we can kill the boot by messing up the shared code.
 
+If they're messed up the later boot will fail too. Doesn't make
+too much difference.
+
+> 
+> I'm not certain what to think when even including normal
+> kernel headers causes problems.  It certainly makes me leery
+> of including normal kernel code.  But it might simplify some
+> of the problems too.
+
+On x86-64 some trouble comes from it being 32bit code. 
+That is why I suggested making it 64bit first, which would
+avoid many of the problems.
+ 
+> Whichever way I go scrutinizing that possibility carefully is
+> a lot of work.
+
+64bit conversion would be some work, the rest isn't I think.
+
+Alternatively if you don't like it we can just drop these compressor patches.
+I don't think they were essential.
+
+-Andi

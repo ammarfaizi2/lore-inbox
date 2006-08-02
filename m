@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWHBPIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWHBPMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWHBPIB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 11:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWHBPIB
+	id S1751180AbWHBPMe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 11:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWHBPMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 11:08:01 -0400
-Received: from mga09.intel.com ([134.134.136.24]:52900 "EHLO
-	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751091AbWHBPIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 11:08:00 -0400
-X-IronPort-AV: i="4.07,205,1151910000"; 
-   d="scan'208"; a="100802076:sNHT2918481097"
-Message-ID: <44D0BF60.4050905@intel.com>
-Date: Wed, 02 Aug 2006 08:06:08 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.5 (X11/20060728)
+	Wed, 2 Aug 2006 11:12:34 -0400
+Received: from web25801.mail.ukl.yahoo.com ([217.12.10.186]:23691 "HELO
+	web25801.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751180AbWHBPMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 11:12:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=gEY0kAtf/0ZOnh9KmxQHVGmg9aaM304245NfUNDPeJxDQt2b6AUdy/IDo/9pGclQ8Ufr5JiIfxLxbrYHAWbmVNnVXZwcKQL55IvBr6+PhMTeOGDfCg4y+j+bsY8JjGz8Md4xA+xjWeF1AJjd844jtMhq695hiagFsjY1PTbuXok=  ;
+Message-ID: <20060802151233.46707.qmail@web25801.mail.ukl.yahoo.com>
+Date: Wed, 2 Aug 2006 15:12:33 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : sparsemem usage
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44D0B5C6.1040006@shadowen.org>
 MIME-Version: 1.0
-To: Shawn Starr <shawn.starr@rogers.com>
-CC: linux-kernel@vger.kernel.org, NetDev <netdev@vger.kernel.org>
-Subject: Re: [2.6.18-rc2][e1000][swsusp] - Regression - Suspend to disk and
- resume breaks e1000 - RESOLVED Bug #6867
-References: <200607160509.52930.shawn.starr@rogers.com> <44BA6A4A.5090007@intel.com> <200608012355.28504.shawn.starr@rogers.com>
-In-Reply-To: <200608012355.28504.shawn.starr@rogers.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Aug 2006 15:07:25.0711 (UTC) FILETIME=[5D1231F0:01C6B645]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
-> On Sunday 16 July 2006 12:33 pm, Auke Kok wrote:
->> [adding netdev to the cc]
->>
->> unfortunately I didn't.
->>
->> e1000 has a special e1000_pci_save_state/e1000_pci_restore_state set of
->> routines that save and restore the configuration space. the fact that it
->> works for suspend to memory to me suggests that there is nothing wrong with
->> that.
+Andy Whitcroft wrote:
+> The memory allocator buddy location algorithm has an implicit assumption 
+> that the memory map will be contigious and valid out to MAX_ORDER.  ie 
+> that we can do relative arithmetic on a page* for a page to find its 
+> buddy at all times.  The allocator never looks outside a MAX_ORDER 
+> block, aligned to MAX_ORDER in physical pages.  SPARSEMEM's 
+> implementation by it nature breaks up the mem_map at the section size. 
+> Thus for the buddy to work a section must be >= MAX_ORDER in size to 
+> maintain the contiguity constraint.
 
-> Hi Auke,
-> 
-> It appears 2.6.18-rc3 this does not occur anymore. I suspended to disk/ram and 
-> the interface pci registers were restored. Bugzilla #6867
+thanks for the explanation. But still something I'm missing, how can a
+MAX_ORDER block be allocated in a memory whose size is only 128Ko ?
+Can't it be detected by the buddy allocatorvery early without doing any 
+relative arithmetic on a page* ?
 
-I would not be surprised if all the suspend issues in 2.6.18rcX were not 
-involved in this somehow... thanks for reporting back in.
+> However, just because you have a small memory block in your memory map 
+> doesn't mean that the sparsemem section size needs to be that small to 
+> match.  If there is any valid memory in any section that section will be 
+> instantiated and the valid memory marked within it, any invalid memory 
+> is marked reserved.  
 
-Auke
+ah ok but that means that pfn_valid() will still returns ok for invalid page which
+are in a invalid memory marked as reserved. Is it not risky ?
+
+> The section size bounds the amount of internal 
+> fragmentation we can have in the mem_map.  SPARSEMEM as its name 
+> suggests wins biggest when memory is very sparsly populate. 
+
+sorry but I don't understand. I would say that sparsemem section size should
+be chosen to make mem_map[] and mem_section[] sizes as small as possible.
+
+> If I am 
+> reading correctly your memory is actually contigious.
+
+well there're big holes in address space.
+
+thanks
+
+Francis
+
+
+
+

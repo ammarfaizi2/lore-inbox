@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWHBEqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWHBEuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWHBEqt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 00:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWHBEqs
+	id S1751182AbWHBEuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWHBEuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 00:46:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58044 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751170AbWHBEqs (ORCPT
+	Wed, 2 Aug 2006 00:50:44 -0400
+Received: from mail.suse.de ([195.135.220.2]:6533 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751165AbWHBEun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 00:46:48 -0400
-Date: Wed, 2 Aug 2006 00:46:39 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: frequent slab corruption (since a long time)
-Message-ID: <20060802044639.GB30216@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20060802021617.GH22589@redhat.com> <p73fygfzu2v.fsf@verdi.suse.de> <20060802042200.GA30216@redhat.com> <200608020635.00991.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Aug 2006 00:50:43 -0400
+From: Andi Kleen <ak@suse.de>
+To: akpm@osdl.org
+Subject: NFS root broken in 2.6.18-rc2-mm1
+Date: Wed, 2 Aug 2006 06:50:18 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608020635.00991.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200608020650.18093.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 06:35:00AM +0200, Andi Kleen wrote:
- > On Wednesday 02 August 2006 06:22, Dave Jones wrote:
- > 
- > > Problem with that approach is that DEBUG_PAGEALLOC makes things
- > > so damned slow that it's pretty much unusable, and this bug
- > > doesn't seem to want to repeat itself to order, so I doubt
- > > many people would put up with the slowdown long enough to chase it down.
- > 
- > Really?  It shouldn't be that much slower in theory. Do you
- > have numbers?
 
-You need slower boxes :-)
+FYI,
 
-Every time I enable it to try and diagnose a bug in the Fedora kernel
-I get a flood of "hey what gives, everything got slow" emails.
-That speaks louder than any numbers to me.
+I tried to boot 2.6.18-rc2-mm1 on a nfsroot system with x86-64 defconfig.
 
-It could be less of an issue on modern CPUs than it used to be, but
-it has been painful enough in the past that I've really only enabled
-it when I've been desperately trying to chase something down.
+Unfortunately it seems to generate lots of random EIO while reading executables 
+during the startup sequence, which causes some things to break. Writing
+also doesn't seem to work - it complains about EPERM for that.
+Not all executables error out, but at least some.
 
- > If it's a big problem it could probably be made faster by batching
- > the TLB flushes more.
+The same setup works fine with mainline 2.6.18-rc*
 
-Maybe, though that gives me the creeps a little for some reason.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+-Andi

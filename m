@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWHBF2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWHBFbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWHBF2y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 01:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWHBF2x
+	id S1751249AbWHBFbE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 01:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWHBFbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 01:28:53 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5345 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751248AbWHBF2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 01:28:53 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<p73zmeoz2l4.fsf@verdi.suse.de>
-	<m1ejvzx2dw.fsf@ebiederm.dsl.xmission.com>
-	<200608020510.07569.ak@suse.de>
-Date: Tue, 01 Aug 2006 23:27:00 -0600
-In-Reply-To: <200608020510.07569.ak@suse.de> (Andi Kleen's message of "Wed, 2
-	Aug 2006 05:10:07 +0200")
-Message-ID: <m1odv3vhaz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Aug 2006 01:31:04 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34275
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751249AbWHBFbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 01:31:03 -0400
+Date: Tue, 01 Aug 2006 22:31:10 -0700 (PDT)
+Message-Id: <20060801.223110.56811869.davem@davemloft.net>
+To: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: frequent slab corruption (since a long time)
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060801.220538.89280517.davem@davemloft.net>
+References: <20060802021617.GH22589@redhat.com>
+	<20060801.220538.89280517.davem@davemloft.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+From: David Miller <davem@davemloft.net>
+Date: Tue, 01 Aug 2006 22:05:38 -0700 (PDT)
 
->> > /* WARNING!!
->> >  * This code is compiled with -fPIC and it is relocated dynamically
->> >  * at run time, but no relocation processing is performed.
->> >  * This means that it is not safe to place pointers in static structures.
->> >  */
->
-> iirc the only static relocation in early_printk is the one to initialize
-> the console pointers - that could certainly be moved to be at run
-> time.
+> The corruption is always a 32-bit 0xffffffff followed by
+> a 32-bit 0x00000000, 12 bytes into the object.
 
-The function pointers in the console structure are also a problem.
-static struct console simnow_console = {
-	.name =		"simnow",
-	.write =	simnow_write,
-	.flags =	CON_PRINTBUFFER,
-	.index =	-1,
-};
+This analysis is wrong, it's "0xb0 + 12" bytes into the object
+which is 188 bytes.  For x86, this lands us at the "count"
+member of the tty_struct, and it shows that the tty count
+has decremented to -1 (0xffffffff) which is a serious bug.
 
->> lib/string.c might be useful.  The fact that the functions are not
->> static slightly concerns me.  I have a vague memory of non-static
->> functions generating relocations for no good reason.
->
-> Would surprise me.
+Note also that the ws_row and ws_col fields of the tty->winsize are
+next and has been zero'd out (0x00000000) by the corruption.
 
-The context where it bit me was memtest86, if I recall correctly.
-The problem there was I did process relocations and I discovered simply
-by making functions static or at least non-exported I had many fewer
-relocations to process.
+There aren't too many places that write to tty->winsize,
+the most notable is tiocswinsz(), called from tty_ioctl.
 
-Since I am relying on a very clever trick to generate code that
-doesn't have relocations at run time I have to be careful.
+For a PTY with sub-type PTY_TYPE_MASTE, which is very likely
+the case we have here, it assigns the user provided winsize
+to both tty->winsize and tty->link->winsz (via the real_tty)
+argument to tiocswinsz().
 
-So if I want to continue not processing relocations.
-I need to be careful not to use constructs that will generate
-a procedure linkage table, which I think only kicks in with
-external functions and multiple files. 
+Actually, there is one other notable spot that writes to
+tty->winsize, drivers/char/vt.c:vc_resize(), which copies
+it to vc->vc_tty->winsize.
 
-I need to be careful not to put pointers in statically allocated
-data structures.
+Perhaps this is a clue... but wait there is a better clue.
 
-Ideally the code would be setup so you can compile out consoles
-the user finds uninteresting.
+con_open() sets values there, and in particular it only
+assigns the ws_row and ws_col members, which matches up
+with the fact that we see only the first two members of
+tty->winsize spammed to zero.
 
-It is annoying to have to call strlen on all of the strings
-you want to print..
+If the guilty code path involved vc_resize() or tiocswinsz()
+we'd see 8 bytes, not 4 bytes, of the tty->winsize set to
+something other than the SLAB free poison chars.
 
-So there are plenty of mismatches, there.
-But we may be able to harmonized them, and reuse early_printk.
+So it seems, from this perspective, that con_open()'s assignments
+which are causing the corruption.  This is backed up by the trace
+found in bugzilla #200928 being early during bootup.
 
-Eric
+But even this doesn't add up because con_open() has to be seeing
+zero's there at the time it runs, not the poison values, since it's
+assignments are guarded like this:
 
+	if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
+		tty->winsize.ws_row = vc_cons[currcons].d->vc_rows;
+		tty->winsize.ws_col = vc_cons[currcons].d->vc_cols;
+	}
+
+Hmmm...

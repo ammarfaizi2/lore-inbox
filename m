@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWHBSv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWHBSzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbWHBSv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 14:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWHBSv0
+	id S932148AbWHBSzb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 14:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWHBSzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 14:51:26 -0400
-Received: from navgwout.symantec.com ([198.6.49.12]:33278 "EHLO
-	navgwout.symantec.com") by vger.kernel.org with ESMTP
-	id S932144AbWHBSvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 14:51:25 -0400
-Date: Wed, 2 Aug 2006 19:50:31 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: mm snapshot broken-out-2006-08-02-00-27.tar.gz uploaded
-In-Reply-To: <6bffcb0e0608021115s65f81224td8d852b931a9b787@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0608021942500.13042@blonde.wat.veritas.com>
-References: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
- <6bffcb0e0608021115s65f81224td8d852b931a9b787@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Aug 2006 18:51:05.0001 (UTC) FILETIME=[9B975990:01C6B664]
+	Wed, 2 Aug 2006 14:55:31 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:41854 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932148AbWHBSza
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 14:55:30 -0400
+Date: Wed, 2 Aug 2006 21:55:27 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org
+Subject: Re: [PATCH] Move valid_dma_direction() from x86_64 to generic code
+Message-ID: <20060802185527.GB4982@rhun.ibm.com>
+References: <200607280928.54306.eike-kernel@sf-tec.de> <20060728174449.GA11046@rhun.ibm.com> <200608021720.40815.eike-kernel@sf-tec.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608021720.40815.eike-kernel@sf-tec.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Aug 2006, Michal Piotrowski wrote:
-> On 02/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> > The mm snapshot broken-out-2006-08-02-00-27.tar.gz has been uploaded to
-> >
-> >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-02-00-27.tar.gz
-> >
-> > It contains the following patches against 2.6.18-rc3:
-....
-> 
-> Here is something new, previous mm snapshot was fine
-> 
-> Aug  2 19:56:08 ltg01-fedora kernel: ------------[ cut here ]------------
-> Aug  2 19:56:08 ltg01-fedora kernel: kernel BUG at
-> /usr/src/linux-work4/mm/shmem.c:1228!
-> 1228            BUG_ON(!(vma->vm_flags & VM_CAN_INVALIDATE));
-> 
-> I will revert
-> fix-the-race-between-invalidate_inode_pages-and-do_no_page.patch
-> fix-the-race-between-invalidate_inode_pages-and-do_no_page-tidy.patch
-> and see what will happen.
+On Wed, Aug 02, 2006 at 05:20:40PM +0200, Rolf Eike Beer wrote:
 
-Rather than reverting those, please add something like (I've not seen
-this particular tree) the fixup below - it's easily missed that
-ipc/shm.c has its own reference to shmem_nopage.  (Last I heard,
-the flag was called VM_CAN_INVLD, but it looks like I'm not the
-only one averse to unpronounceables.)
+> As suggested by Muli Ben-Yehuda this function is moved to generic code as
+> may be useful for all archs.
 
-Hugh
+I like it, but ...
 
---- 2.6.18-rc2-mm1/ipc/shm.c	2006-07-27 16:19:18.000000000 +0100
-+++ linux/ipc/shm.c	2006-08-02 19:29:46.000000000 +0100
-@@ -264,6 +264,7 @@ static struct vm_operations_struct shm_v
- 	.set_policy = shmem_set_policy,
- 	.get_policy = shmem_get_policy,
- #endif
-+	.vm_flags = VM_CAN_INVALIDATE,
- };
- 
- static int newseg (struct ipc_namespace *ns, key_t key, int shmflg, size_t size)
+> diff --git a/include/asm-x86_64/dma-mapping.h b/include/asm-x86_64/dma-mapping.h
+> index b6da83d..10174b1 100644
+> --- a/include/asm-x86_64/dma-mapping.h
+> +++ b/include/asm-x86_64/dma-mapping.h
+> @@ -55,13 +55,6 @@ extern dma_addr_t bad_dma_address;
+>  extern struct dma_mapping_ops* dma_ops;
+>  extern int iommu_merge;
+>  
+> -static inline int valid_dma_direction(int dma_direction)
+> -{
+> -	return ((dma_direction == DMA_BIDIRECTIONAL) ||
+> -		(dma_direction == DMA_TO_DEVICE) ||
+> -		(dma_direction == DMA_FROM_DEVICE));
+> -}
+> -
+
+Several files include asm/dma-mapping.h directly, which will now cause
+them to fail to compile on x86-64 due to the missing definition for
+valid_dma_direction, unless by chance another header already brought
+it in indirectly. I guess the right thing to do is convert them all to
+using linux/dma-mapping.h instead.
+
+./arch/x86_64/kernel/pci-swiotlb.c:6:#include <asm/dma-mapping.h>
+./drivers/net/fec_8xx/fec_main.c:40:#include <asm/dma-mapping.h>
+./drivers/net/fs_enet/fs_enet.h:11:#include <asm/dma-mapping.h>
+./include/asm-x86_64/swiotlb.h:5:#include <asm/dma-mapping.h>
+./include/linux/dma-mapping.h:27:#include <asm/dma-mapping.h>
+
+Cheers,
+Muli

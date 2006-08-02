@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWHBQoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWHBQt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWHBQoL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 12:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWHBQoL
+	id S1750704AbWHBQt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 12:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbWHBQt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 12:44:11 -0400
-Received: from mail.tmr.com ([64.65.253.246]:62401 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S932101AbWHBQoJ (ORCPT
+	Wed, 2 Aug 2006 12:49:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50390 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750704AbWHBQtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 12:44:09 -0400
-Message-ID: <44D0D718.5050505@tmr.com>
-Date: Wed, 02 Aug 2006 12:47:20 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-Newsgroups: gmane.linux.raid,gmane.linux.kernel
-To: Alexandre Oliva <aoliva@redhat.com>
-CC: Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: let md auto-detect 128+ raid members, fix potential race condition
-References: <ork65veg2y.fsf@free.oliva.athome.lsd.ic.unicamp.br>	<20060730124139.45861b47.akpm@osdl.org>	<orac6qerr4.fsf@free.oliva.athome.lsd.ic.unicamp.br>	<17613.16090.470524.736889@cse.unsw.edu.au> <44CF9221.90902@tmr.com> <orlkq8f8ge.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-In-Reply-To: <orlkq8f8ge.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Aug 2006 12:49:25 -0400
+Date: Wed, 2 Aug 2006 09:49:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.18-rc1-mm2 and 2.6.18-rc3 (bttv: NULL pointer derefernce)
+Message-Id: <20060802094904.2057eaf4.akpm@osdl.org>
+In-Reply-To: <200608021800.23905.dominik.karall@gmx.net>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	<200607141830.01858.dominik.karall@gmx.net>
+	<200608021800.23905.dominik.karall@gmx.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandre Oliva wrote:
-> On Aug  1, 2006, Bill Davidsen <davidsen@tmr.com> wrote:
-> 
->> I rarely think you are totally wrong about anything RAID, but I do
->> believe you have missed the point of autodetect. It is intended to
->> work as it does now, building the array without depending on some user
->> level functionality.
-> 
-> Well, it clearly depends on at least some user level functionality
-> (the ioctl that triggers autodetect).  Going from that to a
-> full-fledged mdadm doesn't sound like such a big deal to me.
-> 
->> I don't personally see the value of autodetect for putting together
->> the huge number of drives people configure. I see this as a way to
->> improve boot reliability, if someone needs 64 drives for root and
->> boot, they need to read a few essays on filesystem
->> configuration. However, I'm aware that there are some really bizarre
->> special cases out there.
-> 
-> There's LVM.  If you have to keep root out of the VG just because
-> people say so, you lose lots of benefits from LVM, such as being able
-> to grow root with the system running, take snapshots of root, etc.
-> 
-But it's MY system. I don't have to anything. More to the point, growing 
-root while the system is running is done a lot less than booting. In 
-general the root f/s has very little in it, and that's a good thing.
+On Wed, 2 Aug 2006 18:00:23 +0200
+Dominik Karall <dominik.karall@gmx.net> wrote:
 
--- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
+> I'm not sure if anybody is working on this bug (see below), but as it 
+> happens with 2.6.18-rc3 too, I think it's important to inform you to 
+> avoid that this bug hits the final release.
+> 
+> thx,
+> dominik
+> 
+> On Friday, 14. July 2006 18:30, Dominik Karall wrote:
+> > On Friday, 14. July 2006 07:48, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6
+> > >.1 8-rc1/2.6.18-rc1-mm2/
+> >
+> > Hi,
+> > just want to inform you that the bug is present in 2.6.18-rc1-mm2
+> > too. But I took a better screenshot which should be readable:
+> > http://stud4.tuwien.ac.at/~e0227135/kernel/IMG_5614.JPG
+
+I believe this is fixed in Mauro's not-yet-pulled DVB tree?

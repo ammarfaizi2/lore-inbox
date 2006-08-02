@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWHBQ6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWHBRAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWHBQ6H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 12:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWHBQ6G
+	id S1751232AbWHBRAr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 13:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWHBRAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 12:58:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58584 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751252AbWHBQ6F (ORCPT
+	Wed, 2 Aug 2006 13:00:47 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:64932 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751232AbWHBRAq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 12:58:05 -0400
-Date: Wed, 2 Aug 2006 09:57:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
+	Wed, 2 Aug 2006 13:00:46 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-cc: Dominik Karall <dominik.karall@gmx.net>, linux-kernel@vger.kernel.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.18-rc1-mm2 and 2.6.18-rc3 (bttv: NULL pointer derefernce)
-In-Reply-To: <20060802094904.2057eaf4.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0608020957220.4168@g5.osdl.org>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org> <200607141830.01858.dominik.karall@gmx.net>
- <200608021800.23905.dominik.karall@gmx.net> <20060802094904.2057eaf4.akpm@osdl.org>
+Subject: [PATCH 0/3] swsusp cleanups
+Date: Wed, 2 Aug 2006 18:42:21 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200608021842.21774.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+The following patches contain some small clean up some functions
+in kernel/power/snapshot.c and mm/page_alloc.c.
 
-On Wed, 2 Aug 2006, Andrew Morton wrote:
-> 
-> I believe this is fixed in Mauro's not-yet-pulled DVB tree?
+Greetings,
+Rafael
 
-Well, the DVB tree isn't _getting_ pulled, since it exploded in size after 
--rc1, and as such is not pullable any more.
-
-		Linus

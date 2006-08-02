@@ -1,48 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWHBUzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWHBU4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbWHBUzh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 16:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWHBUzh
+	id S1751183AbWHBU4w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 16:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWHBU4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 16:55:37 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:4834 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751008AbWHBUzg (ORCPT
+	Wed, 2 Aug 2006 16:56:52 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:17821 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751183AbWHBU4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 16:55:36 -0400
-Subject: [RFC][PATCH] enable VMSPLIT for highmem kernels
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 02 Aug 2006 13:55:33 -0700
-Message-Id: <20060802205533.CBD06E21@localhost.localdomain>
+	Wed, 2 Aug 2006 16:56:51 -0400
+Date: Wed, 2 Aug 2006 13:57:30 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] SRCU: report out-of-memory errors
+Message-ID: <20060802205730.GD1292@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com> <Pine.LNX.4.44L0.0608021621210.8004-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0608021621210.8004-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 02, 2006 at 04:38:28PM -0400, Alan Stern wrote:
+> Currently the init_srcu_struct() routine has no way to report 
+> out-of-memory errors.  This patch (as761) makes it return -ENOMEM when the 
+> per-cpu data allocation fails.
+> 
+> The patch also makes srcu_init_notifier_head() report a BUG if a notifier
+> head can't be initialized.  Perhaps it should return -ENOMEM instead, but
+> in the most likely cases where this might occur I don't think any recovery
+> is possible.  Notifier chains generally are not created dynamically.
 
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
 
----
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> 
+> ---
+> 
+> Paul, I trust you will agree with the changes this makes to the SRCU code.
 
- lxc-dave/arch/i386/Kconfig |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+Indeed I do...  Good catch!!!
 
-diff -puN arch/i386/Kconfig~split-for-pae arch/i386/Kconfig
---- lxc/arch/i386/Kconfig~split-for-pae	2006-08-02 12:58:55.000000000 -0700
-+++ lxc-dave/arch/i386/Kconfig	2006-08-02 13:02:55.000000000 -0700
-@@ -497,7 +497,7 @@ config HIGHMEM64G
- endchoice
- 
- choice
--	depends on EXPERIMENTAL && !X86_PAE
-+	depends on EXPERIMENTAL
- 	prompt "Memory split" if EMBEDDED
- 	default VMSPLIT_3G
- 	help
-@@ -519,6 +519,7 @@ choice
- 	config VMSPLIT_3G
- 		bool "3G/1G user/kernel split"
- 	config VMSPLIT_3G_OPT
-+		depends on !HIGHMEM
- 		bool "3G/1G user/kernel split (for full 1G low memory)"
- 	config VMSPLIT_2G
- 		bool "2G/2G user/kernel split"
-_
+							Thanx, Paul
+
+> The second part of this patch series will convert the cpufreq transition 
+> notifier chain to use SRCU, with the initialization occuring in a 
+> core_initcall routine.  Although I haven't actually tried it, it seems 
+> very likely that an attempt to use the notifier chain before it has been 
+> initialized will cause a memory-address fault.
+> 
+> Alan Stern
+> 
+> 
+> Index: 2.6.18-rc2-mm1/kernel/sys.c
+> ===================================================================
+> --- 2.6.18-rc2-mm1.orig/kernel/sys.c
+> +++ 2.6.18-rc2-mm1/kernel/sys.c
+> @@ -516,7 +516,7 @@ EXPORT_SYMBOL_GPL(srcu_notifier_call_cha
+>  void srcu_init_notifier_head(struct srcu_notifier_head *nh)
+>  {
+>  	mutex_init(&nh->mutex);
+> -	init_srcu_struct(&nh->srcu);
+> +	BUG_ON(init_srcu_struct(&nh->srcu) < 0);
+>  	nh->head = NULL;
+>  }
+>  
+> Index: 2.6.18-rc2-mm1/kernel/srcu.c
+> ===================================================================
+> --- 2.6.18-rc2-mm1.orig/kernel/srcu.c
+> +++ 2.6.18-rc2-mm1/kernel/srcu.c
+> @@ -42,11 +42,12 @@
+>   * to any other function.  Each srcu_struct represents a separate domain
+>   * of SRCU protection.
+>   */
+> -void init_srcu_struct(struct srcu_struct *sp)
+> +int init_srcu_struct(struct srcu_struct *sp)
+>  {
+>  	sp->completed = 0;
+> -	sp->per_cpu_ref = alloc_percpu(struct srcu_struct_array);
+>  	mutex_init(&sp->mutex);
+> +	sp->per_cpu_ref = alloc_percpu(struct srcu_struct_array);
+> +	return (sp->per_cpu_ref ? 0 : -ENOMEM);
+>  }
+>  
+>  /*
+> Index: 2.6.18-rc2-mm1/include/linux/srcu.h
+> ===================================================================
+> --- 2.6.18-rc2-mm1.orig/include/linux/srcu.h
+> +++ 2.6.18-rc2-mm1/include/linux/srcu.h
+> @@ -43,7 +43,7 @@ struct srcu_struct {
+>  #define srcu_barrier()
+>  #endif /* #else #ifndef CONFIG_PREEMPT */
+>  
+> -void init_srcu_struct(struct srcu_struct *sp);
+> +int init_srcu_struct(struct srcu_struct *sp);
+>  void cleanup_srcu_struct(struct srcu_struct *sp);
+>  int srcu_read_lock(struct srcu_struct *sp);
+>  void srcu_read_unlock(struct srcu_struct *sp, int idx);
+> 

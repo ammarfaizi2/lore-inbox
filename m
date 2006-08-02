@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWHBGpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWHBGpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWHBGpN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 02:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHBGpN
+	id S1751279AbWHBGpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 02:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHBGpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 02:45:13 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:30394 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1751209AbWHBGpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 02:45:11 -0400
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: Christoph Lameter <clameter@sgi.com>,
-       Paul Davies <pauld@gelato.unsw.edu.au>
-Date: Wed, 2 Aug 2006 16:44:53 +1000
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Chris Wright <chrisw@sous-sol.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Gerd Hoffmann <kraxel@suse.de>, Hollis Blanchard <hollisb@us.ibm.com>,
-       Ian Pratt <ian.pratt@xensource.com>, Zachary Amsden <zach@vmware.com>,
-       npiggin@suse.de
-Subject: Re: [PATCH 1 of 13] Add apply_to_page_range() which applies a function to a pte range
-Message-ID: <20060802064453.GA10986@cse.unsw.EDU.AU>
-References: <79a98a10911fc4e77dce.1154421372@ezr.goop.org> <m1ejw0zmic.fsf@ebiederm.dsl.xmission.com> <20060801211410.GH2654@sequoia.sous-sol.org> <Pine.LNX.4.64.0608011421080.19146@schroedinger.engr.sgi.com> <1154492211.2570.43.camel@localhost.localdomain> <Pine.LNX.4.64.0608012214440.21242@schroedinger.engr.sgi.com>
+	Wed, 2 Aug 2006 02:45:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1518 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751279AbWHBGph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 02:45:37 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<200608020507.50590.ak@suse.de>
+	<m1slkfvinh.fsf@ebiederm.dsl.xmission.com>
+	<200608020721.44139.ak@suse.de>
+Date: Wed, 02 Aug 2006 00:44:00 -0600
+In-Reply-To: <200608020721.44139.ak@suse.de> (Andi Kleen's message of "Wed, 2
+	Aug 2006 07:21:44 +0200")
+Message-ID: <m1u04vtz67.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608012214440.21242@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 10:18:33PM -0700, Christoph Lameter wrote:
-> I have not been involved in this issue for a long time now.
-> You need to contact the people actively working on code like this. 
-> Most important is likely Ian Wienand. 
+Andi Kleen <ak@suse.de> writes:
 
-Paul Davies <pauld@gelato.unsw.edu.au> is the person actively working
-on this project.  I might note he has not been doing it un-announced;
-see
+> On Wednesday 02 August 2006 06:57, Eric W. Biederman wrote:
+>
+> On x86-64 some trouble comes from it being 32bit code. 
+> That is why I suggested making it 64bit first, which would
+> avoid many of the problems.
 
-http://marc.theaimsgroup.com/?l=linux-mm&m=115276500100695&w=2
+:)
+  
+>> Whichever way I go scrutinizing that possibility carefully is
+>> a lot of work.
+>
+> 64bit conversion would be some work, the rest isn't I think.
 
-for the latest patches, or some of the other links Cristoph pointed
-out.  I'm sure he'd love to talk to anyone about it :)
+Except for the head.S work the 64bit conversion was practically a noop.
 
--i
+> Alternatively if you don't like it we can just drop these compressor patches.
+> I don't think they were essential.
+
+Agreed.  The printing portion wasn't essential.
+
+At this point I think dropping the non-essential bits just to get the size
+of the patchset down makes sense.
+
+Eric

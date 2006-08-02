@@ -1,98 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWHBXCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWHBXDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWHBXCP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 19:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWHBXCP
+	id S932301AbWHBXDU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 19:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWHBXDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 19:02:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:141 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932181AbWHBXCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 19:02:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=jvZlHBHR0NbLcvqPHEMWGQFk+6O3JgfR2vBdjk8dzvpL2cn2u0YyzGqUls9mOwXP9+Fz/zIAmsKpbBmAGa3D9DpiqwEUOmv0MKjApkJjOYXB75Yc6FZ1AldADmauk6iuIHob0IdB3VJLT06WlmWADnRHfHpaIEWpBrtrC/hU9D4=
-Date: Thu, 3 Aug 2006 03:02:11 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] tty_io.c: keep davej sane
-Message-ID: <20060802230210.GB6825@martell.zuzino.mipt.ru>
-References: <20060802223604.GI3639@redhat.com> <20060802223733.GA20485@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Aug 2006 19:03:20 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:52364 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932301AbWHBXDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 19:03:19 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Pavel Roskin <proski@gnu.org>
+Subject: Re: pccards are not detected
+Date: Thu, 3 Aug 2006 01:02:47 +0200
+User-Agent: KMail/1.7.2
+Cc: Marcus Better <marcus@better.se>,
+       linux-pcmcia <linux-pcmcia@lists.infradead.org>,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+References: <200608021931.46058.daniel.ritz-ml@swissonline.ch> <200608022001.45140.daniel.ritz-ml@swissonline.ch> <1154551499.7714.13.camel@dv>
+In-Reply-To: <1154551499.7714.13.camel@dv>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060802223733.GA20485@redhat.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608030102.48045.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-02.tornado.cablecom.ch 1378;
+	Body=7 Fuz1=7 Fuz2=7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 06:37:33PM -0400, Dave Jones wrote:
-> On Wed, Aug 02, 2006 at 06:36:04PM -0400, Dave Jones wrote:
->  > I knew I'd regret digging in the tty code.
->  > Can someone enlighten me as to what this *should* be doing?
->  > 
->  > int tty_insert_flip_string(struct tty_struct *tty, const unsigned char *chars,
->  >                 size_t size)
->  > {   
->  >    	.... 
->  >     /* There is a small chance that we need to split the data over
->  >        several buffers. If this is the case we must loop */
->  >     while (unlikely(size > copied));
->  >     return copied;
->  > }   
->  > 
->  > 
->  > Looping I can understand, but forever ?
->  > Given we're not advancing 'copied', can we just kill that while loop?
->  > Or should we be changing it with each iteration?
+On Wednesday 02 August 2006 22.44, Pavel Roskin wrote:
+> On Wed, 2006-08-02 at 20:01 +0200, Daniel Ritz wrote:
+> > On Wednesday 02 August 2006 19.42, Pavel Roskin wrote:
+> > > It depends.  For some custom systems, BIOS may be a lifesaver.  Let's
+> > > not change the whole logic of the PCI detection because of one broken
+> > > BIOS.
+> > 
+> > errm. 2.6.16 automatically uses direct access. if first shows the PCI BIOS
+> > line, then the direct access line in dmesg. pci_raw_ops is first set to
+> > PCI_BIOS to be overwritten with direct access immediatley after that.
+> > 
+> > eg. from a 2.6.16.20 on a buggy box:
+> > 	PCI: PCI BIOS revision 2.10 entry at 0xfb9a0, last bus=0
+> > 	PCI: Using configuration type 1
+> > cardbus would be bus 1-4. 2.6.17 breaks here...
 > 
-> Disregard, it's the end of a do { } while.
+> If it's a laptop and CardBus is integrated, it's a BIOS bug.  BIOS
+> should know about integrated hardware.  No excuses.
+> 
+> > > The standard solution for such problems is to add a "quirk" to
+> > > drivers/pci/quirks.c or arch/i386/kernel/quirks.c
+> 
+> > no. it is a clear regression and the patch in fact just restores the old
+> > behaviour with the exception that the ordering is more clear now than it
+> > was before...
+> 
+> My intention was just to remind you about the quirks.
+> 
+> > 2.6.16: pci bios comes first, is overriden by direct access
+> > 2.6.17: pci bios comes first. direct access is never used if pci bios probe "worked"
+> > 2.6.17+patch: pci direct access probed first, if it fails pci bios is used.
+> 
+> The way you put it above, it sounds like a major change.  But I missed
+> the actual patch.  Maybe it just reorders a few printk()s compared to
+> 2.6.16, I don't know.
+> 
 
-don't hold back, i need your ack
+ok, in other words:
+2.6.16: end result: direct access; if direct doesn't work: pcibios
+2.6.17: end result: pci bios (only direct if pcibios fails! )
+2.6.17+patch: end result: direct access; if direct doesn't work: pcibios
+=> net result is the same, but less code is executed, order is clear always.
 
-> I've been staring at this too long.
+> I still believe that adding quirk would be a good solution, in
+> particular because it would work even if direct PCI probing is disabled.
+> And then you can reorder the probing as much as you want.
+> 
 
-[PATCH] tty_io.c: keep davej sane
+no, a quirk is bad for the simple reason that 2.6.16 used to work on systems
+(laptops) where 2.6.17 fails for cardbus...there's no way you can wait on all
+the reports and add quirks for them one-by-one. and distros are still using
+kernel < 2.6.17...
 
-Just comment and next "while" look _very_ wrong. Place { correctly to
-hint unsuspecting ones that it's the end of the loop actually.
+btw. it's commit 92c05fc1a32e5ccef5e0e8201f32dcdab041524c
+([PATCH] PCI: Give PCI config access initialization a defined ordering)
+that broke things on those laptops. cc'ing Andi...
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Andi, for reference:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115454028402107
 
- drivers/char/tty_io.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
-
---- a/drivers/char/tty_io.c
-+++ b/drivers/char/tty_io.c
-@@ -362,10 +362,9 @@ int tty_insert_flip_string(struct tty_st
- 		tb->used += space;
- 		copied += space;
- 		chars += space;
--	}
--	/* There is a small chance that we need to split the data over
--	   several buffers. If this is the case we must loop */
--	while (unlikely(size > copied));
-+		/* There is a small chance that we need to split the data over
-+		   several buffers. If this is the case we must loop */
-+	} while (unlikely(size > copied));
- 	return copied;
- }
- EXPORT_SYMBOL(tty_insert_flip_string);
-@@ -386,10 +385,9 @@ int tty_insert_flip_string_flags(struct 
- 		copied += space;
- 		chars += space;
- 		flags += space;
--	}
--	/* There is a small chance that we need to split the data over
--	   several buffers. If this is the case we must loop */
--	while (unlikely(size > copied));
-+		/* There is a small chance that we need to split the data over
-+		   several buffers. If this is the case we must loop */
-+	} while (unlikely(size > copied));
- 	return copied;
- }
- EXPORT_SYMBOL(tty_insert_flip_string_flags);
+rgds
+-daniel
 

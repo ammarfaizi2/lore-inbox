@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWHBGpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWHBGrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWHBGpi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 02:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHBGpi
+	id S1751284AbWHBGrp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 02:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWHBGro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 02:45:38 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1518 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751279AbWHBGph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 02:45:37 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<200608020507.50590.ak@suse.de>
-	<m1slkfvinh.fsf@ebiederm.dsl.xmission.com>
-	<200608020721.44139.ak@suse.de>
-Date: Wed, 02 Aug 2006 00:44:00 -0600
-In-Reply-To: <200608020721.44139.ak@suse.de> (Andi Kleen's message of "Wed, 2
-	Aug 2006 07:21:44 +0200")
-Message-ID: <m1u04vtz67.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Aug 2006 02:47:44 -0400
+Received: from percy.comedia.it ([212.97.59.71]:6543 "EHLO percy.comedia.it")
+	by vger.kernel.org with ESMTP id S1751276AbWHBGrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 02:47:43 -0400
+Date: Wed, 2 Aug 2006 08:47:42 +0200
+From: Luca Berra <bluca@comedia.it>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Neil Brown <neilb@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: let md auto-detect 128+ raid members, fix potential race condition
+Message-ID: <20060802064742.GD28815@percy.comedia.it>
+Mail-Followup-To: Alexandre Oliva <aoliva@redhat.com>,
+	Bill Davidsen <davidsen@tmr.com>, Neil Brown <neilb@suse.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-raid@vger.kernel.org
+References: <ork65veg2y.fsf@free.oliva.athome.lsd.ic.unicamp.br> <20060730124139.45861b47.akpm@osdl.org> <orac6qerr4.fsf@free.oliva.athome.lsd.ic.unicamp.br> <17613.16090.470524.736889@cse.unsw.edu.au> <44CF9221.90902@tmr.com> <orlkq8f8ge.fsf@free.oliva.athome.lsd.ic.unicamp.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <orlkq8f8ge.fsf@free.oliva.athome.lsd.ic.unicamp.br>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tue, Aug 01, 2006 at 06:32:33PM -0300, Alexandre Oliva wrote:
+>Sure enough the LVM subsystem could make things better for one to not
+>need all of the PVs in the root-containing VG in order to be able to
+>mount root read-write, or at all, but if you think about it, if initrd
+it shouldn't need all of the PVs you just need all the pv where the
+rootfs is.
 
-> On Wednesday 02 August 2006 06:57, Eric W. Biederman wrote:
->
-> On x86-64 some trouble comes from it being 32bit code. 
-> That is why I suggested making it 64bit first, which would
-> avoid many of the problems.
+>is set up such that you only bring up the devices that hold the actual
+>root device within the VG and then you change that, say by taking a
+>snapshot of root, moving it around, growing it, etc, you'd be better
+>off if you could still boot.  So you do want all of the VG members to
+>be around, just in case.
+in this case just regenerate the initramfs after modifying the vg that
+contains root. I am fairly sure that kernel upgrades are far more
+frequent than the addirion of PVs to the root VG.
 
-:)
-  
->> Whichever way I go scrutinizing that possibility carefully is
->> a lot of work.
->
-> 64bit conversion would be some work, the rest isn't I think.
+>Yes, this is an argument against root on LVM, but there are arguments
+>*for* root on LVM as well, and there's no reason to not support both
+>behaviors equally well and let people figure out what works best for
+>them.
 
-Except for the head.S work the 64bit conversion was practically a noop.
+No, this is just an argument against misusing root on lvm.
 
-> Alternatively if you don't like it we can just drop these compressor patches.
-> I don't think they were essential.
+L.
 
-Agreed.  The printing portion wasn't essential.
-
-At this point I think dropping the non-essential bits just to get the size
-of the patchset down makes sense.
-
-Eric
+-- 
+Luca Berra -- bluca@comedia.it
+        Communication Media & Services S.r.l.
+ /"\
+ \ /     ASCII RIBBON CAMPAIGN
+  X        AGAINST HTML MAIL
+ / \

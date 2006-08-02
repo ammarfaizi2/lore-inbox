@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWHBHLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWHBHLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWHBHLb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWHBHLb
+	id S1751301AbWHBHLr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWHBHLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:11:31 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:40080 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751298AbWHBHLa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:11:30 -0400
-Date: Wed, 2 Aug 2006 09:08:42 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dave Jones <davej@redhat.com>
-cc: Andreas Schwab <schwab@suse.de>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-In-Reply-To: <20060802001626.GA14689@redhat.com>
-Message-ID: <Pine.LNX.4.61.0608020908180.7593@yvahk01.tjqt.qr>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain>
- <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com>
- <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com>
- <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com>
- <20060802001626.GA14689@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 2 Aug 2006 03:11:46 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16769 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751302AbWHBHLp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:11:45 -0400
+Date: Wed, 2 Aug 2006 00:13:06 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [Xen-devel] Re: [PATCH 12 of 13] Pass the mm struct into the pgd_free code so the mm is available here
+Message-ID: <20060802071306.GN2654@sequoia.sous-sol.org>
+References: <8235caea9d688b78ce4b.1154462450@ezr> <200608020514.52316.ak@suse.de> <44D04577.9000904@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D04577.9000904@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Zachary Amsden (zach@vmware.com) wrote:
+> Andi Kleen wrote:
+> >nst char *arch_vma_name(struct vm_area_struct *vma);
+> >  
+> >> 
+> >>+#ifndef pgd_free_mm
+> >>+#define pgd_free_mm(mm) pgd_free((mm)->pgd)
+> >>+#endif
+> >>    
+> >
+> >Sorry, but these ifdefs are too ugly. I would prefer if you 
+> >just updated all architectures, even though it will make the patch
+> >somewhat bigger
+> >  
+> I'm fine with doing that, and yes this is ugly.  Will take awhile though 
+> - for efficiency of mercurial patch tools, I deprecated all 
+> architectures but i386, x86_64, and um from my local tree.  <Slaps head>.
 
-> 		printk(" %02x", (unsigned char)data[offset + i]);
+While you're at it, can you please make sure there's some nice changelog
+comments.  The current one only has diffstat.
 
-Remove cast. (Or does it spew a warning message for you?)
-
-
-Jan Engelhardt
--- 
+thanks,
+-chris

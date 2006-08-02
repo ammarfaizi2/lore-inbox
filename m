@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWHBHP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWHBHR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWHBHP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWHBHP1
+	id S1751302AbWHBHR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWHBHR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:15:27 -0400
-Received: from mail.digitec.de ([213.23.20.68]:55783 "EHLO mail.digitec.de")
-	by vger.kernel.org with ESMTP id S1751292AbWHBHP1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:15:27 -0400
-From: Sven Anders <s.anders@digitec.de>
+	Wed, 2 Aug 2006 03:17:59 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:46266 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751302AbWHBHR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:17:58 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: What happens if the klogd dies
-Date: Wed, 2 Aug 2006 09:15:22 +0200
-User-Agent: KMail/1.9.1
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Iomega ATAPI Zip100 problem: 2.4 & 2.6 lilo complains after eject
+Date: Wed, 02 Aug 2006 17:17:51 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <oej0d2htdjlp1j9di9lun7ue856b3qkodm@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608020915.25369.s.anders@digitec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I wander what happens it the klog-daemon do not work. Will the kernel log 
-messages stored somewere in the kernel-memory, or are they discarded?
-Is it posible that, after a amount of time the kernel crash, bescause of that?
+Hi there,
 
-I could not find anything about this in the manpage of klogd or in the kernel 
-documentation.
+This might not be kernel issue as it is lilo that complains:
 
-Thanks for your help
+  "Fatal: open /dev/hdc: Input/output error"
 
-Sven Anders
+After the zip drive has been used.  Issue is present on both 2.6.18-rc3 
+and 2.4.33-rc3.  Box is dual SATA with Zip drive alone on secondary IDE.
+configs and dmesgs on: 
+	<http://bugsplatter.mine.nu/test/boxen/sempro/>
+	<http://bugsplatter.mine.nu/test/boxen/sempro/2.4.xx/>
 
-(Im not subscribed to the list, but read the mailinglist-archive. So CCing is 
-not nessasary, but welcome)
+AMD SktA Sempron with VIA chipset, slackware-10.2
+
+Steps to reproduce:
+
+root@sempro:~# mount /dev/hdc4 /mnt/hd/
+root@sempro:~# ls -l /mnt/hd/
+total 29238
+-rwxr-xr-x  1 root root    22295 2003-12-08 23:42 config-2.4.23*
+-rwxr-xr-x  1 root root 29915976 2003-12-08 23:40 vanilla-2.4.23.tar.bz2*
+root@sempro:~# eject /mnt/hd/
+
+Zip100 media pops out
+
+root@sempro:~# vim /etc/lilo.conf		# changing reboot default
+root@sempro:~# lilo
+Warning: COMPACT may conflict with LBA32 on some systems
+Fatal: open /dev/hdc: Input/output error
+
+Push Zip100 media back into drive, ZipDrive light flashes...
+
+root@sempro:~# lilo
+Warning: COMPACT may conflict with LBA32 on some systems
+Added 2.6.18-rc3a
+Added 2.6.17.7a *
+Added 2.6.16.27a
+Added 2.4.33-rc3
+Added 2.4.32-hf32.7
+Added 2.4.31-hf32.7
+Added 2.4.30-hf32.7
+Added Slack-2.4.31
+
+root@sempro:~# lilo -V
+LILO version 22.5.9
+
+Is this 'normal' for removable media, a kernel problem or a lilo problem?  
+
+Thanks,
+Grant

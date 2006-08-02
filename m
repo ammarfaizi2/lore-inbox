@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWHBEdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWHBEeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWHBEdt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 00:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWHBEdt
+	id S1751148AbWHBEeq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWHBEeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 00:33:49 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:27339 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751147AbWHBEdt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 00:33:49 -0400
-Subject: Re: [Xen-devel] Re: [PATCH 8 of 13] Add a bootparameter to reserve
-	high linear address space for hypervisors
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Christoph Lameter <clameter@sgi.com>
-In-Reply-To: <200608020621.22827.ak@suse.de>
-References: <0adfc39039c79e4f4121.1154462446@ezr>
-	 <p73lkq7zvu3.fsf@verdi.suse.de>
-	 <1154490840.2570.37.camel@localhost.localdomain>
-	 <200608020621.22827.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 14:33:45 +1000
-Message-Id: <1154493226.2570.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Aug 2006 00:34:46 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:5445 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751148AbWHBEep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 00:34:45 -0400
+Date: Tue, 1 Aug 2006 21:34:27 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
+       hch@infradead.org
+Subject: Re: [PATCH 04/28] OCFS2 is screwy
+Message-ID: <20060802043427.GH29686@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235243.EA4890B4@localhost.localdomain> <20060802021411.GG29686@ca-server1.us.oracle.com> <1154488906.7232.20.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154488906.7232.20.camel@localhost.localdomain>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-02 at 06:21 +0200, Andi Kleen wrote:
-> > 	I think you misunderstand the purpose of parse_early_param?  It is
-> > designed to be called directly by the arch at some point (it is
-> > idempotent, so the second call in init/main.c does nothing if the arch
-> > has called it).  ie. in i386, it replaces parse_cmdline_early().
-> 
-> Ah I didn't realize that. But why is there a second call in init/main.c?  
-> Looks like a big hack to me. Someone was too lazy to add it to all architectures?
+Hi Dave,
 
-Yes.  Someone == me.  I didn't want to hack it into all archs, I wanted
-archs to actually use it, and you can see that's not a trivial patch...
+On Tue, Aug 01, 2006 at 08:21:46PM -0700, Dave Hansen wrote:
+> Please ignore that last one.  It didn't correctly handle directories'
+> with a remaining i_nlink of 2.
+Thanks for following up with this patch - it looks pretty good. One comment
+below.
 
-Once all archs use it, we can probably clean up setup_arch() not to take
-the char** and simply use the global saved_command_line directly.  At
-this rate, that'll be around 2012 8)
 
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+> @@ -888,7 +890,9 @@
+>  	/* We can set nlink on the dinode now. clear the saved version
+>  	 * so that it doesn't get set later. */
+>  	fe->i_links_count = cpu_to_le16(inode->i_nlink);
+> -	saved_nlink = 0;
+> +	inode_drop_nlink(inode);
+> +	if (S_ISDIR(inode->i_mode))
+> +		inode_drop_nlink(inode);
+The set of 'i_links_count' on 'fe' should be below the inode_drop_nlink()
+calls - otherwise we'll be setting the old nlink value on the disk inode :)
 
+While you're there you can just remove that comment - it's no longer
+accurate :)
+
+Thanks again,
+	--Mark
+
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

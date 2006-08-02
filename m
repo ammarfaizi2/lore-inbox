@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWHBEbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWHBEcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWHBEbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 00:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWHBEbY
+	id S1751146AbWHBEcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWHBEcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 00:31:24 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:1525 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751145AbWHBEbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 00:31:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FAn4JFe5QZ2C9QMqV83+PDbXksUEDI9CN6pyX/EfJMa73jjvaLhO6v4V64S1xOZk1J+anewZ9e167mh5ZCLGC0ZQt1IVwqIDcQqCIjv8LCIwyziZPSeAxCRbvNTwmINGD4ehRHUHO/lB13UlZpKurZ+QByXuZPiiYR5So/aV2sk=
-Message-ID: <4807377b0608012131mf160bc3iff724910191b521@mail.gmail.com>
-Date: Tue, 1 Aug 2006 21:31:22 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Subject: Re: Linux v2.6.18-rc3
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Kernel development list" <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, cpufreq@www.linux.org.uk
-In-Reply-To: <Pine.LNX.4.44L0.0607311627240.5805-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Aug 2006 00:32:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19146 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751146AbWHBEcu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 00:32:50 -0400
+Date: Wed, 2 Aug 2006 14:32:31 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jan Kasprzak <kas@fi.muni.cz>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: FAQ updated (was Re: XFS breakage...)
+Message-ID: <20060802143231.D2341636@wobbly.melbourne.sgi.com>
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost> <20060720171310.B1970528@wobbly.melbourne.sgi.com> <20060731162535.GA15555@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060731081112.05427677.akpm@osdl.org>
-	 <Pine.LNX.4.44L0.0607311627240.5805-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060731162535.GA15555@fi.muni.cz>; from kas@fi.muni.cz on Mon, Jul 31, 2006 at 06:25:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/31/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Mon, 31 Jul 2006, Andrew Morton wrote:
->
-> > core_initcall() would suit.  That's actually a bit late for this sort of
-> > thing, but we can always add a new section later if it becomes a problem.
-> > I'd suggest that we ensure that srcu_notifier_chain_register() performs a
-> > reliable BUG() if it gets called too early.
->
-> Here's a patch to test.  I can't try it out on my machine because
-> 2.6.18-rc2-mm1 (even without the patch) crashes partway through a
-> suspend-to-disk, in a way that's extremely hard to debug.  Some sort of
-> spinlock-related bug occurs within ioapic_write_entry.
+On Mon, Jul 31, 2006 at 06:25:35PM +0200, Jan Kasprzak wrote:
+> Nathan Scott wrote:
+> : I've captured the state of this issue here, with options and ways
+> : to correct the problem:
+> : 	http://oss.sgi.com/projects/xfs/faq.html#dir2
+> : 
+> : Hope this helps.
+> 
+> 	I have been hit with this bug as well - I tried to clear the
+> two corrupted directory inodes with xfs_db (as the FAQ entry says), then ran
+> xfs_repair (lots of files ended up in lost+found), but apparently
+> the volume is still not OK - when I tried to use it (this volume
+> is a public FTP archive), I got the following traces:
 
-can't test because I also can't suspend or hibernate with rc2-mm1
-(resume causes hard hang with the backlight and screen off)  The issue
-i reported was against linus' 2.6.18-rc3 kernel.
+There is now a fixed version of xfs_repair available - its in
+xfsprogs-2.8.10, source is on oss.sgi.com in the XFS ftp area.
+A number of people have reported success with Barry's earlier
+patch, noone's reported anything bad, so 2.8.10 is out now with
+the fix merged.
 
-patch didn't apply to 2.6.18-rc3.
+cheers.
 
-Thanks,
-  Jesse
+-- 
+Nathan

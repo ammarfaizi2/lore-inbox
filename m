@@ -1,94 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWHBADI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWHBACh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWHBADI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 20:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWHBACm
+	id S1750838AbWHBACh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 20:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWHBABy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 20:02:42 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:26070 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750758AbWHAXwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:52:50 -0400
-Subject: [PATCH 09/28] kill open files traverse on remount ro
-To: linux-kernel@vger.kernel.org
-Cc: viro@ftp.linux.org.uk, herbert@13thfloor.at, hch@infradead.org,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 01 Aug 2006 16:52:46 -0700
-References: <20060801235240.82ADCA42@localhost.localdomain>
-In-Reply-To: <20060801235240.82ADCA42@localhost.localdomain>
-Message-Id: <20060801235246.5B49CFF3@localhost.localdomain>
+	Tue, 1 Aug 2006 20:01:54 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18361
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750786AbWHBABo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 20:01:44 -0400
+Date: Tue, 01 Aug 2006 17:01:38 -0700 (PDT)
+Message-Id: <20060801.170138.107248641.davem@davemloft.net>
+To: zach.brown@oracle.com
+Cc: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org
+Subject: Re: [take2 1/4] kevent: core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44CFEA4B.3060200@oracle.com>
+References: <11544248451203@2ka.mipt.ru>
+	<44CFEA4B.3060200@oracle.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Zach Brown <zach.brown@oracle.com>
+Date: Tue, 01 Aug 2006 16:56:59 -0700
 
-Now that we have the sb writer count, we don't need to
-go looking at all of the individual open files.
+> Even if we only have one syscall with a cmd multiplexer (which I'm not
+> thrilled with), we should at least make these arguments explicit in the
+> system call.  It's weird to hide them in a struct.  We could also think
+> about making them u32 or u64 so that we don't need compat wrappers, but
+> maybe that's overkill.
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+I think making the userspace data structure not require any compat
+handling is a must, thanks for pointing this out Zach.
 
- lxc-dave/fs/file_table.c    |   25 -------------------------
- lxc-dave/fs/super.c         |    1 -
- lxc-dave/include/linux/fs.h |    2 --
- 3 files changed, 28 deletions(-)
+> It'd be great if these struct members could get a prefix (ala: inode ->
+> i_, socket -> sk_) so that it's less painful getting tags helpers to
+> look up instances for us.  Asking for 'lock' is hilarious.
 
-diff -puN fs/file_table.c~C-kill-open-file-traverse-on-remount-ro fs/file_table.c
---- lxc/fs/file_table.c~C-kill-open-file-traverse-on-remount-ro	2006-08-01 16:35:10.000000000 -0700
-+++ lxc-dave/fs/file_table.c	2006-08-01 16:35:21.000000000 -0700
-@@ -269,31 +269,6 @@ void file_kill(struct file *file)
- 	}
- }
- 
--int fs_may_remount_ro(struct super_block *sb)
--{
--	struct list_head *p;
--
--	/* Check that no files are currently opened for writing. */
--	file_list_lock();
--	list_for_each(p, &sb->s_files) {
--		struct file *file = list_entry(p, struct file, f_u.fu_list);
--		struct inode *inode = file->f_dentry->d_inode;
--
--		/* File with pending delete? */
--		if (inode->i_nlink == 0)
--			goto too_bad;
--
--		/* Writeable file? */
--		if (S_ISREG(inode->i_mode) && (file->f_mode & FMODE_WRITE))
--			goto too_bad;
--	}
--	file_list_unlock();
--	return 1; /* Tis' cool bro. */
--too_bad:
--	file_list_unlock();
--	return 0;
--}
--
- void __init files_init(unsigned long mempages)
- { 
- 	int n; 
-diff -puN fs/super.c~C-kill-open-file-traverse-on-remount-ro fs/super.c
---- lxc/fs/super.c~C-kill-open-file-traverse-on-remount-ro	2006-08-01 16:35:19.000000000 -0700
-+++ lxc-dave/fs/super.c	2006-08-01 16:35:21.000000000 -0700
-@@ -556,7 +556,6 @@ static void sb_mounts_clear_flag(struct 
- 
- static int sb_remount_ro(struct super_block *sb)
- {
--	return fs_may_remount_ro(sb);
- 	spin_lock(&sb->s_mnt_writers_lock);
- 	if (atomic_read(&sb->s_mnt_writers) > 0) {
- 		spin_unlock(&sb->s_mnt_writers_lock);
-diff -puN include/linux/fs.h~C-kill-open-file-traverse-on-remount-ro include/linux/fs.h
---- lxc/include/linux/fs.h~C-kill-open-file-traverse-on-remount-ro	2006-08-01 16:35:20.000000000 -0700
-+++ lxc-dave/include/linux/fs.h	2006-08-01 16:35:21.000000000 -0700
-@@ -1601,8 +1601,6 @@ extern const struct file_operations read
- extern const struct file_operations write_fifo_fops;
- extern const struct file_operations rdwr_fifo_fops;
- 
--extern int fs_may_remount_ro(struct super_block *);
--
- /*
-  * return READ, READA, or WRITE
-  */
-_
+Agreed.
+
+> Hmm.  I think the current preference is not to have a lock per bucket.
+
+Yes, it loses badly, that's why we undid this in the routing cache
+and just have a fixed sized array of locks which is hashed into.
+
+For kevents, I think a single spinlock initially is fine and
+if we hit performance problems on SMP we can fix it.  We should
+not implement complexity we have no proof of needing yet :)
+
+> > +#define KEVENT_MAX_REQUESTS		PAGE_SIZE/sizeof(struct kevent)
+> 
+> This is unused?
+
+It is probably groundwork for the mmap() ring buffer... :)
+

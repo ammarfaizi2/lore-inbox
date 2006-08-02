@@ -1,153 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWHBACk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWHBAQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWHBACk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 20:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWHBACj
+	id S1750853AbWHBAQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 20:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWHBAQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 20:02:39 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:18641 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750766AbWHAXwv (ORCPT
+	Tue, 1 Aug 2006 20:16:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28338 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750849AbWHBAQk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:52:51 -0400
-Subject: [PATCH 11/28] elevate writer count for chown and friends
-To: linux-kernel@vger.kernel.org
-Cc: viro@ftp.linux.org.uk, herbert@13thfloor.at, hch@infradead.org,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 01 Aug 2006 16:52:48 -0700
-References: <20060801235240.82ADCA42@localhost.localdomain>
-In-Reply-To: <20060801235240.82ADCA42@localhost.localdomain>
-Message-Id: <20060801235248.0893CC0F@localhost.localdomain>
+	Tue, 1 Aug 2006 20:16:40 -0400
+Date: Tue, 1 Aug 2006 20:16:26 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andreas Schwab <schwab@suse.de>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: single bit flip detector.
+Message-ID: <20060802001626.GA14689@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andreas Schwab <schwab@suse.de>,
+	Alexey Dobriyan <adobriyan@gmail.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com> <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com> <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060801235109.GB12102@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 01, 2006 at 07:51:09PM -0400, Dave Jones wrote:
+ > I'm going for the record of 'most times a patch gets submitted in one day'.
+ > And to think we were complaining that patches don't get enough review ? :)
+ > If every change had this much polish, we'd be awesome.
 
-chown/chmod,etc... don't call permission in the same way
-that the normal "open for write" calls do.  They still
-write to the filesystem, so bump the write count during
-these operations.
+Sigh. Spaces before printk. Whatever next.
+I am now officially bored of seeing this patch.
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+		Dave
 
- lxc-dave/fs/open.c |   38 +++++++++++++++++++++++++++++++++-----
- 1 files changed, 33 insertions(+), 5 deletions(-)
 
-diff -puN fs/open.c~C-elevate-writers-chown-and-friends fs/open.c
---- lxc/fs/open.c~C-elevate-writers-chown-and-friends	2006-08-01 16:35:13.000000000 -0700
-+++ lxc-dave/fs/open.c	2006-08-01 16:35:22.000000000 -0700
-@@ -644,9 +644,12 @@ asmlinkage long sys_fchmod(unsigned int 
- 	err = -EROFS;
- 	if (IS_RDONLY(inode))
- 		goto out_putf;
-+	err = mnt_want_write(file->f_vfsmnt);
-+	if (err)
-+		goto out_putf;
- 	err = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto out_putf;
-+		goto out_drop_write;
- 	mutex_lock(&inode->i_mutex);
- 	if (mode == (mode_t) -1)
- 		mode = inode->i_mode;
-@@ -655,6 +658,8 @@ asmlinkage long sys_fchmod(unsigned int 
- 	err = notify_change(dentry, &newattrs);
- 	mutex_unlock(&inode->i_mutex);
+In case where we detect a single bit has been flipped, we spew
+the usual slab corruption message, which users instantly think
+is a kernel bug.  In a lot of cases, single bit errors are
+down to bad memory, or other hardware failure.
+
+This patch adds an extra line to the slab debug messages
+in those cases, in the hope that users will try memtest before
+they report a bug.
+
+000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Single bit error detected. Possibly bad RAM. Run memtest86.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+diff --git a/mm/slab.c b/mm/slab.c
+index 21ba060..39f1183 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1638,10 +1638,28 @@ static void poison_obj(struct kmem_cache
+ static void dump_line(char *data, int offset, int limit)
+ {
+ 	int i;
++	unsigned char total = 0, bad_count = 0, errors;
+ 	printk(KERN_ERR "%03x:", offset);
+-	for (i = 0; i < limit; i++)
++	for (i = 0; i < limit; i++) {
++		if (data[offset + i] != POISON_FREE) {
++			total += data[offset + i];
++			bad_count++;
++		}
+ 		printk(" %02x", (unsigned char)data[offset + i]);
++	}
+ 	printk("\n");
++
++	if (bad_count == 1) {
++		errors = total ^ POISON_FREE;
++		if (errors && !(errors & (errors-1))) {
++			printk(KERN_ERR "Single bit error detected. Probably bad RAM.\n");
++#ifdef CONFIG_X86
++			printk(KERN_ERR "Run memtest86+ or a similar memory test tool.\n");
++#else
++			printk(KERN_ERR "Run a memory test tool.\n");
++#endif
++		}
++	}
+ }
+ #endif
  
-+out_drop_write:
-+	mnt_drop_write(file->f_vfsmnt);
- out_putf:
- 	fput(file);
- out:
-@@ -674,13 +679,16 @@ asmlinkage long sys_fchmodat(int dfd, co
- 		goto out;
- 	inode = nd.dentry->d_inode;
- 
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto dput_and_out;
- 	error = -EROFS;
- 	if (IS_RDONLY(inode))
--		goto dput_and_out;
-+		goto out_drop_write;
- 
- 	error = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto dput_and_out;
-+		goto out_drop_write;
- 
- 	mutex_lock(&inode->i_mutex);
- 	if (mode == (mode_t) -1)
-@@ -690,6 +698,8 @@ asmlinkage long sys_fchmodat(int dfd, co
- 	error = notify_change(nd.dentry, &newattrs);
- 	mutex_unlock(&inode->i_mutex);
- 
-+out_drop_write:
-+	mnt_drop_write(nd.mnt);
- dput_and_out:
- 	path_release(&nd);
- out:
-@@ -715,7 +725,7 @@ static int chown_common(struct dentry * 
- 	error = -EROFS;
- 	if (IS_RDONLY(inode))
- 		goto out;
--	error = -EPERM;
-+ 	error = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
- 		goto out;
- 	newattrs.ia_valid =  ATTR_CTIME;
-@@ -744,7 +754,12 @@ asmlinkage long sys_chown(const char __u
- 	error = user_path_walk(filename, &nd);
- 	if (error)
- 		goto out;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto out_release;
- 	error = chown_common(nd.dentry, user, group);
-+	mnt_drop_write(nd.mnt);
-+out_release:
- 	path_release(&nd);
- out:
- 	return error;
-@@ -764,7 +779,12 @@ asmlinkage long sys_fchownat(int dfd, co
- 	error = __user_walk_fd(dfd, filename, follow, &nd);
- 	if (error)
- 		goto out;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto out_release;
- 	error = chown_common(nd.dentry, user, group);
-+	mnt_drop_write(nd.mnt);
-+out_release:
- 	path_release(&nd);
- out:
- 	return error;
-@@ -778,7 +798,11 @@ asmlinkage long sys_lchown(const char __
- 	error = user_path_walk_link(filename, &nd);
- 	if (error)
- 		goto out;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto out_release;
- 	error = chown_common(nd.dentry, user, group);
-+out_release:
- 	path_release(&nd);
- out:
- 	return error;
-@@ -794,10 +818,14 @@ asmlinkage long sys_fchown(unsigned int 
- 	file = fget(fd);
- 	if (!file)
- 		goto out;
--
-+	error = mnt_want_write(file->f_vfsmnt);
-+	if (error)
-+		goto out_fput;
- 	dentry = file->f_dentry;
- 	audit_inode(NULL, dentry->d_inode);
- 	error = chown_common(dentry, user, group);
-+	mnt_drop_write(file->f_vfsmnt);
-+out_fput:
- 	fput(file);
- out:
- 	return error;
-_
+
+-- 
+http://www.codemonkey.org.uk

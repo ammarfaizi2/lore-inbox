@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWHBHSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWHBHUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWHBHSi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWHBHSh
+	id S1751313AbWHBHUN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWHBHUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:18:37 -0400
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:16652 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751307AbWHBHSg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:18:36 -0400
-Date: Wed, 2 Aug 2006 09:18:41 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Shem Multinymous <multinymous@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@debian.org>,
-       Mark Underwood <basicmark@yahoo.com>, Greg KH <greg@kroah.com>
-Subject: Re: Generic battery interface
-Message-Id: <20060802091841.8585a72a.khali@linux-fr.org>
-In-Reply-To: <20060731230145.GF3612@elf.ucw.cz>
-References: <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
-	<20060727232427.GA4907@suse.cz>
-	<41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-	<20060728074202.GA4757@suse.cz>
-	<41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com>
-	<20060728202359.GB5313@suse.cz>
-	<41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
-	<41840b750607291406p2f843054rc89fa1c3c467688d@mail.gmail.com>
-	<41840b750607301137t1e10fe88o3a1c73e7a4b4bf44@mail.gmail.com>
-	<20060731233536.92b39035.khali@linux-fr.org>
-	<20060731230145.GF3612@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Wed, 2 Aug 2006 03:20:13 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:45533 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751313AbWHBHUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:20:12 -0400
+Subject: Re: [PATCH 7 of 13] Make __FIXADDR_TOP variable to allow it to
+	make space for a hypervisor
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, jeremy@xensource.com,
+       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk,
+       clameter@sgi.com, ebiederm@xmission.com, kraxel@suse.de,
+       hollisb@us.ibm.com, ian.pratt@xensource.com, zach@vmware.com
+In-Reply-To: <20060802070147.GM2654@sequoia.sous-sol.org>
+References: <patchbomb.1154421371@ezr.goop.org>
+	 <b6c100bb5ca5e2839ac8.1154421378@ezr.goop.org>
+	 <20060801090330.GC2654@sequoia.sous-sol.org>
+	 <20060801073428.f543ba9f.akpm@osdl.org>
+	 <20060801213751.GA11244@sequoia.sous-sol.org>
+	 <1154483250.2570.17.camel@localhost.localdomain>
+	 <20060802070147.GM2654@sequoia.sous-sol.org>
+Content-Type: text/plain
+Date: Wed, 02 Aug 2006 17:20:05 +1000
+Message-Id: <1154503206.2570.65.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+On Wed, 2006-08-02 at 00:01 -0700, Chris Wright wrote:
+> Here's an updated patch.  Rather than use __FIXADDR_TOP to adjust for
+> MAXMEM, directly update __VMALLOC_RESERVE which is used to reserve the
+> space for vmalloc, iomap, and fixmap (as comments aptly point out).  I
+> tested this with a bunch of configurations, and booted a XenoLinux
+> kernel with this patch as well.
 
-> > frequently it can read from the chip. And no hardware monitoring chip I
-> > know of can tell when the monitored value has changed - you have to read
-> > the chip registers to know.
-> 
-> ACPI battery can tell when values change in significant way. (Like
-> battery becoming critical).
+Just one minor point:
 
-Ah, good to know. But is there a practical use for this? I'd suspect
-that the user wants to know the battery charge% all the time anyway,
-critical or not.
+> +void set_fixaddr_top(unsigned long top)
+> +{
+> +	BUG_ON(fixmaps > 0);
+> +#ifdef CONFIG_COMPAT_VDSO
+> +	BUG_ON(top - PAGE_SIZE != __FIXADDR_TOP);
+> +#else
+> +	__FIXADDR_TOP = top - PAGE_SIZE;
+> +	__VMALLOC_RESERVE -= top;
+> +#endif
+>  }
 
+This no longer seems to be an appropriate name.  How about
+set_address_top_reserve or something?
+
+void set_address_top_reserve(unsigned long reserve)
+{
+	BUG_ON(fixmaps > 0);
+#ifdef CONFIG_COMPAT_VDSO
+	BUG_ON(reserve != 0);
+#else
+	__FIXADDR_TOP = -reserve - PAGE_SIZE;
+	__VMALLOC_RESERVE += reserve;
+#endif
+}
+
+(I *think* I got the logic here correct).
+
+Rusty.
 -- 
-Jean Delvare
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+

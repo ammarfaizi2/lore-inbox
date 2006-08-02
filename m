@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWHBT2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWHBTdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWHBT2g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 15:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWHBT2g
+	id S932185AbWHBTdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 15:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWHBTdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 15:28:36 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:10771 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S932158AbWHBT2f (ORCPT
+	Wed, 2 Aug 2006 15:33:15 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:37273 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932159AbWHBTdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 15:28:35 -0400
-Message-ID: <44D0FD92.9010202@aknet.ru>
-Date: Wed, 02 Aug 2006 23:31:30 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Zachary Amsden <zach@vmware.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: + espfix-code-cleanup.patch added to -mm tree
-References: <200608021515_MC3-1-C6D7-2B90@compuserve.com>
-In-Reply-To: <200608021515_MC3-1-C6D7-2B90@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Aug 2006 15:33:14 -0400
+Date: Wed, 2 Aug 2006 14:33:03 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andrew Morton <akpm@osdl.org>, serue@us.ibm.com,
+       Stephen Smalley <sds@tycho.nsa.gov>,
+       Davi Arnaut <davi.arnaut@gmail.com>, jmorris@namei.org,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH] LSM: remove BSD secure level security module
+Message-ID: <20060802193303.GA5540@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20060802180708.GQ2654@sequoia.sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060802180708.GQ2654@sequoia.sous-sol.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, Aug 02, 2006 at 11:07:08AM -0700, Chris Wright wrote:
+> This code has suffered from broken core design and lack of developer
+> attention.  Broken security modules are too dangerous to leave around.
+> It is time to remove this one.
+> 
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Cc: Michael Halcrow <mhalcrow@us.ibm.com>
+> Cc: Serge Hallyn <serue@us.ibm.com>
+> Cc: Davi Arnaut <davi.arnaut@gmail.com>
 
-Chuck Ebbert wrote:
-> Only problem I have with this is we lose the original fault info from
-> the iret.  So we have no real way of knowing whether it was #GP, #NP, #SF
-> or whatever, and no record of the offending iret's address.
-Thanks for the precise explanation.
-There was also a problem with me reading the Intel's manual:
-it uses Pop() in their pseudo-code, and it Pop()'s the values
-*before* checking them. The description of the Pop() is very
-confusing:
----
-Pop() removes the value from the top of the stack and returns it.
----
-What "removes" means here is unclear. Whether it adjusts a stack
-pointer, is unclear. Since it is Pop(), I was assuming "removes"
-means it also adjusts the stack pointer, but now I see it was a
-wrong guess.
+My mail server delivered Greg's message before this one, but it looks
+like both patches accomplish the same thing.
 
+Acked-by: Michael Halcrow <mhalcrow@us.ibm.com>

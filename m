@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWHCUcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWHCUcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWHCUcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWHCUcP
+	id S1751277AbWHCUcy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWHCUcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:32:15 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:49822 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751118AbWHCUcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:32:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ntffMBkMaFbMnfrztPO54RxUh5Ow6fnlNr1KBs+6GmGGK4YHoavxNIuY/y8Ebetm/OwTPX59Fl4ZMNIMKR0IJzhAnw79xJJM2QXF6wZxS8YqexVa5MU/N844CqQf4pFnBSVwGlWWlPJstTu4cLgyyo+UkFTV5ZIxqxFc6Yffoss=
-Message-ID: <41b516cb0608031332v9cc383bq37a13254f25f45a9@mail.gmail.com>
-Date: Thu, 3 Aug 2006 13:32:10 -0700
-From: "Chris Leech" <chris.leech@gmail.com>
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
-Subject: Re: problems with e1000 and jumboframes
-Cc: "Krzysztof Oledzki" <olel@ans.pl>, "Arnd Hannemann" <arnd@arndnet.de>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060803161046.GA703@2ka.mipt.ru>
+	Thu, 3 Aug 2006 16:32:54 -0400
+Received: from ns.suse.de ([195.135.220.2]:26012 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751165AbWHCUcx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:32:53 -0400
+Date: Thu, 3 Aug 2006 13:28:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
+Subject: Re: Options depending on STANDALONE
+Message-ID: <20060803202807.GA7712@kroah.com>
+References: <44D1CC7D.4010600@vmware.com> <1154603822.2965.18.camel@laptopd505.fenrus.org> <44D23B84.6090605@vmware.com> <20060803190327.GA14237@kroah.com> <44D24B31.2080802@vmware.com> <20060803193600.GA14858@kroah.com> <20060803195617.GD16927@redhat.com> <20060803202543.GH25692@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
-	 <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
-	 <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
-	 <20060803151631.GA14774@2ka.mipt.ru>
-	 <41b516cb0608030857h1d55820rfd4ccd0cc56dd71d@mail.gmail.com>
-	 <20060803161046.GA703@2ka.mipt.ru>
+In-Reply-To: <20060803202543.GH25692@stusta.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Maximum e1000 frame is 16128 bytes, which is enough before being rounded
-> to 16k to have a space for shared info.
-> My patch just tricks refilling logic to request to allocate slightly less
-> than was setup when mtu was changed.
+On Thu, Aug 03, 2006 at 10:25:43PM +0200, Adrian Bunk wrote:
+> ACPI_CUSTOM_DSDT seems to be the most interesting case.
+> It's anyway not usable for distribution kernels, and AFAIR the ACPI 
+> people prefer to get the kernel working with all original DSDTs
+> (which usually work with at least one other OS) than letting the people 
+> workaround the problem by using a custom DSDT.
 
-The maximum supported MTU size differs between e1000 devices due to
-differences in FIFO size.  For performance reasons the driver won't
-enable a MTU that doesn't allow for at least two frames in the Tx FIFO
-at once - you really want e1000 to be able to DMA the next frame into
-Tx FIFO while the current one is going out on the wire.  This doesn't
-change the fact that with LPE set, anything that can fit into the Rx
-FIFO and has a valid CRC will be DMAed into buffers regardless of
-length.
+Not true at all.  For SuSE kernels, we have a patch that lets people
+load a new DSDT from initramfs due to broken machines requiring a
+replacement in order to work properly.
 
-> Hardware is not affected, second patch just checks if there is enough
-> space (e1000 stores real mtu). I can not believe that such modern NIC
-> like e1000 can not know in receive interrupt size of the received
-> packet, if it is true, than in generel you are right and some more
-> clever mechanisms shoud be used (at least turn hack off for small
-> packets and only enable it for less than 16 jumbo frames wheere place
-> always is), if size of the received packet is known, then it is enough
-> to compare aligned size and size of the packet to make a decision for
-> allocation.
+thanks,
 
-You're changing the size of the buffer without telling the hardware.
-In the interrupt context e1000 knows the size of what was DMAed into
-the skb, but that's after the fact.  So e1000 could detect that memory
-was corrupted, but not prevent it if you don't give it power of 2
-buffers.  Actually, the power of 2 thing doesn't hold true for all
-e1000 devices.  Some have 1k granularity, but not Arnd's 82540.
-
-You can't know the size of a received packet before it's DMAed into
-host memory, no high performance network controller works that way.
-
-- Chris
+greg k-h

@@ -1,181 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWHCA0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWHCA1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWHCA0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 20:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWHCAZz
+	id S1751159AbWHCA1w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 20:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWHCAZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 20:25:55 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:44249 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S1750911AbWHCAZu
+	Wed, 2 Aug 2006 20:25:52 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:43737 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S1750900AbWHCAZu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 2 Aug 2006 20:25:50 -0400
-Message-Id: <20060803002518.190834642@xensource.com>
+Message-Id: <20060803002518.061401577@xensource.com>
 References: <20060803002510.634721860@xensource.com>
 User-Agent: quilt/0.45-1
-Date: Wed, 02 Aug 2006 17:25:13 -0700
+Date: Wed, 02 Aug 2006 17:25:12 -0700
 From: Jeremy Fitzhardinge <jeremy@xensource.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
        xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>
-Subject: [patch 3/8] Allow a kernel to not be in ring 0.
-Content-Disposition: inline; filename=003-remove-ring0-assumptions.patch
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: [patch 2/8] Implement always-locked bit ops, for memory shared with an SMP hypervisor.
+Content-Disposition: inline; filename=002-sync-bitops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We allow for the fact that the guest kernel may not run in ring 0.
-This requires some abstraction in a few places when setting %cs or
-checking privilege level (user vs kernel).
+Add "always lock'd" implementations of set_bit, clear_bit and
+change_bit and the corresponding test_and_ functions.  Also add
+"always lock'd" implementation of cmpxchg.  These give guaranteed
+strong synchronisation and are required for non-SMP kernels running on
+an SMP hypervisor.
 
-This is Chris' [RFC PATCH 15/33] move segment checks to subarch,
-except rather than using #define USER_MODE_MASK which depends on a
-config option, we use Zach's more flexible approach of assuming ring 3
-== userspace.  I also used "get_kernel_rpl()" over "get_kernel_cs()"
-because I think it reads better in the code...
-
-1) Remove the hardcoded 3 and introduce #define SEGMENT_RPL_MASK 3
-2) Add a get_kernel_rpl() macro, and don't assume it's zero.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Christoph Lameter <clameter@sgi.com>
 
 ---
- arch/i386/kernel/entry.S   |    5 +++--
- arch/i386/kernel/process.c |    2 +-
- arch/i386/mm/extable.c     |    2 +-
- arch/i386/mm/fault.c       |   11 ++++-------
- include/asm-i386/ptrace.h  |    5 +++--
- include/asm-i386/segment.h |   10 ++++++++++
- 6 files changed, 22 insertions(+), 13 deletions(-)
+ include/asm-i386/sync_bitops.h |  156 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/system.h      |   36 +++++++++
+ 2 files changed, 192 insertions(+)
 
 
 ===================================================================
---- a/arch/i386/kernel/entry.S
-+++ b/arch/i386/kernel/entry.S
-@@ -229,8 +229,9 @@ check_userspace:
- check_userspace:
- 	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
- 	movb CS(%esp), %al
--	testl $(VM_MASK | 3), %eax
--	jz resume_kernel
-+	andl $(VM_MASK | SEGMENT_RPL_MASK), %eax
-+	cmpl $SEGMENT_RPL_MASK, %eax
-+	jb resume_kernel		# not returning to v8086 or userspace
- ENTRY(resume_userspace)
-  	cli				# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
-===================================================================
---- a/arch/i386/kernel/process.c
-+++ b/arch/i386/kernel/process.c
-@@ -346,7 +346,7 @@ int kernel_thread(int (*fn)(void *), voi
- 	regs.xes = __USER_DS;
- 	regs.orig_eax = -1;
- 	regs.eip = (unsigned long) kernel_thread_helper;
--	regs.xcs = __KERNEL_CS;
-+	regs.xcs = __KERNEL_CS | get_kernel_rpl();
- 	regs.eflags = X86_EFLAGS_IF | X86_EFLAGS_SF | X86_EFLAGS_PF | 0x2;
- 
- 	/* Ok, create the new process.. */
-===================================================================
---- a/arch/i386/mm/extable.c
-+++ b/arch/i386/mm/extable.c
-@@ -11,7 +11,7 @@ int fixup_exception(struct pt_regs *regs
- 	const struct exception_table_entry *fixup;
- 
- #ifdef CONFIG_PNPBIOS
--	if (unlikely((regs->xcs & ~15) == (GDT_ENTRY_PNPBIOS_BASE << 3)))
-+	if (unlikely(SEGMENT_IS_PNP_CODE(regs->xcs)))
- 	{
- 		extern u32 pnp_bios_fault_eip, pnp_bios_fault_esp;
- 		extern u32 pnp_bios_is_utter_crap;
-===================================================================
---- a/arch/i386/mm/fault.c
-+++ b/arch/i386/mm/fault.c
-@@ -27,6 +27,7 @@
- #include <asm/uaccess.h>
- #include <asm/desc.h>
- #include <asm/kdebug.h>
-+#include <asm/segment.h>
- 
- extern void die(const char *,struct pt_regs *,long);
- 
-@@ -119,10 +120,10 @@ static inline unsigned long get_segment_
- 	}
- 
- 	/* The standard kernel/user address space limit. */
--	*eip_limit = (seg & 3) ? USER_DS.seg : KERNEL_DS.seg;
-+	*eip_limit = user_mode(regs) ? USER_DS.seg : KERNEL_DS.seg;
- 	
- 	/* By far the most common cases. */
--	if (likely(seg == __USER_CS || seg == __KERNEL_CS))
-+	if (likely(SEGMENT_IS_FLAT_CODE(seg)))
- 		return eip;
- 
- 	/* Check the segment exists, is within the current LDT/GDT size,
-@@ -436,11 +437,7 @@ good_area:
- 	write = 0;
- 	switch (error_code & 3) {
- 		default:	/* 3: write, present */
--#ifdef TEST_VERIFY_AREA
--			if (regs->cs == KERNEL_CS)
--				printk("WP fault at %08lx\n", regs->eip);
--#endif
--			/* fall through */
-+				/* fall through */
- 		case 2:		/* write, not present */
- 			if (!(vma->vm_flags & VM_WRITE))
- 				goto bad_area;
-===================================================================
---- a/include/asm-i386/ptrace.h
-+++ b/include/asm-i386/ptrace.h
-@@ -60,6 +60,7 @@ struct pt_regs {
- #ifdef __KERNEL__
- 
- #include <asm/vm86.h>
-+#include <asm/segment.h>
- 
- struct task_struct;
- extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs, int error_code);
-@@ -73,11 +74,11 @@ extern void send_sigtrap(struct task_str
-  */
- static inline int user_mode(struct pt_regs *regs)
- {
--	return (regs->xcs & 3) != 0;
-+	return (regs->xcs & SEGMENT_RPL_MASK) == 3;
- }
- static inline int user_mode_vm(struct pt_regs *regs)
- {
--	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
-+	return (((regs->xcs & SEGMENT_RPL_MASK) | (regs->eflags & VM_MASK)) >= 3);
- }
- #define instruction_pointer(regs) ((regs)->eip)
- #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
-===================================================================
---- a/include/asm-i386/segment.h
-+++ b/include/asm-i386/segment.h
-@@ -83,6 +83,12 @@
- 
- #define GDT_SIZE (GDT_ENTRIES * 8)
- 
-+/*
-+ * Some tricky tests to match code segments after a fault
-+ */
-+#define SEGMENT_IS_FLAT_CODE(x)  (((x) & 0xec) == GDT_ENTRY_KERNEL_CS * 8)
-+#define SEGMENT_IS_PNP_CODE(x)   (((x) & 0xf4) == GDT_ENTRY_PNPBIOS_BASE * 8)
-+
- /* Simple and small GDT entries for booting only */
- 
- #define GDT_ENTRY_BOOT_CS		2
-@@ -112,4 +118,8 @@
-  */
- #define IDT_ENTRIES 256
- 
-+/* Bottom three bits of xcs give the ring privilege level */
-+#define SEGMENT_RPL_MASK 0x3
-+
-+#define get_kernel_rpl()  0
+--- a/include/asm-i386/system.h
++++ b/include/asm-i386/system.h
+@@ -261,6 +261,9 @@ static inline unsigned long __xchg(unsig
+ #define cmpxchg(ptr,o,n)\
+ 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+ 					(unsigned long)(n),sizeof(*(ptr))))
++#define sync_cmpxchg(ptr,o,n)\
++	((__typeof__(*(ptr)))__sync_cmpxchg((ptr),(unsigned long)(o),\
++					(unsigned long)(n),sizeof(*(ptr))))
  #endif
+ 
+ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+@@ -282,6 +285,39 @@ static inline unsigned long __cmpxchg(vo
+ 		return prev;
+ 	case 4:
+ 		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	}
++	return old;
++}
++
++/*
++ * Always use locked operations when touching memory shared with a
++ * hypervisor, since the system may be SMP even if the guest kernel
++ * isn't.
++ */
++static inline unsigned long __sync_cmpxchg(volatile void *ptr,
++					    unsigned long old,
++					    unsigned long new, int size)
++{
++	unsigned long prev;
++	switch (size) {
++	case 1:
++		__asm__ __volatile__("lock; cmpxchgb %b1,%2"
++				     : "=a"(prev)
++				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 2:
++		__asm__ __volatile__("lock; cmpxchgw %w1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 4:
++		__asm__ __volatile__("lock; cmpxchgl %1,%2"
+ 				     : "=a"(prev)
+ 				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
+ 				     : "memory");
+===================================================================
+--- /dev/null
++++ b/include/asm-i386/sync_bitops.h
+@@ -0,0 +1,156 @@
++#ifndef _I386_SYNC_BITOPS_H
++#define _I386_SYNC_BITOPS_H
++
++/*
++ * Copyright 1992, Linus Torvalds.
++ */
++
++/*
++ * These have to be done with inline assembly: that way the bit-setting
++ * is guaranteed to be atomic. All bit operations return 0 if the bit
++ * was cleared before the operation and != 0 if it was not.
++ *
++ * bit 0 is the LSB of addr; bit 32 is the LSB of (addr+1).
++ */
++
++#define ADDR (*(volatile long *) addr)
++
++/**
++ * sync_set_bit - Atomically set a bit in memory
++ * @nr: the bit to set
++ * @addr: the address to start counting from
++ *
++ * This function is atomic and may not be reordered.  See __set_bit()
++ * if you do not require the atomic guarantees.
++ *
++ * Note: there are no guarantees that this function will not be reordered
++ * on non x86 architectures, so if you are writting portable code,
++ * make sure not to rely on its reordering guarantees.
++ *
++ * Note that @nr may be almost arbitrarily large; this function is not
++ * restricted to acting on a single-word quantity.
++ */
++static inline void sync_set_bit(int nr, volatile unsigned long * addr)
++{
++	__asm__ __volatile__("lock; btsl %1,%0"
++			     :"+m" (ADDR)
++			     :"Ir" (nr)
++			     : "memory");
++}
++
++/**
++ * sync_clear_bit - Clears a bit in memory
++ * @nr: Bit to clear
++ * @addr: Address to start counting from
++ *
++ * sync_clear_bit() is atomic and may not be reordered.  However, it does
++ * not contain a memory barrier, so if it is used for locking purposes,
++ * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
++ * in order to ensure changes are visible on other processors.
++ */
++static inline void sync_clear_bit(int nr, volatile unsigned long * addr)
++{
++	__asm__ __volatile__("lock; btrl %1,%0"
++			     :"+m" (ADDR)
++			     :"Ir" (nr)
++			     : "memory");
++}
++
++/**
++ * sync_change_bit - Toggle a bit in memory
++ * @nr: Bit to change
++ * @addr: Address to start counting from
++ *
++ * change_bit() is atomic and may not be reordered. It may be
++ * reordered on other architectures than x86.
++ * Note that @nr may be almost arbitrarily large; this function is not
++ * restricted to acting on a single-word quantity.
++ */
++static inline void sync_change_bit(int nr, volatile unsigned long * addr)
++{
++	__asm__ __volatile__("lock; btcl %1,%0"
++			     :"+m" (ADDR)
++			     :"Ir" (nr)
++			     : "memory");
++}
++
++/**
++ * sync_test_and_set_bit - Set a bit and return its old value
++ * @nr: Bit to set
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.
++ * It may be reordered on other architectures than x86.
++ * It also implies a memory barrier.
++ */
++static inline int sync_test_and_set_bit(int nr, volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__("lock; btsl %2,%1\n\tsbbl %0,%0"
++			     :"=r" (oldbit),"+m" (ADDR)
++			     :"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++/**
++ * sync_test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.
++ * It can be reorderdered on other architectures other than x86.
++ * It also implies a memory barrier.
++ */
++static inline int sync_test_and_clear_bit(int nr, volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__("lock; btrl %2,%1\n\tsbbl %0,%0"
++			     :"=r" (oldbit),"+m" (ADDR)
++			     :"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++/**
++ * sync_test_and_change_bit - Change a bit and return its old value
++ * @nr: Bit to change
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.
++ * It also implies a memory barrier.
++ */
++static inline int sync_test_and_change_bit(int nr, volatile unsigned long* addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__("lock; btcl %2,%1\n\tsbbl %0,%0"
++			     :"=r" (oldbit),"+m" (ADDR)
++			     :"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++static __always_inline int sync_const_test_bit(int nr, const volatile unsigned long *addr)
++{
++	return ((1UL << (nr & 31)) &
++		(((const volatile unsigned int *)addr)[nr >> 5])) != 0;
++}
++
++static inline int sync_var_test_bit(int nr, const volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__("btl %2,%1\n\tsbbl %0,%0"
++			     :"=r" (oldbit)
++			     :"m" (ADDR),"Ir" (nr));
++	return oldbit;
++}
++
++#define sync_test_bit(nr,addr)			\
++	(__builtin_constant_p(nr) ?		\
++	 sync_constant_test_bit((nr),(addr)) :	\
++	 sync_var_test_bit((nr),(addr)))
++
++#undef ADDR
++
++#endif /* _I386_SYNC_BITOPS_H */
 
 --
 

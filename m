@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWHCEta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWHCEyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWHCEta (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 00:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWHCEta
+	id S932255AbWHCEyV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 00:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWHCEyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 00:49:30 -0400
-Received: from ns2.suse.de ([195.135.220.15]:467 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932265AbWHCEt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 00:49:29 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: [patch 2/8] Implement always-locked bit ops, for memory shared with an SMP hypervisor.
-Date: Thu, 3 Aug 2006 06:49:11 +0200
-User-Agent: KMail/1.9.3
-Cc: virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       akpm@osdl.org, xen-devel@lists.xensource.com,
-       Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>,
-       linux-kernel@vger.kernel.org
-References: <20060803002510.634721860@xensource.com> <200608030445.38189.ak@suse.de> <Pine.LNX.4.64.0608022125320.26980@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608022125320.26980@schroedinger.engr.sgi.com>
+	Thu, 3 Aug 2006 00:54:21 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:23960 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932255AbWHCEyU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 00:54:20 -0400
+Message-ID: <44D1815C.1040508@zytor.com>
+Date: Wed, 02 Aug 2006 21:53:48 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] ELF Relocatable x86 and x86_64 bzImages
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>	<20060802183709.GJ3435@redhat.com> <m1wt9qr5ur.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1wt9qr5ur.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608030649.11452.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 August 2006 06:27, Christoph Lameter wrote:
-> On Thu, 3 Aug 2006, Andi Kleen wrote:
+Eric W. Biederman wrote:
+> Don Zickus <dzickus@redhat.com> writes:
 > 
-> > 
-> > > Thats a good goal but what about the rest of us who have to maintain 
-> > > additional forms of bit operations for all architectures. How much is this 
-> > > burden?
-> > 
-> > I don't think it's that big an issue because most architectures either
-> > use always locked bitops already or don't need them because they don't do
-> > SMP.
+>>> There is one outstanding issue where I am probably requiring too much
+>> alignment
+>>> on the arch/i386 kernel.  
+>> There was posts awhile ago about optimizing the kernel performance by
+>> loading it at a 4MB offset.  
+>>
+>> http://www.lkml.org/lkml/2006/2/23/189
+>>
+>> Your changes breaks that on i386 (not aligned on a 4MB boundary).  But a
+>> 5MB offset works.  Is that the correct update or does that break the
+>> original idea?
 > 
-> Those architectures that always use locked bitops or dont need them would 
-> not need to be modified if we put this in a special fail. I think this is 
-> a i386 speciality here?
-
-i386/x86-64
-
-They could do a single line #include for asm-generic that defines them
-to the normal bitops.
-
-
+> That patch should still apply and work as described.
 > 
-> Those operations are only needed for special xen driver and not for 
-> regular kernel code!
-
-The Xen driver will be "regular" kernel code.
-
-> > So it will be fine with just a asm-generic header that defines them
-> > to the normal bitops. Not much burden.
+> Actually when this stuipd cold I have stops slowing me down,
+> and I fix the alignment to what it really needs to be ~= 8KB.
 > 
-> asm-generic/xen-bitops.h asm-i386/xen-bitops.h is even less of a burden 
-> and would only require a 
+> Then bootloaders should be able to make the decision.
 > 
-> #include <asm/xen-bitops.h>
+> HPA Does that sound at all interesting?
 > 
-> for those special xen drivers.
 
-Well there might be reasons someone else uses this in the future too.
-It's also not exactly Linux style - normally we try to add generic
-facilities.
+I'm sorry, it's not clear to me what you're asking here.
 
--Andi
+The bootloaders will load bzImage at the 1 MB point, and it's up to the 
+decompressor to locate it appropriately.  It has (correctly) been 
+pointed out that it would be faster if the decompressed kernel is 
+located to the 4 MB point -- large pages don't work below 2/4 MB due to 
+interference with the fixed MTRRs -- but that's doesn't affect the boot 
+protocol in any way.
+
+I was under the impression that your relocatable patches allows the boot 
+loader to load the bzImage at a different address than the usual 
+0x100000; but again, that shouldn't affect the kernel's final resting place.
+
+	-hpa
+

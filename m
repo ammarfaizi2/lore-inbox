@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWHCJsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWHCJtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWHCJsm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 05:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHCJsm
+	id S932459AbWHCJtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 05:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWHCJtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 05:48:42 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:36613 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932444AbWHCJsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 05:48:41 -0400
-Message-ID: <44D1C616.1060305@shadowen.org>
-Date: Thu, 03 Aug 2006 10:47:02 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: moreau francis <francis_moreau2000@yahoo.fr>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Re : Re : sparsemem usage
-References: <20060803090706.99884.qmail@web25813.mail.ukl.yahoo.com>
-In-Reply-To: <20060803090706.99884.qmail@web25813.mail.ukl.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 05:49:09 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:18643 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932459AbWHCJtH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 05:49:07 -0400
+Date: Thu, 3 Aug 2006 13:48:12 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take3 4/4] kevent: poll/select() notifications. Timer notifications.
+Message-ID: <20060803094812.GA29798@2ka.mipt.ru>
+References: <11545983601@2ka.mipt.ru> <200608031143.03064.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <200608031143.03064.dada1@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 03 Aug 2006 13:48:13 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moreau francis wrote:
-> Alan Cox wrote:
->> Mapping out parts of a section is quite normal - think about the 640K to
->> 1Mb hole in PC memory space.
+On Thu, Aug 03, 2006 at 11:43:02AM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> On Thursday 03 August 2006 11:46, Evgeniy Polyakov wrote:
+> > poll/select() notifications. Timer notifications.
+> >
+> > +++ b/kernel/kevent/kevent_poll.c
 > 
-> OK. But I'm still worry. Please consider the following code
+> > +static int kevent_poll_wait_callback(wait_queue_t *wait,
+> > +		unsigned mode, int sync, void *key)
+> > +{
+> > +	struct kevent_poll_wait_container *cont =
+> > +		container_of(wait, struct kevent_poll_wait_container, wait);
+> > +	struct kevent *k = cont->k;
+> > +	struct file *file = k->st->origin;
+> > +	unsigned long flags;
+> > +	u32 revents, event;
+> > +
+> > +	revents = file->f_op->poll(file, NULL);
+> > +	spin_lock_irqsave(&k->ulock, flags);
+> > +	event = k->event.event;
+> > +	spin_unlock_irqrestore(&k->ulock, flags);
 > 
->        for (...; ...; ...) {
->                 [...]
->                 if (pfn_valid(i))
->                        num_physpages++;
->                 [...]
->         }
-> 
-> In that case num_physpages won't store an accurate value. Still it will be
-> used by the kernel to make some statistic assumptions on other kernel
-> data structure sizes.
+> Not sure why you take a spinlock just to read a u32
 
-That would be incorrect usage.  pfn_valid() simply doesn't tell you if 
-you have memory backing a pfn, it mearly means you can interrogate the 
-page* for it.  A good example of code which counts pages in a region is 
-in count_highmem_pages() which has a form as below:
+You are right, it is not needed there.
+Thank you.
 
-			for (pfn = start; pfn < end; pfn++) {
-  				if (!pfn_valid(pfn))
-                                         continue;
-                                 page = pfn_to_page(pfn);
-                                 if (PageReserved(page))
-                                         continue;
-				num_physpages++;
-			}
+> Eric
 
--apw
+-- 
+	Evgeniy Polyakov

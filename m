@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWHCUS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWHCUWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWHCUS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWHCUS0
+	id S964879AbWHCUWf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWHCUWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:18:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23728 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964826AbWHCUSZ (ORCPT
+	Thu, 3 Aug 2006 16:22:35 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:51469 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S964879AbWHCUWc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:18:25 -0400
-Date: Thu, 3 Aug 2006 16:17:17 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Userspace visible of 3 include/asm/ headers
-Message-ID: <20060803201717.GG16927@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alexey Dobriyan <adobriyan@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-	"H. Peter Anvin" <hpa@zytor.com>
-References: <20060803193952.GF25692@stusta.de> <20060803194410.GC16927@redhat.com> <20060803201402.GA6828@martell.zuzino.mipt.ru>
+	Thu, 3 Aug 2006 16:22:32 -0400
+Date: Thu, 3 Aug 2006 16:18:57 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: kernel-janitors@lists.osdl.org, linuxsh-dev@lists.sourceforge.net,
+       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sh: fix proc file removal for superh store queue module
+Message-ID: <20060803201857.GC5004@localhost.localdomain>
+References: <20060803191828.GA5004@localhost.localdomain> <20060803124235.67bb664b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060803201402.GA6828@martell.zuzino.mipt.ru>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20060803124235.67bb664b.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 12:14:02AM +0400, Alexey Dobriyan wrote:
- > On Thu, Aug 03, 2006 at 03:44:10PM -0400, Dave Jones wrote:
- > > On Thu, Aug 03, 2006 at 09:39:52PM +0200, Adrian Bunk wrote:
- > >  > Could anyone help me regarding the desired userspace visibility of the
- > >  > following three headers under include/asm/?
- > >  >
- > >  > Header        : cpufeature.h
- > >  > Architectures : i386, x86_64
- > >  > Is there any reason why this header is exported to userspace?
- > >
- > > Probably not. The only apps I've seen that care about feature bits
- > > define them theirselves rather than use these.
- > 
- > Feature bits are only (indirectly) visible via /proc/cpuinfo.
- > struct cpuinfo_x86, AFAICS, is never copied to userspace. So, it's safe
- > to remove this header.
+Patch to clean up proc file removal in sq module for superh arch.  currently on
+a failed module load or on module unload a proc file is left registered which
+can cause a random memory execution or oopses if read after unload.  This patch
+cleans up that deregistration.
 
-Most of the bits (all but the linux specific ones), are the same bits you
-can get from /dev/cpu/0/cpuid, or from calling the cpuid instruction by hand.
+Thanks & Regards
+Neil
 
-		Dave
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
--- 
-http://www.codemonkey.org.uk
+
+ sq.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+
+diff --git a/arch/sh/kernel/cpu/sh4/sq.c b/arch/sh/kernel/cpu/sh4/sq.c
+index 781dbb1..4b2b0b1 100644
+--- a/arch/sh/kernel/cpu/sh4/sq.c
++++ b/arch/sh/kernel/cpu/sh4/sq.c
+@@ -421,18 +421,22 @@ static struct miscdevice sq_dev = {
+ 
+ static int __init sq_api_init(void)
+ {
++	int ret;
+ 	printk(KERN_NOTICE "sq: Registering store queue API.\n");
+ 
+-#ifdef CONFIG_PROC_FS
+ 	create_proc_read_entry("sq_mapping", 0, 0, sq_mapping_read_proc, 0);
+-#endif
+ 
+-	return misc_register(&sq_dev);
++	ret = misc_register(&sq_dev);
++	if (ret) 
++		remove_proc_entry("sq_mapping", NULL);
++
++	return ret;
+ }
+ 
+ static void __exit sq_api_exit(void)
+ {
+ 	misc_deregister(&sq_dev);
++	remove_proc_entry("sq_mapping", NULL);
+ }
+ 
+ module_init(sq_api_init);

@@ -1,96 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWHCVPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWHCVQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWHCVPf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHCVPf
+	id S932161AbWHCVQP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHCVQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:15:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22406 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932233AbWHCVPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:15:34 -0400
-Message-ID: <44D26769.4070505@sgi.com>
-Date: Thu, 03 Aug 2006 14:15:21 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       nagar@watson.ibm.com, balbir@in.ibm.com, jes@sgi.com, csturtiv@sgi.com,
-       tee@sgi.com, guillaume.thouvenin@bull.net
-Subject: Re: [patch 3/3] convert CONFIG tag for extended accounting routines
-References: <44D17A47.4010302@engr.sgi.com> <20060803000331.22fcb4c0.akpm@osdl.org>
-In-Reply-To: <20060803000331.22fcb4c0.akpm@osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 17:16:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:41555 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932161AbWHCVQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 17:16:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
+        b=gjZQ+oVzICLtr4Jax5qZST7SCaAipQnfOQMp8YjHuMYGsnCvai29KYK8TP8XuhOGV6e+P9sFuKPwqI24CARdgoVdqSHzvxpc3I2gj3IuERKP2DBhRhEI6fmVqbGcaEOcMVzx5XNuEyqIWY+bw1Snq8k+FQAQo4ThBxLAbWKuAqE=
+Date: Fri, 4 Aug 2006 01:16:09 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Armin Schindler <mac@melware.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] eicon: fix define conflict with ptrace
+Message-ID: <20060803211609.GC6828@martell.zuzino.mipt.ru>
+References: <20060803203411.GB6828@martell.zuzino.mipt.ru> <1154639399.23655.129.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1154639399.23655.129.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 02 Aug 2006 21:23:35 -0700
-> Jay Lan <jlan@engr.sgi.com> wrote:
-> 
-> 
->>+/**
->>+ * acct_update_integrals - update mm integral fields in task_struct
->>+ * @tsk: task_struct for accounting
->>+ */
->>+void acct_update_integrals(struct task_struct *tsk)
->>+{
->>+	if (likely(tsk->mm)) {
->>+		long delta =
->>+			cputime_to_jiffies(tsk->stime) - tsk->acct_stimexpd;
-> 
-> 
-> If a 32 architecture chooses to implement a 64-bit cputime_t, this
-> expression might go wrong for very long-running tasks and high HZ.
-> 
-> Perhaps we should do all this in terms of cputime_t and export everything
-> to userspace as u64?
+On Thu, Aug 03, 2006 at 10:09:59PM +0100, Alan Cox wrote:
+> Ar Gwe, 2006-08-04 am 00:34 +0400, ysgrifennodd Alexey Dobriyan:
+> > * MODE_MASK is unused in eicon driver.
+> > * Conflicts with a ptrace stuff on arm.
+> >
+> > drivers/isdn/hardware/eicon/divasync.h:259:1: warning: "MODE_MASK" redefined
+> > include2/asm/ptrace.h:48:1: warning: this is the location of the previous definition
 
-Andrew,
+> NAK. You need to fix all the code expecting to use the MODE_MASK with a
+> value of 0x00000080
 
-We export to userspace the acct_rss_mem1 and acct_vm_mem1, both as u64.
-The above logic is to calculate stime delta since last update. Note that
-acc_update_integrals() is invoked at do_execve, do_exit, _AND_ at
-account_system_time, which is called every jiffy by timer interrupt
-handler.
+OK, I understood. However, judging by tiny amount of indentation¹ this
+define should be used when messing with "Flag" field
 
-The tsk->acct_stimexpd is used to save the tsk->stime of last update.
-It should be changed to cputime_t as well. I will include the fix in
-my next fix patch.
+	unsigned long Flag;     /* |31-Type-16|15-Mask-0| */
 
-> 
-> 
->>+		if (delta == 0)
->>+			return;
->>+		tsk->acct_stimexpd = tsk->stime;
->>+		tsk->acct_rss_mem1 += delta * get_mm_rss(tsk->mm);
->>+		tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
-> 
-> 
-> It's a bit weird to be multiplying RSS by time.  What unit is a "byte
-> second"?
-> 
-> If this is not a bug then I guess this is an intermediate term for
-> additional downstream processing.  There is information loss here and I'd
-> have thought that it would be better to simply send `delta' and the rss
-> straight to userspace, let userspace work out what math it wants to perform
-> on it.  If that makes sense?
-> 
-> I see that the code has been like this for a long time, so treat this as a
-> "please educate me about BSD accounting" email ;)
+of struct (typedef, actually) called "isdnProps". Other defines nearby
+are unused also. More, "isdnProps" which is typedef holding this field in
+turn, is also unused.
 
-This is not a BSD accounting thing. It came from UNICOS and IRIX.
-I am pinging the person who knows how the real world users use these
-two fields...
-
-Regards,
-  - jay
-
-> 
-
+¹ Even less than GNU.
 

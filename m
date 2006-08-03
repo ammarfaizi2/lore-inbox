@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWHCWfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWHCWqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbWHCWfR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 18:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWHCWfR
+	id S1750737AbWHCWqs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 18:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWHCWqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 18:35:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:62080 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932534AbWHCWfP (ORCPT
+	Thu, 3 Aug 2006 18:46:48 -0400
+Received: from ns2.suse.de ([195.135.220.15]:14210 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750737AbWHCWqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 18:35:15 -0400
-Date: Thu, 3 Aug 2006 15:30:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
-Subject: Re: A proposal - binary
-Message-ID: <20060803223035.GA26366@kroah.com>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <44D26D87.2070208@vmware.com> <1154644383.23655.142.camel@localhost.localdomain>
+	Thu, 3 Aug 2006 18:46:47 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] IOMMU (Calgary) patches
+Date: Fri, 4 Aug 2006 00:46:17 +0200
+User-Agent: KMail/1.9.3
+Cc: "Duran, Leo" <leo.duran@amd.com>, "Muli Ben-Yehuda" <muli@il.ibm.com>,
+       "Jon Mason" <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <84EA05E2CA77634C82730353CBE3A84307E83E88@SAUSEXMB1.amd.com>
+In-Reply-To: <84EA05E2CA77634C82730353CBE3A84307E83E88@SAUSEXMB1.amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1154644383.23655.142.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608040046.17037.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 11:33:03PM +0100, Alan Cox wrote:
-> Ar Iau, 2006-08-03 am 14:41 -0700, ysgrifennodd Zachary Amsden:
-> > Hence my point follows.  Using source compiled with the kernel as a 
-> > module does nothing to provide a stable interface to the backend 
-> > hardware / hypervisor implementation.
+On Thursday 03 August 2006 23:10, Duran, Leo wrote:
+> Andi, Jon, Muli,
 > 
-> Could have fooled me. It seems to work for the IBM Mainframe people
-> really well. 
+> I'm trying to build with the latest IOMMU patches for x86_64, so, I've
+> pulled down 2.6.17, and the 2.6.18-rc3 patches... But, that's obviously
+> lagging behind a bit.
+> 
+> Is there a source tree that you guys work from?
 
-And the PowerPC hypervisor interface :)
+My latest source tree which contains all the submitted Calgary updates
+is in ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/  (in quilt format)
 
-Have you discussed this with those two groups to make sure you aren't
-doing something that would merely duplicate what they have already done?
+-Andi
 
-thanks,
-
-greg k-h

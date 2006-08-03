@@ -1,411 +1,791 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWHCKFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWHCKGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWHCKFD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 06:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWHCKFC
+	id S932305AbWHCKGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 06:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWHCKGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 06:05:02 -0400
-Received: from toplitzer.net ([83.151.30.110]:25477 "EHLO toplitzer.net")
-	by vger.kernel.org with ESMTP id S932455AbWHCKFA (ORCPT
+	Thu, 3 Aug 2006 06:06:15 -0400
+Received: from [210.76.114.181] ([210.76.114.181]:53143 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S932305AbWHCKGO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 06:05:00 -0400
-From: Helmut <bgrpt@toplitzer.net>
-To: linux-kernel@vger.kernel.org
-Subject: pci=assign-busses output and problems
-Date: Thu, 3 Aug 2006 12:04:56 +0200
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Ipc0Ew1S2VMVSOj"
-Message-Id: <200608031204.56842.bgrpt@toplitzer.net>
+	Thu, 3 Aug 2006 06:06:14 -0400
+Date: Thu, 3 Aug 2006 18:06:08 +0800
+From: "liyu" <liyu@ccoss.com.cn>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] usb: The HID Simple Driver Interface 0.3.0
+Message-ID: <200608031806087610533@ccoss.com.cn>
+X-mailer: Foxmail 6, 4, 104, 20 [cn]
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_Ipc0Ew1S2VMVSOj
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+You can see one example in  "[PATCH] usb: Microsoft Natural Ergonomic Keyboard 4000 Driver 0.3.0"
+
+Changelogs: ( upto 20060803)
+
+	1. Release version 0.3.0.	
+
+Changelogs: ( upto 20060728)
+
+	1. Fixed the inline function redefine error.
+	2. Fixed the bug that access invalid address hidinput_simple_driver_pop().
+	
+Signed-off-by: Liyu <liyu@ccoss.com.cn>
+
+diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-core.c linux-2.6.17.7/drivers/usb/input/hid-core.c
+--- linux-2.6.17.7/drivers/usb/input.orig/hid-core.c	2006-07-25 11:36:01.000000000 +0800
++++ linux-2.6.17.7/drivers/usb/input/hid-core.c	2006-08-03 15:44:45.000000000 +0800
+@@ -4,6 +4,7 @@
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
++ *  Copyright (c) 2006 Liyu <liyu@ccoss.com.cn>  HID simple driver interface
+  */
+ 
+ /*
+@@ -26,6 +27,7 @@
+ #include <asm/byteorder.h>
+ #include <linux/input.h>
+ #include <linux/wait.h>
++#include <asm/semaphore.h>
+ 
+ #undef DEBUG
+ #undef DEBUG_DATA
+@@ -33,6 +35,7 @@
+ #include <linux/usb.h>
+ 
+ #include "hid.h"
++#include "hid-simple.h"
+ #include <linux/hiddev.h>
+ 
+ /*
+@@ -46,6 +49,15 @@
+ 
+ static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+ 				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
++
++/*
++ * The global data structure for simple device driver interface.
++ */
++static DECLARE_MUTEX(matched_lock);
++static DECLARE_MUTEX(simple_lock);
++static struct list_head matched_devices_list;
++static struct list_head simple_drivers_list;
++
+ /*
+  * Module parameters.
+  */
+@@ -785,8 +797,17 @@ static __inline__ int search(__s32 *arra
+ static void hid_process_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, int interrupt, struct pt_regs *regs)
+ {
+ 	hid_dump_input(usage, value);
+-	if (hid->claimed & HID_CLAIMED_INPUT)
++	if (hid->claimed & HID_CLAIMED_INPUT) {
++		if (hid->simple) {
++			if (hid->simple->pre_event &&
++				!hid->simple->pre_event(hid, field, usage, 
++								value, regs))
++			return;
++		}
+ 		hidinput_hid_event(hid, field, usage, value, regs);
++		if (hid->simple && hid->simple->post_event)
++			hid->simple->post_event(hid, field, usage, value, regs);
++	}
+ 	if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt)
+ 		hiddev_hid_event(hid, field, usage, value, regs);
+ }
+@@ -832,7 +853,6 @@ static void hid_input_field(struct hid_d
+ 			&& field->usage[field->value[n] - min].hid
+ 			&& search(value, field->value[n], count))
+ 				hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt, regs);
+-
+ 		if (value[n] >= min && value[n] <= max
+ 			&& field->usage[value[n] - min].hid
+ 			&& search(field->value, value[n], count))
+@@ -1977,6 +1997,8 @@ fail:
+ static void hid_disconnect(struct usb_interface *intf)
+ {
+ 	struct hid_device *hid = usb_get_intfdata (intf);
++	struct list_head *node;
++	struct matched_device *matched;
+ 
+ 	if (!hid)
+ 		return;
+@@ -1991,8 +2013,29 @@ static void hid_disconnect(struct usb_in
+ 	del_timer_sync(&hid->io_retry);
+ 	flush_scheduled_work();
+ 
+-	if (hid->claimed & HID_CLAIMED_INPUT)
++	if (hid->claimed & HID_CLAIMED_INPUT) {
++		matched = NULL;
++		down(&matched_lock);
++		list_for_each(node, &matched_devices_list) {
++			matched = list_entry(node, struct matched_device, node);
++			if (matched->intf == intf) {
++				list_del(&matched->node);
++				break;
++			}
++			matched = NULL;
++		}
++		up(&matched_lock);
++		/* disconnect simple device driver if need */
++		if (matched && hid->simple) {
++			hidinput_simple_driver_disconnect(hid);
++			hidinput_simple_driver_pop(hid, matched);
++		}
++		if (matched) {
++			matched->intf = NULL;
++			kfree(matched);
++		}
+ 		hidinput_disconnect(hid);
++	}
+ 	if (hid->claimed & HID_CLAIMED_HIDDEV)
+ 		hiddev_disconnect(hid);
+ 
+@@ -2005,12 +2048,143 @@ static void hid_disconnect(struct usb_in
+ 	hid_free_device(hid);
+ }
+ 
++
++/* called when we unregister a hidinput simple device driver */
++static void
++hidinput_simple_driver_bind_foreach(void)
++{
++	struct hidinput_simple_driver *simple;
++	struct matched_device *matched=NULL;
++	struct list_head *matched_node = NULL;
++	struct list_head *simple_node = NULL;
++	struct hid_device *hid=NULL;
++
++	down(&matched_lock);
++	list_for_each(matched_node, &matched_devices_list) {
++		matched = list_entry(matched_node, struct matched_device, node);
++		hid = usb_get_intfdata(matched->intf);
++		if (hid->simple)
++			continue;
++		down(&simple_lock);
++		list_for_each(simple_node, &simple_drivers_list) {
++			simple = list_entry(simple_node, struct hidinput_simple_driver, node);
++			if (!usb_match_id(matched->intf, simple->id_table))
++				continue;
++			if (hidinput_simple_driver_connect(simple, hid))
++				continue;
++			if (hidinput_simple_driver_push(hid, simple, matched))
++				continue;
++			hidinput_simple_driver_setup_usage(hid);
++			printk(KERN_INFO"The simple HID driver \'%s\' attach on"
++								"\'%s\'\n",
++								simple->name,
++								hid->name);
++		}
++		up(&simple_lock);
++	}
++	up(&matched_lock);
++	
++}
++
++/* called in hid_probe() */
++static void
++hidinput_simple_driver_bind(struct matched_device *matched)
++{
++	struct hidinput_simple_driver *simple;
++	struct list_head *node;
++	struct hid_device *hid;
++	
++	if (!matched->intf)
++		return;
++	hid = usb_get_intfdata (matched->intf);
++	if (hid->simple)
++		return;
++
++	simple = NULL;
++	down(&simple_lock);
++	list_for_each(node, &simple_drivers_list) {
++		simple = list_entry(node, struct hidinput_simple_driver, node);
++		if (usb_match_id(matched->intf, simple->id_table))
++			break;
++		simple = NULL;
++	}
++	up(&simple_lock);
++	
++	if (!simple) 
++		return;
++	if (hidinput_simple_driver_connect(simple, hid))
++		return;
++	if (hidinput_simple_driver_push(hid, simple, matched))
++		return;
++	hidinput_simple_driver_setup_usage(hid);
++
++	printk(KERN_INFO"The simple HID driver \'%s\' attach on \'%s\'\n", 
++						simple->name, hid->name);
++}
++
++int
++hidinput_register_simple_driver(struct hidinput_simple_driver *simple)
++{
++	struct list_head *node=NULL;
++	struct matched_device *matched;
++	struct hid_device *hid=NULL;
++	int ret=0;
++
++	if (!simple || !simple->name)
++		return -EINVAL;
++
++	hidinput_simple_driver_init(simple);
++
++	down(&matched_lock);
++	list_for_each(node, &matched_devices_list) {
++		matched = list_entry(node, struct matched_device, node);
++		hid = usb_get_intfdata (matched->intf);
++		if (hid->simple)
++			continue;
++		if (!usb_match_id(matched->intf, simple->id_table))
++			continue;
++		if (hidinput_simple_driver_connect(simple, hid))
++			continue;
++		if (hidinput_simple_driver_push(hid, simple, matched))
++			continue;
++		hidinput_simple_driver_setup_usage(hid);
++		ret = 0;
++		printk(KERN_INFO"The simple HID driver \'%s\' attach on"
++							" \'%s\'.\n",
++						 simple->name, hid->name);
++	}
++	up(&matched_lock);
++
++	down(&simple_lock);
++	list_add(&simple->node, &simple_drivers_list);
++	up(&simple_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(hidinput_register_simple_driver);
++
++void
++hidinput_unregister_simple_driver(struct hidinput_simple_driver *simple)
++{
++	hidinput_simple_driver_clear(simple);
++	down(&simple_lock);
++	list_del(&simple->node);
++	up(&simple_lock);
++	/* to active simple device driver that it is waiting */
++	hidinput_simple_driver_bind_foreach();
++	printk(KERN_INFO"The simple HID driver \'%s\' unregistered.\n", 
++							simple->name);
++}
++
++EXPORT_SYMBOL_GPL(hidinput_unregister_simple_driver);
++
+ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
+ 	struct hid_device *hid;
+ 	char path[64];
+ 	int i;
+ 	char *c;
++	struct matched_device *matched;
+ 
+ 	dbg("HID probe called for ifnum %d",
+ 			intf->altsetting->desc.bInterfaceNumber);
+@@ -2021,13 +2195,22 @@ static int hid_probe(struct usb_interfac
+ 	hid_init_reports(hid);
+ 	hid_dump_device(hid);
+ 
+-	if (!hidinput_connect(hid))
++	usb_set_intfdata(intf, hid);
++
++	if (!hidinput_connect(hid)) {
++		matched = kmalloc(sizeof(struct matched_device), GFP_KERNEL);
++		if (matched) {
++			matched->intf = intf;
++			down(&matched_lock);
++			list_add(&matched->node, &matched_devices_list);
++			up(&matched_lock);
++			hidinput_simple_driver_bind(matched);
++		}
+ 		hid->claimed |= HID_CLAIMED_INPUT;
++	}
+ 	if (!hiddev_connect(hid))
+ 		hid->claimed |= HID_CLAIMED_HIDDEV;
+ 
+-	usb_set_intfdata(intf, hid);
+-
+ 	if (!hid->claimed) {
+ 		printk ("HID device not claimed by input or hiddev\n");
+ 		hid_disconnect(intf);
+@@ -2108,6 +2291,8 @@ static int __init hid_init(void)
+ 	retval = hiddev_init();
+ 	if (retval)
+ 		goto hiddev_init_fail;
++	INIT_LIST_HEAD(&matched_devices_list);
++	INIT_LIST_HEAD(&simple_drivers_list);
+ 	retval = usb_register(&hid_driver);
+ 	if (retval)
+ 		goto usb_register_fail;
+@@ -2122,7 +2307,15 @@ hiddev_init_fail:
+ 
+ static void __exit hid_exit(void)
+ {
++	struct list_head *node, *tmp;
++	struct matched_device *matched;
++	
+ 	usb_deregister(&hid_driver);
++	list_for_each_safe(node, tmp, &matched_devices_list) {
++		matched = list_entry(node, struct matched_device, node);
++		list_del(&matched->node);
++		kfree(matched);
++	}
+ 	hiddev_exit();
+ }
+ 
+diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid.h linux-2.6.17.7/drivers/usb/input/hid.h
+--- linux-2.6.17.7/drivers/usb/input.orig/hid.h	2006-07-25 11:36:01.000000000 +0800
++++ linux-2.6.17.7/drivers/usb/input/hid.h	2006-08-03 15:23:15.000000000 +0800
+@@ -6,6 +6,7 @@
+  *
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2001 Vojtech Pavlik
++ *  Copyright (c) 2006 Liyu     To support simple HID device.
+  */
+ 
+ /*
+@@ -380,8 +381,11 @@ struct hid_input {
+ 	struct list_head list;
+ 	struct hid_report *report;
+ 	struct input_dev *input;
++	void *private;
+ };
+ 
++struct hidinput_simple_driver;
++
+ struct hid_device {							/* device report descriptor */
+ 	 __u8 *rdesc;
+ 	unsigned rsize;
+@@ -445,6 +449,8 @@ struct hid_device {							/* device repo
+ 	int (*ff_event)(struct hid_device *hid, struct input_dev *input,
+ 			unsigned int type, unsigned int code, int value);
+ 
++	struct hidinput_simple_driver *simple;
++
+ #ifdef CONFIG_USB_HIDINPUT_POWERBOOK
+ 	unsigned long pb_pressed_fn[NBITS(KEY_MAX)];
+ 	unsigned long pb_pressed_numlock[NBITS(KEY_MAX)];
+diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-input.c linux-2.6.17.7/drivers/usb/input/hid-input.c
+--- linux-2.6.17.7/drivers/usb/input.orig/hid-input.c	2006-07-25 11:36:01.000000000 +0800
++++ linux-2.6.17.7/drivers/usb/input/hid-input.c	2006-08-03 17:26:48.000000000 +0800
+@@ -2,6 +2,7 @@
+  * $Id: hid-input.c,v 1.2 2002/04/23 00:59:25 rdamazio Exp $
+  *
+  *  Copyright (c) 2000-2001 Vojtech Pavlik
++ *  Copyright (c) 2006 Liyu <liyu@ccoss.com.cn>  HID simple driver interface
+  *
+  *  USB HID to Linux Input mapping
+  */
+@@ -36,6 +37,7 @@
+ #undef DEBUG
+ 
+ #include "hid.h"
++#include "hid-simple.h"
+ 
+ #define unk	KEY_UNKNOWN
+ 
+@@ -63,6 +65,8 @@ static const struct {
+ 	__s32 y;
+ }  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
+ 
++typedef void (*do_usage_t)(struct hid_field *, struct hid_usage *);
++
+ #define map_abs(c)	do { usage->code = c; usage->type = EV_ABS; bit = input->absbit; max = ABS_MAX; } while (0)
+ #define map_rel(c)	do { usage->code = c; usage->type = EV_REL; bit = input->relbit; max = REL_MAX; } while (0)
+ #define map_key(c)	do { usage->code = c; usage->type = EV_KEY; bit = input->keybit; max = KEY_MAX; } while (0)
+@@ -849,6 +853,245 @@ int hidinput_connect(struct hid_device *
+ 	return 0;
+ }
+ 
++int
++hidinput_simple_driver_init(struct hidinput_simple_driver *drv)
++{
++	if (unlikely(!drv))
++		return -EINVAL;
++	INIT_LIST_HEAD(&drv->node);
++	INIT_LIST_HEAD(&drv->raw_devices);
++	drv->flags = 0;
++	return 0;
++}
++
++#define SET_BIT (1)
++#define CLR_BIT (0)
++static void inline
++hidinput_simple_configure_one_usage(int op, struct input_dev *input, struct hid_usage *usage, struct usage_block *usage_block)
++{
++	unsigned long *bits;
++
++	switch (usage_block->event) {
++		case EV_KEY:
++			bits = input->keybit;	break;
++		case EV_REL:
++			bits = input->relbit;	break;
++		case EV_ABS:
++			bits = input->relbit;	break;
++		case EV_MSC:
++			bits = input->absbit;	break;
++		case EV_SW:
++			bits = input->swbit;	break;
++		case EV_LED:
++			bits = input->ledbit;	break;
++		case EV_SND:
++			bits = input->sndbit;	break;
++		case EV_FF:
++			bits = input->ffbit;	break;
++		default:
++			return;
++	}
++
++	if (SET_BIT == op) {
++		usage->code = usage_block->code;
++		usage->type = usage_block->event;
++		set_bit(usage_block->code, bits);
++	}
++	else if (CLR_BIT == op) {
++		usage->code = 0;
++		usage->type = 0;
++		clear_bit(usage_block->code, bits);
++	}
++}
++
++static do_usage_t
++hidinput_simple_driver_configure_usage_prep(struct hid_device *hid, int *op)
++{
++	do_usage_t do_usage;
++
++	if (!hid->simple)
++		return NULL;
++
++	if (hid->simple->flags & HIDINPUT_SIMPLE_SETUP_USAGE) {
++		do_usage = hid->simple->setup_usage;
++		*op = SET_BIT;
++	}
++	else {
++		do_usage = hid->simple->clear_usage;
++		*op = CLR_BIT;
++	}
++	return do_usage;
++}
++
++static void
++__hidinput_simple_driver_configure_usage(int op,
++					struct hid_field *field,
++					struct hid_usage *hid_usage)
++{
++	struct input_dev *input = field->hidinput->input;
++	struct hid_device *hid = input->private;
++	struct usage_block *usage_block;
++	struct usage_page_block *page_block;
++	int page;
++	int usage;
++	
++	page = (hid_usage->hid & HID_USAGE_PAGE);
++	usage = (hid_usage->hid & HID_USAGE);
++	page_block = hid->simple->usage_page_table;
++
++	for (;page_block && page_block->usage_blockes;page_block++) {
++		if (page_block->page != page)
++			continue;
++		usage_block = page_block->usage_blockes;
++		for (; usage_block && usage_block->usage; usage_block++) {
++			if (usage_block->usage != usage)
++				continue;
++			hidinput_simple_configure_one_usage(op, input, 
++						hid_usage, usage_block);
++		}
++	}
++}
++
++/*
++ *  To give one simple device a configure usage chance.
++ *  The framework of this function come from hidinput_connect()
++ */
++void hidinput_simple_driver_configure_usage(struct hid_device *hid)
++{
++	struct hid_report *report;
++	int i, j, k;
++	do_usage_t do_usage;
++	int op;
++
++	if (!hid->simple)
++		return;
++
++	do_usage = hidinput_simple_driver_configure_usage_prep(hid, &op);
++
++	for (i = 0; i < hid->maxcollection; i++)
++		if (hid->collection[i].type == HID_COLLECTION_APPLICATION ||
++			hid->collection[i].type==HID_COLLECTION_PHYSICAL)
++			if (IS_INPUT_APPLICATION(hid->collection[i].usage))
++				break;
++
++	if (i == hid->maxcollection)
++		return;
++
++	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
++		list_for_each_entry(report, &hid->report_enum[k].report_list, list) {
++			if (!report->maxfield)
++				continue;
++
++			for (i = 0; i < report->maxfield; i++)
++				for (j = 0; j < report->field[i]->maxusage; j++) {
++					__hidinput_simple_driver_configure_usage(
++									op,
++							report->field[i],
++						report->field[i]->usage + j);
++					if (do_usage)
++						do_usage(report->field[i],
++						report->field[i]->usage + j);
++				}
++		}
++
++	return;
++}
++#undef SET_BIT
++#undef CLR_BIT
++
++int
++hidinput_simple_driver_push(struct hid_device *hid, 
++				struct hidinput_simple_driver *simple,
++					struct matched_device *matched)
++{
++	struct raw_simple_device *raw_simple;
++	
++	raw_simple = kmalloc(sizeof(struct raw_simple_device), GFP_KERNEL);
++	if (!raw_simple)
++		return -ENOMEM;
++	raw_simple->intf = matched->intf;
++	hid = usb_get_intfdata(matched->intf);
++	hid->simple = simple;
++	list_add(&raw_simple->node, &simple->raw_devices);
++	return 0;
++}
++
++void
++hidinput_simple_driver_pop(struct hid_device *hid,
++				struct matched_device *matched)
++{
++	struct list_head *node;
++	struct raw_simple_device *raw_simple=NULL;
++
++	list_for_each (node, &hid->simple->raw_devices) {
++		raw_simple = list_entry(node, struct raw_simple_device, node);
++		if (raw_simple && raw_simple->intf == matched->intf) {
++			hid->simple = NULL;
++			list_del(&raw_simple->node);
++			kfree(raw_simple);
++			return;
++		}
++	}
++}
++
++void
++hidinput_simple_driver_clear(struct hidinput_simple_driver *simple)
++{
++	struct raw_simple_device *raw_simple;
++	struct hid_device *hid;
++
++	while (!list_empty_careful(&simple->raw_devices)) {
++		raw_simple = list_entry(simple->raw_devices.next, 
++					struct raw_simple_device, node);
++		hid = usb_get_intfdata (raw_simple->intf);
++	
++		if (hid->simple) {
++			BUG_ON(hid->simple != simple);
++			hid->simple = NULL;
++		}
++		hidinput_simple_driver_clear_usage(hid);
++		printk("device '%s' disconnect from one simple driver.\n",
++								hid->name);
++		hidinput_simple_driver_disconnect(hid);
++		list_del_init(simple->raw_devices.next);
++	}
++}
++
++/* modify from hidinput_disconnect() */ 
++int hidinput_simple_driver_connect(struct hidinput_simple_driver *simple, 
++						struct hid_device *hid)
++{
++	struct hid_input *hidinput, *next;
++	int ret = -ENODEV;
++
++	if (!simple)
++		return ret;
++	if (!simple->connect)
++		return 0;
++
++	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
++		if (!simple->connect(hid, hidinput)) {
++			hid->simple = simple;
++			ret = 0;
++		}
++	}
++	return ret;
++}
++
++
++/* modify from hidinput_disconnect() */ 
++void hidinput_simple_driver_disconnect(struct hid_device *hid)
++{
++	struct hid_input *hidinput, *next;
++
++	if (!hid->simple || !hid->simple->disconnect)
++		return;
++
++	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
++		hid->simple->disconnect(hid, hidinput);
++	}
++}
++
+ void hidinput_disconnect(struct hid_device *hid)
+ {
+ 	struct hid_input *hidinput, *next;
+diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-simple.h linux-2.6.17.7/drivers/usb/input/hid-simple.h
+--- linux-2.6.17.7/drivers/usb/input.orig/hid-simple.h	1970-01-01 08:00:00.000000000 +0800
++++ linux-2.6.17.7/drivers/usb/input/hid-simple.h	2006-08-03 17:27:10.000000000 +0800
+@@ -0,0 +1,137 @@
++/*
++ *  NOTE:
++ *	For use me , you must include hid.h in your source first. 
++ */
++#ifndef __HID_SIMPLE_H
++#define __HID_SIMPLE_H
++
++#ifdef __KERNEL__
++
++#include <linux/usb.h>
++
++/***** The public interface for simple device driver *****/
++struct usage_page_block;
++
++struct hidinput_simple_driver {
++/* private */
++	struct list_head node; /* link with simple_drivers_list */
++	struct list_head raw_devices;
++	int flags;
++/* public */
++	char *name;
++	int (*connect)(struct hid_device *, struct hid_input *);	
++	void (*setup_usage)(struct hid_field *,   struct hid_usage *);
++	int (*pre_event)(const struct hid_device *, const struct hid_field *,
++					const struct hid_usage *, const __s32,
++					const struct pt_regs *regs);
++	int (*post_event)(const struct hid_device *, const struct hid_field *,
++					const struct hid_usage *, const __s32,
++					const struct pt_regs *regs);
++	void (*clear_usage)(struct hid_field *,   struct hid_usage *);
++	void (*disconnect)(struct hid_device *, struct hid_input *);
++	void *private;
++	struct usb_device_id *id_table;
++	struct usage_page_block *usage_page_table;
++};
++
++
++int hidinput_register_simple_driver(struct hidinput_simple_driver *device);
++void hidinput_unregister_simple_driver(struct hidinput_simple_driver *device);
++
++/********************* The public section end ***********/
++
++/***** The private section for simple device driver implement only *****/
++
++/* 
++ *  matched_device record one device which hid-subsystem handle, it may 
++ *  be one simple device can not handle.
++ *
++ *  The element of matched_device list is inserted at hidinput_connect(), 
++ *  and is removed  at hidinput_disconnect().
++ */ 
++struct matched_device {
++	struct usb_interface *intf;
++	struct list_head node;
++};
++
++/* 
++ *  raw_simple_driver record one device which hid simple device handle.
++ *  It used as one member of hid_simple_driver.
++ */ 
++
++struct raw_simple_device {
++	struct usb_interface *intf;
++	struct list_head node;
++};
++
++void hidinput_simple_driver_configure_usage(struct hid_device *hid);
++int hidinput_simple_driver_init(struct hidinput_simple_driver *simple);
++int hidinput_simple_driver_push(struct hid_device *hid,
++				struct hidinput_simple_driver *simple,
++				struct matched_device *dev);
++void hidinput_simple_driver_pop(struct hid_device *hid,
++				struct matched_device *dev);
++void hidinput_simple_driver_clear(struct hidinput_simple_driver *simple);
++int hidinput_simple_driver_connect(struct hidinput_simple_driver *simple, 
++							struct hid_device *hid);
++void hidinput_simple_driver_disconnect(struct hid_device *hid);
++
++struct usage_block {
++	int usage; /* usage code */
++	int value; /* not used, for F_EVENT_BY_VALUE in future  */
++	int event; /* input event type, e.g. EV_KEY. */
++	int code;  /* input subsystem code, e.g. KEY_F1. */
++	int flags; /* not used */
++};
++
++struct usage_page_block {
++	int page; /* usage page code */
++	int flags; /* not used */
++	struct usage_block *usage_blockes;
++};
++
++/* usage_block flags list */
++#define F_EVENT_BY_VALUE (0x1) /* submit input event by usage_block.value, 
++				  not implement yet */
++
++#define USAGE_BLOCK(i_usage, i_value, i_event, i_code, i_flags) \
++	{\
++		.usage = (i_usage),\
++		.value = (i_value),\
++		.event = (i_event),\
++		.code = (i_code),\
++		.flags = (i_flags),\
++	}
++
++#define USAGE_BLOCK_NULL {}
++
++#define USAGE_PAGE_BLOCK(i_page, i_usage_blockes) \
++	{\
++		.page = (i_page),\
++		.usage_blockes = (i_usage_blockes),\
++	}
++
++#define USAGE_PAGE_BLOCK_NULL {}
++
++/* simple driver internal flags */
++#define HIDINPUT_SIMPLE_SETUP_USAGE (0x1) /* the reverse is to call clear_usage */
++
++static void inline hidinput_simple_driver_setup_usage(struct hid_device *hid)
++{
++	if (hid && hid->simple) {
++		hid->simple->flags |= HIDINPUT_SIMPLE_SETUP_USAGE;
++		hidinput_simple_driver_configure_usage(hid);
++	}
++}
++
++static void inline hidinput_simple_driver_clear_usage(struct hid_device *hid)
++{
++	if (hid && hid->simple) {
++		hid->simple->flags &= (~HIDINPUT_SIMPLE_SETUP_USAGE);
++		hidinput_simple_driver_configure_usage(hid);
++	}
++}
++
++/***** The private section end.  *****/
++#endif /* __KERNEL__ */
++#endif /* __HID_SIMPLE_H */
 
 
-dmesg output told me to send this to this list.
-However, rebooting after using pci=assign-busses distorts my
-boot-screen after 1 sec. and is scrambled until xserver starts.
-Xserver is working ok, text-console keeps being scrambled.
-
-Attaching pci-assign-busses.txt with output and a output of dmesg before using
-this option.
-
-Helmut
-
---Boundary-00=_Ipc0Ew1S2VMVSOj
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="pci-assign-busses.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="pci-assign-busses.txt"
-
-Linux version 2.6.18-rc3-git1 (gcc version 3.3.5 (Debian 1:3.3.5-13)) #1 Wed Aug 2 17:45:06 CEST 2006
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
- BIOS-e820: 000000001fff0000 - 000000001fffffc0 (ACPI data)
- BIOS-e820: 000000001fffffc0 - 0000000020000000 (ACPI NVS)
- BIOS-e820: 00000000ffb80000 - 00000000ffc00000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-511MB LOWMEM available.
-On node 0 totalpages: 131056
-  DMA zone: 4096 pages, LIFO batch:0
-  Normal zone: 126960 pages, LIFO batch:31
-DMI 2.3 present.
-ACPI: RSDP (v000 OID_00                                ) @ 0x000e6010
-ACPI: RSDT (v001 INSYDE RSDT_000 0x00000001 _CSI 0x00010101) @ 0x1fffa9e0
-ACPI: FADT (v001 INSYDE FACP_000 0x00000100 _CSI 0x00010101) @ 0x1ffffb00
-ACPI: BOOT (v001 INSYDE SYS_BOOT 0x00000100 _CSI 0x00010101) @ 0x1ffffb90
-ACPI: DBGP (v001 INSYDE DBGP_000 0x00000100 _CSI 0x00010101) @ 0x1ffffbc0
-ACPI: SSDT (v001 INSYDE   GV3Ref 0x00002000 INTL 0x20021002) @ 0x1fffaa20
-ACPI: DSDT (v001 TOSINV   INT810 0x00001002 INTL 0x02002036) @ 0x00000000
-ACPI: PM-Timer IO Port: 0x1008
-Allocating PCI resources starting at 30000000 (gap: 20000000:dfb80000)
-Detected 1594.902 MHz processor.
-Built 1 zonelists.  Total pages: 131056
-Kernel command line: root=/dev/hda3 ro resume=/dev/hda2 pci=assign-busses 1 init=/bin/bash
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Initializing CPU#0
-PID hash table entries: 2048 (order: 11, 8192 bytes)
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Memory: 516756k/524224k available (1425k kernel code, 6916k reserved, 607k data, 136k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay using timer specific routine.. 3191.69 BogoMIPS (lpj=6383380)
-Mount-cache hash table entries: 512
-CPU: After generic identify, caps: afe9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
-CPU: After vendor identify, caps: afe9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
-CPU: L1 I cache: 32K, L1 D cache: 32K
-CPU: L2 cache: 2048K
-CPU: After all inits, caps: afe9f9bf 00000000 00000000 00000040 00000180 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-Compat vDSO mapped to ffffe000.
-CPU: Intel(R) Pentium(R) M processor 1.60GHz stepping 06
-Checking 'hlt' instruction... OK.
-ACPI: Core revision 20060707
-ACPI: setting ELCR to 0200 (from 0800)
-NET: Registered protocol family 16
-ACPI: ACPI Dock Station Driver 
-ACPI: bus type pci registered
-PCI: PCI BIOS revision 2.10 entry at 0xe9db4, last bus=2
-Setting up standard PCI resources
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (0000:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
-PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
-PCI quirk: region 1300-133f claimed by ICH4 GPIO
-PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-Boot video device is 0000:01:00.0
-PCI: Transparent bridge - 0000:00:1e.0
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI2._PRT]
-ACPI: PCI Interrupt Link [LNKA] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKB] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKC] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKD] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 6) *11
-ACPI: PCI Interrupt Link [LNKF] (IRQs 11) *0, disabled.
-ACPI: PCI Interrupt Link [LNKG] (IRQs 11) *0, disabled.
-ACPI: PCI Interrupt Link [LNKH] (IRQs 11) *0, disabled.
-ACPI: Embedded Controller [EC0] (gpe 16) interrupt mode.
-ACPI: Power Resource [PFA1] (off)
-ACPI: Power Resource [PFA0] (off)
-Linux Plug and Play Support v0.97 (c) Adam Belay
-PCI: Using ACPI for IRQ routing
-PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-PCI: Bridge: 0000:00:01.0
-  IO window: c000-dfff
-  MEM window: e0000000-efffffff
-  PREFETCH window: a0000000-afffffff
-PCI: Bus 3, cardbus bridge: 0000:02:09.0
-  IO window: 0000a400-0000a4ff
-  IO window: 0000a800-0000a8ff
-  PREFETCH window: 90000000-91ffffff
-  MEM window: d2000000-d3ffffff
-PCI: Bus 7, cardbus bridge: 0000:02:09.1
-  IO window: 0000ac00-0000acff
-  IO window: 0000b000-0000b0ff
-  PREFETCH window: 92000000-93ffffff
-  MEM window: d4000000-d5ffffff
-PCI: Bridge: 0000:00:1e.0
-  IO window: a000-bfff
-  MEM window: d0000000-dfffffff
-  PREFETCH window: 90000000-9fffffff
-PCI: Setting latency timer of device 0000:00:1e.0 to 64
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
-PCI: setting IRQ 11 as level-triggered
-ACPI: PCI Interrupt 0000:02:09.0[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-ACPI: PCI Interrupt 0000:02:09.1[B] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-NET: Registered protocol family 2
-IP route cache hash table entries: 4096 (order: 2, 16384 bytes)
-TCP established hash table entries: 16384 (order: 4, 65536 bytes)
-TCP bind hash table entries: 8192 (order: 3, 32768 bytes)
-TCP: Hash tables configured (established 16384 bind 8192)
-TCP reno registered
-Simple Boot Flag at 0x37 set to 0x1
-Machine check exception polling timer started.
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
-Initializing Cryptographic API
-io scheduler noop registered
-io scheduler anticipatory registered (default)
-io scheduler deadline registered
-io scheduler cfq registered
-pci 0000:00:1d.0: uhci_check_and_reset_hc: legsup = 0x0f30
-pci 0000:00:1d.0: Performing full reset
-pci 0000:00:1d.1: uhci_check_and_reset_hc: legsup = 0x0030
-pci 0000:00:1d.1: Performing full reset
-pci 0000:00:1d.2: uhci_check_and_reset_hc: legsup = 0x0030
-pci 0000:00:1d.2: Performing full reset
-ibm_acpi: ec object not found
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-toshiba: not a supported Toshiba laptop
-RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-tun: Universal TUN/TAP device driver, 1.6
-tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH4: IDE controller at PCI slot 0000:00:1f.1
-PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 11 (level, low) -> IRQ 11
-ICH4: chipset revision 3
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x1108-0x110f, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide0...
-hda: IC25N060ATMR04-0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: DW-224E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 512KiB
-hda: 117210240 sectors (60011 MB) w/7884KiB Cache, CHS=16383/255/63, UDMA(100)
-hda: cache flushes supported
- hda: hda1 hda2 hda3
-PNP: No PS/2 controller found. Probing ports directly.
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-mice: PS/2 mouse device common for all mice
-TCP bic registered
-NET: Registered protocol family 8
-NET: Registered protocol family 20
-ieee80211: 802.11 data/management/control stack, git-1.1.13
-ieee80211: Copyright (C) 2004-2005 Intel Corporation <jketreno@linux.intel.com>
-ieee80211_crypt: registered algorithm 'NULL'
-ieee80211_crypt: registered algorithm 'WEP'
-ieee80211_crypt: registered algorithm 'CCMP'
-ieee80211_crypt: registered algorithm 'TKIP'
-Using IPI Shortcut mode
-ACPI: (supports S0 S3 S4 S5)
-Time: tsc clocksource has been installed.
-input: AT Translated Set 2 keyboard as /class/input/input0
-
---Boundary-00=_Ipc0Ew1S2VMVSOj
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="dmesg.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="dmesg.txt"
-
-Linux version 2.6.18-rc3-git1 (gcc version 3.3.5 (Debian 1:3.3.5-13)) #1 Wed Aug 2 17:45:06 CEST 2006
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
- BIOS-e820: 000000001fff0000 - 000000001fffffc0 (ACPI data)
- BIOS-e820: 000000001fffffc0 - 0000000020000000 (ACPI NVS)
- BIOS-e820: 00000000ffb80000 - 00000000ffc00000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-511MB LOWMEM available.
-On node 0 totalpages: 131056
-  DMA zone: 4096 pages, LIFO batch:0
-  Normal zone: 126960 pages, LIFO batch:31
-DMI 2.3 present.
-ACPI: RSDP (v000 OID_00                                ) @ 0x000e6010
-ACPI: RSDT (v001 INSYDE RSDT_000 0x00000001 _CSI 0x00010101) @ 0x1fffa9e0
-ACPI: FADT (v001 INSYDE FACP_000 0x00000100 _CSI 0x00010101) @ 0x1ffffb00
-ACPI: BOOT (v001 INSYDE SYS_BOOT 0x00000100 _CSI 0x00010101) @ 0x1ffffb90
-ACPI: DBGP (v001 INSYDE DBGP_000 0x00000100 _CSI 0x00010101) @ 0x1ffffbc0
-ACPI: SSDT (v001 INSYDE   GV3Ref 0x00002000 INTL 0x20021002) @ 0x1fffaa20
-ACPI: DSDT (v001 TOSINV   INT810 0x00001002 INTL 0x02002036) @ 0x00000000
-ACPI: PM-Timer IO Port: 0x1008
-Allocating PCI resources starting at 30000000 (gap: 20000000:dfb80000)
-Detected 1594.978 MHz processor.
-Built 1 zonelists.  Total pages: 131056
-Kernel command line: root=/dev/hda3 ro resume=/dev/hda2 1 init=/bin/bash
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Initializing CPU#0
-PID hash table entries: 2048 (order: 11, 8192 bytes)
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Memory: 516756k/524224k available (1425k kernel code, 6916k reserved, 607k data, 136k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay using timer specific routine.. 3191.69 BogoMIPS (lpj=6383389)
-Mount-cache hash table entries: 512
-CPU: After generic identify, caps: afe9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
-CPU: After vendor identify, caps: afe9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
-CPU: L1 I cache: 32K, L1 D cache: 32K
-CPU: L2 cache: 2048K
-CPU: After all inits, caps: afe9f9bf 00000000 00000000 00000040 00000180 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-Compat vDSO mapped to ffffe000.
-CPU: Intel(R) Pentium(R) M processor 1.60GHz stepping 06
-Checking 'hlt' instruction... OK.
-ACPI: Core revision 20060707
-ACPI: setting ELCR to 0200 (from 0800)
-NET: Registered protocol family 16
-ACPI: ACPI Dock Station Driver 
-ACPI: bus type pci registered
-PCI: PCI BIOS revision 2.10 entry at 0xe9db4, last bus=2
-Setting up standard PCI resources
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (0000:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
-PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
-PCI quirk: region 1300-133f claimed by ICH4 GPIO
-PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-Boot video device is 0000:01:00.0
-PCI: Transparent bridge - 0000:00:1e.0
-PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02) (try 'pci=assign-busses')
-Please report the result to linux-kernel to fix this permanently
-PCI: Bus #07 (-#0a) is hidden behind transparent bridge #02 (-#02) (try 'pci=assign-busses')
-Please report the result to linux-kernel to fix this permanently
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI2._PRT]
-ACPI: PCI Interrupt Link [LNKA] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKB] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKC] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKD] (IRQs *11)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 6) *11
-ACPI: PCI Interrupt Link [LNKF] (IRQs 11) *0, disabled.
-ACPI: PCI Interrupt Link [LNKG] (IRQs 11) *0, disabled.
-ACPI: PCI Interrupt Link [LNKH] (IRQs 11) *0, disabled.
-ACPI: Embedded Controller [EC0] (gpe 16) interrupt mode.
-ACPI: Power Resource [PFA1] (off)
-ACPI: Power Resource [PFA0] (off)
-Linux Plug and Play Support v0.97 (c) Adam Belay
-PCI: Using ACPI for IRQ routing
-PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-PCI: Bridge: 0000:00:01.0
-  IO window: c000-dfff
-  MEM window: e0000000-efffffff
-  PREFETCH window: a0000000-afffffff
-PCI: Bus 3, cardbus bridge: 0000:02:09.0
-  IO window: 0000a400-0000a4ff
-  IO window: 0000a800-0000a8ff
-  PREFETCH window: 90000000-91ffffff
-  MEM window: d2000000-d3ffffff
-PCI: Bus 7, cardbus bridge: 0000:02:09.1
-  IO window: 0000ac00-0000acff
-  IO window: 0000b000-0000b0ff
-  PREFETCH window: 92000000-93ffffff
-  MEM window: d4000000-d5ffffff
-PCI: Bridge: 0000:00:1e.0
-  IO window: a000-bfff
-  MEM window: d0000000-dfffffff
-  PREFETCH window: 90000000-9fffffff
-PCI: Setting latency timer of device 0000:00:1e.0 to 64
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
-PCI: setting IRQ 11 as level-triggered
-ACPI: PCI Interrupt 0000:02:09.0[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-ACPI: PCI Interrupt 0000:02:09.1[B] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-NET: Registered protocol family 2
-IP route cache hash table entries: 4096 (order: 2, 16384 bytes)
-TCP established hash table entries: 16384 (order: 4, 65536 bytes)
-TCP bind hash table entries: 8192 (order: 3, 32768 bytes)
-TCP: Hash tables configured (established 16384 bind 8192)
-TCP reno registered
-Simple Boot Flag at 0x37 set to 0x1
-Machine check exception polling timer started.
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
-Initializing Cryptographic API
-io scheduler noop registered
-io scheduler anticipatory registered (default)
-io scheduler deadline registered
-io scheduler cfq registered
-pci 0000:00:1d.0: uhci_check_and_reset_hc: legsup = 0x0f30
-pci 0000:00:1d.0: Performing full reset
-pci 0000:00:1d.1: uhci_check_and_reset_hc: legsup = 0x0030
-pci 0000:00:1d.1: Performing full reset
-pci 0000:00:1d.2: uhci_check_and_reset_hc: legsup = 0x0030
-pci 0000:00:1d.2: Performing full reset
-ibm_acpi: ec object not found
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-toshiba: not a supported Toshiba laptop
-RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-tun: Universal TUN/TAP device driver, 1.6
-tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH4: IDE controller at PCI slot 0000:00:1f.1
-PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 11 (level, low) -> IRQ 11
-ICH4: chipset revision 3
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x1108-0x110f, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide0...
-hda: IC25N060ATMR04-0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: DW-224E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 512KiB
-hda: 117210240 sectors (60011 MB) w/7884KiB Cache, CHS=16383/255/63, UDMA(100)
-hda: cache flushes supported
- hda: hda1 hda2 hda3
-PNP: No PS/2 controller found. Probing ports directly.
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-mice: PS/2 mouse device common for all mice
-TCP bic registered
-NET: Registered protocol family 8
-NET: Registered protocol family 20
-ieee80211: 802.11 data/management/control stack, git-1.1.13
-ieee80211: Copyright (C) 2004-2005 Intel Corporation <jketreno@linux.intel.com>
-ieee80211_crypt: registered algorithm 'NULL'
-ieee80211_crypt: registered algorithm 'WEP'
-ieee80211_crypt: registered algorithm 'CCMP'
-ieee80211_crypt: registered algorithm 'TKIP'
-Using IPI Shortcut mode
-ACPI: (supports S0 S3 S4 S5)
-Time: tsc clocksource has been installed.
-input: AT Translated Set 2 keyboard as /class/input/input0
-
---Boundary-00=_Ipc0Ew1S2VMVSOj--

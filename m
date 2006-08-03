@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWHCUWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWHCUWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbWHCUWf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWHCUWf
+	id S964880AbWHCUWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWHCUWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:22:35 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:51469 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964879AbWHCUWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:22:32 -0400
-Date: Thu, 3 Aug 2006 16:18:57 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: kernel-janitors@lists.osdl.org, linuxsh-dev@lists.sourceforge.net,
-       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sh: fix proc file removal for superh store queue module
-Message-ID: <20060803201857.GC5004@localhost.localdomain>
-References: <20060803191828.GA5004@localhost.localdomain> <20060803124235.67bb664b.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 3 Aug 2006 16:22:20 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:57553
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S964878AbWHCUWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:22:19 -0400
+Date: Thu, 3 Aug 2006 13:22:11 -0700
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Robert Crocombe <rcrocomb@gmail.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: Problems with 2.6.17-rt8
+Message-ID: <20060803202211.GA10720@gnuppy.monkey.org>
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com> <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com> <1154541079.25723.8.camel@localhost.localdomain> <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com> <1154615261.32264.6.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060803124235.67bb664b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1154615261.32264.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to clean up proc file removal in sq module for superh arch.  currently on
-a failed module load or on module unload a proc file is left registered which
-can cause a random memory execution or oopses if read after unload.  This patch
-cleans up that deregistration.
+On Thu, Aug 03, 2006 at 10:27:41AM -0400, Steven Rostedt wrote:
+> The rest was probably caused as a side effect from above.  The above is
+> already broken!
+> 
+> You have NUMA configured too, so this is also something to look at.
+> 
+> I still wouldn't ignore the first bug message you got:
+> 
+> ----
+> BUG: scheduling while atomic: udev_run_devd/0x00000001/1568
+> 
+> Call Trace:
+>        <ffffffff8045c693>{__schedule+155}
+>        <ffffffff8045f156>{_raw_spin_unlock_irqrestore+53}
+>        <ffffffff80242241>{task_blocks_on_rt_mutex+518}
+>        <ffffffff80252da0>{free_pages_bulk+39}
+>        <ffffffff80252da0>{free_pages_bulk+39}
+> ...
+> ----
+> 
+> This could also have a side effect that messes things up.
+> 
+> Unfortunately, right now I'm assigned to other tasks and I cant spend
+> much more time on this at the moment.  So hopefully, Ingo, Thomas or
+> Bill, or someone else can help you find the reason for this problem.
 
-Thanks & Regards
-Neil
-
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-
-
- sq.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+free_pages_bulk is definitely being called inside of an atomic.
+I force this stack trace when the in_atomic() test is true at the
+beginning of the function.
 
 
-diff --git a/arch/sh/kernel/cpu/sh4/sq.c b/arch/sh/kernel/cpu/sh4/sq.c
-index 781dbb1..4b2b0b1 100644
---- a/arch/sh/kernel/cpu/sh4/sq.c
-+++ b/arch/sh/kernel/cpu/sh4/sq.c
-@@ -421,18 +421,22 @@ static struct miscdevice sq_dev = {
- 
- static int __init sq_api_init(void)
- {
-+	int ret;
- 	printk(KERN_NOTICE "sq: Registering store queue API.\n");
- 
--#ifdef CONFIG_PROC_FS
- 	create_proc_read_entry("sq_mapping", 0, 0, sq_mapping_read_proc, 0);
--#endif
- 
--	return misc_register(&sq_dev);
-+	ret = misc_register(&sq_dev);
-+	if (ret) 
-+		remove_proc_entry("sq_mapping", NULL);
-+
-+	return ret;
- }
- 
- static void __exit sq_api_exit(void)
- {
- 	misc_deregister(&sq_dev);
-+	remove_proc_entry("sq_mapping", NULL);
- }
- 
- module_init(sq_api_init);
+[   29.362863] Call Trace:
+[   29.367107]        <ffffffff802a82ac>{free_pages_bulk+86}
+[   29.373122]        <ffffffff80261726>{_raw_spin_unlock_irqrestore+44}
+[   29.380233]        <ffffffff802a8778>{__free_pages_ok+428}
+[   29.386336]        <ffffffff8024f101>{free_hot_page+25}
+[   29.392165]        <ffffffff8022e298>{__free_pages+41}
+[   29.397898]        <ffffffff806b604d>{__free_pages_bootmem+174}
+[   29.404457]        <ffffffff806b5266>{free_all_bootmem_core+253}
+[   29.411112]        <ffffffff806b5340>{free_all_bootmem_node+9}
+[   29.417574]        <ffffffff806b254e>{numa_free_all_bootmem+61}
+[   29.424122]        <ffffffff8046e96e>{_etext+0}
+[   29.429224]        <ffffffff806b1392>{mem_init+128}
+[   29.434691]        <ffffffff806a17ab>{start_kernel+377}
+[   29.440520]        <ffffffff806a129b>{_sinittext+667}
+[   29.446669] ---------------------------
+[   29.450963] | preempt count: 00000001 ]
+[   29.455257] | 1-level deep critical section nesting:
+[   29.460732] ----------------------------------------
+[   29.466212] .. [<ffffffff806a169a>] .... start_kernel+0x68/0x221
+[   29.472815] .....[<ffffffff806a129b>] ..   ( <= _sinittext+0x29b/0x2a2)
+[   29.480056]
+
+bill
+

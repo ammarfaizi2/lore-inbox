@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWHCN7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWHCODN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWHCN7i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 09:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWHCN7i
+	id S932494AbWHCODN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 10:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWHCODM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 09:59:38 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:64152 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932466AbWHCN7h (ORCPT
+	Thu, 3 Aug 2006 10:03:12 -0400
+Received: from mail.gmx.de ([213.165.64.21]:33440 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932494AbWHCODL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 09:59:37 -0400
-Date: Thu, 3 Aug 2006 17:59:25 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Arnd Hannemann <arnd@arndnet.de>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: problems with e1000 and jumboframes
-Message-ID: <20060803135925.GA28348@2ka.mipt.ru>
-References: <44D1FEB7.2050703@arndnet.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Thu, 3 Aug 2006 10:03:11 -0400
+X-Authenticated: #428038
+Date: Thu, 3 Aug 2006 16:03:07 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Ric Wheeler <ric@emc.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
+       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060803140307.GB7431@merlin.emma.line.org>
+Mail-Followup-To: Ric Wheeler <ric@emc.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Adrian Ulrich <reiser4@blinkenlights.ch>,
+	"Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+	reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+	rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
+	lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+	linux-kernel@vger.kernel.org
+References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44D1FEB7.2050703@arndnet.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 03 Aug 2006 17:59:28 +0400 (MSD)
+In-Reply-To: <44CF9BAD.5020003@emc.com>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.12 (2006-07-17)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 03:48:39PM +0200, Arnd Hannemann (arnd@arndnet.de) wrote:
-> Hi,
+On Tue, 01 Aug 2006, Ric Wheeler wrote:
+
+> Mirroring a corrupt file system to a remote data center will mirror your 
+> corruption.
 > 
-> im running vanilla 2.6.17.6 and if i try to set the mtu of my e1000 nic
-> to 9000 bytes, page allocation failures occur (see below).
+> Rolling back to a snapshot typically only happens when you notice a 
+> corruption which can go undetected for quite a while, so even that will 
+> benefit from having "reliability" baked into the file system (i.e., it 
+> should grumble about corruption to let you know that you need to roll 
+> back or fsck or whatever).
 > 
-> However the box is a VIA Epia MII12000 with 1 GB of Ram and 1 GB of swap
-> enabled, so there should be plenty of memory available. HIGHMEM support
-> is off. The e1000 nic seems to be an 82540EM, which to my knowledge
-> should support jumboframes.
+> An even larger issue is that our tools, like fsck, which are used to 
+> uncover these silent corruptions need to scale up to the point that they 
+> can uncover issues in minutes instead of days.  A lot of the focus at 
+> the file system workshop was around how to dramatically reduce the 
+> repair time of file systems.
 
-But it does not support splitting them into page sized chunks, so it
-requires the whole jumbo frame allocation in one contiguous chunk, 9k
-will be transferred into 16k allocation (order 3), since SLAB uses
-power-of-2 allocation.
-
-> However I can't always reproduce this on a freshly booted system, so
-> someone else may be the culprit and leaking pages?
-
-You will almost 100% reproduce it after "find / > /dev/null".
-
-> Any ideas how to debug this?
-
-It can not be debugged - you have cought a memory fragmentation problem,
-which is quite common.
-
-> > kswapd0: page allocation failure. order:3, mode:0x20
-
-e1000 tries to allocate 3-order pages atomically?
-Well, that's wrong.
- 
-> Thanks,
-> Arnd Hannemann
+Which makes me wonder if backup systems shouldn't help with this. If
+they are reading the whole file anyways, they can easily compute strong
+checksums as they go, and record them for later use, and check so many
+percent of unchanged files every day to complain about corruptions.
 
 -- 
-	Evgeniy Polyakov
+Matthias Andree

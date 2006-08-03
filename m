@@ -1,120 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWHCKYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWHCLRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWHCKYk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 06:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWHCKYk
+	id S932465AbWHCLRU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 07:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWHCLRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 06:24:40 -0400
-Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:2270 "EHLO
-	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932465AbWHCKYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 06:24:40 -0400
-Date: Thu, 3 Aug 2006 06:20:19 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: entry.s::error_code is not safe for kprobes
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Prasanna S Panchamukhi <prasanna@in.ibm.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200608030623_MC3-1-C6F0-24AD@compuserve.com>
-MIME-Version: 1.0
+	Thu, 3 Aug 2006 07:17:20 -0400
+Received: from e-nvb.com ([69.27.17.200]:32934 "EHLO e-nvb.com")
+	by vger.kernel.org with ESMTP id S932465AbWHCLRT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 07:17:19 -0400
+Subject: Re: A proposal - binary
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+In-Reply-To: <44D1CC7D.4010600@vmware.com>
+References: <44D1CC7D.4010600@vmware.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 03 Aug 2006 13:16:42 +0200
+Message-Id: <1154603822.2965.18.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because code marked unsafe for kprobes jumps directly to
-entry.S::error_code, that must be marked unsafe as well.
-The easiest way to do that is to move the page fault entry
-point to just before error_code and let it inherit the same
-section.
+On Thu, 2006-08-03 at 03:14 -0700, Zachary Amsden wrote:
+> I would like to propose an interface for linking a GPL kernel, 
+> specifically,
+> Linux, against binary blobs.  Stop.  Before you condemn this as evil, 
+> let me
+> explain in precise detail what a binary blob is.
 
-Also moved all the ".previous" asm directives for kprobes
-sections to column 1 and removed ".text" from them.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Hi,
 
----
+you use a lot of words for saying something self contradictory. It's
+very simple; based on your mail, there's no reason the VMI gateway page
+can't be (also) GPL licensed (you're more than free obviously to dual,
+tripple or quadruple license it). Once your gateway thing is gpl
+licensed, your entire proposal is moot in the sense that there is no
+issue on the license front. See: it can be very easy. Much easier than
+trying to get a license exception (which is very unlikely you'll get)...
 
-x86_64 also has this problem but I wasn't sure whether to move
-error_entry into .kprobes.text or convert offendors to the
-"paranoid" infrastructure.
 
- arch/i386/kernel/entry.S |   25 +++++++++++++------------
- 1 files changed, 13 insertions(+), 12 deletions(-)
+Now you can argue for hours about if such an interface is desirable or
+not, but I didn't think your email was about that.
 
---- 2.6.18-rc3-nb.orig/arch/i386/kernel/entry.S
-+++ 2.6.18-rc3-nb/arch/i386/kernel/entry.S
-@@ -587,11 +587,9 @@ ENTRY(name)				\
- /* The include is where all of the SMP etc. interrupts come from */
- #include "entry_arch.h"
- 
--ENTRY(divide_error)
--	RING0_INT_FRAME
--	pushl $0			# no error code
--	CFI_ADJUST_CFA_OFFSET 4
--	pushl $do_divide_error
-+KPROBE_ENTRY(page_fault)
-+	RING0_EC_FRAME
-+	pushl $do_page_fault
- 	CFI_ADJUST_CFA_OFFSET 4
- 	ALIGN
- error_code:
-@@ -641,6 +639,7 @@ error_code:
- 	call *%edi
- 	jmp ret_from_exception
- 	CFI_ENDPROC
-+.previous
- 
- ENTRY(coprocessor_error)
- 	RING0_INT_FRAME
-@@ -716,7 +715,8 @@ debug_stack_correct:
- 	call do_debug
- 	jmp ret_from_exception
- 	CFI_ENDPROC
--	.previous .text
-+.previous
-+
- /*
-  * NMI is doubly nasty. It can happen _while_ we're handling
-  * a debug fault, and the debug fault hasn't yet been able to
-@@ -812,7 +812,7 @@ KPROBE_ENTRY(int3)
- 	call do_int3
- 	jmp ret_from_exception
- 	CFI_ENDPROC
--	.previous .text
-+.previous
- 
- ENTRY(overflow)
- 	RING0_INT_FRAME
-@@ -877,7 +877,7 @@ KPROBE_ENTRY(general_protection)
- 	CFI_ADJUST_CFA_OFFSET 4
- 	jmp error_code
- 	CFI_ENDPROC
--	.previous .text
-+.previous
- 
- ENTRY(alignment_check)
- 	RING0_EC_FRAME
-@@ -886,13 +886,14 @@ ENTRY(alignment_check)
- 	jmp error_code
- 	CFI_ENDPROC
- 
--KPROBE_ENTRY(page_fault)
--	RING0_EC_FRAME
--	pushl $do_page_fault
-+ENTRY(divide_error)
-+	RING0_INT_FRAME
-+	pushl $0			# no error code
-+	CFI_ADJUST_CFA_OFFSET 4
-+	pushl $do_divide_error
- 	CFI_ADJUST_CFA_OFFSET 4
- 	jmp error_code
- 	CFI_ENDPROC
--	.previous .text
- 
- #ifdef CONFIG_X86_MCE
- ENTRY(machine_check)
+Greetings,
+    Arjan van de Ven
+
 -- 
-Chuck
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+

@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWHCPhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWHCPkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWHCPhh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWHCPhg
+	id S964807AbWHCPkb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWHCPkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:37:36 -0400
-Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:1482 "EHLO
-	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id S964773AbWHCPhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:37:34 -0400
-Date: Thu, 03 Aug 2006 17:37:41 +0200
-From: Arnd Hannemann <arnd@arndnet.de>
-Subject: Re: problems with e1000 and jumboframes
-In-reply-to: <20060803151631.GA14774@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Krzysztof Oledzki <olel@ans.pl>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Message-id: <44D21845.6020703@arndnet.de>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
-Content-transfer-encoding: 7BIT
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-X-Enigmail-Version: 0.94.0.0
-X-Spam-Report: * -2.8 ALL_TRUSTED Did not pass through any untrusted hosts
-References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
- <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
- <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
- <20060803151631.GA14774@2ka.mipt.ru>
+	Thu, 3 Aug 2006 11:40:31 -0400
+Received: from iron.pdx.net ([207.149.241.18]:29677 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S964807AbWHCPka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 11:40:30 -0400
+Subject: sk98lin extremely slow transfer rate ASUS P5P800(2.6.17.7)
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux@syskonnect.de
+Content-Type: text/plain
+Date: Thu, 03 Aug 2006 08:40:01 -0700
+Message-Id: <1154619601.6485.15.camel@home-desk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am experiencing a very slow(32Kbytes per second) transfer rate on an
+ASUS P5P800 mobo.  This occurs on a special case where I am sending
+individual 32Kbyte messages from a second server.  
 
-Evgeniy Polyakov wrote:
-> On Thu, Aug 03, 2006 at 05:08:51PM +0200, Krzysztof Oledzki (olel@ans.pl) wrote:
->>>> Why? After your explanation that makes sense for me. The driver needs
->>>> one contiguous chunk for those 9k packet buffer and thus requests a
->>>> 3-order page of 16k. Or do i still do not understand this?
->>> Correct, except that it wants 32k.
->>> e1000 logic is following:
->>> align frame size to power-of-two,
->> 16K?
-> 
-> Yep.
-> 
->>> then skb_alloc adds a little
->>> (sizeof(struct skb_shared_info)) at the end, and this ends up
->>> in 32k request just for 9k jumbo frame.
->> Strange, why this skb_shared_info cannon be added before first alignment? 
->> And what about smaller frames like 1500, does this driver behave similar 
->> (first align then add)?
-> 
-> It can be.
-> Could attached  (completely untested) patch help?
+I suspect the hardware, but am not sure how to come up with a 'good'
+regression test for this issue.  
 
-I will try this in a minute. However is there any way to see which
-allocation e1000 does without triggering allocation failures? ;-)
+Configurations I have tried:
 
-Thanks,
-Arnd Hannemann
+1. If I swap out the ethernet adapter(tried a intel 10/100 and intel
+10/100/1000) the transfer rate jumps up into the MBytes / second.
 
+2. If I do 'other' network activity on the box, like scp'ing' files
+around, the transfer rate for my 32Kbyte packets goes up into the
+Mbytes / second.  So I am a little baffled with the behavior.  
+
+3. If I just 'scp' files around of various sizes the transfer rate goes
+up into the Mbytes / second.
+
+
+
+some of the relevant dmesg information:
+
+eth0: Yukon Gigabit Ethernet 10/100/1000Base-T Adapter
+      PrefPort:A  RlmtMode:Check Link State
+...
+eth0: network connection up using port A
+    speed:           1000
+    autonegotiation: yes
+    duplex mode:     full
+    flowctrl:        symmetric
+    role:            slave
+    irq moderation:  disabled
+    scatter-gather:  disabled
+    tx-checksum:     disabled
+    rx-checksum:     disabled
+
+
+lspci -vvv output for the ethernet adapter:
+02:05.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001
+Gigabit Ethernet Controller (rev 13)
+        Subsystem: ASUSTeK Computer Inc. Marvell 88E8001 Gigabit
+Ethernet Controller (Asus)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (5750ns min, 7750ns max), Cache Line Size 04
+        Interrupt: pin A routed to IRQ 7
+        Region 0: Memory at fbffc000 (32-bit, non-prefetchable)
+[size=16K]
+        Region 1: I/O ports at e800 [size=256]
+        Expansion ROM at f0000000 [disabled] [size=128K]
+        Capabilities: [48] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1
++,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+        Capabilities: [50] Vital Product Data
+
+The Marvel ethernet adapter is connected to a Linksys SD2005 10/100/1000
+switch.  
+
+Any ideas why it would be doing this or a 'good' test for me to try?
+
+Sean
 

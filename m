@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWHCSaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWHCSc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWHCSaH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWHCSaG
+	id S1030180AbWHCSc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 14:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbWHCSc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:30:06 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:15547 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964834AbWHCSaC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:30:02 -0400
-Subject: Re: [PATCH] memory hotadd fixes [1/5] not-aligned memory hotadd
-	handling fix
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20060803163302.6D84.Y-GOTO@jp.fujitsu.com>
-References: <20060803123039.c50feb85.kamezawa.hiroyu@jp.fujitsu.com>
-	 <20060802233802.8186eb38.akpm@osdl.org>
-	 <20060803163302.6D84.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 03 Aug 2006 11:29:56 -0700
-Message-Id: <1154629797.5925.21.camel@keithlap>
+	Thu, 3 Aug 2006 14:32:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11481 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030180AbWHCSc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 14:32:26 -0400
+Date: Thu, 3 Aug 2006 14:32:24 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: don't taint UP K7's running SMP kernels.
+Message-ID: <20060803183224.GA10797@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 16:47 +0900, Yasunori Goto wrote:
-> > > After Keith's report of memory hotadd failure, I increased test patterns.
-> > > These patches are a result of new patterns. But I cannot cover all existing
-> > > memory layout in the world, more tests are needed.
-> > > Now, I think my patch can make things better and want this codes to be tested
-> > > in -mm.patche series is consitsts of 5 patches.
-> > 
-> > I expect the code which these patches touch is completely untested in -mm, so
-> > all we'll get is compile testing and some review.
-> > 
-> > Given that these patches touch pretty much nothing but the memory hot-add
-> > paths I'd be inclined to fast-track them into 2.6.18.  Do you agree that
-> > these patches are sufficiently safe and that the problems that they solve
-> > are sufficiently serious for us to take that approach?
-> > 
-> > Either way, could I ask that interested parties review this work closely
-> > and promptly?
-> 
-> Hmm. I reviewed them a bit, and I couldn't find any problems.
-> 
-> However, my ia64 box is same of his. And emulation environment is very
-> close too. So, my perspective must be very similar from him.
-> I think my review is not enough. Keith-san's test is better if he can.
-> 
+We have a test that looks for invalid pairings of certain athlon/durons
+that weren't designed for SMP, and taint accordingly (with 'S') if we find
+such a configuration.  However, this test shouldn't fire if there's only
+a single CPU present. It's perfectly valid for an SMP kernel to boot on UP
+hardware for example.
 
-I will test and review these patches today and will report back.  
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Thanks,
-  Keith
-
+--- linux-2.6/arch/i386/kernel/smpboot.c~	2006-08-03 14:29:47.000000000 -0400
++++ linux-2.6/arch/i386/kernel/smpboot.c	2006-08-03 14:30:43.000000000 -0400
+@@ -177,6 +177,9 @@ static void __devinit smp_store_cpu_info
+ 	 */
+ 	if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
+ 
++		if (num_online_cpus() == 1)
++			goto valid_k7;
++
+ 		/* Athlon 660/661 is valid. */	
+ 		if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
+ 			goto valid_k7;
+-- 
+http://www.codemonkey.org.uk

@@ -1,138 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWHCVl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWHCVmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbWHCVl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbWHCVl2
+	id S932592AbWHCVmV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWHCVmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:41:28 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:20447 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932567AbWHCVl1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:41:27 -0400
-Message-ID: <44D26D87.2070208@vmware.com>
-Date: Thu, 03 Aug 2006 14:41:27 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
-Subject: Re: A proposal - binary
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-In-Reply-To: <20060803200136.GB28537@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 17:42:21 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:7401 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932592AbWHCVmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 17:42:20 -0400
+Subject: patch add-stable-branch-to-maintainers-file.patch added to gregkh-2.6 tree
+To: rostedt@goodmis.org, akpm@osdl.org, chrisw@sous-sol.org, greg@kroah.com,
+       gregkh@suse.de, linux-kernel@vger.kernel.org
+From: <gregkh@suse.de>
+Date: Thu, 03 Aug 2006 14:37:40 -0700
+In-Reply-To: <1154622491.32264.37.camel@localhost.localdomain>
+Message-Id: <20060803214211.71CD581B866@imap.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Aug 03, 2006 at 12:26:16PM -0700, Zachary Amsden wrote:
->   
->> Greg KH wrote:
->>     
->>> Sorry, but we aren't lawyers here, we are programmers.  Do you have a
->>> patch that shows what you are trying to describe here?  Care to post it?
->>>  
->>>       
->> <Posts kernel/module.c unmodified>
->>     
->
-> If you want to stick with the current kernel module interface, I don't
-> see why you even need to bring this up, there are no arguments about
-> that API being in constant flux :)
->   
 
-Hence my point follows.  Using source compiled with the kernel as a 
-module does nothing to provide a stable interface to the backend 
-hardware / hypervisor implementation.
+This is a note to let you know that I've just added the patch titled
 
->   
->>> How does this differ with the way that the Xen developers are proposing?
->>> Why haven't you worked with them to find a solution that everyone likes?
->>>  
->>>       
->> We want our backend to provide a greater degree of stability than a pure 
->> source level API as the Xen folks have proposed.  We have tried to 
->> convince them that an ABI is in their best interest, but they are 
->> reluctant to commit to one or codesign one at this time.
->>     
->
-> Don't you feel it's a bit early to "commit" to anything yet when we
-> don't have a working implementation?  Things change over time, and it's
-> one of the main reasons Linux is so successful.
->   
+     Subject: Add stable branch to maintainers file
 
-We have a working implementation of an ABI that interfaces to both ESX 
-and Xen.  I have no argument that things change over time, and that 
-helps Linux to be successful and adaptive.  But the fact that things 
-change so much over time is the problem.  Distributing a hypervisor that 
-runs only one particular version of some hacked up kernel is almost 
-useless from a commercial standpoint.  Most end users get their kernels 
-from some distro, and these kernels have a long lifetime, while the 
-release cycle for an entire OS distribution is getting much longer.  
-During that time, the hypervisor and the kernel will diverge.  If is not 
-a question of if - it is a question of how much.  A well designed ABI 
-slows that divergence to a pace that allows some hope of compatibility.  
-An ad-hoc source layer compatibility does not.
+to my gregkh-2.6 tree.  Its filename is
+
+     add-stable-branch-to-maintainers-file.patch
+
+This tree can be found at 
+    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
 
 
->>> And what about Rusty's proposal that is supposed to be the "middle
->>> ground" between the two competing camps?  How does this differ from
->>> that?  Why don't you like Rusty's proposal?
->>>  
->>>       
->> Who said that?  Please smack them on the head with a broom.  We are all 
->> actively working on implementing Rusty's paravirt-ops proposal.  It 
->> makes the API vs ABI discussion moot, as it allow for both.
->>     
->
-> So everyone is still skirting the issue, oh great :)
->   
+>From stable-bounces@linux.kernel.org Thu Aug  3 09:28:46 2006
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 03 Aug 2006 12:28:11 -0400
+Message-Id: <1154622491.32264.37.camel@localhost.localdomain>
+Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>, stable@kernel.org
+Subject: Add stable branch to maintainers file
 
-There are many nice things about Rusty's proposal that allow for a 
-simpler and cleaner interface to Linux - for example, getting rid of the 
-need to have a special hypervisor sub-architecture, and allowing 
-non-performance critical operations to be indirected for flexibility of 
-implementation.
+From: Steven Rostedt <rostedt@goodmis.org>
 
-The Xen ABI as it stands today is not cleanly done - it assumes too many 
-details about how the hypervisor will operate, and is purely a 
-hypervisor specific ABI.  We and other vendors would have to bend over 
-backwards and jump through flaming hoops while holding our breath in a 
-cloud of sulfurous gas to implement that interface.  And there is no 
-guarantee that the interface will remain stable and compatible.  So it 
-is really a non-starter.
+While helping someone to submit a patch to the stable branch, I noticed
+that the stable branch is not listed in the MAINTAINERS file.  This was
+after I went there to look for the email addresses for the stable branch
+list (stable@kernel.org).
 
-VMI as it stands today is hypervisor independent, and provides a much 
-more stable and compatible interface.  Although I believe it is possible 
-that it could work for other vendors than just VMware and Xen, those 
-other vendors could have their own, proprietary, single purpose ABI that 
-is either deliberately hypervisor specific or accidentally so from a 
-lack of forethought.  <Zach removes soapbox>.
+This patch adds the stable branch to the maintainers file so that people
+can find where to send patches when they have a fix for the stable team.
 
-As you mention, Linux is adaptive and will change going forward.  
-Rusty's proposal allows a way to accommodate that change until such a 
-time as a true vendor independent hypervisor agnostic ABI evolves.  
-Hopefully in time it will - but that is not the case today, despite our 
-sincere efforts to make it happen.  In fairness, we could have been more 
-public and forthcoming about our interface, but we also have not 
-received significant cooperation or collaboration on our efforts until 
-the work on paravirt-ops began.  With the code coming into public 
-scrutiny and the goal of working together, perhaps our model can serve 
-as a blueprint, or at least a rough draft of what a long term stable ABI 
-will look like.  But that is neither here nor there until the code is 
-working and ready to go.  Paravirt-ops provides a nice house for this - 
-it lets us all speak the same language in Linux, even if we have to 
-phone our hypervisor in Sanskrit and Xen speaks in Latin.  Creating a 
-common lingua franca is still an excellent goal, but we can't predict 
-the future.  Hopefully, nobody starts using smoke signals.  In the end, 
-paravirt-ops allows us all to play on the same field, and either a 
-unified hypervisor independent solution will win, or the hypervisor 
-interfaces will fragment, and Linux will still have an interface that 
-allows it to run on multiple hypervisors.  Either way, Linux gets more 
-functionality and better performance in more environments, which is the 
-real win.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Zach
+---
+ MAINTAINERS |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- gregkh-2.6.orig/MAINTAINERS
++++ gregkh-2.6/MAINTAINERS
+@@ -2641,6 +2641,14 @@ M:	dbrownell@users.sourceforge.net
+ L:	spi-devel-general@lists.sourceforge.net
+ S:	Maintained
+ 
++STABLE BRANCH:
++P:	Greg Kroah-Hartman
++M:	greg@kroah.com
++P:	Chris Wright
++M:	chrisw@sous-sol.org
++L:	stable@kernel.org
++S:	Maintained
++
+ TPM DEVICE DRIVER
+ P:	Kylene Hall
+ M:	kjhall@us.ibm.com
+
+
+Patches currently in gregkh-2.6 which might be from rostedt@goodmis.org are
+
+driver/add-stable-branch-to-maintainers-file.patch

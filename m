@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWHCHrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWHCHsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWHCHrS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 03:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWHCHrS
+	id S932369AbWHCHsS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 03:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWHCHsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 03:47:18 -0400
-Received: from thunk.org ([69.25.196.29]:48079 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932375AbWHCHrR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 03:47:17 -0400
-Date: Thu, 3 Aug 2006 03:46:51 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: David Masover <ninja@slaphack.com>
-Cc: "Vladimir V. Saveliev" <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
-       Reiserfs-List@namesys.com
-Subject: Re: reiser4: maybe just fix bugs?
-Message-ID: <20060803074651.GA27835@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	David Masover <ninja@slaphack.com>,
-	"Vladimir V. Saveliev" <vs@namesys.com>,
-	Andrew Morton <akpm@osdl.org>, vda.linux@googlemail.com,
-	linux-kernel@vger.kernel.org, Reiserfs-List@namesys.com
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com> <20060801013104.f7557fb1.akpm@osdl.org> <44CEBA0A.3060206@namesys.com> <1154431477.10043.55.camel@tribesman.namesys.com> <20060801073316.ee77036e.akpm@osdl.org> <1154444822.10043.106.camel@tribesman.namesys.com> <44CF879D.1000803@slaphack.com>
+	Thu, 3 Aug 2006 03:48:18 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:5321 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932369AbWHCHsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 03:48:18 -0400
+Date: Thu, 03 Aug 2006 16:47:21 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] memory hotadd fixes [1/5] not-aligned memory hotadd handling fix
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       kmannth@us.ibm.com
+In-Reply-To: <20060802233802.8186eb38.akpm@osdl.org>
+References: <20060803123039.c50feb85.kamezawa.hiroyu@jp.fujitsu.com> <20060802233802.8186eb38.akpm@osdl.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060803163302.6D84.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44CF879D.1000803@slaphack.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 11:55:57AM -0500, David Masover wrote:
+> > After Keith's report of memory hotadd failure, I increased test patterns.
+> > These patches are a result of new patterns. But I cannot cover all existing
+> > memory layout in the world, more tests are needed.
+> > Now, I think my patch can make things better and want this codes to be tested
+> > in -mm.patche series is consitsts of 5 patches.
 > 
-> If I understand it right, the original Reiser4 model of file metadata is 
-> the file-as-directory stuff that caused such a furor the last big push 
-> for inclusion (search for "Silent semantic changes in Reiser4"):
+> I expect the code which these patches touch is completely untested in -mm, so
+> all we'll get is compile testing and some review.
+> 
+> Given that these patches touch pretty much nothing but the memory hot-add
+> paths I'd be inclined to fast-track them into 2.6.18.  Do you agree that
+> these patches are sufficiently safe and that the problems that they solve
+> are sufficiently serious for us to take that approach?
+> 
+> Either way, could I ask that interested parties review this work closely
+> and promptly?
 
-The furor was caused by concerns Al Viro expressed about
-locking/deadlock issues that reiser4 introduced.  
+Hmm. I reviewed them a bit, and I couldn't find any problems.
 
-The bigger issue with xattr support is two-fold.  First of all, there
-are the progams that are expecting the existing extended attribute
-interface, and not implementing it will simply mean that as far as
-Samba, and other applications, Reiser4 simply will not haved xattr
-support.
+However, my ia64 box is same of his. And emulation environment is very
+close too. So, my perspective must be very similar from him.
+I think my review is not enough. Keith-san's test is better if he can.
 
-More importantly are the system-level extended attributes, such as
-those used by SELINUX, which by definition are not supposed to be
-visible to the user at all, but only are supposed to be there for the
-SELINUX (or some other kernel layer, in general) to access.   
+Anyway, I'll test them with -mm. Something different environment
+may be good for test.
 
-Not supporting xattrs means that those distro's that use SELINUX by
-default (i.e., RHEL, Fedora, etc.) won't want to use reiser4, because
-SELINUX won't work on reiser4 filesytstems.
+Thanks.
 
-Whether or not Hans cares about this is up to him....
 
-						- Ted
+-- 
+Yasunori Goto 
+
+

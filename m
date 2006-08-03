@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWHCXLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWHCXOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWHCXLT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWHCXLT
+	id S932173AbWHCXOw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 19:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWHCXOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:11:19 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3467 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751319AbWHCXLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:11:19 -0400
-Subject: Re: A proposal - binary
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
-In-Reply-To: <44D2794A.0@vmware.com>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-	 <44D26D87.2070208@vmware.com>
-	 <1154644383.23655.142.camel@localhost.localdomain>  <44D2794A.0@vmware.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 04 Aug 2006 00:30:35 +0100
-Message-Id: <1154647835.23655.161.camel@localhost.localdomain>
+	Thu, 3 Aug 2006 19:14:52 -0400
+Received: from xenotime.net ([66.160.160.81]:61605 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751350AbWHCXOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 19:14:52 -0400
+Date: Thu, 3 Aug 2006 16:17:34 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Nate Diller" <nate.diller@gmail.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jens Axboe" <axboe@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] [1/2] Remove Deadline I/O scheduler
+Message-Id: <20060803161734.ca781a36.rdunlap@xenotime.net>
+In-Reply-To: <5c49b0ed0608031557n405196ack3fa2024aae8a9475@mail.gmail.com>
+References: <5c49b0ed0608031557n405196ack3fa2024aae8a9475@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-08-03 am 15:31 -0700, ysgrifennodd Zachary Amsden:
-> Alan Cox wrote:
-> > Could have fooled me. It seems to work for the IBM Mainframe people
-> > really well. 
->Yes, but not because of source compatibility.  It works because the 
-> hypervisor layer is actually architected in the hardware.
+On Thu, 3 Aug 2006 15:57:32 -0700 Nate Diller wrote:
 
-The hardware has nothing to do with it. It works because the hypervisor
-API has a spec and is maintained compatibly. Its not entirely hardware
-architected either, it has chunks of interfaces that are not present
-hardware level or not meaningful at that level - the paging assists for
-example are purely a hypervisor interface as are hipersockets.
+> This patch removes the Deadline I/O scheduler.  Performance-wise, it
+> should be superceeded by the Elevator I/O scheduler in the following
+> patch.  I would be very ineterested in hearing about any workloads or
+> benchmarks where Deadline is a substantial improvement over Elevator,
+> in throughput, fairness, latency, anything.
+> 
+> Signed-off-by: Nate Diller <nate.diller@gmail.com>
+> 
+> ---
+>  Documentation/block/deadline-iosched.txt |   78 ---
+>  block/Kconfig.iosched                    |   14
+>  block/Makefile                           |    1
+>  block/deadline-iosched.c                 |  801 -------------------------------
+>  4 files changed, 894 deletions(-)
 
+Several other files in Documentation/block/ need to be updated also, please.
+
+---
+~Randy

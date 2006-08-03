@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWHCMQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWHCMTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWHCMQo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 08:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWHCMQn
+	id S932411AbWHCMTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 08:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWHCMTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 08:16:43 -0400
-Received: from e-nvb.com ([69.27.17.200]:26554 "EHLO e-nvb.com")
-	by vger.kernel.org with ESMTP id S932382AbWHCMQm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 08:16:42 -0400
-Subject: Re: orinoco driver causes *lots* of lockdep spew
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-In-Reply-To: <20060802215932.GE3639@redhat.com>
-References: <20060802215932.GE3639@redhat.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 03 Aug 2006 14:15:59 +0200
-Message-Id: <1154607380.2965.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 3 Aug 2006 08:19:53 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:42350 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932411AbWHCMTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 08:19:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VDpzhNGNEuMw5KthiFiGB0+1PA0GrMakoRwymztaUigrnGk3tlt6jlTBI6p6sEX7cnmVOD+6V+3ygaPLNVZl8oLoY8o8Z4Ke/DN2n/LMwP/9fqg/qBZTTGMolIF64L5Jy035Nu+1wQQNYuLZBGzrM/KhKnD/6F8sSU0dv0/Vm6A=
+Message-ID: <6bffcb0e0608030519u71af8350k9e3b4f9c75a0b3c8@mail.gmail.com>
+Date: Thu, 3 Aug 2006 14:19:51 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: mm snapshot broken-out-2006-08-02-00-27.tar.gz uploaded
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060802183613.792e2488.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
+	 <6bffcb0e0608021700n49a3ed6cnbbe421a22946f54c@mail.gmail.com>
+	 <20060802183613.792e2488.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-02 at 17:59 -0400, Dave Jones wrote:
-> Wow. Nearly 400 lines of debug spew, from a simple 'ifup eth1'.
-> 
-> 		Dave
-> 
-> 
-> ADDRCONF(NETDEV_UP): eth1: link is not ready
-> eth1: New link status: Disconnected (0002)
-> 
-> ======================================================
-> [ INFO: hard-safe -> hard-unsafe lock order detected ]
-> ------------------------------------------------------
-> events/0/5 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
->  (af_callback_keys + sk->sk_family){-.--}, at: [<ffffffff802136b1>] sock_def_readable+0x19/0x6f
-> 
-> and this task is already holding:
->  (&priv->lock){++..}, at: [<ffffffff8824f70e>] orinoco_send_wevents+0x28/0x8b [orinoco]
-> which would create a new lock dependency:
->  (&priv->lock){++..} -> (af_callback_keys + sk->sk_family){-.--}
+On 03/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Thu, 3 Aug 2006 02:00:42 +0200
+> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > On 02/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
+> > > The mm snapshot broken-out-2006-08-02-00-27.tar.gz has been uploaded to
+> > >
+> > >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-02-00-27.tar.gz
+> > >
+> >
+> > There is something wrong with this kernel. I have noticed, that after
+> > 1,5 hour some of the keys on my keyboard doesn't work... amarok
+> > doesn't want to play music (30 sec gaps between songs etc.), switching
+> > between firefox/openoffice takes 1 min. I don't see nothing special in
+> > the logs. It is a CPU scheduler problem?
+> >
+>
+> Could be a timekeeping problem, perhaps.  Is it SMP?
 
->  [<ffffffff80267948>] _read_lock+0x28/0x34
->  [<ffffffff802136b1>] sock_def_readable+0x19/0x6f
->  [<ffffffff80259ad7>] netlink_broadcast+0x222/0x2e2
->  [<ffffffff804287eb>] wireless_send_event+0x300/0x317
->  [<ffffffff8824f732>] :orinoco:orinoco_send_wevents+0x4c/0x8b
->  [<ffffffff8024f99c>] run_workqueue+0xa8/0xfb
->  [<ffffffff8024c180>] worker_thread+0xef/0x122
->  [<ffffffff80235437>] kthread+0x100/0x136
->  [<ffffffff802613de>] child_rip+0x8/0x12
+Yes, it is.
 
+>  Is the time-of-day
+> increasing at the right speed?
 
+Yes.
 
-this is another one of those nasty buggers;
+>  Does `sleep 5' do the right thing?
 
-Lock A = the sk->sk_callback_lock
-Lock B = priv->lock in the driver
+Yes, it does.
 
-Lock A is only BH safe 
-Lock B is hardirq safe and used in the hardirq
+time sleep 5
 
+real    0m5.016s
+user    0m0.000s
+sys     0m0.014s
 
-Cpu 0			cpu 1
-                        user closes the netlink socket
-takes lock B in orinoco_send_events 
-                        takes lock A  in user context in netlink_release() (for write)
-                        interrupt happens
-                        takes lock B in hardirq handler (spins)
+Problems starts after stress testing (LTP).
 
-calls netlink_broadcast
-which takes lock A for read (spins)
-
-and you have a nice classical AB-BA deadlock
+Regards,
+Michal
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWHCPhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWHCPhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWHCPhV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWHCPhV
+	id S964773AbWHCPhh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWHCPhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:37:21 -0400
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:6802 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964797AbWHCPhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:37:20 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
-Date: Thu, 3 Aug 2006 07:30:40 -0700
-User-Agent: KMail/1.7.1
-Cc: Komal Shah <komal_shah802003@yahoo.com>, akpm@osdl.org, gregkh@suse.de,
-       i2c@lm-sensors.org, imre.deak@nokia.com, juha.yrjola@solidboot.com,
-       linux-kernel@vger.kernel.org, r-woodruff2@ti.com, tony@atomide.com
-References: <1154066134.13520.267064606@webmail.messagingengine.com> <200608021218.30763.david-b@pacbell.net> <20060803111949.91e8e7bc.khali@linux-fr.org>
-In-Reply-To: <20060803111949.91e8e7bc.khali@linux-fr.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608030730.42458.david-b@pacbell.net>
+	Thu, 3 Aug 2006 11:37:36 -0400
+Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:1482 "EHLO
+	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id S964773AbWHCPhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 11:37:34 -0400
+Date: Thu, 03 Aug 2006 17:37:41 +0200
+From: Arnd Hannemann <arnd@arndnet.de>
+Subject: Re: problems with e1000 and jumboframes
+In-reply-to: <20060803151631.GA14774@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Krzysztof Oledzki <olel@ans.pl>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Message-id: <44D21845.6020703@arndnet.de>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+Content-transfer-encoding: 7BIT
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+X-Enigmail-Version: 0.94.0.0
+X-Spam-Report: * -2.8 ALL_TRUSTED Did not pass through any untrusted hosts
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
+ <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
+ <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
+ <20060803151631.GA14774@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 August 2006 2:19 am, Jean Delvare wrote:
-> The i2c core provides a mechanism to bypass the probing when you know
-> for sure what device is at a given address. For an embedded system, that
-> should work.
 
-Unfortunately the mechanisms I'm aware of require either error-prone
-kernel command line parameters, or (not error prone, but inelegant)
-board-specific logic in the drivers, before driver registration, to
-do equivalent stuff.
-
-
-> > (There's a separate issue about how the I2C stack doesn't just have a
-> > mechanism to just declare "this board has these chips, these addresses",
-> > so I2C drivers have needless reliance on probing...)
+Evgeniy Polyakov wrote:
+> On Thu, Aug 03, 2006 at 05:08:51PM +0200, Krzysztof Oledzki (olel@ans.pl) wrote:
+>>>> Why? After your explanation that makes sense for me. The driver needs
+>>>> one contiguous chunk for those 9k packet buffer and thus requests a
+>>>> 3-order page of 16k. Or do i still do not understand this?
+>>> Correct, except that it wants 32k.
+>>> e1000 logic is following:
+>>> align frame size to power-of-two,
+>> 16K?
 > 
-> This is being (slowly) addressed by Nathan Lutchansky and Mark M.
-> Hoffman. The best solution implies converting the i2c subsystem to the
-> device driver model - a non-trivial task.
+> Yep.
+> 
+>>> then skb_alloc adds a little
+>>> (sizeof(struct skb_shared_info)) at the end, and this ends up
+>>> in 32k request just for 9k jumbo frame.
+>> Strange, why this skb_shared_info cannon be added before first alignment? 
+>> And what about smaller frames like 1500, does this driver behave similar 
+>> (first align then add)?
+> 
+> It can be.
+> Could attached  (completely untested) patch help?
 
-Glad to hear that fixes are in the works.  That's the same conclusion
-I reached:  that I2C needed those non-trivial changes.
+I will try this in a minute. However is there any way to see which
+allocation e1000 does without triggering allocation failures? ;-)
 
-It may help to see how the SPI core solves that problem.  Unlike I2C,
-SPI actually _can't_ probe (except in rare specialized cases), and when
-I did the SPI stuff I was thinking about models that could apply easily
-to help I2C avoid probing.  (Though not, at this point, code.)
+Thanks,
+Arnd Hannemann
 
-That model of a table of board-specific declarations (with things like
-"I2C chip type X at address A, using interrupt I and platform_data P")
-should work for I2C too.
-
-- Dave
 

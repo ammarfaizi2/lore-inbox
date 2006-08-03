@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWHCRVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWHCR2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWHCRVu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 13:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWHCRVu
+	id S964823AbWHCR2p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 13:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWHCR2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 13:21:50 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32394 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964800AbWHCRVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 13:21:50 -0400
-Subject: Re: frequent slab corruption (since a long time)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Miller <davem@davemloft.net>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, jbaron@redhat.com
-In-Reply-To: <20060802.154954.112624420.davem@davemloft.net>
-References: <20060801.220538.89280517.davem@davemloft.net>
-	 <20060801.223110.56811869.davem@davemloft.net>
-	 <20060802222321.GH3639@redhat.com>
-	 <20060802.154954.112624420.davem@davemloft.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 03 Aug 2006 18:40:42 +0100
-Message-Id: <1154626843.23655.101.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Thu, 3 Aug 2006 13:28:45 -0400
+Received: from thunk.org ([69.25.196.29]:5042 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964802AbWHCR2o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 13:28:44 -0400
+Date: Thu, 3 Aug 2006 13:28:36 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, davem@davemloft.net, mchan@broadcom.com
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+Message-ID: <20060803172836.GF20603@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	davem@davemloft.net, mchan@broadcom.com
+References: <20060803075704.GC27835@thunk.org> <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au> <20060803163204.GB20603@thunk.org> <20060803094917.8280f5ff.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060803094917.8280f5ff.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-02 am 15:49 -0700, ysgrifennodd David Miller:
-> > None of the code manipulating tty->count seems to be under
-> > the tty_mutex.  Should it be ?
-> > Or is this protected through some other means?
-> 
-> It is in the primary code paths at least, all callers of init_dev()
-> (which increments tty->count) grab the mutex and also release_dev()
-> grabs the mutex around tty->count manipulations.
+On Thu, Aug 03, 2006 at 09:49:17AM -0700, Randy.Dunlap wrote:
+> Interesting.  On my Dell D610 notebook with tg3 and vpn,
+> I have to ping a server on the vpn to keep it alive, otherwise
+> it disappears soon and I have to restart the vpn.  Of course,
+> this could just be the vpn or some other software problem
+> instead of a tg3 problem.
 
-I've been auditing tty code and its joyously bad but only in harmless
-places so far except for one.
+That sounds almost certainly like a VPN problem.  The tg3_timer() code
+wakes up every second or tenth of a second (depending on which mode
+you're in) and takes care of keeping the tg3 hardware mollified.  On a
+standard kernel, this shouldn't ever be an issue.  For the -rt kernel,
+this problem only shows up if you have enough tasks running at
+rtprio's above the rtprio of the softirq-timer for long enough that
+tg3 chip gets angry....
 
-init_dev (and caller) relies on tty_mutex to ensure that the
-driver->ttys list is protected from things going away.
-
-release_mem() removes stuff from the said list and frees memory. It is
-not always called under tty_mutex and that appears very dubious to me at
-the moment although tty->closing and the BKL *might* be sufficient.
-
-Alan
-
+						- Ted

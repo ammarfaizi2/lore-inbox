@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWHCR2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWHCRbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWHCR2p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 13:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWHCR2p
+	id S964808AbWHCRbI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 13:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWHCRbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 13:28:45 -0400
-Received: from thunk.org ([69.25.196.29]:5042 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S964802AbWHCR2o (ORCPT
+	Thu, 3 Aug 2006 13:31:07 -0400
+Received: from cantor.suse.de ([195.135.220.2]:63975 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964808AbWHCRbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 13:28:44 -0400
-Date: Thu, 3 Aug 2006 13:28:36 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, davem@davemloft.net, mchan@broadcom.com
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-Message-ID: <20060803172836.GF20603@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	davem@davemloft.net, mchan@broadcom.com
-References: <20060803075704.GC27835@thunk.org> <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au> <20060803163204.GB20603@thunk.org> <20060803094917.8280f5ff.rdunlap@xenotime.net>
-MIME-Version: 1.0
+	Thu, 3 Aug 2006 13:31:06 -0400
+Date: Thu, 3 Aug 2006 19:31:04 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Jukka Partanen <jspartanen@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.32] Fix AVM C4 ISDN card init problems with newer CPUs
+Message-ID: <20060803173104.GA22317@pingi.kke.suse.de>
+Mail-Followup-To: Jukka Partanen <jspartanen@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <d50597c30608030953l41e8661dg1c10faeac31cc87f@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060803094917.8280f5ff.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <d50597c30608030953l41e8661dg1c10faeac31cc87f@mail.gmail.com>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.16.21-0.13-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 09:49:17AM -0700, Randy.Dunlap wrote:
-> Interesting.  On my Dell D610 notebook with tg3 and vpn,
-> I have to ping a server on the vpn to keep it alive, otherwise
-> it disappears soon and I have to restart the vpn.  Of course,
-> this could just be the vpn or some other software problem
-> instead of a tg3 problem.
+Yes, that should be go in.
 
-That sounds almost certainly like a VPN problem.  The tg3_timer() code
-wakes up every second or tenth of a second (depending on which mode
-you're in) and takes care of keeping the tg3 hardware mollified.  On a
-standard kernel, this shouldn't ever be an issue.  For the -rt kernel,
-this problem only shows up if you have enough tasks running at
-rtprio's above the rtprio of the softirq-timer for long enough that
-tg3 chip gets angry....
+AVM C4 ISDN NIC: Add three memory barriers, taken from 2.6.7,
+(they are there in 2.6.17.7 too), to fix module initialization
+problems appearing with at least some newer Celerons and
+Pentium III.
 
-						- Ted
+Acked-by: Karsten Keil <kkeil@suse.de>
+Signed-off-by: Jukka Partanen <jspartanen@gmail.com>
+
+--- drivers/isdn/avmb1/c4.c.orig	2006-08-03 19:32:17.000000000 +0000
++++ drivers/isdn/avmb1/c4.c	2006-08-03 19:32:55.000000000 +0000
+@@ -151,6 +151,7 @@
+ 	while (c4inmeml(card->mbase+DOORBELL) != 0xffffffff) {
+ 		if (!time_before(jiffies, stop))
+ 			return -1;
++		mb();
+ 	}
+ 	return 0;
+ }
+@@ -305,6 +306,7 @@
+ 		if (!time_before(jiffies, stop))
+ 			return;
+ 		c4outmeml(card->mbase+DOORBELL, DBELL_ADDR);
++		mb();
+ 	}
+
+ 	c4_poke(card, DC21285_ARMCSR_BASE + CHAN_1_CONTROL, 0);
+@@ -328,6 +330,7 @@
+ 		if (!time_before(jiffies, stop))
+ 			return 2;
+ 		c4outmeml(card->mbase+DOORBELL, DBELL_ADDR);
++		mb();
+ 	}
+
+ 	c4_poke(card, DC21285_ARMCSR_BASE + CHAN_1_CONTROL, 0);
+
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

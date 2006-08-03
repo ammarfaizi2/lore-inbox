@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWHCAZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWHCAZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbWHCAZv (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751102AbWHCAZv (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 2 Aug 2006 20:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWHCAZv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWHCAZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Wed, 2 Aug 2006 20:25:51 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:44505 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S1750872AbWHCAZu
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:43993 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S1750867AbWHCAZu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 2 Aug 2006 20:25:50 -0400
-Message-Id: <20060803002510.634721860@xensource.com>
+Message-Id: <20060803002517.929879494@xensource.com>
+References: <20060803002510.634721860@xensource.com>
 User-Agent: quilt/0.45-1
-Date: Wed, 02 Aug 2006 17:25:10 -0700
+Date: Wed, 02 Aug 2006 17:25:11 -0700
 From: Jeremy Fitzhardinge <jeremy@xensource.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [patch 0/8] Basic infrastructure patches for a paravirtualized kernel
+       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: [patch 1/8] Remove locally-defined ldt structure in favour of standard type.
+Content-Disposition: inline; filename=001a-reboot-use-struct.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+arch/i386/kernel/reboot.c defines its own struct to describe an ldt
+entry: it should use struct Xgt_desc_struct (currently load_ldt is a
+macro, so doesn't complain: paravirt patches make it warn).
 
-This series of patches lays the basic ground work for the
-paravirtualized kernel patches coming later on.  I think this lot is
-ready for the rough-and-tumble world of the -mm tree.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
-The main change from the last posting is that all the page-table
-related patches have been moved out, and will be posted separately.
+---
+ arch/i386/kernel/reboot.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-Also, the off-by-one in reserving the top of address space has been
-fixed.
 
-For the most part, these patches do nothing or very little.  The
-patches should be self explanatory, but the overview is:
+===================================================================
+--- a/arch/i386/kernel/reboot.c
++++ b/arch/i386/kernel/reboot.c
+@@ -145,14 +145,10 @@ real_mode_gdt_entries [3] =
+ 	0x000092000100ffffULL	/* 16-bit real-mode 64k data at 0x00000100 */
+ };
+ 
+-static struct
+-{
+-	unsigned short       size __attribute__ ((packed));
+-	unsigned long long * base __attribute__ ((packed));
+-}
+-real_mode_gdt = { sizeof (real_mode_gdt_entries) - 1, real_mode_gdt_entries },
+-real_mode_idt = { 0x3ff, NULL },
+-no_idt = { 0, NULL };
++static struct Xgt_desc_struct
++real_mode_gdt = { sizeof (real_mode_gdt_entries) - 1, (long)real_mode_gdt_entries },
++real_mode_idt = { 0x3ff, 0 },
++no_idt = { 0, 0 };
+ 
+ 
+ /* This is 16-bit protected mode code to disable paging and the cache,
 
-Helper functions for later use:
-	2/8: Implement always-locked bit ops...
-	8/8: Put .note.* sections into a PT_NOTE segment in vmlinux
-
-Cleanups:
-	1/8: Remove locally-defined ldt structure in favour of standard type
-	3/8: Allow a kernel to not be in ring 0
-	5/8: Roll all the cpuid asm into one __cpuid call
-
-Hooks:
-	4/8: Replace sensitive instructions with macros
-	6/8: Make __FIXADDR_TOP variable to allow it to make space...
-	7/8: Add a bootparameter to reserve high linear address...
-
-8/8 "Put .note.* sections into a PT_NOTE segment in vmlinux" is mostly
-here to shake out problems early.  It slightly changes the way the
-vmlinux image is linked together, and it uses the somewhat esoteric
-PHDRS command in vmlinux.lds.  I want to make sure that this doesn't
-provoke any problems in the various binutils people are using.
-
-Thanks,
-	J
+--
 

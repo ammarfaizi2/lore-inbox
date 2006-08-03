@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWHCHTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWHCHUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWHCHTj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 03:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHCHTj
+	id S932337AbWHCHUu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 03:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHCHUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 03:19:39 -0400
-Received: from mtagate5.uk.ibm.com ([195.212.29.138]:7445 "EHLO
-	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP id S932356AbWHCHTi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 03:19:38 -0400
-Date: Thu, 3 Aug 2006 10:19:35 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Jon Mason <jdmason@us.ibm.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [PATCH 2 of 4] [x86-64] Calgary: only verify the allocation bitmap if CONFIG_IOMMU_DEBUG is on
-Message-ID: <20060803071935.GB4736@rhun.haifa.ibm.com>
-References: <patchbomb.1154559547@rhun.haifa.ibm.com> <515131a26b151f1e4596.1154559549@rhun.haifa.ibm.com> <20060803035723.GA7323@us.ibm.com>
-Mime-Version: 1.0
+	Thu, 3 Aug 2006 03:20:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48354 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932337AbWHCHUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 03:20:49 -0400
+Date: Thu, 3 Aug 2006 00:16:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Philipp Matthias Hahn <pmhahn@svs.Informatik.Uni-Oldenburg.de>,
+       akpm@osdl.org, nfs@lists.sourceforge.net, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] [PATCH for stable] Re: [Fwd: moradin 2006-08-02 11:02 System Events]
+Message-ID: <20060803071622.GJ26354@kroah.com>
+References: <44D08371.9070607@svs.Informatik.Uni-Oldenburg.de> <17617.16700.274788.869486@cse.unsw.edu.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060803035723.GA7323@us.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <17617.16700.274788.869486@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 10:57:24PM -0500, Jon Mason wrote:
-
-> > diff -r 9cd758467ce1 -r 515131a26b15 arch/x86_64/kernel/pci-calgary.c
-> > --- a/arch/x86_64/kernel/pci-calgary.c	Thu Aug 03 01:37:12 2006 +0300
-> > +++ b/arch/x86_64/kernel/pci-calgary.c	Thu Aug 03 01:40:21 2006 +0300
-> > @@ -133,12 +133,35 @@ static inline void tce_cache_blast_stres
-> >  {
-> >  	tce_cache_blast(tbl);
-> >  }
-> > +
-> > +static inline unsigned long verify_bit_range(unsigned long* bitmap,
-> > +	int expected, unsigned long start, unsigned long end)
-> > +{
-> > +	unsigned long idx = start;
-> > +
-> > +	BUG_ON(start > end);
+On Thu, Aug 03, 2006 at 10:20:12AM +1000, Neil Brown wrote:
+> On Wednesday August 2, pmhahn@svs.Informatik.Uni-Oldenburg.de wrote:
+> > Hello!
+> > 
+> > Rebooting one of our NFS file servers with 2.6.17.7, I just got the
+> > following OOPS:
 > 
-> This should be ">=".
+> Thanks for the report.
+> The bug was fairly easy to find and fix.
+> I think this would be appropriate for the next 2.6.17.x stable kernel,
+> and definitely for 2.6.18. (hence 'akpm' and 'stable' cc:ed).
+> 
+> It is not relevant for earlier kernels (e.g. 2.6.16).
+> 
+> Patch was made against 2.6.18-rc2-mm1, but applies equally to
+> 2.6.17.7.
 
-I considered both options and decided that since this is debug code,
-we might as well be permissive and not trip when start == end (because
-I'm not 100% sure we never do it). However since it could arguably be
-masking a real bug if we do, I agree with the change.
+Queued to -stable.
 
-Cheers,
-Muli
+thanks,
+
+greg k-h
+

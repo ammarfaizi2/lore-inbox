@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWHCJUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWHCJUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbWHCJUl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 05:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWHCJUl
+	id S932409AbWHCJUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 05:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWHCJUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 05:20:41 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:25046 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932414AbWHCJUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 05:20:40 -0400
-Date: Thu, 3 Aug 2006 18:19:09 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: Re : Re : sparsemem usage
-Message-Id: <20060803181909.928b913b.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060803090706.99884.qmail@web25813.mail.ukl.yahoo.com>
-References: <20060803090706.99884.qmail@web25813.mail.ukl.yahoo.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Thu, 3 Aug 2006 05:20:48 -0400
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:62989 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932409AbWHCJUq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 05:20:46 -0400
+Date: Thu, 3 Aug 2006 11:20:54 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Greg KH <greg@kroah.com>, lm-sensors@lm-sensors.org,
+       Shem Multinymous <multinymous@gmail.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, vojtech@suse.cz,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+Subject: Re: Generic battery interface
+Message-Id: <20060803112054.54d2b591.khali@linux-fr.org>
+In-Reply-To: <20060802195107.GB8124@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	<20060727221632.GE3797@elf.ucw.cz>
+	<41840b750607271556n1901af3by2e4d046d68abcb94@mail.gmail.com>
+	<20060727230801.GA30619@kroah.com>
+	<20060727232426.GI3797@elf.ucw.cz>
+	<20060730142943.2537124e.khali@linux-fr.org>
+	<20060802195107.GB8124@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Aug 2006 09:07:06 +0000 (GMT)
-moreau francis <francis_moreau2000@yahoo.fr> wrote:
+Hi Pavel,
 
-> Alan Cox wrote:
-> >
-> > Mapping out parts of a section is quite normal - think about the 640K to
-> > 1Mb hole in PC memory space.
+> > I guess we never felt any need for an "infrastructure", else we would
+> > have created it. I have no idea what the "input infrastructure" looks
+> > like so I can't compare. If you have something to propose which would
+> > refactor some code amongst the hardware monitoring drivers or would
+> > otherwise makes thing better, speak up :)
 > 
-> OK. But I'm still worry. Please consider the following code
-> 
->        for (...; ...; ...) {
->                 [...]
->                 if (pfn_valid(i))
->                        num_physpages++;
->                 [...]
->         }
-> 
-> In that case num_physpages won't store an accurate value. Still it will be
-> used by the kernel to make some statistic assumptions on other kernel
-> data structure sizes.
-> 
-In my understanding, pfn_valid() just returns "the page has page struct or not".
-So, don't use pfn_valid() to count physical pages..
+> I'm not sure if it is practical for hwmon, but having
+> report_voltage(x,y) is probably easier than coding sysfs stuff by
+> hand.
 
+I can't figure out what it would look like in practice. Do you have
+some code to show?
 
--Kame
-
+Thanks,
+-- 
+Jean Delvare

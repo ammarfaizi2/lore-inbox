@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWHCPMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWHCPQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbWHCPMF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWHCPME
+	id S964771AbWHCPQp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWHCPQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:12:04 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:10651 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S932566AbWHCPMD (ORCPT
+	Thu, 3 Aug 2006 11:16:45 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:31945 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932570AbWHCPQo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:12:03 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take3 1/4] kevent: Core files.
-Date: Thu, 3 Aug 2006 17:11:58 +0200
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-References: <11545983603399@2ka.mipt.ru> <200608031640.34513.dada1@cosmosbay.com> <20060803145553.GA12915@2ka.mipt.ru>
-In-Reply-To: <20060803145553.GA12915@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 11:16:44 -0400
+Date: Thu, 3 Aug 2006 19:16:31 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Krzysztof Oledzki <olel@ans.pl>
+Cc: Arnd Hannemann <arnd@arndnet.de>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: problems with e1000 and jumboframes
+Message-ID: <20060803151631.GA14774@2ka.mipt.ru>
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru> <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru> <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200608031711.59261.dada1@cosmosbay.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 03 Aug 2006 19:16:33 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 August 2006 16:55, Evgeniy Polyakov wrote:
-> On Thu, Aug 03, 2006 at 04:40:34PM +0200, Eric Dumazet (dada1@cosmosbay.com) 
-wrote:
-> > > +	mutex_lock(&u->ctl_mutex);
-> > > +	while (num < max_nr && ((k = kqueue_dequeue_ready(u)) != NULL)) {
-> > > +		if (copy_to_user(buf + num*sizeof(struct ukevent),
-> > > +					&k->event, sizeof(struct ukevent))) {
-> > > +			cerr = -EINVAL;
-> > > +			break;
-> > > +		}
+On Thu, Aug 03, 2006 at 05:08:51PM +0200, Krzysztof Oledzki (olel@ans.pl) wrote:
+> >>Why? After your explanation that makes sense for me. The driver needs
+> >>one contiguous chunk for those 9k packet buffer and thus requests a
+> >>3-order page of 16k. Or do i still do not understand this?
 > >
-> > It seems quite wrong to hold ctl_mutex while doing a copy_to_user() (of
-> > possibly a large amount of data) : A thread can sleep on a page fault and
-> > other threads cannot make progress.
->
-> I would not call that wrong - system prevents some threads from removing
-> kevents which are counted to be transfered to the userspace, i.e. when
-> dequeuing was awakened and it had seen some events it is possible, that
-> when it will dequeue them part will be removed by other thread, so I
-> prevent this.
+> >Correct, except that it wants 32k.
+> >e1000 logic is following:
+> >align frame size to power-of-two,
+> 16K?
 
-Hum, "wrong" was maybe not the good word.... but kqueue_dequeue_ready() uses a 
-spinlock (ready_lock) to protect ready_list. One particular struct kevent is 
-given to one thread, one at a time.
+Yep.
 
-If you look at fs/eventpoll.c, you can see how carefull is ep_send_events() so 
-that multiple threads can in the same time transfer different items to user 
-memory.
+> >then skb_alloc adds a little
+> >(sizeof(struct skb_shared_info)) at the end, and this ends up
+> >in 32k request just for 9k jumbo frame.
+> 
+> Strange, why this skb_shared_info cannon be added before first alignment? 
+> And what about smaller frames like 1500, does this driver behave similar 
+> (first align then add)?
 
-In a model where several threads are servicing events collected by a single 
-point (epoll, or kevent), this is important to not block all threads because 
-of a single thread waiting a swapin (trigered by copy_to_user() )
+It can be.
+Could attached  (completely untested) patch help?
 
-Eric
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+index da62db8..cf6506d 100644
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -3132,6 +3132,8 @@ #define MAX_STD_JUMBO_FRAME_SIZE 9234
+ 	 * larger slab size
+ 	 * i.e. RXBUFFER_2048 --> size-4096 slab */
+ 
++	max_frame += sizeof(struct skb_shared_info);
++
+ 	if (max_frame <= E1000_RXBUFFER_256)
+ 		adapter->rx_buffer_len = E1000_RXBUFFER_256;
+ 	else if (max_frame <= E1000_RXBUFFER_512)
+@@ -3146,6 +3148,8 @@ #define MAX_STD_JUMBO_FRAME_SIZE 9234
+ 		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
+ 	else if (max_frame <= E1000_RXBUFFER_16384)
+ 		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
++	
++	max_frame -= sizeof(struct skb_shared_info);
+ 
+ 	/* adjust allocation if LPE protects us, and we aren't using SBP */
+ 	if (!adapter->hw.tbi_compatibility_on &&
+
+> Best regards,
+> 
+> 				Krzysztof Olędzki
+
+
+-- 
+	Evgeniy Polyakov

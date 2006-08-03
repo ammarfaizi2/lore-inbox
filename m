@@ -1,262 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWHCA1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWHCA17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWHCA1w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 20:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWHCAZw
+	id S1750934AbWHCA17 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 20:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWHCA1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 20:25:52 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:43737 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S1750900AbWHCAZu
+	Wed, 2 Aug 2006 20:27:54 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:51417 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S1750934AbWHCAZw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 20:25:50 -0400
-Message-Id: <20060803002518.061401577@xensource.com>
+	Wed, 2 Aug 2006 20:25:52 -0400
+Message-Id: <20060803002518.495141386@xensource.com>
 References: <20060803002510.634721860@xensource.com>
 User-Agent: quilt/0.45-1
-Date: Wed, 02 Aug 2006 17:25:12 -0700
+Date: Wed, 02 Aug 2006 17:25:16 -0700
 From: Jeremy Fitzhardinge <jeremy@xensource.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
        xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: [patch 2/8] Implement always-locked bit ops, for memory shared with an SMP hypervisor.
-Content-Disposition: inline; filename=002-sync-bitops.patch
+       Chris Wright <chrisw@sous-sol.org>, Gerd Hoffmann <kraxel@suse.de>
+Subject: [patch 6/8] Make __FIXADDR_TOP variable to allow it to make space for a hypervisor.
+Content-Disposition: inline; filename=unfix-fixmap.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add "always lock'd" implementations of set_bit, clear_bit and
-change_bit and the corresponding test_and_ functions.  Also add
-"always lock'd" implementation of cmpxchg.  These give guaranteed
-strong synchronisation and are required for non-SMP kernels running on
-an SMP hypervisor.
+Make __FIXADDR_TOP a variable, so that it can be set to not get in the
+way of address space a hypervisor may want to reserve.
 
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Original patch by Gerd Hoffmann <kraxel@suse.de>
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Christoph Lameter <clameter@sgi.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Gerd Hoffmann <kraxel@suse.de>
 
 ---
- include/asm-i386/sync_bitops.h |  156 ++++++++++++++++++++++++++++++++++++++++
- include/asm-i386/system.h      |   36 +++++++++
- 2 files changed, 192 insertions(+)
-
+ arch/i386/Kconfig         |    1 +
+ arch/i386/mm/init.c       |   42 ++++++++++++++++++++++++++++++++++++++++++
+ arch/i386/mm/pgtable.c    |   26 ++++++++++++++++++++++++++
+ include/asm-i386/fixmap.h |    7 ++++++-
+ 4 files changed, 75 insertions(+), 1 deletion(-)
 
 ===================================================================
---- a/include/asm-i386/system.h
-+++ b/include/asm-i386/system.h
-@@ -261,6 +261,9 @@ static inline unsigned long __xchg(unsig
- #define cmpxchg(ptr,o,n)\
- 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
- 					(unsigned long)(n),sizeof(*(ptr))))
-+#define sync_cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))__sync_cmpxchg((ptr),(unsigned long)(o),\
-+					(unsigned long)(n),sizeof(*(ptr))))
- #endif
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -792,6 +792,7 @@ config COMPAT_VDSO
+ config COMPAT_VDSO
+ 	bool "Compat VDSO support"
+ 	default y
++	depends on !PARAVIRT
+ 	help
+ 	  Map the VDSO to the predictable old-style address too.
+ 	---help---
+===================================================================
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -629,6 +629,48 @@ void __init mem_init(void)
+ 		(unsigned long) (totalhigh_pages << (PAGE_SHIFT-10))
+ 	       );
  
- static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
-@@ -282,6 +285,39 @@ static inline unsigned long __cmpxchg(vo
- 		return prev;
- 	case 4:
- 		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %1,%2"
-+				     : "=a"(prev)
-+				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "memory");
-+		return prev;
-+	}
-+	return old;
-+}
++#if 1 /* double-sanity-check paranoia */
++	printk("virtual kernel memory layout:\n"
++	       "    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
++#ifdef CONFIG_HIGHMEM
++	       "    pkmap   : 0x%08lx - 0x%08lx   (%4ld kB)\n"
++#endif
++	       "    vmalloc : 0x%08lx - 0x%08lx   (%4ld MB)\n"
++	       "    lowmem  : 0x%08lx - 0x%08lx   (%4ld MB)\n"
++	       "      .init : 0x%08lx - 0x%08lx   (%4ld kB)\n"
++	       "      .data : 0x%08lx - 0x%08lx   (%4ld kB)\n"
++	       "      .text : 0x%08lx - 0x%08lx   (%4ld kB)\n",
++	       FIXADDR_START, FIXADDR_TOP,
++	       (FIXADDR_TOP - FIXADDR_START) >> 10,
 +
-+/*
-+ * Always use locked operations when touching memory shared with a
-+ * hypervisor, since the system may be SMP even if the guest kernel
-+ * isn't.
-+ */
-+static inline unsigned long __sync_cmpxchg(volatile void *ptr,
-+					    unsigned long old,
-+					    unsigned long new, int size)
-+{
-+	unsigned long prev;
-+	switch (size) {
-+	case 1:
-+		__asm__ __volatile__("lock; cmpxchgb %b1,%2"
-+				     : "=a"(prev)
-+				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "memory");
-+		return prev;
-+	case 2:
-+		__asm__ __volatile__("lock; cmpxchgw %w1,%2"
-+				     : "=a"(prev)
-+				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "memory");
-+		return prev;
-+	case 4:
-+		__asm__ __volatile__("lock; cmpxchgl %1,%2"
- 				     : "=a"(prev)
- 				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
- 				     : "memory");
++#ifdef CONFIG_HIGHMEM
++	       PKMAP_BASE, PKMAP_BASE+LAST_PKMAP*PAGE_SIZE,
++	       (LAST_PKMAP*PAGE_SIZE) >> 10,
++#endif
++
++	       VMALLOC_START, VMALLOC_END,
++	       (VMALLOC_END - VMALLOC_START) >> 20,
++
++	       (unsigned long)__va(0), (unsigned long)high_memory,
++	       ((unsigned long)high_memory - (unsigned long)__va(0)) >> 20,
++
++	       (unsigned long)&__init_begin, (unsigned long)&__init_end,
++	       ((unsigned long)&__init_end - (unsigned long)&__init_begin) >> 10,
++
++	       (unsigned long)&_etext, (unsigned long)&_edata,
++	       ((unsigned long)&_edata - (unsigned long)&_etext) >> 10,
++
++	       (unsigned long)&_text, (unsigned long)&_etext,
++	       ((unsigned long)&_etext - (unsigned long)&_text) >> 10);
++
++#ifdef CONFIG_HIGHMEM
++	BUG_ON(PKMAP_BASE+LAST_PKMAP*PAGE_SIZE > FIXADDR_START);
++	BUG_ON(VMALLOC_END                     > PKMAP_BASE);
++#endif
++	BUG_ON(VMALLOC_START                   > VMALLOC_END);
++	BUG_ON((unsigned long)high_memory      > VMALLOC_START);
++#endif /* double-sanity-check paranoia */
++
+ #ifdef CONFIG_X86_PAE
+ 	if (!cpu_has_pae)
+ 		panic("cannot execute a PAE-enabled kernel on a PAE-less CPU!");
 ===================================================================
---- /dev/null
-+++ b/include/asm-i386/sync_bitops.h
-@@ -0,0 +1,156 @@
-+#ifndef _I386_SYNC_BITOPS_H
-+#define _I386_SYNC_BITOPS_H
+--- a/arch/i386/mm/pgtable.c
++++ b/arch/i386/mm/pgtable.c
+@@ -12,6 +12,7 @@
+ #include <linux/slab.h>
+ #include <linux/pagemap.h>
+ #include <linux/spinlock.h>
++#include <linux/module.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -137,6 +138,12 @@ void set_pmd_pfn(unsigned long vaddr, un
+ 	__flush_tlb_one(vaddr);
+ }
+ 
++static int fixmaps;
++#ifndef CONFIG_COMPAT_VDSO
++unsigned long __FIXADDR_TOP = 0xfffff000;
++EXPORT_SYMBOL(__FIXADDR_TOP);
++#endif
 +
-+/*
-+ * Copyright 1992, Linus Torvalds.
-+ */
-+
-+/*
-+ * These have to be done with inline assembly: that way the bit-setting
-+ * is guaranteed to be atomic. All bit operations return 0 if the bit
-+ * was cleared before the operation and != 0 if it was not.
-+ *
-+ * bit 0 is the LSB of addr; bit 32 is the LSB of (addr+1).
-+ */
-+
-+#define ADDR (*(volatile long *) addr)
-+
-+/**
-+ * sync_set_bit - Atomically set a bit in memory
-+ * @nr: the bit to set
-+ * @addr: the address to start counting from
-+ *
-+ * This function is atomic and may not be reordered.  See __set_bit()
-+ * if you do not require the atomic guarantees.
-+ *
-+ * Note: there are no guarantees that this function will not be reordered
-+ * on non x86 architectures, so if you are writting portable code,
-+ * make sure not to rely on its reordering guarantees.
-+ *
-+ * Note that @nr may be almost arbitrarily large; this function is not
-+ * restricted to acting on a single-word quantity.
-+ */
-+static inline void sync_set_bit(int nr, volatile unsigned long * addr)
-+{
-+	__asm__ __volatile__("lock; btsl %1,%0"
-+			     :"+m" (ADDR)
-+			     :"Ir" (nr)
-+			     : "memory");
+ void __set_fixmap (enum fixed_addresses idx, unsigned long phys, pgprot_t flags)
+ {
+ 	unsigned long address = __fix_to_virt(idx);
+@@ -146,6 +153,25 @@ void __set_fixmap (enum fixed_addresses 
+ 		return;
+ 	}
+ 	set_pte_pfn(address, phys >> PAGE_SHIFT, flags);
++	fixmaps++;
 +}
 +
 +/**
-+ * sync_clear_bit - Clears a bit in memory
-+ * @nr: Bit to clear
-+ * @addr: Address to start counting from
++ * reserve_top_address - reserves a hole in the top of kernel address space
++ * @reserve - size of hole to reserve
 + *
-+ * sync_clear_bit() is atomic and may not be reordered.  However, it does
-+ * not contain a memory barrier, so if it is used for locking purposes,
-+ * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
-+ * in order to ensure changes are visible on other processors.
++ * Can be used to relocate the fixmap area and poke a hole in the top
++ * of kernel address space to make room for a hypervisor.
 + */
-+static inline void sync_clear_bit(int nr, volatile unsigned long * addr)
++void reserve_top_address(unsigned long reserve)
 +{
-+	__asm__ __volatile__("lock; btrl %1,%0"
-+			     :"+m" (ADDR)
-+			     :"Ir" (nr)
-+			     : "memory");
-+}
-+
-+/**
-+ * sync_change_bit - Toggle a bit in memory
-+ * @nr: Bit to change
-+ * @addr: Address to start counting from
-+ *
-+ * change_bit() is atomic and may not be reordered. It may be
-+ * reordered on other architectures than x86.
-+ * Note that @nr may be almost arbitrarily large; this function is not
-+ * restricted to acting on a single-word quantity.
-+ */
-+static inline void sync_change_bit(int nr, volatile unsigned long * addr)
-+{
-+	__asm__ __volatile__("lock; btcl %1,%0"
-+			     :"+m" (ADDR)
-+			     :"Ir" (nr)
-+			     : "memory");
-+}
-+
-+/**
-+ * sync_test_and_set_bit - Set a bit and return its old value
-+ * @nr: Bit to set
-+ * @addr: Address to count from
-+ *
-+ * This operation is atomic and cannot be reordered.
-+ * It may be reordered on other architectures than x86.
-+ * It also implies a memory barrier.
-+ */
-+static inline int sync_test_and_set_bit(int nr, volatile unsigned long * addr)
-+{
-+	int oldbit;
-+
-+	__asm__ __volatile__("lock; btsl %2,%1\n\tsbbl %0,%0"
-+			     :"=r" (oldbit),"+m" (ADDR)
-+			     :"Ir" (nr) : "memory");
-+	return oldbit;
-+}
-+
-+/**
-+ * sync_test_and_clear_bit - Clear a bit and return its old value
-+ * @nr: Bit to clear
-+ * @addr: Address to count from
-+ *
-+ * This operation is atomic and cannot be reordered.
-+ * It can be reorderdered on other architectures other than x86.
-+ * It also implies a memory barrier.
-+ */
-+static inline int sync_test_and_clear_bit(int nr, volatile unsigned long * addr)
-+{
-+	int oldbit;
-+
-+	__asm__ __volatile__("lock; btrl %2,%1\n\tsbbl %0,%0"
-+			     :"=r" (oldbit),"+m" (ADDR)
-+			     :"Ir" (nr) : "memory");
-+	return oldbit;
-+}
-+
-+/**
-+ * sync_test_and_change_bit - Change a bit and return its old value
-+ * @nr: Bit to change
-+ * @addr: Address to count from
-+ *
-+ * This operation is atomic and cannot be reordered.
-+ * It also implies a memory barrier.
-+ */
-+static inline int sync_test_and_change_bit(int nr, volatile unsigned long* addr)
-+{
-+	int oldbit;
-+
-+	__asm__ __volatile__("lock; btcl %2,%1\n\tsbbl %0,%0"
-+			     :"=r" (oldbit),"+m" (ADDR)
-+			     :"Ir" (nr) : "memory");
-+	return oldbit;
-+}
-+
-+static __always_inline int sync_const_test_bit(int nr, const volatile unsigned long *addr)
-+{
-+	return ((1UL << (nr & 31)) &
-+		(((const volatile unsigned int *)addr)[nr >> 5])) != 0;
-+}
-+
-+static inline int sync_var_test_bit(int nr, const volatile unsigned long * addr)
-+{
-+	int oldbit;
-+
-+	__asm__ __volatile__("btl %2,%1\n\tsbbl %0,%0"
-+			     :"=r" (oldbit)
-+			     :"m" (ADDR),"Ir" (nr));
-+	return oldbit;
-+}
-+
-+#define sync_test_bit(nr,addr)			\
-+	(__builtin_constant_p(nr) ?		\
-+	 sync_constant_test_bit((nr),(addr)) :	\
-+	 sync_var_test_bit((nr),(addr)))
-+
-+#undef ADDR
-+
-+#endif /* _I386_SYNC_BITOPS_H */
++	BUG_ON(fixmaps > 0);
++#ifdef CONFIG_COMPAT_VDSO
++	BUG_ON(reserve != 0);
++#else
++	__FIXADDR_TOP = -reserve - PAGE_SIZE;
++	__VMALLOC_RESERVE += reserve;
++#endif
+ }
+ 
+ pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
+===================================================================
+--- a/include/asm-i386/fixmap.h
++++ b/include/asm-i386/fixmap.h
+@@ -19,7 +19,11 @@
+  * Leave one empty page between vmalloc'ed areas and
+  * the start of the fixmap.
+  */
+-#define __FIXADDR_TOP	0xfffff000
++#ifndef CONFIG_COMPAT_VDSO
++extern unsigned long __FIXADDR_TOP;
++#else
++#define __FIXADDR_TOP  0xfffff000
++#endif
+ 
+ #ifndef __ASSEMBLY__
+ #include <linux/kernel.h>
+@@ -93,6 +97,7 @@ enum fixed_addresses {
+ 
+ extern void __set_fixmap (enum fixed_addresses idx,
+ 					unsigned long phys, pgprot_t flags);
++extern void reserve_top_address(unsigned long reserve);
+ 
+ #define set_fixmap(idx, phys) \
+ 		__set_fixmap(idx, phys, PAGE_KERNEL)
 
 --
 

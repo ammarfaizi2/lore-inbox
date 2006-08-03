@@ -1,82 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWHCUWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWHCUZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWHCUWU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWHCUWU
+	id S964882AbWHCUZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWHCUZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:22:20 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:57553
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S964878AbWHCUWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:22:19 -0400
-Date: Thu, 3 Aug 2006 13:22:11 -0700
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Robert Crocombe <rcrocomb@gmail.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: Problems with 2.6.17-rt8
-Message-ID: <20060803202211.GA10720@gnuppy.monkey.org>
-References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com> <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com> <1154541079.25723.8.camel@localhost.localdomain> <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com> <1154615261.32264.6.camel@localhost.localdomain>
+	Thu, 3 Aug 2006 16:25:47 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38160 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964882AbWHCUZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:25:46 -0400
+Date: Thu, 3 Aug 2006 22:25:43 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       Zachary Amsden <zach@vmware.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
+Subject: Options depending on STANDALONE
+Message-ID: <20060803202543.GH25692@stusta.de>
+References: <44D1CC7D.4010600@vmware.com> <1154603822.2965.18.camel@laptopd505.fenrus.org> <44D23B84.6090605@vmware.com> <20060803190327.GA14237@kroah.com> <44D24B31.2080802@vmware.com> <20060803193600.GA14858@kroah.com> <20060803195617.GD16927@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1154615261.32264.6.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+In-Reply-To: <20060803195617.GD16927@redhat.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 10:27:41AM -0400, Steven Rostedt wrote:
-> The rest was probably caused as a side effect from above.  The above is
-> already broken!
+On Thu, Aug 03, 2006 at 03:56:17PM -0400, Dave Jones wrote:
+> On Thu, Aug 03, 2006 at 12:36:00PM -0700, Greg Kroah-Hartman wrote:
 > 
-> You have NUMA configured too, so this is also something to look at.
+>  > > That is good to know.  But there is a kernel option which doesn't make 
+>  > > much sense in that case:
+>  > > 
+>  > > [*] Select only drivers that don't need compile-time external firmware
+>  > 
+>  > No, that is very different.  That option is present if you don't want to
+>  > build some firmware images from the source that is present in the kernel
+>  > tree, and instead, use the pre-built stuff that is also present in the
+>  > kernel tree.
 > 
-> I still wouldn't ignore the first bug message you got:
-> 
-> ----
-> BUG: scheduling while atomic: udev_run_devd/0x00000001/1568
-> 
-> Call Trace:
->        <ffffffff8045c693>{__schedule+155}
->        <ffffffff8045f156>{_raw_spin_unlock_irqrestore+53}
->        <ffffffff80242241>{task_blocks_on_rt_mutex+518}
->        <ffffffff80252da0>{free_pages_bulk+39}
->        <ffffffff80252da0>{free_pages_bulk+39}
-> ...
-> ----
-> 
-> This could also have a side effect that messes things up.
-> 
-> Unfortunately, right now I'm assigned to other tasks and I cant spend
-> much more time on this at the moment.  So hopefully, Ingo, Thomas or
-> Bill, or someone else can help you find the reason for this problem.
+> You're describing PREVENT_FIRMWARE_BUILD.  The text Zach quoted is from
+> STANDALONE, which is something else completely.  That allows us to not
+> build drivers that pull in things from /etc and the like during compile.
+> (Whoever thought that was a good idea?)
 
-free_pages_bulk is definitely being called inside of an atomic.
-I force this stack trace when the in_atomic() test is true at the
-beginning of the function.
+We should also look at what drivers do depend on STANDALONE:
+- some OSS drivers
+- one DVB driver option (DVB_AV7110_FIRMWARE)
+- ACPI_CUSTOM_DSDT
 
+The OSS drivers are more or less RIP, so let's ignore them.
 
-[   29.362863] Call Trace:
-[   29.367107]        <ffffffff802a82ac>{free_pages_bulk+86}
-[   29.373122]        <ffffffff80261726>{_raw_spin_unlock_irqrestore+44}
-[   29.380233]        <ffffffff802a8778>{__free_pages_ok+428}
-[   29.386336]        <ffffffff8024f101>{free_hot_page+25}
-[   29.392165]        <ffffffff8022e298>{__free_pages+41}
-[   29.397898]        <ffffffff806b604d>{__free_pages_bootmem+174}
-[   29.404457]        <ffffffff806b5266>{free_all_bootmem_core+253}
-[   29.411112]        <ffffffff806b5340>{free_all_bootmem_node+9}
-[   29.417574]        <ffffffff806b254e>{numa_free_all_bootmem+61}
-[   29.424122]        <ffffffff8046e96e>{_etext+0}
-[   29.429224]        <ffffffff806b1392>{mem_init+128}
-[   29.434691]        <ffffffff806a17ab>{start_kernel+377}
-[   29.440520]        <ffffffff806a129b>{_sinittext+667}
-[   29.446669] ---------------------------
-[   29.450963] | preempt count: 00000001 ]
-[   29.455257] | 1-level deep critical section nesting:
-[   29.460732] ----------------------------------------
-[   29.466212] .. [<ffffffff806a169a>] .... start_kernel+0x68/0x221
-[   29.472815] .....[<ffffffff806a129b>] ..   ( <= _sinittext+0x29b/0x2a2)
-[   29.480056]
+Is DVB_AV7110_FIRMWARE really still required?
+ALL other drivers work without such an option.
 
-bill
+ACPI_CUSTOM_DSDT seems to be the most interesting case.
+It's anyway not usable for distribution kernels, and AFAIR the ACPI 
+people prefer to get the kernel working with all original DSDTs
+(which usually work with at least one other OS) than letting the people 
+workaround the problem by using a custom DSDT.
+
+It might therefore be possile simply getting rid of CONFIG_STANDALONE?
+
+> 		Dave
+
+cu
+Adrian
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

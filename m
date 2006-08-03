@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWHCXWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWHCX0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWHCXWI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWHCXWI
+	id S1751387AbWHCX0q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 19:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHCX0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:22:08 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:39888 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751350AbWHCXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:22:07 -0400
-Message-ID: <44D285DF.7060905@elegant-software.com>
-Date: Thu, 03 Aug 2006 19:25:19 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 3 Aug 2006 19:26:46 -0400
+Received: from mms1.broadcom.com ([216.31.210.17]:54276 "EHLO
+	mms1.broadcom.com") by vger.kernel.org with ESMTP id S1751387AbWHCX0p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 19:26:45 -0400
+X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+From: "Michael Chan" <mchan@broadcom.com>
+To: "David Miller" <davem@davemloft.net>
+cc: tytso@mit.edu, herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060803.144845.66061203.davem@davemloft.net>
+References: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au>
+ <1154630207.3117.17.camel@rh4> <20060803201741.GA7894@thunk.org>
+ <20060803.144845.66061203.davem@davemloft.net>
+Date: Thu, 03 Aug 2006 16:28:19 -0700
+Message-ID: <1154647699.3117.26.camel@rh4>
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-Subject: Checksumming blocks? [was Re: the " 'official' point of view" expressed
- by kernelnewbies.org regarding reiser4 inclusion]
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF84F0.8080303@slaphack.com> <1154452770.15540.65.camel@localhost.localdomain> <44CF9217.6040609@slaphack.com> <20060803135811.GA7431@merlin.emma.line.org>
-In-Reply-To: <20060803135811.GA7431@merlin.emma.line.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.0.2 (2.0.2-3)
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006080308; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413031303230312E34344432383542312E303032352D422D2F342B574C684A754433704B705975633943514C71513D3D;
+ ENG=IBF; TS=20060803232635; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006080308_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 68CC59A00HW63071446-01-01
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-08-03 at 14:48 -0700, David Miller wrote:
+> From: Theodore Tso <tytso@mit.edu>
+> Date: Thu, 3 Aug 2006 16:17:41 -0400
+> 
+> > eth0: Tigon3 [partno(BCM95704s) rev 2100 PHY(serdes)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:14:5e:86:44:24
+> 
+> The 5704 chip will set TG3_FLAG_TAGGED_STATUS, and therefore
+> doesn't need the periodic poking done by tg3_timer().
+> 
 
-If the software (filesystem like ZFS or database like Berkeley DB)  
-finds a mismatch for a checksum on a block read, then what?
+True.  But they also have ASF enabled which requires tg3_timer() to send
+the heartbeat periodically.  If the heartbeat is late, ASF may reset the
+chip believing that the system has crashed.
 
-Is there a recovery mechanism, or do you just be happy you know there is 
-a problem (and go to backup)?
+> eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[1] Split[0] WireSpeed[0] TSOcap[0]
 
-Thx
-
-Matthias Andree wrote:
-
->Berkeley DB can, since version 4.1 (IIRC), write checksums (newer
->versions document this as SHA1) on its database pages, to detect
->corruptions and writes that were supposed to be atomic but failed
->(because you cannot write 4K or 16K atomically on a disk drive).
->
+We'll see if we can do away with the timer-based heartbeat.  That's
+probably the best solution.
 

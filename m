@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWHCGTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWHCGWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWHCGTV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 02:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWHCGTV
+	id S932295AbWHCGWj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 02:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWHCGWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 02:19:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35025 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750841AbWHCGTU (ORCPT
+	Thu, 3 Aug 2006 02:22:39 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:64673 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S932295AbWHCGWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 02:19:20 -0400
-Date: Wed, 2 Aug 2006 23:19:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, jeremy@goop.org, zach@vmware.com,
-       chrisw@sous-sol.org
-Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
- space.
-Message-Id: <20060802231912.ed77f930.akpm@osdl.org>
-In-Reply-To: <20060803002518.595166293@xensource.com>
-References: <20060803002510.634721860@xensource.com>
-	<20060803002518.595166293@xensource.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Aug 2006 02:22:38 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: Re: [PATCH] Move valid_dma_direction() from x86_64 to generic code
+Date: Thu, 3 Aug 2006 08:25:19 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org
+References: <200607280928.54306.eike-kernel@sf-tec.de> <200608021720.40815.eike-kernel@sf-tec.de> <20060802185527.GB4982@rhun.ibm.com>
+In-Reply-To: <20060802185527.GB4982@rhun.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2030929.fPakumaD0l";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608030825.19651.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Aug 2006 17:25:17 -0700
-Jeremy Fitzhardinge <jeremy@xensource.com> wrote:
+--nextPart2030929.fPakumaD0l
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> +		/*
-> +		 * reservetop=size reserves a hole at the top of the kernel
-> +		 * address space which a hypervisor can load into later.
-> +		 * Needed for dynamically loaded hypervisors, so relocating
-> +		 * the fixmap can be done before paging initialization.
-> +		 * This hole must be a multiple of 4M.
-> +		 */
-> +		else if (!memcmp(from, "reservetop=", 11)) {
-> +			unsigned long reserve = memparse(from+11, &from);
-> +			reserve &= ~0x3fffff;
-> +			reserve_top_address(reserve);
-> +		}
+Muli Ben-Yehuda wrote:
+> On Wed, Aug 02, 2006 at 05:20:40PM +0200, Rolf Eike Beer wrote:
+> > As suggested by Muli Ben-Yehuda this function is moved to generic code =
+as
+> > may be useful for all archs.
+>
+> I like it, but ...
 
-I assume that this argument will normally be passed in via the hypervisor
-rather than by human-entered information?
+> Several files include asm/dma-mapping.h directly, which will now cause
+> them to fail to compile on x86-64 due to the missing definition for
+> valid_dma_direction, unless by chance another header already brought
+> it in indirectly. I guess the right thing to do is convert them all to
+> using linux/dma-mapping.h instead.
 
-In which case, perhaps a panic would be a more appropriate response to a
-non-multiple-of-4M.
+Yes, akpm already fixed it up. Sorry guys, currently no x86 kernel around=20
+here. Need to fix that.
 
-Either way, rounding the number down rather than up seems wrong...
+> ./arch/x86_64/kernel/pci-swiotlb.c:6:#include <asm/dma-mapping.h>
+> ./drivers/net/fec_8xx/fec_main.c:40:#include <asm/dma-mapping.h>
+> ./drivers/net/fs_enet/fs_enet.h:11:#include <asm/dma-mapping.h>
+> ./include/asm-x86_64/swiotlb.h:5:#include <asm/dma-mapping.h>
+
+I suspect it to be a bug anyway that every of this files ever included=20
+asm/dma-mapping.h.
+
+> ./include/linux/dma-mapping.h:27:#include <asm/dma-mapping.h>
+
+This is perfectly valid, isn't it :)
+
+Eike
+
+--nextPart2030929.fPakumaD0l
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBE0ZbPXKSJPmm5/E4RAgBmAKCe902VmyAQ98TogYy+FNJLYhlelgCfWGII
+uZjrxLM07fCXpVIiqSk7tmo=
+=01x3
+-----END PGP SIGNATURE-----
+
+--nextPart2030929.fPakumaD0l--

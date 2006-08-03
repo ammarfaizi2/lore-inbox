@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWHCTj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWHCTkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWHCTj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 15:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWHCTj4
+	id S1030214AbWHCTkl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 15:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWHCTkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 15:39:56 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14864 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932320AbWHCTj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 15:39:56 -0400
-Date: Thu, 3 Aug 2006 21:39:52 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Cc: David Woodhouse <dwmw2@infradead.org>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Userspace visible of 3 include/asm/ headers
-Message-ID: <20060803193952.GF25692@stusta.de>
+	Thu, 3 Aug 2006 15:40:41 -0400
+Received: from mail.suse.de ([195.135.220.2]:13455 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030214AbWHCTkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 15:40:40 -0400
+Date: Thu, 3 Aug 2006 12:36:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+Subject: Re: A proposal - binary
+Message-ID: <20060803193600.GA14858@kroah.com>
+References: <44D1CC7D.4010600@vmware.com> <1154603822.2965.18.camel@laptopd505.fenrus.org> <44D23B84.6090605@vmware.com> <20060803190327.GA14237@kroah.com> <44D24B31.2080802@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <44D24B31.2080802@vmware.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could anyone help me regarding the desired userspace visibility of the 
-following three headers under include/asm/?
+On Thu, Aug 03, 2006 at 12:14:57PM -0700, Zachary Amsden wrote:
+> Greg KH wrote:
+> >On Thu, Aug 03, 2006 at 11:08:04AM -0700, Zachary Amsden wrote:
+> >  
+> >>Perhaps we can use this to encourage open sourced firmware layers,
+> >>instead of trying to ban drivers which rely on firmware from the
+> >>kernel.
+> >>    
+> >
+> >No one is trying to ban such drivers.  Well, except the odd people on
+> >debian-legal, but all the kernel developers know to ignore them :)
+> >  
+> 
+> That is good to know.  But there is a kernel option which doesn't make 
+> much sense in that case:
+> 
+> [*] Select only drivers that don't need compile-time external firmware
 
+No, that is very different.  That option is present if you don't want to
+build some firmware images from the source that is present in the kernel
+tree, and instead, use the pre-built stuff that is also present in the
+kernel tree.
 
-Header        : cpufeature.h
-Architectures : i386, x86_64
-Is there any reason why this header is exported to userspace?
+It is there so that we do not require some additional tools that the
+majority of kernel developers do not have installed on their machine in
+order to create a working kernel image for some types of hardware.
 
-Header        : setup.h
-Architectures : i386, ia64, x86_64
-Contents:
-- COMMAND_LINE_SIZE on ia64, x86_64
-- much more on i386
-Should COMMAND_LINE_SIZE be visible to userspace?
-Anything else from the i386 setup.h?
+Hope this helps,
 
-Header        : timex.h
-Architectures : all architectures
-Offers CLOCK_TICK_RATE on all architectures, but on some architectures
-(like i386) this depends on the kernel configuration.
--> not a userspace header?
-
-
-TIA
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+greg k-h

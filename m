@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWHCJlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWHCJnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWHCJlk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 05:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWHCJlk
+	id S932452AbWHCJnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 05:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWHCJnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 05:41:40 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:34713 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932443AbWHCJlj (ORCPT
+	Thu, 3 Aug 2006 05:43:12 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:54161 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S932445AbWHCJnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 05:41:39 -0400
-Date: Thu, 3 Aug 2006 13:40:55 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take3 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20060803094055.GA19635@2ka.mipt.ru>
-References: <20060731103322.GA1898@2ka.mipt.ru> <11545983592236@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Thu, 3 Aug 2006 05:43:11 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take3 4/4] kevent: poll/select() notifications. Timer notifications.
+Date: Thu, 3 Aug 2006 11:43:02 +0200
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+References: <11545983601@2ka.mipt.ru>
+In-Reply-To: <11545983601@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <11545983592236@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 03 Aug 2006 13:40:56 +0400 (MSD)
+Message-Id: <200608031143.03064.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 01:45:59PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> Changes from 'take2' patchset:
->  * split kevent_finish_user() to locked and unlocked variants
->  * do not use KEVENT_STAT ifdefs, use inline functions instead
->  * use array of callbacks of each type instead of each kevent callback initialization
->  * changed name of ukevent guarding lock
->  * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
->  * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
->  * various indent cleanups
->  * mapped buffer (initial) implementation (no userspace yet)
+On Thursday 03 August 2006 11:46, Evgeniy Polyakov wrote:
+> poll/select() notifications. Timer notifications.
+>
+> +++ b/kernel/kevent/kevent_poll.c
 
-Also added optimisation aimed to help when a lot of kevents are being
-copied from userspace in one syscall.
+> +static int kevent_poll_wait_callback(wait_queue_t *wait,
+> +		unsigned mode, int sync, void *key)
+> +{
+> +	struct kevent_poll_wait_container *cont =
+> +		container_of(wait, struct kevent_poll_wait_container, wait);
+> +	struct kevent *k = cont->k;
+> +	struct file *file = k->st->origin;
+> +	unsigned long flags;
+> +	u32 revents, event;
+> +
+> +	revents = file->f_op->poll(file, NULL);
+> +	spin_lock_irqsave(&k->ulock, flags);
+> +	event = k->event.event;
+> +	spin_unlock_irqrestore(&k->ulock, flags);
 
--- 
-	Evgeniy Polyakov
+Not sure why you take a spinlock just to read a u32
+
+Eric

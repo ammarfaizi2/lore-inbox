@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWHCUn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWHCUoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWHCUn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWHCUn6
+	id S1751324AbWHCUoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWHCUoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:43:58 -0400
-Received: from mail.renesas.com ([202.234.163.13]:56541 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S1751326AbWHCUn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:43:57 -0400
-Date: Fri, 04 Aug 2006 05:43:47 +0900
-From: Paul Mundt <paul.mundt@renesas.com>
-Subject: Re: [linuxsh-dev] [PATCH] sh: fix proc file removal for	superh	store
- queue module
-In-reply-to: <20060803201857.GC5004@localhost.localdomain>
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: Andrew Morton <akpm@osdl.org>, kernel-janitors@lists.osdl.org,
-       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
-       linuxsh-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-id: <1154637827.8280.0.camel@localhost>
-Organization: Renesas Technology America, Inc.
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.2
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20060803191828.GA5004@localhost.localdomain>
- <20060803124235.67bb664b.akpm@osdl.org>
- <20060803201857.GC5004@localhost.localdomain>
+	Thu, 3 Aug 2006 16:44:25 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60373 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751324AbWHCUoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:44:23 -0400
+Subject: Re: A proposal - binary
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+In-Reply-To: <44D23B84.6090605@vmware.com>
+References: <44D1CC7D.4010600@vmware.com>
+	 <1154603822.2965.18.camel@laptopd505.fenrus.org>
+	 <44D23B84.6090605@vmware.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 03 Aug 2006 22:03:37 +0100
+Message-Id: <1154639017.23655.121.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 16:18 -0400, Neil Horman wrote:
-> Patch to clean up proc file removal in sq module for superh arch.  currently on
-> a failed module load or on module unload a proc file is left registered which
-> can cause a random memory execution or oopses if read after unload.  This patch
-> cleans up that deregistration.
-> 
-Looks good, thanks Neil.
+Ar Iau, 2006-08-03 am 11:08 -0700, ysgrifennodd Zachary Amsden:
+> encourage open sourced firmware layers, instead of trying to ban drivers 
+> which rely on firmware from the kernel.
 
-Acked-by: Paul Mundt <paul.mundt@renesas.com>
+The reasons for pushing downloadable firmware out of the kernel are
+manyfold and based on legal advice.
+
+MORAL:  Many free software people like a clean separation between the
+free and non-free components of a system
+
+LEGAL:	Some firmware isn't publically redistributable but comes with the
+h/w
+
+LEGAL:	Several lawyers have advised people that putting firmware
+separate to the kernel is different to embedding it in kernel in terms
+of the derivative work question. 
+
+TECHNICAL:  Unswappable blobs of kernel memory taken up by firmware is
+bad generally speaking
+
+TECHNICAL:  Pulling 20Mb of unchanging firmware each kernel tree is
+annoying
+
+

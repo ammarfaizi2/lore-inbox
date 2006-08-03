@@ -1,107 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWHCS3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWHCS3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWHCS3g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWHCS3g
+	id S964838AbWHCS3d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 14:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWHCS3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:29:36 -0400
-Received: from wx-out-0102.google.com ([66.249.82.194]:12320 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964832AbWHCS3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:29:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qAx5RH6gfTPmlV7dsbdeezWi/KssL+tI32GCL/jLZp+Rb2bNL9LbJXpnKRRGJu6QUTnNlzTgBF6zLth3QNJs4D+3vDwpInxG2M1DG2edvDEFJlrvqU+QOB44WoD23REMh9tvLrYHk60aAxi+HB1D72hbgV/CCoOYm20917ttOBA=
-Message-ID: <69304d110608031129t5b39e581x3862d8a3dad407f6@mail.gmail.com>
-Date: Thu, 3 Aug 2006 20:29:33 +0200
-From: "Antonio Vargas" <windenntw@gmail.com>
-To: "Zachary Amsden" <zach@vmware.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds" <torvalds@osdl.org>, greg@kroah.com,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Rusty Russell" <rusty@rustcorp.com.au>, "Jack Lo" <jlo@vmware.com>
-Subject: Re: A proposal - binary
-In-Reply-To: <44D23924.9040704@vmware.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 14:29:33 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:47330 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964829AbWHCS3c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 14:29:32 -0400
+Date: Thu, 3 Aug 2006 22:29:11 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Arnd Hannemann <arnd@arndnet.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, olel@ans.pl
+Subject: Re: problems with e1000 and jumboframes
+Message-ID: <20060803182911.GA8692@2ka.mipt.ru>
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru> <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru> <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl> <20060803151631.GA14774@2ka.mipt.ru> <20060803154125.GA9745@2ka.mipt.ru> <44D23BC3.7040707@arndnet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-References: <44D1CC7D.4010600@vmware.com>
-	 <1154603822.2965.18.camel@laptopd505.fenrus.org>
-	 <69304d110608030516y16f7d1fdiaccfbe4ecca3084a@mail.gmail.com>
-	 <44D23924.9040704@vmware.com>
+In-Reply-To: <44D23BC3.7040707@arndnet.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 03 Aug 2006 22:29:12 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/3/06, Zachary Amsden <zach@vmware.com> wrote:
-> Antonio Vargas wrote:
-> > If the essence of using virtual machines is precisely that the machine
-> > acts just as if it was a real hardware one, then we should not need
-> > any modifications to the kernel. So, it would be much better if the
-> > hypervirsor was completely transparent and just emulated a native cpu
-> > and a common native set of hardware, which would then work 100% with
-> > the native code in the kernel. This keeps the smarts of virtual
-> > machine management on the hypervisor.
->
-> You are basically arguing for full virtualization - which is fine.  But
-> today as it stands it does not provide the highest level of performance
-> that paravirtualization does, and in the future, it does little to
-> provide more advanced virtualization features.
+On Thu, Aug 03, 2006 at 08:09:07PM +0200, Arnd Hannemann (arnd@arndnet.de) wrote:
+> Evgeniy Polyakov schrieb:
+> > On Thu, Aug 03, 2006 at 07:16:31PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> >>>> then skb_alloc adds a little
+> >>>> (sizeof(struct skb_shared_info)) at the end, and this ends up
+> >>>> in 32k request just for 9k jumbo frame.
+> >>> Strange, why this skb_shared_info cannon be added before first alignment? 
+> >>> And what about smaller frames like 1500, does this driver behave similar 
+> >>> (first align then add)?
+> >> It can be.
+> >> Could attached  (completely untested) patch help?
+> > 
+> > Actually this patch will not help, this new one could.
+> > 
+> 
+> I applied the attached pachted. And got this output:
+> 
+> > Intel(R) PRO/1000 Network Driver - bufsz 13762
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16058
+> > Intel(R) PRO/1000 Network Driver - bufsz 15894
+> > Intel(R) PRO/1000 Network Driver - bufsz 15730
+> > Intel(R) PRO/1000 Network Driver - bufsz 15566
+> > Intel(R) PRO/1000 Network Driver - bufsz 15402
+> > Intel(R) PRO/1000 Network Driver - bufsz 15238
+> > Intel(R) PRO/1000 Network Driver - bufsz 15074
+> > Intel(R) PRO/1000 Network Driver - bufsz 14910
+> > Intel(R) PRO/1000 Network Driver - bufsz 14746
+> > Intel(R) PRO/1000 Network Driver - bufsz 14582
+> > Intel(R) PRO/1000 Network Driver - bufsz 14418
+> > Intel(R) PRO/1000 Network Driver - bufsz 14254
+> > Intel(R) PRO/1000 Network Driver - bufsz 14090
+> > Intel(R) PRO/1000 Network Driver - bufsz 13926
+> > Intel(R) PRO/1000 Network Driver - bufsz 13762
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16058
+> > Intel(R) PRO/1000 Network Driver - bufsz 15894
+> > Intel(R) PRO/1000 Network Driver - bufsz 15730
+> > Intel(R) PRO/1000 Network Driver - bufsz 15566
+> > Intel(R) PRO/1000 Network Driver - bufsz 15402
+> > Intel(R) PRO/1000 Network Driver - bufsz 15238
+> > Intel(R) PRO/1000 Network Driver - bufsz 15074
+> > Intel(R) PRO/1000 Network Driver - bufsz 14910
+> > Intel(R) PRO/1000 Network Driver - bufsz 14746
+> > Intel(R) PRO/1000 Network Driver - bufsz 14582
+> > Intel(R) PRO/1000 Network Driver - bufsz 14418
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> > Intel(R) PRO/1000 Network Driver - bufsz 16222
+> 
+> I'm a bit puzzled that there are so much allocations. However the patch
+> seems to work. (at least not obviously breaks things for me yet)
 
-I realise now that I missed mentioning my point. What I envision as a
-stable binary interface for comunication between the kernel and the
-hypervisor is exactly the current situation that goes into the
-hypervisor when the kernel does any priviledged instruction. I
-understand that paravirtualization gives a very good speed boost
-(within 5% of native speed IIRC?), but I was also wondering about the
-relative speed of running unmodified kernels.
+Very strange output actually - comments in the code say that frame size
+can not exceed 0x3f00, but in this log it is much more than 16128 and
+that is after sizeof(struct skb_shared_info) has been removed...
+Could you please remove debug output and run some network stress test in
+parallel with high disk/memory activity to check if that does not break
+your system and watch /proc/slabinfo for 16k and 32k sized pools.
 
-> >
-> > For example, TBL and pagetable handling can be done with 2 interfaces,
-> > one standard via intercepting normal cpu instructions, and a batched
-> > one via a hardware driver with a FIFO on shared memory just like many
-> > graphics card do to send commands and data to the GPU. I recall this
-> > design was the one used in the mac-on-linux hypervisor for ppc
-> > architecture. Why not for x86 with vt/pacifica extensions? What about
-> > using the same design than on the Sparc T1 port?
->
-> You can't use a driver to do this in Linux today, because there are no
-> hooks you can use for pagetable handling.  And you will always achieve
-> better performance and simplicity by changing the machine definition to
-> avoid the really nasty cases.  Hardware virtualization is simply not
+> Best regards
+> Arnd
 
-Yes, I agree that doing it at the subarch level is good, so that
-native subarch gets the original code and the hypervisored subarch
-gets the modified one without messing with core kernel code.
-
-> fast enough today.  But it also doesn't leave room for the future -
-> proposals such as the abstract MMU interfaces for Linux which have been
-> floating around are extremely attractive from a hypervisor point of view
-
-I've been fishing in my mail archive and was unable to get any
-discussion about abstract mmu... do you know where I can get more info
-on that?
-
-> - but there can be no progress until there is some kind of consensus on
-> what those are, and having an interface in the kernel is a requirement
-> for any deeper level of paravirtualization.
->
-> Zach
-
-Here I'd like to say that I mentioned both mol and the sun T1 because
-so far we haven't had any discussion on whether any of their
-interfaces are worth copying for the x86 case. Also worth looking at
-would be the work done by IBM for ppc64 and s390, especially the last
-one is prone to be very optimised since their hypervisor work has been
-proven to work for a very long time.
-
-I sure don't mean to diss out both vmware and xen work on the field,
-given the rocky nature of the x86 architecture, but maybe taking a
-look at preexisting work can be a good idea if it hasn't been done
-earlier.
 
 -- 
-Greetz, Antonio Vargas aka winden of network
+	Evgeniy Polyakov

@@ -1,41 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWHCViM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWHCVkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbWHCViM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHCViL
+	id S932280AbWHCVkW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbWHCVkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:38:11 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43188
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932546AbWHCViK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:38:10 -0400
-Date: Thu, 03 Aug 2006 14:37:28 -0700 (PDT)
-Message-Id: <20060803.143728.43853414.davem@davemloft.net>
-To: johnpol@2ka.mipt.ru
-Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       netdev@vger.kernel.org, zach.brown@oracle.com
-Subject: Re: [take3 1/4] kevent: Core files.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060803145553.GA12915@2ka.mipt.ru>
-References: <11545983603399@2ka.mipt.ru>
-	<200608031640.34513.dada1@cosmosbay.com>
-	<20060803145553.GA12915@2ka.mipt.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 17:40:22 -0400
+Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:11514 "EHLO
+	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id S932280AbWHCVkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 17:40:20 -0400
+Date: Thu, 03 Aug 2006 23:40:27 +0200
+From: Arnd Hannemann <arnd@arndnet.de>
+Subject: Re: problems with e1000 and jumboframes
+In-reply-to: <20060803182911.GA8692@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, olel@ans.pl
+Message-id: <44D26D4B.4090609@arndnet.de>
+MIME-version: 1.0
+Content-type: text/plain; charset=KOI8-R
+Content-transfer-encoding: 7BIT
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+X-Enigmail-Version: 0.94.0.0
+X-Spam-Report: * -2.8 ALL_TRUSTED Did not pass through any untrusted hosts
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
+ <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
+ <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
+ <20060803151631.GA14774@2ka.mipt.ru> <20060803154125.GA9745@2ka.mipt.ru>
+ <44D23BC3.7040707@arndnet.de> <20060803182911.GA8692@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Date: Thu, 3 Aug 2006 18:55:57 +0400
+Evgeniy Polyakov wrote:
+> On Thu, Aug 03, 2006 at 08:09:07PM +0200, Arnd Hannemann (arnd@arndnet.de) wrote:
+>> Evgeniy Polyakov schrieb:
+>>> On Thu, Aug 03, 2006 at 07:16:31PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+>>>>>> then skb_alloc adds a little
+>>>>>> (sizeof(struct skb_shared_info)) at the end, and this ends up
+>>>>>> in 32k request just for 9k jumbo frame.
+>>>>> Strange, why this skb_shared_info cannon be added before first alignment? 
+>>>>> And what about smaller frames like 1500, does this driver behave similar 
+>>>>> (first align then add)?
+>>>> It can be.
+>>>> Could attached  (completely untested) patch help?
+>>> Actually this patch will not help, this new one could.
+>>>
+>> I applied the attached pachted. And got this output:
+>>
+>>> Intel(R) PRO/1000 Network Driver - bufsz 13762
+>>> ...
 
-> I would not call that wrong - system prevents some threads from removing 
-> kevents which are counted to be transfered to the userspace, i.e. when 
-> dequeuing was awakened and it had seen some events it is possible, that 
-> when it will dequeue them part will be removed by other thread, so I 
-> prevent this.
+>> I'm a bit puzzled that there are so much allocations. However the patch
+>> seems to work. (at least not obviously breaks things for me yet)
+> 
+> Very strange output actually - comments in the code say that frame size
+> can not exceed 0x3f00, but in this log it is much more than 16128 and
+> that is after sizeof(struct skb_shared_info) has been removed...
+> Could you please remove debug output and run some network stress test in
+> parallel with high disk/memory activity to check if that does not break
+> your system and watch /proc/slabinfo for 16k and 32k sized pools.
 
-Queue is all that matters to be synchronized, so it seems
-better to have a mutex on the queue rather than a global
-one.  That way, user can only hurt himself.
+The system seems to be still stable.
+
+>From /proc/slabinfo during netio test:
+> size-32768(DMA)        0      0  32768    1    8 : tunables    8    4    0 : slabdata      0      0      0
+> size-32768            84     89  32768    1    8 : tunables    8    4    0 : slabdata     84     89      0
+> size-16384(DMA)        0      0  16384    1    4 : tunables    8    4    0 : slabdata      0      0      0
+> size-16384           184    188  16384    1    4 : tunables    8    4    0 : slabdata    184    188      0
+
+Netio results:
+
+NETIO - Network Throughput Benchmark, Version 1.26
+(C) 1997-2005 Kai Uwe Rommel
+
+TCP connection established.
+Packet size  1k bytes:  72320 KByte/s Tx,  86656 KByte/s Rx.
+Packet size  2k bytes:  71400 KByte/s Tx,  94703 KByte/s Rx.
+Packet size  4k bytes:  71544 KByte/s Tx,  88463 KByte/s Rx.
+Packet size  8k bytes:  70392 KByte/s Tx,  92127 KByte/s Rx.
+Packet size 16k bytes:  70512 KByte/s Tx,  102607 KByte/s Rx.
+Packet size 32k bytes:  71705 KByte/s Tx,  101083 KByte/s Rx.
+Done.
+
+Strange ist that receiving seems to be much faster than transmitting.
+
+
+> -- 
+> 	Evgeniy Polyakov
+
+Thanks,
+Arnd
+
+
+

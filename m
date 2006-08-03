@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWHCRz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWHCR4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbWHCRz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 13:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHCRz5
+	id S1751217AbWHCR4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 13:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHCR4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 13:55:57 -0400
-Received: from tedsautoline.com ([69.222.0.225]:60088 "HELO
-	mail.webhostingstar.com") by vger.kernel.org with SMTP
-	id S1751217AbWHCRz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 13:55:56 -0400
-Message-ID: <20060803173548.4202.qmail@mail.webhostingstar.com>
-From: "art" <art@usfltd.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org
-Subject: 2.6.18-rc3-git1-smp-amd64 - Lukewarm IQ detected in hotplug
-  locking
-Date: Thu, 03 Aug 2006 12:35:48 -0500
+	Thu, 3 Aug 2006 13:56:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751217AbWHCR4j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 13:56:39 -0400
+Date: Thu, 3 Aug 2006 13:56:13 -0400
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       jbaron@redhat.com
+Subject: Re: frequent slab corruption (since a long time)
+Message-ID: <20060803175613.GK22448@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+	jbaron@redhat.com
+References: <20060801.220538.89280517.davem@davemloft.net> <20060801.223110.56811869.davem@davemloft.net> <20060802222321.GH3639@redhat.com> <20060802.154954.112624420.davem@davemloft.net> <1154626843.23655.101.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154626843.23655.101.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.18-rc3-git1-smp-amd64 - Lukewarm IQ detected in hotplug 
+On Thu, Aug 03, 2006 at 06:40:42PM +0100, Alan Cox wrote:
+ > Ar Mer, 2006-08-02 am 15:49 -0700, ysgrifennodd David Miller:
+ > > > None of the code manipulating tty->count seems to be under
+ > > > the tty_mutex.  Should it be ?
+ > > > Or is this protected through some other means?
+ > > 
+ > > It is in the primary code paths at least, all callers of init_dev()
+ > > (which increments tty->count) grab the mutex and also release_dev()
+ > > grabs the mutex around tty->count manipulations.
+ > 
+ > I've been auditing tty code and its joyously bad but only in harmless
+ > places so far except for one.
+ > 
+ > init_dev (and caller) relies on tty_mutex to ensure that the
+ > driver->ttys list is protected from things going away.
+ > 
+ > release_mem() removes stuff from the said list and frees memory. It is
+ > not always called under tty_mutex and that appears very dubious to me at
+ > the moment although tty->closing and the BKL *might* be sufficient.
 
-what i have in dmesg 
+Against my better judgment I was poring over that code until the wee
+hours last night, and one thing crossed my mind re: the assumptions made
+about the BKL in that subsystem.  Now that the BKL is preemtible, do
+any of those assumptions break ?
 
-Linux version 2.6.18-rc3-git1 (xxx@xxx.xxx) (gcc version 4.1.1 20060525)) #1 
-SMP PREEMPT Tue Aug 1 09:46:44 CDT 2006
-...
-AMD Athlon(tm) 64 X2 Dual Core Processor 4200+ stepping 01
-...
-SELinux: initialized (dev binfmt_misc, type binfmt_misc), uses 
-genfs_contexts
-ip_tables: (C) 2000-2006 Netfilter Core Team
-BUG: warning at kernel/cpu.c:51/unlock_cpu_hotplug() 
+		Dave
 
-Call Trace:
- [<ffffffff802a0e51>] unlock_cpu_hotplug+0x3f/0x6c
- [<ffffffff803f3937>] store_speed+0xc2/0xd1
- [<ffffffff80272d3f>] store+0x44/0x5b
- [<ffffffff802f1c8a>] sysfs_write_file+0xc5/0xf4
- [<ffffffff80215e14>] vfs_write+0xce/0x174
- [<ffffffff802166a2>] sys_write+0x45/0x6e
- [<ffffffff8025fa0e>] system_call+0x7e/0x83
-Netfilter messages via NETLINK v0.30.
-...
-...
-SELinux: initialized (dev sdb1, type vfat), uses genfs_contexts
-Lukewarm IQ detected in hotplug locking
-BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug() 
 
-Call Trace:
- [<ffffffff802a0def>] lock_cpu_hotplug+0x50/0x73
- [<ffffffff802999ab>] __create_workqueue+0x5d/0x146
- [<ffffffff803f4108>] cpufreq_governor_dbs+0xa8/0x2f4
- [<ffffffff803f2006>] __cpufreq_governor+0xa4/0x194
- [<ffffffff803f225f>] __cpufreq_set_policy+0x169/0x1d9
- [<ffffffff803f24a8>] store_scaling_governor+0x153/0x18d
- [<ffffffff803f32ed>] handle_update+0x0/0x28
- [<ffffffff8026648b>] _spin_unlock_irqrestore+0x15/0x30
- [<ffffffff803f1800>] cpufreq_cpu_get+0xb4/0x143
- [<ffffffff80272d3f>] store+0x44/0x5b
- [<ffffffff802f1c8a>] sysfs_write_file+0xc5/0xf4
- [<ffffffff80215e14>] vfs_write+0xce/0x174
- [<ffffffff802166a2>] sys_write+0x45/0x6e
- [<ffffffff8025fa0e>] system_call+0x7e/0x83 
-
-hdc: CHECK for good STATUS
-... 
-
-the same in 2.6.18-rc3-git3 any clue ? 
-
-xboom 
-
-art@usfltd.com
+-- 
+http://www.codemonkey.org.uk

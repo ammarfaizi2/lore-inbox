@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWHCPck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWHCPd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWHCPck (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWHCPck
+	id S964796AbWHCPd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWHCPd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:32:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:35995 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964791AbWHCPcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:32:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=K+p+0pm9nGCB+zacNfr3RoS1OCqZzWYFV26sXp1xwYESK7vbYwvgLdATgKYZBvl98qt0iw9ezhzprfzqBoTLuxHJjgQiLWuRojgwMRSjidmEfNrmSgQOKRiLHBCpYLcI8COOoJJY3Udtp7K+/4S9qwQuWfjYH+9RkqOhDwA7f7o=
-Message-ID: <4ae3c140608030832n2124b8abu479b7b4ae3eda1f@mail.gmail.com>
-Date: Thu, 3 Aug 2006 11:32:33 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: Can someone explain under what condition inode cache pages can be swapped out?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0608030951270.32738@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4ae3c140608022315y675eed20hcefbb8fb0407f4a3@mail.gmail.com>
-	 <Pine.LNX.4.61.0608030951270.32738@yvahk01.tjqt.qr>
+	Thu, 3 Aug 2006 11:33:56 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:20194 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S964796AbWHCPdz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 11:33:55 -0400
+Date: Thu, 3 Aug 2006 17:33:19 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
+Message-ID: <20060803173319.1a43e02f@cad-250-152.norway.atmel.com>
+In-Reply-To: <1154615661.5774.35.camel@localhost>
+References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
+	<20060731174659.72da734f@cad-250-152.norway.atmel.com>
+	<1154371259.13744.4.camel@localhost>
+	<20060801101210.0548a382@cad-250-152.norway.atmel.com>
+	<1154450847.5605.21.camel@localhost>
+	<20060802094529.09db5532@cad-250-152.norway.atmel.com>
+	<1154615661.5774.35.camel@localhost>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many thanks for kind replies.
+On Thu, 03 Aug 2006 10:34:21 -0400
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-You said inode cache is never swapped at all. In other words, the
-inode cache pages are not swappable. How do you know the pages are
-never swapped out? How can I tell whether a specific memory page is
-swappable?  Can you point me to the right place in the kernel so that
-I can see more details?
+> Revised patch is attached.
 
-If my understanding is right, inode cache shrinker only frees the
-reclaimable inodes, which means, if a lot of files are opened when
-shrinker is activated, the shrinker may not find sufficient
-reclaimable inodes to free enough space. What will Linux do under such
-condition?
+Fixes the problem. Thanks.
 
-Xin
-
-On 8/3/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
->
-> >
-> > Specifically, how a swaping system determine which page should be
-> > swapped out when memory is tight?
->
-> LRU, f.ex.
->
-> > Intuitively, I think inode cache
-> > pages should be swapped out as late as possible.
->
-> I believe they are not swapped at all - they are shrunk when memory becomes
-> a premium. (If this was a math class I'd say the cache size will be zero,
-> although that's not too realistic in practice)
->
-> > But how Linux mkae
-> > decision on this? Why linux does not pin inode pages in the memory?
->
-> Ugh hell no. Then you could trigger OOM by simply walking a big filesystem.
->
->
-> Jan Engelhardt
-> --
->
+Håvard

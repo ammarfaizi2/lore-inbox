@@ -1,81 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWHCDdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWHCDdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWHCDdK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 23:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWHCDdK
+	id S932163AbWHCDdm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 23:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWHCDdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 23:33:10 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:18149 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932150AbWHCDdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 23:33:09 -0400
-Date: Thu, 3 Aug 2006 12:34:41 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: LHMS <lhms-devel@lists.sourceforge.net>,
-       "kmannth@us.ibm.com" <kmannth@us.ibm.com>,
-       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] memory hotadd fixes [3/5] find_next_system_ram catch range
- fix
-Message-Id: <20060803123441.92e4ddfb.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Wed, 2 Aug 2006 23:33:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9131 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932163AbWHCDdl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 23:33:41 -0400
+Date: Wed, 2 Aug 2006 20:33:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: zach@vmware.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] espfix cleanup take 2
+Message-Id: <20060802203336.c4f8a428.akpm@osdl.org>
+In-Reply-To: <44D0D643.6090108@aknet.ru>
+References: <44D0D643.6090108@aknet.ru>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-find_next_system_ram() is used to find available memory resource
-at onlining newly added memory.
-This patch fixes following problem.
+On Wed, 02 Aug 2006 20:43:47 +0400
+Stas Sergeev <stsp@aknet.ru> wrote:
 
-find_next_system_ram() cannot catch this case.
+> Attached is a new espfix cleanup patch.
 
-Resource:      (start)-------------(end)
-Section :                (start)-------------(end)
+Ho hum, this conflicts moderately with the hypervisor preparatory patches
+which Jeremy sent.
 
+So could I ask that you redo this patch in a couple of weeks time against
+the current -mm lineup?  I'd prefer not to merge it immediately because
+doing so would make it even harder than usual to work out who to blame if
+things break ;)
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
- kernel/resource.c   |    3 ++-
- mm/memory_hotplug.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.18-rc3/kernel/resource.c
-===================================================================
---- linux-2.6.18-rc3.orig/kernel/resource.c	2006-08-01 16:38:45.000000000 +0900
-+++ linux-2.6.18-rc3/kernel/resource.c	2006-08-01 16:38:56.000000000 +0900
-@@ -244,6 +244,7 @@
- 
- 	start = res->start;
- 	end = res->end;
-+	BUG_ON(start >= end);
- 
- 	read_lock(&resource_lock);
- 	for (p = iomem_resource.child; p ; p = p->sibling) {
-@@ -254,7 +255,7 @@
- 			p = NULL;
- 			break;
- 		}
--		if (p->start >= start)
-+		if ((p->end >= start) && (p->start < end))
- 			break;
- 	}
- 	read_unlock(&resource_lock);
-Index: linux-2.6.18-rc3/mm/memory_hotplug.c
-===================================================================
---- linux-2.6.18-rc3.orig/mm/memory_hotplug.c	2006-08-01 16:38:19.000000000 +0900
-+++ linux-2.6.18-rc3/mm/memory_hotplug.c	2006-08-01 16:38:56.000000000 +0900
-@@ -163,7 +163,7 @@
- 	res.flags = IORESOURCE_MEM; /* we just need system ram */
- 	section_end = res.end;
- 
--	while (find_next_system_ram(&res) >= 0) {
-+	while ((res.start < res.end) && (find_next_system_ram(&res) >= 0)) {
- 		start_pfn = (unsigned long)(res.start >> PAGE_SHIFT);
- 		nr_pages = (unsigned long)
-                            ((res.end + 1 - res.start) >> PAGE_SHIFT);
-
+Thanks.

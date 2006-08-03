@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWHCGpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWHCGwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWHCGpX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 02:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWHCGpX
+	id S932319AbWHCGwd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 02:52:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWHCGwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 02:45:23 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:33986 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932302AbWHCGpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 02:45:22 -0400
-Date: Thu, 3 Aug 2006 02:44:49 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgewood <cw@foof.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-Message-ID: <20060803064449.GE27104@filer.fsl.cs.sunysb.edu>
-References: <20060803062944.GA8631@goober>
+	Thu, 3 Aug 2006 02:52:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39129 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932319AbWHCGwc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 02:52:32 -0400
+Date: Wed, 2 Aug 2006 23:52:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
+       jes@sgi.com, csturtiv@sgi.com, tee@sgi.com,
+       guillaume.thouvenin@bull.net
+Subject: Re: [patch 1/3] basic accounting over taskstats
+Message-Id: <20060802235219.25a072e7.akpm@osdl.org>
+In-Reply-To: <44D179A5.4000606@engr.sgi.com>
+References: <44D179A5.4000606@engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060803062944.GA8631@goober>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 11:29:45PM -0700, Valerie Henson wrote:
-> My friend Akkana followed my advice to use noatime on one of her
-> machines, but discovered that mutt was unusable because it always
-> thought that new messages had arrived since the last time it had
-> checked a folder (mbox format).  I thought this was a bummer, so I
-> wrote a "relative lazy atime" patch which only updates the atime if
-> the old atime was less than the ctime or mtime.  This is not the same
-> as the lazy atime patch of yore[1], which maintained a list of inodes
-> with dirty atimes and wrote them out on unmount.
- 
-This also happens to be useful for file systems such as Unionfs and (from
-what I hear) ocfs2 where atime updates can be costly at times.
+On Wed, 02 Aug 2006 21:20:53 -0700
+Jay Lan <jlan@engr.sgi.com> wrote:
 
-> Patch below.  Current version (plus test program) is at:
+> This patch is to replace the "[patch 1/3] add basic accounting
+> fields to taskstats" posted on 7/31.
+> 
+> This patch adds some basic accounting fields to the taskstats
+> struct, add a new kernel/tsacct.c to handle basic accounting
+> data handling upon exit. A handle is added to taskstats.c
+> to invoke the basic accounting data handling.
+> 
 
-Looks fine IMHO.
+> +#define TS_COMM_LEN		16	/* should sync up with TASK_COMM_LEN
+> +					 * in linux/sched.h */
 
-Josef "Jeff" Sipek.
+There was a proposal recently to increase TASK_COMM_LENGTH from 16 to 20 so
+that it was long enough to hold an entire IEEE(?) UUID so that the
+operator can easily match up a kernel thread with the storage device which
+it manages.
 
--- 
-I'm somewhere between geek and normal.
-		- Linus Torvalds
+I don't know if/when that change will happen, but the message is that
+TASK_COMM_LENGTH may increase.
+
+> +	BUILD_BUG_ON(TS_COMM_LEN < TASK_COMM_LEN);
+
+And if it does, we'll need to increase TS_COMM_LEN as well.  That will
+amount to an non-compatible change to the interface which you are
+proposing.   We want to avoid that.
+
+Hence I'd propose that you increase TS_COMM_LEN to 32 or something and if
+TASK_COMM_LEN later becomes really big, we might just choose to truncate
+it.
+
+Or we remove this field altogether, perhaps.  The same info is available
+from /proc/pid/stat anyway.  Is it really needed?
+

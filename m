@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWHCPd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWHCPfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWHCPd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWHCPd4
+	id S964798AbWHCPfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWHCPfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:33:56 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:20194 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S964796AbWHCPdz (ORCPT
+	Thu, 3 Aug 2006 11:35:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11209 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964798AbWHCPfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:33:55 -0400
-Date: Thu, 3 Aug 2006 17:33:19 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
-Message-ID: <20060803173319.1a43e02f@cad-250-152.norway.atmel.com>
-In-Reply-To: <1154615661.5774.35.camel@localhost>
-References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-	<20060731174659.72da734f@cad-250-152.norway.atmel.com>
-	<1154371259.13744.4.camel@localhost>
-	<20060801101210.0548a382@cad-250-152.norway.atmel.com>
-	<1154450847.5605.21.camel@localhost>
-	<20060802094529.09db5532@cad-250-152.norway.atmel.com>
-	<1154615661.5774.35.camel@localhost>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 3 Aug 2006 11:35:13 -0400
+Message-ID: <44D217A7.9020608@redhat.com>
+Date: Thu, 03 Aug 2006 11:35:03 -0400
+From: Rik van Riel <riel@redhat.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Zachary Amsden <zach@vmware.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com>
+In-Reply-To: <44D1CC7D.4010600@vmware.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Aug 2006 10:34:21 -0400
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Zachary Amsden wrote:
 
-> Revised patch is attached.
+> And by NO circumstances, is it required to be a CLOSED source binary
+> blob. In fact, why can't it be open?  In the event of a firmware bug,
+> in fact, it is very desirable to have this software be open so that
+> it can be fixed
 
-Fixes the problem. Thanks.
+You're making a very good argument as to why we should probably
+require that the code linking against such an interface, if we
+decide we want one, should be required to be open source.
 
-Håvard
+> I think you will see why our VMI layer is quite similar to a
+> traditional ROM, and very dissimilar to an evil GPL-circumvention
+> device.
+
+> (?) There are only two reasonable objections I can see to open
+> sourcing the binary layer. 
+
+Since none of the vendors that might use such a paravirtualized
+ROM for Linux actually have one of these reasons for keeping their
+paravirtualized ROM blob closed source, I say we might as well
+require that it be open source.
+
+As for the evilness of a binary interface - the interface between
+kernel and userland is a stable binary interface and is decidedly
+non-evil.  I could see a similar use for a stable paravirtualization
+interface, to make compatibility between Linux and various hypervisor
+versions easier.
+
+As long as it's open source so the thing can be debugged :)
+
+-- 
+All Rights Reversed

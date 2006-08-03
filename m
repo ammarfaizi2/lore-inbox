@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWHCQKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWHCQLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWHCQKP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 12:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWHCQKO
+	id S964836AbWHCQLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 12:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWHCQLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 12:10:14 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:7572 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932579AbWHCQKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 12:10:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=apD8DPUR8wNzgVt4mFtH0DhO2i4GpL4t/9pQEI65MPJNlssw8Evba0f+IDJ40OgZ9JALAGNbP4Fk9/eXFTm8ZDJELyXSYtZh/3RGu26n9aRGeqFwDLLWDKl02gAosA1eptC6VHqbcSU4pMnbWKzRjq75Ppvcxvz1ROTBkL2avwA=
-Message-ID: <44D21FDA.4090303@gmail.com>
-Date: Thu, 03 Aug 2006 20:10:02 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org,
-       v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org,
-       b.buschinski@web.de
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] DVB_CORE must select I2C
-References: <20060727015639.9c89db57.akpm@osdl.org> <20060803155925.GA25692@stusta.de>
-In-Reply-To: <20060803155925.GA25692@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 12:11:09 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:16268 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964836AbWHCQLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 12:11:06 -0400
+Date: Thu, 3 Aug 2006 20:10:47 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Chris Leech <chris.leech@gmail.com>
+Cc: Krzysztof Oledzki <olel@ans.pl>, Arnd Hannemann <arnd@arndnet.de>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: problems with e1000 and jumboframes
+Message-ID: <20060803161046.GA703@2ka.mipt.ru>
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru> <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru> <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl> <20060803151631.GA14774@2ka.mipt.ru> <41b516cb0608030857h1d55820rfd4ccd0cc56dd71d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <41b516cb0608030857h1d55820rfd4ccd0cc56dd71d@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 03 Aug 2006 20:10:48 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Thu, Jul 27, 2006 at 01:56:39AM -0700, Andrew Morton wrote:
->> ...
->> Changes since 2.6.18-rc2-mm1:
->> ...
->> +dvb-core-needs-i2c.patch
->> ...
->>  DVB fixes
->> ...
+On Thu, Aug 03, 2006 at 08:57:36AM -0700, Chris Leech (chris.leech@gmail.com) wrote:
+> On 8/3/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 > 
-> This means people who observed a compile error will now have the DVB 
-> support silently removed from their kernel.
+> >> Strange, why this skb_shared_info cannon be added before first alignment?
+> >> And what about smaller frames like 1500, does this driver behave similar
+> >> (first align then add)?
+> >
+> >It can be.
+> >Could attached  (completely untested) patch help?
 > 
-> Please replace it with the patch below.
+> Note that e1000 uses power of two buffers because that's what the
+> hardware supports.  Also, there's no program able MTU - only a single
+> bit for "long packet enable" that disables frame length checks when
+> using jumbo frames.  That means that if you tell the e1000 it has a
+> 16k buffer, and a 16k frame shows up on the wire, it's going to write
+> to the entire 16k regardless of your 9k MTU setting.  If a 32k frame
+> shows up, two full 16k buffers get written to (OK, assuming the frame
+> can fit into the receive FIFO)
 
+Maximum e1000 frame is 16128 bytes, which is enough before being rounded
+to 16k to have a space for shared info.
+My patch just tricks refilling logic to request to allocate slightly less
+than was setup when mtu was changed.
 
-DVB_CORE should never depend on I2C, the reason being DVB_CORE does not
-use anything of I2C but, the drivers which depend on I2C should be made
-depend on I2C. That would be the right way to go.
+> That's why I've always been against trying to optimize the allocation
+> sizes in the driver, even with your small change the skb_shinfo area
+> can get corrupted.  It may be unlikely, because the frame still has to
+> be valid, but some switches aren't real picky about what sized frame
+> they'll forward on if you enable jumbo support either.  So any box on
+> the LAN could send you larger than MTU frames in an attempt to corrupt
+> memory.
 
+It is trivial patch and it can be incorrect (especially for small sized
+packets), but it is a hint, that 9k jumbo frame should not require 32k
+allocation.
 
-Manu
+> I believe that if you tell a hardware device it has a buffer of a
+> certain size, you need to be prepared for that entire buffer to get
+> written to.  Unfortunately that means wasteful allocations for e1000
+> if a single buffer per frame is going to be used.
+
+Hardware is not affected, second patch just checks if there is enough
+space (e1000 stores real mtu). I can not believe that such modern NIC
+like e1000 can not know in receive interrupt size of the received
+packet, if it is true, than in generel you are right and some more 
+clever mechanisms shoud be used (at least turn hack off for small
+packets and only enable it for less than 16 jumbo frames wheere place 
+always is), if size of the received packet is known, then it is enough
+to compare aligned size and size of the packet to make a decision for
+allocation.
+
+> - Chris
+
+-- 
+	Evgeniy Polyakov

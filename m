@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWHCUNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWHCUOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbWHCUNE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWHCUNE
+	id S932548AbWHCUOI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWHCUOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:13:04 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:37773 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932480AbWHCUND
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:13:03 -0400
-Date: Thu, 3 Aug 2006 15:13:01 -0500
-To: akpm@osdl.org, hollisbl@us.ibm.com
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] pSeries hvsi char driver null pointer deref
-Message-ID: <20060803201300.GB10638@austin.ibm.com>
-MIME-Version: 1.0
+	Thu, 3 Aug 2006 16:14:08 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:7286 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932548AbWHCUOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:14:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=d8mmlOvGu3Tc+PQk+ravZwTu/uIhECLaarCotGha5q7hDpzIlRUUTyHY3dzR4lqUmOv6UBEbj9CTixo6QwmhCqDchGpdg3DqZYTGv1wwVAJLcaB6Kbku99vk+2OAVR9+iXP/G448f2GVleKrDmPBPulXS1dp97WKjF3NetEI7Zo=
+Date: Fri, 4 Aug 2006 00:14:02 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Userspace visible of 3 include/asm/ headers
+Message-ID: <20060803201402.GA6828@martell.zuzino.mipt.ru>
+References: <20060803193952.GF25692@stusta.de> <20060803194410.GC16927@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060803194410.GC16927@redhat.com>
 User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 03, 2006 at 03:44:10PM -0400, Dave Jones wrote:
+> On Thu, Aug 03, 2006 at 09:39:52PM +0200, Adrian Bunk wrote:
+>  > Could anyone help me regarding the desired userspace visibility of the
+>  > following three headers under include/asm/?
+>  >
+>  > Header        : cpufeature.h
+>  > Architectures : i386, x86_64
+>  > Is there any reason why this header is exported to userspace?
+>
+> Probably not. The only apps I've seen that care about feature bits
+> define them theirselves rather than use these.
 
-Andrew, 
-Please apply.
+Feature bits are only (indirectly) visible via /proc/cpuinfo.
+struct cpuinfo_x86, AFAICS, is never copied to userspace. So, it's safe
+to remove this header.
 
-Under certain rare circumstances, it appears that there can be
-be a NULL-pointer deref when a user fiddles with terminal
-emeulation programs while outpu is being sent to the console.
-This patch checks for and avoids a NULL-pointer deref.
-
-Signed-off-by: Hollis Blanchard <hollisbl@austin.ibm.com>
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
-----
- drivers/char/hvsi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.18-rc3-git1/drivers/char/hvsi.c
-===================================================================
---- linux-2.6.18-rc3-git1.orig/drivers/char/hvsi.c	2006-08-03 14:50:00.000000000 -0500
-+++ linux-2.6.18-rc3-git1/drivers/char/hvsi.c	2006-08-03 14:51:46.000000000 -0500
-@@ -311,7 +311,8 @@ static void hvsi_recv_control(struct hvs
- 				/* CD went away; no more connection */
- 				pr_debug("hvsi%i: CD dropped\n", hp->index);
- 				hp->mctrl &= TIOCM_CD;
--				if (!(hp->tty->flags & CLOCAL))
-+				/* If userland hasn't done an open(2) yet, hp->tty is NULL. */
-+				if (hp->tty && !(hp->tty->flags & CLOCAL))
- 					*to_hangup = hp->tty;
- 			}
- 			break;

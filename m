@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWHCBgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWHCBmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWHCBgU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 21:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHCBgU
+	id S1750728AbWHCBmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 21:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHCBmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 21:36:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47505 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751130AbWHCBgT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 21:36:19 -0400
-Date: Wed, 2 Aug 2006 18:36:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mm snapshot broken-out-2006-08-02-00-27.tar.gz uploaded
-Message-Id: <20060802183613.792e2488.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0608021700n49a3ed6cnbbe421a22946f54c@mail.gmail.com>
-References: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
-	<6bffcb0e0608021700n49a3ed6cnbbe421a22946f54c@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Aug 2006 21:42:08 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:21692
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1750728AbWHCBmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 21:42:07 -0400
+Date: Wed, 2 Aug 2006 18:41:54 -0700
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: 2.6.17-rt8 crash amd64
+Message-ID: <20060803014154.GA3370@gnuppy.monkey.org>
+References: <20060802011809.GA26313@gnuppy.monkey.org> <5bdc1c8b0608021820u5235c491tdf9b25f5906fe3f8@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5bdc1c8b0608021820u5235c491tdf9b25f5906fe3f8@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Aug 2006 02:00:42 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-
-> On 02/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> > The mm snapshot broken-out-2006-08-02-00-27.tar.gz has been uploaded to
+On Wed, Aug 02, 2006 at 06:20:50PM -0700, Mark Knecht wrote:
+> On 8/1/06, hui Bill Huey <billh@gnuppy.monkey.org> wrote:
+> >Hello folks,
 > >
-> >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-02-00-27.tar.gz
+> >I'm getting this:
 > >
+> >[   41.989355] BUG: scheduling while atomic: udevd/0x00000001/1101
+> <SNIP>
+> >[   42.198871]        <ffffffff8025ce3d>{error_exit+0}
+> >[   42.204040]        <ffffffff8025bf22>{system_call+126}
+> >[   42.209715] ---------------------------
+> >[   42.213716] | preempt count: 00000001 ]
+> >[   42.217715] | 1-level deep critical section nesting:
+> >[   42.222879] ----------------------------------------
+> >[   42.228043] .. [<ffffffff8025ef7d>] .... __schedule+0xb3/0xb2a
+> >[   42.234150] .....[<ffffffff8025fd89>] ..   ( <= schedule+0xec/0x11e)
+> >[   42.240796]
+> >[   53.347726] NET: Registered protocol family 10
+> >[   53.353240] IPv6 over IPv4 tunneling driver
 > 
-> There is something wrong with this kernel. I have noticed, that after
-> 1,5 hour some of the keys on my keyboard doesn't work... amarok
-> doesn't want to play music (30 sec gaps between songs etc.), switching
-> between firefox/openoffice takes 1 min. I don't see nothing special in
-> the logs. It is a CPU scheduler problem?
+> Hi,
+>   Similar problems here also but in my case it said '2-level deep'
+> and I had different stuff after that message. AMD64/ NVidia MB. I
+> don't have a second Linux machine handle to do the remote boot console
+> thing. If it's important that I send in more info I'll get a camera or
+> something like that. Let me know if it's required.
 > 
+>   Anyway, not a one machine problem at all.
 
-Could be a timekeeping problem, perhaps.  Is it SMP?  Is the time-of-day
-increasing at the right speed?  Does `sleep 5' do the right thing?
+Any stack trace is welcomed.
+
+I just changed a couple of things to get a better stack trace and it's
+changed the timing of the system where I can't get a reliable stack
+trace anymore. Try another route...
+
+bill
+

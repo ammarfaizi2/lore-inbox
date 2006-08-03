@@ -1,109 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWHCXJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWHCXLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWHCXJl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHCXJl
+	id S1751319AbWHCXLT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 19:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWHCXLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:09:41 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:42684 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750905AbWHCXJk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:09:40 -0400
-Subject: Re: [Lhms-devel] [PATCH] memory hotadd fixes [4/5] avoid check in
-	acpi
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <1154629724.5925.20.camel@keithlap>
-References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
-	 <1154629724.5925.20.camel@keithlap>
+	Thu, 3 Aug 2006 19:11:19 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3467 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751319AbWHCXLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 19:11:19 -0400
+Subject: Re: A proposal - binary
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+In-Reply-To: <44D2794A.0@vmware.com>
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
+	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
+	 <44D26D87.2070208@vmware.com>
+	 <1154644383.23655.142.camel@localhost.localdomain>  <44D2794A.0@vmware.com>
 Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 03 Aug 2006 16:09:36 -0700
-Message-Id: <1154646577.5925.30.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 04 Aug 2006 00:30:35 +0100
+Message-Id: <1154647835.23655.161.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 11:28 -0700, keith mannthey wrote:
-> On Thu, 2006-08-03 at 12:36 +0900, KAMEZAWA Hiroyuki wrote:
-> > add_memory() does all necessary check to avoid collision.
-> > then, acpi layer doesn't have to check region by itself.
-> > 
-> > (*) pfn_valid() just returns page struct is valid or not. It returns 0
-> >     if a section has been already added even is ioresource is not added.
-> >     ioresource collision check in mm/memory_hotplug.c can do more precise
-> >     collistion check.
-> >     added enabled bit check just for sanity check..
-> > 
-> > Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-> > 
-> > 
-> >  drivers/acpi/acpi_memhotplug.c |    9 +--------
-> >  1 files changed, 1 insertion(+), 8 deletions(-)
-> > 
-> > Index: linux-2.6.18-rc3/drivers/acpi/acpi_memhotplug.c
-> > ===================================================================
-> > --- linux-2.6.18-rc3.orig/drivers/acpi/acpi_memhotplug.c	2006-08-01 16:11:47.000000000 +0900
-> > +++ linux-2.6.18-rc3/drivers/acpi/acpi_memhotplug.c	2006-08-02 14:12:45.000000000 +0900
-> > @@ -230,17 +230,10 @@
-> >  	 * (i.e. memory-hot-remove function)
-> >  	 */
-> >  	list_for_each_entry(info, &mem_device->res_list, list) {
-> > -		u64 start_pfn, end_pfn;
-> > -
-> > -		start_pfn = info->start_addr >> PAGE_SHIFT;
-> > -		end_pfn = (info->start_addr + info->length - 1) >> PAGE_SHIFT;
-> > -
-> > -		if (pfn_valid(start_pfn) || pfn_valid(end_pfn)) {
-> > -			/* already enabled. try next area */
-> > +		if (info->enabled) { /* just sanity check...*/
-> >  			num_enabled++;
-> >  			continue;
-> >  		}
-> 
-> This check needs to go.  pfn_valid is a sparsemem specific check. Sanity
-> checking should be done it the the add_memory code. 
-> 
-> I will test and let you know. This is going to expose some baddness I
-> see already with my RESERVE path work. (Extra add_memory calls from this
-> driver during boot....)
+Ar Iau, 2006-08-03 am 15:31 -0700, ysgrifennodd Zachary Amsden:
+> Alan Cox wrote:
+> > Could have fooled me. It seems to work for the IBM Mainframe people
+> > really well. 
+>Yes, but not because of source compatibility.  It works because the 
+> hypervisor layer is actually architected in the hardware.
 
-Ok.  This pfn_valid check needs to be inserted somewhere in the code
-path for sparsemem hotadd.
-
-with a debug statement in add_memory
-
-Hotplug Mem Device
-add_memory 0 400000000 70000000
-System RAM resource 400000000 - 46fffffff cannot be added
-add_memory 0 380000000 80000000
-System RAM resource 380000000 - 3ffffffff cannot be added
-add_memory 0 300000000 80000000
-System RAM resource 300000000 - 37fffffff cannot be added
-add_memory 0 280000000 80000000
-System RAM resource 280000000 - 2ffffffff cannot be added
-add_memory 0 200000000 80000000
-System RAM resource 200000000 - 27fffffff cannot be added
-add_memory 0 180000000 80000000
-System RAM resource 180000000 - 1ffffffff cannot be added
-add_memory 0 100000000 80000000
-System RAM resource 100000000 - 17fffffff cannot be added
-add_memory 0 100000 7ff00000
-
-The box doesn't boot.   I am going to drop this patch and see about the
-rest of the set.  (They seem sane and look ok but I want to test)
-
- The kernel needs to protect against bad calls to add_memory (and/or the
-acpi driver needs to correctly id devices?)
-
-
-keith mannthey <kmannth@us.ibm.com>
-Linux Technology Center IBM
+The hardware has nothing to do with it. It works because the hypervisor
+API has a spec and is maintained compatibly. Its not entirely hardware
+architected either, it has chunks of interfaces that are not present
+hardware level or not meaningful at that level - the paging assists for
+example are purely a hypervisor interface as are hipersockets.
 

@@ -1,96 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWHCAU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWHCAU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWHCAU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 20:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWHCAU0
+	id S1750847AbWHCAU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 20:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWHCAU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 20:20:26 -0400
-Received: from mail.suse.de ([195.135.220.2]:54213 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750798AbWHCAU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 20:20:26 -0400
-From: Neil Brown <neilb@suse.de>
-To: Philipp Matthias Hahn <pmhahn@svs.Informatik.Uni-Oldenburg.de>
-Date: Thu, 3 Aug 2006 10:20:12 +1000
+	Wed, 2 Aug 2006 20:20:58 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:26548 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750847AbWHCAU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 20:20:57 -0400
+Date: Wed, 2 Aug 2006 17:20:38 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
+       hch@infradead.org
+Subject: Re: [PATCH 04/28] OCFS2 is screwy
+Message-ID: <20060803002038.GI29686@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235243.EA4890B4@localhost.localdomain> <20060802021411.GG29686@ca-server1.us.oracle.com> <1154488906.7232.20.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17617.16700.274788.869486@cse.unsw.edu.au>
-Cc: nfs@lists.sourceforge.net, akpm@osdl.org, stable@kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH for stable] Re: [Fwd: moradin 2006-08-02 11:02 System Events]
-In-Reply-To: message from Philipp Matthias Hahn on Wednesday August 2
-References: <44D08371.9070607@svs.Informatik.Uni-Oldenburg.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <1154488906.7232.20.camel@localhost.localdomain>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday August 2, pmhahn@svs.Informatik.Uni-Oldenburg.de wrote:
-> Hello!
-> 
-> Rebooting one of our NFS file servers with 2.6.17.7, I just got the
-> following OOPS:
-
-Thanks for the report.
-The bug was fairly easy to find and fix.
-I think this would be appropriate for the next 2.6.17.x stable kernel,
-and definitely for 2.6.18. (hence 'akpm' and 'stable' cc:ed).
-
-It is not relevant for earlier kernels (e.g. 2.6.16).
-
-Patch was made against 2.6.18-rc2-mm1, but applies equally to
-2.6.17.7.
-
-Thanks again,
-NeilBrown
+On Tue, Aug 01, 2006 at 08:21:46PM -0700, Dave Hansen wrote:
+> Please ignore that last one.  It didn't correctly handle directories'
+> with a remaining i_nlink of 2.
+Oops, one more minor thing wrong with this patch:
 
 
----------------------------------------------
-Fix race related problem when adding items to and svcrpc auth cache.
+> @@ -823,16 +835,6 @@
+>  		}
+>  	}
+>  
+> -	/* There are still a few steps left until we can consider the
+> -	 * unlink to have succeeded. Save off nlink here before
+> -	 * modification so we can set it back in case we hit an issue
+> -	 * before commit. */
+> -	saved_nlink = inode->i_nlink;
+> -	if (S_ISDIR(inode->i_mode))
+> -		inode->i_nlink = 0;
+> -	else
+> -		inode->i_nlink--;
+> -
+>  	status = ocfs2_request_unlink_vote(inode, dentry,
+>  					   (unsigned int) inode->i_nlink);
+The network request above needs to send what the new nlink will be set to.
+This is so that the other nodes which have an interest in the inode can
+determine whether the will need to do orphan processing on their last iput.
 
-If we don't find the item we are lookng for, we allocate a new one,
-and then grab the lock again and search to see if it has been added
-while we did the alloc.
-If it had been added we need to 'cache_put' the newly created item 
-that we are never going to use.  But as it hasn't been initialised
-properly, putting it can cause an oops.
+Really what they do is just compare against zero and mark the inode with a
+flag indicating that it may have been orphaned. So we could just pass the
+result of inode_is_unlinkable(), but I'd rather preserve the behavior that
+we have today.
 
-So move the ->init call earlier to that it will always be fully
-initilised if we have to put it.
+The ugly method is:
 
-Thanks to Philipp Matthias Hahn <pmhahn@svs.Informatik.Uni-Oldenburg.de>
-for reporting the problem.
+-  	status = ocfs2_request_unlink_vote(inode, dentry,
+-  					   (unsigned int) inode->i_nlink);
++   	status = ocfs2_request_unlink_vote(inode, dentry,
++  		S_ISDIR(inode->i_mode) && inode->i_nlink == 2 ? 0 : inode->i_nlink - 1);
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+Better yet, we could store the result of the evaluation in a temporary
+variable and pass that through to the request function.
 
-### Diffstat output
- ./net/sunrpc/cache.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Thanks,
+	--Mark
 
-diff .prev/net/sunrpc/cache.c ./net/sunrpc/cache.c
---- .prev/net/sunrpc/cache.c	2006-08-03 10:07:33.000000000 +1000
-+++ ./net/sunrpc/cache.c	2006-08-03 10:08:36.000000000 +1000
-@@ -71,7 +71,12 @@ struct cache_head *sunrpc_cache_lookup(s
- 	new = detail->alloc();
- 	if (!new)
- 		return NULL;
-+	/* must fully initialise 'new', else
-+	 * we might get lose if we need to
-+	 * cache_put it soon.
-+	 */
- 	cache_init(new);
-+	detail->init(new, key);
- 
- 	write_lock(&detail->hash_lock);
- 
-@@ -85,7 +90,6 @@ struct cache_head *sunrpc_cache_lookup(s
- 			return tmp;
- 		}
- 	}
--	detail->init(new, key);
- 	new->next = *head;
- 	*head = new;
- 	detail->entries++;
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

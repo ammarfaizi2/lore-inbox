@@ -1,151 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWHCA0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWHCA0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWHCA0v (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750911AbWHCA0v (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 2 Aug 2006 20:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWHCAZ4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWHCAZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 20:25:56 -0400
-Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:51161 "EHLO
-	mail.goop.org") by vger.kernel.org with ESMTP id S1750955AbWHCAZu
+	Wed, 2 Aug 2006 20:25:55 -0400
+Received: from 207.47.60.101.static.nextweb.net ([207.47.60.101]:44249 "EHLO
+	mail.goop.org") by vger.kernel.org with ESMTP id S1750911AbWHCAZu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 2 Aug 2006 20:25:50 -0400
-Message-Id: <20060803002518.436218773@xensource.com>
+Message-Id: <20060803002518.190834642@xensource.com>
 References: <20060803002510.634721860@xensource.com>
 User-Agent: quilt/0.45-1
-Date: Wed, 02 Aug 2006 17:25:15 -0700
+Date: Wed, 02 Aug 2006 17:25:13 -0700
 From: Jeremy Fitzhardinge <jeremy@xensource.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
        xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [patch 5/8] Roll all the cpuid asm into one __cpuid call.
-Content-Disposition: inline; filename=005-cpuid-cleanup.patch
+       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>
+Subject: [patch 3/8] Allow a kernel to not be in ring 0.
+Content-Disposition: inline; filename=003-remove-ring0-assumptions.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a little neater, and also means only one place to patch for
-paravirtualization.
+We allow for the fact that the guest kernel may not run in ring 0.
+This requires some abstraction in a few places when setting %cs or
+checking privilege level (user vs kernel).
+
+This is Chris' [RFC PATCH 15/33] move segment checks to subarch,
+except rather than using #define USER_MODE_MASK which depends on a
+config option, we use Zach's more flexible approach of assuming ring 3
+== userspace.  I also used "get_kernel_rpl()" over "get_kernel_cs()"
+because I think it reads better in the code...
+
+1) Remove the hardcoded 3 and introduce #define SEGMENT_RPL_MASK 3
+2) Add a get_kernel_rpl() macro, and don't assume it's zero.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- include/asm-i386/processor.h |   74 +++++++++++++++++++-----------------------
- 1 file changed, 34 insertions(+), 40 deletions(-)
+ arch/i386/kernel/entry.S   |    5 +++--
+ arch/i386/kernel/process.c |    2 +-
+ arch/i386/mm/extable.c     |    2 +-
+ arch/i386/mm/fault.c       |   11 ++++-------
+ include/asm-i386/ptrace.h  |    5 +++--
+ include/asm-i386/segment.h |   10 ++++++++++
+ 6 files changed, 22 insertions(+), 13 deletions(-)
 
 
 ===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -143,31 +143,37 @@ static inline void detect_ht(struct cpui
- #define X86_EFLAGS_VIP	0x00100000 /* Virtual Interrupt Pending */
- #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
+--- a/arch/i386/kernel/entry.S
++++ b/arch/i386/kernel/entry.S
+@@ -229,8 +229,9 @@ check_userspace:
+ check_userspace:
+ 	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
+ 	movb CS(%esp), %al
+-	testl $(VM_MASK | 3), %eax
+-	jz resume_kernel
++	andl $(VM_MASK | SEGMENT_RPL_MASK), %eax
++	cmpl $SEGMENT_RPL_MASK, %eax
++	jb resume_kernel		# not returning to v8086 or userspace
+ ENTRY(resume_userspace)
+  	cli				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+===================================================================
+--- a/arch/i386/kernel/process.c
++++ b/arch/i386/kernel/process.c
+@@ -346,7 +346,7 @@ int kernel_thread(int (*fn)(void *), voi
+ 	regs.xes = __USER_DS;
+ 	regs.orig_eax = -1;
+ 	regs.eip = (unsigned long) kernel_thread_helper;
+-	regs.xcs = __KERNEL_CS;
++	regs.xcs = __KERNEL_CS | get_kernel_rpl();
+ 	regs.eflags = X86_EFLAGS_IF | X86_EFLAGS_SF | X86_EFLAGS_PF | 0x2;
  
--/*
-- * Generic CPUID function
-- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-- * resulting in stale register contents being returned.
-- */
--static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
--{
-+static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
-+			   unsigned int *ecx, unsigned int *edx)
-+{
-+	/* ecx is often an input as well as an output. */
- 	__asm__("cpuid"
- 		: "=a" (*eax),
- 		  "=b" (*ebx),
- 		  "=c" (*ecx),
- 		  "=d" (*edx)
--		: "0" (op), "c"(0));
-+		: "0" (*eax), "2" (*ecx));
-+}
-+
-+/*
-+ * Generic CPUID function
-+ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-+ * resulting in stale register contents being returned.
-+ */
-+static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
-+{
-+	*eax = op;
-+	*ecx = 0;
-+	__cpuid(eax, ebx, ecx, edx);
- }
+ 	/* Ok, create the new process.. */
+===================================================================
+--- a/arch/i386/mm/extable.c
++++ b/arch/i386/mm/extable.c
+@@ -11,7 +11,7 @@ int fixup_exception(struct pt_regs *regs
+ 	const struct exception_table_entry *fixup;
  
- /* Some CPUID calls want 'count' to be placed in ecx */
- static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
--	       	int *edx)
--{
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (op), "c" (count));
-+			       int *edx)
-+{
-+	*eax = op;
-+	*ecx = count;
-+	__cpuid(eax, ebx, ecx, edx);
- }
+ #ifdef CONFIG_PNPBIOS
+-	if (unlikely((regs->xcs & ~15) == (GDT_ENTRY_PNPBIOS_BASE << 3)))
++	if (unlikely(SEGMENT_IS_PNP_CODE(regs->xcs)))
+ 	{
+ 		extern u32 pnp_bios_fault_eip, pnp_bios_fault_esp;
+ 		extern u32 pnp_bios_is_utter_crap;
+===================================================================
+--- a/arch/i386/mm/fault.c
++++ b/arch/i386/mm/fault.c
+@@ -27,6 +27,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/desc.h>
+ #include <asm/kdebug.h>
++#include <asm/segment.h>
  
- /*
-@@ -175,42 +181,30 @@ static inline void cpuid_count(int op, i
+ extern void die(const char *,struct pt_regs *,long);
+ 
+@@ -119,10 +120,10 @@ static inline unsigned long get_segment_
+ 	}
+ 
+ 	/* The standard kernel/user address space limit. */
+-	*eip_limit = (seg & 3) ? USER_DS.seg : KERNEL_DS.seg;
++	*eip_limit = user_mode(regs) ? USER_DS.seg : KERNEL_DS.seg;
+ 	
+ 	/* By far the most common cases. */
+-	if (likely(seg == __USER_CS || seg == __KERNEL_CS))
++	if (likely(SEGMENT_IS_FLAT_CODE(seg)))
+ 		return eip;
+ 
+ 	/* Check the segment exists, is within the current LDT/GDT size,
+@@ -436,11 +437,7 @@ good_area:
+ 	write = 0;
+ 	switch (error_code & 3) {
+ 		default:	/* 3: write, present */
+-#ifdef TEST_VERIFY_AREA
+-			if (regs->cs == KERNEL_CS)
+-				printk("WP fault at %08lx\n", regs->eip);
+-#endif
+-			/* fall through */
++				/* fall through */
+ 		case 2:		/* write, not present */
+ 			if (!(vma->vm_flags & VM_WRITE))
+ 				goto bad_area;
+===================================================================
+--- a/include/asm-i386/ptrace.h
++++ b/include/asm-i386/ptrace.h
+@@ -60,6 +60,7 @@ struct pt_regs {
+ #ifdef __KERNEL__
+ 
+ #include <asm/vm86.h>
++#include <asm/segment.h>
+ 
+ struct task_struct;
+ extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs, int error_code);
+@@ -73,11 +74,11 @@ extern void send_sigtrap(struct task_str
   */
- static inline unsigned int cpuid_eax(unsigned int op)
+ static inline int user_mode(struct pt_regs *regs)
  {
--	unsigned int eax;
--
--	__asm__("cpuid"
--		: "=a" (eax)
--		: "0" (op)
--		: "bx", "cx", "dx");
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
- 	return eax;
+-	return (regs->xcs & 3) != 0;
++	return (regs->xcs & SEGMENT_RPL_MASK) == 3;
  }
- static inline unsigned int cpuid_ebx(unsigned int op)
+ static inline int user_mode_vm(struct pt_regs *regs)
  {
--	unsigned int eax, ebx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx)
--		: "0" (op)
--		: "cx", "dx" );
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
- 	return ebx;
+-	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
++	return (((regs->xcs & SEGMENT_RPL_MASK) | (regs->eflags & VM_MASK)) >= 3);
  }
- static inline unsigned int cpuid_ecx(unsigned int op)
- {
--	unsigned int eax, ecx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=c" (ecx)
--		: "0" (op)
--		: "bx", "dx" );
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
- 	return ecx;
- }
- static inline unsigned int cpuid_edx(unsigned int op)
- {
--	unsigned int eax, edx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=d" (edx)
--		: "0" (op)
--		: "bx", "cx");
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	cpuid(op, &eax, &ebx, &ecx, &edx);
- 	return edx;
- }
+ #define instruction_pointer(regs) ((regs)->eip)
+ #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
+===================================================================
+--- a/include/asm-i386/segment.h
++++ b/include/asm-i386/segment.h
+@@ -83,6 +83,12 @@
  
+ #define GDT_SIZE (GDT_ENTRIES * 8)
+ 
++/*
++ * Some tricky tests to match code segments after a fault
++ */
++#define SEGMENT_IS_FLAT_CODE(x)  (((x) & 0xec) == GDT_ENTRY_KERNEL_CS * 8)
++#define SEGMENT_IS_PNP_CODE(x)   (((x) & 0xf4) == GDT_ENTRY_PNPBIOS_BASE * 8)
++
+ /* Simple and small GDT entries for booting only */
+ 
+ #define GDT_ENTRY_BOOT_CS		2
+@@ -112,4 +118,8 @@
+  */
+ #define IDT_ENTRIES 256
+ 
++/* Bottom three bits of xcs give the ring privilege level */
++#define SEGMENT_RPL_MASK 0x3
++
++#define get_kernel_rpl()  0
+ #endif
 
 --
 

@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWHCNCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWHCNFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWHCNCL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 09:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHCNCL
+	id S932446AbWHCNFn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 09:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWHCNFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 09:02:11 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33231 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932442AbWHCNCK
+	Thu, 3 Aug 2006 09:05:43 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17376 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932446AbWHCNFn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 09:02:10 -0400
-Subject: Re: A proposal - binary
+	Thu, 3 Aug 2006 09:05:43 -0400
+Subject: Re: [PATCH] tty: add ioctl for setting the throttle threshold
+	(handshake)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
-In-Reply-To: <44D1CC7D.4010600@vmware.com>
-References: <44D1CC7D.4010600@vmware.com>
+To: Dirk Eibach <eibach@gdsys.de>
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <44D1F1C5.6040809@gdsys.de>
+References: <44D1F1C5.6040809@gdsys.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 03 Aug 2006 14:21:12 +0100
-Message-Id: <1154611272.23655.71.camel@localhost.localdomain>
+Date: Thu, 03 Aug 2006 14:25:00 +0100
+Message-Id: <1154611500.23655.75.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So how does this differ from the twice yearly recycling of the fixed
-driver ABI discussion ?
+Ar Iau, 2006-08-03 am 14:53 +0200, ysgrifennodd Dirk Eibach:
+> To be more flexible ioctls were added to control the throttling thresholds.
+> 
+> This patch applies to kernel 2.6.16.
+> 
+> Signed-off-by: Dirk Eibach <eibach@gdsys.de>
 
-We have a facility for loading binary blobs into the kernel built from
-source, its called insmod. 
+NAK
+
+Two reasons
+
+#1 Users should not be expected to set these kind of parameters, the
+kernel should just get it right
+#2 With the new buffering if you respond too slowly then thats allowed
+for (with a limit enforced in the patch I posted)
+
+Those two alone aren't quite enough to deal with some corner cases where
+you throttle too late and queue an oversized buffer. The changes in
+2.6.18-rc by Paul however ensure that such a buffer is fed into the
+ldisc in appropriate sized chunks to avoid data loss.
 
 Alan
+

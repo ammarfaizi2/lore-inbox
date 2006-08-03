@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWHCEHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWHCETe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWHCEHl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 00:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWHCEHl
+	id S932331AbWHCETe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 00:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWHCETe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 00:07:41 -0400
-Received: from xenotime.net ([66.160.160.81]:53396 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932336AbWHCEHk (ORCPT
+	Thu, 3 Aug 2006 00:19:34 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12978 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932331AbWHCETd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 00:07:40 -0400
-Date: Wed, 2 Aug 2006 21:10:23 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Kyle Davenport <kdavenpo@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: system freeze on cdrom failure
-Message-Id: <20060802211023.a4561e37.rdunlap@xenotime.net>
-In-Reply-To: <44D17525.2080705@comcast.net>
-References: <44D17525.2080705@comcast.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Aug 2006 00:19:33 -0400
+Message-ID: <44D17957.10209@engr.sgi.com>
+Date: Wed, 02 Aug 2006 21:19:35 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Jes Sorensen <jes@sgi.com>,
+       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: [patch 0/3] System accounting and taskstats update
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Aug 2006 23:01:41 -0500 Kyle Davenport wrote:
+This posting is to replace the "CSA accounting and taskstats
+update" patches i posted on 7/31.
 
-> I posted on this before, and I'm confirming that the problem is still 
-> happening at 2.6.17.5.    Problem started with 2.6.15*.   Saw it again 
-> in 2.6.16.  If I reboot into 2.6.13, I still see some cdrom and/or scsi 
-> errors, but the system does not freeze.  This was from running grip on a 
-> music cd.  It also happens just reading most burned cd's or dvd's.  
-> 
-> Aug  1 23:23:00 quickest kernel: cdrom: dropping to single frame dma
-> Aug  1 23:23:02 quickest kernel: BUG: unable to handle kernel NULL 
-> pointer dereference at virtual address 0000000c
-> 
-> Problem drive is Toshiba DVD-ROM SD-M1401 (scsi).  I do not see any 
-> errors with the same media in a Yamaha CRW2100S (scsi burner).
-> 
-> Tyan Thunder K7X-Pro (S2469UNG)/ 2x2400 Athlon MP/ 1GB ram / 1TB disk / 
-> gcc 3.2
-> 
-> This is easily repeatable - please ask for more info!
+This set of patches would provide basic system accounting
+and extended system accounting data to userland using the
+taskstats interface.
 
-more info, please.
-Like a full backtrace.  And can you test 2.6.18-rc3 also?
+Patches are created against 2.6.18-rc2.
 
+taskstats-rev2.patch
+taskstats-acct.patch
+bsd-to-xacct.patch
 
----
-~Randy
+Regards,
+  Jay Lan <jlan@sgi.com>
+
+ChageLog:
+  Feedbacks from Shailabh Nagar
+  - realign new fields, and rename some fields names
+  - keep ac_ prefix for basic accounting fields but
+    remove prefix on extended accounting fields.
+  - fix typos
+  - use timespec_sub() routine simplify code
+  - fix compilation issue if some CONFIG flags off
+  - use 'static inlines' on CONFIG flag '#else' cases
+
+  Feedbacks from Balbir Singh
+  - use 'BUILD_DEBUG_ON' to check TS_COMM_LEN value
+  - use portable cputime_to_msecs() API
+  - set system time to 1 usec if both stime and utime
+    are less than 1 usec.
+
+  Since most of the accounting data required by CSA
+  are also used in BSD Process Accounting, i initially
+  named those accounting fields handling as "basic
+  accounting" and the rest as "CSA extension". However,
+  there is not really much left in CSA. Thus, it makes
+  sense to eliminate CSA from the kernel all together.
+
+  However, Shailabh liked to separate the taskstats
+  interface part from the accounting data part and i
+  agreed that it was the right thing to do.
+
+  Thus, there will be kernel/tsacct.c and
+  include/linux/tsacct_kern.h to become home of the
+  accounting data handling code. A new config flag
+  "CONFIG_TASK_XACCT" is added so that three routines
+  dealing with extended accouting can be defined
+  as dummy.
+

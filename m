@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWHCS1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWHCS2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWHCS1G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWHCS1F
+	id S964833AbWHCS2w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 14:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWHCS2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:27:05 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:59094 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S964828AbWHCS1E
+	Thu, 3 Aug 2006 14:28:50 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:63901 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964833AbWHCS2t
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:27:04 -0400
-Message-ID: <44D231DF.1080804@namesys.com>
-Date: Thu, 03 Aug 2006 11:26:55 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Edward Shishkin <edward@namesys.com>
-CC: Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org> <44D219F9.9080404@namesys.com>
-In-Reply-To: <44D219F9.9080404@namesys.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 3 Aug 2006 14:28:49 -0400
+Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>,
+       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 03 Aug 2006 11:28:44 -0700
+Message-Id: <1154629724.5925.20.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward Shishkin wrote:
+On Thu, 2006-08-03 at 12:36 +0900, KAMEZAWA Hiroyuki wrote:
+> add_memory() does all necessary check to avoid collision.
+> then, acpi layer doesn't have to check region by itself.
+> 
+> (*) pfn_valid() just returns page struct is valid or not. It returns 0
+>     if a section has been already added even is ioresource is not added.
+>     ioresource collision check in mm/memory_hotplug.c can do more precise
+>     collistion check.
+>     added enabled bit check just for sanity check..
+> 
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+> 
+>  drivers/acpi/acpi_memhotplug.c |    9 +--------
+>  1 files changed, 1 insertion(+), 8 deletions(-)
+> 
+> Index: linux-2.6.18-rc3/drivers/acpi/acpi_memhotplug.c
+> ===================================================================
+> --- linux-2.6.18-rc3.orig/drivers/acpi/acpi_memhotplug.c	2006-08-01 16:11:47.000000000 +0900
+> +++ linux-2.6.18-rc3/drivers/acpi/acpi_memhotplug.c	2006-08-02 14:12:45.000000000 +0900
+> @@ -230,17 +230,10 @@
+>  	 * (i.e. memory-hot-remove function)
+>  	 */
+>  	list_for_each_entry(info, &mem_device->res_list, list) {
+> -		u64 start_pfn, end_pfn;
+> -
+> -		start_pfn = info->start_addr >> PAGE_SHIFT;
+> -		end_pfn = (info->start_addr + info->length - 1) >> PAGE_SHIFT;
+> -
+> -		if (pfn_valid(start_pfn) || pfn_valid(end_pfn)) {
+> -			/* already enabled. try next area */
+> +		if (info->enabled) { /* just sanity check...*/
+>  			num_enabled++;
+>  			continue;
+>  		}
 
-> Matthias Andree wrote:
->
->> On Tue, 01 Aug 2006, Hans Reiser wrote:
->>
->>
->>> You will want to try our compression plugin, it has an ecc for every
->>> 64k....
->>
->>
->>
->> What kind of forward error correction would that be,
->
->
->
-> Actually we use checksums, not ECC. If checksum is wrong, then run
-> fsck - it will remove the whole disk cluster, that represent 64K of
-> data.
+This check needs to go.  pfn_valid is a sparsemem specific check. Sanity
+checking should be done it the the add_memory code. 
 
-How about we switch to ecc, which would help with bit rot not sector loss?
+I will test and let you know. This is going to expose some baddness I
+see already with my RESERVE path work. (Extra add_memory calls from this
+driver during boot....)
 
->
->
->  and how much and
->
->> what failure patterns can it correct? URL suffices.
->>
->
-> Checksum is checked before unsafe decompression (when trying to
-> decompress incorrect data can lead to fatal things). It can be
-> broken because of many reasons. The main one is tree corruption
-> (for example, when disk cluster became incomplete - ECC can not
-> help here). Perhaps such checksumming is also useful for other
-> things, I didnt classify the patterns..
->
-> Edward.
->
->
+
+Thanks,
+keith mannthey <kmannth@us.ibm.com>
+Linux Technology Center IBM
 

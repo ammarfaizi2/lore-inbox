@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWHCPHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWHCPIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWHCPHp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHCPHp
+	id S932544AbWHCPIv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWHCPIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:07:45 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:43163 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932454AbWHCPHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:07:44 -0400
-Subject: Re: [PATCH] Fix initialization of runqueues
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060802165742.GI4460@implementation.labri.fr>
-References: <20060802122743.GF4460@implementation.labri.fr>
-	 <20060802152419.GA31970@elte.hu>
-	 <20060802165742.GI4460@implementation.labri.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 03 Aug 2006 11:07:37 -0400
-Message-Id: <1154617657.32264.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 8bit
+	Thu, 3 Aug 2006 11:08:51 -0400
+Received: from wx-out-0102.google.com ([66.249.82.196]:13893 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932544AbWHCPIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 11:08:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HY6ZSPcx3T8arYbYLPr5mRBh9AXfsljL8b+4JN9MEYvyRqADWZtXyqklvOpkaGwGSHeZ6CP6pzdoLbQUovp+0yYhwSKjPkbh40BKuRy6vnCzxa9qAmHCBGhPgaafNR91FLXxEkYtI9jRhAr+npfw73GGMXKNDQU+LO41Jor8GQg=
+Message-ID: <e6babb600608030808x632bd5e8y7dcb991fe229467d@mail.gmail.com>
+Date: Thu, 3 Aug 2006 08:08:49 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: "Steven Rostedt" <rostedt@goodmis.org>
+Subject: Re: Problems with 2.6.17-rt8
+Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Bill Huey" <billh@gnuppy.monkey.org>
+In-Reply-To: <1154615261.32264.6.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
+	 <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
+	 <1154541079.25723.8.camel@localhost.localdomain>
+	 <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
+	 <1154615261.32264.6.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-02 at 18:57 +0200, Samuel Thibault wrote:
-> Ingo Molnar, le Wed 02 Aug 2006 17:24:19 +0200, a écrit :
-> > 
-> > * Samuel Thibault <samuel.thibault@ens-lyon.org> wrote:
-> > 
-> > > Hi,
-> > > 
-> > > There's an odd thing about the nr_active field in arrays of 
-> > > runqueue_t: it is actually never initialized to 0!...  This doesn't 
-> > > yet trigger a bug probably because the way runqueues are allocated 
-> > > make it so that it is already initialized to 0, but that's not a safe 
-> > > way.  Here is a patch:
-> > 
-> > we do rely on zero initialization of bss (and percpu) data in a number 
-> > of places.
-> 
-> The rest of runqueue initialization doesn't rely on that, and as
-> a result people might think that it is safe to allocate runqueues
-> dynamically.
+On 8/3/06, Steven Rostedt <rostedt@goodmis.org> wrote:
+> >
+> > Call Trace:
+> >        <ffffffff8047655a>{_raw_spin_lock_irqsave+24}
+> >        <ffffffff8022b272>{__WARN_ON+100}
+> >        <ffffffff802457e4>{debug_rt_mutex_unlock+199}
+> >        <ffffffff804757b7>{rt_lock_slowunlock+25}
+> >        <ffffffff80476301>{__lock_text_start+9}
+>
+> hmm, here we are probably having trouble with the percpu slab locks,
+> that is somewhat of a hack to get slabs working on a per cpu basis.
+>
+> >        <ffffffff80271e93>{kmem_cache_alloc+202}
+>
+> It would also be nice to know exactly where ffffffff80271e93 is.
 
-I don't buy the "safe to allocate runqueues dynamically" bit since they
-are local to sched.c and if you do do that (I did for a customer once)
-you better know what you're doing.
+>From the System.map file:
 
-That said, ...
+ffffffff80271df5 t gather_stats
+ffffffff80271e98 t get_zonemask
+ffffffff80271f1e T __mpol_equal
 
-Hmm, Ingo I guess he's right on the first part:
-
-<sched_init snipit>
-
-		rq->nr_running = 0;
-[...]
-
-#ifdef CONFIG_SMP
-		rq->sd = NULL;
-		for (j = 1; j < 3; j++)
-			rq->cpu_load[j] = 0;
-		rq->active_balance = 0;
-		rq->push_cpu = 0;
-		rq->migration_thread = NULL;
-</sched_init snipit>
-
-
-So I guess we should add his zero initializer, or we should remove all
-the other zero initializers.  Either way, we should be consistent.
-
--- Steve
-
-
+-- 
+Robert Crocombe
+rcrocomb@gmail.com

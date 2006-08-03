@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWHCJyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWHCJ4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWHCJyb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 05:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHCJyb
+	id S932415AbWHCJ4R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 05:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHCJ4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 05:54:31 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:8082 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S932362AbWHCJya (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 05:54:30 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take3 3/4] kevent: Network AIO, socket notifications.
-Date: Thu, 3 Aug 2006 11:54:26 +0200
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-References: <11545983601447@2ka.mipt.ru>
-In-Reply-To: <11545983601447@2ka.mipt.ru>
+	Thu, 3 Aug 2006 05:56:16 -0400
+Received: from web25815.mail.ukl.yahoo.com ([217.146.176.248]:33667 "HELO
+	web25815.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932415AbWHCJ4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 05:56:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=QuV8scucabXXwMDvJeO/efkrY9JEO1MUdUP5yqM+zNeAiyFXRItp/XLxqSdZlZdlvSMgGu4jRMyHcKRYsBJGx5WgpRDbvTTvpCi3GMdN6OgK2lDRhgGKl9y6l7OhsMNhwCUDfFSGrq3uG8bMpVHVzPZhte1UqQe52ni1RdLHGkU=  ;
+Message-ID: <20060803095615.27090.qmail@web25815.mail.ukl.yahoo.com>
+Date: Thu, 3 Aug 2006 09:56:15 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : Re : sparsemem usage
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44D0C671.7040709@shadowen.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608031154.27152.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 August 2006 11:46, Evgeniy Polyakov wrote:
-> Network AIO, socket notifications.
->
-> This patchset includes socket notifications and network asynchronous IO.
-> Network AIO is based on kevent and works as usual kevent storage on top
-> of inode.
->  						          (3 * TCP_RTO_MIN) / 4,
-> diff --git a/kernel/kevent/kevent_naio.c b/kernel/kevent/kevent_naio.c
-+
-> +static int kevent_naio_enqueue(struct kevent *k)
-> +{
-> +	int err, i;
-> +	struct page **page;
-> +	void *addr;
-> +	unsigned int size = k->event.id.raw[1];
-> +	int num = size/PAGE_SIZE;
-> +	struct file *file;
-> +	struct sock *sk = NULL;
-> +	int fput_needed;
-> +
-> +	file = fget_light(k->event.id.raw[0], &fput_needed);
-> +	if (!file)
-> +		return -ENODEV;
-> +
-> +	err = -EINVAL;
-> +	if (!file->f_dentry || !file->f_dentry->d_inode)
-> +		goto err_out_fput;
+Andy Whitcroft wrote:
+> When allocating we do not have a problem as we simply pull a free page 
+> off the appropriately sizes free list.  Its when freeing we have an 
+> issue, all the allocator has to work with is the page you are freeing. 
+> As MAX_ORDER is >128K we can get to the situation where all but one page 
+> is free.  When we free that page we then need to merge this 128Kb page 
+> with its buddy if its free.   To tell if that one is free it has to look 
+> at the page* for it, so that page* must also exist for this check to work.
 
-How can you be 100% sure this file is actually a socket here ?
-(Another thread could close the fd and this fd can now point to another file)
+Maybe in sparsemem code, we could mark a well chosen page as reserved if
+the size of mem region is < MAX_ORDER. That way the buddy allocator
+will never have to free a block of 128 KO...
 
-You should do
-if (file->f_op != &socket_file_ops)
-	goto err_out_fput;
-sk = file->private_data;  /* set in sock_map_fd */ 
+> pfn_valid() will indeed say 'ok'.  But that is defined only to mean that 
+> it is safe to look at the page* for that page.  It says nothing else 
+> about the page itself.  Pages which are reserved never get freed into 
+> the allocator so they are not there to be allocated so we should not be 
+> refering to them.
 
-> +
-> +	sk = SOCKET_I(file->f_dentry->d_inode)->sk;
-> +
+wouldn't it be safer to mark these pages as "invalid" instead of "reserved"
+with a special value stored in mem_map[] ?
+
+> There are tradeoffs here.  The smaller the section size the better the 
+> internal fragmentation will be.  However also the more of them there 
+> will be, the more space that will be used tracking them, the more 
+> cachelines touched with them.  Also as we have seen we can't have things 
+> in the allocator bigger than the section size.  This can constrain the 
+> lower bound on the section size.  Finally, on 32 bit systems the overall 
+> number of sections is bounded by the available space in the fields 
+> section of the page* flags field.
+
+thanks for that.
+
+> If your system has 256 1Gb sections and 1 128Kb section then it could 
+> well make sense to have a 1GB section size or perhaps a 256Mb section 
+> size as you are only wasting space in the last section.
+
+> I read that as saying there was a major gap to 3Gb and then it was 
+> contigious from there; but then I was guessing at the units :).
+
+here is a updated version of my mapping, it should be clear now:
+
+HOLE0: 0 - 3 Go
+MEM1: 0xc000 0000 - 32 Mo
+HOLE1: 0xc200 0000 - 224 Mo
+MEM2: 0xd000 0000 - 8 Mo
+HOLE2: 0xd080 0000 - 120 Mo
+MEM3: 0xd800 0000 - 128 Ko
+HOLE3: rest of mem
+
+Francis
 
 
-Eric
+

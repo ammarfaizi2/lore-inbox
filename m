@@ -1,64 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWHCPpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWHCPqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWHCPpM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWHCPpL
+	id S932516AbWHCPqf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWHCPqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:45:11 -0400
-Received: from mail.zelnet.ru ([80.92.97.13]:33199 "EHLO mail.zelnet.ru")
-	by vger.kernel.org with ESMTP id S964824AbWHCPpJ (ORCPT
+	Thu, 3 Aug 2006 11:46:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47570 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932516AbWHCPqe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:45:09 -0400
-Message-ID: <44D219F9.9080404@namesys.com>
-Date: Thu, 03 Aug 2006 19:44:57 +0400
-From: Edward Shishkin <edward@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: Hans Reiser <reiser@namesys.com>, ric@emc.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org>
-In-Reply-To: <20060803140344.GC7431@merlin.emma.line.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 11:46:34 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1154615661.5774.35.camel@localhost> 
+References: <1154615661.5774.35.camel@localhost>  <1154354115351-git-send-email-hskinnemoen@atmel.com> <20060731174659.72da734f@cad-250-152.norway.atmel.com> <1154371259.13744.4.camel@localhost> <20060801101210.0548a382@cad-250-152.norway.atmel.com> <1154450847.5605.21.camel@localhost> <20060802094529.09db5532@cad-250-152.norway.atmel.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>, Andi Kleen <ak@suse.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 03 Aug 2006 16:46:22 +0100
+Message-ID: <10107.1154619982@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> On Tue, 01 Aug 2006, Hans Reiser wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+
+> Argh... You are quite right. We ought to have fixed the pseudoflavour
+> thingy in version 6, and made it mandatory, but we missed the chance...
 > 
-> 
->>You will want to try our compression plugin, it has an ecc for every 64k....
-> 
-> 
-> What kind of forward error correction would that be,
+> Revised patch is attached.
 
+That looks reasonable.
 
-Actually we use checksums, not ECC. If checksum is wrong, then run
-fsck - it will remove the whole disk cluster, that represent 64K of
-data.
-
-
-  and how much and
-> what failure patterns can it correct? URL suffices.
-> 
-
-Checksum is checked before unsafe decompression (when trying to
-decompress incorrect data can lead to fatal things). It can be
-broken because of many reasons. The main one is tree corruption
-(for example, when disk cluster became incomplete - ECC can not
-help here). Perhaps such checksumming is also useful for other
-things, I didnt classify the patterns..
-
-Edward.
+Acked-By: David Howells <dhowells@redhat.com>

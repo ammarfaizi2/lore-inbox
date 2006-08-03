@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWHCMTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWHCMqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWHCMTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 08:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWHCMTx
+	id S932427AbWHCMqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 08:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWHCMqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 08:19:53 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:42350 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932411AbWHCMTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 08:19:52 -0400
+	Thu, 3 Aug 2006 08:46:31 -0400
+Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:10101 "HELO
+	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932427AbWHCMqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 08:46:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VDpzhNGNEuMw5KthiFiGB0+1PA0GrMakoRwymztaUigrnGk3tlt6jlTBI6p6sEX7cnmVOD+6V+3ygaPLNVZl8oLoY8o8Z4Ke/DN2n/LMwP/9fqg/qBZTTGMolIF64L5Jy035Nu+1wQQNYuLZBGzrM/KhKnD/6F8sSU0dv0/Vm6A=
-Message-ID: <6bffcb0e0608030519u71af8350k9e3b4f9c75a0b3c8@mail.gmail.com>
-Date: Thu, 3 Aug 2006 14:19:51 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-02-00-27.tar.gz uploaded
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060802183613.792e2488.akpm@osdl.org>
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=NgqqNycvrfikJpiRpmuJzj/udJSCXJxSEbTRY3hPIGU1rZqk+WtsW1MubZKIn+iNxvZGNkfKIyyGv8rMOhty334xSep1txnc8OWwzTtOFy/6gqdCMRK6HSq/mFU0EadNxEzBI0w2vvzmMgTOntuKyTZLXUxWz+faIvMFszfrVyE=  ;
+Message-ID: <20060803124628.21540.qmail@web25805.mail.ukl.yahoo.com>
+Date: Thu, 3 Aug 2006 12:46:28 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : Re : Re : sparsemem usage
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <44D1C616.1060305@shadowen.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
-	 <6bffcb0e0608021700n49a3ed6cnbbe421a22946f54c@mail.gmail.com>
-	 <20060802183613.792e2488.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Thu, 3 Aug 2006 02:00:42 +0200
-> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->
-> > On 02/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> > > The mm snapshot broken-out-2006-08-02-00-27.tar.gz has been uploaded to
-> > >
-> > >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-02-00-27.tar.gz
-> > >
-> >
-> > There is something wrong with this kernel. I have noticed, that after
-> > 1,5 hour some of the keys on my keyboard doesn't work... amarok
-> > doesn't want to play music (30 sec gaps between songs etc.), switching
-> > between firefox/openoffice takes 1 min. I don't see nothing special in
-> > the logs. It is a CPU scheduler problem?
-> >
->
-> Could be a timekeeping problem, perhaps.  Is it SMP?
+Andy Whitcroft wrote:
+> That would be incorrect usage.  pfn_valid() simply doesn't tell you if 
+> you have memory backing a pfn, it mearly means you can interrogate the 
+> page* for it.  A good example of code which counts pages in a region is 
+> in count_highmem_pages() which has a form as below:
+> 
+>             for (pfn = start; pfn < end; pfn++) {
+>                   if (!pfn_valid(pfn))
+>                                          continue;
+>                                  page = pfn_to_page(pfn);
+>                                  if (PageReserved(page))
+>                                          continue;
+>                 num_physpages++;
+>             }
+> 
+num_physpages would still not give the right total number of pages in the
+system. It will report a value smaller than the size of all memories which can
+be suprising, depending on how it is used. In my mind I thought that it should
+store the number of all pages in the system (reserved + free + ...).
 
-Yes, it is.
+Futhermore for flatmem model, my example that count the number of physical
+pages is valid: reserved pages are really pages that are in used by the kernel.
+But it's not valid anymore for sparsemem model. For consistency and code
+sharing, I would make the same meaning of pfn_valid() and PageReserved() for
+both models.
 
->  Is the time-of-day
-> increasing at the right speed?
+Francis
 
-Yes.
 
->  Does `sleep 5' do the right thing?
-
-Yes, it does.
-
-time sleep 5
-
-real    0m5.016s
-user    0m0.000s
-sys     0m0.014s
-
-Problems starts after stress testing (LTP).
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

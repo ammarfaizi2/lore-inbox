@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWHBXrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWHCAAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbWHBXrD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 19:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHBXrD
+	id S1750730AbWHCAAo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 20:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWHCAAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 19:47:03 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15011 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932227AbWHBXrB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 19:47:01 -0400
-Message-ID: <44D13980.1090604@engr.sgi.com>
-Date: Wed, 02 Aug 2006 16:47:12 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en
+	Wed, 2 Aug 2006 20:00:44 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:64337 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750730AbWHCAAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 20:00:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PgD1uEn1UaDttJVHn3qwO5ta2gliE9zV2baODEHrsCFZewcigKm6UTUjf4fM5iJh7qnELXfTnqwxILFvTZgeKGOlpNQu3nfcWCXD001znji78qQbTAfH99dLCxeLhCI7BAn/pGCpQdnl2b3HA3RrXTcMyEDdf6VJjL4yrCvLCZ8=
+Message-ID: <6bffcb0e0608021700n49a3ed6cnbbe421a22946f54c@mail.gmail.com>
+Date: Thu, 3 Aug 2006 02:00:42 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: mm snapshot broken-out-2006-08-02-00-27.tar.gz uploaded
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: balbir@in.ibm.com, Shailabh Nagar <nagar@watson.ibm.com>,
-       Jay Lan <jlan@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, Chris Sturtivant <csturtiv@sgi.com>,
-       Tony Ernst <tee@sgi.com>
-Subject: Re: [patch 1/3] add basic accounting fields to taskstats
-References: <44CE57EF.2090409@sgi.com>	<44CF6433.50108@in.ibm.com>	<44CFCCE4.7060702@sgi.com>	<44D0C56C.3030505@watson.ibm.com>	<44D0DE13.7090205@in.ibm.com> <20060802140945.de650d95.akpm@osdl.org>
-In-Reply-To: <20060802140945.de650d95.akpm@osdl.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->On Wed, 02 Aug 2006 22:47:07 +0530
->Balbir Singh <balbir@in.ibm.com> wrote:
+On 02/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
+> The mm snapshot broken-out-2006-08-02-00-27.tar.gz has been uploaded to
 >
->  
->>I am not sure if there is a version of BUG_ON() for compile time
->>asserts
->>    
+>    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-02-00-27.tar.gz
 >
->We have BUILD_BUG_ON()
->  
 
-BUILD_BUG_ON() is a statement. I will do that inside bacct_add_tsk().
+There is something wrong with this kernel. I have noticed, that after
+1,5 hour some of the keys on my keyboard doesn't work... amarok
+doesn't want to play music (30 sec gaps between songs etc.), switching
+between firefox/openoffice takes 1 min. I don't see nothing special in
+the logs. It is a CPU scheduler problem?
 
-Thanks,
- - jay
+Regards,
+Michal
 
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

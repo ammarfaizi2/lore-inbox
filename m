@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWHCOj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWHCOkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWHCOj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 10:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWHCOjz
+	id S932420AbWHCOkp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 10:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWHCOko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 10:39:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:10711 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932423AbWHCOjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 10:39:54 -0400
-Date: Thu, 3 Aug 2006 15:39:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
-       hch@infradead.org
-Subject: Re: [PATCH 06/28] reintroduce list of vfsmounts over superblock
-Message-ID: <20060803143953.GD920@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-	viro@ftp.linux.org.uk, herbert@13thfloor.at
-References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235244.964B79E7@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Aug 2006 10:40:44 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:14234 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S932420AbWHCOkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 10:40:43 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take3 1/4] kevent: Core files.
+Date: Thu, 3 Aug 2006 16:40:34 +0200
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+References: <11545983603399@2ka.mipt.ru>
+In-Reply-To: <11545983603399@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060801235244.964B79E7@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200608031640.34513.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 04:52:44PM -0700, Dave Hansen wrote:
-> 
-> We're moving a big chunk of the burden of keeping people from
-> writing to r/o filesystems from the superblock into the
-> vfsmount.  This requires that we consult the superblock's
-> vfsmounts when things like remounts occur.
-> 
-> So, introduce a list of vfsmounts hanging off the superblock.
-> We'll use this in a bit.
+On Thursday 03 August 2006 11:46, Evgeniy Polyakov wrote:
+> Core files.
+>
+> This patch includes core kevent files:
+>  - userspace controlling
+>  - kernelspace interfaces
+>  - initialization
+>  - notification state machines
+>
 
-I don't think we'll need it.  We really need to keep is someone writing
-to this vfsmount counters in addition to is someone writing to this sb.
+> +static int kevent_user_wait(struct file *file, struct kevent_user *u,
+> +		unsigned int min_nr, unsigned int max_nr, unsigned int timeout,
+> +		void __user *buf)
+> +{
+>
 
-In fact there are cases were we want a superblock to be writeable to
-without any view into it being writeable, e.g. for journal recovery.
+> +	mutex_lock(&u->ctl_mutex);
+> +	while (num < max_nr && ((k = kqueue_dequeue_ready(u)) != NULL)) {
+> +		if (copy_to_user(buf + num*sizeof(struct ukevent),
+> +					&k->event, sizeof(struct ukevent))) {
+> +			cerr = -EINVAL;
+> +			break;
+> +		}
 
+
+It seems quite wrong to hold ctl_mutex while doing a copy_to_user() (of 
+possibly a large amount of data) : A thread can sleep on a page fault and 
+other threads cannot make progress.
+
+Eric

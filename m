@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWHCQ2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWHCQaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWHCQ2r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 12:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWHCQ2r
+	id S964841AbWHCQaU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 12:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWHCQaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 12:28:47 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:47843 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964840AbWHCQ2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 12:28:46 -0400
-Subject: [PATCH] Add stable branch to maintainers file
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org
-Content-Type: text/plain
-Date: Thu, 03 Aug 2006 12:28:11 -0400
-Message-Id: <1154622491.32264.37.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 12:30:20 -0400
+Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:56799 "EHLO
+	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S964841AbWHCQaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 12:30:19 -0400
+Date: Thu, 3 Aug 2006 09:30:18 -0700 (PDT)
+From: Trent Piepho <xyzzy@speakeasy.org>
+X-X-Sender: xyzzy@shell3.speakeasy.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org,
+       v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org,
+       b.buschinski@web.de
+Subject: Re: [v4l-dvb-maintainer] [2.6 patch] DVB_CORE must select I2C
+In-Reply-To: <20060803155925.GA25692@stusta.de>
+Message-ID: <Pine.LNX.4.58.0608030918240.4264@shell3.speakeasy.net>
+References: <20060727015639.9c89db57.akpm@osdl.org> <20060803155925.GA25692@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While helping someone to submit a patch to the stable branch, I noticed
-that the stable branch is not listed in the MAINTAINERS file.  This was
-after I went there to look for the email addresses for the stable branch
-list (stable@kernel.org).
+On Thu, 3 Aug 2006, Adrian Bunk wrote:
+> On Thu, Jul 27, 2006 at 01:56:39AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.18-rc2-mm1:
+> >...
+> > +dvb-core-needs-i2c.patch
+> >...
+> >  DVB fixes
+> >...
+>
+> This means people who observed a compile error will now have the DVB
+> support silently removed from their kernel.
 
-This patch adds the stable branch to the maintainers file so that people
-can find where to send patches when they have a fix for the stable team.
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
-Index: linux-2.6.18-rc3/MAINTAINERS
-===================================================================
---- linux-2.6.18-rc3.orig/MAINTAINERS	2006-08-03 11:40:39.000000000 -0400
-+++ linux-2.6.18-rc3/MAINTAINERS	2006-08-03 12:18:03.000000000 -0400
-@@ -2626,6 +2626,14 @@ M:	dbrownell@users.sourceforge.net
- L:	spi-devel-general@lists.sourceforge.net
- S:	Maintained
- 
-+STABLE BRANCH:
-+P:	Greg Kroah-Hartman
-+M:	greg@kroah.com
-+P:	Chris Wright
-+M:	chrisw@sous-sol.org
-+L:	stable@kernel.org
-+S:	Maintained
-+
- TPM DEVICE DRIVER
- P:	Kylene Hall
- M:	kjhall@us.ibm.com
-
+This has been fixed differently already.  dvb-core.ko doesn't actually use
+I2C, only dvb-pll.ko does.  Now the dvb-pll.ko module is no longer turned
+on by DVB_CORE, but under a new option, DVB_PLL.  That option depends on
+I2C.
 

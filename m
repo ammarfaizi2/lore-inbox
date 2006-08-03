@@ -1,61 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWHCIct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWHCI6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWHCIct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 04:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWHCIct
+	id S932405AbWHCI6e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 04:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWHCI6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 04:32:49 -0400
-Received: from [152.101.81.89] ([152.101.81.89]:36276 "HELO southa.com")
-	by vger.kernel.org with SMTP id S932397AbWHCIcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 04:32:48 -0400
-Message-ID: <008901c6b6d8$bef29d40$9d02a8c0@kyle>
-From: "Kyle Wong" <kylewong@southa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: bug ? ext3-fs error with kernel 2.6.17
-Date: Thu, 3 Aug 2006 16:41:56 +0800
+	Thu, 3 Aug 2006 04:58:34 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:44182 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932403AbWHCI6d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 04:58:33 -0400
+Message-ID: <44D1BAB8.8070509@vmware.com>
+Date: Thu, 03 Aug 2006 01:58:32 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+To: Andrew Morton <akpm@osdl.org>
+Cc: jeremy@xensource.com, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       jeremy@goop.org, chrisw@sous-sol.org
+Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
+ space.
+References: <20060803002510.634721860@xensource.com>	<20060803002518.595166293@xensource.com>	<20060802231912.ed77f930.akpm@osdl.org>	<44D1A6B6.8040003@vmware.com> <20060803004144.554d9882.akpm@osdl.org>
+In-Reply-To: <20060803004144.554d9882.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040401020401080801010806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------040401020401080801010806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Today one of my machine got the following error and the filesystem was
-remounted as read-only automatically:
+Andrew Morton wrote:
+> The comment says "must".  If that's true then printing a what-you-did-wrong
+> message and halting is appropriate.
+>
+> But whatever.  The issue is flagged and I'm happy to leave it in Jeremy's
+> lap. 
 
-Aug  3 14:24:09 localhost kernel: EXT3-fs error (device md2): ext3_readdir:
-bad entry in directory #48170704: rec_len is smaller than minimal -
-offset=0, inode=0, rec_len=0, name_len=0
-Aug  3 14:24:09 localhost kernel: Aborting journal on device md2.
-Aug  3 14:24:09 localhost kernel: ext3_abort called.
-Aug  3 14:24:09 localhost kernel: EXT3-fs error (device md2):
-ext3_journal_start_sb: Detected aborted journal
-Aug  3 14:24:09 localhost kernel: Remounting filesystem read-only
-Aug  3 14:24:09 localhost kernel: __journal_remove_journal_head: freeing
-b_committed_data
-Aug  3 14:24:09 localhost kernel: __journal_remove_journal_head: freeing
-b_committed_data
+Considering I wrote that patch, I think I should fix it -- here you go
 
-My machine is running with a AMD x86_64 CPU, 3GB Ram and 10 Seagate harddisk
-in MD raid 5 mode. Kernel is 64bits 2.6.17
-The MD raid 5 did not report any problem and my server log does not contain
-any error about libata and md. It just show the above ext3 errors.
-The affected filesystem is around 1 month old and never have any error and
-crash before.
-I need to umount the affected ext3 volume and remount it to take it back to
-read write mode.
+--------------040401020401080801010806
+Content-Type: text/plain;
+ name="fixmap-bootparam.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fixmap-bootparam.patch"
 
-Please cc me if possible, I'm not subscribed. Thanks.
+Subject: Add a bootparameter to reserve high linear address space.
 
-Kyle
+Add a bootparameter to reserve high linear address space for hypervisors.
+This is necessary to allow dynamically loaded hypervisor modules, which
+might not happen until userspace is already running, and also provides a
+useful tool to benchmark the performance impact of reduced lowmem address
+space.
 
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
+---
+ Documentation/kernel-parameters.txt |    5 +++++
+ arch/i386/kernel/setup.c            |   19 +++++++++++++++++++
+ 2 files changed, 24 insertions(+)
 
+diff -r 5bb2fc59943d Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt	Thu Aug 03 01:36:13 2006 -0700
++++ b/Documentation/kernel-parameters.txt	Thu Aug 03 01:36:13 2006 -0700
+@@ -1357,6 +1357,11 @@ running once the system is up.
+ 
+ 	reserve=	[KNL,BUGS] Force the kernel to ignore some iomem area
+ 
++	reservetop=	[IA-32]
++			Format: nn[KMG]
++			Reserves a hole at the top of the kernel virtual
++			address space.
++
+ 	resume=		[SWSUSP]
+ 			Specify the partition device for software suspend
+ 
+diff -r 5bb2fc59943d arch/i386/kernel/setup.c
+--- a/arch/i386/kernel/setup.c	Thu Aug 03 01:36:13 2006 -0700
++++ b/arch/i386/kernel/setup.c	Thu Aug 03 01:36:52 2006 -0700
+@@ -160,6 +160,12 @@ static char command_line[COMMAND_LINE_SI
+ static char command_line[COMMAND_LINE_SIZE];
+ 
+ unsigned char __initdata boot_params[PARAM_SIZE];
++
++static int __init setup_reservetop(char *s)
++{
++	return 1;
++}
++__setup("reservetop", setup_reservetop);
+ 
+ static struct resource data_resource = {
+ 	.name	= "Kernel data",
+@@ -917,6 +923,17 @@ static void __init parse_cmdline_early (
+ 		else if (!memcmp(from, "vmalloc=", 8))
+ 			__VMALLOC_RESERVE = memparse(from+8, &from);
+ 
++		/*
++		 * reservetop=size reserves a hole at the top of the kernel
++		 * address space which a hypervisor can load into later.
++		 * Needed for dynamically loaded hypervisors, so relocating
++		 * the fixmap can be done before paging initialization.
++		 */
++		else if (!memcmp(from, "reservetop=", 11)) {
++			unsigned long reserve = memparse(from+11, &from);
++			reserve_top_address(reserve);
++		}
++
+ 	next_char:
+ 		c = *(from++);
+ 		if (!c)
 
+--------------040401020401080801010806--

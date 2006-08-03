@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWHCVAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWHCVDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWHCVAd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHCVAd
+	id S1751391AbWHCVDx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHCVDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:00:33 -0400
-Received: from wx-out-0102.google.com ([66.249.82.201]:19790 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751381AbWHCVAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:00:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=OiyhnBq88k4C8NI/6vTSeyAkcfSoqvD60f3y//hchR5nq/ZJAQJK4tCV3ekKgylyCQvg3wmXljZHob4SzgQesUTXcMN9wz6EX0xQdEMbCQ7vxspAaALQya8k642OhWUKi7wHBV4KIT915H8oJXxC5fFNj82113mj1/pKluc/qf4=
-Message-ID: <5bdc1c8b0608031400h7e1c03c9o9ae5d17c2519785f@mail.gmail.com>
-Date: Thu, 3 Aug 2006 14:00:31 -0700
-From: "Mark Knecht" <markknecht@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Hard crash with 2.6.17-rt8
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Steven Rostedt" <rostedt@goodmis.org>,
-       "hui Bill Huey" <billh@gnuppy.monkey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 17:03:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44493 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751391AbWHCVDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 17:03:52 -0400
+Date: Thu, 3 Aug 2006 17:01:30 -0400
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Brown, Len" <len.brown@intel.com>, Adrian Bunk <bunk@stusta.de>,
+       Zachary Amsden <zach@vmware.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
+Subject: Re: Options depending on STANDALONE
+Message-ID: <20060803210130.GJ16927@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	"Brown, Len" <len.brown@intel.com>, Adrian Bunk <bunk@stusta.de>,
+	Zachary Amsden <zach@vmware.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+	v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
+References: <CFF307C98FEABE47A452B27C06B85BB601260CC7@hdsmsx411.amr.corp.intel.com> <20060803205127.GC10935@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060803205127.GC10935@kroah.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   Two things:
+On Thu, Aug 03, 2006 at 01:51:27PM -0700, Greg Kroah-Hartman wrote:
+ > On Thu, Aug 03, 2006 at 04:49:08PM -0400, Brown, Len wrote:
+ > > I've advised SuSE many times that they should not be shipping it,
+ > > as it means that their supported OS is running on modified firmware --
+ > > which, by definition, they can not support.  Indeed, one could view
+ > > this method as couter-productive to the evolution of Linux --
+ > > since it is our stated goal to run on the same machines that Windows
+ > > runs on -- without requiring customers to modify those machines
+ > > to run Linux.
+ > 
+ > Ok, if it's your position that we should not support this, I'll see what
+ > I can do to remove it from our kernel tree...
+ > 
+ > If there are any other patches that we are carrying that you (or anyone
+ > else) feel we should not be, please let me know.
 
-1) While compiling some code this morning on my AMD64 machine using
-2.6.17-rt8 I had a hard crash. Everything was hung  - the compile,
-Gnome, everything - and I didn't seem to be able to get out with and
-key combination so I did a hard reset.
+It's somewhat hard to tell when the source rpm's don't match the binaries.
+See ftp://ftp.suse.com/pub/projects/kernel/kotd/x86_64/HEAD for example,
+and notice the lack of 2.6.18rc3 source, just 2.6.16.  Or am I looking
+in the wrong place ? (The other arch's all seem to suffer this curious problem).
 
-2) I tried rebooting into 2.6.17-rt8 and hung during the boot process.
-I managed to catch one not-so-good photo (the flash was on) showing
-the "3-level deep critical section nesting". Let me know who to send
-it to off list. The end shows something like:
+		Dave
 
-__sched_text_start+0x3b/0x58f...[<00000000>] <=0x0
-rt_lock_slowclock_)x30/0x23e...[<00000000>] <=0x0
-rt_lock_slowclock_)x30/0x23e...[<00000000>] <=0x0
 
-Up above there is some stuff like:
 
-rt_lock_slowdown
-get_page_from_freelist
-get_zeroed_page
-pte_alloc
-__handle_mm_fault.
-do_(something I cannot read)
-do_(somethign I cannot read)
-debug_(something)_mutex_unlock
-error_exit
 
-Unfortunately stuff in there is blanked out by the flash reflecting on
-the screen. (Stupid me! Sorry!)
-
-   I've gone back to 2.6.17-rt5 for now which has been running great
-and never crashed on me.
-
-   I hope this little bit helps confirm some of what you all are
-debuggin in your other threads.
-
-Cheers,
-Mark
+-- 
+http://www.codemonkey.org.uk

@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWHCSgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWHCSrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWHCSgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWHCSgj
+	id S1030208AbWHCSrX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 14:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWHCSrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:36:39 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:5294 "EHLO
+	Thu, 3 Aug 2006 14:47:23 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:65188 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1030184AbWHCSgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:36:39 -0400
-Message-ID: <44D24236.305@vmware.com>
-Date: Thu, 03 Aug 2006 11:36:38 -0700
+	id S1030208AbWHCSrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 14:47:22 -0400
+Message-ID: <44D244B9.907@vmware.com>
+Date: Thu, 03 Aug 2006 11:47:21 -0700
 From: Zachary Amsden <zach@vmware.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Antonio Vargas <windenntw@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
        Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
        Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
 Subject: Re: A proposal - binary
-References: <44D1CC7D.4010600@vmware.com> <44D217A7.9020608@redhat.com>
-In-Reply-To: <44D217A7.9020608@redhat.com>
+References: <44D1CC7D.4010600@vmware.com>	 <1154603822.2965.18.camel@laptopd505.fenrus.org>	 <69304d110608030516y16f7d1fdiaccfbe4ecca3084a@mail.gmail.com>	 <44D23924.9040704@vmware.com> <69304d110608031129t5b39e581x3862d8a3dad407f6@mail.gmail.com>
+In-Reply-To: <69304d110608031129t5b39e581x3862d8a3dad407f6@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> Zachary Amsden wrote:
->
->> And by NO circumstances, is it required to be a CLOSED source binary
->> blob. In fact, why can't it be open?  In the event of a firmware bug,
->> in fact, it is very desirable to have this software be open so that
->> it can be fixed
->
-> You're making a very good argument as to why we should probably
-> require that the code linking against such an interface, if we
-> decide we want one, should be required to be open source.
+Antonio Vargas wrote:
+> I've been fishing in my mail archive and was unable to get any
+> discussion about abstract mmu... do you know where I can get more info
+> on that?
 
-Personally, I don't feel a strong requirement that it be open source, 
-because I don't believe it violates the intent of the GPL license by 
-crippling free distribution of the kernel, requiring some fee for use, 
-or doing anything unethical.  There have been charges that the VMI layer 
-is deliberately designed as a GPL circumvention device, which I want to 
-stamp out now before we try to get any code for integrating to it 
-upstreamed.
+Here's one useful link:
 
+http://lwn.net/Articles/124961/
 
->> I think you will see why our VMI layer is quite similar to a
->> traditional ROM, and very dissimilar to an evil GPL-circumvention
->> device.
+>> - but there can be no progress until there is some kind of consensus on
+>> what those are, and having an interface in the kernel is a requirement
+>> for any deeper level of paravirtualization.
+>>
+>> Zach
 >
->> (?) There are only two reasonable objections I can see to open
->> sourcing the binary layer. 
+> Here I'd like to say that I mentioned both mol and the sun T1 because
+> so far we haven't had any discussion on whether any of their
+> interfaces are worth copying for the x86 case. Also worth looking at
+> would be the work done by IBM for ppc64 and s390, especially the last
+> one is prone to be very optimised since their hypervisor work has been
+> proven to work for a very long time.
 >
-> Since none of the vendors that might use such a paravirtualized
-> ROM for Linux actually have one of these reasons for keeping their
-> paravirtualized ROM blob closed source, I say we might as well
-> require that it be open source.
+> I sure don't mean to diss out both vmware and xen work on the field,
+> given the rocky nature of the x86 architecture, but maybe taking a
+> look at preexisting work can be a good idea if it hasn't been done
+> earlier
 
-I think saying require at this point is a bit preliminary for us -- I'm 
-trying to prove we're not being evil and subverting the GPL, but I'm 
-also not guaranteeing yet that we can open-source the code under a 
-specific license.  Sorry about having to doublespeak here - but we have 
-not yet got a green light to open source the VMI layer under the GPL.  
-Perhaps there are some other issues I haven't conceived of.  We still 
-have some source separation issues with creating a build environment due 
-to entangled header files - that is being sorted out, but we're 
-certainly not ready to distribute an open source buildable VMI layer for 
-ESX today.  I sincerely hope we will be very soon.
-
->
-> As for the evilness of a binary interface - the interface between
-> kernel and userland is a stable binary interface and is decidedly
-> non-evil.  I could see a similar use for a stable paravirtualization
-> interface, to make compatibility between Linux and various hypervisor
-> versions easier.
->
-> As long as it's open source so the thing can be debugged :)
-
-Unfortunately, inlining and patching code will break CFI debug 
-information!  I haven't thought of a way to fix this yet other than 
-using frame pointers.  At least the possibility of debugging exists.
+Almost nothing from any other architecture makes sense for x86.  X86 is 
+not a virtualizable architecture.  It has both classical problems - 
+sensitive instructions, and also non-reversible CPU state.  Hardware 
+virtualization is now making that easier, but simplifying the OS to 
+avoid these problems is actually simpler and more efficient.  PPC64 and 
+S390 had the benefit of being designed with virtualization in mind, and 
+they still have "paravirtualized" kernel architectures when you look at 
+the lower layers.
 
 Zach
-

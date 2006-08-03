@@ -1,85 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWHCVLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWHCVPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWHCVLc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWHCVLc
+	id S932233AbWHCVPf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHCVPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:11:32 -0400
-Received: from outbound-kan.frontbridge.com ([63.161.60.23]:47661 "EHLO
-	outbound1-kan-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S932175AbWHCVLb convert rfc822-to-8bit (ORCPT
+	Thu, 3 Aug 2006 17:15:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22406 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932233AbWHCVPe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:11:31 -0400
-X-BigFish: VP
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 3 Aug 2006 17:15:34 -0400
+Message-ID: <44D26769.4070505@sgi.com>
+Date: Thu, 03 Aug 2006 14:15:21 -0700
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: IOMMU (Calgary) patches
-Date: Thu, 3 Aug 2006 16:10:55 -0500
-Message-ID: <84EA05E2CA77634C82730353CBE3A84307E83E88@SAUSEXMB1.amd.com>
-In-Reply-To: <20060803072352.GE4736@rhun.haifa.ibm.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IOMMU (Calgary) patches
-Thread-Index: Aca2zdQzdyMtFCuvTDajw/SS7kMd9gAcKmjw
-From: "Duran, Leo" <leo.duran@amd.com>
-To: "Muli Ben-Yehuda" <muli@il.ibm.com>, "Andi Kleen" <ak@suse.de>,
-       "Jon Mason" <jdmason@us.ibm.com>
-cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org
-X-OriginalArrivalTime: 03 Aug 2006 21:10:30.0602 (UTC)
- FILETIME=[404A82A0:01C6B741]
-X-WSS-ID: 68CCB9CC1NW960388-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       nagar@watson.ibm.com, balbir@in.ibm.com, jes@sgi.com, csturtiv@sgi.com,
+       tee@sgi.com, guillaume.thouvenin@bull.net
+Subject: Re: [patch 3/3] convert CONFIG tag for extended accounting routines
+References: <44D17A47.4010302@engr.sgi.com> <20060803000331.22fcb4c0.akpm@osdl.org>
+In-Reply-To: <20060803000331.22fcb4c0.akpm@osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi, Jon, Muli,
-
-I'm trying to build with the latest IOMMU patches for x86_64, so, I've
-pulled down 2.6.17, and the 2.6.18-rc3 patches... But, that's obviously
-lagging behind a bit.
-
-Is there a source tree that you guys work from?
-(I'm hoping that there's a better mechanism than keeping track of
-patches as they are submitted here).
-
-Leo Duran.
-
------Original Message-----
-From: Muli Ben-Yehuda [mailto:muli@il.ibm.com] 
-Sent: Thursday, August 03, 2006 2:24 AM
-To: Rolf Eike Beer
-Cc: Andrew Morton; linux-kernel@vger.kernel.org; Andi Kleen;
-discuss@x86-64.org
-Subject: [discuss] Re: [PATCH] Move valid_dma_direction() from x86_64 to
-generic code
-
-On Thu, Aug 03, 2006 at 08:25:19AM +0200, Rolf Eike Beer wrote:
-
-> > ./arch/x86_64/kernel/pci-swiotlb.c:6:#include <asm/dma-mapping.h>
-> > ./drivers/net/fec_8xx/fec_main.c:40:#include <asm/dma-mapping.h>
-> > ./drivers/net/fs_enet/fs_enet.h:11:#include <asm/dma-mapping.h>
-> > ./include/asm-x86_64/swiotlb.h:5:#include <asm/dma-mapping.h>
+Andrew Morton wrote:
+> On Wed, 02 Aug 2006 21:23:35 -0700
+> Jay Lan <jlan@engr.sgi.com> wrote:
 > 
-> I suspect it to be a bug anyway that every of this files ever included
-
-> asm/dma-mapping.h.
-
-Agreed wrt the fs_enet and fec_8xx; the swiotlb stuff I dimly recall I
-had a reason for. I'll take a look in bit to verify akpm's fix works.
-
-> > ./include/linux/dma-mapping.h:27:#include <asm/dma-mapping.h>
 > 
-> This is perfectly valid, isn't it :)
+>>+/**
+>>+ * acct_update_integrals - update mm integral fields in task_struct
+>>+ * @tsk: task_struct for accounting
+>>+ */
+>>+void acct_update_integrals(struct task_struct *tsk)
+>>+{
+>>+	if (likely(tsk->mm)) {
+>>+		long delta =
+>>+			cputime_to_jiffies(tsk->stime) - tsk->acct_stimexpd;
+> 
+> 
+> If a 32 architecture chooses to implement a 64-bit cputime_t, this
+> expression might go wrong for very long-running tasks and high HZ.
+> 
+> Perhaps we should do all this in terms of cputime_t and export everything
+> to userspace as u64?
 
-:-)
+Andrew,
 
-Cheers,
-Muli
+We export to userspace the acct_rss_mem1 and acct_vm_mem1, both as u64.
+The above logic is to calculate stime delta since last update. Note that
+acc_update_integrals() is invoked at do_execve, do_exit, _AND_ at
+account_system_time, which is called every jiffy by timer interrupt
+handler.
 
+The tsk->acct_stimexpd is used to save the tsk->stime of last update.
+It should be changed to cputime_t as well. I will include the fix in
+my next fix patch.
 
+> 
+> 
+>>+		if (delta == 0)
+>>+			return;
+>>+		tsk->acct_stimexpd = tsk->stime;
+>>+		tsk->acct_rss_mem1 += delta * get_mm_rss(tsk->mm);
+>>+		tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
+> 
+> 
+> It's a bit weird to be multiplying RSS by time.  What unit is a "byte
+> second"?
+> 
+> If this is not a bug then I guess this is an intermediate term for
+> additional downstream processing.  There is information loss here and I'd
+> have thought that it would be better to simply send `delta' and the rss
+> straight to userspace, let userspace work out what math it wants to perform
+> on it.  If that makes sense?
+> 
+> I see that the code has been like this for a long time, so treat this as a
+> "please educate me about BSD accounting" email ;)
+
+This is not a BSD accounting thing. It came from UNICOS and IRIX.
+I am pinging the person who knows how the real world users use these
+two fields...
+
+Regards,
+  - jay
+
+> 
 
 

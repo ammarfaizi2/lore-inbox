@@ -1,36 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWHCGPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWHCGTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWHCGPE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 02:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHCGPE
+	id S1750841AbWHCGTV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 02:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWHCGTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 02:15:04 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:38980 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932355AbWHCGPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 02:15:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ol/yjvTc29uuovObN99uG5QocO7Qb3BVrsa4KHwvUOyN9nUW28cbcw5q3jpdzvPZb1H5Q3xvopB0JIpeaFNgs5eU2EuwMtGt0cqB43nx2qNw9EKMBdvXplovpbVL9s0/C5hYXSSv/kFSe/Ql5K9ZcbPeUtnIfBxNn02QICKMc2w=
-Message-ID: <4ae3c140608022315y675eed20hcefbb8fb0407f4a3@mail.gmail.com>
-Date: Thu, 3 Aug 2006 02:15:01 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Can someone explain under what condition inode cache pages can be swapped out?
-Cc: linux-fsdevel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 3 Aug 2006 02:19:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35025 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750841AbWHCGTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 02:19:20 -0400
+Date: Wed, 2 Aug 2006 23:19:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, jeremy@goop.org, zach@vmware.com,
+       chrisw@sous-sol.org
+Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
+ space.
+Message-Id: <20060802231912.ed77f930.akpm@osdl.org>
+In-Reply-To: <20060803002518.595166293@xensource.com>
+References: <20060803002510.634721860@xensource.com>
+	<20060803002518.595166293@xensource.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Specifically, how a swaping system determine which page should be
-swapped out when memory is tight? Intuitively, I think inode cache
-pages should be swapped out as late as possible. But how Linux mkae
-decision on this? Why linux does not pin inode pages in the memory?
+On Wed, 02 Aug 2006 17:25:17 -0700
+Jeremy Fitzhardinge <jeremy@xensource.com> wrote:
 
-Thanks in advance for kind help!
+> +		/*
+> +		 * reservetop=size reserves a hole at the top of the kernel
+> +		 * address space which a hypervisor can load into later.
+> +		 * Needed for dynamically loaded hypervisors, so relocating
+> +		 * the fixmap can be done before paging initialization.
+> +		 * This hole must be a multiple of 4M.
+> +		 */
+> +		else if (!memcmp(from, "reservetop=", 11)) {
+> +			unsigned long reserve = memparse(from+11, &from);
+> +			reserve &= ~0x3fffff;
+> +			reserve_top_address(reserve);
+> +		}
 
-xin
+I assume that this argument will normally be passed in via the hypervisor
+rather than by human-entered information?
+
+In which case, perhaps a panic would be a more appropriate response to a
+non-multiple-of-4M.
+
+Either way, rounding the number down rather than up seems wrong...

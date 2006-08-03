@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWHCBSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWHCBUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWHCBSH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 21:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWHCBSH
+	id S932113AbWHCBUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 21:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWHCBUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 21:18:07 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:31699 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932102AbWHCBSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 21:18:05 -0400
-Message-ID: <44D14ECC.3080600@vmware.com>
-Date: Wed, 02 Aug 2006 18:18:04 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Wed, 2 Aug 2006 21:20:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:53175 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932113AbWHCBUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 21:20:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dpC32c8OUGTdFbWOESBDWSf/a9BNF8b14YdiDk7uutf7OsrzPXZuYCBe8KUP9kN08o21eiFBsUVnSDCFlmKgmu18vyhl6nhPm6ovnMCVpoiA8jX9VCEsLIHtxPtoB26b4VP0yuBWtz5bleqtRwazPm+y77EhJwk1Ij7ukNRb3ug=
+Message-ID: <5bdc1c8b0608021820u5235c491tdf9b25f5906fe3f8@mail.gmail.com>
+Date: Wed, 2 Aug 2006 18:20:50 -0700
+From: "Mark Knecht" <markknecht@gmail.com>
+To: "hui Bill Huey" <billh@gnuppy.monkey.org>
+Subject: Re: 2.6.17-rt8 crash amd64
+Cc: "Steven Rostedt" <rostedt@goodmis.org>, "Ingo Molnar" <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060802011809.GA26313@gnuppy.monkey.org>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 2/8] Implement always-locked bit ops, for memory shared
- with an SMP hypervisor.
-References: <20060803002510.634721860@xensource.com> <20060803002518.061401577@xensource.com> <Pine.LNX.4.64.0608021726540.25963@schroedinger.engr.sgi.com> <44D144EC.3000205@goop.org> <Pine.LNX.4.64.0608021805150.26314@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608021805150.26314@schroedinger.engr.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060802011809.GA26313@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> Thats a good goal but what about the rest of us who have to maintain 
-> additional forms of bit operations for all architectures. How much is this 
-> burden? Are locked atomic bitops really that more expensive?
->   
+On 8/1/06, hui Bill Huey <billh@gnuppy.monkey.org> wrote:
+>
+> Hello folks,
+>
+> I'm getting this:
+>
+> [   41.989355] BUG: scheduling while atomic: udevd/0x00000001/1101
+<SNIP>
+> [   42.198871]        <ffffffff8025ce3d>{error_exit+0}
+> [   42.204040]        <ffffffff8025bf22>{system_call+126}
+> [   42.209715] ---------------------------
+> [   42.213716] | preempt count: 00000001 ]
+> [   42.217715] | 1-level deep critical section nesting:
+> [   42.222879] ----------------------------------------
+> [   42.228043] .. [<ffffffff8025ef7d>] .... __schedule+0xb3/0xb2a
+> [   42.234150] .....[<ffffffff8025fd89>] ..   ( <= schedule+0xec/0x11e)
+> [   42.240796]
+> [   53.347726] NET: Registered protocol family 10
+> [   53.353240] IPv6 over IPv4 tunneling driver
+>
+>
 
-It needn't be all architectures yet - only architectures that want to 
-compile Xen drivers are really affected.  Perhaps a better place for 
-these locking primitives is in a Xen-specific driver header which 
-defines appropriate primitives for the architectures required?  Last I 
-remember, there were still some issues here where atomic partial word 
-operations couldn't be supported on some architectures.
+Hi,
+   Similar problems here also but in my case it said '2-level deep'
+and I had different stuff after that message. AMD64/ NVidia MB. I
+don't have a second Linux machine handle to do the remote boot console
+thing. If it's important that I send in more info I'll get a camera or
+something like that. Let me know if it's required.
 
-To answer your question, yes.  On most i386 cores, locks destroy 
-performance, and even unintentional use of a single locked operation in 
-a critical path, on uncontended local memory, can have several hundred 
-cycles downstream penalty.  I accidentally used one once during context 
-switch, and saw a 30% reduction in switch performance - on a modern 
-processor.
+   Anyway, not a one machine problem at all.
 
-Zach
+Cheers,
+Mark

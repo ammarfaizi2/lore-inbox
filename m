@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWHCCeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWHCCjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWHCCeR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 22:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWHCCeR
+	id S1751374AbWHCCjB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 22:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWHCCjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 22:34:17 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:57988
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1750743AbWHCCeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 22:34:16 -0400
-Date: Wed, 2 Aug 2006 19:34:01 -0700
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: 2.6.17-rt8 crash amd64
-Message-ID: <20060803023401.GA3767@gnuppy.monkey.org>
-References: <20060802011809.GA26313@gnuppy.monkey.org> <5bdc1c8b0608021820u5235c491tdf9b25f5906fe3f8@mail.gmail.com> <20060803014154.GA3370@gnuppy.monkey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060803014154.GA3370@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+	Wed, 2 Aug 2006 22:39:01 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:4414 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751374AbWHCCjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 22:39:00 -0400
+Date: Wed, 02 Aug 2006 20:37:55 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [2.6.18-rc2-mm1] libata cdroms not automounted
+In-reply-to: <fa.0fapZpsbPNwCajbQ53nT7FIKF1k@ifi.uio.no>
+To: =?ISO-8859-1?Q?=22J=2EA=2E_Magall=F3n=22?= <jamagallon@ono.com>
+Cc: "Linux-Kernel, " <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-id: <44D16183.1040603@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <fa.0fapZpsbPNwCajbQ53nT7FIKF1k@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 06:41:54PM -0700, Bill Huey wrote:
-> On Wed, Aug 02, 2006 at 06:20:50PM -0700, Mark Knecht wrote:
-> >   Anyway, not a one machine problem at all.
-> 
-> Any stack trace is welcomed.
-> 
-> I just changed a couple of things to get a better stack trace and it's
-> changed the timing of the system where I can't get a reliable stack
-> trace anymore. Try another route...
+J.A. Magallón wrote:
+> Following with my switch to libata for everything...
+> After latest patches, my burner and dvd work ok, apart from the fact that
+> they do not get auto-mounted in gnome environment.
 
-Steve and company,
+I've seen this as well on my laptop with the latest Fedora Core 5 kernel 
+plus Alan's 2.6.17-ide1, with the latest FC5 update versions of udev, 
+hal, etc.
 
-Talking about problems. I'm getting "1491240 >"  calls to task_blocks_on_rt_mutex()
-on boot up. This sounds ridiculously high and it makes me wonder what's going
-on with the kernel from a macro level (ignoring the exact places for now).
-
-bill
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

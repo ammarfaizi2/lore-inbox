@@ -1,82 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWHCJ4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWHCKAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWHCJ4R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 05:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHCJ4Q
+	id S932461AbWHCKAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 06:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWHCKAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 05:56:16 -0400
-Received: from web25815.mail.ukl.yahoo.com ([217.146.176.248]:33667 "HELO
-	web25815.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932415AbWHCJ4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 05:56:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=QuV8scucabXXwMDvJeO/efkrY9JEO1MUdUP5yqM+zNeAiyFXRItp/XLxqSdZlZdlvSMgGu4jRMyHcKRYsBJGx5WgpRDbvTTvpCi3GMdN6OgK2lDRhgGKl9y6l7OhsMNhwCUDfFSGrq3uG8bMpVHVzPZhte1UqQe52ni1RdLHGkU=  ;
-Message-ID: <20060803095615.27090.qmail@web25815.mail.ukl.yahoo.com>
-Date: Thu, 3 Aug 2006 09:56:15 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : Re : sparsemem usage
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44D0C671.7040709@shadowen.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Aug 2006 06:00:45 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:35078 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932454AbWHCKAo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 06:00:44 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: tytso@mit.edu (Theodore Tso)
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net,
+       mchan@broadcom.com
+Organization: Core
+In-Reply-To: <20060803075704.GC27835@thunk.org>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au>
+Date: Thu, 03 Aug 2006 20:00:35 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft wrote:
-> When allocating we do not have a problem as we simply pull a free page 
-> off the appropriately sizes free list.  Its when freeing we have an 
-> issue, all the allocator has to work with is the page you are freeing. 
-> As MAX_ORDER is >128K we can get to the situation where all but one page 
-> is free.  When we free that page we then need to merge this 128Kb page 
-> with its buddy if its free.   To tell if that one is free it has to look 
-> at the page* for it, so that page* must also exist for this check to work.
+Theodore Tso <tytso@mit.edu> wrote:
+> 
+> I'm sending this on mostly because it was a bit of a pain to track down,
+> and hopefully it will save time if anyone else hits this while playing
+> with the -rt kernel.  It is NOT the right way to fix things, so please
+> don't even think of applying this patch (unless you need it, in your own
+> local tree :-).
+> 
+> One of these days when we have time to breath we'll look into fixing
+> this the right way, if someone doesn't beat us to it first.  :-)
 
-Maybe in sparsemem code, we could mark a well chosen page as reserved if
-the size of mem region is < MAX_ORDER. That way the buddy allocator
-will never have to free a block of 128 KO...
+You probably should resend the patch to netdev and Michael Chan
+<mchan@broadcom.com>.  He might have ideas on how this could be
+avoided.
 
-> pfn_valid() will indeed say 'ok'.  But that is defined only to mean that 
-> it is safe to look at the page* for that page.  It says nothing else 
-> about the page itself.  Pages which are reserved never get freed into 
-> the allocator so they are not there to be allocated so we should not be 
-> refering to them.
-
-wouldn't it be safer to mark these pages as "invalid" instead of "reserved"
-with a special value stored in mem_map[] ?
-
-> There are tradeoffs here.  The smaller the section size the better the 
-> internal fragmentation will be.  However also the more of them there 
-> will be, the more space that will be used tracking them, the more 
-> cachelines touched with them.  Also as we have seen we can't have things 
-> in the allocator bigger than the section size.  This can constrain the 
-> lower bound on the section size.  Finally, on 32 bit systems the overall 
-> number of sections is bounded by the available space in the fields 
-> section of the page* flags field.
-
-thanks for that.
-
-> If your system has 256 1Gb sections and 1 128Kb section then it could 
-> well make sense to have a 1GB section size or perhaps a 256Mb section 
-> size as you are only wasting space in the last section.
-
-> I read that as saying there was a major gap to 3Gb and then it was 
-> contigious from there; but then I was guessing at the units :).
-
-here is a updated version of my mapping, it should be clear now:
-
-HOLE0: 0 - 3 Go
-MEM1: 0xc000 0000 - 32 Mo
-HOLE1: 0xc200 0000 - 224 Mo
-MEM2: 0xd000 0000 - 8 Mo
-HOLE2: 0xd080 0000 - 120 Mo
-MEM3: 0xd800 0000 - 128 Ko
-HOLE3: rest of mem
-
-Francis
-
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

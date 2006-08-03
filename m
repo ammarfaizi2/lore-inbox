@@ -1,36 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWHCVt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWHCVwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWHCVt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHCVt3
+	id S1030207AbWHCVwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHCVwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:49:29 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62695
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030199AbWHCVt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:49:28 -0400
-Date: Thu, 03 Aug 2006 14:48:45 -0700 (PDT)
-Message-Id: <20060803.144845.66061203.davem@davemloft.net>
-To: tytso@mit.edu
-Cc: mchan@broadcom.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060803201741.GA7894@thunk.org>
-References: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au>
-	<1154630207.3117.17.camel@rh4>
-	<20060803201741.GA7894@thunk.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 17:52:35 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14609 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030207AbWHCVwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 17:52:34 -0400
+Date: Thu, 3 Aug 2006 23:52:31 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Userspace visible of 3 include/asm/ headers
+Message-ID: <20060803215230.GI25692@stusta.de>
+References: <20060803193952.GF25692@stusta.de> <20060803194410.GC16927@redhat.com> <44D26A8B.9040907@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D26A8B.9040907@zytor.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Theodore Tso <tytso@mit.edu>
-Date: Thu, 3 Aug 2006 16:17:41 -0400
+On Thu, Aug 03, 2006 at 02:28:43PM -0700, H. Peter Anvin wrote:
+> Dave Jones wrote:
+> >
+> > > Header        : setup.h
+> > > Architectures : i386, ia64, x86_64
+> > > Contents:
+> > > - COMMAND_LINE_SIZE on ia64, x86_64
+> > > - much more on i386
+> > > Should COMMAND_LINE_SIZE be visible to userspace?
+> >
+> >Bootloaders probably need to know this.
+> >
+> 
+> COMMAND_LINE_SIZE should be moved to a different header and be made 
+> common between all architectures.
 
-> eth0: Tigon3 [partno(BCM95704s) rev 2100 PHY(serdes)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:14:5e:86:44:24
+On different architectures, we have the following values for 
+COMMAND_LINE_SIZE:
+- 256
+- 512
+- 896
+- 1024
+- 4096
 
-The 5704 chip will set TG3_FLAG_TAGGED_STATUS, and therefore
-doesn't need the periodic poking done by tg3_timer().
+What should be the common value?
+4096?
+
+And I have a rough memory of some dependencies of COMMAND_LINE_SIZE and 
+boot loaders. What exactly must be taken care of when increasing 
+COMMAND_LINE_SIZE?
+
+> 	-hpa
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

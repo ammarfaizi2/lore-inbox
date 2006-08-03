@@ -1,138 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWHCAT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWHCAU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWHCAT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 20:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWHCAT0
+	id S1750852AbWHCAU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 20:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWHCAU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 20:19:26 -0400
-Received: from mx2.suse.de ([195.135.220.15]:61876 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750712AbWHCAT0 (ORCPT
+	Wed, 2 Aug 2006 20:20:26 -0400
+Received: from mail.suse.de ([195.135.220.2]:54213 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750798AbWHCAU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 20:19:26 -0400
-Date: Wed, 2 Aug 2006 17:14:56 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB fixes for 2.6.18-rc3
-Message-ID: <20060803001455.GA9534@kroah.com>
+	Wed, 2 Aug 2006 20:20:26 -0400
+From: Neil Brown <neilb@suse.de>
+To: Philipp Matthias Hahn <pmhahn@svs.Informatik.Uni-Oldenburg.de>
+Date: Thu, 3 Aug 2006 10:20:12 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Transfer-Encoding: 7bit
+Message-ID: <17617.16700.274788.869486@cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, akpm@osdl.org, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH for stable] Re: [Fwd: moradin 2006-08-02 11:02 System Events]
+In-Reply-To: message from Philipp Matthias Hahn on Wednesday August 2
+References: <44D08371.9070607@svs.Informatik.Uni-Oldenburg.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a some fixes for USB against 2.6.18-rc1.  They do the
-following:
-	- revert the two USB patches that forced people to upgrade udev
-	  to a newer version than specified in Documentation/Changes
-	- removed the anydata driver, as the option driver does
-	  everything it did already, and it's supported by an active
-	  developer
-	- lots of device id updates
-	- some documentation fixes
-	- lots of bugfixes (most minor, but a few are big enough to have
-	  been reported.)
+On Wednesday August 2, pmhahn@svs.Informatik.Uni-Oldenburg.de wrote:
+> Hello!
+> 
+> Rebooting one of our NFS file servers with 2.6.17.7, I just got the
+> following OOPS:
 
-Some of these changes have been in the -mm tree for a while.
+Thanks for the report.
+The bug was fairly easy to find and fix.
+I think this would be appropriate for the next 2.6.17.x stable kernel,
+and definitely for 2.6.18. (hence 'akpm' and 'stable' cc:ed).
 
-Please pull from:
-	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+It is not relevant for earlier kernels (e.g. 2.6.16).
 
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
+Patch was made against 2.6.18-rc2-mm1, but applies equally to
+2.6.17.7.
 
-thanks,
+Thanks again,
+NeilBrown
 
-greg k-h
 
- Documentation/usb/proc_usb_info.txt |    2 
- Documentation/usb/usb-help.txt      |    3 -
- drivers/usb/Kconfig                 |    2 
- drivers/usb/core/devio.c            |   20 ++--
- drivers/usb/core/file.c             |   13 +--
- drivers/usb/gadget/Kconfig          |    2 
- drivers/usb/gadget/at91_udc.c       |  176 ++++++++++++++++++++++-------------
- drivers/usb/gadget/at91_udc.h       |    1 
- drivers/usb/gadget/dummy_hcd.c      |    6 +
- drivers/usb/host/ehci-hcd.c         |    2 
- drivers/usb/host/ohci-at91.c        |   88 ++++++++++++------
- drivers/usb/host/ohci-hcd.c         |    3 -
- drivers/usb/host/uhci-q.c           |    4 +
- drivers/usb/input/ati_remote.c      |    5 -
- drivers/usb/misc/cypress_cy7c63.c   |    9 +-
- drivers/usb/net/rtl8150.c           |   83 ++++++++++++++---
- drivers/usb/serial/Kconfig          |   24 ++---
- drivers/usb/serial/Makefile         |    1 
- drivers/usb/serial/anydata.c        |  123 ------------------------
- drivers/usb/serial/ftdi_sio.c       |    1 
- drivers/usb/serial/ftdi_sio.h       |    4 +
- drivers/usb/serial/ipaq.c           |    1 
- drivers/usb/serial/option.c         |   76 +--------------
- drivers/usb/serial/pl2303.c         |    1 
- drivers/usb/serial/pl2303.h         |    4 +
- drivers/usb/storage/unusual_devs.h  |   29 +++---
- drivers/usb/storage/usb.c           |   13 ++-
- include/linux/usb.h                 |    7 +
- include/linux/usb_usual.h           |    4 +
- 29 files changed, 343 insertions(+), 364 deletions(-)
- delete mode 100644 drivers/usb/serial/anydata.c
+---------------------------------------------
+Fix race related problem when adding items to and svcrpc auth cache.
 
----------------
+If we don't find the item we are lookng for, we allocate a new one,
+and then grab the lock again and search to see if it has been added
+while we did the alloc.
+If it had been added we need to 'cache_put' the newly created item 
+that we are never going to use.  But as it hasn't been initialised
+properly, putting it can cause an oops.
 
-Adrian Bunk:
-      USB: fix the USB_GADGET_DUMMY_HCD dependencies
+So move the ->init call earlier to that it will always be fully
+initilised if we have to put it.
 
-Alan Stern:
-      USB: dummy-hcd: disable interrupts during req->complete
-      USB: unusual_devs entry for Nokia 3250
-      USB: UHCI: Don't test the Short Packet Detect bit
+Thanks to Philipp Matthias Hahn <pmhahn@svs.Informatik.Uni-Oldenburg.de>
+for reporting the problem.
 
-Daniel Drake:
-      usb-storage: Add US_FL_IGNORE_DEVICE flag; ignore ZyXEL G220F
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Dave Platt:
-      USB: Additional PID for the ftdi_sio driver
+### Diffstat output
+ ./net/sunrpc/cache.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-David Brownell:
-      USB: AT91 UDC updates, mostly power management
-      USB: AT91 OHCI updates, mostly power management
-
-Greg Kroah-Hartman:
-      Revert "USB: convert usb class devices to real devices"
-      Revert "USB: move usb_device_class class devices to be real devices"
-
-Kim Oldfield:
-      USB: New USB ID for Belkin Serial Adapter
-
-Li Yang:
-      USB: Fix Freescale high-speed USB host dependency
-
-Luiz Fernando N. Capitulino:
-      USB: doc: usb-help.txt update.
-      USB: doc: fixes devio.c location in proc_usb_info.txt.
-
-Marko Macek:
-      USB: ati_remote.c: autorepeat fix
-
-Matthias Urlichs:
-      USB: Option driver: removed change history and linux/version.h include
-      USB: Option driver: Short driver names were identical
-      USB: Let option driver handle Anydata CDMA modems. Remove anydata driver.
-      USB: Drop Sierra Wireless MC8755 from the Option driver
-      USB: Removed 3-port device handler from Option driver
-
-Norihiko Tomiyama:
-      USB: adding support for SHARP WS003SH to ipaq.c
-
-Oliver Bock:
-      USB: cypress driver comment updates
-
-Peter Chubb:
-      USB: Patch for rtl8150 to fix unplug problems
-
-Phil Dibowitz:
-      USB: unusual_devs device removal
-
+diff .prev/net/sunrpc/cache.c ./net/sunrpc/cache.c
+--- .prev/net/sunrpc/cache.c	2006-08-03 10:07:33.000000000 +1000
++++ ./net/sunrpc/cache.c	2006-08-03 10:08:36.000000000 +1000
+@@ -71,7 +71,12 @@ struct cache_head *sunrpc_cache_lookup(s
+ 	new = detail->alloc();
+ 	if (!new)
+ 		return NULL;
++	/* must fully initialise 'new', else
++	 * we might get lose if we need to
++	 * cache_put it soon.
++	 */
+ 	cache_init(new);
++	detail->init(new, key);
+ 
+ 	write_lock(&detail->hash_lock);
+ 
+@@ -85,7 +90,6 @@ struct cache_head *sunrpc_cache_lookup(s
+ 			return tmp;
+ 		}
+ 	}
+-	detail->init(new, key);
+ 	new->next = *head;
+ 	*head = new;
+ 	detail->entries++;

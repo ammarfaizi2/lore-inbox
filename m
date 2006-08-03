@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWHCCER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWHCCHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWHCCER (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 22:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWHCCER
+	id S1751306AbWHCCHK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 22:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHCCHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 22:04:17 -0400
-Received: from msr49.hinet.net ([168.95.4.149]:27847 "EHLO msr49.hinet.net")
-	by vger.kernel.org with ESMTP id S1751290AbWHCCEQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 22:04:16 -0400
-Message-ID: <024c01c6b6a0$fcf783e0$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       <akpm@osdl.org>, "Francois Romieu" <romieu@fr.zoreil.com>
-References: <1154030065.5967.15.camel@localhost.localdomain> <20060727125421.GB22935@tuxdriver.com> <044901c6b1ec$d0f5b680$4964a8c0@icplus.com.tw> <44C9E369.7070703@pobox.com>
-Subject: Re: [PATCH] Create IP100A Driver
-Date: Thu, 3 Aug 2006 10:03:17 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Wed, 2 Aug 2006 22:07:10 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:5229 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751306AbWHCCHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 22:07:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b3KCeraVN+PcCJuv3zOHo++ZtHj5gBZQg5Z71Q2GWNUvhnKNCcBoDad1UxPXhvBvgWzSz5NBbfE38N5W5BEtMUkd5f7Y1+Ys+5aJ3OyBDZKr97miS8pPzwr1PgzQOjBVQNR1v4ejWinTRZ5lrdwIIyNa8B8JvapWGGzKuZZHft4=
+Message-ID: <5bdc1c8b0608021907t75e42e1alb6a00355866081a3@mail.gmail.com>
+Date: Wed, 2 Aug 2006 19:07:07 -0700
+From: "Mark Knecht" <markknecht@gmail.com>
+To: "hui Bill Huey" <billh@gnuppy.monkey.org>
+Subject: Re: 2.6.17-rt8 crash amd64
+Cc: "Steven Rostedt" <rostedt@goodmis.org>, "Ingo Molnar" <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0608021856k52505caegf4ac6d7d5b08f69c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060802011809.GA26313@gnuppy.monkey.org>
+	 <5bdc1c8b0608021820u5235c491tdf9b25f5906fe3f8@mail.gmail.com>
+	 <20060803014154.GA3370@gnuppy.monkey.org>
+	 <5bdc1c8b0608021856k52505caegf4ac6d7d5b08f69c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Jeff:
+On 8/2/06, Mark Knecht <markknecht@gmail.com> wrote:
+> On 8/2/06, hui Bill Huey <billh@gnuppy.monkey.org> wrote:
+> >
+> > I just changed a couple of things to get a better stack trace and it's
+> > changed the timing of the system where I can't get a reliable stack
+> > trace anymore. Try another route...
+> >
+> > bill
+>
+> Bill,
+>    I'll send you a photo off list since I don't have a web server.
 
-    I had discuss with our peoples. We decided to use sundance.c to support
-IP100A. We will also update some bug fix to this driver.
+Or I won't....
 
-Thanks for your suggestion.
+I just booted the machine 4 times - 3 warm boots and 1 cold boot. No problems:
 
-Best Regards,
-Jesse Huang
-
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: "John W. Linville" <linville@tuxdriver.com>;
-<linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>; <akpm@osdl.org>
-Sent: Friday, July 28, 2006 6:14 PM
-Subject: Re: [PATCH] Create IP100A Driver
-
-Although it is occasionally OK to duplicate a driver, I do not see a
-compelling case with ip100a.
-
-The stronger case for a single codebase is won on the strengths of lower
-long-term maintenance costs, increased strength of review, doesn't break
-existing sundance driver uses, and re-use of existing testing benefits.
-
-If you feel strongly about not showing "sundance" to your users, you can
-always submit a one-line MODULE_ALIAS() change which permits users to
-load "ip100a" (really sundance.c).  Using MODULE_ALIAS() seems quite
-reasonable, given that IC Plus appears to be taking the lead in future
-Sundance-like chip development.
-
-So, please resubmit as changes to the existing sundance.c.  This is
-better for the standard Linux kernel engineering process.
-
-Thanks,
-
-Jeff
+mark@lightning ~ $ uname -a
+Linux lightning 2.6.17-rt8 #1 PREEMPT Wed Aug 2 16:49:42 PDT 2006
+x86_64 AMD Athlon(tm) 64 Processor 3000+ GNU/Linux
+mark@lightning ~ $
 
 
+I'll keep the camera handy and see if I can get some info if it happens again.
+
+- Mark

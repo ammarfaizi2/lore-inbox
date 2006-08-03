@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWHCXej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbWHCXfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWHCXej (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWHCXej
+	id S932556AbWHCXfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 19:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWHCXfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:34:39 -0400
-Received: from xenotime.net ([66.160.160.81]:55215 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932464AbWHCXei (ORCPT
+	Thu, 3 Aug 2006 19:35:09 -0400
+Received: from mail.gmx.de ([213.165.64.20]:50906 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932556AbWHCXfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:34:38 -0400
-Date: Thu, 3 Aug 2006 16:37:20 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Dave Jones <davej@redhat.com>
-Cc: Nate Diller <nate.diller@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] [1/2] Remove Deadline I/O scheduler
-Message-Id: <20060803163720.e9ba5f3a.rdunlap@xenotime.net>
-In-Reply-To: <20060803233048.GA7265@redhat.com>
-References: <5c49b0ed0608031557n405196ack3fa2024aae8a9475@mail.gmail.com>
-	<20060803233048.GA7265@redhat.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 19:35:06 -0400
+X-Authenticated: #428038
+Date: Fri, 4 Aug 2006 01:35:03 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Russell Leighton <russ@elegant-software.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Checksumming blocks? [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Message-ID: <20060803233503.GB25727@merlin.emma.line.org>
+Mail-Followup-To: Russell Leighton <russ@elegant-software.com>,
+	linux-kernel@vger.kernel.org
+References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF84F0.8080303@slaphack.com> <1154452770.15540.65.camel@localhost.localdomain> <44CF9217.6040609@slaphack.com> <20060803135811.GA7431@merlin.emma.line.org> <44D285DF.7060905@elegant-software.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D285DF.7060905@elegant-software.com>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.12 (2006-07-17)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Aug 2006 19:30:48 -0400 Dave Jones wrote:
+(I've stripped the Cc: list down to the bones.
+No need to shout side topics from the rooftops.)
 
-> On Thu, Aug 03, 2006 at 03:57:32PM -0700, Nate Diller wrote:
->  > This patch removes the Deadline I/O scheduler.  Performance-wise, it
->  > should be superceeded by the Elevator I/O scheduler in the following
->  > patch.  I would be very ineterested in hearing about any workloads or
->  > benchmarks where Deadline is a substantial improvement over Elevator,
->  > in throughput, fairness, latency, anything.
-> 
-> Its somewhat hard for folks to offer comparative benchmarks when you
-> remove something.  Without any numbers at all showing why your elevator
-> is superior, removing anything seems very premature.
-> 
-> I'm also not convinced that removing an elevator at all is a good idea,
-> as it'll cause regressions for anyone who has boot scripts that set
-> certain mounts to use deadline for eg.
+On Thu, 03 Aug 2006, Russell Leighton wrote:
 
-Shouldn't the usual feature-removal in N months be used here?
-if at all.
-(Documentation/feature-removal-schedule.txt)
+> If the software (filesystem like ZFS or database like Berkeley DB)  
+> finds a mismatch for a checksum on a block read, then what?
 
----
-~Randy
+(Note that this assumes a Berkeley DB in transactional mode.) Complain,
+demand recovery, set the panic flag (refusing further transactions
+except close and open for recovery).
+
+> Is there a recovery mechanism, or do you just be happy you know there is 
+> a problem (and go to backup)?
+
+Recoverability depends on log retention policy (set by the user or
+administrator) and how recently the block was written. There is a
+recovery mechanism.
+
+For applications that don't need their own recovery methods (few do),
+db_recover can do the job.
+
+In typical cases of power loss or kernel panic during write, the broken
+page will probably either be in the log so it can be restored (recover
+towards commit), or, if the commit hadn't completed but pages had been
+written due to cache conflicts, the database will be rolled back to the
+state before the interrupted transaction, effectively aborting the
+transaction.
+
+The details are in the Berkeley DB documentation, which please see.
+
+-- 
+Matthias Andree

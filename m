@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWHCX0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWHCXbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWHCX0q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHCX0q
+	id S932536AbWHCXbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 19:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWHCXbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:26:46 -0400
-Received: from mms1.broadcom.com ([216.31.210.17]:54276 "EHLO
-	mms1.broadcom.com") by vger.kernel.org with ESMTP id S1751387AbWHCX0p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:26:45 -0400
-X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-From: "Michael Chan" <mchan@broadcom.com>
-To: "David Miller" <davem@davemloft.net>
-cc: tytso@mit.edu, herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20060803.144845.66061203.davem@davemloft.net>
-References: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au>
- <1154630207.3117.17.camel@rh4> <20060803201741.GA7894@thunk.org>
- <20060803.144845.66061203.davem@davemloft.net>
-Date: Thu, 03 Aug 2006 16:28:19 -0700
-Message-ID: <1154647699.3117.26.camel@rh4>
-MIME-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3)
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006080308; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413031303230312E34344432383542312E303032352D422D2F342B574C684A754433704B705975633943514C71513D3D;
- ENG=IBF; TS=20060803232635; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006080308_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 68CC59A00HW63071446-01-01
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 19:31:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14257 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932536AbWHCXbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 19:31:03 -0400
+Date: Thu, 3 Aug 2006 19:30:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] [1/2] Remove Deadline I/O scheduler
+Message-ID: <20060803233048.GA7265@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Nate Diller <nate.diller@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	Jens Axboe <axboe@suse.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <5c49b0ed0608031557n405196ack3fa2024aae8a9475@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5c49b0ed0608031557n405196ack3fa2024aae8a9475@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 14:48 -0700, David Miller wrote:
-> From: Theodore Tso <tytso@mit.edu>
-> Date: Thu, 3 Aug 2006 16:17:41 -0400
-> 
-> > eth0: Tigon3 [partno(BCM95704s) rev 2100 PHY(serdes)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:14:5e:86:44:24
-> 
-> The 5704 chip will set TG3_FLAG_TAGGED_STATUS, and therefore
-> doesn't need the periodic poking done by tg3_timer().
-> 
+On Thu, Aug 03, 2006 at 03:57:32PM -0700, Nate Diller wrote:
+ > This patch removes the Deadline I/O scheduler.  Performance-wise, it
+ > should be superceeded by the Elevator I/O scheduler in the following
+ > patch.  I would be very ineterested in hearing about any workloads or
+ > benchmarks where Deadline is a substantial improvement over Elevator,
+ > in throughput, fairness, latency, anything.
 
-True.  But they also have ASF enabled which requires tg3_timer() to send
-the heartbeat periodically.  If the heartbeat is late, ASF may reset the
-chip believing that the system has crashed.
+Its somewhat hard for folks to offer comparative benchmarks when you
+remove something.  Without any numbers at all showing why your elevator
+is superior, removing anything seems very premature.
 
-> eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[1] Split[0] WireSpeed[0] TSOcap[0]
+I'm also not convinced that removing an elevator at all is a good idea,
+as it'll cause regressions for anyone who has boot scripts that set
+certain mounts to use deadline for eg.
 
-We'll see if we can do away with the timer-based heartbeat.  That's
-probably the best solution.
-
+		Dave
+-- 
+http://www.codemonkey.org.uk

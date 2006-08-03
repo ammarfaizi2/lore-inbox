@@ -1,82 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWHCX55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWHCX7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030231AbWHCX55 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWHCX55
+	id S1030237AbWHCX7k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 19:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWHCX7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:57:57 -0400
-Received: from sccrmhc14.comcast.net ([63.240.77.84]:23533 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1030231AbWHCX54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:57:56 -0400
-Message-ID: <44D28E4B.20605@elegant-software.com>
-Date: Thu, 03 Aug 2006 20:01:15 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Checksumming blocks? [was Re: the " 'official' point of view"
- expressed by kernelnewbies.org regarding reiser4 inclusion]
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF84F0.8080303@slaphack.com> <1154452770.15540.65.camel@localhost.localdomain> <44CF9217.6040609@slaphack.com> <20060803135811.GA7431@merlin.emma.line.org> <44D285DF.7060905@elegant-software.com> <20060803233503.GB25727@merlin.emma.line.org>
-In-Reply-To: <20060803233503.GB25727@merlin.emma.line.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 19:59:40 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:12296 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030233AbWHCX7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 19:59:39 -0400
+Date: Fri, 4 Aug 2006 09:59:27 +1000
+To: David Miller <davem@davemloft.net>
+Cc: tytso@mit.edu, mchan@broadcom.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+Message-ID: <20060803235927.GB10932@gondor.apana.org.au>
+References: <20060803201741.GA7894@thunk.org> <20060803.144845.66061203.davem@davemloft.net> <20060803235326.GC7894@thunk.org> <20060803.165654.45876296.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060803.165654.45876296.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 03, 2006 at 04:56:54PM -0700, David Miller wrote:
+> 
+> As Michael explained, it's the ASF heartbeat sent by tg3_timer() that
+> must be delivered to the chip within certain timing constraints.
+> 
+> If you had any watchdog devices on this machine, they would likely
+> trigger too and reset your machine :)
 
-Thx, for a db this seems natural...
+Watchdogs usually require one heartbeat every 30 seconds or so.  Does
+the ASF heartbeat need to be that frequent?
 
-I am very curious about ZFS as I think we will seem more protection in 
-the FS layer as disks get larger...
-If I have a very old file I am now half way throught reading and ZFS 
-finds a bad block, I assume I would
-get some kind of read() error...but then what? Does anyone know if there 
-are tools with ZFS to inspect the file?
-
-Matthias Andree wrote:
-
->(I've stripped the Cc: list down to the bones.
->No need to shout side topics from the rooftops.)
->
->On Thu, 03 Aug 2006, Russell Leighton wrote:
->
->  
->
->>If the software (filesystem like ZFS or database like Berkeley DB)  
->>finds a mismatch for a checksum on a block read, then what?
->>    
->>
->
->(Note that this assumes a Berkeley DB in transactional mode.) Complain,
->demand recovery, set the panic flag (refusing further transactions
->except close and open for recovery).
->
->  
->
->>Is there a recovery mechanism, or do you just be happy you know there is 
->>a problem (and go to backup)?
->>    
->>
->
->Recoverability depends on log retention policy (set by the user or
->administrator) and how recently the block was written. There is a
->recovery mechanism.
->
->For applications that don't need their own recovery methods (few do),
->db_recover can do the job.
->
->In typical cases of power loss or kernel panic during write, the broken
->page will probably either be in the log so it can be restored (recover
->towards commit), or, if the commit hadn't completed but pages had been
->written due to cache conflicts, the database will be rolled back to the
->state before the interrupted transaction, effectively aborting the
->transaction.
->
->The details are in the Berkeley DB documentation, which please see.
->
->  
->
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

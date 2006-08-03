@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWHCTN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHCTO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWHCTN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 15:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWHCTN6
+	id S932204AbWHCTO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 15:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWHCTO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 15:13:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22981 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030181AbWHCTN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 15:13:57 -0400
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] DVB_CORE must select I2C
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org,
-       b.buschinski@web.de
-In-Reply-To: <Pine.LNX.4.58.0608030918240.4264@shell3.speakeasy.net>
-References: <20060727015639.9c89db57.akpm@osdl.org>
-	 <20060803155925.GA25692@stusta.de>
-	 <Pine.LNX.4.58.0608030918240.4264@shell3.speakeasy.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 03 Aug 2006 16:13:27 -0300
-Message-Id: <1154632407.31483.28.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 3 Aug 2006 15:14:58 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:54734 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932204AbWHCTO5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 15:14:57 -0400
+Message-ID: <44D24B31.2080802@vmware.com>
+Date: Thu, 03 Aug 2006 12:14:57 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com> <1154603822.2965.18.camel@laptopd505.fenrus.org> <44D23B84.6090605@vmware.com> <20060803190327.GA14237@kroah.com>
+In-Reply-To: <20060803190327.GA14237@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm...
-Em Qui, 2006-08-03 às 09:30 -0700, Trent Piepho escreveu:
-> > This means people who observed a compile error will now have the DVB
-> > support silently removed from their kernel.
-I think Adrian's idea of selecting I2C, instead of depend on would be a
-better approach for DVB_PLL.
-> 
-> This has been fixed differently already.  dvb-core.ko doesn't actually use
-> I2C, only dvb-pll.ko does.  Now the dvb-pll.ko module is no longer turned
-> on by DVB_CORE, but under a new option, DVB_PLL.  That option depends on
-> I2C.
-> 
-Cheers, 
-Mauro.
+Greg KH wrote:
+> On Thu, Aug 03, 2006 at 11:08:04AM -0700, Zachary Amsden wrote:
+>   
+>> Perhaps we can use this to encourage open sourced firmware layers,
+>> instead of trying to ban drivers which rely on firmware from the
+>> kernel.
+>>     
+>
+> No one is trying to ban such drivers.  Well, except the odd people on
+> debian-legal, but all the kernel developers know to ignore them :)
+>   
+
+That is good to know.  But there is a kernel option which doesn't make 
+much sense in that case:
+
+[*] Select only drivers that don't need compile-time external firmware
+
+
+Zach
 

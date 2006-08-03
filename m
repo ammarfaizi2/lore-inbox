@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWHCOjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWHCOj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbWHCOjc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 10:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWHCOjc
+	id S932423AbWHCOj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 10:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWHCOjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 10:39:32 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:54925 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932484AbWHCOjb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 10:39:31 -0400
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20060803143737.CF03D82D86@kleikamp.austin.ibm.com>
-Date: Thu,  3 Aug 2006 09:37:37 -0500 (CDT)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+	Thu, 3 Aug 2006 10:39:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10711 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932423AbWHCOjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 10:39:54 -0400
+Date: Thu, 3 Aug 2006 15:39:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
+       hch@infradead.org
+Subject: Re: [PATCH 06/28] reintroduce list of vfsmounts over superblock
+Message-ID: <20060803143953.GD920@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+	viro@ftp.linux.org.uk, herbert@13thfloor.at
+References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235244.964B79E7@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060801235244.964B79E7@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+On Tue, Aug 01, 2006 at 04:52:44PM -0700, Dave Hansen wrote:
+> 
+> We're moving a big chunk of the burden of keeping people from
+> writing to r/o filesystems from the superblock into the
+> vfsmount.  This requires that we consult the superblock's
+> vfsmounts when things like remounts occur.
+> 
+> So, introduce a list of vfsmounts hanging off the superblock.
+> We'll use this in a bit.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
+I don't think we'll need it.  We really need to keep is someone writing
+to this vfsmount counters in addition to is someone writing to this sb.
 
-This will update the following files:
-
- fs/jfs/inode.c     |   16 +----
- fs/jfs/jfs_inode.h |    1 
- fs/jfs/super.c     |  118 +++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 120 insertions(+), 15 deletions(-)
-
-through these ChangeSets:
-
-commit 8bcb2839b74d605f5549962a6e69dc07768e95b6 
-tree 3cb69aeaedc8444ed91882ac63714b52a2df6836 
-parent 115ff50bade0f93a288677745a5884def6cbf9b1 
-author Dave Kleikamp <shaggy@austin.ibm.com> Fri, 28 Jul 2006 08:46:05 -0500 
-committer Dave Kleikamp <shaggy@austin.ibm.com> Fri, 28 Jul 2006 08:46:05 -0500 
-
-    JFS: Fix bug in quota code.  tmp_bh.b_size must be initialized
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit 115ff50bade0f93a288677745a5884def6cbf9b1 
-tree a646404a99d0587ea0113a2c6dad71d7854a84d4 
-parent 64821324ca49f24be1a66f2f432108f96a24e596 
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 26 Jul 2006 14:52:13 -0500 
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 26 Jul 2006 14:52:13 -0500 
-
-    JFS: Quota support broken, no quota_read and quota_write
-    
-    jfs_quota_read/write are very near duplicates of ext2_quota_read/write.
-    
-    Cleaned up jfs_get_block as long as I had to change it to be non-static.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+In fact there are cases were we want a superblock to be writeable to
+without any view into it being writeable, e.g. for journal recovery.
 

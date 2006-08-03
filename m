@@ -1,173 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWHCS63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWHCTCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWHCS63 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWHCS63
+	id S964867AbWHCTCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 15:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWHCTCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:58:29 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:50000 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964860AbWHCS61
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:58:27 -0400
-Subject: [Patch] percpu_alloc: pass cpumask by reference
-From: Martin Peschke <mp3@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 03 Aug 2006 20:58:20 +0200
-Message-Id: <1154631500.2963.17.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+	Thu, 3 Aug 2006 15:02:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21121 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964866AbWHCTCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 15:02:52 -0400
+Date: Thu, 3 Aug 2006 14:59:58 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, davem@davemloft.net, linville@tuxdriver.com
+Subject: Re: orinoco driver causes *lots* of lockdep spew
+Message-ID: <20060803185958.GC11577@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jean Tourrilhes <jt@hpl.hp.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	davem@davemloft.net, linville@tuxdriver.com
+References: <1154607380.2965.25.camel@laptopd505.fenrus.org> <E1G8der-0001fm-00@gondolin.me.apana.org.au> <20060803141153.GB20405@infradead.org> <20060803185800.GB12062@bougret.hpl.hp.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060803185800.GB12062@bougret.hpl.hp.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the percpu_alloc() functions pass (possibly large)
-cpumasks by reference, while it still looks like 'pass by value' for
-users (in the style of include/linux/cpumask.h).
+On Thu, Aug 03, 2006 at 11:58:00AM -0700, Jean Tourrilhes wrote:
+ > On Thu, Aug 03, 2006 at 03:11:53PM +0100, Christoph Hellwig wrote:
+ > > On Thu, Aug 03, 2006 at 11:54:41PM +1000, Herbert Xu wrote:
+ > > > Arjan van de Ven <arjan@infradead.org> wrote:
+ > > > > 
+ > > > > this is another one of those nasty buggers;
+ > > > 
+ > > > Good catch.  It's really time that we fix this properly rather than
+ > > > adding more kludges to the core code.
+ > > > 
+ > > > Dave, once this goes in you can revert the previous netlink workaround
+ > > > that added the _bh suffix.
+ > > > 
+ > > > [WIRELESS]: Send wireless netlink events with a clean slate
+ > > 
+ > > Could we please just get rid of the wireless extensions over netlink code
+ > > again?  It doesn't help to solve anything and just creates a bigger mess
+ > > to untangle when switching to a fully fledged wireless stack.
+ > 
+ > 	That's not going to happen any time soon, NetworkManager
+ > depends on Wireless Events, as well as many other apps. And there is
+ > not many mechanisms you can use in the kernel to generate events from
+ > driver to userspace.
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
+It seemed to cope pretty well before we had this ?
 
- include/linux/percpu.h |   23 +++++++++++++++--------
- mm/slab.c              |   23 ++++++++++++-----------
- 2 files changed, 27 insertions(+), 19 deletions(-)
-
-diff -ur a/include/linux/percpu.h b/include/linux/percpu.h
---- a/include/linux/percpu.h	29 Jul 2006 13:13:09 -0000	1.11
-+++ b/include/linux/percpu.h	29 Jul 2006 22:13:29 -0000	1.12
-@@ -38,10 +38,10 @@
- 
- extern void *percpu_populate(void *__pdata, size_t size, gfp_t gfp, int cpu);
- extern void percpu_depopulate(void *__pdata, int cpu);
--extern int percpu_populate_mask(void *__pdata, size_t size, gfp_t gfp,
--				cpumask_t mask);
--extern void percpu_depopulate_mask(void *__pdata, cpumask_t mask);
--extern void *percpu_alloc_mask(size_t size, gfp_t gfp, cpumask_t mask);
-+extern int __percpu_populate_mask(void *__pdata, size_t size, gfp_t gfp,
-+				  cpumask_t *mask);
-+extern void __percpu_depopulate_mask(void *__pdata, cpumask_t *mask);
-+extern void *__percpu_alloc_mask(size_t size, gfp_t gfp, cpumask_t *mask);
- extern void percpu_free(void *__pdata);
- 
- #else /* CONFIG_SMP */
-@@ -52,7 +52,7 @@
- {
- }
- 
--static inline void percpu_depopulate_mask(void *__pdata, cpumask_t mask)
-+static inline void __percpu_depopulate_mask(void *__pdata, cpumask_t *mask)
- {
- }
- 
-@@ -62,13 +62,13 @@
- 	return percpu_ptr(__pdata, cpu);
- }
- 
--static inline int percpu_populate_mask(void *__pdata, size_t size, gfp_t gfp,
--				       cpumask_t mask)
-+static inline int __percpu_populate_mask(void *__pdata, size_t size, gfp_t gfp,
-+					 cpumask_t *mask)
- {
- 	return 0;
- }
- 
--static inline void *percpu_alloc_mask(size_t size, gfp_t gfp, cpumask_t mask)
-+static inline void *__percpu_alloc_mask(size_t size, gfp_t gfp, cpumask_t *mask)
- {
- 	return kzalloc(size, gfp);
- }
-@@ -80,6 +80,13 @@
- 
- #endif /* CONFIG_SMP */
- 
-+#define percpu_populate_mask(__pdata, size, gfp, mask) \
-+	__percpu_populate_mask((__pdata), (size), (gfp), &(mask))
-+#define percpu_depopulate_mask(__pdata, mask) \
-+	__percpu_depopulate_mask((__pdata), &(mask))
-+#define percpu_alloc_mask(size, gfp, mask) \
-+	__percpu_alloc_mask((size), (gfp), &(mask))
-+
- #define percpu_alloc(size, gfp) percpu_alloc_mask((size), (gfp), cpu_online_map)
- 
- /* (legacy) interface for use without CPU hotplug handling */
-diff -ur a/mm/slab.c b/mm/slab.c
---- a/mm/slab.c	29 Jul 2006 11:38:25 -0000	1.59
-+++ b/mm/slab.c	29 Jul 2006 22:13:29 -0000	1.60
-@@ -3396,13 +3396,13 @@
-  * @__pdata: per-cpu data to depopulate
-  * @mask: depopulate per-cpu data for cpu's selected through mask bits
-  */
--void percpu_depopulate_mask(void *__pdata, cpumask_t mask)
-+void __percpu_depopulate_mask(void *__pdata, cpumask_t *mask)
- {
- 	int cpu;
--	for_each_cpu_mask(cpu, mask)
-+	for_each_cpu_mask(cpu, *mask)
- 		percpu_depopulate(__pdata, cpu);
- }
--EXPORT_SYMBOL_GPL(percpu_depopulate_mask);
-+EXPORT_SYMBOL_GPL(__percpu_depopulate_mask);
- 
- /**
-  * percpu_populate - populate per-cpu data for given cpu
-@@ -3441,20 +3441,21 @@
-  *
-  * Per-cpu objects are populated with zeroed buffers.
-  */
--int percpu_populate_mask(void *__pdata, size_t size, gfp_t gfp, cpumask_t mask)
-+int __percpu_populate_mask(void *__pdata, size_t size, gfp_t gfp,
-+			   cpumask_t *mask)
- {
- 	cpumask_t populated = CPU_MASK_NONE;
- 	int cpu;
- 
--	for_each_cpu_mask(cpu, mask)
-+	for_each_cpu_mask(cpu, *mask)
- 		if (unlikely(!percpu_populate(__pdata, size, gfp, cpu))) {
--			percpu_depopulate_mask(__pdata, populated);
-+			__percpu_depopulate_mask(__pdata, &populated);
- 			return -ENOMEM;
- 		} else
- 			cpu_set(cpu, populated);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(percpu_populate_mask);
-+EXPORT_SYMBOL_GPL(__percpu_populate_mask);
- 
- /**
-  * percpu_alloc_mask - initial setup of per-cpu data
-@@ -3466,19 +3467,19 @@
-  * which is simplified by the percpu_alloc() wrapper.
-  * Per-cpu objects are populated with zeroed buffers.
-  */
--void *percpu_alloc_mask(size_t size, gfp_t gfp, cpumask_t mask)
-+void *__percpu_alloc_mask(size_t size, gfp_t gfp, cpumask_t *mask)
- {
- 	void *pdata = kzalloc(sizeof(struct percpu_data), gfp);
- 	void *__pdata = __percpu_disguise(pdata);
- 
- 	if (unlikely(!pdata))
- 		return NULL;
--	if (likely(!percpu_populate_mask(__pdata, size, gfp, mask)))
-+	if (likely(!__percpu_populate_mask(__pdata, size, gfp, mask)))
- 		return __pdata;
- 	kfree(pdata);
- 	return NULL;
- }
--EXPORT_SYMBOL_GPL(percpu_alloc_mask);
-+EXPORT_SYMBOL_GPL(__percpu_alloc_mask);
- 
- /**
-  * percpu_free - final cleanup of per-cpu data
-@@ -3489,7 +3490,7 @@
-  */
- void percpu_free(void *__pdata)
- {
--	percpu_depopulate_mask(__pdata, cpu_possible_map);
-+	__percpu_depopulate_mask(__pdata, &cpu_possible_map);
- 	kfree(__percpu_disguise(__pdata));
- }
- EXPORT_SYMBOL_GPL(percpu_free);
-
-
+		Dave
+-- 
+http://www.codemonkey.org.uk

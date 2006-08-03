@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWHCFoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWHCFyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbWHCFoz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 01:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWHCFoz
+	id S1750893AbWHCFyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 01:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWHCFyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 01:44:55 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:37858 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932276AbWHCFoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 01:44:54 -0400
-Message-ID: <44D18D4A.8080201@t-online.de>
-Date: Thu, 03 Aug 2006 07:44:42 +0200
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
+	Thu, 3 Aug 2006 01:54:31 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57014 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750778AbWHCFya (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 01:54:30 -0400
+Date: Wed, 2 Aug 2006 22:54:17 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
+       akpm@osdl.org, xen-devel@lists.xensource.com,
+       Chris Wright <chrisw@sous-sol.org>, Ian Pratt <ian.pratt@xensource.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/8] Implement always-locked bit ops, for memory shared
+ with an SMP hypervisor.
+In-Reply-To: <200608030739.13334.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0608022252270.27488@schroedinger.engr.sgi.com>
+References: <20060803002510.634721860@xensource.com> <200608030725.13713.ak@suse.de>
+ <Pine.LNX.4.64.0608022227210.27356@schroedinger.engr.sgi.com>
+ <200608030739.13334.ak@suse.de>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
-References: <44CC9F7E.8040807@t-online.de> <20060802101803.GH7601@ucw.cz>
-In-Reply-To: <20060802101803.GH7601@ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig92823E899F52344CA10AD5CC"
-X-ID: GEvNz4ZvwejPZkBCuFebr490Newqh5mnnVciGt6JjpU1ag5uzcQWZ8
-X-TOI-MSGID: 89ef9590-185c-44d2-890c-6e7a9b4ffba5
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig92823E899F52344CA10AD5CC
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+On Thu, 3 Aug 2006, Andi Kleen wrote:
 
-Hi Pavel,
+> > I still wonder why you are so focused on ifdefs. Why would we need those?
+> 
+> Because the Xen drivers will run on a couple of architectures, including
+> IA64 and PPC.
+> 
+> If IA64 or PPC didn't implement at least wrappers for the sync ops
+> then they would all need special ifdefs to handle this.
 
-Pavel Machek wrote:
->=20
-> How do you manage to spindown SATA disks? I tried hdparm -y, but that
-> did not work iirc.
-> 							Pavel
->=20
+No they would just need to do an #include <xen-bitops.h>
 
-"hdparm -S"?
+> > Maybe the best thing would be to have proper atomic ops in UP mode on 
+> > i386? The current way of just dropping the lock bit is the source of the 
+> > troubles.
+> 
+> It's a huge performance difference.
 
-Please note that standard 3.5" disks are not made to spin
-down every 5 minutes. This feature can reduce the lifespan
-of your disk, AFAIK.
+I understand but why dont we use regular ops explicitly 
+instead of hacking the atomic ops. Then we would not have unhack them now.
 
+> > Just adding a single line #include <asm/xen-bitops.h> to drivers that need 
+> > this functionality is not an undue burden for the drivers that support 
+> > Xen. They have to use special _xxx bitops anyways.
+> 
+> Ok it could be put into a separate file (although with a neutral name)
+> 
+> But you would still need to add that to IA64, PPC etc. too, so it 
+> would only avoid adding a single to the other architectures.
 
-Regards
+Could we not just add one fallback definition to asm-generic?
 
-Harri
-
-
-
---------------enig92823E899F52344CA10AD5CC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFE0Y1PUTlbRTxpHjcRAk6JAJ9RmGZ64QAV+k+RnDlWAGIfBpoPGwCfcobk
-gfR26qjhULbujrfRidC+EuY=
-=2cLv
------END PGP SIGNATURE-----
-
---------------enig92823E899F52344CA10AD5CC--

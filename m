@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWHCUm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWHCUn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWHCUm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWHCUm5
+	id S1751326AbWHCUn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWHCUn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:42:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36032 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751322AbWHCUm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:42:56 -0400
-Date: Thu, 3 Aug 2006 16:41:35 -0400
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Zachary Amsden <zach@vmware.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
-Subject: Re: Options depending on STANDALONE
-Message-ID: <20060803204135.GH16927@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Adrian Bunk <bunk@stusta.de>, Zachary Amsden <zach@vmware.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-	v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
-References: <44D1CC7D.4010600@vmware.com> <1154603822.2965.18.camel@laptopd505.fenrus.org> <44D23B84.6090605@vmware.com> <20060803190327.GA14237@kroah.com> <44D24B31.2080802@vmware.com> <20060803193600.GA14858@kroah.com> <20060803195617.GD16927@redhat.com> <20060803202543.GH25692@stusta.de> <20060803202807.GA7712@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060803202807.GA7712@kroah.com>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 3 Aug 2006 16:43:58 -0400
+Received: from mail.renesas.com ([202.234.163.13]:56541 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S1751326AbWHCUn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:43:57 -0400
+Date: Fri, 04 Aug 2006 05:43:47 +0900
+From: Paul Mundt <paul.mundt@renesas.com>
+Subject: Re: [linuxsh-dev] [PATCH] sh: fix proc file removal for	superh	store
+ queue module
+In-reply-to: <20060803201857.GC5004@localhost.localdomain>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: Andrew Morton <akpm@osdl.org>, kernel-janitors@lists.osdl.org,
+       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
+       linuxsh-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-id: <1154637827.8280.0.camel@localhost>
+Organization: Renesas Technology America, Inc.
+MIME-version: 1.0
+X-Mailer: Evolution 2.6.2
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20060803191828.GA5004@localhost.localdomain>
+ <20060803124235.67bb664b.akpm@osdl.org>
+ <20060803201857.GC5004@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 01:28:07PM -0700, Greg Kroah-Hartman wrote:
- > On Thu, Aug 03, 2006 at 10:25:43PM +0200, Adrian Bunk wrote:
- > > ACPI_CUSTOM_DSDT seems to be the most interesting case.
- > > It's anyway not usable for distribution kernels, and AFAIR the ACPI 
- > > people prefer to get the kernel working with all original DSDTs
- > > (which usually work with at least one other OS) than letting the people 
- > > workaround the problem by using a custom DSDT.
- > 
- > Not true at all.  For SuSE kernels, we have a patch that lets people
- > load a new DSDT from initramfs due to broken machines requiring a
- > replacement in order to work properly.
+On Thu, 2006-08-03 at 16:18 -0400, Neil Horman wrote:
+> Patch to clean up proc file removal in sq module for superh arch.  currently on
+> a failed module load or on module unload a proc file is left registered which
+> can cause a random memory execution or oopses if read after unload.  This patch
+> cleans up that deregistration.
+> 
+Looks good, thanks Neil.
 
-Whilst this is a quick fix for users who either know how to hack DSDTs
-themselves, or know where to get a fixed one, it doesn't solve the bigger
-problem, that the interpretor doesn't get fixed.
-And by 'fixed', I mean we aren't bug for bug compatible with that
-other OS.  We need to be adding workarounds to the ACPI interpretor
-so this stuff 'just works', not hiding from the problem and creating
-"but it works in $otherdistro when I do this" scenarios.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+Acked-by: Paul Mundt <paul.mundt@renesas.com>

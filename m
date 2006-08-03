@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWHCPEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWHCPHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbWHCPEy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWHCPEy
+	id S932454AbWHCPHp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHCPHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:04:54 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:29315 "EHLO
-	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S932477AbWHCPEx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:04:53 -0400
-Date: Thu, 3 Aug 2006 17:04:46 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Benjamin LaHaise <bcrl@kvack.org>
-cc: Arnd Hannemann <arnd@arndnet.de>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: problems with e1000 and jumboframes
-In-Reply-To: <20060803145222.GB14997@kvack.org>
-Message-ID: <Pine.LNX.4.64.0608031703330.8443@bizon.gios.gov.pl>
-References: <44D1FEB7.2050703@arndnet.de> <20060803142412.GA14997@kvack.org>
- <Pine.LNX.4.64.0608031646110.8443@bizon.gios.gov.pl> <20060803145222.GB14997@kvack.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1612379357-1154617486=:8443"
+	Thu, 3 Aug 2006 11:07:45 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:43163 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932454AbWHCPHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 11:07:44 -0400
+Subject: Re: [PATCH] Fix initialization of runqueues
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060802165742.GI4460@implementation.labri.fr>
+References: <20060802122743.GF4460@implementation.labri.fr>
+	 <20060802152419.GA31970@elte.hu>
+	 <20060802165742.GI4460@implementation.labri.fr>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 03 Aug 2006 11:07:37 -0400
+Message-Id: <1154617657.32264.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 2006-08-02 at 18:57 +0200, Samuel Thibault wrote:
+> Ingo Molnar, le Wed 02 Aug 2006 17:24:19 +0200, a écrit :
+> > 
+> > * Samuel Thibault <samuel.thibault@ens-lyon.org> wrote:
+> > 
+> > > Hi,
+> > > 
+> > > There's an odd thing about the nr_active field in arrays of 
+> > > runqueue_t: it is actually never initialized to 0!...  This doesn't 
+> > > yet trigger a bug probably because the way runqueues are allocated 
+> > > make it so that it is already initialized to 0, but that's not a safe 
+> > > way.  Here is a patch:
+> > 
+> > we do rely on zero initialization of bss (and percpu) data in a number 
+> > of places.
+> 
+> The rest of runqueue initialization doesn't rely on that, and as
+> a result people might think that it is safe to allocate runqueues
+> dynamically.
 
----187430788-1612379357-1154617486=:8443
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+I don't buy the "safe to allocate runqueues dynamically" bit since they
+are local to sched.c and if you do do that (I did for a customer once)
+you better know what you're doing.
 
+That said, ...
 
+Hmm, Ingo I guess he's right on the first part:
 
-On Thu, 3 Aug 2006, Benjamin LaHaise wrote:
+<sched_init snipit>
 
-> On Thu, Aug 03, 2006 at 04:49:15PM +0200, Krzysztof Oledzki wrote:
->> With 1 GB of RAM full 1GB/3GB (CONFIG_VMSPLIT_3G_OPT) seems to be
->> enough...
->
-> Nope, you lose ~128MB of RAM for vmalloc space.
+		rq->nr_running = 0;
+[...]
 
-No sure:
-
-Linux version 2.6.17.7 (root@r1) (gcc version 3.4.6) #1 SMP PREEMPT Fri Jul=
- 28 18:05:40 CEST 2006
-BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
-  BIOS-e820: 0000000000100000 - 000000003ffc0000 (usable)
-  BIOS-e820: 000000003ffc0000 - 000000003ffcfc00 (ACPI data)
-  BIOS-e820: 000000003ffcfc00 - 000000003ffff000 (reserved)
-  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
-  BIOS-e820: 00000000fec00000 - 00000000fec90000 (reserved)
-  BIOS-e820: 00000000fed00000 - 00000000fed00400 (reserved)
-  BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
-  BIOS-e820: 00000000ffb00000 - 0000000100000000 (reserved)
-1023MB LOWMEM available.
-found SMP MP-table at 000fe710
-On node 0 totalpages: 262080
-   DMA zone: 4096 pages, LIFO batch:0
-   Normal zone: 257984 pages, LIFO batch:31
-(...)
-
-$ zcat /proc/config.gz |grep VMSPLIT
-# CONFIG_VMSPLIT_3G is not set
-CONFIG_VMSPLIT_3G_OPT=3Dy
-# CONFIG_VMSPLIT_2G is not set
-# CONFIG_VMSPLIT_1G is not set
+#ifdef CONFIG_SMP
+		rq->sd = NULL;
+		for (j = 1; j < 3; j++)
+			rq->cpu_load[j] = 0;
+		rq->active_balance = 0;
+		rq->push_cpu = 0;
+		rq->migration_thread = NULL;
+</sched_init snipit>
 
 
-Best regards,
+So I guess we should add his zero initializer, or we should remove all
+the other zero initializers.  Either way, we should be consistent.
 
- =09=09=09=09Krzysztof Ol=EAdzki
----187430788-1612379357-1154617486=:8443--
+-- Steve
+
+

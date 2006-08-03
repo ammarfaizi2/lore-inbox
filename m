@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWHCSfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWHCSgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWHCSfP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWHCSfP
+	id S1030184AbWHCSgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 14:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWHCSgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:35:15 -0400
-Received: from mms2.broadcom.com ([216.31.210.18]:18194 "EHLO
-	mms2.broadcom.com") by vger.kernel.org with ESMTP id S1030183AbWHCSfM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:35:12 -0400
-X-Server-Uuid: D9EB6F12-1469-4C1C-87A2-5E4C0D6F9D06
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Herbert Xu" <herbert@gondor.apana.org.au>
-cc: tytso@mit.edu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-In-Reply-To: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au>
-References: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au>
-Date: Thu, 03 Aug 2006 11:36:47 -0700
-Message-ID: <1154630207.3117.17.camel@rh4>
+	Thu, 3 Aug 2006 14:36:39 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:5294 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1030184AbWHCSgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 14:36:39 -0400
+Message-ID: <44D24236.305@vmware.com>
+Date: Thu, 03 Aug 2006 11:36:38 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3)
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006080306; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413031303230312E34344432343135432E303032372D422D2F342B574C684A754433704B705975633943514C71513D3D;
- ENG=IBF; TS=20060803183503; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006080306_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 68CC9E5E0X8873239-01-01
-Content-Type: text/plain
+To: Rik van Riel <riel@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com> <44D217A7.9020608@redhat.com>
+In-Reply-To: <44D217A7.9020608@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 20:00 +1000, Herbert Xu wrote:
-> Theodore Tso <tytso@mit.edu> wrote:
-> > 
-> > I'm sending this on mostly because it was a bit of a pain to track down,
-> > and hopefully it will save time if anyone else hits this while playing
-> > with the -rt kernel.  It is NOT the right way to fix things, so please
-> > don't even think of applying this patch (unless you need it, in your own
-> > local tree :-).
-> > 
-> > One of these days when we have time to breath we'll look into fixing
-> > this the right way, if someone doesn't beat us to it first.  :-)
-> 
-Ted, what tg3 hardware is having this timer related problem?  Can you
-send me the tg3 probing output?
+Rik van Riel wrote:
+> Zachary Amsden wrote:
+>
+>> And by NO circumstances, is it required to be a CLOSED source binary
+>> blob. In fact, why can't it be open?  In the event of a firmware bug,
+>> in fact, it is very desirable to have this software be open so that
+>> it can be fixed
+>
+> You're making a very good argument as to why we should probably
+> require that the code linking against such an interface, if we
+> decide we want one, should be required to be open source.
+
+Personally, I don't feel a strong requirement that it be open source, 
+because I don't believe it violates the intent of the GPL license by 
+crippling free distribution of the kernel, requiring some fee for use, 
+or doing anything unethical.  There have been charges that the VMI layer 
+is deliberately designed as a GPL circumvention device, which I want to 
+stamp out now before we try to get any code for integrating to it 
+upstreamed.
+
+
+>> I think you will see why our VMI layer is quite similar to a
+>> traditional ROM, and very dissimilar to an evil GPL-circumvention
+>> device.
+>
+>> (?) There are only two reasonable objections I can see to open
+>> sourcing the binary layer. 
+>
+> Since none of the vendors that might use such a paravirtualized
+> ROM for Linux actually have one of these reasons for keeping their
+> paravirtualized ROM blob closed source, I say we might as well
+> require that it be open source.
+
+I think saying require at this point is a bit preliminary for us -- I'm 
+trying to prove we're not being evil and subverting the GPL, but I'm 
+also not guaranteeing yet that we can open-source the code under a 
+specific license.  Sorry about having to doublespeak here - but we have 
+not yet got a green light to open source the VMI layer under the GPL.  
+Perhaps there are some other issues I haven't conceived of.  We still 
+have some source separation issues with creating a build environment due 
+to entangled header files - that is being sorted out, but we're 
+certainly not ready to distribute an open source buildable VMI layer for 
+ESX today.  I sincerely hope we will be very soon.
+
+>
+> As for the evilness of a binary interface - the interface between
+> kernel and userland is a stable binary interface and is decidedly
+> non-evil.  I could see a similar use for a stable paravirtualization
+> interface, to make compatibility between Linux and various hypervisor
+> versions easier.
+>
+> As long as it's open source so the thing can be debugged :)
+
+Unfortunately, inlining and patching code will break CFI debug 
+information!  I haven't thought of a way to fix this yet other than 
+using frame pointers.  At least the possibility of debugging exists.
+
+Zach
 

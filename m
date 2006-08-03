@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWHCU1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWHCU3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWHCU1n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWHCU1n
+	id S1751196AbWHCU3m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWHCU3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:27:43 -0400
-Received: from cantor.suse.de ([195.135.220.2]:19355 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751199AbWHCU1m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:27:42 -0400
-Date: Thu, 3 Aug 2006 13:23:09 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [GIT PATCH] PCI fixes for 2.6.18-rc3
-Message-ID: <20060803202309.GA28797@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 3 Aug 2006 16:29:42 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1990 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751118AbWHCU3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:29:41 -0400
+Subject: Re: frequent slab corruption (since a long time)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       jbaron@redhat.com
+In-Reply-To: <20060803175613.GK22448@redhat.com>
+References: <20060801.220538.89280517.davem@davemloft.net>
+	 <20060801.223110.56811869.davem@davemloft.net>
+	 <20060802222321.GH3639@redhat.com>
+	 <20060802.154954.112624420.davem@davemloft.net>
+	 <1154626843.23655.101.camel@localhost.localdomain>
+	 <20060803175613.GK22448@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 03 Aug 2006 21:48:32 +0100
+Message-Id: <1154638112.23655.110.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some PCI fixes for 2.6.18-rc3.  They include a new quirk, and
-some other minor bugfixes and build cleanup.  Also they remove the
-laptop docking station uevent message as it's not really necessary, and
-it should be removed before we ship it in a "real" kernel release.
+Ar Iau, 2006-08-03 am 13:56 -0400, ysgrifennodd Dave Jones:
+> Against my better judgment I was poring over that code until the wee
+> hours last night, and one thing crossed my mind re: the assumptions made
+> about the BKL in that subsystem.  Now that the BKL is preemtible, do
+> any of those assumptions break ?
 
-Please pull from:
-	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-
-The full patches will be sent to the linux-pci mailing list, if anyone
-wants to see them.
-
-thanks,
-
-greg k-h
-
- MAINTAINERS                        |    6 ++++++
- drivers/acpi/dock.c                |   13 ++++++------
- drivers/pci/hotplug/acpiphp_core.c |    3 +--
- drivers/pci/hotplug/acpiphp_glue.c |    2 +-
- drivers/pci/pcie/portdrv_pci.c     |   38 +++++++++++++++++++-----------------
- drivers/pci/quirks.c               |    7 +++++++
- drivers/pci/search.c               |    2 +-
- drivers/pnp/interface.c            |   12 ++++++-----
- include/linux/kobject.h            |    2 --
- include/linux/pci_ids.h            |    1 +
- lib/kobject_uevent.c               |    4 ----
- 11 files changed, 49 insertions(+), 41 deletions(-)
-
----------------
-
-Henrik Kretzschmar:
-      pcie: fix warnings when CONFIG_PM=n
-
-Jean Delvare:
-      PCI: Unhide the SMBus on Asus PU-DLS
-
-Kristen Carlson Accardi:
-      PCI Hotplug: add acpiphp to MAINTAINERS
-      PCI: docking station: remove dock uevents
-
-Pierre Ossman:
-      PNP: Add missing casts in printk() arguments
-
-Randy Dunlap:
-      PCIE: cleanup on probe error
-      PCI: pci/search: EXPORTs cannot be __devinit
+>From the walking of the code so far I think quite a few of them were
+already broken. I'm still annotating and I hope by the end of this
+evening I'll have a patch to post that documents the current state of
+affairs better, including some gems 8)
 

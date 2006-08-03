@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWHCCp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWHCCtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWHCCp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 22:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWHCCp7
+	id S1751375AbWHCCtA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 22:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWHCCtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 22:45:59 -0400
-Received: from ns.suse.de ([195.135.220.2]:36820 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750858AbWHCCp7 (ORCPT
+	Wed, 2 Aug 2006 22:49:00 -0400
+Received: from 1wt.eu ([62.212.114.60]:14861 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751375AbWHCCs7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 22:45:59 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [patch 2/8] Implement always-locked bit ops, for memory shared with an SMP hypervisor.
-Date: Thu, 3 Aug 2006 04:45:38 +0200
-User-Agent: KMail/1.9.3
-Cc: Christoph Lameter <clameter@sgi.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, akpm@osdl.org,
-       xen-devel@lists.xensource.com, Chris Wright <chrisw@sous-sol.org>,
-       Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org
-References: <20060803002510.634721860@xensource.com> <44D144EC.3000205@goop.org> <Pine.LNX.4.64.0608021805150.26314@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608021805150.26314@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Aug 2006 22:48:59 -0400
+Date: Thu, 3 Aug 2006 04:40:37 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: mtosatti@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.33-rc3 needs to export memchr() for smbfs
+Message-ID: <20060803024037.GB18264@1wt.eu>
+References: <20060802214608.GA1987@1wt.eu> <27i2d214opklm6aa6hglfo1c45sp45cmf0@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608030445.38189.ak@suse.de>
+In-Reply-To: <27i2d214opklm6aa6hglfo1c45sp45cmf0@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 03, 2006 at 11:21:51AM +1000, Grant Coady wrote:
+> On Wed, 2 Aug 2006 23:46:08 +0200, Willy Tarreau <w@1wt.eu> wrote:
+> 
+> >Hi Marcelo,
+> >
+> >just finished building 2.4.33-rc3 on my dual-CPU Sun U60 (works
+> >fine BTW). I noticed that smbfs built as a module needs memchr()
+> >since a recent fix, so this one now needs to be exported, which
+> >this patch does.  Sources show that the lp driver would need it
+> >too is console on LP is enabled and LP is set as a module (which
+> >seems stupid to me anyway). I've pushed it into -upstream if you
+> >prefer to pull from it.
+> >
+> >Overall, 2.4.33-rc3 seems to be OK to me. I don't think that
+> >an additionnal -rc4 would be needed just for this export (Grant
+> >CCed in case he's wishing to do a few more builds, you know
+> >him...  :-) ).
+> 
+> Just one build, deltree server 'cos it exports some shares to 'doze 
+> boxen.  Seems to be okay without the patch but...
+>
+> Makes no difference to my limited usage here.  Didn't break ;)
 
-> Thats a good goal but what about the rest of us who have to maintain 
-> additional forms of bit operations for all architectures. How much is this 
-> burden?
+Interesting, I wonder whether memchr() may be a gcc builtin on some
+archs, explaining why it works without the patch on your machine.
 
-I don't think it's that big an issue because most architectures either
-use always locked bitops already or don't need them because they don't do
-SMP.
+> <http://bugsplatter.mine.nu/test/boxen/deltree/> *-rc3a
+> 
+> uptime 21 mins...
 
-So it will be fine with just a asm-generic header that defines them
-to the normal bitops. Not much burden.
+Thanks very much, that's exactly what I needed.
 
--Andi
+> Cheers,
+> Grant.
+
+Cheers,
+Willy
+

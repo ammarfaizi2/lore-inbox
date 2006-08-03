@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWHCUeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWHCUeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWHCUeP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 16:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHCUeP
+	id S1751320AbWHCUeR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 16:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWHCUeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 16:34:15 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:24228 "EHLO
+	Thu, 3 Aug 2006 16:34:17 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:675 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751275AbWHCUeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 16:34:13 -0400
+	id S1751319AbWHCUeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 16:34:16 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g+mq5Pb0o61oCjE2qNqQ1NOIYTIlQyeHzqci0OPa4BA9zWanEca1KHRrJJr159cWbtFbuwJep7V9XoJijAOCKoxO0dY6hK0iDyV1X9tejU52aVq3sX/0OX5Ej0J9mTAXmBm1JlOVZmGdorm1Ilr03qNeRbp7oUe+NbVjOQpxsJA=
-Message-ID: <41b516cb0608031334s6e159e99tb749240f44ae608d@mail.gmail.com>
-Date: Thu, 3 Aug 2006 13:34:12 -0700
-From: "Chris Leech" <chris.leech@gmail.com>
-To: "Arnd Hannemann" <arnd@arndnet.de>
-Subject: Re: problems with e1000 and jumboframes
-Cc: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
-       "Krzysztof Oledzki" <olel@ans.pl>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <44D22350.5070709@arndnet.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=ElVHgAG2RkRcVRCfkf4f6b+BMffOgooDJiyu8SvuV4iUaQN2O+XsuVe4NW3c7htH5NiTVKVzCfyQyNlx1DqhdfukESuzC8LhWGuIlDJpDy9lJmpKWY9SShsAir21EJw9O77qkzgYu5Xkg9/1ABAHdZOVy0HIYgo/Omy6CAtW+ys=
+Date: Fri, 4 Aug 2006 00:34:11 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Armin Schindler <mac@melware.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] eicon: fix define conflict with ptrace
+Message-ID: <20060803203411.GB6828@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
-	 <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
-	 <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
-	 <20060803151631.GA14774@2ka.mipt.ru>
-	 <41b516cb0608030857h1d55820rfd4ccd0cc56dd71d@mail.gmail.com>
-	 <44D22350.5070709@arndnet.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/3/06, Arnd Hannemann <arnd@arndnet.de> wrote:
-> Well you say "if a single buffer per frame is going to be used". Well,
-> if I understood you correctly i could set the MTU to, lets say 4000.
-> Then the driver would enable the "jumbo frame bit" of the hardware, and
-> allocate only a 4k rx buffer, right? (and allocate 16k, because of
-> skb_shinfo)
-> Now if a new 9k frame arrives the hardware will accept it regardless of
-> the 2k MTU and will split it into 3x 4k rx buffers?
-> Does the current driver work in this way? That would be great.
->
-> Perhaps then one should change the driver in a way that the MTU can
-> changed independently of the buffer size?
+* MODE_MASK is unused in eicon driver.
+* Conflicts with a ptrace stuff on arm.
 
-Yes, e1000 devices will spill over and use multiple buffers for a
-single frame.  We've been trying to find a good way to use multiple
-buffers to take care of these allocation problems.  The structure of
-the sk_buff does not make it easy.  Or should I say that it's the
-limitation that drivers are not allowed to chain together multiple
-sk_buffs to represent a single frame that does not make it easy.
+drivers/isdn/hardware/eicon/divasync.h:259:1: warning: "MODE_MASK" redefined
+include2/asm/ptrace.h:48:1: warning: this is the location of the previous definition
 
-PCI-Express e1000 devices support a feature called header split, where
-the protocol headers go into a different buffer from the payload.  We
-use that today to put headers into the kmalloc() allocated skb->data
-area, and payload into one or more skb->frags[] pages.  You don't ever
-have multiple page allocations from the driver in this mode.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-We could try and only use page allocations for older e1000 devices,
-putting headers and payload into skb->frags and copying the headers
-out into the skb->data area as needed for processing.  That would do
-away with large allocations, but in Jesse's experiments calling
-alloc_page() is slower than kmalloc(), so there can actually be a
-performance hit from trying to use page allocations all the time.
+ drivers/isdn/hardware/eicon/divasync.h |    1 -
+ 1 file changed, 1 deletion(-)
 
-It's an interesting problem.
+--- a/drivers/isdn/hardware/eicon/divasync.h
++++ b/drivers/isdn/hardware/eicon/divasync.h
+@@ -256,7 +256,6 @@ #define WATCHDOG_MASK  0x00000008
+ #define NO_ORDER_CHECK_MASK 0x00000010
+ #define LOW_CHANNEL_MASK 0x00000020
+ #define NO_HSCX30_MASK  0x00000040
+-#define MODE_MASK   0x00000080
+ #define SET_BOARD   0x00001000
+ #define SET_CRC4   0x00030000
+ #define SET_L1_TRISTATE  0x00040000
 
-- Chris

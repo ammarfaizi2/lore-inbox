@@ -1,46 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWHCAf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWHCApF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWHCAf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 20:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWHCAf7
+	id S1750792AbWHCApF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 20:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWHCApF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 20:35:59 -0400
-Received: from gw.goop.org ([64.81.55.164]:36299 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1750948AbWHCAf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 20:35:58 -0400
-Message-ID: <44D144EC.3000205@goop.org>
-Date: Wed, 02 Aug 2006 17:35:56 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Jeremy Fitzhardinge <jeremy@xensource.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 2/8] Implement always-locked bit ops, for memory shared
- with an SMP hypervisor.
-References: <20060803002510.634721860@xensource.com> <20060803002518.061401577@xensource.com> <Pine.LNX.4.64.0608021726540.25963@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608021726540.25963@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Aug 2006 20:45:05 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:62157 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750792AbWHCApE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 20:45:04 -0400
+Subject: [BUG] futex_unlock_pi returns w/o unlocking
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Dinakar Guniguntala <dino@in.ibm.com>
+Content-Type: text/plain
+Date: Wed, 02 Aug 2006 17:43:59 -0700
+Message-Id: <1154565839.14522.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> I think I asked this before....
->
-> Would it not be simpler to always use the locked implementation on UP? At 
-> least when the kernel is compiled with hypervisor support? This is going 
-> to add yet another series of bit operations
+Ingo,
+	So we've just hunted down a nasty bug w/ 2.6.17-rt8. We've had some odd
+test failures where userspace apps were hanging when dealing w/ pi
+mutexes.
 
-You mean make the standard bit-ops atomic on UP when compiling for 
-CONFIG_PARAVIRT?  We think its too much of a burden; there are only a 
-few operations which must be locked in the hypervisor case, and bit ops 
-are used everywhere.  I'd like to get it to the point where there's no 
-significant overhead in configuring for PARAVIRT, even if you run on 
-native hardware.
+After a good bit of debugging (not by me) it was found that we were
+deadlocking by double locking a mutex, however it wasn't userland's
+fault. On top of that, the mutex __owner field was null, so something
+was wrong.
 
-    J
+We found that futex_unlock_pi() was somehow returning without error
+while not actually clearing the mutex __lock value. Further digging
+found the failure case, and its a bit obscure.
+
+1) In futex_unlock_pi() we start w/ ret=0 and we go down to the first
+futex_atomic_cmpxchg_inatomic(), where we find uval==-EFAULT.  We then
+jump to the pi_faulted label.
+2) From pi_faulted: We increment attempt, unlock the sem and hit the
+retry label.
+3) From the retry label, with ret still zero, we again hit EFAULT on the
+first futex_atomic_cmpxchg_inatomic(), and again goto the pi_faulted
+label.
+4) Again from pi_faulted: we increment attempt and enter the
+conditional, where we call futex_handle_fault.
+5) futex_handle_fault fails, and we goto the out_unlock_release_sem
+label. 
+6) From out_unlock_release_sem we return, and since ret is still zero,
+we return without error, while never actually unlocking the lock.
+
+
+Issue #1: at the first futex_atomic_cmpxchg_inatomic() we should
+probably be setting ret=-EFAULT before jumping to pi_faulted:  However
+in our case this doesn't really affect anything, as the glibc we're
+using ignores the error value from futex_unlock_pi().
+
+Issue #2: Look at futex_handle_fault(), its first conditional will
+return -EFAULT if attempt is >= 2. However, from the "if(attempt++)
+futex_handle_fault(attempt)" logic above, we'll *never* call
+futex_handle_fault when attempt is less then two. So we never get a
+chance to even try to fault the page in.
+
+This very simple and hackish fix for issue #2 is probably not the
+correct solution, but with the odd if(attempt++) logic all over futex.c
+it might actually be the right thing to do.
+
+Your thoughts?
+
+thanks
+-john
+
+Index: 2.6-rt/kernel/futex.c
+===================================================================
+--- 2.6-rt.orig/kernel/futex.c	2006-08-01 13:14:50.000000000 -0700
++++ 2.6-rt/kernel/futex.c	2006-08-02 17:25:32.000000000 -0700
+@@ -298,7 +298,7 @@
+ 	struct vm_area_struct * vma;
+ 	struct mm_struct *mm = current->mm;
+ 
+-	if (attempt >= 2 || !(vma = find_vma(mm, address)) ||
++	if (attempt > 2 || !(vma = find_vma(mm, address)) ||
+ 	    vma->vm_start > address || !(vma->vm_flags & VM_WRITE))
+ 		return -EFAULT;
+ 
+
+
+

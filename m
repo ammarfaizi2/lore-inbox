@@ -1,155 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbWHCPsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWHCPwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbWHCPsY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 11:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWHCPsY
+	id S964810AbWHCPwV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 11:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWHCPwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 11:48:24 -0400
-Received: from wx-out-0102.google.com ([66.249.82.204]:10254 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932572AbWHCPsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 11:48:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z/dgn0cftj8oy7vw3RdEd8iwc2f21f/cW/lSL9dvJd160jFEhZezEMyq4jr9t5c6IFepAeOs5U4eRnI+p6/G+cBynfcNagHh7iHcH+/HT7FQ+j7Oj5RFQwyOFu9BABW6ny/Abn3eVGj3e4HP6uT3hswcxCGbFxUjmIm6h/Jckr0=
-Message-ID: <e6babb600608030848p4446cb8emff58519d62deb9d8@mail.gmail.com>
-Date: Thu, 3 Aug 2006 08:48:21 -0700
-From: "Robert Crocombe" <rcrocomb@gmail.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Subject: Re: Problems with 2.6.17-rt8
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Bill Huey" <billh@gnuppy.monkey.org>
-In-Reply-To: <1154618859.32264.19.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 3 Aug 2006 11:52:21 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:50113 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932574AbWHCPwU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 11:52:20 -0400
+Date: Fri, 04 Aug 2006 00:53:52 +0900 (JST)
+Message-Id: <20060804.005352.128616651.anemo@mba.ocn.ne.jp>
+To: schwidefsky@googlemail.com
+Cc: johnstul@us.ibm.com, akpm@osdl.org, zippel@linux-m68k.org,
+       clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
+       ralf@linux-mips.org, ak@muc.de
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+ aliasing problem)
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <6e0cfd1d0608020550k7ae2c44dg94afbe56d66b@mail.gmail.com>
+References: <6e0cfd1d0607310336o355693a5l939db098b9210d81@mail.gmail.com>
+	<20060801.234422.25910237.anemo@mba.ocn.ne.jp>
+	<6e0cfd1d0608020550k7ae2c44dg94afbe56d66b@mail.gmail.com>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
-	 <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
-	 <1154541079.25723.8.camel@localhost.localdomain>
-	 <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
-	 <1154615261.32264.6.camel@localhost.localdomain>
-	 <e6babb600608030808x632bd5e8y7dcb991fe229467d@mail.gmail.com>
-	 <1154618859.32264.19.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am sad.
+On Wed, 2 Aug 2006 14:50:32 +0200, "Martin Schwidefsky" <schwidefsky@googlemail.com> wrote:
+> If you switch of the hz timer in idle you'll get lots of lost ticks.
+> And if you are
+> running a virtualized system you can loose you cpu for some ticks as well.
+> Pass the number of ticks to do_timer.
 
-Okay, I couldn't use that same machine, which had to be swapped with
-something else,  but I have a very similar machine (32GB vs 8GB of
-RAM, 1 additional video card and some extra 1394b cards) which hit the
-same problem.  The trace from it is:
+I see.  Then how about this?
 
-md0_raid1/1118[CPU#3]: BUG in debug_rt_mutex_unlock at
-kernel/rtmutex-debug.c:471
 
-Call Trace:
-       <ffffffff80487453>{_raw_spin_lock_irqsave+34}
-       <ffffffff8022cc03>{__WARN_ON+105}
-       <ffffffff8022cbbe>{__WARN_ON+36}
-       <ffffffff8024880b>{debug_rt_mutex_unlock+204}
-       <ffffffff80486621>{rt_lock_slowunlock+30}
-       <ffffffff80487196>{__lock_text_start+14}
-       <ffffffff802792f9>{kmem_cache_alloc+207}
-       <ffffffff8025b394>{mempool_alloc_slab+22}
-       <ffffffff8025b783>{mempool_alloc+80}
-       <ffffffff80248e35>{constant_test_bit+9}
-       <ffffffff80487960>{_raw_spin_unlock+51}
-       <ffffffff80486649>{rt_lock_slowunlock+70}
-       <ffffffff802fde74>{get_request+375}
-       <ffffffff80209a6d>{mcount+45}
-       <ffffffff802fe04c>{get_request_wait+45}
-       <ffffffff80209a6d>{mcount+45}
-       <ffffffff803023c5>{as_merge+0}
-       <ffffffff803023db>{as_merge+22}
-       <ffffffff802fe425>{__make_request+750}
-       <ffffffff803fc2b7>{md_thread+0}
-       <ffffffff802fba78>{generic_make_request+380}
-       <ffffffff80248e35>{constant_test_bit+9}
-       <ffffffff80487960>{_raw_spin_unlock+51}
-       <ffffffff803fc2b7>{md_thread+0}
-       <ffffffff803ea43c>{raid1d+246}
-       <ffffffff80209a6d>{mcount+45}
-       <ffffffff80209a6d>{mcount+45}
-       <ffffffff80486649>{rt_lock_slowunlock+70}
-       <ffffffff80485568>{thread_return+230}
-       <ffffffff80485568>{thread_return+230}
-       <ffffffff80248e35>{constant_test_bit+9}
-       <ffffffff80487960>{_raw_spin_unlock+51}
-       <ffffffff80486649>{rt_lock_slowunlock+70}
-       <ffffffff80485568>{thread_return+230}
-       <ffffffff80487196>{__lock_text_start+14}
-       <ffffffff803fc2b7>{md_thread+0}
-       <ffffffff8023fb55>{keventd_create_kthread+0}
-       <ffffffff803fc3cf>{md_thread+280}
-       <ffffffff8023ff97>{autoremove_wake_function+0}
-       <ffffffff8023fe5a>{kthread+224}
-       <ffffffff802273bf>{schedule_tail+198}
-       <ffffffff8020ae12>{child_rip+8}
-       <ffffffff8023fb55>{keventd_create_kthread+0}
-       <ffffffff80485568>{thread_return+230}
-       <ffffffff80485568>{thread_return+230}
-       <ffffffff80485568>{thread_return+230}
-       <ffffffff8023fd7a>{kthread+0}
-       <ffffffff8020ae0a>{child_rip+0}
----------------------------
-| preempt count: 00000002 ]
-| 2-level deep critical section nesting:
-----------------------------------------
-.. [<ffffffff8048736f>] .... _raw_spin_lock+0x1b/0x28
-.....[<ffffffff80486619>] ..   ( <= rt_lock_slowunlock+0x16/0x70)
-.. [<ffffffff80487453>] .... _raw_spin_lock_irqsave+0x22/0x33
-.....[<ffffffff8022cbbe>] ..   ( <= __WARN_ON+0x24/0x8a)
+[PATCH] cleanup do_timer and update_times
 
-which makes:
+Rename do_timer() to do_timer_ticks() and pass ticks.  Now do_timer()
+is just wrapper of do_timer_ticks().
 
-   <ffffffff802792f9>{kmem_cache_alloc+207}
+This also make a barrier added by
+5aee405c662ca644980c184774277fc6d0769a84 needless.
 
-the interesting part?
+Also adjust x86_64 timer interrupt handler with this change.
 
-However:
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-rcrocomb@spanky:2.6.17-rt8$ grep DEBUG_INFO .config
-CONFIG_DEBUG_INFO=y
-rcrocomb@spanky:2.6.17-rt8$ cd arch/x86_64/boot/compressed/
-rcrocomb@spanky:compressed$ gdb vmlinux
-GNU gdb Red Hat Linux (6.3.0.0-1.122rh)
-Copyright 2004 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "x86_64-redhat-linux-gnu"...
-(no debugging symbols found)
-Using host libthread_db library "/lib64/libthread_db.so.1".
-
-(gdb) li *0xffffffff802792f9
-No symbol table is loaded.  Use the "file" command.
-
-Huh.
-
--- 
-Robert Crocombe
-rcrocomb@gmail.com
-
-In case this might be useful:
-
-rcrocomb@spanky:2.6.17-rt8$ grep -i debug .config
-.
-.
-.
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_DEBUG_SLAB is not set
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_RT_MUTEXES=y
-CONFIG_DEBUG_PI_LIST=y
-CONFIG_DEBUG_TRACE_IRQFLAGS=y
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_INFO=y
-# CONFIG_DEBUG_FS is not set
-# CONFIG_DEBUG_VM is not set
-CONFIG_DEBUG_RODATA=y
-CONFIG_IOMMU_DEBUG=y
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 7a9b182..3dbe30e 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -421,16 +421,14 @@ #endif
+ 				(((long) offset << US_SCALE) / vxtime.tsc_quot) - 1;
+ 	}
+ 
+-	if (lost > 0) {
++	if (lost > 0)
+ 		handle_lost_ticks(lost, regs);
+-		jiffies += lost;
+-	}
+ 
+ /*
+  * Do the timer stuff.
+  */
+ 
+-	do_timer(regs);
++	do_timer_ticks(lost + 1);
+ #ifndef CONFIG_SMP
+ 	update_process_times(user_mode(regs));
+ #endif
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6afa72e..5d7dfa1 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1180,7 +1180,8 @@ extern void switch_uid(struct user_struc
+ 
+ #include <asm/current.h>
+ 
+-extern void do_timer(struct pt_regs *);
++extern void do_timer_ticks(unsigned long ticks);
++#define do_timer(regs)	do_timer_ticks(1)
+ 
+ extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
+ extern int FASTCALL(wake_up_process(struct task_struct * tsk));
+diff --git a/kernel/timer.c b/kernel/timer.c
+index b650f04..50ed235 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -1218,7 +1218,7 @@ static inline void calc_load(unsigned lo
+ 	static int count = LOAD_FREQ;
+ 
+ 	count -= ticks;
+-	if (count < 0) {
++	while (count < 0) {
+ 		count += LOAD_FREQ;
+ 		active_tasks = count_active_tasks();
+ 		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
+@@ -1265,11 +1265,8 @@ void run_local_timers(void)
+  * Called by the timer interrupt. xtime_lock must already be taken
+  * by the timer IRQ!
+  */
+-static inline void update_times(void)
++static inline void update_times(unsigned long ticks)
+ {
+-	unsigned long ticks;
+-
+-	ticks = jiffies - wall_jiffies;
+ 	wall_jiffies += ticks;
+ 	update_wall_time();
+ 	calc_load(ticks);
+@@ -1281,12 +1278,10 @@ static inline void update_times(void)
+  * jiffies is defined in the linker script...
+  */
+ 
+-void do_timer(struct pt_regs *regs)
++void do_timer_ticks(unsigned long ticks)
+ {
+-	jiffies_64++;
+-	/* prevent loading jiffies before storing new jiffies_64 value. */
+-	barrier();
+-	update_times();
++	jiffies_64 += ticks;
++	update_times(ticks);
+ }
+ 
+ #ifdef __ARCH_WANT_SYS_ALARM

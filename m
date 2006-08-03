@@ -1,63 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWHCSIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWHCSJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWHCSIG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 14:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWHCSIG
+	id S932410AbWHCSJB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 14:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWHCSJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 14:08:06 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:47063 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932223AbWHCSIF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 14:08:05 -0400
-Message-ID: <44D23B84.6090605@vmware.com>
-Date: Thu, 03 Aug 2006 11:08:04 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
-Subject: Re: A proposal - binary
-References: <44D1CC7D.4010600@vmware.com> <1154603822.2965.18.camel@laptopd505.fenrus.org>
-In-Reply-To: <1154603822.2965.18.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 14:09:01 -0400
+Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:53152 "EHLO
+	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id S932410AbWHCSJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 14:09:00 -0400
+Date: Thu, 03 Aug 2006 20:09:07 +0200
+From: Arnd Hannemann <arnd@arndnet.de>
+Subject: Re: problems with e1000 and jumboframes
+In-reply-to: <20060803154125.GA9745@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, olel@ans.pl
+Message-id: <44D23BC3.7040707@arndnet.de>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_+S19urY23jRbIKHvsjrMKw)"
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+X-Enigmail-Version: 0.94.0.0
+X-Spam-Report: * -2.8 ALL_TRUSTED Did not pass through any untrusted hosts
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
+ <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
+ <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
+ <20060803151631.GA14774@2ka.mipt.ru> <20060803154125.GA9745@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> Hi,
->
-> you use a lot of words for saying something self contradictory. It's
-> very simple; based on your mail, there's no reason the VMI gateway page
-> can't be (also) GPL licensed (you're more than free obviously to dual,
-> tripple or quadruple license it). Once your gateway thing is gpl
-> licensed, your entire proposal is moot in the sense that there is no
-> issue on the license front. See: it can be very easy. Much easier than
-> trying to get a license exception (which is very unlikely you'll get)...
->
->
-> Now you can argue for hours about if such an interface is desirable or
-> not, but I didn't think your email was about that.
->   
+This is a multi-part message in MIME format.
 
-Arjan, thank you for reading my prolific manifesto.  I am not arguing 
-for the interface being desirable, and I don't think I'm being self 
-contradictory.  There was some confusion over technical details of the 
-VMI gateway page that I wanted to make explicit.  Hopefully I have fully 
-explained those.  I'm not trying to get a license exemption, I'm trying 
-to come up with a model that current and future hardware vendors can 
-follow when faced with the same set of circumstances.
+--Boundary_(ID_+S19urY23jRbIKHvsjrMKw)
+Content-type: text/plain; charset=KOI8-R
+Content-transfer-encoding: 7BIT
 
-It was not 100% clear based on conversations at OLS that open-sourcing 
-the VMI layer met the letter and intent of the kernel license model.  
-There were some arguments that not having the source integrated into the 
-kernel violated the spirit of the GPL by not allowing one to distribute 
-a fully working kernel.  I wanted to show that is not true, and the 
-situation is actually quite unique.  Perhaps we can use this to 
-encourage open sourced firmware layers, instead of trying to ban drivers 
-which rely on firmware from the kernel.
+Evgeniy Polyakov schrieb:
+> On Thu, Aug 03, 2006 at 07:16:31PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+>>>> then skb_alloc adds a little
+>>>> (sizeof(struct skb_shared_info)) at the end, and this ends up
+>>>> in 32k request just for 9k jumbo frame.
+>>> Strange, why this skb_shared_info cannon be added before first alignment? 
+>>> And what about smaller frames like 1500, does this driver behave similar 
+>>> (first align then add)?
+>> It can be.
+>> Could attached  (completely untested) patch help?
+> 
+> Actually this patch will not help, this new one could.
+> 
 
-Zach
+I applied the attached pachted. And got this output:
+
+> Intel(R) PRO/1000 Network Driver - bufsz 13762
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16058
+> Intel(R) PRO/1000 Network Driver - bufsz 15894
+> Intel(R) PRO/1000 Network Driver - bufsz 15730
+> Intel(R) PRO/1000 Network Driver - bufsz 15566
+> Intel(R) PRO/1000 Network Driver - bufsz 15402
+> Intel(R) PRO/1000 Network Driver - bufsz 15238
+> Intel(R) PRO/1000 Network Driver - bufsz 15074
+> Intel(R) PRO/1000 Network Driver - bufsz 14910
+> Intel(R) PRO/1000 Network Driver - bufsz 14746
+> Intel(R) PRO/1000 Network Driver - bufsz 14582
+> Intel(R) PRO/1000 Network Driver - bufsz 14418
+> Intel(R) PRO/1000 Network Driver - bufsz 14254
+> Intel(R) PRO/1000 Network Driver - bufsz 14090
+> Intel(R) PRO/1000 Network Driver - bufsz 13926
+> Intel(R) PRO/1000 Network Driver - bufsz 13762
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16058
+> Intel(R) PRO/1000 Network Driver - bufsz 15894
+> Intel(R) PRO/1000 Network Driver - bufsz 15730
+> Intel(R) PRO/1000 Network Driver - bufsz 15566
+> Intel(R) PRO/1000 Network Driver - bufsz 15402
+> Intel(R) PRO/1000 Network Driver - bufsz 15238
+> Intel(R) PRO/1000 Network Driver - bufsz 15074
+> Intel(R) PRO/1000 Network Driver - bufsz 14910
+> Intel(R) PRO/1000 Network Driver - bufsz 14746
+> Intel(R) PRO/1000 Network Driver - bufsz 14582
+> Intel(R) PRO/1000 Network Driver - bufsz 14418
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+> Intel(R) PRO/1000 Network Driver - bufsz 16222
+
+I'm a bit puzzled that there are so much allocations. However the patch
+seems to work. (at least not obviously breaks things for me yet)
+
+Best regards
+Arnd
+
+
+--Boundary_(ID_+S19urY23jRbIKHvsjrMKw)
+Content-type: text/plain; name=patch.txt
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=patch.txt
+
+--- linux-2.6.17.6/drivers/net/e1000/e1000_main.c	2006-08-03 17:38:53.000000000 +0200
++++ linux-2.6.17.6.patched/drivers/net/e1000/e1000_main.c	2006-08-03 19:38:53.000000000 +0200
+@@ -3843,9 +3843,13 @@
+ 	buffer_info = &rx_ring->buffer_info[i];
+ 
+ 	while (cleaned_count--) {
+-		if (!(skb = buffer_info->skb))
++		if (!(skb = buffer_info->skb)) {
++			if (SKB_DATA_ALIGN(adapter->hw.max_frame_size) + sizeof(struct skb_shared_info) <= bufsz) {
++				bufsz -= sizeof(struct skb_shared_info);
++				printk(KERN_INFO "%s - bufsz %d\n",e1000_driver_string, bufsz);
++			}
+ 			skb = dev_alloc_skb(bufsz);
+-		else {
++		} else {
+ 			skb_trim(skb, 0);
+ 			goto map_skb;
+ 		}
+
+--Boundary_(ID_+S19urY23jRbIKHvsjrMKw)--

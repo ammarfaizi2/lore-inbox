@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWHCDfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWHCDfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWHCDfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 23:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWHCDfJ
+	id S932191AbWHCDfc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 23:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWHCDfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 23:35:09 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:1767 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932176AbWHCDfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 23:35:07 -0400
-Date: Thu, 3 Aug 2006 12:37:16 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: LHMS <lhms-devel@lists.sourceforge.net>,
-       "kmannth@us.ibm.com" <kmannth@us.ibm.com>,
-       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] memory hotadd fixes [5/5] avoid registering res twice
-Message-Id: <20060803123716.2e00952a.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Aug 2006 23:35:32 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:23710 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932191AbWHCDfb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 23:35:31 -0400
+From: Darren Hart <dvhltc@us.ibm.com>
+Organization: IBM Linux Technology Center
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [RFC, PATCH -rt] futex_atomic_cmpxchg_inatomic usage
+Date: Wed, 2 Aug 2006 20:35:25 -0700
+User-Agent: KMail/1.9.1
+Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       Esben Nielsen <nielsen.esben@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608022035.26542.dvhltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-both of acpi_memory_enable_device() and acpi_memory_add_device()
-may evaluate _CRS method.
+While reviewing futex.c re Esben's rt_mutex_next_owner() serialization
+posting, I had a question regarding the use of
 
-We should avoid evaluate device's resource twice if we could get it
-successfully in past.
+futex_atomic_cmpxchg_inatomic()
 
-Signed-Off-By: KAMEZWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In all but two places in futex.c we wrap that call with 
+(inc|dec)_preempt_count() calls.  Nothing stood out to me that would
+account for the difference.  Can some comment on why we don't have to
+wrap the call in those two places (see patch for locations).  Just in 
+case this happens to be a bug, I've included a patch to fix it.
 
- drivers/acpi/acpi_memhotplug.c |    4 ++++
- 1 files changed, 4 insertions(+)
 
-Index: linux-2.6.18-rc3/drivers/acpi/acpi_memhotplug.c
+Index: 2.6.17-rt8/kernel/futex.c
 ===================================================================
---- linux-2.6.18-rc3.orig/drivers/acpi/acpi_memhotplug.c	2006-08-02 14:12:45.000000000 +0900
-+++ linux-2.6.18-rc3/drivers/acpi/acpi_memhotplug.c	2006-08-02 14:24:10.000000000 +0900
-@@ -129,11 +129,15 @@
- 	struct acpi_memory_info *info, *n;
- 
- 
-+	if (!list_empty(&mem_device->res_list))
-+		return 0;
+--- 2.6.17-rt8.orig/kernel/futex.c	2006-08-02 20:29:08.000000000 -0700
++++ 2.6.17-rt8/kernel/futex.c	2006-08-02 20:29:42.000000000 -0700
+@@ -1303,8 +1303,10 @@
+ 		ret = get_user(uval, uaddr);
+ 		while (!ret) {
+ 			newval = (uval & FUTEX_OWNER_DIED) | newtid;
++			inc_preempt_count();
+ 			curval = futex_atomic_cmpxchg_inatomic(uaddr,
+ 							       uval, newval);
++			dec_preempt_count();
+ 			if (curval == -EFAULT)
+ 				ret = -EFAULT;
+ 			if (curval == uval)
+@@ -1684,8 +1686,11 @@
+ 		 * thread-death.) The rest of the cleanup is done in
+ 		 * userspace.
+ 		 */
++		inc_preempt_count();
+ 		nval = futex_atomic_cmpxchg_inatomic(uaddr, uval,
+ 						     uval | FUTEX_OWNER_DIED);
++		dec_preempt_count();
 +
- 	status = acpi_walk_resources(mem_device->device->handle, METHOD_NAME__CRS,
- 				     acpi_memory_get_resource, mem_device);
- 	if (ACPI_FAILURE(status)) {
- 		list_for_each_entry_safe(info, n, &mem_device->res_list, list)
- 			kfree(info);
-+		INIT_LIST_HEAD(&mem_device->res_list);
- 		return -EINVAL;
- 	}
+ 		if (nval == -EFAULT)
+ 			return -1;
+-- 
+Thanks,
  
-
+Darren Hart
+IBM Linux Technology Center
+Realtime Linux Team

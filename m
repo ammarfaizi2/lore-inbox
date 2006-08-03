@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWHCEyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWHCFGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWHCEyV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 00:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWHCEyV
+	id S932250AbWHCFGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 01:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWHCFGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 00:54:21 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:23960 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932255AbWHCEyU
+	Thu, 3 Aug 2006 01:06:09 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:46725 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932250AbWHCFGI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 00:54:20 -0400
-Message-ID: <44D1815C.1040508@zytor.com>
-Date: Wed, 02 Aug 2006 21:53:48 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 3 Aug 2006 01:06:08 -0400
+Message-ID: <44D1843F.9090309@vmware.com>
+Date: Wed, 02 Aug 2006 22:06:07 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [RFC] ELF Relocatable x86 and x86_64 bzImages
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>	<20060802183709.GJ3435@redhat.com> <m1wt9qr5ur.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1wt9qr5ur.fsf@ebiederm.dsl.xmission.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stas Sergeev <stsp@aknet.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] espfix cleanup take 2
+References: <44D0D643.6090108@aknet.ru> <20060802203336.c4f8a428.akpm@osdl.org>
+In-Reply-To: <20060802203336.c4f8a428.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Don Zickus <dzickus@redhat.com> writes:
-> 
->>> There is one outstanding issue where I am probably requiring too much
->> alignment
->>> on the arch/i386 kernel.  
->> There was posts awhile ago about optimizing the kernel performance by
->> loading it at a 4MB offset.  
->>
->> http://www.lkml.org/lkml/2006/2/23/189
->>
->> Your changes breaks that on i386 (not aligned on a 4MB boundary).  But a
->> 5MB offset works.  Is that the correct update or does that break the
->> original idea?
-> 
-> That patch should still apply and work as described.
-> 
-> Actually when this stuipd cold I have stops slowing me down,
-> and I fix the alignment to what it really needs to be ~= 8KB.
-> 
-> Then bootloaders should be able to make the decision.
-> 
-> HPA Does that sound at all interesting?
-> 
+Andrew Morton wrote:
+> On Wed, 02 Aug 2006 20:43:47 +0400
+> Stas Sergeev <stsp@aknet.ru> wrote:
+>
+>   
+>> Attached is a new espfix cleanup patch.
+>>     
+>
+> Ho hum, this conflicts moderately with the hypervisor preparatory patches
+> which Jeremy sent.
+>
+> So could I ask that you redo this patch in a couple of weeks time against
+> the current -mm lineup?  I'd prefer not to merge it immediately because
+> doing so would make it even harder than usual to work out who to blame if
+> things break ;)
+>   
 
-I'm sorry, it's not clear to me what you're asking here.
+That would be my preference as well - I don't really have the bandwidth 
+to do a full review / test and integration of Stas's patch right now.  
+Subtle isn't really the word for this change - NMIs, debug handling, 
+sysenter, kernel stack copying, segment registers, interrupts, kernel 
+exception fixup, 16-bit stacks, descriptor tables and now CFI 
+annotations all come into play.  Basically, all the evil and tricky 
+parts of i386 all come out to play together, and the control flow is 
+non-linear in places.  Sadomasochistic is a more appropriate word.  But 
+it is a very nice change, and I would like to see it merged into -mm 
+eventually.  I actually have an ad-hoc test suite that tests most of 
+these paths, but I've never gotten formal and rigorous enough with it to 
+publish.  I'll see if I can do that sometime in the next two weeks ;)
 
-The bootloaders will load bzImage at the 1 MB point, and it's up to the 
-decompressor to locate it appropriately.  It has (correctly) been 
-pointed out that it would be faster if the decompressed kernel is 
-located to the 4 MB point -- large pages don't work below 2/4 MB due to 
-interference with the fixed MTRRs -- but that's doesn't affect the boot 
-protocol in any way.
-
-I was under the impression that your relocatable patches allows the boot 
-loader to load the bzImage at a different address than the usual 
-0x100000; but again, that shouldn't affect the kernel's final resting place.
-
-	-hpa
-
+Zach

@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWHCVmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbWHCVoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWHCVmV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 17:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWHCVmV
+	id S932582AbWHCVoY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 17:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbWHCVoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 17:42:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:7401 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932592AbWHCVmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 17:42:20 -0400
-Subject: patch add-stable-branch-to-maintainers-file.patch added to gregkh-2.6 tree
-To: rostedt@goodmis.org, akpm@osdl.org, chrisw@sous-sol.org, greg@kroah.com,
-       gregkh@suse.de, linux-kernel@vger.kernel.org
-From: <gregkh@suse.de>
-Date: Thu, 03 Aug 2006 14:37:40 -0700
-In-Reply-To: <1154622491.32264.37.camel@localhost.localdomain>
-Message-Id: <20060803214211.71CD581B866@imap.suse.de>
+	Thu, 3 Aug 2006 17:44:24 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24247
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932511AbWHCVoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 17:44:23 -0400
+Date: Thu, 03 Aug 2006 14:43:37 -0700 (PDT)
+Message-Id: <20060803.144337.34759358.davem@davemloft.net>
+To: s0348365@sms.ed.ac.uk
+Cc: rdunlap@xenotime.net, tytso@mit.edu, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       mchan@broadcom.com
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200608031804.55292.s0348365@sms.ed.ac.uk>
+References: <20060803163204.GB20603@thunk.org>
+	<20060803094917.8280f5ff.rdunlap@xenotime.net>
+	<200608031804.55292.s0348365@sms.ed.ac.uk>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Date: Thu, 3 Aug 2006 18:04:55 +0100
 
-This is a note to let you know that I've just added the patch titled
+> Probably. I have an NC6000 with a tg3 and have never experienced
+> link failure problems, even under -rt.
 
-     Subject: Add stable branch to maintainers file
+And note that the "poke the chip N times a second to avoid lockup"
+issue only matters on very very old tg3 chips.
 
-to my gregkh-2.6 tree.  Its filename is
-
-     add-stable-branch-to-maintainers-file.patch
-
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
-
-
->From stable-bounces@linux.kernel.org Thu Aug  3 09:28:46 2006
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 03 Aug 2006 12:28:11 -0400
-Message-Id: <1154622491.32264.37.camel@localhost.localdomain>
-Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>, stable@kernel.org
-Subject: Add stable branch to maintainers file
-
-From: Steven Rostedt <rostedt@goodmis.org>
-
-While helping someone to submit a patch to the stable branch, I noticed
-that the stable branch is not listed in the MAINTAINERS file.  This was
-after I went there to look for the email addresses for the stable branch
-list (stable@kernel.org).
-
-This patch adds the stable branch to the maintainers file so that people
-can find where to send patches when they have a fix for the stable team.
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- MAINTAINERS |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- gregkh-2.6.orig/MAINTAINERS
-+++ gregkh-2.6/MAINTAINERS
-@@ -2641,6 +2641,14 @@ M:	dbrownell@users.sourceforge.net
- L:	spi-devel-general@lists.sourceforge.net
- S:	Maintained
- 
-+STABLE BRANCH:
-+P:	Greg Kroah-Hartman
-+M:	greg@kroah.com
-+P:	Chris Wright
-+M:	chrisw@sous-sol.org
-+L:	stable@kernel.org
-+S:	Maintained
-+
- TPM DEVICE DRIVER
- P:	Kylene Hall
- M:	kjhall@us.ibm.com
-
-
-Patches currently in gregkh-2.6 which might be from rostedt@goodmis.org are
-
-driver/add-stable-branch-to-maintainers-file.patch
+Therefore I think Ted fixed his problem by accident, as very few
+people in the world actually have tg3 chips old enough to need that
+periodic poking.

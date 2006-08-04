@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWHDBqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWHDByf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWHDBqx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 21:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWHDBqx
+	id S932588AbWHDByf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 21:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWHDByf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 21:46:53 -0400
-Received: from mga05.intel.com ([192.55.52.89]:60809 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932083AbWHDBqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 21:46:52 -0400
-X-IronPort-AV: i="4.07,209,1151910000"; 
-   d="scan'208"; a="110477027:sNHT7421336202"
-Date: Thu, 3 Aug 2006 18:35:45 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: akpm@osdl.org
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: [Patch] fix potential stack overflow in net/core/utils.c
-Message-ID: <20060803183545.B27141@unix-os.sc.intel.com>
+	Thu, 3 Aug 2006 21:54:35 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:21176 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932588AbWHDBye
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 21:54:34 -0400
+Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>, y-goto@jp.fujitsu.com,
+       andrew <akpm@osdl.org>
+In-Reply-To: <20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+	 <1154650396.5925.49.camel@keithlap>
+	 <20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 03 Aug 2006 18:54:32 -0700
+Message-Id: <1154656472.5925.71.camel@keithlap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On High end systems (1024 or so cpus) this can potentially cause stack
-overflow. Fix the stack usage.
+On Fri, 2006-08-04 at 09:44 +0900, KAMEZAWA Hiroyuki wrote:
+> On Thu, 03 Aug 2006 17:13:16 -0700
+> keith mannthey <kmannth@us.ibm.com> wrote:
+> 
+> > On Thu, 2006-08-03 at 12:36 +0900, KAMEZAWA Hiroyuki wrote:
+> > > add_memory() does all necessary check to avoid collision.
+> > > then, acpi layer doesn't have to check region by itself.
+> > > 
+> > > (*) pfn_valid() just returns page struct is valid or not. It returns 0
+> > >     if a section has been already added even is ioresource is not added.
+> > >     ioresource collision check in mm/memory_hotplug.c can do more precise
+> > >     collistion check.
+> > >     added enabled bit check just for sanity check..
+> > > 
+> > > Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> > 
+> > > -		start_pfn = info->start_addr >> PAGE_SHIFT;
+> > > -		end_pfn = (info->start_addr + info->length - 1) >> PAGE_SHIFT;
+> > > -
+> > > -		if (pfn_valid(start_pfn) || pfn_valid(end_pfn)) {
+> > 
+> > This check needs to go somewhare in the add path.  I am thinking of a
+> > validate_add_memory_area call in add_memory (that can also be flexable
+> > to enable the reserve check of (this memory area in add_nodes).  
+> > 
+> >   It is a useful protection for the sparsemem add path. I would rather
+> > the kernel be able to stand up to odd acpi namespaces or other
+> > mechanisms of invoking add_memory. 
+> > 
+> Hmm..Okay. I'll try some check patch today. please review it.
+> Maybe moving ioresouce collision check in early stage of add_memory() is good ?
+  Yea.  I am working a a full patch set for but my sparsemem and reserve
+add-based paths.  It creates a valid_memory_add_range call at the start
+of add_memory. I should be posting the set in the next few hours.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+> Note:
+> I remove pfn_valid() here because pfn_valid() just says section exists or
+> not. When adding seveal small memory chunks in one section, Only the  first
+> small chunk can be added. 
+Hmm... I thought memory add areas needed to be section aligned for the arch?
 
---- linux-2.6.18-rc3/net/core/utils.c~	2006-08-03 14:50:28.341080424 -0700
-+++ linux-2.6.18-rc3/net/core/utils.c	2006-08-03 14:50:51.222601904 -0700
-@@ -130,12 +130,13 @@ void __init net_random_init(void)
- static int net_random_reseed(void)
- {
- 	int i;
--	unsigned long seed[NR_CPUS];
-+	unsigned long seed;
- 
--	get_random_bytes(seed, sizeof(seed));
- 	for_each_possible_cpu(i) {
- 		struct nrnd_state *state = &per_cpu(net_rand_state,i);
--		__net_srandom(state, seed[i]);
-+
-+		get_random_bytes(&seed, sizeof(seed));
-+		__net_srandom(state, seed);
- 	}
- 	return 0;
- }
+  What protecting is there for calling add_memory on an already present
+memory range?  
+
+
+Thanks,
+  Keith 
+
+

@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWHDPsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161262AbWHDPzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161254AbWHDPsP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 11:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161259AbWHDPsP
+	id S1161262AbWHDPzY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 11:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbWHDPzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 11:48:15 -0400
-Received: from navgwout.symantec.com ([198.6.49.12]:36787 "EHLO
-	navgwout.symantec.com") by vger.kernel.org with ESMTP
-	id S1161254AbWHDPsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 11:48:15 -0400
-Date: Fri, 4 Aug 2006 16:47:27 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Mulyadi Santosa <mulyadi.santosa@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] accounting per process swapped out pages
-In-Reply-To: <200608041351.52695.mulyadi.santosa@gmail.com>
-Message-ID: <Pine.LNX.4.64.0608041616330.10681@blonde.wat.veritas.com>
-References: <200608041351.52695.mulyadi.santosa@gmail.com>
+	Fri, 4 Aug 2006 11:55:24 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18871 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161262AbWHDPzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 11:55:22 -0400
+Message-ID: <44D36E8B.4040705@sgi.com>
+Date: Fri, 04 Aug 2006 17:58:03 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Aug 2006 15:48:04.0188 (UTC) FILETIME=[5F57C1C0:01C6B7DD]
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jeff@garzik.org>, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se>	 <44BE9E78.3010409@garzik.org>  <yq0lkq4vbs3.fsf@jaguar.mkp.net>	 <1154702572.23655.226.camel@localhost.localdomain>	 <44D35B25.9090004@sgi.com> <1154706687.23655.234.camel@localhost.localdomain>
+In-Reply-To: <1154706687.23655.234.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006, Mulyadi Santosa wrote:
+Alan Cox wrote:
+> Ar Gwe, 2006-08-04 am 16:35 +0200, ysgrifennodd Jes Sorensen:
+>> The proposed patch makes it u1 - if we end up with arch specific
+>> defines, as the patch is proposing, developers won't know for sure what
+>> the size is and will get alignment wrong. That is not fine.
 > 
-> Here is patch to count per process swapped out pages. This patch is 
-> created against 2.6.16.1. So far, I had tested by forcing certain task 
-> to swap out (tail -f /dev/zero) and wait until top/vmstat/free reported
-> that swap is occupied.
+> The _Bool type is up to gcc implementation details.
+
+Which is even worse :(
+
+>> If we really have to introduce a bool type, at least it has to be the
+>> same size on all 32 bit archs and the same size on all 64 bit archs.
 > 
-> Comments and feedbacks are  greatly appreciated. Please keep me CC'ed 
-> since I am not subscribed to linux-kernel mailing list.
+> You don't use bool for talking to hardware, you use it for the most
+> efficient compiler behaviour when working with true/false values.
 
-To be honest, I don't think there's much interest in this particular
-VmSwp statistic; and if there's little interest in it, we'd rather
-not spend the time and space on collecting it.  But I could be wrong:
-let's see who speaks up for it.
+Thats the problem, people will start putting them into structs, and
+voila all alignment predictability has gone out the window.
 
-A few comments on the mechanics of your patch.
-
-You waste space in every vm_area_struct for your swapped_out count,
-then /proc/<pid>/status has to loop over the vmas adding them up.
-Much better to make it an mm_counter like anon_rss, then you only
-use space in mm_struct, and don't have to add them up at the end,
-and avoid dirtying (vma) cachelines unnecessarily, and (in some
-cases) avoid the atomic operations.
-
-While you've caught the main places where you'd need to adjust
-swapped_out, you've missed a couple (maybe I've missed more):
-copy_pte_range (fork) needs to increment the count, zap_pte_range
-(munmap or truncate or exit) needs to decrement it.  Check wherever
-anon_rss is adjusted, some not all would need swapped_out adjusted.
-
-Oh, you are doing something in zap_pte_range, but I'm sorry to say
-what you do there is nonsense: the number you're subtracting has
-nothing to do with the number of swapped out pages.
-
-And you probably wouldn't want that printk in your final patch!
-
-Hugh
+Regards,
+Jes

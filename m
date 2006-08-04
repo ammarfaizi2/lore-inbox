@@ -1,103 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWHDCwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWHDDAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWHDCwi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 22:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWHDCwi
+	id S1030298AbWHDDAN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 23:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWHDDAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 22:52:38 -0400
-Received: from 207.47.60.150.static.nextweb.net ([207.47.60.150]:53767 "EHLO
-	webmail.xensource.com") by vger.kernel.org with ESMTP
-	id S1030297AbWHDCwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 22:52:37 -0400
-Message-ID: <44D2B678.6060400@xensource.com>
-Date: Thu, 03 Aug 2006 19:52:40 -0700
-From: Jeremy Fitzhardinge <jeremy@xensource.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       xen-devel@lists.xensource.com, simon@xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: A proposal - binary
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-In-Reply-To: <20060803200136.GB28537@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 3 Aug 2006 23:00:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:42164 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030298AbWHDDAL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 23:00:11 -0400
+Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>, y-goto@jp.fujitsu.com,
+       andrew <akpm@osdl.org>
+In-Reply-To: <20060804111550.ab30fc15.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+	 <1154650396.5925.49.camel@keithlap>
+	 <20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
+	 <1154656472.5925.71.camel@keithlap>
+	 <20060804111550.ab30fc15.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 03 Aug 2006 20:00:08 -0700
+Message-Id: <1154660408.5925.79.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Aug 2006 02:53:49.0666 (UTC) FILETIME=[364A3C20:01C6B771]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Aug 03, 2006 at 12:26:16PM -0700, Zachary Amsden wrote:
->   
->> Who said that?  Please smack them on the head with a broom.  We are all 
->> actively working on implementing Rusty's paravirt-ops proposal.  It 
->> makes the API vs ABI discussion moot, as it allow for both.
->>     
->
-> So everyone is still skirting the issue, oh great :)
->   
+On Fri, 2006-08-04 at 11:15 +0900, KAMEZAWA Hiroyuki wrote:
+> On Thu, 03 Aug 2006 18:54:32 -0700
+> keith mannthey <kmannth@us.ibm.com> wrote:
+> 
+> > > Hmm..Okay. I'll try some check patch today. please review it.
+> > > Maybe moving ioresouce collision check in early stage of add_memory() is good ?
+> >   Yea.  I am working a a full patch set for but my sparsemem and reserve
+> > add-based paths.  It creates a valid_memory_add_range call at the start
+> > of add_memory. I should be posting the set in the next few hours.
+> > 
+> Ah..ok. but I wrote my own patch...and testing it now..
 
-I don't really think there's an issue to be skirted here.  The current 
-plan is to design and implement a paravirt_ops interface, which is a 
-typical Linux source-level interface between the bulk of the kernel and 
-a set of hypervisor-specific backends.  Xen, VMWare and other interested 
-parties are working together on this interface to make sure it meets 
-everyone's needs (and if you have another hypervisor you'd like to 
-support with this interface, we want to hear from you).
+Sure that is fine. 
+> 
+> > > Note:
+> > > I remove pfn_valid() here because pfn_valid() just says section exists or
+> > > not. When adding seveal small memory chunks in one section, Only the  first
+> > > small chunk can be added. 
+> > Hmm... I thought memory add areas needed to be section aligned for the arch?
+> > 
+> There are requests for memory-hot-add should allow to hot-add not-aligned memory.
+> Then, I wrote ioresouce collision check patch (before..but had bug..)
+> With ioresouce collistion check, alignments are not required at *add*.
+> (onlining is just for  *offlined section*, now)
+> 
+> >   What protecting is there for calling add_memory on an already present
+> > memory range?  
+> > 
+> For example, considering ia64, which has 1Gbytes section...
 
-Until VMWare proposed VMI, Xen was the only hypervisor needing support, 
-so it was reasonable that the Xen patches just go straight to Xen.  But 
-with paravirtops the result will be more flexible, since a kernel will 
-be configurable to run on any combination of supported hypervisor or on 
-bare hardware.
+Maybe 1gb sections is too large?  
 
-As far as I'm concerned, the issue of whether VMI has a stable ABI or 
-not is one which on the VMI side of the paravirtops interface, and it 
-doesn't have any wider implications.
+> hot add following region.
+> ==
+> (A) 0xc0000000 - 0xd7ffffff  (section 3)
+> (B) 0xe0000000 - 0xffffffff  (section 3)
+> ==
+> (A) and (B) will go to the same section, but there is a memory hole between
+> (A) and (B). Considering memory (B) appears after (A) in DSDT.
+> 
+> After add_memory() against (A) is called, section 3 is ready.
+> Then, pfn_valid(0xe0000000) and pfn_valid(0xffffffff) returns true because
+> they are in section 3.
+> So, checking pfn_valid() for (B) will returns true and memory (B) cannot be
+> added. ioresouce collision check will help this situation.
 
-Certainly Xen will maintain a backwards compatible hypervisor interface 
-for as long as we want/need to, but that's a matter for our side of 
-paravirtops.  And the paravirtops interface will change over time as the 
-kernel does, and the backends will be adapted to match, either using the 
-same ABI to the underlying hypervisor, or an expanded one, or whatever; 
-it doesn't matter as far as the rest of the kernel is concerned.
+With iommus out there throwing aliment all off way the flexability is
+good. 
 
-There's the other question of whether VMI is a suitable interface for 
-Xen, making the whole paravirt_ops exercise redundant.  Zach and VMWare 
-are claiming to have a VMI binding to Xen which is full featured with 
-good performance.  That's an interesting claim, and I don't doubt that 
-its somewhat true.  However, they haven't released either code for this 
-interface or detailed performance results, so its hard to evaluate.  And 
-with anything in this area, its always the details that matter: what 
-tests, on what hardware, at what scale?  Does VMI really expose all of 
-Xen's features, or does it just use a bare-minimum subset to get things 
-going?  And how does the interface fit with short and long term design 
-goals?
+My question is this.
 
-I don't think anybody is willing to answer these questions with any 
-confidence.  VMWare's initial VMI proposal was very geared towards their 
-particular hypervisor architecture; it has been modified over time to be 
-a little closer to Xen's model, in order to efficiently support the Xen 
-binding.  But Xen and ESX have very different designs and underlying 
-philosophies, so I wouldn't expect a single interface to fit comfortably 
-with either.
+Assuming 0-0xbfffffff is present.
 
-As far as LKML is concerned, the only interface which matters is the 
-Linux -> <something> interface, which is defined within the scope of the 
-Linux development process.  That's what paravirt_ops is intended to be.
+What keeps 0xa0000000 to 0xa1000000 from being re-onlined by a bad call
+to add_memory?
 
-And being a Linux API, paravirt_ops can avoid duplicating other Linux 
-interfaces. For example, VMI, like the Xen hypervisor interface, need 
-various ways to deal with time.  The rest of the kernel needn't know or 
-care about those interfaces, because the paravirt backend for each can 
-also register a clocksource, or use other kernel APIs to expose that 
-interface (some of which we'll probably develop/expand over time as 
-needed, but in the normal way kernel interfaces chance).
+Thanks,
+  Keith 
 
-    J
+
+

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWHDFRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWHDFSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWHDFRf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWHDFRf
+	id S1030233AbWHDFSW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWHDFSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:17:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30957 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030220AbWHDFRe (ORCPT
+	Fri, 4 Aug 2006 01:18:22 -0400
+Received: from 1wt.eu ([62.212.114.60]:22541 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1030233AbWHDFSV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:17:34 -0400
-Date: Thu, 3 Aug 2006 22:17:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Nate Diller" <nate.diller@gmail.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] [3/3] Add the Elevator I/O scheduler
-Message-Id: <20060803221727.acf4197d.akpm@osdl.org>
-In-Reply-To: <5c49b0ed0608031921o7f140a80g3c4f860e9890186e@mail.gmail.com>
-References: <5c49b0ed0608031921o7f140a80g3c4f860e9890186e@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 4 Aug 2006 01:18:21 -0400
+Date: Fri, 4 Aug 2006 07:08:43 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jukka Partanen <jspartanen@gmail.com>, kkeil@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.32] Fix AVM C4 ISDN card init problems with newer CPUs
+Message-ID: <20060804050843.GB8776@1wt.eu>
+References: <d50597c30608030953l41e8661dg1c10faeac31cc87f@mail.gmail.com> <1154627776.23655.106.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154627776.23655.106.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Aug 2006 19:21:45 -0700
-"Nate Diller" <nate.diller@gmail.com> wrote:
+On Thu, Aug 03, 2006 at 06:56:15PM +0100, Alan Cox wrote:
+> Ar Iau, 2006-08-03 am 19:53 +0300, ysgrifennodd Jukka Partanen:
+> > AVM C4 ISDN NIC: Add three memory barriers, taken from 2.6.7,
+> > (they are there in 2.6.17.7 too), to fix module initialization
+> > problems appearing with at least some newer Celerons and
+> > Pentium III.
+> 
+> Should be using cpu_relax() I think. Its a polled busy loop so you want
+> other CPU threads to run if possible.
 
-> This is the Elevator I/O scheduler.
+Agreed, but I think it should be a second patch since 2.6 would need it
+too.
 
-I stuck this in -mm (after fixing many tens of wordwrapping corruptions).
+> Otherwise the code seems quite logical depending how c4inmeml is defined.
 
-It does need many coding style fixes sometime.  80-cols, newlines after
-`if' statements, macros->commented-inlines, fix a=b=c=d=e=<expr> statements,
-etc.  Well-understood stuff.  So we'll need a version 2 sometime, please.  
+OK, I'm queuing it for 2.4.34.
 
-Meanwhile, what we have here is OK for people to review-n-test.
+> Alan
+
+Willy
+

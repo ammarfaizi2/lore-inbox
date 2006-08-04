@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWHDGCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWHDGJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWHDGCl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 02:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWHDGCl
+	id S1751175AbWHDGJX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 02:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWHDGJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 02:02:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37536 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751113AbWHDGCl (ORCPT
+	Fri, 4 Aug 2006 02:09:22 -0400
+Received: from ns.suse.de ([195.135.220.2]:31719 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751175AbWHDGJV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 02:02:41 -0400
-Date: Thu, 3 Aug 2006 23:02:25 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-Message-Id: <20060803230225.f5bb7860.pj@sgi.com>
-In-Reply-To: <20060803223650.423f2e6a.akpm@osdl.org>
-References: <20060804050753.GD27194@in.ibm.com>
-	<20060803223650.423f2e6a.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Aug 2006 02:09:21 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: entry.s::error_code is not safe for kprobes
+Date: Fri, 4 Aug 2006 08:08:22 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <200608030623_MC3-1-C6F0-24AD@compuserve.com>
+In-Reply-To: <200608030623_MC3-1-C6F0-24AD@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608040808.22385.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Crap - I was reading my email backwards.
+On Thursday 03 August 2006 12:20, Chuck Ebbert wrote:
+> Because code marked unsafe for kprobes jumps directly to
+> entry.S::error_code, that must be marked unsafe as well.
+> The easiest way to do that is to move the page fault entry
+> point to just before error_code and let it inherit the same
+> section.
+> 
+> Also moved all the ".previous" asm directives for kprobes
+> sections to column 1 and removed ".text" from them.
 
-I now see "[ RFC, PATCH 5/5 ] CPU controller - interface with cpusets".
+Ok added thanks
 
-I haven't read it yet, but I will likely agree that
-this is an abuse of cpusets.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

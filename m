@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161524AbWHDWGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161527AbWHDWNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161524AbWHDWGy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 18:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161525AbWHDWGy
+	id S1161527AbWHDWNM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161529AbWHDWNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 18:06:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14059 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161524AbWHDWGx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 18:06:53 -0400
-Date: Fri, 4 Aug 2006 18:06:44 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andreas Schwab <schwab@suse.de>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-Message-ID: <20060804220644.GA28344@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Andreas Schwab <schwab@suse.de>,
-	Alexey Dobriyan <adobriyan@gmail.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com> <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com> <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com> <20060802001626.GA14689@redhat.com> <20060804141955.3139b20b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060804141955.3139b20b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 4 Aug 2006 18:13:12 -0400
+Received: from mga06.intel.com ([134.134.136.21]:65121 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161527AbWHDWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:13:12 -0400
+X-IronPort-AV: i="4.07,213,1151910000"; 
+   d="scan'208"; a="102859066:sNHT1784809880"
+Message-ID: <44D3C37F.7020803@linux.intel.com>
+Date: Fri, 04 Aug 2006 15:00:31 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: David Lang <dlang@digitalinsight.com>
+CC: Antonio Vargas <windenntw@gmail.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>   <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>   <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>   <1154667875.11382.37.camel@localhost.localdomain>   <20060803225357.e9ab5de1.akpm@osdl.org>   <1154675100.11382.47.camel@localhost.localdomain>   <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>  <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>  <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> <44D39F73.8000803@linux.intel.com> <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 02:19:55PM -0700, Andrew Morton wrote:
- > On Tue, 1 Aug 2006 20:16:26 -0400
- > Dave Jones <davej@redhat.com> wrote:
- > 
- > > In case where we detect a single bit has been flipped, we spew
- > > the usual slab corruption message, which users instantly think
- > > is a kernel bug.  In a lot of cases, single bit errors are
- > > down to bad memory, or other hardware failure.
- > > 
- > > This patch adds an extra line to the slab debug messages
- > > in those cases, in the hope that users will try memtest before
- > > they report a bug.
- > 
- > Well boy, this has to be the most-reviewed patch ever.  You'd think that
- > I'd apply it with great confidence and warm fuzzies.
-
-I should stick to one-liner fixes.
-
- > - one decl per line is more patching-friendly and a bit more idiomatic.
- > - make `bad_count' an int: a uchar might overflow
- > - Put a blank line between decls and code
- > - rename `total' to `error', remove `errors'.
- > - there's no need to sum up the errors.
- > - don't need to check for non-zero `errors': we know it is != POISON_FREE.
- > - make it look non-crapful in an 80-col window.
- > - add missing spaces in arithmetic
-
-With this much iteration, I do have one question..
-Does it still work ? :-)
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+David Lang wrote:
+> On Fri, 4 Aug 2006, Arjan van de Ven wrote:
+> 
+>> David Lang wrote:
+>>> I'm not commenting on any of the specifics of the interface calls (I 
+>>> trust you guys to make that be sane :-) I'm just responding the the 
+>>> idea that the interface actually needs to be locked down to an ABI as 
+>>> opposed to just source-level compatability.
+>>
+>> you are right that the interface to the HV should be stable. But those 
+>> are going
+>> to be specific to the HV, the paravirt_ops allows the kernel to 
+>> smoothly deal
+>> with having different HV's.
+>> So in a way it's an API interface to allow the kernel to deal with 
+>> multiple
+>> different ABIs that exist today and will in the future.
+> 
+> so if I understand this correctly we are saying that a kernel compiled 
+> to run on hypervisor A would need to be recompiled to run on hypervisor 
+> B, and recompiled again to run on hypervisor C, etc
+> 
+no the actual implementation of the operation structure is dynamic and can be picked
+at runtime, so you can compile a kernel for A,B *and* C and at runtime the kernel
+picks the one you have

@@ -1,72 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWHDNJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWHDNNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWHDNJe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 09:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWHDNJd
+	id S1161068AbWHDNNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 09:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWHDNNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 09:09:33 -0400
-Received: from e-nvb.com ([69.27.17.200]:5257 "EHLO e-nvb.com")
-	by vger.kernel.org with ESMTP id S1030217AbWHDNJd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 09:09:33 -0400
-Subject: Re: [patch 12/23] invalidate_bdev() speedup
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
-       rdunlap@xenotime.net, davej@redhat.com, chuckw@quantumlinux.com,
-       reviews@ml.cw.f00f.org, alan@lxorguk.ukuu.org.uk,
-       jes@trained-monkey.org, jes@sgi.com
-In-Reply-To: <20060804020422.09b32164.akpm@osdl.org>
-References: <20060804053258.391158155@quad.kroah.org>
-	 <20060804053942.GM769@kroah.com> <20060804085012.GA20026@infradead.org>
-	 <20060804020422.09b32164.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 04 Aug 2006 15:08:49 +0200
-Message-Id: <1154696949.2996.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 09:13:18 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:41615 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S1030300AbWHDNNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 09:13:18 -0400
+Date: Fri, 4 Aug 2006 15:13:15 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: driver for thinkpad fingerprint sensor
+Message-ID: <20060804131315.GE4394@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11-2006-07-11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 02:04 -0700, Andrew Morton wrote:
-> On Fri, 4 Aug 2006 09:50:13 +0100
-> Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > On Thu, Aug 03, 2006 at 10:39:42PM -0700, Greg KH wrote:
-> > > -stable review patch.  If anyone has any objections, please let us know.
-> > 
-> > This is a feature.  Definitly not -stable material.
-> 
-> Apparently that regular IPI storm is causing the SGI machines some
-> significant problems. 
+Hello Pavel,
+your userland driver works for me like a charm. Creating the file and
+verifying works as well it does identify a wrong fingerprint. This was
+on a T60 (2007-63G).
 
-a tiny performance drop :) If that meets the stable policy.. open
-question :)
-
-> It's not the biggest problem we've ever had, but if this patch is wrong,
-> the pagecache/buffer_head layer is utterly busted.  And it isn't.
-
-
-are you sure?
-
-+       struct address_space *mapping = bdev->bd_inode->i_mapping;
-+
-+       if (mapping->nrpages == 0)
-+               return;
-+
-        invalidate_bh_lrus();
-
-what happens if a bdev used to have pagecache and at some point stops
-having that due to page reclaim... will that page reclaim call
-invalidate_bh_lrus() ? If not, who will ? If the answer is "nobody", is
-that really the right answer?
-
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Thanks,
+        Thomas

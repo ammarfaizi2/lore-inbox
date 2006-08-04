@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161503AbWHDVnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161509AbWHDVrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161503AbWHDVnP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161504AbWHDVnP
+	id S1161509AbWHDVrP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161510AbWHDVrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:43:15 -0400
-Received: from qb-out-0506.google.com ([72.14.204.235]:40095 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1161503AbWHDVnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:43:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=reMsUAHattbkxsF5e+3PY48xv8MlXyTb9oCQfW9bxb5+yQGLzz1Ic6JHl3Rbm73BBVfxWIwNxDn7FnLddc3V69Hy0g/fyQoY/i8yiBfj37Dj3+X9RKn2BdllnyJhN/tBolB3hAAzTXwH0Qcxfx0GV32Wjt59MOIZ3SJbLMFG4Ug=
-Message-ID: <44D3BF62.10202@gmail.com>
-Date: Fri, 04 Aug 2006 23:42:58 +0200
-From: RazorBlu <razorblu@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ACLs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 4 Aug 2006 17:47:15 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:63916 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161509AbWHDVrO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:47:14 -0400
+Subject: Re: [PATCH 06/28] reintroduce list of vfsmounts over superblock
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at
+In-Reply-To: <20060803143953.GD920@infradead.org>
+References: <20060801235240.82ADCA42@localhost.localdomain>
+	 <20060801235244.964B79E7@localhost.localdomain>
+	 <20060803143953.GD920@infradead.org>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 14:47:08 -0700
+Message-Id: <1154728028.10109.47.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will these ever be implemented? If so, when? At the moment, all the 
-Linux kernel brings (ie. without any external access control systems 
-such as grsecurity or RSBAC) are rwx permissions. Even Windows brings 
-more finely-grained access controls than this - is that something we 
-want to live with?
+On Thu, 2006-08-03 at 15:39 +0100, Christoph Hellwig wrote:
+> On Tue, Aug 01, 2006 at 04:52:44PM -0700, Dave Hansen wrote:
+> > 
+> > We're moving a big chunk of the burden of keeping people from
+> > writing to r/o filesystems from the superblock into the
+> > vfsmount.  This requires that we consult the superblock's
+> > vfsmounts when things like remounts occur.
+> > 
+> > So, introduce a list of vfsmounts hanging off the superblock.
+> > We'll use this in a bit.
+> 
+> I don't think we'll need it.  We really need to keep is someone writing
+> to this vfsmount counters in addition to is someone writing to this sb.
 
-I for one would like to see more finely-grained access controls 
-available out-of-the-box, so to speak. I don't want to have to download 
-an LSM plugin or whatnot in order to do it for me. Does it really matter 
-which one you choose? Pick the most mature one and be done with it. If 
-you choose grsecurity and some RSBAC die-hards still want to use RSBAC, 
-let them - but at least have _something_ in the kernel which allows more 
-finely-grained controls than rwx.
+This one was a direct request from Al:
 
-Adieu.
+http://article.gmane.org/gmane.linux.kernel/421029
+> BTW, it might be worth doing the following:
+> 	* reintroduce the list of vfsmounts over given superblock (protected
+> by vfsmount_lock)
+...
+
+So, I assume that there are some evil plans in the future for this as
+well.
+
+> In fact there are cases were we want a superblock to be writeable to
+> without any view into it being writeable, e.g. for journal recovery.
+
+Note that, as it stands now, the vfsmount has a flag which duplicates
+the superblock r/o flag.  It is perfectly fine to do that journal
+recovery by making the superblock r/w, but without telling any of the
+mounts about it.  All of the write requests will get blocked by the
+mount flag, and no one will ever see that the superblock changed state.
+
+-- Dave
+

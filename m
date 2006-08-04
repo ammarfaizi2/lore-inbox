@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161515AbWHDVrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161519AbWHDVv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161515AbWHDVrr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161513AbWHDVrr
+	id S1161519AbWHDVv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161512AbWHDVv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:47:47 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:44449 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1161515AbWHDVrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:47:46 -0400
-Date: Fri, 4 Aug 2006 17:46:43 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Antonio Vargas <windenntw@gmail.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-Subject: Re: A proposal - binary
-Message-ID: <20060804214643.GA6407@ccure.user-mode-linux.org>
-References: <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org> <1154667875.11382.37.camel@localhost.localdomain> <20060803225357.e9ab5de1.akpm@osdl.org> <1154675100.11382.47.camel@localhost.localdomain> <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz> <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com> <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> <20060804194549.GA5897@ccure.user-mode-linux.org> <Pine.LNX.4.63.0608041246010.18862@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0608041246010.18862@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 4 Aug 2006 17:51:58 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:53462 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1161505AbWHDVv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:51:57 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [RFC] irqbalance: Mark in-kernel irqbalance as obsolete, set  to N by default
+To: Arjan van de Ven <arjan@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
+       Auke Kok <auke-jan.h.kok@intel.com>, linux-kernel@vger.kernel.org,
+       jesse.brandeburg@intel.com, john.ronciak@intel.com,
+       netdev@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 04 Aug 2006 23:48:16 +0200
+References: <6EJUl-4br-13@gated-at.bofh.it> <6FXVd-1Gl-11@gated-at.bofh.it> <6G9jL-1Yg-41@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G97X3-0000pH-IY@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 12:49:13PM -0700, David Lang wrote:
-> >Why might you have to do that?
-> 
-> take this with a grain of salt, I'm not saying the particular versions I'm 
-> listing would require this
-> 
-> if your new guest kernel wants to use some new feature (SKAS3, time 
-> virtualization, etc) but the older host kernel didn't support some system 
-> call nessasary to implement it, you may need to upgrade the host kernel to 
-> one that provides the new features.
+Arjan van de Ven <arjan@linux.intel.com> wrote:
 
-OK, yeah.
+> to some degree the in kernel balancer cannot really make the level of
+> decisions that a userspace balancer can make, at least not without making all
+> kernel developers vomit ;)
 
-Just making sure you weren't thinking that the UML and host versions
-were tied together (although a modern distro won't boot on a 2.6 UML
-on a 2.4 host because UML's TLS needs TLS support on the host...).
+If you make the drivers set a flag if they know their interrupts should remain
+mostly on one CPU, you can avoid the bad cases, and the rest you could gain
+from using more clever algorithms should be(*) usurally less than what parsing
+/proc/interrupts costs.
 
-				Jeff
+*) as in: I guess
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
+
+http://david.woodhou.se/why-not-spf.html

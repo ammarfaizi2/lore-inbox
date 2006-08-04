@@ -1,102 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161370AbWHDTJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161373AbWHDTKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161370AbWHDTJy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161373AbWHDTJx
+	id S1161373AbWHDTKm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161374AbWHDTKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:09:53 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:11768 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1161370AbWHDTJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:09:53 -0400
-Date: Fri, 4 Aug 2006 12:06:28 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Antonio Vargas <windenntw@gmail.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-Subject: Re: A proposal - binary
-In-Reply-To: <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-  <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> 
- <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org> 
- <1154667875.11382.37.camel@localhost.localdomain>  <20060803225357.e9ab5de1.akpm@osdl.org>
-  <1154675100.11382.47.camel@localhost.localdomain> 
- <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>
- <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 4 Aug 2006 15:10:42 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:12712 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161373AbWHDTKl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 15:10:41 -0400
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A
+	cpu controller
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: dipankar@in.ibm.com, vatsa@in.ibm.com, mingo@elte.hu,
+       nickpiggin@yahoo.com.au, sam@vilain.net, linux-kernel@vger.kernel.org,
+       dev@openvz.org, efault@gmx.de, balbir@in.ibm.com, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+In-Reply-To: <20060803234537.e9b6736d.akpm@osdl.org>
+References: <20060804050753.GD27194@in.ibm.com>
+	 <20060803223650.423f2e6a.akpm@osdl.org> <20060804062036.GA28137@in.ibm.com>
+	 <20060803234537.e9b6736d.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 04 Aug 2006 12:10:35 -0700
+Message-Id: <1154718635.11679.11.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006, Antonio Vargas wrote:
+On Thu, 2006-08-03 at 23:45 -0700, Andrew Morton wrote:
+> On Fri, 4 Aug 2006 11:50:36 +0530
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> 
+> > > And now we've dumped the good infrastructure and instead we've contentrated
+> > > on the controller, wired up via some imaginative ab^H^Hreuse of the cpuset
+> > > layer.
+> > 
+> > FWIW, this controller was originally written for f-series.
+> 
+> What the heck is an f-series?
 
->> If there's going to be long-term compatability between different hosts and
->> guests there need some limits to what can change.
->> 
->> needing to uprev the host when you uprev a guest is acceptable
->> 
->> needing to uprev a guest when you uprev a host is not.
->
-> Now, allowing this transparent acting is great since you can run your
-> normal kernel as-is as a guest. But to get close to 100% speed, what
-> you do is to rewrite parts of the OS to be aware of the hypervisor,
-> and stablish a common way to talk.
+That is how the latest posting was referred in ckrm-tech mailing list. 
+> 
+> <googles, looks at
+> http://images.automotive.com/cob/factory_automotive/images/Features/auto_shows/2005_IEAS/2005_Ford_F-series_Harley-Davidson_front.JPG,
+> gets worried about IBM design methodologies>
 
-I understand this, but for example a UML 2.6.10 kernel will continue to run 
-unmodified on top of a 2.6.17 kernel, the ABI used is stable. however if you 
-have a 2.6.10 host with a 2.6.10 UML guest and want to run a 2.6.17 guest you 
-may (but not nessasarily must) have to upgrade the host to 2.6.17 or later.
+he he...
+> 
+> > It should
+> > be trivial to put it back there. So really, f-series isn't gone 
+> > anywhere. If you want to merge it, I am sure it can be re-submitted.
+> 
+> Well.  It shouldn't be a matter of what I want to merge - you're the
+> resource-controller guys.  But...
+> 
+> > > I wonder how many of the consensus-makers were familiar with the
+> > > contemporary CKRM core?
+> > 
+> > I think what would be nice is a clear strategy on whether we need
+> > to work out the infrastructure or the controllers first.
+> 
+> We should put our thinking hats on and decide what sort of infrastructure
+> will need to be in place by the time we have a useful number of useful
+> controllers implemented.
+> 
+> > One of
+> > the strongest points raised in the BoF was - forget the infrastructure
+> > for now, get some mergable controllers developed.
+> 
+> I wonder what inspired that approach.  Perhaps it was a reaction to CKRM's
+> long and difficult history?  Perhaps it was felt that doing standalne
+> controllers with ad-hoc interfaces would make things easier to merge?
+> 
+> Perhaps.  But I think you guys know that the end result would be inferior,
+> and that getting good infrastructure in place first will produce a better
+> end result, but you decided to go this way because you want to get
+> _something_ going?
 
-> Thus happens the work with the paravirt-ops. Just like you can use any
-> filesystem under linux because they have a well-defined intrface to
-> the rest of the kernel, the paravirt-ops are the way we are wrking to
-> define an interface so that the rest of the kernel can be ignorant to
-> whether it's running on the bare metal or as a guest.
->
-> Then, if you needed to run say 2.6.19 with hypervisor A-1.0, you just
-> need to write paravirt-ops which talk and translate between 2.6.19 and
-> A-1.0. If 5 years later you are still running A-1.0 and want to run a
-> 2.6.28 guest, then you would just need to write the paravirt-ops
-> between 2.6.28 and A-1.0, with no need to modify the rest of the code
-> or the hypervisor.
+To some extent yes... 
+> 
+> > If you
+> > want to stick to f-series infrastructure and want to see some
+> > consensus controllers evolve on top of it, that can be done too.
+> 
+> Do you think that the CKRM core as last posted had any unnecessary
+> features?  I don't have the operational experience to be able to judge
 
-who is going to be writing all these interface layers to connect each kernel 
-version to each hypervisor version. and please note, I am not just considering 
-Xen and vmware as hypervisors, a vanilla linux kernel is the hypervisor for UML. 
-so just stating that the hypervisor maintainers need to do this is implying that 
-the kernel maintainers would be required to do this.
+No, not at all. But there were some disagreements w.r.t which interface
+to use. So, as pointed by Vatsa in a different email, we wanted to
+proceed with controller implementation (where we can get more
+agreements) and avoid the controversial topic for now.
+> that, so I'd prefer to trust your experience and judgement on that.  But
+> the features which _were_ there looked quite OK from an implementation POV.
+> 
+> So my take was "looks good, done deal - let's go get some sane controllers
+> working".  And now this!
+-- 
 
-also I'm looking at the more likly case that 5 years from now you may still be 
-runnint 2.6.19, but need to upgrade to hypervisor A-5.8 (to support a different 
-client). you don't want to have to try and recompile the 2.6.19 kernel to keep 
-useing it.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-> At the moment we only have 1 GPL hypervisor and 1 binary one. Then
-> maybe it's needed to define if linux should help run under binary
-> hypervisors, but imagine instead of this one, we had the usual Ghyper
-> vs Khyper separation. We would prefer to give the same adaptations to
-> both of them and abstract them away just like we do with filesystems.
 
-you have three hypervisors that I know of. Linux, Xen (multiple versions) , and 
-VMware. each with (mostly) incompatable guests
-
->> this basicly boils down to 'once you expose an interface to a user it can't
->> change', with the interface that's being exposed being the calls that the 
->> guest
->> makes to the host.
->
-> Yes, that's the reason some mentioned ppc, sparc, s390... because they
-> have been doing this longer than us and we could consider adopting
-> some of their designs (just like we did for POSIX system calls ;)
-
-I'm not commenting on any of the specifics of the interface calls (I trust you 
-guys to make that be sane :-) I'm just responding the the idea that the 
-interface actually needs to be locked down to an ABI as opposed to just 
-source-level compatability.
-
-David Lang

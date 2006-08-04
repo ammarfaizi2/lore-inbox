@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161282AbWHDQW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161283AbWHDQXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161282AbWHDQW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 12:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWHDQW0
+	id S1161283AbWHDQXg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 12:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161284AbWHDQXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 12:22:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59272 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161282AbWHDQWZ (ORCPT
+	Fri, 4 Aug 2006 12:23:36 -0400
+Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:53714 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S1161283AbWHDQXg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 12:22:25 -0400
-Message-ID: <44D37440.9080100@redhat.com>
-Date: Fri, 04 Aug 2006 11:22:24 -0500
-From: Eric Sandeen <esandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix sun partition overflow over 1T
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 4 Aug 2006 12:23:36 -0400
+X-AntiVirus: PTMail-AV 0.3-0.88.3
+Subject: Re: Problem: irq 217: nobody cared + backtrace
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       Greg Kroah-Hartman <gregkh@suse.de>
+In-Reply-To: <9a8748490608040736n5c9ea078x79f4ce56b613703a@mail.gmail.com>
+References: <9a8748490608030717x1db108f1m2cc616459bb776db@mail.gmail.com>
+	 <Pine.LNX.4.44L0.0608031158560.7384-100000@iolanthe.rowland.org>
+	 <9a8748490608040736n5c9ea078x79f4ce56b613703a@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 17:23:29 +0100
+Message-Id: <1154708610.6075.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although sun partition labels aren't supposed to support > 1T, apparently
-linux partition editors will allow up to 2T.  This can cause problems
-in the kernel when these larger partitions are read, due to a signed
-int container.
+On Fri, 2006-08-04 at 16:36 +0200, Jesper Juhl wrote:
+> >
+> > Has this happened more than once?
+> 
+> Seems to happen consistently after ~100000 interrupts. 
 
-num_sectors in the sun_disklabel struct is marked as __u32 in 2.4, and 
-as __be32 in 2.6.  However, this is assigned to a signed int in
-sun_partition():
-
-                int num_sectors;
-
-                st_sector = be32_to_cpu(p->start_cylinder) * spc;
-                num_sectors = be32_to_cpu(p->num_sectors);
-
-Changing num_sectors to an unsigned int avoids this problem.
-
-Thanks,
-
--Eric
-
-Signed-off-by: Eric Sandeen <esandeen@redhat.com>
-
-Index: linux-2.6.17/fs/partitions/sun.c
-===================================================================
---- linux-2.6.17.orig/fs/partitions/sun.c
-+++ linux-2.6.17/fs/partitions/sun.c
-@@ -74,7 +74,7 @@ int sun_partition(struct parsed_partitio
- 	spc = be16_to_cpu(label->ntrks) * be16_to_cpu(label->nsect);
- 	for (i = 0; i < 8; i++, p++) {
- 		unsigned long st_sector;
--		int num_sectors;
-+		unsigned int num_sectors;
- 
- 		st_sector = be32_to_cpu(p->start_cylinder) * spc;
- 		num_sectors = be32_to_cpu(p->num_sectors);
-
-
-
+yap , I remember this same number when I cat  /proc/interrupts
 

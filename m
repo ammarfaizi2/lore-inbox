@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWHDPP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161129AbWHDPQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWHDPP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 11:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHDPP4
+	id S1161129AbWHDPQp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 11:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWHDPQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 11:15:56 -0400
-Received: from mail-gw1.turkuamk.fi ([195.148.208.125]:59099 "EHLO
-	mail-gw1.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S932330AbWHDPPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 11:15:55 -0400
-Message-ID: <44D364F9.3080703@kolumbus.fi>
-Date: Fri, 04 Aug 2006 18:17:13 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 4 Aug 2006 11:16:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:18202 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932421AbWHDPQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 11:16:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TO2QGw9NtAYb52Rspsza3rGTF7dXQ3diFGS8wNWCb4tCEg9FvIksHnfPI/OwmH4qJhl84eCjrBSNm++ZNPxY460XVg2O/+GTFqxFcqOs1rs//A0ieNQVbVA4wE7kQEFTuyX//wDc5ueUnT2DOB9dkIY1JleJVoHTi3/vLKy8CXw=
+Message-ID: <41b516cb0608040816o63ac2f72q20add7619734906@mail.gmail.com>
+Date: Fri, 4 Aug 2006 08:16:42 -0700
+From: "Chris Leech" <chris.leech@gmail.com>
+To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+Subject: Re: problems with e1000 and jumboframes
+Cc: "Krzysztof Oledzki" <olel@ans.pl>, "Arnd Hannemann" <arnd@arndnet.de>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20060804062008.GC413@2ka.mipt.ru>
 MIME-Version: 1.0
-To: Keith Mannthey <kmannth@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, discuss@x86-64.org,
-       ak@suse.de, lhms-devel@lists.sourceforge.net,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: [Lhms-devel] [PATCH 4/10] hot-add-mem x86_64: Enable SPARSEMEM
- in	srat.c
-References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain> <20060804131409.21401.58904.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060804131409.21401.58904.sendpatchset@localhost.localdomain>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release
- 6.5.4FP2 HF462|May 23, 2006) at 04.08.2006 18:15:48,
-	Serialize by Router on marconi.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
- HF462|May 23, 2006) at 04.08.2006 18:15:48,
-	Serialize complete at 04.08.2006 18:15:48,
-	Itemize by SMTP Server on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
- HF462|May 23, 2006) at 04.08.2006 18:15:48,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
- HF462|May 23, 2006) at 04.08.2006 18:15:52,
-	Serialize complete at 04.08.2006 18:15:52
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
+	 <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
+	 <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
+	 <20060803151631.GA14774@2ka.mipt.ru>
+	 <41b516cb0608030857h1d55820rfd4ccd0cc56dd71d@mail.gmail.com>
+	 <20060803161046.GA703@2ka.mipt.ru>
+	 <41b516cb0608031332v9cc383bq37a13254f25f45a9@mail.gmail.com>
+	 <20060804062008.GC413@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Mannthey wrote:
-> From: Keith Mannthey <kmannth@us.ibm.com>
+On 8/3/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > You're changing the size of the buffer without telling the hardware.
+> > In the interrupt context e1000 knows the size of what was DMAed into
+> > the skb, but that's after the fact.  So e1000 could detect that memory
+> > was corrupted, but not prevent it if you don't give it power of 2
+> > buffers.  Actually, the power of 2 thing doesn't hold true for all
+> > e1000 devices.  Some have 1k granularity, but not Arnd's 82540.
 >
->  Enable x86_64 srat.c to share code between both reserve and sparsemem based add memory
-> paths.  Both paths need the hot-add area node locality infomration (nodes_add).  This 
-> code refactors the code path to allow this. 
->
-> Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
->   
-Ok nice, but.... hotadd_enough_memory() is broken, it does weird things 
-with nd->start and nd->end which haven't been assigned even values yet. 
-Also, mysterious business with find_e820_area and last_area_end...These 
-areas are not in e820...
+> I can not change it - code checks if requested mtu and additional size
+> is less than allocated aligned buffer it tricks allocator.
+> Or do you mean that even after 9k mtu was setup it is possible that card
+> can receive packets up to 16k?
 
-And why the reserve_bootmem_node()? Areas not RAM (per e820) are 
-reserved anyways.
+Yes, that's exactly what I mean.  For anything above the standard 1500
+bytes the e1000 _hardware_ has no concept of MTU, only buffer length.
+So even if the driver is set to an MTU of 9000, the NIC will still
+receive 16k frames.  Otherwise the driver would simply allocate MTU
+sized buffers.
 
---Mika
-
+-Chris

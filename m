@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbWHDCNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWHDCPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030283AbWHDCNr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 22:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWHDCNr
+	id S1030288AbWHDCPS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 22:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWHDCPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 22:13:47 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:9630 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030283AbWHDCNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 22:13:46 -0400
-Date: Fri, 4 Aug 2006 11:15:50 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: kmannth@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       y-goto@jp.fujitsu.com, akpm@osdl.org
-Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
-Message-Id: <20060804111550.ab30fc15.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1154656472.5925.71.camel@keithlap>
-References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154650396.5925.49.camel@keithlap>
-	<20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154656472.5925.71.camel@keithlap>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Aug 2006 22:15:18 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:62999 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030288AbWHDCPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 22:15:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ToNL3s+bcARd+JTpvlDCfdD+HI2PweZSrR6fUX1qOWtFke+pTwLEL6IETKn1X0W48s8pp9J/8HzxsLtAEac4305r3Iv0fUZagzBwN0z2FkF0Iey30RXYUAB9vQxMkRk3aKMl7IWv68+MtanebJHkxMicamk7yyzpFljqv0VnL7A=
+Message-ID: <5c49b0ed0608031915g2c1fc44ch623a7657b994bf9c@mail.gmail.com>
+Date: Thu, 3 Aug 2006 19:15:15 -0700
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Jens Axboe" <axboe@suse.de>
+Subject: [PATCH -mm] [2/3] add list_merge to list.h
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Aug 2006 18:54:32 -0700
-keith mannthey <kmannth@us.ibm.com> wrote:
+list_merge behaves like list_splice, except it can be used with
+headless lists.  that is, the resulting list will have @head
+immediately preceeding @list.
 
-> > Hmm..Okay. I'll try some check patch today. please review it.
-> > Maybe moving ioresouce collision check in early stage of add_memory() is good ?
->   Yea.  I am working a a full patch set for but my sparsemem and reserve
-> add-based paths.  It creates a valid_memory_add_range call at the start
-> of add_memory. I should be posting the set in the next few hours.
-> 
-Ah..ok. but I wrote my own patch...and testing it now..
+This is used by the contig list feature in the Elevator I/O scheduler
 
-> > Note:
-> > I remove pfn_valid() here because pfn_valid() just says section exists or
-> > not. When adding seveal small memory chunks in one section, Only the  first
-> > small chunk can be added. 
-> Hmm... I thought memory add areas needed to be section aligned for the arch?
-> 
-There are requests for memory-hot-add should allow to hot-add not-aligned memory.
-Then, I wrote ioresouce collision check patch (before..but had bug..)
-With ioresouce collistion check, alignments are not required at *add*.
-(onlining is just for  *offlined section*, now)
+Signed-off-by: Nate Diller <nate.diller@gmail.com>
 
->   What protecting is there for calling add_memory on an already present
-> memory range?  
-> 
-For example, considering ia64, which has 1Gbytes section...
-hot add following region.
-==
-(A) 0xc0000000 - 0xd7ffffff  (section 3)
-(B) 0xe0000000 - 0xffffffff  (section 3)
-==
-(A) and (B) will go to the same section, but there is a memory hole between
-(A) and (B). Considering memory (B) appears after (A) in DSDT.
+---
+ list.h |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+---
 
-After add_memory() against (A) is called, section 3 is ready.
-Then, pfn_valid(0xe0000000) and pfn_valid(0xffffffff) returns true because
-they are in section 3.
-So, checking pfn_valid() for (B) will returns true and memory (B) cannot be
-added. ioresouce collision check will help this situation.
+diff -urpN -X dontdiff linux-2.6.18-rc1-mm2/include/linux/list.h
+linux-dput/include/linux/list.h
+--- linux-2.6.18-rc1-mm2/include/linux/list.h	2006-07-18
+15:00:53.000000000 -0700
++++ linux-dput/include/linux/list.h	2006-08-03 18:42:00.000000000 -0700
+@@ -357,6 +357,27 @@ static inline void list_splice_init(stru
+ 	}
+ }
 
-The memory hole are not onlined because there are no ioresouce for it.
-
--Kame
-
-
++/**
++ * list_merge - merge two headless lists
++ * @list: the new list to merge.
++ * @head: the place to add it in the first list.
++ *
++ * This is similar to list_splice(), except it merges every item onto @list,
++ * not excluding @head itself.  It is a noop if @head already immediately
++ * preceeds @list.
++ */
++static inline void list_merge(struct list_head *list, struct list_head *head)
++{
++	struct list_head *last = list->prev;
++	struct list_head *at = head->next;
++
++	list->prev = head;
++	head->next = list;
++
++	last->next = at;
++	at->prev = last;
++}
++
+ /**
+  * list_entry - get the struct for this entry
+  * @ptr:	the &struct list_head pointer.

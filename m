@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161394AbWHDULh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161397AbWHDUOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161394AbWHDULh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161395AbWHDULh
+	id S1161397AbWHDUOe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161398AbWHDUOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:11:37 -0400
-Received: from gw.goop.org ([64.81.55.164]:10184 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1161394AbWHDULg (ORCPT
+	Fri, 4 Aug 2006 16:14:34 -0400
+Received: from 1wt.eu ([62.212.114.60]:28173 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1161397AbWHDUOd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:11:36 -0400
-Message-ID: <44D3A9F3.2000000@goop.org>
-Date: Fri, 04 Aug 2006 13:11:31 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: Arjan van de Ven <arjan@linux.intel.com>,
-       Antonio Vargas <windenntw@gmail.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com
-Subject: Re: A proposal - binary
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>   <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>   <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>   <1154667875.11382.37.camel@localhost.localdomain>   <20060803225357.e9ab5de1.akpm@osdl.org>   <1154675100.11382.47.camel@localhost.localdomain>   <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>  <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>  <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> <44D39F73.8000803@linux.intel.com> <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 16:14:33 -0400
+Date: Fri, 4 Aug 2006 22:04:04 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: SysKonnect Support <support@syskonnect.de>
+Cc: Sean Bruno <sean.bruno@dsl-only.net>, linux-kernel@vger.kernel.org,
+       linux@syskonnect.de
+Subject: Re: sk98lin extremely slow transfer rate ASUS P5P800(2.6.17.7)
+Message-ID: <20060804200404.GB27244@1wt.eu>
+References: <4D634BCFD1A2144ABECC75FF512D7A9001095D41@SKGExch01.marvell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4D634BCFD1A2144ABECC75FF512D7A9001095D41@SKGExch01.marvell.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> so if I understand this correctly we are saying that a kernel compiled 
-> to run on hypervisor A would need to be recompiled to run on 
-> hypervisor B, and recompiled again to run on hypervisor C, etc
->
-> where A could be bare hardware, B could be Xen 2, C could be Xen 3, D 
-> could be vmware, E could be vanilla Linux, etc.
+On Fri, Aug 04, 2006 at 09:24:54AM +0200, SysKonnect Support wrote:
+> Hi Willy,
+> 
+> the current driver version 8.34 includes a new common module, so please
+> give it a try and let me know.
 
-Yes, but you can compile one kernel for any set of hypervisors, so if 
-you want both Xen and VMI, then compile both in.  (You always get bare 
-hardware support.)
+OK, I will try ASAP (not before end of next week though, cause I don't have
+the hardware with me).
 
-> this sounds like something that the distros would not support, they 
-> would pick their one hypervisor to support and leave out the others. 
-> the big problem with this is that the preferred hypervisor will change 
-> over time and people will be left with incompatable choices (or having 
-> to compile their own kernels, including having to recompile older 
-> kernels to support newer hypervisors)
+> Best regards,
+> Karim
 
-Why?  That's like saying that distros will only bother to compile in one 
-scsi driver.
+Regards,
+Willy
 
-The hypervisor driver is tricker than a normal kernel device driver, 
-because in general it needs to be present from very early in boot, which 
-precludes it from being a normal module.  There's hope that we'll be 
-able to support hypervisor drivers as boot-time grub/multiboot modules, 
-so you'll be able to compile up a new hypervisor driver for a particular 
-kernel and use it without recompiling the whole thing.
-
-
-    J

@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbWHDIuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbWHDIwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbWHDIuW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWHDIuW
+	id S1161115AbWHDIwi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWHDIwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:50:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:694 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030209AbWHDIuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:50:21 -0400
-Date: Fri, 4 Aug 2006 09:50:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [patch 12/23] invalidate_bdev() speedup
-Message-ID: <20060804085012.GA20026@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-	stable@kernel.org, torvalds@osdl.org,
-	Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-	Dave Jones <davej@redhat.com>,
-	Chuck Wolber <chuckw@quantumlinux.com>,
-	Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
-	alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org,
-	Jes Sorensen <jes@sgi.com>
-References: <20060804053258.391158155@quad.kroah.org> <20060804053942.GM769@kroah.com>
+	Fri, 4 Aug 2006 04:52:38 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:34540 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1030209AbWHDIwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:52:37 -0400
+Date: Fri, 4 Aug 2006 10:52:20 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MTD jedec_probe: Recognize Atmel AT49BV6416
+Message-ID: <20060804105220.6d125976@cad-250-152.norway.atmel.com>
+In-Reply-To: <1154680798.31031.179.camel@shinybook.infradead.org>
+References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
+	<1154680798.31031.179.camel@shinybook.infradead.org>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060804053942.GM769@kroah.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 10:39:42PM -0700, Greg KH wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
+On Fri, 04 Aug 2006 16:39:58 +0800
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-This is a feature.  Definitly not -stable material.
+> On Fri, 2006-08-04 at 10:28 +0200, Haavard Skinnemoen wrote:
+> > Atmel AT49BV6416 is used on the AT32STK1000 development board for
+> > AVR32. This patch makes jedec_probe recognize it.
+> 
+> Ew. People are still making non-CFI chips?
 
+It is actually a CFI chip. But I couldn't figure out how to install the
+fixup in the other patch in the CFI code. The AT49BV6416 chip
+identifies itself as using the AMD command set, so the fixup must be
+installed based on the jedec ID...
+
+Haavard

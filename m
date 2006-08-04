@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWHDI04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbWHDI2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWHDI04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHDI0z
+	id S1161101AbWHDI2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHDI2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:26:55 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:10461 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S1030196AbWHDI0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:26:55 -0400
-Date: Fri, 4 Aug 2006 10:26:37 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Andi Kleen <ak@suse.de>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Futex BUG in 2.6.18rc2-git7
-Message-ID: <20060804082637.GA19493@aepfle.de>
-References: <200608040917.00690.ak@suse.de>
+	Fri, 4 Aug 2006 04:28:19 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:9918 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030199AbWHDI2T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:28:19 -0400
+Subject: Re: [stable] Next 2.6.17-stable review cycle will be starting in
+	about 24	hours
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Neil Brown <neilb@suse.de>
+Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+In-Reply-To: <17618.39572.764990.76181@cse.unsw.edu.au>
+References: <20060803074850.GA28301@kroah.com>
+	 <1154623652.3905.76.camel@aeonflux.holtmann.net>
+	 <20060803170020.GA10784@kroah.com>
+	 <17618.39572.764990.76181@cse.unsw.edu.au>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 12:25:08 +0200
+Message-Id: <1154687108.3905.92.camel@aeonflux.holtmann.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200608040917.00690.ak@suse.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 09:17:00AM +0200, Andi Kleen wrote:
-> 
-> One of my test machines (single socket core2 duo) running 2.6.18rc2-git7 over night 
-> under moderate load threw this, followed by an endless loop of soft lockup timeouts
-> (one exemplar appended)
-> 
-> I assume it is related to the new PI mutexes.
+Hi Neil,
 
-Maybe triggered by this, if it was from wagner.suse.de:
+> > > > This is a heads up that the next 2.6.17-stable review cycle will be
+> > > > starting in about 24 hours.  I've caught up on all pending -stable
+> > > > patches that I know about and placed them in our queue, which can be
+> > > > browsed online at:
+> > > > 	http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=tree;f=queue-2.6.17
+> > > > 
+> > > > If anyone sees that this queue is missing something that they feel
+> > > > should get into the next 2.6.17-stable release, please let us know at
+> > > > stable@kernel.org within the next 24 hours or so.
+> > > 
+> > > instead of ext3-avoid-triggering-ext3_error-on-bad-nfs-file-handle.patch
+> > > it makes more sense to include the revised patches from Neil:
+> > > 
+> > > http://comments.gmane.org/gmane.linux.kernel/430323
+> > > 
+> > > It seems that these are not merged upstream, but my understanding was
+> > > that they were the best way to fix this. For RHEL4 we are going with
+> > > these two patches. 
+> > 
+> > Hm, I just went with what Neil sent me for inclusion.  Neil, do you want
+> > me to change the patches you sent us?
+> 
+> I think the patch you have is adequate for ext3.  It closes the
+> important hole.  I think the extra patch for ext3 in the gmane link
+> above is not entirely necessary so I wouldn't push it for stable.
+> That doesn't make it a wrong choice for RHEL4 though.
+> 
+> The ext2 patch, on the other hand, should probably go in to stable.
 
-(glibc mainline make check):
-GCONV_PATH=/usr/src/packages/BUILD/glibc-2.4/cc-nptl/iconvdata LC_ALL=C   /usr/src/packages/BUILD/glibc-2.4/cc-nptl/elf/ld-linux.so.2 --library-path /usr/src/packages/BUILD/glibc-2.4/cc-nptl:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/math:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/elf:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/dlfcn:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/nss:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/nis:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/rt:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/resolv:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/crypt:/usr/src/packages/BUILD/glibc-2.4/cc-nptl/nptl /usr/src/packages/BUILD/glibc-2.4/cc-nptl/nptl/tst-robustpi8  > /usr/src/packages/BUILD/glibc-2.4/cc-nptl/nptl/tst-robustpi8.out
-Read from remote host wagner: Connection reset by peer
+this actually looks unclean to me. I thought the code duplication in
+ext2 and ext3 was the price that you have to pay to avoid any layering
+violation. I personally would like to see the upstream patch go into
+-stable. However we don't have this upstream at the moment. So what
+would you consider sending to Linus?
+
+Regards
+
+Marcel
+
 

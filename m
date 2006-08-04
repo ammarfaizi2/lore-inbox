@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161326AbWHDRGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161333AbWHDRXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161326AbWHDRGq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 13:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161330AbWHDRGp
+	id S1161333AbWHDRXt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 13:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161335AbWHDRXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 13:06:45 -0400
-Received: from ausmtp06.au.ibm.com ([202.81.18.155]:10950 "EHLO ausmtp06")
-	by vger.kernel.org with ESMTP id S1161326AbWHDRGo (ORCPT
+	Fri, 4 Aug 2006 13:23:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:3744 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161333AbWHDRXt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 13:06:44 -0400
-Date: Fri, 4 Aug 2006 22:33:10 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, vatsa@in.ibm.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, haveblue@us.ibm.com, pj@sgi.com,
-       saw@sawoct.com
-Subject: Re: [ProbableSpam] Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu  controller
-Message-ID: <20060804170310.GA11904@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com> <44D372F5.5000901@sw.ru> <44D37A8C.4000608@watson.ibm.com>
-Mime-Version: 1.0
+	Fri, 4 Aug 2006 13:23:49 -0400
+Date: Fri, 4 Aug 2006 10:23:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Jonathan Davies <jjd27@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ftdi_sio driver - new PIDs
+Message-ID: <20060804172340.GA10696@kroah.com>
+References: <44D35AF1.2040200@cam.ac.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44D37A8C.4000608@watson.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <44D35AF1.2040200@cam.ac.uk>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 12:49:16PM -0400, Shailabh Nagar wrote:
+On Fri, Aug 04, 2006 at 03:34:25PM +0100, Jonathan Davies wrote:
+> Hello,
 > 
-> >BTW, to help to compare (as you noted above) here is the list of 
-> >features provided by OpenVZ:
-> >
+> I have come across some USB Serial FTDI-based devices which are not 
+> automatically detected by ftdi_sio, as of Linux 2.6.17, because their 
+> Product IDs are not recognised by the driver.
 > 
-> Could you point to a place where we can get a broken-down set of
-> patches for OpenVZ or (even better), UBC ?
+> The devices are:
 > 
-> For purposes of the resource management discussion, it will be
-> useful to be able to look at the UBC patches in isolation
-> and perhaps port them over to some common interface for testing
-> comparing with other implementations.
+> 1. AlphaMicro Components AMC-232USB01 (serial to USB converter cable)
+>   - http://www.alphamicro.net/components/product~line~4~id~224.asp
+>   - vendor ID 0x0403
+>   - product ID 0xff00
+> 
+> 2. Lawicel CANUSB (CAN bus to USB converter dongle)
+>   - http://www.canusb.com/
+>   - vendor ID 0x0403
+>   - product ID 0xffa8
+> 
+> Below is the patch for drivers/usb/serial/ftdi_sio.{c,h} against Linux 
+> 2.6.17 which includes these Product IDs.
+> 
+> Signed-off-by: Jonathan Davies <jjd27@cam.ac.uk>
+> 
+> 
+> diff -uprN -X dontdiff linux-vanilla/drivers/usb/serial/ftdi_sio.c 
+> linux-2.6.17/drivers/usb/serial/ftdi_sio.c
+> --- linux-vanilla/drivers/usb/serial/ftdi_sio.c 2006-08-04 
+> 15:12:02.000000000 +0100
+> +++ linux-2.6.17/drivers/usb/serial/ftdi_sio.c  2006-08-04 
+> 15:07:43.000000000 +0100
 
-Kirill,
+Your patch is line-wrapped and the tabs are eaten, making it hard to
+apply the patch :(
 
-Is this the latest set (based on your last publication) for
-people to look at ?
+Also, can you make this against the 2.6.18-rc3 kernel, as there are a
+lot of new ids already added for this device and this patch conflicts
+with it a bit.
 
-http://download.openvz.org/kernel/broken-out/2.6.16-026test005.1/
+> @@ -17,6 +17,9 @@
+>   * See http://ftdi-usb-sio.sourceforge.net for upto date testing info
+>   * and extra documentation
+>   *
+> + * (04/Aug/2006) Jonathan Davies
+> + *      Added PIDs for AMC232 and Lawicel CANUSB.
+> + *
 
-Thanks
-Dipankar
+This section isn't needed anymore, the git changelog is all that is
+used now.
+
+thanks,
+
+greg k-h

@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161385AbWHDTws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161387AbWHDTxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161385AbWHDTws (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161386AbWHDTws
+	id S1161387AbWHDTxq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161388AbWHDTxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:52:48 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:65532 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1161385AbWHDTwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:52:47 -0400
-Date: Fri, 4 Aug 2006 12:49:13 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Jeff Dike <jdike@addtoit.com>
-cc: Antonio Vargas <windenntw@gmail.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-Subject: Re: A proposal - binary
-In-Reply-To: <20060804194549.GA5897@ccure.user-mode-linux.org>
-Message-ID: <Pine.LNX.4.63.0608041246010.18862@qynat.qvtvafvgr.pbz>
-References: <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-  <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org> 
- <1154667875.11382.37.camel@localhost.localdomain>  <20060803225357.e9ab5de1.akpm@osdl.org>
-  <1154675100.11382.47.camel@localhost.localdomain> 
- <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz> 
- <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com> 
- <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz>
- <20060804194549.GA5897@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 4 Aug 2006 15:53:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:34200 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161387AbWHDTxp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 15:53:45 -0400
+Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
+From: john stultz <johnstul@us.ibm.com>
+To: dwalker@mvista.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20060804032522.865606000@mvista.com>
+References: <20060804032414.304636000@mvista.com>
+	 <20060804032522.865606000@mvista.com>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 12:53:30 -0700
+Message-Id: <1154721210.5327.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006, Jeff Dike wrote:
+On Thu, 2006-08-03 at 20:24 -0700, dwalker@mvista.com wrote:
+> plain text document attachment (clocksource_api_cleanup_on_mm.patch)
+> Some additional clean up only on the -mm tree. Moves the adjust
+> functions into kernel/time/clocksource.c . 
+> 
+> These functions directly modify the clocksource multiplier based
+> on ntp error. These adjustments will effect other users of that 
+> clock. This hasn't been  addressed in my patch set, since it 
+> needs some discussion.
 
-> On Fri, Aug 04, 2006 at 12:06:28PM -0700, David Lang wrote:
->> I understand this, but for example a UML 2.6.10 kernel will continue to run
->> unmodified on top of a 2.6.17 kernel, the ABI used is stable. however if
->> you have a 2.6.10 host with a 2.6.10 UML guest and want to run a 2.6.17
->> guest you may (but not nessasarily must) have to upgrade the host to 2.6.17
->> or later.
->
-> Why might you have to do that?
 
-take this with a grain of salt, I'm not saying the particular versions I'm 
-listing would require this
+Hmmmm. Yea, some additional discussion here would probably be needed
 
-if your new guest kernel wants to use some new feature (SKAS3, time 
-virtualization, etc) but the older host kernel didn't support some system call 
-nessasary to implement it, you may need to upgrade the host kernel to one that 
-provides the new features.
+At the moment, I'd prefer to keep the clocksource_adjust bits with the
+timekeeping code, however I'd also prefer to remove the timekeeping
+specific fields (cycle_last, cycle_interval, xtime_nsec, xtime_interval,
+error) from the clocksource structure and instead keep them in a
+timekeeping specific structure (which may also point to a clocksource).
 
-David Lang
+This would keep a clean separation between the clocksource's abstraction
+that keeps as little state as possible and the timekeeping code's
+internal state. However the point you bring up above is an interesting
+issue: Do all users of the generic clocksource structure want the
+clocksource to be NTP adjusted? 
+
+If we allow for non-ntp adjusted access to the clocksources, we may have
+consistency issues between users comparing say sched_clock() and
+clock_gettime() intervals. Further, if those users do want NTP adjusted
+counters, why aren't they just using the timekeeping subsystem?
+
+This does put some question as to what exactly would be the uses of the
+clocksource structure outside of the timekeeping realm. Sure,
+sched_clock() is a reasonable example, although since sched_clock has
+such specific latency needs (we probably shouldn't go touching off-chip
+hardware on every sched_clock call) and can be careful to avoid TSC skew
+unlike the timekeeping code, its selection algorithm is going to be very
+arch specific. So I'm not sure its really an ideal use of the
+clocksource interface (as its not too difficult to just keep sched_clock
+arch specific).
+
+I do feel making the abstraction clean and generic is a good thing just
+for code readability (and I very much appreciate your work here!), but
+I'm not really sure that the need for clocksource access outside the
+timekeeping subsystem has been well expressed. Do you have some other
+examples other then sched_clock that might show further uses for this
+abstraction?
+
+thanks
+-john
+
+

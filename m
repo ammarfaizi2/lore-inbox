@@ -1,58 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161527AbWHDWNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161526AbWHDWQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161527AbWHDWNM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 18:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161529AbWHDWNM
+	id S1161526AbWHDWQj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161530AbWHDWQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 18:13:12 -0400
-Received: from mga06.intel.com ([134.134.136.21]:65121 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161527AbWHDWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 18:13:12 -0400
-X-IronPort-AV: i="4.07,213,1151910000"; 
-   d="scan'208"; a="102859066:sNHT1784809880"
-Message-ID: <44D3C37F.7020803@linux.intel.com>
-Date: Fri, 04 Aug 2006 15:00:31 -0700
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: Antonio Vargas <windenntw@gmail.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-Subject: Re: A proposal - binary
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>   <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>   <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>   <1154667875.11382.37.camel@localhost.localdomain>   <20060803225357.e9ab5de1.akpm@osdl.org>   <1154675100.11382.47.camel@localhost.localdomain>   <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>  <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>  <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> <44D39F73.8000803@linux.intel.com> <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 4 Aug 2006 18:16:39 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:15324 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161526AbWHDWQi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:16:38 -0400
+Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
+From: john stultz <johnstul@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+References: <20060804032414.304636000@mvista.com>
+	 <20060804032522.865606000@mvista.com>
+	 <1154721210.5327.58.camel@localhost.localdomain>
+	 <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 15:16:35 -0700
+Message-Id: <1154729795.5327.97.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> On Fri, 4 Aug 2006, Arjan van de Ven wrote:
+On Fri, 2006-08-04 at 14:11 -0700, Daniel Walker wrote:
+> On Fri, 2006-08-04 at 12:53 -0700, john stultz wrote:
+> > 
+> > Hmmmm. Yea, some additional discussion here would probably be needed
+> > 
+> > At the moment, I'd prefer to keep the clocksource_adjust bits with the
+> > timekeeping code, however I'd also prefer to remove the timekeeping
+> > specific fields (cycle_last, cycle_interval, xtime_nsec, xtime_interval,
+> > error) from the clocksource structure and instead keep them in a
+> > timekeeping specific structure (which may also point to a clocksource).
+> > 
+> > This would keep a clean separation between the clocksource's abstraction
+> > that keeps as little state as possible and the timekeeping code's
+> > internal state. However the point you bring up above is an interesting
+> > issue: Do all users of the generic clocksource structure want the
+> > clocksource to be NTP adjusted? 
 > 
->> David Lang wrote:
->>> I'm not commenting on any of the specifics of the interface calls (I 
->>> trust you guys to make that be sane :-) I'm just responding the the 
->>> idea that the interface actually needs to be locked down to an ABI as 
->>> opposed to just source-level compatability.
->>
->> you are right that the interface to the HV should be stable. But those 
->> are going
->> to be specific to the HV, the paravirt_ops allows the kernel to 
->> smoothly deal
->> with having different HV's.
->> So in a way it's an API interface to allow the kernel to deal with 
->> multiple
->> different ABIs that exist today and will in the future.
+> Since the output from the clocksource is a lowlevel timestamp I don't
+> think the users of it would want it to be ntp adjusted. It would also be
+> a little odd, since the ntp adjustment would be attached only to a
+> single clock.
 > 
-> so if I understand this correctly we are saying that a kernel compiled 
-> to run on hypervisor A would need to be recompiled to run on hypervisor 
-> B, and recompiled again to run on hypervisor C, etc
+> > If we allow for non-ntp adjusted access to the clocksources, we may have
+> > consistency issues between users comparing say sched_clock() and
+> > clock_gettime() intervals. Further, if those users do want NTP adjusted
+> > counters, why aren't they just using the timekeeping subsystem?
 > 
-no the actual implementation of the operation structure is dynamic and can be picked
-at runtime, so you can compile a kernel for A,B *and* C and at runtime the kernel
-picks the one you have
+> I imagine the users of the interface would be compartmentalized. Taking
+> sched_clock as an example the output is only compared to itself and not
+> to output from other interfaces.
+
+Agreed on both points. Although I suspect this point will need to be
+made explicit.
+
+> > This does put some question as to what exactly would be the uses of the
+> > clocksource structure outside of the timekeeping realm. Sure,
+> > sched_clock() is a reasonable example, although since sched_clock has
+> > such specific latency needs (we probably shouldn't go touching off-chip
+> > hardware on every sched_clock call) and can be careful to avoid TSC skew
+> > unlike the timekeeping code, its selection algorithm is going to be very
+> > arch specific. So I'm not sure its really an ideal use of the
+> > clocksource interface (as its not too difficult to just keep sched_clock
+> > arch specific).
+> 
+> Part of the reason to have a generic sched_clock() (and the generic
+> clocksource interface in general) is to eliminate the inefficienty of
+> duplicating shift and mult functionality in each arch (and on ARM it's
+> per board).
+
+Well, a coherent accumulation and NTP adjustment method for continuous
+clocksources was a big motivator for the timekeeping work. Also the
+quantity of duplicated arch specific time code is a bit larger then the
+sched_clock(), but that itself isn't a mark against utilizing
+clocksources for sched_clock().
+
+>  So if you correctly implement a clocksource structure for
+> your hardware you will at least expose a usable sched_clock() and
+> generic timeofday. Then if we add more users of the interface then more
+> functionality is exposed.
+
+Well, this point might need some work. sched_clock has quite a different
+correctness/performance tradeoff when compared against timeofday. If one
+correctly implements a clocksource for something like the ACPI PM, I
+doubt they'd want to use it for sched_clock (due to its ~1us access
+latency). Additionally, since sched_clock doesn't require (for its
+original purpose, at least) the TSC synchronization that is essential
+for timekeeping, how will sched_clock determine which clocksource to use
+on a system were the TSC is unsyched and marked bad?
+
+> Another instances of this is when instrumentation is needing a of fast
+> low level timestamp. In the past to accomplish this one would need a per
+> arch change to read a clock, then potentially duplicate a shift and mult
+> type computation in order to covert to nanosecond. One good example of
+> this is latency tracing in the -rt tree. I can imagine some good and
+> valid instrumentation having a long road of acceptable because the time
+> stamping portion would need to flow through several different arch and
+> potentially board maintainers.
+
+This sounds reasonable, but also I'd question if sched_clock or
+get_cycles would be appropriate here. Further, if the mult/shift cost is
+acceptable, why not just use the timeofday as the cost will be similar.
+
+> I've also imagined that some usage of jiffies could be converted to use
+> this interface if it was appropriate. Since jiffies is hooked to the
+> tick, and the tick is getting more and more irregular, a clocksource
+> might be a relatively good replacement. 
+
+Hmmm. That'd be a harder sell for me. Probably would want those users to
+move to the timeofday, or alternatively, drive jiffies off of the
+timekeeping code rather then the interrupt handler to ensure it stays
+synced (something I'm plotting once the timekeeping code settles down).
+
+> > I do feel making the abstraction clean and generic is a good thing just
+> > for code readability (and I very much appreciate your work here!), but
+> > I'm not really sure that the need for clocksource access outside the
+> > timekeeping subsystem has been well expressed. Do you have some other
+> > examples other then sched_clock that might show further uses for this
+> > abstraction?
+> 
+> I've converted latency tracing to an earlier version of the API , but I
+> don't have any other examples prepared. I think it's important to get
+> the API settled before I start converting anything else.
+
+Again, I think your patch set looks good for the most part (its just the
+last few bits I worry about). I'm very much interested to see where you
+go with this, as I feel sched_clock (on i386 atleast) needs some love
+and attention and I'm excited to see new uses for the clocksource
+abstraction. However, I do want to make sure that we think the use cases
+out to avoid over-engineering the wrong bits.
+
+thanks
+-john
+
+

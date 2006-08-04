@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161129AbWHDPQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161202AbWHDPTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161129AbWHDPQp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 11:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWHDPQp
+	id S1161202AbWHDPTL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 11:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbWHDPTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 11:16:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:18202 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932421AbWHDPQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 11:16:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TO2QGw9NtAYb52Rspsza3rGTF7dXQ3diFGS8wNWCb4tCEg9FvIksHnfPI/OwmH4qJhl84eCjrBSNm++ZNPxY460XVg2O/+GTFqxFcqOs1rs//A0ieNQVbVA4wE7kQEFTuyX//wDc5ueUnT2DOB9dkIY1JleJVoHTi3/vLKy8CXw=
-Message-ID: <41b516cb0608040816o63ac2f72q20add7619734906@mail.gmail.com>
-Date: Fri, 4 Aug 2006 08:16:42 -0700
-From: "Chris Leech" <chris.leech@gmail.com>
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
-Subject: Re: problems with e1000 and jumboframes
-Cc: "Krzysztof Oledzki" <olel@ans.pl>, "Arnd Hannemann" <arnd@arndnet.de>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060804062008.GC413@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 4 Aug 2006 11:19:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29118 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161202AbWHDPTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 11:19:09 -0400
+Date: Fri, 4 Aug 2006 08:18:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: hch@infradead.org, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       stable@kernel.org, torvalds@osdl.org, jmforbes@linuxtx.org,
+       zwane@arm.linux.org.uk, tytso@mit.edu, rdunlap@xenotime.net,
+       davej@redhat.com, chuckw@quantumlinux.com, reviews@ml.cw.f00f.org,
+       alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org, jes@sgi.com
+Subject: Re: [patch 12/23] invalidate_bdev() speedup
+Message-Id: <20060804081806.3c06d101.akpm@osdl.org>
+In-Reply-To: <1154696949.2996.25.camel@laptopd505.fenrus.org>
+References: <20060804053258.391158155@quad.kroah.org>
+	<20060804053942.GM769@kroah.com>
+	<20060804085012.GA20026@infradead.org>
+	<20060804020422.09b32164.akpm@osdl.org>
+	<1154696949.2996.25.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44D1FEB7.2050703@arndnet.de> <20060803135925.GA28348@2ka.mipt.ru>
-	 <44D20A2F.3090005@arndnet.de> <20060803150330.GB12915@2ka.mipt.ru>
-	 <Pine.LNX.4.64.0608031705560.8443@bizon.gios.gov.pl>
-	 <20060803151631.GA14774@2ka.mipt.ru>
-	 <41b516cb0608030857h1d55820rfd4ccd0cc56dd71d@mail.gmail.com>
-	 <20060803161046.GA703@2ka.mipt.ru>
-	 <41b516cb0608031332v9cc383bq37a13254f25f45a9@mail.gmail.com>
-	 <20060804062008.GC413@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/3/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > You're changing the size of the buffer without telling the hardware.
-> > In the interrupt context e1000 knows the size of what was DMAed into
-> > the skb, but that's after the fact.  So e1000 could detect that memory
-> > was corrupted, but not prevent it if you don't give it power of 2
-> > buffers.  Actually, the power of 2 thing doesn't hold true for all
-> > e1000 devices.  Some have 1k granularity, but not Arnd's 82540.
->
-> I can not change it - code checks if requested mtu and additional size
-> is less than allocated aligned buffer it tricks allocator.
-> Or do you mean that even after 9k mtu was setup it is possible that card
-> can receive packets up to 16k?
+On Fri, 04 Aug 2006 15:08:49 +0200
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-Yes, that's exactly what I mean.  For anything above the standard 1500
-bytes the e1000 _hardware_ has no concept of MTU, only buffer length.
-So even if the driver is set to an MTU of 9000, the NIC will still
-receive 16k frames.  Otherwise the driver would simply allocate MTU
-sized buffers.
+> On Fri, 2006-08-04 at 02:04 -0700, Andrew Morton wrote:
+> > On Fri, 4 Aug 2006 09:50:13 +0100
+> > Christoph Hellwig <hch@infradead.org> wrote:
+> > 
+> > > On Thu, Aug 03, 2006 at 10:39:42PM -0700, Greg KH wrote:
+> > > > -stable review patch.  If anyone has any objections, please let us know.
+> > > 
+> > > This is a feature.  Definitly not -stable material.
+> > 
+> > Apparently that regular IPI storm is causing the SGI machines some
+> > significant problems. 
+> 
+> a tiny performance drop :) If that meets the stable policy.. open
+> question :)
 
--Chris
+The interrupt holdoff problem is one which is important to Altix users (for
+reasons which I've never understood).  Apparently, quite important - this
+is I think the third time we've fixed problems in this area for Altix.
+
+> > It's not the biggest problem we've ever had, but if this patch is wrong,
+> > the pagecache/buffer_head layer is utterly busted.  And it isn't.
+> 
+> 
+> are you sure?
+> 
+> +       struct address_space *mapping = bdev->bd_inode->i_mapping;
+> +
+> +       if (mapping->nrpages == 0)
+> +               return;
+> +
+>         invalidate_bh_lrus();
+> 
+> what happens if a bdev used to have pagecache and at some point stops
+> having that due to page reclaim... will that page reclaim call
+> invalidate_bh_lrus() ? If not, who will ? If the answer is "nobody", is
+> that really the right answer?
+
+invalidate_bdev() calls invalidate_bh_lrus() to release any references
+which the bh lru has against the the bdev's pagecache, so that
+invalidate_inode_pages() can take down the bdev's pagecache.
+
+If the bdev has no pagecache then there's no need to call
+invalidate_bh_lrus(). (or invalidate_inode_pages, or truncate_inode_pages, btw)
+
+(In fact, even if the inode _does_ have pagecache, we still don't need to
+call invalidate_bh_lrus(): both invalidate_inodes_pages() and
+truncate_inode_pages() will still remove this page from the inode.  The bh
+lru is left holding the last reference to the now-anonymous page, and this
+will later expire, finally freeing the page).
+
+

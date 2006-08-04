@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161227AbWHDOfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWHDOfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161227AbWHDOfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWHDOew
+	id S1161225AbWHDOfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161232AbWHDOfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:34:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33711 "EHLO
+	Fri, 4 Aug 2006 10:35:39 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41903 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161225AbWHDOev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 10:34:51 -0400
-Date: Fri, 4 Aug 2006 09:34:49 -0500
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: X86_64 monotonic_clock goes backwards
-Message-ID: <20060804143449.GA13105@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	id S1161226AbWHDOfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 10:35:37 -0400
+Message-ID: <44D35B25.9090004@sgi.com>
+Date: Fri, 04 Aug 2006 16:35:17 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jeff@garzik.org>, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se>	 <44BE9E78.3010409@garzik.org>  <yq0lkq4vbs3.fsf@jaguar.mkp.net> <1154702572.23655.226.camel@localhost.localdomain>
+In-Reply-To: <1154702572.23655.226.camel@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed some erratic behavior while testing the X86_64 version
-of monotonic_clock().
+Alan Cox wrote:
+> Ar Gwe, 2006-08-04 am 10:03 -0400, ysgrifennodd Jes Sorensen:
+>> alignments. Not to mention that on some architectures, accessing a u1
+>> is a lot slower than accessing an int. If a developer really wants to
+>> use the smaller type he/she should do so explicitly being aware of the
+>> impact.
+> 
+> Which is just fine. Nobody at the moment is using the bool type because
+> we don't have one. Nor is a C bool necessarily u1.
 
-While spinning in a loop reading monotonic clock values (pinned to a
-single cpu) I noticed that the difference between subsequent values
-occasionally went negative (time going backwards).
+The proposed patch makes it u1 - if we end up with arch specific
+defines, as the patch is proposing, developers won't know for sure what
+the size is and will get alignment wrong. That is not fine.
 
-I found that in the following code:
-                this_offset = get_cycles_sync();
-                /* FIXME: 1000 or 1000000? */
--->             offset = (this_offset - last_offset)*1000 / cpu_khz;
-        }       
-        return base + offset;
+If we really have to introduce a bool type, at least it has to be the
+same size on all 32 bit archs and the same size on all 64 bit archs.
 
-the offset sometimes turns out to be 0, even though
-this_offset > last_offset.
+But again, the end result is we end up with yet another typedef for the
+sake of introducing a typedef.
 
-The following patch does correct this, and -seems- to be correct.
-Some reording of code may still be desired.
+>> The kernel is written in C, not C++ or Jave or some other broken
+>> language and C doesn't have 'bool'. 
+> 
+> Oh yes it does, as of C99 via stdbool.h. The only reason its not always
+> "bool" is compatibility considerations. Welcome to the 21st century.
 
-Dimitri
+*Shiver*, I guess we'll need a machine that is PC2007 or whatever
+compliant to run Linux next.
 
-
-Index: linux/arch/x86_64/kernel/time.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/time.c
-+++ linux/arch/x86_64/kernel/time.c
-@@ -281,6 +281,7 @@ static void set_rtc_mmss(unsigned long n
-  *		Note: This function is required to return accurate
-  *		time even in the absence of multiple timer ticks.
-  */
-+static inline unsigned long long cycles_2_ns(unsigned long long cyc);
- unsigned long long monotonic_clock(void)
- {
- 	unsigned long seq;
-@@ -305,8 +306,7 @@ unsigned long long monotonic_clock(void)
- 			base = monotonic_base;
- 		} while (read_seqretry(&xtime_lock, seq));
- 		this_offset = get_cycles_sync();
--		/* FIXME: 1000 or 1000000? */
--		offset = (this_offset - last_offset)*1000 / cpu_khz;
-+		offset = cycles_2_ns(this_offset - last_offset);
- 	}
- 	return base + offset;
- }
+Jes

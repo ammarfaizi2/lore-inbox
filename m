@@ -1,109 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWHDS1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWHDSeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWHDS1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 14:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHDS1p
+	id S1751393AbWHDSeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 14:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWHDSeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 14:27:45 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:48439 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751112AbWHDS1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 14:27:44 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=uAYksqOWwYsnz5CfkLeQFrXX+URNE8XoSg8/7cCKdS4AJ9N9F4r2oRVAOA3KjEjDv
-	/jDvRDoeRuwr6AF1M8FsQ==
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A
-	cpu controller
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
-       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
-In-Reply-To: <44D36FB5.3050002@sw.ru>
-References: <20060804050753.GD27194@in.ibm.com>
-	 <20060803223650.423f2e6a.akpm@osdl.org>
-	 <20060803224253.49068b98.akpm@osdl.org>
-	 <1154684950.23655.178.camel@localhost.localdomain>
-	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>
-	 <20060804153123.GB32412@in.ibm.com>  <44D36FB5.3050002@sw.ru>
+	Fri, 4 Aug 2006 14:34:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14043 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751393AbWHDSeP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 14:34:15 -0400
+Subject: Re: [PATCH] module interface improvement for kprobes
+From: David Smith <dsmith@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, prasanna@in.ibm.com,
+       ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, davem@davemloft.net
+In-Reply-To: <20060804155711.GA13271@infradead.org>
+References: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com>
+	 <20060804155711.GA13271@infradead.org>
 Content-Type: text/plain
-Organization: Google Inc
-Date: Fri, 04 Aug 2006 11:27:04 -0700
-Message-Id: <1154716024.7228.32.camel@galaxy.corp.google.com>
+Date: Fri, 04 Aug 2006 13:30:39 -0500
+Message-Id: <1154716239.15967.22.camel@dhcp-2.hsv.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 20:03 +0400, Kirill Korotaev wrote:
- 
-> > Doesnt the ability to move tasks between groups dynamically affect
-> > (atleast) memory controller design (in giving up ownership etc)?
-> we save object owner on the object. So if you change the container,
-> objects are still correctly charged to the creator and are uncharged
-> correctly on free.
-> 
+Christoph,
 
-Seems like the object owner should also change when the object moves
-from one container to another.
+Thanks for thinking about this.  See comments below.
 
-> > Also if we need to support this movement, we need to have some
-> > corresponding system call/file-system interface which supports this move 
-> > operation.
-> it can be done by the same syscall or whatever which sets your
-> container group.
-> we have the same syscall for creating/setting/entering to the container.
-> i.e. chaning the container dynamically doesn't change the interface.
-> 
-> >>BTW, do you see any practical use cases for tasks jumping between 
-> >>resource-containers?
+On Fri, 2006-08-04 at 16:57 +0100, Christoph Hellwig wrote:
+> > {
+> > 	/* grab the module, making sure it won't get unloaded until
+> > 	 * we're done */
+> > 	const char *mod_name = "joydev";
+> > 	if (module_get_byname(mod_name, &mod) != 0)
+> > 		return 1;
 > > 
-
-I think the ability to move file backed memory from one container to
-another is useful.  This allows appropriate containers to get charged
-based on the usage pattern.  Though this (movement between containers)
-is not something that should be encouraged.
-
+> > 	/* Specify the address/offset where you want to insert
+> > 	 * probe.  If this were a real kprobe module, we'd "relocate"
+> > 	 * our probe address based on the load address of the module
+> > 	 * we're interested in. */
+> > 	kp.addr = (kprobe_opcode_t *) mod->module_core + 0;
 > > 
-> > The use cases I have heard of which would benefit such a feature is
-> > (say) for database threads which want to change their "resource
-> > affinity" status depending on which customer query they are currently handling. 
-> > If they are handling a query for a "important" customer, they will want affinied
-> > to a high bandwidth resource container and later if they start handling
-> > a less important query they will want to give up this affinity and
-> > instead move to a low-bandwidth container.
-
-hmm, would it not be better to have a thread each in two different
-containers for handling different kind of requests.  Or if there is too
-much of sharing between threads, then setting the individual priority
-should help.
-
-> this works mostly for CPU only. And OpenVZ design allows to change CPU
-> resource container  dynamically.
-> But such a trick works poorly for memory, because:
-> 1. threads share lots of resources.
-> 2. complex databases can have more complicated handling than a thread per request.
->   e.g. one thread servers memory pools, another one caches, some for stored procedures, some for requests etc.
+> > 	/* All set to register with Kprobes */
+> >         register_kprobe(&kp);
+> > 	return 0;
+> > }
 > 
+> This interface is horrible.  You actual patch looks good to me, but it
+> I can't see why you would need it.  kallsyms_lookup_name deals with modules
+> transparently and you shouldn't put a probe at a relative offset into a
+> module but only at a symbol you could find with kallsys.
 
-Any resource movement between containers should be at best efforts.  The
-stats will tend to be more inaccurate (which I think is okay) as the
-sharing between resources across increases.
+Why shouldn't I put a probe into a module other than at a symbol I can
+find with kallsyms?  For example, I'm interested when a particular
+module hits an error condition that occurs.  I don't want to probe how
+many times the function gets called - just when the error condition
+occurs.
 
-> BTW, exactly this difference shows the reason to have different groups for different resources.
+With the existing interface, if I use kallsysms to find the value of a
+symbol, the module can be unloaded between the time I use kallsyms and
+register the kprobe.  The patch I included fixes that race condition by
+incrementing the module reference count.
+
+> That beeing said we should probably change the kprobes interface to
+> automatically do the kallsysms name lookup for the caller.  It would simplify
+> the kprobes interface and allow us to get rid of the kallsyms_lookup_name
+> export that doesn't have a valid use except for kprobes.  With
+> that change the example kprobe would look like:
 > 
+> static struct kprobe kp = {
+> 	.pre_handler	= handler_pre,
+> 	.post_handler	= handler_post,
+> 	.fault_handler	= handler_fault,
+> 	.symbol_name	= "do_fork",
+> };
+> 
+> static int __init probe_example_init(void)
+> {
+> 	return register_kprobe(&kp);
+> }
 
-Well, for a set of processes that are sharing a set of resources
-perfectly, it would be okay to combine all such resources in a single
-container.  But for a shared resource, like file(that spans across
-processes in different containers), it could be useful to have a
-stand-alone container.
+Your example works for a very small number of symbols, but with a large
+number it could take a long time to register the kprobes.  Plus, that
+would need to be done every time the kprobe was registered.  With my
+patch, the symbol lookup can be done once, then all those symbols can be
+turned into offsets from the base address of the module.
 
--rohit 
+-- 
+David Smith
+dsmith@redhat.com
+Red Hat, Inc.
+http://www.redhat.com
+256.217.0141 (direct)
+256.837.0057 (fax)
+
 

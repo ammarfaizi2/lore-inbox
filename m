@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWHDHRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbWHDHS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161076AbWHDHRI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 03:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbWHDHRH
+	id S1161078AbWHDHS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 03:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWHDHS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 03:17:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26302 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161076AbWHDHRG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 03:17:06 -0400
-From: Andi Kleen <ak@suse.de>
-To: mingo@elte.hu
-Subject: Futex BUG in 2.6.18rc2-git7
-Date: Fri, 4 Aug 2006 09:17:00 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
+	Fri, 4 Aug 2006 03:18:59 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:14752 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1161078AbWHDHS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 03:18:58 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 00/23] -stable review
+Date: Fri, 04 Aug 2006 17:18:44 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <als5d2poja909k80kb5c2e2e6cuhboou7v@4ax.com>
+References: <20060804053807.GA769@kroah.com>
+In-Reply-To: <20060804053807.GA769@kroah.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608040917.00690.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Aug 2006 22:38:07 -0700, Greg KH <gregkh@suse.de> wrote:
 
-One of my test machines (single socket core2 duo) running 2.6.18rc2-git7 over night 
-under moderate load threw this, followed by an endless loop of soft lockup timeouts
-(one exemplar appended)
+>This is the start of the stable review cycle for the 2.6.17.8 release.
+>There are 23 patches in this series, all will be posted as a response to
+>this one.  If anyone has any issues with these being applied, please let
+>us know.  If anyone is a maintainer of the proper subsystem, and wants
+>to add a Signed-off-by: line to the patch, please respond with it.
+>
+>These patches are sent out with a number of different people on the Cc:
+>line.  If you wish to be a reviewer, please email stable@kernel.org to
+>add your name to the list.  If you want to be off the reviewer list,
+>also email us.
+>
+>Responses should be made by Sunday, August 6, 05:00:00 UTC.  Anything
+>received after that time might be too late.
+>
+>I've also posted a roll-up patch with all changes in it if people want
+>to test it out.  It can be found at:
+>
+>	kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.17.8-rc1.gz
 
-I assume it is related to the new PI mutexes.
+It wasn't clear that this is a delta 2.6.17.7 -> 2.6.17.8 patch ;)
 
--Andi
+Didn't bump version:
+grant@sempro:~/linux/linux-2.6.17.8-rc1$ head -5 Makefile
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 17
+EXTRAVERSION = .7
+NAME=Crazed Snow-Weasel
 
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at ...v2.6/linux-2.6.18-rc2-git7/kernel/rtmutex_common.h:74
-invalid opcode: 0000 [1] SMP 
-CPU 0 
-Modules linked in:
-Pid: 23036, comm: ld-linux.so.2 Not tainted 2.6.18-rc2-git7 #7
-RIP: 0010:[<ffffffff80247b36>]  [<ffffffff80247b36>] rt_mutex_next_owner+0x1a/0x2c
-RSP: 0000:ffff8100033f5d70  EFLAGS: 00010207
-RAX: ffff81003dc712d0 RBX: ffff81003dc712c0 RCX: 0000000000000469
-RDX: 0000000000000000 RSI: ffff810031f907e0 RDI: ffff81003dc712d0
-RBP: ffff810003cabc48 R08: ffffffff807a4e60 R09: 0000000000000000
-R10: ffff8100033f4000 R11: 0000000000000002 R12: 00000000800059fc
-R13: 000000004013d468 R14: 000000004013d7ac R15: ffff81003dc712d0
-FS:  0000000000000000(0000) GS:ffffffff807d5000(0063) knlGS:000000004053dba0
-CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
-CR2: 000000004000ce80 CR3: 000000002e970000 CR4: 00000000000006e0
-Process ld-linux.so.2 (pid: 23036, threadinfo ffff8100033f4000, task ffff810033cf9590)
-Stack:  ffffffff80247064 0000000000000009 0000000000000009 7fffffffffffffff
- ffff810040012ff4 00000000033f5ef8 ffffffff807a4e58 0000000000000000
- 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-Call Trace:
- [<ffffffff80247064>] do_futex+0x95a/0xbf5
- [<ffffffff8024787d>] compat_sys_futex+0xfd/0x11b
- [<ffffffff80220136>] ia32_sysret+0x0/0xa
-DWARF2 unwinder stuck at ia32_sysret+0x0/0xa
-Leftover inexact backtrace:
+On the bright side, it compiled and runs ;)
 
-
-Code: 0f 0b 68 9b b8 54 80 c2 4a 00 48 8b 50 50 48 89 d0 c3 48 83 
-RIP  [<ffffffff80247b36>] rt_mutex_next_owner+0x1a/0x2c
- RSP <ffff8100033f5d70>
- <3>BUG: soft lockup detected on CPU#1!
-
-Call Trace:
- [<ffffffff8020ae03>] dump_stack+0x12/0x17
- [<ffffffff802520b3>] softlockup_tick+0xdb/0xed
- [<ffffffff802397f1>] update_process_times+0x42/0x68
- [<ffffffff80217e3b>] smp_local_timer_interrupt+0x23/0x47
- [<ffffffff80218522>] smp_apic_timer_interrupt+0x41/0x47
- [<ffffffff8020a215>] apic_timer_interrupt+0x65/0x6c
-DWARF2 unwinder stuck at apic_timer_interrupt+0x65/0x6c
-Leftover inexact backtrace:
-
-... same soft lockup follows forever...
+Grant.

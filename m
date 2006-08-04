@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161414AbWHDUwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161405AbWHDUwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161414AbWHDUwB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161405AbWHDUwB
+	id S1161405AbWHDUwD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161417AbWHDUwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:52:01 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:32897 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1161409AbWHDUwA
+	Fri, 4 Aug 2006 16:52:03 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:60107 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1161405AbWHDUwB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:52:00 -0400
-Date: Fri, 4 Aug 2006 13:52:30 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       James.Bottomley@steeleye.com, pazke@donpac.ru, Andi Kleen <ak@suse.de>
-Subject: Re: A proposal - binary
-Message-ID: <20060804205230.GL2654@sequoia.sous-sol.org>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D3B0F0.2010409@vmware.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 4 Aug 2006 16:52:01 -0400
+Message-ID: <44D3B36F.7010501@slaphack.com>
+Date: Fri, 04 Aug 2006 16:51:59 -0400
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: Russell Leighton <russ@elegant-software.com>
+CC: Matthias Andree <matthias.andree@gmx.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
+       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Checksumming blocks? [was Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF84F0.8080303@slaphack.com> <1154452770.15540.65.camel@localhost.localdomain> <44CF9217.6040609@slaphack.com> <20060803135811.GA7431@merlin.emma.line.org> <44D285DF.7060905@elegant-software.com>
+In-Reply-To: <44D285DF.7060905@elegant-software.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Maybe someday Xen and VMware can share the same ABI interface and both 
-> use a VMI like layer.  But that really is a separate and completely 
-> orthogonal question.  Paravirt-ops makes any approach to integrating 
-> hypervisor awareness into the kernel cleaner by providing an appropriate 
-> abstract interface for it.
+Russell Leighton wrote:
 
-Thanks a lot for clarifying, Zach ;-)
--chris
+> Is there a recovery mechanism, or do you just be happy you know there is 
+> a problem (and go to backup)?
+
+You probably go to backup anyway.  The recovery mechanism just means you 
+get to choose the downtime to restore from backup (if there is 
+downtime), versus being suddenly down until you can restore.

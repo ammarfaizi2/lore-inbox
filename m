@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWHDGPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWHDGQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWHDGPr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 02:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWHDGPr
+	id S1030280AbWHDGQh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 02:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWHDGQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 02:15:47 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:20403 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751251AbWHDGPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 02:15:46 -0400
-Date: Fri, 4 Aug 2006 10:15:13 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Chris Leech <chris.leech@gmail.com>, arnd@arndnet.de, olel@ans.pl,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: problems with e1000 and jumboframes
-Message-ID: <20060804061513.GB413@2ka.mipt.ru>
-References: <41b516cb0608031334s6e159e99tb749240f44ae608d@mail.gmail.com> <E1G8sif-0003oY-00@gondolin.me.apana.org.au>
+	Fri, 4 Aug 2006 02:16:37 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11232 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030280AbWHDGQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 02:16:36 -0400
+Date: Thu, 3 Aug 2006 23:16:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
+ controller
+Message-Id: <20060803231604.f7920683.pj@sgi.com>
+In-Reply-To: <20060803230225.f5bb7860.pj@sgi.com>
+References: <20060804050753.GD27194@in.ibm.com>
+	<20060803223650.423f2e6a.akpm@osdl.org>
+	<20060803230225.f5bb7860.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <E1G8sif-0003oY-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 04 Aug 2006 10:15:14 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 03:59:37PM +1000, Herbert Xu (herbert@gondor.apana.org.au) wrote:
-> Chris Leech <chris.leech@gmail.com> wrote:
-> > 
-> > We could try and only use page allocations for older e1000 devices,
-> > putting headers and payload into skb->frags and copying the headers
-> > out into the skb->data area as needed for processing.  That would do
-> > away with large allocations, but in Jesse's experiments calling
-> > alloc_page() is slower than kmalloc(), so there can actually be a
-> > performance hit from trying to use page allocations all the time.
-> 
-> Interesting.  Could you guys post figures on alloc_page speed vs. kmalloc?
+pj wrote:
+> I haven't read it yet, but I will likely agree that
+> this is an abuse of cpusets.
 
-They probalby measured kmalloc cache access, which only falls to
-alloc_pages when cache is refilled, so it will be faster for some short
-period of time, but in general (especially for such big-sized
-allocations) it is essencially the same.
+This likely just drove Srivatsa up a wall (sorry), as my comments
+in the earlier thread he referenced:
 
-> Also, getting memory slower is better than not getting them at all :)
+  http://lkml.org/lkml/2005/9/26/58
 
-Sure.
+enthusiastically supported adding a cpu controller interface to cpusets.
 
-> -- 
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+We need to think through what are the relations between CKRM
+controllers, containers and cpusets.  But I don't think that
+people will naturally want to manage CKRM controllers via cpusets.
+That sounds odd to me now.  My earlier enthusiasm for it seems
+wrong to me now.
 
 -- 
-	Evgeniy Polyakov
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

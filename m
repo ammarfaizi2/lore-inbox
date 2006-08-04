@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161140AbWHDK2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWHDKjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161140AbWHDK2g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 06:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161147AbWHDK2g
+	id S1751414AbWHDKjw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 06:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWHDKjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 06:28:36 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:35278 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1161140AbWHDK2f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 06:28:35 -0400
-Date: Fri, 4 Aug 2006 12:28:22 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MTD jedec_probe: Recognize Atmel AT49BV6416
-Message-ID: <20060804122822.354514e0@cad-250-152.norway.atmel.com>
-In-Reply-To: <1154682379.31031.190.camel@shinybook.infradead.org>
-References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
-	<1154680798.31031.179.camel@shinybook.infradead.org>
-	<20060804105220.6d125976@cad-250-152.norway.atmel.com>
-	<1154682379.31031.190.camel@shinybook.infradead.org>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Aug 2006 06:39:52 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:28635
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751414AbWHDKjv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 06:39:51 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Willy Tarreau <w@1wt.eu>
+Subject: Re: [PATCH 2.4.32] Fix AVM C4 ISDN card init problems with newer CPUs
+Date: Fri, 4 Aug 2006 12:39:12 +0200
+User-Agent: KMail/1.9.1
+References: <d50597c30608030953l41e8661dg1c10faeac31cc87f@mail.gmail.com> <1154627776.23655.106.camel@localhost.localdomain> <20060804065623.GA24404@1wt.eu>
+In-Reply-To: <20060804065623.GA24404@1wt.eu>
+Cc: Jukka Partanen <jspartanen@gmail.com>, kkeil@suse.de,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608041239.13260.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 04 Aug 2006 17:06:19 +0800
-David Woodhouse <dwmw2@infradead.org> wrote:
-
-> On Fri, 2006-08-04 at 10:52 +0200, Haavard Skinnemoen wrote:
-> > It is actually a CFI chip. But I couldn't figure out how to install
-> > the fixup in the other patch in the CFI code. The AT49BV6416 chip
-> > identifies itself as using the AMD command set, so the fixup must be
-> > installed based on the jedec ID... 
+On Friday 04 August 2006 08:56, Willy Tarreau wrote:
+> On Thu, Aug 03, 2006 at 06:56:15PM +0100, Alan Cox wrote:
+> > Ar Iau, 2006-08-03 am 19:53 +0300, ysgrifennodd Jukka Partanen:
+> > > AVM C4 ISDN NIC: Add three memory barriers, taken from 2.6.7,
+> > > (they are there in 2.6.17.7 too), to fix module initialization
+> > > problems appearing with at least some newer Celerons and
+> > > Pentium III.
+> > 
+> > Should be using cpu_relax() I think. Its a polled busy loop so you want
+> > other CPU threads to run if possible.
 > 
-> Er, note that the _correct_ answer is to advertise the availability of
-> the lock functionality in the CFI 'extended query' information. Did
-> the hardware designer screw that up?
+> You mean like this ? Here's the patch for 2.6, I'll queue the same for 2.4
+> if it's alright.
+> 
+> > Alan
+> 
+> Regards,
+> Willy
+> 
+> From 512d12bd7ce9c0a15dfd91a6f7c2970c92b3abdd Mon Sep 17 00:00:00 2001
+> From: Willy Tarreau <w@1wt.eu>
+> Date: Fri, 4 Aug 2006 08:50:10 +0200
+> Subject: [PATCH] AVM C4 ISDN card : use cpu_relax() in busy loops
+> 
+> As suggested by Alan, use cpu_relax() in 3 busy loops : "It's a
+> polled busy loop so you want other CPU threads to run if possible".
+> 
+> Signed-off-by: Willy Tarreau <w@1wt.eu>
+> ---
+>  drivers/isdn/hardware/avm/c4.c |    4 ++++
+>  1 files changed, 4 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/isdn/hardware/avm/c4.c b/drivers/isdn/hardware/avm/c4.c
+> index f7253b2..aee278e 100644
+> --- a/drivers/isdn/hardware/avm/c4.c
+> +++ b/drivers/isdn/hardware/avm/c4.c
+> @@ -22,6 +22,7 @@ #include <linux/capi.h>
+>  #include <linux/kernelcapi.h>
+>  #include <linux/init.h>
+>  #include <asm/io.h>
+> +#include <asm/processor.h>
+>  #include <asm/uaccess.h>
+>  #include <linux/netdevice.h>
+>  #include <linux/isdn/capicmd.h>
+> @@ -150,6 +151,7 @@ static inline int wait_for_doorbell(avmc
+>  		if (!time_before(jiffies, stop))
+>  			return -1;
+>  		mb();
+> +		cpu_relax();
 
-Hmmm...it looks like the information is there, but the PRI page looks
-different than the one defined by the kernel. Which could make sense,
-depending on whether "vendor specific" refers to the JEDEC vendor ID of
-the device or the command set ID.
+cpu_relax() implies a memory barrier.
 
-I'll try to ask someone from the Atmel flash group about this.
-
-Anyway, I could of course add a fixup based on manufacturer ID and
-convert the PRI information into something the kernel understands.
-Would that be a better idea?
-
-Haavard
+-- 
+Greetings Michael.

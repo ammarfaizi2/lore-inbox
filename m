@@ -1,81 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161476AbWHDV7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161521AbWHDWCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161476AbWHDV7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161512AbWHDV7E
+	id S1161521AbWHDWCa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161522AbWHDWCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:59:04 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:4573 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161476AbWHDV7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:59:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=dfbDkMgwxJPRRnJHLoW7PhM9AYrcKq/VzK70v0veosD6JfACrVgWM+FGBg+5jmRMroLvi9AvLatTHkvgJx3aJU0G12PF3o/FJJKtXR0RgND+UOt0TwXfS/op0Xg3ZxowxFIFafKSHC66m2mV++aBQjgydYpyPYSLFg6pNicG8cg=
-Date: Fri, 4 Aug 2006 17:59:58 -0400
-To: Brannon Barrett Klopfer <bklopfer@stanford.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Completely dead on resume (no caps lock, nada)
-Message-ID: <20060804215957.GA7008@nineveh.rivenstone.net>
-Mail-Followup-To: Brannon Barrett Klopfer <bklopfer@stanford.edu>,
-	linux-kernel@vger.kernel.org
-References: <1154721378.44d3a6627e951@webmail.stanford.edu>
+	Fri, 4 Aug 2006 18:02:30 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:37059 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161521AbWHDWC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:02:29 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: A proposal - binary
+Date: Sat, 5 Aug 2006 00:01:52 +0200
+User-Agent: KMail/1.9.3
+Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       James.Bottomley@steeleye.com, pazke@donpac.ru
+References: <44D1CC7D.4010600@vmware.com> <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com>
+In-Reply-To: <44D3B0F0.2010409@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1154721378.44d3a6627e951@webmail.stanford.edu>
-User-Agent: Mutt/1.5.11
-From: jfannin@gmail.com (Joseph Fannin)
+Message-Id: <200608050001.52535.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 12:56:18PM -0700, Brannon Barrett Klopfer wrote:
-> Hello,
->
-> Sorry to bug the entire list with such a vaugue post, but I'm not sure what
-> driver/subsystem is causing this problem. I'm sure you all are sick of "My
-> computer won't suspend, what do I do?" posts, but...well, my computer won't
-> suspend...
+> In the Xen case, 
+> they may want to run a dom-0 hypervisor which is compiled for an actual 
+> hardware sub-arch, such as Summit or ES7000. 
 
-    If no one reports bugs, they don't get fixed.
+There is no reason Summit or es7000 or any other subarchitecture 
+would need to do different  virtualization. In fact these subarchitectures 
+are pretty much obsolete by the generic subarchitecture and could be fully
+done by runtime switching.
 
-    Pavel Machek <pavel@suse.cz> is the swsusp maintainer, and should
-have been CC'd on this, otherwise he'll probably never see it.
-Linux-kernel is a busy place. :-)
+I don't disagree with your general point that some kind of PAL
+code between kernels and hypervisors might be a good idea
+(in fact I think Xen already uses vsyscall pages in some cases for this),
+but this particular example is no good.
 
-    I know Mr. Machek wants swsusp bug reports filed in Bugzilla at
-http://bugzilla.kernel.org , so you should do that, and then send a
-follow up to this, CC'd to Pavel, with a bugzilla bug number.
+> I would expect to see these new sub-architectures 
+> begin to grow like a rash. 
 
-CC'ing Rafael J. Wysocki <rjw@sisk.pl> as well probably wouldn't hurt.
+I hope not. The i386 subarchitecture setup is pretty bad already
+and mostly obsolete for modern systems.
 
->
-> It's a brand-new HP dv8000t laptop (Phoenix BIOS, latest version, core duo,
-> ahci/ata_piix [native/legacy]). Suspending (echo mem > /sys/power/state)
-> works fine, but upon resuming, absolutly nothing works -- backlight stays
-> off, caps/numlock, network, etc. all dead. I've also tried
->
-> # cat `which poweroff` > /dev/null # cache it, in case disk dies upon resume
-> # echo mem > /sys/power/state ; poweroff -f
->
-> but it still just hangs (i.e., seems the entire system is just...dead). I've
-> tried numerous patches from here and there, and tried both native (ahci) and
-> legacy (ata_piix) sata, and a kernel with as little support as possible --
-> no usb, ide, smp, module, preempt, etc. I won't flood the lists with other
-> info, but it's all at
->
-> http://www.stanford.edu/~bklopfer/wontsuspend/
->
-> I'd be more than happy to try patches/let someone ssh into my box if it'd
-> help (new, so nothing sensitive on it yet).
->
-> Thanks,
-> Brannon Klopfer
+> The same approach can be used on x86_64 for paravirtualization, but also 
+> to abstract out vendor differences between platforms.  Opteron and EMT64 
+> hardware are quite different, and the plethora of non-standard 
+> motherboards and uses have already intruded into the kernel.  Having a 
+> clean interface to encapsulate these changes is also desirable here, and 
+> once we've nailed down a final approach to achieving this for i386, it 
+> makes sense to do x86_64 as well.
 
-Thank you.
+Possible.
 
---
-Joseph Fannin
-jfannin@gmail.com
+> 
+> I'm now talking lightyears into the future
 
+tststs - please watch your units.
+
+>, but when the i386 and x86_64  
+> trees merge together,
+
+I don't think that will happen in the way you imagine. I certainly
+don't plan to ever merge legacy stuff like Voyager or Visual Workstation
+or even 586 multiprocessor support.
+
+It might be that x86-64 grows 32bit support at some point, but certainly
+only for modern systems and without the heavyweight subarchitecture setup
+that i386 uses.
+
+> this layer will be almost identical for the two,  
+> allowing sharing of tricky pieces of code, like the APIC and IO-APIC, 
+
+No, one of the strong points of the x86-64 port is that APIC/IO-APIC support
+doesn't carry all the legacy i386 has to carry.
+
+> NMI handling, system profiling, and power management.  It the interface 
+> evolves in a nicely packaged and compartmentalized way from that, then 
+> perhaps someday it can grow to become a true cross-architecture way to 
+> handle machine abstraction and virtualization. 
+
+I don't fully agree to move everything into paravirt ops. IMHO
+it should be only done for stuff which is performance critical
+or cannot be virtualized.
+
+For most other stuff a Hypervisor can always trap or not bother.
+
+> (N-tiered cache coloring, 
+> multiway hardware page tables, hypercubic interrupt routing, dynamically 
+> morphed GPUs, quantum hypervisor isolation).  
+
+I have my doubts paravirt ops will ever support any of this @)
+If we tried that then it would be so messy that it would turn into
+a bad idea.
+
+> Of course, it will still  
+> require a PCI bus.
+
+And it's unlikely PCI will be ever a good fit for a Quantum computer @)
+
+>  I too would like to push for an interface 
+> in 2.6.19, and we can't have confusion on this issue be a last minute 
+> stopper.
+
+For 2.6.19 it's too late already. Freeze for its merge 
+window has already nearly begun and this stuff is not ready yet.
+ 
+> Maybe someday Xen and VMware can share the same ABI interface and both 
+> use a VMI like layer. 
+
+The problem with VMI is that while it allows hypervisor side evolution
+it doesn't really allow Linux side evolution with its fixed spec.
+
+But having it a bit isolated is probably ok.
+
+-Andi

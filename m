@@ -1,73 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbWHDI2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWHDI3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161101AbWHDI2U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHDI2T
+	id S1030199AbWHDI3T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWHDI3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:28:19 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:9918 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030199AbWHDI2T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:28:19 -0400
-Subject: Re: [stable] Next 2.6.17-stable review cycle will be starting in
-	about 24	hours
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-In-Reply-To: <17618.39572.764990.76181@cse.unsw.edu.au>
-References: <20060803074850.GA28301@kroah.com>
-	 <1154623652.3905.76.camel@aeonflux.holtmann.net>
-	 <20060803170020.GA10784@kroah.com>
-	 <17618.39572.764990.76181@cse.unsw.edu.au>
+	Fri, 4 Aug 2006 04:29:19 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:55473 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030199AbWHDI3S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:29:18 -0400
+Subject: Re: A proposal - binary
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+In-Reply-To: <20060804002107.c0f9ba25.akpm@osdl.org>
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
+	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
+	 <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>
+	 <1154667875.11382.37.camel@localhost.localdomain>
+	 <20060803225357.e9ab5de1.akpm@osdl.org>
+	 <1154675100.11382.47.camel@localhost.localdomain>
+	 <20060804002107.c0f9ba25.akpm@osdl.org>
 Content-Type: text/plain
-Date: Fri, 04 Aug 2006 12:25:08 +0200
-Message-Id: <1154687108.3905.92.camel@aeonflux.holtmann.net>
+Date: Fri, 04 Aug 2006 18:29:14 +1000
+Message-Id: <1154680155.11382.84.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
-
-> > > > This is a heads up that the next 2.6.17-stable review cycle will be
-> > > > starting in about 24 hours.  I've caught up on all pending -stable
-> > > > patches that I know about and placed them in our queue, which can be
-> > > > browsed online at:
-> > > > 	http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=tree;f=queue-2.6.17
-> > > > 
-> > > > If anyone sees that this queue is missing something that they feel
-> > > > should get into the next 2.6.17-stable release, please let us know at
-> > > > stable@kernel.org within the next 24 hours or so.
-> > > 
-> > > instead of ext3-avoid-triggering-ext3_error-on-bad-nfs-file-handle.patch
-> > > it makes more sense to include the revised patches from Neil:
-> > > 
-> > > http://comments.gmane.org/gmane.linux.kernel/430323
-> > > 
-> > > It seems that these are not merged upstream, but my understanding was
-> > > that they were the best way to fix this. For RHEL4 we are going with
-> > > these two patches. 
+On Fri, 2006-08-04 at 00:21 -0700, Andrew Morton wrote:
+> On Fri, 04 Aug 2006 17:04:59 +1000
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> > On Thu, 2006-08-03 at 22:53 -0700, Andrew Morton wrote:
+> > > VMI is being proposed as an appropriate way to connect Linux to Xen.  If
+> > > that is true then no other glue is needed.
 > > 
-> > Hm, I just went with what Neil sent me for inclusion.  Neil, do you want
-> > me to change the patches you sent us?
+> > Sorry, this is wrong.
 > 
-> I think the patch you have is adequate for ext3.  It closes the
-> important hole.  I think the extra patch for ext3 in the gmane link
-> above is not entirely necessary so I wouldn't push it for stable.
-> That doesn't make it a wrong choice for RHEL4 though.
+> It's actually 100% correct.
+
+Err, yes.  I actually misrepresented VMI: the native implementation is
+inline (ie. no blob is required for native).  Bad Rusty.
+
+> > > > Yes, we could force native and Xen to work via VMI, but the result would
+> > > > be less clear, less maintainable, and gratuitously different from
+> > > > elsewhere in the kernel.
+> > > 
+> > > I suspect others would disagree with that.  We're at the stage of needing
+> > > to see code to settle this.
+> > 
+> > Wrong again.
 > 
-> The ext2 patch, on the other hand, should probably go in to stable.
+> I was referring to the VMI-for-Xen code.
 
-this actually looks unclean to me. I thought the code duplication in
-ext2 and ext3 was the price that you have to pay to avoid any layering
-violation. I personally would like to see the upstream patch go into
--stable. However we don't have this upstream at the moment. So what
-would you consider sending to Linus?
+I know.  And I repeat, we don't have to see that part, to know that the
+result is less clear, less maintainable and gratuitously different from
+elsewhere in the kernel than the paravirt_ops approach.  We've seen
+paravirt and the VMI parts of this already.
 
-Regards
+> >  We've *seen* the code for VMI, and fairly hairy.
+> 
+> I probably slept through that discussion - I don't recall that things were
+> that bad.   Do you recall the Subject: or date?
 
-Marcel
+Read the patches which Zach sent back in March, particularly:
 
+[RFC, PATCH 3/24] i386 Vmi interface definition
+[RFC, PATCH 4/24] i386 Vmi inline implementation
+[RFC, PATCH 5/24] i386 Vmi code patching
+
+If you want to hack on x86 arch code, you'd need to understand these.
+
+Then to see the paravirt patches go to http://ozlabs.org/~rusty/paravirt
+and look at the approximately-equivalent paravirt_ops patches:
+
+	008-paravirt-structure.patch
+	009-binary-patch.patch
+
+There's nothing in those paravirt_ops patches which will surprise any
+kernel hacker.  That's my entire point: maintainable, unsurprising,
+clear.
+
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWHDSva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWHDSwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWHDSva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 14:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWHDSva
+	id S1751443AbWHDSwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 14:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWHDSwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 14:51:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18584 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751418AbWHDSv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 14:51:29 -0400
-Date: Fri, 4 Aug 2006 11:51:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-Message-Id: <20060804115108.04a2af70.akpm@osdl.org>
-In-Reply-To: <20060804111638.GA28490@in.ibm.com>
-References: <20060804050753.GD27194@in.ibm.com>
-	<20060803223650.423f2e6a.akpm@osdl.org>
-	<20060804065615.GA26960@in.ibm.com>
-	<20060804001342.1168e5ab.akpm@osdl.org>
-	<20060804111638.GA28490@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Aug 2006 14:52:09 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:56511 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751443AbWHDSwH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 14:52:07 -0400
+Message-ID: <44D39735.8010909@zytor.com>
+Date: Fri, 04 Aug 2006 11:51:33 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jes Sorensen <jes@sgi.com>
+CC: Andreas Schwab <schwab@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jeff@garzik.org>, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se>	<44BE9E78.3010409@garzik.org> <yq0lkq4vbs3.fsf@jaguar.mkp.net>	<1154702572.23655.226.camel@localhost.localdomain>	<44D35B25.9090004@sgi.com>	<1154706687.23655.234.camel@localhost.localdomain>	<44D36E8B.4040705@sgi.com> <je4pws1ofb.fsf@sykes.suse.de>	<44D370ED.2050605@sgi.com> <jezmekzdb5.fsf@sykes.suse.de>	<44D3753B.1060403@sgi.com> <je3bccmoab.fsf@sykes.suse.de> <44D39658.9080007@sgi.com>
+In-Reply-To: <44D39658.9080007@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006 16:46:38 +0530
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
-
-> On Fri, Aug 04, 2006 at 12:13:42AM -0700, Andrew Morton wrote:
-> > There was a lot of discussion last time - Mike, Ingo, others.  It would be
-> > a useful starting point if we could be refreshed on what the main issues
-> > were, and whether/how this new patchset addresses them.
+Jes Sorensen wrote:
+>
+>> That's how the ABI is defined.
 > 
-> The main issues raised against the CPU controller posted last time were
-> these:
+> That the ABI for long long or the ABI for uint64_t? Given that u64 is a
+> Linux thing, it ought to be ok to do the alignment the right way within
+> the kernel.
 > 
 
-A useful summary, thanks.  It will probably help people if this description
-could be maintained along with the patch.  Because these issues are complex
-and we have a habit of dropping the ball then picking it up months later
-when everyone has forgotten everything.
+And what will break if you make that switch?
 
-> 
-> Ingo/Nick, what are your thoughts here?
-
-I believe Ingo is having a bit of downtime for another week or so.
+	-hpa

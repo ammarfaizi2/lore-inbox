@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161566AbWHDWsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161569AbWHDWwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161566AbWHDWsx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 18:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161567AbWHDWsx
+	id S1161569AbWHDWwt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161570AbWHDWwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 18:48:53 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:47246 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1161566AbWHDWsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 18:48:52 -0400
-Date: Fri, 4 Aug 2006 15:45:33 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Arjan van de Ven <arjan@linux.intel.com>
-cc: Antonio Vargas <windenntw@gmail.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
+	Fri, 4 Aug 2006 18:52:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53448 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161569AbWHDWws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:52:48 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
 Subject: Re: A proposal - binary
-In-Reply-To: <44D3C37F.7020803@linux.intel.com>
-Message-ID: <Pine.LNX.4.63.0608041544130.18862@qynat.qvtvafvgr.pbz>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-    <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>   
- <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>  
-  <1154667875.11382.37.camel@localhost.localdomain>    <20060803225357.e9ab5de1.akpm@osdl.org>
-    <1154675100.11382.47.camel@localhost.localdomain>   
- <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>  
- <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>  
- <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz>  <44D39F73.8000803@linux.intel.com>
-  <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz> <44D3C37F.7020803@linux.intel.com>
+Date: Sat, 5 Aug 2006 00:52:36 +0200
+User-Agent: KMail/1.9.3
+Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       James.Bottomley@steeleye.com, pazke@donpac.ru
+References: <44D1CC7D.4010600@vmware.com> <200608050001.52535.ak@suse.de> <44D3CCA1.1040503@vmware.com>
+In-Reply-To: <44D3CCA1.1040503@vmware.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608050052.36535.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006, Arjan van de Ven wrote:
 
->> 
->> so if I understand this correctly we are saying that a kernel compiled to 
->> run on hypervisor A would need to be recompiled to run on hypervisor B, and 
->> recompiled again to run on hypervisor C, etc
->> 
-> no the actual implementation of the operation structure is dynamic and can be 
-> picked
-> at runtime, so you can compile a kernel for A,B *and* C and at runtime the 
-> kernel
-> picks the one you have
+> For privileged domains that have hardware privileges and need to send 
+> IPIs or something it might make sense. 
 
-Ok, I was under the impression that this sort of thing was frowned upon for 
-hotpath items (which I understand a good chunk of this would be).
+Any SMP guest needs IPI support of some sort.
 
-this still leaves the question of old client on new hypervisors that is 
-continueing in other branches of this thread.
+But it is hopefully independent of subarchitectures in the paravirtualized
+case.
 
-David Lang
+
+> doesn't stop Linux from using the provided primitives in any way is 
+> sees fit.  So it doesn't top evolution in that sense.  What it does stop 
+> is having the Linux hypervisor interface grow antlers and have new 
+> hooves grafted onto it.  What it sorely needed in the interface is a way 
+> to probe 
+
+That's the direction the interface is evolving I think (see multiple
+entry point discussion) 
+
+> and detect optional features that allow it to grow independent 
+> of one particular hypervisor vendor.
+
+Ok maybe not with options and subsets so far, but one has to
+start somewhere.
+
+-Andi

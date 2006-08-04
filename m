@@ -1,81 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWHDByf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWHDCLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932588AbWHDByf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 21:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWHDByf
+	id S1030285AbWHDCLE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 22:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWHDCLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 21:54:35 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:21176 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932588AbWHDBye
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 21:54:34 -0400
-Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>, y-goto@jp.fujitsu.com,
-       andrew <akpm@osdl.org>
-In-Reply-To: <20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
-	 <1154650396.5925.49.camel@keithlap>
-	 <20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 03 Aug 2006 18:54:32 -0700
-Message-Id: <1154656472.5925.71.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 3 Aug 2006 22:11:04 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:60422 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030285AbWHDCLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 22:11:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rO0rCjVJLHdY+ALG0gDSnAAmZxJiuexri/o1OPpwJqZKbE07MYu+Mi9b3rRsTe/Cx79Q+w9iDsWTtaomzGm5D7x/1MD+v7Wjx8naDhEPlGZV12Sa2xcu1YbJ1b21JqEVaEEb7wCXnJ1s1VcOuuT/SUssB4VL1y6zkG684NyviAY=
+Message-ID: <5c49b0ed0608031911id21b112t7f0c350a7f10a99@mail.gmail.com>
+Date: Thu, 3 Aug 2006 19:11:01 -0700
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Jens Axboe" <axboe@suse.de>
+Subject: [PATCH -mm] [1/3] add elv_extended_request call to iosched API
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 09:44 +0900, KAMEZAWA Hiroyuki wrote:
-> On Thu, 03 Aug 2006 17:13:16 -0700
-> keith mannthey <kmannth@us.ibm.com> wrote:
-> 
-> > On Thu, 2006-08-03 at 12:36 +0900, KAMEZAWA Hiroyuki wrote:
-> > > add_memory() does all necessary check to avoid collision.
-> > > then, acpi layer doesn't have to check region by itself.
-> > > 
-> > > (*) pfn_valid() just returns page struct is valid or not. It returns 0
-> > >     if a section has been already added even is ioresource is not added.
-> > >     ioresource collision check in mm/memory_hotplug.c can do more precise
-> > >     collistion check.
-> > >     added enabled bit check just for sanity check..
-> > > 
-> > > Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-> > 
-> > > -		start_pfn = info->start_addr >> PAGE_SHIFT;
-> > > -		end_pfn = (info->start_addr + info->length - 1) >> PAGE_SHIFT;
-> > > -
-> > > -		if (pfn_valid(start_pfn) || pfn_valid(end_pfn)) {
-> > 
-> > This check needs to go somewhare in the add path.  I am thinking of a
-> > validate_add_memory_area call in add_memory (that can also be flexable
-> > to enable the reserve check of (this memory area in add_nodes).  
-> > 
-> >   It is a useful protection for the sparsemem add path. I would rather
-> > the kernel be able to stand up to odd acpi namespaces or other
-> > mechanisms of invoking add_memory. 
-> > 
-> Hmm..Okay. I'll try some check patch today. please review it.
-> Maybe moving ioresouce collision check in early stage of add_memory() is good ?
-  Yea.  I am working a a full patch set for but my sparsemem and reserve
-add-based paths.  It creates a valid_memory_add_range call at the start
-of add_memory. I should be posting the set in the next few hours.
+the Elevator iosched would prefer to be unconditionally notified of a
+merge, but the current API calls only one 'merge' notifier
+(elv_merge_requests or elv_merged_requests), even if both front and
+back merges happened.
 
-> Note:
-> I remove pfn_valid() here because pfn_valid() just says section exists or
-> not. When adding seveal small memory chunks in one section, Only the  first
-> small chunk can be added. 
-Hmm... I thought memory add areas needed to be section aligned for the arch?
+elv_extended_request satisfies this requirement in conjunction with
+elv_merge_requests.
 
-  What protecting is there for calling add_memory on an already present
-memory range?  
+Signed-off-by: Nate Diller <nate.diller@gmail.com>
 
+---
+ block/elevator.c         |    9 +++++++++
+ block/ll_rw_blk.c        |    2 ++
+ include/linux/elevator.h |    4 ++++
+ 3 files changed, 15 insertions(+)
+---
 
-Thanks,
-  Keith 
+diff -urpN -X dontdiff linux-2.6.18-rc1-mm2/block/elevator.c
+linux-dput/block/elevator.c
+--- linux-2.6.18-rc1-mm2/block/elevator.c	2006-07-18 14:52:29.000000000 -0700
++++ linux-dput/block/elevator.c	2006-08-03 18:42:00.000000000 -0700
+@@ -287,6 +287,15 @@ void elv_merged_request(request_queue_t
+ 	q->last_merge = rq;
+ }
 
++void elv_extended_request(request_queue_t *q, struct request *rq,
++			int direction, int nr_sectors)
++{
++	elevator_t *e = q->elevator;
++
++	if (e->ops->elevator_extended_req_fn)
++		e->ops->elevator_extended_req_fn(q, rq, direction, nr_sectors);
++}
++
+ void elv_merge_requests(request_queue_t *q, struct request *rq,
+ 			     struct request *next)
+ {
+diff -urpN -X dontdiff linux-2.6.18-rc1-mm2/block/ll_rw_blk.c
+linux-dput/block/ll_rw_blk.c
+--- linux-2.6.18-rc1-mm2/block/ll_rw_blk.c	2006-07-18 15:00:44.000000000 -0700
++++ linux-dput/block/ll_rw_blk.c	2006-08-03 18:42:00.000000000 -0700
+@@ -2895,6 +2895,7 @@ static int __make_request(request_queue_
+ 			req->nr_sectors = req->hard_nr_sectors += nr_sectors;
+ 			req->ioprio = ioprio_best(req->ioprio, prio);
+ 			drive_stat_acct(req, nr_sectors, 0);
++			elv_extended_request(q, req, el_ret, nr_sectors);
+ 			if (!attempt_back_merge(q, req))
+ 				elv_merged_request(q, req);
+ 			goto out;
+@@ -2922,6 +2923,7 @@ static int __make_request(request_queue_
+ 			req->nr_sectors = req->hard_nr_sectors += nr_sectors;
+ 			req->ioprio = ioprio_best(req->ioprio, prio);
+ 			drive_stat_acct(req, nr_sectors, 0);
++			elv_extended_request(q, req, el_ret, nr_sectors);
+ 			if (!attempt_front_merge(q, req))
+ 				elv_merged_request(q, req);
+ 			goto out;
+diff -urpN -X dontdiff linux-2.6.18-rc1-mm2/include/linux/elevator.h
+linux-dput/include/linux/elevator.h
+--- linux-2.6.18-rc1-mm2/include/linux/elevator.h	2006-06-17
+18:49:35.000000000 -0700
++++ linux-dput/include/linux/elevator.h	2006-08-03 18:42:00.000000000 -0700
+@@ -6,6 +6,8 @@ typedef int (elevator_merge_fn) (request
 
+ typedef void (elevator_merge_req_fn) (request_queue_t *, struct
+request *, struct request *);
+
++typedef void (elevator_extended_req_fn) (request_queue_t *, struct
+request *, int, int);
++
+ typedef void (elevator_merged_fn) (request_queue_t *, struct request *);
+
+ typedef int (elevator_dispatch_fn) (request_queue_t *, int);
+@@ -28,6 +30,7 @@ struct elevator_ops
+ {
+ 	elevator_merge_fn *elevator_merge_fn;
+ 	elevator_merged_fn *elevator_merged_fn;
++	elevator_extended_req_fn *elevator_extended_req_fn;
+ 	elevator_merge_req_fn *elevator_merge_req_fn;
+
+ 	elevator_dispatch_fn *elevator_dispatch_fn;
+@@ -94,6 +97,7 @@ extern void elv_insert(request_queue_t *
+ extern int elv_merge(request_queue_t *, struct request **, struct bio *);
+ extern void elv_merge_requests(request_queue_t *, struct request *,
+ 			       struct request *);
++extern void elv_extended_request(request_queue_t *, struct request *,
+int, int);
+ extern void elv_merged_request(request_queue_t *, struct request *);
+ extern void elv_dequeue_request(request_queue_t *, struct request *);
+ extern void elv_requeue_request(request_queue_t *, struct request *);

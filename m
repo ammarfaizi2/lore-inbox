@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWHDO5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWHDO7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161210AbWHDO5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161244AbWHDO5Q
+	id S932479AbWHDO7O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWHDO7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:57:16 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:30042 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161210AbWHDO5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 10:57:15 -0400
-Message-ID: <44D3603D.90802@sw.ru>
-Date: Fri, 04 Aug 2006 18:57:01 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 4 Aug 2006 10:59:13 -0400
+Received: from mga06.intel.com ([134.134.136.21]:61836 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932489AbWHDO7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 10:59:13 -0400
+X-IronPort-AV: i="4.07,211,1151910000"; 
+   d="scan'208"; a="102612298:sNHT26568476046"
+Message-ID: <44D35B56.6060500@linux.intel.com>
+Date: Fri, 04 Aug 2006 07:36:06 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, sam@vilain.net, linux-kernel@vger.kernel.org,
-       dev@openvz.org, efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A	cpu
- controller
-References: <20060804050753.GD27194@in.ibm.com>	 <20060803223650.423f2e6a.akpm@osdl.org>	 <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain>
-In-Reply-To: <1154684950.23655.178.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Auke Kok <auke-jan.h.kok@intel.com>, linux-kernel@vger.kernel.org,
+       jesse.brandeburg@intel.com, john.ronciak@intel.com,
+       netdev@vger.kernel.org
+Subject: Re: [RFC] irqbalance: Mark in-kernel irqbalance as obsolete, set
+ to N by default
+References: <44CE3F5E.4010305@intel.com> <20060803194550.9ff31bc1.akpm@osdl.org>
+In-Reply-To: <20060803194550.9ff31bc1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->>The downside to such a strategy is that there is a risk that nobody ever
->>gets around to implementing useful controllers, so it ends up dead code. 
->>I'd judge that the interest in resource management is such that the risk of
->>this happening is low.
+Andrew Morton wrote:
+> On Mon, 31 Jul 2006 10:35:26 -0700
+> Auke Kok <auke-jan.h.kok@intel.com> wrote:
 > 
+>> We've recently seen a number of user bug reports against e1000 that the 
+>> in-kernel irqbalance code is detrimental to network latency. The algorithm 
+>> keeps swapping irq's for NICs from cpu to cpu causing extremely high network 
+>> latency (>1000ms).
 > 
-> I think the risk is that OpenVZ has all the controls and resource
-> managers we need, while CKRM is still more research-ish. I find the
-> OpenVZ code much clearer, cleaner and complete at the moment, although
-> also much more conservative in its approach to solving problems.
+> What kernel versions?  Some IRQ balancer fixes went in shortly after 2.6.17.
+> 
+> It would be better if poss to fix the balancer rather than deprecating it.
 
-Alan, I will be happy to hear what you mean by conservative :)
-Maybe we can make it more revolutinary then.
-
-Kirill
-
+to some degree the in kernel balancer cannot really make the level of decisions that a
+userspace balancer can make, at least not without making all kernel developers vomit ;)
+(for example the userspace balancer looks in /proc/interrupts and parses that to see
+which interrupts are used by networking versus which by storage etc, and has different
+balancing policies for those and other classes; the networking policy basically comes down to
+"pin the interrupt unless some higher networking interrupt really gets in the way")

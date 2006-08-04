@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWHDTMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161375AbWHDTZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161374AbWHDTMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161375AbWHDTMy
+	id S1161375AbWHDTZH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161378AbWHDTZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:12:54 -0400
-Received: from xenotime.net ([66.160.160.81]:677 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161374AbWHDTMy (ORCPT
+	Fri, 4 Aug 2006 15:25:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1958 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161375AbWHDTZG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:12:54 -0400
-Date: Fri, 4 Aug 2006 12:15:34 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: zippel@linux-m68k.org, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kconfig language: add more keywords
-Message-Id: <20060804121534.7fe2515d.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 15:25:06 -0400
+Date: Fri, 4 Aug 2006 12:24:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at
+ /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
+In-Reply-To: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org>
+References: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Add kconfig-language docs for mainmenu, def_bool[ean],
-and def_tristate.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/kbuild/kconfig-language.txt |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
-
---- linux-2618-rc3g2.orig/Documentation/kbuild/kconfig-language.txt
-+++ linux-2618-rc3g2/Documentation/kbuild/kconfig-language.txt
-@@ -77,6 +77,11 @@ applicable everywhere (see syntax).
-   Optionally dependencies only for this default value can be added with
-   "if".
- 
-+- type definition + default value:
-+	"def_bool"/"def_boolean"/"def_tristate" <expr> ["if" <expr>]
-+  This is a shorthand notation for a type definition plus a value.
-+  Optionally dependencies for this default value can be added with "if".
-+
- - dependencies: "depends on"/"requires" <expr>
-   This defines a dependency for this menu entry. If multiple
-   dependencies are defined they are connected with '&&'. Dependencies
-@@ -280,3 +285,10 @@ source:
- 	"source" <prompt>
- 
- This reads the specified configuration file. This file is always parsed.
-+
-+mainmenu:
-+
-+	"mainmenu" <prompt>
-+
-+This sets the config program's title bar if the config program chooses
-+to use it.
 
 
----
+On Fri, 4 Aug 2006, Michal Piotrowski wrote:
+> 
+> This was reported
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0607.3/1867.html
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0608.0/0675.html
+> 
+> It's time to use git-bisect.
+> 
+> BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
+
+Ok, that really is a pretty scary thing. The warning happens if the lock 
+is released by somebody else than the person who took it. I don't _think_ 
+that's supposed to happen, but with cpu hotplug locking being as 
+"creative" as it is, maybe it's valid. 
+
+I was planning on shutting the cpu hotplug warnings up for v2.6.18 - at 
+least the "lukewarm IQ" one for _taking_ the lock recursively. But I had 
+planned on leaving the unlock_cpu_hotplug() in place, since up until now 
+it hadn't triggered, and it really smells like a bug if it does.
+
+> [<c0132a04>] unlock_cpu_hotplug+0x2c/0x54
+> [<c013a2ec>] stop_machine_run+0x2e/0x34
+> [<c0135686>] sys_init_module+0x15a0/0x178a
+> [<c015b7b7>] do_sync_read+0xb6/0xf1
+> [<c0102d51>] sysenter_past_esp+0x56/0x79
+
+
+DaveJ, any ideas?
+
+		Linus

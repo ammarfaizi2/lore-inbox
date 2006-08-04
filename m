@@ -1,86 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161492AbWHDViu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161490AbWHDVjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161492AbWHDViu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161494AbWHDViu
+	id S1161490AbWHDVjR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161494AbWHDVjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:38:50 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:1197 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161492AbWHDVit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:38:49 -0400
-Subject: [PATCH] enable VMSPLIT for highmem kernels
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 04 Aug 2006 14:38:45 -0700
-Message-Id: <20060804213845.986D69FA@localhost.localdomain>
+	Fri, 4 Aug 2006 17:39:17 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:58836 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1161490AbWHDVjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:39:16 -0400
+Date: Fri, 4 Aug 2006 14:38:56 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at,
+       hch@infradead.org
+Subject: Re: [PATCH] clean up OCFS2 nlink handling
+Message-ID: <20060804213856.GP29686@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060801235240.82ADCA42@localhost.localdomain> <20060801235243.EA4890B4@localhost.localdomain> <20060802021411.GG29686@ca-server1.us.oracle.com> <1154488906.7232.20.camel@localhost.localdomain> <20060803002038.GI29686@ca-server1.us.oracle.com> <1154725292.10109.41.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154725292.10109.41.camel@localhost.localdomain>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
-I'll assume that the complete lack of commenting on this patch
-mean that everyone agrees with me. :)  Time for -mm I guess.
+On Fri, Aug 04, 2006 at 02:01:32PM -0700, Dave Hansen wrote:
+> OK, I hope this does it.
+I think the last part of your patch is bad :/ At any rate, I think the
+attached patch fixes up the last hunk for you. HTH.
 
---
 
-The current VMSPLIT Kconfig option is disabled whenever highmem
-is on.  This is a bit screwy because the people who need to
-change VMSPLIT the most tend to be the ones *with* highmem and
-constrained lowmem.
+From: Dave Hansen <haveblue@us.ibm.com>
 
-So, remove the highmem dependency.  But, re-include the
-dependency for the "full 1GB of lowmem" option.  You can't have
-the full 1GB of lowmem and highmem because of the need for the
-vmalloc(), kmap(), etc... areas.
+OCFS2 does some operations on i_nlink, then reverts them if some
+of its operations fail to complete.  This does not fit in well
+with the inode_drop_nlink() logic where we expect i_nlink to stay
+at zero once it gets there.
 
-I thought there would be at least a bit of tweaking to do to
-get it to work, but everything seems OK.
-
-Boot tested on a 4GB x86 machine, and a 12GB 3-node NUMA-Q:
-
-elm3b82:~# cat /proc/meminfo
-MemTotal:      3695412 kB
-MemFree:       3659540 kB
-...
-LowTotal:      2909008 kB
-LowFree:       2892324 kB
-...
-elm3b82:~# zgrep PAE /proc/config.gz
-CONFIG_X86_PAE=y
-
-larry:~# cat /proc/meminfo
-MemTotal:     11845900 kB
-MemFree:      11786748 kB
-...
-LowTotal:      2855180 kB
-LowFree:       2830092 kB
+So, delay all of the nlink operations until we're sure that the
+operations have completed.  Also, introduce a small helper to
+check whether an inode has proper "unlinkable" i_nlink counts
+no matter whether it is a directory or regular inode.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
 
- lxc-dave/arch/i386/Kconfig |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN arch/i386/Kconfig~split-for-pae arch/i386/Kconfig
---- lxc/arch/i386/Kconfig~split-for-pae	2006-08-03 09:01:32.000000000 -0700
-+++ lxc-dave/arch/i386/Kconfig	2006-08-04 14:38:34.000000000 -0700
-@@ -497,7 +497,7 @@ config HIGHMEM64G
- endchoice
+diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
+index 0673862..666953b 100644
+--- a/fs/ocfs2/namei.c
++++ b/fs/ocfs2/namei.c
+@@ -744,11 +744,23 @@ bail:
+ 	return err;
+ }
  
- choice
--	depends on EXPERIMENTAL && !X86_PAE
-+	depends on EXPERIMENTAL
- 	prompt "Memory split" if EMBEDDED
- 	default VMSPLIT_3G
- 	help
-@@ -519,6 +519,7 @@ choice
- 	config VMSPLIT_3G
- 		bool "3G/1G user/kernel split"
- 	config VMSPLIT_3G_OPT
-+		depends on !HIGHMEM
- 		bool "3G/1G user/kernel split (for full 1G low memory)"
- 	config VMSPLIT_2G
- 		bool "2G/2G user/kernel split"
-_
++static inline inode_is_unlinkable(struct inode *inode)
++{
++	if (S_ISDIR(inode->i_mode)) {
++	       	if (inode->i_nlink == 2)
++			return 1;
++		return 0;
++	}
++
++	if (inode->i_nlink == 1)
++		return 1;
++	return 0;
++}
++
+ static int ocfs2_unlink(struct inode *dir,
+ 			struct dentry *dentry)
+ {
+ 	int status;
+-	unsigned int saved_nlink = 0;
+ 	struct inode *inode = dentry->d_inode;
+ 	struct ocfs2_super *osb = OCFS2_SB(dir->i_sb);
+ 	u64 blkno;
+@@ -760,6 +772,7 @@ static int ocfs2_unlink(struct inode *di
+ 	struct buffer_head *dirent_bh = NULL;
+ 	char orphan_name[OCFS2_ORPHAN_NAMELEN + 1];
+ 	struct buffer_head *orphan_entry_bh = NULL;
++	unsigned int future_nlink;
+ 
+ 	mlog_entry("(0x%p, 0x%p, '%.*s')\n", dir, dentry,
+ 		   dentry->d_name.len, dentry->d_name.name);
+@@ -823,18 +836,11 @@ static int ocfs2_unlink(struct inode *di
+ 		}
+ 	}
+ 
+-	/* There are still a few steps left until we can consider the
+-	 * unlink to have succeeded. Save off nlink here before
+-	 * modification so we can set it back in case we hit an issue
+-	 * before commit. */
+-	saved_nlink = inode->i_nlink;
+-	if (S_ISDIR(inode->i_mode))
+-		inode->i_nlink = 0;
++	if (S_ISDIR(inode->i_mode) && (inode->i_nlink == 2))
++		future_nlink = 0;
+ 	else
+-		inode->i_nlink--;
+-
+-	status = ocfs2_request_unlink_vote(inode, dentry,
+-					   (unsigned int) inode->i_nlink);
++		future_nlink = inode->i_nlink - 1;
++	status = ocfs2_request_unlink_vote(inode, dentry, future_nlink);
+ 	if (status < 0) {
+ 		/* This vote should succeed under all normal
+ 		 * circumstances. */
+@@ -842,7 +848,7 @@ static int ocfs2_unlink(struct inode *di
+ 		goto leave;
+ 	}
+ 
+-	if (!inode->i_nlink) {
++	if (inode_is_unlinkable(inode)) {
+ 		status = ocfs2_prepare_orphan_dir(osb, handle, inode,
+ 						  orphan_name,
+ 						  &orphan_entry_bh);
+@@ -869,7 +875,7 @@ static int ocfs2_unlink(struct inode *di
+ 
+ 	fe = (struct ocfs2_dinode *) fe_bh->b_data;
+ 
+-	if (!inode->i_nlink) {
++	if (inode_is_unlinkable(inode)) {
+ 		status = ocfs2_orphan_add(osb, handle, inode, fe, orphan_name,
+ 					  orphan_entry_bh);
+ 		if (status < 0) {
+@@ -885,10 +891,10 @@ static int ocfs2_unlink(struct inode *di
+ 		goto leave;
+ 	}
+ 
+-	/* We can set nlink on the dinode now. clear the saved version
+-	 * so that it doesn't get set later. */
++	if (S_ISDIR(inode->i_mode))
++		inode_drop_nlink(inode);
++	inode_drop_nlink(inode);
+ 	fe->i_links_count = cpu_to_le16(inode->i_nlink);
+-	saved_nlink = 0;
+ 
+ 	status = ocfs2_journal_dirty(handle, fe_bh);
+ 	if (status < 0) {
+@@ -897,19 +903,16 @@ static int ocfs2_unlink(struct inode *di
+ 	}
+ 
+ 	if (S_ISDIR(inode->i_mode)) {
+-		dir->i_nlink--;
++		inode_drop_nlink(dir);
+ 		status = ocfs2_mark_inode_dirty(handle, dir,
+ 						parent_node_bh);
+ 		if (status < 0) {
+ 			mlog_errno(status);
+-			dir->i_nlink++;
++			inode_inc_nlink(dir);
+ 		}
+ 	}
+ 
+ leave:
+-	if (status < 0 && saved_nlink)
+-		inode->i_nlink = saved_nlink;
+-
+ 	if (handle)
+ 		ocfs2_commit_trans(handle);
+ 

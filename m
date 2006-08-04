@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161581AbWHDXik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161582AbWHDXje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161581AbWHDXik (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 19:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161582AbWHDXik
+	id S1161582AbWHDXje (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 19:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161583AbWHDXje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 19:38:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63392 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161581AbWHDXik (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 19:38:40 -0400
-Date: Fri, 4 Aug 2006 19:38:15 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: vgoyal@in.ibm.com, fastboot@osdl.org, linux-kernel@vger.kernel.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Linda Wang <lwang@redhat.com>
-Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060804233815.GG18792@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>, vgoyal@in.ibm.com,
-	fastboot@osdl.org, linux-kernel@vger.kernel.org,
-	Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Magnus Damm <magnus.damm@gmail.com>, Linda Wang <lwang@redhat.com>
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <20060804225611.GG19244@in.ibm.com> <m1k65onleq.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1k65onleq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 4 Aug 2006 19:39:34 -0400
+Received: from mga06.intel.com ([134.134.136.21]:11160 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161582AbWHDXjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 19:39:33 -0400
+X-IronPort-AV: i="4.07,213,1151910000"; 
+   d="scan'208"; a="102899022:sNHT25594198511"
+Message-ID: <44D3D8F9.2070602@linux.intel.com>
+Date: Fri, 04 Aug 2006 16:32:09 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Jiri Slaby <slaby@liberouter.org>
+CC: liyu <liyu@ccoss.com.cn>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] usb: The HID Simple Driver Interface 0.3.0
+References: <200608031806087610533@ccoss.com.cn> <44D3D810.4020903@liberouter.org>
+In-Reply-To: <44D3D810.4020903@liberouter.org>
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 05:14:37PM -0600, Eric W. Biederman wrote:
 
- > I guess the practical question is do people see a real performance benefit
- > when loading the kernel at 4MB?
+>> Signed-off-by: Liyu <liyu@ccoss.com.cn>
+>>
+>> diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-core.c linux-2.6.17.7/drivers/usb/input/hid-core.c
+>> --- linux-2.6.17.7/drivers/usb/input.orig/hid-core.c	2006-07-25 11:36:01.000000000 +0800
+>> +++ linux-2.6.17.7/drivers/usb/input/hid-core.c	2006-08-03 15:44:45.000000000 +0800
+>> @@ -4,6 +4,7 @@
+>>   *  Copyright (c) 1999 Andreas Gal
+>>   *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+>>   *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+>> + *  Copyright (c) 2006 Liyu <liyu@ccoss.com.cn>  HID simple driver interface
+>>   */
+>>  
+>>  /*
+>> @@ -26,6 +27,7 @@
+>>  #include <asm/byteorder.h>
+>>  #include <linux/input.h>
+>>  #include <linux/wait.h>
+>> +#include <asm/semaphore.h>
+>>  
 
-Linus claimed lmbench saw some huge wins. Others showed that for eg,
-a kernel compile took the same amount of time, so take from that what you will..
+Hi,
 
- > Possibly the right solution is to do like I did on x86_64 and simply remove
- > CONFIG_PHYSICAL_START, and always place the kernel at 4MB, or something like
- > that.
- > 
- > The practical question is what to do to keep the complexity from spinning
- > out of control.  Removing CONFIG_PHYSICAL_START would seriously help with
- > that.
+btw I just noticed this, but please use mutexes not semaphores in new code. Sorry for not
+noticing this earlier, I'll need to adjust my filters I suspect.
 
-Given the two primary uses of that option right now are a) the aforementioned
-perf win and b) building kexec kernels, I doubt anyone would miss it once
-we go relocatable ;-)
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+Greetings,
+   Arjan van de Ven

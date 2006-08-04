@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161240AbWHDOqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbWHDOqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161240AbWHDOqI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161241AbWHDOqG
+	id S1161237AbWHDOqF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWHDOqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:46:06 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:44983 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1161236AbWHDOqE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 4 Aug 2006 10:46:04 -0400
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: Re: Private driver support emails should be avoided.
-References: <44C3F2C6.5010001@garzik.org>
-From: Jes Sorensen <jes@sgi.com>
-Date: 04 Aug 2006 10:46:03 -0400
-In-Reply-To: <44C3F2C6.5010001@garzik.org>
-Message-ID: <yq0hd0sv9sk.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+Received: from mga07.intel.com ([143.182.124.22]:39693 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1161237AbWHDOqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 10:46:03 -0400
+X-IronPort-AV: i="4.07,211,1151910000"; 
+   d="scan'208"; a="97745748:sNHT10335812774"
+Message-ID: <44D35D99.601@linux.intel.com>
+Date: Fri, 04 Aug 2006 07:45:45 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg Banks <gnb@melbourne.sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@suse.de>,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2 of 4] cpumask: export cpu_online_map and cpu_possible_map
+ consistently
+References: <1154669759.21040.2353.camel@hole.melbourne.sgi.com>
+In-Reply-To: <1154669759.21040.2353.camel@hole.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jeff@garzik.org> writes:
+Greg Banks wrote:
+> cpumask: ensure that the cpu_online_map and cpu_possible_map bitmasks,
+> and hence all the macros in <linux/cpumask.h> that require them, are
+> available to modules for all supported combinations of architecture
+> and CONFIG_SMP.
 
-Jeff> Just a reminder to folks out there...  Don't send private driver
-Jeff> support emails.
-
-Jeff> I receive a lot of email.  A lot.  Not as much as Linus or
-Jeff> Andrew probably, but still sizable.  And quite regularly, I will
-Jeff> receive a private email asking for help on a SATA or net driver
-Jeff> problem.  The poster will include various details on their
-Jeff> problem, and ask for help debugging the problem.  While the
-Jeff> email will indeed be skimmed -- looking at a mass of bug
-Jeff> reports, one can better detect patterns -- the people seeking
-Jeff> support privately will almost NEVER RECEIVE A RESPONSE.
-
-Jeff,
-
-Very sane - I get some of it too, though less so these days :)
-
-What about writing this up and sticking it under
-Documentation/Reporting-Bugs or something so there's an easy reference
-to it?
-
-Cheers,
-Jes
+Are there any actual users of this?

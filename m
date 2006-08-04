@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161226AbWHDOgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161229AbWHDOgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161226AbWHDOgF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWHDOgF
+	id S1161229AbWHDOgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWHDOgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:36:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13505 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161226AbWHDOgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 10:36:02 -0400
-Date: Fri, 4 Aug 2006 15:35:17 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, sam@vilain.net, linux-kernel@vger.kernel.org,
-       dev@openvz.org, efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu controller
-Message-ID: <20060804143517.GA7641@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-	vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
-	sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
-	efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-	nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <44D35794.2040003@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D35794.2040003@sw.ru>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 4 Aug 2006 10:36:53 -0400
+Received: from mx.melware.net ([217.91.97.190]:27910 "EHLO mx.melware.net")
+	by vger.kernel.org with ESMTP id S1161228AbWHDOgv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 10:36:51 -0400
+Date: Fri, 4 Aug 2006 16:36:30 +0200 (CEST)
+From: Armin Schindler <armin@melware.de>
+X-X-Sender: armin@phoenix.one.melware.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] eicon: fix define conflict with ptrace
+In-Reply-To: <1154639399.23655.129.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0608041634390.9061@phoenix.one.melware.de>
+References: <20060803203411.GB6828@martell.zuzino.mipt.ru>
+ <1154639399.23655.129.camel@localhost.localdomain>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 06:20:04PM +0400, Kirill Korotaev wrote:
-> For example:
-> 1. Should task-group be changeable after set/inherited once?
->  Are you planning to recalculate resources on group change?
->  e.g. shared memory or used kernel memory is hard to recalculate.
+On Thu, 3 Aug 2006, Alan Cox wrote:
+> Ar Gwe, 2006-08-04 am 00:34 +0400, ysgrifennodd Alexey Dobriyan:
+> > * MODE_MASK is unused in eicon driver.
+> > * Conflicts with a ptrace stuff on arm.
+> > 
+> > drivers/isdn/hardware/eicon/divasync.h:259:1: warning: "MODE_MASK" redefined
+> > include2/asm/ptrace.h:48:1: warning: this is the location of the previous definition
+> > 
+> > Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> 
+> NAK. You need to fix all the code expecting to use the MODE_MASK with a
+> value of 0x00000080
 
-I think this is a nice feature, although not on the top priority list.
+The definitions in drivers/isdn/hardware/eicon/divasync.h are for
+Eicon driver only. Since MODE_MASK is not really used in the Eicon/Divas 
+driver, the removal from this file is okay.
 
-> 2. should task-group resource container manage all the resources as a whole?
->  e.g. in OpenVZ tasks can belong to different CPU and UBC containers.
->  It is more flexible and e.g. we used to put some vital kernel threads
->  to a separate CPU group to decrease delays in service.
-
-We already support different resource groups for the very limit rlimit
-interface.  If we can keep the interface clean doing separate resource
-groups is fine.
-
-> 3. I also don't understand why normal binary interface like system call is 
-> not used.
->   We have set_uid, sys_setrlimit and it works pretty good, does it?
-
-Yes.  If you can design a syscall interface that is as clean as the two
-mentioned above a syscall interface is the best way to go forward.
-
-> 4. do we want hierarchical grouping?
-
-Not at all.  It just causes a lot of pain an complexity for no real world
-benefits.
+Armin
 

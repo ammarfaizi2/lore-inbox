@@ -1,48 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161466AbWHDVKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161468AbWHDVLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161466AbWHDVKW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161471AbWHDVKW
+	id S1161468AbWHDVLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161472AbWHDVLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:10:22 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:45983
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1161466AbWHDVKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:10:20 -0400
-Date: Fri, 4 Aug 2006 14:10:11 -0700
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [BUG -rt] Double OOPs - thread_info free race / printk recursive lock
-Message-ID: <20060804211011.GA20342@gnuppy.monkey.org>
-References: <200608041043.06446.dvhltc@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608041043.06446.dvhltc@us.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+	Fri, 4 Aug 2006 17:11:16 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:49144 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1161468AbWHDVLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:11:15 -0400
+Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
+From: Daniel Walker <dwalker@mvista.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <1154721210.5327.58.camel@localhost.localdomain>
+References: <20060804032414.304636000@mvista.com>
+	 <20060804032522.865606000@mvista.com>
+	 <1154721210.5327.58.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 14:11:01 -0700
+Message-Id: <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 10:43:05AM -0700, Darren Hart wrote:
-> We've seen very rarely over the last few months, on various -rt kernels.  The 
-> latest reproduction is on 2.6.16-rt22 (+some minor fixups).  Analysis of the 
-> vmcore produced by kdump suggests two problems: 
-> 1) An invalid pointer dereference in cache_flusharray() which causes the page
-> fault.  
+On Fri, 2006-08-04 at 12:53 -0700, john stultz wrote:
+> 
+> Hmmmm. Yea, some additional discussion here would probably be needed
+> 
+> At the moment, I'd prefer to keep the clocksource_adjust bits with the
+> timekeeping code, however I'd also prefer to remove the timekeeping
+> specific fields (cycle_last, cycle_interval, xtime_nsec, xtime_interval,
+> error) from the clocksource structure and instead keep them in a
+> timekeeping specific structure (which may also point to a clocksource).
+> 
+> This would keep a clean separation between the clocksource's abstraction
+> that keeps as little state as possible and the timekeeping code's
+> internal state. However the point you bring up above is an interesting
+> issue: Do all users of the generic clocksource structure want the
+> clocksource to be NTP adjusted? 
 
-My guess is that this is after some bogus stuff going on after the real event.
+Since the output from the clocksource is a lowlevel timestamp I don't
+think the users of it would want it to be ntp adjusted. It would also be
+a little odd, since the ntp adjustment would be attached only to a
+single clock.
 
-> 2) Then printk calls kmalloc when trying to print the oops, which grabs a
-> recursive lock and prints a different oops.  
+> If we allow for non-ntp adjusted access to the clocksources, we may have
+> consistency issues between users comparing say sched_clock() and
+> clock_gettime() intervals. Further, if those users do want NTP adjusted
+> counters, why aren't they just using the timekeeping subsystem?
 
-Can't say for sure, but this sounds a lot like the problem I've been dealing
-with in free_task(). The stack trace is pretty contorted and it's been difficult
-to unwind it in any meaningful manner, although I'm making progress.  Writing
-some tools to deal with this now.
+I imagine the users of the interface would be compartmentalized. Taking
+sched_clock as an example the output is only compared to itself and not
+to output from other interfaces.
 
-bill
+> This does put some question as to what exactly would be the uses of the
+> clocksource structure outside of the timekeeping realm. Sure,
+> sched_clock() is a reasonable example, although since sched_clock has
+> such specific latency needs (we probably shouldn't go touching off-chip
+> hardware on every sched_clock call) and can be careful to avoid TSC skew
+> unlike the timekeeping code, its selection algorithm is going to be very
+> arch specific. So I'm not sure its really an ideal use of the
+> clocksource interface (as its not too difficult to just keep sched_clock
+> arch specific).
+
+Part of the reason to have a generic sched_clock() (and the generic
+clocksource interface in general) is to eliminate the inefficienty of
+duplicating shift and mult functionality in each arch (and on ARM it's
+per board). So if you correctly implement a clocksource structure for
+your hardware you will at least expose a usable sched_clock() and
+generic timeofday. Then if we add more users of the interface then more
+functionality is exposed.
+
+Another instances of this is when instrumentation is needing a of fast
+low level timestamp. In the past to accomplish this one would need a per
+arch change to read a clock, then potentially duplicate a shift and mult
+type computation in order to covert to nanosecond. One good example of
+this is latency tracing in the -rt tree. I can imagine some good and
+valid instrumentation having a long road of acceptable because the time
+stamping portion would need to flow through several different arch and
+potentially board maintainers.
+
+I've also imagined that some usage of jiffies could be converted to use
+this interface if it was appropriate. Since jiffies is hooked to the
+tick, and the tick is getting more and more irregular, a clocksource
+might be a relatively good replacement. 
+
+> I do feel making the abstraction clean and generic is a good thing just
+> for code readability (and I very much appreciate your work here!), but
+> I'm not really sure that the need for clocksource access outside the
+> timekeeping subsystem has been well expressed. Do you have some other
+> examples other then sched_clock that might show further uses for this
+> abstraction?
+
+I've converted latency tracing to an earlier version of the API , but I
+don't have any other examples prepared. I think it's important to get
+the API settled before I start converting anything else.
+
+Daniel
 

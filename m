@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWHDF76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbWHDF7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161067AbWHDF76 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWHDF75
+	id S1161059AbWHDF7e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWHDF7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:59:57 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:35598 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161061AbWHDF7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:59:55 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: chris.leech@gmail.com (Chris Leech)
+	Fri, 4 Aug 2006 01:59:34 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:41941 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1161061AbWHDF7c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 01:59:32 -0400
+Date: Fri, 4 Aug 2006 09:58:53 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>
+Cc: herbert@gondor.apana.org.au, arnd@arndnet.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
 Subject: Re: problems with e1000 and jumboframes
-Cc: arnd@arndnet.de, johnpol@2ka.mipt.ru, olel@ans.pl,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <41b516cb0608031334s6e159e99tb749240f44ae608d@mail.gmail.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1G8sif-0003oY-00@gondolin.me.apana.org.au>
-Date: Fri, 04 Aug 2006 15:59:37 +1000
+Message-ID: <20060804055853.GA413@2ka.mipt.ru>
+References: <20060803135925.GA28348@2ka.mipt.ru> <E1G8sbw-0003mT-00@gondolin.me.apana.org.au> <20060803.225501.77357103.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060803.225501.77357103.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 04 Aug 2006 09:58:55 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Leech <chris.leech@gmail.com> wrote:
+On Thu, Aug 03, 2006 at 10:55:01PM -0700, David Miller (davem@davemloft.net) wrote:
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Fri, 04 Aug 2006 15:52:40 +1000
 > 
-> We could try and only use page allocations for older e1000 devices,
-> putting headers and payload into skb->frags and copying the headers
-> out into the skb->data area as needed for processing.  That would do
-> away with large allocations, but in Jesse's experiments calling
-> alloc_page() is slower than kmalloc(), so there can actually be a
-> performance hit from trying to use page allocations all the time.
+> > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > 
+> > > But it does not support splitting them into page sized chunks, so it
+> > > requires the whole jumbo frame allocation in one contiguous chunk, 9k
+> > > will be transferred into 16k allocation (order 3), since SLAB uses
+> > > power-of-2 allocation.
+> > 
+> > Actually order 3 is 32KB.
 
-Interesting.  Could you guys post figures on alloc_page speed vs. kmalloc?
+Yep, e1000 align 9k to 16k, then alloc_skb adds shared info and align it
+to 32k.
 
-Also, getting memory slower is better than not getting them at all :)
+> It's 64KB on my computer :)
+
+Nice overhead...
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+	Evgeniy Polyakov

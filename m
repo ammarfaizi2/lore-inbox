@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWHDTpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWHDTrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161363AbWHDTpr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWHDTpr
+	id S932605AbWHDTrm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWHDTrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:45:47 -0400
-Received: from enyo.dsw2k3.info ([195.71.86.239]:31439 "EHLO enyo.dsw2k3.info")
-	by vger.kernel.org with ESMTP id S932605AbWHDTpr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:45:47 -0400
-Message-ID: <44D3A3DF.9000307@citd.de>
-Date: Fri, 04 Aug 2006 21:45:35 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Stability-Problem of EHCI with a larger number
- of USB-Hubs/Devices
-References: <44C126C3.9000105@citd.de> <200608041108.19549.david-b@pacbell.net>
-In-Reply-To: <200608041108.19549.david-b@pacbell.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 15:47:42 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:34720 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932605AbWHDTrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 15:47:41 -0400
+Date: Fri, 4 Aug 2006 15:45:49 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Antonio Vargas <windenntw@gmail.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+Subject: Re: A proposal - binary
+Message-ID: <20060804194549.GA5897@ccure.user-mode-linux.org>
+References: <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org> <1154667875.11382.37.camel@localhost.localdomain> <20060803225357.e9ab5de1.akpm@osdl.org> <1154675100.11382.47.camel@localhost.localdomain> <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz> <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com> <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> Did you try with 2.6.18-rc3?  There's a Kconfig option for an
-> improved interrupt scheduler, which might help especially with
-> all those low speed devices.
+On Fri, Aug 04, 2006 at 12:06:28PM -0700, David Lang wrote:
+> I understand this, but for example a UML 2.6.10 kernel will continue to run 
+> unmodified on top of a 2.6.17 kernel, the ABI used is stable. however if 
+> you have a 2.6.10 host with a 2.6.10 UML guest and want to run a 2.6.17 
+> guest you may (but not nessasarily must) have to upgrade the host to 2.6.17 
+> or later.
 
-I hadn't but i just did.
-(I guess you meant CONFIG_USB_EHCI_TT_NEWSCHED=y)
+Why might you have to do that?
 
-The behaviour was different, every light went on and the syslog went 
-silent. I could switch on one of the HDDs and i could see it in 
-/proc/partitions. But then everything completly broke down and syslog 
-was flooded after some time all lights went out.
-
-Do you want/need the syslog?
-
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
-
+				Jeff

@@ -1,78 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbWHDNOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWHDNOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161135AbWHDNOm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 09:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbWHDNOh
+	id S1030337AbWHDNOe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 09:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWHDNOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 09:14:37 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:9175 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030323AbWHDNOQ (ORCPT
+	Fri, 4 Aug 2006 09:14:33 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:7632 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030337AbWHDNOV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 09:14:16 -0400
-Date: Fri, 4 Aug 2006 07:13:51 -0600
+	Fri, 4 Aug 2006 09:14:21 -0400
+Date: Fri, 4 Aug 2006 07:13:57 -0600
 From: Keith Mannthey <kmannth@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, discuss@x86-64.org, Keith Mannthey <kmannth@us.ibm.com>,
        ak@suse.de, lhms-devel@lists.sourceforge.net,
        kamezawa.hiroyu@jp.fujitsu.com
-Message-Id: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-Subject: [PATCH 1/10] hot-add-mem x86_64: acpi motherboard fix
+Message-Id: <20060804131357.21401.99062.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+Subject: [PATCH 2/10] hot-add-mem x86_64: fixup externs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is the first of 10 patches.  They were built ontop of Kames 6 patches sent out
-within the last few days ([RFC][PATCH] fix ioresouce handling take2 [1/5] was 
-the first).  Kames patches fix several real isses and with the 6th patch they
-are complete from my point of view. 
-
-I have worked to integrate the feedback I recived on the last round of patches
-and welcome more ideas/advice. Thanks to everyone who has provied input on
-these patches already. 
-
-This patch set allow SPARSEMEM and RESERVE based hot-add to work.  I have
-test both options and they work as expected.  I am adding memory to the 
-2nd node of a numa system (x86_64).    
-
-Major changes from last set is the config change and RESERVE enablment. 
-
-
 From: Keith Mannthey <kmannth@us.ibm.com>
 
-Make ACPI motherboard driver not attach to devices/handles it dosen't expect. 
-Fix a bug where the motherboard driver attached to hot-add memory event and 
-caused the add memory call to fail. 
+fixup externs in memory_hotplug.c.  Cleanup. 
 
 Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
 ---
-motherboard.c |    8 +++++++-
-1 files changed, 7 insertions(+), 1 deletion(-)
+ include/linux/memory_hotplug.h |    2 ++
+ include/linux/mm.h             |    2 ++
+ mm/memory_hotplug.c            |    4 ----
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -urN orig/drivers/acpi/motherboard.c work/drivers/acpi/motherboard.c
---- orig/drivers/acpi/motherboard.c	2006-07-28 13:57:35.000000000 -0400
-+++ work/drivers/acpi/motherboard.c	2006-07-28 16:39:22.000000000 -0400
-@@ -87,6 +87,7 @@
- 		}
- 	} else {
- 		/* Memory mapped IO? */
-+		 return -EINVAL;
- 	}
+diff -urN orig/include/linux/memory_hotplug.h current/include/linux/memory_hotplug.h
+--- orig/include/linux/memory_hotplug.h	2006-08-04 00:41:19.000000000 -0400
++++ current/include/linux/memory_hotplug.h	2006-08-04 00:50:34.000000000 -0400
+@@ -172,5 +172,7 @@
+ extern int add_memory(int nid, u64 start, u64 size);
+ extern int arch_add_memory(int nid, u64 start, u64 size);
+ extern int remove_memory(u64 start, u64 size);
++extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
++								int nr_pages);
  
- 	if (requested_res)
-@@ -96,11 +97,16 @@
+ #endif /* __LINUX_MEMORY_HOTPLUG_H */
+diff -urN orig/include/linux/mm.h current/include/linux/mm.h
+--- orig/include/linux/mm.h	2006-08-04 00:41:19.000000000 -0400
++++ current/include/linux/mm.h	2006-08-04 00:47:49.000000000 -0400
+@@ -884,6 +884,8 @@
+ extern void show_mem(void);
+ extern void si_meminfo(struct sysinfo * val);
+ extern void si_meminfo_node(struct sysinfo *val, int nid);
++extern void zonetable_add(struct zone *zone, int nid, int zid, 
++					unsigned long pfn, unsigned long size);
  
- static int acpi_motherboard_add(struct acpi_device *device)
+ #ifdef CONFIG_NUMA
+ extern void setup_per_cpu_pageset(void);
+diff -urN orig/mm/memory_hotplug.c current/mm/memory_hotplug.c
+--- orig/mm/memory_hotplug.c	2006-08-04 00:42:02.000000000 -0400
++++ current/mm/memory_hotplug.c	2006-08-04 00:47:49.000000000 -0400
+@@ -24,8 +24,6 @@
+ 
+ #include <asm/tlbflush.h>
+ 
+-extern void zonetable_add(struct zone *zone, int nid, int zid, unsigned long pfn,
+-			  unsigned long size);
+ static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
  {
-+	acpi_status status;
- 	if (!device)
- 		return -EINVAL;
--	acpi_walk_resources(device->handle, METHOD_NAME__CRS,
-+
-+	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
- 			    acpi_reserve_io_ranges, NULL);
- 
-+	if (ACPI_FAILURE(status)) 
-+		return -ENODEV;
-+	
+ 	struct pglist_data *pgdat = zone->zone_pgdat;
+@@ -45,8 +43,6 @@
  	return 0;
  }
  
+-extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
+-				  int nr_pages);
+ static int __add_section(struct zone *zone, unsigned long phys_start_pfn)
+ {
+ 	int nr_pages = PAGES_PER_SECTION;

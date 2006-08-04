@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161261AbWHDQHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161279AbWHDQM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161261AbWHDQHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 12:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161276AbWHDQHJ
+	id S1161279AbWHDQM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 12:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161280AbWHDQM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 12:07:09 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:43134 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161261AbWHDQHH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 12:07:07 -0400
-Message-ID: <44D36FB5.3050002@sw.ru>
-Date: Fri, 04 Aug 2006 20:03:01 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru> <20060804153123.GB32412@in.ibm.com>
-In-Reply-To: <20060804153123.GB32412@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 4 Aug 2006 12:12:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51115 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161279AbWHDQM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 12:12:27 -0400
+Subject: Re: [RFC][PATCH] A generic boolean
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Jeff Garzik <jeff@garzik.org>, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <44D36E8B.4040705@sgi.com>
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	 <44BE9E78.3010409@garzik.org>  <yq0lkq4vbs3.fsf@jaguar.mkp.net>
+	 <1154702572.23655.226.camel@localhost.localdomain>
+	 <44D35B25.9090004@sgi.com>
+	 <1154706687.23655.234.camel@localhost.localdomain>
+	 <44D36E8B.4040705@sgi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 04 Aug 2006 17:30:24 +0100
+Message-Id: <1154709025.23655.246.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>OpenVZ assumes that tasks can't move between task-groups for a single 
->>reason:
->>user shouldn't be able to escape from the container.
->>But this have no implication on the design/implementation.
+Ar Gwe, 2006-08-04 am 17:58 +0200, ysgrifennodd Jes Sorensen:
+> > You don't use bool for talking to hardware, you use it for the most
+> > efficient compiler behaviour when working with true/false values.
 > 
-> 
-> Doesnt the ability to move tasks between groups dynamically affect
-> (atleast) memory controller design (in giving up ownership etc)?
-we save object owner on the object. So if you change the container,
-objects are still correctly charged to the creator and are uncharged
-correctly on free.
+> Thats the problem, people will start putting them into structs, and
+> voila all alignment predictability has gone out the window.
 
-> Also if we need to support this movement, we need to have some
-> corresponding system call/file-system interface which supports this move 
-> operation.
-it can be done by the same syscall or whatever which sets your
-container group.
-we have the same syscall for creating/setting/entering to the container.
-i.e. chaning the container dynamically doesn't change the interface.
+Jes, try reading as well as writing. Given you even quoted "You don't
+use bool for talking to hardware" maybe you should read it.
 
->>BTW, do you see any practical use cases for tasks jumping between 
->>resource-containers?
-> 
-> 
-> The use cases I have heard of which would benefit such a feature is
-> (say) for database threads which want to change their "resource
-> affinity" status depending on which customer query they are currently handling. 
-> If they are handling a query for a "important" customer, they will want affinied
-> to a high bandwidth resource container and later if they start handling
-> a less important query they will want to give up this affinity and
-> instead move to a low-bandwidth container.
-this works mostly for CPU only. And OpenVZ design allows to change CPU
-resource container  dynamically.
+Structure alignment is generally a bad idea anyway because even array
+and word alignment are pretty variable between processors.
 
-But such a trick works poorly for memory, because:
-1. threads share lots of resources.
-2. complex databases can have more complicated handling than a thread per request.
-  e.g. one thread servers memory pools, another one caches, some for stored procedures, some for requests etc.
-
-BTW, exactly this difference shows the reason to have different groups for different resources.
-
-Thanks,
-Kirill
 

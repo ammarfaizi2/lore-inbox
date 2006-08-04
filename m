@@ -1,31 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932622AbWHDU0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161403AbWHDUjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932622AbWHDU0O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbWHDU0O
+	id S1161403AbWHDUjp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161404AbWHDUjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:26:14 -0400
-Received: from natreg.rzone.de ([81.169.145.183]:47243 "EHLO natreg.rzone.de")
-	by vger.kernel.org with ESMTP id S932622AbWHDU0O (ORCPT
+	Fri, 4 Aug 2006 16:39:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32413 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161403AbWHDUjo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:26:14 -0400
-Date: Fri, 4 Aug 2006 22:26:02 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andi Kleen <ak@suse.de>, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Futex BUG in 2.6.18rc2-git7
-Message-ID: <20060804202602.GA24459@aepfle.de>
-References: <200608040917.00690.ak@suse.de> <20060804082637.GA19493@aepfle.de> <200608041036.47763.ak@suse.de> <1154722335.5932.243.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 4 Aug 2006 16:39:44 -0400
+Date: Fri, 4 Aug 2006 22:39:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: linux-kernel@vger.kernel.org, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       rmk@arm.linux.org.uk
+Subject: Re: [PATCH] ucb1x00-ts: handle errors from input_register_device()
+Message-ID: <20060804203927.GA14786@elf.ucw.cz>
+References: <200608012301.13155.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1154722335.5932.243.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200608012301.13155.dtor@insightbb.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 10:12:15PM +0200, Thomas Gleixner wrote:
+Hi!
 
-> Is the glibc the latest CVS version ?
+> I have not tested this (no hardware)
 
-Its a snapshot from 2006073023.
+Looks okay to me. I have hardware here, but have not tested it (no
+time, sorry).
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

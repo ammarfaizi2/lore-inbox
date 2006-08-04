@@ -1,108 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161539AbWHDWaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161421AbWHDWjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161539AbWHDWaB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 18:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161540AbWHDWaA
+	id S1161421AbWHDWjb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161428AbWHDWjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 18:30:00 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:44475 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161539AbWHDWaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 18:30:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=qik2HiGEzRj5lyXvJBNluAJBp3F4ahDxI3zbtiLBi5sFChTyawk8+BdGMLVYpiPaLwUW6vRHgJq07Xgec7f+4zJMpoPzmNgqVjX7fLHx9ndT+0gbYj9PSQaqnAxeLwkHC5ofxuUn68okAIkdkTCbV29nhxnNtZLd77rlN9zm6ag=
-Message-ID: <3df49b7b0608041529k274c3c38labe52259cee555db@mail.gmail.com>
-Date: Sat, 5 Aug 2006 00:29:59 +0200
-From: koko <citizenr@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: hda=none hda=noprobe is ignored by <=2.6.15-26
-Cc: citizenr@gmail.com
+	Fri, 4 Aug 2006 18:39:31 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:27290 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1161421AbWHDWjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:39:31 -0400
+Message-ID: <44D3CCA1.1040503@vmware.com>
+Date: Fri, 04 Aug 2006 15:39:29 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       James.Bottomley@steeleye.com, pazke@donpac.ru
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com> <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com> <200608050001.52535.ak@suse.de>
+In-Reply-To: <200608050001.52535.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First some old Ignored(sadly) links to the same bug :
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=132708
-http://lkml.org/lkml/2003/6/16/29
-http://www.gatago.com/linux/kernel/6116284.html
+Andi Kleen wrote:
+>> In the Xen case, 
+>> they may want to run a dom-0 hypervisor which is compiled for an actual 
+>> hardware sub-arch, such as Summit or ES7000. 
+>>     
+>
+> There is no reason Summit or es7000 or any other subarchitecture 
+> would need to do different  virtualization. In fact these subarchitectures 
+> are pretty much obsolete by the generic subarchitecture and could be fully
+> done by runtime switching.
+>   
 
-This bug is ASUS VIA MB specific. Asus A7V133, hda hdb empty.
+For privileged domains that have hardware privileges and need to send 
+IPIs or something it might make sense.  Othewsie, there is no issue.
 
->From Alan Cox (alan@redhat.com) 	on 2005-04-07 04:41 EST	[reply]	 	
->BIOS problem I believe not kernel. We only probe hda/hdb because the BIOS
->claims the slot may have a drive on it.
+>> I would expect to see these new sub-architectures 
+>> begin to grow like a rash. 
+>>     
+>
+> I hope not. The i386 subarchitecture setup is pretty bad already
+> and mostly obsolete for modern systems.
+>   
 
-So why kernel probes IDE channel I just ordered him to IGNORE?
+Yes, I hope not too.
 
-[snip]
-[17179569.184000] Kernel command line: root=/dev/hdc3 ro quiet splash
-hda=noprobe hdb=noprobe
-[17179569.184000] ide_setup: hda=noprobe
-[17179569.184000] ide_setup: hdb=noprobe
-[snip]
-[17179573.696000] VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100
-controller on pci0000:00:04.1
-[17179573.696000]     ide0: BM-DMA at 0xd800-0xd807, BIOS settings:
-hda:pio, hdb:pio
-[17179573.696000]     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings:
-hdc:DMA, hdd:pio
-[17179573.696000] Probing IDE interface ide0...
-[snip]
- Here we go, and ....
-[snip]
-[17179577.060000] Probing IDE interface ide0...
-[17179611.848000] ide0: Wait for ready failed before probe !
-[snip]
+>   
+>> I'm now talking lightyears into the future
+>>     
+>
+> tststs - please watch your units.
+>   
 
-almost a minute here :/
+I realized after I wrote it ;)
 
-Heres how it looks without noprobe :
-[17179572.788000] VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100
-controller on pci0000:00:04.1
-[17179572.788000]     ide0: BM-DMA at 0xd800-0xd807, BIOS settings:
-hda:pio, hdb:pio
-[17179572.788000]     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings:
-hdc:DMA, hdd:pio
-[17179572.788000] Probing IDE interface ide0...
-[17179578.248000] hda: IRQ probe failed (0xfffffcf8)
-[17179583.472000] hda: IRQ probe failed (0xfffffcf8)
-[17179583.472000] hda: no response (status = 0x0a), resetting drive
-[17179588.808000] hda: IRQ probe failed (0xfffffcf8)
-[17179588.808000] hda: no response (status = 0x0a)
-[17179594.312000] hdb: IRQ probe failed (0xfffffcf8)
-[17179599.536000] hdb: IRQ probe failed (0xfffffcf8)
-[17179599.536000] hdb: no response (status = 0x0a), resetting drive
-[17179604.872000] hdb: IRQ probe failed (0xfffffcf8)
-[17179604.872000] hdb: no response (status = 0x0a)
-[17179604.928000] Probing IDE interface ide1...
-[snip]
-[17179608.240000] Probing IDE interface ide0...
-[17179643.028000] ide0: Wait for ready failed before probe !
-[17179648.476000] hda: IRQ probe failed (0xffff7cf0)
-[17179653.700000] hda: IRQ probe failed (0xffff7cf0)
-[17179653.700000] hda: no response (status = 0x0a), resetting drive
-[17179659.036000] hda: IRQ probe failed (0xffff7cf0)
-[17179659.036000] hda: no response (status = 0x0a)
-[17179664.540000] hdb: IRQ probe failed (0xffff7cf0)
-[17179669.764000] hdb: IRQ probe failed (0xffff7cf0)
-[17179669.764000] hdb: no response (status = 0x0a), resetting drive
-[17179675.100000] hdb: IRQ probe failed (0xffff7cf0)
-[17179675.100000] hdb: no response (status = 0x0a)
-[17179675.156000] Probing IDE interface ide2...
+> I don't fully agree to move everything into paravirt ops. IMHO
+> it should be only done for stuff which is performance critical
+> or cannot be virtualized.
 
-That one takes almost 3 minutes.
+Yes, this is all just a crazy idea, not an actual proposal.
 
-Why kernel probes IDE channels twice? Why it ignores noprobe in the
-second probe? How is Asus A7V133 Bios broken (how can I check how its
-broken) and how can I fix it?
-Please dont ignore this message like kernel noprobe :)
+> And it's unlikely PCI will be ever a good fit for a Quantum computer @)
+>   
 
-PS:distro Ubuntu 6.06 and 2 random liveCD ones so its not distro specific.
+Hmm, a quantum bus would only allow one reader of each quantum bit.  So 
+you couldn't broadcast without daisy chaining everything.  Could be an 
+issue.
 
--- 
-Who logs in to gdm? Not I, said the duck.
+>> Maybe someday Xen and VMware can share the same ABI interface and both 
+>> use a VMI like layer. 
+>>     
+>
+> The problem with VMI is that while it allows hypervisor side evolution
+> it doesn't really allow Linux side evolution with its fixed spec.
+>   
+
+It doesn't stop Linux from using the provided primitives in any way is 
+sees fit.  So it doesn't top evolution in that sense.  What it does stop 
+is having the Linux hypervisor interface grow antlers and have new 
+hooves grafted onto it.  What it sorely needed in the interface is a way 
+to probe and detect optional features that allow it to grow independent 
+of one particular hypervisor vendor.
+
+Zach

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWHDFnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWHDFoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030315AbWHDFnz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWHDFni
+	id S1030326AbWHDFoG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWHDFn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:43:38 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47588 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030315AbWHDFn2 (ORCPT
+	Fri, 4 Aug 2006 01:43:57 -0400
+Received: from mail.suse.de ([195.135.220.2]:59620 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030326AbWHDFnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:43:28 -0400
-Date: Thu, 3 Aug 2006 22:38:45 -0700
+	Fri, 4 Aug 2006 01:43:43 -0400
+Date: Thu, 3 Aug 2006 22:39:06 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -18,13 +18,14 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 04/23] scx200_acb: Fix the state machine
-Message-ID: <20060804053845.GE769@kroah.com>
+       Stephen Hemminger <sch@sch-laptop.localdomain>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 07/23] sky2: NAPI bug
+Message-ID: <20060804053906.GH769@kroah.com>
 References: <20060804053258.391158155@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="i2c-01-scx200_acb-fix-state-machine.patch"
+Content-Disposition: inline; filename="sky2-napi-bug.patch"
 In-Reply-To: <20060804053807.GA769@kroah.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,49 +34,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Thomas Andrews <tandrews@grok.co.za>
+From: Stephen Hemminger <shemminger@osdl.org>
 
-Fix the scx200_acb state machine:
+If the sky2 driver decides to defer processing because it's NAPI
+packet quota is done, then it won't correctly handle the rest
+when it is rescheduled.
 
-* Nack was sent one byte too late on reads >= 2 bytes.
-* Stop bit was set one byte too late on reads.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Stephen Hemminger <sch@sch-laptop.localdomain>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/i2c/busses/scx200_acb.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/sky2.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- linux-2.6.17.7.orig/drivers/i2c/busses/scx200_acb.c
-+++ linux-2.6.17.7/drivers/i2c/busses/scx200_acb.c
-@@ -181,21 +181,21 @@ static void scx200_acb_machine(struct sc
- 		break;
+--- linux-2.6.17.7.orig/drivers/net/sky2.c
++++ linux-2.6.17.7/drivers/net/sky2.c
+@@ -2187,9 +2187,6 @@ static int sky2_poll(struct net_device *
+ 	int work_done = 0;
+ 	u32 status = sky2_read32(hw, B0_Y2_SP_EISR);
  
- 	case state_read:
--		/* Set ACK if receiving the last byte */
--		if (iface->len == 1)
-+		/* Set ACK if _next_ byte will be the last one */
-+		if (iface->len == 2)
- 			outb(inb(ACBCTL1) | ACBCTL1_ACK, ACBCTL1);
- 		else
- 			outb(inb(ACBCTL1) & ~ACBCTL1_ACK, ACBCTL1);
- 
--		*iface->ptr++ = inb(ACBSDA);
--		--iface->len;
+-	if (!~status)
+-		goto out;
 -
--		if (iface->len == 0) {
-+		if (iface->len == 1) {
- 			iface->result = 0;
- 			iface->state = state_idle;
- 			outb(inb(ACBCTL1) | ACBCTL1_STOP, ACBCTL1);
- 		}
+ 	if (status & Y2_IS_HW_ERR)
+ 		sky2_hw_intr(hw);
  
-+		*iface->ptr++ = inb(ACBSDA);
-+		--iface->len;
+@@ -2226,7 +2223,7 @@ static int sky2_poll(struct net_device *
+ 
+ 	if (sky2_more_work(hw))
+ 		return 1;
+-out:
 +
- 		break;
+ 	netif_rx_complete(dev0);
  
- 	case state_write:
+ 	sky2_read32(hw, B0_Y2_SP_LISR);
 
 --

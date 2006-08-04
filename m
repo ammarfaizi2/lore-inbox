@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWHDGJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWHDGPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWHDGJX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 02:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWHDGJW
+	id S1030247AbWHDGPr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 02:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWHDGPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 02:09:22 -0400
-Received: from ns.suse.de ([195.135.220.2]:31719 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751175AbWHDGJV (ORCPT
+	Fri, 4 Aug 2006 02:15:47 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:20403 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751251AbWHDGPq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 02:09:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: entry.s::error_code is not safe for kprobes
-Date: Fri, 4 Aug 2006 08:08:22 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <200608030623_MC3-1-C6F0-24AD@compuserve.com>
-In-Reply-To: <200608030623_MC3-1-C6F0-24AD@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 02:15:46 -0400
+Date: Fri, 4 Aug 2006 10:15:13 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Chris Leech <chris.leech@gmail.com>, arnd@arndnet.de, olel@ans.pl,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: problems with e1000 and jumboframes
+Message-ID: <20060804061513.GB413@2ka.mipt.ru>
+References: <41b516cb0608031334s6e159e99tb749240f44ae608d@mail.gmail.com> <E1G8sif-0003oY-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200608040808.22385.ak@suse.de>
+In-Reply-To: <E1G8sif-0003oY-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 04 Aug 2006 10:15:14 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 August 2006 12:20, Chuck Ebbert wrote:
-> Because code marked unsafe for kprobes jumps directly to
-> entry.S::error_code, that must be marked unsafe as well.
-> The easiest way to do that is to move the page fault entry
-> point to just before error_code and let it inherit the same
-> section.
+On Fri, Aug 04, 2006 at 03:59:37PM +1000, Herbert Xu (herbert@gondor.apana.org.au) wrote:
+> Chris Leech <chris.leech@gmail.com> wrote:
+> > 
+> > We could try and only use page allocations for older e1000 devices,
+> > putting headers and payload into skb->frags and copying the headers
+> > out into the skb->data area as needed for processing.  That would do
+> > away with large allocations, but in Jesse's experiments calling
+> > alloc_page() is slower than kmalloc(), so there can actually be a
+> > performance hit from trying to use page allocations all the time.
 > 
-> Also moved all the ".previous" asm directives for kprobes
-> sections to column 1 and removed ".text" from them.
+> Interesting.  Could you guys post figures on alloc_page speed vs. kmalloc?
 
-Ok added thanks
+They probalby measured kmalloc cache access, which only falls to
+alloc_pages when cache is refilled, so it will be faster for some short
+period of time, but in general (especially for such big-sized
+allocations) it is essencially the same.
 
--Andi
+> Also, getting memory slower is better than not getting them at all :)
+
+Sure.
+
+> -- 
+> Visit Openswan at http://www.openswan.org/
+> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+-- 
+	Evgeniy Polyakov

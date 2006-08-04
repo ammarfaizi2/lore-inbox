@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161292AbWHDUjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161404AbWHDUlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161292AbWHDUjG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161403AbWHDUjG
+	id S1161404AbWHDUlE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161405AbWHDUlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:39:06 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:13472 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1161292AbWHDUjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:39:05 -0400
-Date: Fri, 4 Aug 2006 13:31:47 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-cc: Arjan van de Ven <arjan@linux.intel.com>,
-       Antonio Vargas <windenntw@gmail.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com
-Subject: Re: A proposal - binary
-In-Reply-To: <44D3A9F3.2000000@goop.org>
-Message-ID: <Pine.LNX.4.63.0608041325280.18862@qynat.qvtvafvgr.pbz>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-    <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>   
- <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>  
-  <1154667875.11382.37.camel@localhost.localdomain>    <20060803225357.e9ab5de1.akpm@osdl.org>
-    <1154675100.11382.47.camel@localhost.localdomain>   
- <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>  
- <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>  
- <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz>  <44D39F73.8000803@linux.intel.com>
-  <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz> <44D3A9F3.2000000@goop.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 4 Aug 2006 16:41:04 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:5339 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1161404AbWHDUlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 16:41:03 -0400
+Date: Fri, 4 Aug 2006 17:40:48 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Thomas Backlund <tmb@mandriva.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Hangs, EIP is at scsi_decide_disposition
+Message-ID: <20060804174048.14365f83@doriath.conectiva>
+In-Reply-To: <eatsgi$iov$1@sea.gmane.org>
+References: <20060803154237.12936.qmail@web51002.mail.yahoo.com>
+	<eatsgi$iov$1@sea.gmane.org>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.4.0-rc4 (GTK+ 2.10.1; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006, Jeremy Fitzhardinge wrote:
+Em Fri, 04 Aug 2006 01:15:07 +0300
+Thomas Backlund <tmb@mandriva.org> escreveu:
 
->> so if I understand this correctly we are saying that a kernel compiled to 
->> run on hypervisor A would need to be recompiled to run on hypervisor B, and 
->> recompiled again to run on hypervisor C, etc
->> 
->> where A could be bare hardware, B could be Xen 2, C could be Xen 3, D could 
->> be vmware, E could be vanilla Linux, etc.
->
-> Yes, but you can compile one kernel for any set of hypervisors, so if you 
-> want both Xen and VMI, then compile both in.  (You always get bare hardware 
-> support.)
+| Richard Mollel wrote:
+| > Our mandriva boxes are randomly crushing after
+| > migration to 2006.0 download version. The same
+| > hardware has had mandriva 10.0 withuptimes of over 230
+| > days....but nowadays it is hardly a week before a
+| > crash for over 6 nodes with latest kernels.
+| > 
+| 
+| The correct place to report this is:
+| 
+| http://qa.mandriva.com/
+| 
+| 
+| > I captured one of our lockups and am attaching the
+| > output of ksymoops for further interpretation by mroe
+| > experienced eyes when it comes to kernel internals.
+| > 
+| > Here is the actual error, and attached, the ksymoops
+| > interpretation of it.
+| > 
+| > Unable to handle kernel NULL pointer dereference at
+| > virtual address 000002a9
+| >  printing eip:
+| > f88642bd
+| > *pde = 3702b001
+| > Oops: 0000 [#1]
+| > SMP
+| > Modules linked in: sg nfsd exportfs raw md5 ipv6 nfs
+| > lockd nfs_acl sunrpc parport_pc lp parport e1000
+| > af_packet floppy video thermal tc1100_wmi processor
+| > fan container button battery ac ipt_LOG ipt_REJECT
+| > ipt_state ip_conntrack iptable_filter ip_tables ide_cd
+| > loop hw_random 3w_9xxx tsdev sr_mod ehci_hcd uhci_hcd
+| > usbcore evdev reiserfs sd_mod ahci ata_piix libata
+| > scsi_mod
+| > CPU:    0
+| > EIP:    0060:[<f88642bd>]    Tainted: G   M  VLI
+| > EFLAGS: 00010282   (2.6.12-22mdksmp)
+| 
+| Can you reproduce with an untainted kernel ??
+| 
+| This is what you also need to report to the above mentioned address...
 
-how can I compile in support for Xen4 on my 2.6.18 kernel? after all xen 2 and 
-xen3 are incompatable hypervisors so why wouldn't xen4 (and I realize there is 
-no xen4 yet, but there is likly to be one during the time virtual servers 
-created with 2.6.18 are still running)
+ Known issue:
 
->> this sounds like something that the distros would not support, they would 
->> pick their one hypervisor to support and leave out the others. the big 
->> problem with this is that the preferred hypervisor will change over time 
->> and people will be left with incompatable choices (or having to compile 
->> their own kernels, including having to recompile older kernels to support 
->> newer hypervisors)
->
-> Why?  That's like saying that distros will only bother to compile in one scsi 
-> driver.
->
-> The hypervisor driver is tricker than a normal kernel device driver, because 
-> in general it needs to be present from very early in boot, which precludes it 
-> from being a normal module.  There's hope that we'll be able to support 
-> hypervisor drivers as boot-time grub/multiboot modules, so you'll be able to 
-> compile up a new hypervisor driver for a particular kernel and use it without 
-> recompiling the whole thing.
+http://qa.mandriva.com/show_bug.cgi?id=19593
 
-distros don't offer kernels with all options today, why would they in the future 
-(how many distros offer seperate 486/586/K6/K7/Pentium/P2/P3/P4 kernels, none. 
-they offer a least-common denominator kernel or two instead)
+ Richard, it's a very hard to trace problem. Please add a comment
+there if you can reproduce it w/o having to run your test-case for a
+week.
 
-I also am missing something here. how can a system be compiled to do several 
-different things for the same privilaged opcode (including running that opcode) 
-without turning that area of code into a performance pig as it checks for each 
-possible hypervisor being present?
-
-David Lang
+-- 
+Luiz Fernando N. Capitulino

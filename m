@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWHCX7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWHDABm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWHCX7k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 19:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWHCX7k
+	id S1030242AbWHDABm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 20:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWHDABm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 19:59:40 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:12296 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030233AbWHCX7j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 19:59:39 -0400
-Date: Fri, 4 Aug 2006 09:59:27 +1000
-To: David Miller <davem@davemloft.net>
+	Thu, 3 Aug 2006 20:01:42 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52883
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030239AbWHDABl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 20:01:41 -0400
+Date: Thu, 03 Aug 2006 17:01:43 -0700 (PDT)
+Message-Id: <20060803.170143.20633018.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
 Cc: tytso@mit.edu, mchan@broadcom.com, linux-kernel@vger.kernel.org,
        netdev@vger.kernel.org
 Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-Message-ID: <20060803235927.GB10932@gondor.apana.org.au>
-References: <20060803201741.GA7894@thunk.org> <20060803.144845.66061203.davem@davemloft.net> <20060803235326.GC7894@thunk.org> <20060803.165654.45876296.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060803235927.GB10932@gondor.apana.org.au>
+References: <20060803235326.GC7894@thunk.org>
+	<20060803.165654.45876296.davem@davemloft.net>
+	<20060803235927.GB10932@gondor.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060803.165654.45876296.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 04:56:54PM -0700, David Miller wrote:
-> 
-> As Michael explained, it's the ASF heartbeat sent by tg3_timer() that
-> must be delivered to the chip within certain timing constraints.
-> 
-> If you had any watchdog devices on this machine, they would likely
-> trigger too and reset your machine :)
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Fri, 4 Aug 2006 09:59:27 +1000
 
-Watchdogs usually require one heartbeat every 30 seconds or so.  Does
-the ASF heartbeat need to be that frequent?
+> Watchdogs usually require one heartbeat every 30 seconds or so.  Does
+> the ASF heartbeat need to be that frequent?
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+The ASF heartbeat needs to be sent every 2 seconds.

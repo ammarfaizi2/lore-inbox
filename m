@@ -1,93 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWHDI3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWHDI3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWHDI3T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWHDI3T
+	id S1161103AbWHDI3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161104AbWHDI3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:29:19 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:55473 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030199AbWHDI3S (ORCPT
+	Fri, 4 Aug 2006 04:29:40 -0400
+Received: from mx2.go2.pl ([193.17.41.42]:26309 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1161102AbWHDI3j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:29:18 -0400
-Subject: Re: A proposal - binary
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-In-Reply-To: <20060804002107.c0f9ba25.akpm@osdl.org>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-	 <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>
-	 <1154667875.11382.37.camel@localhost.localdomain>
-	 <20060803225357.e9ab5de1.akpm@osdl.org>
-	 <1154675100.11382.47.camel@localhost.localdomain>
-	 <20060804002107.c0f9ba25.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 18:29:14 +1000
-Message-Id: <1154680155.11382.84.camel@localhost.localdomain>
+	Fri, 4 Aug 2006 04:29:39 -0400
+Date: Fri, 4 Aug 2006 10:31:58 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: linux-kernel@vger.kernel.org
+Subject: ATA: abnormal status 0x7F on port 0x142F /2.6.18-rc3
+Message-ID: <20060804083157.GA2756@ff.dom.local>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 00:21 -0700, Andrew Morton wrote:
-> On Fri, 04 Aug 2006 17:04:59 +1000
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> 
-> > On Thu, 2006-08-03 at 22:53 -0700, Andrew Morton wrote:
-> > > VMI is being proposed as an appropriate way to connect Linux to Xen.  If
-> > > that is true then no other glue is needed.
-> > 
-> > Sorry, this is wrong.
-> 
-> It's actually 100% correct.
+Hello,
 
-Err, yes.  I actually misrepresented VMI: the native implementation is
-inline (ie. no blob is required for native).  Bad Rusty.
+There is no such message in eg. 2.6.17.7 with similar config.
+Some more about the box in my yesterday message with subject:
+[ BUG: bad unlock balance detected! ]
 
-> > > > Yes, we could force native and Xen to work via VMI, but the result would
-> > > > be less clear, less maintainable, and gratuitously different from
-> > > > elsewhere in the kernel.
-> > > 
-> > > I suspect others would disagree with that.  We're at the stage of needing
-> > > to see code to settle this.
-> > 
-> > Wrong again.
-> 
-> I was referring to the VMI-for-Xen code.
+Jarek P.
 
-I know.  And I repeat, we don't have to see that part, to know that the
-result is less clear, less maintainable and gratuitously different from
-elsewhere in the kernel than the paravirt_ops approach.  We've seen
-paravirt and the VMI parts of this already.
-
-> >  We've *seen* the code for VMI, and fairly hairy.
-> 
-> I probably slept through that discussion - I don't recall that things were
-> that bad.   Do you recall the Subject: or date?
-
-Read the patches which Zach sent back in March, particularly:
-
-[RFC, PATCH 3/24] i386 Vmi interface definition
-[RFC, PATCH 4/24] i386 Vmi inline implementation
-[RFC, PATCH 5/24] i386 Vmi code patching
-
-If you want to hack on x86 arch code, you'd need to understand these.
-
-Then to see the paravirt patches go to http://ozlabs.org/~rusty/paravirt
-and look at the approximately-equivalent paravirt_ops patches:
-
-	008-paravirt-structure.patch
-	009-binary-patch.patch
-
-There's nothing in those paravirt_ops patches which will surprise any
-kernel hacker.  That's my entire point: maintainable, unsurprising,
-clear.
-
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+from dmesg:
+...
+SCSI subsystem initialized
+libata version 2.00 loaded.
+sata_via 0000:00:0f.0: version 2.0
+ACPI: PCI Interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 17
+sata_via 0000:00:0f.0: routed to hard irq line 9
+sata_via 0000:00:0f.0: enabling SATA channels (0x32)
+ata1: SATA max UDMA/133 cmd 0x1430 ctl 0x1426 bmdma 0x1400 irq 17
+ata2: SATA max UDMA/133 cmd 0x1428 ctl 0x1422 bmdma 0x1408 irq 17
+scsi0 : sata_via
+ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
+input: AT Translated Set 2 keyboard as /class/input/input0
+ata1.00: ATA-7, max UDMA/100, 78140160 sectors: LBA48 NCQ (depth 0/32)
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/100
+scsi1 : sata_via
+ata2: SATA link down (SStatus 0 SControl 310)
+ATA: abnormal status 0x7F on port 0x142F
+  Vendor: ATA       Model: FUJITSU MHV2040B  Rev: 0000
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 sda9 >
+sd 0:0:0:0: Attached scsi disk sda
+...

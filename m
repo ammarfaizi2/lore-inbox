@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWHDG3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWHDGbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWHDG3N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 02:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWHDG3N
+	id S932323AbWHDGbi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 02:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWHDGbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 02:29:13 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:51385 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932316AbWHDG3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 02:29:12 -0400
-Date: Fri, 4 Aug 2006 08:26:36 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Josh Boyer <jwboyer@gmail.com>
-cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-In-Reply-To: <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0608040826150.8519@yvahk01.tjqt.qr>
-References: <20060803204921.GA10935@kroah.com>
- <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 4 Aug 2006 02:31:38 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:14049 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932323AbWHDGbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 02:31:38 -0400
+Date: Thu, 3 Aug 2006 23:31:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dipankar@in.ibm.com
+Cc: akpm@osdl.org, vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
+ controller
+Message-Id: <20060803233113.3aa9e8b7.pj@sgi.com>
+In-Reply-To: <20060804062036.GA28137@in.ibm.com>
+References: <20060804050753.GD27194@in.ibm.com>
+	<20060803223650.423f2e6a.akpm@osdl.org>
+	<20060804062036.GA28137@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dipankar wrote:
+> f-series infrastructure
 
->> This is just a notice to everyone that Adrian is going to now be taking
->> over the 2.6.16-stable kernel branch, for him to maintain for as long as
->> he wants to.
->
-> Adrian, could you provide a bit of rationale as to why you want to do
-> this?  I'm just curious.
+Do you have a good link to follow for more on this?
 
-Competition against the "LTS" of Ubuntu, perhaps? :-)
-
-
-
-Jan Engelhardt
 -- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

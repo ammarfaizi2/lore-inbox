@@ -1,108 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHDFDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWHDFCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWHDFDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHDFDy
+	id S1751385AbWHDFCa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHDFC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:03:54 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:22981 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751392AbWHDFDx (ORCPT
+	Fri, 4 Aug 2006 01:02:29 -0400
+Received: from fsmlabs.com ([168.103.115.128]:1999 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751385AbWHDFC3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:03:53 -0400
-Date: Fri, 4 Aug 2006 10:37:53 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
-       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu controller
-Message-ID: <20060804050753.GD27194@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
+	Fri, 4 Aug 2006 01:02:29 -0400
+From: Cort Dougan <cort@hq.fsmlabs.com>
+Date: Thu, 3 Aug 2006 23:02:00 -0600
+To: linux-kernel@vger.kernel.org
+Cc: zwane@fsmlabs.com
+Subject: automated Linux Regression suite
+Message-ID: <20060804050200.GA22923@hq.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resource management has been talked about quite extensively in the
-past, more recently in the context of containers. The basic requirement
-here is to provide isolation between *groups* of task wrt their use
-of various resources like CPU, Memory, I/O bandwidth, open file-descriptors etc.
+I saw the talk by Greg Kroah-Hartman at
+http://www.kroah.com/log/linux/ols_2006_keynote.html and wanted to correct
+a mistake (perhaps itself a myth).
 
-Different maintainers have however expressed different opinions over the need to
-complicate the kernel to meet this need, especially since it involves core 
-kernel code like the resource schedulers. 
+A regression suite, fully automated, has existed for Linux since I was
+running the PPC tree in the 90's.  I still use an extensive and very much
+upgraded version here at FSMLabs.  There will be a C/C++ Journal article on
+it in the next few months but there is a link describing it and how to
+re-implement it here:
 
-A BoF was hence held at OLS this year to come to a consensus on the minimum 
-requirements of a resource management solution for Linux kernel. Some notes 
-taken at the BoF are posted here:
+http://www2.fsmlabs.com/~cort/papers/sparky/sparky.pdf
+http://www2.fsmlabs.com/~cort/papers/sparky/sparky.nohead.html
 
-	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0607.3/0896.html
+It tests FreeBSD, NetBSD and Linux for PowerPC, x86, x86-64, FRV, MIPS, 
+ARM, XScale and IXP.  It tests user-land, kernel functionality, RTLinux and
+RTCore along with all of our realtime drivers.
 
-An important consensus point of the BoF seemed to be "focus on real 
-controllers more, preferably memory first, using some simple interface
-and task grouping mechanism".
-
-In going forward, following points will need to be addressed:
-
-	- Grouping and interface
-		- What mechanism to use for grouping tasks and
-		  for specifying task-group resource usage limits?
-	- Design of individual resource controllers like memory and cpu
-
-This patch series is an attempt to take forward the design discussion of a
-CPU controller.
-
-For simplicity and convenience, cpuset has been chosen as the means to group 
-tasks here, primarily because cpuset already exists in the kernel and also 
-perhaps resource container definition should be unique only inside a cpuset.
-
-Also I think the controller design can be independent of the grouping
-interface and hence can work with any other grouping interface we may
-settle on finally for resource management.
-
-Other salient notes about this CPU controller:
-
-	- Is work-in-progress! I am sending this early so that I can get
-	  some feedback on the general direction in which to proceed
-	  further.  
-
-	- Works only on UP for now (boot with maxcpus=1). IMO group-aware SMP
-	  load-balancing can be met using smpnice feature. I will work on this 
-	  feature next.
-
-	- Only soft-limit is supported (work-conserving).
-
-	- Each task-group gets its own runqueue on every cpu.
-
-        - In addition, there is an active and expired array of
-          task-groups themselves. Task-groups who have expired their
-          quota are put into expired array.
-
-        - Task-groups have priorities. Priority of a task-group is the
-          same as the priority of the highest-priority runnable task it
-          has. This I feel will retain interactiveness of the system
-          as it is today.
-
-        - Scheduling the next task involves picking highest priority
-          task-group from active array first and then picking highest-priority 
-	  task within it. Both steps are O(1).
-
-        - Token are assigned to task-groups based on their assigned quota. Once 
-	  they run out of tokens, the task-group is put in an expired array. 
-	  Array switch happens when active array is empty.
-
-        - Although the algorithm is very simple, it perhaps needs more
-          refinement to handle different cases. Especially I feel task-groups 
-	  which are idle most of the time and experience bursts once in a while 
-	  will need to be handled better than in this simple scheme.
-
-I would love to hear your comments on these design aspects of the
-controller.
-
--- 
-Regards,
-vatsa
+To this day we're expanding it's coverage and capability.  It took one long
+weekend to write the first version of this system.

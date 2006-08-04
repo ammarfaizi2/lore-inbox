@@ -1,144 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161526AbWHDWQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161530AbWHDWSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161526AbWHDWQj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 18:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161530AbWHDWQj
+	id S1161530AbWHDWSR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161532AbWHDWSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 18:16:39 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:15324 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161526AbWHDWQi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 18:16:38 -0400
-Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
-From: john stultz <johnstul@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-References: <20060804032414.304636000@mvista.com>
-	 <20060804032522.865606000@mvista.com>
-	 <1154721210.5327.58.camel@localhost.localdomain>
-	 <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 15:16:35 -0700
-Message-Id: <1154729795.5327.97.camel@localhost.localdomain>
+	Fri, 4 Aug 2006 18:18:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35821 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161530AbWHDWSQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:18:16 -0400
+Date: Fri, 4 Aug 2006 15:17:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Suspend on Dell D420
+Message-Id: <20060804151758.1d3dd6bd.akpm@osdl.org>
+In-Reply-To: <200608042327.38280.rjw@sisk.pl>
+References: <20060804162300.GA26148@uio.no>
+	<200608042327.38280.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 14:11 -0700, Daniel Walker wrote:
-> On Fri, 2006-08-04 at 12:53 -0700, john stultz wrote:
+On Fri, 4 Aug 2006 23:27:38 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+
+> On Friday 04 August 2006 18:23, Steinar H. Gunderson wrote:
+> > [Please Cc me on any followups]
 > > 
-> > Hmmmm. Yea, some additional discussion here would probably be needed
+> > Hi,
 > > 
-> > At the moment, I'd prefer to keep the clocksource_adjust bits with the
-> > timekeeping code, however I'd also prefer to remove the timekeeping
-> > specific fields (cycle_last, cycle_interval, xtime_nsec, xtime_interval,
-> > error) from the clocksource structure and instead keep them in a
-> > timekeeping specific structure (which may also point to a clocksource).
+> > Suspend-to-RAM works fine on my new Dell Latitude D420 (with Core Duo) in
+> > 2.6.16, but it broke in 2.6.17 -- the machine suspends just fine, but when it
+> > resumes, the disk never spins up, the screen stays black and it just hangs.
+> > Bisecting shows that the following commit is where it broke:
 > > 
-> > This would keep a clean separation between the clocksource's abstraction
-> > that keeps as little state as possible and the timekeeping code's
-> > internal state. However the point you bring up above is an interesting
-> > issue: Do all users of the generic clocksource structure want the
-> > clocksource to be NTP adjusted? 
+> > commit 78eef01b0fae087c5fadbd85dd4fe2918c3a015f
+> > Author: Andrew Morton <akpm@osdl.org>
+> > Date:   Wed Mar 22 00:08:16 2006 -0800
+> >  
+> >     [PATCH] on_each_cpu(): disable local interrupts
+> >  
+> >     When on_each_cpu() runs the callback on other CPUs, it runs with local
+> >     interrupts disabled.  So we should run the function with local interrupts
+> >     disabled on this CPU, too.
+> >  
+> >     And do the same for UP, so the callback is run in the same environment on both
+> >     UP and SMP.  (strictly it should do preempt_disable() too, but I think
+> >     local_irq_disable is sufficiently equivalent).
+> >  
+> >     Also uninlines on_each_cpu().  softirq.c was the most appropriate file I could
+> >     find, but it doesn't seem to justify creating a new file.
+> >  
+> >     Oh, and fix up that comment over (under?) x86's smp_call_function().  It
+> >     drives me nuts.
+> > 
+> > Applying the patch in reverse against 2.6.17 (it doesn't apply cleanly, but
+> > I've done what seems to be the moral equivalent) makes the suspend work
+> > again.
+> > 
+> > Any ideas? It does not work with the latest git checkout as of today.
 > 
-> Since the output from the clocksource is a lowlevel timestamp I don't
-> think the users of it would want it to be ntp adjusted. It would also be
-> a little odd, since the ntp adjustment would be attached only to a
-> single clock.
-> 
-> > If we allow for non-ntp adjusted access to the clocksources, we may have
-> > consistency issues between users comparing say sched_clock() and
-> > clock_gettime() intervals. Further, if those users do want NTP adjusted
-> > counters, why aren't they just using the timekeeping subsystem?
-> 
-> I imagine the users of the interface would be compartmentalized. Taking
-> sched_clock as an example the output is only compared to itself and not
-> to output from other interfaces.
+> I guess the patch may interfere with the CPU hotplug badly.
 
-Agreed on both points. Although I suspect this point will need to be
-made explicit.
+Why do you think it would do that?
 
-> > This does put some question as to what exactly would be the uses of the
-> > clocksource structure outside of the timekeeping realm. Sure,
-> > sched_clock() is a reasonable example, although since sched_clock has
-> > such specific latency needs (we probably shouldn't go touching off-chip
-> > hardware on every sched_clock call) and can be careful to avoid TSC skew
-> > unlike the timekeeping code, its selection algorithm is going to be very
-> > arch specific. So I'm not sure its really an ideal use of the
-> > clocksource interface (as its not too difficult to just keep sched_clock
-> > arch specific).
-> 
-> Part of the reason to have a generic sched_clock() (and the generic
-> clocksource interface in general) is to eliminate the inefficienty of
-> duplicating shift and mult functionality in each arch (and on ARM it's
-> per board).
+>  Could you please
+> check if you can take CPU1 offline/online?
 
-Well, a coherent accumulation and NTP adjustment method for continuous
-clocksources was a big motivator for the timekeeping work. Also the
-quantity of duplicated arch specific time code is a bit larger then the
-sched_clock(), but that itself isn't a mark against utilizing
-clocksources for sched_clock().
-
->  So if you correctly implement a clocksource structure for
-> your hardware you will at least expose a usable sched_clock() and
-> generic timeofday. Then if we add more users of the interface then more
-> functionality is exposed.
-
-Well, this point might need some work. sched_clock has quite a different
-correctness/performance tradeoff when compared against timeofday. If one
-correctly implements a clocksource for something like the ACPI PM, I
-doubt they'd want to use it for sched_clock (due to its ~1us access
-latency). Additionally, since sched_clock doesn't require (for its
-original purpose, at least) the TSC synchronization that is essential
-for timekeeping, how will sched_clock determine which clocksource to use
-on a system were the TSC is unsyched and marked bad?
-
-> Another instances of this is when instrumentation is needing a of fast
-> low level timestamp. In the past to accomplish this one would need a per
-> arch change to read a clock, then potentially duplicate a shift and mult
-> type computation in order to covert to nanosecond. One good example of
-> this is latency tracing in the -rt tree. I can imagine some good and
-> valid instrumentation having a long road of acceptable because the time
-> stamping portion would need to flow through several different arch and
-> potentially board maintainers.
-
-This sounds reasonable, but also I'd question if sched_clock or
-get_cycles would be appropriate here. Further, if the mult/shift cost is
-acceptable, why not just use the timeofday as the cost will be similar.
-
-> I've also imagined that some usage of jiffies could be converted to use
-> this interface if it was appropriate. Since jiffies is hooked to the
-> tick, and the tick is getting more and more irregular, a clocksource
-> might be a relatively good replacement. 
-
-Hmmm. That'd be a harder sell for me. Probably would want those users to
-move to the timeofday, or alternatively, drive jiffies off of the
-timekeeping code rather then the interrupt handler to ensure it stays
-synced (something I'm plotting once the timekeeping code settles down).
-
-> > I do feel making the abstraction clean and generic is a good thing just
-> > for code readability (and I very much appreciate your work here!), but
-> > I'm not really sure that the need for clocksource access outside the
-> > timekeeping subsystem has been well expressed. Do you have some other
-> > examples other then sched_clock that might show further uses for this
-> > abstraction?
-> 
-> I've converted latency tracing to an earlier version of the API , but I
-> don't have any other examples prepared. I think it's important to get
-> the API settled before I start converting anything else.
-
-Again, I think your patch set looks good for the most part (its just the
-last few bits I worry about). I'm very much interested to see where you
-go with this, as I feel sched_clock (on i386 atleast) needs some love
-and attention and I'm excited to see new uses for the clocksource
-abstraction. However, I do want to make sure that we think the use cases
-out to avoid over-engineering the wrong bits.
-
-thanks
--john
-
-
+If something really wants "disable irqs on the other CPUs but not on this
+CPU" semantics then it would need to use smp_call_function and a direct
+call.  But it would be a strange thing to want to do, surely?

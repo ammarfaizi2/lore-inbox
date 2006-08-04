@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWHDHAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWHDHFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWHDHAd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 03:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWHDHAd
+	id S1161071AbWHDHFH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 03:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWHDHFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 03:00:33 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:55168 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751059AbWHDHAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 03:00:32 -0400
-Date: Fri, 4 Aug 2006 00:01:42 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Antonio Vargas <windenntw@gmail.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>, greg@kroah.com,
-       zach@vmware.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       hch@infradead.org, rusty@rustcorp.com.au, jlo@vmware.com,
-       xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
+	Fri, 4 Aug 2006 03:05:07 -0400
+Received: from ozlabs.org ([203.10.76.45]:34987 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1161071AbWHDHFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 03:05:05 -0400
 Subject: Re: A proposal - binary
-Message-ID: <20060804070142.GW2654@sequoia.sous-sol.org>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org> <20060804054002.GC11244@sequoia.sous-sol.org> <69304d110608032328r36bc0a6ase0a2dbf36d8cc519@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+In-Reply-To: <20060803225357.e9ab5de1.akpm@osdl.org>
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
+	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
+	 <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>
+	 <1154667875.11382.37.camel@localhost.localdomain>
+	 <20060803225357.e9ab5de1.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 17:04:59 +1000
+Message-Id: <1154675100.11382.47.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <69304d110608032328r36bc0a6ase0a2dbf36d8cc519@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Antonio Vargas (windenntw@gmail.com) wrote:
-> One feature I found missing at the paravirt patches is to allow the
-> user to forbid the use of paravirtualization of certain features (via
-> a bitmask on the kernel commandline for example) so that the execution
-> drops into the native hardware virtualization system. Such a feature
+On Thu, 2006-08-03 at 22:53 -0700, Andrew Morton wrote:
+> On Fri, 04 Aug 2006 15:04:35 +1000
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> > On Thu, 2006-08-03 at 21:18 -0700, Andrew Morton wrote:
+> > Everywhere in the kernel where we have multiple implementations we want
+> > to select at runtime, we use an ops struct.  Why should the choice of
+> > Xen/VMI/native/other be any different?
+> 
+> VMI is being proposed as an appropriate way to connect Linux to Xen.  If
+> that is true then no other glue is needed.
 
-There is no native harware virtualization system in this picture.  Maybe
-I'm just misunderstanding you.
+Sorry, this is wrong.  VMI was proposed as the appropriate way to
+connect Linux to Xen, *and* native, *and* VMWare's hypervisors (and
+others).  This way one Linux binary can boot on all three, using
+different VMI blobs.
 
-> would provide a big upwards compatibility for the kernel<->hypervisor
-> system. The case for this would be needing to forcefully upgrade the
-> hypervisor due to security issues and finding out that the hypervisor
-> is  incompatible at the paravirtualizatrion level, then the user would
-> be at least capable of continuing to run the old kernel with the new
-> hypervisor until the compatibility is reached again.
+> > Yes, we could force native and Xen to work via VMI, but the result would
+> > be less clear, less maintainable, and gratuitously different from
+> > elsewhere in the kernel.
+> 
+> I suspect others would disagree with that.  We're at the stage of needing
+> to see code to settle this.
 
-This seems a bit like a trumped up example, as randomly disabling a part
-of the pv interface is likely to cause correctness issues, not just
-performance degradation.
+Wrong again.  We've *seen* the code for VMI, and fairly hairy.  Seeing
+the native-implementation and Xen-implementation VMI blobs will not make
+it less hairy!
 
-Hypervisor compatibility is a slightly separate issue here.  There's two
-interfaces.  The linux paravirt interface is internal to the kernel.
-The hypervisor interface is external to the kernel.
+> >  And, of course, unlike paravirt_ops where we
+> > can change and add ops at any time, we can't similarly change the VMI
+> > interface because it's an ABI (that's the point: the hypervisor can
+> > provide the implementation).
+> 
+> hm.  Dunno.  ABIs can be uprevved.  Perhaps.
 
-kernel <--pv interface--> paravirt glue layer <--hv interface--> hypervisor
+Certainly VMI can be.  But I'd prefer to leave the excellent hackers at
+VMWare with the task of maintaining their ABI, and let Linux hackers
+(most of whom will run native) manipulate paravirt_ops freely.
 
-So changes to the hypervisor must remain ABI compatible to continue
-working with the same kernel.  This is the same requirement the kernel
-has with the syscall interface it provides to userspace.
+We're not good at maintaining ABIs.  We're going to be especially bad at
+maintaining an ABI when the 99% of us running native will never notice
+the breakage.
 
-> BTW, what is the recommended distro or kernel setup to help testing
-> the latest paravirt patches? I've got a spare machine (with no needed
-> data) at hand which could be put to good use.
+Hope that clarifies,
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 
-Distro of choice.  Current kernel with the pv patches[1], but be
-forewarned, they are very early, and not fully booting.
-
-thanks,
--chris
-
-[1] mercurial patchqueue http://ozlabs.org/~rusty/paravirt/

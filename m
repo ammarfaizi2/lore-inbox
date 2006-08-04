@@ -1,71 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWHDEad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHDFDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWHDEad (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 00:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWHDEad
+	id S1751392AbWHDFDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHDFDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 00:30:33 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:31922 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030253AbWHDEac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 00:30:32 -0400
-Date: Fri, 4 Aug 2006 13:32:10 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: kmannth@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       y-goto@jp.fujitsu.com, akpm@osdl.org
-Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
-Message-Id: <20060804133210.fffaa276.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1154665534.5925.98.camel@keithlap>
-References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154650396.5925.49.camel@keithlap>
-	<20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154656472.5925.71.camel@keithlap>
-	<20060804111550.ab30fc15.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154660408.5925.79.camel@keithlap>
-	<20060804121308.e9720b49.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154661826.5925.92.camel@keithlap>
-	<20060804124847.610791b5.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154665534.5925.98.camel@keithlap>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 4 Aug 2006 01:03:54 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:22981 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751392AbWHDFDx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 01:03:53 -0400
+Date: Fri, 4 Aug 2006 10:37:53 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
+       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+Subject: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu controller
+Message-ID: <20060804050753.GD27194@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Aug 2006 21:25:34 -0700
-keith mannthey <kmannth@us.ibm.com> wrote:
+Resource management has been talked about quite extensively in the
+past, more recently in the context of containers. The basic requirement
+here is to provide isolation between *groups* of task wrt their use
+of various resources like CPU, Memory, I/O bandwidth, open file-descriptors etc.
 
-> On Fri, 2006-08-04 at 12:48 +0900, KAMEZAWA Hiroyuki wrote:
-> > On Thu, 03 Aug 2006 20:23:46 -0700
-> > keith mannthey <kmannth@us.ibm.com> wrote:
-> 
-> > > > > What keeps 0xa0000000 to 0xa1000000 from being re-onlined by a bad call
-> > > > > to add_memory?
-> > > > 
-> > > > Usual sparsemem's add_memory() checks whether there are sections in
-> > > > sparse_add_one_section(). then add_pages() returns -EEXIST (nothing to do).
-> > > > And ioresouce collision check will finally find collision because 0-0xbffffff
-> > > > resource will conflict with 0xa0000000 to 0xa10000000 area.
-> > > > But, x86_64 's (not sparsemem) add_pages() doen't do collision check, so it panics.
-> > > 
-> > > I have paniced with your 5 patches while doing SPARSMEM....  I think
-> > > your 6th patch address the issues I was seeing.  
-> > > 
-> 
-> 
-> with the 6 patches things work as expected.  It is nice to have the
-> sysfs devices online the correct amount of memory.  
-> 
-> I was broken without this patch because invalid add_memory calls are
-> made on by box (yet another issue) during boot. 
-> 
-> I will build my patch set on top of your 6 patches. 
-> 
+Different maintainers have however expressed different opinions over the need to
+complicate the kernel to meet this need, especially since it involves core 
+kernel code like the resource schedulers. 
 
-Okay, thank you very much !
+A BoF was hence held at OLS this year to come to a consensus on the minimum 
+requirements of a resource management solution for Linux kernel. Some notes 
+taken at the BoF are posted here:
 
--Kame
+	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0607.3/0896.html
 
+An important consensus point of the BoF seemed to be "focus on real 
+controllers more, preferably memory first, using some simple interface
+and task grouping mechanism".
+
+In going forward, following points will need to be addressed:
+
+	- Grouping and interface
+		- What mechanism to use for grouping tasks and
+		  for specifying task-group resource usage limits?
+	- Design of individual resource controllers like memory and cpu
+
+This patch series is an attempt to take forward the design discussion of a
+CPU controller.
+
+For simplicity and convenience, cpuset has been chosen as the means to group 
+tasks here, primarily because cpuset already exists in the kernel and also 
+perhaps resource container definition should be unique only inside a cpuset.
+
+Also I think the controller design can be independent of the grouping
+interface and hence can work with any other grouping interface we may
+settle on finally for resource management.
+
+Other salient notes about this CPU controller:
+
+	- Is work-in-progress! I am sending this early so that I can get
+	  some feedback on the general direction in which to proceed
+	  further.  
+
+	- Works only on UP for now (boot with maxcpus=1). IMO group-aware SMP
+	  load-balancing can be met using smpnice feature. I will work on this 
+	  feature next.
+
+	- Only soft-limit is supported (work-conserving).
+
+	- Each task-group gets its own runqueue on every cpu.
+
+        - In addition, there is an active and expired array of
+          task-groups themselves. Task-groups who have expired their
+          quota are put into expired array.
+
+        - Task-groups have priorities. Priority of a task-group is the
+          same as the priority of the highest-priority runnable task it
+          has. This I feel will retain interactiveness of the system
+          as it is today.
+
+        - Scheduling the next task involves picking highest priority
+          task-group from active array first and then picking highest-priority 
+	  task within it. Both steps are O(1).
+
+        - Token are assigned to task-groups based on their assigned quota. Once 
+	  they run out of tokens, the task-group is put in an expired array. 
+	  Array switch happens when active array is empty.
+
+        - Although the algorithm is very simple, it perhaps needs more
+          refinement to handle different cases. Especially I feel task-groups 
+	  which are idle most of the time and experience bursts once in a while 
+	  will need to be handled better than in this simple scheme.
+
+I would love to hear your comments on these design aspects of the
+controller.
+
+-- 
+Regards,
+vatsa

@@ -1,36 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWHDAIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWHDAIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWHDAIL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 20:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWHDAIL
+	id S932124AbWHDAIa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 20:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWHDAIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 20:08:11 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:56593 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932124AbWHDAIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 20:08:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=blUEyEsuBFBe5TKRMZ6khI+mEIEbl2++8FjNj2K89mcHStZRy4BqkuEsxOJxXFcz3YWcqGdGXobfcqiQTGcZxgvJbLxlVbrUODv3qys/V5AUPMwIoAAo1xgPbbPrcegWb51C0T0GY5Qy/6bqXF+VNplvt4pkhp3M0ncsT6ql8Qs=
-Message-ID: <5c49b0ed0608031708g674b5e4aqfafbd0071fe3bb62@mail.gmail.com>
-Date: Thu, 3 Aug 2006 17:08:08 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [PATCH -mm] [2/2] Add the Elevator I/O scheduler
-Cc: "Andrew Morton" <akpm@osdl.org>, "Jens Axboe" <axboe@suse.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060803235556.GL25692@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 3 Aug 2006 20:08:30 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:63683 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932124AbWHDAI2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 20:08:28 -0400
+Subject: Re: [PATCH] memory hotadd fixes [3/5] find_next_system_ram catch
+	range fix
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>,
+       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060803123441.92e4ddfb.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060803123441.92e4ddfb.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 03 Aug 2006 17:08:12 -0700
+Message-Id: <1154650093.5925.42.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <5c49b0ed0608031603v5ff6208bo63847513bee1b038@mail.gmail.com>
-	 <20060803235556.GL25692@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for looking, Adrian.  Dave saw those too, and I addressed them
-in a seperate reply
+On Thu, 2006-08-03 at 12:34 +0900, KAMEZAWA Hiroyuki wrote:
+>  find_next_system_ram() is used to find available memory resource
+> at onlining newly added memory.
+> This patch fixes following problem.
+> 
+> find_next_system_ram() cannot catch this case.
+> 
+> Resource:      (start)-------------(end)
+> Section :                (start)-------------(end)
+> 
+> 
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+>  kernel/resource.c   |    3 ++-
+>  mm/memory_hotplug.c |    2 +-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> Index: linux-2.6.18-rc3/kernel/resource.c
+> ===================================================================
+> --- linux-2.6.18-rc3.orig/kernel/resource.c	2006-08-01 16:38:45.000000000 +0900
+> +++ linux-2.6.18-rc3/kernel/resource.c	2006-08-01 16:38:56.000000000 +0900
+> @@ -244,6 +244,7 @@
+>  
+>  	start = res->start;
+>  	end = res->end;
+> +	BUG_ON(start >= end);
 
-NATE
+BUG_ON seems a little strong for bad arguments to the function but I am
+ok with it. 
+
+Thanks,
+ Keith 
+

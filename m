@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWHDNOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbWHDNOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWHDNOI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 09:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWHDNOI
+	id S1161135AbWHDNOm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 09:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbWHDNOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 09:14:08 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:47830 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030300AbWHDNOG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 09:14:06 -0400
-Date: Fri, 4 Aug 2006 07:14:03 -0600
+	Fri, 4 Aug 2006 09:14:37 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:9175 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030323AbWHDNOQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 09:14:16 -0400
+Date: Fri, 4 Aug 2006 07:13:51 -0600
 From: Keith Mannthey <kmannth@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, discuss@x86-64.org, Keith Mannthey <kmannth@us.ibm.com>,
        ak@suse.de, lhms-devel@lists.sourceforge.net,
        kamezawa.hiroyu@jp.fujitsu.com
-Message-Id: <20060804131403.21401.32153.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-Subject: [PATCH 3/10] hot-add-mem x86_64: Kconfig changes
+Message-Id: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+Subject: [PATCH 1/10] hot-add-mem x86_64: acpi motherboard fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is the first of 10 patches.  They were built ontop of Kames 6 patches sent out
+within the last few days ([RFC][PATCH] fix ioresouce handling take2 [1/5] was 
+the first).  Kames patches fix several real isses and with the 6th patch they
+are complete from my point of view. 
+
+I have worked to integrate the feedback I recived on the last round of patches
+and welcome more ideas/advice. Thanks to everyone who has provied input on
+these patches already. 
+
+This patch set allow SPARSEMEM and RESERVE based hot-add to work.  I have
+test both options and they work as expected.  I am adding memory to the 
+2nd node of a numa system (x86_64).    
+
+Major changes from last set is the config change and RESERVE enablment. 
+
+
 From: Keith Mannthey <kmannth@us.ibm.com>
 
-Create Kconfig namespace for MEMORY_HOTPLUG_RESERVE and MEMORY_HOTPLUG_SPARSE. 
-This is needed to create a disticiton between the 2 paths. Selecting the high 
-level opiton of MEMORY_HOTPLUG will get you MEMORY_HOTPLUG_SPARSE if you have 
-sparsemem enabled or MEMORY_HOTPLUG_RESERVE if you are x86_64 with discontig 
-and ACPI numa support. 
-
+Make ACPI motherboard driver not attach to devices/handles it dosen't expect. 
+Fix a bug where the motherboard driver attached to hot-add memory event and 
+caused the add memory call to fail. 
 
 Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
 ---
- arch/x86_64/Kconfig |    4 ++++
- mm/Kconfig          |    7 ++++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+motherboard.c |    8 +++++++-
+1 files changed, 7 insertions(+), 1 deletion(-)
 
-diff -urN linux-2.6.18-rc3-stock/arch/x86_64/Kconfig linux-2.6.17/arch/x86_64/Kconfig
---- linux-2.6.18-rc3-stock/arch/x86_64/Kconfig	2006-07-31 21:08:04.000000000 -0400
-+++ linux-2.6.17/arch/x86_64/Kconfig	2006-07-31 21:24:54.000000000 -0400
-@@ -349,6 +349,10 @@
+diff -urN orig/drivers/acpi/motherboard.c work/drivers/acpi/motherboard.c
+--- orig/drivers/acpi/motherboard.c	2006-07-28 13:57:35.000000000 -0400
++++ work/drivers/acpi/motherboard.c	2006-07-28 16:39:22.000000000 -0400
+@@ -87,6 +87,7 @@
+ 		}
+ 	} else {
+ 		/* Memory mapped IO? */
++		 return -EINVAL;
+ 	}
  
- source "mm/Kconfig"
+ 	if (requested_res)
+@@ -96,11 +97,16 @@
  
-+config MEMORY_HOTPLUG_RESERVE
-+	def_bool y
-+	depends on (MEMORY_HOTPLUG && DISCONTIGMEM)
+ static int acpi_motherboard_add(struct acpi_device *device)
+ {
++	acpi_status status;
+ 	if (!device)
+ 		return -EINVAL;
+-	acpi_walk_resources(device->handle, METHOD_NAME__CRS,
 +
- config HAVE_ARCH_EARLY_PFN_TO_NID
- 	def_bool y
- 	depends on NUMA
-diff -urN linux-2.6.18-rc3-stock/mm/Kconfig linux-2.6.17/mm/Kconfig
---- linux-2.6.18-rc3-stock/mm/Kconfig	2006-07-31 21:08:04.000000000 -0400
-+++ linux-2.6.17/mm/Kconfig	2006-07-31 21:25:18.000000000 -0400
-@@ -115,12 +115,17 @@
- # eventually, we can have this option just 'select SPARSEMEM'
- config MEMORY_HOTPLUG
- 	bool "Allow for memory hot-add"
--	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND && ARCH_ENABLE_MEMORY_HOTPLUG
-+	depends on SPARSEMEM || X86_64_ACPI_NUMA 
-+	depends on HOTPLUG && !SOFTWARE_SUSPEND && ARCH_ENABLE_MEMORY_HOTPLUG
- 	depends on (IA64 || X86 || PPC64)
++	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+ 			    acpi_reserve_io_ranges, NULL);
  
- comment "Memory hotplug is currently incompatible with Software Suspend"
- 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND
++	if (ACPI_FAILURE(status)) 
++		return -ENODEV;
++	
+ 	return 0;
+ }
  
-+config MEMORY_HOTPLUG_SPARSE
-+	def_bool y
-+	depends on SPARSEMEM && MEMORY_HOTPLUG
-+
- # Heavily threaded applications may benefit from splitting the mm-wide
- # page_table_lock, so that faults on different parts of the user address
- # space can be handled with less contention: split it at this NR_CPUS.

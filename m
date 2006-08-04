@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWHDFio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWHDFnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbWHDFio (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWHDFio
+	id S1030266AbWHDFnP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWHDFnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:38:44 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:43392 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1030259AbWHDFin
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:38:43 -0400
-Date: Thu, 3 Aug 2006 22:40:02 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeremy Fitzhardinge <jeremy@xensource.com>, greg@kroah.com,
-       zach@vmware.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       hch@infradead.org, rusty@rustcorp.com.au, jlo@vmware.com,
-       xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-Subject: Re: A proposal - binary
-Message-ID: <20060804054002.GC11244@sequoia.sous-sol.org>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>
+	Fri, 4 Aug 2006 01:43:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8069 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030266AbWHDFnO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 01:43:14 -0400
+Date: Thu, 3 Aug 2006 22:42:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
+ controller
+Message-Id: <20060803224253.49068b98.akpm@osdl.org>
+In-Reply-To: <20060803223650.423f2e6a.akpm@osdl.org>
+References: <20060804050753.GD27194@in.ibm.com>
+	<20060803223650.423f2e6a.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060803211850.3a01d0cc.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> I must confess that I still don't "get" paravirtops.  AFACIT the VMI
-> proposal, if it works, will make that whole layer simply go away.  Which
-> is attractive.  If it works.
+On Thu, 3 Aug 2006 22:36:50 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-Paravirtops is simply a table of function which are populated by the
-hypervisor specific code at start-of-day.  Some care is taken to patch
-up callsites which are performance sensitive.  The main difference is
-the API vs. ABI distinction.  In paravirt ops case, the ABI is defined at
-compile time from source.  The VMI takes it one step further and fixes
-the ABI.  That last step is a big one.
+> I thought the most recently posted CKRM core was a fine piece of code.
 
-There are two basic issues. 1) what is the interface between the kernel
-and the glue to a hypervisor. 2) how does one call from the kernel into
-the glue layer.
+I mean, subject to more review, testing, input from stakeholders and blah,
+I'd be OK with merging the CKRM core fairly aggressively.  With just a
+minimal controller suite.  Because it is good to define the infrastructure
+and APIs for task grouping and to then let the controllers fall into place.
 
-Getting bogged down in #2, the details of the calling convention, is a
-distraction from the real issue, #1.  We are trying to actually find an
-API that is useful for multiple projects.  Paravirt_ops gives the
-flexibility to evolve the interface.
+The downside to such a strategy is that there is a risk that nobody ever
+gets around to implementing useful controllers, so it ends up dead code. 
+I'd judge that the interest in resource management is such that the risk of
+this happening is low.
+

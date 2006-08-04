@@ -1,87 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbWHDLd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWHDLhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932600AbWHDLd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 07:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWHDLd2
+	id S932463AbWHDLhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 07:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWHDLhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 07:33:28 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:54448 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932596AbWHDLd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 07:33:28 -0400
-Message-Id: <1154691206.14227.267630051@webmail.messagingengine.com>
-X-Sasl-Enc: Om3FPsVG+FQQmY2AdBNJ+YrFBG+uTmChq+ovNg9EBSjE 1154691206
-From: "Komal Shah" <komal_shah802003@yahoo.com>
-To: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Cc: jzhang@ti.com, david-b@pacbell.net, dwmw2@infradead.org, tony@atomide.com
-Content-Transfer-Encoding: 7bit
-Content-Type: multipart/mixed; boundary="_----------=_1154691206142270"; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Subject: [PATCH] OMAP: Add TI OMAP242x H4 EVM NOR flash support.
-Date: Fri, 04 Aug 2006 17:03:26 +0530
+	Fri, 4 Aug 2006 07:37:09 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:39637 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932463AbWHDLhH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 07:37:07 -0400
+Date: Fri, 4 Aug 2006 17:11:09 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu controller
+Message-ID: <20060804114109.GA28988@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154684950.23655.178.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, Aug 04, 2006 at 10:49:10AM +0100, Alan Cox wrote:
+> I think the risk is that OpenVZ has all the controls and resource
+> managers we need, while CKRM is still more research-ish. I find the
+> OpenVZ code much clearer, cleaner and complete at the moment, although
+> also much more conservative in its approach to solving problems.
 
---_----------=_1154691206142270
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Fri, 4 Aug 2006 11:33:26 UT
-
-Attached patch adds support for TI OMAP242x based H4 EVM
-board NOR flash support.
-
-Please review it and give the ack if it is OK.
-
-PS:
-Trying lkml this time, as my e-mail id is not considered "good" for linux-mtd :(
-
----Komal Shah
-http://komalshah.blogspot.com
+I think it would be nice to compare first the features provided by ckrm and 
+openvz at some point and agree upon the minimum common features we need to have 
+as we go forward. For instance I think Openvz assumes that tasks do
+not need to move between containers (task-groups), whereas ckrm provides this
+flexibility for workload management. This may have some effect on the 
+controller/interface design, no?
 
 -- 
-http://www.fastmail.fm - The way an email service should be
-
-
---_----------=_1154691206142270
-Content-Disposition: attachment; filename="0001-OMAP-Add-TI-OMAP242x-NOR-Flash.patch"
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream; name="0001-OMAP-Add-TI-OMAP242x-NOR-Flash.patch"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Fri, 4 Aug 2006 11:33:26 UT
-
-RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
-bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBU
-dWUsIDI1IEp1bCAyMDA2IDIyOjI2OjA1ICswNTMwClN1YmplY3Q6IFtQQVRD
-SF0gT01BUDogQWRkIFRJIE9NQVAyNDJ4IEg0IEVWTSBOT1IgZmxhc2ggc3Vw
-cG9ydC4KClBhdGNoIGFkZHMgc3VwcG9ydCBmb3IgVEkgT01BUDI0MnggKGh0
-dHA6Ly93d3cudGkuY29tL29tYXApCkg0IEVWTSBOT1IgRmxhc2ggc3VwcG9y
-dC4KClNpZ25lZC1vZmYtYnk6IEtvbWFsIFNoYWggPGtvbWFsX3NoYWg4MDIw
-MDNAeWFob28uY29tPgoKLS0tCgogZHJpdmVycy9tdGQvbWFwcy9vbWFwX25v
-ci5jIHwgICAxNCArKysrKysrKy0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCA4
-IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCgo3OTkzZWJlNTliMGE0
-ZGM4ZmMxYzhkZGMzOTkwNGUwZDVlYjFiZTljCmRpZmYgLS1naXQgYS9kcml2
-ZXJzL210ZC9tYXBzL29tYXBfbm9yLmMgYi9kcml2ZXJzL210ZC9tYXBzL29t
-YXBfbm9yLmMKaW5kZXggNDE4YWZmZi4uYTZlNzA1ZiAxMDA2NDQKLS0tIGEv
-ZHJpdmVycy9tdGQvbWFwcy9vbWFwX25vci5jCisrKyBiL2RyaXZlcnMvbXRk
-L21hcHMvb21hcF9ub3IuYwpAQCAtNjEsMTIgKzYxLDE0IEBAIHN0YXRpYyB2
-b2lkIG9tYXBfc2V0X3ZwcChzdHJ1Y3QgbWFwX2luZm8KIHsKIAlzdGF0aWMg
-aW50CWNvdW50OwogCi0JaWYgKGVuYWJsZSkgewotCQlpZiAoY291bnQrKyA9
-PSAwKQotCQkJT01BUF9FTUlGU19DT05GSUdfUkVHIHw9IE9NQVBfRU1JRlNf
-Q09ORklHX1dQOwotCX0gZWxzZSB7Ci0JCWlmIChjb3VudCAmJiAoLS1jb3Vu
-dCA9PSAwKSkKLQkJCU9NQVBfRU1JRlNfQ09ORklHX1JFRyAmPSB+T01BUF9F
-TUlGU19DT05GSUdfV1A7CisJaWYgKCFjcHVfaXNfb21hcDI0eHgoKSkgewor
-CQlpZiAoZW5hYmxlKSB7CisJCQlpZiAoY291bnQrKyA9PSAwKQorCQkJCU9N
-QVBfRU1JRlNfQ09ORklHX1JFRyB8PSBPTUFQX0VNSUZTX0NPTkZJR19XUDsK
-KwkJfSBlbHNlIHsKKwkJCWlmIChjb3VudCAmJiAoLS1jb3VudCA9PSAwKSkK
-KwkJCQlPTUFQX0VNSUZTX0NPTkZJR19SRUcgJj0gfk9NQVBfRU1JRlNfQ09O
-RklHX1dQOworCQl9CiAJfQogfQogCi0tIAoxLjMuMwoK
-
---_----------=_1154691206142270--
-
+Regards,
+vatsa

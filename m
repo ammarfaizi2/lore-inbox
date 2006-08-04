@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161509AbWHDVrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161515AbWHDVrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161509AbWHDVrP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161510AbWHDVrP
+	id S1161515AbWHDVrr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161513AbWHDVrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:47:15 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:63916 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161509AbWHDVrO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:47:14 -0400
-Subject: Re: [PATCH 06/28] reintroduce list of vfsmounts over superblock
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, herbert@13thfloor.at
-In-Reply-To: <20060803143953.GD920@infradead.org>
-References: <20060801235240.82ADCA42@localhost.localdomain>
-	 <20060801235244.964B79E7@localhost.localdomain>
-	 <20060803143953.GD920@infradead.org>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 14:47:08 -0700
-Message-Id: <1154728028.10109.47.camel@localhost.localdomain>
+	Fri, 4 Aug 2006 17:47:47 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:44449 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1161515AbWHDVrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:47:46 -0400
+Date: Fri, 4 Aug 2006 17:46:43 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Antonio Vargas <windenntw@gmail.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+Subject: Re: A proposal - binary
+Message-ID: <20060804214643.GA6407@ccure.user-mode-linux.org>
+References: <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org> <1154667875.11382.37.camel@localhost.localdomain> <20060803225357.e9ab5de1.akpm@osdl.org> <1154675100.11382.47.camel@localhost.localdomain> <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz> <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com> <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> <20060804194549.GA5897@ccure.user-mode-linux.org> <Pine.LNX.4.63.0608041246010.18862@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0608041246010.18862@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 15:39 +0100, Christoph Hellwig wrote:
-> On Tue, Aug 01, 2006 at 04:52:44PM -0700, Dave Hansen wrote:
-> > 
-> > We're moving a big chunk of the burden of keeping people from
-> > writing to r/o filesystems from the superblock into the
-> > vfsmount.  This requires that we consult the superblock's
-> > vfsmounts when things like remounts occur.
-> > 
-> > So, introduce a list of vfsmounts hanging off the superblock.
-> > We'll use this in a bit.
+On Fri, Aug 04, 2006 at 12:49:13PM -0700, David Lang wrote:
+> >Why might you have to do that?
 > 
-> I don't think we'll need it.  We really need to keep is someone writing
-> to this vfsmount counters in addition to is someone writing to this sb.
+> take this with a grain of salt, I'm not saying the particular versions I'm 
+> listing would require this
+> 
+> if your new guest kernel wants to use some new feature (SKAS3, time 
+> virtualization, etc) but the older host kernel didn't support some system 
+> call nessasary to implement it, you may need to upgrade the host kernel to 
+> one that provides the new features.
 
-This one was a direct request from Al:
+OK, yeah.
 
-http://article.gmane.org/gmane.linux.kernel/421029
-> BTW, it might be worth doing the following:
-> 	* reintroduce the list of vfsmounts over given superblock (protected
-> by vfsmount_lock)
-...
+Just making sure you weren't thinking that the UML and host versions
+were tied together (although a modern distro won't boot on a 2.6 UML
+on a 2.4 host because UML's TLS needs TLS support on the host...).
 
-So, I assume that there are some evil plans in the future for this as
-well.
-
-> In fact there are cases were we want a superblock to be writeable to
-> without any view into it being writeable, e.g. for journal recovery.
-
-Note that, as it stands now, the vfsmount has a flag which duplicates
-the superblock r/o flag.  It is perfectly fine to do that journal
-recovery by making the superblock r/w, but without telling any of the
-mounts about it.  All of the write requests will get blocked by the
-mount flag, and no one will ever see that the superblock changed state.
-
--- Dave
-
+				Jeff

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWHDDY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWHDDZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWHDDY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 23:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWHDDY2
+	id S1751264AbWHDDZT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 23:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWHDDZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 23:24:28 -0400
-Received: from thunk.org ([69.25.196.29]:59095 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751420AbWHDDY1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 23:24:27 -0400
-Date: Thu, 3 Aug 2006 23:23:49 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Michael Chan <mchan@broadcom.com>
-Cc: David Miller <davem@davemloft.net>, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-Message-ID: <20060804032348.GA16313@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Michael Chan <mchan@broadcom.com>,
-	David Miller <davem@davemloft.net>, herbert@gondor.apana.org.au,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au> <1154630207.3117.17.camel@rh4> <20060803201741.GA7894@thunk.org> <20060803.144845.66061203.davem@davemloft.net> <1154647699.3117.26.camel@rh4>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154647699.3117.26.camel@rh4>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Thu, 3 Aug 2006 23:25:19 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:457 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP
+	id S1751264AbWHDDZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 23:25:17 -0400
+Message-Id: <20060804032414.304636000@mvista.com>
+User-Agent: quilt/0.45-1
+Date: Thu, 03 Aug 2006 20:24:14 -0700
+From: dwalker@mvista.com
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 00/10] -mm  generic clocksoure API
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 04:28:19PM -0700, Michael Chan wrote:
-> True.  But they also have ASF enabled which requires tg3_timer() to send
-> the heartbeat periodically.  If the heartbeat is late, ASF may reset the
-> chip believing that the system has crashed.
+This patch set is meant to modify the clocksource structure and API so that it
+can be used by more than just the timekeeping code. My motivation is mainly
+that I feel the current clocksource interface could be used for much more
+than just timekeeping. So if we keep the clocksource interface (which I think
+we should) then we should get everything out of it that we can.
 
-Parden me for asking a dumb question, but what's being accomplished by
-resetting the chip if the system has crashed?  Why not reset the chip
-when the system reboots and it sees the PCI bus reset?  I guess I'm
-missing the purpose of the ASF heartbeat; why does the networking chip
-need a chip-specific watchdog?
+This set modifies the API, then converts the time keeping code over to the new
+API. I also added a generic sched_clock() which just re-uses the clocksource
+interface to provide a high quality scheduling clock (assuming a good
+clocksource). Several ARM board just output nanoseconds based on jiffies which
+is still possible with the generic sched_clock().
 
-						- Ted
+I tested this on SMP and UP x86, and compile tested for ARM.
+
+Daniel
+
+--

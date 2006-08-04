@@ -1,81 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWHDHFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWHDHGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbWHDHFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 03:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWHDHFH
+	id S1161073AbWHDHGK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 03:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWHDHGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 03:05:07 -0400
-Received: from ozlabs.org ([203.10.76.45]:34987 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1161071AbWHDHFF (ORCPT
+	Fri, 4 Aug 2006 03:06:10 -0400
+Received: from 1wt.eu ([62.212.114.60]:23565 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1161073AbWHDHGI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 03:05:05 -0400
-Subject: Re: A proposal - binary
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-In-Reply-To: <20060803225357.e9ab5de1.akpm@osdl.org>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-	 <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>
-	 <1154667875.11382.37.camel@localhost.localdomain>
-	 <20060803225357.e9ab5de1.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 17:04:59 +1000
-Message-Id: <1154675100.11382.47.camel@localhost.localdomain>
+	Fri, 4 Aug 2006 03:06:08 -0400
+Date: Fri, 4 Aug 2006 08:56:23 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jukka Partanen <jspartanen@gmail.com>, kkeil@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.32] Fix AVM C4 ISDN card init problems with newer CPUs
+Message-ID: <20060804065623.GA24404@1wt.eu>
+References: <d50597c30608030953l41e8661dg1c10faeac31cc87f@mail.gmail.com> <1154627776.23655.106.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154627776.23655.106.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 22:53 -0700, Andrew Morton wrote:
-> On Fri, 04 Aug 2006 15:04:35 +1000
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Thu, Aug 03, 2006 at 06:56:15PM +0100, Alan Cox wrote:
+> Ar Iau, 2006-08-03 am 19:53 +0300, ysgrifennodd Jukka Partanen:
+> > AVM C4 ISDN NIC: Add three memory barriers, taken from 2.6.7,
+> > (they are there in 2.6.17.7 too), to fix module initialization
+> > problems appearing with at least some newer Celerons and
+> > Pentium III.
 > 
-> > On Thu, 2006-08-03 at 21:18 -0700, Andrew Morton wrote:
-> > Everywhere in the kernel where we have multiple implementations we want
-> > to select at runtime, we use an ops struct.  Why should the choice of
-> > Xen/VMI/native/other be any different?
-> 
-> VMI is being proposed as an appropriate way to connect Linux to Xen.  If
-> that is true then no other glue is needed.
+> Should be using cpu_relax() I think. Its a polled busy loop so you want
+> other CPU threads to run if possible.
 
-Sorry, this is wrong.  VMI was proposed as the appropriate way to
-connect Linux to Xen, *and* native, *and* VMWare's hypervisors (and
-others).  This way one Linux binary can boot on all three, using
-different VMI blobs.
+You mean like this ? Here's the patch for 2.6, I'll queue the same for 2.4
+if it's alright.
 
-> > Yes, we could force native and Xen to work via VMI, but the result would
-> > be less clear, less maintainable, and gratuitously different from
-> > elsewhere in the kernel.
-> 
-> I suspect others would disagree with that.  We're at the stage of needing
-> to see code to settle this.
+> Alan
 
-Wrong again.  We've *seen* the code for VMI, and fairly hairy.  Seeing
-the native-implementation and Xen-implementation VMI blobs will not make
-it less hairy!
+Regards,
+Willy
 
-> >  And, of course, unlike paravirt_ops where we
-> > can change and add ops at any time, we can't similarly change the VMI
-> > interface because it's an ABI (that's the point: the hypervisor can
-> > provide the implementation).
-> 
-> hm.  Dunno.  ABIs can be uprevved.  Perhaps.
+>From 512d12bd7ce9c0a15dfd91a6f7c2970c92b3abdd Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Fri, 4 Aug 2006 08:50:10 +0200
+Subject: [PATCH] AVM C4 ISDN card : use cpu_relax() in busy loops
 
-Certainly VMI can be.  But I'd prefer to leave the excellent hackers at
-VMWare with the task of maintaining their ABI, and let Linux hackers
-(most of whom will run native) manipulate paravirt_ops freely.
+As suggested by Alan, use cpu_relax() in 3 busy loops : "It's a
+polled busy loop so you want other CPU threads to run if possible".
 
-We're not good at maintaining ABIs.  We're going to be especially bad at
-maintaining an ABI when the 99% of us running native will never notice
-the breakage.
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+---
+ drivers/isdn/hardware/avm/c4.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-Hope that clarifies,
-Rusty.
+diff --git a/drivers/isdn/hardware/avm/c4.c b/drivers/isdn/hardware/avm/c4.c
+index f7253b2..aee278e 100644
+--- a/drivers/isdn/hardware/avm/c4.c
++++ b/drivers/isdn/hardware/avm/c4.c
+@@ -22,6 +22,7 @@ #include <linux/capi.h>
+ #include <linux/kernelcapi.h>
+ #include <linux/init.h>
+ #include <asm/io.h>
++#include <asm/processor.h>
+ #include <asm/uaccess.h>
+ #include <linux/netdevice.h>
+ #include <linux/isdn/capicmd.h>
+@@ -150,6 +151,7 @@ static inline int wait_for_doorbell(avmc
+ 		if (!time_before(jiffies, stop))
+ 			return -1;
+ 		mb();
++		cpu_relax();
+ 	}
+ 	return 0;
+ }
+@@ -303,6 +305,7 @@ static void c4_reset(avmcard *card)
+ 			return;
+ 		c4outmeml(card->mbase+DOORBELL, DBELL_ADDR);
+ 		mb();
++		cpu_relax();
+ 	}
+ 
+ 	c4_poke(card, DC21285_ARMCSR_BASE + CHAN_1_CONTROL, 0);
+@@ -327,6 +330,7 @@ static int c4_detect(avmcard *card)
+ 			return 2;
+ 		c4outmeml(card->mbase+DOORBELL, DBELL_ADDR);
+ 		mb();
++		cpu_relax();
+ 	}
+ 
+ 	c4_poke(card, DC21285_ARMCSR_BASE + CHAN_1_CONTROL, 0);
 -- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+1.4.1
 

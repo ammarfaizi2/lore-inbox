@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWHDOva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161138AbWHDOxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161251AbWHDOva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWHDOva
+	id S1161138AbWHDOxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWHDOxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:51:30 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:42962 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161251AbWHDOv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 10:51:29 -0400
-Message-ID: <44D35EB7.4000700@in.ibm.com>
-Date: Fri, 04 Aug 2006 20:20:31 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: vatsa@in.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Sam Vilain <sam@vilain.net>,
-       linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
-       Mike Galbraith <efault@gmx.de>, sekharan@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [ RFC, PATCH 1/5 ] CPU controller - base changes
-References: <20060804050753.GD27194@in.ibm.com> <20060804050932.GE27194@in.ibm.com> <44D35AD8.2090506@sw.ru>
-In-Reply-To: <44D35AD8.2090506@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 10:53:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:52946 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161138AbWHDOxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 10:53:02 -0400
+Date: Fri, 4 Aug 2006 15:52:54 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Eric Sandeen <esandeen@redhat.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       torvalds@osdl.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, jack@suse.cz, neilb@suse.de,
+       Marcel Holtmann <marcel@holtmann.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [patch 16/23] ext3: avoid triggering ext3_error on bad NFS file handle
+Message-ID: <20060804145254.GA20640@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Eric Sandeen <esandeen@redhat.com>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
+	Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Dave Jones <davej@redhat.com>,
+	Chuck Wolber <chuckw@quantumlinux.com>,
+	Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+	alan@lxorguk.ukuu.org.uk, jack@suse.cz, neilb@suse.de,
+	Marcel Holtmann <marcel@holtmann.org>,
+	"Stephen C. Tweedie" <sct@redhat.com>
+References: <20060804053258.391158155@quad.kroah.org> <20060804054010.GQ769@kroah.com> <44D35DA0.4060403@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D35DA0.4060403@redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
-> Srivatsa,
+On Fri, Aug 04, 2006 at 09:45:52AM -0500, Eric Sandeen wrote:
+> Greg KH wrote:
+> >-stable review patch.  If anyone has any objections, please let us know.
+> >
+> >------------------
+> >From: Neil Brown <neilb@suse.de>
+> >
+> >The inode number out of an NFS file handle gets passed eventually to
+> >ext3_get_inode_block() without any checking.  If ext3_get_inode_block()
+> >allows it to trigger an error, then bad filehandles can have unpleasant
+> >effect - ext3_error() will usually cause a forced read-only remount, or a
+> >panic if `errors=panic' was used.
+> >
+> >So remove the call to ext3_error there and put a matching check in
+> >ext3/namei.c where inode numbers are read off storage.
 > 
-> AFAICS, you wanted to go the way we used in OpenVZ - 2-level scheduling.
-> However, you don't do any process balancing between runqueues taking 
-> into account
-> other groups.
+> This patch and the ext2 patch (23/23) are accomplishing the same thing in 2 
+> different ways, I think, and introducing unnecessary differences between 
+> ext2 and ext3.  I'd personally prefer to see both ext2 and ext3 handled 
+> with the get_dentry op addition, and I'd be happy to quickly whip up the 
+> ext3 patch to do this if there's agreement on this path.
 
-The plan is to do load balancing using the smpnice feature, which is yet to be 
-worked on
-
- From vatsa's comments
-
-	"Works only on UP for now (boot with maxcpus=1). IMO group-aware SMP
-	 load-balancing can be met using smpnice feature. I will work on this
-	 feature next."
-
-> What do you think about a full runqueue virtualization, so that
-> first level CPU scheduler could select task-group on any basis and then
-> arbitrary runqueue was selected for running?
-
-The patch selects the task group first, based on priority. From the patch
-
-"+    /* Pick a task group first */
-+#ifdef CONFIG_CPUMETER "
-
-Did I miss something?
-
-> 
-> Thanks,
-> Kirill
-> P.S. BTW, this patch doesn't allow hierarchy in CPU controler.
-> 
-
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+I completly agree with Eric here.  Also pushing out only the fix for one
+(and today probably the lesser used) filesystems to -stable seems wrong.

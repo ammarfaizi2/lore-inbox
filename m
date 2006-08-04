@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWHDL2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbWHDLda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932598AbWHDL2a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 07:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWHDL2a
+	id S932596AbWHDLda (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 07:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWHDLda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 07:28:30 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43195
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932594AbWHDL23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 07:28:29 -0400
-Date: Fri, 04 Aug 2006 04:28:34 -0700 (PDT)
-Message-Id: <20060804.042834.78730901.davem@davemloft.net>
-To: molle.bestefich@gmail.com
-Cc: auke-jan.h.kok@intel.com, charlieb@budge.apana.org.au,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: e100: checksum mismatch on 82551ER rev10
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060804.042024.63108922.davem@davemloft.net>
-References: <44D0D7CA.2060001@intel.com>
-	<62b0912f0608040404p59545a0asc7f5fc5f537ec32c@mail.gmail.com>
-	<20060804.042024.63108922.davem@davemloft.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 4 Aug 2006 07:33:30 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:10167 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932596AbWHDLd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 07:33:29 -0400
+Date: Fri, 04 Aug 2006 20:31:56 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [Lhms-devel] [PATCH] memory hotadd fixes [1/5] not-aligned memory hotadd handling fix
+Cc: kmannth@us.ibm.com, linux-kernel@vger.kernel.org,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       lhms-devel@lists.sourceforge.net
+In-Reply-To: <20060803163302.6D84.Y-GOTO@jp.fujitsu.com>
+References: <20060802233802.8186eb38.akpm@osdl.org> <20060803163302.6D84.Y-GOTO@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060804202233.D5D0.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Miller <davem@davemloft.net>
-Date: Fri, 04 Aug 2006 04:20:24 -0700 (PDT)
-
-> I totally agree, Intel driver maintainers generally act like complete
-> idiots in these kinds of situations.
+> > > After Keith's report of memory hotadd failure, I increased test patterns.
+> > > These patches are a result of new patterns. But I cannot cover all existing
+> > > memory layout in the world, more tests are needed.
+> > > Now, I think my patch can make things better and want this codes to be tested
+> > > in -mm.patche series is consitsts of 5 patches.
+> > 
+> > I expect the code which these patches touch is completely untested in -mm, so
+> > all we'll get is compile testing and some review.
+> > 
+> > Given that these patches touch pretty much nothing but the memory hot-add
+> > paths I'd be inclined to fast-track them into 2.6.18.  Do you agree that
+> > these patches are sufficiently safe and that the problems that they solve
+> > are sufficiently serious for us to take that approach?
+> > 
+> > Either way, could I ask that interested parties review this work closely
+> > and promptly?
 > 
-> If the EEPROM has a broken checksum, the user should have an option
-> that allows him to try and use the device anyways, end of story.
+> Hmm. I reviewed them a bit, and I couldn't find any problems.
+> 
+> However, my ia64 box is same of his. And emulation environment is very
+> close too. So, my perspective must be very similar from him.
+> I think my review is not enough. Keith-san's test is better if he can.
+> 
+> Anyway, I'll test them with -mm. Something different environment
+> may be good for test.
 
-And BTW I want to remind the entire world that the last time Intel
-cried wolf to all of us about vendors using broken EEPROMs with their
-networking chips it turned out to be a bug in one of the patches Intel
-put into the Linux driver. :-)
+I tested them (includes 6/5) with -mm.
+There is no regression on my emulation.
 
-Intel should really humble themselves and help users instead of hinder
-them.  Putting the blame on other vendors does not help users, I don't
-care how you spin it.  It only serves to make Intel look like a bunch
-of control freaks, and that pisses off users to no end.
+Acked-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Please put the option into the e100 driver to allow trying to use the
-device even if the EEPROM checksum is wrong.
 
-If an Intel developer doesn't do it, I will.
+-- 
+Yasunori Goto 
+
+

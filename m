@@ -1,104 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161468AbWHDVLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161469AbWHDVUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161468AbWHDVLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161472AbWHDVLQ
+	id S1161469AbWHDVUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161472AbWHDVUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:11:16 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:49144 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1161468AbWHDVLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:11:15 -0400
-Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
-From: Daniel Walker <dwalker@mvista.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <1154721210.5327.58.camel@localhost.localdomain>
-References: <20060804032414.304636000@mvista.com>
-	 <20060804032522.865606000@mvista.com>
-	 <1154721210.5327.58.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 14:11:01 -0700
-Message-Id: <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	Fri, 4 Aug 2006 17:20:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22995 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161469AbWHDVUN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:20:13 -0400
+Date: Fri, 4 Aug 2006 14:19:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Andreas Schwab <schwab@suse.de>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: single bit flip detector.
+Message-Id: <20060804141955.3139b20b.akpm@osdl.org>
+In-Reply-To: <20060802001626.GA14689@redhat.com>
+References: <20060801184451.GP22240@redhat.com>
+	<1154470467.15540.88.camel@localhost.localdomain>
+	<20060801223011.GF22240@redhat.com>
+	<20060801223622.GG22240@redhat.com>
+	<20060801230003.GB14863@martell.zuzino.mipt.ru>
+	<20060801231603.GA5738@redhat.com>
+	<jebqr4f32m.fsf@sykes.suse.de>
+	<20060801235109.GB12102@redhat.com>
+	<20060802001626.GA14689@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 12:53 -0700, john stultz wrote:
+On Tue, 1 Aug 2006 20:16:26 -0400
+Dave Jones <davej@redhat.com> wrote:
+
+> In case where we detect a single bit has been flipped, we spew
+> the usual slab corruption message, which users instantly think
+> is a kernel bug.  In a lot of cases, single bit errors are
+> down to bad memory, or other hardware failure.
 > 
-> Hmmmm. Yea, some additional discussion here would probably be needed
-> 
-> At the moment, I'd prefer to keep the clocksource_adjust bits with the
-> timekeeping code, however I'd also prefer to remove the timekeeping
-> specific fields (cycle_last, cycle_interval, xtime_nsec, xtime_interval,
-> error) from the clocksource structure and instead keep them in a
-> timekeeping specific structure (which may also point to a clocksource).
-> 
-> This would keep a clean separation between the clocksource's abstraction
-> that keeps as little state as possible and the timekeeping code's
-> internal state. However the point you bring up above is an interesting
-> issue: Do all users of the generic clocksource structure want the
-> clocksource to be NTP adjusted? 
+> This patch adds an extra line to the slab debug messages
+> in those cases, in the hope that users will try memtest before
+> they report a bug.
 
-Since the output from the clocksource is a lowlevel timestamp I don't
-think the users of it would want it to be ntp adjusted. It would also be
-a little odd, since the ntp adjustment would be attached only to a
-single clock.
+Well boy, this has to be the most-reviewed patch ever.  You'd think that
+I'd apply it with great confidence and warm fuzzies.
 
-> If we allow for non-ntp adjusted access to the clocksources, we may have
-> consistency issues between users comparing say sched_clock() and
-> clock_gettime() intervals. Further, if those users do want NTP adjusted
-> counters, why aren't they just using the timekeeping subsystem?
+However...
 
-I imagine the users of the interface would be compartmentalized. Taking
-sched_clock as an example the output is only compared to itself and not
-to output from other interfaces.
 
-> This does put some question as to what exactly would be the uses of the
-> clocksource structure outside of the timekeeping realm. Sure,
-> sched_clock() is a reasonable example, although since sched_clock has
-> such specific latency needs (we probably shouldn't go touching off-chip
-> hardware on every sched_clock call) and can be careful to avoid TSC skew
-> unlike the timekeeping code, its selection algorithm is going to be very
-> arch specific. So I'm not sure its really an ideal use of the
-> clocksource interface (as its not too difficult to just keep sched_clock
-> arch specific).
+From: Andrew Morton <akpm@osdl.org>
 
-Part of the reason to have a generic sched_clock() (and the generic
-clocksource interface in general) is to eliminate the inefficienty of
-duplicating shift and mult functionality in each arch (and on ARM it's
-per board). So if you correctly implement a clocksource structure for
-your hardware you will at least expose a usable sched_clock() and
-generic timeofday. Then if we add more users of the interface then more
-functionality is exposed.
+- one decl per line is more patching-friendly and a bit more idiomatic.
 
-Another instances of this is when instrumentation is needing a of fast
-low level timestamp. In the past to accomplish this one would need a per
-arch change to read a clock, then potentially duplicate a shift and mult
-type computation in order to covert to nanosecond. One good example of
-this is latency tracing in the -rt tree. I can imagine some good and
-valid instrumentation having a long road of acceptable because the time
-stamping portion would need to flow through several different arch and
-potentially board maintainers.
+- make `bad_count' an int: a uchar might overflow
 
-I've also imagined that some usage of jiffies could be converted to use
-this interface if it was appropriate. Since jiffies is hooked to the
-tick, and the tick is getting more and more irregular, a clocksource
-might be a relatively good replacement. 
+- Put a blank line between decls and code
 
-> I do feel making the abstraction clean and generic is a good thing just
-> for code readability (and I very much appreciate your work here!), but
-> I'm not really sure that the need for clocksource access outside the
-> timekeeping subsystem has been well expressed. Do you have some other
-> examples other then sched_clock that might show further uses for this
-> abstraction?
+- rename `total' to `error', remove `errors'.
 
-I've converted latency tracing to an earlier version of the API , but I
-don't have any other examples prepared. I think it's important to get
-the API settled before I start converting anything else.
+- there's no need to sum up the errors.
 
-Daniel
+- don't need to check for non-zero `errors': we know it is != POISON_FREE.
+
+- make it look non-crapful in an 80-col window.
+
+- add missing spaces in arithmetic
+
+Cc: Dave Jones <davej@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+
+diff -puN mm/slab.c~single-bit-flip-detector-tidy mm/slab.c
+--- a/mm/slab.c~single-bit-flip-detector-tidy
++++ a/mm/slab.c
+@@ -1637,11 +1637,13 @@ static void poison_obj(struct kmem_cache
+ static void dump_line(char *data, int offset, int limit)
+ {
+ 	int i;
+-	unsigned char total = 0, bad_count = 0, errors;
++	unsigned char error = 0;
++	int bad_count = 0;
++
+ 	printk(KERN_ERR "%03x:", offset);
+ 	for (i = 0; i < limit; i++) {
+ 		if (data[offset + i] != POISON_FREE) {
+-			total += data[offset + i];
++			error = data[offset + i];
+ 			bad_count++;
+ 		}
+ 		printk(" %02x", (unsigned char)data[offset + i]);
+@@ -1649,11 +1651,13 @@ static void dump_line(char *data, int of
+ 	printk("\n");
+ 
+ 	if (bad_count == 1) {
+-		errors = total ^ POISON_FREE;
+-		if (errors && !(errors & (errors-1))) {
+-			printk(KERN_ERR "Single bit error detected. Probably bad RAM.\n");
++		error ^= POISON_FREE;
++		if (!(error & (error - 1))) {
++			printk(KERN_ERR "Single bit error detected. Probably "
++					"bad RAM.\n");
+ #ifdef CONFIG_X86
+-			printk(KERN_ERR "Run memtest86+ or a similar memory test tool.\n");
++			printk(KERN_ERR "Run memtest86+ or a similar memory "
++					"test tool.\n");
+ #else
+ 			printk(KERN_ERR "Run a memory test tool.\n");
+ #endif
+_
 

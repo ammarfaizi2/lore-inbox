@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWHDQQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161278AbWHDQUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161281AbWHDQQd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 12:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161282AbWHDQQd
+	id S1161278AbWHDQUa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 12:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161282AbWHDQUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 12:16:33 -0400
-Received: from ns2.suse.de ([195.135.220.15]:54676 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161281AbWHDQQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 12:16:32 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
-       ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] A generic boolean
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-	<44BE9E78.3010409@garzik.org> <yq0lkq4vbs3.fsf@jaguar.mkp.net>
-	<1154702572.23655.226.camel@localhost.localdomain>
-	<44D35B25.9090004@sgi.com>
-	<1154706687.23655.234.camel@localhost.localdomain>
-	<44D36E8B.4040705@sgi.com> <je4pws1ofb.fsf@sykes.suse.de>
-	<44D370ED.2050605@sgi.com>
-X-Yow: RELAX!! ... This is gonna be a HEALING EXPERIENCE!!  Besides,
- I work for DING DONGS!
-Date: Fri, 04 Aug 2006 18:16:30 +0200
-In-Reply-To: <44D370ED.2050605@sgi.com> (Jes Sorensen's message of "Fri, 04
-	Aug 2006 18:08:13 +0200")
-Message-ID: <jezmekzdb5.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Fri, 4 Aug 2006 12:20:30 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:52666 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161278AbWHDQUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 12:20:30 -0400
+Message-ID: <44D373C3.2050909@sgi.com>
+Date: Fri, 04 Aug 2006 18:20:19 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jeff@garzik.org>, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se>	 <44BE9E78.3010409@garzik.org>  <yq0lkq4vbs3.fsf@jaguar.mkp.net>	 <1154702572.23655.226.camel@localhost.localdomain>	 <44D35B25.9090004@sgi.com>	 <1154706687.23655.234.camel@localhost.localdomain>	 <44D36E8B.4040705@sgi.com> <1154709025.23655.246.camel@localhost.localdomain>
+In-Reply-To: <1154709025.23655.246.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@sgi.com> writes:
+Alan Cox wrote:
+> Ar Gwe, 2006-08-04 am 17:58 +0200, ysgrifennodd Jes Sorensen:
+>>> You don't use bool for talking to hardware, you use it for the most
+>>> efficient compiler behaviour when working with true/false values.
+>> Thats the problem, people will start putting them into structs, and
+>> voila all alignment predictability has gone out the window.
+> 
+> Jes, try reading as well as writing. Given you even quoted "You don't
+> use bool for talking to hardware" maybe you should read it.
 
-> We know that today long is the only one that differs and that
-> m68k has horrible natural alignment rules for historical reasons, but
-> besides that it's pretty sane.
+Alan,
 
-Try determining the alignment of u64 on i386.  You will be surprised.
+I did read, I never suggested putting it into structs describing
+hardware registers.
 
-#include <stdio.h>
+> Structure alignment is generally a bad idea anyway because even array
+> and word alignment are pretty variable between processors.
 
-typedef long long u64;
-struct u64_s { u64 x; } x;
+It's fairly common in drivers to layout things in effective ways in
+structs relying on alignment. It can make a noticeable difference if
+you get cacheline alignment wrong. For example in network drivers where
+parts of the struct is used for receive and the other part is used for
+transmit and the two parts can run in parallel on different CPUs.
+Obviously one ends up using the aligned attribute, but the more one can
+avoid adding those on in the struct the easier it is to maintain and
+read.
 
-int main ()
-{
-  printf ("%d\n", __alignof__ (u64));
-  printf ("%d\n", __alignof__ (x));
-  return 0;
-}
+Regards,
+Jes
 
-Btw, the iptables compat code was broken due to this.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

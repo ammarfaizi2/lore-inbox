@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWHDHOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWHDHRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161075AbWHDHOL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 03:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWHDHOL
+	id S1161076AbWHDHRI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 03:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbWHDHRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 03:14:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35739 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161075AbWHDHOK (ORCPT
+	Fri, 4 Aug 2006 03:17:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:26302 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161076AbWHDHRG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 03:14:10 -0400
-Date: Fri, 4 Aug 2006 00:13:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-Message-Id: <20060804001342.1168e5ab.akpm@osdl.org>
-In-Reply-To: <20060804065615.GA26960@in.ibm.com>
-References: <20060804050753.GD27194@in.ibm.com>
-	<20060803223650.423f2e6a.akpm@osdl.org>
-	<20060804065615.GA26960@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Aug 2006 03:17:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: mingo@elte.hu
+Subject: Futex BUG in 2.6.18rc2-git7
+Date: Fri, 4 Aug 2006 09:17:00 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608040917.00690.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006 12:26:15 +0530
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-> On Thu, Aug 03, 2006 at 10:36:50PM -0700, Andrew Morton wrote:
-> > ug, I didn't know this.  Had I been there (sorry) I'd have disagreed with
-> > this whole strategy.
-> > 
-> > I thought the most recently posted CKRM core was a fine piece of code.  It
-> > provides the machinery for grouping tasks together and the machinery for
-> > establishing and viewing those groupings via configfs, and other such
-> > common functionality.  My 20-minute impression was that this code was an
-> > easy merge and it was just awaiting some useful controllers to come along.
-> > 
-> > And now we've dumped the good infrastructure and instead we've contentrated
-> > on the controller, wired up via some imaginative ab^H^Hreuse of the cpuset
-> > layer.
-> 
-> Andrew,
-> 	CPUset was used in this patch series primarily because it
-> represent a task-grouping mechanism already in the kernel and because
-> people at the BoF wanted to start with something simple. The idea of using 
-> cpusets here was not to push this as a final solution, but use it as a means to 
-> discuss the effects of task-grouping on CPU scheduler.
+One of my test machines (single socket core2 duo) running 2.6.18rc2-git7 over night 
+under moderate load threw this, followed by an endless loop of soft lockup timeouts
+(one exemplar appended)
 
-OK.
+I assume it is related to the new PI mutexes.
 
-> We had be more than happy to work with the ckrm core which was posted last.
-> In fact I had sent out the same cpu controller against ckrm core itself last
-> time around to Nick/Ingo.
+-Andi
 
-Yup.
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at ...v2.6/linux-2.6.18-rc2-git7/kernel/rtmutex_common.h:74
+invalid opcode: 0000 [1] SMP 
+CPU 0 
+Modules linked in:
+Pid: 23036, comm: ld-linux.so.2 Not tainted 2.6.18-rc2-git7 #7
+RIP: 0010:[<ffffffff80247b36>]  [<ffffffff80247b36>] rt_mutex_next_owner+0x1a/0x2c
+RSP: 0000:ffff8100033f5d70  EFLAGS: 00010207
+RAX: ffff81003dc712d0 RBX: ffff81003dc712c0 RCX: 0000000000000469
+RDX: 0000000000000000 RSI: ffff810031f907e0 RDI: ffff81003dc712d0
+RBP: ffff810003cabc48 R08: ffffffff807a4e60 R09: 0000000000000000
+R10: ffff8100033f4000 R11: 0000000000000002 R12: 00000000800059fc
+R13: 000000004013d468 R14: 000000004013d7ac R15: ffff81003dc712d0
+FS:  0000000000000000(0000) GS:ffffffff807d5000(0063) knlGS:000000004053dba0
+CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
+CR2: 000000004000ce80 CR3: 000000002e970000 CR4: 00000000000006e0
+Process ld-linux.so.2 (pid: 23036, threadinfo ffff8100033f4000, task ffff810033cf9590)
+Stack:  ffffffff80247064 0000000000000009 0000000000000009 7fffffffffffffff
+ ffff810040012ff4 00000000033f5ef8 ffffffff807a4e58 0000000000000000
+ 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+Call Trace:
+ [<ffffffff80247064>] do_futex+0x95a/0xbf5
+ [<ffffffff8024787d>] compat_sys_futex+0xfd/0x11b
+ [<ffffffff80220136>] ia32_sysret+0x0/0xa
+DWARF2 unwinder stuck at ia32_sysret+0x0/0xa
+Leftover inexact backtrace:
 
-Please don't let me derail the main intent of this work - to make some progress
-on the CPU controller.
 
-There was a lot of discussion last time - Mike, Ingo, others.  It would be
-a useful starting point if we could be refreshed on what the main issues
-were, and whether/how this new patchset addresses them.
+Code: 0f 0b 68 9b b8 54 80 c2 4a 00 48 8b 50 50 48 89 d0 c3 48 83 
+RIP  [<ffffffff80247b36>] rt_mutex_next_owner+0x1a/0x2c
+ RSP <ffff8100033f5d70>
+ <3>BUG: soft lockup detected on CPU#1!
 
+Call Trace:
+ [<ffffffff8020ae03>] dump_stack+0x12/0x17
+ [<ffffffff802520b3>] softlockup_tick+0xdb/0xed
+ [<ffffffff802397f1>] update_process_times+0x42/0x68
+ [<ffffffff80217e3b>] smp_local_timer_interrupt+0x23/0x47
+ [<ffffffff80218522>] smp_apic_timer_interrupt+0x41/0x47
+ [<ffffffff8020a215>] apic_timer_interrupt+0x65/0x6c
+DWARF2 unwinder stuck at apic_timer_interrupt+0x65/0x6c
+Leftover inexact backtrace:
+
+... same soft lockup follows forever...

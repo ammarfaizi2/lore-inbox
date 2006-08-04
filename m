@@ -1,55 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161437AbWHDXBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWHDXDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161437AbWHDXBk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 19:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161572AbWHDXBk
+	id S1422636AbWHDXDj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 19:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422643AbWHDXDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 19:01:40 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:13206 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1161437AbWHDXBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 19:01:39 -0400
-Date: Sat, 5 Aug 2006 01:00:17 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Josh Boyer <jwboyer@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060804230017.GO25692@stusta.de>
-References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com>
+	Fri, 4 Aug 2006 19:03:39 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:47271 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1422636AbWHDXDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 19:03:39 -0400
+Date: Fri, 4 Aug 2006 19:00:33 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] module interface improvement for kprobes
+To: David Smith <dsmith@redhat.com>
+Cc: Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       "David S. Miller" <davem@davemloft.net>
+Message-ID: <200608041902_MC3-1-C71C-6FC9@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 09:43:06PM -0500, Josh Boyer wrote:
-> On 8/3/06, Greg KH <greg@kroah.com> wrote:
-> >This is just a notice to everyone that Adrian is going to now be taking
-> >over the 2.6.16-stable kernel branch, for him to maintain for as long as
-> >he wants to.
-> 
-> Adrian, could you provide a bit of rationale as to why you want to do
-> this?  I'm just curious.
+In-Reply-To: <1154721061.15967.31.camel@dhcp-2.hsv.redhat.com>
 
-A long-term maintained stable series was missing in the current 
-development model.
+On Fri, 04 Aug 2006 14:51:01 -0500, David Smith wrote:
 
-The 2.6 series itself is theoretically a stable series, but the amount 
-of regressions is too big for some users.
+> > > I've added a new function, module_get_byname(), that looks up a module
+> > > by name and returns the module reference.  Note that module_get_byname()
+> > > also increments the module reference count.  It does this so that the
+> > > module won't be unloaded between the time that module_get_byname() is
+> > > called and register_kprobe() is called.
 
-> josh
+Your patch is word-wrapped.
 
-cu
-Adrian
+Also:
+
+> --- a/kernel/module.c
+> +++ b/kernel/module.c
+> @@ -291,7 +291,27 @@ static struct module *find_module(const 
+>       }
+>       return NULL;
+>  }
+> +  
+> +int module_get_byname(const char *mod_name, struct module **mod)
+> +{
+> +     *mod = NULL;
+>  
+> +     /* We must hold module_mutex before calling find_module(). */
+> +     if (mutex_lock_interruptible(&module_mutex) != 0)
+> +             return -EINTR;
+> +
+> +     *mod = find_module(mod_name);
+> +     mutex_unlock(&module_mutex);
+> +     if (*mod) {
+> +             if (!strong_try_module_get(*mod)) {
+
+What keeps the module from going away between the mutex_unlock() and
+strong_try_module_get()? It needs to be something like this:
+
+        *mod = find_module(mod_name);
+        if (*mod)
+                ret = strong_try_module_get(*mod);
+        mutex_unlock(&module_mutex);
+        if (!ret) {
+                *mod = NULL;
+                return -EINVAL;
+        }
+
+> +                     *mod = NULL;
+> +                     return -EINVAL;
+> +             }
+> +     }
+> +     return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(module_get_byname);
+> + 
+>  #ifdef CONFIG_SMP
+>  /* Number of blocks used and allocated. */
+>  static unsigned int pcpu_num_used, pcpu_num_allocated;
 
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+Chuck
 

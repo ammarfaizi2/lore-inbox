@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161327AbWHDREm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161325AbWHDRGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161327AbWHDREm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 13:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161328AbWHDREm
+	id S1161325AbWHDRGN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 13:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161326AbWHDRGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 13:04:42 -0400
-Received: from mail.zelnet.ru ([80.92.97.13]:51584 "EHLO mail.zelnet.ru")
-	by vger.kernel.org with ESMTP id S1161327AbWHDREl (ORCPT
+	Fri, 4 Aug 2006 13:06:13 -0400
+Received: from 1wt.eu ([62.212.114.60]:26893 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1161325AbWHDRGM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 13:04:41 -0400
-Message-ID: <44D37E1B.1040109@namesys.com>
-Date: Fri, 04 Aug 2006 21:04:27 +0400
-From: Edward Shishkin <edward@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org> <44D219F9.9080404@namesys.com> <44D231DF.1080804@namesys.com>
-In-Reply-To: <44D231DF.1080804@namesys.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 13:06:12 -0400
+Date: Fri, 4 Aug 2006 18:55:51 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, mtosatti@redhat.com,
+       marcelo@kvack.org
+Subject: Re: Bug with USB proc_bulk in 2.4 kernel
+Message-ID: <20060804165550.GA26701@1wt.eu>
+References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <20060802230058.0ff73025.zaitcev@redhat.com> <20060803062903.GA19176@1wt.eu> <200608040957.05034.benjamin.cherian.kernel@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608040957.05034.benjamin.cherian.kernel@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Edward Shishkin wrote:
+On Fri, Aug 04, 2006 at 09:57:04AM -0700, Benjamin Cherian wrote:
+> Willy,
 > 
+> On Wednesday 02 August 2006 23:29, Willy Tarreau wrote:
+> > Perfect. Patch queued, thanks Pete.
 > 
->>Matthias Andree wrote:
->>
->>
->>>On Tue, 01 Aug 2006, Hans Reiser wrote:
->>>
->>>
->>>
->>>>You will want to try our compression plugin, it has an ecc for every
->>>>64k....
->>>
->>>
->>>
->>>What kind of forward error correction would that be,
->>
->>
->>
->>Actually we use checksums, not ECC. If checksum is wrong, then run
->>fsck - it will remove the whole disk cluster, that represent 64K of
->>data.
-> 
-> 
-> How about we switch to ecc, which would help with bit rot not sector loss?
+> Do you know if it would be possible for this to get into 2.4.33? I know its 
+> already at rc3, but it would be nice if this patch could be pushed out sooner 
+> since 2.4.34 will probably not be out for a while. I would really appreciate 
+> it. Thanks to both you and Pete for your help.
 
-Interesting aspect.
+The problem is that Marcelo is very very busy those days (as you might have
+noticed from the delay between each release), and there are a good bunch of
+security fixes in -rc3 which should wait too much in -rc. Maybe an -rc4
+would be OK, but I don't know if Marcelo has enough time to spend on yet
+another RC. Otherwise, if I produce a 2.4.34-pre1 about one week after 2.4.33,
+does that fit your needs ? I already have a few fixes waiting which might be
+worth a first pre-release.
 
-Yes, we can implement ECC as a special crypto transform that inflates
-data. As I mentioned earlier, it is possible via translation of key
-offsets with scale factor > 1.
+> Ben
 
-Of course, it is better then nothing, but anyway meta-data remains
-ecc-unprotected, and, hence, robustness is not increased..
-
-Edward.
-
-> 
->>
->> and how much and
->>
->>
->>>what failure patterns can it correct? URL suffices.
->>>
->>
->>Checksum is checked before unsafe decompression (when trying to
->>decompress incorrect data can lead to fatal things). It can be
->>broken because of many reasons. The main one is tree corruption
->>(for example, when disk cluster became incomplete - ECC can not
->>help here). Perhaps such checksumming is also useful for other
->>things, I didnt classify the patterns..
->>
->>Edward.
->>
->>
-> 
-> 
-> 
-> 
+Regards,
+Willy
 

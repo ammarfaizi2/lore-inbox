@@ -1,101 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161280AbWHDQQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWHDQQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161280AbWHDQQC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 12:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161281AbWHDQQB
+	id S1161281AbWHDQQd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 12:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161282AbWHDQQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 12:16:01 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:182 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161280AbWHDQQA (ORCPT
+	Fri, 4 Aug 2006 12:16:33 -0400
+Received: from ns2.suse.de ([195.135.220.15]:54676 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161281AbWHDQQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 12:16:00 -0400
-Message-ID: <44D372F5.5000901@sw.ru>
-Date: Fri, 04 Aug 2006 20:16:53 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 4 Aug 2006 12:16:32 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
+       ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	<44BE9E78.3010409@garzik.org> <yq0lkq4vbs3.fsf@jaguar.mkp.net>
+	<1154702572.23655.226.camel@localhost.localdomain>
+	<44D35B25.9090004@sgi.com>
+	<1154706687.23655.234.camel@localhost.localdomain>
+	<44D36E8B.4040705@sgi.com> <je4pws1ofb.fsf@sykes.suse.de>
+	<44D370ED.2050605@sgi.com>
+X-Yow: RELAX!! ... This is gonna be a HEALING EXPERIENCE!!  Besides,
+ I work for DING DONGS!
+Date: Fri, 04 Aug 2006 18:16:30 +0200
+In-Reply-To: <44D370ED.2050605@sgi.com> (Jes Sorensen's message of "Fri, 04
+	Aug 2006 18:08:13 +0200")
+Message-ID: <jezmekzdb5.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com, saw@sawoct.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com>
-In-Reply-To: <20060804114109.GA28988@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I think the risk is that OpenVZ has all the controls and resource
->>managers we need, while CKRM is still more research-ish. I find the
->>OpenVZ code much clearer, cleaner and complete at the moment, although
->>also much more conservative in its approach to solving problems.
-> 
-> 
-> I think it would be nice to compare first the features provided by ckrm and 
-> openvz at some point and agree upon the minimum common features we need to have 
-> as we go forward. For instance I think Openvz assumes that tasks do
-> not need to move between containers (task-groups), whereas ckrm provides this
-> flexibility for workload management. This may have some effect on the 
-> controller/interface design, no?
+Jes Sorensen <jes@sgi.com> writes:
 
-BTW, to help to compare (as you noted above) here is the list of features provided by OpenVZ:
+> We know that today long is the only one that differs and that
+> m68k has horrible natural alignment rules for historical reasons, but
+> besides that it's pretty sane.
 
-Memory and some other resources related to mem
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- kernel memory. vmas, LDT, page tables, poll, select, ipc undos and many other kernel
-  structures which can be created on user requests.
-  without it's accounting/limiting a system is DoS'able.
+Try determining the alignment of u64 on i386.  You will be surprised.
 
-user memory (private memory, shared memory, tmpfs, swap):
-- locked pages
-- shmpages
-- physpages. accounting only. Correctly accounts fractions of memory
-  shared between containers. Can't be limited in a user friendly manner,
-  since memory denials from page faults are not handled from user space :/
-- private memory pages. These are private pages which has are not backed up
-  in the file or swap and which are pure user pages. These are anonymous
-  private mappings and cow-able mappings (e.g. glibc .data) which result in private memory.
-  Accounted correctly taking into acount sharing between containers (i.e. page
-  fraction is accounted).
-  This resource is limited on mmap() call.
+#include <stdio.h>
 
-others:
-- 2-level OOM killer. The most fat container should be selected to kill first.
-  We introduce some guarantee against OOM, so that if the container
-  consumes less memory than it is guaranteed to, then it won't be killed.
-- memory pinned by dcache (there is a simple DoS which can be done
-  by any Linux user to consume the whole normal zone)
-- number of iptables entries (with virtualized networking
-  containers can allocate memory for iptable rules)
-- other socket buffers (unix, netlinks)
-- TCP rcv/snd buffers
-- UDP rcv buffers
-- number of TCP sockets
-- number of unix/netlink/other sockets
-- number of flocks
-- number of ptys
-- number of siginfo's
-- number of files
-- number of tasks
+typedef long long u64;
+struct u64_s { u64 x; } x;
 
-CPU management
-~~~~~~~~~~~~~~
-1. 2 level fair CPU scheduler with known theoretical fairness and latency bounds:
-- 1st level selects a container to run based on the container weight
-- 2nd level selects a runqueue in the container and a task in the runqueue
+int main ()
+{
+  printf ("%d\n", __alignof__ (u64));
+  printf ("%d\n", __alignof__ (x));
+  return 0;
+}
 
-2. cpu limits. Limitation of the container to some CPU rate even if CPUs are idle.
+Btw, the iptables compat code was broken due to this.
 
+Andreas.
 
-2 level disk quota
-~~~~~~~~~~~~~~~~~~
-allows to limit directory subtree to some amount of disk space.
-inside this quota std linux per-user quotas are available.
-
-Thanks,
-Kirill
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbWHDHS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWHDHTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161078AbWHDHS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 03:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWHDHS7
+	id S1161079AbWHDHTr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 03:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbWHDHTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 03:18:59 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:14752 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1161078AbWHDHS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 03:18:58 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 00/23] -stable review
-Date: Fri, 04 Aug 2006 17:18:44 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <als5d2poja909k80kb5c2e2e6cuhboou7v@4ax.com>
-References: <20060804053807.GA769@kroah.com>
-In-Reply-To: <20060804053807.GA769@kroah.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Fri, 4 Aug 2006 03:19:47 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:9938 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1161079AbWHDHTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 03:19:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=E3PEUgBFx40gCC3TiJmTYzB9/vQjOeWOELPDaN/lT6H0aLb5hTNRdA+Jd5nojs6P0j3eGfrEXwa3rnYsqPjl1YcB4+UrSMF44/etjRsj9as1Iaste2fMtlEqXjdj9Sv4urslUnYQbfvSpW9RyfCFMk6ERVZw3+zpPg9TUqUqiNY=
+Message-ID: <69304d110608040019i2f68518dq4e84a96a8787b0eb@mail.gmail.com>
+Date: Fri, 4 Aug 2006 09:19:44 +0200
+From: "Antonio Vargas" <windenntw@gmail.com>
+To: "Chris Wright" <chrisw@sous-sol.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Jeremy Fitzhardinge" <jeremy@xensource.com>, greg@kroah.com,
+       zach@vmware.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       hch@infradead.org, rusty@rustcorp.com.au, jlo@vmware.com,
+       xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+Subject: Re: A proposal - binary
+In-Reply-To: <20060804070142.GW2654@sequoia.sous-sol.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
+	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
+	 <44D2B678.6060400@xensource.com>
+	 <20060803211850.3a01d0cc.akpm@osdl.org>
+	 <20060804054002.GC11244@sequoia.sous-sol.org>
+	 <69304d110608032328r36bc0a6ase0a2dbf36d8cc519@mail.gmail.com>
+	 <20060804070142.GW2654@sequoia.sous-sol.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Aug 2006 22:38:07 -0700, Greg KH <gregkh@suse.de> wrote:
-
->This is the start of the stable review cycle for the 2.6.17.8 release.
->There are 23 patches in this series, all will be posted as a response to
->this one.  If anyone has any issues with these being applied, please let
->us know.  If anyone is a maintainer of the proper subsystem, and wants
->to add a Signed-off-by: line to the patch, please respond with it.
+On 8/4/06, Chris Wright <chrisw@sous-sol.org> wrote:
+> * Antonio Vargas (windenntw@gmail.com) wrote:
+> > One feature I found missing at the paravirt patches is to allow the
+> > user to forbid the use of paravirtualization of certain features (via
+> > a bitmask on the kernel commandline for example) so that the execution
+> > drops into the native hardware virtualization system. Such a feature
 >
->These patches are sent out with a number of different people on the Cc:
->line.  If you wish to be a reviewer, please email stable@kernel.org to
->add your name to the list.  If you want to be off the reviewer list,
->also email us.
+> There is no native harware virtualization system in this picture.  Maybe
+> I'm just misunderstanding you.
+
+What I was refering with "native hardware virtualization" is just the
+VT or Pacitifica -provided trapping into the hypervisor upon executing
+"dangerous" instructions such as tlb-flushes, reading/setting the
+current ring-level, cli/sti...
+
+> > would provide a big upwards compatibility for the kernel<->hypervisor
+> > system. The case for this would be needing to forcefully upgrade the
+> > hypervisor due to security issues and finding out that the hypervisor
+> > is  incompatible at the paravirtualizatrion level, then the user would
+> > be at least capable of continuing to run the old kernel with the new
+> > hypervisor until the compatibility is reached again.
 >
->Responses should be made by Sunday, August 6, 05:00:00 UTC.  Anything
->received after that time might be too late.
+> This seems a bit like a trumped up example, as randomly disabling a part
+> of the pv interface is likely to cause correctness issues, not just
+> performance degradation.
+
+Yes, maybe just providing a switch to force paravirtops to use the
+native hardware implementation would be enough, or just in case,
+making the default the native hardware and allowing the kernel
+commandline to select another one (just like on io-schedulers)
+
+> Hypervisor compatibility is a slightly separate issue here.  There's two
+> interfaces.  The linux paravirt interface is internal to the kernel.
+> The hypervisor interface is external to the kernel.
 >
->I've also posted a roll-up patch with all changes in it if people want
->to test it out.  It can be found at:
+> kernel <--pv interface--> paravirt glue layer <--hv interface--> hypervisor
 >
->	kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.17.8-rc1.gz
+> So changes to the hypervisor must remain ABI compatible to continue
+> working with the same kernel.  This is the same requirement the kernel
+> has with the syscall interface it provides to userspace.
 
-It wasn't clear that this is a delta 2.6.17.7 -> 2.6.17.8 patch ;)
+Yes. What I propose is allowing the systems to continue running (only
+with degraded performance) when the hv-interface between the running
+kernel and the running hypervisor doesn't match.
 
-Didn't bump version:
-grant@sempro:~/linux/linux-2.6.17.8-rc1$ head -5 Makefile
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 17
-EXTRAVERSION = .7
-NAME=Crazed Snow-Weasel
+> > BTW, what is the recommended distro or kernel setup to help testing
+> > the latest paravirt patches? I've got a spare machine (with no needed
+> > data) at hand which could be put to good use.
+>
+> Distro of choice.  Current kernel with the pv patches[1], but be
+> forewarned, they are very early, and not fully booting.
 
-On the bright side, it compiled and runs ;)
+Thanks, will be setting it up :)
 
-Grant.
+-- 
+Greetz, Antonio Vargas aka winden of network

@@ -1,32 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbWHDBDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWHDBGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030272AbWHDBDw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 21:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWHDBDv
+	id S1751407AbWHDBGn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 21:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWHDBGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 21:03:51 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:55276 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030272AbWHDBDv
+	Thu, 3 Aug 2006 21:06:42 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:35081 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751407AbWHDBGl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 21:03:51 -0400
-Message-ID: <44D29C45.4070601@zytor.com>
-Date: Thu, 03 Aug 2006 18:00:53 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Userspace visible of 3 include/asm/ headers
-References: <20060803193952.GF25692@stusta.de> <20060803194410.GC16927@redhat.com> <44D26A8B.9040907@zytor.com> <20060803215230.GI25692@stusta.de> <44D28C0A.905@zytor.com> <20060804001221.GM25692@stusta.de>
-In-Reply-To: <20060804001221.GM25692@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 21:06:41 -0400
+Date: Fri, 4 Aug 2006 11:06:22 +1000
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, davej@redhat.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       davem@davemloft.net, jt@hpl.hp.com
+Subject: Re: orinoco driver causes *lots* of lockdep spew
+Message-ID: <20060804010622.GB12085@gondor.apana.org.au>
+References: <1154607380.2965.25.camel@laptopd505.fenrus.org> <E1G8der-0001fm-00@gondolin.me.apana.org.au> <20060803195306.GB7079@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060803195306.GB7079@tuxdriver.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nevermind, I just realized I did a brainfart.  setup.h should all be 
-exported.
+On Thu, Aug 03, 2006 at 03:53:13PM -0400, John W. Linville wrote:
+> 
+> Does anyone have any objection to Herbert's patch?  It seems
+> appropriate to me.
 
-	-hpa
+I have no objections!
 
+:)
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

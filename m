@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWHDI3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWHDIbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161103AbWHDI3k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161104AbWHDI3k
+	id S1161104AbWHDIbj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbWHDIbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:29:40 -0400
-Received: from mx2.go2.pl ([193.17.41.42]:26309 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1161102AbWHDI3j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:29:39 -0400
-Date: Fri, 4 Aug 2006 10:31:58 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: linux-kernel@vger.kernel.org
-Subject: ATA: abnormal status 0x7F on port 0x142F /2.6.18-rc3
-Message-ID: <20060804083157.GA2756@ff.dom.local>
+	Fri, 4 Aug 2006 04:31:39 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:18958 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1161106AbWHDIb0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:31:26 -0400
+Date: Fri, 4 Aug 2006 10:31:35 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Komal Shah <komal_shah802003@yahoo.com>, akpm@osdl.org, gregkh@suse.de,
+       i2c@lm-sensors.org, imre.deak@nokia.com, juha.yrjola@solidboot.com,
+       linux-kernel@vger.kernel.org, r-woodruff2@ti.com, tony@atomide.com
+Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
+Message-Id: <20060804103135.77531faa.khali@linux-fr.org>
+In-Reply-To: <200608030730.42458.david-b@pacbell.net>
+References: <1154066134.13520.267064606@webmail.messagingengine.com>
+	<200608021218.30763.david-b@pacbell.net>
+	<20060803111949.91e8e7bc.khali@linux-fr.org>
+	<200608030730.42458.david-b@pacbell.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+David,
 
-There is no such message in eg. 2.6.17.7 with similar config.
-Some more about the box in my yesterday message with subject:
-[ BUG: bad unlock balance detected! ]
+> On Thursday 03 August 2006 2:19 am, Jean Delvare wrote:
+> > The i2c core provides a mechanism to bypass the probing when you know
+> > for sure what device is at a given address. For an embedded system, that
+> > should work.
+> 
+> Unfortunately the mechanisms I'm aware of require either error-prone
+> kernel command line parameters, or (not error prone, but inelegant)
+> board-specific logic in the drivers, before driver registration, to
+> do equivalent stuff.
 
-Jarek P.
+I said it was possible, not that it was nice and elegant ;) I know it's
+ugly at the moment - which is exactly why people have been asking for
+an i2c-core conversion.
 
-from dmesg:
-...
-SCSI subsystem initialized
-libata version 2.00 loaded.
-sata_via 0000:00:0f.0: version 2.0
-ACPI: PCI Interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 17
-sata_via 0000:00:0f.0: routed to hard irq line 9
-sata_via 0000:00:0f.0: enabling SATA channels (0x32)
-ata1: SATA max UDMA/133 cmd 0x1430 ctl 0x1426 bmdma 0x1400 irq 17
-ata2: SATA max UDMA/133 cmd 0x1428 ctl 0x1422 bmdma 0x1408 irq 17
-scsi0 : sata_via
-ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
-input: AT Translated Set 2 keyboard as /class/input/input0
-ata1.00: ATA-7, max UDMA/100, 78140160 sectors: LBA48 NCQ (depth 0/32)
-ata1.00: ata1: dev 0 multi count 16
-ata1.00: configured for UDMA/100
-scsi1 : sata_via
-ata2: SATA link down (SStatus 0 SControl 310)
-ATA: abnormal status 0x7F on port 0x142F
-  Vendor: ATA       Model: FUJITSU MHV2040B  Rev: 0000
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 sda9 >
-sd 0:0:0:0: Attached scsi disk sda
-...
+> It may help to see how the SPI core solves that problem.  Unlike I2C,
+> SPI actually _can't_ probe (except in rare specialized cases), and when
+> I did the SPI stuff I was thinking about models that could apply easily
+> to help I2C avoid probing.  (Though not, at this point, code.)
+
+I2C can't really probe either. We abuse a transaction type we known most
+chips will reply to but otherwise ignore to achieve chip presence
+detection. It did damage in the past (killing Thinkpad laptops) and
+could do again in the future. So, having board-specific lists of chips
+to avoid probing would help.
+
+> That model of a table of board-specific declarations (with things like
+> "I2C chip type X at address A, using interrupt I and platform_data P")
+> should work for I2C too.
+
+What we have in the works is "I2C chip type X at address A". No
+interrupt nor platform data at this point. But once the conversion to
+the device driver model is done, I guess it'll come naturally if needed.
+
+-- 
+Jean Delvare

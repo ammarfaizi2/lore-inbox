@@ -1,68 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWHDIbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161105AbWHDIbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161104AbWHDIbj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbWHDIbj
+	id S1161105AbWHDIbU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161106AbWHDIbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:31:39 -0400
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:18958 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1161106AbWHDIb0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:31:26 -0400
-Date: Fri, 4 Aug 2006 10:31:35 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Komal Shah <komal_shah802003@yahoo.com>, akpm@osdl.org, gregkh@suse.de,
-       i2c@lm-sensors.org, imre.deak@nokia.com, juha.yrjola@solidboot.com,
-       linux-kernel@vger.kernel.org, r-woodruff2@ti.com, tony@atomide.com
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
-Message-Id: <20060804103135.77531faa.khali@linux-fr.org>
-In-Reply-To: <200608030730.42458.david-b@pacbell.net>
-References: <1154066134.13520.267064606@webmail.messagingengine.com>
-	<200608021218.30763.david-b@pacbell.net>
-	<20060803111949.91e8e7bc.khali@linux-fr.org>
-	<200608030730.42458.david-b@pacbell.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 04:31:20 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:49652 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1161105AbWHDIbT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:31:19 -0400
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Haavard Skinnemoen <hskinnemoen@atmel.com>
+Subject: [PATCH] MTD: Add lock/unlock operations for Atmel AT49BV6416
+Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date: Fri, 04 Aug 2006 10:28:34 +0200
+Message-Id: <1154680114836-git-send-email-hskinnemoen@atmel.com>
+X-Mailer: git-send-email 1.4.0
+In-Reply-To: <11546801142874-git-send-email-hskinnemoen@atmel.com>
+References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+The AT49BV6416 is locked by default, so we really need to provide
+at least the unlock() operation for write and erase to work. This
+patch implements both ->lock() and ->unlock() and provides a fixup
+to install them when an AT49BV6416 chip is detected.
 
-> On Thursday 03 August 2006 2:19 am, Jean Delvare wrote:
-> > The i2c core provides a mechanism to bypass the probing when you know
-> > for sure what device is at a given address. For an embedded system, that
-> > should work.
-> 
-> Unfortunately the mechanisms I'm aware of require either error-prone
-> kernel command line parameters, or (not error prone, but inelegant)
-> board-specific logic in the drivers, before driver registration, to
-> do equivalent stuff.
+These functions are probably valid on more Atmel chips, but I don't
+know exactly which ones. I can find out and add them if anyone cares.
 
-I said it was possible, not that it was nice and elegant ;) I know it's
-ugly at the moment - which is exactly why people have been asking for
-an i2c-core conversion.
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
 
-> It may help to see how the SPI core solves that problem.  Unlike I2C,
-> SPI actually _can't_ probe (except in rare specialized cases), and when
-> I did the SPI stuff I was thinking about models that could apply easily
-> to help I2C avoid probing.  (Though not, at this point, code.)
+Now, I'm not quite sure how to use this to make the flash usable for
+jffs2, etc. At the moment, it works if I unlock the flash using the
+flash_unlock utility before mounting a jffs2 file system, but this
+obviously won't work when using jffs2 as a root file system.
 
-I2C can't really probe either. We abuse a transaction type we known most
-chips will reply to but otherwise ignore to achieve chip presence
-detection. It did damage in the past (killing Thinkpad laptops) and
-could do again in the future. So, having board-specific lists of chips
-to avoid probing would help.
+What's the best way to do this? Unlock the flash in the board-specific
+mapping driver perhaps?
 
-> That model of a table of board-specific declarations (with things like
-> "I2C chip type X at address A, using interrupt I and platform_data P")
-> should work for I2C too.
+Haavard
 
-What we have in the works is "I2C chip type X at address A". No
-interrupt nor platform data at this point. But once the conversion to
-the device driver model is done, I guess it'll come naturally if needed.
+ drivers/mtd/chips/cfi_cmdset_0002.c |   90 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 90 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+index 9885726..70ad7cf 100644
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -45,9 +45,11 @@ #define FORCE_WORD_WRITE 0
+ #define MAX_WORD_RETRIES 3
+ 
+ #define MANUFACTURER_AMD	0x0001
++#define MANUFACTURER_ATMEL	0x001F
+ #define MANUFACTURER_SST	0x00BF
+ #define SST49LF004B	        0x0060
+ #define SST49LF008A		0x005a
++#define AT49BV6416		0x00d6
+ 
+ static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
+ static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
+@@ -68,6 +70,9 @@ static int get_chip(struct map_info *map
+ static void put_chip(struct map_info *map, struct flchip *chip, unsigned long adr);
+ #include "fwh_lock.h"
+ 
++static int cfi_atmel_lock(struct mtd_info *mtd, loff_t ofs, size_t len);
++static int cfi_atmel_unlock(struct mtd_info *mtd, loff_t ofs, size_t len);
++
+ static struct mtd_chip_driver cfi_amdstd_chipdrv = {
+ 	.probe		= NULL, /* Not usable directly */
+ 	.destroy	= cfi_amdstd_destroy,
+@@ -179,6 +184,16 @@ static void fixup_use_erase_chip(struct 
+ 
+ }
+ 
++/*
++ * Some Atmel chips (e.g. the AT49BV6416) power-up with all sectors
++ * locked by default.
++ */
++static void fixup_use_atmel_lock(struct mtd_info *mtd, void *param)
++{
++	mtd->lock = cfi_atmel_lock;
++	mtd->unlock = cfi_atmel_unlock;
++}
++
+ static struct cfi_fixup cfi_fixup_table[] = {
+ #ifdef AMD_BOOTLOC_BUG
+ 	{ CFI_MFR_AMD, CFI_ID_ANY, fixup_amd_bootblock, NULL },
+@@ -197,6 +212,7 @@ #endif
+ static struct cfi_fixup jedec_fixup_table[] = {
+ 	{ MANUFACTURER_SST, SST49LF004B, fixup_use_fwh_lock, NULL, },
+ 	{ MANUFACTURER_SST, SST49LF008A, fixup_use_fwh_lock, NULL, },
++	{ MANUFACTURER_ATMEL, AT49BV6416, fixup_use_atmel_lock, NULL },
+ 	{ 0, 0, NULL, NULL }
+ };
+ 
+@@ -1607,6 +1623,80 @@ static int cfi_amdstd_erase_chip(struct 
+ 	return 0;
+ }
+ 
++static int do_atmel_lock(struct map_info *map, struct flchip *chip,
++			 unsigned long adr, int len, void *thunk)
++{
++	struct cfi_private *cfi = map->fldrv_priv;
++	int ret;
++
++	spin_lock(chip->mutex);
++	ret = get_chip(map, chip, adr + chip->start, FL_LOCKING);
++	if (ret)
++		goto out_unlock;
++	chip->state = FL_LOCKING;
++
++	DEBUG(MTD_DEBUG_LEVEL3, "MTD %s(): adr 0x%08lx len %d\n",
++	      __func__, adr, len);
++
++	cfi_send_gen_cmd(0xAA, cfi->addr_unlock1, chip->start, map, cfi,
++			 cfi->device_type, NULL);
++	cfi_send_gen_cmd(0x55, cfi->addr_unlock2, chip->start, map, cfi,
++			 cfi->device_type, NULL);
++	cfi_send_gen_cmd(0x80, cfi->addr_unlock1, chip->start, map, cfi,
++			 cfi->device_type, NULL);
++	cfi_send_gen_cmd(0xAA, cfi->addr_unlock1, chip->start, map, cfi,
++			 cfi->device_type, NULL);
++	cfi_send_gen_cmd(0x55, cfi->addr_unlock2, chip->start, map, cfi,
++			 cfi->device_type, NULL);
++	map_write(map, CMD(0x40), chip->start + adr);
++
++	chip->state = FL_READY;
++	put_chip(map, chip, adr + chip->start);
++	ret = 0;
++
++out_unlock:
++	spin_unlock(chip->mutex);
++	return ret;
++}
++
++static int do_atmel_unlock(struct map_info *map, struct flchip *chip,
++			   unsigned long adr, int len, void *thunk)
++{
++	struct cfi_private *cfi = map->fldrv_priv;
++	int ret;
++
++	spin_lock(chip->mutex);
++	ret = get_chip(map, chip, adr + chip->start, FL_UNLOCKING);
++	if (ret)
++		goto out_unlock;
++	chip->state = FL_UNLOCKING;
++
++	DEBUG(MTD_DEBUG_LEVEL3, "MTD %s(): adr 0x%08lx len %d\n",
++	      __func__, adr, len);
++
++	cfi_send_gen_cmd(0xAA, cfi->addr_unlock1, chip->start, map, cfi,
++			 cfi->device_type, NULL);
++	map_write(map, CMD(0x70), adr);
++
++	chip->state = FL_READY;
++	put_chip(map, chip, adr + chip->start);
++	ret = 0;
++
++out_unlock:
++	spin_unlock(chip->mutex);
++	return ret;
++}
++
++static int cfi_atmel_lock(struct mtd_info *mtd, loff_t ofs, size_t len)
++{
++	return cfi_varsize_frob(mtd, do_atmel_lock, ofs, len, NULL);
++}
++
++static int cfi_atmel_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
++{
++	return cfi_varsize_frob(mtd, do_atmel_unlock, ofs, len, NULL);
++}
++
+ 
+ static void cfi_amdstd_sync (struct mtd_info *mtd)
+ {
 -- 
-Jean Delvare
+1.4.0
+

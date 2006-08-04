@@ -1,89 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161141AbWHDNPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161131AbWHDNPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161141AbWHDNPK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 09:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbWHDNOo
+	id S1161131AbWHDNPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 09:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWHDNOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 09:14:44 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:55191 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161124AbWHDNOg
+	Fri, 4 Aug 2006 09:14:35 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:16087 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030329AbWHDNOT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 09:14:36 -0400
-Date: Fri, 4 Aug 2006 07:14:33 -0600
+	Fri, 4 Aug 2006 09:14:19 -0400
+Date: Fri, 4 Aug 2006 07:14:15 -0600
 From: Keith Mannthey <kmannth@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, discuss@x86-64.org, Keith Mannthey <kmannth@us.ibm.com>,
        ak@suse.de, lhms-devel@lists.sourceforge.net,
        kamezawa.hiroyu@jp.fujitsu.com
-Message-Id: <20060804131433.21401.59101.sendpatchset@localhost.localdomain>
+Message-Id: <20060804131415.21401.20437.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
 References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-Subject: [PATCH 8/10] hot-add-mem x86_64: use CONFIG_MEMORY_HOTPLUG_SPARSE
+Subject: [PATCH 5/10] hot-add-mem x86_64: memory_add_physaddr_to_nid enable
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Keith Mannthey <kmannth@us.ibm.com>
 
-  Migate CONFIG_MEMORY_HOTPLUG to CONFIG_MEMORY_HOTPLUG_SPARSE where needed.
+  The api for hot-add memory already has a construct for finding nodes based on
+an address, memory_add_physaddr_to_nid.  This patch allows the fucntion to do 
+something besides return 0.  It uses the nodes_add infomation to lookup to node 
+info for a hot add event. 
 
 Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
 ---
- drivers/base/Makefile  |    2 +-
- include/linux/memory.h |    4 ++--
- mm/memory_hotplug.c    |    4 +++-
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ init.c |   20 +++++++-------------
+ srat.c |   13 ++++++++++++-
+ 2 files changed, 19 insertions(+), 14 deletions(-)
 
-diff -urN orig/drivers/base/Makefile current/drivers/base/Makefile
---- orig/drivers/base/Makefile	2006-08-04 00:41:17.000000000 -0400
-+++ current/drivers/base/Makefile	2006-08-04 01:41:04.000000000 -0400
-@@ -8,7 +8,7 @@
- obj-$(CONFIG_ISA)	+= isa.o
- obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
- obj-$(CONFIG_NUMA)	+= node.o
--obj-$(CONFIG_MEMORY_HOTPLUG) += memory.o
-+obj-$(CONFIG_MEMORY_HOTPLUG_SPARSE) += memory.o
- obj-$(CONFIG_SMP)	+= topology.o
- obj-$(CONFIG_SYS_HYPERVISOR) += hypervisor.o
+diff -urN linux-2.6.17/arch/x86_64/mm/init.c current/arch/x86_64/mm/init.c
+--- linux-2.6.17/arch/x86_64/mm/init.c	2006-08-04 01:30:39.000000000 -0400
++++ current/arch/x86_64/mm/init.c	2006-08-04 01:24:04.000000000 -0400
+@@ -517,19 +517,6 @@
  
-diff -urN orig/include/linux/memory.h current/include/linux/memory.h
---- orig/include/linux/memory.h	2006-06-17 21:49:35.000000000 -0400
-+++ current/include/linux/memory.h	2006-08-04 01:42:24.000000000 -0400
-@@ -57,7 +57,7 @@
- struct notifier_block;
- struct mem_section;
- 
--#ifndef CONFIG_MEMORY_HOTPLUG
-+#ifndef CONFIG_MEMORY_HOTPLUG_SPARSE
- static inline int memory_dev_init(void)
- {
- 	return 0;
-@@ -78,7 +78,7 @@
- #define CONFIG_MEM_BLOCK_SIZE	(PAGES_PER_SECTION<<PAGE_SHIFT)
- 
- 
--#endif /* CONFIG_MEMORY_HOTPLUG */
-+#endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
- 
- #define hotplug_memory_notifier(fn, pri) {			\
- 	static struct notifier_block fn##_mem_nb =		\
-diff -urN orig/mm/memory_hotplug.c current/mm/memory_hotplug.c
---- orig/mm/memory_hotplug.c	2006-08-04 00:54:44.000000000 -0400
-+++ current/mm/memory_hotplug.c	2006-08-04 01:46:56.000000000 -0400
-@@ -24,6 +24,7 @@
- 
- #include <asm/tlbflush.h>
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
- static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
- {
- 	struct pglist_data *pgdat = zone->zone_pgdat;
-@@ -189,7 +190,8 @@
- 	vm_total_pages = nr_free_pagecache_pages();
- 	return 0;
- }
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ /*
+- * XXX: memory_add_physaddr_to_nid() is to find node id from physical address
+- *	via probe interface of sysfs. If acpi notifies hot-add event, then it
+- *	can tell node id by searching dsdt. But, probe interface doesn't have
+- *	node id. So, return 0 as node id at this time.
+- */
+-#ifdef CONFIG_NUMA
+-int memory_add_physaddr_to_nid(u64 start)
+-{
+-	return 0;
+-}
+-#endif
 -
-+#endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
-+ 
- static pg_data_t *hotadd_new_pgdat(int nid, u64 start)
- {
- 	struct pglist_data *pgdat;
+-/*
+  * Memory is added always to NORMAL zone. This means you will never get
+  * additional DMA/DMA32 memory.
+  */
+@@ -560,6 +547,13 @@
+ }
+ EXPORT_SYMBOL_GPL(remove_memory);
+ 
++#ifndef CONFIG_ACPI_NUMA
++int memory_add_physaddr_to_nid(u64 start)
++{
++	return 0;
++}
++#endif 
++
+ #else /* CONFIG_MEMORY_HOTPLUG */
+ /*
+  * Memory Hotadd without sparsemem. The mem_maps have been allocated in advance,
+diff -urN linux-2.6.17/arch/x86_64/mm/srat.c current/arch/x86_64/mm/srat.c
+--- linux-2.6.17/arch/x86_64/mm/srat.c	2006-08-04 01:31:44.000000000 -0400
++++ current/arch/x86_64/mm/srat.c	2006-08-04 01:24:04.000000000 -0400
+@@ -25,7 +25,7 @@
+ 
+ static nodemask_t nodes_parsed __initdata;
+ static struct bootnode nodes[MAX_NUMNODES] __initdata;
+-static struct bootnode nodes_add[MAX_NUMNODES] __initdata;
++static struct bootnode nodes_add[MAX_NUMNODES];
+ static int found_add_area __initdata;
+ int hotadd_percent __initdata = 0;
+ 
+@@ -457,3 +457,14 @@
+ }
+ 
+ EXPORT_SYMBOL(__node_distance);
++
++int memory_add_physaddr_to_nid(u64 start)
++{
++	int i, ret = 0;
++	
++	for_each_node(i) 
++		if (nodes_add[i].start <= start && nodes_add[i].end > start)
++			ret = i;
++
++	return ret;
++}

@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbWHDQAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161273AbWHDQBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161265AbWHDQAu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 12:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161272AbWHDQAu
+	id S1161273AbWHDQBt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 12:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161274AbWHDQBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 12:00:50 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49042 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161265AbWHDQAu (ORCPT
+	Fri, 4 Aug 2006 12:01:49 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:40430 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1161273AbWHDQBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 12:00:50 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
-       ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] A generic boolean
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-	<44BE9E78.3010409@garzik.org> <yq0lkq4vbs3.fsf@jaguar.mkp.net>
-	<1154702572.23655.226.camel@localhost.localdomain>
-	<44D35B25.9090004@sgi.com>
-	<1154706687.23655.234.camel@localhost.localdomain>
-	<44D36E8B.4040705@sgi.com>
-X-Yow: This MUST be a good party -- My RIB CAGE is being painfully
- pressed up against someone's MARTINI!!
-Date: Fri, 04 Aug 2006 18:00:24 +0200
-In-Reply-To: <44D36E8B.4040705@sgi.com> (Jes Sorensen's message of "Fri, 04
-	Aug 2006 17:58:03 +0200")
-Message-ID: <je4pws1ofb.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 4 Aug 2006 12:01:48 -0400
+Date: Sat, 05 Aug 2006 01:03:20 +0900 (JST)
+Message-Id: <20060805.010320.108306918.anemo@mba.ocn.ne.jp>
+To: ab@mycable.de
+Cc: mgreer@mvista.com, linux-kernel@vger.kernel.org, a.zummo@towertech.it,
+       khali@linux-fr.org, akpm@osdl.org
+Subject: Re: RTC: add RTC class interface to m41t00 driver
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <200608041601.03218.ab@mycable.de>
+References: <20060804.004259.48803564.anemo@mba.ocn.ne.jp>
+	<20060804002112.GB9109@mag.az.mvista.com>
+	<200608041601.03218.ab@mycable.de>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@sgi.com> writes:
+On Fri, 4 Aug 2006 16:01:02 +0200, Alexander Bigga <ab@mycable.de> wrote:
+> like you, I started recently with Mark's m41t00.c driver to add support for 
+> the new rtc-subsystem. Mark reviewed it and I added his changes.
 
-> Alan Cox wrote:
->> Ar Gwe, 2006-08-04 am 16:35 +0200, ysgrifennodd Jes Sorensen:
->>> The proposed patch makes it u1 - if we end up with arch specific
->>> defines, as the patch is proposing, developers won't know for sure what
->>> the size is and will get alignment wrong. That is not fine.
->>
->> The _Bool type is up to gcc implementation details.
->
-> Which is even worse :(
+Thank you.  Though my patch for m41t00.c intended to keep original
+code as is as possible, I like your approach.  I'll work with your new
+driver.
 
-It's part of the ABI, just like any other C type.
+> There is still the question, if the code for the interrupt context 
+> (workqueues) should stay or not. You bracketed all this with CONFIG_GEN_RTC. 
+> I can't say, if this is a good idea. Maybe somebody else has some good 
+> comments.
 
->>> If we really have to introduce a bool type, at least it has to be the
->>> same size on all 32 bit archs and the same size on all 64 bit archs.
->>
->> You don't use bool for talking to hardware, you use it for the most
->> efficient compiler behaviour when working with true/false values.
->
-> Thats the problem, people will start putting them into structs, and
-> voila all alignment predictability has gone out the window.
+I think read_time and set_time routine of rtc_class never called from
+the interrupt context.  It looks true on current RTC class framework
+and some RTC class drivers depend on it already.
 
-Just like trying to predict the alignment of any other C type.
+> +#include <asm/time.h>
+> +#include <asm/rtc.h>
 
-Andreas.
+The asm/time.h is not exist on some archs.  And while all asm/time.h
+are included by asm/rtc.h, this can be removed safely.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+> +int m41txx_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+
+static.
+
+> +ulong m41t00_get_rtc_time(void)
+> +{
+> +	struct rtc_time tm;
+> +
+> +	m41txx_get_datetime(save_client, &tm);
+> +
+> +	return mktime(tm.tm_year, tm.tm_mon,
+> +		      tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+> +}
+> +EXPORT_SYMBOL_GPL(m41t00_get_rtc_time);
+
+Please drop this old interface from new driver.  There are other way
+to glue new driver to existing platform, as hctosys.c does.
+
+Then we can remove save_client too.
+
+> +static struct workqueue_struct *m41txx_wq;
+
+As I wrote above, I think this is not needed.  If this is really
+needed, it should be done in RTC framework instead of lowlevel driver.
+
+> +st_err:
+> +	dev_err(&client->dev, "%s: Can't clear ST bit\n", __FUNCTION__);
+> +	goto exit_detach;
+> +ht_err:
+> +	dev_err(&client->dev, "%s: Can't clear HT bit\n", __FUNCTION__);
+> +	goto exit_detach;
+> +sqw_err:
+> +	dev_err(&client->dev, "%s: Can't set SQW Frequency\n",
+> +		__FUNCTION__);
+> +
+> +exit_detach:
+> +	i2c_detach_client(client);
+
+rtc_device_unregister() must be called somewhere in error path.
+
+---
+Atsushi Nemoto

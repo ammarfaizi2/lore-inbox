@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWHDOvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWHDOva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161248AbWHDOvD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWHDOvD
+	id S1161251AbWHDOva (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWHDOva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:51:03 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:46984 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161248AbWHDOvB (ORCPT
+	Fri, 4 Aug 2006 10:51:30 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:42962 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161251AbWHDOv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 10:51:01 -0400
-Message-ID: <44D35F0B.5000801@sw.ru>
-Date: Fri, 04 Aug 2006 18:51:55 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 4 Aug 2006 10:51:29 -0400
+Message-ID: <44D35EB7.4000700@in.ibm.com>
+Date: Fri, 04 Aug 2006 20:20:31 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+To: Kirill Korotaev <dev@sw.ru>
+Cc: vatsa@in.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Sam Vilain <sam@vilain.net>,
+       linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
+       Mike Galbraith <efault@gmx.de>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
        haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com>
-In-Reply-To: <20060804114109.GA28988@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: [ RFC, PATCH 1/5 ] CPU controller - base changes
+References: <20060804050753.GD27194@in.ibm.com> <20060804050932.GE27194@in.ibm.com> <44D35AD8.2090506@sw.ru>
+In-Reply-To: <44D35AD8.2090506@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I think the risk is that OpenVZ has all the controls and resource
->>managers we need, while CKRM is still more research-ish. I find the
->>OpenVZ code much clearer, cleaner and complete at the moment, although
->>also much more conservative in its approach to solving problems.
+Kirill Korotaev wrote:
+> Srivatsa,
 > 
+> AFAICS, you wanted to go the way we used in OpenVZ - 2-level scheduling.
+> However, you don't do any process balancing between runqueues taking 
+> into account
+> other groups.
+
+The plan is to do load balancing using the smpnice feature, which is yet to be 
+worked on
+
+ From vatsa's comments
+
+	"Works only on UP for now (boot with maxcpus=1). IMO group-aware SMP
+	 load-balancing can be met using smpnice feature. I will work on this
+	 feature next."
+
+> What do you think about a full runqueue virtualization, so that
+> first level CPU scheduler could select task-group on any basis and then
+> arbitrary runqueue was selected for running?
+
+The patch selects the task group first, based on priority. From the patch
+
+"+    /* Pick a task group first */
++#ifdef CONFIG_CPUMETER "
+
+Did I miss something?
+
 > 
-> I think it would be nice to compare first the features provided by ckrm and 
-> openvz at some point and agree upon the minimum common features we need to have 
-> as we go forward. For instance I think Openvz assumes that tasks do
-> not need to move between containers (task-groups), whereas ckrm provides this
-> flexibility for workload management. This may have some effect on the 
-> controller/interface design, no?
-OpenVZ assumes that tasks can't move between task-groups for a single reason:
-user shouldn't be able to escape from the container.
-But this have no implication on the design/implementation.
+> Thanks,
+> Kirill
+> P.S. BTW, this patch doesn't allow hierarchy in CPU controler.
+> 
 
-BTW, do you see any practical use cases for tasks jumping between resource-containers?
 
-Kirill
+-- 
 
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

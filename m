@@ -1,87 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161467AbWHDVJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161465AbWHDVJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161467AbWHDVJc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161468AbWHDVJc
+	id S1161465AbWHDVJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161466AbWHDVJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:09:32 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:60093 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1161467AbWHDVJb
+	Fri, 4 Aug 2006 17:09:16 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:28294
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1161465AbWHDVJQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:09:31 -0400
-Message-ID: <44D3B78A.8000900@slaphack.com>
-Date: Fri, 04 Aug 2006 17:09:30 -0400
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Fri, 4 Aug 2006 17:09:16 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [HW_RNG] How to use generic rng in kernel space
+Date: Fri, 4 Aug 2006 23:08:24 +0200
+User-Agent: KMail/1.9.1
+References: <20060804130030.90361.qmail@web25805.mail.ukl.yahoo.com>
+In-Reply-To: <20060804130030.90361.qmail@web25805.mail.ukl.yahoo.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, David Masover <ninja@slaphack.com>,
-       "Vladimir V. Saveliev" <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
-       Reiserfs-List@namesys.com
-Subject: Re: reiser4: maybe just fix bugs?
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com> <20060801013104.f7557fb1.akpm@osdl.org> <44CEBA0A.3060206@namesys.com> <1154431477.10043.55.camel@tribesman.namesys.com> <20060801073316.ee77036e.akpm@osdl.org> <1154444822.10043.106.camel@tribesman.namesys.com> <44CF879D.1000803@slaphack.com> <20060803074651.GA27835@thunk.org>
-In-Reply-To: <20060803074651.GA27835@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Message-Id: <200608042308.24421.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> On Tue, Aug 01, 2006 at 11:55:57AM -0500, David Masover wrote:
->> If I understand it right, the original Reiser4 model of file metadata is 
->> the file-as-directory stuff that caused such a furor the last big push 
->> for inclusion (search for "Silent semantic changes in Reiser4"):
+On Friday 04 August 2006 15:00, moreau francis wrote:
+> Michael Buesch wrote:
+> > The dataflow is as follows:
 > 
-> The furor was caused by concerns Al Viro expressed about
-> locking/deadlock issues that reiser4 introduced.  
+> > HW-RNG -> userspace RNGD (through /dev/hwrng) -> the daemon
+> > checks it for sanity and puts it back into the kernel through
+> > /dev/random -> Your driver gets the data from the /dev/random
+> > entropy pools.
+> 
+> Is that also true for embedded systems ? I mean we may not found
+> any rngd on these systems.
 
-Which, I believe, was about file-as-dir.  Which also had problems with 
-things like directory loops.  That's sort of a disk space memory leak.
+Yes, I think so.
 
-> The bigger issue with xattr support is two-fold.  First of all, there
-> are the progams that are expecting the existing extended attribute
-> interface,
+> One other question now: suppose that others drivers need to use
+> random data during their inits. At this time userspace appli still not
+> have been started. How does it work ?
+> 
+> > This is very neccesary, because your HW-RNG may fail and
+> > so you may unintentionally use non-random data, if you use
+> > the random data from the RNG directly.
+> > The data _must_ go through userspace rngd, which does FIPS
+> > sanity checks on the data.
+> 
+> Well I'm working on a secure SOC which have a randown hardware
+> which is supposed to return true random data. I understand that 
+> some self tests on the random data are needed but doing them in 
+> userspace is suprising.
 
-Yeah...
+The whole purpose of the hrwng subsystem is to give userspace
+an interface to the RNG device. Not more and not less.
 
-> More importantly are the system-level extended attributes, such as
-> those used by SELINUX, which by definition are not supposed to be
-> visible to the user at all,
+So, if you have a special hwrng on your embedded board and you
+have some special driver in that board, why not interface
+directly from the driver to the hwrng-driver?
+This is all pretty special case.
+In the hwrng-driver you could still additionally do a
+hrwng_register() to export the functionality to
+userspace, though.
 
-I don't see why either of these are issues.  The SELINUX stuff can be a 
-plugin which doesn't necessarily have a user-level interface. 
-Cryptocompress, for instance, exists independent of its user-level 
-interface (probably the file-as-dir stuff), and will probably be 
-implemented in some sort of stable form as a system-wide default for new 
-files.
 
-So, certainly metadata (xattrs) as a plugin could be implemented with no 
-UI at all, or any given UI.
+I am not a friend of a direct in-kernel hwrng access interface,
+because it may return crap data by definition. Many (all current)
+RNG devices may fail and return non-random data. If that's happily
+used by some in-kernel user by the interface, we are screwed.
 
-... Anyway, I still see no reason why these cannot be implemented in 
-Reiser4, other than the possibility that if it uses "plugins", I 
-guarantee that at least one or two people will hate the implementation 
-for that reason alone.
+Why can't you build your random-data consumer as module and load
+it later, when random data is available (and was carefully checked
+by various tests in rngd)?
 
-> Not supporting xattrs means that those distro's that use SELINUX by
-> default (i.e., RHEL, Fedora, etc.) won't want to use reiser4, because
-> SELINUX won't work on reiser4 filesytstems.
-
-Right.  So they will be implemented, eventually.
-
-> Whether or not Hans cares about this is up to him....
-
-He does, or he should.  Reiser4 needs every bit of acceptance it can get 
-right now, as long as it can get them without compromising its goals or 
-philosophy.  Extended attributes only compromise these because it 
-provides less incentive to learn any other metadata interface that 
-Reiser4 provides.  But that's irrelevant if Reiser4 doesn't gain enough 
-acceptance due to lack of xattr support, anything it has will be 
-irrelevant anyway.
-
-So just as we provide the standard interface to Unix permissions (even 
-though we intend to implement things like acls and views, and even 
-though there was a file/.pseudo/rwx interface), we should provide the 
-standard xattr interface, and the standard direct IO interface, and 
-anything else that's practical.  Be a good, standard filesystem first, 
-and an innovative filesystem second.
+-- 
+Greetings Michael.

@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161395AbWHDUL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161394AbWHDULh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161395AbWHDUL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161398AbWHDUL4
+	id S1161394AbWHDULh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161395AbWHDULh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:11:56 -0400
-Received: from www.osadl.org ([213.239.205.134]:20660 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161395AbWHDULz (ORCPT
+	Fri, 4 Aug 2006 16:11:37 -0400
+Received: from gw.goop.org ([64.81.55.164]:10184 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1161394AbWHDULg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:11:55 -0400
-Subject: Re: Futex BUG in 2.6.18rc2-git7
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andi Kleen <ak@suse.de>
-Cc: Olaf Hering <olaf@aepfle.de>, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <200608041036.47763.ak@suse.de>
-References: <200608040917.00690.ak@suse.de>
-	 <20060804082637.GA19493@aepfle.de>  <200608041036.47763.ak@suse.de>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 22:12:15 +0200
-Message-Id: <1154722335.5932.243.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 4 Aug 2006 16:11:36 -0400
+Message-ID: <44D3A9F3.2000000@goop.org>
+Date: Fri, 04 Aug 2006 13:11:31 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: David Lang <dlang@digitalinsight.com>
+CC: Arjan van de Ven <arjan@linux.intel.com>,
+       Antonio Vargas <windenntw@gmail.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>   <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>   <44D2B678.6060400@xensource.com> <20060803211850.3a01d0cc.akpm@osdl.org>   <1154667875.11382.37.camel@localhost.localdomain>   <20060803225357.e9ab5de1.akpm@osdl.org>   <1154675100.11382.47.camel@localhost.localdomain>   <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz>  <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com>  <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> <44D39F73.8000803@linux.intel.com> <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.63.0608041239430.18862@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 10:36 +0200, Andi Kleen wrote:
-> On Friday 04 August 2006 10:26, Olaf Hering wrote:
-> > On Fri, Aug 04, 2006 at 09:17:00AM +0200, Andi Kleen wrote:
-> > > 
-> > > One of my test machines (single socket core2 duo) running 2.6.18rc2-git7 over night 
-> > > under moderate load threw this, followed by an endless loop of soft lockup timeouts
-> > > (one exemplar appended)
-> > > 
-> > > I assume it is related to the new PI mutexes.
-> > 
-> > Maybe triggered by this, if it was from wagner.suse.de:
-> 
-> Yes it was that box. So it looks like the new mutex code cannot run
-> the glibc test suite.
+David Lang wrote:
+> so if I understand this correctly we are saying that a kernel compiled 
+> to run on hypervisor A would need to be recompiled to run on 
+> hypervisor B, and recompiled again to run on hypervisor C, etc
+>
+> where A could be bare hardware, B could be Xen 2, C could be Xen 3, D 
+> could be vmware, E could be vanilla Linux, etc.
 
-Can you retest against -rc3-current + the compat fix I sent out earlier
-today (see also below) ?
+Yes, but you can compile one kernel for any set of hypervisors, so if 
+you want both Xen and VMI, then compile both in.  (You always get bare 
+hardware support.)
 
-Is the glibc the latest CVS version ?
+> this sounds like something that the distros would not support, they 
+> would pick their one hypervisor to support and leave out the others. 
+> the big problem with this is that the preferred hypervisor will change 
+> over time and people will be left with incompatable choices (or having 
+> to compile their own kernels, including having to recompile older 
+> kernels to support newer hypervisors)
 
-	tglx
+Why?  That's like saying that distros will only bother to compile in one 
+scsi driver.
 
-
-diff --git a/kernel/futex_compat.c b/kernel/futex_compat.c
-index d1aab1a..c5cca3f 100644
---- a/kernel/futex_compat.c
-+++ b/kernel/futex_compat.c
-@@ -39,7 +39,7 @@ void compat_exit_robust_list(struct task
- {
- 	struct compat_robust_list_head __user *head = curr->compat_robust_list;
- 	struct robust_list __user *entry, *pending;
--	unsigned int limit = ROBUST_LIST_LIMIT, pi;
-+	unsigned int limit = ROBUST_LIST_LIMIT, pi, pip;
- 	compat_uptr_t uentry, upending;
- 	compat_long_t futex_offset;
- 
-@@ -59,10 +59,10 @@ void compat_exit_robust_list(struct task
- 	 * if it exists:
- 	 */
- 	if (fetch_robust_entry(&upending, &pending,
--			       &head->list_op_pending, &pi))
-+			       &head->list_op_pending, &pip))
- 		return;
- 	if (upending)
--		handle_futex_death((void *)pending + futex_offset, curr, pi);
-+		handle_futex_death((void *)pending + futex_offset, curr, pip);
- 
- 	while (compat_ptr(uentry) != &head->list) {
- 		/*
+The hypervisor driver is tricker than a normal kernel device driver, 
+because in general it needs to be present from very early in boot, which 
+precludes it from being a normal module.  There's hope that we'll be 
+able to support hypervisor drivers as boot-time grub/multiboot modules, 
+so you'll be able to compile up a new hypervisor driver for a particular 
+kernel and use it without recompiling the whole thing.
 
 
+    J

@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWHDTmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWHDTpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161383AbWHDTmp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161363AbWHDTmp
+	id S1161363AbWHDTpr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWHDTpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:42:45 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:56737 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932605AbWHDTmo (ORCPT
+	Fri, 4 Aug 2006 15:45:47 -0400
+Received: from enyo.dsw2k3.info ([195.71.86.239]:31439 "EHLO enyo.dsw2k3.info")
+	by vger.kernel.org with ESMTP id S932605AbWHDTpr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:42:44 -0400
-Date: Fri, 4 Aug 2006 23:42:11 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Chris Leech <chris.leech@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, arnd@arndnet.de, olel@ans.pl,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: problems with e1000 and jumboframes
-Message-ID: <20060804194209.GA25167@2ka.mipt.ru>
-References: <41b516cb0608031334s6e159e99tb749240f44ae608d@mail.gmail.com> <E1G8sif-0003oY-00@gondolin.me.apana.org.au> <20060804061513.GB413@2ka.mipt.ru> <41b516cb0608040834o1d433f23v2f2ba1a1b05ccbc6@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <41b516cb0608040834o1d433f23v2f2ba1a1b05ccbc6@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 04 Aug 2006 23:42:15 +0400 (MSD)
+	Fri, 4 Aug 2006 15:45:47 -0400
+Message-ID: <44D3A3DF.9000307@citd.de>
+Date: Fri, 04 Aug 2006 21:45:35 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Stability-Problem of EHCI with a larger number
+ of USB-Hubs/Devices
+References: <44C126C3.9000105@citd.de> <200608041108.19549.david-b@pacbell.net>
+In-Reply-To: <200608041108.19549.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 08:34:46AM -0700, Chris Leech (chris.leech@gmail.com) wrote:
-> So how many skb allocation schemes do you code into a single driver?
-> Kmalloc everything, page alloc everything, combination of kmalloc and
-> page buffers for hardware that does header split?  That's three
-> versions of the drivers receive processing and skb allocation that
-> need to be maintained.
+David Brownell wrote:
+> Did you try with 2.6.18-rc3?  There's a Kconfig option for an
+> improved interrupt scheduler, which might help especially with
+> all those low speed devices.
 
-At least try to create scheme which will not end up in 32k allocation in
-atomic context. Generally I would recommend to use frag_list as much as
-possible (or you can reuse skb list).
- 
-> - Chris
+I hadn't but i just did.
+(I guess you meant CONFIG_USB_EHCI_TT_NEWSCHED=y)
+
+The behaviour was different, every light went on and the syslog went 
+silent. I could switch on one of the HDDs and i could see it in 
+/proc/partitions. But then everything completly broke down and syslog 
+was flooded after some time all lights went out.
+
+Do you want/need the syslog?
+
+
+
+
+
+Bis denn
 
 -- 
-	Evgeniy Polyakov
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
+

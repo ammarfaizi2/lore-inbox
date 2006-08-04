@@ -1,103 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWHDLEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWHDLMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWHDLEK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 07:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHDLEK
+	id S1751412AbWHDLMd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 07:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWHDLMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 07:04:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:45791 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751420AbWHDLEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 07:04:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PGU1v1KQrKZyxPZ0eU++Uv2T3HdGRv60KMzrZJILnhyyGzCwiUqIdvLH0oFJiJghRBrDytrAUaG/FtTvVgdsAZXUBgRGw0RF/+SGDEIBkkop7lVylXUVbfUhfCzEyLBmubqU47Bkb5ajoJd6zG7L0Xi2+VMscJ1fIadgOQKrX+g=
-Message-ID: <62b0912f0608040404p59545a0asc7f5fc5f537ec32c@mail.gmail.com>
-Date: Fri, 4 Aug 2006 13:04:07 +0200
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-To: "Auke Kok" <auke-jan.h.kok@intel.com>
-Subject: Re: e100: checksum mismatch on 82551ER rev10
-Cc: "Charlie Brady" <charlieb@budge.apana.org.au>,
-       NetDev <netdev@vger.kernel.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <44D0D7CA.2060001@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 07:12:33 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:56044 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751412AbWHDLMc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 07:12:32 -0400
+Date: Fri, 4 Aug 2006 16:46:38 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu controller
+Message-ID: <20060804111638.GA28490@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060804065615.GA26960@in.ibm.com> <20060804001342.1168e5ab.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0607311653360.24450@e-smith.charlieb.ott.istop.com>
-	 <44D0D7CA.2060001@intel.com>
+In-Reply-To: <20060804001342.1168e5ab.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Auke Kok wrote:
-> Charlie Brady wrote:
-> > Let's assume that these things are all true, and the NIC currently does
-> > not work perfectly, just imperfectly, but acceptably. With the recent
-> > driver change, it now does not work at all. That's surely a bug in the
-> > driver.
->
-> There is no logic in that sentence at all. You're saying that the driver is
-> broken because it doesn't fix an error in the EEPROM?
+On Fri, Aug 04, 2006 at 12:13:42AM -0700, Andrew Morton wrote:
+> There was a lot of discussion last time - Mike, Ingo, others.  It would be
+> a useful starting point if we could be refreshed on what the main issues
+> were, and whether/how this new patchset addresses them.
 
-It's broken because it bails completely instead of just emitting a
-warning message.
+The main issues raised against the CPU controller posted last time were
+these:
 
-You wouldn't believe the number of hours people spend out there trying
-to get a Linux box up when there's no network access.  Bailing out and
-completely disabling the hardware on checksum errors is shooting those
-people in the foot, because they'll need to try and debug the driver,
-or the hardware, or do something completely else, perhaps on an
-embedded device, and you're basically telling them "We at Intel do not
-want to allow you to even attempt to make this your hardware work.".
-By refusing to add an option to NOT bail, you're adding "And we're
-happy to handicap any attempts you might make at it.".
+(ref : http://lkml.org/lkml/2006/4/20/404)
 
-> We're trying extremely hard to fix real errors here
+a. Interactive tasks not handled
+	The patch, which was mainly based on scaling down timeslice of tasks 
+	that are above their guarantee, left interactive tasks untouched. This 
+	meant that interactive tasks could run uncontrolled and would have 
+	affected the guaranteed bandwidth provided for other tasks.
 
-You're not fixing anything, you're creating a problem for the user, sorry.
+b. Task groups with uncontrolled number of tasks not handled well
+	The patch retained current single runqueue per-cpu. Thus the runqueue 
+	would contain a mixture of tasks belonging to different groups. Also 
+	each task was given a minimum timeslice of 1 tick. This meant that we 
+	could not limit the CPU bandwidth of a group that has a large number of 
+	tasks to the desired extent.
 
-> (especially when we find that hardware resellers send out
-> hardware with EEPROM problems) and you are asking for
-> a workaround that will (likely) introduce random errors
-> and failure into your kernel.
+c. SMP-correctness not implemented
+	 Guaranteed bandwidth wasn't observed on all CPUs put together
 
-You've established yourself that the most likely cause of the error is
-that the vendor forgot to run a checksumming tool.  That's hardly
-random errors and failure.  You're trying to pull Linux end users into
-a war between Intel and it's vendors, so you can make end users scream
-at the vendors when they forget to run the checksum tool.  Well,
-perhaps you should drop that and instead make it so that the *tools*
-bail when the checksum is wrong, not the end user's driver.
+d. Supported only guaranteed bandwidth and not soft/hard limit.
 
-> If you want to recalculate the checksum yourself and
-> put it in the EEPROM then I am also fine with that.
+e. Bursty workloads not handled well
+	Scaling down of timeslice, to meet the increased demand of 
+	higher-guaranteed task-groups, was not instantaneous. Rather 
+   	timeslice was scaled down when tasks expired their timeslice
+   	and were moved to expired array. This meant that bursty workloads
+   	would get their due share rather slowly.
 
-Could you please provide a method and/or tool to do that?
+Apart from these, the other observation I had was that:
 
-> But we can't support an option that allows all users to willingly enable
-> a piece of non-properly-working hardware.
+f. Incorrect load accounting?
+	Load of a task was accounted only when it expired its timeslice, rather 
+	than while it was running. This IMO can lead to improper observation of 
+	load a task-group has on a given CPU at times and thus affect
+	guaranteed bandwidth for other task-groups.
 
-The tactful thing to do would be to put out a big fat error message
-during boot, but not bailing.
-If you're worried that the end user might not see the message, then
-bail, but provide an option to load anyway.
-This is the only constructive and meaningful way forward.  There's no
-point in holding the end user hostage.
+Could we have overcome all these issue with slight changes to the
+design? Hard to say. IMHO we get better control only by segregating tasks
+into different runqueues and getting control over which task-group to
+schedule next, which is what this new patch attempts to do.
 
-> The bottom line is that your problem is that a specific hardware vendor
-> is/was selling badly configured hardware, and you buy it from them, even
-> after it's End Of Lifed for that vendor. Even though that vendor did buy the units
-> properly configured and had all the tools needed to configure them properly.
+In summary, the patch should address limitations a, b, e and f. I am hoping to 
+address c using smpnice approach. Regarding d, this patch provides more
+of a soft-limit feature. Some guaranteed usage for task-groups can still
+be met, I feel, by limiting the CPU usage of other groups.
 
-There's no way for me to make Nokia do anything about this problem.
-Please don't try to drag me into a Intel vs vendors war just for the
-purpose of making me a number in their statistics.
-(Maybe you could improve your tools so they'll want to fix the checksum.)
+To take all this forward, these significant points need to be decided
+for a CPU controller:
 
-> I can maybe fix your problem by seeing if we can get you an eeprom update
+1. Do we want to split the current 1 runqueue per-CPU into 1 runqueue
+   per-task-group per-CPU?
 
-Any chance you could get one of those for me?
+2. How should task-group priority be decided? The decision we take for
+   this impacts interactivity of the system. In my patch, I attempt to
+   retain good interactivty by letting task-group priority be decided by
+   the highest priority task it has.
 
-(Yeah, I do realize that I'm critizicing and then asking for help.  Cocky :-D.)
+3. How do we accomplish SMP correctness for task-group bandwidth?
+   I believe OpenVZ uses virtual runqueues, which simplifies 
+   load balancing a bit, though not sure if that is at the expense
+   of increased lock contention. IMHO we can try going smpnice route and
+   see how far that can take us.
+
+Ingo/Nick, what are your thoughts here?
+
+-- 
+Regards,
+vatsa

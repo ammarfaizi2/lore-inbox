@@ -1,148 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWHDXJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161458AbWHDXQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422643AbWHDXJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 19:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422644AbWHDXJ6
+	id S1161458AbWHDXQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 19:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161573AbWHDXQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 19:09:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:20592 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422643AbWHDXJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 19:09:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=rMsqZ3JzWx9Ij8gprLnY/SsiXj1M8yMsXQSmFowYGX/E3/yq1p5BMQHxaQIPJtWnYTWfk32nYdQvKP8OSqyiuCzriSLdeNC/Zth7au/QfgGvc2NU9w+Ez1ATtd1eAbuI31D1SSDWD6ev36obRonNX0naxjaVxv1OC13nOQwojI0=
-Message-ID: <44D3D3D2.3090802@gmail.com>
-Date: Sat, 05 Aug 2006 01:09:47 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Fri, 4 Aug 2006 19:16:24 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57522 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161458AbWHDXQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 19:16:24 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: vgoyal@in.ibm.com
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Linda Wang <lwang@redhat.com>
+Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<20060804225611.GG19244@in.ibm.com>
+Date: Fri, 04 Aug 2006 17:14:37 -0600
+In-Reply-To: <20060804225611.GG19244@in.ibm.com> (Vivek Goyal's message of
+	"Fri, 4 Aug 2006 18:56:11 -0400")
+Message-ID: <m1k65onleq.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
-       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [ RFC, PATCH 2/5 ] CPU controller - Define group operations
-References: <20060804050753.GD27194@in.ibm.com> <20060804051023.GF27194@in.ibm.com>
-In-Reply-To: <20060804051023.GF27194@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> Define these operations for a task-group:
-> 
-> 	- create new group
-> 	- destroy existing group
-> 	- assign bandwidth (quota) for a group
-> 	- get bandwidth (quota) of a group
-> 
-> 
-> Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
-> 
-> 
-> 
->  include/linux/sched.h |   12 +++++++
->  kernel/sched.c        |   79 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 91 insertions(+)
-> 
-> diff -puN kernel/sched.c~cpu_ctlr_grp_ops kernel/sched.c
-> --- linux-2.6.18-rc3/kernel/sched.c~cpu_ctlr_grp_ops	2006-08-04 07:58:50.000000000 +0530
-> +++ linux-2.6.18-rc3-root/kernel/sched.c	2006-08-04 07:58:50.000000000 +0530
-> @@ -7063,3 +7063,82 @@ void set_curr_task(int cpu, struct task_
->  }
->  
->  #endif
-> +
-> +#ifdef CONFIG_CPUMETER
-> +
-> +/* Allocate runqueue structures for the new task-group */
-> +void *sched_alloc_group(void)
-> +{
-> +	struct task_grp *tg;
-> +	struct task_grp_rq *tgrq;
-> +	int i;
-> +
-> +	tg = kzalloc(sizeof(*tg), GFP_KERNEL);
-> +	if (!tg)
-> +		return NULL;
-> +
-> +	tg->ticks = -1;		/* No limit */
-> +
-> +	for_each_possible_cpu(i) {
-> +		tgrq = kzalloc(sizeof(*tgrq), GFP_KERNEL);
-> +		if (!tgrq)
-> +			goto oom;
-> +		tg->rq[i] = tgrq;
-> +		task_grp_rq_init(tgrq, tg->ticks);
-> +	}
-> +
-> +	return (void *)tg;
+Vivek Goyal <vgoyal@in.ibm.com> writes:
 
-unneeded cast
+> On Tue, Aug 01, 2006 at 04:58:49AM -0600, Eric W. Biederman wrote:
+>> 
+>> The problem:
+>> 
+>> We can't always run the kernel at 1MB or 2MB, and so people who need
+>> different addresses must build multiple kernels.  The bzImage format
+>> can't even represent loading a kernel at other than it's default address.
+>> With kexec on panic now starting to be used by distros having a kernel
+>> not running at the default load address is starting to become common.
+>> 
+> Hi Eric,
+>
+> There seems to be a small anomaly in the current set of patches for i386.
+>
+> For example if one compiles the kernel with CONFIG_RELOCATABLE=y
+> and CONFIG_PHYSICAL_START=0x400000 (4MB) and he uses grub to load
+> the kernel then kernel would run from 1MB location. I think user would
+> expect it to run from 4MB location.
 
-> +oom:
-> +	while (i--)
-> +		kfree(tg->rq[i]);
-> +
-> +	kfree(tg);
-> +	return NULL;
-> +}
-> +
-> +/* Deallocate runqueue structures */
-> +void sched_dealloc_group(void *grp)
-> +{
-> +	struct task_grp *tg = (struct task_grp *)grp;
+Agreed.  That is a non-intuitive, and should probably be fixed.
 
-again
+> I think distro's might want to keep above config options enabled. 
+> CONFIG_RELOCATABLE=y so that kexec can load kdump kernel at a 
+> different address and CONFIG_PHYSICAL_START=non 1MB location, to
+> extract better performance. (As we had discussions on mailing list
+> some time back.)
+>
+> In principle this is a limitation on boot-loaders part but as we can
+> not fix the boot-loaders out there, probably we can try fixing it
+> at kernel level.
+>
+> What I have done here is that decompressor code will determine the
+> final resting place of the kernel based on boot loader type. So 
+> if I have been loaded by kexec, I am supposed to run from loaded address
+> otherwise I am supposed to run from CONFIG_PHYSICAL_START as I have been
+> loaded at 1MB address due to boot loader limitation and that's not the
+> intention.
+>
+> A prototype patch is attached with the mail. I have assumed that I can
+> assign a boot loader type id 9 to kexec (Documentation/i386/boot.txt).
+> Also assuming that all other boot loaders apart from kexec have got 1MB
+> limitation. If not, its trivial to include their boot loader ids also.
+>
+> I have tested this patch and it works fine. What do you think about
+> this approach ?
 
-> +	int i;
-> +
-> +	for_each_possible_cpu(i)
-> +		kfree(tg->rq[i]);
-> +
-> +	kfree(tg);
-> +}
-> +
-> +/* Assign quota to this group */
-> +void sched_assign_quota(void *grp, int quota)
-> +{
-> +	struct task_grp *tg = (struct task_grp *)grp;
+I think there is some value in it. But I need to digest it.
 
-and one more time
+I have a cold right now and am running pretty weak, so it is going to take me
+a little bit to look at this.
 
-> +	int i;
-> +
-> +	tg->ticks = (quota * 5 * HZ) / 100;
-> +
-> +	for_each_possible_cpu(i)
-> +		tg->rq[i]->ticks = tg->ticks;
-> +
-> +}
-> +
-> +/* Return assigned quota for this group */
-> +int sched_get_quota(void *grp)
-> +{
-> +	struct task_grp *tg = (struct task_grp *)grp;
+I don't like taking action based upon bootloader type.  As that assumes
+all kinds of things.  But having better rules for when we perform relocation
+makes sense.  There might be a way to detect coming from setup.S
 
-...
+I gave it some care last time, I worked through this and it didn't quite work.
 
-> +	int quota;
-> +
-> +	quota = (tg->ticks * 100) / (5 * HZ);
-> +
-> +	return quota;
+I guess the practical question is do people see a real performance benefit
+when loading the kernel at 4MB?
 
-what about to just
-return (tg->ticks * 100) / (5 * HZ);
+Possibly the right solution is to do like I did on x86_64 and simply remove
+CONFIG_PHYSICAL_START, and always place the kernel at 4MB, or something like
+that.
 
-regards,
--- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+The practical question is what to do to keep the complexity from spinning
+out of control.  Removing CONFIG_PHYSICAL_START would seriously help with
+that.
+
+Eric

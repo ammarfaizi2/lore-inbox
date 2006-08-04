@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWHDJFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWHDJHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161113AbWHDJFf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 05:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWHDJFf
+	id S1161056AbWHDJHf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 05:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWHDJHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 05:05:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51897 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161113AbWHDJFe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 05:05:34 -0400
-Date: Fri, 4 Aug 2006 02:04:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
-       torvalds@osdl.org, jmforbes@linuxtx.org, zwane@arm.linux.org.uk,
-       tytso@mit.edu, rdunlap@xenotime.net, davej@redhat.com,
-       chuckw@quantumlinux.com, reviews@ml.cw.f00f.org,
-       alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org, jes@sgi.com
-Subject: Re: [patch 12/23] invalidate_bdev() speedup
-Message-Id: <20060804020422.09b32164.akpm@osdl.org>
-In-Reply-To: <20060804085012.GA20026@infradead.org>
-References: <20060804053258.391158155@quad.kroah.org>
-	<20060804053942.GM769@kroah.com>
-	<20060804085012.GA20026@infradead.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 4 Aug 2006 05:07:35 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:16094 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1161056AbWHDJHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 05:07:35 -0400
+Subject: Re: [PATCH] MTD jedec_probe: Recognize Atmel AT49BV6416
+From: David Woodhouse <dwmw2@infradead.org>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060804105220.6d125976@cad-250-152.norway.atmel.com>
+References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
+	 <1154680798.31031.179.camel@shinybook.infradead.org>
+	 <20060804105220.6d125976@cad-250-152.norway.atmel.com>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 17:06:19 +0800
+Message-Id: <1154682379.31031.190.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006 09:50:13 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
+On Fri, 2006-08-04 at 10:52 +0200, Haavard Skinnemoen wrote:
+> It is actually a CFI chip. But I couldn't figure out how to install the
+> fixup in the other patch in the CFI code. The AT49BV6416 chip
+> identifies itself as using the AMD command set, so the fixup must be
+> installed based on the jedec ID... 
 
-> On Thu, Aug 03, 2006 at 10:39:42PM -0700, Greg KH wrote:
-> > -stable review patch.  If anyone has any objections, please let us know.
-> 
-> This is a feature.  Definitly not -stable material.
+Er, note that the _correct_ answer is to advertise the availability of
+the lock functionality in the CFI 'extended query' information. Did the
+hardware designer screw that up?
 
-Apparently that regular IPI storm is causing the SGI machines some
-significant problems.  I assume it's the interrupt latency problem again.
-Jes would know.
-
-It's not the biggest problem we've ever had, but if this patch is wrong,
-the pagecache/buffer_head layer is utterly busted.  And it isn't.
+-- 
+dwmw2
 

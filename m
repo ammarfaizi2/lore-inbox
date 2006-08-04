@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161241AbWHDOrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWHDOrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161241AbWHDOrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 10:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161236AbWHDOrK
+	id S1161236AbWHDOrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 10:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWHDOrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 10:47:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6321 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161241AbWHDOrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 10:47:08 -0400
-Message-ID: <44D35DA0.4060403@redhat.com>
-Date: Fri, 04 Aug 2006 09:45:52 -0500
-From: Eric Sandeen <esandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, jack@suse.cz, neilb@suse.de,
-       Marcel Holtmann <marcel@holtmann.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [patch 16/23] ext3: avoid triggering ext3_error on bad NFS file
- handle
-References: <20060804053258.391158155@quad.kroah.org> <20060804054010.GQ769@kroah.com>
-In-Reply-To: <20060804054010.GQ769@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 10:47:55 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:53453 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161244AbWHDOry
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 10:47:54 -0400
+Date: Fri, 4 Aug 2006 20:21:58 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
+       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [ RFC, PATCH 1/5 ] CPU controller - base changes
+Message-ID: <20060804145158.GA29850@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060804050753.GD27194@in.ibm.com> <20060804050932.GE27194@in.ibm.com> <44D35AD8.2090506@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D35AD8.2090506@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
+On Fri, Aug 04, 2006 at 06:34:00PM +0400, Kirill Korotaev wrote:
+> Srivatsa,
 > 
-> ------------------
-> From: Neil Brown <neilb@suse.de>
-> 
-> The inode number out of an NFS file handle gets passed eventually to
-> ext3_get_inode_block() without any checking.  If ext3_get_inode_block()
-> allows it to trigger an error, then bad filehandles can have unpleasant
-> effect - ext3_error() will usually cause a forced read-only remount, or a
-> panic if `errors=panic' was used.
-> 
-> So remove the call to ext3_error there and put a matching check in
-> ext3/namei.c where inode numbers are read off storage.
+> AFAICS, you wanted to go the way we used in OpenVZ - 2-level scheduling.
+> However, you don't do any process balancing between runqueues taking into 
+> account
+> other groups.
+> In many cases you will simply endup with tasks collected on the same 
+> physical
+> CPU and poor performance. I'm not talking about fairness (proportinal CPU 
+> scheduling).
 
-This patch and the ext2 patch (23/23) are accomplishing the same thing in 2 
-different ways, I think, and introducing unnecessary differences between ext2 
-and ext3.  I'd personally prefer to see both ext2 and ext3 handled with the 
-get_dentry op addition, and I'd be happy to quickly whip up the ext3 patch to do 
-this if there's agreement on this path.
+> I don't think it is possible to make any estimations for QoS of such a 
+> scheduler.
 
-(there's nothing technically wrong with either approach, it just seems 
-inconsistent to me).
+Yes, the patch (as mentioned earlier) does not address SMP correctness
+_yet_. That will need to be addressed definitely for an acceptable
+controller. My thought was we could try the smpnice approach (which
+attempts to deal with the same problem albeit for niced tasks) and
+see how far we can go. I am planning to work on it next.
 
-Thanks,
+> What do you think about a full runqueue virtualization, so that
+> first level CPU scheduler could select task-group on any basis and then
+> arbitrary runqueue was selected for running?
 
--Eric
+That may solve the load balance problem nicely. But isnt there some cost
+to be paid for it (like lock contention on the virtual runqueues)?
+
+> P.S. BTW, this patch doesn't allow hierarchy in CPU controler.
+
+Do we want heriarchy?
+
+
+-- 
+Regards,
+vatsa

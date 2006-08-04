@@ -1,62 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWHDSdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHDSew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWHDSdo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 14:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHDSdo
+	id S1751413AbWHDSew (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 14:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWHDSew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 14:33:44 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:61569 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751112AbWHDSdn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 14:33:43 -0400
-Date: Fri, 4 Aug 2006 11:34:48 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Greg KH <greg@kroah.com>
-Cc: Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
-Subject: Re: A proposal - binary
-Message-ID: <20060804183448.GE11244@sequoia.sous-sol.org>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Aug 2006 14:34:52 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:32162 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751413AbWHDSev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 14:34:51 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Stability-Problem of EHCI with a larger number of USB-Hubs/Devices
+Date: Fri, 4 Aug 2006 11:08:18 -0700
+User-Agent: KMail/1.7.1
+Cc: Matthias Schniedermeyer <ms@citd.de>, linux-kernel@vger.kernel.org
+References: <44C126C3.9000105@citd.de>
+In-Reply-To: <44C126C3.9000105@citd.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060803200136.GB28537@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200608041108.19549.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> > Who said that?  Please smack them on the head with a broom.  We are all 
-> > actively working on implementing Rusty's paravirt-ops proposal.  It 
-> > makes the API vs ABI discussion moot, as it allow for both.
-> 
-> So everyone is still skirting the issue, oh great :)
+Did you try with 2.6.18-rc3?  There's a Kconfig option for an
+improved interrupt scheduler, which might help especially with
+all those low speed devices.
 
-No, we are working closely together on Rusty's paravirt ops proposal.
-Given the number of questions I've fielded in the last 24 hrs, I really
-don't think people understand this.
+- Dave
 
-We are actively developing paravirt ops, we have a patch series that
-begins to implement it (although it's still in it's nascent stage).  If
-anybody is interested in our work it is done in public.  The working
-tree is here: http://ozlabs.org/~rusty/paravirt/ (mercurial patchqueue,
-just be forewarned that it's still quite early to be playing with it,
-doesn't do much yet).  We are using the virtualization mailing list for
-discussions https://lists.osdl.org/mailman/listinfo/virtualization if
-you are interested.
-
-Zach (please correct me if I'm wrong here), is working on plugging the
-VMI into the paravirt_ops interface.  So his discussion of binary
-interface issues is as a consumer of the paravirt_ops interface.
-
-So, in case it's not clear, we are all working together to get
-paravirt_ops upstream.  My personal intention is to do everything I can
-to help get things in shape to queue for 2.6.19 inclusion, and having
-confusion over our direction does not help with that agressive timeline.
-
-thanks,
--chris

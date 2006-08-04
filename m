@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWHDFnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWHDFnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbWHDFnP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWHDFnP
+	id S1030324AbWHDFnf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWHDFnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:43:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8069 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030266AbWHDFnO (ORCPT
+	Fri, 4 Aug 2006 01:43:25 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:36527 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030315AbWHDFnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:43:14 -0400
-Date: Thu, 3 Aug 2006 22:42:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-Message-Id: <20060803224253.49068b98.akpm@osdl.org>
-In-Reply-To: <20060803223650.423f2e6a.akpm@osdl.org>
-References: <20060804050753.GD27194@in.ibm.com>
-	<20060803223650.423f2e6a.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 01:43:21 -0400
+Date: Thu, 3 Aug 2006 22:38:38 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "David S. Miller" <davem@davemloft.net>,
+       Patrick McHardy <kaber@trash.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 03/23] : H.323 helper: fix possible NULL-ptr dereference
+Message-ID: <20060804053838.GD769@kroah.com>
+References: <20060804053258.391158155@quad.kroah.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="h.323-helper-fix-possible-null-ptr-dereference.patch"
+In-Reply-To: <20060804053807.GA769@kroah.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Aug 2006 22:36:50 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+-stable review patch.  If anyone has any objections, please let us know.
 
-> I thought the most recently posted CKRM core was a fine piece of code.
+------------------
+From: Patrick McHardy <kaber@trash.net>
 
-I mean, subject to more review, testing, input from stakeholders and blah,
-I'd be OK with merging the CKRM core fairly aggressively.  With just a
-minimal controller suite.  Because it is good to define the infrastructure
-and APIs for task grouping and to then let the controllers fall into place.
+[NETFILTER]: H.323 helper: fix possible NULL-ptr dereference
 
-The downside to such a strategy is that there is a risk that nobody ever
-gets around to implementing useful controllers, so it ends up dead code. 
-I'd judge that the interest in resource management is such that the risk of
-this happening is low.
+An RCF message containing a timeout results in a NULL-ptr dereference if
+no RRQ has been seen before.
 
+Noticed by the "SATURN tool", reported by Thomas Dillig <tdillig@stanford.edu>
+and Isil Dillig <isil@stanford.edu>.
+
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ net/ipv4/netfilter/ip_conntrack_helper_h323.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.17.7.orig/net/ipv4/netfilter/ip_conntrack_helper_h323.c
++++ linux-2.6.17.7/net/ipv4/netfilter/ip_conntrack_helper_h323.c
+@@ -1092,7 +1092,7 @@ static struct ip_conntrack_expect *find_
+ 	tuple.dst.protonum = IPPROTO_TCP;
+ 
+ 	exp = __ip_conntrack_expect_find(&tuple);
+-	if (exp->master == ct)
++	if (exp && exp->master == ct)
+ 		return exp;
+ 	return NULL;
+ }
+
+--

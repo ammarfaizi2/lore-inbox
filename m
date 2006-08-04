@@ -1,248 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWHDD2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWHDD2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWHDD2T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 23:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWHDD0N
+	id S1030182AbWHDD2F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 23:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWHDD1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 23:26:13 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:15817 "EHLO
+	Thu, 3 Aug 2006 23:27:40 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:24521 "EHLO
 	dwalker1.mvista.com") by vger.kernel.org with ESMTP
-	id S1030316AbWHDDZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 23:25:55 -0400
-Message-Id: <20060804032522.865606000@mvista.com>
+	id S1030316AbWHDD1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 23:27:32 -0400
+Message-Id: <20060804032510.405094000@mvista.com>
 References: <20060804032414.304636000@mvista.com>
 User-Agent: quilt/0.45-1
-Date: Thu, 03 Aug 2006 20:24:22 -0700
+Date: Thu, 03 Aug 2006 20:24:15 -0700
 From: dwalker@mvista.com
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: [PATCH 08/10] -mm  clocksource: cleanup on -mm
-Content-Disposition: inline; filename=clocksource_api_cleanup_on_mm.patch
+Subject: [PATCH 01/10] -mm  clocksource: increase initcall priority
+Content-Disposition: inline; filename=clocksource_init_call.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some additional clean up only on the -mm tree. Moves the adjust
-functions into kernel/time/clocksource.c . 
-
-These functions directly modify the clocksource multiplier based
-on ntp error. These adjustments will effect other users of that 
-clock. This hasn't been  addressed in my patch set, since it 
-needs some discussion.
+Since it's likely that this interface would get used during bootup 
+I moved all the clocksource registration into the postcore initcall. 
+This also eliminated some clocksource shuffling during bootup.
 
 Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
 ---
- include/linux/clocksource.h |    1 
- kernel/time/clocksource.c   |   90 ++++++++++++++++++++++++++++++++++++++++++++
- kernel/timer.c              |   83 ----------------------------------------
- 3 files changed, 91 insertions(+), 83 deletions(-)
+ arch/i386/kernel/hpet.c          |    2 +-
+ arch/i386/kernel/i8253.c         |    2 +-
+ arch/i386/kernel/tsc.c           |    2 +-
+ drivers/clocksource/acpi_pm.c    |    2 +-
+ drivers/clocksource/cyclone.c    |    2 +-
+ drivers/clocksource/scx200_hrt.c |    2 +-
+ kernel/time/clocksource.c        |   15 +--------------
+ kernel/time/jiffies.c            |    2 +-
+ 8 files changed, 8 insertions(+), 21 deletions(-)
 
-Index: linux-2.6.17/include/linux/clocksource.h
+Index: linux-2.6.17/arch/i386/kernel/hpet.c
 ===================================================================
---- linux-2.6.17.orig/include/linux/clocksource.h
-+++ linux-2.6.17/include/linux/clocksource.h
-@@ -217,6 +217,7 @@ extern int clocksource_sysfs_register(st
- extern void clocksource_sysfs_unregister(struct sysdev_attribute*);
- extern void clocksource_rating_change(struct clocksource*);
- extern struct clocksource * clocksource_get_clock(char*);
-+extern void clocksource_adjust(struct clocksource *, s64);
+--- linux-2.6.17.orig/arch/i386/kernel/hpet.c
++++ linux-2.6.17/arch/i386/kernel/hpet.c
+@@ -64,4 +64,4 @@ static int __init init_hpet_clocksource(
+ 	return clocksource_register(&clocksource_hpet);
+ }
  
- /**
-  * clocksource_get_best_clock - Finds highest rated clocksource
+-module_init(init_hpet_clocksource);
++postcore_initcall(init_hpet_clocksource);
+Index: linux-2.6.17/arch/i386/kernel/i8253.c
+===================================================================
+--- linux-2.6.17.orig/arch/i386/kernel/i8253.c
++++ linux-2.6.17/arch/i386/kernel/i8253.c
+@@ -115,4 +115,4 @@ static int __init init_pit_clocksource(v
+ 	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
+ 	return clocksource_register(&clocksource_pit);
+ }
+-module_init(init_pit_clocksource);
++postcore_initcall(init_pit_clocksource);
+Index: linux-2.6.17/arch/i386/kernel/tsc.c
+===================================================================
+--- linux-2.6.17.orig/arch/i386/kernel/tsc.c
++++ linux-2.6.17/arch/i386/kernel/tsc.c
+@@ -475,4 +475,4 @@ static int __init init_tsc_clocksource(v
+ 	return 0;
+ }
+ 
+-module_init(init_tsc_clocksource);
++postcore_initcall(init_tsc_clocksource);
+Index: linux-2.6.17/drivers/clocksource/acpi_pm.c
+===================================================================
+--- linux-2.6.17.orig/drivers/clocksource/acpi_pm.c
++++ linux-2.6.17/drivers/clocksource/acpi_pm.c
+@@ -174,4 +174,4 @@ pm_good:
+ 	return clocksource_register(&clocksource_acpi_pm);
+ }
+ 
+-module_init(init_acpi_pm_clocksource);
++postcore_initcall(init_acpi_pm_clocksource);
+Index: linux-2.6.17/drivers/clocksource/cyclone.c
+===================================================================
+--- linux-2.6.17.orig/drivers/clocksource/cyclone.c
++++ linux-2.6.17/drivers/clocksource/cyclone.c
+@@ -116,4 +116,4 @@ static int __init init_cyclone_clocksour
+ 	return clocksource_register(&clocksource_cyclone);
+ }
+ 
+-module_init(init_cyclone_clocksource);
++postcore_initcall(init_cyclone_clocksource);
+Index: linux-2.6.17/drivers/clocksource/scx200_hrt.c
+===================================================================
+--- linux-2.6.17.orig/drivers/clocksource/scx200_hrt.c
++++ linux-2.6.17/drivers/clocksource/scx200_hrt.c
+@@ -94,7 +94,7 @@ static int __init init_hrt_clocksource(v
+ 	return clocksource_register(&cs_hrt);
+ }
+ 
+-module_init(init_hrt_clocksource);
++postcore_initcall(init_hrt_clocksource);
+ 
+ MODULE_AUTHOR("Jim Cromie <jim.cromie@gmail.com>");
+ MODULE_DESCRIPTION("clocksource on SCx200 HiRes Timer");
 Index: linux-2.6.17/kernel/time/clocksource.c
 ===================================================================
 --- linux-2.6.17.orig/kernel/time/clocksource.c
 +++ linux-2.6.17/kernel/time/clocksource.c
-@@ -57,6 +57,96 @@ int clocksource_notifier_register(struct
- 	return atomic_notifier_chain_register(&clocksource_list_notifier, nb);
+@@ -50,19 +50,6 @@ static struct clocksource *next_clocksou
+ static LIST_HEAD(clocksource_list);
+ static DEFINE_SPINLOCK(clocksource_lock);
+ static char override_name[32];
+-static int finished_booting;
+-
+-/* clocksource_done_booting - Called near the end of bootup
+- *
+- * Hack to avoid lots of clocksource churn at boot time
+- */
+-static int __init clocksource_done_booting(void)
+-{
+-	finished_booting = 1;
+-	return 0;
+-}
+-
+-late_initcall(clocksource_done_booting);
+ 
+ /**
+  * clocksource_get_next - Returns the selected clocksource
+@@ -73,7 +60,7 @@ struct clocksource *clocksource_get_next
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&clocksource_lock, flags);
+-	if (next_clocksource && finished_booting) {
++	if (next_clocksource) {
+ 		curr_clocksource = next_clocksource;
+ 		next_clocksource = NULL;
+ 	}
+Index: linux-2.6.17/kernel/time/jiffies.c
+===================================================================
+--- linux-2.6.17.orig/kernel/time/jiffies.c
++++ linux-2.6.17/kernel/time/jiffies.c
+@@ -70,4 +70,4 @@ static int __init init_jiffies_clocksour
+ 	return clocksource_register(&clocksource_jiffies);
  }
  
-+/*
-+ * If the error is already larger, we look ahead even further
-+ * to compensate for late or lost adjustments.
-+ */
-+static __always_inline int
-+clocksource_bigadjust(struct clocksource *clock, s64 error, s64 *interval,
-+		      s64 *offset)
-+{
-+	s64 tick_error, i;
-+	u32 look_ahead, adj;
-+	s32 error2, mult;
-+
-+	/*
-+	 * Use the current error value to determine how much to look ahead.
-+	 * The larger the error the slower we adjust for it to avoid problems
-+	 * with losing too many ticks, otherwise we would overadjust and
-+	 * produce an even larger error.  The smaller the adjustment the
-+	 * faster we try to adjust for it, as lost ticks can do less harm
-+	 * here.  This is tuned so that an error of about 1 msec is adusted
-+	 * within about 1 sec (or 2^20 nsec in 2^SHIFT_HZ ticks).
-+	 */
-+	error2 = clock->error >> (TICK_LENGTH_SHIFT + 22 - 2 * SHIFT_HZ);
-+	error2 = abs(error2);
-+	for (look_ahead = 0; error2 > 0; look_ahead++)
-+		error2 >>= 2;
-+
-+	/*
-+	 * Now calculate the error in (1 << look_ahead) ticks, but first
-+	 * remove the single look ahead already included in the error.
-+	 */
-+	tick_error = current_tick_length() >>
-+		     (TICK_LENGTH_SHIFT - clock->shift + 1);
-+	tick_error -= clock->xtime_interval >> 1;
-+	error = ((error - tick_error) >> look_ahead) + tick_error;
-+
-+	/* Finally calculate the adjustment shift value.  */
-+	i = *interval;
-+	mult = 1;
-+	if (error < 0) {
-+		error = -error;
-+		*interval = -*interval;
-+		*offset = -*offset;
-+		mult = -1;
-+	}
-+	for (adj = 0; error > i; adj++)
-+		error >>= 1;
-+
-+	*interval <<= adj;
-+	*offset <<= adj;
-+	return mult << adj;
-+}
-+
-+/*
-+ * Adjust the multiplier to reduce the error value,
-+ * this is optimized for the most common adjustments of -1,0,1,
-+ * for other values we can do a bit more work.
-+ */
-+void clocksource_adjust(struct clocksource *clock, s64 offset)
-+{
-+	s64 error, interval = clock->cycle_interval;
-+	int adj;
-+
-+	error = clock->error >> (TICK_LENGTH_SHIFT - clock->shift - 1);
-+	if (error > interval) {
-+		error >>= 2;
-+		if (likely(error <= interval))
-+			adj = 1;
-+		else
-+			adj = clocksource_bigadjust(clock, error, &interval,
-+						    &offset);
-+	} else if (error < -interval) {
-+		error >>= 2;
-+		if (likely(error >= -interval)) {
-+			adj = -1;
-+			interval = -interval;
-+			offset = -offset;
-+		} else
-+			adj = clocksource_bigadjust(clock, error, &interval,
-+						    &offset);
-+	} else
-+		return;
-+
-+	clock->mult += adj;
-+	clock->xtime_interval += interval;
-+	clock->xtime_nsec -= offset;
-+	clock->error -= (interval - offset) <<
-+			(TICK_LENGTH_SHIFT - clock->shift);
-+}
-+
-+
- /**
-  * __is_registered - Returns a clocksource if it's registered
-  * @name:		name of the clocksource to return
-Index: linux-2.6.17/kernel/timer.c
-===================================================================
---- linux-2.6.17.orig/kernel/timer.c
-+++ linux-2.6.17/kernel/timer.c
-@@ -1140,89 +1140,6 @@ static int __init timekeeping_init_devic
- device_initcall(timekeeping_init_device);
- 
- /*
-- * If the error is already larger, we look ahead even further
-- * to compensate for late or lost adjustments.
-- */
--static __always_inline int clocksource_bigadjust(s64 error, s64 *interval, s64 *offset)
--{
--	s64 tick_error, i;
--	u32 look_ahead, adj;
--	s32 error2, mult;
--
--	/*
--	 * Use the current error value to determine how much to look ahead.
--	 * The larger the error the slower we adjust for it to avoid problems
--	 * with losing too many ticks, otherwise we would overadjust and
--	 * produce an even larger error.  The smaller the adjustment the
--	 * faster we try to adjust for it, as lost ticks can do less harm
--	 * here.  This is tuned so that an error of about 1 msec is adusted
--	 * within about 1 sec (or 2^20 nsec in 2^SHIFT_HZ ticks).
--	 */
--	error2 = clock->error >> (TICK_LENGTH_SHIFT + 22 - 2 * SHIFT_HZ);
--	error2 = abs(error2);
--	for (look_ahead = 0; error2 > 0; look_ahead++)
--		error2 >>= 2;
--
--	/*
--	 * Now calculate the error in (1 << look_ahead) ticks, but first
--	 * remove the single look ahead already included in the error.
--	 */
--	tick_error = current_tick_length() >> (TICK_LENGTH_SHIFT - clock->shift + 1);
--	tick_error -= clock->xtime_interval >> 1;
--	error = ((error - tick_error) >> look_ahead) + tick_error;
--
--	/* Finally calculate the adjustment shift value.  */
--	i = *interval;
--	mult = 1;
--	if (error < 0) {
--		error = -error;
--		*interval = -*interval;
--		*offset = -*offset;
--		mult = -1;
--	}
--	for (adj = 0; error > i; adj++)
--		error >>= 1;
--
--	*interval <<= adj;
--	*offset <<= adj;
--	return mult << adj;
--}
--
--/*
-- * Adjust the multiplier to reduce the error value,
-- * this is optimized for the most common adjustments of -1,0,1,
-- * for other values we can do a bit more work.
-- */
--static void clocksource_adjust(struct clocksource *clock, s64 offset)
--{
--	s64 error, interval = clock->cycle_interval;
--	int adj;
--
--	error = clock->error >> (TICK_LENGTH_SHIFT - clock->shift - 1);
--	if (error > interval) {
--		error >>= 2;
--		if (likely(error <= interval))
--			adj = 1;
--		else
--			adj = clocksource_bigadjust(error, &interval, &offset);
--	} else if (error < -interval) {
--		error >>= 2;
--		if (likely(error >= -interval)) {
--			adj = -1;
--			interval = -interval;
--			offset = -offset;
--		} else
--			adj = clocksource_bigadjust(error, &interval, &offset);
--	} else
--		return;
--
--	clock->mult += adj;
--	clock->xtime_interval += interval;
--	clock->xtime_nsec -= offset;
--	clock->error -= (interval - offset) << (TICK_LENGTH_SHIFT - clock->shift);
--}
--
--/*
-  * update_wall_time - Uses the current clocksource to increment the wall time
-  *
-  * Called from the timer interrupt, must hold a write on xtime_lock.
+-module_init(init_jiffies_clocksource);
++postcore_initcall(init_jiffies_clocksource);
 
 --

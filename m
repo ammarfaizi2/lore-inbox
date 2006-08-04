@@ -1,79 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbWHDFr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWHDFpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbWHDFr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWHDFrk
+	id S1030319AbWHDFpo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbWHDFpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:47:40 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:50097 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161024AbWHDFrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:47:15 -0400
-Date: Fri, 04 Aug 2006 14:46:53 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: kmannth@us.ibm.com, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
-Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       akpm@osdl.org
-In-Reply-To: <20060804124847.610791b5.kamezawa.hiroyu@jp.fujitsu.com>
-References: <1154661826.5925.92.camel@keithlap> <20060804124847.610791b5.kamezawa.hiroyu@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060804141705.D5C4.Y-GOTO@jp.fujitsu.com>
+	Fri, 4 Aug 2006 01:45:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:27109 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030348AbWHDFph (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 01:45:37 -0400
+Date: Thu, 3 Aug 2006 22:41:00 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Marcel Holtmann <marcel@holtmann.org>, Neil Brown <neilb@suse.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 23/23] Have ext2 reject file handles with bad inode numbers early.
+Message-ID: <20060804054100.GX769@kroah.com>
+References: <20060804053258.391158155@quad.kroah.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="have-ext2-reject-file-handles-with-bad-inode-numbers-early.patch"
+In-Reply-To: <20060804053807.GA769@kroah.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 03 Aug 2006 20:23:46 -0700
-> keith mannthey <kmannth@us.ibm.com> wrote:
-> 
-> > On Fri, 2006-08-04 at 12:13 +0900, KAMEZAWA Hiroyuki wrote:
-> > > On Thu, 03 Aug 2006 20:00:08 -0700
-> > > keith mannthey <kmannth@us.ibm.com> wrote:
-> > > 
-> > > 
-> > > > > >   What protecting is there for calling add_memory on an already present
-> > > > > > memory range?  
-> > > > > > 
-> > > > > For example, considering ia64, which has 1Gbytes section...
-> > > > 
-> > > > Maybe 1gb sections is too large?  
-> > > > 
-> > > ia64 machines sometimes to have crazy big memory...so 1gb section is requested.
-> > > Configurable section_size for small machines was rejected in old days.
-> > 
-> > My HW supports about 512gb...... 
-> > 
-> 
-> > What if you add a partial section.  Then online in sysfs and add another
-> > section?  messy....
-> Once a section is onlined, it cannot be re-onlined. My patch just helps memory holes
-> in "a" memory hot add event.
-> Our firmware team tells us they may create small memory holes in contiguous memory...
+-stable review patch.  If anyone has any objections, please let us know.
 
-I would like to mention about it more.
+------------------
+From: Neil Brown <neilb@suse.de>
 
-We asked not to make memory hole to firmware team before.
-But, conclusion became NO. 
-Because this hole is made for memory partial broken case. 
-Current ACPI doesn't have any spec to tell which memory area is
-broken. So, _CRS must return address range of only sane memory area.
-In addition, partial broken area should be smaller as much as possible.
-This is why he mention about memory hole.
-
-BTW, I prefer that we should fix only bug at this time for 2.6.18.
-But, I really confusing that current patches are for only bug fix or
-including for small memory hole case.
-IIRC, small memory hole need more works. So, it should be 2.6.19
-or later. Right?
-Kame-san, could you divide between just fix patch and considering
-small hole case? Or all of patches are for only bug fix?
-
-Bye.
-
--- 
-Yasunori Goto 
+This prevents bad inode numbers from triggering errors in
+ext2_get_inode.
 
 
+Signed-off-by: Neil Brown <neilb@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ fs/ext2/super.c |   41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+--- linux-2.6.17.7.orig/fs/ext2/super.c
++++ linux-2.6.17.7/fs/ext2/super.c
+@@ -252,6 +252,46 @@ static struct super_operations ext2_sops
+ #endif
+ };
+ 
++static struct dentry *ext2_get_dentry(struct super_block *sb, void *vobjp)
++{
++	__u32 *objp = vobjp;
++	unsigned long ino = objp[0];
++	__u32 generation = objp[1];
++	struct inode *inode;
++	struct dentry *result;
++
++	if (ino != EXT2_ROOT_INO && ino < EXT2_FIRST_INO(sb))
++		return ERR_PTR(-ESTALE);
++	if (ino > le32_to_cpu(EXT2_SB(sb)->s_es->s_inodes_count))
++		return ERR_PTR(-ESTALE);
++
++	/* iget isn't really right if the inode is currently unallocated!!
++	 * ext2_read_inode currently does appropriate checks, but
++	 * it might be "neater" to call ext2_get_inode first and check
++	 * if the inode is valid.....
++	 */
++	inode = iget(sb, ino);
++	if (inode == NULL)
++		return ERR_PTR(-ENOMEM);
++	if (is_bad_inode(inode)
++	    || (generation && inode->i_generation != generation)
++		) {
++		/* we didn't find the right inode.. */
++		iput(inode);
++		return ERR_PTR(-ESTALE);
++	}
++	/* now to find a dentry.
++	 * If possible, get a well-connected one
++	 */
++	result = d_alloc_anon(inode);
++	if (!result) {
++		iput(inode);
++		return ERR_PTR(-ENOMEM);
++	}
++	return result;
++}
++
++
+ /* Yes, most of these are left as NULL!!
+  * A NULL value implies the default, which works with ext2-like file
+  * systems, but can be improved upon.
+@@ -259,6 +299,7 @@ static struct super_operations ext2_sops
+  */
+ static struct export_operations ext2_export_ops = {
+ 	.get_parent = ext2_get_parent,
++	.get_dentry = ext2_get_dentry,
+ };
+ 
+ static unsigned long get_sb_block(void **data)
+
+--

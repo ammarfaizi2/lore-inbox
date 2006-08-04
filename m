@@ -1,225 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbWHDD0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWHDD0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbWHDD0N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 23:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbWHDD0L
+	id S1030318AbWHDD0H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 23:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWHDD0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 23:26:11 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:16073 "EHLO
+	Thu, 3 Aug 2006 23:26:06 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:16585 "EHLO
 	dwalker1.mvista.com") by vger.kernel.org with ESMTP
-	id S1030315AbWHDDZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 23:25:55 -0400
-Message-Id: <20060804032523.569641000@mvista.com>
+	id S1030318AbWHDDZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 23:25:56 -0400
+Message-Id: <20060804032523.221553000@mvista.com>
 References: <20060804032414.304636000@mvista.com>
 User-Agent: quilt/0.45-1
-Date: Thu, 03 Aug 2006 20:24:24 -0700
+Date: Thu, 03 Aug 2006 20:24:23 -0700
 From: dwalker@mvista.com
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: [PATCH 10/10] -mm  clocksource: add generic sched_clock()
-Content-Disposition: inline; filename=add_generic_sched_clock.patch
+Subject: [PATCH 09/10] -mm  clocksource: initialize list value
+Content-Disposition: inline; filename=clocksouce_list_init.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds a generic sched_clock, along with a boot time override for the
-scheduler clocksource. Hopefully the config option would eventually 
-be removed.
+This is an optional change to the clocksource structures. If the list
+field is initialized it allows clocksource_register to complete faster
+since it doesn't have the scan the list of clocks doing strcmp on each.
 
 Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
 ---
- arch/i386/Kconfig      |    4 +++
- arch/i386/kernel/tsc.c |   61 ------------------------------------------------
- kernel/sched.c         |   62 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 66 insertions(+), 61 deletions(-)
+ arch/i386/kernel/hpet.c          |    1 +
+ arch/i386/kernel/i8253.c         |    1 +
+ arch/i386/kernel/tsc.c           |    1 +
+ drivers/clocksource/acpi_pm.c    |    1 +
+ drivers/clocksource/cyclone.c    |    1 +
+ drivers/clocksource/scx200_hrt.c |    1 +
+ include/linux/clocksource.h      |    3 +++
+ 7 files changed, 9 insertions(+)
 
-Index: linux-2.6.17/arch/i386/Kconfig
+Index: linux-2.6.17/arch/i386/kernel/hpet.c
 ===================================================================
---- linux-2.6.17.orig/arch/i386/Kconfig
-+++ linux-2.6.17/arch/i386/Kconfig
-@@ -18,6 +18,10 @@ config GENERIC_TIME
- 	bool
- 	default y
+--- linux-2.6.17.orig/arch/i386/kernel/hpet.c
++++ linux-2.6.17/arch/i386/kernel/hpet.c
+@@ -27,6 +27,7 @@ static struct clocksource clocksource_hp
+ 	.mult		= 0, /* set below */
+ 	.shift		= HPET_SHIFT,
+ 	.is_continuous	= 1,
++	.list		= CLOCKSOURCE_LIST_INIT(clocksource_hpet.list),
+ };
  
-+config GENERIC_SCHED_CLOCK
-+	bool
-+	default y
-+
- config LOCKDEP_SUPPORT
- 	bool
- 	default y
+ static int __init init_hpet_clocksource(void)
+Index: linux-2.6.17/arch/i386/kernel/i8253.c
+===================================================================
+--- linux-2.6.17.orig/arch/i386/kernel/i8253.c
++++ linux-2.6.17/arch/i386/kernel/i8253.c
+@@ -105,6 +105,7 @@ static struct clocksource clocksource_pi
+ 	.mask	= CLOCKSOURCE_MASK(32),
+ 	.mult	= 0,
+ 	.shift	= 20,
++	.list	= CLOCKSOURCE_LIST_INIT(clocksource_pit.list),
+ };
+ 
+ static int __init init_pit_clocksource(void)
 Index: linux-2.6.17/arch/i386/kernel/tsc.c
 ===================================================================
 --- linux-2.6.17.orig/arch/i386/kernel/tsc.c
 +++ linux-2.6.17/arch/i386/kernel/tsc.c
-@@ -69,65 +69,6 @@ void mark_tsc_unstable(void)
- }
- EXPORT_SYMBOL_GPL(mark_tsc_unstable);
+@@ -282,6 +282,7 @@ static struct clocksource clocksource_ts
+ 	.mult			= 0, /* to be set */
+ 	.shift			= 22,
+ 	.is_continuous		= 1,
++	.list			= CLOCKSOURCE_LIST_INIT(clocksource_tsc.list),
+ };
  
--/* Accellerators for sched_clock()
-- * convert from cycles(64bits) => nanoseconds (64bits)
-- *  basic equation:
-- *		ns = cycles / (freq / ns_per_sec)
-- *		ns = cycles * (ns_per_sec / freq)
-- *		ns = cycles * (10^9 / (cpu_khz * 10^3))
-- *		ns = cycles * (10^6 / cpu_khz)
-- *
-- *	Then we use scaling math (suggested by george@mvista.com) to get:
-- *		ns = cycles * (10^6 * SC / cpu_khz) / SC
-- *		ns = cycles * cyc2ns_scale / SC
-- *
-- *	And since SC is a constant power of two, we can convert the div
-- *  into a shift.
-- *
-- *  We can use khz divisor instead of mhz to keep a better percision, since
-- *  cyc2ns_scale is limited to 10^6 * 2^10, which fits in 32 bits.
-- *  (mathieu.desnoyers@polymtl.ca)
-- *
-- *			-johnstul@us.ibm.com "math is hard, lets go shopping!"
-- */
--static unsigned long cyc2ns_scale __read_mostly;
--
--#define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
--
--static inline void set_cyc2ns_scale(unsigned long cpu_khz)
--{
--	cyc2ns_scale = (1000000 << CYC2NS_SCALE_FACTOR)/cpu_khz;
--}
--
--static inline unsigned long long cycles_2_ns(unsigned long long cyc)
--{
--	return (cyc * cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
--}
--
--/*
-- * Scheduler clock - returns current time in nanosec units.
-- */
--unsigned long long sched_clock(void)
--{
--	unsigned long long this_offset;
--
--	/*
--	 * in the NUMA case we dont use the TSC as they are not
--	 * synchronized across all CPUs.
--	 */
--#ifndef CONFIG_NUMA
--	if (!cpu_khz || check_tsc_unstable())
--#endif
--		/* no locking but a rare wrong value is not a big deal */
--		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
--
--	/* read the Time Stamp Counter: */
--	rdtscll(this_offset);
--
--	/* return the value in ns */
--	return cycles_2_ns(this_offset);
--}
--
- static unsigned long calculate_cpu_khz(void)
- {
- 	unsigned long long start, end;
-@@ -210,7 +151,6 @@ void tsc_init(void)
- 				(unsigned long)cpu_khz / 1000,
- 				(unsigned long)cpu_khz % 1000);
- 
--	set_cyc2ns_scale(cpu_khz);
- 	use_tsc_delay();
- }
- 
-@@ -285,7 +225,6 @@ time_cpufreq_notifier(struct notifier_bl
- 						ref_freq, freq->new);
- 			if (!(freq->flags & CPUFREQ_CONST_LOOPS)) {
- 				tsc_khz = cpu_khz;
--				set_cyc2ns_scale(cpu_khz);
- 				/*
- 				 * TSC based sched_clock turns
- 				 * to junk w/ cpufreq
-Index: linux-2.6.17/kernel/sched.c
+ static int tsc_update_callback(void)
+Index: linux-2.6.17/drivers/clocksource/acpi_pm.c
 ===================================================================
---- linux-2.6.17.orig/kernel/sched.c
-+++ linux-2.6.17/kernel/sched.c
-@@ -16,6 +16,7 @@
-  *		by Davide Libenzi, preemptible kernel bits by Robert Love.
-  *  2003-09-03	Interactivity tuning by Con Kolivas.
-  *  2004-04-02	Scheduler domains code by Nick Piggin
-+ *  2006-08-03	Generic sched_clock() implementation by Daniel Walker
-  */
+--- linux-2.6.17.orig/drivers/clocksource/acpi_pm.c
++++ linux-2.6.17/drivers/clocksource/acpi_pm.c
+@@ -73,6 +73,7 @@ static struct clocksource clocksource_ac
+ 	.mult		= 0, /*to be caluclated*/
+ 	.shift		= 22,
+ 	.is_continuous	= 1,
++	.list		= CLOCKSOURCE_LIST_INIT(clocksource_acpi_pm.list),
+ };
  
- #include <linux/mm.h>
-@@ -53,6 +54,7 @@
- #include <linux/acct.h>
- #include <linux/kprobes.h>
- #include <linux/delayacct.h>
-+#include <linux/clocksource.h>
- #include <asm/tlb.h>
  
- #include <asm/unistd.h>
-@@ -6843,6 +6845,66 @@ int in_sched_functions(unsigned long add
- 		&& addr < (unsigned long)__sched_text_end);
- }
+Index: linux-2.6.17/drivers/clocksource/cyclone.c
+===================================================================
+--- linux-2.6.17.orig/drivers/clocksource/cyclone.c
++++ linux-2.6.17/drivers/clocksource/cyclone.c
+@@ -32,6 +32,7 @@ static struct clocksource clocksource_cy
+ 	.mult		= 10,
+ 	.shift		= 0,
+ 	.is_continuous	= 1,
++	.list		= CLOCKSOURCE_LIST_INIT(clocksource_cyclone.list),
+ };
  
-+#ifdef CONFIG_GENERIC_SCHED_CLOCK
-+static struct clocksource *sched_clocksource = &clocksource_jiffies;
-+static char __initdata sched_clock_override[32];
+ static int __init init_cyclone_clocksource(void)
+Index: linux-2.6.17/drivers/clocksource/scx200_hrt.c
+===================================================================
+--- linux-2.6.17.orig/drivers/clocksource/scx200_hrt.c
++++ linux-2.6.17/drivers/clocksource/scx200_hrt.c
+@@ -58,6 +58,7 @@ static struct clocksource cs_hrt = {
+ 	.read		= read_hrt,
+ 	.mask		= CLOCKSOURCE_MASK(32),
+ 	.is_continuous	= 1,
++	.list		= CLOCKSOURCE_LIST_INIT(cs_hrt.list),
+ 	/* mult, shift are set based on mhz27 flag */
+ };
+ 
+Index: linux-2.6.17/include/linux/clocksource.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/clocksource.h
++++ linux-2.6.17/include/linux/clocksource.h
+@@ -82,6 +82,9 @@ struct clocksource {
+ /* simplify initialization of mask field */
+ #define CLOCKSOURCE_MASK(bits) (cycle_t)(bits<64 ? ((1ULL<<bits)-1) : -1)
+ 
++/* Abstracted list initialization */
++#define CLOCKSOURCE_LIST_INIT(x)	PLIST_NODE_INIT(x, 0)
 +
-+unsigned long long sched_clock(void)
-+{
-+	return cyc2ns(sched_clocksource, clocksource_read(sched_clocksource));
-+}
-+
-+static int __init boot_override_sched_clocksource(char* str)
-+{
-+	if (str)
-+		strlcpy(sched_clock_override, str,
-+			sizeof(sched_clock_override));
-+
-+	return 1;
-+}
-+__setup("sched_clocksource=", boot_override_sched_clocksource);
-+
-+static int
-+sched_clock_callback(struct notifier_block *nb, unsigned long op, void *c)
-+{
-+	/*
-+	 * If our clock just became unstable switch to the safe,
-+	 * slow, fast jiffies clock.
-+	 *
-+	 * XXX : We could just switch to the next best clock.
-+	 */
-+	if (op == CLOCKSOURCE_NOTIFY_RATING && sched_clocksource == c)
-+		sched_clocksource = &clocksource_jiffies;
-+	return 0;
-+}
-+
-+static struct notifier_block sched_clock_nb = {
-+	.notifier_call = sched_clock_callback,
-+};
-+
-+static int __init sched_clock_init(void)
-+{
-+	clocksource_notifier_register(&sched_clock_nb);
-+
-+	if (*sched_clock_override != 0) {
-+		sched_clocksource = clocksource_get_clock(sched_clock_override);
-+		if (unlikely(sched_clocksource == NULL)) {
-+			sched_clocksource = clocksource_get_best_clock();
-+			printk(KERN_ERR "Warning: "
-+			       "Invalid scheduler clock override.\n");
-+			return 1;
-+		}
-+
-+		printk(KERN_INFO "Scheduler: %s clocksource has been "
-+		       "installed.\n", sched_clocksource->name);
-+	} else
-+		sched_clocksource = clocksource_get_best_clock();
-+
-+	return 0;
-+}
-+__initcall(sched_clock_init);
-+#endif /* CONFIG_GENERIC_SCHED_CLOCK */
-+
- void __init sched_init(void)
- {
- 	int i, j, k;
+ /**
+  * clocksource_khz2mult - calculates mult from khz and shift
+  * @khz:		Clocksource frequency in KHz
 
 --

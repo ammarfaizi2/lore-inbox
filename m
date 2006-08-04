@@ -1,52 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161398AbWHDUX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161399AbWHDUYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161398AbWHDUX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWHDUX5
+	id S1161399AbWHDUYy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWHDUYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:23:57 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:56508 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932621AbWHDUX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:23:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tPZDT8cMTZ3NgmVsxquszRNzdPwE/yGLLqYsANx4krz1m/IriX3qFMYgkyaiGMpspAIIhXB4yMQKipUSM15dkMPd9zWmFBi30v6tNISH6k6hVhsBihCrANcx6dPrA5m/l4xlRj5mHqRRaa5nA2UTK2yWZtGw+/8LpBgt9DHYBCI=
-Message-ID: <806dafc20608041323v5c1fecd6we801df9353a2d87d@mail.gmail.com>
-Date: Fri, 4 Aug 2006 16:23:54 -0400
-From: "Christopher Montgomery" <xiphmont@gmail.com>
-To: "David Brownell" <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Stability-Problem of EHCI with a larger number of USB-Hubs/Devices
-Cc: linux-usb-devel@lists.sourceforge.net,
-       "Matthias Schniedermeyer" <ms@citd.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <200608041108.19549.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Aug 2006 16:24:54 -0400
+Received: from 1wt.eu ([62.212.114.60]:29709 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932623AbWHDUYx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 16:24:53 -0400
+Date: Fri, 4 Aug 2006 22:14:29 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Jukka Partanen <jspartanen@gmail.com>, kkeil@suse.de,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.4.32] Fix AVM C4 ISDN card init problems with newer CPUs
+Message-ID: <20060804201429.GA27529@1wt.eu>
+References: <d50597c30608030953l41e8661dg1c10faeac31cc87f@mail.gmail.com> <1154627776.23655.106.camel@localhost.localdomain> <20060804065623.GA24404@1wt.eu> <200608041239.13260.mb@bu3sch.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44C126C3.9000105@citd.de> <200608041108.19549.david-b@pacbell.net>
+In-Reply-To: <200608041239.13260.mb@bu3sch.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/4/06, David Brownell <david-b@pacbell.net> wrote:
-> Did you try with 2.6.18-rc3?  There's a Kconfig option for an
-> improved interrupt scheduler, which might help especially with
-> all those low speed devices.
+On Fri, Aug 04, 2006 at 12:39:12PM +0200, Michael Buesch wrote:
+> On Friday 04 August 2006 08:56, Willy Tarreau wrote:
+> > On Thu, Aug 03, 2006 at 06:56:15PM +0100, Alan Cox wrote:
+> > > Ar Iau, 2006-08-03 am 19:53 +0300, ysgrifennodd Jukka Partanen:
+> > > > AVM C4 ISDN NIC: Add three memory barriers, taken from 2.6.7,
+> > > > (they are there in 2.6.17.7 too), to fix module initialization
+> > > > problems appearing with at least some newer Celerons and
+> > > > Pentium III.
+> > > 
+> > > Should be using cpu_relax() I think. Its a polled busy loop so you want
+> > > other CPU threads to run if possible.
+(...)
+> cpu_relax() implies a memory barrier.
 
-Actually, assuming I'm reading the spec right, I've come to realize
-Dan's improved scheduler patch allows illegal QH schedules that the
-old scheduler prevented (as the old scheduler would not allow any set
-of complete splits to overlap).  Dan's patch allows complete splits to
-be serviced in a different order than the original start splits, which
-will cause the out of order responses to be dropped on the floor.
+Ok, here's the updated patch for 2.6 using cpu_relax() instead of
+mb(), as suggested by Alan and Michael.
 
-QHs splits must be scheduled in the order the QHs appear in a given
-frame; if QH B is scheduled after QH A and uses a later microframe for
-its SS, but appears in a higher period level of the tree such that it
-actually occurs earlier in the frame, QH A may see all of its complete
-splits lost; this is subject to uncertainties due to bti stuffing and
-bandwidth recovery/error recovery.  It is possible in our current
-scheduler with Dan's improvement patch.
+Regards,
+Willy
 
-Monty
+> Greetings Michael.
+
+>From b76136dc1ac989081933d28ec958ecdd32d368e4 Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Fri, 4 Aug 2006 22:11:23 +0200
+Subject: [PATCH] AVM C4 ISDN card : use cpu_relax() in busy loops
+
+As suggested by Alan, use cpu_relax() in 3 busy loops : "It's a
+polled busy loop so you want other CPU threads to run if possible".
+
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+---
+ drivers/isdn/hardware/avm/c4.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/isdn/hardware/avm/c4.c b/drivers/isdn/hardware/avm/c4.c
+index f7253b2..8149dce 100644
+--- a/drivers/isdn/hardware/avm/c4.c
++++ b/drivers/isdn/hardware/avm/c4.c
+@@ -22,6 +22,7 @@ #include <linux/capi.h>
+ #include <linux/kernelcapi.h>
+ #include <linux/init.h>
+ #include <asm/io.h>
++#include <asm/processor.h>
+ #include <asm/uaccess.h>
+ #include <linux/netdevice.h>
+ #include <linux/isdn/capicmd.h>
+@@ -149,7 +150,7 @@ static inline int wait_for_doorbell(avmc
+ 	while (c4inmeml(card->mbase+DOORBELL) != 0xffffffff) {
+ 		if (!time_before(jiffies, stop))
+ 			return -1;
+-		mb();
++		cpu_relax();
+ 	}
+ 	return 0;
+ }
+@@ -302,7 +303,7 @@ static void c4_reset(avmcard *card)
+ 		if (!time_before(jiffies, stop))
+ 			return;
+ 		c4outmeml(card->mbase+DOORBELL, DBELL_ADDR);
+-		mb();
++		cpu_relax();
+ 	}
+ 
+ 	c4_poke(card, DC21285_ARMCSR_BASE + CHAN_1_CONTROL, 0);
+@@ -326,7 +327,7 @@ static int c4_detect(avmcard *card)
+ 		if (!time_before(jiffies, stop))
+ 			return 2;
+ 		c4outmeml(card->mbase+DOORBELL, DBELL_ADDR);
+-		mb();
++		cpu_relax();
+ 	}
+ 
+ 	c4_poke(card, DC21285_ARMCSR_BASE + CHAN_1_CONTROL, 0);
+-- 
+1.4.1
+

@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWHDAMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWHDAPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWHDAMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 20:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWHDAMZ
+	id S932350AbWHDAPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 20:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWHDAPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 20:12:25 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:11282 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932289AbWHDAMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 20:12:24 -0400
-Date: Fri, 4 Aug 2006 02:12:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Userspace visible of 3 include/asm/ headers
-Message-ID: <20060804001221.GM25692@stusta.de>
-References: <20060803193952.GF25692@stusta.de> <20060803194410.GC16927@redhat.com> <44D26A8B.9040907@zytor.com> <20060803215230.GI25692@stusta.de> <44D28C0A.905@zytor.com>
+	Thu, 3 Aug 2006 20:15:08 -0400
+Received: from mms2.broadcom.com ([216.31.210.18]:47112 "EHLO
+	mms2.broadcom.com") by vger.kernel.org with ESMTP id S932350AbWHDAPG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 20:15:06 -0400
+X-Server-Uuid: D9EB6F12-1469-4C1C-87A2-5E4C0D6F9D06
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+From: "Michael Chan" <mchan@broadcom.com>
+To: "David Miller" <davem@davemloft.net>
+cc: herbert@gondor.apana.org.au, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060803.170143.20633018.davem@davemloft.net>
+References: <20060803235326.GC7894@thunk.org>
+ <20060803.165654.45876296.davem@davemloft.net>
+ <20060803235927.GB10932@gondor.apana.org.au>
+ <20060803.170143.20633018.davem@davemloft.net>
+Date: Thu, 03 Aug 2006 17:16:40 -0700
+Message-ID: <1154650600.3117.36.camel@rh4>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D28C0A.905@zytor.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+X-Mailer: Evolution 2.0.2 (2.0.2-3)
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006080309; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413031303230312E34344432393130332E303031352D422D2F342B574C684A754433704B705975633943514C71513D3D;
+ ENG=IBF; TS=20060804001453; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006080309_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 68CC4EF10X81035239-01-01
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 04:51:38PM -0700, H. Peter Anvin wrote:
-> Adrian Bunk wrote:
+On Thu, 2006-08-03 at 17:01 -0700, David Miller wrote:
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Fri, 4 Aug 2006 09:59:27 +1000
 > 
-> >
-> >On different architectures, we have the following values for 
-> >COMMAND_LINE_SIZE:
-> >- 256
-> >- 512
-> >- 896
-> >- 1024
-> >- 4096
-> >
-> >What should be the common value?
-> >4096?
-> >
-> >And I have a rough memory of some dependencies of COMMAND_LINE_SIZE and 
-> >boot loaders. What exactly must be taken care of when increasing 
-> >COMMAND_LINE_SIZE?
-> >
+> > Watchdogs usually require one heartbeat every 30 seconds or so.  Does
+> > the ASF heartbeat need to be that frequent?
 > 
-> It's architecture-dependent; it probably should be defined in something 
-> like <asm/cmdline.h>.
+> The ASF heartbeat needs to be sent every 2 seconds.
+> 
 
-OK, I did misunderstand you.
-I tought you were saying it should be the same value for all 
-architectures.
-
-With the exception of frv (in param.h), COMMAND_LINE_SIZE is in setup.h 
-on all architectures.
-
-Do we want to move it to a different header, or simply make param.h a 
-userspace header on all architectures?
-
-> 	-hpa
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Yep, we send it every 2 seconds and it will reset in 5 seconds after the
+last heartbeat.  So the margin is 3 seconds.  These numbers are somewhat
+arbitrary and the goal is to allow ASF to function properly without too
+much delay after the system has crashed.
 

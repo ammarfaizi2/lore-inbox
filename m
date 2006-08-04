@@ -1,77 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161263AbWHDP5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161266AbWHDP5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161263AbWHDP5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 11:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWHDP5P
+	id S1161266AbWHDP5W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 11:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbWHDP5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 11:57:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53439 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161263AbWHDP5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 11:57:15 -0400
-Date: Fri, 4 Aug 2006 16:57:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Smith <dsmith@redhat.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, prasanna@in.ibm.com,
-       ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, davem@davemloft.net
-Subject: Re: [PATCH] module interface improvement for kprobes
-Message-ID: <20060804155711.GA13271@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Smith <dsmith@redhat.com>, linux-kernel@vger.kernel.org,
-	rusty@rustcorp.com.au, prasanna@in.ibm.com, ananth@in.ibm.com,
-	anil.s.keshavamurthy@intel.com, davem@davemloft.net
-References: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 4 Aug 2006 11:57:22 -0400
+Received: from sandeen.net ([209.173.210.139]:52599 "EHLO sandeen.net")
+	by vger.kernel.org with ESMTP id S1161266AbWHDP5W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 11:57:22 -0400
+Message-ID: <44D36E60.2020006@sandeen.net>
+Date: Fri, 04 Aug 2006 10:57:20 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: bfennema@falcon.csc.calpoly.edu
+Subject: [PATCH]: initialize parts of udf inode earlier in create
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> {
-> 	/* grab the module, making sure it won't get unloaded until
-> 	 * we're done */
-> 	const char *mod_name = "joydev";
-> 	if (module_get_byname(mod_name, &mod) != 0)
-> 		return 1;
-> 
-> 	/* Specify the address/offset where you want to insert
-> 	 * probe.  If this were a real kprobe module, we'd "relocate"
-> 	 * our probe address based on the load address of the module
-> 	 * we're interested in. */
-> 	kp.addr = (kprobe_opcode_t *) mod->module_core + 0;
-> 
-> 	/* All set to register with Kprobes */
->         register_kprobe(&kp);
-> 	return 0;
-> }
+I saw an oops down this path when trying to create a new file on a UDF 
+filesystem which was internally marked as readonly, but mounted rw:
 
-This interface is horrible.  You actual patch looks good to me, but it
-I can't see why you would need it.  kallsyms_lookup_name deals with modules
-transparently and you shouldn't put a probe at a relative offset into a
-module but only at a symbol you could find with kallsys.
+udf_create
+        udf_new_inode
+                new_inode
+                        alloc_inode
+                        	udf_alloc_inode
+                udf_new_block
+                        returns EIO due to readonlyness
+                iput (on error)
+                        udf_put_inode
+                                udf_discard_prealloc
+                                        udf_next_aext
+                                                udf_current_aext
+                                                        udf_get_fileshortad
+                                                                OOPS
 
-That beeing said we should probably change the kprobes interface to
-automatically do the kallsysms name lookup for the caller.  It would simplify
-the kprobes interface and allow us to get rid of the kallsyms_lookup_name
-export that doesn't have a valid use except for kprobes.  With
-that change the example kprobe would look like:
+the udf_discard_prealloc() path was examining uninitialized fields of the 
+udf inode.
 
-static struct kprobe kp = {
-	.pre_handler	= handler_pre,
-	.post_handler	= handler_post,
-	.fault_handler	= handler_fault,
-	.symbol_name	= "do_fork",
-};
+udf_discard_prealloc() already has this code to short-circuit the discard 
+path if no extents are preallocated:
 
-static int __init probe_example_init(void)
-{
-	return register_kprobe(&kp);
-}
+        if (UDF_I_ALLOCTYPE(inode) == ICBTAG_FLAG_AD_IN_ICB ||
+                inode->i_size == UDF_I_LENEXTENTS(inode))
+        {
+                return;
+        }
 
-(and btw, init_module is gone, so both your example and the one in
-Documentation/kprobes.txt can't compile anymore - care to send a patch
-to update the latter?)
+so if we initialize UDF_I_LENEXTENTS(inode) = 0 earlier in udf_new_inode, we
+won't try to free the (not) preallocated blocks, since this will match
+the i_size = 0 set when the inode was initialized.
+
+Thanks,
+
+-Eric
+
+Signed-off-by: Eric Sandeen <sandeen@sandeen.net>
+
+Index: linux-2.6.17/fs/udf/ialloc.c
+===================================================================
+--- linux-2.6.17.orig/fs/udf/ialloc.c
++++ linux-2.6.17/fs/udf/ialloc.c
+@@ -75,6 +75,12 @@ struct inode * udf_new_inode (struct ino
+ 	}
+ 	*err = -ENOSPC;
+ 
++	UDF_I_UNIQUE(inode) = 0;
++	UDF_I_LENEXTENTS(inode) = 0;
++	UDF_I_NEXT_ALLOC_BLOCK(inode) = 0;
++	UDF_I_NEXT_ALLOC_GOAL(inode) = 0;
++	UDF_I_STRAT4096(inode) = 0;
++
+ 	block = udf_new_block(dir->i_sb, NULL, UDF_I_LOCATION(dir).partitionReferenceNum,
+ 		start, err);
+ 	if (*err)
+@@ -84,11 +90,6 @@ struct inode * udf_new_inode (struct ino
+ 	}
+ 
+ 	mutex_lock(&sbi->s_alloc_mutex);
+-	UDF_I_UNIQUE(inode) = 0;
+-	UDF_I_LENEXTENTS(inode) = 0;
+-	UDF_I_NEXT_ALLOC_BLOCK(inode) = 0;
+-	UDF_I_NEXT_ALLOC_GOAL(inode) = 0;
+-	UDF_I_STRAT4096(inode) = 0;
+ 	if (UDF_SB_LVIDBH(sb))
+ 	{
+ 		struct logicalVolHeaderDesc *lvhd;
+ 
+

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161408AbWHDUmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161414AbWHDUwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161408AbWHDUmR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161405AbWHDUmQ
+	id S1161414AbWHDUwB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161405AbWHDUwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:42:16 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:7590 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1161408AbWHDUmQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:42:16 -0400
-Message-Id: <200608042042.k74KgEjI020387@laptop13.inf.utfsm.cl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Checksumming blocks? [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion] 
-In-Reply-To: Message from Tomasz Torcz <zdzichu@irc.pl> 
-   of "Fri, 04 Aug 2006 13:41:25 +0200." <20060804114125.GA10814@irc.pl> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Fri, 04 Aug 2006 16:42:14 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 04 Aug 2006 16:42:14 -0400 (CLT)
+	Fri, 4 Aug 2006 16:52:01 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:32897 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1161409AbWHDUwA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 16:52:00 -0400
+Date: Fri, 4 Aug 2006 13:52:30 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       James.Bottomley@steeleye.com, pazke@donpac.ru, Andi Kleen <ak@suse.de>
+Subject: Re: A proposal - binary
+Message-ID: <20060804205230.GL2654@sequoia.sous-sol.org>
+References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com> <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com> <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D3B0F0.2010409@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz <zdzichu@irc.pl> wrote:
-> On Thu, Aug 03, 2006 at 07:25:19PM -0400, Russell Leighton wrote:
-> > 
-> > If the software (filesystem like ZFS or database like Berkeley DB)  
-> > finds a mismatch for a checksum on a block read, then what?
-> > 
-> > Is there a recovery mechanism, or do you just be happy you know there is 
-> > a problem (and go to backup)?
-> 
->   ZFS readsthis block again from different mirror, and if checksum is
-> right -- returns good data to userspace and rewrites failed block with
-> good data.
-> 
->   Note, that there could be multiple mirrors, either physically (like
-> RAID1) or logically (blocks could be mirrored on different areas of the
-> same disk; some files can be protected with multiple mirrors, some left
-> unprotected without mirrors).
+* Zachary Amsden (zach@vmware.com) wrote:
+> Maybe someday Xen and VMware can share the same ABI interface and both 
+> use a VMI like layer.  But that really is a separate and completely 
+> orthogonal question.  Paravirt-ops makes any approach to integrating 
+> hypervisor awareness into the kernel cleaner by providing an appropriate 
+> abstract interface for it.
 
-Murphy's law will ensure that the important files are unprotected. And the
-1st Law of Disk Drives (they are always full) will ensure that there are no
-mirrored pieces anyway...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Thanks a lot for clarifying, Zach ;-)
+-chris

@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWHDDpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWHDDqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWHDDpq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 23:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWHDDpp
+	id S1030243AbWHDDqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 23:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWHDDqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 23:45:45 -0400
-Received: from mms1.broadcom.com ([216.31.210.17]:37642 "EHLO
-	mms1.broadcom.com") by vger.kernel.org with ESMTP id S1030240AbWHDDpo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 23:45:44 -0400
-X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-Date: Thu, 3 Aug 2006 20:45:31 -0700
-Message-ID: <1551EAE59135BE47B544934E30FC4FC093FA11@NT-IRVA-0751.brcm.ad.broadcom.com>
-In-Reply-To: <20060804032348.GA16313@thunk.org>
-Thread-Topic: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-thread-index: Aca3dX8GoMaN7wr9QW29OUTK9hjPCAAAbyVQ
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Theodore Tso" <tytso@mit.edu>
-cc: "David Miller" <davem@davemloft.net>, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006080401; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413031303230332E34344432433236362E303031382D422D2F342B574C684A754433704B705975633943514C71513D3D;
- ENG=IBF; TS=20060804034536; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006080401_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 68CC1D540HW63185381-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Thu, 3 Aug 2006 23:46:55 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:48009 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030243AbWHDDqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 23:46:54 -0400
+Date: Fri, 4 Aug 2006 12:48:47 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: kmannth@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       y-goto@jp.fujitsu.com, akpm@osdl.org
+Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
+Message-Id: <20060804124847.610791b5.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1154661826.5925.92.camel@keithlap>
+References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+	<1154650396.5925.49.camel@keithlap>
+	<20060804094443.c6f09de6.kamezawa.hiroyu@jp.fujitsu.com>
+	<1154656472.5925.71.camel@keithlap>
+	<20060804111550.ab30fc15.kamezawa.hiroyu@jp.fujitsu.com>
+	<1154660408.5925.79.camel@keithlap>
+	<20060804121308.e9720b49.kamezawa.hiroyu@jp.fujitsu.com>
+	<1154661826.5925.92.camel@keithlap>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+On Thu, 03 Aug 2006 20:23:46 -0700
+keith mannthey <kmannth@us.ibm.com> wrote:
 
-> Parden me for asking a dumb question, but what's being accomplished by
-> resetting the chip if the system has crashed?  Why not reset the chip
-> when the system reboots and it sees the PCI bus reset?  I guess I'm
-> missing the purpose of the ASF heartbeat; why does the networking chip
-> need a chip-specific watchdog?
+> On Fri, 2006-08-04 at 12:13 +0900, KAMEZAWA Hiroyuki wrote:
+> > On Thu, 03 Aug 2006 20:00:08 -0700
+> > keith mannthey <kmannth@us.ibm.com> wrote:
+> > 
+> > 
+> > > > >   What protecting is there for calling add_memory on an already present
+> > > > > memory range?  
+> > > > > 
+> > > > For example, considering ia64, which has 1Gbytes section...
+> > > 
+> > > Maybe 1gb sections is too large?  
+> > > 
+> > ia64 machines sometimes to have crazy big memory...so 1gb section is requested.
+> > Configurable section_size for small machines was rejected in old days.
+> 
+> My HW supports about 512gb...... 
 > 
 
-ASF is firmware that monitors the system and sends out alerts whenever
-certain events happen.  So it needs to run before the OS boots or after
-it has crashed.  When the driver is up and running, the driver and ASF
-run independently sending and receiving traffic on the same wire.  Of
-course, the bandwidth that is used by ASF is a very tiny fraction of the
-host traffic.  If the system crashes, the FIFO and other resources on
-the NIC will be backed up and ASF can no longer function without
-resetting
-the chip.
+> What if you add a partial section.  Then online in sysfs and add another
+> section?  messy....
+Once a section is onlined, it cannot be re-onlined. My patch just helps memory holes
+in "a" memory hot add event.
+Our firmware team tells us they may create small memory holes in contiguous memory...
 
-As David explained, ASF is only used on servers.
+
+>
+> > > What keeps 0xa0000000 to 0xa1000000 from being re-onlined by a bad call
+> > > to add_memory?
+> > 
+> > Usual sparsemem's add_memory() checks whether there are sections in
+> > sparse_add_one_section(). then add_pages() returns -EEXIST (nothing to do).
+> > And ioresouce collision check will finally find collision because 0-0xbffffff
+> > resource will conflict with 0xa0000000 to 0xa10000000 area.
+> > But, x86_64 's (not sparsemem) add_pages() doen't do collision check, so it panics.
+> 
+> I have paniced with your 5 patches while doing SPARSMEM....  I think
+> your 6th patch address the issues I was seeing.  
+> 
+Thank you for testing.
+BTW, could you send your current config ? looks I should visit source code again..
+
+-Kame
+
+
 

@@ -1,69 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161478AbWHDV0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161477AbWHDV1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161478AbWHDV0d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161480AbWHDV0d
+	id S1161477AbWHDV1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161480AbWHDV1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:26:33 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:34175 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161478AbWHDV0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:26:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=BGuatbuMNAUYo22w1aEjV76n90pbj+UIsdzaYLuNGVUIMcwFLCZQk0rKppAdaFxWLUAxgUchm7yDS6bpfP0pnxw4GJup5PJsiyzPvpfXbv32aAT1cdkH1pm36ayctkEXl5oM5/o/wAQYpiISxwJmpN7dpwIOPvYO/uiDtJfiXjI=
-Message-ID: <6839943e0608041426t3433dca5r674633b508e6a748@mail.gmail.com>
-Date: Fri, 4 Aug 2006 16:26:28 -0500
-From: "Buzz B" <linuxun@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI Errors with AMD 64
+	Fri, 4 Aug 2006 17:27:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57049 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161477AbWHDV1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:27:37 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Don Zickus <dzickus@redhat.com>
+Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <20060705222448.GC992@in.ibm.com>
+	<aec7e5c30607051932r49bbcc7eh2c190daa06859dcc@mail.gmail.com>
+	<20060706081520.GB28225@host0.dyn.jankratochvil.net>
+	<aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com>
+	<20060707133518.GA15810@in.ibm.com>
+	<20060707143519.GB13097@host0.dyn.jankratochvil.net>
+	<20060710233219.GF16215@in.ibm.com>
+	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
+	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
+	<m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060804210826.GE16231@redhat.com>
+Date: Fri, 04 Aug 2006 15:25:55 -0600
+In-Reply-To: <20060804210826.GE16231@redhat.com> (Don Zickus's message of
+	"Fri, 4 Aug 2006 17:08:27 -0400")
+Message-ID: <m164h8p50c.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+Don Zickus <dzickus@redhat.com> writes:
 
- Built a barebones to use as a Ubuntu server:
- MSI RX480 Neo2 K8 S939 AMD Athlon 64 mobo
- CPU AMD Sempron 3000+ 1.8ghz socket 939
+> On Mon, Jul 31, 2006 at 10:19:04AM -0600, Eric W. Biederman wrote:
+>> 
+>> I have spent some time and have gotten my relocatable kernel patches
+>> working against the latest kernels.  I intend to push this upstream
+>> shortly.
+>> 
+>> Could all of the people who care take a look and test this out
+>> to make certain that it doesn't just work on my test box?
+>
+> Is there any reason to get following error on x86_64 using your patches?
 
- The errors that are occurring are the same for the following discs:
- Ubuntu 6.06 Desktop
- Ubuntu 6.06 Desktop 64
- Ubuntu 6.06 Alternate 64
- Ubuntu 5.1 and etc... so everything I've tried.
- MD5's checked on all okay.
+There shouldn't be.
 
- In BIOS with ACPI turned OFF then booting from CD:
- Decompressing the kernel.
- Booting the kernel.
- ACPI: Unable to locate RSDP
- MP-BIOS bug: 8254 timer not connected to IO-APIC
+>  Filesystem type is ext2fs, partition type 0x83
+> kernel /bzImage ro root=LABEL=/1 console=ttyS0,115200
+> earlyprintk=ttyS0,115200
+>    [Linux-bzImage, setup=0x1c00, size=0x24917c]
+> initrd /initrd-2.6.18-rc3.img
+>    [Linux-initrd @ 0x37e0d000, 0x1e25e7 bytes]
+>
+> .
+> Decompressing Linux...
+>
+> length error
+>
+>  -- System halted
+>
+>
+> I can get i386 to boot fine.  I can't for the life of me figure out what I
+> am doing wrong..
 
- In BIOS with ACPI turned ON then booting from CD:
- Decompressing the kernel.
- Booting the kernel.
- ACPI: Unable to load the system description tables
+The length error comes from lib/inflate.c 
 
- And in both cases it freezes right there.
- Just for grins I also tried swapping out the CD and HDD's.
- Same errors.
+I think it would be interesting to look at orig_len and bytes_out.
 
- I'm at a loss on what's going on here.  It seems it's with power management.
+My hunch is that I have tripped over a tool chain bug or a weird
+alignment issue.
 
- I haven't been able to find a list of CD boot codes, but through the
-forums I have tried all of the following.
- noacip, nolacip, noaicp, nolaicp, acip=off, aicp=off, noapm, apm=off
- Using them still results in the same two errors.
+The error is the uncompressed length does not math the stored length
+of the data before from before we compressed it.  Now what is
+fascinating is that our crc's match (as that check is performed first).
 
- Also tried Mepis and Slack and they both freeze after they try to
-release unused kernel memory right after their boot cd's start their
-installs.
+Something is very slightly off and I don't see what it is.
 
- Not sure what else to try or exactly what these ACPI errors are
-complaining about.
- Any help would be appreciated.
+After looking at the state variables I would probably start looking
+at the uncompressed data to see if it really was decompressing
+properly.  If nothing else that is the kind of process that would tend
+to spark a clue.
+
+Eric
+

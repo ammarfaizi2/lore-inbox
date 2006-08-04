@@ -1,79 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161387AbWHDTxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161386AbWHDTxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161387AbWHDTxq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161388AbWHDTxq
+	id S1161386AbWHDTxi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161388AbWHDTxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:53:46 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:34200 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161387AbWHDTxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:53:45 -0400
-Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
-From: john stultz <johnstul@us.ibm.com>
-To: dwalker@mvista.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <20060804032522.865606000@mvista.com>
-References: <20060804032414.304636000@mvista.com>
-	 <20060804032522.865606000@mvista.com>
+	Fri, 4 Aug 2006 15:53:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4764 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161386AbWHDTxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 15:53:37 -0400
+Subject: Re: [PATCH] module interface improvement for kprobes
+From: David Smith <dsmith@redhat.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, prasanna@in.ibm.com,
+       ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, davem@davemloft.net
+In-Reply-To: <20060804090018.0bd4020d.rdunlap@xenotime.net>
+References: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com>
+	 <20060804090018.0bd4020d.rdunlap@xenotime.net>
 Content-Type: text/plain
-Date: Fri, 04 Aug 2006 12:53:30 -0700
-Message-Id: <1154721210.5327.58.camel@localhost.localdomain>
+Date: Fri, 04 Aug 2006 14:51:01 -0500
+Message-Id: <1154721061.15967.31.camel@dhcp-2.hsv.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 20:24 -0700, dwalker@mvista.com wrote:
-> plain text document attachment (clocksource_api_cleanup_on_mm.patch)
-> Some additional clean up only on the -mm tree. Moves the adjust
-> functions into kernel/time/clocksource.c . 
+Randy,
+
+Thanks for looking at this.  I implemented your suggestions and also
+changed EXPORT_SYMBOL to EXPORT_SYMBOL_GPL.
+
+On Fri, 2006-08-04 at 09:00 -0700, Randy.Dunlap wrote:
+> On Fri, 04 Aug 2006 10:17:32 -0500 David Smith wrote:
 > 
-> These functions directly modify the clocksource multiplier based
-> on ntp error. These adjustments will effect other users of that 
-> clock. This hasn't been  addressed in my patch set, since it 
-> needs some discussion.
+> > When inserting a kprobes probe into a loadable module, there isn't a way
+> > for the kprobes module to get a module reference (in order to find the
+> > base address of the module among perhaps other things).
+> > 
+> > A kprobes probe needs the base address of the module in order to
+> > "relocate" the addresses of probe points (since the load address of the
+> > module can change from run to run of the kprobe).
+> > 
+> > I've added a new function, module_get_byname(), that looks up a module
+> > by name and returns the module reference.  Note that module_get_byname()
+> > also increments the module reference count.  It does this so that the
+> > module won't be unloaded between the time that module_get_byname() is
+> > called and register_kprobe() is called.
 
+...
 
-Hmmmm. Yea, some additional discussion here would probably be needed
+Signed off by David Smith <dsmith@redhat.com>
 
-At the moment, I'd prefer to keep the clocksource_adjust bits with the
-timekeeping code, however I'd also prefer to remove the timekeeping
-specific fields (cycle_last, cycle_interval, xtime_nsec, xtime_interval,
-error) from the clocksource structure and instead keep them in a
-timekeeping specific structure (which may also point to a clocksource).
-
-This would keep a clean separation between the clocksource's abstraction
-that keeps as little state as possible and the timekeeping code's
-internal state. However the point you bring up above is an interesting
-issue: Do all users of the generic clocksource structure want the
-clocksource to be NTP adjusted? 
-
-If we allow for non-ntp adjusted access to the clocksources, we may have
-consistency issues between users comparing say sched_clock() and
-clock_gettime() intervals. Further, if those users do want NTP adjusted
-counters, why aren't they just using the timekeeping subsystem?
-
-This does put some question as to what exactly would be the uses of the
-clocksource structure outside of the timekeeping realm. Sure,
-sched_clock() is a reasonable example, although since sched_clock has
-such specific latency needs (we probably shouldn't go touching off-chip
-hardware on every sched_clock call) and can be careful to avoid TSC skew
-unlike the timekeeping code, its selection algorithm is going to be very
-arch specific. So I'm not sure its really an ideal use of the
-clocksource interface (as its not too difficult to just keep sched_clock
-arch specific).
-
-I do feel making the abstraction clean and generic is a good thing just
-for code readability (and I very much appreciate your work here!), but
-I'm not really sure that the need for clocksource access outside the
-timekeeping subsystem has been well expressed. Do you have some other
-examples other then sched_clock that might show further uses for this
-abstraction?
-
-thanks
--john
+----
+diff --git a/include/linux/module.h b/include/linux/module.h
+index 0dfb794..9953a38 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -374,6 +374,8 @@ extern void __module_put_and_exit(struct
+ 	__attribute__((noreturn));
+ #define module_put_and_exit(code) __module_put_and_exit(THIS_MODULE,
+code);
+ 
++int module_get_byname(const char *mod_name, struct module **mod);
++
+ #ifdef CONFIG_MODULE_UNLOAD
+ unsigned int module_refcount(struct module *mod);
+ void __symbol_put(const char *symbol);
+@@ -549,6 +551,11 @@ static inline int is_exported(const char
+ 	return 0;
+ }
+ 
++static inline int module_get_byname(const char *mod_name, struct module
+**mod)
++{
++	return 1;
++}
++
+ static inline int register_module_notifier(struct notifier_block * nb)
+ {
+ 	/* no events will happen anyway, so this can always succeed */
+diff --git a/kernel/module.c b/kernel/module.c
+index 2a19cd4..473cc0b 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -291,7 +291,27 @@ static struct module *find_module(const 
+ 	}
+ 	return NULL;
+ }
++  
++int module_get_byname(const char *mod_name, struct module **mod)
++{
++	*mod = NULL;
+ 
++	/* We must hold module_mutex before calling find_module(). */
++	if (mutex_lock_interruptible(&module_mutex) != 0)
++		return -EINTR;
++
++	*mod = find_module(mod_name);
++	mutex_unlock(&module_mutex);
++	if (*mod) {
++		if (!strong_try_module_get(*mod)) {
++			*mod = NULL;
++			return -EINVAL;
++		}
++	}
++	return 0;
++}
++EXPORT_SYMBOL_GPL(module_get_byname);
++ 
+ #ifdef CONFIG_SMP
+ /* Number of blocks used and allocated. */
+ static unsigned int pcpu_num_used, pcpu_num_allocated;
 
 

@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161583AbWHDXkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161479AbWHDXrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161583AbWHDXkl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 19:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161584AbWHDXkl
+	id S1161479AbWHDXrh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 19:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161584AbWHDXrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 19:40:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47265 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161583AbWHDXkk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 19:40:40 -0400
-Date: Fri, 4 Aug 2006 19:43:27 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
+	Fri, 4 Aug 2006 19:47:37 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:44963 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161479AbWHDXrg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 19:47:36 -0400
+Message-ID: <44D3DC7E.70100@zytor.com>
+Date: Fri, 04 Aug 2006 16:47:10 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       vgoyal@in.ibm.com, fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
        "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060804234327.GF16231@redhat.com>
-References: <20060706081520.GB28225@host0.dyn.jankratochvil.net> <aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com> <20060707133518.GA15810@in.ibm.com> <20060707143519.GB13097@host0.dyn.jankratochvil.net> <20060710233219.GF16215@in.ibm.com> <20060711010815.GB1021@host0.dyn.jankratochvil.net> <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com> <20060804210826.GE16231@redhat.com> <m164h8p50c.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m164h8p50c.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+       Linda Wang <lwang@redhat.com>
+Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <20060804225611.GG19244@in.ibm.com> <m1k65onleq.fsf@ebiederm.dsl.xmission.com> <20060804233815.GG18792@redhat.com>
+In-Reply-To: <20060804233815.GG18792@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The length error comes from lib/inflate.c 
+Dave Jones wrote:
+> On Fri, Aug 04, 2006 at 05:14:37PM -0600, Eric W. Biederman wrote:
 > 
-> I think it would be interesting to look at orig_len and bytes_out.
+>  > I guess the practical question is do people see a real performance benefit
+>  > when loading the kernel at 4MB?
 > 
-> My hunch is that I have tripped over a tool chain bug or a weird
-> alignment issue.
-
-I thought so too, but I took vmlinuz images from people (Vivek) who had it
-boot on their systems but those images still failed on my two machines.  
-
+> Linus claimed lmbench saw some huge wins. Others showed that for eg,
+> a kernel compile took the same amount of time, so take from that what you will..
 > 
-> The error is the uncompressed length does not math the stored length
-> of the data before from before we compressed it.  Now what is
-> fascinating is that our crc's match (as that check is performed first).
+>  > Possibly the right solution is to do like I did on x86_64 and simply remove
+>  > CONFIG_PHYSICAL_START, and always place the kernel at 4MB, or something like
+>  > that.
+>  > 
+>  > The practical question is what to do to keep the complexity from spinning
+>  > out of control.  Removing CONFIG_PHYSICAL_START would seriously help with
+>  > that.
 > 
-> Something is very slightly off and I don't see what it is.
-
-I printed out orig_len -> 5910532 (which matches vmlinux.bin)
-             bytes_out -> 5910531
-
+> Given the two primary uses of that option right now are a) the aforementioned
+> perf win and b) building kexec kernels, I doubt anyone would miss it once
+> we go relocatable ;-)
 > 
-> After looking at the state variables I would probably start looking
-> at the uncompressed data to see if it really was decompressing
-> properly.  If nothing else that is the kind of process that would tend
-> to spark a clue.
 
-I am not familiar with the code, so very few sparks are flying.  I'll
-still dig through though.  Thanks for the tips.
+We DO want the performance gain with a conventional bootloader.  The 
+perf win is about the location of the uncompressed kernel, not the 
+compressed kernel.
 
-Cheers,
-Don
+	-hpa
+

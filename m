@@ -1,54 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161463AbWHDVIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161467AbWHDVJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161463AbWHDVIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 17:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161465AbWHDVIJ
+	id S1161467AbWHDVJc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 17:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161468AbWHDVJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 17:08:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47535 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161463AbWHDVII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 17:08:08 -0400
-Subject: Re: A proposal - binary
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       James.Bottomley@steeleye.com, pazke@donpac.ru, Andi Kleen <ak@suse.de>
-In-Reply-To: <44D3B0F0.2010409@vmware.com>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-	 <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com>
-Content-Type: text/plain
+	Fri, 4 Aug 2006 17:09:32 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:60093 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1161467AbWHDVJb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 17:09:31 -0400
+Message-ID: <44D3B78A.8000900@slaphack.com>
+Date: Fri, 04 Aug 2006 17:09:30 -0400
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: Theodore Tso <tytso@mit.edu>, David Masover <ninja@slaphack.com>,
+       "Vladimir V. Saveliev" <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
+       Reiserfs-List@namesys.com
+Subject: Re: reiser4: maybe just fix bugs?
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com> <20060801013104.f7557fb1.akpm@osdl.org> <44CEBA0A.3060206@namesys.com> <1154431477.10043.55.camel@tribesman.namesys.com> <20060801073316.ee77036e.akpm@osdl.org> <1154444822.10043.106.camel@tribesman.namesys.com> <44CF879D.1000803@slaphack.com> <20060803074651.GA27835@thunk.org>
+In-Reply-To: <20060803074651.GA27835@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 04 Aug 2006 22:26:40 +0100
-Message-Id: <1154726800.23655.273.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-04 am 13:41 -0700, ysgrifennodd Zachary Amsden:
-> committed to working on it.  Which is why I wanted feedback on what we 
-> have to do to make sure our ESX implementation is done in a way that is 
-> acceptable to the community.  I too would like to push for an interface 
-> in 2.6.19, and we can't have confusion on this issue be a last minute 
-> stopper.
+Theodore Tso wrote:
+> On Tue, Aug 01, 2006 at 11:55:57AM -0500, David Masover wrote:
+>> If I understand it right, the original Reiser4 model of file metadata is 
+>> the file-as-directory stuff that caused such a furor the last big push 
+>> for inclusion (search for "Silent semantic changes in Reiser4"):
+> 
+> The furor was caused by concerns Al Viro expressed about
+> locking/deadlock issues that reiser4 introduced.  
 
-In part thats a legal question so only a lawyer can really tell you what
-is and isn't the line for derivative works. 
+Which, I believe, was about file-as-dir.  Which also had problems with 
+things like directory loops.  That's sort of a disk space memory leak.
 
-Philosophically I can see the argument that the moment you hit a
-hypervisor trap its akin to running another app (and an app which
-communicates via that interface with many othr apps) so your Linux
-kernel side code would be GPL and whatever it fires up which handles the
-trap come syscall probably isn't. But I'm not a lawyer and neither you
-nor anyone else, nor a court reviewing a case should consider the
-statement above a guideline of intent.
+> The bigger issue with xattr support is two-fold.  First of all, there
+> are the progams that are expecting the existing extended attribute
+> interface,
 
-Alan
+Yeah...
 
+> More importantly are the system-level extended attributes, such as
+> those used by SELINUX, which by definition are not supposed to be
+> visible to the user at all,
+
+I don't see why either of these are issues.  The SELINUX stuff can be a 
+plugin which doesn't necessarily have a user-level interface. 
+Cryptocompress, for instance, exists independent of its user-level 
+interface (probably the file-as-dir stuff), and will probably be 
+implemented in some sort of stable form as a system-wide default for new 
+files.
+
+So, certainly metadata (xattrs) as a plugin could be implemented with no 
+UI at all, or any given UI.
+
+... Anyway, I still see no reason why these cannot be implemented in 
+Reiser4, other than the possibility that if it uses "plugins", I 
+guarantee that at least one or two people will hate the implementation 
+for that reason alone.
+
+> Not supporting xattrs means that those distro's that use SELINUX by
+> default (i.e., RHEL, Fedora, etc.) won't want to use reiser4, because
+> SELINUX won't work on reiser4 filesytstems.
+
+Right.  So they will be implemented, eventually.
+
+> Whether or not Hans cares about this is up to him....
+
+He does, or he should.  Reiser4 needs every bit of acceptance it can get 
+right now, as long as it can get them without compromising its goals or 
+philosophy.  Extended attributes only compromise these because it 
+provides less incentive to learn any other metadata interface that 
+Reiser4 provides.  But that's irrelevant if Reiser4 doesn't gain enough 
+acceptance due to lack of xattr support, anything it has will be 
+irrelevant anyway.
+
+So just as we provide the standard interface to Unix permissions (even 
+though we intend to implement things like acls and views, and even 
+though there was a file/.pseudo/rwx interface), we should provide the 
+standard xattr interface, and the standard direct IO interface, and 
+anything else that's practical.  Be a good, standard filesystem first, 
+and an innovative filesystem second.

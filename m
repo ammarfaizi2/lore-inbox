@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161397AbWHDUOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161398AbWHDUX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161397AbWHDUOe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 16:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161398AbWHDUOe
+	id S1161398AbWHDUX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 16:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWHDUX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 16:14:34 -0400
-Received: from 1wt.eu ([62.212.114.60]:28173 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1161397AbWHDUOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 16:14:33 -0400
-Date: Fri, 4 Aug 2006 22:04:04 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: SysKonnect Support <support@syskonnect.de>
-Cc: Sean Bruno <sean.bruno@dsl-only.net>, linux-kernel@vger.kernel.org,
-       linux@syskonnect.de
-Subject: Re: sk98lin extremely slow transfer rate ASUS P5P800(2.6.17.7)
-Message-ID: <20060804200404.GB27244@1wt.eu>
-References: <4D634BCFD1A2144ABECC75FF512D7A9001095D41@SKGExch01.marvell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Aug 2006 16:23:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:56508 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932621AbWHDUX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 16:23:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tPZDT8cMTZ3NgmVsxquszRNzdPwE/yGLLqYsANx4krz1m/IriX3qFMYgkyaiGMpspAIIhXB4yMQKipUSM15dkMPd9zWmFBi30v6tNISH6k6hVhsBihCrANcx6dPrA5m/l4xlRj5mHqRRaa5nA2UTK2yWZtGw+/8LpBgt9DHYBCI=
+Message-ID: <806dafc20608041323v5c1fecd6we801df9353a2d87d@mail.gmail.com>
+Date: Fri, 4 Aug 2006 16:23:54 -0400
+From: "Christopher Montgomery" <xiphmont@gmail.com>
+To: "David Brownell" <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Stability-Problem of EHCI with a larger number of USB-Hubs/Devices
+Cc: linux-usb-devel@lists.sourceforge.net,
+       "Matthias Schniedermeyer" <ms@citd.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200608041108.19549.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4D634BCFD1A2144ABECC75FF512D7A9001095D41@SKGExch01.marvell.com>
-User-Agent: Mutt/1.5.11
+References: <44C126C3.9000105@citd.de> <200608041108.19549.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 09:24:54AM +0200, SysKonnect Support wrote:
-> Hi Willy,
-> 
-> the current driver version 8.34 includes a new common module, so please
-> give it a try and let me know.
+On 8/4/06, David Brownell <david-b@pacbell.net> wrote:
+> Did you try with 2.6.18-rc3?  There's a Kconfig option for an
+> improved interrupt scheduler, which might help especially with
+> all those low speed devices.
 
-OK, I will try ASAP (not before end of next week though, cause I don't have
-the hardware with me).
+Actually, assuming I'm reading the spec right, I've come to realize
+Dan's improved scheduler patch allows illegal QH schedules that the
+old scheduler prevented (as the old scheduler would not allow any set
+of complete splits to overlap).  Dan's patch allows complete splits to
+be serviced in a different order than the original start splits, which
+will cause the out of order responses to be dropped on the floor.
 
-> Best regards,
-> Karim
+QHs splits must be scheduled in the order the QHs appear in a given
+frame; if QH B is scheduled after QH A and uses a later microframe for
+its SS, but appears in a higher period level of the tree such that it
+actually occurs earlier in the frame, QH A may see all of its complete
+splits lost; this is subject to uncertainties due to bti stuffing and
+bandwidth recovery/error recovery.  It is possible in our current
+scheduler with Dan's improvement patch.
 
-Regards,
-Willy
-
+Monty

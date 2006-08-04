@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWHDAIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWHDAMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWHDAIa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 20:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWHDAIa
+	id S932289AbWHDAMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 20:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWHDAMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 20:08:30 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:63683 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932124AbWHDAI2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 20:08:28 -0400
-Subject: Re: [PATCH] memory hotadd fixes [3/5] find_next_system_ram catch
-	range fix
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>,
-       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060803123441.92e4ddfb.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060803123441.92e4ddfb.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 03 Aug 2006 17:08:12 -0700
-Message-Id: <1154650093.5925.42.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Aug 2006 20:12:25 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:11282 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932289AbWHDAMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 20:12:24 -0400
+Date: Fri, 4 Aug 2006 02:12:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Userspace visible of 3 include/asm/ headers
+Message-ID: <20060804001221.GM25692@stusta.de>
+References: <20060803193952.GF25692@stusta.de> <20060803194410.GC16927@redhat.com> <44D26A8B.9040907@zytor.com> <20060803215230.GI25692@stusta.de> <44D28C0A.905@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D28C0A.905@zytor.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 12:34 +0900, KAMEZAWA Hiroyuki wrote:
->  find_next_system_ram() is used to find available memory resource
-> at onlining newly added memory.
-> This patch fixes following problem.
+On Thu, Aug 03, 2006 at 04:51:38PM -0700, H. Peter Anvin wrote:
+> Adrian Bunk wrote:
 > 
-> find_next_system_ram() cannot catch this case.
+> >
+> >On different architectures, we have the following values for 
+> >COMMAND_LINE_SIZE:
+> >- 256
+> >- 512
+> >- 896
+> >- 1024
+> >- 4096
+> >
+> >What should be the common value?
+> >4096?
+> >
+> >And I have a rough memory of some dependencies of COMMAND_LINE_SIZE and 
+> >boot loaders. What exactly must be taken care of when increasing 
+> >COMMAND_LINE_SIZE?
+> >
 > 
-> Resource:      (start)-------------(end)
-> Section :                (start)-------------(end)
-> 
-> 
-> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-> 
->  kernel/resource.c   |    3 ++-
->  mm/memory_hotplug.c |    2 +-
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> Index: linux-2.6.18-rc3/kernel/resource.c
-> ===================================================================
-> --- linux-2.6.18-rc3.orig/kernel/resource.c	2006-08-01 16:38:45.000000000 +0900
-> +++ linux-2.6.18-rc3/kernel/resource.c	2006-08-01 16:38:56.000000000 +0900
-> @@ -244,6 +244,7 @@
->  
->  	start = res->start;
->  	end = res->end;
-> +	BUG_ON(start >= end);
+> It's architecture-dependent; it probably should be defined in something 
+> like <asm/cmdline.h>.
 
-BUG_ON seems a little strong for bad arguments to the function but I am
-ok with it. 
+OK, I did misunderstand you.
+I tought you were saying it should be the same value for all 
+architectures.
 
-Thanks,
- Keith 
+With the exception of frv (in param.h), COMMAND_LINE_SIZE is in setup.h 
+on all architectures.
+
+Do we want to move it to a different header, or simply make param.h a 
+userspace header on all architectures?
+
+> 	-hpa
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

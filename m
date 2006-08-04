@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWHDBGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWHDBG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWHDBGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 21:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWHDBGZ
+	id S1751406AbWHDBG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 21:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWHDBG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 21:06:25 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:30985 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751275AbWHDBGY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 21:06:24 -0400
-Date: Fri, 4 Aug 2006 11:05:50 +1000
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, davej@redhat.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net, linville@tuxdriver.com, jt@hpl.hp.com
-Subject: Re: orinoco driver causes *lots* of lockdep spew
-Message-ID: <20060804010550.GA12085@gondor.apana.org.au>
-References: <E1G8der-0001fm-00@gondolin.me.apana.org.au> <44D214D2.70206@linux.intel.com>
+	Thu, 3 Aug 2006 21:06:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40373 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751406AbWHDBG4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 21:06:56 -0400
+Date: Thu, 3 Aug 2006 18:03:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Nate Diller" <nate.diller@gmail.com>
+Cc: "Adrian Bunk" <bunk@stusta.de>, "Jens Axboe" <axboe@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] [1/2] Remove Deadline I/O scheduler
+Message-Id: <20060803180337.a7f89a17.akpm@osdl.org>
+In-Reply-To: <5c49b0ed0608031715l7e8f9c7dyd647a11c44c73400@mail.gmail.com>
+References: <5c49b0ed0608031557n405196ack3fa2024aae8a9475@mail.gmail.com>
+	<20060803234648.GK25692@stusta.de>
+	<5c49b0ed0608031715l7e8f9c7dyd647a11c44c73400@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D214D2.70206@linux.intel.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 03, 2006 at 08:22:58AM -0700, Arjan van de Ven wrote:
->
-> however I'm not quite yet convinced that this patch is going to solve
-> this particular deadlock.
-> (I agree with the principle of it and I think it's really needed,
-> I just don't yet see how it's going to solve this specific deadlock. But
-> then again it's early and I've not had sufficient coffee yet so I could
-> well be wrong)
+On Thu, 3 Aug 2006 17:15:47 -0700
+"Nate Diller" <nate.diller@gmail.com> wrote:
 
-Well it solves the dead lock by breaking the chain that links the
-netlink system with the jungle of wireless locking :)
+> My goal is not to get
+> deadline removed, but a discussion with Andrew some months ago showed
+> he was averse to creating more options than we already have.
 
-The spin lock in sk_buff_head acts as a mediator.  We only feed the
-skb to the netlink system once that spin lock has been dropped.
- 
-> it's not just about irq context, it's about being called with any lock 
-> that's
-> used in IRQ context; that is what makes this double nasty...
+hm, we must have miscommunicated here.
 
-Yes it is nasty.  However, so far wireless seems to be the only offender.
+The way to handle the elevator scheduler is to just add it as a new feature
+not touch deadline.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Leter (and it might be over a year) we might decide to remove deadline. 
+But the cost of carrying it is veyr low.
+

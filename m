@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWHDA0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWHDAeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWHDA0J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 20:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWHDA0I
+	id S932511AbWHDAeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 20:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWHDAeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 20:26:08 -0400
-Received: from mga07.intel.com ([143.182.124.22]:14750 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932383AbWHDA0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 20:26:07 -0400
-X-IronPort-AV: i="4.07,209,1151910000"; 
-   d="scan'208"; a="97196140:sNHT8499537816"
-Message-ID: <44D293F9.7040204@linux.intel.com>
-Date: Thu, 03 Aug 2006 17:25:29 -0700
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, David Miller <davem@davemloft.net>,
-       mchan@broadcom.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-References: <20060803201741.GA7894@thunk.org> <20060803.144845.66061203.davem@davemloft.net> <1154647699.3117.26.camel@rh4> <20060803.164311.91310742.davem@davemloft.net> <20060804000707.GA15342@thunk.org>
-In-Reply-To: <20060804000707.GA15342@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 3 Aug 2006 20:34:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:59323 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932511AbWHDAeM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 20:34:12 -0400
+Subject: Re: [PATCH] memory hotadd fixes [4/5] avoid check in acpi
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>,
+       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060803123604.0f909208.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 03 Aug 2006 17:13:16 -0700
+Message-Id: <1154650396.5925.49.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> Removing the timer-based "ping" might be a good thing to do from the
-> point of view of reducing power utilization of laptops (but hey, I
-> don't have a tg3 in my laptop, so I won't worry about it a whole lot :-), 
-> but I agree that in general the RT patches need to be able to
-> call functions such as tg3_timer() reliably even when under a high
-> real-time process workload, without needing to use the blunt hammer of
-> "chrt -f 95 `pidof softirq-timer`".  (Since not all timer callbacks
-> need to be run at rt prio 95.)
+On Thu, 2006-08-03 at 12:36 +0900, KAMEZAWA Hiroyuki wrote:
+> add_memory() does all necessary check to avoid collision.
+> then, acpi layer doesn't have to check region by itself.
 > 
+> (*) pfn_valid() just returns page struct is valid or not. It returns 0
+>     if a section has been already added even is ioresource is not added.
+>     ioresource collision check in mm/memory_hotplug.c can do more precise
+>     collistion check.
+>     added enabled bit check just for sanity check..
+> 
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-I suppose the timer subsystem needs a "I'd like to have this timer called at time X, but it's ok to call it
-later until time X+Y" option; that's useful for RT like stuff but also for power savings...
-(eg you can batch timer firings that way a lot better)
+> -		start_pfn = info->start_addr >> PAGE_SHIFT;
+> -		end_pfn = (info->start_addr + info->length - 1) >> PAGE_SHIFT;
+> -
+> -		if (pfn_valid(start_pfn) || pfn_valid(end_pfn)) {
+
+This check needs to go somewhare in the add path.  I am thinking of a
+validate_add_memory_area call in add_memory (that can also be flexable
+to enable the reserve check of (this memory area in add_nodes).  
+
+  It is a useful protection for the sparsemem add path. I would rather
+the kernel be able to stand up to odd acpi namespaces or other
+mechanisms of invoking add_memory. 
+
+Thanks,
+  Keith 
+

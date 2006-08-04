@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWHDADJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWHDADk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWHDADJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Aug 2006 20:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWHDADJ
+	id S1030241AbWHDADk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Aug 2006 20:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWHDADk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Aug 2006 20:03:09 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:11382 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1030238AbWHDADH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Aug 2006 20:03:07 -0400
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: David Miller <davem@davemloft.net>
-Cc: tytso@mit.edu, mchan@broadcom.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060803.165654.45876296.davem@davemloft.net>
-References: <20060803201741.GA7894@thunk.org>
-	 <20060803.144845.66061203.davem@davemloft.net>
-	 <20060803235326.GC7894@thunk.org>
-	 <20060803.165654.45876296.davem@davemloft.net>
+	Thu, 3 Aug 2006 20:03:40 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:12525 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030243AbWHDADj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Aug 2006 20:03:39 -0400
+Subject: Re: [PATCH] memory hotadd fixes [1/5] not-aligned memory hotadd
+	handling fix
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>,
+       "y-goto@jp.fujitsu.com" <y-goto@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060803123039.c50feb85.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060803123039.c50feb85.kamezawa.hiroyu@jp.fujitsu.com>
 Content-Type: text/plain
-Date: Thu, 03 Aug 2006 17:03:05 -0700
-Message-Id: <1154649785.16126.3.camel@dwalker1.mvista.com>
+Organization: Linux Technology Center IBM
+Date: Thu, 03 Aug 2006 17:03:36 -0700
+Message-Id: <1154649816.5925.36.camel@keithlap>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 16:56 -0700, David Miller wrote:
-> From: Theodore Tso <tytso@mit.edu>
-> Date: Thu, 3 Aug 2006 19:53:26 -0400
-> 
-> > Any suggestions on how I could figure out what was really going on and
-> > what would be a better fix would be greatly appreciated.
-> 
-> As Michael explained, it's the ASF heartbeat sent by tg3_timer() that
-> must be delivered to the chip within certain timing constraints.
-> 
-> If you had any watchdog devices on this machine, they would likely
-> trigger too and reset your machine :)
 
-That's not broken behavior in RT .. That's just plain old task
-priorities. Some high priority task (SCHED_FIFO prio 99) is sucking up a
-lot of the CPU. But that's 100% legal in SCHED_FIFO.
+> ioresouce handling code in memory hotplug allows not-aligned memory hot add.
+> But when memmap and other memory structures are initialized, parameters
+> should be aligned. (if not aligned, initialization of mem_map will do wrong,
+> it assumes parameters are aligned.) This patch fix it.
+> 
+> And this patch allows ioresource collision check to handle -EEXIST.
+>
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+> 
+>  mm/memory_hotplug.c |   23 ++++++++++++++++-------
+>  1 files changed, 16 insertions(+), 7 deletions(-)
 
-Daniel
+This code looks and boots fine for me with x86_64.
+
+ 
+Acked-by: Keith Mannthey <kmannth@us.ibm.com>
 

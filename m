@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbWHDIm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbWHDIuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161112AbWHDIm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbWHDIm3
+	id S1161109AbWHDIuW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWHDIuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:42:29 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:32384 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1161112AbWHDIm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:42:28 -0400
-Subject: Re: [PATCH] MTD: Add lock/unlock operations for Atmel AT49BV6416
-From: David Woodhouse <dwmw2@infradead.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1154680114836-git-send-email-hskinnemoen@atmel.com>
-References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
-	 <1154680114836-git-send-email-hskinnemoen@atmel.com>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 16:41:12 +0800
-Message-Id: <1154680873.31031.182.camel@shinybook.infradead.org>
+	Fri, 4 Aug 2006 04:50:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:694 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030209AbWHDIuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:50:21 -0400
+Date: Fri, 4 Aug 2006 09:50:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [patch 12/23] invalidate_bdev() speedup
+Message-ID: <20060804085012.GA20026@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+	stable@kernel.org, torvalds@osdl.org,
+	Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Dave Jones <davej@redhat.com>,
+	Chuck Wolber <chuckw@quantumlinux.com>,
+	Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+	alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org,
+	Jes Sorensen <jes@sgi.com>
+References: <20060804053258.391158155@quad.kroah.org> <20060804053942.GM769@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060804053942.GM769@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 10:28 +0200, Haavard Skinnemoen wrote:
-> What's the best way to do this? Unlock the flash in the board-specific
-> mapping driver perhaps? 
+On Thu, Aug 03, 2006 at 10:39:42PM -0700, Greg KH wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
 
-That's what we used to do. If more people are emulating the Intel brain
-damage and having chips which render the lock operation entirely
-pointless by locking the chips at every power cycle, then I suppose we
-ought to consider making auto-unlock a function of the chip type.
-
--- 
-dwmw2
+This is a feature.  Definitly not -stable material.
 

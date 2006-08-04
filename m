@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWHDFyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWHDFzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161048AbWHDFyV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWHDFyV
+	id S1161051AbWHDFzF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWHDFzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:54:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3720 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161043AbWHDFyT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:54:19 -0400
-Date: Thu, 3 Aug 2006 22:53:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
-       ian.pratt@xensource.com, jeremy@goop.org
-Subject: Re: A proposal - binary
-Message-Id: <20060803225357.e9ab5de1.akpm@osdl.org>
-In-Reply-To: <1154667875.11382.37.camel@localhost.localdomain>
-References: <44D1CC7D.4010600@vmware.com>
-	<20060803190605.GB14237@kroah.com>
-	<44D24DD8.1080006@vmware.com>
-	<20060803200136.GB28537@kroah.com>
-	<44D2B678.6060400@xensource.com>
-	<20060803211850.3a01d0cc.akpm@osdl.org>
-	<1154667875.11382.37.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 4 Aug 2006 01:55:04 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:55730
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161044AbWHDFzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 01:55:01 -0400
+Date: Thu, 03 Aug 2006 22:55:01 -0700 (PDT)
+Message-Id: <20060803.225501.77357103.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: johnpol@2ka.mipt.ru, arnd@arndnet.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: problems with e1000 and jumboframes
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <E1G8sbw-0003mT-00@gondolin.me.apana.org.au>
+References: <20060803135925.GA28348@2ka.mipt.ru>
+	<E1G8sbw-0003mT-00@gondolin.me.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 04 Aug 2006 15:04:35 +1000
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Fri, 04 Aug 2006 15:52:40 +1000
 
-> On Thu, 2006-08-03 at 21:18 -0700, Andrew Morton wrote:
-> > > As far as LKML is concerned, the only interface which matters is the 
-> > > Linux -> <something> interface, which is defined within the scope of the 
-> > > Linux development process.  That's what paravirt_ops is intended to be.
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 > > 
-> > I must confess that I still don't "get" paravirtops.  AFACIT the VMI
-> > proposal, if it works, will make that whole layer simply go away.  Which
-> > is attractive.  If it works.
+> > But it does not support splitting them into page sized chunks, so it
+> > requires the whole jumbo frame allocation in one contiguous chunk, 9k
+> > will be transferred into 16k allocation (order 3), since SLAB uses
+> > power-of-2 allocation.
 > 
-> Everywhere in the kernel where we have multiple implementations we want
-> to select at runtime, we use an ops struct.  Why should the choice of
-> Xen/VMI/native/other be any different?
+> Actually order 3 is 32KB.
 
-VMI is being proposed as an appropriate way to connect Linux to Xen.  If
-that is true then no other glue is needed.
-
-The central point here is whether that is right.
-
-> Yes, we could force native and Xen to work via VMI, but the result would
-> be less clear, less maintainable, and gratuitously different from
-> elsewhere in the kernel.
-
-I suspect others would disagree with that.  We're at the stage of needing
-to see code to settle this.
-
->  And, of course, unlike paravirt_ops where we
-> can change and add ops at any time, we can't similarly change the VMI
-> interface because it's an ABI (that's the point: the hypervisor can
-> provide the implementation).
-
-hm.  Dunno.  ABIs can be uprevved.  Perhaps.
+It's 64KB on my computer :)

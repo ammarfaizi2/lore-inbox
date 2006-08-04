@@ -1,80 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWHDThZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWHDTmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161359AbWHDThZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 15:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWHDThZ
+	id S1161383AbWHDTmp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 15:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161363AbWHDTmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 15:37:25 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:24988 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932605AbWHDThY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 15:37:24 -0400
-Subject: Re: [Lhms-devel] [PATCH 4/10] hot-add-mem x86_64: Enable SPARSEMEM
-	in	srat.c
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
-Cc: lkml <linux-kernel@vger.kernel.org>, andrew <akpm@osdl.org>,
-       discuss <discuss@x86-64.org>, Andi Kleen <ak@suse.de>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>,
-       kame <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <44D364F9.3080703@kolumbus.fi>
-References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-	 <20060804131409.21401.58904.sendpatchset@localhost.localdomain>
-	 <44D364F9.3080703@kolumbus.fi>
-Content-Type: text/plain; charset=utf-8
-Organization: Linux Technology Center IBM
-Date: Fri, 04 Aug 2006 12:36:19 -0700
-Message-Id: <1154720180.7722.28.camel@keithlap>
+	Fri, 4 Aug 2006 15:42:45 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:56737 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932605AbWHDTmo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 15:42:44 -0400
+Date: Fri, 4 Aug 2006 23:42:11 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Chris Leech <chris.leech@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, arnd@arndnet.de, olel@ans.pl,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: problems with e1000 and jumboframes
+Message-ID: <20060804194209.GA25167@2ka.mipt.ru>
+References: <41b516cb0608031334s6e159e99tb749240f44ae608d@mail.gmail.com> <E1G8sif-0003oY-00@gondolin.me.apana.org.au> <20060804061513.GB413@2ka.mipt.ru> <41b516cb0608040834o1d433f23v2f2ba1a1b05ccbc6@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <41b516cb0608040834o1d433f23v2f2ba1a1b05ccbc6@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 04 Aug 2006 23:42:15 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 18:17 +0300, Mika Penttilä wrote:
-> Keith Mannthey wrote:
-> > From: Keith Mannthey <kmannth@us.ibm.com>
-> >
-> >  Enable x86_64 srat.c to share code between both reserve and sparsemem based add memory
-> > paths.  Both paths need the hot-add area node locality infomration (nodes_add).  This 
-> > code refactors the code path to allow this. 
-> >
-> > Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
-> >   
-> Ok nice, but.... hotadd_enough_memory() is broken, it does weird things 
-> with nd->start and nd->end which haven't been assigned even values yet. 
-> Also, mysterious business with find_e820_area and last_area_end...These 
-> areas are not in e820...
-  Thats for pointing out the breakage in hotadd_enough_memory.  I think
-the find_e820_area stuff is to make sure there box has the memory to
-reserve the maps....but it doesn't look to do it right.  I can take a
-pass at a re-write for this function. 
-   
+On Fri, Aug 04, 2006 at 08:34:46AM -0700, Chris Leech (chris.leech@gmail.com) wrote:
+> So how many skb allocation schemes do you code into a single driver?
+> Kmalloc everything, page alloc everything, combination of kmalloc and
+> page buffers for hardware that does header split?  That's three
+> versions of the drivers receive processing and skb allocation that
+> need to be maintained.
 
-STAT hot-add memroy areas can be outside the e820.  The e820 just
-exposes the end of memory the is present in the box even though there
-maybe add area on the other size of that.
+At least try to create scheme which will not end up in 32k allocation in
+atomic context. Generally I would recommend to use frag_list as much as
+possible (or you can reuse skb list).
+ 
+> - Chris
 
-For example my memory is layed out as follows.
-
-SRAT: Node 0 PXM 0 0-80000000
-SRAT: Node 0 PXM 0 0-470000000
-SRAT: Node 0 PXM 0 0-1070000000
-SRAT: hot plug zone found 470000000 - 1070000000
-SRAT: Node 1 PXM 1 1070000000-1160000000
-SRAT: Node 1 PXM 1 1070000000-3200000000
-SRAT: hot plug zone found 1160000000 - 3200000000
-
-The e820 ends at 1160000000 but there is still a possible add zone on
-the other side of that. 
-
-The first hot plug zone is reserved by the e820 but no the 2nd. 
-> And why the reserve_bootmem_node()? Areas not RAM (per e820) are 
-> reserved anyways.
-
-To make sure the areas are outside of the e820 are reserved.  
-
-Thanks,
-  Keith 
-
+-- 
+	Evgeniy Polyakov

@@ -1,95 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161266AbWHDP5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbWHDQAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161266AbWHDP5W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 11:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbWHDP5W
+	id S1161265AbWHDQAu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 12:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161272AbWHDQAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 11:57:22 -0400
-Received: from sandeen.net ([209.173.210.139]:52599 "EHLO sandeen.net")
-	by vger.kernel.org with ESMTP id S1161266AbWHDP5W (ORCPT
+	Fri, 4 Aug 2006 12:00:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49042 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161265AbWHDQAu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 11:57:22 -0400
-Message-ID: <44D36E60.2020006@sandeen.net>
-Date: Fri, 04 Aug 2006 10:57:20 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Fri, 4 Aug 2006 12:00:50 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
+       ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	<44BE9E78.3010409@garzik.org> <yq0lkq4vbs3.fsf@jaguar.mkp.net>
+	<1154702572.23655.226.camel@localhost.localdomain>
+	<44D35B25.9090004@sgi.com>
+	<1154706687.23655.234.camel@localhost.localdomain>
+	<44D36E8B.4040705@sgi.com>
+X-Yow: This MUST be a good party -- My RIB CAGE is being painfully
+ pressed up against someone's MARTINI!!
+Date: Fri, 04 Aug 2006 18:00:24 +0200
+In-Reply-To: <44D36E8B.4040705@sgi.com> (Jes Sorensen's message of "Fri, 04
+	Aug 2006 17:58:03 +0200")
+Message-ID: <je4pws1ofb.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: bfennema@falcon.csc.calpoly.edu
-Subject: [PATCH]: initialize parts of udf inode earlier in create
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw an oops down this path when trying to create a new file on a UDF 
-filesystem which was internally marked as readonly, but mounted rw:
+Jes Sorensen <jes@sgi.com> writes:
 
-udf_create
-        udf_new_inode
-                new_inode
-                        alloc_inode
-                        	udf_alloc_inode
-                udf_new_block
-                        returns EIO due to readonlyness
-                iput (on error)
-                        udf_put_inode
-                                udf_discard_prealloc
-                                        udf_next_aext
-                                                udf_current_aext
-                                                        udf_get_fileshortad
-                                                                OOPS
+> Alan Cox wrote:
+>> Ar Gwe, 2006-08-04 am 16:35 +0200, ysgrifennodd Jes Sorensen:
+>>> The proposed patch makes it u1 - if we end up with arch specific
+>>> defines, as the patch is proposing, developers won't know for sure what
+>>> the size is and will get alignment wrong. That is not fine.
+>>
+>> The _Bool type is up to gcc implementation details.
+>
+> Which is even worse :(
 
-the udf_discard_prealloc() path was examining uninitialized fields of the 
-udf inode.
+It's part of the ABI, just like any other C type.
 
-udf_discard_prealloc() already has this code to short-circuit the discard 
-path if no extents are preallocated:
+>>> If we really have to introduce a bool type, at least it has to be the
+>>> same size on all 32 bit archs and the same size on all 64 bit archs.
+>>
+>> You don't use bool for talking to hardware, you use it for the most
+>> efficient compiler behaviour when working with true/false values.
+>
+> Thats the problem, people will start putting them into structs, and
+> voila all alignment predictability has gone out the window.
 
-        if (UDF_I_ALLOCTYPE(inode) == ICBTAG_FLAG_AD_IN_ICB ||
-                inode->i_size == UDF_I_LENEXTENTS(inode))
-        {
-                return;
-        }
+Just like trying to predict the alignment of any other C type.
 
-so if we initialize UDF_I_LENEXTENTS(inode) = 0 earlier in udf_new_inode, we
-won't try to free the (not) preallocated blocks, since this will match
-the i_size = 0 set when the inode was initialized.
+Andreas.
 
-Thanks,
-
--Eric
-
-Signed-off-by: Eric Sandeen <sandeen@sandeen.net>
-
-Index: linux-2.6.17/fs/udf/ialloc.c
-===================================================================
---- linux-2.6.17.orig/fs/udf/ialloc.c
-+++ linux-2.6.17/fs/udf/ialloc.c
-@@ -75,6 +75,12 @@ struct inode * udf_new_inode (struct ino
- 	}
- 	*err = -ENOSPC;
- 
-+	UDF_I_UNIQUE(inode) = 0;
-+	UDF_I_LENEXTENTS(inode) = 0;
-+	UDF_I_NEXT_ALLOC_BLOCK(inode) = 0;
-+	UDF_I_NEXT_ALLOC_GOAL(inode) = 0;
-+	UDF_I_STRAT4096(inode) = 0;
-+
- 	block = udf_new_block(dir->i_sb, NULL, UDF_I_LOCATION(dir).partitionReferenceNum,
- 		start, err);
- 	if (*err)
-@@ -84,11 +90,6 @@ struct inode * udf_new_inode (struct ino
- 	}
- 
- 	mutex_lock(&sbi->s_alloc_mutex);
--	UDF_I_UNIQUE(inode) = 0;
--	UDF_I_LENEXTENTS(inode) = 0;
--	UDF_I_NEXT_ALLOC_BLOCK(inode) = 0;
--	UDF_I_NEXT_ALLOC_GOAL(inode) = 0;
--	UDF_I_STRAT4096(inode) = 0;
- 	if (UDF_SB_LVIDBH(sb))
- 	{
- 		struct logicalVolHeaderDesc *lvhd;
- 
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

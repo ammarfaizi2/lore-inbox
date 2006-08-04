@@ -1,67 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWHDFhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWHDFhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbWHDFhM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWHDFhM
+	id S1030265AbWHDFhS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWHDFhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:37:12 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55967 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030264AbWHDFhK (ORCPT
+	Fri, 4 Aug 2006 01:37:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9092 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030265AbWHDFhQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:37:10 -0400
-Subject: [PATCH 3 of 4] cpumask: export node_to_cpu_mask consistently
-From: Greg Banks <gnb@melbourne.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@suse.de>,
-       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Silicon Graphics Inc, Australian Software Group.
-Message-Id: <1154669820.21040.2355.camel@hole.melbourne.sgi.com>
+	Fri, 4 Aug 2006 01:37:16 -0400
+Date: Thu, 3 Aug 2006 22:36:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
+ controller
+Message-Id: <20060803223650.423f2e6a.akpm@osdl.org>
+In-Reply-To: <20060804050753.GD27194@in.ibm.com>
+References: <20060804050753.GD27194@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 04 Aug 2006 15:37:00 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cpumask: ensure that node_to_cpumask() is available to modules for
-all supported combinations of architecture and CONFIG_NUMA.
+On Fri, 4 Aug 2006 10:37:53 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
----
+> Resource management has been talked about quite extensively in the
+> past, more recently in the context of containers. The basic requirement
+> here is to provide isolation between *groups* of task wrt their use
+> of various resources like CPU, Memory, I/O bandwidth, open file-descriptors etc.
+> 
+> Different maintainers have however expressed different opinions over the need to
+> complicate the kernel to meet this need, especially since it involves core 
+> kernel code like the resource schedulers. 
+> 
+> A BoF was hence held at OLS this year to come to a consensus on the minimum 
+> requirements of a resource management solution for Linux kernel. Some notes 
+> taken at the BoF are posted here:
+> 
+> 	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0607.3/0896.html
+> 
+> An important consensus point of the BoF seemed to be "focus on real 
+> controllers more, preferably memory first, using some simple interface
+> and task grouping mechanism".
 
- arch/i386/kernel/smpboot.c |    1 +
- arch/ia64/kernel/numa.c    |    1 +
- 2 files changed, 2 insertions(+)
+ug, I didn't know this.  Had I been there (sorry) I'd have disagreed with
+this whole strategy.
 
-Index: linux-2.6.18-rc2/arch/i386/kernel/smpboot.c
-===================================================================
---- linux-2.6.18-rc2.orig/arch/i386/kernel/smpboot.c	2006-08-03 13:29:58.956798616 +1000
-+++ linux-2.6.18-rc2/arch/i386/kernel/smpboot.c	2006-08-03 13:30:34.716149882 +1000
-@@ -609,6 +609,7 @@ extern struct {
- /* which logical CPUs are on which nodes */
- cpumask_t node_2_cpu_mask[MAX_NUMNODES] __read_mostly =
- 				{ [0 ... MAX_NUMNODES-1] = CPU_MASK_NONE };
-+EXPORT_SYMBOL(node_2_cpu_mask);
- /* which node each logical CPU is on */
- int cpu_2_node[NR_CPUS] __read_mostly = { [0 ... NR_CPUS-1] = 0 };
- EXPORT_SYMBOL(cpu_2_node);
-Index: linux-2.6.18-rc2/arch/ia64/kernel/numa.c
-===================================================================
---- linux-2.6.18-rc2.orig/arch/ia64/kernel/numa.c	2006-08-03 13:30:03.548201734 +1000
-+++ linux-2.6.18-rc2/arch/ia64/kernel/numa.c	2006-08-03 13:31:01.696642365 +1000
-@@ -28,6 +28,7 @@ u16 cpu_to_node_map[NR_CPUS] __cacheline
- EXPORT_SYMBOL(cpu_to_node_map);
- 
- cpumask_t node_to_cpu_mask[MAX_NUMNODES] __cacheline_aligned;
-+EXPORT_SYMBOL_GPL(node_to_cpu_mask);
- 
- /**
-  * build_cpu_to_node_map - setup cpu to node and node to cpumask arrays
+I thought the most recently posted CKRM core was a fine piece of code.  It
+provides the machinery for grouping tasks together and the machinery for
+establishing and viewing those groupings via configfs, and other such
+common functionality.  My 20-minute impression was that this code was an
+easy merge and it was just awaiting some useful controllers to come along.
 
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+And now we've dumped the good infrastructure and instead we've contentrated
+on the controller, wired up via some imaginative ab^H^Hreuse of the cpuset
+layer.
+
+I wonder how many of the consensus-makers were familiar with the
+contemporary CKRM core?
+
+> In going forward, following points will need to be addressed:
+> 
+> 	- Grouping and interface
+> 		- What mechanism to use for grouping tasks and
+> 		  for specifying task-group resource usage limits?
+
+ckrm ;)
+
+> 	- Design of individual resource controllers like memory and cpu
+
+Right.  We won't be controlling memory, numtasks, disk, network etc
+controllers via cpusets, will we?
+
+
+> This patch series is an attempt to take forward the design discussion of a
+> CPU controller.
+
+That's good.  The controllers are the sticking point.  Most especially the
+memory controller.
+
+> For simplicity and convenience, cpuset has been chosen as the means to group 
+> tasks here, primarily because cpuset already exists in the kernel and also 
+> perhaps resource container definition should be unique only inside a cpuset.
+> 
+
+Correct me if I'm wrong, but a cpuset isn't the appropriate machinery to be
+using to group tasks.
+
+And if this whole resource-control effort is to end up being successful, it
+should have as core infrastructure a flexible, appropriate and uniform way
+of grouping tasks together and of getting data into and out of those
+aggregates.  We already have that, don't we?
+
 
 

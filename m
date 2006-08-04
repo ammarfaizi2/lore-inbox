@@ -1,103 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWHDFhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWHDFh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030265AbWHDFhS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 01:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWHDFhS
+	id S1030267AbWHDFh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 01:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWHDFh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:37:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9092 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030265AbWHDFhQ (ORCPT
+	Fri, 4 Aug 2006 01:37:56 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60831 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030267AbWHDFhz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:37:16 -0400
-Date: Thu, 3 Aug 2006 22:36:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
-       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
-       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
-       haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-Message-Id: <20060803223650.423f2e6a.akpm@osdl.org>
-In-Reply-To: <20060804050753.GD27194@in.ibm.com>
-References: <20060804050753.GD27194@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 4 Aug 2006 01:37:55 -0400
+Subject: [PATCH 4 of 4] knfsd: handle non-contiguous cpu and node numbers
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@suse.de>,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1154669863.21040.2357.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 04 Aug 2006 15:37:46 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006 10:37:53 +0530
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+knfsd: when allocating per-cpu or per-node rpc thread pools, handle
+the case of noncontiguous cpu or node numbers.
 
-> Resource management has been talked about quite extensively in the
-> past, more recently in the context of containers. The basic requirement
-> here is to provide isolation between *groups* of task wrt their use
-> of various resources like CPU, Memory, I/O bandwidth, open file-descriptors etc.
-> 
-> Different maintainers have however expressed different opinions over the need to
-> complicate the kernel to meet this need, especially since it involves core 
-> kernel code like the resource schedulers. 
-> 
-> A BoF was hence held at OLS this year to come to a consensus on the minimum 
-> requirements of a resource management solution for Linux kernel. Some notes 
-> taken at the BoF are posted here:
-> 
-> 	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0607.3/0896.html
-> 
-> An important consensus point of the BoF seemed to be "focus on real 
-> controllers more, preferably memory first, using some simple interface
-> and task grouping mechanism".
+Tested:
 
-ug, I didn't know this.  Had I been there (sorry) I'd have disagreed with
-this whole strategy.
+Machine                         ARCH    SMP NUMA    SUNRPC  nodes   cpus    hpni    hppi    pools(mode)
+-------                         ----    --- ----    ------  -----   ----    ----    ----    ------------
+4 cpu Xeon SMP                  x86_64  y   y       y       1       4       31      7       4 (percpu)
+4 cpu Xeon SMP                  x86_64  y   y       m       1       4       31      7       4 (percpu)
+4 cpu Xeon SMP                  x86_64  y   n       y       0       4       0       7       4 (percpu)
+4 cpu Xeon SMP                  x86_64  y   n       m       0       4       0       7       4 (percpu)
+4 cpu Xeon SMP                  x86_64  n   n       y       0       1       0       0       1 (global)
+4 cpu Xeon SMP                  x86_64  n   n       m       0       1       0       0       1 (global)
+4 cpu (2 node) Itanium NUMA     ia64    y   y       m       2       4       1023    3       2 (pernode)
+2 cpu (1 node) Itanium NUMA     ia64    y   y       m       1       2       1023    1       1 (global)
 
-I thought the most recently posted CKRM core was a fine piece of code.  It
-provides the machinery for grouping tasks together and the machinery for
-establishing and viewing those groupings via configfs, and other such
-common functionality.  My 20-minute impression was that this code was an
-easy merge and it was just awaiting some useful controllers to come along.
+* number of nodes and cpus from /sys/devices/system/
+* hpni = value of highest_possible_node_id()
+* hppi = value of highest_possible_processor_id()
 
-And now we've dumped the good infrastructure and instead we've contentrated
-on the controller, wired up via some imaginative ab^H^Hreuse of the cpuset
-layer.
+Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
+---
 
-I wonder how many of the consensus-makers were familiar with the
-contemporary CKRM core?
+ net/sunrpc/svc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> In going forward, following points will need to be addressed:
-> 
-> 	- Grouping and interface
-> 		- What mechanism to use for grouping tasks and
-> 		  for specifying task-group resource usage limits?
+Index: linus-git/net/sunrpc/svc.c
+===================================================================
+--- linus-git.orig/net/sunrpc/svc.c	2006-08-01 15:38:30.000000000 +1000
++++ linus-git/net/sunrpc/svc.c	2006-08-02 13:20:35.979647782 +1000
+@@ -116,7 +116,7 @@ fail:
+ static int
+ svc_pool_map_init_percpu(struct svc_pool_map *m)
+ {
+-	unsigned int maxpools = num_possible_cpus();
++	unsigned int maxpools = highest_possible_processor_id()+1;
+ 	unsigned int pidx = 0;
+ 	unsigned int cpu;
+ 	int err;
+@@ -144,7 +144,7 @@ svc_pool_map_init_percpu(struct svc_pool
+ static int
+ svc_pool_map_init_pernode(struct svc_pool_map *m)
+ {
+-	unsigned int maxpools = num_possible_nodes();
++	unsigned int maxpools = highest_possible_node_id()+1;
+ 	unsigned int pidx = 0;
+ 	unsigned int node;
+ 	int err;
 
-ckrm ;)
-
-> 	- Design of individual resource controllers like memory and cpu
-
-Right.  We won't be controlling memory, numtasks, disk, network etc
-controllers via cpusets, will we?
-
-
-> This patch series is an attempt to take forward the design discussion of a
-> CPU controller.
-
-That's good.  The controllers are the sticking point.  Most especially the
-memory controller.
-
-> For simplicity and convenience, cpuset has been chosen as the means to group 
-> tasks here, primarily because cpuset already exists in the kernel and also 
-> perhaps resource container definition should be unique only inside a cpuset.
-> 
-
-Correct me if I'm wrong, but a cpuset isn't the appropriate machinery to be
-using to group tasks.
-
-And if this whole resource-control effort is to end up being successful, it
-should have as core infrastructure a flexible, appropriate and uniform way
-of grouping tasks together and of getting data into and out of those
-aggregates.  We already have that, don't we?
-
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
 

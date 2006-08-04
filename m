@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161550AbWHDWnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161551AbWHDWnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161550AbWHDWnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 18:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161552AbWHDWnZ
+	id S1161551AbWHDWnk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 18:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161554AbWHDWnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 18:43:25 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:17388 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1161550AbWHDWnY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 18:43:24 -0400
+	Fri, 4 Aug 2006 18:43:39 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:30961 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1161552AbWHDWni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 18:43:38 -0400
+Date: Fri, 4 Aug 2006 15:40:02 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Jeff Dike <jdike@addtoit.com>
+cc: Antonio Vargas <windenntw@gmail.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       jeremy@xensource.com, greg@kroah.com, zach@vmware.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       jlo@vmware.com, xen-devel@lists.xensource.com, simon@xensource.com,
+       ian.pratt@xensource.com, jeremy@goop.org
+Subject: Re: A proposal - binary
+In-Reply-To: <20060804214643.GA6407@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.63.0608041535010.18862@qynat.qvtvafvgr.pbz>
+References: <44D2B678.6060400@xensource.com>  <20060803211850.3a01d0cc.akpm@osdl.org>
+  <1154667875.11382.37.camel@localhost.localdomain>  <20060803225357.e9ab5de1.akpm@osdl.org>
+  <1154675100.11382.47.camel@localhost.localdomain> 
+ <Pine.LNX.4.63.0608040944480.18902@qynat.qvtvafvgr.pbz> 
+ <69304d110608041146t44077033j9a10ae6aee19a16d@mail.gmail.com> 
+ <Pine.LNX.4.63.0608041150360.18862@qynat.qvtvafvgr.pbz> 
+ <20060804194549.GA5897@ccure.user-mode-linux.org> 
+ <Pine.LNX.4.63.0608041246010.18862@qynat.qvtvafvgr.pbz>
+ <20060804214643.GA6407@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17619.52619.386906.60775@cello.hpl.hp.com>
-Date: Fri, 4 Aug 2006 15:43:23 -0700
-From: Eric Anderson <anderse@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: result of pci=assign-busses on HP NW9440 laptop
-X-Mailer: VM 7.15 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dmesg on booting a 2.6.17.7 kernel on the HP NW9440 laptop reports:
- > PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#03) (try 'pci=assign-busses')
- > Please report the result to linux-kernel to fix this permanently
+On Fri, 4 Aug 2006, Jeff Dike wrote:
 
-I'm not quite sure which part of the dmesg output I'm supposed to
-report.  When I enable pci=assign-busses, the piece of dmesg that
-reports the warning says nothing, but later on in dmesg where it is
-printing out information about busses, it says:
+> On Fri, Aug 04, 2006 at 12:49:13PM -0700, David Lang wrote:
+>>> Why might you have to do that?
+>>
+>> take this with a grain of salt, I'm not saying the particular versions I'm
+>> listing would require this
+>>
+>> if your new guest kernel wants to use some new feature (SKAS3, time
+>> virtualization, etc) but the older host kernel didn't support some system
+>> call nessasary to implement it, you may need to upgrade the host kernel to
+>> one that provides the new features.
+>
+> OK, yeah.
+>
+> Just making sure you weren't thinking that the UML and host versions
+> were tied together (although a modern distro won't boot on a 2.6 UML
+> on a 2.4 host because UML's TLS needs TLS support on the host...).
 
- > PCI: Bus 6, cardbus bridge: 0000:05:06.0
- >   IO window: 00006000-000060ff
- >   IO window: 00006400-000064ff
- >   PREFETCH window: 88000000-89ffffff
- >   MEM window: 8a000000-8bffffff
+this is exactly the type of thing that I think is acceptable.
 
-Instead of PCI: Bus 3, ...
+this is a case of a new client needing a new host.
 
-I didn't notice anything else changing.  If I should run some other
-command or provide other output, tell me what to run and I'll report
-the output.
+if you have a server running a bunch of 2.4 UMLs on a 2.4 host and want to add 
+a 2.6 UML you can do it becouse you can shift to a buch of 2.4 UMLs (plus one 
+2.6 UML) running on a 2.6 host.
 
-Please CC me directly since I'm not subscribed to linux-kernel.
-	-Eric
+what I would be bothered by was if you weren't able to run a 2.4 UML on a 2.6 
+host becouse you have locked out the upgrade path
 
+Everyone needs to remember that this sort of thing does happen, Xen2 clients 
+cannot run on a Xen3 host.
 
+David Lang

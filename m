@@ -1,91 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWHDFqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWHDFqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030346AbWHDFqM (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030345AbWHDFqM (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 4 Aug 2006 01:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbWHDFpy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWHDFpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 01:45:54 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26032 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030271AbWHDFpW (ORCPT
+	Fri, 4 Aug 2006 01:45:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53381 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030345AbWHDFp0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 01:45:22 -0400
-Date: Thu, 3 Aug 2006 22:40:45 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 21/23] tty serialize flush_to_ldisc
-Message-ID: <20060804054045.GV769@kroah.com>
-References: <20060804053258.391158155@quad.kroah.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="tty-serialize-flush_to_ldisc.patch"
-In-Reply-To: <20060804053807.GA769@kroah.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Fri, 4 Aug 2006 01:45:26 -0400
+Date: Thu, 3 Aug 2006 22:45:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: nate.diller@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] [1/3] add elv_extended_request call to iosched API
+Message-Id: <20060803224519.dd9bf38e.akpm@osdl.org>
+In-Reply-To: <20060804052031.GA4717@suse.de>
+References: <5c49b0ed0608031911id21b112t7f0c350a7f10a99@mail.gmail.com>
+	<20060804052031.GA4717@suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+On Fri, 4 Aug 2006 07:20:32 +0200
+Jens Axboe <axboe@suse.de> wrote:
 
-------------------
-From: Paul Fulghum <paulkf@microgate.com>
+> On Thu, Aug 03 2006, Nate Diller wrote:
+> > the Elevator iosched would prefer to be unconditionally notified of a
+> > merge, but the current API calls only one 'merge' notifier
+> > (elv_merge_requests or elv_merged_requests), even if both front and
+> > back merges happened.
+> > 
+> > elv_extended_request satisfies this requirement in conjunction with
+> > elv_merge_requests.
+> 
+> Ok, I suppose. But please rebase patches against the 'block' git branch,
+> there are extensive changes in this area.
+> 
 
-Serialize processing of tty buffers in flush_to_ldisc
-to fix (very rare) corruption of tty buffer free list
-on SMP systems.
+argh, the great (but partial ;)) renaming bites again.
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
-Acked-by: Alan Cox <alan@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
----
- drivers/char/tty_io.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
-
---- linux-2.6.17.7.orig/drivers/char/tty_io.c
-+++ linux-2.6.17.7/drivers/char/tty_io.c
-@@ -2776,7 +2776,7 @@ static void flush_to_ldisc(void *private
- 	struct tty_struct *tty = (struct tty_struct *) private_;
- 	unsigned long 	flags;
- 	struct tty_ldisc *disc;
--	struct tty_buffer *tbuf;
-+	struct tty_buffer *tbuf, *head;
- 	int count;
- 	char *char_buf;
- 	unsigned char *flag_buf;
-@@ -2793,7 +2793,9 @@ static void flush_to_ldisc(void *private
- 		goto out;
- 	}
- 	spin_lock_irqsave(&tty->buf.lock, flags);
--	while((tbuf = tty->buf.head) != NULL) {
-+	head = tty->buf.head;
-+	tty->buf.head = NULL;
-+	while((tbuf = head) != NULL) {
- 		while ((count = tbuf->commit - tbuf->read) != 0) {
- 			char_buf = tbuf->char_buf_ptr + tbuf->read;
- 			flag_buf = tbuf->flag_buf_ptr + tbuf->read;
-@@ -2802,10 +2804,12 @@ static void flush_to_ldisc(void *private
- 			disc->receive_buf(tty, char_buf, flag_buf, count);
- 			spin_lock_irqsave(&tty->buf.lock, flags);
- 		}
--		if (tbuf->active)
-+		if (tbuf->active) {
-+			tty->buf.head = head;
- 			break;
--		tty->buf.head = tbuf->next;
--		if (tty->buf.head == NULL)
-+		}
-+		head = tbuf->next;
-+		if (head == NULL)
- 			tty->buf.tail = NULL;
- 		tty_buffer_free(tty, tbuf);
- 	}
-
---
+A suitable patch to merge against is
+http://www.zip.com.au/~akpm/linux/patches/stuff/git-block.patch

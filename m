@@ -1,101 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161458AbWHDXQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161573AbWHDXQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161458AbWHDXQY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 19:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161573AbWHDXQY
+	id S1161573AbWHDXQf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 19:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161574AbWHDXQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 19:16:24 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57522 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161458AbWHDXQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 19:16:24 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: vgoyal@in.ibm.com
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Linda Wang <lwang@redhat.com>
-Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<20060804225611.GG19244@in.ibm.com>
-Date: Fri, 04 Aug 2006 17:14:37 -0600
-In-Reply-To: <20060804225611.GG19244@in.ibm.com> (Vivek Goyal's message of
-	"Fri, 4 Aug 2006 18:56:11 -0400")
-Message-ID: <m1k65onleq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Aug 2006 19:16:34 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:58780 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1161573AbWHDXQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 19:16:34 -0400
+Subject: Re: [PATCH 08/10] -mm  clocksource: cleanup on -mm
+From: Daniel Walker <dwalker@mvista.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <1154729795.5327.97.camel@localhost.localdomain>
+References: <20060804032414.304636000@mvista.com>
+	 <20060804032522.865606000@mvista.com>
+	 <1154721210.5327.58.camel@localhost.localdomain>
+	 <1154725862.12936.93.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	 <1154729795.5327.97.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 04 Aug 2006 16:16:22 -0700
+Message-Id: <1154733383.12936.146.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+On Fri, 2006-08-04 at 15:16 -0700, john stultz wrote:
 
-> On Tue, Aug 01, 2006 at 04:58:49AM -0600, Eric W. Biederman wrote:
->> 
->> The problem:
->> 
->> We can't always run the kernel at 1MB or 2MB, and so people who need
->> different addresses must build multiple kernels.  The bzImage format
->> can't even represent loading a kernel at other than it's default address.
->> With kexec on panic now starting to be used by distros having a kernel
->> not running at the default load address is starting to become common.
->> 
-> Hi Eric,
->
-> There seems to be a small anomaly in the current set of patches for i386.
->
-> For example if one compiles the kernel with CONFIG_RELOCATABLE=y
-> and CONFIG_PHYSICAL_START=0x400000 (4MB) and he uses grub to load
-> the kernel then kernel would run from 1MB location. I think user would
-> expect it to run from 4MB location.
+> > I imagine the users of the interface would be compartmentalized. Taking
+> > sched_clock as an example the output is only compared to itself and not
+> > to output from other interfaces.
+> 
+> Agreed on both points. Although I suspect this point will need to be
+> made explicit.
 
-Agreed.  That is a non-intuitive, and should probably be fixed.
+Yeah, that's a good idea.
 
-> I think distro's might want to keep above config options enabled. 
-> CONFIG_RELOCATABLE=y so that kexec can load kdump kernel at a 
-> different address and CONFIG_PHYSICAL_START=non 1MB location, to
-> extract better performance. (As we had discussions on mailing list
-> some time back.)
->
-> In principle this is a limitation on boot-loaders part but as we can
-> not fix the boot-loaders out there, probably we can try fixing it
-> at kernel level.
->
-> What I have done here is that decompressor code will determine the
-> final resting place of the kernel based on boot loader type. So 
-> if I have been loaded by kexec, I am supposed to run from loaded address
-> otherwise I am supposed to run from CONFIG_PHYSICAL_START as I have been
-> loaded at 1MB address due to boot loader limitation and that's not the
-> intention.
->
-> A prototype patch is attached with the mail. I have assumed that I can
-> assign a boot loader type id 9 to kexec (Documentation/i386/boot.txt).
-> Also assuming that all other boot loaders apart from kexec have got 1MB
-> limitation. If not, its trivial to include their boot loader ids also.
->
-> I have tested this patch and it works fine. What do you think about
-> this approach ?
+> >  So if you correctly implement a clocksource structure for
+> > your hardware you will at least expose a usable sched_clock() and
+> > generic timeofday. Then if we add more users of the interface then more
+> > functionality is exposed.
+> 
+> Well, this point might need some work. sched_clock has quite a different
+> correctness/performance tradeoff when compared against timeofday. If one
+> correctly implements a clocksource for something like the ACPI PM, I
+> doubt they'd want to use it for sched_clock (due to its ~1us access
+> latency). Additionally, since sched_clock doesn't require (for its
+> original purpose, at least) the TSC synchronization that is essential
+> for timekeeping, how will sched_clock determine which clocksource to use
+> on a system were the TSC is unsyched and marked bad?
 
-I think there is some value in it. But I need to digest it.
+sched_clock would use the highest rated clock in the system, and if that
+becomes unstable it uses jiffies. That could mean using the acpi_pm if
+it's the highest rated clock. Some code would have the be added to force
+sched_clock to use the tsc. 
 
-I have a cold right now and am running pretty weak, so it is going to take me
-a little bit to look at this.
+I did some hackbench runs using the tsc vs. acpi_pm, and there was only
+minimal differences (within the margin of error). It could be different
+with other pm timers, but that was the result on mine. I also did some
+tests of tsc vs. pit which showed some extensive differences. It added
+10 seconds to "hackbench 80" . So I'm not entirely convinced that
+acpi_pm is totally inappropriate as a fall back, in the case of
+un-synced TSC. 
 
-I don't like taking action based upon bootloader type.  As that assumes
-all kinds of things.  But having better rules for when we perform relocation
-makes sense.  There might be a way to detect coming from setup.S
+I wish I had an HPET to test.
 
-I gave it some care last time, I worked through this and it didn't quite work.
+> > Another instances of this is when instrumentation is needing a of fast
+> > low level timestamp. In the past to accomplish this one would need a per
+> > arch change to read a clock, then potentially duplicate a shift and mult
+> > type computation in order to covert to nanosecond. One good example of
+> > this is latency tracing in the -rt tree. I can imagine some good and
+> > valid instrumentation having a long road of acceptable because the time
+> > stamping portion would need to flow through several different arch and
+> > potentially board maintainers.
+> 
+> This sounds reasonable, but also I'd question if sched_clock or
+> get_cycles would be appropriate here. Further, if the mult/shift cost is
+> acceptable, why not just use the timeofday as the cost will be similar.
 
-I guess the practical question is do people see a real performance benefit
-when loading the kernel at 4MB?
+get_cycles() isn't implemented on all arches. sched_clock() sometimes
+returns jiffies converted to nanosecond depending on the arch (it does
+this sometimes on i386 even). Also sched_clock() has the disadvantage of
+converting to nanosecond each time it runs, which isn't always ideal.
+get_cycles(), if it's implemented, doesn't come with a standard way to
+find a) the clock it accesses b) the frequency of the clock. 
 
-Possibly the right solution is to do like I did on x86_64 and simply remove
-CONFIG_PHYSICAL_START, and always place the kernel at 4MB, or something like
-that.
+So they both have disadvantages over the clocksource interface.
 
-The practical question is what to do to keep the complexity from spinning
-out of control.  Removing CONFIG_PHYSICAL_START would seriously help with
-that.
+> > I've also imagined that some usage of jiffies could be converted to use
+> > this interface if it was appropriate. Since jiffies is hooked to the
+> > tick, and the tick is getting more and more irregular, a clocksource
+> > might be a relatively good replacement. 
+> 
+> Hmmm. That'd be a harder sell for me. Probably would want those users to
+> move to the timeofday, or alternatively, drive jiffies off of the
+> timekeeping code rather then the interrupt handler to ensure it stays
+> synced (something I'm plotting once the timekeeping code settles down).
 
-Eric
+It's case by case. I wouldn't say all jiffies uses could use timeofday
+calls, and I wouldn't say they could all use a clocksource. I'd imagine
+some could be converted to a clocksource though.
+
+I'd be interested to see any jiffies changes you make.
+
+> > > I do feel making the abstraction clean and generic is a good thing just
+> > > for code readability (and I very much appreciate your work here!), but
+> > > I'm not really sure that the need for clocksource access outside the
+> > > timekeeping subsystem has been well expressed. Do you have some other
+> > > examples other then sched_clock that might show further uses for this
+> > > abstraction?
+> > 
+> > I've converted latency tracing to an earlier version of the API , but I
+> > don't have any other examples prepared. I think it's important to get
+> > the API settled before I start converting anything else.
+> 
+> Again, I think your patch set looks good for the most part (its just the
+> last few bits I worry about). I'm very much interested to see where you
+> go with this, as I feel sched_clock (on i386 atleast) needs some love
+> and attention and I'm excited to see new uses for the clocksource
+> abstraction. However, I do want to make sure that we think the use cases
+> out to avoid over-engineering the wrong bits.
+
+Your questions are certainly appropriate, and I appreciate the review.
+There's not to many other responses so far. 
+
+Daniel
+

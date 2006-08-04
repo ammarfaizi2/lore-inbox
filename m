@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161131AbWHDNPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161142AbWHDNP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161131AbWHDNPO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 09:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWHDNOf
+	id S1161142AbWHDNP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 09:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWHDNPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 09:14:35 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:16087 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030329AbWHDNOT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 09:14:19 -0400
-Date: Fri, 4 Aug 2006 07:14:15 -0600
+	Fri, 4 Aug 2006 09:15:17 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:3537 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161129AbWHDNOm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 09:14:42 -0400
+Date: Fri, 4 Aug 2006 07:14:39 -0600
 From: Keith Mannthey <kmannth@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, discuss@x86-64.org, Keith Mannthey <kmannth@us.ibm.com>,
        ak@suse.de, lhms-devel@lists.sourceforge.net,
        kamezawa.hiroyu@jp.fujitsu.com
-Message-Id: <20060804131415.21401.20437.sendpatchset@localhost.localdomain>
+Message-Id: <20060804131439.21401.62864.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
 References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-Subject: [PATCH 5/10] hot-add-mem x86_64: memory_add_physaddr_to_nid enable
+Subject: [PATCH 9/10] hot-add-mem x86_64: use CONFIG_MEMORY_HOTPLUG_RESERVE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

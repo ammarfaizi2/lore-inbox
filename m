@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbWHDIlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbWHDIm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161111AbWHDIlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 04:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWHDIlQ
+	id S1161112AbWHDIm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 04:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbWHDIm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 04:41:16 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:29824 "EHLO
+	Fri, 4 Aug 2006 04:42:29 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:32384 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1161111AbWHDIlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 04:41:15 -0400
-Subject: Re: [PATCH] MTD jedec_probe: Recognize Atmel AT49BV6416
+	id S1161112AbWHDIm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 04:42:28 -0400
+Subject: Re: [PATCH] MTD: Add lock/unlock operations for Atmel AT49BV6416
 From: David Woodhouse <dwmw2@infradead.org>
 To: Haavard Skinnemoen <hskinnemoen@atmel.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <11546801142874-git-send-email-hskinnemoen@atmel.com>
+In-Reply-To: <1154680114836-git-send-email-hskinnemoen@atmel.com>
 References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
+	 <1154680114836-git-send-email-hskinnemoen@atmel.com>
 Content-Type: text/plain
-Date: Fri, 04 Aug 2006 16:39:58 +0800
-Message-Id: <1154680798.31031.179.camel@shinybook.infradead.org>
+Date: Fri, 04 Aug 2006 16:41:12 +0800
+Message-Id: <1154680873.31031.182.camel@shinybook.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
@@ -27,10 +28,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, 2006-08-04 at 10:28 +0200, Haavard Skinnemoen wrote:
-> Atmel AT49BV6416 is used on the AT32STK1000 development board for
-> AVR32. This patch makes jedec_probe recognize it.
+> What's the best way to do this? Unlock the flash in the board-specific
+> mapping driver perhaps? 
 
-Ew. People are still making non-CFI chips?
+That's what we used to do. If more people are emulating the Intel brain
+damage and having chips which render the lock operation entirely
+pointless by locking the chips at every power cycle, then I suppose we
+ought to consider making auto-unlock a function of the chip type.
 
 -- 
 dwmw2

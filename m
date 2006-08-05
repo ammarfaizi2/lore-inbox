@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbWHEQ1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWHEQ6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161151AbWHEQ1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 12:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWHEQ1v
+	id S1030228AbWHEQ6u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 12:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWHEQ6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 12:27:51 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:48342 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932418AbWHEQ1v (ORCPT
+	Sat, 5 Aug 2006 12:58:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:25223 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030228AbWHEQ6t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 12:27:51 -0400
-Date: Sun, 06 Aug 2006 01:29:24 +0900 (JST)
-Message-Id: <20060806.012924.96685417.anemo@mba.ocn.ne.jp>
-To: david-b@pacbell.net
-Cc: ab@mycable.de, mgreer@mvista.com, a.zummo@towertech.it,
-       linux-kernel@vger.kernel.org
-Subject: Re: RTC: add RTC class interface to m41t00 driver
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <200608041933.39930.david-b@pacbell.net>
-References: <200608041933.39930.david-b@pacbell.net>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 5 Aug 2006 12:58:49 -0400
+Subject: Re: [RFC] [PATCH] Relative lazy atime
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Valerie Henson <val_henson@linux.intel.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Akkana Peck <akkana@shallowsky.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Jesse Barnes <jesse.barnes@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgwood <cw@f00f.org>,
+       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <20060805122537.GA23239@lst.de>
+References: <20060803063622.GB8631@goober>  <20060805122537.GA23239@lst.de>
+Content-Type: text/plain
+Date: Sat, 05 Aug 2006 11:58:43 -0500
+Message-Id: <1154797123.12108.6.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Aug 2006 19:33:39 -0700, David Brownell <david-b@pacbell.net> wrote:
-> Actually, it'd be worth trying drivers/rtc/rtc-ds1307.c ... the M41T00 is
-> one of a family of mostly-compatible RTC chips, and the ds1307 driver
-> should be pretty much the least-common-denominator there.  They all use
-> the same I2C address, and the same register layout for the calendar/time
-> function.
+On Sat, 2006-08-05 at 14:25 +0200, Christoph Hellwig wrote:
+> On Wed, Aug 02, 2006 at 11:36:22PM -0700, Valerie Henson wrote:
+> > (Corrected Chris Wedgwood's name and email.)
+> > 
+> > My friend Akkana followed my advice to use noatime on one of her
+> > machines, but discovered that mutt was unusable because it always
+> > thought that new messages had arrived since the last time it had
+> > checked a folder (mbox format).  I thought this was a bummer, so I
+> > wrote a "relative lazy atime" patch which only updates the atime if
+> > the old atime was less than the ctime or mtime.  This is not the same
+> > as the lazy atime patch of yore[1], which maintained a list of inodes
+> > with dirty atimes and wrote them out on unmount.
 > 
-> I'd expect rtc-ds1307 to handle the m41t00 already, or with at most minor
-> tweaks to recognize whatever's different.  It should already be ignoring
-> the bits in the clock/calendar registers that vary, as well as the SRAM
-> and (for some other chips) the alarm.  (Not that I2C has ways to tell us
-> what IRQ the alarm would use, but that's a different tale!)
+> Another idea, similar to how atime updates work in xfs currently might
+> be interesting:  Always update atime in core, but don't start a
+> transaction just for it - instead only flush it when you'd do it anyway,
+> that is another transaction or evicting the inode.
 
-Thanks for your suggestion.  I have looked rtc-ds1307 too before I
-tried to modify m41t00 driver.
+Hmm.  That adds a cost to evicting what the vfs considers a clean inode.
+It seems wrong, but if that's what xfs does, it must not be a problem.
 
-It seems some works are still needed to support M41Txx chips by the
-driver.
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-1. The driver contains ds_1340 (or st m41t00) definition, but it seems
-   no way to select the ds_type.
-
-2. As m41t00_chip_info_tbl[] in m41t00 driver shows, M41T81 and M41T85
-   have different register layout.
-
-3. It lacks some features (ST bit, HT bit, SQW freq.) in m41t00
-   driver, though I personally does not need these features.
-
-I choose changing m41t00 driver by (1) and (2).
-
-If we really need a super generic driver, I suppose adding ds13xx
-support to new m41txx driver is less hard.  I think having separate
-drivers are good enough for now.
-
----
-Atsushi Nemoto

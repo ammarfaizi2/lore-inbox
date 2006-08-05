@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWHELfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWHELrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161196AbWHELfm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 07:35:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161200AbWHELfm
+	id S1161275AbWHELrU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 07:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161284AbWHELrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 07:35:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37079 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161196AbWHELfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 07:35:42 -0400
-Date: Sat, 5 Aug 2006 12:35:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Smith <dsmith@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, prasanna@in.ibm.com, ananth@in.ibm.com,
-       anil.s.keshavamurthy@intel.com, davem@davemloft.net
-Subject: Re: [PATCH] module interface improvement for kprobes
-Message-ID: <20060805113538.GA21135@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Smith <dsmith@redhat.com>, linux-kernel@vger.kernel.org,
-	rusty@rustcorp.com.au, prasanna@in.ibm.com, ananth@in.ibm.com,
-	anil.s.keshavamurthy@intel.com, davem@davemloft.net
-References: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com> <20060804155711.GA13271@infradead.org> <1154716239.15967.22.camel@dhcp-2.hsv.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Aug 2006 07:47:20 -0400
+Received: from smtp009.mail.ukl.yahoo.com ([217.12.11.63]:22625 "HELO
+	smtp009.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1161275AbWHELrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 07:47:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=NSvPqSAAwtF1tix+0Encn+LQ1MyDBFr28hszQh5M5Hsa88lgqizL+mgwyXEMooY8o3iQ0dQpOG4lA/yCGXivcRBZys/T4gix4kFIdSLJ9ZkOa3tUzYVjEUlgvNYSsJp+afaA+fxsaZdmsbdeCEsZx/gWqUKnQpnjHmWKzAshRE0=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net, sandr8@gmail.com
+Subject: Re: [uml-devel] [PATCH 10/19] UML - Remove spinlock wrapper functions
+Date: Sat, 5 Aug 2006 13:47:26 +0200
+User-Agent: KMail/1.9.1
+Cc: "Jeff Dike" <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+References: <200607070033.k670XhQR008707@ccure.user-mode-linux.org> <517e86fb0608040600n52f36b8ci60f4e219f8cd4b5a@mail.gmail.com>
+In-Reply-To: <517e86fb0608040600n52f36b8ci60f4e219f8cd4b5a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1154716239.15967.22.camel@dhcp-2.hsv.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200608051347.26926.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 01:30:39PM -0500, David Smith wrote:
-> Why shouldn't I put a probe into a module other than at a symbol I can
-> find with kallsyms?  For example, I'm interested when a particular
-> module hits an error condition that occurs.  I don't want to probe how
-> many times the function gets called - just when the error condition
-> occurs.
+On Friday 04 August 2006 15:00, alessandro salvatori wrote:
+> Jeff,
+>
+>    the new lock irq_lock is still static, but we now have preprocessor
+> macros to be included from a header file
 
-How do you find that offset?  You'll probably mention the S-Word but
-we really want something that works with the latest kernel, not just
-the vendor trees.
+Are you talking about spin_lock_irqsave & co? In that case you have maybe 
+missed that the removed functions were simply wrappers for spin_lock_irqsave. 
+Those wrappers existed to be used in files which can't include kernel headers 
+(long story).
 
-> With the existing interface, if I use kallsysms to find the value of a
-> symbol, the module can be unloaded between the time I use kallsyms and
-> register the kprobe.  The patch I included fixes that race condition by
-> incrementing the module reference count.
+> instead of non-static functions in 
+> the same module as the static irq_lock.
 
-Yes, and that's a good thing.  But the interface for doing it is wrong.
-You don't really want the users to do all that by itself.  For the typical
-case of putting a probe at the usual points you want an interface that
-puts in the probe given a name and does the right thing for you.  For example
-the interface I proposed in my last mail.  Adding another field to struct
-kprobe to specify an offset into the symbol would be the logical extension
-of that.
-
-> Your example works for a very small number of symbols, but with a large
-> number it could take a long time to register the kprobes.  Plus, that
-> would need to be done every time the kprobe was registered.  With my
-> patch, the symbol lookup can be done once, then all those symbols can be
-> turned into offsets from the base address of the module.
-
-Registering a kprobe is everything but a fastpath, and you definitly should
-not have a lot of probes anyway.  It's far more worthwhile to have a sane
-interface that the user can't get wrong then a small speedup in something
-that's not a fastpath.  I think Rusty even has a paper or talk about why
-this is absolutely nessecary :)
+> Am I missing something?
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

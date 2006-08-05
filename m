@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWHEXLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWHEXRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWHEXLr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 19:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWHEXLr
+	id S1751366AbWHEXRd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 19:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWHEXRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 19:11:47 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:24011 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751421AbWHEXLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 19:11:46 -0400
-Date: Sat, 5 Aug 2006 16:06:47 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Mark Fasheh <mark.fasheh@oracle.com>
-cc: Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjan@linux.intel.com>,
-       Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       Valerie Henson <val_henson@linux.intel.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-In-Reply-To: <20060805222247.GQ29686@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz>
-References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de> 
- <1154797123.12108.6.camel@kleikamp.austin.ibm.com> 
- <1154797475.3054.79.camel@laptopd505.fenrus.org>  <20060805183609.GA7564@tuatara.stupidest.org>
- <20060805222247.GQ29686@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 5 Aug 2006 19:17:33 -0400
+Received: from ozlabs.org ([203.10.76.45]:15022 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751366AbWHEXRd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 19:17:33 -0400
+Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
+	space.
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zachary Amsden <zach@vmware.com>, chrisw@sous-sol.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060805145840.653912a2.akpm@osdl.org>
+References: <20060803002510.634721860@xensource.com>
+	 <20060803002518.595166293@xensource.com>
+	 <20060802231912.ed77f930.akpm@osdl.org> <44D1A6B6.8040003@vmware.com>
+	 <20060803004144.554d9882.akpm@osdl.org> <44D1BAB8.8070509@vmware.com>
+	 <20060805145840.653912a2.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 06 Aug 2006 09:17:29 +1000
+Message-Id: <1154819850.29151.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Aug 2006, Mark Fasheh wrote:
+On Sat, 2006-08-05 at 14:58 -0700, Andrew Morton wrote:
+> On Thu, 03 Aug 2006 01:58:32 -0700
+> Zachary Amsden <zach@vmware.com> wrote:
+> 
+> > Add a bootparameter to reserve high linear address space for hypervisors.
+> > This is necessary to allow dynamically loaded hypervisor modules, which
+> > might not happen until userspace is already running, and also provides a
+> > useful tool to benchmark the performance impact of reduced lowmem address
+> > space.
+> 
+> Andi has gone and rotorooted the x86 boot parameter handling in there. 
 
-> On Sat, Aug 05, 2006 at 11:36:09AM -0700, Chris Wedgwood wrote:
->> should it be atime-dirty or non-critical-dirty? (ie. make it more
->> generic to cover cases where we might have other non-critical fields
->> to flush if we can but can tolerate loss if we dont)
-> So, just to be sure - we're fine with atime being lost due to crashes,
-> errors, etc?
+That was me, via Andi, but yep:
 
-at least as a optional mode of operation yes.
+> diff -puN arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space arch/i386/kernel/setup.c
+> --- a/arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space
+> +++ a/arch/i386/kernel/setup.c
+> @@ -149,6 +149,12 @@ static char command_line[COMMAND_LINE_SI
+>  
+>  unsigned char __initdata boot_params[PARAM_SIZE];
+>  
+> +static int __init setup_reservetop(char *s)
+> +{
+> +	return 1;
+> +}
+> +__setup("reservetop", setup_reservetop);
+> +
+>  static struct resource data_resource = {
+>  	.name	= "Kernel data",
+>  	.start	= 0,
 
-I'm sure someone will want/need the existing 'update atime immediatly', and 
-there are people who don't care about atime at all (and use noatime), but there 
-is a large middle ground between them where atime is helpful, but doesn't need 
-the real-time update or crash protection.
+Please remove this hunk: it's now junk.
 
-David Lang
+Cheers,
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+

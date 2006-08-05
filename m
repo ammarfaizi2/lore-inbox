@@ -1,107 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422764AbWHEIbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422761AbWHEI1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422764AbWHEIbF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 04:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422765AbWHEIbF
+	id S1422761AbWHEI1J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 04:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422764AbWHEI1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 04:31:05 -0400
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:516 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1422764AbWHEIbE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 04:31:04 -0400
-Date: Sat, 5 Aug 2006 10:31:13 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Komal Shah" <komal_shah802003@yahoo.com>
-Cc: tony@atomide.com, David Brownell <david-b@pacbell.net>, r-woodruff2@ti.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>, i2c@lm-sensors.org
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #3
-Message-Id: <20060805103113.058ce8fe.khali@linux-fr.org>
-In-Reply-To: <1154689868.12791.267626769@webmail.messagingengine.com>
-References: <1154689868.12791.267626769@webmail.messagingengine.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Aug 2006 04:27:09 -0400
+Received: from cassarossa.samfundet.no ([129.241.93.19]:55465 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S1422761AbWHEI1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 04:27:08 -0400
+Date: Sat, 5 Aug 2006 10:23:21 +0200
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Suspend on Dell D420
+Message-ID: <20060805082321.GB27129@uio.no>
+References: <20060804162300.GA26148@uio.no> <200608042327.38280.rjw@sisk.pl> <20060804151758.1d3dd6bd.akpm@osdl.org> <200608050126.57060.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200608050126.57060.rjw@sisk.pl>
+X-Operating-System: Linux 2.6.16trofastxen on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Spam-Score: -2.6 (--)
+X-Spam-Report: Status=No hits=-2.6 required=5.0 tests=AWL,BAYES_00,NO_RELAYS version=3.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Komal,
+On Sat, Aug 05, 2006 at 01:26:56AM +0200, Rafael J. Wysocki wrote:
+> Because the non-boot CPUs are taken off early, before anything else, and the
+> system is effectively non-SMP during the entire suspend-resume cycle
+> (well, almost).  If SMP-related things go wrong during the suspend, CPU
+> hotplug is the first suspect. ;-)
 
-Your post ended up in my spam box once again... I really think you
-should send your patches as text attachements (or inline) rather than
-binary attachements. Using real names in To: and Cc: fields might help
-as well.
+Well, it seems to work fine during the suspend phase, at least, and it also
+seems to work well during normal use:
 
-> I have attached the updated patch, which addresses the most of review
-> comments.
+fugl:~# echo 0 > /sys/devices/system/cpu/cpu1/online 
+fugl:~# echo 1 > /sys/devices/system/cpu/cpu1/online 
 
-I'll review that new version later today, or tomorrow.
+FWIW, there is an error in dmesg afterwards, though:
 
-> >The comment is confusing, as this address is usually known as the
-> >"slave address" in the I2C world. Masters don't need no address on an
-> >I2C bus. "own" is not a very explicit parameter name, what about
-> >"slave_addr"? Ideally this should be retrieved from platform_data too,
-> >else you can't be sure you won't collide with a device on the bus.
-> 
-> >"0 for default" doesn't make sense, as the default is, by definition,
-> >when the user doesn't speficiy anything. That this is internally coded
-> >as 0 is an implementation detail user-space doesn't need to know.
-> 
-> Updated the comment and changed to slave_addr , and default is changed to "3".
+===
+CPU 1 is now offline
+SMP alternatives: switching to UP code
+SMP alternatives: switching to SMP code
+Booting processor 1/1 eip 3000
+Initializing CPU#1
+Calibrating delay using timer specific routine.. 2394.85 BogoMIPS (lpj=4789709)
+CPU: After generic identify, caps: bfe9fbff 00100000 00000000 00000000 0000c1a9 00000000 00000000
+CPU: After vendor identify, caps: bfe9fbff 00100000 00000000 00000000 0000c1a9 00000000 00000000
+monitor/mwait feature present.
+CPU: L1 I cache: 32K, L1 D cache: 32K
+CPU: L2 cache: 2048K
+CPU: Physical Processor ID: 0
+CPU: Processor Core ID: 1
+CPU: After all inits, caps: bfe9fbff 00100000 00000000 00000140 0000c1a9 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#1.
+CPU1: Intel Genuine Intel(R) CPU           U2500  @ 1.20GHz stepping 08
+APIC error on CPU1: 00(40)
+===
 
-Slightly better, though I still don't get why you worry setting an
-address that will never be used.
+No idea whether it's related. FWIW, resume didn't work with maxcpus=1 on boot
+either, so I'm not really sure how related it is.
 
-> >> +		if (armxor_rate > 16000000)
-> >> +			psc = (armxor_rate + 8000000) / 12000000;
-> >> +		else
-> >> +			psc = 0;
-> 
-> >Can you please explain this formula?
-> 
-> The OMAP core uses 8-bit value to divide the system clock (SCLK) and
-> generates its own sampling clock (ICLK), and the core logic is sampled
-> at clock rate of the system clock for the module, divided by (prescaler value + 1)
-
-I should have been more precise, I guess. What surprises me are the
-numbers themselves. It's frequent to see forumlae of the form
-"a = (b + c/2) / c" to divide with proper rounding, but here you have
-2c/3 instread of c/2. My question was more like: is it intentional, or a
-typo? Also, with the code above, psc will never have value 1. The "if"
-part will always compute to at least 2, and the "else" part to 0. Is
-this OK?
-
-> I think it is better to remove those lines and return error if length is zero.
-> Is that ok?
-
-Yes. This can be revisited later when/if someone finds a hack to work
-around the problem.
-
-> >> +	/* We have an error */
-> >> +	if (dev->cmd_err & OMAP_I2C_STAT_NACK) {
-> >> +		if (msg->flags & I2C_M_IGNORE_NAK)
-> >> +			return 0;
-> 
-> >Couldn't you have other error bits set as well? I2C_M_IGNORE_NAK means
-> >you can ignore OMAP_I2C_STAT_NACK, not other errors.
-> 
-> This is now being handled by first checking remaining errors first and then
-> NACK. Is that ok?
-
-Yes.
-
-> >> +	r = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
-> >> +	dev_info(dev->dev, "bus %d rev%d.%d at %d kHz\n",
-> >> +		 pdev->id - 1, r >> 4, r & 0xf, clock);
-> 
-> >This "- 1" is error prone IMHO.
-> 
-> Only if omap devices.c maintainer pushes the values less than one in device
-> structure ;)
-
-No, what I meant was rather that printing a bus number which differs
-from the internal numbering might confuse the user at some point.
-
+/* Steinar */
 -- 
-Jean Delvare
+Homepage: http://www.sesse.net/

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422752AbWHEHy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422741AbWHEHzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422752AbWHEHy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 03:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422755AbWHEHy7
+	id S1422741AbWHEHzt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 03:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422755AbWHEHzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 03:54:59 -0400
-Received: from mx1.suse.de ([195.135.220.2]:28646 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422752AbWHEHy6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 03:54:58 -0400
-Date: Sat, 5 Aug 2006 00:54:39 -0700
-From: Greg KH <greg@kroah.com>
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Tom Long Nguyen <tom.l.nguyen@intel.com>
-Subject: Re: [PATCH 4/4] PCI-Express AER implemetation: pcie_portdrv error handler
-Message-ID: <20060805075439.GA2300@kroah.com>
-References: <1154330118.27051.73.camel@ymzhang-perf.sh.intel.com> <1154330319.27051.76.camel@ymzhang-perf.sh.intel.com> <1154330492.27051.79.camel@ymzhang-perf.sh.intel.com> <1154330776.27051.83.camel@ymzhang-perf.sh.intel.com>
+	Sat, 5 Aug 2006 03:55:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:36977 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422741AbWHEHzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 03:55:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=s/RXp4mLRlhfYd6cUUJ7ZhA+DMiM3RZNMixhgdjJpFkImRlGDa3qJWcoJTr9gSohbnF3N+bttpL0BIQX5qDh2uh6+PSJgWuDkWk4PI/F2PrX3HcUSnYWV74ONJj3z8jVpb9mD+laVNRbr1YEh1QtQSSyo4XsmG8U3fBEss3/OXY=
+Message-ID: <abcd72470608050055w51f2bfbcrbd26b59fc32dc494@mail.gmail.com>
+Date: Sat, 5 Aug 2006 00:55:47 -0700
+From: "Avinash Ramanath" <avinashr@gmail.com>
+To: arjan@infradead.org
+Subject: Re: Zeroing data blocks
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1152435182.3255.39.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1154330776.27051.83.camel@ymzhang-perf.sh.intel.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <abcd72470607081856i47f15dedre9be9278ffa9bab4@mail.gmail.com>
+	 <1152435182.3255.39.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 03:26:16PM +0800, Zhang, Yanmin wrote:
-> From: Zhang, Yanmin <yanmin.zhang@intel.com>
-> 
-> Patch 4 implements error handlers for pcie_portdrv.
-> 
-> Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+Hi,
 
-This patch causes the following build warnings:
+As per your suggestion, if I write a file with zero bits, it would
+remap to other pages, and I might not zero the real pages. So is there
+any other way that I can access the pages that a file is using?
 
-  CC      drivers/pci/pcie/portdrv_pci.o
-drivers/pci/pcie/portdrv_pci.c: In function `pcie_portdrv_probe':
-drivers/pci/pcie/portdrv_pci.c:66: warning: implicit declaration of function `pcie_portdrv_save_config'
-drivers/pci/pcie/portdrv_pci.c: At top level:
-drivers/pci/pcie/portdrv_pci.c:81: warning: static declaration of 'pcie_portdrv_save_config' follows non-static declaration
-drivers/pci/pcie/portdrv_pci.c:66: warning: previous implicit declaration of 'pcie_portdrv_save_config' was here
+On 7/9/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Sat, 2006-07-08 at 18:56 -0700, Avinash Ramanath wrote:
+> > I am trying to zero data blocks whenever an unlink is invoked as part
+> > of a secure delete filesystem.
+> [
+> Hi,
+>
+> just a question... how secure do you want to be?
+> (just asking because zeros might not be the best pattern when protecting
+> against government type use :)
+I would be using zeroes multiple times followed by random bit patterns.
 
-Can you please resend a version of this patch to fix this?
 
-thanks,
-
-greg k-h
+> > I tried to zero the file by writing a buffer (of file size) with
+> > zeroes onto the file.
+>
+> that's not so nice since there is no guarantee that the filesystem or
+> the disk won't remap the data blocks underneath you...
+>
+>
+>

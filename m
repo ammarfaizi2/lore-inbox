@@ -1,105 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422675AbWHEGre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161588AbWHEHCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422675AbWHEGre (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 02:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422674AbWHEGre
+	id S1161588AbWHEHCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 03:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161590AbWHEHCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 02:47:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14822 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422648AbWHEGrd (ORCPT
+	Sat, 5 Aug 2006 03:02:25 -0400
+Received: from smtp.gentoo.org ([140.211.166.183]:22441 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S1161588AbWHEHCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 02:47:33 -0400
-Date: Sat, 5 Aug 2006 02:47:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
-Message-ID: <20060805064727.GF13393@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com> <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org> <20060804222400.GC18792@redhat.com> <20060805003142.GH18792@redhat.com> <20060805021051.GA13393@redhat.com> <20060805022356.GC13393@redhat.com> <20060805024947.GE13393@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060805024947.GE13393@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+	Sat, 5 Aug 2006 03:02:24 -0400
+From: Christian Heim <phreak@gentoo.org>
+Reply-To: phreak@gentoo.org
+Organization: Gentoo Foundation, Inc.
+To: Antonino Daplas <adaplas@pol.net>
+Subject: [PATCH] Updating Documentation/fb/vesafb.txt
+User-Agent: KMail/1.9.4
+MIME-Version: 1.0
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       trivial@kernel.org
+Date: Sat, 5 Aug 2006 09:02:17 +0200
+Content-Type: multipart/signed;
+  boundary="nextPart4599528.H8neQ0G2lL";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608050902.20163.phreak@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 10:49:47PM -0400, Dave Jones wrote:
+--nextPart4599528.H8neQ0G2lL
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_5JE1E04fVF/j45q"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This trace now makes a lot more sense to me.
+--Boundary-01=_5JE1E04fVF/j45q
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- > CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
- >  [<c0104edc>] show_trace_log_lvl+0x58/0x152
- >  [<c01054c2>] show_trace+0xd/0x10
- >  [<c01055db>] dump_stack+0x19/0x1b
- >  [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
- >  [<c029fbae>] store_scaling_governor+0x142/0x1a3
- >  [<c029f1a5>] store+0x37/0x48
- >  [<c01a6561>] sysfs_write_file+0xab/0xd1
- >  [<c016f99f>] vfs_write+0xab/0x157
- >  [<c016ffe4>] sys_write+0x3b/0x60
- >  [<c0103db9>] sysenter_past_esp+0x56/0x8d
- > cpuspeed acquired cpu_bitmask_lock
- > 
- > CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
- >  [<c0104edc>] show_trace_log_lvl+0x58/0x152
- >  [<c01054c2>] show_trace+0xd/0x10
- >  [<c01055db>] dump_stack+0x19/0x1b
- >  [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
- >  [<c0132f3c>] __create_workqueue+0x52/0x122
- >  [<f901234b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
- >  [<c029f7b6>] __cpufreq_governor+0x57/0xd8
- >  [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
- >  [<c029fbc5>] store_scaling_governor+0x159/0x1a3
- >  [<c029f1a5>] store+0x37/0x48
- >  [<c01a6561>] sysfs_write_file+0xab/0xd1
- >  [<c016f99f>] vfs_write+0xab/0x157
- >  [<c016ffe4>] sys_write+0x3b/0x60
- >  [<c0103db9>] sysenter_past_esp+0x56/0x8d
- > Lukewarm IQ detected in hotplug locking
- > BUG: warning at kernel/cpu.c:46/lock_cpu_hotplug()
+Hello Antonino,
 
-So when we write to sysfs to set the governor, we end up in store_scaling_governor()
-which takes the hotplug lock, and then calls off into the governor to let it
-do its thing. Part of ondemand's "thing" is to create a workqueue.
-unfortunatly, __create_workqueue also takes the hotplug lock.
+I recently tried to figure how to get my vesafb to 1600x1200 and updated th=
+e=20
+vesafb.txt documentation accordingly. I'm still not sure about the video mo=
+de=20
+for 256, since it doesn't seem to follow the algorithm the other vga-modes=
+=20
+seem to follow.
 
-Creating a variant of __create_workqueue that doesn't take the lock
-seems really nasty.
+Example:
+    | 640x480  800x600  1024x768 1280x1024
+=2D---+-------------------------------------
+256 |  0x301    0x303    0x305    0x307     | +0x002
+32k |  0x310    0x313    0x316    0x319
+      -------  -------  -------  -------
+      +0x009    +0x010   +0x011   +0x012
 
-We could remove the locking from store_scaling_governor() and make the governors
-themselves have to do the locking, but I'm not sure that's entirely safe.
+So accordingly to that algorithm, the mode for 1600x1200@256 should either =
+be=20
+0x309 or 0x360 which both don't work.
 
-We could do something really disgusting like ...
+=46ind attached the mentioned patch to update vesafb.txt.
 
-	unlock_cpu_hotplug()
-	...
-	create_workqueue()
-	...
-	lock_cpu_hotplug()
+Please CC me on replies, since I'm not subscribed to the list.
 
-in ondemand, which opens up a tiny race window, but as ugly as it is,
-looks to be the best solution of the bunch right now.
+=2D-=20
+Christian Heim <phreak at gentoo.org>
+GPG: 9A9F68E6 / AEC4 87B8 32B8 4922 B3A9  DF79 CAE3 556F 9A9F 68E6
 
-Comments?
+Your friendly mobile/kernel/vserver/openvz monkey
 
-The really sad part is this is completely unrelated to the original bug reported
-in this thread, which shows just how widespread this braindamage is.
-Michal's traces really don't really scream anything obvious to me.
-(Though given it took me 4 hours to decode my own traces above, this is no
-real sign of how big a problem this might be).
+Signed-off-by: Christian Heim <phreak@gentoo.org>
+=2D-
 
-Michal, could you apply this diff.. http://lkml.org/lkml/diff/2006/8/4/381/1
-(change the '120' to '60' first), and send me the debug spew that you get ?
-You'll have to wait until a minute of uptime has passed. Oh, and edit
-include/linux/jiffies.h to change INITIAL_JIFFIES to '0'.
+--Boundary-01=_5JE1E04fVF/j45q
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="vesafb-document-1600x1200-video-mode.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="vesafb-document-1600x1200-video-mode.patch"
 
-		Dave
+diff --git a/Documentation/fb/vesafb.txt b/Documentation/fb/vesafb.txt
+index ee277dd..9565543 100644
+=2D-- a/Documentation/fb/vesafb.txt
++++ b/Documentation/fb/vesafb.txt
+@@ -40,12 +40,12 @@ The graphic modes are NOT in the list wh
+ vga=3Dask and hit return. The mode you wish to use is derived from the
+ VESA mode number. Here are those VESA mode numbers:
+=20
+=2D    | 640x480  800x600  1024x768 1280x1024
+=2D----+-------------------------------------
+=2D256 |  0x101    0x103    0x105    0x107  =20
+=2D32k |  0x110    0x113    0x116    0x119  =20
+=2D64k |  0x111    0x114    0x117    0x11A  =20
+=2D16M |  0x112    0x115    0x118    0x11B  =20
++    | 640x480  800x600  1024x768 1280x1024 1600x1200
++----+-----------------------------------------------
++256 |  0x101    0x103    0x105    0x107     0x???  =20
++32k |  0x110    0x113    0x116    0x119     0x173  =20
++64k |  0x111    0x114    0x117    0x11A     0x174  =20
++16M |  0x112    0x115    0x118    0x11B     0x175  =20
+=20
+ The video mode number of the Linux kernel is the VESA mode number plus
+ 0x200.
+@@ -54,12 +54,12 @@ The video mode number of the Linux kerne
+=20
+ So the table for the Kernel mode numbers are:
+=20
+=2D    | 640x480  800x600  1024x768 1280x1024
+=2D----+-------------------------------------
+=2D256 |  0x301    0x303    0x305    0x307  =20
+=2D32k |  0x310    0x313    0x316    0x319  =20
+=2D64k |  0x311    0x314    0x317    0x31A  =20
+=2D16M |  0x312    0x315    0x318    0x31B  =20
++    | 640x480  800x600  1024x768 1280x1024 1600x1200
++----+-----------------------------------------------
++256 |  0x301    0x303    0x305    0x307     0x???  =20
++32k |  0x310    0x313    0x316    0x319     0x373  =20
++64k |  0x311    0x314    0x317    0x31A     0x374  =20
++16M |  0x312    0x315    0x318    0x31B     0x375  =20
+=20
+ To enable one of those modes you have to specify "vga=3Dask" in the
+ lilo.conf file and rerun LILO. Then you can type in the desired
 
--- 
-http://www.codemonkey.org.uk
+--Boundary-01=_5JE1E04fVF/j45q--
+
+--nextPart4599528.H8neQ0G2lL
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBE1EJ8yuNVb5qfaOYRAkzPAJ9jle2DLjnEG1QR7FOEhAzmhe1jwQCeLNLX
+a1n1AYq0FQJCPO8nULDkNqI=
+=myaG
+-----END PGP SIGNATURE-----
+
+--nextPart4599528.H8neQ0G2lL--

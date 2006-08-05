@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422729AbWHEESr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422733AbWHEE0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422729AbWHEESr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 00:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWHEESr
+	id S1422733AbWHEE0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 00:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWHEE0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 00:18:47 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:2739 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1422729AbWHEESr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 00:18:47 -0400
-Subject: Re: A proposal - binary
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       pazke@donpac.ru, Andi Kleen <ak@suse.de>
-In-Reply-To: <44D3B0F0.2010409@vmware.com>
-References: <44D1CC7D.4010600@vmware.com> <20060803190605.GB14237@kroah.com>
-	 <44D24DD8.1080006@vmware.com> <20060803200136.GB28537@kroah.com>
-	 <20060804183448.GE11244@sequoia.sous-sol.org> <44D3B0F0.2010409@vmware.com>
-Content-Type: text/plain
-Date: Fri, 04 Aug 2006 21:30:08 -0400
-Message-Id: <1154741408.3683.171.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Sat, 5 Aug 2006 00:26:25 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:36589 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1422733AbWHEE0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 00:26:24 -0400
+Message-ID: <44D41DEF.7040301@vmware.com>
+Date: Fri, 04 Aug 2006 21:26:23 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Jeremy Fitzhardinge <jeremy@xensource.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch 3/8] Allow a kernel to not be in ring 0.
+References: <200608042045_MC3-1-C721-8608@compuserve.com>
+In-Reply-To: <200608042045_MC3-1-C721-8608@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 13:41 -0700, Zachary Amsden wrote:
-> Instead, what paravirt-ops promises long 
-> term is a way to get rid of the sub-architecture layer altogether.  
-> Sub-arches like Voyager and Visual workstation have some strange 
-> initialization requirements, interrupt controllers, and SMP handling.  
-> Exactly the kind of thing which paravirt_ops is being designed to 
-> indirect for hypervisors. 
+Chuck Ebbert wrote:
+> In-Reply-To: <20060803002518.190834642@xensource.com>
+>
+> On Wed, 02 Aug 2006 17:25:13 -0700, Jeremy Fitzhardinge wrote:
+>
+>   
+>> We allow for the fact that the guest kernel may not run in ring 0.
+>> This requires some abstraction in a few places when setting %cs or
+>> checking privilege level (user vs kernel).
+>>     
+>
+> I made some changes:
+>
+> a. Added some comments about the SEGMENT_IS_*_CODE() macros.
+> b. Added a USER_RPL macro.  (You were comparing a value to a mask
+>    in some places and to the magic number 3 in other places.)
+> c. Changed the entry.S tests for LDT stack segment to use the macros.
+>   
 
-Well ... I agree that in principle it's possible to have a kernel that
-would run on both voyager and a generic x86 system and, I'll admit, I
-tried to go that route before creating the subarchitectures.  However,
-in practice, I think the cost really becomes too high ... for voyager,
-it becomes necessary really to intercept almost the entirety of the the
-SMP API.  The purpose of the subarchitecture interface wasn't to
-eventually have some API description that would allow voyager to
-co-exist with more normal x86 systems.  It was to allow voyager to make
-use of generic x86 while being completely different at the x86 SMP
-level.  I really don't think there'll ever be another x86 machine that's
-as different from the APIC approach as the voyager VIC/QIC is.  thus, I
-think the actual x86 interface is much better described by mach-generic,
-which abstracts out the interfaces necessary to the more standard APIC
-based SMP systems.
+These changes look great.  Ack-ed.  I had some similar ones before that 
+never made it from my tree, as I got carried away and tried to unify the 
+user descriptor conversion functions... someday I'll get to it again.
 
-James
-
-
+Zach

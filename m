@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161522AbWHEGgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422630AbWHEGlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161522AbWHEGgD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 02:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161578AbWHEGgC
+	id S1422630AbWHEGlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 02:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161578AbWHEGlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 02:36:02 -0400
-Received: from cantor.suse.de ([195.135.220.2]:733 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161522AbWHEGgA (ORCPT
+	Sat, 5 Aug 2006 02:41:42 -0400
+Received: from ns2.suse.de ([195.135.220.15]:36495 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161534AbWHEGll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 02:36:00 -0400
-Date: Fri, 4 Aug 2006 23:35:40 -0700
+	Sat, 5 Aug 2006 02:41:41 -0400
+Date: Fri, 4 Aug 2006 23:41:23 -0700
 From: Greg KH <greg@kroah.com>
-To: Sergej Pupykin <ps@lx-ltd.ru>
+To: Helmut <bgrpt@toplitzer.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: OHCI and SKIP bit
-Message-ID: <20060805063540.GA25389@kroah.com>
-References: <m3irlbibsp.fsf@lx-ltd.ru>
+Subject: Re: pci=assign-busses output and problems
+Message-ID: <20060805064123.GB25389@kroah.com>
+References: <200608031204.56842.bgrpt@toplitzer.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3irlbibsp.fsf@lx-ltd.ru>
+In-Reply-To: <200608031204.56842.bgrpt@toplitzer.net>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 04:04:22PM +0400, Sergej Pupykin wrote:
+On Thu, Aug 03, 2006 at 12:04:56PM +0200, Helmut wrote:
 > 
-> Hi, All!
+> dmesg output told me to send this to this list.
+> However, rebooting after using pci=assign-busses distorts my
+> boot-screen after 1 sec. and is scrambled until xserver starts.
+> Xserver is working ok, text-console keeps being scrambled.
 > 
-> According to ohci spec (4.2.1, page 16) K (skip) bit is 12th.
+> Attaching pci-assign-busses.txt with output and a output of dmesg before using
+> this option.
 
-The OHCI USB or IEEE1394 spec?
-
-> But in both (2.4 and 2.6) kernels I see
-> 
-> #define OHCI_ED_SKIP    (1 << 14)
-> 
-> Please advise.
-
-Why not ask this on the specific subsystem developer mailing list?  Is
-this not working properly for you on your hardware?
+Which device is being hidden here?  And if everything is working
+properly, I wouldn't worry much about it :)
 
 thanks,
 

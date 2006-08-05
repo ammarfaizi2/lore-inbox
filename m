@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWHER0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWHERh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161224AbWHER0r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 13:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWHER0r
+	id S1422653AbWHERh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 13:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWHERh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 13:26:47 -0400
-Received: from s-utl01-sjpop.stsn.net ([72.254.0.201]:62338 "HELO
-	s-utl01-sjpop.stsn.net") by vger.kernel.org with SMTP
-	id S1030281AbWHER0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 13:26:46 -0400
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>,
-       Valerie Henson <val_henson@linux.intel.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, Chris Wedgwood <cw@f00f.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>
-In-Reply-To: <1154797123.12108.6.camel@kleikamp.austin.ibm.com>
-References: <20060803063622.GB8631@goober>  <20060805122537.GA23239@lst.de>
-	 <1154797123.12108.6.camel@kleikamp.austin.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 05 Aug 2006 19:04:34 +0200
-Message-Id: <1154797475.3054.79.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 5 Aug 2006 13:37:57 -0400
+Received: from gate.perex.cz ([85.132.177.35]:53686 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1422653AbWHERh4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 13:37:56 -0400
+Date: Sat, 5 Aug 2006 19:37:54 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [ALSA PATCH] bugfixes
+Message-ID: <Pine.LNX.4.61.0608051919380.9377@tm8103.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-05 at 11:58 -0500, Dave Kleikamp wrote:
-> On Sat, 2006-08-05 at 14:25 +0200, Christoph Hellwig wrote:
-> > On Wed, Aug 02, 2006 at 11:36:22PM -0700, Valerie Henson wrote:
-> > > (Corrected Chris Wedgwood's name and email.)
-> > > 
-> > > My friend Akkana followed my advice to use noatime on one of her
-> > > machines, but discovered that mutt was unusable because it always
-> > > thought that new messages had arrived since the last time it had
-> > > checked a folder (mbox format).  I thought this was a bummer, so I
-> > > wrote a "relative lazy atime" patch which only updates the atime if
-> > > the old atime was less than the ctime or mtime.  This is not the same
-> > > as the lazy atime patch of yore[1], which maintained a list of inodes
-> > > with dirty atimes and wrote them out on unmount.
-> > 
-> > Another idea, similar to how atime updates work in xfs currently might
-> > be interesting:  Always update atime in core, but don't start a
-> > transaction just for it - instead only flush it when you'd do it anyway,
-> > that is another transaction or evicting the inode.
-> 
-> Hmm.  That adds a cost to evicting what the vfs considers a clean inode.
+Linus, please do an update from:
 
-the vfs shouldn't consider it clean, it should consider it "atime-only
-dirty".. with that many of the vfs interaction issues ought to go away
+  http://www.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
 
+The GNU patch is available at:
+
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-08-03.patch.gz
+
+Additional notes:
+
+  Just simple bugfixes and k[z|c]alloc code cleanup.
+
+The following files will be updated:
+
+ MAINTAINERS                             |    7 +++++++
+ sound/aoa/codecs/snd-aoa-codec-toonie.c |   17 +++++++++++++----
+ sound/aoa/core/snd-aoa-gpio-feature.c   |    7 +++++--
+ sound/aoa/core/snd-aoa-gpio-pmf.c       |    2 +-
+ sound/core/oss/mixer_oss.c              |    3 +--
+ sound/core/oss/pcm_oss.c                |    2 ++
+ sound/core/seq/seq_device.c             |    3 +--
+ sound/core/sgbuf.c                      |    9 +++------
+ sound/drivers/vx/vx_pcm.c               |    7 ++-----
+ sound/pci/echoaudio/echoaudio.c         |    4 ++--
+ sound/pci/emu10k1/emu10k1_main.c        |   11 +++++++++++
+ sound/pci/emu10k1/irq.c                 |    6 +++++-
+ sound/ppc/awacs.c                       |    3 +--
+ sound/ppc/daca.c                        |    3 +--
+ sound/ppc/keywest.c                     |    3 +--
+ sound/ppc/powermac.c                    |   13 +++----------
+ sound/ppc/tumbler.c                     |    3 +--
+ sound/usb/usbaudio.c                    |    6 ++----
+ 18 files changed, 62 insertions(+), 47 deletions(-)
+
+
+The following things were done:
+
+James Courtier-Dutton:
+      [ALSA] snd-emu10k1: Fixes ALSA bug#2190
+      [ALSA] snd-emu10k1: Implement support for Audigy 2 ZS [SB0353]
+
+Johannes Berg:
+      [ALSA] aoa: feature gpio layer: fix IRQ access
+      [ALSA] aoa: fix toonie codec
+      [ALSA] make snd-powermac load even when it can't bind the device
+      [ALSA] aoa: platform function gpio: ignore errors from functions that don't exist
+      [ALSA] add MAINTAINERS entry for snd-aoa
+
+Panagiotis Issaris:
+      [ALSA] Conversions from kmalloc+memset to k(z|c)alloc
+
+Takashi Iwai:
+      [ALSA] Don't reject O_RDWR at opening PCM OSS with read/write-only device
+
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

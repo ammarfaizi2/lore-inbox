@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWHEQ6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWHERN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWHEQ6u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 12:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWHEQ6u
+	id S1030251AbWHERN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 13:13:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWHERN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 12:58:50 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:25223 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030228AbWHEQ6t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 12:58:49 -0400
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Valerie Henson <val_henson@linux.intel.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, Akkana Peck <akkana@shallowsky.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, Chris Wedgwood <cw@f00f.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>
-In-Reply-To: <20060805122537.GA23239@lst.de>
-References: <20060803063622.GB8631@goober>  <20060805122537.GA23239@lst.de>
-Content-Type: text/plain
-Date: Sat, 05 Aug 2006 11:58:43 -0500
-Message-Id: <1154797123.12108.6.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Sat, 5 Aug 2006 13:13:29 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:11530 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030251AbWHERN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 13:13:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FUHvipnBmy1qs9XOBDVHMnlo9VZVGm2nLiCVCq2mv4Ylazfdh9yP2MP5POQOn9KqCLKibcoRQnkbEhrECmdej8ecoTBM5PHj603ExHZViakER/l/MjmVeYHI9wh7hgWyyUO/LMKlg2WSF5zdSdfl3CGKfZVph47Ty2KEtmfNPXg=
+Message-ID: <abcd72470608051013s42ba14e1g8c3289a3e551c7ca@mail.gmail.com>
+Date: Sat, 5 Aug 2006 10:13:26 -0700
+From: "Avinash Ramanath" <avinashr@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: Zeroing data blocks
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1154790620.3054.69.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <abcd72470607081856i47f15dedre9be9278ffa9bab4@mail.gmail.com>
+	 <1152435182.3255.39.camel@laptopd505.fenrus.org>
+	 <abcd72470608050055w51f2bfbcrbd26b59fc32dc494@mail.gmail.com>
+	 <1154790620.3054.69.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-05 at 14:25 +0200, Christoph Hellwig wrote:
-> On Wed, Aug 02, 2006 at 11:36:22PM -0700, Valerie Henson wrote:
-> > (Corrected Chris Wedgwood's name and email.)
-> > 
-> > My friend Akkana followed my advice to use noatime on one of her
-> > machines, but discovered that mutt was unusable because it always
-> > thought that new messages had arrived since the last time it had
-> > checked a folder (mbox format).  I thought this was a bummer, so I
-> > wrote a "relative lazy atime" patch which only updates the atime if
-> > the old atime was less than the ctime or mtime.  This is not the same
-> > as the lazy atime patch of yore[1], which maintained a list of inodes
-> > with dirty atimes and wrote them out on unmount.
-> 
-> Another idea, similar to how atime updates work in xfs currently might
-> be interesting:  Always update atime in core, but don't start a
-> transaction just for it - instead only flush it when you'd do it anyway,
-> that is another transaction or evicting the inode.
+Hi,
 
-Hmm.  That adds a cost to evicting what the vfs considers a clean inode.
-It seems wrong, but if that's what xfs does, it must not be a problem.
+I want to do this at the filesystem-level not in user-space.
+I have a stackable-filesystem that runs as a layer on top of the
+existing filesystem (with all the function pointers mapped to the
+corresponding base filesystem function pointers, and other suitable
+adjustments).
+So yes I have access to the filesystem.
+But the question is how can I access those particular data-blocks?
 
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+On 8/5/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Sat, 2006-08-05 at 00:55 -0700, Avinash Ramanath wrote:
+> > Hi,
+> >
+> > As per your suggestion, if I write a file with zero bits, it would
+> > remap to other pages, and I might not zero the real pages. So is there
+> > any other way that I can access the pages that a file is using?
+>
+> there is an ioctl to find the blocks the file is in.. but still that's
+> only a snapshot, not a guarantee. What you really need/want is to do
+> this at the filesystem level, you can't reliably do it above that level.
+>
+> --
+> if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+>
+>
+>

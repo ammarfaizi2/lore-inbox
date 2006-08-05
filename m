@@ -1,76 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbWHEVKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWHEVQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161098AbWHEVKi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 17:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWHEVKi
+	id S1030281AbWHEVQB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 17:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWHEVQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 17:10:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46774 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030277AbWHEVKh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 17:10:37 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: David Smith <dsmith@redhat.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, prasanna@in.ibm.com, ananth@in.ibm.com,
-       anil.s.keshavamurthy@intel.com, davem@davemloft.net
-Subject: Re: [PATCH] module interface improvement for kprobes
-References: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com>
-	<20060804155711.GA13271@infradead.org>
-	<1154716239.15967.22.camel@dhcp-2.hsv.redhat.com>
-	<20060805113538.GA21135@infradead.org>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 05 Aug 2006 17:10:10 -0400
-In-Reply-To: <20060805113538.GA21135@infradead.org>
-Message-ID: <y0mmzaianyl.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+	Sat, 5 Aug 2006 17:16:00 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:57964 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030281AbWHEVQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 17:16:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YdvMkO6AIsqzTzpVRJ9piekHaUan9D4D0WOFO/Mor44ZX5HOND5vkFTUlz8UlIOEs3trEXcFqmIlOhuMK4Qe+yQDGWEeBG+1gcPn23fcA35KHEo1o5hlHg4RVVmUtFIFIgl0SvcmcGGELVPtK03UdU8TxUPD3+7NqYBIxgJE21o=
+Message-ID: <6bffcb0e0608051415g347ef7b9j3c19a3353697bb5b@mail.gmail.com>
+Date: Sat, 5 Aug 2006 23:15:59 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Dave Jones" <davej@redhat.com>,
+       "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
+In-Reply-To: <20060805184755.GA25644@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org>
+	 <20060805003142.GH18792@redhat.com>
+	 <20060805021051.GA13393@redhat.com>
+	 <20060805022356.GC13393@redhat.com>
+	 <20060805024947.GE13393@redhat.com>
+	 <20060805064727.GF13393@redhat.com>
+	 <6bffcb0e0608050354k4dd0bb0ep337216e984ce41d7@mail.gmail.com>
+	 <6bffcb0e0608050411q22112b71wced519a6491c6abe@mail.gmail.com>
+	 <6bffcb0e0608050426s6c39e4f0o57f9093b03c3b27b@mail.gmail.com>
+	 <20060805184755.GA25644@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Christoph Hellwig <hch@infradead.org> writes:
-
-> [...]
-> > Why shouldn't I put a probe into a module other than at a symbol I can
-> > find with kallsyms?  For example, I'm interested when a particular
-> > module hits an error condition that occurs.  [...]
+On 05/08/06, Dave Jones <davej@redhat.com> wrote:
+> On Sat, Aug 05, 2006 at 01:26:49PM +0200, Michal Piotrowski wrote:
 >
-> How do you find that offset?  
+>  > Aug  5 13:18:00 ltg01-fedora kernel: CPU0 called lock_cpu_hotplug()
+>  > for app kded. recursive_depth=0
+>  > *more snipped traces*
+>
+> The interesting ones will be the ones before & after you hit that
+> BUG: warning at /usr/src/linux-work1/kernel/cpu.c:51/unlock_cpu_hotplug()
+> if you can make that happen again.
 
-The same way one would find an address now: by a mixture of
-online/offline processing of symbol tables, debugging data, and/or
-disassembly.
+I don't see nothing interesting before BUG: warning at
+/usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
 
-> You'll probably mention the S-Word but we really want something that
-> works with the latest kernel, not just the vendor trees.
+Only
 
-Why are you under the impression that systemtap doesn't work with any
-particular "latest kernel"?
+CPU0 called lock_cpu_hotplug() for app amarokapp. recursive_depth=0
+ [<c01329ab>] lock_cpu_hotplug+0x36/0xb9
+ [<c01182ce>] sched_getaffinity+0xf/0x83
+ [<c0118361>] sys_sched_getaffinity+0x1f/0x41
+ [<c0102d51>] sysenter_past_esp+0x56/0x79
+amarokapp acquired cpu_bitmask_lock
 
-> [...] Adding another field to struct kprobe to specify an offset
-> into the symbol would be the logical extension of that.
+appears after this warning.
 
-At the top you ask rhetorically about how an offset would be found (as
-if it were difficult) ...  and here you assert that it is a logical
-extension to put it into the API?  I'm confused - which is it?
+dmesg -> http://www.stardust.webpages.pl/files/2.6-git/18-rc3/dmesg2
 
-> > Your example works for a very small number of symbols, but with a large
-> > number it could take a long time to register the kprobes.  [...]
-> Registering a kprobe is everything but a fastpath, and you definitly
-> should not have a lot of probes anyway.  [...]
+>
+>                 Dave
+>
+> --
+> http://www.codemonkey.org.uk
+>
 
-It is not difficult to imagine situations where one wants to have
-hundreds or thousands of active probes: one is function entry/exit
-tracing; another is assertion checking.  (If only there was a system
-for conveniently expressing these ... oh never mind.)
+Regards,
+Michal
 
-The idea behind module_get_byname() was to avoid changes in kprobes
-etc., and keeping in mind that the same sort of module-name lookup is
-already available to userspace via sysfs.  If folks insist that
-instead, kprobes be extended to do this step of the probe address
-calculations internally, I guess we could use that too.  It would have
-to punt if !CONFIG_KALLSYMS, which is too bad, since systemtap and
-kprobes work fine without kallsyms now.
-
-- FChE
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

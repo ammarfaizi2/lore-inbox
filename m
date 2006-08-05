@@ -1,45 +1,33 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932412AbWH1HgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWH1HgE (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 28 Aug 2006 03:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWH1HgE
+	id S1422742AbWHED0f (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 4 Aug 2006 23:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422751AbWHED0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Aug 2006 03:36:04 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:20912 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932412AbWH1HgB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Aug 2006 03:36:01 -0400
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arch@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
-        Bjoern Steinbrink <B.Steinbrink@gmx.de>,
-        Arjan van de Ven <arjan@infradead.org>,
-        Chase Venters <chase.venters@clientec.com>,
-        Andrew Morton <akpm@osdl.org>,
-        Russell King <rmk+lkml@arm.linux.org.uk>, rusty@rustcorp.com.au,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/7] remove all remaining _syscallX macros
-References: <20060827214734.252316000@klappe.arndb.de>
-	<20060827215637.555365000@klappe.arndb.de>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Aug 2006 09:35:17 +0200
-In-Reply-To: <20060827215637.555365000@klappe.arndb.de>
-Message-ID: <p73ac5pe2iy.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 4 Aug 2006 23:26:35 -0400
+Received: from [221.192.114.144] ([221.192.114.144]:46350 "EHLO
+	oapmis.60efk6u6.aol.com") by vger.kernel.org with ESMTP
+	id S1422742AbWHED0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 23:26:34 -0400
+Message-ID: <44335242670810.55C459BB93@Z1AKVP9>
+From: "Swan" <bimolecularabalone@witty.com>
+To: <linux-laptop@vger.kernel.org>
+Subject: Fuel for this increased metabolic rate can be provided by stored body fat. 
+Date: Sat, 5 Aug 2006 11:26:22 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: hXooKNYceyzRNGgC2cvYHlUXn0bJ7cGCrnRh
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1422742AbWHED0f@vger.kernel.org>
 
-Arnd Bergmann <arnd@arndb.de> writes:
+Woo-hooo! 
 
-> The _syscallX macros were originally used by libc implementations,
-> but now there is no libc that can be built against an up-to-date
-> kernel an relies on them.
-> The only users of these macros are the __KERNEL_SYSCALLS_, which
-> are now gone as well, after execve has been removed from the
-> kernel.
+ There are two main possible ways of inducing a reduction in body fat.  This allows you to loose weight naturally, without starving diet programs or excessive workouts. Thermogenesis is a term referring to the body's production of heat. Heat production is a normal part of the metabolic process.  Enter: http://ganterd.com/gall/fb/ 
 
-I would prefer to keep them on i386/x86-64 at least because
-a lot of my test programs are using them.
+ The early bird catches the worm. Rain, Rain, go away, come back another day Pride comes before a fall
 
--Andi
+ He is an ill companion that has a good memory  He who does not honour his wife dishonours himself
+

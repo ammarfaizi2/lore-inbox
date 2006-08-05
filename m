@@ -1,103 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWHERiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWHERnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422655AbWHERiR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 13:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWHERiR
+	id S1422656AbWHERnh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 13:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422657AbWHERnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 13:38:17 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:17728 "EHLO
-	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1422657AbWHERiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 13:38:16 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AT0KAG9z1ESBUQ
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [git pull] Input update for 2.6.18-rc3
-Date: Sat, 5 Aug 2006 13:38:13 -0400
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+	Sat, 5 Aug 2006 13:43:37 -0400
+Received: from serv07.server-center.de ([83.220.153.152]:25811 "EHLO
+	serv07.server-center.de") by vger.kernel.org with ESMTP
+	id S1422656AbWHERnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 13:43:37 -0400
+Message-ID: <44D4D8B0.5010103@mycable.de>
+Date: Sat, 05 Aug 2006 19:43:12 +0200
+From: Alexander Bigga <ab@mycable.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+CC: david-b@pacbell.net, mgreer@mvista.com, a.zummo@towertech.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: RTC: add RTC class interface to m41t00 driver
+References: <200608041933.39930.david-b@pacbell.net> <20060806.012924.96685417.anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060806.012924.96685417.anemo@mba.ocn.ne.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608051338.13913.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hi Atsushi,
+Hi David,
 
-I redid the 'for-linus' branch to resolve conflicts with Greg and added
-the fix for atkbd to restore repeat rate upon resume, please pull from:
+I've seen very late that the rtc-ds1307.c driver supports the quite 
+simple m41t00 as well. As Mark's m41t00.c claimed to support even the 
+m41t81 and the m41st85, I startet at this point.
 
-        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+First, I sent my approach to Mark (m41t00.c), Alessandro (rtc-subsytem) 
+and Jean (i2c-subsystem) to discuss the strategy. And if I understood 
+them right, they found the idea good, to move the i2c/chips/m41t00.h to 
+an rtc/rtc-m41txx.c driver, as this should be the general place for such 
+rtc-drivers.
 
-or
-        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+As Atsushi has done almost the same work, I postet my version on friday 
+to pretend the next person to do this job and to start the discussion, 
+how to get to a suitable version for all - including Mark with his 
+arch/ppc/platforms/katana.c boards.
 
-Changelog:
-
-Andrew Morton:
-      Input: wistron - fix section reference mismatches
-      Input: fix list iteration in input_release_device()
-
-Dmitry Torokhov:
-      Input: remove accept method from input_dev
-      Input: add start() method to input handlers
-      Input: introduce input_inject_event() function
-      Input: fm801-gp - fix use after free
-      Input: libps2 - warn instead of oopsing when passed bad arguments
-      Input: iforce - check array bounds before accessing elements
-      Input: HID - fix potential out-of-bound array access
-      Input: add missing handler->start() call
-      Input: hiddev - use standard list implementation
-      Input: keyboard - remove static variable and clean up initialization
-      Input: keyboard - simplify emulate_raw() implementation
-      Input: keyboard - change to use kzalloc
-      Input: trackpoint - activate protocol when resuming
-      Input: atkbd - restore repeat rate when resuming
-      Input: ati_remote - relax permissions sysfs module parameters
-      Input: ati_remote - add missing input_sync()
-      Input: ati_remote - use msec instead of jiffies
-
-Edwin Huffstutler:
-      Input: ati_remote - make filter time a module parameter
-
-Nick Martin:
-      Input: spaceball - make 4000FLX Lefty work
-
-Przemek Iskra:
-      Input: iforce - add Trust Force Feedback Race Master support
-
-Randy Dunlap:
-      Input: serio/gameport - check whether driver core calls succeeded
-
-Roberto Castagnola:
-      Input: logips2pp - fix button mapping for MX300
+I confirm, that the rtc-ds1307.c driver works with m41t00. But the 
+m41t8x or m41st8x differs a lot from the m41t00 (HT bit, ST bit, SQW 
+freq - like Atsushi wrote it already).
 
 
-Diffstat:
+Atsushi Nemoto wrote:
+> 2. As m41t00_chip_info_tbl[] in m41t00 driver shows, M41T81 and M41T85
+>    have different register layout.
+>   
 
- drivers/char/keyboard.c                     |  139 ++++++++++++----------
- drivers/input/evdev.c                       |   10 -
- drivers/input/gameport/fm801-gp.c           |    4 
- drivers/input/gameport/gameport.c           |   66 +++++++---
- drivers/input/input.c                       |   57 +++++++--
- drivers/input/joystick/iforce/iforce-main.c |   19 +--
- drivers/input/joystick/spaceball.c          |    2 
- drivers/input/keyboard/atkbd.c              |  103 +++++++++-------
- drivers/input/misc/wistron_btns.c           |   20 +--
- drivers/input/mouse/logips2pp.c             |    3 
- drivers/input/mouse/trackpoint.c            |   52 +++++---
- drivers/input/serio/libps2.c                |    5 
- drivers/input/serio/serio.c                 |   65 ++++++++--
- drivers/usb/input/ati_remote.c              |  173 ++++++++++++++++------------
- drivers/usb/input/hid-input.c               |    3 
- drivers/usb/input/hiddev.c                  |   72 ++++++-----
- include/linux/input.h                       |   24 +++
- 17 files changed, 509 insertions(+), 308 deletions(-)
+The register layout seems to depend on the watchdog and alarm 
+functionality.
+The features differs from chip to chip, that's why I intodruced a 
+"features"-field in struct m41txx_chip_info.
+
+> 3. It lacks some features (ST bit, HT bit, SQW freq.) in m41t00
+>    driver, though I personally does not need these features.
+>   
+
+You need at least to clear the Stop Bit (ST) and the Halt Update Bit 
+(HT) unless your m41t8x will always report the time of the last power 
+fail and not the current time.
+
+For me there is still the open question, if the workqueue-part and the 
+exported symbols (m41t00_get_rtc_time, ) should stay or not. I don't 
+need it and Atsushi seems to share my opinion. But...?
+
+On monday, I can continue work on it.
 
 
---  
-Dmitry
+Alexander
+
+-- 
+Alexander Bigga		Tel: +49 4873 90 10 866
+mycable GmbH		Fax: +49 4873 90 19 76
+Boeker Stieg 43
+D-24613 Aukrug		eMail: ab@mycable.de
+
+

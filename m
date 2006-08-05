@@ -1,120 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWHECtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422745AbWHEDar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422718AbWHECtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 22:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422719AbWHECtx
+	id S1422745AbWHEDar (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 23:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422752AbWHEDar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 22:49:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1257 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422718AbWHECtw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 22:49:52 -0400
-Date: Fri, 4 Aug 2006 22:49:47 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
-Message-ID: <20060805024947.GE13393@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com> <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org> <20060804222400.GC18792@redhat.com> <20060805003142.GH18792@redhat.com> <20060805021051.GA13393@redhat.com> <20060805022356.GC13393@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060805022356.GC13393@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 4 Aug 2006 23:30:47 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:4461 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422745AbWHEDaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 23:30:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1Hy7VQyTD4eAwoJ0kWiLAHS8S/4+t1ZaMkSAmPeutG4DzWGo7uGRKfsUeympcT8FjE0r5MsETYtMvhyN9ihvSsC24eUj/MlULYXgudhe7AUQbKyOTVVx4k3uLYyFj+yC/85I0j3uCfdTO2ZwS6DV6mSIlxrLH8cTH33xbmtvako=  ;
+Message-ID: <44D410D9.3070108@yahoo.com.au>
+Date: Sat, 05 Aug 2006 13:30:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: vatsa@in.ibm.com, mingo@elte.hu, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
+ controller
+References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org>
+In-Reply-To: <20060803223650.423f2e6a.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 04, 2006 at 10:23:56PM -0400, Dave Jones wrote:
+Andrew Morton wrote:
+> On Fri, 4 Aug 2006 10:37:53 +0530
+> Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+> 
+> 
+>>Resource management has been talked about quite extensively in the
+>>past, more recently in the context of containers. The basic requirement
+>>here is to provide isolation between *groups* of task wrt their use
+>>of various resources like CPU, Memory, I/O bandwidth, open file-descriptors etc.
+>>
+>>Different maintainers have however expressed different opinions over the need to
+>>complicate the kernel to meet this need, especially since it involves core 
+>>kernel code like the resource schedulers. 
+>>
+>>A BoF was hence held at OLS this year to come to a consensus on the minimum 
+>>requirements of a resource management solution for Linux kernel. Some notes 
+>>taken at the BoF are posted here:
+>>
+>>	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0607.3/0896.html
+>>
+>>An important consensus point of the BoF seemed to be "focus on real 
+>>controllers more, preferably memory first, using some simple interface
+>>and task grouping mechanism".
+> 
+> 
+> ug, I didn't know this.  Had I been there (sorry) I'd have disagreed with
+> this whole strategy.
+> 
+> I thought the most recently posted CKRM core was a fine piece of code.  It
+> provides the machinery for grouping tasks together and the machinery for
+> establishing and viewing those groupings via configfs, and other such
+> common functionality.  My 20-minute impression was that this code was an
+> easy merge and it was just awaiting some useful controllers to come along.
+> 
+> And now we've dumped the good infrastructure and instead we've contentrated
+> on the controller, wired up via some imaginative ab^H^Hreuse of the cpuset
+> layer.
+> 
+> I wonder how many of the consensus-makers were familiar with the
+> contemporary CKRM core?
 
- > Duh.  Everything becomes clearer the moment you post a diff to lkml.
- 
-Right, with that silly thinko out of the way, things make _slightly_
-more sense, but I'm still puzzled. Here's the trace (with the DWARF
-noise stripped out).
+Sorry, I've been busy with offline stuff and won't be able to catch up with
+emails until next week -- someone else might have already covered this.
 
-CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
- [<c0104edc>] show_trace_log_lvl+0x58/0x152
- [<c01054c2>] show_trace+0xd/0x10
- [<c01055db>] dump_stack+0x19/0x1b
- [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
- [<c029fbae>] store_scaling_governor+0x142/0x1a3
- [<c029f1a5>] store+0x37/0x48
- [<c01a6561>] sysfs_write_file+0xab/0xd1
- [<c016f99f>] vfs_write+0xab/0x157
- [<c016ffe4>] sys_write+0x3b/0x60
- [<c0103db9>] sysenter_past_esp+0x56/0x8d
-cpuspeed acquired cpu_bitmask_lock
+But: I think we definitely agreed that a nice simple implementation and even
+userspace API for grouping tasks would be a no-brainer.
 
-CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
- [<c0104edc>] show_trace_log_lvl+0x58/0x152
- [<c01054c2>] show_trace+0xd/0x10
- [<c01055db>] dump_stack+0x19/0x1b
- [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
- [<c0132f3c>] __create_workqueue+0x52/0x122
- [<f901234b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
- [<c029f7b6>] __cpufreq_governor+0x57/0xd8
- [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
- [<c029fbc5>] store_scaling_governor+0x159/0x1a3
- [<c029f1a5>] store+0x37/0x48
- [<c01a6561>] sysfs_write_file+0xab/0xd1
- [<c016f99f>] vfs_write+0xab/0x157
- [<c016ffe4>] sys_write+0x3b/0x60
- [<c0103db9>] sysenter_past_esp+0x56/0x8d
-Lukewarm IQ detected in hotplug locking
-BUG: warning at kernel/cpu.c:46/lock_cpu_hotplug()
+I advocated implementing some simple controllers on top of such an interface
+first, that people can start to put in some of their requirements, see if a
+common controller framework should be created, look at what interfaces people
+want for them.
 
-CPU1 called unlock_cpu_hotplug() for app cpuspeed. recursive_depth=1
- [<c0104edc>] show_trace_log_lvl+0x58/0x152
- [<c01054c2>] show_trace+0xd/0x10
- [<c01055db>] dump_stack+0x19/0x1b
- [<c013e980>] unlock_cpu_hotplug+0x37/0xb7
- [<c0132fea>] __create_workqueue+0x100/0x122
- [<f901234b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
- [<c029f7b6>] __cpufreq_governor+0x57/0xd8
- [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
- [<c029fbc5>] store_scaling_governor+0x159/0x1a3
- [<c029f1a5>] store+0x37/0x48
- [<c01a6561>] sysfs_write_file+0xab/0xd1
- [<c016f99f>] vfs_write+0xab/0x157
- [<c016ffe4>] sys_write+0x3b/0x60
- [<c0103db9>] sysenter_past_esp+0x56/0x8d
-
-CPU1 called unlock_cpu_hotplug() for app cpuspeed. recursive_depth=0
- [<c0104edc>] show_trace_log_lvl+0x58/0x152
- [<c01054c2>] show_trace+0xd/0x10
- [<c01055db>] dump_stack+0x19/0x1b
- [<c013e980>] unlock_cpu_hotplug+0x37/0xb7
- [<c029fbe5>] store_scaling_governor+0x179/0x1a3
- [<c029f1a5>] store+0x37/0x48
- [<c01a6561>] sysfs_write_file+0xab/0xd1
- [<c016f99f>] vfs_write+0xab/0x157
- [<c016ffe4>] sys_write+0x3b/0x60
- [<c0103db9>] sysenter_past_esp+0x56/0x8d
-
-So in these traces we're seeing
-lock
- lock
- unlock
-unlock
-
-But what I really don't understand is the ordering here.
-Immediately after that first trace we should see an unlock.
-store_scaling_governor does a lock/unlock pair, with no chance
-of returning with the hotplug lock still held.
-
-In the second trace however, cpuspeed is off doing something
-completely different.
-
-How can this happen?
-
-My head hurts.
-
-		Dave
+I don't have a problem with CKRM as such, but I think there are other groups
+with good approaches and the problem has been to get people working together.
 
 -- 
-http://www.codemonkey.org.uk
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

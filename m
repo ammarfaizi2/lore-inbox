@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWHESLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWHESgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422659AbWHESLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 14:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWHESLR
+	id S1751388AbWHESgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 14:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWHESgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 14:11:17 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:10126 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1030295AbWHESLQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 14:11:16 -0400
-Date: Sat, 5 Aug 2006 22:10:47 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take4 1/4] kevent: Core files.
-Message-ID: <20060805181047.GA22177@2ka.mipt.ru>
-References: <11547829553148@2ka.mipt.ru> <11547829581556@2ka.mipt.ru> <20060805175702.GA27992@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Sat, 5 Aug 2006 14:36:13 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:380 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751388AbWHESgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 14:36:12 -0400
+Date: Sat, 5 Aug 2006 11:36:09 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
+       Valerie Henson <val_henson@linux.intel.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Akkana Peck <akkana@shallowsky.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [RFC] [PATCH] Relative lazy atime
+Message-ID: <20060805183609.GA7564@tuatara.stupidest.org>
+References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de> <1154797123.12108.6.camel@kleikamp.austin.ibm.com> <1154797475.3054.79.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060805175702.GA27992@kroah.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 05 Aug 2006 22:10:49 +0400 (MSD)
+In-Reply-To: <1154797475.3054.79.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 05, 2006 at 10:57:02AM -0700, GregKH (greg@kroah.com) wrote:
-> > +	dev = class_device_create(kevent_user_class, NULL, 
-> > +			MKDEV(kevent_user_major, 0), NULL, kevent_name);
-> > +	if (IS_ERR(dev)) {
-> > +		printk(KERN_ERR "Failed to create %d.%d class device in \"%s\" class: err=%ld.\n", 
-> > +				kevent_user_major, 0, kevent_name, PTR_ERR(dev));
-> > +		err = PTR_ERR(dev);
-> > +		goto err_out_class_destroy;
-> > +	}
-> 
-> As you are only using 1 minor number in this code, why not just use a
-> miscdevice instead?  It saves a bit of overhead and makes the code a
-> tiny bit smaller :)
+On Sat, Aug 05, 2006 at 07:04:34PM +0200, Arjan van de Ven wrote:
 
-No problem. I will move it to miscdevice instead of full chardev.
+> the vfs shouldn't consider it clean, it should consider it
+> "atime-only dirty".. with that many of the vfs interaction issues
+> ought to go away
 
-> thanks,
-> 
-> greg k-h
+should it be atime-dirty or non-critical-dirty? (ie. make it more
+generic to cover cases where we might have other non-critical fields
+to flush if we can but can tolerate loss if we dont)
 
--- 
-	Evgeniy Polyakov
+adminitedly atime is the only one i can think of now

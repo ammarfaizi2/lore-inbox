@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWHEQIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbWHEQ1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWHEQIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 12:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWHEQIx
+	id S1161151AbWHEQ1v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 12:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWHEQ1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 12:08:53 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52375 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030189AbWHEQIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 12:08:53 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Don Zickus <dzickus@redhat.com>
-Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+	Sat, 5 Aug 2006 12:27:51 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:48342 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932418AbWHEQ1v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 12:27:51 -0400
+Date: Sun, 06 Aug 2006 01:29:24 +0900 (JST)
+Message-Id: <20060806.012924.96685417.anemo@mba.ocn.ne.jp>
+To: david-b@pacbell.net
+Cc: ab@mycable.de, mgreer@mvista.com, a.zummo@towertech.it,
        linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-References: <20060706081520.GB28225@host0.dyn.jankratochvil.net>
-	<aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com>
-	<20060707133518.GA15810@in.ibm.com>
-	<20060707143519.GB13097@host0.dyn.jankratochvil.net>
-	<20060710233219.GF16215@in.ibm.com>
-	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
-	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
-	<m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
-	<20060804210826.GE16231@redhat.com>
-	<m164h8p50c.fsf@ebiederm.dsl.xmission.com>
-	<20060804234327.GF16231@redhat.com>
-Date: Sat, 05 Aug 2006 10:07:01 -0600
-In-Reply-To: <20060804234327.GF16231@redhat.com> (Don Zickus's message of
-	"Fri, 4 Aug 2006 19:43:27 -0400")
-Message-ID: <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: RTC: add RTC class interface to m41t00 driver
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <200608041933.39930.david-b@pacbell.net>
+References: <200608041933.39930.david-b@pacbell.net>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don Zickus <dzickus@redhat.com> writes:
+On Fri, 4 Aug 2006 19:33:39 -0700, David Brownell <david-b@pacbell.net> wrote:
+> Actually, it'd be worth trying drivers/rtc/rtc-ds1307.c ... the M41T00 is
+> one of a family of mostly-compatible RTC chips, and the ds1307 driver
+> should be pretty much the least-common-denominator there.  They all use
+> the same I2C address, and the same register layout for the calendar/time
+> function.
+> 
+> I'd expect rtc-ds1307 to handle the m41t00 already, or with at most minor
+> tweaks to recognize whatever's different.  It should already be ignoring
+> the bits in the clock/calendar registers that vary, as well as the SRAM
+> and (for some other chips) the alarm.  (Not that I2C has ways to tell us
+> what IRQ the alarm would use, but that's a different tale!)
 
->> The length error comes from lib/inflate.c 
->> 
->> I think it would be interesting to look at orig_len and bytes_out.
->> 
->> My hunch is that I have tripped over a tool chain bug or a weird
->> alignment issue.
->
-> I thought so too, but I took vmlinuz images from people (Vivek) who had it
-> boot on their systems but those images still failed on my two machines.  
->
->> 
->> The error is the uncompressed length does not math the stored length
->> of the data before from before we compressed it.  Now what is
->> fascinating is that our crc's match (as that check is performed first).
->> 
->> Something is very slightly off and I don't see what it is.
->
-> I printed out orig_len -> 5910532 (which matches vmlinux.bin)
->              bytes_out -> 5910531
->
->> 
->> After looking at the state variables I would probably start looking
->> at the uncompressed data to see if it really was decompressing
->> properly.  If nothing else that is the kind of process that would tend
->> to spark a clue.
->
-> I am not familiar with the code, so very few sparks are flying.  I'll
-> still dig through though.  Thanks for the tips.
+Thanks for your suggestion.  I have looked rtc-ds1307 too before I
+tried to modify m41t00 driver.
 
-I guess the interesting thing to do would be to 
-- Recompute the crc to see if we still match.
-- Possibly instrument of flush_window.
+It seems some works are still needed to support M41Txx chips by the
+driver.
 
-I have a strange feeling that the uncompressed data is getting corrupted
-after we have flushed the window.
+1. The driver contains ds_1340 (or st m41t00) definition, but it seems
+   no way to select the ds_type.
 
-Eric
+2. As m41t00_chip_info_tbl[] in m41t00 driver shows, M41T81 and M41T85
+   have different register layout.
 
+3. It lacks some features (ST bit, HT bit, SQW freq.) in m41t00
+   driver, though I personally does not need these features.
 
+I choose changing m41t00 driver by (1) and (2).
+
+If we really need a super generic driver, I suppose adding ds13xx
+support to new m41txx driver is less hard.  I think having separate
+drivers are good enough for now.
+
+---
+Atsushi Nemoto

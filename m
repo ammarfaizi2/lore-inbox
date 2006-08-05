@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWHEXRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWHEXXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWHEXRd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 19:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWHEXRd
+	id S1751491AbWHEXXk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 19:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWHEXXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 19:17:33 -0400
-Received: from ozlabs.org ([203.10.76.45]:15022 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751366AbWHEXRd (ORCPT
+	Sat, 5 Aug 2006 19:23:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2225 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751447AbWHEXXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 19:17:33 -0400
-Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
-	space.
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Zachary Amsden <zach@vmware.com>, chrisw@sous-sol.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060805145840.653912a2.akpm@osdl.org>
-References: <20060803002510.634721860@xensource.com>
-	 <20060803002518.595166293@xensource.com>
-	 <20060802231912.ed77f930.akpm@osdl.org> <44D1A6B6.8040003@vmware.com>
-	 <20060803004144.554d9882.akpm@osdl.org> <44D1BAB8.8070509@vmware.com>
-	 <20060805145840.653912a2.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 06 Aug 2006 09:17:29 +1000
-Message-Id: <1154819850.29151.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Aug 2006 19:23:40 -0400
+Date: Sun, 6 Aug 2006 01:23:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alessandro Guido <alessandro.guido.box@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: Sony ACPI extras mainline inclusion
+Message-ID: <20060805232324.GB16196@elf.ucw.cz>
+References: <44CB288A.1010702@gmail.com> <20060802100314.GF7601@ucw.cz> <44D47661.8080000@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D47661.8080000@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-05 at 14:58 -0700, Andrew Morton wrote:
-> On Thu, 03 Aug 2006 01:58:32 -0700
-> Zachary Amsden <zach@vmware.com> wrote:
+Hi!
+
+> >>I own a Sony VAIO laptop that uses ACPI for setting 
+> >>screen brightness
+> >>through the "2.6-sony_acpi4.patch" patch that has been 
+> >>living in -mm for a while.
+> >>I'd like this patch to be merged in mainline, so that I 
+> >>won't be forced anymore to patch
+> >>the kernel by hand or to use the -mm patchset.
+> >>Is there something that prevents this to happen?
+> >
+> >Wrong interface?
+> >
+> >Convert it to use /sys/class/backlight sysfs interface...
 > 
-> > Add a bootparameter to reserve high linear address space for hypervisors.
-> > This is necessary to allow dynamically loaded hypervisor modules, which
-> > might not happen until userspace is already running, and also provides a
-> > useful tool to benchmark the performance impact of reduced lowmem address
-> > space.
+> Thank you for repling!
 > 
-> Andi has gone and rotorooted the x86 boot parameter handling in there. 
+> I found a patch that does it in the mailing list archives,
+> although I've not tested if it can be still applied correctly:
+> 
+> http://marc.theaimsgroup.com/?l=linux-acpi&m=113950408508944&w=2
 
-That was me, via Andi, but yep:
-
-> diff -puN arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space arch/i386/kernel/setup.c
-> --- a/arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space
-> +++ a/arch/i386/kernel/setup.c
-> @@ -149,6 +149,12 @@ static char command_line[COMMAND_LINE_SI
->  
->  unsigned char __initdata boot_params[PARAM_SIZE];
->  
-> +static int __init setup_reservetop(char *s)
-> +{
-> +	return 1;
-> +}
-> +__setup("reservetop", setup_reservetop);
-> +
->  static struct resource data_resource = {
->  	.name	= "Kernel data",
->  	.start	= 0,
-
-Please remove this hunk: it's now junk.
-
-Cheers,
-Rusty.
+Yep, that looks like a good starting point. Plus "old" backlight
+interface should be removed so that we don't have to support two of
+them for 2+ years.
+							Pavel
 -- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

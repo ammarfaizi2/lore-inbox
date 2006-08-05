@@ -1,84 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWHERnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWHERpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422656AbWHERnh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 13:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422657AbWHERnh
+	id S1422658AbWHERpY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 13:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWHERpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 13:43:37 -0400
-Received: from serv07.server-center.de ([83.220.153.152]:25811 "EHLO
-	serv07.server-center.de") by vger.kernel.org with ESMTP
-	id S1422656AbWHERnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 13:43:37 -0400
-Message-ID: <44D4D8B0.5010103@mycable.de>
-Date: Sat, 05 Aug 2006 19:43:12 +0200
-From: Alexander Bigga <ab@mycable.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-CC: david-b@pacbell.net, mgreer@mvista.com, a.zummo@towertech.it,
-       linux-kernel@vger.kernel.org
-Subject: Re: RTC: add RTC class interface to m41t00 driver
-References: <200608041933.39930.david-b@pacbell.net> <20060806.012924.96685417.anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060806.012924.96685417.anemo@mba.ocn.ne.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 5 Aug 2006 13:45:24 -0400
+Received: from s-utl01-sjpop.stsn.net ([72.254.0.201]:40837 "HELO
+	s-utl01-sjpop.stsn.net") by vger.kernel.org with SMTP
+	id S1422657AbWHERpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 13:45:23 -0400
+Subject: Re: Zeroing data blocks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Avinash Ramanath <avinashr@gmail.com>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <abcd72470608051013s42ba14e1g8c3289a3e551c7ca@mail.gmail.com>
+References: <abcd72470607081856i47f15dedre9be9278ffa9bab4@mail.gmail.com>
+	 <1152435182.3255.39.camel@laptopd505.fenrus.org>
+	 <abcd72470608050055w51f2bfbcrbd26b59fc32dc494@mail.gmail.com>
+	 <1154790620.3054.69.camel@laptopd505.fenrus.org>
+	 <abcd72470608051013s42ba14e1g8c3289a3e551c7ca@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sat, 05 Aug 2006 19:42:22 +0200
+Message-Id: <1154799834.3054.93.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Atsushi,
-Hi David,
+On Sat, 2006-08-05 at 10:13 -0700, Avinash Ramanath wrote:
+> Hi,
+> 
+> I want to do this at the filesystem-level not in user-space.
+> I have a stackable-filesystem that runs as a layer on top of the
+> existing filesystem (with all the function pointers mapped to the
+> corresponding base filesystem function pointers, and other suitable
+> adjustments).
+> So yes I have access to the filesystem.
+> But the question is how can I access those particular data-blocks?
 
-I've seen very late that the rtc-ds1307.c driver supports the quite 
-simple m41t00 as well. As Mark's m41t00.c claimed to support even the 
-m41t81 and the m41st85, I startet at this point.
-
-First, I sent my approach to Mark (m41t00.c), Alessandro (rtc-subsytem) 
-and Jean (i2c-subsystem) to discuss the strategy. And if I understood 
-them right, they found the idea good, to move the i2c/chips/m41t00.h to 
-an rtc/rtc-m41txx.c driver, as this should be the general place for such 
-rtc-drivers.
-
-As Atsushi has done almost the same work, I postet my version on friday 
-to pretend the next person to do this job and to start the discussion, 
-how to get to a suitable version for all - including Mark with his 
-arch/ppc/platforms/katana.c boards.
-
-I confirm, that the rtc-ds1307.c driver works with m41t00. But the 
-m41t8x or m41st8x differs a lot from the m41t00 (HT bit, ST bit, SQW 
-freq - like Atsushi wrote it already).
-
-
-Atsushi Nemoto wrote:
-> 2. As m41t00_chip_info_tbl[] in m41t00 driver shows, M41T81 and M41T85
->    have different register layout.
->   
-
-The register layout seems to depend on the watchdog and alarm 
-functionality.
-The features differs from chip to chip, that's why I intodruced a 
-"features"-field in struct m41txx_chip_info.
-
-> 3. It lacks some features (ST bit, HT bit, SQW freq.) in m41t00
->    driver, though I personally does not need these features.
->   
-
-You need at least to clear the Stop Bit (ST) and the Halt Update Bit 
-(HT) unless your m41t8x will always report the time of the last power 
-fail and not the current time.
-
-For me there is still the open question, if the workqueue-part and the 
-exported symbols (m41t00_get_rtc_time, ) should stay or not. I don't 
-need it and Atsushi seems to share my opinion. But...?
-
-On monday, I can continue work on it.
-
-
-Alexander
-
--- 
-Alexander Bigga		Tel: +49 4873 90 10 866
-mycable GmbH		Fax: +49 4873 90 19 76
-Boeker Stieg 43
-D-24613 Aukrug		eMail: ab@mycable.de
+I think you misunderstood: You need to do this in the filesystem layer
+that allocates and tracks the blocks. You really can't do it outside
+that...
 
 

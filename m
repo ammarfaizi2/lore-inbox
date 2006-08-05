@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWHFWAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWHFWCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWHFWAW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 18:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWHFWAG
+	id S1750743AbWHFWCU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 18:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWHFWCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 18:00:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40205 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750731AbWHFWAD
+	Sun, 6 Aug 2006 18:02:20 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51469 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750739AbWHFWCP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 18:00:03 -0400
-Date: Sat, 5 Aug 2006 21:23:46 +0000
+	Sun, 6 Aug 2006 18:02:15 -0400
+Date: Sat, 5 Aug 2006 11:37:04 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Harald Dunkel <harald.dunkel@t-online.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
-Message-ID: <20060805212346.GE5417@ucw.cz>
-References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, trivial@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use BUG_ON(foo) instead of "if (foo) BUG()" in include/asm-i386/dma-mapping.h
+Message-ID: <20060805113703.GD4506@ucw.cz>
+References: <200607280928.54306.eike-kernel@sf-tec.de> <20060728004758.5e7c5120.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44CF7E5A.2010903@gmail.com>
+In-Reply-To: <20060728004758.5e7c5120.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 
-> >0x2 frozen
-> >ata1.00: (BMDMA stat 0x20)
-> >ata1.00: tag 0 cmd 0xca Emask 0x4 stat 0x40 err 0x0 
-> >(timeout)
-> >ata1: port is slow to respond, please be patient
-> >ata1: port failed to respond (30 secs)
-> >ata1: soft resetting port
-> >ata1.00: configured for UDMA/133
-> >ata1: EH complete
-> >SCSI device sda: 312581808 512-byte hdwr sectors 
-> >(160042 MB)
-> >sda: Write Protect is off
-> >sda: Mode Sense: 00 3a 00 00
-> >SCSI device sda: drive cache: write back
-> >
-> >The disk is a SAMSUNG SP1614C.
-> >
-> >On another machine (with a SAMSUNG SP2504C inside) 
-> >there is no
-> >such problem: The disk is back after just a few seconds.
+> > We have BUG_ON() right for this, don't we?
 > 
-> In standby mode, the drive's interface and state 
-> machines stay online and are supposed to spin up and 
-> process the command when it receives one.  The above 
-> message is printed because an IO command hasn't finished 
-> in 30 secs meaning that it didn't wake up when it should 
-> have.  The drive seems to act incorrectly.
+> Well yes, but there are over a thousand BUG->BUG_ON conversion
+> possibilities in the tree.  If people start sending them three-at-a-time
+> we'll all go mad.
 > 
-> >Is there some trick to wake up the disk a little bit 
-> >faster?
-> 
-> Can you try the following instead of hdparm?
-> 
-> echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
+> So.  If we're going to do this, bigger patches, please.
 
-Really? I thought power/state takes 0/3 (for D0 and D3)
+If we are going that way... I guess we should specify if BUG_ON() has
+to evaluate its arguments even if it is compiled out...
+
+Or probably better pecify that BUG_ON() must not have side effects?
 
 							Pavel
 -- 

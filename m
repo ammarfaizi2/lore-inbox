@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161407AbWHEFt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161462AbWHEFwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161407AbWHEFt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 01:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161462AbWHEFt0
+	id S1161462AbWHEFwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 01:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161473AbWHEFwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 01:49:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5766 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161407AbWHEFtZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 01:49:25 -0400
-Date: Fri, 4 Aug 2006 22:49:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rate-limit the RTC 'missed interrupts' warning.
-Message-Id: <20060804224913.d4fb3bef.akpm@osdl.org>
-In-Reply-To: <E1G9EuX-0001AR-0f@smurf.noris.de>
-References: <E1G9EuX-0001AR-0f@smurf.noris.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 5 Aug 2006 01:52:04 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36803 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161462AbWHEFwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 01:52:02 -0400
+Date: Sat, 5 Aug 2006 14:51:37 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Keith Mannthey <kmannth@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, discuss@x86-64.org,
+       kmannth@us.ibm.com, ak@suse.de, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/10] hot-add-mem x86_64: acpi motherboard fix
+Message-Id: <20060805145137.aad34b44.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Aug 2006 01:53:08 +0200
-Matthias Urlichs <smurf@smurf.noris.de> wrote:
-
-> Cc: recipient list not shown: ;
-
-I'm assuming there was supposed to be a mailing list there.
-
-> Subject: [PATCH] Rate-limit the RTC 'missed interrupts' warning.
-> Date: Sat, 5 Aug 2006 01:53:08 +0200
+On Fri, 4 Aug 2006 07:13:51 -0600
+Keith Mannthey <kmannth@us.ibm.com> wrote:
+> I have worked to integrate the feedback I recived on the last round of patches
+> and welcome more ideas/advice. Thanks to everyone who has provied input on
+> these patches already. 
 > 
-> Signed-Off-By: Matthias Urlichs <smurf@smurf.noris.de>
-> ---
->  drivers/char/rtc.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
-> index 7cac6d0..fbd214f 100644
-> --- a/drivers/char/rtc.c
-> +++ b/drivers/char/rtc.c
-> @@ -1131,7 +1131,8 @@ static void rtc_dropped_irq(unsigned lon
->  
->  	spin_unlock_irq(&rtc_lock);
->  
-> -	printk(KERN_WARNING "rtc: lost some interrupts at %ldHz.\n", freq);
-> +	if(printk_ratelimit())
-> +		printk(KERN_WARNING "rtc: lost some interrupts at %ldHz.\n", freq);
->  
->  	/* Now we have new data */
->  	wake_up_interruptible(&rtc_wait);
+Just from review...
 
-What is causing your machine to lose so many RTC interrupts?
+If new zone , which was empty at boot, are added into the system.
+build_all_zonelists() has to be called. (see online_pages() in memory_hotplug.c)
+it looks x86_64's __add_pages() doesn't calles it.
+
+Precisely, look online_pages() (CCONFIG_MEMORY_HOTPLUG_SPARSE) 
+==
+       setup_per_zone_pages_min();
+
+        if (need_zonelists_rebuild)
+                build_all_zonelists();
+        vm_total_pages = nr_free_pagecache_pages();
+==
+These 3 calls are necessary, I think.
+
+-Kame
+

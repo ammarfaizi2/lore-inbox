@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161589AbWHDXzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWHEAGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161589AbWHDXzF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 19:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161587AbWHDXzE
+	id S1422652AbWHEAGk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 20:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422653AbWHEAGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 19:55:04 -0400
-Received: from hu-out-0102.google.com ([72.14.214.207]:50892 "EHLO
-	hu-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1161589AbWHDXzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 19:55:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Utl0cOYIHtysPspn3ex6zohS7yHE1jrh6GiaUyAPswYtQBTYKwXWJ2MKPQ1Mdgxq9BI7Rpn2qLsns8kTUmEYm8aoUpUyh0cHwwx51tz1fRVEEebdDSKIlH5X9dXhiLBfVzGKpqD7L36jrt0OxrFyz6c35L2WNUbxS094RZzun0U=
-Message-ID: <44D3DE48.8060103@gmail.com>
-Date: Sat, 05 Aug 2006 01:54:48 +0200
-From: RazorBlu <razorblu@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Fri, 4 Aug 2006 20:06:40 -0400
+Received: from ozlabs.org ([203.10.76.45]:39298 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1422652AbWHEAGj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 20:06:39 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACLs
-References: <44D3BF62.10202@gmail.com> <1154729992.3573.35.camel@brianb> <44D3CFB9.9020208@gmail.com> <F493D385-0915-442A-853A-00B3ED75B8B2@mac.com>
-In-Reply-To: <F493D385-0915-442A-853A-00B3ED75B8B2@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17619.57607.638788.298986@cargo.ozlabs.ibm.com>
+Date: Sat, 5 Aug 2006 10:06:31 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Theodore Tso <tytso@mit.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zachary Amsden <zach@vmware.com>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
+Subject: Re: A proposal - binary
+In-Reply-To: <20060804143420.GB16313@thunk.org>
+References: <44D1CC7D.4010600@vmware.com>
+	<20060803190605.GB14237@kroah.com>
+	<44D24DD8.1080006@vmware.com>
+	<20060803200136.GB28537@kroah.com>
+	<44D26D87.2070208@vmware.com>
+	<1154644383.23655.142.camel@localhost.localdomain>
+	<44D2794A.0@vmware.com>
+	<1154647835.23655.161.camel@localhost.localdomain>
+	<44D28985.8050200@vmware.com>
+	<1154686885.23655.198.camel@localhost.localdomain>
+	<20060804143420.GB16313@thunk.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> You're quite wrong about SELinux; it _is_ part of the kernel.  
-> Admittedly it requires a policy to be built and loaded from userspace, 
-> but your "ACLs" would require some ACL utilities to apply those from 
-> userspace.
-That is true, but is it included in every stable release of the kernel 
-(by default)? And why aren't more distributions using it (the popular 
-ones - for example, I know Mandriva uses grsecurity).
-> In any case SELinux is an extremely powerful model; you can define 
-> your arbitrary RBAC+TE state machine and constraints, then the kernel 
-> applies it to your system; as simple (or horribly complicated, as the 
-> case may be) as that.
-And what are your feelings on SELinux still being "under research"? Can 
-such a system be used in a production environment, when it has not been 
-declared a completely mature system by its creators?
-> Here's a better security model:  SELinux lets you give root access to 
-> everybody and still have a 100% secure system (although it's not 
-> really recommended).  Google around for the public SSH-accessible 
-> SELinux testbeds with root's password set to "password" or "1234" or 
-> whatever and feel free to log in and have a look.  Besides, we do have 
-> POSIX ACLs on files; if that's what you're looking for, but that's not 
-> extensible enough to cover processes too.
-A 100% secure system except for the files that sshd has access to, 
-correct? If global access is allowed to root, but it is locked down to 
-sshd, then anyone who logs in as root can only modify those files that 
-sshd has access to... Or is there a part of the puzzle that I am 
-missing? I had not heard of those testbeds before, but I would like to 
-see how they are set up.
+Theodore Tso writes:
 
-"Besides, we do have POSIX ACLs on files; if that's what you're looking 
-for, but that's not extensible enough to cover processes too." - Precisely.
-> Cheers,
-> Kyle Moffett
->
-Regards,
+> IBM's virtualization *does* have magic blobs; it's called the
+> hypervisor.  The difference is that the PowerPC have a delibierately
+> castrated architecture such that when you are running a guest
+> operating system in an LPAR, so that when you do things like mess with
+> page tables (for example), it traps to the hypervisor which is really
 
+Well no.  When the kernel wants to change the hardware page tables it
+doesn't even try to do it itself, it calls the hypervisor via the
+"hypervisor system call" instruction.  It's entirely analogous to a
+program calling the "write" system call to send output to a terminal
+rather than trying to drive the serial port directly (via outb
+instructions or whatever).
 
-RazorBlu
+> "a magic binary blob" running on the bare Power architecture.  The
+
+Not really.  Not any more than the Windows kernel is a "magic binary
+blob" in a GPL'd program running under Windows.
+
+> difference is that the way you trap into the hypervisor is via a
+> PowerPC instructure that looks like a native instruction call.
+
+Wow, you must have been really tired when you wrote that... :)
+
+> The bottom line is that the line between magic binary blobs and
+> whether or not they are legal or not is more of a grey line than we
+> might want to admit. 
+
+It's quite clear that (a) being in a separate address space (b) having
+a defined, documented interface and (c) being used by multiple
+different client OSes is pretty good evidence that something is an
+independent work, not a derived work of the kernel, and therefore not
+subject to the GPL.
+
+Paul.

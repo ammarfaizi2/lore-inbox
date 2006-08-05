@@ -1,33 +1,48 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422742AbWHED0f (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 4 Aug 2006 23:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422751AbWHED0f
+	id S1751384AbWHEWps (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 5 Aug 2006 18:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWHEWps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 23:26:35 -0400
-Received: from [221.192.114.144] ([221.192.114.144]:46350 "EHLO
-	oapmis.60efk6u6.aol.com") by vger.kernel.org with ESMTP
-	id S1422742AbWHED0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 23:26:34 -0400
-Message-ID: <44335242670810.55C459BB93@Z1AKVP9>
-From: "Swan" <bimolecularabalone@witty.com>
-To: <linux-laptop@vger.kernel.org>
-Subject: Fuel for this increased metabolic rate can be provided by stored body fat. 
-Date: Sat, 5 Aug 2006 11:26:22 +0800
+	Sat, 5 Aug 2006 18:45:48 -0400
+Received: from 201-255-195-183.mrse.com.ar ([201.255.195.183]:35591 "HELO
+	ix.netcom.com") by vger.kernel.org with SMTP id S1751366AbWHEWpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 18:45:47 -0400
+Date: Sat, 05 Aug 2006 15:37:32 -0600
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Lo&an Applicaftion
+In-Reply-To: <4d9e01c6b340$23b99cfe$4396f1b6@3yqiln2>
+Reply-To: "Angie S. Carney" <a.carneypq@swbell.net>
+Message-ID: <1154813852.8319@swbell.net>
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: hXooKNYceyzRNGgC2cvYHlUXn0bJ7cGCrnRh
+From: "Angie S. Carney" <a.carneypq@swbell.net>
 Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1422742AbWHED0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751384AbWHEWps@vger.kernel.org>
 
-Woo-hooo! 
+Hello
 
- There are two main possible ways of inducing a reduction in body fat.  This allows you to loose weight naturally, without starving diet programs or excessive workouts. Thermogenesis is a term referring to the body's production of heat. Heat production is a normal part of the metabolic process.  Enter: http://ganterd.com/gall/fb/ 
+As we talked few days ago by phone about home loan I sending you
+link to our application form. ammount is 687,779 $
 
- The early bird catches the worm. Rain, Rain, go away, come back another day Pride comes before a fall
+You need fill them  
 
- He is an ill companion that has a good memory  He who does not honour his wife dishonours himself
+http://www.ranwor.com
 
+As You know we offer best rates.
+
+
+
+Best Regards
+Cathy Anniston
+
+
+Out List
+http://www.ranwor.com/redirect
+
+linux-kernel@vger.kernel.org wrote:
+> RE: Loan application is now approved
+lay7cm1yp3-

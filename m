@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWHETIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWHETdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWHETIj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 15:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWHETIj
+	id S1751480AbWHETdI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 15:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWHETdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 15:08:39 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:9742 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751472AbWHETIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 15:08:38 -0400
-Message-ID: <44D4ECB2.5050109@superbug.co.uk>
-Date: Sat, 05 Aug 2006 20:08:34 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060730)
+	Sat, 5 Aug 2006 15:33:08 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:34513 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1751480AbWHETdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 15:33:05 -0400
+Message-ID: <44D4F25F.50902@t-online.de>
+Date: Sat, 05 Aug 2006 21:32:47 +0200
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Problem with drivers/usb/input/hid-core.c
+To: Tejun Heo <htejun@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
+References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com> <44CF9A23.9090409@t-online.de> <44CF9C0A.8090405@gmail.com>
+In-Reply-To: <44CF9C0A.8090405@gmail.com>
 X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig7AE1FF9AA89F8C3B229C69A0"
+X-ID: SxWWxGZXreG+Cs74kctISXoJ-3aia8UYxQkDIn7fgnZ-QX0m8sO2gD
+X-TOI-MSGID: 5b763eca-52ef-4775-ae34-872e6eab430d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7AE1FF9AA89F8C3B229C69A0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I tried posting to the linux-usb-devel list, but it seems to have died.
+Tejun Heo wrote:
+> Harald Dunkel wrote:
+>>
+>> Sorry to say, but this did not work:
+>>
+>> # echo 1 > /sys/bus/scsi/devices/0:0:0:0/power/state
+>> bash: echo: write error: Invalid argument
+>=20
+> You probably should do 'echo -n 1', the parsing function is pretty pick=
+y.
+>=20
 
-<Extract start>
-/*
- * Analyse a received field, and fetch the data from it. The field
- * content is stored for next report processing (we do differential
- * reporting to the layer).
- */
+# echo -n 1 > /sys/bus/scsi/devices/0:0:0:0/power/state
+bash: echo: write error: Invalid argument
 
-static void hid_input_field(struct hid_device *hid, struct hid_field
-*field, __u8 *data, int interrupt, struct pt_regs *regs)
+???
 
-<Extract end>
 
-Why is "differential reporting to the layer" done?
+Regards
 
-I have a USB device that uses the interrupt urb to notify the PC of
-events. Each time an event happens, a usb interrupt is created, and the
-driver reads the value from the report. Most of the time the event
-contains exactly the same report info as the previous interrupt. As a
-result of this differential reporting, I only see the first event, and
-then no more until the event changes. How can I get repeated events of
-the same report up to user space? I am currently using the
-/dev/usb/hiddev0 interface.
+Harri
 
-Any clues?
 
-For now, I am removing the "differential reporting to the layer" code,
-ensuring that all interrupt urbs reach the higher layers.
 
-The "differential reporting" code must be there for a reason, does
-anyone know why it is present?
+--------------enig7AE1FF9AA89F8C3B229C69A0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-James
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iD8DBQFE1PJkUTlbRTxpHjcRAgLxAJkB3lB7QoK0HWLkKKLF9FAKBpQDJACeIGVU
+0VLmq06ihJq8Etk9QeJwAew=
+=PZ9t
+-----END PGP SIGNATURE-----
+
+--------------enig7AE1FF9AA89F8C3B229C69A0--

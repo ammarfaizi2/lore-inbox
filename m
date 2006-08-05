@@ -1,84 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWHERh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWHERiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422653AbWHERh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 13:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWHERh5
+	id S1422655AbWHERiR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 13:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWHERiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 13:37:57 -0400
-Received: from gate.perex.cz ([85.132.177.35]:53686 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1422653AbWHERh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 13:37:56 -0400
-Date: Sat, 5 Aug 2006 19:37:54 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
+	Sat, 5 Aug 2006 13:38:17 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:17728 "EHLO
+	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1422657AbWHERiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 13:38:16 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KAG9z1ESBUQ
+From: Dmitry Torokhov <dtor@insightbb.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [ALSA PATCH] bugfixes
-Message-ID: <Pine.LNX.4.61.0608051919380.9377@tm8103.perex-int.cz>
+Subject: [git pull] Input update for 2.6.18-rc3
+Date: Sat, 5 Aug 2006 13:38:13 -0400
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608051338.13913.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do an update from:
+Hi Linus,
 
-  http://www.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
+I redid the 'for-linus' branch to resolve conflicts with Greg and added
+the fix for atkbd to restore repeat rate upon resume, please pull from:
 
-The GNU patch is available at:
+        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-08-03.patch.gz
+or
+        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Additional notes:
+Changelog:
 
-  Just simple bugfixes and k[z|c]alloc code cleanup.
+Andrew Morton:
+      Input: wistron - fix section reference mismatches
+      Input: fix list iteration in input_release_device()
 
-The following files will be updated:
+Dmitry Torokhov:
+      Input: remove accept method from input_dev
+      Input: add start() method to input handlers
+      Input: introduce input_inject_event() function
+      Input: fm801-gp - fix use after free
+      Input: libps2 - warn instead of oopsing when passed bad arguments
+      Input: iforce - check array bounds before accessing elements
+      Input: HID - fix potential out-of-bound array access
+      Input: add missing handler->start() call
+      Input: hiddev - use standard list implementation
+      Input: keyboard - remove static variable and clean up initialization
+      Input: keyboard - simplify emulate_raw() implementation
+      Input: keyboard - change to use kzalloc
+      Input: trackpoint - activate protocol when resuming
+      Input: atkbd - restore repeat rate when resuming
+      Input: ati_remote - relax permissions sysfs module parameters
+      Input: ati_remote - add missing input_sync()
+      Input: ati_remote - use msec instead of jiffies
 
- MAINTAINERS                             |    7 +++++++
- sound/aoa/codecs/snd-aoa-codec-toonie.c |   17 +++++++++++++----
- sound/aoa/core/snd-aoa-gpio-feature.c   |    7 +++++--
- sound/aoa/core/snd-aoa-gpio-pmf.c       |    2 +-
- sound/core/oss/mixer_oss.c              |    3 +--
- sound/core/oss/pcm_oss.c                |    2 ++
- sound/core/seq/seq_device.c             |    3 +--
- sound/core/sgbuf.c                      |    9 +++------
- sound/drivers/vx/vx_pcm.c               |    7 ++-----
- sound/pci/echoaudio/echoaudio.c         |    4 ++--
- sound/pci/emu10k1/emu10k1_main.c        |   11 +++++++++++
- sound/pci/emu10k1/irq.c                 |    6 +++++-
- sound/ppc/awacs.c                       |    3 +--
- sound/ppc/daca.c                        |    3 +--
- sound/ppc/keywest.c                     |    3 +--
- sound/ppc/powermac.c                    |   13 +++----------
- sound/ppc/tumbler.c                     |    3 +--
- sound/usb/usbaudio.c                    |    6 ++----
- 18 files changed, 62 insertions(+), 47 deletions(-)
+Edwin Huffstutler:
+      Input: ati_remote - make filter time a module parameter
 
+Nick Martin:
+      Input: spaceball - make 4000FLX Lefty work
 
-The following things were done:
+Przemek Iskra:
+      Input: iforce - add Trust Force Feedback Race Master support
 
-James Courtier-Dutton:
-      [ALSA] snd-emu10k1: Fixes ALSA bug#2190
-      [ALSA] snd-emu10k1: Implement support for Audigy 2 ZS [SB0353]
+Randy Dunlap:
+      Input: serio/gameport - check whether driver core calls succeeded
 
-Johannes Berg:
-      [ALSA] aoa: feature gpio layer: fix IRQ access
-      [ALSA] aoa: fix toonie codec
-      [ALSA] make snd-powermac load even when it can't bind the device
-      [ALSA] aoa: platform function gpio: ignore errors from functions that don't exist
-      [ALSA] add MAINTAINERS entry for snd-aoa
-
-Panagiotis Issaris:
-      [ALSA] Conversions from kmalloc+memset to k(z|c)alloc
-
-Takashi Iwai:
-      [ALSA] Don't reject O_RDWR at opening PCM OSS with read/write-only device
+Roberto Castagnola:
+      Input: logips2pp - fix button mapping for MX300
 
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+Diffstat:
+
+ drivers/char/keyboard.c                     |  139 ++++++++++++----------
+ drivers/input/evdev.c                       |   10 -
+ drivers/input/gameport/fm801-gp.c           |    4 
+ drivers/input/gameport/gameport.c           |   66 +++++++---
+ drivers/input/input.c                       |   57 +++++++--
+ drivers/input/joystick/iforce/iforce-main.c |   19 +--
+ drivers/input/joystick/spaceball.c          |    2 
+ drivers/input/keyboard/atkbd.c              |  103 +++++++++-------
+ drivers/input/misc/wistron_btns.c           |   20 +--
+ drivers/input/mouse/logips2pp.c             |    3 
+ drivers/input/mouse/trackpoint.c            |   52 +++++---
+ drivers/input/serio/libps2.c                |    5 
+ drivers/input/serio/serio.c                 |   65 ++++++++--
+ drivers/usb/input/ati_remote.c              |  173 ++++++++++++++++------------
+ drivers/usb/input/hid-input.c               |    3 
+ drivers/usb/input/hiddev.c                  |   72 ++++++-----
+ include/linux/input.h                       |   24 +++
+ 17 files changed, 509 insertions(+), 308 deletions(-)
+
+
+--  
+Dmitry

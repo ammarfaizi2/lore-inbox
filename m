@@ -1,86 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422689AbWHEBBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422688AbWHEBBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422689AbWHEBBd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 21:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWHEBBd
+	id S1422688AbWHEBBR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 21:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWHEBBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 21:01:33 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:35302 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1422689AbWHEBBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 21:01:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=RDHjp/oN8kP4xiP6jqPOcpWH+OxQ1DZr0ZPLNTa2cgHwYCLh6W/2xU+6QlpFu30hU1fw6SG+A7TOYq7SO4IYIDP3n6tps75bNOb0Di5c9/LYASSnjXEZPr6y4HbyDVw/GGDtfAgFSAsrhrWEpqfeBJFXVGTdQ9AP0DqYoZ0iTlo=
-From: Mulyadi Santosa <mulyadi.santosa@gmail.com>
-Reply-To: mulyadi.santosa@gmail.com
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] accounting per process swapped out pages
-Date: Sat, 5 Aug 2006 08:00:16 +0700
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200608041351.52695.mulyadi.santosa@gmail.com> <Pine.LNX.4.64.0608041616330.10681@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0608041616330.10681@blonde.wat.veritas.com>
+	Fri, 4 Aug 2006 21:01:17 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:60124 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1422688AbWHEBBR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 21:01:17 -0400
+Message-ID: <44D3EDDB.4060204@slaphack.com>
+Date: Fri, 04 Aug 2006 21:01:15 -0400
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608050800.16584.mulyadi.santosa@gmail.com>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+CC: "Vladimir V. Saveliev" <vs@namesys.com>,
+       =?UTF-8?B?xYF1a2FzeiBNaWVyenc=?= =?UTF-8?B?YQ==?= 
+	<prymitive@pcserwis.hopto.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed
+ by kernelnewbies.org regarding reiser4 inclusion)
+References: <200608021845.k72Ij7us009749@laptop13.inf.utfsm.cl>
+In-Reply-To: <200608021845.k72Ij7us009749@laptop13.inf.utfsm.cl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ...
+Horst H. von Brand wrote:
+> Vladimir V. Saveliev <vs@namesys.com> wrote:
+>> On Tue, 2006-08-01 at 17:32 +0200, Åukasz Mierzwa wrote:
 
-> To be honest, I don't think there's much interest in this particular
-> VmSwp statistic; and if there's little interest in it, we'd rather
-> not spend the time and space on collecting it.  But I could be wrong:
-> let's see who speaks up for it.
+>>> What fancy (beside cryptocompress) does reiser4 do now?
+>> it is supposed to provide an ability to easy modify filesystem behaviour
+>> in various aspects without breaking compatibility.
+> 
+> If it just modifies /behaviour/ it can't really do much. And what can be
+> done here is more the job of the scheduler, not of the filesystem. Keep your
+> hands off it!
 
-I got the same impression too, but I do think this statistic is 
-important if someone wants to know which program suffers most when 
-(heavy) swapping happens. Some programs like "top" would also get 
-benefit since  its "swapped" accounting is just based on virtual-rss, 
-which is wrong (just showing parts that haven't been brought to RAM)
+Say wha?
 
-> You waste space in every vm_area_struct for your swapped_out count,
-> then /proc/<pid>/status has to loop over the vmas adding them up.
-> Much better to make it an mm_counter like anon_rss, then you only
-> use space in mm_struct, and don't have to add them up at the end,
-> and avoid dirtying (vma) cachelines unnecessarily, and (in some
-> cases) avoid the atomic operations.
+There's a lot you can do with the _representation_ of the on-disk format 
+without changing the _physical_ on-disk format.  As a very simple 
+example, a plugin could add a sysfs-like folder with information about 
+that particular filesystem.  Yes, I know there are better ways to do 
+things, but there are things you can change about behavior without (I 
+think) touching the scheduler.
 
-Let's see if I can adapt this idea. Actually, in the first place, I was 
-thinking this way but sometimes it is easier to get pointer to 
-vm_area_struct rather than to mm_struct. I'll take a deeper look...
+Or am I wrong about the scope of the "scheduler"?
 
-Avoiding atomic operation is also my another primary target....
+> If it somehow modifies /on disk format/, it (by *definition*) isn't
+> compatible. Ditto.
 
-> While you've caught the main places where you'd need to adjust
-> swapped_out, you've missed a couple (maybe I've missed more):
-> copy_pte_range (fork) needs to increment the count, zap_pte_range
-> (munmap or truncate or exit) needs to decrement it.  Check wherever
-> anon_rss is adjusted, some not all would need swapped_out adjusted.
+Cryptocompress is compatible with kernels that have a working 
+cryptocompress plugin.  Other kernels will notice that they are meant to 
+be read by cryptocompress, and (I hope) refuse to read files they won't 
+be able to.
 
-Yes, I use anon_rss a the "guidance" on where I probably put the 
-swapped_out accounting and decide whether it  actually has anything to 
-do with swapping or not. Hmmmm, looks like I still miss a lot...
+Same would be true of any plugin that changes the disk format.
 
-> Oh, you are doing something in zap_pte_range, but I'm sorry to say
-> what you do there is nonsense: the number you're subtracting has
-> nothing to do with the number of swapped out pages.
+But, the above comments about behavior still hold.  There's a lot you 
+can do with plugins without changing the on-disk format.  If you want a 
+working example, look to your own favorite filesystems that support 
+quotas, xattrs, and acls -- is an on-disk FS format with those enabled 
+compatible with a kernel that doesn't support them (has them turned 
+off)?  How about ext3, with its journaling -- is the journaling all in 
+the scheduler?  But isn't the ext3 disk format compatible with ext2?
 
-:( OK, re-checking...
+>> quota support
+>> xattrs and acls
+> 
+> Without those, it is next to useless anyway.
 
-> And you probably wouldn't want that printk in your final patch!
+What is?  The FS?  I use neither on desktop machines, though I'd 
+appreciate xattrs for Beagle.
 
-Perfect closing, i forgot to clean that printk(). Thanks for reminding 
-me...
-
-Refined patch will follow ASAP..
-
-regards,
-
-Mulyadi
+Or are you talking about the plugins?  See above, then.
 

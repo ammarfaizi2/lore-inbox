@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161312AbWHENy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWHEOsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161312AbWHENy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 09:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWHENy2
+	id S1751094AbWHEOsg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 10:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWHEOsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 09:54:28 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:16098 "HELO
-	briare1.heliogroup.fr") by vger.kernel.org with SMTP
-	id S932613AbWHENy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 09:54:28 -0400
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpucontroller
-Date: Sat, 05 Aug 2006 17:41:47 GMT
-Message-ID: <06B5D5N12@briare1.heliogroup.fr>
-X-Mailer: Pliant 96
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 5 Aug 2006 10:48:36 -0400
+Received: from mx2.rowland.org ([192.131.102.7]:22286 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1751094AbWHEOsg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 10:48:36 -0400
+Date: Sat, 5 Aug 2006 10:48:33 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: Problem: irq 217: nobody cared + backtrace
+In-Reply-To: <9a8748490608041540lba0d85x8832334d50b30f49@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0608051042090.25249-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem you have here is more fondamental:
-Linux is for the first time getting seriouly behond Unix semantic.
-Historically, you had only small behond Unix semantic issues at the corners,
-I mean /proc or /sys, but with proper ressources management, they get central
-for the first time.
-The reason is that Unix semantic just fall short as far as ressources
-management is concerned.
+On Sat, 5 Aug 2006, Jesper Juhl wrote:
 
-Basically, when you request some ressources, let's start with memory and
-disk space, there are two possible scenario:
-. either you want what you request to be reliably allocated over time or
-  the request to fail immediately,
-. or you want to maximize the ability to satisfy the request immediately
-  with potencial imperative instruction from the operating system to shrink
-  usage at a later point (or even direct takeback with no forwarn from the
-  operating system)
-The current disk quotas apply the first rule,
-the current OOM killer applies the second rule.
-None is good in facts because only the application can decide what kind
-of failure (immediate or futur) it wants.
-There is a third kind of ressources management (CPU, IO and network bandwith)
-where the solution is easier because a two stages queue does it.
+> > Just as before.
+> >
+> > I can't tell you what's causing this to happen, except that it appears to
+> > be some sort of hardware problem.
+> 
+> Hmm, the odd thing is that there are no USB devices connected at all.
 
-So, my preposed general picture to introduce proper ressources management is:
-everthing in the system is connected to a service ID (including inodes);
-then the kernel can be instructed with rules dispatching ressources amoung
-services ID (as an example, 30% cpu and 50% disk space for the database)
-Now, we can implement two stage queues for the CPU, IO, etc on one side,
-and proper ressources recovery on the other for memory or disk space.
-The allocation rule beeing that if the ressource is requested with immediat
-failure it will fail as soon as the ressource quota for the given service
-ID is exhausted,
-and if a given ressource is exhausted at overall system stage, then the
-process which most over consumed thanks to allocating with potencial futur
-failure instead of immediat one is warned then killed if it does not shrink
-fast enough (or some files are deleted in case of disk storage with a potencial
-demon beeing called first to give it a change to make smarter decision)
+My guess is that this has nothing to do with the USB controller, other 
+than the fact that IRQ 217 is enabled because the controller uses it.  
+Probably the real problem, the unhandled interrupt requests, comes from 
+some other device entirely.
+
+> >  Since it doesn't seem to cause any harm
+> > you could just live with it.
+> >
+> > Or, if you're not using any full-speed or low-speed USB devices, you could
+> > simply prevent uhci-hcd from loading at all.  Then IRQ 217 wouldn't get
+> > enabled in the first place.
+> >
+> True, that just seems like a hack...
+
+It is.  Without knowing the underlying cause of the problem, it's the best 
+I can suggest.
+
+If you compare /proc/interrupts with earlier versions of the kernel (where 
+the problem doesn't occur), does it look the same?
+
+Alan Stern
 

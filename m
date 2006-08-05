@@ -1,82 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWHEVQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWHEV66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWHEVQB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 17:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWHEVQA
+	id S932531AbWHEV66 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 17:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWHEV66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 17:16:00 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:57964 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030281AbWHEVQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 17:16:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YdvMkO6AIsqzTzpVRJ9piekHaUan9D4D0WOFO/Mor44ZX5HOND5vkFTUlz8UlIOEs3trEXcFqmIlOhuMK4Qe+yQDGWEeBG+1gcPn23fcA35KHEo1o5hlHg4RVVmUtFIFIgl0SvcmcGGELVPtK03UdU8TxUPD3+7NqYBIxgJE21o=
-Message-ID: <6bffcb0e0608051415g347ef7b9j3c19a3353697bb5b@mail.gmail.com>
-Date: Sat, 5 Aug 2006 23:15:59 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Dave Jones" <davej@redhat.com>,
-       "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
-In-Reply-To: <20060805184755.GA25644@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 5 Aug 2006 17:58:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37825 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932531AbWHEV65 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 17:58:57 -0400
+Date: Sat, 5 Aug 2006 14:58:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: jeremy@xensource.com, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       jeremy@goop.org, chrisw@sous-sol.org
+Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
+ space.
+Message-Id: <20060805145840.653912a2.akpm@osdl.org>
+In-Reply-To: <44D1BAB8.8070509@vmware.com>
+References: <20060803002510.634721860@xensource.com>
+	<20060803002518.595166293@xensource.com>
+	<20060802231912.ed77f930.akpm@osdl.org>
+	<44D1A6B6.8040003@vmware.com>
+	<20060803004144.554d9882.akpm@osdl.org>
+	<44D1BAB8.8070509@vmware.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org>
-	 <20060805003142.GH18792@redhat.com>
-	 <20060805021051.GA13393@redhat.com>
-	 <20060805022356.GC13393@redhat.com>
-	 <20060805024947.GE13393@redhat.com>
-	 <20060805064727.GF13393@redhat.com>
-	 <6bffcb0e0608050354k4dd0bb0ep337216e984ce41d7@mail.gmail.com>
-	 <6bffcb0e0608050411q22112b71wced519a6491c6abe@mail.gmail.com>
-	 <6bffcb0e0608050426s6c39e4f0o57f9093b03c3b27b@mail.gmail.com>
-	 <20060805184755.GA25644@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/08/06, Dave Jones <davej@redhat.com> wrote:
-> On Sat, Aug 05, 2006 at 01:26:49PM +0200, Michal Piotrowski wrote:
->
->  > Aug  5 13:18:00 ltg01-fedora kernel: CPU0 called lock_cpu_hotplug()
->  > for app kded. recursive_depth=0
->  > *more snipped traces*
->
-> The interesting ones will be the ones before & after you hit that
-> BUG: warning at /usr/src/linux-work1/kernel/cpu.c:51/unlock_cpu_hotplug()
-> if you can make that happen again.
+On Thu, 03 Aug 2006 01:58:32 -0700
+Zachary Amsden <zach@vmware.com> wrote:
 
-I don't see nothing interesting before BUG: warning at
-/usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
+> Add a bootparameter to reserve high linear address space for hypervisors.
+> This is necessary to allow dynamically loaded hypervisor modules, which
+> might not happen until userspace is already running, and also provides a
+> useful tool to benchmark the performance impact of reduced lowmem address
+> space.
 
-Only
+Andi has gone and rotorooted the x86 boot parameter handling in there. 
+This patch now looks like this:
 
-CPU0 called lock_cpu_hotplug() for app amarokapp. recursive_depth=0
- [<c01329ab>] lock_cpu_hotplug+0x36/0xb9
- [<c01182ce>] sched_getaffinity+0xf/0x83
- [<c0118361>] sys_sched_getaffinity+0x1f/0x41
- [<c0102d51>] sysenter_past_esp+0x56/0x79
-amarokapp acquired cpu_bitmask_lock
 
-appears after this warning.
+From: Zachary Amsden <zach@vmware.com>
 
-dmesg -> http://www.stardust.webpages.pl/files/2.6-git/18-rc3/dmesg2
+Add a boot parameter to reserve high linear address space for hypervisors. 
+This is necessary to allow dynamically loaded hypervisor modules, which might
+not happen until userspace is already running, and also provides a useful tool
+to benchmark the performance impact of reduced lowmem address space.
 
->
->                 Dave
->
-> --
-> http://www.codemonkey.org.uk
->
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Regards,
-Michal
+ Documentation/kernel-parameters.txt |    5 +++++
+ arch/i386/kernel/setup.c            |   24 ++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+diff -puN arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space arch/i386/kernel/setup.c
+--- a/arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space
++++ a/arch/i386/kernel/setup.c
+@@ -149,6 +149,12 @@ static char command_line[COMMAND_LINE_SI
+ 
+ unsigned char __initdata boot_params[PARAM_SIZE];
+ 
++static int __init setup_reservetop(char *s)
++{
++	return 1;
++}
++__setup("reservetop", setup_reservetop);
++
+ static struct resource data_resource = {
+ 	.name	= "Kernel data",
+ 	.start	= 0,
+@@ -814,6 +820,24 @@ static int __init parse_vmalloc(char *ar
+ early_param("vmalloc", parse_vmalloc);
+ 
+ /*
++ * reservetop=size reserves a hole at the top of the kernel address space which
++ * a hypervisor can load into later.  Needed for dynamically loaded hypervisors,
++ * so relocating the fixmap can be done before paging initialization.
++ */
++static int __init parse_reservetop(char *arg)
++{
++	unsigned long address;
++
++	if (!arg)
++		return -EINVAL;
++
++	address = memparse(arg, &arg);
++	reserve_top_address(address);
++	return 0;
++}
++early_param("reservetop", parse_reservetop);
++
++/*
+  * Callback for efi_memory_walk.
+  */
+ static int __init
+diff -puN Documentation/kernel-parameters.txt~x86-add-a-bootparameter-to-reserve-high-linear-address-space Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt~x86-add-a-bootparameter-to-reserve-high-linear-address-space
++++ a/Documentation/kernel-parameters.txt
+@@ -1357,6 +1357,11 @@ running once the system is up.
+ 
+ 	reserve=	[KNL,BUGS] Force the kernel to ignore some iomem area
+ 
++	reservetop=	[IA-32]
++			Format: nn[KMG]
++			Reserves a hole at the top of the kernel virtual
++			address space.
++
+ 	resume=		[SWSUSP]
+ 			Specify the partition device for software suspend
+ 
+_
+

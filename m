@@ -1,121 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWHEV66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWHEWAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbWHEV66 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 17:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWHEV66
+	id S932637AbWHEWAL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 18:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWHEWAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 17:58:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37825 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932531AbWHEV65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 17:58:57 -0400
-Date: Sat, 5 Aug 2006 14:58:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: jeremy@xensource.com, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       jeremy@goop.org, chrisw@sous-sol.org
-Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address
- space.
-Message-Id: <20060805145840.653912a2.akpm@osdl.org>
-In-Reply-To: <44D1BAB8.8070509@vmware.com>
-References: <20060803002510.634721860@xensource.com>
-	<20060803002518.595166293@xensource.com>
-	<20060802231912.ed77f930.akpm@osdl.org>
-	<44D1A6B6.8040003@vmware.com>
-	<20060803004144.554d9882.akpm@osdl.org>
-	<44D1BAB8.8070509@vmware.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Aug 2006 18:00:11 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:51669 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932637AbWHEWAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 18:00:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=J3UMTyPUFssdZlLOkQs8wa36M9yaUIxIgqDPIVcVKbn1dlmYn8pxo1wYbcXPe5d/p4Z+3/K+qBbkBaFiADmrsz/T1AGSpQxroHhZMmNvfDOJZNDw5Z9k44b7we2vqPgrkwrpr98aej+TrJ9sRO8farVZqtLemuvW6OfskR7V820=
+Date: Sat, 5 Aug 2006 17:59:34 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Joseph Fannin <jfannin@gmail.com>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: [patch] lockdep: HPET/RTC fix
+Message-ID: <20060805215934.GA8624@palmyra>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, Joseph Fannin <jfannin@gmail.com>,
+	linux-kernel@vger.kernel.org, arjan@infradead.org,
+	John Stultz <johnstul@us.ibm.com>
+References: <20060709050525.GA1149@nineveh.rivenstone.net> <20060708232512.12b59269.akpm@osdl.org> <20060709074543.GA4444@elte.hu> <20060711051108.GA13574@nineveh.rivenstone.net> <20060711074541.GA5263@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711074541.GA5263@elte.hu>
+User-Agent: Mutt/1.5.11
+From: jfannin@gmail.com (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Aug 2006 01:58:32 -0700
-Zachary Amsden <zach@vmware.com> wrote:
+On Tue, Jul 11, 2006 at 09:45:41AM +0200, Ingo Molnar wrote:
 
-> Add a bootparameter to reserve high linear address space for hypervisors.
-> This is necessary to allow dynamically loaded hypervisor modules, which
-> might not happen until userspace is already running, and also provides a
-> useful tool to benchmark the performance impact of reduced lowmem address
-> space.
+    [Apologies for the very slow turn-around time on this.  If patches
+are written in the relatively-near future, I will test and report in a
+more timely manner.]
 
-Andi has gone and rotorooted the x86 boot parameter handling in there. 
-This patch now looks like this:
+> Subject: lockdep: HPET/RTC fix
+> From: Ingo Molnar <mingo@elte.hu>
+>
+> Joseph Fannin reported that hpet_rtc_interrupt() enables hardirqs
+> in irq context:
+
+> --- linux.orig/drivers/char/rtc.c
+> +++ linux/drivers/char/rtc.c
+> @@ -1222,7 +1222,7 @@ static int rtc_proc_open(struct inode *i
+>
+>  void rtc_get_rtc_time(struct rtc_time *rtc_tm)
+>  {
+> -	unsigned long uip_watchdog = jiffies;
+> +	unsigned long uip_watchdog = jiffies, flags;
+>  	unsigned char ctrl;
+>  #ifdef CONFIG_MACH_DECSTATION
+>  	unsigned int real_year;
+> @@ -1249,7 +1249,7 @@ void rtc_get_rtc_time(struct rtc_time *r
+>  	 * RTC has RTC_DAY_OF_WEEK, we should usually ignore it, as it is
+>  	 * only updated by the RTC when initially set to a non-zero value.
+>  	 */
+> -	spin_lock_irq(&rtc_lock);
+> +	spin_lock_irqsave(&rtc_lock, flags);
+>  	rtc_tm->tm_sec = CMOS_READ(RTC_SECONDS);
+>  	rtc_tm->tm_min = CMOS_READ(RTC_MINUTES);
+>  	rtc_tm->tm_hour = CMOS_READ(RTC_HOURS);
+> @@ -1263,7 +1263,7 @@ void rtc_get_rtc_time(struct rtc_time *r
+>  	real_year = CMOS_READ(RTC_DEC_YEAR);
+>  #endif
+>  	ctrl = CMOS_READ(RTC_CONTROL);
+> -	spin_unlock_irq(&rtc_lock);
+> +	spin_unlock_irqrestore(&rtc_lock, flags);
+>
+>  	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+>  	{
 
 
-From: Zachary Amsden <zach@vmware.com>
+    It seems this isn't enough:
 
-Add a boot parameter to reserve high linear address space for hypervisors. 
-This is necessary to allow dynamically loaded hypervisor modules, which might
-not happen until userspace is already running, and also provides a useful tool
-to benchmark the performance impact of reduced lowmem address space.
+[   22.504000] EXT3 FS on sda3, internal journal
+[   22.892000] BUG: warning at kernel/lockdep.c:1803/trace_hardirqs_on()
+[   22.892000]  [<c0104880>] show_trace_log_lvl+0x1a0/0x1d0
+[   22.892000]  [<c0105a7b>] show_trace+0x1b/0x20
+[   22.892000]  [<c0105aa4>] dump_stack+0x24/0x30
+[   22.892000]  [<c01451e4>] trace_hardirqs_on+0xf4/0x180
+[   22.892000]  [<c032e431>] _spin_unlock_irq+0x31/0x60
+[   22.892000]  [<c0278a64>] rtc_get_rtc_time+0x44/0x1a0
+[   22.892000]  [<c0118742>] hpet_rtc_interrupt+0x152/0x1b0
+[   22.892000]  [<c015bb51>] handle_IRQ_event+0x31/0x70
+[   22.892000]  [<c015bc29>] __do_IRQ+0x99/0x110
+[   22.892000]  [<c0105ef7>] do_IRQ+0x47/0xa0
+[   22.892000]  [<c0103eed>] common_interrupt+0x25/0x2c
+[   22.892000]  [<c032f902>] do_page_fault+0x82/0x630
+[   22.892000]  [<c0104085>] error_code+0x39/0x40
+[   22.892000]  [<b7e8d060>] 0xb7e8d060
+[   22.892000]  [<c0105a7b>] show_trace+0x1b/0x20
+[   22.892000]  [<c0105aa4>] dump_stack+0x24/0x30
+[   22.892000]  [<c01451e4>] trace_hardirqs_on+0xf4/0x180
+[   22.892000]  [<c032e431>] _spin_unlock_irq+0x31/0x60
+[   22.892000]  [<c0278a64>] rtc_get_rtc_time+0x44/0x1a0
+[   22.892000]  [<c0118742>] hpet_rtc_interrupt+0x152/0x1b0
+[   22.892000]  [<c015bb51>] handle_IRQ_event+0x31/0x70
+[   22.892000]  [<c015bc29>] __do_IRQ+0x99/0x110
+[   22.892000]  [<c0105ef7>] do_IRQ+0x47/0xa0
+[   22.892000]  [<c0103eed>] common_interrupt+0x25/0x2c
+[   22.892000]  [<c0104085>] error_code+0x39/0x40
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+    This is from 2.6.18-rc3, but it's reproducable with pretty much
+any kernel (the -rc3 backtrace is longer, it seems).
 
- Documentation/kernel-parameters.txt |    5 +++++
- arch/i386/kernel/setup.c            |   24 ++++++++++++++++++++++++
- 2 files changed, 29 insertions(+)
+    Should I file this in Bugzilla?
 
-diff -puN arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space arch/i386/kernel/setup.c
---- a/arch/i386/kernel/setup.c~x86-add-a-bootparameter-to-reserve-high-linear-address-space
-+++ a/arch/i386/kernel/setup.c
-@@ -149,6 +149,12 @@ static char command_line[COMMAND_LINE_SI
- 
- unsigned char __initdata boot_params[PARAM_SIZE];
- 
-+static int __init setup_reservetop(char *s)
-+{
-+	return 1;
-+}
-+__setup("reservetop", setup_reservetop);
-+
- static struct resource data_resource = {
- 	.name	= "Kernel data",
- 	.start	= 0,
-@@ -814,6 +820,24 @@ static int __init parse_vmalloc(char *ar
- early_param("vmalloc", parse_vmalloc);
- 
- /*
-+ * reservetop=size reserves a hole at the top of the kernel address space which
-+ * a hypervisor can load into later.  Needed for dynamically loaded hypervisors,
-+ * so relocating the fixmap can be done before paging initialization.
-+ */
-+static int __init parse_reservetop(char *arg)
-+{
-+	unsigned long address;
-+
-+	if (!arg)
-+		return -EINVAL;
-+
-+	address = memparse(arg, &arg);
-+	reserve_top_address(address);
-+	return 0;
-+}
-+early_param("reservetop", parse_reservetop);
-+
-+/*
-  * Callback for efi_memory_walk.
-  */
- static int __init
-diff -puN Documentation/kernel-parameters.txt~x86-add-a-bootparameter-to-reserve-high-linear-address-space Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt~x86-add-a-bootparameter-to-reserve-high-linear-address-space
-+++ a/Documentation/kernel-parameters.txt
-@@ -1357,6 +1357,11 @@ running once the system is up.
- 
- 	reserve=	[KNL,BUGS] Force the kernel to ignore some iomem area
- 
-+	reservetop=	[IA-32]
-+			Format: nn[KMG]
-+			Reserves a hole at the top of the kernel virtual
-+			address space.
-+
- 	resume=		[SWSUSP]
- 			Specify the partition device for software suspend
- 
-_
-
+--
+Joseph Fannin
+jfannin@gmail.com

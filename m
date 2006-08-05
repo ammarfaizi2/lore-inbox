@@ -1,112 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422711AbWHECCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422710AbWHECK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422711AbWHECCT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Aug 2006 22:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422712AbWHECCT
+	id S1422710AbWHECK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Aug 2006 22:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161513AbWHECK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Aug 2006 22:02:19 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:30368 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1422711AbWHECCS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Aug 2006 22:02:18 -0400
-Message-ID: <44D3EE11.30705@namesys.com>
-Date: Fri, 04 Aug 2006 19:02:09 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Antonio Vargas <windenntw@gmail.com>
-CC: Edward Shishkin <edward@namesys.com>,
-       Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de>	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>	 <1154446189.15540.43.camel@localhost.localdomain>	 <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com>	 <20060803140344.GC7431@merlin.emma.line.org>	 <44D219F9.9080404@namesys.com> <44D231DF.1080804@namesys.com>	 <44D37E1B.1040109@namesys.com> <69304d110608041157p125e5c8oef58b02f6c81fa29@mail.gmail.com>
-In-Reply-To: <69304d110608041157p125e5c8oef58b02f6c81fa29@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
+	Fri, 4 Aug 2006 22:10:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24793 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161511AbWHECK6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Aug 2006 22:10:58 -0400
+Date: Fri, 4 Aug 2006 22:10:51 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
+Message-ID: <20060805021051.GA13393@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com> <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org> <20060804222400.GC18792@redhat.com> <20060805003142.GH18792@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060805003142.GH18792@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonio Vargas wrote:
+On Fri, Aug 04, 2006 at 08:31:42PM -0400, Dave Jones wrote:
+ > On Fri, Aug 04, 2006 at 06:24:00PM -0400, Dave Jones wrote:
+ >  >  > DaveJ, any ideas?
+ >  > 
+ >  > So I'm at a loss to explain why this made this bug suddenly appear, but
+ >  > I don't think this is anything new.   Fixing it however...
+ >  > I'm looking at it, but I don't see anything obvious yet.
+ >  
+ > Ok, debugging this is getting ridiculous.  I dug out a core duo,
+ > built a kernel and watched it spontaneously reboot before it even got to init.
 
-> On 8/4/06, Edward Shishkin <edward@namesys.com> wrote:
->
->> Hans Reiser wrote:
->> > Edward Shishkin wrote:
->> >
->> >
->> >>Matthias Andree wrote:
->> >>
->> >>
->> >>>On Tue, 01 Aug 2006, Hans Reiser wrote:
->> >>>
->> >>>
->> >>>
->> >>>>You will want to try our compression plugin, it has an ecc for every
->> >>>>64k....
->> >>>
->> >>>
->> >>>
->> >>>What kind of forward error correction would that be,
->> >>
->> >>
->> >>
->> >>Actually we use checksums, not ECC. If checksum is wrong, then run
->> >>fsck - it will remove the whole disk cluster, that represent 64K of
->> >>data.
->> >
->> >
->> > How about we switch to ecc, which would help with bit rot not
->> sector loss?
->>
->> Interesting aspect.
->>
->> Yes, we can implement ECC as a special crypto transform that inflates
->> data. As I mentioned earlier, it is possible via translation of key
->> offsets with scale factor > 1.
->>
->> Of course, it is better then nothing, but anyway meta-data remains
->> ecc-unprotected, and, hence, robustness is not increased..
->>
->> Edward.
->>
->> >
->> >>
->> >> and how much and
->> >>
->> >>
->> >>>what failure patterns can it correct? URL suffices.
->> >>>
->> >>
->> >>Checksum is checked before unsafe decompression (when trying to
->> >>decompress incorrect data can lead to fatal things). It can be
->> >>broken because of many reasons. The main one is tree corruption
->> >>(for example, when disk cluster became incomplete - ECC can not
->> >>help here). Perhaps such checksumming is also useful for other
->> >>things, I didnt classify the patterns..
->> >>
->> >>Edward.
->> >>
->> >>
->
->
-> Would the storage + plugin subsystem support storing >1 copies of the
-> metadata tree?
->
->
-I suppose....
+Hmm, this went away after a ccache flush & a rebuild. Old crud left behind
+from earlier debugging I guess.
 
-What would be nice would be to have a plugin that when a node fails its
-checksum/ecc it knows to get it from another mirror, and which generally
-handles faults with a graceful understanding of its ability to get
-copies from a mirror (or RAID parity calculation).
+So I added this diff..
 
-I would happily accept such a patch (subject to usual reservation of
-right to complain about implementation details).
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index f230f9a..31210a0 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -31,6 +31,14 @@ void lock_cpu_hotplug(void)
+ {
+ 	struct task_struct *tsk = current;
+ 
++	if (jiffies > HZ * 60) {
++		printk ("CPU%d called lock_cpu_hotplug() for app %s. recursive_depth=%d\n",
++			smp_processor_id(),
++			current->comm,
++			recursive_depth);
++		dump_stack();
++	}
++
+ 	if (tsk == recursive) {
+ 		static int warnings = 10;
+ 		if (warnings) {
+@@ -42,18 +50,30 @@ void lock_cpu_hotplug(void)
+ 		return;
+ 	}
+ 	mutex_lock(&cpu_bitmask_lock);
++	if (jiffies > HZ * 60)
++		printk ("%s acquired cpu_bitmask_lock\n", current->comm);
+ 	recursive = tsk;
+ }
+ EXPORT_SYMBOL_GPL(lock_cpu_hotplug);
+ 
+ void unlock_cpu_hotplug(void)
+ {
++	if (jiffies > HZ * 120) {
++		printk ("CPU%d called unlock_cpu_hotplug() for app %s. recursive_depth=%d\n",
++			smp_processor_id(),
++			current->comm,
++			recursive_depth);
++		dump_stack();
++	}
++
+ 	WARN_ON(recursive != current);
+ 	if (recursive_depth) {
+ 		recursive_depth--;
+ 		return;
+ 	}
+ 	mutex_unlock(&cpu_bitmask_lock);
++	if (jiffies > HZ * 120)
++		printk ("%s released cpu_bitmask_lock\n", current->comm);
+ 	recursive = NULL;
+ }
+ EXPORT_SYMBOL_GPL(unlock_cpu_hotplug);
+
+In the hope to better understand what the hell is going on.
+Here's what happened when I started the cpuspeed service
+
+(That DWARF unwinder stuck thing is really darned annoying btw)
+
+CPU1 called lock_cpu_hotplug() for app modprobe. recursive_depth=0
+ [<c0104edc>] show_trace_log_lvl+0x58/0x152
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c01499c8>] stop_machine_run+0x11/0x38
+ [<c0141943>] sys_init_module+0x166d/0x1847
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Leftover inexact backtrace:
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c01499c8>] stop_machine_run+0x11/0x38
+ [<c0141943>] sys_init_module+0x166d/0x1847
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+modprobe acquired cpu_bitmask_lock
+
+CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
+ [<c0104edc>] show_trace_log_lvl+0x58/0x152
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c029fbae>] store_scaling_governor+0x142/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Leftover inexact backtrace:
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c029fbae>] store_scaling_governor+0x142/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+cpuspeed acquired cpu_bitmask_lock
+
+I have questions.
+
+1. How come the printk at the end of unlock_cpu_hotplug() never
+got hit when modprobe got to the end of stop_machine_run() ?
+
+2. How come another process acquired this mutex when the previous
+one aparently never released it ?
+
+Moving on ...
+
+CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
+ [<c0104edc>] show_trace_log_lvl+0x58/0x152
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c0132f3c>] __create_workqueue+0x52/0x122
+ [<f8faf34b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
+ [<c029f7b6>] __cpufreq_governor+0x57/0xd8
+ [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
+ [<c029fbc5>] store_scaling_governor+0x159/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Leftover inexact backtrace:
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c0132f3c>] __create_workqueue+0x52/0x122
+ [<f8faf34b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
+ [<c029f7b6>] __cpufreq_governor+0x57/0xd8
+ [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
+ [<c029fbc5>] store_scaling_governor+0x159/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+Lukewarm IQ detected in hotplug locking
+BUG: warning at kernel/cpu.c:46/lock_cpu_hotplug()
+ [<c0104edc>] show_trace_log_lvl+0x58/0x152
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8fc>] lock_cpu_hotplug+0x72/0xbf
+ [<c0132f3c>] __create_workqueue+0x52/0x122
+ [<f8faf34b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
+ [<c029f7b6>] __cpufreq_governor+0x57/0xd8
+ [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
+ [<c029fbc5>] store_scaling_governor+0x159/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Leftover inexact backtrace:
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8fc>] lock_cpu_hotplug+0x72/0xbf
+ [<c0132f3c>] __create_workqueue+0x52/0x122
+ [<f8faf34b>] cpufreq_governor_dbs+0x9f/0x2c3 [cpufreq_ondemand]
+ [<c029f7b6>] __cpufreq_governor+0x57/0xd8
+ [<c029f985>] __cpufreq_set_policy+0x14e/0x1bc
+ [<c029fbc5>] store_scaling_governor+0x159/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+
+
+Ok, now that it's done insulting my IQ, recursive_depth should be 1.
+However ... 
+
+
+CPU1 called lock_cpu_hotplug() for app cpuspeed. recursive_depth=0
+ [<c0104edc>] show_trace_log_lvl+0x58/0x152
+ [<c01054c2>] show_trace+0xd/0x10
+ [<c01055db>] dump_stack+0x19/0x1b
+ [<c013e8c3>] lock_cpu_hotplug+0x39/0xbf
+ [<c029fbae>] store_scaling_governor+0x142/0x1a3
+ [<c029f1a5>] store+0x37/0x48
+ [<c01a6561>] sysfs_write_file+0xab/0xd1
+ [<c016f99f>] vfs_write+0xab/0x157
+ [<c016ffe4>] sys_write+0x3b/0x60
+ [<c0103db9>] sysenter_past_esp+0x56/0x8d
+
+
+WTF is going on here ?
+In the whole log, recursive_depth is always 0.
+
+
+At this stage, it gets into a death spiral printing out the same
+crap over and over again.  I put the full log at
+http://people.redhat.com/davej/hotplug-wtf.txt
+
+Note how the acquire/releases don't match up at all. Scary.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

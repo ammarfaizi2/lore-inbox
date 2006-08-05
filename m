@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWHEPLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWHEQIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWHEPLS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 11:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWHEPLS
+	id S1030189AbWHEQIy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 12:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWHEQIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 11:11:18 -0400
-Received: from s-utl02-sjpop.stsn.net ([72.254.0.202]:40818 "HELO
-	s-utl02-sjpop.stsn.net") by vger.kernel.org with SMTP
-	id S1750832AbWHEPLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 11:11:17 -0400
-Subject: Re: Zeroing data blocks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Avinash Ramanath <avinashr@gmail.com>
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <abcd72470608050055w51f2bfbcrbd26b59fc32dc494@mail.gmail.com>
-References: <abcd72470607081856i47f15dedre9be9278ffa9bab4@mail.gmail.com>
-	 <1152435182.3255.39.camel@laptopd505.fenrus.org>
-	 <abcd72470608050055w51f2bfbcrbd26b59fc32dc494@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sat, 05 Aug 2006 17:10:20 +0200
-Message-Id: <1154790620.3054.69.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Aug 2006 12:08:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52375 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030189AbWHEQIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Aug 2006 12:08:53 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Don Zickus <dzickus@redhat.com>
+Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <20060706081520.GB28225@host0.dyn.jankratochvil.net>
+	<aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com>
+	<20060707133518.GA15810@in.ibm.com>
+	<20060707143519.GB13097@host0.dyn.jankratochvil.net>
+	<20060710233219.GF16215@in.ibm.com>
+	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
+	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
+	<m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060804210826.GE16231@redhat.com>
+	<m164h8p50c.fsf@ebiederm.dsl.xmission.com>
+	<20060804234327.GF16231@redhat.com>
+Date: Sat, 05 Aug 2006 10:07:01 -0600
+In-Reply-To: <20060804234327.GF16231@redhat.com> (Don Zickus's message of
+	"Fri, 4 Aug 2006 19:43:27 -0400")
+Message-ID: <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-05 at 00:55 -0700, Avinash Ramanath wrote:
-> Hi,
-> 
-> As per your suggestion, if I write a file with zero bits, it would
-> remap to other pages, and I might not zero the real pages. So is there
-> any other way that I can access the pages that a file is using?
+Don Zickus <dzickus@redhat.com> writes:
 
-there is an ioctl to find the blocks the file is in.. but still that's
-only a snapshot, not a guarantee. What you really need/want is to do
-this at the filesystem level, you can't reliably do it above that level.
+>> The length error comes from lib/inflate.c 
+>> 
+>> I think it would be interesting to look at orig_len and bytes_out.
+>> 
+>> My hunch is that I have tripped over a tool chain bug or a weird
+>> alignment issue.
+>
+> I thought so too, but I took vmlinuz images from people (Vivek) who had it
+> boot on their systems but those images still failed on my two machines.  
+>
+>> 
+>> The error is the uncompressed length does not math the stored length
+>> of the data before from before we compressed it.  Now what is
+>> fascinating is that our crc's match (as that check is performed first).
+>> 
+>> Something is very slightly off and I don't see what it is.
+>
+> I printed out orig_len -> 5910532 (which matches vmlinux.bin)
+>              bytes_out -> 5910531
+>
+>> 
+>> After looking at the state variables I would probably start looking
+>> at the uncompressed data to see if it really was decompressing
+>> properly.  If nothing else that is the kind of process that would tend
+>> to spark a clue.
+>
+> I am not familiar with the code, so very few sparks are flying.  I'll
+> still dig through though.  Thanks for the tips.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+I guess the interesting thing to do would be to 
+- Recompute the crc to see if we still match.
+- Possibly instrument of flush_window.
+
+I have a strange feeling that the uncompressed data is getting corrupted
+after we have flushed the window.
+
+Eric
 
 

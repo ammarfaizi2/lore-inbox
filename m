@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWHFXgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWHFXj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWHFXgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 19:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWHFXgZ
+	id S1750775AbWHFXj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 19:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWHFXj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 19:36:25 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:52692 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1750754AbWHFXgY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 19:36:24 -0400
-Message-ID: <44D67CF6.3010905@slaphack.com>
-Date: Sun, 06 Aug 2006 19:36:22 -0400
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Sun, 6 Aug 2006 19:39:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:49974 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750769AbWHFXj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 19:39:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Cjj4NRxFz1jt5olp2c4SROkdDMYYQdkH33gGX8HBEGPOts4eeUFzGwSYQWfs5GlbB5rZ70mjNeyVnanO6GEtzyHq/re1QZ3EVQ7iXC8jplqOua0BaVGQK7LNkRMs619uZs/SJ5/RIL9EiV874wXDlcjYk8vGMQ07f8c08jdwv7Y=
+Message-ID: <82faac5b0608061639v315c6fa9l17cd4bf44b6bbc51@mail.gmail.com>
+Date: Mon, 7 Aug 2006 09:39:54 +1000
+From: "Darren Jenkins" <darrenrjenkins@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [KJ] [patch] fix common mistake in polling loops
+Cc: "Zed 0xff" <zed.0xff@gmail.com>, kernel-janitors@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060805114547.GA5386@ucw.cz>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Bernd Schubert <bernd-schubert@gmx.de>, reiserfs-list@namesys.com,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Clay Barnes <clay.barnes@gmail.com>,
-       Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <44CF87E6.1050004@slaphack.com> <20060806225912.GC4205@ucw.cz>
-In-Reply-To: <20060806225912.GC4205@ucw.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <710c0ee0607280128g2d968c49ycff3bac9e073e7fa@mail.gmail.com>
+	 <20060805114052.GE4506@ucw.cz> <20060805114547.GA5386@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On Tue 01-08-06 11:57:10, David Masover wrote:
->> Horst H. von Brand wrote:
->>> Bernd Schubert <bernd-schubert@gmx.de> wrote:
->>>> While filesystem speed is nice, it also would be great 
->>>> if reiser4.x would be very robust against any kind of 
->>>> hardware failures.
->>> Can't have both.
->> Why not?  I mean, other than TANSTAAFL, is there a 
->> technical reason for them being mutually exclusive?  I 
->> suspect it's more "we haven't found a way yet..."
-> 
-> What does the acronym mean?
+G'day
 
-There Ain't No Such Thing As A Free Lunch.
+On 8/5/06, Pavel Machek <pavel@ucw.cz> wrote:
 
-> Yes, I'm afraid redundancy/checksums kill write speed, and you need
-> that for robustness...
+> > Well, whoever wrote thi has some serious problems (in attitude
+> > department). *Any* loop you design may take half a minute under
+> > streange circumstances.
 
-Not necessarily -- if you do it on flush, and store it near the data it 
-relates to, you can expect a similar impact to compression, except that 
-due to slow disks, the compression can actually speed things up 2x, 
-whereas checksums should be some insignificant amount slower than 1x.
+6.
+common mistake in polling loops [from Linus]:
 
-Redundancy, sure, but checksums should be easy, and I don't see what 
-robustness (abilities of fsck) has to do with it.
 
-> You could have filesystem that can be tuned for reliability and tuned
-> for speed... but you can't have both in one filesystem instance.
+>
+> Actually it may be broken, depending on use. In some cases this loop
+> may want to poll the hardware 50 times, 10msec appart... and your loop
+> can poll it only once in extreme conditions.
+>
+> Actually your loop is totally broken, and may poll only once (without
+> any delay) and then directly timeout :-P -- that will break _any_
+> user.
 
-That's an example of TANSTAAFL, if it's true.
+The Idea is that we are checking some event in external hardware that
+we know will complete in a given time (This time is not dependant on
+system activity but is fixed). After that time if the event has not
+happened we know something has borked.
+So in the loop, after the time period has expired without the event
+happening we can go and clean up and get ready to go again, without
+bothering to poll any more, because we already know something has
+borked.
+
+What does this give you ? Well it can improve performance by speeding
+up re-try's when under heavy system load. The cost of cause is code
+complexity.
+
+
+
+Darren J.

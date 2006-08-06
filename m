@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWHFE0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWHFE4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751518AbWHFE0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 00:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWHFE0G
+	id S1751260AbWHFE4V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 00:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWHFE4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 00:26:06 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:60107 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751527AbWHFE0F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 00:26:05 -0400
-Date: Sat, 5 Aug 2006 23:25:49 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH -mm] fs.h: ifdef security fields
-Message-ID: <20060806042549.GA3999@sergelap.austin.ibm.com>
-References: <20060806023806.GA13480@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Sun, 6 Aug 2006 00:56:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52145 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751260AbWHFE4U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 00:56:20 -0400
+Date: Sat, 5 Aug 2006 21:52:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Adrian Bunk <bunk@stusta.de>, Josh Boyer <jwboyer@gmail.com>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+Message-ID: <20060806045234.GA28849@kroah.com>
+References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060806004634.GB6455@opteron.random>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060806023806.GA13480@martell.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060806004634.GB6455@opteron.random>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alexey Dobriyan (adobriyan@gmail.com):
-> [BSD security levels are deleted in -mm, assuming this below]
+On Sun, Aug 06, 2006 at 02:46:34AM +0200, Andrea Arcangeli wrote:
+> On Sat, Aug 05, 2006 at 01:00:17AM +0200, Adrian Bunk wrote:
+> > On Thu, Aug 03, 2006 at 09:43:06PM -0500, Josh Boyer wrote:
+> > > On 8/3/06, Greg KH <greg@kroah.com> wrote:
+> > > >This is just a notice to everyone that Adrian is going to now be taking
+> > > >over the 2.6.16-stable kernel branch, for him to maintain for as long as
+> > > >he wants to.
+> > > 
+> > > Adrian, could you provide a bit of rationale as to why you want to do
+> > > this?  I'm just curious.
+> > 
+> > A long-term maintained stable series was missing in the current 
+> > development model.
+> > 
+> > The 2.6 series itself is theoretically a stable series, but the amount 
+> > of regressions is too big for some users.
 > 
-> The only user of i_security, f_security, s_security fields is SELinux,
-> so ifdef them with CONFIG_SECURITY_SELINUX. Following Stephen Smalley's
+> Greg is electing new official maintainers
 
-The SLIM security module, which is trying to get upstream, uses at least
-i_security and f_security.
+Greg didn't "elect" anyone, Adrian volunteered to maintain something
+that had been dropped by the -stable developers and no one else was
+going to maintain.
 
-The Argus module supposedly being submitted "soon" which is used in
-their LSPP product, surely must use them all.
+> , but Greg is doing other
+> weird things as well:
+> 
+>        http://www.cpushare.com/blog/andrea/article/42/
 
-Maybe you still want to make these CONFIG_SECURITY_SELINUX until the
-other modules are upstreamed, but I just wanted to make sure you knew
-other modules, trying to get upstream, are using them.
+I'm only repeating what a whole lot of lawyers told me, nothing else.
 
-Personally I'd say these are a core part of the LSM framework, and if
-you don't want LSM, compile it out.  But since I realize that using only
-capabilities must be a pretty common case, how about just adding a
-config option CONFIG_SECURITY_OBJFIELDS, which is auto-enabled with
-SELINUX and default off, which hides these fields instead?
+thanks,
 
-Patch should be trivial, and I can aim to send one tomorrow.
-
--serge
+greg k-h

@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWHFWIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWHFWTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWHFWIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 18:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHFWIn
+	id S1750747AbWHFWTX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 18:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWHFWTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 18:08:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:4219 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750739AbWHFWIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 18:08:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m6BcoNMsjZC+w7jzX4PlHdPxIyLF0bBRn/mcMKWGzhdoSFiziQHU6Xdk1ki4uZZW6qrp/zvJmn0KcSNWOK4aK3ZdZqiHjUAAs6p4/grBjPLF5WPC1kJ2+Xe0RmQAF002iuIYP2lnk1r1syY41DJ1yskyBGqUaNu6b+BSkj+6u7s=
-Message-ID: <41840b750608061508j9e731c4hf9de7b389c46c916@mail.gmail.com>
-Date: Mon, 7 Aug 2006 01:08:40 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Theodore Tso" <tytso@mit.edu>
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
-Cc: "Andrew Morton" <akpm@osdl.org>, rlove@rlove.org, khali@linux-fr.org,
-       gregkh@suse.de, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <20060806145551.GC30009@thunk.org>
+	Sun, 6 Aug 2006 18:19:23 -0400
+Received: from mail.zelnet.ru ([80.92.97.13]:27015 "EHLO mail.zelnet.ru")
+	by vger.kernel.org with ESMTP id S1750747AbWHFWTW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 18:19:22 -0400
+Message-ID: <44D66ADD.6020007@namesys.com>
+Date: Mon, 07 Aug 2006 02:19:09 +0400
+From: Edward Shishkin <edward@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Hans Reiser <reiser@namesys.com>
+CC: Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org> <44D219F9.9080404@namesys.com> <44D231DF.1080804@namesys.com> <44D37E1B.1040109@namesys.com> <44D3ECB5.1060106@namesys.com>
+In-Reply-To: <44D3ECB5.1060106@namesys.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	 <11548492242899-git-send-email-multinymous@gmail.com>
-	 <20060806005613.01c5a56a.akpm@osdl.org>
-	 <41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
-	 <20060806030749.ab49c887.akpm@osdl.org>
-	 <41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
-	 <20060806145551.GC30009@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ted,
+Hans Reiser wrote:
+> Edward Shishkin wrote:
+> 
+> 
+>>>
+>>>How about we switch to ecc, which would help with bit rot not sector
+>>>loss?
+>>
+>>
+>>Interesting aspect.
+>>
+>>Yes, we can implement ECC as a special crypto transform that inflates
+>>data. As I mentioned earlier, it is possible via translation of key
+>>offsets with scale factor > 1.
+>>
+>>Of course, it is better then nothing, but anyway meta-data remains
+>>ecc-unprotected, and, hence, robustness is not increased..
+>>
+>>Edward.
+> 
+> 
+> Would you prefer to do it as a node layout plugin instead, so as to get
+> the metadata?
+> 
 
-Thanks for the explanation. Point taken, though I can't help parsing it as:
+Yes, it looks like a business of node plugin, but AFAIK, you
+objected against such checks: currently only bitmap nodes have
+a protection (checksum); supporting ecc-signatures is more
+space/cpu expensive.
 
-On 8/6/06, Theodore Tso <tytso@mit.edu> wrote:
-> For legal reasons, we need a way to to contact and identify the author
-> in the real world, not just in cyberspace, and a pseudonym doesn't
-> meet that requirement.
-
-"We want to be able to sue you if they sue us."
-
-Which is actually not a problem for me (i.e., I don't believe I have
-nothing to worry about legally); but I do have other, non-legal
-considerations.
-
-
-> just as the fact that we aren't requiring ink signatures and public notary
-> checks doesn't mean we shouldn't stop doing what we are doing.
-
-Understood, but still a bit silly. You have no idea how many of the
-2252 people in `git-whatchanged | grep Signed-off-by: | sort | uniq`
-gave their legal name, and I doubt you could contact most of them in
-the real world without their cooperation (and with my cooperation, you
-could contact me too). Heck, some of those email domains don't even
-resolve. So this "chain of responsibiliy" is pretty worthless if
-someone really tries to inject legally malicious code into mainline,
-i.e., you end up blindly trusting people anyway.
-
-BTW, Ted, we actually have met in person. :-)
-
-  Shem
+Edward.

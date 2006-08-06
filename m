@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWHFE4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWHFFGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWHFE4V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 00:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWHFE4V
+	id S932342AbWHFFGa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 01:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWHFFGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 00:56:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52145 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751260AbWHFE4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 00:56:20 -0400
-Date: Sat, 5 Aug 2006 21:52:34 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, Josh Boyer <jwboyer@gmail.com>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060806045234.GA28849@kroah.com>
-References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060806004634.GB6455@opteron.random>
+	Sun, 6 Aug 2006 01:06:30 -0400
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:36520 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932342AbWHFFGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 01:06:30 -0400
+Date: Sun, 6 Aug 2006 01:00:43 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: fix one case of stuck dwarf2 unwinder
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Dave Jones <davej@redhat.com>, Jan Beulich <jbeulich@novell.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200608060105_MC3-1-C73A-EF22@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060806004634.GB6455@opteron.random>
-User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 06, 2006 at 02:46:34AM +0200, Andrea Arcangeli wrote:
-> On Sat, Aug 05, 2006 at 01:00:17AM +0200, Adrian Bunk wrote:
-> > On Thu, Aug 03, 2006 at 09:43:06PM -0500, Josh Boyer wrote:
-> > > On 8/3/06, Greg KH <greg@kroah.com> wrote:
-> > > >This is just a notice to everyone that Adrian is going to now be taking
-> > > >over the 2.6.16-stable kernel branch, for him to maintain for as long as
-> > > >he wants to.
-> > > 
-> > > Adrian, could you provide a bit of rationale as to why you want to do
-> > > this?  I'm just curious.
-> > 
-> > A long-term maintained stable series was missing in the current 
-> > development model.
-> > 
-> > The 2.6 series itself is theoretically a stable series, but the amount 
-> > of regressions is too big for some users.
+In-Reply-To: <200608060430.06935.ak@suse.de>
+
+On Sun, 6 Aug 2006 04:30:06 +0200, Andi Kleen wrote:
 > 
-> Greg is electing new official maintainers
-
-Greg didn't "elect" anyone, Adrian volunteered to maintain something
-that had been dropped by the -stable developers and no one else was
-going to maintain.
-
-> , but Greg is doing other
-> weird things as well:
+> > +extern void stext(void); /* real start of kernel text */
 > 
->        http://www.cpushare.com/blog/andrea/article/42/
+> Can't you use _stext[] from asm/sections.h?
 
-I'm only repeating what a whole lot of lawyers told me, nothing else.
+OK.
 
-thanks,
 
-greg k-h
+[patch] i386: fix one case of stuck dwarf2 unwinder
+
+When the dwarf2 unwinder does its thing, sometimes it ends up in
+kernel startup code in head.S.  Changing arch_unw_user_mode() to
+treat that case as if it were user mode is the easy fix.
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- 2.6.18-rc3-32.orig/include/asm-i386/unwind.h
++++ 2.6.18-rc3-32/include/asm-i386/unwind.h
+@@ -13,6 +13,7 @@
+ #include <asm/fixmap.h>
+ #include <asm/ptrace.h>
+ #include <asm/uaccess.h>
++#include <asm/sections.h>
+ 
+ struct unwind_frame_info
+ {
+@@ -71,13 +72,14 @@ extern asmlinkage int arch_unwind_init_r
+                                                                           void *arg),
+                                                void *arg);
+ 
++/* check if unwind has reached either user mode or kernel startup code */
+ static inline int arch_unw_user_mode(const struct unwind_frame_info *info)
+ {
+ #if 0 /* This can only work when selector register and EFLAGS saves/restores
+          are properly annotated (and tracked in UNW_REGISTER_INFO). */
+ 	return user_mode_vm(&info->regs);
+ #else
+-	return info->regs.eip < PAGE_OFFSET
++	return info->regs.eip < (unsigned long)_stext
+ 	       || (info->regs.eip >= __fix_to_virt(FIX_VDSO)
+ 	            && info->regs.eip < __fix_to_virt(FIX_VDSO) + PAGE_SIZE)
+ 	       || info->regs.esp < PAGE_OFFSET;
+-- 
+Chuck

@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWHFPVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWHFP3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWHFPVB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 11:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWHFPVB
+	id S1751082AbWHFP3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 11:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWHFP3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 11:21:01 -0400
-Received: from mx10.go2.pl ([193.17.41.74]:58773 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1751242AbWHFPVA (ORCPT
+	Sun, 6 Aug 2006 11:29:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27526 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751082AbWHFP3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 11:21:00 -0400
-Message-ID: <44D608AD.8000802@o2.pl>
-Date: Sun, 06 Aug 2006 17:20:13 +0200
-From: "lkml@o2.pl / IMAP" <lkml@o2.pl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060623)
+	Sun, 6 Aug 2006 11:29:55 -0400
+Message-ID: <44D60B34.3020202@sgi.com>
+Date: Sun, 06 Aug 2006 17:31:00 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2
-Content-Type: text/plain; charset=UTF-8
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andreas Schwab <schwab@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jeff@garzik.org>, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se> <44BE9E78.3010409@garzik.org> <yq0lkq4vbs3.fsf@jaguar.mkp.net> <1154702572.23655.226.camel@localhost.localdomain> <44D35B25.9090004@sgi.com> <1154706687.23655.234.camel@localhost.localdomain> <44D36E8B.4040705@sgi.com> <je4pws1ofb.fsf@sykes.suse.de> <44D370ED.2050605@sgi.com> <Pine.LNX.4.61.0608061126120.28841@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608061126120.28841@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Engelhardt wrote:
+>> We know that today long is the only one that differs
+> 
+> For "modern architectures" maybe, but older compilers (like Turbo C 
+> compiler (1990)), int is a 16 bit quantity, and therefore does differ, from 
+> today's implementations at least.
 
-I have found dependency error while compiling 2.6.18-rc3-mm2 kernel into
-another directory...
+Excuse me, but this conversation was about compiling the Linux kernel.
+What non GCC compilers do is irrelevant to this.
 
-
-estibi@amilo /home/place/linux-2.6.18-rc3-mm2> make V=1
-O=../linux-2.6.18-rc3-mm2_amilo_obj menuconfig
-
-make -C /home/place/linux-2.6.18-rc3-mm2_amilo_obj \
-KBUILD_SRC=/home/place/linux-2.6.18-rc3-mm2 \
-KBUILD_EXTMOD="" -f /home/place/linux-2.6.18-rc3-mm2/Makefile menuconfig
-make -f /home/place/linux-2.6.18-rc3-mm2/scripts/Makefile.build
-obj=scripts/basic
-/bin/sh /home/place/linux-2.6.18-rc3-mm2/scripts/mkmakefile \
-    /home/place/linux-2.6.18-rc3-mm2
-/home/place/linux-2.6.18-rc3-mm2_amilo_obj 2 6
-  GEN     /home/place/linux-2.6.18-rc3-mm2_amilo_obj/Makefile
-mkdir -p include/linux include/config
-make -f /home/place/linux-2.6.18-rc3-mm2/scripts/Makefile.build
-obj=scripts/kconfig menuconfig
-  gcc -Wp,-MD,scripts/kconfig/lxdialog/.checklist.o.d -Iscripts/kconfig
--Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
--DCURSES_LOC="<ncurses.h>" -DLOCALE -c -o
-scripts/kconfig/lxdialog/checklist.o
-/home/place/linux-2.6.18-rc3-mm2/scripts/kconfig/lxdialog/checklist.c
-/home/place/linux-2.6.18-rc3-mm2/scripts/kconfig/lxdialog/checklist.c:325:
-fatal error: opening dependency file
-scripts/kconfig/lxdialog/.checklist.o.d: Nie ma takiego pliku ani katalogu
-compilation terminated.
-make[2]: *** [scripts/kconfig/lxdialog/checklist.o] Bd 1
-make[1]: *** [menuconfig] Bd 2
-make: *** [menuconfig] Bd 2
-
-
-
-Best Regards!
-
-Piotr Jasiukajtis
-
+Jes

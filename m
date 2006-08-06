@@ -1,83 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWHFKpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWHFLGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932538AbWHFKpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 06:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWHFKpU
+	id S1750744AbWHFLGG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 07:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWHFLGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 06:45:20 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:55301 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932538AbWHFKpT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 06:45:19 -0400
-Date: Sun, 6 Aug 2006 20:45:16 +1000
-To: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [CRYPTO] api: Fixed crypto_tfm context alignment
-Message-ID: <20060806104516.GA30043@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 6 Aug 2006 07:06:06 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:27121 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1750744AbWHFLGD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 07:06:03 -0400
+Date: Sun, 6 Aug 2006 13:05:20 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Dave Jones <davej@redhat.com>, Andreas Schwab <schwab@suse.de>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: single bit flip detector.
+In-Reply-To: <Pine.LNX.4.61.0608020908180.7593@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.62.0608061302470.21620@pademelon.sonytel.be>
+References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain>
+ <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com>
+ <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com>
+ <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com>
+ <20060802001626.GA14689@redhat.com> <Pine.LNX.4.61.0608020908180.7593@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Wed, 2 Aug 2006, Jan Engelhardt wrote:
+> > 		printk(" %02x", (unsigned char)data[offset + i]);
+> 
+> Remove cast. (Or does it spew a warning message for you?)
 
-[CRYPTO] api: Fixed crypto_tfm context alignment
+No warning, but you still want the cast...
 
-Previously the __aligned__ attribute was added to the crypto_tfm context
-member to ensure it is alinged correctly on architectures such as arm.
-Unfortunately kmalloc does not use the same minimum alignment rules as
-gcc so this is useless.
+On PPC and ARM that will work fine, since char is unsigned.
 
-This patch changes it to use kmalloc's minimum alignment.
+But on most other platforms char is signed, and contrary to popular belief,
+`%02x' doesn't mean `limit this field to 2 characters', so it would print e.g.
+ffffffff instead of ff for -1.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Gr{oetje,eeting}s,
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+						Geert
+
 --
-diff --git a/include/linux/crypto.h b/include/linux/crypto.h
-index 7f94624..5e2ff73 100644
---- a/include/linux/crypto.h
-+++ b/include/linux/crypto.h
-@@ -21,8 +21,9 @@ #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/list.h>
-+#include <linux/slab.h>
- #include <linux/string.h>
--#include <asm/page.h>
-+#include <linux/uaccess.h>
- 
- /*
-  * Algorithm masks and types.
-@@ -61,6 +62,14 @@ #define CRYPTO_MAX_ALG_NAME		64
- #define CRYPTO_DIR_ENCRYPT		1
- #define CRYPTO_DIR_DECRYPT		0
- 
-+#if defined(ARCH_KMALLOC_MINALIGN)
-+#define CRYPTO_MINALIGN_ATTR __attribute__ ((ARCH_KMALLOC_MINALIGN))
-+#elif defined(ARCH_SLAB_MINALIGN)
-+#define CRYPTO_MINALIGN_ATTR __attribute__ ((ARCH_SLAB_MINALIGN))
-+#else
-+#define CRYPTO_MINALIGN_ATTR
-+#endif
-+
- struct scatterlist;
- struct crypto_tfm;
- 
-@@ -231,7 +240,7 @@ struct crypto_tfm {
- 	
- 	struct crypto_alg *__crt_alg;
- 
--	char __crt_ctx[] __attribute__ ((__aligned__));
-+	void *__crt_ctx[] CRYPTO_MINALIGN_ATTR;
- };
- 
- /* 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

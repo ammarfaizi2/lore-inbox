@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWHFUKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWHFUWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWHFUKj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 16:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWHFUKj
+	id S1750704AbWHFUWV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 16:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWHFUWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 16:10:39 -0400
-Received: from ozlabs.org ([203.10.76.45]:49862 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750703AbWHFUKi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 16:10:38 -0400
-Date: Mon, 7 Aug 2006 06:08:09 +1000
-From: Anton Blanchard <anton@samba.org>
-To: David Miller <davem@davemloft.net>
-Cc: molle.bestefich@gmail.com, auke-jan.h.kok@intel.com,
-       charlieb@budge.apana.org.au, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: e100: checksum mismatch on 82551ER rev10
-Message-ID: <20060806200809.GC4209@krispykreme>
-References: <Pine.LNX.4.61.0607311653360.24450@e-smith.charlieb.ott.istop.com> <44D0D7CA.2060001@intel.com> <62b0912f0608040404p59545a0asc7f5fc5f537ec32c@mail.gmail.com> <20060804.042024.63108922.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060804.042024.63108922.davem@davemloft.net>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Sun, 6 Aug 2006 16:22:21 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:64389 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750704AbWHFUWV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 16:22:21 -0400
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] Fix base address configuration in wbsd
+Date: Sun, 06 Aug 2006 22:22:23 +0200
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20060806202223.13663.66134.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There were some confusion about base I/O variables in the wbsd driver.
+Seems like things have been working on shear luck so far. The global 'io'
+variable (used when manually configuring the resources) was used instead of
+the local 'base' variable.
 
-Hi,
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-> If the EEPROM has a broken checksum, the user should have an option
-> that allows him to try and use the device anyways, end of story.
+ drivers/mmc/wbsd.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Ive come across this problem a number of times on e1000 chips (to be
-clear it was vendor programming issues).
+diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
+index 8a30ef3..ce86887 100644
+--- a/drivers/mmc/wbsd.c
++++ b/drivers/mmc/wbsd.c
+@@ -41,7 +41,7 @@ #include <asm/scatterlist.h>
+ #include "wbsd.h"
+ 
+ #define DRIVER_NAME "wbsd"
+-#define DRIVER_VERSION "1.5"
++#define DRIVER_VERSION "1.6"
+ 
+ #define DBG(x...) \
+ 	pr_debug(DRIVER_NAME ": " x)
+@@ -1439,13 +1439,13 @@ static int __devinit wbsd_scan(struct wb
+ 
+ static int __devinit wbsd_request_region(struct wbsd_host *host, int base)
+ {
+-	if (io & 0x7)
++	if (base & 0x7)
+ 		return -EINVAL;
+ 
+ 	if (!request_region(base, 8, DRIVER_NAME))
+ 		return -EIO;
+ 
+-	host->base = io;
++	host->base = base;
+ 
+ 	return 0;
+ }
 
-The driver has the option to read and write the EEPROM already. All we
-need is the ability for the driver to hang around so that we can use
-ethtool to fix it.
-
-At the moment we carry an out of tree patch to do this.
-
-Anton

@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWHFKbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWHFKoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWHFKbq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 06:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWHFKbq
+	id S1750834AbWHFKoF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 06:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWHFKoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 06:31:46 -0400
-Received: from lug-owl.de ([195.71.106.12]:35260 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750834AbWHFKbp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 06:31:45 -0400
-Date: Sun, 6 Aug 2006 12:31:43 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: "Om N." <xhandle@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: writing portable code based on BITS_PER_LONG?
-Message-ID: <20060806103143.GR20586@lug-owl.de>
-Mail-Followup-To: "Om N." <xhandle@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <6de39a910608052316x37ae7268j5ea18b6ea26219c5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/YnR2r17TIEndSCI"
+	Sun, 6 Aug 2006 06:44:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:10594 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750834AbWHFKoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 06:44:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MOqvS0BU8Jb7V9iUPCAGXkbGjl5CHr9aCETYKlEQZckPXLAdhAtbhYgJiReBdc+vIRQA2/j01Wxs7MYTS4J1tvrEgHzKUCpqCXtntLJ8PhSEK4wADIXQE+7Q/9Ha3/0sb0KaBodn32ziluuyVq/T780NwInzu2wzZR4gQNB0OcY=
+Message-ID: <41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
+Date: Sun, 6 Aug 2006 13:44:02 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Cc: rlove@rlove.org, khali@linux-fr.org, gregkh@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060806030749.ab49c887.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <6de39a910608052316x37ae7268j5ea18b6ea26219c5@mail.gmail.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492242899-git-send-email-multinymous@gmail.com>
+	 <20060806005613.01c5a56a.akpm@osdl.org>
+	 <41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
+	 <20060806030749.ab49c887.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---/YnR2r17TIEndSCI
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 8/6/06, Andrew Morton <akpm@osdl.org> wrote:
+> I suggested a simple solution: Perhaps one of the other project members
+> (ie: one who uses a real name) could also sign off the patches?
 
-On Sat, 2006-08-05 23:16:29 -0700, Om N. <xhandle@gmail.com> wrote:
-> I am trying to port a driver written for IA32. This is a pci driver
-> and has a chipset doing PCI <-> local bus data transfer, where local
-> bus is 16 bit. So a number of values are converted by right/left
-> shifting by 16 bits.
->=20
-> Now that I am doing porting, I would like to make it fully portable
-> across AMD64 and IA32. What is the best method for this? Should I do
-> something like,
->=20
-> #if  BITS_PER_LONG =3D 64
-> shiftwidth =3D 48
-> #else if BITS_PER_LONG =3D 32
-> shiftwidth =3D 16
-> #endif
+Well, I offer this patch under the GPL, so anyone (including you) can do it.
 
-I'd probably write some macros that access the parts of the longs you
-want to have/set and put these into some header file.
+But I would like to be able to submit further patches without "adult
+supervision", so I hope you don't mind my pressing the issue:
 
-MfG, JBG
 
---=20
-       Jan-Benedict Glaw       jbglaw@lug-owl.de                +49-172-760=
-8481
-Signature of:                  Tr=C3=A4ume nicht von Dein Leben: Lebe Deine=
-n Traum!
-the second  :
+> > What more is needed that may be realistically expected from a kernel
+> > patch submission?
+>
+> We who accept the submission would be making a joke of the whole thing if
+> we accepted the assurances of a person who is concealing his/her identity.
 
---/YnR2r17TIEndSCI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Can you please be more specific? What purpose does this exclusion
+serve, that would be realistically achieved otherwise? You already
+have a GPL license from the author, and a way to contact and uniquely
+identify the author.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFE1cUPHb1edYOZ4bsRAl7XAKCM63QpnBhaB/zljvVo69riSMEuNACfc2+n
-elVRMeE/wysnuyTzADvHeqU=
-=h+o5
------END PGP SIGNATURE-----
-
---/YnR2r17TIEndSCI--
+  Shem

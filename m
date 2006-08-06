@@ -1,90 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWHFLTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWHFLbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWHFLTh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 07:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWHFLTh
+	id S1751429AbWHFLbS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 07:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHFLbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 07:19:37 -0400
-Received: from mail.gmx.de ([213.165.64.20]:63175 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751409AbWHFLTg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 07:19:36 -0400
-X-Authenticated: #476490
-From: Oliver Endriss <o.endriss@gmx.de>
-Reply-To: v4l-dvb-maintainer@linuxtv.org
-Organization: ESCAPE GmbH EDV-Loesungen
-To: v4l-dvb-maintainer@linuxtv.org
-Subject: Re: [v4l-dvb-maintainer] Options depending on STANDALONE
-Date: Sun, 6 Aug 2006 13:18:59 +0200
-User-Agent: KMail/1.6.2
-Cc: Adrian Bunk <bunk@stusta.de>, Trent Piepho <xyzzy@speakeasy.org>,
-       Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Jack Lo <jlo@vmware.com>, Greg KH <greg@kroah.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-acpi@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>
-References: <44D1CC7D.4010600@vmware.com> <Pine.LNX.4.58.0608031610110.9178@shell2.speakeasy.net> <20060805105122.GT25692@stusta.de>
-In-Reply-To: <20060805105122.GT25692@stusta.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 6 Aug 2006 07:31:18 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:25606 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751429AbWHFLbS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 07:31:18 -0400
+Date: Sun, 6 Aug 2006 13:31:15 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Theuns Verwoerd <theuns@bluewatersys.com>
+Cc: Rudolf Marek <r.marek@sh.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001/001] I2C: AD7414 I2C chip driver for Linux-2.6.17.7
+Message-Id: <20060806133115.0b3bfe3f.khali@linux-fr.org>
+In-Reply-To: <20060803202336.07c2b2a2.rdunlap@xenotime.net>
+References: <44D28C60.1000304@bluewatersys.com>
+	<20060803202336.07c2b2a2.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608061319.00085@orion.escape-edv.de>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Thu, Aug 03, 2006 at 04:40:25PM -0700, Trent Piepho wrote:
-> > On Thu, 3 Aug 2006, Adrian Bunk wrote:
-> > > On Thu, Aug 03, 2006 at 03:56:17PM -0400, Dave Jones wrote:
-> > > > You're describing PREVENT_FIRMWARE_BUILD.  The text Zach quoted is from
-> > > > STANDALONE, which is something else completely.  That allows us to not
-> > > > build drivers that pull in things from /etc and the like during compile.
-> > > > (Whoever thought that was a good idea?)
-> > >
-> > > Is DVB_AV7110_FIRMWARE really still required?
-> > > ALL other drivers work without such an option.
-> > 
-> > The other DVB drivers that need firmware load it when the device is opened
-> > or used (ie.  a channel is tuned).  At least for the ones I'm familiar
-> > with.  If they are compiled directly into the kernel, they can still use
-> > FW_LOADER since the loading won't happen until utill well after booting is
-> > done.
-> > 
-> > For AV7110, it looks like the firmware loading is done when the driver is
-> > first initialized.  If AV7110 is compiled into the kernel, FW_LOADER can
-> > not be used.  The filesystem with the firmware won't be mounted yet.
-> > 
-> > So AV7110 has an option to compile a firmware file into the driver.
+Hi Theuns, Randy,
+
+[Theuns Verwoerd]
+> > AD7414 Temperature Sensor I2C driver.  I2C chip driver for the Analog
+> > Devices AD7414 device, exposes raw and decoded registers via sysfs.
+> > Signed-off-by: Theuns Verwoerd <theuns.verwoerd@bluewatersys.com>
+> > ---
+> > Tested on a custom EP9315-based board developed in-house. Fairly trivial
+> > driver; really just exposes the raw registers and temperature reading
+> > to userspace.
+> > Patch is relative to stock Linux-2.6.17.7
+> > (...)
+> > [This is my first go at a kernel submission, so feel free to point out 
+> > anything
+> > that should be done differently]
+> > ---
+> > diff -uprN -X linux-2.6.17.7-vanilla/Documentation/dontdiff 
+> > linux-2.6.17.7-vanilla/drivers/i2c/chips/ad7414.c 
+> > linux-2.6.17.7/drivers/i2c/chips/ad7414.c
+> > --- linux-2.6.17.7-vanilla/drivers/i2c/chips/ad7414.c    1970-01-01 
+> > 12:00:00.000000000 +1200
+> > +++ linux-2.6.17.7/drivers/i2c/chips/ad7414.c    2006-08-04 
+> > 10:28:37.000000000 +1200
+
+[Randy Dunlap]
+> 1/  Thunderbird is breaking (splitting) your lines for you.  :(
+> See if http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+> helps any.  Try sending a patch to yourself and test if you
+> can apply it.  Or use a different mail client/app.
+> Those 7 lines above should be 3 lines.
+> You may need to unset some "flowed" attribute in tbird
+> (I'm not sure of its full, correct name.)
 > 
-> But is there a technical reason why this has to be done this way?
+> 2/  Either thunderbird is converting tabs to spaces or the
+> driver source does not contain tabs -- just lots of spaces.
+> Please indent struct fields with one tab, embedded struct fields
+> with 2 tabs, etc.
 > 
-> This is the onle (non-OSS) driver doing it this way, and Zach has a 
-> point that this is legally questionable.
+> 3/  Macro continuation lines should be indented.
+> 
+> 4/  sysfs files should contain only one value per file.  Use
+> multiple files for multiple values.
 
-This option _is_ useful because it allows allows a user to build an
-av7110 driver without hotplug etc. I NAK any attempt to remove it.
+And please see Documentation/hwmon/sysfs-interface for proper file
+names and units.
 
-Sorry, a kernel option cannot cause a legal issue. Only the user does.
-For non-distribution kernels there is no difference whether firmware is
-loaded at run-time or compiled-in.
+> 5/  Code labels should not be indented or maybe indented one space,
+> and certainly not indented more than the following source lines.
+> 
+> 6/  device_create_file() and friends can return errors.  They need
+> to be checked for success/fail.
+> 
+> 7/  Header files should be included in linux/ alpha order, then
+> asm/ alpha order, then local.h files unless there are reasons
+> that this order won't work.
+> (Yes, only linux/ applies here.)
 
-Obviously, there might be a difference for distribution kernels if you
-are not allowed to distribute the firmware (imho not a problem in this
-case, but IANAL). Simple solution: Do not enable the option.
+The "alpha order" point is moot. I see nothing about that in
+Documentation/CodingStyle, and also no rationale for it. Header files
+should work no matter the order of inclusion. And I don't think we have
+a single driver respecting that rule, do we?
 
-I have no problem if you want to remove STANDALONE: Simply remove the
-dependency to STANDALONE, but keep DVB_AV7110_FIRMWARE with default 'n'.
+I do agree with the linux/asm/local ordering rule, though, and I think
+pretty much everyone does, as there is a rationale for it (local
+defines shouldn't possibly affect standard header files.)
 
-CU
-Oliver
+I second every other point Randy made, and add the following ones:
 
+8* Theuns' driver belongs to drivers/hwmon, not drivers/i2c/chips.
+
+9* The driver should be submitted for review to the lm-sensors list
+(see MAINTAINERS) rather than the LKML.
+
+Thanks,
 -- 
---------------------------------------------------------
-VDR Remote Plugin available at
-http://www.escape-edv.de/endriss/vdr/
---------------------------------------------------------
+Jean Delvare

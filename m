@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWHFVeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWHFVff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWHFVeE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 17:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWHFVeE
+	id S1750717AbWHFVff (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 17:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWHFVff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 17:34:04 -0400
-Received: from z2.cat.iki.fi ([212.16.98.133]:16812 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S1750716AbWHFVeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 17:34:03 -0400
-Date: Mon, 7 Aug 2006 00:34:02 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Subscription to austin-offtopic-l mailing list
-Message-ID: <20060806213402.GY3021@mea-ext.zmailer.org>
-Mime-Version: 1.0
+	Sun, 6 Aug 2006 17:35:35 -0400
+Received: from host-84-9-217-225.bulldogdsl.com ([84.9.217.225]:9346 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750717AbWHFVff
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 17:35:35 -0400
+Date: Sun, 6 Aug 2006 22:35:24 +0100
+From: Ben Dooks <ben@fluff.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Fix base address configuration in wbsd
+Message-ID: <20060806213524.GC8907@home.fluff.org>
+References: <20060806202223.13663.66134.stgit@poseidon.drzeus.cx> <20060806204842.GE16816@flint.arm.linux.org.uk> <44D657BF.6070004@drzeus.cx> <20060806210509.GF16816@flint.arm.linux.org.uk> <44D65F4D.3060907@drzeus.cx>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <44D65F4D.3060907@drzeus.cx>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 06, 2006 at 04:50:51PM +0100, Open Group web server wrote:
-> Date:	Sun, 6 Aug 2006 16:50:51 +0100 (BST)
-> From:	Open Group web server <httpd@opengroup.org>
-> Message-Id: <200608061550.QAA09546@xoneweb.opengroup.org>
-> To:	linux-kernel@vger.kernel.org
-> Subject: Subscription to austin-offtopic-l mailing list
+On Sun, Aug 06, 2006 at 11:29:49PM +0200, Pierre Ossman wrote:
+> Russell King wrote:
+> > Is that a safe assumption to make?  Is this only ever going to appear/be
+> > used on x86?
+> >
+> >   
 > 
-> This message is confirmation that you have been subscribed
-> from 207.210.106.123 to the following mailing lists:
-> 
-> 	austin-offtopic-l
+> It's designed for ISA, so I think so. In the event that a version of
+> this model appears that has a larger I/O base, then the configure
+> registers will have been reordered (to make room for any extra address
+> bytes), so the driver will not work out-of-box anyway.
 
-Hah hah, very funny.
-Observe me laughing...
+ISA is very easy to glue to the simple IO busses on many
+systems such as ARM.
 
-There is hardly any reason to let opengroup.org domain machines to
-post to linux -lists at vger.  Therefore to avoid genuinely off-topic
-postings to our grand-daddy of all off-topic discussions, I have
-blocked  opengroup.org  from posting to vger's lists.
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
 
-I asked also for that   linux.kernel  account to be revoked.
-
-Have a nice day,
-
-
-> If you did not subscribe please contact webmaster@opengroup.org
-> 
-> To unsubscribe visit http://www.opengroup.org/unsubscribe
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  'a smiley only costs 4 bytes'

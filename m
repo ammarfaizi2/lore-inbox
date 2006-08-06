@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWHFO4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWHFPCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWHFO4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 10:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWHFO4q
+	id S1751335AbWHFPCF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 11:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWHFPCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 10:56:46 -0400
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:12487 "EHLO
-	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1750720AbWHFO4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 10:56:45 -0400
-Date: Sun, 6 Aug 2006 15:55:43 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Mattia Dongili <malattia@linux.it>
-cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <npiggin@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 [BUG at mm/vmscan.c:383!]
-In-Reply-To: <20060806133306.GB4009@inferi.kami.home>
-Message-ID: <Pine.LNX.4.64.0608061545080.16384@blonde.wat.veritas.com>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060806133306.GB4009@inferi.kami.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Aug 2006 14:56:25.0204 (UTC) FILETIME=[7D07D340:01C6B968]
+	Sun, 6 Aug 2006 11:02:04 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:39881 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751242AbWHFPCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 11:02:03 -0400
+Subject: [PATCH] Proposed update to the kernel kmap/kunmap API
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 06 Aug 2006 10:01:55 -0500
+Message-Id: <1154876516.3683.201.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Aug 2006, Mattia Dongili wrote:
-> [  781.988000] kernel BUG at mm/vmscan.c:383!
-> [  781.988000] EIP is at remove_mapping+0xe8/0x120
+The simple part of the proposal is to give non-highmem architectures
+access to the kmap API for the purposes of overriding (this is what the
+attached patch does).
 
-You are so right: the minor fix below is needed.
+The more controversial part of the proposal is that we should now
+require all architectures with coherence issues to manage data coherence
+via the kmap/kunmap API.  Thus driver writers never have to write code
+like
 
-> [  781.988000] DWARF2 unwinder stuck at kernel_thread_helper+0x5/0x10
+kmap(page)
+modify data in page
+flush_kernel_dcache_page(page)
+kunmap(page)
 
-Sorry, someone else will have to help with all that nuisance.
+instead, kmap/kunmap will manage the coherence and driver (and
+filesystem) writers don't need to worry about how to flush between kmap
+and kunmap.   For most architectures, the page only needs to be flushed
+if it was actually written to *and* there are user mappings of it, so
+the best implementation looks to be:  clear the page dirty pte bit in
+the kernel page tables on kmap and on kunmap, check page->mappings for
+user maps, and then the dirty bit, and only flush if it both has user
+mappings and is dirty.
 
+James
 
-remove_mapping() must check against page_mapping(page):
-&swapper_space is implicit, never actually stored in page->mapping.
-
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-
---- 2.6.18-rc3-mm2/mm/vmscan.c	2006-08-06 12:25:40.000000000 +0100
-+++ linux/mm/vmscan.c	2006-08-06 15:40:34.000000000 +0100
-@@ -380,7 +380,7 @@ static pageout_t pageout(struct page *pa
- int remove_mapping(struct address_space *mapping, struct page *page)
+Index: linux-2.6/include/linux/highmem.h
+===================================================================
+--- linux-2.6.orig/include/linux/highmem.h      2006-07-26 17:51:09.000000000 -0700
++++ linux-2.6/include/linux/highmem.h   2006-07-26 17:51:18.000000000 -0700
+@@ -29,6 +29,7 @@
+ 
+ static inline unsigned int nr_free_highpages(void) { return 0; }
+ 
++#ifndef ARCH_HAS_KMAP
+ static inline void *kmap(struct page *page)
  {
- 	BUG_ON(!PageLocked(page));
--	BUG_ON(mapping != page->mapping);
-+	BUG_ON(mapping != page_mapping(page));
+        might_sleep();
+@@ -41,6 +42,7 @@
+ #define kunmap_atomic(addr, idx)       do { } while (0)
+ #define kmap_atomic_pfn(pfn, idx)      page_address(pfn_to_page(pfn))
+ #define kmap_atomic_to_page(ptr)       virt_to_page(ptr)
++#endif
  
- 	write_lock_irq(&mapping->tree_lock);
+ #endif /* CONFIG_HIGHMEM */
  
+
+
+

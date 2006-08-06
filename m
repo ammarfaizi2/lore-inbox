@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWHFLGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWHFLJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWHFLGG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 07:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWHFLGG
+	id S1750701AbWHFLJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 07:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWHFLJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 07:06:06 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:27121 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1750744AbWHFLGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 07:06:03 -0400
-Date: Sun, 6 Aug 2006 13:05:20 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Dave Jones <davej@redhat.com>, Andreas Schwab <schwab@suse.de>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-In-Reply-To: <Pine.LNX.4.61.0608020908180.7593@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.62.0608061302470.21620@pademelon.sonytel.be>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain>
- <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com>
- <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com>
- <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com>
- <20060802001626.GA14689@redhat.com> <Pine.LNX.4.61.0608020908180.7593@yvahk01.tjqt.qr>
+	Sun, 6 Aug 2006 07:09:27 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:35892 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750701AbWHFLJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 07:09:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lLh0o8KMdG9buZ6s3nrfy6ilvREUSCEkH5hgvxrDiym8310oWyzxBmbHc17qvOh+Nv1z5/sKoLIJKILMqdI9/XVXIQ87a87wlzsTZZN2xpXaGwjbJkbIUvJbkbS96hDM9elRmZ7HbPWNqpEiagMJ6O1LMP3I8tkNcpGoTc+PjRg=
+Message-ID: <6bffcb0e0608060409m2cd8fb4er6d7d2300915604c4@mail.gmail.com>
+Date: Sun, 6 Aug 2006 13:09:25 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc3-mm2
+Cc: "Jay Lan" <jlan@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Aug 2006, Jan Engelhardt wrote:
-> > 		printk(" %02x", (unsigned char)data[offset + i]);
-> 
-> Remove cast. (Or does it spew a warning message for you?)
+Hi,
 
-No warning, but you still want the cast...
+On 06/08/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+>
 
-On PPC and ARM that will work fine, since char is unsigned.
+I get this error during the build.
 
-But on most other platforms char is signed, and contrary to popular belief,
-`%02x' doesn't mean `limit this field to 2 characters', so it would print e.g.
-ffffffff instead of ff for -1.
+kernel/built-in.o: In function `bacct_add_tsk':
+/usr/src/linux-mm/kernel/tsacct.c:39: undefined reference to `__divdi3'
+make[1]: *** [.tmp_vmlinux1] Error 1
+make: *** [_all] Error 2
 
-Gr{oetje,eeting}s,
+I'll try with CONFIG_TASKSTATS disabled.
 
-						Geert
+Regards,
+Michal
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

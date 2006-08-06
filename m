@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWHFLJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWHFLTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWHFLJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 07:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWHFLJ1
+	id S1751409AbWHFLTh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 07:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWHFLTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 07:09:27 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:35892 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750701AbWHFLJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 07:09:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lLh0o8KMdG9buZ6s3nrfy6ilvREUSCEkH5hgvxrDiym8310oWyzxBmbHc17qvOh+Nv1z5/sKoLIJKILMqdI9/XVXIQ87a87wlzsTZZN2xpXaGwjbJkbIUvJbkbS96hDM9elRmZ7HbPWNqpEiagMJ6O1LMP3I8tkNcpGoTc+PjRg=
-Message-ID: <6bffcb0e0608060409m2cd8fb4er6d7d2300915604c4@mail.gmail.com>
-Date: Sun, 6 Aug 2006 13:09:25 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.18-rc3-mm2
-Cc: "Jay Lan" <jlan@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
+	Sun, 6 Aug 2006 07:19:37 -0400
+Received: from mail.gmx.de ([213.165.64.20]:63175 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751409AbWHFLTg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 07:19:36 -0400
+X-Authenticated: #476490
+From: Oliver Endriss <o.endriss@gmx.de>
+Reply-To: v4l-dvb-maintainer@linuxtv.org
+Organization: ESCAPE GmbH EDV-Loesungen
+To: v4l-dvb-maintainer@linuxtv.org
+Subject: Re: [v4l-dvb-maintainer] Options depending on STANDALONE
+Date: Sun, 6 Aug 2006 13:18:59 +0200
+User-Agent: KMail/1.6.2
+Cc: Adrian Bunk <bunk@stusta.de>, Trent Piepho <xyzzy@speakeasy.org>,
+       Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
+       Jack Lo <jlo@vmware.com>, Greg KH <greg@kroah.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-acpi@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>
+References: <44D1CC7D.4010600@vmware.com> <Pine.LNX.4.58.0608031610110.9178@shell2.speakeasy.net> <20060805105122.GT25692@stusta.de>
+In-Reply-To: <20060805105122.GT25692@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608061319.00085@orion.escape-edv.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Adrian Bunk wrote:
+> On Thu, Aug 03, 2006 at 04:40:25PM -0700, Trent Piepho wrote:
+> > On Thu, 3 Aug 2006, Adrian Bunk wrote:
+> > > On Thu, Aug 03, 2006 at 03:56:17PM -0400, Dave Jones wrote:
+> > > > You're describing PREVENT_FIRMWARE_BUILD.  The text Zach quoted is from
+> > > > STANDALONE, which is something else completely.  That allows us to not
+> > > > build drivers that pull in things from /etc and the like during compile.
+> > > > (Whoever thought that was a good idea?)
+> > >
+> > > Is DVB_AV7110_FIRMWARE really still required?
+> > > ALL other drivers work without such an option.
+> > 
+> > The other DVB drivers that need firmware load it when the device is opened
+> > or used (ie.  a channel is tuned).  At least for the ones I'm familiar
+> > with.  If they are compiled directly into the kernel, they can still use
+> > FW_LOADER since the loading won't happen until utill well after booting is
+> > done.
+> > 
+> > For AV7110, it looks like the firmware loading is done when the driver is
+> > first initialized.  If AV7110 is compiled into the kernel, FW_LOADER can
+> > not be used.  The filesystem with the firmware won't be mounted yet.
+> > 
+> > So AV7110 has an option to compile a firmware file into the driver.
+> 
+> But is there a technical reason why this has to be done this way?
+> 
+> This is the onle (non-OSS) driver doing it this way, and Zach has a 
+> point that this is legally questionable.
 
-On 06/08/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
->
+This option _is_ useful because it allows allows a user to build an
+av7110 driver without hotplug etc. I NAK any attempt to remove it.
 
-I get this error during the build.
+Sorry, a kernel option cannot cause a legal issue. Only the user does.
+For non-distribution kernels there is no difference whether firmware is
+loaded at run-time or compiled-in.
 
-kernel/built-in.o: In function `bacct_add_tsk':
-/usr/src/linux-mm/kernel/tsacct.c:39: undefined reference to `__divdi3'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make: *** [_all] Error 2
+Obviously, there might be a difference for distribution kernels if you
+are not allowed to distribute the firmware (imho not a problem in this
+case, but IANAL). Simple solution: Do not enable the option.
 
-I'll try with CONFIG_TASKSTATS disabled.
+I have no problem if you want to remove STANDALONE: Simply remove the
+dependency to STANDALONE, but keep DVB_AV7110_FIRMWARE with default 'n'.
 
-Regards,
-Michal
+CU
+Oliver
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+--------------------------------------------------------
+VDR Remote Plugin available at
+http://www.escape-edv.de/endriss/vdr/
+--------------------------------------------------------

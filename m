@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWHFXTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWHFXU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWHFXTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 19:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWHFXTz
+	id S1750770AbWHFXU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 19:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWHFXU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 19:19:55 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:3462 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750767AbWHFXTy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 19:19:54 -0400
-Message-ID: <44D6791F.8030001@drzeus.cx>
-Date: Mon, 07 Aug 2006 01:19:59 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Sun, 6 Aug 2006 19:20:29 -0400
+Received: from vcs5.camavision.com ([63.228.164.252]:59868 "EHLO
+	marajade.camavision.com") by vger.kernel.org with ESMTP
+	id S1750771AbWHFXU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 19:20:28 -0400
+Message-ID: <44D6792C.1060502@squeakycode.net>
+Date: Sun, 06 Aug 2006 18:20:12 -0500
+From: andy <andy@squeakycode.net>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ben Dooks <ben@fluff.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Fix base address configuration in wbsd
-References: <20060806202223.13663.66134.stgit@poseidon.drzeus.cx>	 <20060806204842.GE16816@flint.arm.linux.org.uk>	 <44D657BF.6070004@drzeus.cx>	 <20060806210509.GF16816@flint.arm.linux.org.uk>	 <44D65F4D.3060907@drzeus.cx> <20060806213524.GC8907@home.fluff.org>	 <44D66491.1090606@drzeus.cx> <1154907141.25998.2.camel@localhost.localdomain>
-In-Reply-To: <1154907141.25998.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+CC: linux-kernel@vger.kernel.org
+Subject: Re: asus m5n, i2c-i805 missing temp1_auto_temp_min
+References: <44D6383E.7050000@squeakycode.net> <20060806224715.2bfe074a.khali@linux-fr.org>
+In-Reply-To: <20060806224715.2bfe074a.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Sul, 2006-08-06 am 23:52 +0200, ysgrifennodd Pierre Ossman:
->   
->> Sorry, my intention wasn't to assert that it was only to be used on x86
->> but that the 16-bit assumption was safe.
->>     
->
-> Your ISA bus mappings on a non x86 processor are likely to be 32bit MMIO
-> -> PIO windows in memory space. 
->
->   
+Jean Delvare wrote:
+> Hi Andy,
+> 
+>> I have an asus m5n laptop, with kernel 2.6.16.9, and this works:
+>>
+>> if cd '/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e'; then
+>>      echo 55000 > temp1_auto_temp_min
+>>      echo 50000 > temp1_auto_temp_off
+>> fi
+>>
+>> However in kernel 2.6.16.27, and 2.6.17.7 it does not.  It reports that 
+>> directory is not found (I can get to '/sys/devices/pci0000:00/' and 
+>> thats it).  Its only for setting the fan on/off temp's, so its not a big 
+>> deal, but it makes my laptop quieter when its not doing anything, so I 
+>> kinda like it.
+>>
+>> Is there a new way of doing this?  Or was it moved to another module? 
+>> Or broken?
+> 
+> Done on purpose.
+> 
+> Please see this thread:
+> http://lkml.org/lkml/2006/7/26/249
+> 
 
-Since we configure the device, the PIO address must not be subject to
-translation. If it is, then we must know how the translation is done.
+Ahh yes, thank you very much.  I'm now the proud owner of a 2.6.17.7 kernel.
 
-As this is a rather crappy chip which nobody in their right mind would
-use, we'll cross that bridge when/if someone decides to use it in a
-system that doesn't behave like x86.
-
-Rgds
-Pierre
-
+-Andy

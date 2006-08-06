@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWHFDtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWHFDwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbWHFDtg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Aug 2006 23:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWHFDtg
+	id S1751513AbWHFDwF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Aug 2006 23:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWHFDwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Aug 2006 23:49:36 -0400
-Received: from ozlabs.org ([203.10.76.45]:64436 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751511AbWHFDtf (ORCPT
+	Sat, 5 Aug 2006 23:52:04 -0400
+Received: from ozlabs.org ([203.10.76.45]:693 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751513AbWHFDwD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Aug 2006 23:49:35 -0400
+	Sat, 5 Aug 2006 23:52:03 -0400
 Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@muc.de>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <44D55DF9.6020706@zytor.com>
+To: Andi Kleen <ak@muc.de>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dmitry.torokhov@gmail.com
+In-Reply-To: <20060806031643.GA43490@muc.de>
 References: <1154771262.28257.38.camel@localhost.localdomain>
 	 <20060806023824.GA41762@muc.de>
 	 <1154832963.29151.21.camel@localhost.localdomain>
-	 <44D55AEC.1090205@zytor.com>
-	 <1154833800.29151.24.camel@localhost.localdomain>
-	 <44D55DF9.6020706@zytor.com>
+	 <20060806031643.GA43490@muc.de>
 Content-Type: text/plain
-Date: Sun, 06 Aug 2006 13:49:32 +1000
-Message-Id: <1154836173.29151.48.camel@localhost.localdomain>
+Date: Sun, 06 Aug 2006 13:52:01 +1000
+Message-Id: <1154836321.29151.50.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-05 at 20:11 -0700, H. Peter Anvin wrote:
-> Rusty Russell wrote:
-> >>>
-> >>> So if you would prefer u64 rdtsc64(), u32 rdtsc_low(), u64 rdmsr64(int
-> >>> msr), u32 rdmsr_low(int msr), I can convert everyone to that, although
-> >>> it's a more invasive change...
-> >> rdmsrl is really misnamed.  It should have been rdmsrq to be consistent, 
-> >> and have rdmsrl return the low 32 bits.
-> > 
-> > I prefer the more explicit linux-style naming of rdmsr_low32/rdmsr64,
-> > myself, even though this is x86-specific code.  Noone has an excuse for
-> > misunderstanding then...
+On Sun, 2006-08-06 at 05:16 +0200, Andi Kleen wrote:
+> > 	Please reconsider.  This isn't about being pretty, it's about not
+> > having hidden side-effects,
 > 
-> Well, we *do* have readb/readw/readl/readq etc.
+> I wouldn't call it hidden, it's well defined in the architecture.
 
-Exactly.  And I modelled the name rdtsc64 on the "new-style" ioread8,
-ioread16 and ioread32 from asm-generic/iomap.h 8)
+Sorry Andi, I'm not talking about the asm, which is fine.  I'm talking
+about the function-style macro which alters its arguments directly.
+It's very bad form.
+
+	int a, b;
+	rdtsc(a, b);
+
+> > and having typechecking.
+> 
+> The existing code will already reject any non integer and I don't
+> see a particular need to be more strict than that.
+
+Um?
+
+	u64 c;
+	int a,b;
+
+	rdtsc(&a, &b);
+	rdtscl(c);
+
+These macros are badly named and don't check for bad usage.  Sure, less
+than 1% of uses is wrong at the moment, but I'm volunteering to fix them
+because I think it sets a bad example and sets us up for more bugs.
+
+I feel fairly strongly about this, but I'll drop the x86_64 changes.
 
 Rusty.
 -- 

@@ -1,28 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWHFKIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWHFKIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWHFKIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 06:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWHFKIZ
+	id S932456AbWHFKIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 06:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWHFKIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 06:08:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55993 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932387AbWHFKIY (ORCPT
+	Sun, 6 Aug 2006 06:08:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54457 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932379AbWHFKIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 06:08:24 -0400
-Date: Sun, 6 Aug 2006 03:07:49 -0700
+	Sun, 6 Aug 2006 06:08:15 -0400
+Date: Sun, 6 Aug 2006 03:08:09 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Shem Multinymous" <multinymous@gmail.com>
-Cc: rlove@rlove.org, khali@linux-fr.org, gregkh@suse.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded
- controller access
-Message-Id: <20060806030749.ab49c887.akpm@osdl.org>
-In-Reply-To: <41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	<11548492242899-git-send-email-multinymous@gmail.com>
-	<20060806005613.01c5a56a.akpm@osdl.org>
-	<41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc3-mm2
+Message-Id: <20060806030809.2cfb0b1e.akpm@osdl.org>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,16 +21,33 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Aug 2006 12:56:43 +0300
-"Shem Multinymous" <multinymous@gmail.com> wrote:
 
-> What more is needed that may be realistically expected from a kernel
-> patch submission?
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
 
-We who accept the submission would be making a joke of the whole thing if
-we accepted the assurances of a person who is concealing his/her identity.
+- 2.6.18-rc3-mm1 gets mysterious udev timeouts during boot and crashes in
+  NFS.  This kernel reverts the patches which were causing that.
 
-I suggested a simple solution: Perhaps one of the other project members
-(ie: one who uses a real name) could also sign off the patches?
+
+
+Changes since 2.6.18-rc3-mm1:
+
+
++revert-x86_64-mm-i386-remove-lock-section.patch
+
+ Revert patch which caues udev timeouts.
+
+-knfsd-make-rpc-threads-pools-numa-aware-fix.patch
+
+ Folded into knfsd-make-rpc-threads-pools-numa-aware.patch
+
++revert-knfsd-make-rpc-threads-pools-numa-aware.patch
+
+ Revert patch which causes nfs crashes.
+
+
+
+All 1136 patches:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/patch-list
 
 

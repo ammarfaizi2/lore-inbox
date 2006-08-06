@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWHFSkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWHFSn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWHFSkj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 14:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWHFSkj
+	id S1750937AbWHFSn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 14:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWHFSn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 14:40:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63895 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750776AbWHFSki (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 14:40:38 -0400
-Date: Sun, 6 Aug 2006 11:40:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: tytso@mit.edu, multinymous@gmail.com, rlove@rlove.org, khali@linux-fr.org,
-       gregkh@suse.de, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded
- controller access
-Message-Id: <20060806114004.ff472cff.akpm@osdl.org>
-In-Reply-To: <20060806164013.GA7637@aepfle.de>
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	<11548492242899-git-send-email-multinymous@gmail.com>
-	<20060806005613.01c5a56a.akpm@osdl.org>
-	<41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
-	<20060806030749.ab49c887.akpm@osdl.org>
-	<41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
-	<20060806145551.GC30009@thunk.org>
-	<20060806164013.GA7637@aepfle.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 6 Aug 2006 14:43:26 -0400
+Received: from vcs5.camavision.com ([63.228.164.252]:45276 "EHLO
+	marajade.camavision.com") by vger.kernel.org with ESMTP
+	id S1750899AbWHFSnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 14:43:25 -0400
+Message-ID: <44D6383E.7050000@squeakycode.net>
+Date: Sun, 06 Aug 2006 13:43:10 -0500
+From: andy <andy@squeakycode.net>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: asus m5n, i2c-i805 missing temp1_auto_temp_min
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Aug 2006 18:40:13 +0200
-Olaf Hering <olaf@aepfle.de> wrote:
+Hi list,
 
-> On Sun, Aug 06, 2006 at 10:55:51AM -0400, Theodore Tso wrote:
-> > On Sun, Aug 06, 2006 at 01:44:02PM +0300, Shem Multinymous wrote:
-> 
-> > > Can you please be more specific? What purpose does this exclusion
-> > > serve, that would be realistically achieved otherwise? You already
-> > > have a GPL license from the author, and a way to contact and uniquely
-> > > identify the author.
-> > 
-> > For legal reasons, we need a way to to contact and identify the author
-> > in the real world, not just in cyberspace, and a pseudonym doesn't
-> > meet that requirement.
-> 
-> In that context, even an anonymous mailer like gmail and the like is
-> questionable. But, I'm sure one get a domain with faked address data
-> in the whois database.
-> Where would you draw the line?
+I have an asus m5n laptop, with kernel 2.6.16.9, and this works:
 
-I have a personal line, and that is when the patch is "substantial".  (This
-line is only relevant when someone forgot to add the Signed-off-by: and I'm
-wondering whether to ask them to send one).
+if cd '/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e'; then
+     echo 55000 > temp1_auto_temp_min
+     echo 50000 > temp1_auto_temp_off
+fi
 
-And I'd say this patch series _is_ substantial because it pokes at
-registers which might be described in confidential/NDA'ed documentation, or
-in ways which might be derived from $OTHER_OS.
+However in kernel 2.6.16.27, and 2.6.17.7 it does not.  It reports that 
+directory is not found (I can get to '/sys/devices/pci0000:00/' and 
+thats it).  Its only for setting the fan on/off temp's, so its not a big 
+deal, but it makes my laptop quieter when its not doing anything, so I 
+kinda like it.
+
+Is there a new way of doing this?  Or was it moved to another module? 
+Or broken?
+
+I am not subscribed to the lkml so if you need info from me please cc me 
+directly.
+
+
+lsmod shows:
+
+Module                  Size  Used by
+joydev                  8512  0
+psmouse                38536  0
+evdev                   8448  0
+eeprom                  5648  0
+lm85                   31780  0
+hwmon_vid               2432  1 lm85
+hwmon                   2324  1 lm85
+i2c_i801                7820  0
+i2c_core               17296  3 eeprom,lm85,i2c_i801
+cpufreq_ondemand        5148  1
+snd_pcm_oss            49440  0
+snd_mixer_oss          17280  1 snd_pcm_oss
+ipv6                  244224  20
+ohci_hcd               19076  0
+intel_agp              20764  1
+uhci_hcd               30480  0
+ehci_hcd               31112  0
+shpchp                 42944  0
+i8xx_tco                6036  0
+snd_intel8x0           29852  0
+snd_ac97_codec         94240  1 snd_intel8x0
+snd_ac97_bus            1920  1 snd_ac97_codec
+snd_pcm                80392  3 snd_pcm_oss,snd_intel8x0,snd_ac97_codec
+snd_timer              20868  1 snd_pcm
+snd                    45796  6 
+snd_pcm_oss,snd_mixer_oss,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer
+soundcore               7392  1 snd
+snd_page_alloc          8712  2 snd_intel8x0,snd_pcm
+yenta_socket           24844  1
+rsrc_nonstatic         12160  1 yenta_socket
+pcmcia_core            35984  2 yenta_socket,rsrc_nonstatic
+ohci1394               31792  0
+ieee1394               89272  1 ohci1394
+8139too                22912  0
+mii                     5120  1 8139too
+xfs                   551860  1
+exportfs                4736  1 xfs
+agpgart                28976  1 intel_agp
+
+
+Thanks for your time,
+
+-Andy

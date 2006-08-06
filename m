@@ -1,104 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWHFLbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWHFLyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWHFLbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 07:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWHFLbS
+	id S1751372AbWHFLyi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 07:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWHFLyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 07:31:18 -0400
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:25606 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751429AbWHFLbS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 07:31:18 -0400
-Date: Sun, 6 Aug 2006 13:31:15 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Theuns Verwoerd <theuns@bluewatersys.com>
-Cc: Rudolf Marek <r.marek@sh.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001/001] I2C: AD7414 I2C chip driver for Linux-2.6.17.7
-Message-Id: <20060806133115.0b3bfe3f.khali@linux-fr.org>
-In-Reply-To: <20060803202336.07c2b2a2.rdunlap@xenotime.net>
-References: <44D28C60.1000304@bluewatersys.com>
-	<20060803202336.07c2b2a2.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Aug 2006 07:54:38 -0400
+Received: from cassarossa.samfundet.no ([129.241.93.19]:42943 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S1751372AbWHFLyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 07:54:37 -0400
+Date: Sun, 6 Aug 2006 13:50:43 +0200
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Suspend on Dell D420
+Message-ID: <20060806115043.GA30671@uio.no>
+References: <20060804162300.GA26148@uio.no> <200608050126.57060.rjw@sisk.pl> <20060805082321.GB27129@uio.no> <200608051108.01180.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200608051108.01180.rjw@sisk.pl>
+X-Operating-System: Linux 2.6.16trofastxen on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Theuns, Randy,
+On Sat, Aug 05, 2006 at 11:08:00AM +0200, Rafael J. Wysocki wrote:
+>> No idea whether it's related. FWIW, resume didn't work with maxcpus=1 on boot
+>> either, so I'm not really sure how related it is.
+> Hm, could you please try it with a non-SMP kernel?
 
-[Theuns Verwoerd]
-> > AD7414 Temperature Sensor I2C driver.  I2C chip driver for the Analog
-> > Devices AD7414 device, exposes raw and decoded registers via sysfs.
-> > Signed-off-by: Theuns Verwoerd <theuns.verwoerd@bluewatersys.com>
-> > ---
-> > Tested on a custom EP9315-based board developed in-house. Fairly trivial
-> > driver; really just exposes the raw registers and temperature reading
-> > to userspace.
-> > Patch is relative to stock Linux-2.6.17.7
-> > (...)
-> > [This is my first go at a kernel submission, so feel free to point out 
-> > anything
-> > that should be done differently]
-> > ---
-> > diff -uprN -X linux-2.6.17.7-vanilla/Documentation/dontdiff 
-> > linux-2.6.17.7-vanilla/drivers/i2c/chips/ad7414.c 
-> > linux-2.6.17.7/drivers/i2c/chips/ad7414.c
-> > --- linux-2.6.17.7-vanilla/drivers/i2c/chips/ad7414.c    1970-01-01 
-> > 12:00:00.000000000 +1200
-> > +++ linux-2.6.17.7/drivers/i2c/chips/ad7414.c    2006-08-04 
-> > 10:28:37.000000000 +1200
+Compiling straight 2.6.17 with CONFIG_SMP=n suspends and resumes just fine.
 
-[Randy Dunlap]
-> 1/  Thunderbird is breaking (splitting) your lines for you.  :(
-> See if http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
-> helps any.  Try sending a patch to yourself and test if you
-> can apply it.  Or use a different mail client/app.
-> Those 7 lines above should be 3 lines.
-> You may need to unset some "flowed" attribute in tbird
-> (I'm not sure of its full, correct name.)
-> 
-> 2/  Either thunderbird is converting tabs to spaces or the
-> driver source does not contain tabs -- just lots of spaces.
-> Please indent struct fields with one tab, embedded struct fields
-> with 2 tabs, etc.
-> 
-> 3/  Macro continuation lines should be indented.
-> 
-> 4/  sysfs files should contain only one value per file.  Use
-> multiple files for multiple values.
-
-And please see Documentation/hwmon/sysfs-interface for proper file
-names and units.
-
-> 5/  Code labels should not be indented or maybe indented one space,
-> and certainly not indented more than the following source lines.
-> 
-> 6/  device_create_file() and friends can return errors.  They need
-> to be checked for success/fail.
-> 
-> 7/  Header files should be included in linux/ alpha order, then
-> asm/ alpha order, then local.h files unless there are reasons
-> that this order won't work.
-> (Yes, only linux/ applies here.)
-
-The "alpha order" point is moot. I see nothing about that in
-Documentation/CodingStyle, and also no rationale for it. Header files
-should work no matter the order of inclusion. And I don't think we have
-a single driver respecting that rule, do we?
-
-I do agree with the linux/asm/local ordering rule, though, and I think
-pretty much everyone does, as there is a rationale for it (local
-defines shouldn't possibly affect standard header files.)
-
-I second every other point Randy made, and add the following ones:
-
-8* Theuns' driver belongs to drivers/hwmon, not drivers/i2c/chips.
-
-9* The driver should be submitted for review to the lm-sensors list
-(see MAINTAINERS) rather than the LKML.
-
-Thanks,
+/* Steinar */
 -- 
-Jean Delvare
+Homepage: http://www.sesse.net/

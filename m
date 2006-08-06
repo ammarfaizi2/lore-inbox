@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWHFSx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWHFTAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWHFSx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 14:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWHFSx4
+	id S1751389AbWHFTAc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 15:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWHFTAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 14:53:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12222 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750956AbWHFSx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 14:53:56 -0400
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded
-	controller access
-From: Arjan van de Ven <arjan@infradead.org>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, rlove@rlove.org, khali@linux-fr.org,
-       gregkh@suse.de, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	 <11548492242899-git-send-email-multinymous@gmail.com>
-	 <20060806005613.01c5a56a.akpm@osdl.org>
-	 <41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
-	 <20060806030749.ab49c887.akpm@osdl.org>
-	 <41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 06 Aug 2006 20:53:26 +0200
-Message-Id: <1154890406.3054.127.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 6 Aug 2006 15:00:32 -0400
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:17823 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751389AbWHFTAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 15:00:31 -0400
+Date: Sun, 6 Aug 2006 14:56:19 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386: fix stuck unwind into kernel thread
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>
+Message-ID: <200608061458_MC3-1-C742-330A@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-06 at 13:44 +0300, Shem Multinymous wrote:
-> Hi,
-> 
-> On 8/6/06, Andrew Morton <akpm@osdl.org> wrote:
-> > I suggested a simple solution: Perhaps one of the other project members
-> > (ie: one who uses a real name) could also sign off the patches?
-> 
-> Well, I offer this patch under the GPL, so anyone (including you) can do it.
-> 
-> But I would like to be able to submit further patches without "adult
-> supervision", so I hope you don't mind my pressing the issue:
-> 
+We cannot unwind past kernel_thread_helper.
 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Open source is all about trust. Person A takes a patch from person B
-because person A has trust in B (conditional on the patch meeting a
-technical standard). In B's technical ability, in B's intentions, in B's
-sincerity, in B's honesty when he says "this is my work and you can use
-it because nobody but me has a claim on this".
+---
 
-Using a fake name is not a good way to gain such trust... At all.
-Explicitly refusing to say who you really are just lowers the trust even
-more, because it gives a strong appearance that something really fishy
-is going on. 
+On top of previous arch_unw_user_mode() patch;
+to make this apply to vanilla: s/(unsigned long)_stext/PAGE_OFFSET/
 
-Personally I would be extremely hesitant to take any patches from anyone
-who refuses to give out his real name. Because trust is about a person.
-Because trust means not having to hide things that matter. And a persons
-identity does matter for taking patches.
+ arch/i386/kernel/process.c   |    6 ++++--
+ include/asm-i386/processor.h |    2 ++
+ include/asm-i386/unwind.h    |   10 +++++++---
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
+--- 2.6.18-rc3-d4.orig/arch/i386/kernel/process.c
++++ 2.6.18-rc3-d4/arch/i386/kernel/process.c
+@@ -319,15 +319,17 @@ void show_regs(struct pt_regs * regs)
+  * function to call, and %edx containing
+  * the "args".
+  */
+-extern void kernel_thread_helper(void);
+ __asm__(".section .text\n"
+ 	".align 4\n"
+-	"kernel_thread_helper:\n\t"
++	"kernel_thread_helper:\n"
++	".globl kernel_thread_helper\n\t"
+ 	"movl %edx,%eax\n\t"
+ 	"pushl %edx\n\t"
+ 	"call *%ebx\n\t"
+ 	"pushl %eax\n\t"
+ 	"call do_exit\n"
++	"kernel_thread_helper_end:\n"
++	".globl kernel_thread_helper_end\n"
+ 	".previous");
+ 
+ /*
+--- 2.6.18-rc3-d4.orig/include/asm-i386/processor.h
++++ 2.6.18-rc3-d4/include/asm-i386/processor.h
+@@ -555,6 +555,8 @@ extern void prepare_to_copy(struct task_
+  * create a kernel thread without removing it from tasklists
+  */
+ extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
++extern void kernel_thread_helper(void);
++extern void kernel_thread_helper_end(void);
+ 
+ extern unsigned long thread_saved_pc(struct task_struct *tsk);
+ void show_trace(struct task_struct *task, struct pt_regs *regs, unsigned long *stack);
+--- 2.6.18-rc3-d4.orig/include/asm-i386/unwind.h
++++ 2.6.18-rc3-d4/include/asm-i386/unwind.h
+@@ -79,9 +79,13 @@ static inline int arch_unw_user_mode(con
+          are properly annotated (and tracked in UNW_REGISTER_INFO). */
+ 	return user_mode_vm(&info->regs);
+ #else
+-	return info->regs.eip < (unsigned long)_stext
+-	       || (info->regs.eip >= __fix_to_virt(FIX_VDSO)
+-	            && info->regs.eip < __fix_to_virt(FIX_VDSO) + PAGE_SIZE)
++	unsigned long eip = info->regs.eip;
++
++	return eip < (unsigned long)_stext
++	       || (eip >= __fix_to_virt(FIX_VDSO)
++		   && eip < __fix_to_virt(FIX_VDSO) + PAGE_SIZE)
++	       || (eip >= (unsigned long)kernel_thread_helper
++		   && eip < (unsigned long)kernel_thread_helper_end)
+ 	       || info->regs.esp < PAGE_OFFSET;
+ #endif
+ }
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Chuck

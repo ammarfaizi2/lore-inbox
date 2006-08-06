@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWHFXQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWHFXTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWHFXQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 19:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWHFXQe
+	id S1750767AbWHFXTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 19:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWHFXTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 19:16:34 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40206 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750766AbWHFXQd
+	Sun, 6 Aug 2006 19:19:55 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:3462 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750767AbWHFXTy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 19:16:33 -0400
-Date: Sun, 6 Aug 2006 23:16:22 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Brannon Barrett Klopfer <bklopfer@stanford.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Completely dead on resume (no caps lock, nada)
-Message-ID: <20060806231621.GE4205@ucw.cz>
-References: <1154721378.44d3a6627e951@webmail.stanford.edu> <20060804215957.GA7008@nineveh.rivenstone.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060804215957.GA7008@nineveh.rivenstone.net>
-User-Agent: Mutt/1.5.9i
+	Sun, 6 Aug 2006 19:19:54 -0400
+Message-ID: <44D6791F.8030001@drzeus.cx>
+Date: Mon, 07 Aug 2006 01:19:59 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Ben Dooks <ben@fluff.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Fix base address configuration in wbsd
+References: <20060806202223.13663.66134.stgit@poseidon.drzeus.cx>	 <20060806204842.GE16816@flint.arm.linux.org.uk>	 <44D657BF.6070004@drzeus.cx>	 <20060806210509.GF16816@flint.arm.linux.org.uk>	 <44D65F4D.3060907@drzeus.cx> <20060806213524.GC8907@home.fluff.org>	 <44D66491.1090606@drzeus.cx> <1154907141.25998.2.camel@localhost.localdomain>
+In-Reply-To: <1154907141.25998.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Alan Cox wrote:
+> Ar Sul, 2006-08-06 am 23:52 +0200, ysgrifennodd Pierre Ossman:
+>   
+>> Sorry, my intention wasn't to assert that it was only to be used on x86
+>> but that the 16-bit assumption was safe.
+>>     
+>
+> Your ISA bus mappings on a non x86 processor are likely to be 32bit MMIO
+> -> PIO windows in memory space. 
+>
+>   
 
-> > Sorry to bug the entire list with such a vaugue post, but I'm not sure what
-> > driver/subsystem is causing this problem. I'm sure you all are sick of "My
-> > computer won't suspend, what do I do?" posts, but...well, my computer won't
-> > suspend...
-> 
->     If no one reports bugs, they don't get fixed.
-> 
->     Pavel Machek <pavel@suse.cz> is the swsusp maintainer, and should
-> have been CC'd on this, otherwise he'll probably never see it.
-> Linux-kernel is a busy place. :-)
+Since we configure the device, the PIO address must not be subject to
+translation. If it is, then we must know how the translation is done.
 
-Actually I probably would see it, just a little later.
+As this is a rather crappy chip which nobody in their right mind would
+use, we'll cross that bridge when/if someone decides to use it in a
+system that doesn't behave like x86.
 
-Also I'm maintainer for swsusp. I tend to look after s2ram, too, so
-cc-ing me will not hurt, but I do not maintain it.
+Rgds
+Pierre
 
-Best place to ask is probably suspend-devel mailing list at
-sourceforge's suspend project.
-
->     I know Mr. Machek wants swsusp bug reports filed in Bugzilla at
-> http://bugzilla.kernel.org , so you should do that, and then send a
-> follow up to this, CC'd to Pavel, with a bugzilla bug number.
-
-Actually I prefer 'simple' bugs to go via mail to suspend-devel... and
-keep bugzilla for 'interesting' issues.
-
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.

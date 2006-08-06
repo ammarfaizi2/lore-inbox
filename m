@@ -1,106 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWHFNd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWHFNzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWHFNd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 09:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWHFNd4
+	id S1751108AbWHFNzF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 09:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWHFNzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 09:33:56 -0400
-Received: from aa002msr.fastwebnet.it ([85.18.95.65]:44972 "EHLO
-	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750715AbWHFNdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 09:33:55 -0400
-Date: Sun, 6 Aug 2006 15:33:06 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2
-Message-ID: <20060806133306.GB4009@inferi.kami.home>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+	Sun, 6 Aug 2006 09:55:05 -0400
+Received: from smtprelay05.ispgateway.de ([80.67.18.43]:16871 "EHLO
+	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751108AbWHFNzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 09:55:03 -0400
+From: Matthias Dahl <mlkernel@mortal-soul.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sluggish system responsiveness under higher IO load
+Date: Sun, 6 Aug 2006 15:54:42 +0200
+User-Agent: KMail/1.9.4
+References: <200608061200.37701.mlkernel@mortal-soul.de> <20060806031512.57585f5d.akpm@osdl.org>
+In-Reply-To: <20060806031512.57585f5d.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.18-rc1-mm2-2 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608061554.42992.mlkernel@mortal-soul.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 06, 2006 at 03:08:09AM -0700, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> I'd suggest that you generate a kernel profile while the sluggishness is
+> happening.
 
-there's something more, I had a load of the following while playing with
-UML, full dmesg and config are
-http://oioio.altervista.org/linux/config-2.6.18-rc3-mm2-1
-http://oioio.altervista.org/linux/dmesg-2.6.18-rc3-mm2-1
+Done...
 
-[  781.988000] ------------[ cut here ]------------
-[  781.988000] kernel BUG at mm/vmscan.c:383!
-[  781.988000] invalid opcode: 0000 [#1]
-[  781.988000] 4K_STACKS PREEMPT 
-[  781.988000] last sysfs file: /devices/system/cpu/cpu0/cpufreq/ondemand/ignore_nice_load
-[  781.988000] Modules linked in: ipv6 nfsd exportfs lockd sunrpc ipt_MASQUERADE iptable_nat ip_nat xt_tcpudp xt_state ip_conntrack iptable_filter ip_tables x_tables jfs aes dm_crypt dm_mod rtc sony_acpi tun psmouse sonypi speedstep_ich speedstep_lib freq_table cpufreq_conservative cpufreq_ondemand cpufreq_powersave sd_mod usb_storage scsi_mod usbhid pcmcia snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer intel_agp agpgart i2c_i801 uhci_hcd usbcore evdev e100 mii yenta_socket rsrc_nonstatic pcmcia_core snd soundcore snd_page_alloc pcspkr
-[  781.988000] CPU:    0
-[  781.988000] EIP:    0060:[<c014c4d8>]    Not tainted VLI
-[  781.988000] EFLAGS: 00210203   (2.6.18-rc3-mm2-1 #1) 
-[  781.988000] EIP is at remove_mapping+0xe8/0x120
-[  781.988000] eax: c0374120   ebx: c11e2a80   ecx: c0374120   edx: 000000d0
-[  781.988000] esi: c0374120   edi: cfea0f78   ebp: cfea0e04   esp: cfea0df8
-[  781.988000] ds: 007b   es: 007b   ss: 0068
-[  781.988000] Process kswapd0 (pid: 134, ti=cfea0000 task=cfe9e030 task.ti=cfea0000)
-[  781.988000] Stack: c11e2a80 c11e2a80 c0374120 cfea0f14 c014cbab c0374120 c11e2a80 cfea0f78 
-[  781.988000]        c0373d60 c0373e2c 00000020 00000020 00000000 00000020 00000000 00000000 
-[  781.988000]        c0374120 00000001 00000000 c101a860 c0373c20 00000000 00000001 c0463168 
-[  781.988000] Call Trace:
-[  781.988000]  [<c014cbab>] shrink_inactive_list+0x69b/0x920
-[  781.988000]  [<c014cec2>] shrink_zone+0x92/0xe0
-[  781.988000]  [<c014d1f1>] kswapd+0x2e1/0x430
-[  781.988000]  [<c012ee26>] kthread+0xe6/0xf0
-[  781.988000]  [<c0101005>] kernel_thread_helper+0x5/0x10
-[  781.988000] DWARF2 unwinder stuck at kernel_thread_helper+0x5/0x10
-[  781.988000] Leftover inexact backtrace:
-[  781.988000]  [<c0103a06>] show_stack_log_lvl+0xb6/0x100
-[  781.988000]  [<c0103c2f>] show_registers+0x1df/0x290
-[  781.988000]  [<c01041aa>] die+0x13a/0x310
-[  781.988000]  [<c01047dd>] do_trap+0x9d/0x100
-[  781.988000]  [<c0104c41>] do_invalid_op+0xa1/0xb0
-[  781.988000]  [<c031a4a9>] error_code+0x39/0x40
-[  781.988000]  [<c014cbab>] shrink_inactive_list+0x69b/0x920
-[  781.988000]  [<c014cec2>] shrink_zone+0x92/0xe0
-[  781.988000]  [<c014d1f1>] kswapd+0x2e1/0x430
-[  781.988000]  [<c012ee26>] kthread+0xe6/0xf0
-[  781.988000]  [<c0101005>] kernel_thread_helper+0x5/0x10
-[  781.988000] Code: 89 e0 25 00 f0 ff ff ff 48 14 8b 40 08 31 d2 a8 08 74 bc e8 6b be 1c 00 31 d2 eb b3 8d b4 26 00 00 00 00 8b 53 0c e9 51 ff ff ff <0f> 0b 7f 01 4e 66 33 c0 e9 2c ff ff ff 0f 0b 7e 01 4e 66 33 c0 
-[  781.988000] EIP: [<c014c4d8>] remove_mapping+0xe8/0x120 SS:ESP 0068:cfea0df8
-[  781.988000]  <0>------------[ cut here ]------------
-[  782.292000] kernel BUG at mm/vmscan.c:383!
-...
-[  782.292000]  <0>------------[ cut here ]------------
-[  782.564000] kernel BUG at mm/vmscan.c:383!
-...
-[  809.588000] ------------[ cut here ]------------
-[  809.588000] kernel BUG at mm/vmscan.c:383!
-...
-[  809.588000]  <0>------------[ cut here ]------------
-[  811.748000] kernel BUG at mm/vmscan.c:383!
-...
-[  811.748000]  <0>------------[ cut here ]------------
-[  814.128000] kernel BUG at mm/vmscan.c:383!
-...
-[  814.128000]  <0>------------[ cut here ]------------
-[  815.272000] kernel BUG at mm/vmscan.c:383!
-...
-[  815.272000]  <0>------------[ cut here ]------------
-[  816.116000] kernel BUG at mm/vmscan.c:383!
-...
-[  816.856000]  <0>------------[ cut here ]------------
-[  817.120000] kernel BUG at mm/vmscan.c:383!
+profile 1: (emerge of three huge packages which caused quite some IO)
 
--- 
-mattia
-:wq!
+ffffffff80232650 __wake_up                                    23   0.2396
+ffffffff803427a0 vgacon_cursor                                23   0.0395
+ffffffff8020ba40 free_hot_cold_page                           24   0.0652
+ffffffff8020be90 find_vma                                     25   0.2232
+ffffffff8020c9b0 __wake_up_bit                                25   0.5208
+ffffffff80301800 journal_add_journal_head                     25   0.0601
+ffffffff803424e0 vgacon_scroll                                26   0.0478
+ffffffff802eb970 __ext3_get_inode_loc                         27   0.0312
+ffffffff802fd8e0 journal_dirty_metadata                       27   0.0456
+ffffffff80207500 kmem_cache_free                              28   0.2917
+ffffffff80211d90 do_select                                    30   0.0216
+ffffffff8020d420 bit_waitqueue                                32   0.1429
+ffffffff8020bbb0 fget_light                                   34   0.1635
+ffffffff8026b97f thread_return                                35   0.1211
+ffffffff80268d50 system_call                                  36   0.2748
+ffffffff8020a580 kmem_cache_alloc                             39   0.6094
+ffffffff8020cae0 vm_normal_page                               42   0.2188
+ffffffff8020bf00 __make_request                               43   0.0384
+ffffffff8020b600 __find_get_block                             47   0.0979
+ffffffff802eb5c0 ext3_mark_iloc_dirty                         48   0.0508
+ffffffff8020a0f0 get_page_from_freelist                       50   0.0428
+ffffffff802fba50 do_get_write_access                          55   0.0382
+ffffffff80209050 __link_path_walk                             56   0.0132
+ffffffff803a63a0 scsi_request_fn                              57   0.0604
+ffffffff8026b0c0 memcpy                                       59   0.3352
+ffffffff8020ccf0 __delay                                      69   2.1562
+ffffffff80208350 __handle_mm_fault                            78   0.0269
+ffffffff802075e0 unmap_vmas                                   93   0.0501
+ffffffff80208ea0 __d_lookup                                   95   0.2199
+ffffffff8026ad30 clear_page                                  100   1.7544
+ffffffff80341880 vgacon_set_cursor_size                      103   0.4023
+ffffffff8020a920 do_page_fault                               105   0.0443
+ffffffff80207560 find_get_page                               106   0.9464
+ffffffff80207d20 copy_page_range                             111   0.0701
+ffffffff8026ad70 copy_page                                   157   0.7009
+ffffffff80212cd0 __do_softirq                                189   1.0739
+ffffffff803a0430 scsi_dispatch_cmd                           459   0.7172
+ffffffff8026afda copy_user_generic_c                         854  22.4737
+ffffffff80270e00 default_idle                              49571 516.3646
+0000000000000000 total                                     54590   0.0232
+
+profile 2: (emerge of recent kernel sources- huge, causes quite some IO too)
+
+ffffffff8020ff40 generic_permission                           57   0.2227
+ffffffff8020ccf0 __delay                                      58   1.8125
+ffffffff802149a0 rb_insert_color                              58   0.2417
+ffffffff802af8b0 free_page_and_swap_cache                     63   1.3125
+ffffffff8020ccb0 put_page                                     66   1.0312
+ffffffff803a63a0 scsi_request_fn                              67   0.0710
+ffffffff80234c60 unix_poll                                    69   0.3920
+ffffffff8020b600 __find_get_block                             74   0.1542
+ffffffff80268d50 system_call                                  81   0.6183
+ffffffff8020e220 memscan                                      88   1.8333
+ffffffff80224820 __up_read                                    92   0.5227
+ffffffff802fba50 do_get_write_access                          95   0.0660
+ffffffff80207500 kmem_cache_free                              99   1.0312
+ffffffff80223d40 find_next_zero_bit                          100   0.6944
+ffffffff8020d6a0 strncpy_from_user                           103   1.2875
+ffffffff80211d90 do_select                                   104   0.0747
+ffffffff8020c9b0 __wake_up_bit                               117   2.4375
+ffffffff8026b97f thread_return                               120   0.4152
+ffffffff8020a580 kmem_cache_alloc                            143   2.2344
+ffffffff8026b0c0 memcpy                                      154   0.8750
+ffffffff8020a0f0 get_page_from_freelist                      155   0.1327
+ffffffff8020b260 page_remove_rmap                            172   2.6875
+ffffffff80221320 copy_process                                175   0.0315
+ffffffff80207560 find_get_page                               190   1.6964
+ffffffff8020be90 find_vma                                    198   1.7679
+ffffffff80211900 do_wp_page                                  249   0.2132
+ffffffff80209050 __link_path_walk                            315   0.0740
+ffffffff8026afda copy_user_generic_c                         325   8.5526
+ffffffff80212cd0 __do_softirq                                452   2.5682
+ffffffff80208350 __handle_mm_fault                           479   0.1654
+ffffffff80208ea0 __d_lookup                                  510   1.1806
+ffffffff8026ad30 clear_page                                  519   9.1053
+ffffffff803a0430 scsi_dispatch_cmd                           576   0.9000
+ffffffff8020a920 do_page_fault                               712   0.3007
+ffffffff8020cae0 vm_normal_page                              814   4.2396
+ffffffff8026ad70 copy_page                                  1929   8.6116
+ffffffff802075e0 unmap_vmas                                 2362   1.2726
+ffffffff80207d20 copy_page_range                            2683   1.6938
+ffffffff80270e00 default_idle                              45081 469.5938
+0000000000000000 total                                     64216   0.0273
+
+I hope this helps.

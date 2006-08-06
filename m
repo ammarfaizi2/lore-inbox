@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWHFWTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWHFWbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWHFWTX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 18:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWHFWTX
+	id S1750748AbWHFWbl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 18:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWHFWbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 18:19:23 -0400
-Received: from mail.zelnet.ru ([80.92.97.13]:27015 "EHLO mail.zelnet.ru")
-	by vger.kernel.org with ESMTP id S1750747AbWHFWTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 18:19:22 -0400
-Message-ID: <44D66ADD.6020007@namesys.com>
-Date: Mon, 07 Aug 2006 02:19:09 +0400
-From: Edward Shishkin <edward@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en, ru
+	Sun, 6 Aug 2006 18:31:41 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:6547 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750748AbWHFWbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 18:31:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rFJDYEvef5omxp6ESeIBDqFjbnuNuJRBTpgLSe44S8iIQ1mmiArA63TvIeHo3iBVnlxl3+vycPjh8m5wqPNnvjStp3WGJhWAV/5o1SAL/7Vw37MAbOSwCgrKL7f+DvaT/RQFzO/u3Vq0ZrkQ707R7iQn04EC5ITYETVoj1z8k7Y=
+Message-ID: <41840b750608061531u71940fdx3fbf71c0dfc68c26@mail.gmail.com>
+Date: Mon, 7 Aug 2006 01:31:39 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Cc: "Olaf Hering" <olaf@aepfle.de>, tytso@mit.edu, rlove@rlove.org,
+       khali@linux-fr.org, gregkh@suse.de, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060806114004.ff472cff.akpm@osdl.org>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org> <44D219F9.9080404@namesys.com> <44D231DF.1080804@namesys.com> <44D37E1B.1040109@namesys.com> <44D3ECB5.1060106@namesys.com>
-In-Reply-To: <44D3ECB5.1060106@namesys.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492242899-git-send-email-multinymous@gmail.com>
+	 <20060806005613.01c5a56a.akpm@osdl.org>
+	 <41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
+	 <20060806030749.ab49c887.akpm@osdl.org>
+	 <41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
+	 <20060806145551.GC30009@thunk.org> <20060806164013.GA7637@aepfle.de>
+	 <20060806114004.ff472cff.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Edward Shishkin wrote:
-> 
-> 
->>>
->>>How about we switch to ecc, which would help with bit rot not sector
->>>loss?
->>
->>
->>Interesting aspect.
->>
->>Yes, we can implement ECC as a special crypto transform that inflates
->>data. As I mentioned earlier, it is possible via translation of key
->>offsets with scale factor > 1.
->>
->>Of course, it is better then nothing, but anyway meta-data remains
->>ecc-unprotected, and, hence, robustness is not increased..
->>
->>Edward.
-> 
-> 
-> Would you prefer to do it as a node layout plugin instead, so as to get
-> the metadata?
-> 
+On 8/6/06, Andrew Morton <akpm@osdl.org> wrote:
+> And I'd say this patch series _is_ substantial because it pokes at
+> registers which might be described in confidential/NDA'ed documentation, or
+> in ways which might be derived from $OTHER_OS.
 
-Yes, it looks like a business of node plugin, but AFAIK, you
-objected against such checks: currently only bitmap nodes have
-a protection (checksum); supporting ecc-signatures is more
-space/cpu expensive.
+For what it's worth to you:
+I hereby declare that this patch was developed solely based on public
+specifications, observation of hardware behavior by trial&eror, and
+specifications made available to me in clean-room settings and with no
+attached obligations. So this patch is as pure as the mainline hdaps
+driver it fixes (and probably purer than many other drivers), and not
+a single line of it is a derivative work of $OTHER_OS code.
 
-Edward.
+If it would help inspire trust, you can look at the tp_smapi revision
+history on sf.net, where many of those trials and errors are
+immortalized.
+
+As for the register poking, I believe all the code in thinkpad_ec.c
+logically follows from the publicly available H8S documentation (see
+link at the top of the sourcecode), except for one number (base port
+"0x1600") which is already given by the mainline hdaps driver.
+
+  Shem

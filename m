@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWHFUex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWHFUrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWHFUex (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 16:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWHFUex
+	id S1750709AbWHFUrR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 16:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWHFUrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 16:34:53 -0400
-Received: from xenotime.net ([66.160.160.81]:13191 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750707AbWHFUex (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 16:34:53 -0400
-Date: Sun, 6 Aug 2006 13:37:29 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][Doc] Fix kerneldoc comments in kernel/timer.c
-Message-Id: <20060806133729.b389f1be.rdunlap@xenotime.net>
-In-Reply-To: <200608011631.40189.eike-kernel@sf-tec.de>
-References: <200608011631.40189.eike-kernel@sf-tec.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 6 Aug 2006 16:47:17 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:59398 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750709AbWHFUrR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 16:47:17 -0400
+Date: Sun, 6 Aug 2006 22:47:15 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: andy <andy@squeakycode.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: asus m5n, i2c-i805 missing temp1_auto_temp_min
+Message-Id: <20060806224715.2bfe074a.khali@linux-fr.org>
+In-Reply-To: <44D6383E.7050000@squeakycode.net>
+References: <44D6383E.7050000@squeakycode.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006 16:31:39 +0200 Rolf Eike Beer wrote:
+Hi Andy,
 
-> Some of the kerneldoc comments in this file are ignored since the lead-in is
-> malformed, using either "/*" or "/***" instead of "/**".
+> I have an asus m5n laptop, with kernel 2.6.16.9, and this works:
 > 
-> Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> if cd '/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e'; then
+>      echo 55000 > temp1_auto_temp_min
+>      echo 50000 > temp1_auto_temp_off
+> fi
+> 
+> However in kernel 2.6.16.27, and 2.6.17.7 it does not.  It reports that 
+> directory is not found (I can get to '/sys/devices/pci0000:00/' and 
+> thats it).  Its only for setting the fan on/off temp's, so its not a big 
+> deal, but it makes my laptop quieter when its not doing anything, so I 
+> kinda like it.
+> 
+> Is there a new way of doing this?  Or was it moved to another module? 
+> Or broken?
 
-> @@ -401,7 +405,7 @@ static int cascade(tvec_base_t *base, tv
->  	return index;
->  }
->  
-> -/***
-> +/**
->   * __run_timers - run all expired timers (if any) on this CPU.
->   * @base: the timer vector to be processed.
->   *
+Done on purpose.
 
-Thanks for the patch, Eike.  I noticed that __run_timers needs
-some help.  Patch below.
+Please see this thread:
+http://lkml.org/lkml/2006/7/26/249
 
----
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Fix function description + definition so that a #macro does
-not come between them and interfere with the kernel-doc.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- kernel/timer.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2618-rc3g2.orig/kernel/timer.c
-+++ linux-2618-rc3g2/kernel/timer.c
-@@ -405,6 +405,8 @@ static int cascade(tvec_base_t *base, tv
- 	return index;
- }
- 
-+#define INDEX(N) ((base->timer_jiffies >> (TVR_BITS + (N) * TVN_BITS)) & TVN_MASK)
-+
- /**
-  * __run_timers - run all expired timers (if any) on this CPU.
-  * @base: the timer vector to be processed.
-@@ -412,8 +414,6 @@ static int cascade(tvec_base_t *base, tv
-  * This function cascades all vectors and executes all expired timer
-  * vectors.
-  */
--#define INDEX(N) ((base->timer_jiffies >> (TVR_BITS + (N) * TVN_BITS)) & TVN_MASK)
--
- static inline void __run_timers(tvec_base_t *base)
- {
- 	struct timer_list *timer;
+-- 
+Jean Delvare

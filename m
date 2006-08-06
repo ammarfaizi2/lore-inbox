@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWHFWCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWHFWIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWHFWCf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 18:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWHFWCX
+	id S1750739AbWHFWIn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 18:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHFWIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 18:02:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48397 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750738AbWHFWCU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 18:02:20 -0400
-Date: Sat, 5 Aug 2006 10:45:07 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>
-Subject: Re: A proposal - binary
-Message-ID: <20060805104507.GA4506@ucw.cz>
-References: <44D1CC7D.4010600@vmware.com> <44D217A7.9020608@redhat.com> <44D24236.305@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Aug 2006 18:08:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:4219 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750739AbWHFWIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 18:08:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m6BcoNMsjZC+w7jzX4PlHdPxIyLF0bBRn/mcMKWGzhdoSFiziQHU6Xdk1ki4uZZW6qrp/zvJmn0KcSNWOK4aK3ZdZqiHjUAAs6p4/grBjPLF5WPC1kJ2+Xe0RmQAF002iuIYP2lnk1r1syY41DJ1yskyBGqUaNu6b+BSkj+6u7s=
+Message-ID: <41840b750608061508j9e731c4hf9de7b389c46c916@mail.gmail.com>
+Date: Mon, 7 Aug 2006 01:08:40 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Theodore Tso" <tytso@mit.edu>
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Cc: "Andrew Morton" <akpm@osdl.org>, rlove@rlove.org, khali@linux-fr.org,
+       gregkh@suse.de, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060806145551.GC30009@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44D24236.305@vmware.com>
-User-Agent: Mutt/1.5.9i
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492242899-git-send-email-multinymous@gmail.com>
+	 <20060806005613.01c5a56a.akpm@osdl.org>
+	 <41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
+	 <20060806030749.ab49c887.akpm@osdl.org>
+	 <41840b750608060344p59293ce0xc75edfbd791b23c@mail.gmail.com>
+	 <20060806145551.GC30009@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Ted,
 
-> >You're making a very good argument as to why we should 
-> >probably
-> >require that the code linking against such an 
-> >interface, if we
-> >decide we want one, should be required to be open 
-> >source.
-> 
-> Personally, I don't feel a strong requirement that it be 
-> open source, because I don't believe it violates the 
-> intent of the GPL license by crippling free distribution 
-> of the kernel, requiring some fee for use, or doing 
-> anything unethical.  There have been charges that the 
-> VMI layer is deliberately designed as a GPL 
-> circumvention device, which I want to stamp out now 
-> before we try to get any code for integrating to it 
-> upstreamed.
+Thanks for the explanation. Point taken, though I can't help parsing it as:
 
-Maybe it is not designed tobe evil, but...
+On 8/6/06, Theodore Tso <tytso@mit.edu> wrote:
+> For legal reasons, we need a way to to contact and identify the author
+> in the real world, not just in cyberspace, and a pseudonym doesn't
+> meet that requirement.
 
-> >>I think you will see why our VMI layer is quite 
-> >>similar to a
-> >>traditional ROM, and very dissimilar to an evil 
-> >>GPL-circumvention
-> >>device.
-> >
-> >>(?) There are only two reasonable objections I can see 
-> >>to open
-> >>sourcing the binary layer. 
-> >
-> >Since none of the vendors that might use such a 
-> >paravirtualized
-> >ROM for Linux actually have one of these reasons for 
-> >keeping their
-> >paravirtualized ROM blob closed source, I say we might 
-> >as well
-> >require that it be open source.
-> 
-> I think saying require at this point is a bit 
-> preliminary for us -- I'm trying to prove we're not 
-> being evil and subverting the GPL, but I'm also not 
-> guaranteeing yet that we can open-source the code under 
-> a specific license.  Sorry about having to doublespeak 
+"We want to be able to sue you if they sue us."
 
-...it should be very easy to opensource simple 'something' layer. If
-it is so complex it is 'hard' to opensource, it is missdesigned,
-anyway... so fix the design.
+Which is actually not a problem for me (i.e., I don't believe I have
+nothing to worry about legally); but I do have other, non-legal
+considerations.
 
-My proposal would be: add open-source hypervisor interface, and keep
-it updated for a while. If it is too hard to keep updated, we'll have
-to solve it, somehow, but lets not overengineer it now.
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+
+> just as the fact that we aren't requiring ink signatures and public notary
+> checks doesn't mean we shouldn't stop doing what we are doing.
+
+Understood, but still a bit silly. You have no idea how many of the
+2252 people in `git-whatchanged | grep Signed-off-by: | sort | uniq`
+gave their legal name, and I doubt you could contact most of them in
+the real world without their cooperation (and with my cooperation, you
+could contact me too). Heck, some of those email domains don't even
+resolve. So this "chain of responsibiliy" is pretty worthless if
+someone really tries to inject legally malicious code into mainline,
+i.e., you end up blindly trusting people anyway.
+
+BTW, Ted, we actually have met in person. :-)
+
+  Shem

@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWHGXZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWHGXZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWHGXZe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWHGXZe
+	id S932347AbWHGXZj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWHGXZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:25:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:3817 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932249AbWHGXZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:25:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CSu/L97oh3Hoz27WkO/uJjcSTwfFmW9xdTSVMm5FYfKx4R99TPhizqLr54LmRZR2tjWi1u8aIwgSyK80sGSISJiNknXBRv/CQMxmljbrljg/3ZGqwP/fGeJ86RflD1IfjWYiL+nN+TNASFgbFsKnGsiwp49/fhgrb4jSwZIQsnU=
-Message-ID: <5c49b0ed0608071614k3a62a982jbe27fa0c6d5fdb0@mail.gmail.com>
-Date: Mon, 7 Aug 2006 16:14:59 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Jens Axboe" <axboe@suse.de>
-Subject: Re: [PATCH -mm] [1/3] add elv_extended_request call to iosched API
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060804133938.GX20624@suse.de>
+	Mon, 7 Aug 2006 19:25:39 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13763 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932337AbWHGXZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 19:25:38 -0400
+Date: Tue, 8 Aug 2006 01:25:20 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <gregkh@suse.de>
+Cc: Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Message-ID: <20060807232520.GF2759@elf.ucw.cz>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com> <20060807231557.GA2759@elf.ucw.cz> <20060807232330.GA16540@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5c49b0ed0608031911id21b112t7f0c350a7f10a99@mail.gmail.com>
-	 <20060804052031.GA4717@suse.de>
-	 <20060803224519.dd9bf38e.akpm@osdl.org>
-	 <20060804133938.GX20624@suse.de>
+In-Reply-To: <20060807232330.GA16540@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/4/06, Jens Axboe <axboe@suse.de> wrote:
-> On Thu, Aug 03 2006, Andrew Morton wrote:
-> > On Fri, 4 Aug 2006 07:20:32 +0200
-> > Jens Axboe <axboe@suse.de> wrote:
-> >
-> > > On Thu, Aug 03 2006, Nate Diller wrote:
-> > > > the Elevator iosched would prefer to be unconditionally notified of a
-> > > > merge, but the current API calls only one 'merge' notifier
-> > > > (elv_merge_requests or elv_merged_requests), even if both front and
-> > > > back merges happened.
+On Mon 2006-08-07 16:23:30, Greg KH wrote:
+> On Tue, Aug 08, 2006 at 01:15:57AM +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > Thanks for the sign-offs!
+> > 
+> > No problem.
+> > 
+> > > >> +module_param_named(debug, tp_debug, int, 0600);
+> > > >> +MODULE_PARM_DESC(debug, "Debug level (0=off, 1=on)");
+> > > >> +
+> > > >> +/* A few macros for printk()ing: */
+> > > >> +#define DPRINTK(fmt, args...) \
+> > > >> +  do { if (tp_debug) printk(KERN_DEBUG fmt, ## args); } while (0)
 > > > >
-> > > > elv_extended_request satisfies this requirement in conjunction with
-> > > > elv_merge_requests.
-> > >
-> > > Ok, I suppose. But please rebase patches against the 'block' git branch,
-> > > there are extensive changes in this area.
-> > >
-> >
-> > argh, the great (but partial ;)) renaming bites again.
-> >
-> > A suitable patch to merge against is
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/git-block.patch
->
-> not so much the renaming (that's easy enough), but the elevator core
-> parts changed in some areas.
+> > > >Is not there generic function doing this?
+> > > 
+> > > None that I found. Many drivers do it this way.
+> > 
+> > linux/kernel.h : pr_debug() looks similar.
+> 
+> Use dev_dbg() and friends please instead of rolling your own.
 
-would it be appropriate to submit against 2.6.18-rc3-mm2?  I hope to
-have a much-cleaned-up version tomorrow
+Ahha, okay, dev_dbg() looks even better. (But we have pr_debug in
+linux/kernel.h; if it should not be used, comment would be nice).
 
-thanks
-
-NATE
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

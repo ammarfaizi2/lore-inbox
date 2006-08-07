@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWHGGSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWHGGSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWHGGSz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 02:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWHGGSz
+	id S1751102AbWHGGSs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 02:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWHGGSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 02:18:55 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:13492 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751104AbWHGGSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 02:18:54 -0400
-Date: Mon, 7 Aug 2006 08:17:56 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Avinash Ramanath <avinashr@gmail.com>
-cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Stat in kernel space
-In-Reply-To: <abcd72470608061820r4c313ebbw80e7cab98d5d2299@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0608070817330.31761@yvahk01.tjqt.qr>
-References: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
- <abcd72470608061820r4c313ebbw80e7cab98d5d2299@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 7 Aug 2006 02:18:48 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53425
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751102AbWHGGSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 02:18:47 -0400
+Date: Sun, 06 Aug 2006 23:18:46 -0700 (PDT)
+Message-Id: <20060806.231846.71090637.davem@davemloft.net>
+To: rostedt@goodmis.org
+Cc: tytso@mit.edu, mchan@broadcom.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
+References: <20060803.144845.66061203.davem@davemloft.net>
+	<20060803235326.GC7894@thunk.org>
+	<Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I wanted to know the file-size using stat.
+From: Steven Rostedt <rostedt@goodmis.org>
+Date: Mon, 7 Aug 2006 01:34:56 -0400 (EDT)
 
-inode->i_size
+> My suggestion would be to separate that tg3_timer into 4 different
+> timers, which is what it actually looks like.
 
->
-> On 8/6/06, Avinash Ramanath <avinashr@gmail.com> wrote:
->> Could somebody let me know which function equivalent/header file is
->> available in kernel space for "stat"ing?
->> I want an equivalent of stat/lstat/fstat in kernel space.
->> 
->> Thanks,
->> Avinash.
->> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Timers have non-trivial cost.  It's cheaper to have one and
+vector off to the necessary operations each tick internalls.
 
-Jan Engelhardt
--- 
+That's why it's implemented as one timer.

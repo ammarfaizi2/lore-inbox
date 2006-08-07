@@ -1,66 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWHGU1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWHGU31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWHGU1h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 16:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWHGU1h
+	id S1751059AbWHGU31 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 16:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWHGU30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 16:27:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15545 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751009AbWHGU1g (ORCPT
+	Mon, 7 Aug 2006 16:29:26 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:64711 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751059AbWHGU30 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 16:27:36 -0400
-Date: Mon, 7 Aug 2006 13:24:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Matt Reuther <mreuther@umich.edu>, LKML <linux-kernel@vger.kernel.org>,
-       Jay Lan <jlan@sgi.com>
-Subject: Re: [-mm patch] add timespec_to_us() and use it in kernel/tsacct.c
-Message-Id: <20060807132418.037048a5.akpm@osdl.org>
-In-Reply-To: <20060807133240.GB3691@stusta.de>
-References: <200608062330.19628.mreuther@umich.edu>
-	<20060806222129.f1cfffb9.akpm@osdl.org>
-	<20060807133240.GB3691@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Aug 2006 16:29:26 -0400
+Message-ID: <44D7A29C.2000002@pobox.com>
+Date: Mon, 07 Aug 2006 16:29:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Auke Kok <auke-jan.h.kok@intel.com>
+CC: Linas Vepstas <linas@austin.ibm.com>, netdev@vger.kernel.org,
+       Auke Kok <sofar@foo-projects.org>, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Subject: Re: [PATCH]: e1000: Janitor: Use #defined values for literals
+References: <20060807201658.GP10638@austin.ibm.com> <44D7A0C6.8080400@intel.com>
+In-Reply-To: <44D7A0C6.8080400@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006 15:32:41 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+hopefully queued-by, as well...
 
-> On Sun, Aug 06, 2006 at 10:21:29PM -0700, Andrew Morton wrote:
-> > On Sun, 6 Aug 2006 23:30:19 -0400
-> > Matt Reuther <mreuther@umich.edu> wrote:
-> > 
-> > > I got an Error while compiling 2.6.18-rc3-mm2:
-> > > 
-> > >   AR      arch/i386/lib/lib.a
-> > >   GEN     .version
-> > >   CHK     include/linux/compile.h
-> > >   UPD     include/linux/compile.h
-> > >   CC      init/version.o
-> > >   LD      init/built-in.o
-> > >   LD      .tmp_vmlinux1
-> > > kernel/built-in.o(.text+0x45667): In function `bacct_add_tsk':
-> > > include/linux/time.h:130: undefined reference to `__divdi3'
-> > > make: *** [.tmp_vmlinux1] Error 1
-> > > 
-> > > I attached the .config file.
-> > > 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/hot-fixes/csa-basic-accounting-over-taskstats-fix.patch
-> > should fix this, thanks.  
-> 
-> This doesn't look correct since do_div() does not guarantee to return 
-> more than 32bit.
-
-eh?  We use do_div() to do 64bit/something all the time??
-
-> What about the patch below that adds a timespec_to_us() to time.h and 
-> uses this function in kernel/tsacct.c?
-
-Seems reasonable, but it'd be better as two patches..
-
-Do we do timespec->microseconds anywhere else?

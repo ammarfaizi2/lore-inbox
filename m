@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWHGR74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWHGR7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWHGR74 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWHGR7z
+	id S932252AbWHGR7n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWHGR7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:59:55 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:3747 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932254AbWHGR7x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:59:53 -0400
-Date: Mon, 7 Aug 2006 19:54:13 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
- ops
-In-Reply-To: <20060807084000.GA3802@rhun.haifa.ibm.com>
-Message-ID: <Pine.LNX.4.61.0608071952200.3365@yvahk01.tjqt.qr>
-References: <1154925835.21647.29.camel@localhost.localdomain>
- <200608070730.17813.ak@muc.de> <1154930669.7642.12.camel@localhost.localdomain>
- <200608070817.42074.ak@muc.de> <20060807062705.GB4979@rhun.haifa.ibm.com>
- <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr> <20060807084000.GA3802@rhun.haifa.ibm.com>
+	Mon, 7 Aug 2006 13:59:43 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18960 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932254AbWHGR7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:59:42 -0400
+Date: Mon, 7 Aug 2006 19:59:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Josh Boyer <jwboyer@gmail.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+Message-ID: <20060807175939.GJ3691@stusta.de>
+References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060807124044.GB4032@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060807124044.GB4032@ucw.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >baremetal.h seems appropriate.
->> 
->> <vanilla.h>, in hommage to "vanilla kernel".
->
->I think most people use 'vanilla' to mean 'mainline', as in Linus's
+On Mon, Aug 07, 2006 at 12:40:44PM +0000, Pavel Machek wrote:
 
-Vanilla is also used outside Linux. One example that comes to mind is 
-"vanilla Doom" (Doom as in: the game by id software), and actually someone 
-took on it and created www.chocolate-doom.org.
-Oh well, OT.
+> Hi!
+> 
+> Thanks for doing this.
+> 
+> I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
+> it still queued or should I resend?
 
+Is this "pdflush: handle resume wakeups"?
 
-Jan Engelhardt
+> 						Pavel
+
+cu
+Adrian
+
 -- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
+

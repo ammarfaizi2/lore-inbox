@@ -1,94 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWHGPIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWHGPKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWHGPIK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWHGPIK
+	id S932131AbWHGPKu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWHGPKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:08:10 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:33333 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932131AbWHGPII
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:08:08 -0400
-Date: Mon, 7 Aug 2006 17:08:07 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
-Subject: [patch] s390: hypfs comment cleanup.
-Message-ID: <20060807150807.GG10416@skybase>
+	Mon, 7 Aug 2006 11:10:50 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:2835 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932131AbWHGPKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:10:49 -0400
+Message-ID: <44D75786.8030603@shadowen.org>
+Date: Mon, 07 Aug 2006 16:08:54 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Hugh Dickins <hugh@veritas.com>
+CC: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc3-mm2 early_param mem= fix
+References: <Pine.LNX.4.64.0608061811030.19637@blonde.wat.veritas.com> <Pine.LNX.4.64.0608061829430.20012@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0608061829430.20012@blonde.wat.veritas.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+Hugh Dickins wrote:
+> On Sun, 6 Aug 2006, Hugh Dickins wrote:
+>> I was impressed by how fast 2.6.18-rc3-mm2 is under memory pressure,
+>> until I noticed that my "mem=512M" boot option was doing nothing.  The
+>> two fixes below got it working, but I wonder how many other early_param
+>> "option=" args are wrong (e.g. "memmap=" in the same file): x86_64
+>> shows many such, i386 shows only one, I've not followed it up further.
+> 
+> Oh, and that's not enough for it to show up in x86_64's /proc/cmdline.
 
-[S390] hypfs comment cleanup.
+Thats one I've been chasing and is caused by this same patch.  We've 
+lost the separation between command_line and saved_command_line and the 
+user visible line gets trunc'd.  Andi has a later version which has this 
+part fixed as far as I can tell.  I'm posting a dirty patch in response 
+to my report of this to at least get past this bit as our test system 
+relies on the commmand line being maintained to user space.
 
-Correct some comments in the hypervisor filesystem.
-
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
-
- arch/s390/hypfs/hypfs.h      |    2 +-
- arch/s390/hypfs/hypfs_diag.c |    2 +-
- arch/s390/hypfs/hypfs_diag.h |    2 +-
- arch/s390/hypfs/inode.c      |    2 +-
- drivers/base/hypervisor.c    |    3 ++-
- 5 files changed, 6 insertions(+), 5 deletions(-)
-
-diff -urpN linux-2.6/arch/s390/hypfs/hypfs_diag.c linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c
---- linux-2.6/arch/s390/hypfs/hypfs_diag.c	2006-08-07 14:14:23.000000000 +0200
-+++ linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c	2006-08-07 14:15:00.000000000 +0200
-@@ -1,5 +1,5 @@
- /*
-- *  fs/hypfs/hypfs_diag.c
-+ *  arch/s390/hypfs/hypfs_diag.c
-  *    Hypervisor filesystem for Linux on s390. Diag 204 and 224
-  *    implementation.
-  *
-diff -urpN linux-2.6/arch/s390/hypfs/hypfs_diag.h linux-2.6-patched/arch/s390/hypfs/hypfs_diag.h
---- linux-2.6/arch/s390/hypfs/hypfs_diag.h	2006-08-07 14:14:23.000000000 +0200
-+++ linux-2.6-patched/arch/s390/hypfs/hypfs_diag.h	2006-08-07 14:15:00.000000000 +0200
-@@ -1,5 +1,5 @@
- /*
-- *  fs/hypfs/hypfs_diag.h
-+ *  arch/s390/hypfs_diag.h
-  *    Hypervisor filesystem for Linux on s390.
-  *
-  *    Copyright (C) IBM Corp. 2006
-diff -urpN linux-2.6/arch/s390/hypfs/hypfs.h linux-2.6-patched/arch/s390/hypfs/hypfs.h
---- linux-2.6/arch/s390/hypfs/hypfs.h	2006-08-07 14:14:23.000000000 +0200
-+++ linux-2.6-patched/arch/s390/hypfs/hypfs.h	2006-08-07 14:15:00.000000000 +0200
-@@ -1,5 +1,5 @@
- /*
-- *  fs/hypfs/hypfs.h
-+ *  arch/s390/hypfs/hypfs.h
-  *    Hypervisor filesystem for Linux on s390.
-  *
-  *    Copyright (C) IBM Corp. 2006
-diff -urpN linux-2.6/arch/s390/hypfs/inode.c linux-2.6-patched/arch/s390/hypfs/inode.c
---- linux-2.6/arch/s390/hypfs/inode.c	2006-08-07 14:14:23.000000000 +0200
-+++ linux-2.6-patched/arch/s390/hypfs/inode.c	2006-08-07 14:15:00.000000000 +0200
-@@ -1,5 +1,5 @@
- /*
-- *  fs/hypfs/inode.c
-+ *  arch/s390/hypfs/inode.c
-  *    Hypervisor filesystem for Linux on s390.
-  *
-  *    Copyright (C) IBM Corp. 2006
-diff -urpN linux-2.6/drivers/base/hypervisor.c linux-2.6-patched/drivers/base/hypervisor.c
---- linux-2.6/drivers/base/hypervisor.c	2006-08-07 14:14:24.000000000 +0200
-+++ linux-2.6-patched/drivers/base/hypervisor.c	2006-08-07 14:15:00.000000000 +0200
-@@ -1,8 +1,9 @@
- /*
-  * hypervisor.c - /sys/hypervisor subsystem.
-  *
-- * This file is released under the GPLv2
-+ * Copyright (C) IBM Corp. 2006
-  *
-+ * This file is released under the GPLv2
-  */
- 
- #include <linux/kobject.h>
+-apw

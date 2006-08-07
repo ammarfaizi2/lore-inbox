@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWHGQO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWHGQRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWHGQO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWHGQO3
+	id S932200AbWHGQRU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWHGQRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:14:29 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:48212 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932198AbWHGQO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:14:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pe1N3igYc0rm9mcHXbuQSjqhGRSwdEsz9COuvy9U9A/fO4QS39AXqwH7gqh2KU4ji1+gzUpjslN4rmUebZo90nQkiNTIJw4JYorHLYX4TpLro4CXFUOP6JzQyX5hCyN5EVdMBnVstKM+80hYomMmkBJ8pzvbTsxb4U6SnJJ/ZGM=
-Message-ID: <41840b750608070914h5817b8b0m977141be455067c4@mail.gmail.com>
-Date: Mon, 7 Aug 2006 19:14:27 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Subject: Re: [PATCH 03/12] hdaps: Unify and cache hdaps readouts
-Cc: "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <20060807140222.GG4032@ucw.cz>
+	Mon, 7 Aug 2006 12:17:20 -0400
+Received: from mail.suse.de ([195.135.220.2]:17832 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932200AbWHGQRU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 12:17:20 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+Date: Mon, 7 Aug 2006 18:17:13 +0200
+User-Agent: KMail/1.9.3
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0C86@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0C86@USRV-EXCH4.na.uis.unisys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	 <1154849246822-git-send-email-multinymous@gmail.com>
-	 <20060807140222.GG4032@ucw.cz>
+Message-Id: <200608071817.13318.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Pavel Machek <pavel@suse.cz> wrote:
-> > +     /* Parse position data: */
-> > +     pos_x = *(s16*)(data.val+EC_ACCEL_IDX_XPOS1) * (hdaps_invert?-1:1);
-> > +     pos_y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS1) * (hdaps_invert?-1:1);
-> > +
-> > +     /* Parse so-called "variance" data: */
-> > +     var_x = *(s16*)(data.val+EC_ACCEL_IDX_XPOS2) * (hdaps_invert?-1:1);
-> > +     var_y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS2) * (hdaps_invert?-1:1);
->
-> Perhaps hdaps_invert should already have 1/-1 values.
 
-It's also used as a module parameter, which is 0/1 in mainline. I
-don't think this is worth extra code.
+> 4k being a humble maximum is definitely a relative term here, but on the
+> system with "only" 64 or 128 processors the cpu*224 would be much higher
+> :) However, maybe CONFIG_TINY that Andi suggested would leverage this
+> number also. What do you think, Eric?
 
+Best would be something dynamic - kernels should be self tuning, not 
+require that much CONFIG magic.
 
-> >  {
-> > -     int ret = thinkpad_ec_lock();
-> > +     int ret;
-> > +     ret = thinkpad_ec_lock();
->
-> I actually liked the previous version more, and this change does not
-> really belong here.
+Just PCI hotplug gives me headaches with this.
 
-(That's a diff artifact, it's a totally different function...)
-Changed to the version you like.
+Maybe we just need growable per CPU data.
 
-  Shem
+-Andi

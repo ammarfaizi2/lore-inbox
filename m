@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWHGHOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWHGHTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWHGHOW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 03:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWHGHOW
+	id S1751121AbWHGHTg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 03:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWHGHTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 03:14:22 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:34222 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751116AbWHGHOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 03:14:21 -0400
-Message-Id: <1154934860.6783.267775866@webmail.messagingengine.com>
-X-Sasl-Enc: s3bBf20qfVBlVoDJbWHk7Ohl8iYFxXvL6LB4ZBQp3WCc 1154934860
-From: dan@pwienterprises.com
-To: "Eric Sandeen" <sandeen@sandeen.net>, linux-kernel@vger.kernel.org
-Cc: bfennema@falcon.csc.calpoly.edu
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
+	Mon, 7 Aug 2006 03:19:36 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:42807 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751121AbWHGHTf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 03:19:35 -0400
+Message-ID: <44D6E98C.9090208@sw.ru>
+Date: Mon, 07 Aug 2006 11:19:40 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-References: <44D36E60.2020006@sandeen.net>
-Subject: Re: [PATCH]: initialize parts of udf inode earlier in create
-In-Reply-To: <44D36E60.2020006@sandeen.net>
-Date: Mon, 07 Aug 2006 00:14:20 -0700
+To: rohitseth@google.com
+CC: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A	cpu
+ controller
+References: <20060804050753.GD27194@in.ibm.com>	 <20060803223650.423f2e6a.akpm@osdl.org>	 <20060803224253.49068b98.akpm@osdl.org>	 <1154684950.23655.178.camel@localhost.localdomain>	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>	 <20060804153123.GB32412@in.ibm.com>  <44D36FB5.3050002@sw.ru> <1154716024.7228.32.camel@galaxy.corp.google.com>
+In-Reply-To: <1154716024.7228.32.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I saw an oops down this path when trying to create a new file on a UDF 
-> filesystem which was internally marked as readonly, but mounted rw:
+>>>Doesnt the ability to move tasks between groups dynamically affect
+>>>(atleast) memory controller design (in giving up ownership etc)?
+>>
+>>we save object owner on the object. So if you change the container,
+>>objects are still correctly charged to the creator and are uncharged
+>>correctly on free.
+>>
 > 
-> udf_create
->         udf_new_inode
->                 new_inode
->                         alloc_inode
->                         	udf_alloc_inode
->                 udf_new_block
->                         returns EIO due to readonlyness
->                 iput (on error)
+> 
+> Seems like the object owner should also change when the object moves
+> from one container to another.
+Consider a file which is opened in 2 processes. one of the processes
+wants to move to another container then. How would you decide whether
+to change the file owner or not?
 
-I ran into the same issue today, but when listing a directory with
-invalid/corrupt entries:
-
-udf_lookup
-        udf_iget
-                get_new_inode_fast
-                        alloc_inode
-                                udf_alloc_inode
-                __udf_read_inode
-                        fails for any reason
-                iput (on error)
-                        ...
-
-The following patch to udf_alloc_inode() should take care of both (and
-other similar) cases, but I've only tested it with udf_lookup().
-
-Dan
-
---
-
-Signed-off-by: Dan Bastone <dan@pwienterprises.com>
-
---- linux-2.6.17.7/fs/udf/super.c.orig
-+++ linux-2.6.17.7/fs/udf/super.c
-@@ -116,6 +116,13 @@
-        ei = (struct udf_inode_info *)kmem_cache_alloc(udf_inode_cachep,
-        SLAB_KERNEL);
-        if (!ei)
-                return NULL;
-+
-+       ei->i_unique = 0;
-+       ei->i_lenExtents = 0;
-+       ei->i_next_alloc_block = 0;
-+       ei->i_next_alloc_goal = 0;
-+       ei->i_strat4096 = 0;
-+
-        return &ei->vfs_inode;
- }
-
-
--- 
-  
-  diegogarcia@cluemail.com
-
--- 
-http://www.fastmail.fm - Email service worth paying for. Try it for free
+Kirill
 

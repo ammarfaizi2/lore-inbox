@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWHGIkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWHGIjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWHGIkF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 04:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWHGIkF
+	id S1751160AbWHGIjz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 04:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWHGIjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 04:40:05 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:30975 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751161AbWHGIkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 04:40:03 -0400
-Date: Mon, 7 Aug 2006 11:40:00 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
-Message-ID: <20060807084000.GA3802@rhun.haifa.ibm.com>
-References: <1154925835.21647.29.camel@localhost.localdomain> <200608070730.17813.ak@muc.de> <1154930669.7642.12.camel@localhost.localdomain> <200608070817.42074.ak@muc.de> <20060807062705.GB4979@rhun.haifa.ibm.com> <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
+	Mon, 7 Aug 2006 04:39:55 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:62535 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751160AbWHGIjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 04:39:54 -0400
+Subject: Re: [patch 20/23] S390: fix futex_atomic_cmpxchg_inatomic
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20060804054038.GU769@kroah.com>
+References: <20060804053258.391158155@quad.kroah.org>
+	 <20060804054038.GU769@kroah.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Mon, 07 Aug 2006 10:39:08 +0200
+Message-Id: <1154939948.6721.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 09:34:43AM +0200, Jan Engelhardt wrote:
+On Thu, 2006-08-03 at 22:40 -0700, Greg KH wrote:
+> plain text document attachment
+> (s390-fix-futex_atomic_cmpxchg_inatomic.patch)
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
-> >baremetal.h seems appropriate.
+> ------------------
+> [S390] fix futex_atomic_cmpxchg_inatomic
 > 
-> <vanilla.h>, in hommage to "vanilla kernel".
+> futex_atomic_cmpxchg_inatomic has the same bug as the other
+> atomic futex operations: the operation needs to be done in the
+> user address space, not the kernel address space. Add the missing
+> sacf 256 & sacf 0.
+> 
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
 
-I think most people use 'vanilla' to mean 'mainline', as in Linus's
-kernel, so I find 'baremetal' (as opposed to 'virtualized') more
-appropriate but... since this thread has all of the characteristics of
-your favorite bike-shed, I'll bow out of it now :-)
+Hi Greg,
+sorry for the late answer. Stable version 2.6.17.8 contains the
+necessary patches to fix the futex hole and I currently do not know of
+any other critical bugs that need fixing. Thanks!
 
-Cheers,
-Muli
+-- 
+blue skies,
+  Martin.
 
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
 
 

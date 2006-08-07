@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWHGFm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWHGFnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWHGFm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 01:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWHGFm7
+	id S1751080AbWHGFnn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 01:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWHGFnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 01:42:59 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:35972 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751087AbWHGFm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 01:42:58 -0400
-Date: Mon, 7 Aug 2006 08:42:57 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@zeniv.linux.org.uk, alan@lxorguk.ukuu.org.uk, tytso@mit.edu,
-       tigran@veritas.com
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-In-Reply-To: <20060805122936.GC5417@ucw.cz>
-Message-ID: <Pine.LNX.4.58.0608070840590.24153@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
- <20060805122936.GC5417@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Aug 2006 01:43:42 -0400
+Received: from gw.goop.org ([64.81.55.164]:51841 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751080AbWHGFnm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 01:43:42 -0400
+Message-ID: <44D6D315.2030907@goop.org>
+Date: Sun, 06 Aug 2006 22:43:49 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
+ ops
+References: <1154925835.21647.29.camel@localhost.localdomain> <200608070730.17813.ak@muc.de>
+In-Reply-To: <200608070730.17813.ak@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in time, I wrote:
-> > This patch implements the revoke(2) and frevoke(2) system calls for
-> > all types of files. The operation is done in passes: first we replace
+Andi Kleen wrote:
+>> +/* Stop speculative execution */
+>> +static inline void sync_core(void)
+>> +{
+>> +	unsigned int eax = 1, ebx, ecx, edx;
+>> +	__cpuid(&eax, &ebx, &ecx, &edx);
+>> +}
+>>     
+>
+> Actually I don't think this one should be para virtualized at all.
+> I don't see any reason at all why a hypervisor should trap it and it
+> is very time critical. I would recommend you move it back into the 
+> normal files without hooks.
+>   
 
-On Sat, 5 Aug 2006, Pavel Machek wrote:
-> Do we need revoke()? open()+frevoke() should be fast enough, no?
+When VT/AMDV is enabled, cpuid could cause a vm exit, so it would be 
+nice to use one of the other serializing instructions in this case.  For 
+the default implementation, it should probably be an explicit 
+asm("cpuid") to make it clear that we don't want any paravirtualized cpuid.
 
-Not a speed issue, open can have side effects which we might want to 
-avoid. See comments from Alan and Ulrich in this thread.
+    J
 
-				Pekka

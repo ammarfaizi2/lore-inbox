@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWHGM2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWHGMmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWHGM2v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 08:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWHGM2v
+	id S932098AbWHGMmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 08:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWHGMmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 08:28:51 -0400
-Received: from colin.muc.de ([193.149.48.1]:30473 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932078AbWHGM2u (ORCPT
+	Mon, 7 Aug 2006 08:42:25 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:32691 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S932098AbWHGMmY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 08:28:50 -0400
-Date: 7 Aug 2006 14:28:45 +0200
-Date: Mon, 7 Aug 2006 14:28:45 +0200
-From: Andi Kleen <ak@muc.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor@insightbb.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
-Message-ID: <20060807122845.GA85602@muc.de>
-References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807110931.GM27757@suse.cz>
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Aug 2006 08:42:24 -0400
+Message-ID: <44D7355A.6020006@ums.usu.ru>
+Date: Mon, 07 Aug 2006 18:43:06 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] UTF-8 input: composing non-latin1 characters, and	copy-paste
+References: <44D71C25.6090301@ums.usu.ru> <1154953118.25998.31.camel@localhost.localdomain>
+In-Reply-To: <1154953118.25998.31.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 7.1.1.2; VDF: 6.35.1.59; host: usu2.usu.ru)
+X-AV-Checked: ClamAV using ClamSMTP@relay4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 01:09:31PM +0200, Vojtech Pavlik wrote:
-> On Mon, Aug 07, 2006 at 10:48:50AM +0200, Andi Kleen wrote:
-> > On Sun, Aug 06, 2006 at 10:43:44PM -0400, Dmitry Torokhov wrote:
-> > > On Saturday 05 August 2006 23:16, Andi Kleen wrote:
-> > > > This whole thing is broken, e.g. on a preemptive kernel when the
-> > > > code can switch CPUs 
-> > > > 
-> > > 
-> > > Would not preempt_disable fix that?
-> > 
-> > Partially, but you still have other problems. Please just get rid
-> > of it. Why do we have timer code in the kernel if you then chose
-> > not to use it?
->  
-> The problem is that gettimeofday() is not always fast. 
+Alan Cox wrote:
 
-When it is not fast that means it is not reliable and then you're
-also not well off using it anyways.
+> Basically I'd rather see us:
+> - Expand the kbd code to support the full set of behaviour (within
+> reason). It looks like the old behaviour can be expressed by keeping the
+> old format and allowing a new format (or mapping the old to the new when
+> the ioctl loads it)
+> - Expand the kbd code to allow caps/shift mapping by loaded table
+> - Store the true symbol not the glyph so we can cut/paste right
+> - Do the render mapping of symbols when needed when we actually render
+> 
+> That also means we get the right results if you move a live console from
+> text mode to graphical mode, or load different fonts and refresh.
 
-Please change that code.
+Indeed. But I am not the one who originally wrote the patch. I only 
+fixed a null-pointer dereference in the original patch, updated for a 
+new kernel version, and resubmitted. For me, to do what you suggest, 
+requires better understanding of the existing code. I will try, though, 
+when I get better time.
 
--Andi
+-- 
+Alexander E. Patrakov

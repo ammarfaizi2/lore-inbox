@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWHGAnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWHGAqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbWHGAnF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 20:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWHGAnE
+	id S1750862AbWHGAqX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 20:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWHGAqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 20:43:04 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:25951 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750859AbWHGAnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 20:43:03 -0400
+	Sun, 6 Aug 2006 20:46:23 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:62520 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750861AbWHGAqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 20:46:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=g8+gZ8RsOSepAasCodA9WTg4ySHv7Qh6CfDJXaQN4BxtXGs+gOMQFecy1KXIpmk7aQW2uzvMXsguM28kmWZjWOEKV24kUo3ad6gIkzPiJVc3pDdSUhh5g+HWEHv/Dq/DMWtuIt05jYD+rnEC4fZn3/Gxr/t0iwpEwdjgoUcUAn4=
-Message-ID: <35fb2e590608061743l3bcdb875n452d9749ac564560@mail.gmail.com>
-Date: Mon, 7 Aug 2006 01:43:00 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: module-init-tools
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=O9Lo9dzg2YOBYzT79ai2v6Q4VaiVackCphldpMQpg6ElJdEA76Ol6v2MoUoH6HANQaJU9ggTLQhNby/2RJ2DLh8tWea/hLFuZ6v0gU+dQBTSwb5hDZa6VqcFrbQFat6BKhFuNNPDCFRa25WgCXzQ15E/4IFgCU9qt69wUyZnBUY=
+Message-ID: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
+Date: Sun, 6 Aug 2006 17:46:21 -0700
+From: "Avinash Ramanath" <avinashr@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Stat in kernel space
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Google-Sender-Auth: 18f6a21257928c69
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Could somebody let me know which function equivalent/header file is
+available in kernel space for "stat"ing?
+I want an equivalent of stat/lstat/fstat in kernel space.
 
-I've been tied up for the past couple of weeks, but will be looking at
-patches against module-init-tools this coming week. I've so far had
-precisely one person (mdomsch) send me ideas/patches for things that
-they'd like to see, in addition to what I'm already working on
-(getting some of the more recent Red Hat/Novell patches that "make
-sense" to the wider community into a generic form for future upstream
-inclusion, etc.).
-
-Anyway, the point is, if you previously had patches or ideas then you
-might want to check out the m-i-t page on kerneltools.org and sign up
-to the (new) mailing list there.
-
-Jon.
+Thanks,
+Avinash.

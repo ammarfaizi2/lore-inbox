@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWHGQlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWHGQpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWHGQlO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWHGQlO
+	id S932130AbWHGQpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWHGQpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:41:14 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:43406 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932213AbWHGQlN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:41:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eXJTcw3dvWquaNnh3OPpVRxZk0FlrsGgi/kfL1xfWMm02AVK0+q0H8InjN1S/n8S2Eex62oRl0xeCPoRP62R5hs7c/gMu980MbW2CStBP8gVyeQBymqGxhd2qwQKXnFIDK+NwBCq4Jm3YEohhcuLsb/0gwrXSRcEb02KhuvAsDE=
-Message-ID: <41840b750608070941i521fe56crebc491589a67cb59@mail.gmail.com>
-Date: Mon, 7 Aug 2006 19:41:11 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
-Cc: "Pavel Machek" <pavel@suse.cz>, "Robert Love" <rlove@rlove.org>,
-       "Jean Delvare" <khali@linux-fr.org>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <20060807162743.GA26224@atjola.homenet>
+	Mon, 7 Aug 2006 12:45:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54999 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932130AbWHGQpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 12:45:19 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	<20060807085924.72f832af.rdunlap@xenotime.net>
+Date: Mon, 07 Aug 2006 10:44:00 -0600
+In-Reply-To: <20060807085924.72f832af.rdunlap@xenotime.net> (Randy Dunlap's
+	message of "Mon, 7 Aug 2006 08:59:24 -0700")
+Message-ID: <m1irl4ebsf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	 <11548492242899-git-send-email-multinymous@gmail.com>
-	 <20060807134440.GD4032@ucw.cz>
-	 <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
-	 <20060807162743.GA26224@atjola.homenet>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
-> On 2006.08.07 18:13:06 +0300, Shem Multinymous wrote:
-> > >> +     struct dmi_device *dev = NULL;
-> > >unneeded initializer.
-> > On a local variable?!
+"Randy.Dunlap" <rdunlap@xenotime.net> writes:
+
+>> diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+>> index 7598d99..d744e5b 100644
+>> --- a/arch/x86_64/Kconfig
+>> +++ b/arch/x86_64/Kconfig
+>> @@ -384,6 +384,19 @@ config NR_CPUS
+>>  	  This is purely to save memory - each supported CPU requires
+>>  	  memory in the static kernel configuration.
+>>  
+>> +config NR_IRQS
+>> +	int "Maximum number of IRQs (224-4096)"
+>> +	range 256 4096
+>> +	depends on SMP
+>> +	default "4096"
+>> +	help
+>> +	  This allows you to specify the maximum number of IRQs which this
+>> +	  kernel will support. Current maximum is 4096 IRQs as that
+>> +	  is slightly larger than has observed in the field.
+>> +
+>> +	  This is purely to save memory - each supported IRQ requires
+>> +	  memory in the static kernel configuration.
 >
-> You assign a new value to it on the next line, without ever using its
-> initial value.
+> If (a) "nor does hardware typically provide that many irq sources"
+> and (b) "This is purely to save memory", why is the default
+> 4096 instead of something smaller?
 
-The initial value is used in the last parameter to dmi_find_device():
+a) Because I would like to flush out bugs.
+b) Because I want a default that works for everyone.
+c) Because with MSI we have a potential for large irq counts on most systems.
+d) Because anyone who disagrees with me can send a patch and fix
+   the default.
+e) Because with the default number of cpus we can very close to needing
+   this many irqs in the worst case.
+f) This is much better than previous to my patch and setting NR_CPUS=255
+   and getting 8K IRQS.
+g) Because I probably should have been more inventive than copying the
+   NR_IRQS text, but when I did the wording sounded ok to me.
 
-	struct dmi_device *dev = NULL;
-	while ((dev = dmi_find_device(type, NULL, dev))) {
-		if (strstr(dev->name, substr))
-			return 1;
-	}
-
-
-  Shem
+Eric

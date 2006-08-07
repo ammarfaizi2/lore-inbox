@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWHGVU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWHGVXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWHGVU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWHGVU3
+	id S932390AbWHGVXL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWHGVXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:20:29 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:48308 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932386AbWHGVU2 (ORCPT
+	Mon, 7 Aug 2006 17:23:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30439 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932390AbWHGVXK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:20:28 -0400
-Date: Mon, 7 Aug 2006 14:20:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] kbuild fixes for 2.6.18
-Message-ID: <20060807212021.GB13148@kroah.com>
-References: <20060807192708.GA12937@mars.ravnborg.org> <20060807204241.GA11510@kroah.com> <20060807210209.GA14327@mars.ravnborg.org>
+	Mon, 7 Aug 2006 17:23:10 -0400
+Message-ID: <44D7AF34.10301@sgi.com>
+Date: Mon, 07 Aug 2006 14:23:00 -0700
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807210209.GA14327@mars.ravnborg.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Jay Lan <jlan@sgi.com>
+Cc: balbir@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Jes Sorensen <jes@sgi.com>,
+       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
+Subject: Re: [patch 1/3] add basic accounting fields to taskstats
+References: <44CE57EF.2090409@sgi.com> <44CF6433.50108@in.ibm.com> <44CFCCE4.7060702@sgi.com>
+In-Reply-To: <44CFCCE4.7060702@sgi.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 11:02:09PM +0200, Sam Ravnborg wrote:
-> On Mon, Aug 07, 2006 at 01:42:41PM -0700, Greg KH wrote:
-> > On Mon, Aug 07, 2006 at 09:27:09PM +0200, Sam Ravnborg wrote:
-> > > Hi Greg.
-> > > Please apply to 2.6.18.
-> > > 
-> > > Pull from:
-> > > 
-> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild-2.6.18.git
-> > 
-> > Thanks, pulled and pushed out.
-> > 
-> > Oh, I just got a few reports of 2.6.18-rc3 not building with external
-> > trees very well, and something like the following would be required:
-> > 
-> > --- linux-2.6.17/arch/sh/Makefile-dist        2006-08-07 20:42:33.000000000 +0200
-> > +++ linux-2.6.17/arch/sh/Makefile     2006-08-07 21:08:26.000000000 +0200
-> > @@ -173,7 +173,7 @@
-> >  archprepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
-> > 
-> >  PHONY += maketools FORCE
-> > -maketools:  include/linux/version.h FORCE
-> > +maketools: $(objtree)/include/linux/version.h FORCE
-> > 
-> > for all instances of the version.h file.
-> This looks bogus.
+Jay Lan wrote:
 
-Ick, ok, thanks.
+[snip]
 
-> Current directory is $(objtree) so prefixing with $(objtree) should not
-> be needed and doing so will confuse make. make will not know that
-> $(objtree)/include/linux/version.h and include/linux/version.h is the
-> same file.
+>>
+>>
+>>> +    /* Each process gets a minimum of a half tick cpu time */
+>>> +    if ((stats->ac_utime == 0) && (stats->ac_stime == 0)) {
+>>> +        stats->ac_stime = USEC_PER_TICK/2;
+>>> +    }
+>>> +
+>>
+>>
+>>
+>> This is confusing. Half tick does not make any sense from the
+>> scheduler view point (or am I missing something?), so why
+>> return half a tick to the user.
 > 
-> And the version.h dependency is anyway not needed. kbuild guarantee the
-> version.h is created when the commands for archprepare are executed.
+> 
+> It must be inherited from old code dated back to Cray UNICOS.
+> I do not know if bad thing can happen if both utime and stime
+> are less than 1 usec...  I guess not. But i agree that
+> half a tick does not make sense. To play safe, we can change
+> it to 1 usec if both utime and stime are sub microsecond.
+> What do you think?
 
-Hm, I'll point the person who is having the problem with this at you and
-lkml and have him explain the problems he is seeing.  Much easier than
-me trying to mediate the conversation :)
+Hi Balbir,
 
-thanks,
+I figured this out. The tsk->stime (and utime as well) are
+charged by 1 tick (or cputime) from the timer interrupt handler
+through update_process_times->account_{user,system}_time.
 
-greg k-h
+The clock resolution is a tick. Any short process less than
+1 tick will the counter being 0. It can be from 0 to 0.99999...
+tick. A half tick is the average value.
+
+I think it makes more sense to assign a half tick than assign
+1 usec to the stime. What do you think? Certainly the code need
+better explanation.
+
+Regards,
+  - jay
+
+
+[snip]

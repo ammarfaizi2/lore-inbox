@@ -1,109 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWHGTHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWHGTOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWHGTHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWHGTHJ
+	id S932228AbWHGTOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWHGTOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:07:09 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:27737 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932317AbWHGTHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:07:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DMNWWrNnmGdEhQxH4O9GfmwUFGIpkmocJwd5Cg0Ykg/cn7hTVrQ5ULmZqlROHcn1kJgqNOyOuikKMuOWoLF8PjUdyu+uBxwtoI1nXyJczdv8Uv9omqTvV25LWAaGxClwKqwqXiDroEfeT0GGOIcbt18Kx4Zu+jsGPzLbK7nJyHU=
-Message-ID: <cc862f80608071207q4a0b9662qad49b30096d00187@mail.gmail.com>
-Date: Mon, 7 Aug 2006 15:07:06 -0400
-From: "Tien ChenLi" <cltien@gmail.com>
-To: "Willy Tarreau" <w@1wt.eu>
-Subject: Re: [PATCH]pktgen oops when used with balance-tlb bonding
-Cc: linux-kernel@vger.kernel.org, "David Miller" <davem@davemloft.net>
-In-Reply-To: <cc862f80608071204y5b7b55a9n618dde95eb0c5b4@mail.gmail.com>
+	Mon, 7 Aug 2006 15:14:25 -0400
+Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:41156 "EHLO
+	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
+	id S932228AbWHGTOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:14:24 -0400
+Message-ID: <44D78A87.3020204@tremplin-utc.net>
+Date: Mon, 07 Aug 2006 20:46:31 +0200
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060709)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <cc862f80607221611x52efac88u620516e17edfa03b@mail.gmail.com>
-	 <20060802203854.GA462@1wt.eu>
-	 <cc862f80608071204y5b7b55a9n618dde95eb0c5b4@mail.gmail.com>
+To: trenn@suse.de
+Cc: "Brown, Len" <len.brown@intel.com>, Greg KH <greg@kroah.com>,
+       Adrian Bunk <bunk@stusta.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
+Subject: Re: Options depending on STANDALONE
+References: <CFF307C98FEABE47A452B27C06B85BB601260CC7@hdsmsx411.amr.corp.intel.com> <1154972011.4302.712.camel@queen.suse.de>
+In-Reply-To: <1154972011.4302.712.camel@queen.suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+08/07/2006 07:33 PM, Thomas Renninger wrote/a écrit:
+> 
+> There are three reasons for the initrd patch (last one also applies for
+> the compile in functionality):
+Hi, I just happen to be the maintainer "this initrd patch" ;-) I agree 
+with you Thomas. IMHO, this patch is really useful in our "not so 
+perfect" world. Few more comments below:
 
-I forgot that if I also need to patch the fill_packet_ipv6 since I
-don't have experience with it. I guess we should patch that one too.
+> 
+> 1)
+> There might be "BIOS bugs" that will never get fixed:
+> https://bugzilla.novell.com/show_bug.cgi?id=160671
+> (Because it's an obvious BIOS bug, "compatibility" fixing it could make
+> things worse).
+This is really feature #1, PC manufacturers come to sometimes extremely 
+ugly things when they code their ACPI tables. You can find lots of BIOS 
+containing in their ACPI tables tests like "do this if OS name is 13 
+letters long, and that if OS name is 11 letters long..." Obviously 
+Linux is most of the time not within those tests!
 
-Chen-Li Tien
+1.5) Feature adding. Some (crazy?) people are working on new 
+implementation of their ACPI table to add features (cf the "Smart 
+Battery System for Linux" project).
 
-On 07/08/06, Tien ChenLi <cltien@gmail.com> wrote:
-> Indeed the skb->mac.raw is already set just several lines up. Now only
-> two lines are needed:
->
-> Signed-off-by: Chen-Li Tien <cltien@gmail.com>
->
-> --- linux-2.6.17.6/net/core/pktgen.c.orig       2006-07-15
-> 15:00:43.000000000 -0400
-> +++ linux-2.6.17.6/net/core/pktgen.c    2006-08-07 14:50:09.000000000 -0400
-> @@ -2149,6 +2149,8 @@ static struct sk_buff *fill_packet_ipv4(
->         skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
->         skb->dev = odev;
->         skb->pkt_type = PACKET_HOST;
-> +       skb->nh.iph = iph;
-> +       skb->h.uh = udph;
->
->         if (pkt_dev->nfrags <= 0)
->                 pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
->
-> Since google mail extand tab into spaces and I cannot change them back
-> to tab, I attached the patch file itself so please use it instead.
->
-> Sincerely,
-> Chen-Li Tien
->
-> On 02/08/06, Willy Tarreau <w@1wt.eu> wrote:
-> > On Sat, Jul 22, 2006 at 07:11:21PM -0400, Tien ChenLi wrote:
-> > > I fixed a bug in pktgen so it won't cause oops when used with
-> > > balance-tlb or balance-alb bonding driver:
-> > >
-> > > --- linux-2.6.17.4/net/core/pktgen.c.orig       2006-07-06
-> > > 16:02:28.000000000 -0
-> > > 400
-> > > +++ linux-2.6.17.4/net/core/pktgen.c    2006-07-10 16:40:47.000000000 -0400
-> > > @@ -2149,6 +2149,9 @@
-> > >        skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
-> > >        skb->dev = odev;
-> > >        skb->pkt_type = PACKET_HOST;
-> > > +       skb->mac.raw = eth;
-> >           ^^^^^^^^^^^^
-> > Are you sure about this ? I don't understand why you change skb->mac.raw
-> > here while it's still assigned 3 lines above. Either of those is unneeded
-> > and/or erroneous.
-> >
-> > > +       skb->nh.iph = iph;
-> > > +       skb->h.uh = udph;
-> > >
-> > >        if (pkt_dev->nfrags <= 0)
-> > >                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
-> > >
-> > > The root cause is that the bond_alb_xmit in bonding will peek the
-> > > destination address in packet via the skb->nh.iph pointer, generally
-> > > this will be filled by upper layer network driver, but the packet
-> > > generated by pktgen will be sent to device driver so it will need to
-> > > set this pointer correctly. The other two pointers are not necessary
-> > > for now, they are set to avoid similar problem.
-> >
-> > Fine. Please confirm your intention about mac.raw above, and as David
-> > said, please sign-off the patch and check your mailer for unexpected
-> > tabs/spaces conversions.
-> >
-> > > Chen-Li Tien
-> >
-> > Thanks in advance,
-> > Willy
-> >
-> >
->
->
->
+In those two cases, you really can't expect every user to recompile it's 
+Linux kernel to get an new DSDT table :-)
+
+> 2)
+> There might be "ACPICA/kernel bugs" that take a while until they get
+> fixed:
+> 
+> This happens often. There comes out a new machine, using AML in a
+> slightly other way, we need to fix it in kernel/ACPICA. Until the patch
+> appears mainline may take a month or two. Until the distro of your
+> choice that makes use of the fix comes out might take half a year or
+> more...
+> And backporting ACPICA fixes to older kernels is currently not possible
+> as ACPICA patches appear in a big bunch of some thousand lines patches.
+> But this hopefully changes soon.
+> 
+> In my mind come:
+> - alias broken in certain cases
+>    https://bugziall.novell.com/show_bug.cgi?id=113099
+> - recon amount of elements in packages
+>    https://bugzilla.novell.com/show_bug.cgi?id=189488
+> - wrong offsets at Field and Operation Region declarations
+>    -> should be compatible for quite a while now
+> - ...
+Agree, although I  believe of this as more an excuse than a reason. 
+Linux is still full of bugs, lots of which cannot be fixed by ACPI table 
+swapping anyway...
+
+> 3)
+> Debugging.
+> This is why at least compile in or via initrd must be provided in
+> mainline kernel IMHO. Intel people themselves ask the bug reporter to
+> override ACPI tables with a patched table to debug the system.
+> Do you really think ripping out all overriding functionality from the
+> kernel is a good idea?
+Well, I think even Len agree with this usage :-)
+
+All in all, I'm really _not_ asking for inclusion of the patch in the 
+main tree. Just asking you not to think too much bad of the distros 
+which use this patch ;-) (IIRC, at least Mandriva and Ubuntu include it 
+in addition to SuSE)
+
+See you,
+Eric
+

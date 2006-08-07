@@ -1,111 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWHGTCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWHGTDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWHGTCR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWHGTCR
+	id S932210AbWHGTDb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWHGTDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:02:17 -0400
-Received: from xenotime.net ([66.160.160.81]:31693 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932178AbWHGTCQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:02:16 -0400
-Date: Mon, 7 Aug 2006 12:04:54 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-Message-Id: <20060807120454.79b6e1dc.rdunlap@xenotime.net>
-In-Reply-To: <m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	<20060807085924.72f832af.rdunlap@xenotime.net>
-	<m1wt9kcv2n.fsf@ebiederm.dsl.xmission.com>
-	<20060807105537.08557636.rdunlap@xenotime.net>
-	<m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 7 Aug 2006 15:03:31 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:30312 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932210AbWHGTDa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:03:30 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=GU4yv6LrmJoje5vOkQf50aTcun62/tuRcXNl9/JIZ93JHyMKakQHXuq5GlkUyS6zs
+	mIELDnzU/CkwRsfSmavTA==
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A
+	cpu controller
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, pj@sgi.com, Andrey Savochkin <saw@sw.ru>
+In-Reply-To: <1154976236.19249.9.camel@localhost.localdomain>
+References: <20060804050753.GD27194@in.ibm.com>
+	 <20060803223650.423f2e6a.akpm@osdl.org>
+	 <20060803224253.49068b98.akpm@osdl.org>
+	 <1154684950.23655.178.camel@localhost.localdomain>
+	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>
+	 <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>
+	 <44D74F77.7080000@mbligh.org>  <44D76B43.5080507@sw.ru>
+	 <1154975486.31962.40.camel@galaxy.corp.google.com>
+	 <1154976236.19249.9.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Mon, 07 Aug 2006 12:00:57 -0700
+Message-Id: <1154977257.31962.57.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Aug 2006 12:53:35 -0600 Eric W. Biederman wrote:
+On Mon, 2006-08-07 at 11:43 -0700, Dave Hansen wrote:
+> On Mon, 2006-08-07 at 11:31 -0700, Rohit Seth wrote:
+> > I think it is not a problem for OpenVZ because there is not that much
+> > of
+> > sharing going between containers as you mentioned (btw, this least
+> > amount of sharing is a very good thing).  Though I'm not sure if one
+> > has
+> > to go to the extent of doing fractions with memory accounting.  If the
+> > containers are set up in such a way that there is some sharing across
+> > containers then it is okay to be unfair and charge one of those
+> > containers for the specific resource completely. 
+> 
+> Right, and if you do reclaim against containers which are over their
+> limits, the containers being unfairly charged will tend to get hit
+> first.  But, once this happens, I would hope that the ownership of those
+> shared pages should settle out among all of the users.
+> 
 
-> 
-> Currently on a SMP system we can theoretically support
-> NR_CPUS*224 irqs.  Unfortunately our data structures
-> don't cope will with that many irqs, nor does hardware
-> typically provide that many irq sources.
-> 
-> With the number of cores starting to follow Moore's Law,
-> and the apicid limits being raised beyond an 8bit
-> number trying to track our current maximum with our
-> current data structures would be fatal and wasteful.
-> 
-> So this patch decouples the number of irqs we support
-> from the number of cpus.  We can revisit this decision
-> once someone reworks the current data structures.
-> 
-> This version has my stupid typos fix and the true maximum
-> exposed to make it clear that I have a low default.  The
-> worst that I can see happening is there won't be any
-> per_cpu space left for modules if someone sets this
-> too high, but the system should still boot.
-> 
-> For non-SMP systems the default is set to 224 IRQs.
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> ---
->  arch/x86_64/Kconfig      |   14 ++++++++++++++
->  include/asm-x86_64/irq.h |    3 ++-
->  2 files changed, 16 insertions(+), 1 deletions(-)
-> 
-> diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-> index 7598d99..c87b0bc 100644
-> --- a/arch/x86_64/Kconfig
-> +++ b/arch/x86_64/Kconfig
-> @@ -384,6 +384,20 @@ config NR_CPUS
->  	  This is purely to save memory - each supported CPU requires
->  	  memory in the static kernel configuration.
->  
-> +config NR_IRQS
-> +	int "Maximum number of IRQs (224-57344)"
-> +	range 224 57344
-> +	default "4096" if SMP
-> +	default "224" if !SMP
-> +	help
-> +	  This allows you to specify the maximum number of IRQs which this
-> +	  kernel will support. Current default is 4096 IRQs as that
-> +	  is slightly larger than has observed in the field.  Setting
-> +	  a noticeably larger value will exhaust your per cpu memory,
-> +	  and waste memory in the per irq arrays.
+I think there is lot of simplicity and value add by charging one
+container (even unfairly) for one resource completely.  This puts the
+onus on system admin to set up the containers appropriately.
 
-If you'll fix this text for the non-SMP case too, I think
-you'll be done.  :)
+> If you have 100 containers sharing 100 pages, container0 might be
+> charged for all 100 pages at first, but I'd hope that eventually
+> containers 0->99 would each get charged for a single page. 
+> 
 
+You would be better off having a notion of "shared" container where
+these kind of resources get charged. So, if 100 processes are all
+touching pages from some common file then the file could be part of
+self-contained container with its own limits etc. 
 
-> +	  If unsure leave this at the default.
-> +
->  config HOTPLUG_CPU
->  	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
->  	depends on SMP && HOTPLUG && EXPERIMENTAL
-> diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
-> index 5006c6e..34b264a 100644
-> --- a/include/asm-x86_64/irq.h
-> +++ b/include/asm-x86_64/irq.h
-> @@ -31,7 +31,8 @@ #define NR_VECTORS 256
->  
->  #define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
->  
-> -#define NR_IRQS (NR_VECTORS + (32 *NR_CPUS))
-> +/* We can use at most NR_CPUS*224 irqs at one time */
-> +#define NR_IRQS (CONFIG_NR_IRQS)
->  #define NR_IRQ_VECTORS NR_IRQS
->  
->  static __inline__ int irq_canonicalize(int irq)
-> -- 
+-rohit
 
----
-~Randy

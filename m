@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWHGItY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWHGIwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWHGItY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 04:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWHGItY
+	id S1751172AbWHGIwF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 04:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWHGIwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 04:49:24 -0400
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:44206 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751164AbWHGItX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 04:49:23 -0400
-Date: Mon, 7 Aug 2006 04:45:50 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] raid1: allow user to force reads from a specific
-  disk
-To: Neil Brown <neilb@suse.de>
-Cc: linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200608070447_MC3-1-C756-23FA@compuserve.com>
+	Mon, 7 Aug 2006 04:52:04 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:42669 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751172AbWHGIwE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 04:52:04 -0400
+From: Andi Kleen <ak@muc.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH] Slight cleanups for x86 ring macros (against rc3-mm2)
+Date: Mon, 7 Aug 2006 10:51:52 +0200
+User-Agent: KMail/1.9.3
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1154925522.21647.25.camel@localhost.localdomain>
+In-Reply-To: <1154925522.21647.25.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
 Content-Disposition: inline
+Message-Id: <200608071051.52727.ak@muc.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <17622.35724.43741.529875@cse.unsw.edu.au>
-
-On Mon, 7 Aug 2006 10:38:36 +1000, Neil Brown wrote:
-
-> > Allow user to force raid1 to read all data from a given disk.
-> > This lets users do integrity checking by comparing results
-> > from reading different disks.  If at any time the system finds
-> > it cannot read from the given disk it resets the disk number
-> > to -1, the default, which means to balance reads.
+On Monday 07 August 2006 06:38, Rusty Russell wrote:
+> Clean up of patch for letting kernel run other than ring 0:
 > 
-> Could say a little bit more about why you want this?
-> 
-> You could get nearly the same situation be setting the other drives to
-> write-mostly. 
+> a. Add some comments about the SEGMENT_IS_*_CODE() macros.
+> b. Add a USER_RPL macro.  (Code was comparing a value to a mask
+>    in some places and to the magic number 3 in other places.)
+> c. Add macros for table indicator field and use them.
+> d. Change the entry.S tests for LDT stack segment to use the macros.
 
-But you couldn't test whether all IO had really gone to the target disk
-after doing some reads.
+If you submit a patch that actually applies I would apply it :)
 
-e.g.
+Applying patch patches/slight-cleanups-for-x86-ring-macros-against-rc3-mm2
+patching file arch/i386/kernel/entry.S
+Hunk #1 FAILED at 237.
+Hunk #2 succeeded at 367 (offset -7 lines).
+1 out of 2 hunks FAILED -- rejects in file arch/i386/kernel/entry.S
+patching file include/asm-i386/ptrace.h
+patch: **** malformed patch at line 52: 3);
 
-        echo 0 >/sys/block/md0/md/read_from_disk
-        mount -t ext3 /dev/md0 /mnt/md0
-        find /mnt/md0 -type f | xargs md5sum
-        cat /sys/block/md0/md/read_from_disk
-
-If the output from the last command isn't 0 then not all reads came from
-that disk.
-
-> And the more thorough integrity check is available via
->    echo check > /sys/block/mdX/md/sync_action
-
-I tried that.  It doesn't do anything but print the raid status to the
-kernel log.  Either that or on my 100MB mirror it's able to thoroughly
-check the integrity in less than 1/4 second.
-
--- 
-Chuck
+-Andi
 

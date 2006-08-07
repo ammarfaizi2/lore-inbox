@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWHGP5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWHGP6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWHGP5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWHGP5R
+	id S1750781AbWHGP6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWHGP6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:57:17 -0400
-Received: from colin.muc.de ([193.149.48.1]:10246 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932195AbWHGP5Q (ORCPT
+	Mon, 7 Aug 2006 11:58:31 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:9915 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750806AbWHGP6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:57:16 -0400
-Date: 7 Aug 2006 17:57:14 +0200
-Date: Mon, 7 Aug 2006 17:57:14 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Dmitry Torokhov <dtor@insightbb.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
-Message-ID: <20060807155714.GA3075@muc.de>
-References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz> <20060807125639.GA88155@muc.de> <20060807151957.GA9911@rhlx01.fht-esslingen.de>
+	Mon, 7 Aug 2006 11:58:18 -0400
+Subject: Re: [ProbableSpam] Re: [RFC, PATCH 0/5] Going forward with
+	Resource Management - A cpu  controller
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Paul Jackson <pj@sgi.com>
+Cc: Kirill Korotaev <dev@sw.ru>, nagar@watson.ibm.com, akpm@osdl.org,
+       vatsa@in.ibm.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, haveblue@us.ibm.com
+In-Reply-To: <20060807023025.2c44f3d1.pj@sgi.com>
+References: <20060804050753.GD27194@in.ibm.com>
+	 <20060803223650.423f2e6a.akpm@osdl.org> <44D35794.2040003@sw.ru>
+	 <44D367F3.8060108@watson.ibm.com> <44D6EBEF.9010804@sw.ru>
+	 <20060807023025.2c44f3d1.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 07 Aug 2006 08:58:14 -0700
+Message-Id: <1154966294.1174.38.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807151957.GA9911@rhlx01.fht-esslingen.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That way a driver could use
+On Mon, 2006-08-07 at 02:30 -0700, Paul Jackson wrote:
+> Kirill wrote:
+> > > A filesystem based interface is useful when you have hierarchies (as resource
+> > > groups and cpusets do) since it naturally defines a convenient to use
+> > > hierarchical namespace.
+> > but it is not much convinient for applications then.
 > 
-> 	if (gtod_cpu_cycles_needed <= 500)
-> 		gettimeofday();
-> 	else
-> 		funky_fast_workaround();
+> Is this simply a language issue?  File systems hierarchies
+> are more easily manipulated with shell utilities (ls, cat,
+> find, grep, ...) and system call API's are easier to access
+> from C?
+> 
+> If so, then perhaps all that's lacking for convenient C access
+> to a filesystem based interface is a good library, that presents
+> an API convenient for use from C code, but underneath makes the
+> necessary file system calls (open, read, diropen, stat, ...).
+> 
 
-Sounds like overengineering to me. I prefer something simple.
+I totally agree. 
 
-> OK, in total we have at least four ways of doing this:
+When the difference comes to language issue, one advantage of filesystem
+is that there is no need for a user space app to do simple management.
+-- 
 
-Please don't get carried away with this. I'm really not interested
-in any complex solutions here.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
--Andi
 

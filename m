@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWHGRr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWHGRvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWHGRr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWHGRr4
+	id S1750810AbWHGRvV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWHGRvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:47:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63904 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750808AbWHGRr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:47:56 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
+	Mon, 7 Aug 2006 13:51:21 -0400
+Received: from ns1.suse.de ([195.135.220.2]:24761 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750810AbWHGRvU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:51:20 -0400
+Date: Mon, 7 Aug 2006 10:50:36 -0700
+From: Greg KH <greg@kroah.com>
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	<20060807085924.72f832af.rdunlap@xenotime.net>
-	<m1irl4ebsf.fsf@ebiederm.dsl.xmission.com>
-	<44D771A7.7040605@zytor.com>
-Date: Mon, 07 Aug 2006 11:46:25 -0600
-In-Reply-To: <44D771A7.7040605@zytor.com> (H. Peter Anvin's message of "Mon,
-	07 Aug 2006 10:00:23 -0700")
-Message-ID: <m1k65kcuby.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+Cc: Mike Galbraith <efault@gmx.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc4
+Message-ID: <20060807175036.GA7868@kroah.com>
+References: <Pine.LNX.4.64.0608061127070.5167@g5.osdl.org> <1154963282.4910.13.camel@Homer.simpson.net> <44D77913.2030602@zytor.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D77913.2030602@zytor.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+On Mon, Aug 07, 2006 at 10:32:03AM -0700, H. Peter Anvin wrote:
+> Mike Galbraith wrote:
+> >On Sun, 2006-08-06 at 11:35 -0700, Linus Torvalds wrote:
+> >>It's been a week since -rc3, so now we have a -rc4.
+> >
+> >Hm.  It still hasn't arrived on kernel.org...
+> 
+> Looks like Linus never uploaded it...
 
-> Eric W. Biederman wrote:
->> a) Because I would like to flush out bugs.
->> b) Because I want a default that works for everyone.
->> c) Because with MSI we have a potential for large irq counts on most systems.
->> d) Because anyone who disagrees with me can send a patch and fix
->>    the default.
->> e) Because with the default number of cpus we can very close to needing
->>    this many irqs in the worst case.
->> f) This is much better than previous to my patch and setting NR_CPUS=255
->>    and getting 8K IRQS.
->> g) Because I probably should have been more inventive than copying the
->>    NR_IRQS text, but when I did the wording sounded ok to me.
->>
->
-> Why not simply reserve 224*NR_CPUS IRQs? If you have 256 CPUs allocating 64K
-> IRQs should hardly matter :)
+Hm, does anyone mind if I upload it?  I can create it from Linus's git
+tree, but don't want to be presumptuous.
 
-Well there is this little matter of 224*NR_CPUS*NR_CPUS counters at that point
-that I think would be prohibitive for most sane people.  Taking 224K of per cpu
-memory in 256 different per cpu areas.
+thanks,
 
-Still what is 56MB when you have a terrabyte of RAM. :)
-
-Eric
+greg k-h

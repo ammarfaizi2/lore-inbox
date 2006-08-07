@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWHGUqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWHGUsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWHGUqK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 16:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWHGUqK
+	id S932354AbWHGUsy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 16:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWHGUsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 16:46:10 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25873 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932350AbWHGUqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 16:46:09 -0400
-Date: Mon, 7 Aug 2006 22:46:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matt Reuther <mreuther@umich.edu>, LKML <linux-kernel@vger.kernel.org>,
-       Jay Lan <jlan@sgi.com>
-Subject: Re: [-mm patch] add timespec_to_us() and use it in kernel/tsacct.c
-Message-ID: <20060807204606.GN3691@stusta.de>
-References: <200608062330.19628.mreuther@umich.edu> <20060806222129.f1cfffb9.akpm@osdl.org> <20060807133240.GB3691@stusta.de> <20060807132418.037048a5.akpm@osdl.org>
+	Mon, 7 Aug 2006 16:48:54 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:15055 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932260AbWHGUsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 16:48:53 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jason Lunz <lunz@gehennom.net>
+Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
+Date: Mon, 7 Aug 2006 22:47:59 +0200
+User-Agent: KMail/1.9.3
+Cc: Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, andre@linux-ide.org, pavel@suse.cz,
+       linux-pm@osdl.org, linux-ide@vger.kernel.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <44D707B6.20501@gmail.com> <20060807162322.GA17564@knob.reflex>
+In-Reply-To: <20060807162322.GA17564@knob.reflex>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060807132418.037048a5.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608072247.59184.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 01:24:18PM -0700, Andrew Morton wrote:
-> On Mon, 7 Aug 2006 15:32:41 +0200
-> Adrian Bunk <bunk@stusta.de> wrote:
+On Monday 07 August 2006 18:23, Jason Lunz wrote:
+> In gmane.linux.kernel, you wrote:
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> >
+> > I tried it and guess what :)... swsusp doesn't work :@.
+> >
+> > This time I was able to dump process states with sysrq-t:
+> > http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
+> >
+> > My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel prints is 
+> > suspending device 2.0
 > 
-> > On Sun, Aug 06, 2006 at 10:21:29PM -0700, Andrew Morton wrote:
-> > > On Sun, 6 Aug 2006 23:30:19 -0400
-> > > Matt Reuther <mreuther@umich.edu> wrote:
-> > > 
-> > > > I got an Error while compiling 2.6.18-rc3-mm2:
-> > > > 
-> > > >   AR      arch/i386/lib/lib.a
-> > > >   GEN     .version
-> > > >   CHK     include/linux/compile.h
-> > > >   UPD     include/linux/compile.h
-> > > >   CC      init/version.o
-> > > >   LD      init/built-in.o
-> > > >   LD      .tmp_vmlinux1
-> > > > kernel/built-in.o(.text+0x45667): In function `bacct_add_tsk':
-> > > > include/linux/time.h:130: undefined reference to `__divdi3'
-> > > > make: *** [.tmp_vmlinux1] Error 1
-> > > > 
-> > > > I attached the .config file.
-> > > > 
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/hot-fixes/csa-basic-accounting-over-taskstats-fix.patch
-> > > should fix this, thanks.  
-> > 
-> > This doesn't look correct since do_div() does not guarantee to return 
-> > more than 32bit.
+> Does it go away if you revert this?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
 > 
-> eh?  We use do_div() to do 64bit/something all the time??
-
-Sorry, this was my thinko.
-
-> > What about the patch below that adds a timespec_to_us() to time.h and 
-> > uses this function in kernel/tsacct.c?
+> That should only affect resume, not suspend, but it does mess around
+> with ide power management. Is this maybe happening on the *second*
+> suspend?
 > 
-> Seems reasonable, but it'd be better as two patches..
+> > -hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+> > +hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
+> 
+> This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
 
-Feel free to split this patch however you want, I thought it was not 
-worth splitting it.
+I found that git-block.patch broke the suspend for me.  Still have no idea
+what's up with it.
 
-> Do we do timespec->microseconds anywhere else?
-
-I haven't found another place.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Rafael

@@ -1,176 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWHGRmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWHGRmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWHGRmE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHGRmE
+	id S1750806AbWHGRmH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWHGRmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:42:04 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:32168 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750798AbWHGRmD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:42:03 -0400
-Subject: Re: [PATCH 9/10] hot-add-mem x86_64: use
-	CONFIG_MEMORY_HOTPLUG_RESERVE
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: andrew <akpm@osdl.org>, discuss <discuss@x86-64.org>,
-       Andi Kleen <ak@suse.de>, lhms-devel <lhms-devel@lists.sourceforge.net>,
-       kame <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060804131439.21401.62864.sendpatchset@localhost.localdomain>
-References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-	 <20060804131439.21401.62864.sendpatchset@localhost.localdomain>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Mon, 07 Aug 2006 10:41:25 -0700
-Message-Id: <1154972485.5790.3.camel@keithlap>
+	Mon, 7 Aug 2006 13:42:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750806AbWHGRmG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:42:06 -0400
+Date: Mon, 7 Aug 2006 13:44:39 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060807174439.GJ16231@redhat.com>
+References: <20060707133518.GA15810@in.ibm.com> <20060707143519.GB13097@host0.dyn.jankratochvil.net> <20060710233219.GF16215@in.ibm.com> <20060711010815.GB1021@host0.dyn.jankratochvil.net> <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com> <20060804210826.GE16231@redhat.com> <m164h8p50c.fsf@ebiederm.dsl.xmission.com> <20060804234327.GF16231@redhat.com> <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 07:14 -0600, Keith Mannthey wrote:
-> From: Keith Mannthey <kmannth@us.ibm.com>
+On Sat, Aug 05, 2006 at 10:07:01AM -0600, Eric W. Biederman wrote:
+> Don Zickus <dzickus@redhat.com> writes:
 > 
+> >> The length error comes from lib/inflate.c 
+> >> 
+> >> I think it would be interesting to look at orig_len and bytes_out.
+> >> 
+> >> My hunch is that I have tripped over a tool chain bug or a weird
+> >> alignment issue.
+> >
+> > I thought so too, but I took vmlinuz images from people (Vivek) who had it
+> > boot on their systems but those images still failed on my two machines.  
+> >
+> >> 
+> >> The error is the uncompressed length does not math the stored length
+> >> of the data before from before we compressed it.  Now what is
+> >> fascinating is that our crc's match (as that check is performed first).
+> >> 
+> >> Something is very slightly off and I don't see what it is.
+> >
+> > I printed out orig_len -> 5910532 (which matches vmlinux.bin)
+> >              bytes_out -> 5910531
+> >
+> >> 
+> >> After looking at the state variables I would probably start looking
+> >> at the uncompressed data to see if it really was decompressing
+> >> properly.  If nothing else that is the kind of process that would tend
+> >> to spark a clue.
+> >
+> > I am not familiar with the code, so very few sparks are flying.  I'll
+> > still dig through though.  Thanks for the tips.
+> 
+> I guess the interesting thing to do would be to 
+> - Recompute the crc to see if we still match.
+> - Possibly instrument of flush_window.
+> 
+> I have a strange feeling that the uncompressed data is getting corrupted
+> after we have flushed the window.
 
+It seems to be an AMD64 vs EM64T problem.  AMD chipsets work but Intel
+chipsets don't.  
 
-Opps looks like I attached the wrong patch in the original email :( 
-Here is the real patch...
+I also blindly incremented bytes_out (as a really cheap hack), it didn't
+work until I added some random putstr's below it (timing??).  Then the
+kernel booted. 
 
-From: Keith Mannthey <kmannth@us.ibm.com>
+Still looking into things.  
 
-  Make CONFIG_MEMORY_HOTPLUG_RESERVE and CONFIG_MEMORY_HOTPLUG_SPARSE
-build in the same tree. 
+Cheers,
+Don
 
-Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
----
- arch/x86_64/mm/init.c |   10 +++++---
- mm/memory_hotplug.c   |   60 ++++++++++++++++++++++++
-+------------------------- 2 files changed, 36 insertions(+), 34
-deletions(-)
-
-diff -urN linux-2.6.17-stock/arch/x86_64/mm/init.c
-linux-2.6.17/arch/x86_64/mm/init.c
---- linux-2.6.17-stock/arch/x86_64/mm/init.c	2006-08-04
-08:03:44.000000000 -0400
-+++ linux-2.6.17/arch/x86_64/mm/init.c	2006-08-04 08:04:40.000000000
--0400
-@@ -529,12 +529,12 @@
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	int ret;
- 
-+	init_memory_mapping(start, (start + size -1));
-+
- 	ret = __add_pages(zone, start_pfn, nr_pages);
- 	if (ret)
- 		goto error;
- 
--	init_memory_mapping(start, (start + size -1));
--
- 	return ret;
- error:
- 	printk("%s: Problem encountered in __add_pages!\n", __func__);
-@@ -555,7 +555,9 @@
- }
- #endif 
- 
--#else /* CONFIG_MEMORY_HOTPLUG */
-+#endif /* CONFIG_MEMORY_HOTPLUG */
-+
-+#ifdef CONFIG_MEMORY_HOTPLUG_RESERVE 
- /*
-  * Memory Hotadd without sparsemem. The mem_maps have been allocated in
-advance,
-  * just online the pages.
-@@ -581,7 +583,7 @@
- 	}
- 	return err;
- }
--#endif /* CONFIG_MEMORY_HOTPLUG */
-+#endif
- 
- static struct kcore_list kcore_mem, kcore_vmalloc, kcore_kernel,
-kcore_modules,
- 			 kcore_vsyscall;
-diff -urN linux-2.6.17-stock/mm/memory_hotplug.c
-linux-2.6.17/mm/memory_hotplug.c
---- linux-2.6.17-stock/mm/memory_hotplug.c	2006-08-04 08:03:54.000000000
--0400
-+++ linux-2.6.17/mm/memory_hotplug.c	2006-08-04 08:04:40.000000000 -0400
-@@ -24,6 +24,36 @@
- 
- #include <asm/tlbflush.h>
- 
-+/* add this memory to iomem resource */
-+static struct resource *register_memory_resource(u64 start, u64 size)
-+{
-+	struct resource *res;
-+	res = kzalloc(sizeof(struct resource), GFP_KERNEL);
-+	BUG_ON(!res);
-+
-+	res->name = "System RAM";
-+	res->start = start;
-+	res->end = start + size - 1;
-+	res->flags = IORESOURCE_MEM;
-+	if (request_resource(&iomem_resource, res) < 0) {
-+		printk("System RAM resource %llx - %llx cannot be added\n",
-+		(unsigned long long)res->start, (unsigned long long)res->end);
-+		kfree(res);
-+		res = NULL;
-+	}
-+	return res;
-+}
-+
-+static void release_memory_resource(struct resource *res)
-+{
-+	if (!res)
-+		return;
-+	release_resource(res);
-+	kfree(res);
-+	return;
-+}
-+
-+
- #ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
- static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
- {
-@@ -220,36 +250,6 @@
- 	return;
- }
- 
--/* add this memory to iomem resource */
--static struct resource *register_memory_resource(u64 start, u64 size)
--{
--	struct resource *res;
--	res = kzalloc(sizeof(struct resource), GFP_KERNEL);
--	BUG_ON(!res);
--
--	res->name = "System RAM";
--	res->start = start;
--	res->end = start + size - 1;
--	res->flags = IORESOURCE_MEM;
--	if (request_resource(&iomem_resource, res) < 0) {
--		printk("System RAM resource %llx - %llx cannot be added\n",
--		(unsigned long long)res->start, (unsigned long long)res->end);
--		kfree(res);
--		res = NULL;
--	}
--	return res;
--}
--
--static void release_memory_resource(struct resource *res)
--{
--	if (!res)
--		return;
--	release_resource(res);
--	kfree(res);
--	return;
--}
--
--
- 
- int add_memory(int nid, u64 start, u64 size)
- {
-
-
+> 
+> Eric
+> 

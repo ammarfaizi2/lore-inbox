@@ -1,62 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWHGTBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWHGTCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWHGTBA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWHGTBA
+	id S932178AbWHGTCR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWHGTCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:01:00 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:59276 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932146AbWHGTA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:00:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Msl1dFJCqcP1d/IEXAVdJYpDGSt4bdaOroF9MNIQaGrzwa4KkBIl6XIvxJoj1jhHqDsuXhM/ryl42t/iERHHIxsnT6RLDWUwtImaT3laLgM7bRuzJvBgMwiypNhPy0yHae3ziYg8Ex03cgmfW/a1RdFaV6dcIRDBaNc6lZc/yck=
-Message-ID: <d120d5000608071200k3eb2bfd6v166c6bc92f5dcadf@mail.gmail.com>
-Date: Mon, 7 Aug 2006 15:00:57 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Fabio Comolli" <fabio.comolli@gmail.com>
-Subject: Re: 2.6.18-rc3-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <b637ec0b0608071147kb8a191bka9d6afe5b5287d08@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 7 Aug 2006 15:02:17 -0400
+Received: from xenotime.net ([66.160.160.81]:31693 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932178AbWHGTCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:02:16 -0400
+Date: Mon, 7 Aug 2006 12:04:54 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+Message-Id: <20060807120454.79b6e1dc.rdunlap@xenotime.net>
+In-Reply-To: <m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	<20060807085924.72f832af.rdunlap@xenotime.net>
+	<m1wt9kcv2n.fsf@ebiederm.dsl.xmission.com>
+	<20060807105537.08557636.rdunlap@xenotime.net>
+	<m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-	 <b637ec0b0608060848k22af58cbo6f13cee19498c2d2@mail.gmail.com>
-	 <20060806120901.ee600a36.akpm@osdl.org>
-	 <200608062218.06380.dtor@insightbb.com>
-	 <b637ec0b0608071147kb8a191bka9d6afe5b5287d08@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
-> Hi.
->
-> On 8/7/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> > On Sunday 06 August 2006 15:09, Andrew Morton wrote:
-> > > -tycho kernel: input: PS/2 Mouse as /class/input/input1
-> > > -tycho kernel: input: AlpsPS/2 ALPS GlidePoint as /class/input/input2
-> > >
-> > > That's not so good.
-> > >
-> > >
-> > > Dmitry, do you have anything in there which might have caused that?
-> > >
-> > > Perhaps hdaps-handle-errors-from-input_register_device.patch is triggering
-> > > for some reason.
-> >
-> > Hmm, I'd be more concerned with i8042-get-rid-of-polling-timer patch...
->
-> Bingo! Reverting remove-polling-timer-from-i8042-v2.patch did the
-> trick. Now I'm running 2.6.18-rc3-mm2 + hot-fixes :-)
->
-> Still interested in dmesg with i8042.debug=1 ?
->
+On Mon, 07 Aug 2006 12:53:35 -0600 Eric W. Biederman wrote:
 
-Yes, _with_ the i8042 polling patch applied. Do you have PNP support enabled?
+> 
+> Currently on a SMP system we can theoretically support
+> NR_CPUS*224 irqs.  Unfortunately our data structures
+> don't cope will with that many irqs, nor does hardware
+> typically provide that many irq sources.
+> 
+> With the number of cores starting to follow Moore's Law,
+> and the apicid limits being raised beyond an 8bit
+> number trying to track our current maximum with our
+> current data structures would be fatal and wasteful.
+> 
+> So this patch decouples the number of irqs we support
+> from the number of cpus.  We can revisit this decision
+> once someone reworks the current data structures.
+> 
+> This version has my stupid typos fix and the true maximum
+> exposed to make it clear that I have a low default.  The
+> worst that I can see happening is there won't be any
+> per_cpu space left for modules if someone sets this
+> too high, but the system should still boot.
+> 
+> For non-SMP systems the default is set to 224 IRQs.
+> 
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> ---
+>  arch/x86_64/Kconfig      |   14 ++++++++++++++
+>  include/asm-x86_64/irq.h |    3 ++-
+>  2 files changed, 16 insertions(+), 1 deletions(-)
+> 
+> diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+> index 7598d99..c87b0bc 100644
+> --- a/arch/x86_64/Kconfig
+> +++ b/arch/x86_64/Kconfig
+> @@ -384,6 +384,20 @@ config NR_CPUS
+>  	  This is purely to save memory - each supported CPU requires
+>  	  memory in the static kernel configuration.
+>  
+> +config NR_IRQS
+> +	int "Maximum number of IRQs (224-57344)"
+> +	range 224 57344
+> +	default "4096" if SMP
+> +	default "224" if !SMP
+> +	help
+> +	  This allows you to specify the maximum number of IRQs which this
+> +	  kernel will support. Current default is 4096 IRQs as that
+> +	  is slightly larger than has observed in the field.  Setting
+> +	  a noticeably larger value will exhaust your per cpu memory,
+> +	  and waste memory in the per irq arrays.
 
--- 
-Dmitry
+If you'll fix this text for the non-SMP case too, I think
+you'll be done.  :)
+
+
+> +	  If unsure leave this at the default.
+> +
+>  config HOTPLUG_CPU
+>  	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+>  	depends on SMP && HOTPLUG && EXPERIMENTAL
+> diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
+> index 5006c6e..34b264a 100644
+> --- a/include/asm-x86_64/irq.h
+> +++ b/include/asm-x86_64/irq.h
+> @@ -31,7 +31,8 @@ #define NR_VECTORS 256
+>  
+>  #define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
+>  
+> -#define NR_IRQS (NR_VECTORS + (32 *NR_CPUS))
+> +/* We can use at most NR_CPUS*224 irqs at one time */
+> +#define NR_IRQS (CONFIG_NR_IRQS)
+>  #define NR_IRQ_VECTORS NR_IRQS
+>  
+>  static __inline__ int irq_canonicalize(int irq)
+> -- 
+
+---
+~Randy

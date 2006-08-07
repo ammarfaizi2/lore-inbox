@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWHGSn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWHGSoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWHGSn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 14:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWHGSn3
+	id S932306AbWHGSoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWHGSoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 14:43:29 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:14736 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932304AbWHGSn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 14:43:29 -0400
-Message-ID: <44D789BA.4010206@t-online.de>
-Date: Mon, 07 Aug 2006 20:43:06 +0200
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davidsen@tmr.com
-Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
-References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com> <20060805212346.GE5417@ucw.cz> <44D6AE59.6070709@gmail.com>
-In-Reply-To: <44D6AE59.6070709@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6D9B6E6155FAFF90F1D40624"
-X-ID: SOl41ZZ-ZeNAnX0EJ1eMumGjB5BGP0AhCd+os6549DPYvA4Q8+pLc8
-X-TOI-MSGID: 7e560e63-2fe2-49f1-a258-9e49ba6e3b7c
+	Mon, 7 Aug 2006 14:44:07 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:25058 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932306AbWHGSoG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 14:44:06 -0400
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A
+	cpu controller
+From: Dave Hansen <haveblue@us.ibm.com>
+To: rohitseth@google.com
+Cc: Kirill Korotaev <dev@sw.ru>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, pj@sgi.com, Andrey Savochkin <saw@sw.ru>
+In-Reply-To: <1154975486.31962.40.camel@galaxy.corp.google.com>
+References: <20060804050753.GD27194@in.ibm.com>
+	 <20060803223650.423f2e6a.akpm@osdl.org>
+	 <20060803224253.49068b98.akpm@osdl.org>
+	 <1154684950.23655.178.camel@localhost.localdomain>
+	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>
+	 <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>
+	 <44D74F77.7080000@mbligh.org>  <44D76B43.5080507@sw.ru>
+	 <1154975486.31962.40.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Date: Mon, 07 Aug 2006 11:43:56 -0700
+Message-Id: <1154976236.19249.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6D9B6E6155FAFF90F1D40624
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, 2006-08-07 at 11:31 -0700, Rohit Seth wrote:
+> I think it is not a problem for OpenVZ because there is not that much
+> of
+> sharing going between containers as you mentioned (btw, this least
+> amount of sharing is a very good thing).  Though I'm not sure if one
+> has
+> to go to the extent of doing fractions with memory accounting.  If the
+> containers are set up in such a way that there is some sharing across
+> containers then it is okay to be unfair and charge one of those
+> containers for the specific resource completely. 
 
-Tejun Heo wrote:
-> Pavel Machek wrote:
->>> echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
->>
->> Really? I thought power/state takes 0/3 (for D0 and D3)
->=20
-> Yes, of course.  My mistake.  Sorry about the confusion.  The correct
-> command is 'echo -n 3 > /sys/bus/scsi/devices/x:y:z:w/power/state'.
->=20
+Right, and if you do reclaim against containers which are over their
+limits, the containers being unfairly charged will tend to get hit
+first.  But, once this happens, I would hope that the ownership of those
+shared pages should settle out among all of the users.
 
-(Sure?  :-)
+If you have 100 containers sharing 100 pages, container0 might be
+charged for all 100 pages at first, but I'd hope that eventually
+containers 0->99 would each get charged for a single page. 
 
-Now this did not work at all. The '-n 3' was probably
-correct, but when I tried to access the disk, then it
-did not spin up again (I waited for 5 minutes). There
-was no message on the console, either.
+-- Dave
 
-But I could not reproduce this problem.
-
-How do I monitor that the disk spins down and up?
-
-
-Regards
-
-Harri
-
-
-
---------------enig6D9B6E6155FAFF90F1D40624
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFE14m6UTlbRTxpHjcRAqQCAJ0eIjv23eUfUIGXjVeDKna8DrDrqACfQujX
-xMZ6bpN4amkkf5uMaOTWVzw=
-=HohH
------END PGP SIGNATURE-----
-
---------------enig6D9B6E6155FAFF90F1D40624--

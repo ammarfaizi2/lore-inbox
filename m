@@ -1,102 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWHGSzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWHGS74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWHGSzA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 14:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWHGSzA
+	id S932123AbWHGS74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWHGS74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 14:55:00 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26331 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932223AbWHGSzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 14:55:00 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andi Kleen <ak@suse.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-In-Reply-To: <20060807105537.08557636.rdunlap@xenotime.net> (Randy Dunlap's
-	message of "Mon, 7 Aug 2006 10:55:37 -0700")
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	<20060807085924.72f832af.rdunlap@xenotime.net>
-	<m1wt9kcv2n.fsf@ebiederm.dsl.xmission.com>
-	<20060807105537.08557636.rdunlap@xenotime.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-Date: Mon, 07 Aug 2006 12:53:35 -0600
-Message-ID: <m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
+	Mon, 7 Aug 2006 14:59:56 -0400
+Received: from ns.suse.de ([195.135.220.2]:60102 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932123AbWHGS7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 14:59:55 -0400
+Date: Mon, 7 Aug 2006 11:59:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Mike Galbraith <efault@gmx.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc4
+Message-ID: <20060807185905.GA10273@kroah.com>
+References: <Pine.LNX.4.64.0608061127070.5167@g5.osdl.org> <1154963282.4910.13.camel@Homer.simpson.net> <44D77913.2030602@zytor.com> <20060807175036.GA7868@kroah.com> <20060807175610.GW13393@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060807175610.GW13393@redhat.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 07, 2006 at 01:56:10PM -0400, Dave Jones wrote:
+> On Mon, Aug 07, 2006 at 10:50:36AM -0700, Greg Kroah-Hartman wrote:
+>  > On Mon, Aug 07, 2006 at 10:32:03AM -0700, H. Peter Anvin wrote:
+>  > > Mike Galbraith wrote:
+>  > > >On Sun, 2006-08-06 at 11:35 -0700, Linus Torvalds wrote:
+>  > > >>It's been a week since -rc3, so now we have a -rc4.
+>  > > >
+>  > > >Hm.  It still hasn't arrived on kernel.org...
+>  > > 
+>  > > Looks like Linus never uploaded it...
+>  > 
+>  > Hm, does anyone mind if I upload it?  I can create it from Linus's git
+>  > tree, but don't want to be presumptuous.
+> 
+> Makes sense for someone to do it given Linus' absense for the next few
+> weeks.  Consider it your first action item in your new role :)
 
-Currently on a SMP system we can theoretically support
-NR_CPUS*224 irqs.  Unfortunately our data structures
-don't cope will with that many irqs, nor does hardware
-typically provide that many irq sources.
+Heh, ok.  It's now done and pushed out to the proper places (hopefully).
+If anyone notices that I didn't generate it correctly, please let me
+know.
 
-With the number of cores starting to follow Moore's Law,
-and the apicid limits being raised beyond an 8bit
-number trying to track our current maximum with our
-current data structures would be fatal and wasteful.
+thanks,
 
-So this patch decouples the number of irqs we support
-from the number of cpus.  We can revisit this decision
-once someone reworks the current data structures.
-
-This version has my stupid typos fix and the true maximum
-exposed to make it clear that I have a low default.  The
-worst that I can see happening is there won't be any
-per_cpu space left for modules if someone sets this
-too high, but the system should still boot.
-
-For non-SMP systems the default is set to 224 IRQs.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- arch/x86_64/Kconfig      |   14 ++++++++++++++
- include/asm-x86_64/irq.h |    3 ++-
- 2 files changed, 16 insertions(+), 1 deletions(-)
-
-diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-index 7598d99..c87b0bc 100644
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -384,6 +384,20 @@ config NR_CPUS
- 	  This is purely to save memory - each supported CPU requires
- 	  memory in the static kernel configuration.
- 
-+config NR_IRQS
-+	int "Maximum number of IRQs (224-57344)"
-+	range 224 57344
-+	default "4096" if SMP
-+	default "224" if !SMP
-+	help
-+	  This allows you to specify the maximum number of IRQs which this
-+	  kernel will support. Current default is 4096 IRQs as that
-+	  is slightly larger than has observed in the field.  Setting
-+	  a noticeably larger value will exhaust your per cpu memory,
-+	  and waste memory in the per irq arrays.
-+
-+	  If unsure leave this at the default.
-+
- config HOTPLUG_CPU
- 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
- 	depends on SMP && HOTPLUG && EXPERIMENTAL
-diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
-index 5006c6e..34b264a 100644
---- a/include/asm-x86_64/irq.h
-+++ b/include/asm-x86_64/irq.h
-@@ -31,7 +31,8 @@ #define NR_VECTORS 256
- 
- #define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
- 
--#define NR_IRQS (NR_VECTORS + (32 *NR_CPUS))
-+/* We can use at most NR_CPUS*224 irqs at one time */
-+#define NR_IRQS (CONFIG_NR_IRQS)
- #define NR_IRQ_VECTORS NR_IRQS
- 
- static __inline__ int irq_canonicalize(int irq)
--- 
-1.4.2.rc3.g7e18e
-
+greg k-h

@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWHGUsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWHGUvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWHGUsy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 16:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWHGUsy
+	id S932351AbWHGUvw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 16:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWHGUvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 16:48:54 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:15055 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932260AbWHGUsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 16:48:53 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jason Lunz <lunz@gehennom.net>
-Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
-Date: Mon, 7 Aug 2006 22:47:59 +0200
-User-Agent: KMail/1.9.3
-Cc: Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org, pavel@suse.cz,
-       linux-pm@osdl.org, linux-ide@vger.kernel.org
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <44D707B6.20501@gmail.com> <20060807162322.GA17564@knob.reflex>
-In-Reply-To: <20060807162322.GA17564@knob.reflex>
+	Mon, 7 Aug 2006 16:51:52 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:41607 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932351AbWHGUvv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 16:51:51 -0400
+Message-ID: <44D7A7E6.2060401@vmware.com>
+Date: Mon, 07 Aug 2006 13:51:50 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
+ ops
+References: <1154925835.21647.29.camel@localhost.localdomain>	 <200608070730.17813.ak@muc.de> <1154930669.7642.12.camel@localhost.localdomain>
+In-Reply-To: <1154930669.7642.12.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608072247.59184.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 August 2006 18:23, Jason Lunz wrote:
-> In gmane.linux.kernel, you wrote:
-> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
-> >
-> > I tried it and guess what :)... swsusp doesn't work :@.
-> >
-> > This time I was able to dump process states with sysrq-t:
-> > http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
-> >
-> > My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel prints is 
-> > suspending device 2.0
-> 
-> Does it go away if you revert this?
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
-> 
-> That should only affect resume, not suspend, but it does mess around
-> with ide power management. Is this maybe happening on the *second*
-> suspend?
-> 
-> > -hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-> > +hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
-> 
-> This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
+Rusty Russell wrote:
+>>> +
+>>> +/*
+>>> + * Set IOPL bits in EFLAGS from given mask
+>>> + */
+>>> +static inline void set_iopl_mask(unsigned mask)
+>>>       
+>> This function can be completely written in C using local_save_flags()/local_restore_flags()
+>> Please do that. I guess it's still a good idea to keep it separated
+>> though because it might allow other optimizations.
+>>
+>> e.g. i've been thinking about special casing IF changes in save/restore flags 
+>> to optimize CPUs which have slow pushf/popf. If you already make sure
+>> all non IF manipulations of flags are separated that would help.
+>>     
 
-I found that git-block.patch broke the suspend for me.  Still have no idea
-what's up with it.
 
-Rafael
+Actually, that is not quite true.  Local_save_flags / 
+raw_local_irq_restore today is used only for operating on IF flag, and 
+raw_local_restore_flags does not exist.  Our implementation of these in 
+VMI assumes that only the IF flag is being changed, and this is the 
+default assumption under which Xen runs as well.  Using local_restore to 
+switch IOPL as well causes the extremely performance critical common 
+case of pure IRQ restore to do potentially a lot more work in a hypervisor.
+
+So if you do want us to go with the C approach, I would propose using 
+raw_local_iopl_restore, which can make a different hypercall (actually, 
+in our case, this is not even a hypercall, merely a VMI call).
+
+Zach

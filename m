@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWHGWYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWHGW1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWHGWYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 18:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWHGWYX
+	id S932128AbWHGW1u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 18:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWHGW1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 18:24:23 -0400
-Received: from relay00.pair.com ([209.68.5.9]:62986 "HELO relay00.pair.com")
-	by vger.kernel.org with SMTP id S932285AbWHGWYW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 18:24:22 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Mon, 7 Aug 2006 17:24:08 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Edgar Toernig <froese@gmx.de>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org, viro@zeniv.linux.org.uk, alan@lxorguk.ukuu.org.uk,
-       tytso@mit.edu, tigran@veritas.com
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-In-Reply-To: <20060807224144.3bb64ac4.froese@gmx.de>
-Message-ID: <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
- <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
- <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
- <20060807224144.3bb64ac4.froese@gmx.de>
+	Mon, 7 Aug 2006 18:27:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49059 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932128AbWHGW1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 18:27:50 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Andi Kleen <ak@suse.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	<20060807085924.72f832af.rdunlap@xenotime.net>
+	<m1wt9kcv2n.fsf@ebiederm.dsl.xmission.com>
+	<20060807105537.08557636.rdunlap@xenotime.net>
+	<m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
+	<20060807194047.GM3691@stusta.de>
+Date: Mon, 07 Aug 2006 16:26:07 -0600
+In-Reply-To: <20060807194047.GM3691@stusta.de> (Adrian Bunk's message of "Mon,
+	7 Aug 2006 21:40:48 +0200")
+Message-ID: <m1mzag9o8w.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006, Edgar Toernig wrote:
+Adrian Bunk <bunk@stusta.de> writes:
 
+> On Mon, Aug 07, 2006 at 12:53:35PM -0600, Eric W. Biederman wrote:
+>>...
+>> --- a/arch/x86_64/Kconfig
+>> +++ b/arch/x86_64/Kconfig
+>> @@ -384,6 +384,20 @@ config NR_CPUS
+>>  	  This is purely to save memory - each supported CPU requires
+>>  	  memory in the static kernel configuration.
+>>  
+>> +config NR_IRQS
+>> +	int "Maximum number of IRQs (224-57344)"
 >
-> Your implementation is much cruder - it simply takes the fd
-> away from the app; any future use gives EBADF.  As a bonus,
-> it works for regular files and even goes as far as destroying
-> all mappings of the file from all processes (even root processes).
-> IMVHO this is a disaster from a security and reliability point
-> of view.
+> 	int "Maximum number of IRQs (224-57344)" depends on SMP
 >
+> This way, people with SMP=n will not see this question.
 
-I can see the value in these system calls, but I agree that the 
-implementation is crude. "EBADF" is not something that applications are 
-taught to expect. Someone correct me if I'm wrong, but I can think of no 
-situation under which a file descriptor currently gets yanked out from 
-under your feet -- you should always have to formally abandon it with 
-close().
+I doubt it will be interesting but it might be, it is certainly
+well defined what happens when you have more irqs that a cpu
+has irq destinations.
 
-This kind of thing only looks proper if it leaves the file descriptor in 
-place and just returns errors / EOF when you attempt to access it.
+>> +	range 224 57344
+>> +	default "4096" if SMP
+>> +	default "224" if !SMP
+>
+> Why not always
+>          default "224"
+> ?
 
-Thanks,
-Chase
+A couple of reasons.
+- Things still need shaking out at the > 256 irq level and since
+  this is going into -mm it is reasonable to have a large default.
+
+- It is silly to have a default that won't work on some hardware,
+  that we can support without unreasonable overhead.
+
+- There are major simplicity gains to be had from a slight sparse
+  irq space.
+
+- I haven't a clue what the irq numbers look like in the real world
+  that we should be supporting since there was code in x86_64 and
+  i386 to hack them up terribly.  All I have a clue about are
+  the really big machines.  So I wouldn't be surprised if there
+  were some small but I/O heavy machines that found 224 too limiting.
+  I know of at least one uniprocessor machine that would have used
+  almost all 224 irqs.
+
+- I want people to realize that we can easily have more than 256 irqs.
+  With pure software interrupt sources and networking drivers allocating
+  one irq per cpu the chances of us using our maximum allotment of irqs
+  is much more likely in the next couple of years.
+
+- 4096 is the number I expect distribution vendors will ship.  Why set
+  a different default than what you expect most people will use?
+
+Eric

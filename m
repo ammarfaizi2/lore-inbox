@@ -1,69 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWHGFZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWHGFap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbWHGFZI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 01:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWHGFZI
+	id S1751062AbWHGFap (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 01:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWHGFap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 01:25:08 -0400
-Received: from xenotime.net ([66.160.160.81]:35244 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751076AbWHGFZG (ORCPT
+	Mon, 7 Aug 2006 01:30:45 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:11412 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751062AbWHGFao (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 01:25:06 -0400
-Date: Sun, 6 Aug 2006 22:27:47 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] bootmem: use MAX_DMA_ADDRESS instead of LOW32LIMIT
-Message-Id: <20060806222747.a49feb8c.rdunlap@xenotime.net>
-In-Reply-To: <20060729035523.GA29875@elte.hu>
-References: <20060728130852.GB9559@osiris.boeblingen.de.ibm.com>
-	<20060728131306.GA32513@elte.hu>
-	<1154098725.3211.5.camel@localhost>
-	<20060728194104.GA11622@osiris.ibm.com>
-	<20060729035523.GA29875@elte.hu>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Aug 2006 01:30:44 -0400
+From: Andi Kleen <ak@muc.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
+Date: Mon, 7 Aug 2006 07:30:17 +0200
+User-Agent: KMail/1.9.3
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1154925835.21647.29.camel@localhost.localdomain>
+In-Reply-To: <1154925835.21647.29.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608070730.17813.ak@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Jul 2006 05:55:23 +0200 Ingo Molnar wrote:
 
-> 
-> * Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-> 
-> > Hm... how about this one then:
-> > 
-> > From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> > 
-> > Introduce ARCH_LOW_ADDRESS_LIMIT which can be set per architecture to
-> > override the 4GB default limit used by the bootmem allocater within
-> > __alloc_bootmem_low() and __alloc_bootmem_low_node().
-> > E.g. s390 needs a 2GB limit instead of 4GB.
-> > 
-> > Cc: Ingo Molnar <mingo@elte.hu>
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
-> (although you might get some flak about using an ARCH* define. I'm not 
-> sure what the current upstream policy is - using an #ifndef default 
-> value is the most compact hence sanest thing to do, still it's sometimes 
-> being frowned upon in favor of sprinkling the default value into every 
-> architecture's processor.h. Putting the value into a Kconfig and 
-> combining it with #ifndef might be better.)
+> ===================================================================
+> --- /dev/null
+> +++ b/include/asm-i386/no_paravirt.h
 
-(sorry for the delay, too much travel/conferences)
+I can't say I like the name. After all that should be the normal
+case for a long time now ... native? normal? bareiron?
 
-I agree with your ordering.  Linus wrote about the current
-ARCH_HAS* (and HAVE_ARCH* I suppose):
-  "WE SHOULD GET RID OF ARCH_HAS_XYZZY. It's a disease."
+Also I would prefer if you split this file up a bit - the old
+processor/system/irqflags split wasn't too bad.
 
-I have patches for some of these that I will post soon (prob.
-Monday), converting several ARCH_HAS* to CONFIG_ namespace.
 
----
-~Randy
+
+> +
+> +/*
+> + * Set IOPL bits in EFLAGS from given mask
+> + */
+> +static inline void set_iopl_mask(unsigned mask)
+
+This function can be completely written in C using local_save_flags()/local_restore_flags()
+Please do that. I guess it's still a good idea to keep it separated
+though because it might allow other optimizations.
+
+e.g. i've been thinking about special casing IF changes in save/restore flags 
+to optimize CPUs which have slow pushf/popf. If you already make sure
+all non IF manipulations of flags are separated that would help.
+
+
+
+> +/* Stop speculative execution */
+> +static inline void sync_core(void)
+> +{
+> +	unsigned int eax = 1, ebx, ecx, edx;
+> +	__cpuid(&eax, &ebx, &ecx, &edx);
+> +}
+
+Actually I don't think this one should be para virtualized at all.
+I don't see any reason at all why a hypervisor should trap it and it
+is very time critical. I would recommend you move it back into the 
+normal files without hooks.
+
+> +
+> +/*
+> + * Clear and set 'TS' bit respectively
+> + */
+
+The comment seems out of date (no set TS)
+
+
+> +#define clts() __asm__ __volatile__ ("clts")
+> +#define read_cr0() ({ \
+> +	unsigned int __dummy; \
+> +	__asm__ __volatile__( \
+
+Maybe it's just me, but can't you just drop all these __s around
+asm and volatile? They are completely useless as far I know. 
+
+Also the assembly will be easier readable if you just keep it on a single 
+line for the simple ones.
+
+-Andi

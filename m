@@ -1,90 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWHGVC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWHGVET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWHGVC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWHGVC2
+	id S932367AbWHGVET (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWHGVET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:02:28 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:43189 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932273AbWHGVC2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:02:28 -0400
-Date: Mon, 7 Aug 2006 23:02:09 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] kbuild fixes for 2.6.18
-Message-ID: <20060807210209.GA14327@mars.ravnborg.org>
-References: <20060807192708.GA12937@mars.ravnborg.org> <20060807204241.GA11510@kroah.com>
-Mime-Version: 1.0
+	Mon, 7 Aug 2006 17:04:19 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35089 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932367AbWHGVES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 17:04:18 -0400
+Date: Mon, 7 Aug 2006 23:04:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Michael Buesch <mb@bu3sch.de>,
+       linville@tuxdriver.com, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC: -mm patch] bcm43xx_main.c: remove 3 functions
+Message-ID: <20060807210415.GO3691@stusta.de>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060807204241.GA11510@kroah.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 01:42:41PM -0700, Greg KH wrote:
-> On Mon, Aug 07, 2006 at 09:27:09PM +0200, Sam Ravnborg wrote:
-> > Hi Greg.
-> > Please apply to 2.6.18.
-> > 
-> > Pull from:
-> > 
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild-2.6.18.git
-> 
-> Thanks, pulled and pushed out.
-> 
-> Oh, I just got a few reports of 2.6.18-rc3 not building with external
-> trees very well, and something like the following would be required:
-> 
-> --- linux-2.6.17/arch/sh/Makefile-dist        2006-08-07 20:42:33.000000000 +0200
-> +++ linux-2.6.17/arch/sh/Makefile     2006-08-07 21:08:26.000000000 +0200
-> @@ -173,7 +173,7 @@
->  archprepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
-> 
->  PHONY += maketools FORCE
-> -maketools:  include/linux/version.h FORCE
-> +maketools: $(objtree)/include/linux/version.h FORCE
-> 
-> for all instances of the version.h file.
-This looks bogus.
-Current directory is $(objtree) so prefixing with $(objtree) should not
-be needed and doing so will confuse make. make will not know that
-$(objtree)/include/linux/version.h and include/linux/version.h is the
-same file.
+This patch removes three no longer used functions (that are even 
+generating gcc warnings).
 
-And the version.h dependency is anyway not needed. kbuild guarantee the
-version.h is created when the commands for archprepare are executed.
+This patch doesn't look right, but it is the result of 
+58e5528ee464d38040b9489e10033c9387a10d56 in git-netdev...
 
-So for sh I would expect the following is a better fix:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-diff --git a/arch/sh/Makefile b/arch/sh/Makefile
-index e467a45..ed1c865 100644
---- a/arch/sh/Makefile
-+++ b/arch/sh/Makefile
-@@ -172,8 +172,8 @@ include/asm-sh/.mach: $(wildcard include
+---
+
+ drivers/net/wireless/bcm43xx/bcm43xx_main.c |   33 --------------------
+ 1 file changed, 33 deletions(-)
+
+--- linux-2.6.18-rc3-mm2-full/drivers/net/wireless/bcm43xx/bcm43xx_main.c.old	2006-08-07 18:21:31.000000000 +0200
++++ linux-2.6.18-rc3-mm2-full/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-08-07 18:23:36.000000000 +0200
+@@ -3194,39 +3194,6 @@
+ 	bcm43xx_clear_keys(bcm);
+ }
  
- archprepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
- 
--PHONY += maketools FORCE
--maketools:  include/linux/version.h FORCE
-+PHONY += maketools
-+maketools:  FORCE
- 	$(Q)$(MAKE) $(build)=arch/sh/tools include/asm-sh/machtypes.h
- 
- all: zImage
+-static int bcm43xx_rng_read(struct hwrng *rng, u32 *data)
+-{
+-	struct bcm43xx_private *bcm = (struct bcm43xx_private *)rng->priv;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&(bcm)->irq_lock, flags);
+-	*data = bcm43xx_read16(bcm, BCM43xx_MMIO_RNG);
+-	spin_unlock_irqrestore(&(bcm)->irq_lock, flags);
+-
+-	return (sizeof(u16));
+-}
+-
+-static void bcm43xx_rng_exit(struct bcm43xx_private *bcm)
+-{
+-	hwrng_unregister(&bcm->rng);
+-}
+-
+-static int bcm43xx_rng_init(struct bcm43xx_private *bcm)
+-{
+-	int err;
+-
+-	snprintf(bcm->rng_name, ARRAY_SIZE(bcm->rng_name),
+-		 "%s_%s", KBUILD_MODNAME, bcm->net_dev->name);
+-	bcm->rng.name = bcm->rng_name;
+-	bcm->rng.data_read = bcm43xx_rng_read;
+-	bcm->rng.priv = (unsigned long)bcm;
+-	err = hwrng_register(&bcm->rng);
+-	if (err)
+-		printk(KERN_ERR PFX "RNG init failed (%d)\n", err);
+-
+-	return err;
+-}
+-
+ static int bcm43xx_shutdown_all_wireless_cores(struct bcm43xx_private *bcm)
+ {
+ 	int ret = 0;
 
-
-arm should have a similar fix - thats the only other archtecture that
-reference version.h in the arch specific kbuild (Makefile) files.
-
-> 
-> Was this fixed in -rc4 and I should update the SuSE kernel to it (well,
-> I'll do that anyway later today...), or is this something that you did
-> not know about?
-Have not seen the reports - may have overlookd them at lkml.
-Been on vacation a few days so ctrl-d was used to read most of my
-lkml mails.
-
-	Sam

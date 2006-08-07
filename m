@@ -1,172 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWHGAWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWHGAc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWHGAWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 20:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWHGAWq
+	id S1750846AbWHGAc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 20:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWHGAc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 20:22:46 -0400
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:21956 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750840AbWHGAWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 20:22:46 -0400
-Date: Sun, 6 Aug 2006 20:15:15 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] raid1: allow user to force reads from a specific disk
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-raid <linux-raid@vger.kernel.org>
-Message-ID: <200608062018_MC3-1-C74D-B4E9@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Sun, 6 Aug 2006 20:32:29 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:17474 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1750846AbWHGAc3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 20:32:29 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Mismatch between hdaprm and sdparm output
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 07 Aug 2006 10:32:26 +1000
+Message-ID: <23691.1154910746@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow user to force raid1 to read all data from a given disk.
-This lets users do integrity checking by comparing results
-from reading different disks.  If at any time the system finds
-it cannot read from the given disk it resets the disk number
-to -1, the default, which means to balance reads.
+NEC Versa S5200 laptop with FUJITSU MHV2080B SATA disk.  Kernel
+2.6.16.21-0.13-smp (suselinux 10.1) using ata_piix.  hdparm and sdparm
+give inconsistent results, which one should I believe?  My main concern
+is write caching (XFS filesystem).
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+hdparm -I
 
----
+/dev/sda:
 
- drivers/md/raid1.c         |   72 +++++++++++++++++++++++++++++++++++++++++++--
- include/linux/raid/raid1.h |    1 
- 2 files changed, 70 insertions(+), 3 deletions(-)
+ATA device, with non-removable media
+	Model Number:       FUJITSU MHV2080BH
+	Serial Number:      NW28T62255WF
+	Firmware Revision:  00000028
+Standards:
+	Supported: 7 6 5 4
+	Likely used: 7
+Configuration:
+	Logical		max	current
+	cylinders	16383	16383
+	heads		16	16
+	sectors/track	63	63
+	--
+	CHS current addressable sectors:   16514064
+	LBA    user addressable sectors:  156301488
+	LBA48  user addressable sectors:  156301488
+	device size with M = 1024*1024:       76319 MBytes
+	device size with M = 1000*1000:       80026 MBytes (80 GB)
+Capabilities:
+	LBA, IORDY(can be disabled)
+	Queue depth: 32
+	Standby timer values: spec'd by Standard, no device specific minimum
+	R/W multiple sector transfer: Max = 16	Current = 16
+	Advanced power management level: 128 (0x80)
+	Recommended acoustic management value: 254, current value: 254
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+	     Cycle time: min=120ns recommended=120ns
+	PIO: pio0 pio1 pio2 pio3 pio4
+	     Cycle time: no flow control=240ns  IORDY flow control=120ns
+Commands/features:
+	Enabled	Supported:
+	   *	READ BUFFER cmd
+	   *	WRITE BUFFER cmd
+	   *	Host Protected Area feature set
+	   *	Look-ahead
+		Write cache
+	   *	Power Management feature set
+		Security Mode feature set
+	   *	SMART feature set
+	   *	FLUSH CACHE EXT command
+	   *	Mandatory FLUSH CACHE command
+	   *	Device Configuration Overlay feature set
+	   *	48-bit Address feature set
+	   *	Automatic Acoustic Management feature set
+	   *	SET MAX security extension
+	   *	Advanced Power Management feature set
+	   *	DOWNLOAD MICROCODE cmd
+	   *	General Purpose Logging feature set
+	   *	SMART self-test
+	   *	SMART error logging
+Security:
+	Master password revision code = 65534
+		supported
+	not	enabled
+	not	locked
+		frozen
+	not	expired: security count
+	not	supported: enhanced erase
+	80min for SECURITY ERASE UNIT.
+Checksum: correct
 
---- 2.6.18-rc3-32.orig/drivers/md/raid1.c
-+++ 2.6.18-rc3-32/drivers/md/raid1.c
-@@ -418,19 +418,37 @@ static int raid1_end_write_request(struc
- static int read_balance(conf_t *conf, r1bio_t *r1_bio)
- {
- 	const unsigned long this_sector = r1_bio->sector;
--	int new_disk = conf->last_used, disk = new_disk;
--	int wonly_disk = -1;
-+	int new_disk = conf->read_from_disk, disk = conf->last_used;
-+	int wonly_disk = -1, forced_read = 0;
- 	const int sectors = r1_bio->sectors;
- 	sector_t new_distance, current_distance;
- 	mdk_rdev_t *rdev;
- 
- 	rcu_read_lock();
-+
-+	if (new_disk != -1) {
-+		/* user has forced reads to one disk */
-+		forced_read = 1;
-+		if (new_disk >= 0 && new_disk < conf->raid_disks)
-+			goto rb_out;
-+	}
-+
-+	new_disk = conf->last_used;
- 	/*
- 	 * Check if we can balance. We can balance on the whole
- 	 * device if no resync is going on, or below the resync window.
- 	 * We take the first readable disk when above the resync window.
- 	 */
-  retry:
-+	/*
-+	 * If we reach this point and user has forced reads from one disk,
-+	 * disable the forced reads because they cannot be done.  User can
-+	 * check the "read_from_disk" attribute after doing IO to see if
-+	 * all the reads were really done from the correct disk.
-+	 */
-+	if (forced_read)
-+		conf->read_from_disk = -1;
-+
- 	if (conf->mddev->recovery_cp < MaxSector &&
- 	    (this_sector + sectors >= conf->next_resync)) {
- 		/* Choose the first operation device, for consistancy */
-@@ -518,7 +536,6 @@ static int read_balance(conf_t *conf, r1
- 
-  rb_out:
- 
--
- 	if (new_disk >= 0) {
- 		rdev = rcu_dereference(conf->mirrors[new_disk].rdev);
- 		if (!rdev)
-@@ -1802,6 +1819,52 @@ static sector_t sync_request(mddev_t *md
- 	return nr_sectors;
- }
- 
-+static ssize_t
-+raid1_show_read_from_disk(mddev_t *mddev, char *page)
-+{
-+	conf_t *conf = mddev_to_conf(mddev);
-+	if (conf)
-+		return sprintf(page, "%d\n", conf->read_from_disk);
-+	else
-+		return 0;
-+}
-+
-+static ssize_t
-+raid1_store_read_from_disk(mddev_t *mddev, const char *page, size_t len)
-+{
-+	conf_t *conf = mddev_to_conf(mddev);
-+	char *end;
-+	int new;
-+
-+	if (len >= PAGE_SIZE)
-+		return -EINVAL;
-+	if (!conf)
-+		return -ENODEV;
-+
-+	new = simple_strtoul(page, &end, 10);
-+	if (!*page || (*end && *end != '\n') )
-+		return -EINVAL;
-+	if (new < -1 || new >= conf->raid_disks)
-+		return -EINVAL;
-+	conf->read_from_disk = new;
-+
-+	return len;
-+}
-+
-+static struct md_sysfs_entry
-+raid1_read_from_disk = __ATTR(read_from_disk, S_IRUGO | S_IWUSR,
-+				raid1_show_read_from_disk,
-+				raid1_store_read_from_disk);
-+
-+static struct attribute *raid1_attrs[] =  {
-+	&raid1_read_from_disk.attr,
-+	NULL,
-+};
-+static struct attribute_group raid1_attrs_group = {
-+	.name = NULL,
-+	.attrs = raid1_attrs,
-+};
-+
- static int run(mddev_t *mddev)
- {
- 	conf_t *conf;
-@@ -1913,6 +1976,7 @@ static int run(mddev_t *mddev)
- 		      !test_bit(In_sync, &conf->mirrors[j].rdev->flags)) ; j++)
- 		/* nothing */;
- 	conf->last_used = j;
-+	conf->read_from_disk = -1; /* default: balance reads */
- 
- 
- 	mddev->thread = md_register_thread(raid1d, mddev, "%s_raid1");
-@@ -1930,6 +1994,8 @@ static int run(mddev_t *mddev)
- 	/*
- 	 * Ok, everything is just fine now
- 	 */
-+	sysfs_create_group(&mddev->kobj, &raid1_attrs_group);
-+
- 	mddev->array_size = mddev->size;
- 
- 	mddev->queue->unplug_fn = raid1_unplug;
---- 2.6.18-rc3-32.orig/include/linux/raid/raid1.h
-+++ 2.6.18-rc3-32/include/linux/raid/raid1.h
-@@ -32,6 +32,7 @@ struct r1_private_data_s {
- 	int			raid_disks;
- 	int			working_disks;
- 	int			last_used;
-+	int			read_from_disk;
- 	sector_t		next_seq_sect;
- 	spinlock_t		device_lock;
- 
--- 
-Chuck
+
+sdparm --get=WCE
+
+    /dev/sda: ATA       FUJITSU MHV2080B  0000
+WCE         1
+
+hdparm -A 1/0 can set/clear write cache, sdparm --set=WCE=0/1 always
+gets an error:
+
+sdparm --set=WCE=0 /dev/sda
+    /dev/sda: ATA       FUJITSU MHV2080B  0000
+    change_mode_page: failed setting page: Caching (SBC)
+

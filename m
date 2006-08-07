@@ -1,124 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWHGOzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWHGO7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWHGOzo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 10:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWHGOzo
+	id S1750967AbWHGO7c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 10:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWHGO7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 10:55:44 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:34435 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750844AbWHGOzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 10:55:43 -0400
-Date: Mon, 07 Aug 2006 10:54:56 -0400
-From: David Hollis <dhollis@davehollis.com>
-Subject: Re: [PATCH] please review mcs7830 (DeLOCK USB etherner) driver
-In-reply-to: <200608071500.55903.arnd.bergmann@de.ibm.com>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, support@moschip.com,
-       Michael Helmling <supermihi@web.de>
-Message-id: <1154962496.2496.12.camel@dhollis-lnx.sunera.com>
-MIME-version: 1.0
-X-Mailer: Evolution 2.7.4 (2.7.4-4)
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-djnEjU8a+k/grQnLDsuA"
-References: <200608071500.55903.arnd.bergmann@de.ibm.com>
+	Mon, 7 Aug 2006 10:59:32 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:45542 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750957AbWHGO7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 10:59:31 -0400
+X-ORBL: [67.117.73.34]
+Date: Mon, 7 Aug 2006 17:58:33 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Komal Shah <komal_shah802003@yahoo.com>,
+       David Brownell <david-b@pacbell.net>, r-woodruff2@ti.com,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>, i2c@lm-sensors.org
+Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #3
+Message-ID: <20060807145832.GF10387@atomide.com>
+References: <1154689868.12791.267626769@webmail.messagingengine.com> <20060805103113.058ce8fe.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060805103113.058ce8fe.khali@linux-fr.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-djnEjU8a+k/grQnLDsuA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* Jean Delvare <khali@linux-fr.org> [060805 11:31]:
+> 
+> > >> +		if (armxor_rate > 16000000)
+> > >> +			psc = (armxor_rate + 8000000) / 12000000;
+> > >> +		else
+> > >> +			psc = 0;
+> > 
+> > >Can you please explain this formula?
+> > 
+> > The OMAP core uses 8-bit value to divide the system clock (SCLK) and
+> > generates its own sampling clock (ICLK), and the core logic is sampled
+> > at clock rate of the system clock for the module, divided by (prescaler value + 1)
+> 
+> I should have been more precise, I guess. What surprises me are the
+> numbers themselves. It's frequent to see forumlae of the form
+> "a = (b + c/2) / c" to divide with proper rounding, but here you have
+> 2c/3 instread of c/2. My question was more like: is it intentional, or a
+> typo? Also, with the code above, psc will never have value 1. The "if"
+> part will always compute to at least 2, and the "else" part to 0. Is
+> this OK?
+> 
 
-On Mon, 2006-08-07 at 15:00 +0200, Arnd Bergmann wrote:
-> +
-> +/* index for PHY registers */
-> +enum {
-> +	PHY_CONTROL_REG_INDEX			=3D  0,
-> +	PHY_STATUS_REG_INDEX			=3D  1,
-> +	PHY_IDENTIFICATION1_REG_INDEX		=3D  2,
-> +	PHY_IDENTIFICATION2_REG_INDEX		=3D  3,
-> +	PHY_AUTONEGADVT_REG_INDEX		=3D  4,
-> +	PHY_AUTONEGLINK_REG_INDEX		=3D  5,
-> +	PHY_AUTONEGEXP_REG_INDEX		=3D  6,
+Hmmm, this sounds like a bug somewhere. TRM for 5912 says the I2C clock
+must be prescaled to be between 7 - 12 MHz [1]. The XOR input clock is
+typically 12, 13 or 19.2 MHz. So we should have code that produces:
 
-These values are dupes of the MII_xxxx constants from linux/mii.h.  It
-would be clearer and more consistent to use those instead
+XOR Mhz	Divider	Prescaler
+12	1	0
+13	2	1
+19.2	2	1
 
-> +	PHY_MIRROR_REG_INDEX			=3D 16,
-> +	PHY_INTERRUPTENABLE_REG_INDEX		=3D 17,
-> +	PHY_INTERRUPTSTATUS_REG_INDEX		=3D 18,
-> +	PHY_CONFIG_REG_INDEX			=3D 19,
-> +	PHY_CHIPSTATUS_REG_INDEX		=3D 20,
-> +};
+Then again the original old code produces something different too [2]...
 
-These values are device specific so you would want to define them here.
-Following the MII_xxxxx naming convention may be helpful.
+I suspect the original code had some hw workarounds and and later code
+may have a conversion bug somewhere :)
 
-> +
-> +static DEFINE_MUTEX(mcs7830_phy_mutex);
-> +
+I suggest we keep the code as is for now since it's known to work on
+all omaps, and then submit a follow-up patch later once we have
+verified that that code based on the TRM works on all omaps.
 
-Does this need to be global?  Isn't it really just to prevent
-simultaneous access to the adapters PHY?  What if you have multiple
-adapters installed?
+Regards,
 
-> +
-> +static int mcs7830_bind(struct usbnet *dev, struct usb_interface *udev)
-> +{
-> +	struct net_device *net =3D dev->net;
-> +	int ret;
-> +
-> +	ret =3D mcs7830_init_dev(dev);
-> +	if (ret)
-> +		goto out;
-> +
-> +	net->do_ioctl =3D mcs7830_ioctl;
-> +	net->set_multicast_list =3D mcs7830_set_multicast;
-> +	mcs7830_set_multicast(net);
-> +
-> +	dev->mii.mdio_read =3D mcs7830_mdio_read;
-> +	dev->mii.mdio_write =3D mcs7830_mdio_write;
-> +	dev->mii.dev =3D net;
-> +	dev->mii.phy_id_mask =3D 0x3f;
-> +	dev->mii.reg_num_mask =3D 0x1f;
-> +	dev->mii.phy_id =3D *((u8 *) net->dev_addr + 1);
-> +
-> +	dev->in =3D usb_rcvbulkpipe(dev->udev, 1);
-> +	dev->out =3D usb_sndbulkpipe(dev->udev, 2);
+Tony
 
-Couldn't you use usbnet_getendpoints() here.  It will also pick up the
-status pipe.
-
-> +out:
-> +	return ret;
-> +}
-> +
-> +static int mcs7830_check_connect(struct usbnet *dev)
-> +{
-> +	int ret;
-> +	ret =3D mcs7830_mdio_read(dev->net, dev->mii.phy_id, 1);
-
-use MII_BMSR here instead of the magic value '1'.
-> +	return !ret;
-> +}
-> +
-
---=20
-David Hollis <dhollis@davehollis.com>
-
---=-djnEjU8a+k/grQnLDsuA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE11RAxasLqOyGHncRAgGzAJ4x3jEQA1ttDa6+b0CAKU3k0GhWawCfWOXo
-vcK0NW7OY9ramwHXtfXAf5E=
-=awyr
------END PGP SIGNATURE-----
-
---=-djnEjU8a+k/grQnLDsuA--
-
+[1] http://focus.ti.com/general/docs/lit/getliterature.tsp?baseLiteratureNumber=spru681
+[2] http://linux-omap.bkbits.net:8080/main/diffs/drivers/i2c/busses/i2c-omap.c@1.12?nav=index.html|src/|src/drivers|src/drivers/i2c|src/drivers/i2c/busses|hist/drivers/i2c/busses/i2c-omap.c

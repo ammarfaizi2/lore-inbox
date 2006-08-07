@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHGVLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWHGVLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWHGVLK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHGVLJ
+	id S932385AbWHGVLo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHGVLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:11:09 -0400
-Received: from xenotime.net ([66.160.160.81]:5851 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932376AbWHGVLI (ORCPT
+	Mon, 7 Aug 2006 17:11:43 -0400
+Received: from xenotime.net ([66.160.160.81]:25051 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932385AbWHGVLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:11:08 -0400
-Date: Mon, 7 Aug 2006 14:00:40 -0700
+	Mon, 7 Aug 2006 17:11:18 -0400
+Date: Mon, 7 Aug 2006 14:12:24 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>
-Subject: [PATCH 4/9] Replace ARCH_HAS_NMI_WATCHDOG with
- CONFIG_ARCH_NMI_WATCHDOG
-Message-Id: <20060807140040.84f41ef1.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, colpatch@us.ibm.com
+Subject: [PATCH 1/9] Replace ARCH_HAS_SCHED_WAKE_IDLE with CONFIG_SCHED_SMT
+Message-Id: <20060807141224.4e3ba738.rdunlap@xenotime.net>
 In-Reply-To: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 Organization: YPO4
@@ -28,81 +27,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Replace ARCH_HAS_NMI_WATCHDOG with CONFIG_ARCH_NMI_WATCHDOG.
+Replace ARCH_HAS_SCHED_WAKE_IDLE with CONFIG_SCHED_SMT.
 Move it from header files to Kconfig space.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- arch/i386/Kconfig        |    4 ++++
- arch/x86_64/Kconfig      |    4 ++++
- include/asm-i386/irq.h   |    4 ----
- include/asm-x86_64/irq.h |    4 ----
- include/linux/nmi.h      |    2 +-
- 5 files changed, 9 insertions(+), 9 deletions(-)
+ include/linux/topology.h |    6 ++----
+ kernel/sched.c           |    2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
---- linux-2618-rc4-arch.orig/include/asm-i386/irq.h
-+++ linux-2618-rc4-arch/include/asm-i386/irq.h
-@@ -20,10 +20,6 @@ static __inline__ int irq_canonicalize(i
- 	return ((irq == 2) ? 9 : irq);
- }
- 
--#ifdef CONFIG_X86_LOCAL_APIC
--# define ARCH_HAS_NMI_WATCHDOG		/* See include/linux/nmi.h */
--#endif
--
- #ifdef CONFIG_4KSTACKS
-   extern void irq_ctx_init(int cpu);
-   extern void irq_ctx_exit(int cpu);
---- linux-2618-rc4-arch.orig/include/asm-x86_64/irq.h
-+++ linux-2618-rc4-arch/include/asm-x86_64/irq.h
-@@ -44,10 +44,6 @@ static __inline__ int irq_canonicalize(i
- 	return ((irq == 2) ? 9 : irq);
- }
- 
--#ifdef CONFIG_X86_LOCAL_APIC
--#define ARCH_HAS_NMI_WATCHDOG		/* See include/linux/nmi.h */
--#endif
--
- #ifdef CONFIG_HOTPLUG_CPU
- #include <linux/cpumask.h>
- extern void fixup_irqs(cpumask_t map);
---- linux-2618-rc4-arch.orig/include/linux/nmi.h
-+++ linux-2618-rc4-arch/include/linux/nmi.h
-@@ -13,7 +13,7 @@
-  * may be used to reset the timeout - for code which intentionally
-  * disables interrupts for a long time. This call is stateless.
+--- linux-2618-rc4-arch.orig/include/linux/topology.h
++++ linux-2618-rc4-arch/include/linux/topology.h
+@@ -80,10 +80,8 @@
+  * and allow arch-specific performance tuning of sched_domains.
   */
--#ifdef ARCH_HAS_NMI_WATCHDOG
-+#ifdef CONFIG_ARCH_NMI_WATCHDOG
- extern void touch_nmi_watchdog(void);
- #else
- # define touch_nmi_watchdog() do { } while(0)
---- linux-2618-rc4-arch.orig/arch/i386/Kconfig
-+++ linux-2618-rc4-arch/arch/i386/Kconfig
-@@ -292,6 +292,10 @@ config X86_LOCAL_APIC
- 	depends on X86_UP_APIC || ((X86_VISWS || SMP) && !X86_VOYAGER)
- 	default y
- 
-+config ARCH_NMI_WATCHDOG
-+	def_bool y
-+	depends on X86_LOCAL_APIC
+ #ifdef CONFIG_SCHED_SMT
+-/* MCD - Do we really need this?  It is always on if CONFIG_SCHED_SMT is,
+- * so can't we drop this in favor of CONFIG_SCHED_SMT?
+- */
+-#define ARCH_HAS_SCHED_WAKE_IDLE
++/* CONFIG_SCHED_SMT is synonymous with old ARCH_HAS_SCHED_WAKE_IDLE */
 +
- config X86_IO_APIC
- 	bool
- 	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER))
---- linux-2618-rc4-arch.orig/arch/x86_64/Kconfig
-+++ linux-2618-rc4-arch/arch/x86_64/Kconfig
-@@ -213,6 +213,10 @@ config X86_LOCAL_APIC
- 	bool
- 	default y
- 
-+config ARCH_NMI_WATCHDOG
-+	def_bool y
-+	depends on X86_LOCAL_APIC
-+
- config MTRR
- 	bool "MTRR (Memory Type Range Register) support"
- 	---help---
+ /* Common values for SMT siblings */
+ #ifndef SD_SIBLING_INIT
+ #define SD_SIBLING_INIT (struct sched_domain) {		\
+--- linux-2618-rc4-arch.orig/kernel/sched.c
++++ linux-2618-rc4-arch/kernel/sched.c
+@@ -1315,7 +1315,7 @@ nextlevel:
+  *
+  * Returns the CPU we should wake onto.
+  */
+-#if defined(ARCH_HAS_SCHED_WAKE_IDLE)
++#ifdef CONFIG_SCHED_SMT
+ static int wake_idle(int cpu, struct task_struct *p)
+ {
+ 	cpumask_t tmp;
 
 
 ---

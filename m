@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWHGVrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWHGV6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbWHGVrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWHGVrJ
+	id S1751122AbWHGV6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWHGV6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:47:09 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:28650 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751014AbWHGVrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:47:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AX0GBJB5M+7kn5EuO3eTclXluWOrTmy5G9UO1vrkUPMHpQv7xL+T+gw5FEkqI4pPADSOHsgZEgHw2AzZ3QLVbuQ/zl/M7dx9y9/1gzfHSJEd5+mMTaT9iAALCOiLcqtSZFbP/ZL9nNrWjxWUE97i33nVqClz9q0EAgTP/i7k/2o=
-Message-ID: <a762e240608071447n61c0c421qa923df6eea9f151d@mail.gmail.com>
-Date: Mon, 7 Aug 2006 14:47:05 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Andy Whitcroft" <apw@shadowen.org>
-Subject: Re: [PATCH] x86_64 dirty fix to restore dual command line store
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Keen" <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060807151216.GA15194@shadowen.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 17:58:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12050 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751122AbWHGV6C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 17:58:02 -0400
+Date: Mon, 7 Aug 2006 21:56:02 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Jeff Garzik <jeff@garzik.org>, David Masover <ninja@slaphack.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Andrew Morton <akpm@osdl.org>, Theodore Tso <tytso@mit.edu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: ext3 vs reiserfs speed (was Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion))
+Message-ID: <20060807215602.GA4540@ucw.cz>
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com> <44CA126C.7050403@namesys.com> <44CA98F9.1040900@garzik.org> <44CAD3FF.8060203@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44D75691.8070908@shadowen.org>
-	 <20060807151216.GA15194@shadowen.org>
+In-Reply-To: <44CAD3FF.8060203@namesys.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Andy Whitcroft <apw@shadowen.org> wrote:
-> x86_64 dirty fix to restore dual command line store
->
-> Ok, It seems that the patch below effectivly removes the second
-> copy of the command line.  This means that any modification to the
-> 'working' command line (as returned from setup_arch) is incorrectly
-> visible in userspace via /proc/cmdline.
+Hi!
 
-Sorry for the side question but why is setup_arch adding things back
-on the cmdline in the first place?  What do you see in /proc/cmdline?
+> > Using guilt as an argument in a technical discussion is a flashing red
+> > sign that says "I have no technical rebuttal"
+> 
+> Wow, that is really nervy.  Let's recap this all:
+> 
+> * reiser4 has a 2x performance advantage over the next fastest FS
+> (ext3), and when compression ships in a month that will double again as
+> well as save space.  See http://www.namesys.com/benchmarks.html, and
 
-Thanks,
-  Keith
+Does that mean that ext3 is faster than reiser3? Wow, that would be
+good reason to switch default filesystem to ext3 (or reiser4?) in next
+suse release.
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

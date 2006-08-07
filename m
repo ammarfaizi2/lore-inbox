@@ -1,72 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWHGRiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWHGRmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWHGRiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWHGRiZ
+	id S1750798AbWHGRmE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHGRmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:38:25 -0400
-Received: from wind.enjellic.com ([209.243.13.15]:44768 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP id S1750785AbWHGRiZ
+	Mon, 7 Aug 2006 13:42:04 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:32168 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750798AbWHGRmD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:38:25 -0400
-Message-Id: <200608071737.k77Hbjph002429@wind.enjellic.com>
-From: greg@enjellic.com
-Date: Mon, 7 Aug 2006 12:37:45 -0500
-In-Reply-To: Theodore Tso <tytso@mit.edu>
-       "Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion" (Jul 31,  3:41pm)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: Theodore Tso <tytso@mit.edu>, Adrian Ulrich <reiser4@blinkenlights.ch>,
-       vonbrand@inf.utfsm.cl, ipso@snappymail.ca, reiser@namesys.com,
-       lkml@lpbproductions.com, jeff@garzik.org, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+	Mon, 7 Aug 2006 13:42:03 -0400
+Subject: Re: [PATCH 9/10] hot-add-mem x86_64: use
+	CONFIG_MEMORY_HOTPLUG_RESERVE
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: andrew <akpm@osdl.org>, discuss <discuss@x86-64.org>,
+       Andi Kleen <ak@suse.de>, lhms-devel <lhms-devel@lists.sourceforge.net>,
+       kame <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060804131439.21401.62864.sendpatchset@localhost.localdomain>
+References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+	 <20060804131439.21401.62864.sendpatchset@localhost.localdomain>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Mon, 07 Aug 2006 10:41:25 -0700
+Message-Id: <1154972485.5790.3.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 31,  3:41pm, Theodore Tso wrote:
-} Subject: Re: the " 'official' point of view" expressed by kernelnewbies.or
+On Fri, 2006-08-04 at 07:14 -0600, Keith Mannthey wrote:
+> From: Keith Mannthey <kmannth@us.ibm.com>
+> 
 
-> On Mon, Jul 31, 2006 at 06:54:06PM +0200, Matthias Andree wrote:
-> > > > This looks rather like an education issue rather than a technical limit.
-> > > 
-> > > We aren't talking about the same issue: I was asking to do it
-> > > on-the-fly. Umounting the filesystem, running e2fsck and resize2fs
-> > > is something different ;-)
-> > 
-> > There was stuff by Andreas Dilger, to support "online" resizing of
-> > mounted ext2 file systems. I never cared to look for this (does it
-> > support ext3, does it work with current kernels, merge status) since
-> > offline resizing was always sufficient for me.
 
-> With the latest e2fsprogs and 2.6 kernels, the online resizing
-> support has been merged in, and as long as the filesystem was
-> created with space reserved for growing the filesystem (which is now
-> the default, or if the filesystem has the off-line prepration step
-> ext2prepare run on it), you can run resize2fs on a mounted
-> filesystem and grow an ext2/3 filesystem on-line.  And yes, you get
-> more inodes as you add more disk blocks, using the original inode
-> ratio that was established when the filesystem was created.
+Opps looks like I attached the wrong patch in the original email :( 
+Here is the real patch...
 
-Are all the necessary tools in and documented in e2fsprogs?
+From: Keith Mannthey <kmannth@us.ibm.com>
 
-It seems that finding all the bits and pieces to do ext3 on-line
-expansion has been a study in obfuscation.  Somewhat surprising since
-this feature is a must for enterprise class storage management.
+  Make CONFIG_MEMORY_HOTPLUG_RESERVE and CONFIG_MEMORY_HOTPLUG_SPARSE
+build in the same tree. 
 
-> 						- Ted
+Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
+---
+ arch/x86_64/mm/init.c |   10 +++++---
+ mm/memory_hotplug.c   |   60 ++++++++++++++++++++++++
++------------------------- 2 files changed, 36 insertions(+), 34
+deletions(-)
 
-Best wishes for a productive week.
+diff -urN linux-2.6.17-stock/arch/x86_64/mm/init.c
+linux-2.6.17/arch/x86_64/mm/init.c
+--- linux-2.6.17-stock/arch/x86_64/mm/init.c	2006-08-04
+08:03:44.000000000 -0400
++++ linux-2.6.17/arch/x86_64/mm/init.c	2006-08-04 08:04:40.000000000
+-0400
+@@ -529,12 +529,12 @@
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 	int ret;
+ 
++	init_memory_mapping(start, (start + size -1));
++
+ 	ret = __add_pages(zone, start_pfn, nr_pages);
+ 	if (ret)
+ 		goto error;
+ 
+-	init_memory_mapping(start, (start + size -1));
+-
+ 	return ret;
+ error:
+ 	printk("%s: Problem encountered in __add_pages!\n", __func__);
+@@ -555,7 +555,9 @@
+ }
+ #endif 
+ 
+-#else /* CONFIG_MEMORY_HOTPLUG */
++#endif /* CONFIG_MEMORY_HOTPLUG */
++
++#ifdef CONFIG_MEMORY_HOTPLUG_RESERVE 
+ /*
+  * Memory Hotadd without sparsemem. The mem_maps have been allocated in
+advance,
+  * just online the pages.
+@@ -581,7 +583,7 @@
+ 	}
+ 	return err;
+ }
+-#endif /* CONFIG_MEMORY_HOTPLUG */
++#endif
+ 
+ static struct kcore_list kcore_mem, kcore_vmalloc, kcore_kernel,
+kcore_modules,
+ 			 kcore_vsyscall;
+diff -urN linux-2.6.17-stock/mm/memory_hotplug.c
+linux-2.6.17/mm/memory_hotplug.c
+--- linux-2.6.17-stock/mm/memory_hotplug.c	2006-08-04 08:03:54.000000000
+-0400
++++ linux-2.6.17/mm/memory_hotplug.c	2006-08-04 08:04:40.000000000 -0400
+@@ -24,6 +24,36 @@
+ 
+ #include <asm/tlbflush.h>
+ 
++/* add this memory to iomem resource */
++static struct resource *register_memory_resource(u64 start, u64 size)
++{
++	struct resource *res;
++	res = kzalloc(sizeof(struct resource), GFP_KERNEL);
++	BUG_ON(!res);
++
++	res->name = "System RAM";
++	res->start = start;
++	res->end = start + size - 1;
++	res->flags = IORESOURCE_MEM;
++	if (request_resource(&iomem_resource, res) < 0) {
++		printk("System RAM resource %llx - %llx cannot be added\n",
++		(unsigned long long)res->start, (unsigned long long)res->end);
++		kfree(res);
++		res = NULL;
++	}
++	return res;
++}
++
++static void release_memory_resource(struct resource *res)
++{
++	if (!res)
++		return;
++	release_resource(res);
++	kfree(res);
++	return;
++}
++
++
+ #ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
+ static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
+ {
+@@ -220,36 +250,6 @@
+ 	return;
+ }
+ 
+-/* add this memory to iomem resource */
+-static struct resource *register_memory_resource(u64 start, u64 size)
+-{
+-	struct resource *res;
+-	res = kzalloc(sizeof(struct resource), GFP_KERNEL);
+-	BUG_ON(!res);
+-
+-	res->name = "System RAM";
+-	res->start = start;
+-	res->end = start + size - 1;
+-	res->flags = IORESOURCE_MEM;
+-	if (request_resource(&iomem_resource, res) < 0) {
+-		printk("System RAM resource %llx - %llx cannot be added\n",
+-		(unsigned long long)res->start, (unsigned long long)res->end);
+-		kfree(res);
+-		res = NULL;
+-	}
+-	return res;
+-}
+-
+-static void release_memory_resource(struct resource *res)
+-{
+-	if (!res)
+-		return;
+-	release_resource(res);
+-	kfree(res);
+-	return;
+-}
+-
+-
+ 
+ int add_memory(int nid, u64 start, u64 size)
+ {
 
-}-- End of excerpt from Theodore Tso
 
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-1686
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"Ooohh.. FreeBSD is faster over loopback, when compared to Linux over
-the wire.  Film at 11."
-                                -- Linus Torvalds

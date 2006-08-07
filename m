@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWHGSdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWHGSjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWHGSdz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 14:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHGSdz
+	id S932121AbWHGSjo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWHGSjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 14:33:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:20376 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932281AbWHGSdy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 14:33:54 -0400
-Date: Mon, 7 Aug 2006 11:32:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Jonathan Davies <jjd27@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ftdi_sio driver - new PIDs
-Message-ID: <20060807183247.GA9351@kroah.com>
-References: <44D35AF1.2040200@cam.ac.uk> <20060804172340.GA10696@kroah.com> <Pine.LNX.4.64.0608071350300.8139@hermes-2.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608071350300.8139@hermes-2.csi.cam.ac.uk>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 7 Aug 2006 14:39:44 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:39054 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932121AbWHGSjn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 14:39:43 -0400
+Subject: Re: [PATCH 1/10] hot-add-mem x86_64: acpi motherboard fix
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, andrew <akpm@osdl.org>,
+       discuss <discuss@x86-64.org>, Andi Kleen <ak@suse.de>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <20060805145137.aad34b44.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
+	 <20060805145137.aad34b44.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Mon, 07 Aug 2006 11:39:27 -0700
+Message-Id: <1154975968.5790.16.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 02:44:15PM +0100, Jonathan Davies wrote:
+On Sat, 2006-08-05 at 14:51 +0900, KAMEZAWA Hiroyuki wrote:
+> On Fri, 4 Aug 2006 07:13:51 -0600
+> Keith Mannthey <kmannth@us.ibm.com> wrote:
+> > I have worked to integrate the feedback I recived on the last round of patches
+> > and welcome more ideas/advice. Thanks to everyone who has provied input on
+> > these patches already. 
+> > 
+> Just from review...
 > 
-> >Your patch is line-wrapped and the tabs are eaten, making it hard to
-> >apply the patch :(
->
-> Sorry; I'll try again with a different mail client!
+> If new zone , which was empty at boot, are added into the system.
+> build_all_zonelists() has to be called. (see online_pages() in memory_hotplug.c)
+> it looks x86_64's __add_pages() doesn't calles it.
 
-Closer, the tabs are now fine, but the patch is line-wrapped, and you
-are using a mime email, which means I can't directly apply the patch...
+With RESERVE there are not empty zones.  All zones (including add-areas)
+are setup during boot and hot add areas reserved in the bootmem
+allocator. 
 
-Care to try again, third time's the charm :)
+Zones don't change size there is no adding to the zone just on-lining on
+pages at are already present in the zone. 
+  
 
-thanks,
+-- 
+keith mannthey <kmannth@us.ibm.com>
+Linux Technology Center IBM
 
-greg k-h

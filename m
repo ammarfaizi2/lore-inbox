@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWHGVLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHGVLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWHGVLL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHGVLL
+	id S932283AbWHGVLK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHGVLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:11:11 -0400
-Received: from xenotime.net ([66.160.160.81]:5595 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932373AbWHGVLI (ORCPT
+	Mon, 7 Aug 2006 17:11:09 -0400
+Received: from xenotime.net ([66.160.160.81]:5851 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932376AbWHGVLI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Aug 2006 17:11:08 -0400
-Date: Mon, 7 Aug 2006 13:58:40 -0700
+Date: Mon, 7 Aug 2006 14:00:40 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>
-Subject: [PATCH 3/9] Replace ARCH_HAS_READ_CURRENT_TIMER with
- CONFIG_ARCH_READ_CURRENT_TIMER
-Message-Id: <20060807135840.753d186b.rdunlap@xenotime.net>
+Subject: [PATCH 4/9] Replace ARCH_HAS_NMI_WATCHDOG with
+ CONFIG_ARCH_NMI_WATCHDOG
+Message-Id: <20060807140040.84f41ef1.rdunlap@xenotime.net>
 In-Reply-To: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 Organization: YPO4
@@ -28,96 +28,81 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Replace ARCH_HAS_READ_CURRENT_TIMER with CONFIG_ARCH_READ_CURRENT_TIMER.
+Replace ARCH_HAS_NMI_WATCHDOG with CONFIG_ARCH_NMI_WATCHDOG.
 Move it from header files to Kconfig space.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- arch/i386/Kconfig           |    3 +++
- arch/sparc64/Kconfig        |    3 +++
- arch/x86_64/Kconfig         |    3 +++
- include/asm-i386/timex.h    |    1 -
- include/asm-sparc64/timex.h |    1 -
- include/asm-x86_64/timex.h  |    1 -
- init/calibrate.c            |    2 +-
- 7 files changed, 10 insertions(+), 4 deletions(-)
+ arch/i386/Kconfig        |    4 ++++
+ arch/x86_64/Kconfig      |    4 ++++
+ include/asm-i386/irq.h   |    4 ----
+ include/asm-x86_64/irq.h |    4 ----
+ include/linux/nmi.h      |    2 +-
+ 5 files changed, 9 insertions(+), 9 deletions(-)
 
---- linux-2618-rc4-arch.orig/init/calibrate.c
-+++ linux-2618-rc4-arch/init/calibrate.c
-@@ -19,7 +19,7 @@ static int __init lpj_setup(char *str)
+--- linux-2618-rc4-arch.orig/include/asm-i386/irq.h
++++ linux-2618-rc4-arch/include/asm-i386/irq.h
+@@ -20,10 +20,6 @@ static __inline__ int irq_canonicalize(i
+ 	return ((irq == 2) ? 9 : irq);
+ }
  
- __setup("lpj=", lpj_setup);
+-#ifdef CONFIG_X86_LOCAL_APIC
+-# define ARCH_HAS_NMI_WATCHDOG		/* See include/linux/nmi.h */
+-#endif
+-
+ #ifdef CONFIG_4KSTACKS
+   extern void irq_ctx_init(int cpu);
+   extern void irq_ctx_exit(int cpu);
+--- linux-2618-rc4-arch.orig/include/asm-x86_64/irq.h
++++ linux-2618-rc4-arch/include/asm-x86_64/irq.h
+@@ -44,10 +44,6 @@ static __inline__ int irq_canonicalize(i
+ 	return ((irq == 2) ? 9 : irq);
+ }
  
--#ifdef ARCH_HAS_READ_CURRENT_TIMER
-+#ifdef CONFIG_ARCH_READ_CURRENT_TIMER
- 
- /* This routine uses the read_current_timer() routine and gets the
-  * loops per jiffy directly, instead of guessing it using delay().
---- linux-2618-rc4-arch.orig/include/asm-i386/timex.h
-+++ linux-2618-rc4-arch/include/asm-i386/timex.h
-@@ -17,6 +17,5 @@
- 
- 
- extern int read_current_timer(unsigned long *timer_value);
--#define ARCH_HAS_READ_CURRENT_TIMER	1
- 
- #endif
---- linux-2618-rc4-arch.orig/include/asm-sparc64/timex.h
-+++ linux-2618-rc4-arch/include/asm-sparc64/timex.h
-@@ -14,7 +14,6 @@
- typedef unsigned long cycles_t;
- #define get_cycles()	tick_ops->get_tick()
- 
--#define ARCH_HAS_READ_CURRENT_TIMER	1
- #define read_current_timer(timer_val_p) 	\
- ({	*timer_val_p = tick_ops->get_tick();	\
- 	0;					\
---- linux-2618-rc4-arch.orig/include/asm-x86_64/timex.h
-+++ linux-2618-rc4-arch/include/asm-x86_64/timex.h
-@@ -42,7 +42,6 @@ static __always_inline cycles_t get_cycl
- extern unsigned int cpu_khz;
- 
- extern int read_current_timer(unsigned long *timer_value);
--#define ARCH_HAS_READ_CURRENT_TIMER	1
- 
- extern struct vxtime_data vxtime;
- 
+-#ifdef CONFIG_X86_LOCAL_APIC
+-#define ARCH_HAS_NMI_WATCHDOG		/* See include/linux/nmi.h */
+-#endif
+-
+ #ifdef CONFIG_HOTPLUG_CPU
+ #include <linux/cpumask.h>
+ extern void fixup_irqs(cpumask_t map);
+--- linux-2618-rc4-arch.orig/include/linux/nmi.h
++++ linux-2618-rc4-arch/include/linux/nmi.h
+@@ -13,7 +13,7 @@
+  * may be used to reset the timeout - for code which intentionally
+  * disables interrupts for a long time. This call is stateless.
+  */
+-#ifdef ARCH_HAS_NMI_WATCHDOG
++#ifdef CONFIG_ARCH_NMI_WATCHDOG
+ extern void touch_nmi_watchdog(void);
+ #else
+ # define touch_nmi_watchdog() do { } while(0)
 --- linux-2618-rc4-arch.orig/arch/i386/Kconfig
 +++ linux-2618-rc4-arch/arch/i386/Kconfig
-@@ -202,6 +202,9 @@ config X86_CYCLONE_TIMER
- 	default y
- 	depends on X86_SUMMIT || X86_GENERICARCH
- 
-+config ARCH_READ_CURRENT_TIMER
-+	def_bool y
-+
- config ES7000_CLUSTERED_APIC
- 	bool
- 	default y
---- linux-2618-rc4-arch.orig/arch/sparc64/Kconfig
-+++ linux-2618-rc4-arch/arch/sparc64/Kconfig
-@@ -34,6 +34,9 @@ config ARCH_MAY_HAVE_PC_FDC
- 	bool
+@@ -292,6 +292,10 @@ config X86_LOCAL_APIC
+ 	depends on X86_UP_APIC || ((X86_VISWS || SMP) && !X86_VOYAGER)
  	default y
  
-+config ARCH_READ_CURRENT_TIMER
++config ARCH_NMI_WATCHDOG
 +	def_bool y
++	depends on X86_LOCAL_APIC
 +
- choice
- 	prompt "Kernel page size"
- 	default SPARC64_PAGE_SIZE_8KB
+ config X86_IO_APIC
+ 	bool
+ 	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER))
 --- linux-2618-rc4-arch.orig/arch/x86_64/Kconfig
 +++ linux-2618-rc4-arch/arch/x86_64/Kconfig
-@@ -381,6 +381,9 @@ config HOTPLUG_CPU
- config ARCH_ENABLE_MEMORY_HOTPLUG
- 	def_bool y
- 
-+config ARCH_READ_CURRENT_TIMER
-+	def_bool y
-+
- config HPET_TIMER
+@@ -213,6 +213,10 @@ config X86_LOCAL_APIC
  	bool
  	default y
+ 
++config ARCH_NMI_WATCHDOG
++	def_bool y
++	depends on X86_LOCAL_APIC
++
+ config MTRR
+ 	bool "MTRR (Memory Type Range Register) support"
+ 	---help---
 
 
 ---

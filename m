@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWHGXml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWHGXyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWHGXml (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWHGXml
+	id S932371AbWHGXyw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWHGXyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:42:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9196 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932419AbWHGXmk (ORCPT
+	Mon, 7 Aug 2006 19:54:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20685 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932371AbWHGXyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:42:40 -0400
-Date: Mon, 7 Aug 2006 16:42:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Nate Diller" <nate.diller@gmail.com>
-Cc: "Jens Axboe" <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] [1/3] add elv_extended_request call to iosched API
-Message-Id: <20060807164230.03ed89a7.akpm@osdl.org>
-In-Reply-To: <5c49b0ed0608071614k3a62a982jbe27fa0c6d5fdb0@mail.gmail.com>
-References: <5c49b0ed0608031911id21b112t7f0c350a7f10a99@mail.gmail.com>
-	<20060804052031.GA4717@suse.de>
-	<20060803224519.dd9bf38e.akpm@osdl.org>
-	<20060804133938.GX20624@suse.de>
-	<5c49b0ed0608071614k3a62a982jbe27fa0c6d5fdb0@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 7 Aug 2006 19:54:52 -0400
+Date: Mon, 7 Aug 2006 19:57:27 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060807235727.GM16231@redhat.com>
+References: <20060710233219.GF16215@in.ibm.com> <20060711010815.GB1021@host0.dyn.jankratochvil.net> <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com> <20060804210826.GE16231@redhat.com> <m164h8p50c.fsf@ebiederm.dsl.xmission.com> <20060804234327.GF16231@redhat.com> <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com> <20060807174439.GJ16231@redhat.com> <m17j1kctb8.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m17j1kctb8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006 16:14:59 -0700
-"Nate Diller" <nate.diller@gmail.com> wrote:
-
-> On 8/4/06, Jens Axboe <axboe@suse.de> wrote:
-> > On Thu, Aug 03 2006, Andrew Morton wrote:
-> > > On Fri, 4 Aug 2006 07:20:32 +0200
-> > > Jens Axboe <axboe@suse.de> wrote:
-> > >
-> > > > On Thu, Aug 03 2006, Nate Diller wrote:
-> > > > > the Elevator iosched would prefer to be unconditionally notified of a
-> > > > > merge, but the current API calls only one 'merge' notifier
-> > > > > (elv_merge_requests or elv_merged_requests), even if both front and
-> > > > > back merges happened.
-> > > > >
-> > > > > elv_extended_request satisfies this requirement in conjunction with
-> > > > > elv_merge_requests.
-> > > >
-> > > > Ok, I suppose. But please rebase patches against the 'block' git branch,
-> > > > there are extensive changes in this area.
-> > > >
-> > >
-> > > argh, the great (but partial ;)) renaming bites again.
-> > >
-> > > A suitable patch to merge against is
-> > > http://www.zip.com.au/~akpm/linux/patches/stuff/git-block.patch
+> >> >
+> >> >> 
+> >> >> The error is the uncompressed length does not math the stored length
+> >> >> of the data before from before we compressed it.  Now what is
+> >> >> fascinating is that our crc's match (as that check is performed first).
+> >> >> 
+> >> >> Something is very slightly off and I don't see what it is.
+> >> >
+> >> > I printed out orig_len -> 5910532 (which matches vmlinux.bin)
+> >> >              bytes_out -> 5910531
+> >> >
+> >> >> 
+> > It seems to be an AMD64 vs EM64T problem.  AMD chipsets work but Intel
+> > chipsets don't.  
 > >
-> > not so much the renaming (that's easy enough), but the elevator core
-> > parts changed in some areas.
+> > I also blindly incremented bytes_out (as a really cheap hack), it didn't
+> > work until I added some random putstr's below it (timing??).  Then the
+> > kernel booted. 
+> >
+> > Still looking into things.  
 > 
-> would it be appropriate to submit against 2.6.18-rc3-mm2?
+> Odd.  I wonder if I'm missing a serializing instruction somewhere,
+> to ensure the effects of ``self modifying code'' aren't a problem.
+> As I read Intels Documentation if you have a jump before you get
+> to the code there shouldn't be a problem.
+> 
+> Still that doesn't really explain bytes_out.
+> 
 
-Yes, that should give us a patch which Jens can use.
+So I narrowed down the problem but it isn't obvious to me why this problem
+exists.  Basically, even though bytes_out is supposed to be initialized to
+0, it becomes -1 before entering decompress_kernel().  Of course, the
+fallout is in flush_window() bytes_out wounds up being one less than
+outcnt and hence my original problem.
 
-Be aware that I've just gone and dropped git-block.patch due to
-suspend/resume problems.  I expect it'll come back within a suitable
-timeframe for you, but if it doesn't, inclusion in -mm might be delayed.
+Any thoughts on how to debug where this could be getting corrupted?  
+
+Cheers,
+Don
 

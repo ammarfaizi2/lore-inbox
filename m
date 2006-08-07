@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWHGXfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWHGXhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWHGXfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHGXfL
+	id S932417AbWHGXhe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWHGXhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:35:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26836 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932406AbWHGXfK (ORCPT
+	Mon, 7 Aug 2006 19:37:34 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1187 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932417AbWHGXhd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:35:10 -0400
-Date: Tue, 8 Aug 2006 01:34:53 +0200
+	Mon, 7 Aug 2006 19:37:33 -0400
+Date: Tue, 8 Aug 2006 01:37:15 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Darren Jenkins <darrenrjenkins@gmail.com>, torvalds@osdl.org
-Cc: Zed 0xff <zed.0xff@gmail.com>, kernel-janitors@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [patch] fix common mistake in polling loops
-Message-ID: <20060807233453.GK2759@elf.ucw.cz>
-References: <710c0ee0607280128g2d968c49ycff3bac9e073e7fa@mail.gmail.com> <20060805114052.GE4506@ucw.cz> <20060805114547.GA5386@ucw.cz> <82faac5b0608061639v315c6fa9l17cd4bf44b6bbc51@mail.gmail.com>
+To: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+Cc: Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net
+Subject: [PATCH] pr_debug() should not be used in drivers
+Message-ID: <20060807233715.GL2759@elf.ucw.cz>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com> <20060807231557.GA2759@elf.ucw.cz> <20060807232330.GA16540@suse.de> <20060807232520.GF2759@elf.ucw.cz> <20060807232906.GA16922@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <82faac5b0608061639v315c6fa9l17cd4bf44b6bbc51@mail.gmail.com>
+In-Reply-To: <20060807232906.GA16922@suse.de>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >> Well, whoever wrote thi has some serious problems (in attitude
-> >> department). *Any* loop you design may take half a minute under
-> >> streange circumstances.
-> 
-> 6.
-> common mistake in polling loops [from Linus]:
+pr_debug() should not be used from drivers, add comment saying that.
 
-Yes, Linus was wrong here. Or more precisely, he's right original code
-is broken, but his suggested "fix" is worse than the original.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-	unsigned long timeout = jiffies + HZ/2;
-	for (;;) {
-		if (ready())
-			return 0;
-[IMAGINE HALF A SECOND DELAY HERE]	
-		if (time_after(timeout, jiffies))
-			break;
-		msleep(10);
-	}
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 181c69c..1b5f238 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -210,6 +210,7 @@ extern enum system_states {
+ extern void dump_stack(void);
+ 
+ #ifdef DEBUG
++/* If you are writing a driver, please use dev_dbg, instead */
+ #define pr_debug(fmt,arg...) \
+ 	printk(KERN_DEBUG fmt,##arg)
+ #else
 
-Oops.
-
-> >Actually it may be broken, depending on use. In some cases this loop
-> >may want to poll the hardware 50 times, 10msec appart... and your loop
-> >can poll it only once in extreme conditions.
-> >
-> >Actually your loop is totally broken, and may poll only once (without
-> >any delay) and then directly timeout :-P -- that will break _any_
-> >user.
-> 
-> The Idea is that we are checking some event in external hardware that
-> we know will complete in a given time (This time is not dependant on
-> system activity but is fixed). After that time if the event has not
-> happened we know something has borked.
-
-But you have to make sure YOU CHECK READY AFTER THE TIMEOUT. Linus'
-code does not do that.
-								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,55 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWHGFPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWHGFQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWHGFPE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 01:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWHGFPE
+	id S1751054AbWHGFQx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 01:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWHGFQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 01:15:04 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:27356 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751052AbWHGFPC (ORCPT
+	Mon, 7 Aug 2006 01:16:53 -0400
+Received: from wip-ec-wd.wipro.com ([203.91.193.32]:43440 "EHLO
+	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP
+	id S1751054AbWHGFQx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 01:15:02 -0400
-Subject: Re: [PATCH 4/4] x86 paravirt_ops: binary patching infrastructure
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, Chris Wright <chrisw@sous-sol.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1154926114.21647.38.camel@localhost.localdomain>
-References: <1154925835.21647.29.camel@localhost.localdomain>
-	 <1154925943.21647.32.camel@localhost.localdomain>
-	 <1154926048.21647.35.camel@localhost.localdomain>
-	 <1154926114.21647.38.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 07 Aug 2006 15:14:59 +1000
-Message-Id: <1154927700.7642.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 01:16:53 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: error in kernel version check in pcmciautils installation
+Date: Mon, 7 Aug 2006 10:46:49 +0530
+Message-ID: <24ED22E506B5A042BF5B05B6B017D86C0A9077@PNE-HJN-MBX01.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: error in kernel version check in pcmciautils installation
+Thread-Index: Aca54K+mne8rN2yLSLqDximUMiwaYg==
+From: <bhuvan.kumarmital@wipro.com>
+To: <linux-pcmcia@lists.infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Aug 2006 05:16:50.0609 (UTC) FILETIME=[B02B7A10:01C6B9E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And a trivial warning fix on that last one when !CONFIG_PARAVIRT.
+ 
+ 
+Hi,
 
-struct paravirt_patch is only defined for CONFIG_PARAVIRT, so we
-declare the (unused) __start and __stop section markers as char, which
-causes a warning when we pass them to the dummy apply_paravirt.
+	There seems to a problem in the kernel version checking in the
+shell
+code used in the pcmciautils version 13.
+The file (pcmciautils-013/doc/cardmgr-to-pcmciautils.txt) mentions the
+following way of kernel version checking:
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+	  KVERREL=`uname -r`
+        KVER=${KVERREL%-*}
+        KVER_MAJOR=${KVER%.*}
+        KVER_MINOR=${KVER##*.}
 
---- working-2.6.18-rc3-mm2/arch/i386/kernel/alternative.c.~1~	2006-08-07 14:33:13.000000000 +1000
-+++ working-2.6.18-rc3-mm2/arch/i386/kernel/alternative.c	2006-08-07 15:08:21.000000000 +1000
-@@ -369,7 +369,7 @@
- extern struct paravirt_patch __start_parainstructions[],
- 	__stop_parainstructions[];
- #else
--void apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
-+void apply_paravirt(void *start, void *end)
- {
- }
- extern char __start_parainstructions[], __stop_parainstructions[];
+        if [ "$KVER_MAJOR" == "2.6" ]; then
+                # kernel 2.6.13-rc1 and higher have pcmcia via
+/sbin/hotplug
+                if [ $KVER_MINOR -ge 13 ]; then
+                        # uncomment the following line if the driver for
+your
+                        # controller is not auto-loaded. or if you want
+to be
+                        # able to say /etc/init.d/pcmcia stop
+                        /etc/init.d/pcmcia-new $1
+                        exit 0
+                fi
+        fi
+
+The problem is that this checking would fail on kernel versions
+2.6.15.4( the one i use )or versions which have a subminor version as
+well. This checking is very specific to kernel versions 2.6.x-rc1. The
+current checking fails in my case, even though i'm using 2.6.15.4 (where
+the minor number > 13).This is because KVER gets the string preceeding
+the '-' (whether it exists or not in uname -r). In my case KVER would
+assume the value 2.6.15.4 and subsequently KVER_MAJOR would become
+2.6.15 which would never equate with 2.6 (in the if condtion) and always
+lead to failure to run /etc/init.d/pcmcia-new $1.
+The result is that the pcmcia-new script is not executed and the cardmgr
+continues to get used.
+This error checking has not been rectified in pcmciautils version 14 as
+well.
+
+I wonder how pccard daemon has been working for people using the above
+code
+on kernel 2.6.x.y
+
+I would suggest the following replacement for the above checking:
+
+        KVER_MAJOR1=`uname -r | cut -d "." -f1`
+        KVER_MAJOR2=`uname -r | cut -d "." -f2`
+        KVER_MAJOR=$KVERMAJOR1.$KVER_MAJOR2
+        KVER_MINOR=`uname -r | cut -d "." -f3`
+
+        if [ "$KVER_MAJOR" == "2.6" ]; then
+                # kernel 2.6.13-rc1 and higher have pcmcia via
+/sbin/hotplug
+                if [ $KVER_MINOR -ge 13 ]; then
+                        # uncomment the following line if the driver for
+your
+                        # controller is not auto-loaded. or if you want
+to be
+                        # able to say /etc/init.d/pcmcia stop
+                        #/etc/init.d/pcmcia-new $1
+                        exit 0
+                fi
+        fi
 
 
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+I had posted this message some time back but i realised i had used the
+wrong 
+mail-posting convention.As a result i didn't get any feedback. Therefore
+i am 
+putting up this post again. Sorry for reposting.
+ 
+Bhuvan Mital
+Wipro Technologies
 

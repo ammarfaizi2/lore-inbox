@@ -1,68 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWHGO4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWHGOzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWHGO4D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 10:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWHGO4D
+	id S1750844AbWHGOzo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 10:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWHGOzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 10:56:03 -0400
-Received: from serv07.server-center.de ([83.220.153.152]:39084 "EHLO
-	serv07.server-center.de") by vger.kernel.org with ESMTP
-	id S1750930AbWHGOz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 10:55:56 -0400
-From: Alexander Bigga <ab@mycable.de>
-Organization: mycable GmbH
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Subject: Re: RTC: add RTC class interface to m41t00 driver
-Date: Mon, 7 Aug 2006 16:55:50 +0200
-User-Agent: KMail/1.7.2
-Cc: david-b@pacbell.net, mgreer@mvista.com, a.zummo@towertech.it,
-       linux-kernel@vger.kernel.org
-References: <200608041933.39930.david-b@pacbell.net> <200608051213.50308.david-b@pacbell.net> <20060807.020919.15248103.anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060807.020919.15248103.anemo@mba.ocn.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608071655.50946.ab@mycable.de>
+	Mon, 7 Aug 2006 10:55:44 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:34435 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750844AbWHGOzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 10:55:43 -0400
+Date: Mon, 07 Aug 2006 10:54:56 -0400
+From: David Hollis <dhollis@davehollis.com>
+Subject: Re: [PATCH] please review mcs7830 (DeLOCK USB etherner) driver
+In-reply-to: <200608071500.55903.arnd.bergmann@de.ibm.com>
+To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, support@moschip.com,
+       Michael Helmling <supermihi@web.de>
+Message-id: <1154962496.2496.12.camel@dhollis-lnx.sunera.com>
+MIME-version: 1.0
+X-Mailer: Evolution 2.7.4 (2.7.4-4)
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="=-djnEjU8a+k/grQnLDsuA"
+References: <200608071500.55903.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 August 2006 19:09, Atsushi Nemoto wrote:
-> > It would have made more sense to me to have the M41T81 and M41T85 be
-> > in a different driver, because of the incompatible register layout.
-> > That's the more traditional approach.
->
-> Now I'm thinking this way.  Still thinking...
 
-Yes, but on the other side: except of this single shift in the registers, it 
-works in the m41txx (or what the name will be) and won't do any extra work to 
-the driver.
-Even the m41t80 and m41t81 differs in their features. So you always have to 
-distinguish inside the driver.
+--=-djnEjU8a+k/grQnLDsuA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> My real target is M41T80, which seems a subset of M41T81.
-> (Sorry for not writing this before.)
+On Mon, 2006-08-07 at 15:00 +0200, Arnd Bergmann wrote:
+> +
+> +/* index for PHY registers */
+> +enum {
+> +	PHY_CONTROL_REG_INDEX			=3D  0,
+> +	PHY_STATUS_REG_INDEX			=3D  1,
+> +	PHY_IDENTIFICATION1_REG_INDEX		=3D  2,
+> +	PHY_IDENTIFICATION2_REG_INDEX		=3D  3,
+> +	PHY_AUTONEGADVT_REG_INDEX		=3D  4,
+> +	PHY_AUTONEGLINK_REG_INDEX		=3D  5,
+> +	PHY_AUTONEGEXP_REG_INDEX		=3D  6,
 
-My target is a M41ST85.
+These values are dupes of the MII_xxxx constants from linux/mii.h.  It
+would be clearer and more consistent to use those instead
 
-> So the next theme would be how we support M41T8x chips.  I think
-> Alexander's rtc-m41txx is good candidate for them.
+> +	PHY_MIRROR_REG_INDEX			=3D 16,
+> +	PHY_INTERRUPTENABLE_REG_INDEX		=3D 17,
+> +	PHY_INTERRUPTSTATUS_REG_INDEX		=3D 18,
+> +	PHY_CONFIG_REG_INDEX			=3D 19,
+> +	PHY_CHIPSTATUS_REG_INDEX		=3D 20,
+> +};
 
-There are also M41st9x chips and M41t6x chips and a M41t11... But ok, most 
-difference is watchdog/alarm or not.
+These values are device specific so you would want to define them here.
+Following the MII_xxxxx naming convention may be helpful.
 
-> Then M41T00 users can choose rtc-ds1307 or rtc-m41t00.  Not so bad, I
-> think.
+> +
+> +static DEFINE_MUTEX(mcs7830_phy_mutex);
+> +
 
-As long, as the user will be pointed out this possibilties in the Kconfig - I 
-agree.
+Does this need to be global?  Isn't it really just to prevent
+simultaneous access to the adapters PHY?  What if you have multiple
+adapters installed?
 
+> +
+> +static int mcs7830_bind(struct usbnet *dev, struct usb_interface *udev)
+> +{
+> +	struct net_device *net =3D dev->net;
+> +	int ret;
+> +
+> +	ret =3D mcs7830_init_dev(dev);
+> +	if (ret)
+> +		goto out;
+> +
+> +	net->do_ioctl =3D mcs7830_ioctl;
+> +	net->set_multicast_list =3D mcs7830_set_multicast;
+> +	mcs7830_set_multicast(net);
+> +
+> +	dev->mii.mdio_read =3D mcs7830_mdio_read;
+> +	dev->mii.mdio_write =3D mcs7830_mdio_write;
+> +	dev->mii.dev =3D net;
+> +	dev->mii.phy_id_mask =3D 0x3f;
+> +	dev->mii.reg_num_mask =3D 0x1f;
+> +	dev->mii.phy_id =3D *((u8 *) net->dev_addr + 1);
+> +
+> +	dev->in =3D usb_rcvbulkpipe(dev->udev, 1);
+> +	dev->out =3D usb_sndbulkpipe(dev->udev, 2);
 
-Alexander
--- 
-Alexander Bigga     Tel: +49 4873 90 10 866
-mycable GmbH        Fax: +49 4873 901 976
-Boeker Stieg 43
-D-24613 Aukrug      eMail: ab@mycable.de
+Couldn't you use usbnet_getendpoints() here.  It will also pick up the
+status pipe.
+
+> +out:
+> +	return ret;
+> +}
+> +
+> +static int mcs7830_check_connect(struct usbnet *dev)
+> +{
+> +	int ret;
+> +	ret =3D mcs7830_mdio_read(dev->net, dev->mii.phy_id, 1);
+
+use MII_BMSR here instead of the magic value '1'.
+> +	return !ret;
+> +}
+> +
+
+--=20
+David Hollis <dhollis@davehollis.com>
+
+--=-djnEjU8a+k/grQnLDsuA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBE11RAxasLqOyGHncRAgGzAJ4x3jEQA1ttDa6+b0CAKU3k0GhWawCfWOXo
+vcK0NW7OY9ramwHXtfXAf5E=
+=awyr
+-----END PGP SIGNATURE-----
+
+--=-djnEjU8a+k/grQnLDsuA--
 

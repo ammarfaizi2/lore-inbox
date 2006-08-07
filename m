@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWHGIRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWHGIkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWHGIRr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 04:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWHGIRr
+	id S1751162AbWHGIkF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 04:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWHGIkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 04:17:47 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:54734
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751153AbWHGIRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 04:17:46 -0400
-Message-Id: <44D7136E.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 07 Aug 2006 09:18:22 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@muc.de>, "Andrew Morton" <akpm@osdl.org>
-Cc: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>, <torvalds@osdl.org>,
-       <davej@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at
-	/usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
-References: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com>
- <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org>
- <20060804222400.GC18792@redhat.com> <20060805003142.GH18792@redhat.com>
- <20060805021051.GA13393@redhat.com> <20060805022356.GC13393@redhat.com>
- <20060805024947.GE13393@redhat.com> <20060805064727.GF13393@redhat.com>
- <6bffcb0e0608060959m164436baj9c4c602496e87f5d@mail.gmail.com>
- <20060806123243.826105fc.akpm@osdl.org> <20060807012638.GA42404@muc.de>
-In-Reply-To: <20060807012638.GA42404@muc.de>
+	Mon, 7 Aug 2006 04:40:05 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:30975 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751161AbWHGIkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 04:40:03 -0400
+Date: Mon, 7 Aug 2006 11:40:00 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andi Kleen <ak@muc.de>, virtualization@lists.osdl.org,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
+Message-ID: <20060807084000.GA3802@rhun.haifa.ibm.com>
+References: <1154925835.21647.29.camel@localhost.localdomain> <200608070730.17813.ak@muc.de> <1154930669.7642.12.camel@localhost.localdomain> <200608070817.42074.ak@muc.de> <20060807062705.GB4979@rhun.haifa.ibm.com> <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0608070934030.12594@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It's a false-positive in this case - the backtrace was complete.  It would
->> be good if we could make the did-we-get-stuck detector a bit smarter.  Even
->> special-casing "sysenter_past_esp" would stop a lot of this..
->
->Actually it's not completely false in this case -- it should
->have reached user mode and stopped there, but for some reason
->I didn't and already stopped still in the kernel.
->
->Most likely the CFI annotation for that sysenter path is not complete.
+On Mon, Aug 07, 2006 at 09:34:43AM +0200, Jan Engelhardt wrote:
+> 
+> >baremetal.h seems appropriate.
+> 
+> <vanilla.h>, in hommage to "vanilla kernel".
 
-Correct, the return point of sysexit (SYSENTER_RETURN) is still in kernel space,
-but its annotations are invisible to the unwinder. We should make the VDSO be
-treated as user-mode code despite living above PAGE_OFFSET.
+I think most people use 'vanilla' to mean 'mainline', as in Linus's
+kernel, so I find 'baremetal' (as opposed to 'virtualized') more
+appropriate but... since this thread has all of the characteristics of
+your favorite bike-shed, I'll bow out of it now :-)
 
->It's on my todo list to investigate but I still hope Jan does it first ;-)
+Cheers,
+Muli
 
-I'll try to, once I've got through moving the Xen code from 2.6.16 to 2.6.18-rc3
 
-Jan
+

@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWHGGI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWHGGNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWHGGI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 02:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWHGGI1
+	id S1750819AbWHGGNp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 02:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWHGGNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 02:08:27 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:7878 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751096AbWHGGI0 (ORCPT
+	Mon, 7 Aug 2006 02:13:45 -0400
+Received: from ozlabs.org ([203.10.76.45]:29663 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750819AbWHGGNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 02:08:26 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Where does kernel/resource.c.1 file come from?
-Date: Mon, 7 Aug 2006 08:11:20 +0200
-User-Agent: KMail/1.9.4
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <200607251554.50484.eike-kernel@sf-tec.de> <200607281603.38978.eike-kernel@sf-tec.de> <20060804130339.GA4014@ucw.cz>
-In-Reply-To: <20060804130339.GA4014@ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3285479.Kr4OSBDRPs";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 7 Aug 2006 02:13:44 -0400
+Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200608070739.33428.ak@muc.de>
+References: <1154925835.21647.29.camel@localhost.localdomain>
+	 <1154925943.21647.32.camel@localhost.localdomain>
+	 <1154926048.21647.35.camel@localhost.localdomain>
+	 <200608070739.33428.ak@muc.de>
+Content-Type: text/plain
+Date: Mon, 07 Aug 2006 16:13:41 +1000
+Message-Id: <1154931222.7642.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608070811.26612.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3285479.Kr4OSBDRPs
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, 2006-08-07 at 07:39 +0200, Andi Kleen wrote:
+> On Monday 07 August 2006 06:47, Rusty Russell wrote:
+> > This patch does the dumbest possible replacement of paravirtualized
+> > instructions: calls through a "paravirt_ops" structure.  Currently
+> > these are function implementations of native hardware: hypervisors
+> > will override the ops structure with their own variants.
+> 
+> You should call it HAL - that would make it clearer what it is.
 
-Pavel Machek wrote:
-> Hi!
->
-> > > > I'm playing around with my local copy of linux-2.6 git tree. I'm
-> > > > building everything to a separate directory using O= to keep "git
-> > > > status" silent.
-> > > >
-> > > > After building I sometimes find a file kernel/resource.c.1 in my git
-> > > > tree that doesn't really belong there. Who is generating this file,
-> > > > for what reason and why doesn't it get created in my output
-> > > > directory?
-> > >
-> > > Can you also try to make sure that this file is generated as part of
-> > > the build process. git status before and after should do it.
-> >
-> > I did a full rebuild and did not see the file again. Weird.
->
-> Is not it emacs's (or other editor's?) numbered backup?
+People get visions of grandeur when HAL is mentioned: they think it'll
+abstract everything.  I really only want to do the minimum needed for
+the hypervisors we have on the table today.
 
-No.
+Maybe one day it will abstract everything, then we can call it a HAL.
+But I won't be doing that work 8)
 
-Eike
+> I think I would prefer to patch always. Is there a particular
+> reason you can't do that?
 
---nextPart3285479.Kr4OSBDRPs
-Content-Type: application/pgp-signature
+We could patch all the indirect calls into direct calls, but I don't
+think it's worth bothering: most simply don't matter.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+The implementation ensures that someone can get boot on a new hypervisor
+by populating the ops struct.  Later they can go back and implement the
+patching stuff.
 
-iD8DBQBE1tmOXKSJPmm5/E4RApZXAKCY+2Li3HBHttJiYdHjZJ/RWhUKyACfa3n4
-hHeQ8RWUDz55oIlKkW3s70Q=
-=O4y+
------END PGP SIGNATURE-----
+> It would be better to merge this with the existing LOCK prefix patching
+> or perhaps the normal alternative() patcher (is there any particular
+> reason you can't use it?)
+> 
+> Three alternative patching mechanisms just seems to be too many
 
---nextPart3285479.Kr4OSBDRPs--
+Each backend wants a different patch, so alternative() doesn't cut it.
+We could look at generalizing alternative() I guess, but it works fine
+so I didn't want to touch it.
+
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+

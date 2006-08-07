@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWHGLYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWHGL3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWHGLYB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 07:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWHGLYA
+	id S1750727AbWHGL3E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 07:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWHGL3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 07:24:00 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:61903 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750723AbWHGLYA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 07:24:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:message-id:mime-version:content-type:content-disposition:x-operating-system:user-agent:content-transfer-encoding:from;
-        b=GplXeCdUC3W3rdFws8v/FXx0g0JYEWgqdO/C0NYl3j6BF8NJHKg40KwMItyW2OGy0OZw+TlvCZbIrTROuMhrRZPpq3Cl+Sf7NOOwsBs+ySAfgB6uyri6nQZ5ReApfNjYlWuH5BPuoCheOCim9yxWfhKfwRkfMFhmDKmwY5An4lc=
-Date: Mon, 7 Aug 2006 13:23:53 +0200
-To: linux-kernel@vger.kernel.org
-Subject: lxdialog under linux-2.6.18-rc3-mm2 ?
-Message-ID: <20060807112353.GC9198@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.18-rc3-mm2
-User-Agent: Mutt/1.5.12-2006-07-14
-Content-Transfer-Encoding: 8BIT
-From: Gregoire Favre <gregoire.favre@gmail.com>
+	Mon, 7 Aug 2006 07:29:04 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:32373 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750727AbWHGL3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 07:29:03 -0400
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+	aliasing problem)
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: schwidefsky@googlemail.com, johnstul@us.ibm.com, akpm@osdl.org,
+       zippel@linux-m68k.org, clameter@engr.sgi.com,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org, ak@muc.de
+In-Reply-To: <20060807.011319.41196590.anemo@mba.ocn.ne.jp>
+References: <6e0cfd1d0608020550k7ae2c44dg94afbe56d66b@mail.gmail.com>
+	 <20060804.005352.128616651.anemo@mba.ocn.ne.jp>
+	 <6e0cfd1d0608040702h15371d31q1c3d1c305c3da424@mail.gmail.com>
+	 <20060807.011319.41196590.anemo@mba.ocn.ne.jp>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Mon, 07 Aug 2006 13:28:35 +0200
+Message-Id: <1154950115.6721.34.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2006-08-07 at 01:13 +0900, Atsushi Nemoto wrote:
+> On Fri, 4 Aug 2006 16:02:43 +0200, "Martin Schwidefsky" <schwidefsky@googlemail.com> wrote:
+> > Good start, now you only have the change the 30+ calls to do_timer in
+> > the various architecture backends.
+> 
+> OK, then this is a patch contains the changes.
+> Adding S390 maintainer Martin Schwidefsky to CC.
+> 
+> This patch is against current git tree, so does not contains a change
+> to arch/avr32 which is in mm tree.  I can create a patch against mm
+> tree if expected.
+> 
+> 
+> [PATCH] cleanup do_timer and update_times
+> 
+> Pass ticks to do_timer() and update_times().
+> 
+> This also make a barrier added by
+> 5aee405c662ca644980c184774277fc6d0769a84 needless.
+> 
+> Also adjust x86_64 and s390 timer interrupt handler with this change.
+> 
+> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-in order to compil hg pull -u http://linuxtv.org/hg/v4l-dvb one need
-lxdialog, which seems to be removed in 2.6.18-rc3-mm2.
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Any idea why ?
-
-Please CC to me as I am not on this ml :-)
 -- 
-Grégoire FAVRE  http://gregoire.favre.googlepages.com  http://www.gnupg.org
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

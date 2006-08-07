@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWHGCHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHGCKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbWHGCHk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 22:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWHGCHk
+	id S1750898AbWHGCKf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 22:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWHGCKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 22:07:40 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:14054 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750893AbWHGCHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 22:07:39 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2
-Date: Mon, 07 Aug 2006 12:07:34 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <jm7dd2d95ri4rq1n66cmgf5lpalm4fpnie@4ax.com>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 6 Aug 2006 22:10:35 -0400
+Received: from ns1.suse.de ([195.135.220.2]:12171 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750895AbWHGCKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 22:10:35 -0400
+From: Andi Kleen <ak@suse.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address space.
+Date: Mon, 7 Aug 2006 04:10:22 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, Jeremy Fitzhardinge <jeremy@xensource.com>,
+       akpm@osdl.org, xen-devel@lists.xensource.com,
+       Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
+References: <20060803002510.634721860@xensource.com> <20060803002518.595166293@xensource.com> <19700101001522.GA3999@ucw.cz>
+In-Reply-To: <19700101001522.GA3999@ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200608070410.22803.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Aug 2006 03:08:09 -0700, Andrew Morton <akpm@osdl.org> wrote:
+On Thursday 01 January 1970 01:15, Pavel Machek wrote:
+> Hi!
+> 
+> > Add a bootparameter to reserve high linear address space for hypervisors.
+> > This is necessary to allow dynamically loaded hypervisor modules, which
+> 
+> Dynamically loaded hypervisor? Do we really want to support that?
 
->
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+I hope so. IMHO letting Linux boot first and then the Hypervisor is 
+a better design than the other way round which requires a lot of duplicated code.
 
-Okay here, done some fdisk partition manipulation and didn't lose 
-any filesystems or any other nasties. ;)  Dual boot 'doze, so 
-stuffing around with NTFS (ro) as well as NFS (rw).
-
-Some odd looking IRQ reassignments (Via chipset), I've put up 
--rc3 -> -rc3-mm2 dmesg diff, as well as dmesg and config on 
-<http://bugsplatter.mine.nu/test/linux-2.6/sempro/> if anyone 
-curious.
-
-Grant.
+-Andi

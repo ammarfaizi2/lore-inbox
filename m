@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWHGPPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWHGPQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWHGPPh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWHGPPh
+	id S932135AbWHGPQk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWHGPQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:15:37 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:34021
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932139AbWHGPPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:15:36 -0400
-Date: Mon, 7 Aug 2006 16:12:16 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Keen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] x86_64 dirty fix to restore dual command line store
-Message-ID: <20060807151216.GA15194@shadowen.org>
-References: <44D75691.8070908@shadowen.org>
+	Mon, 7 Aug 2006 11:16:40 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:44828 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932135AbWHGPQj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:16:39 -0400
+Date: Mon, 7 Aug 2006 17:16:38 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: torvalds@osdl.org, gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Please pull git390 'for-linus' branch
+Message-ID: <20060807151638.GA14761@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <44D75691.8070908@shadowen.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-x86_64 dirty fix to restore dual command line store
+Please pull from 'for-linus' branch of
 
-Ok, It seems that the patch below effectivly removes the second
-copy of the command line.  This means that any modification to the
-'working' command line (as returned from setup_arch) is incorrectly
-visible in userspace via /proc/cmdline.
+	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
 
-	x86_64-mm-early-param.patch
+to receive the following updates:
 
-This patch restores the second copy.  Its probabally not the right
-way to fix this long term.
+ drivers/s390/char/tape_class.c |    2 +-
+ drivers/s390/cio/device_fsm.c  |    1 +
+ drivers/s390/cio/device_ops.c  |    3 +++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
-diff -upN reference/arch/x86_64/kernel/setup.c current/arch/x86_64/kernel/setup.c
---- reference/arch/x86_64/kernel/setup.c
-+++ current/arch/x86_64/kernel/setup.c
-@@ -378,7 +378,8 @@ void __init setup_arch(char **cmdline_p)
- 	early_identify_cpu(&boot_cpu_data);
+Cornelia Huck:
+      [S390] retry after deferred condition code.
+
+Heiko Carstens:
+      [S390] tape class return value handling.
+
+Peter Oberparleiter:
+      [S390] lost interrupt after chpid vary off/on cycle.
+
+diff --git a/drivers/s390/char/tape_class.c b/drivers/s390/char/tape_class.c
+index 643b6d0..56b8761 100644
+--- a/drivers/s390/char/tape_class.c
++++ b/drivers/s390/char/tape_class.c
+@@ -76,7 +76,7 @@ struct tape_class_device *register_tape_
+ 				device,
+ 				"%s", tcd->device_name
+ 			);
+-	rc = PTR_ERR(tcd->class_device);
++	rc = IS_ERR(tcd->class_device) ? PTR_ERR(tcd->class_device) : 0;
+ 	if (rc)
+ 		goto fail_with_cdev;
+ 	rc = sysfs_create_link(
+diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
+index 7a39e0b..6d91c2e 100644
+--- a/drivers/s390/cio/device_fsm.c
++++ b/drivers/s390/cio/device_fsm.c
+@@ -772,6 +772,7 @@ ccw_device_online_verify(struct ccw_devi
+ 	stsch(sch->schid, &sch->schib);
  
- 	parse_early_param();
--	*cmdline_p = saved_command_line;
-+	memcpy(command_line, saved_command_line, COMMAND_LINE_SIZE);
-+	*cmdline_p = command_line;
- 
- 	finish_e820_parsing();
- 
+ 	if (sch->schib.scsw.actl != 0 ||
++	    (sch->schib.scsw.stctl & SCSW_STCTL_STATUS_PEND) ||
+ 	    (cdev->private->irb.scsw.stctl & SCSW_STCTL_STATUS_PEND)) {
+ 		/*
+ 		 * No final status yet or final status not yet delivered
+diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+index a601242..9e3de0b 100644
+--- a/drivers/s390/cio/device_ops.c
++++ b/drivers/s390/cio/device_ops.c
+@@ -263,6 +263,9 @@ ccw_device_wake_up(struct ccw_device *cd
+ 	/* Abuse intparm for error reporting. */
+ 	if (IS_ERR(irb))
+ 		cdev->private->intparm = -EIO;
++	else if (irb->scsw.cc == 1)
++		/* Retry for deferred condition code. */
++		cdev->private->intparm = -EAGAIN;
+ 	else if ((irb->scsw.dstat !=
+ 		  (DEV_STAT_CHN_END|DEV_STAT_DEV_END)) ||
+ 		 (irb->scsw.cstat != 0)) {

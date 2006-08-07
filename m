@@ -1,113 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWHGT76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWHGT7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWHGT76 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWHGT76
+	id S932331AbWHGT7y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWHGT7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:59:58 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:40924 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932334AbWHGT75 (ORCPT
+	Mon, 7 Aug 2006 15:59:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932331AbWHGT7x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:59:57 -0400
-Date: Mon, 7 Aug 2006 21:59:13 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>, Jeff Dike <jdike@addtoit.com>,
-       "lkml@o2.pl / IMAP" <lkml@o2.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm1: O= builds broken
-Message-ID: <20060807195912.GA14126@mars.ravnborg.org>
-References: <20060806002400.694948a1.akpm@osdl.org> <20060806082321.GZ25692@stusta.de>
+	Mon, 7 Aug 2006 15:59:53 -0400
+Date: Mon, 7 Aug 2006 12:58:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: schwidefsky@googlemail.com, johnstul@us.ibm.com, zippel@linux-m68k.org,
+       clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
+       ralf@linux-mips.org, ak@muc.de, schwidefsky@de.ibm.com
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+ aliasing problem)
+Message-Id: <20060807125810.e021c91b.akpm@osdl.org>
+In-Reply-To: <20060807.011319.41196590.anemo@mba.ocn.ne.jp>
+References: <6e0cfd1d0608020550k7ae2c44dg94afbe56d66b@mail.gmail.com>
+	<20060804.005352.128616651.anemo@mba.ocn.ne.jp>
+	<6e0cfd1d0608040702h15371d31q1c3d1c305c3da424@mail.gmail.com>
+	<20060807.011319.41196590.anemo@mba.ocn.ne.jp>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060806082321.GZ25692@stusta.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 06, 2006 at 10:23:21AM +0200, Adrian Bunk wrote:
-> <--  snip  -->
+On Mon, 07 Aug 2006 01:13:19 +0900 (JST)
+Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+
+> On Fri, 4 Aug 2006 16:02:43 +0200, "Martin Schwidefsky" <schwidefsky@googlemail.com> wrote:
+> > Good start, now you only have the change the 30+ calls to do_timer in
+> > the various architecture backends.
 > 
-> $ make O=/home/bunk/linux/kernel-2.6/out/full/ oldconfig
->   HOSTCC  scripts/basic/fixdep
->   HOSTCC  scripts/basic/docproc
->   GEN     /home/bunk/linux/kernel-2.6/out/full/Makefile
->   HOSTCC  scripts/kconfig/conf.o
->   HOSTCC  scripts/kconfig/kxgettext.o
->   HOSTCC  scripts/kconfig/lxdialog/checklist.o
-> /home/bunk/linux/kernel-2.6/linux-2.6.18-rc3-mm1/scripts/kconfig/lxdialog/checklist.c:325: 
-> fatal error: opening dependency file 
-> scripts/kconfig/lxdialog/.checklist.o.d: No such file or directory
-> compilation terminated.
-> make[2]: *** [scripts/kconfig/lxdialog/checklist.o] Error 1
-> make[1]: *** [oldconfig] Error 2
-> make: *** [oldconfig] Error 2
-> $ 
+> OK, then this is a patch contains the changes.
+> Adding S390 maintainer Martin Schwidefsky to CC.
+> 
+> This patch is against current git tree, so does not contains a change
+> to arch/avr32 which is in mm tree.  I can create a patch against mm
+> tree if expected.
+> 
+> 
+> [PATCH] cleanup do_timer and update_times
+> 
+> Pass ticks to do_timer() and update_times().
+> 
+> This also make a barrier added by
+> 5aee405c662ca644980c184774277fc6d0769a84 needless.
+> 
+> Also adjust x86_64 and s390 timer interrupt handler with this change.
+> 
+
+This is a rather terse description for a change of this nature..
+
+Why was this patch created?  What problem is it solving?  etcetera.
+
+> ...
 >
-If the lxdialog directory is missing then kbuild barfs out.
-Fixed by followign patch that is already pushed out to my kbuild.git
-tree. Thanks for the reports (all senders added to to:).
+> --- a/kernel/timer.c
+> +++ b/kernel/timer.c
+> @@ -1218,7 +1218,7 @@ static inline void calc_load(unsigned lo
+>  	static int count = LOAD_FREQ;
+>  
+>  	count -= ticks;
+> -	if (count < 0) {
+> +	while (count < 0) {
+>  		count += LOAD_FREQ;
+>  		active_tasks = count_active_tasks();
+>  		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
 
-	Sam
+OK, we do need the loop here to get the arithmetic in CALC_LOAD to work
+correctly.
 
-commit a886c8972f22033e720405ce4c4fed941b5eb406
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Mon Aug 7 21:55:33 2006 +0200
-
-    kbuild: create output directory for hostprogs with O=.. build
-    
-    hostprogs-y only supported creating output directory for the final
-    program. Extend this to also cover the situation where a .o
-    file (used when host program is made from compositie objects) is
-    locate in another directory.
-    First user of this is the built-in lxdialog that.
-    
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-
-diff --git a/scripts/Makefile.host b/scripts/Makefile.host
-index 18ecd4d..aa208e8 100644
---- a/scripts/Makefile.host
-+++ b/scripts/Makefile.host
-@@ -32,11 +32,6 @@ # Note: Shared libraries consisting of C
- 
- __hostprogs := $(sort $(hostprogs-y)$(hostprogs-m))
- 
--# hostprogs-y := tools/build may have been specified. Retreive directory
--host-objdirs := $(foreach f,$(__hostprogs), $(if $(dir $(f)),$(dir $(f))))
--host-objdirs := $(strip $(sort $(filter-out ./,$(host-objdirs))))
--
--
- # C code
- # Executables compiled from a single .c file
- host-csingle	:= $(foreach m,$(__hostprogs),$(if $($(m)-objs),,$(m)))
-@@ -65,6 +60,21 @@ host-cobjs	:= $(filter-out %.so,$(host-c
- #Object (.o) files used by the shared libaries
- host-cshobjs	:= $(sort $(foreach m,$(host-cshlib),$($(m:.so=-objs))))
- 
-+# output directory for programs/.o files
-+# hostprogs-y := tools/build may have been specified. Retreive directory
-+host-objdirs := $(foreach f,$(__hostprogs), $(if $(dir $(f)),$(dir $(f))))
-+# directory of .o files from prog-objs notation
-+host-objdirs += $(foreach f,$(host-cmulti),                  \
-+                    $(foreach m,$($(f)-objs),                \
-+                        $(if $(dir $(m)),$(dir $(m)))))
-+# directory of .o files from prog-cxxobjs notation
-+host-objdirs += $(foreach f,$(host-cxxmulti),                  \
-+                    $(foreach m,$($(f)-cxxobjs),                \
-+                        $(if $(dir $(m)),$(dir $(m)))))
-+
-+host-objdirs := $(strip $(sort $(filter-out ./,$(host-objdirs))))
-+
-+
- __hostprogs     := $(addprefix $(obj)/,$(__hostprogs))
- host-csingle	:= $(addprefix $(obj)/,$(host-csingle))
- host-cmulti	:= $(addprefix $(obj)/,$(host-cmulti))
-@@ -75,6 +85,7 @@ host-cshlib	:= $(addprefix $(obj)/,$(hos
- host-cshobjs	:= $(addprefix $(obj)/,$(host-cshobjs))
- host-objdirs    := $(addprefix $(obj)/,$(host-objdirs))
- 
-+$(warning host-objdirs=$(host-objdirs))
- obj-dirs += $(host-objdirs)
- 
- #####
+But I don't think the expensive count_active_tasks() needs to be evaluated
+each time around.
 

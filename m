@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWHGDOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWHGDRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWHGDOF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 23:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWHGDOF
+	id S1750994AbWHGDRK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 23:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWHGDRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 23:14:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:35457 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750993AbWHGDOE (ORCPT
+	Sun, 6 Aug 2006 23:17:10 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:36262 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750994AbWHGDRJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 23:14:04 -0400
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.6.18-rc3-mm2 early_param mem= fix
-Date: Mon, 7 Aug 2006 05:13:52 +0200
-User-Agent: KMail/1.9.3
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>
-References: <Pine.LNX.4.64.0608061811030.19637@blonde.wat.veritas.com> <200608070455.44237.ak@suse.de> <1154920106.21647.13.camel@localhost.localdomain>
-In-Reply-To: <1154920106.21647.13.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sun, 6 Aug 2006 23:17:09 -0400
+Subject: Re: [PATCH 010 of 11] knfsd: make rpc threads pools numa aware
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@suse.de>,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060806024703.2fb9f307.akpm@osdl.org>
+References: <20060731103458.29040.patches@notabene>
+	 <1060731004234.29291@suse.de>  <20060806024703.2fb9f307.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1154920613.29877.85.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 07 Aug 2006 13:16:53 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608070513.52068.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 August 2006 05:08, Rusty Russell wrote:
-> On Mon, 2006-08-07 at 04:55 +0200, Andi Kleen wrote:
-> > On Monday 07 August 2006 04:54, Rusty Russell wrote:
-> > > On Sun, 2006-08-06 at 18:22 +0100, Hugh Dickins wrote:
-> > > > but I wonder how many other early_param
-> > > > "option=" args are wrong (e.g. "memmap=" in the same file): x86_64
-> > > > shows many such, i386 shows only one, I've not followed it up further.
-> > > 
-> > > Thanks Hugh.
-> > > 
-> > > Andrew, here's that i386 fix:
-> > 
-> > I had already fixed that one and the x86-64 ones.
-> > 
-> > But it still doesn't boot on x86-64 - gets into an endless loop
-> > at boot. I'm suspecting the code can't deal with duplicated
-> > prefixes.
+On Sun, 2006-08-06 at 19:47, Andrew Morton wrote:
+> On Mon, 31 Jul 2006 10:42:34 +1000
+> NeilBrown <neilb@suse.de> wrote:
 > 
-> Works fine here:
+> > knfsd: Actually implement multiple pools.  On NUMA machines, allocate
+> > a svc_pool per NUMA node; on SMP a svc_pool per CPU; otherwise a single
+> > global pool.  Enqueue sockets on the svc_pool corresponding to the CPU
+> > on which the socket bh is run (i.e. the NIC interrupt CPU).  Threads
+> > have their cpu mask set to limit them to the CPUs in the svc_pool that
+> > owns them.
+> > 
+> > This is the patch that allows an Altix to scale NFS traffic linearly
+> > beyond 4 CPUs and 4 NICs.
+> > 
+> > Incorporates changes and feedback from Neil Brown, Trond Myklebust,
+> > and Christoph Hellwig.
+> 
+> This makes the NFS client go BUG.  Simple nfsv3 workload (ie: mount, read
+> stuff).  Uniproc, FC5.  
+> 
+> +	BUG_ON(m->mode == SVC_POOL_NONE);
 
-32bit works for me too, but x86-64 does. Strangely it seems to somehow
-reenter head64 copy_boot_data. Perhaps stack gets smashed somehow?
+Aha, I see what I b0rked up.  On the client, lockd starts an RPC
+service via the old svc_create() interface, which avoids calling
+svc_pool_map_init().  When the first NLM callback arrives,
+svc_sock_enqueue() calls svc_pool_for_cpu() which BUGs out because
+the map is not initialised.  The BUG_ON() was introduced in one
+of the rewrites in response to review feedback in the last few
+days; previously the code was simpler and would trivially return
+pool 0, which is the right thing to do in this case.  The bug was
+hidden on my test machines because they have SLES userspaces,
+where lockd is broken because both the kernel and userspace think
+the other one is doing the rpc.statd functionality.
 
-It goes into an endless loop of:
-Bootdata ok (command line is ip=dhcp nfsroot=10.23.204.1:/home/nfsroot/gaston root=/dev/nfs debug vga=0x0f07 rw pci=noacpi earlyprintk=serial,ttyS0,115200 console=ttyS0,115200 earlyprintk=serial,ttyS0,115200 console=tty0 BOOT_IMAGE=bzImage )
-Bootdata ok (command line is ip=dhcp nfsroot=10.23.204.1:/home/nfsroot/gaston root=/dev/nfs debug vga=0x0f07 rw pci=noacpi earlyprintk=serial,ttyS0,115200 console=ttyS0,115200 earlyprintk=serial,ttyS0,115200 console=tty0 BOOT_IMAGE=bzImage )
-Bootdata ok (command line is ip=dhcp nfsroot=10.23.204.1:/home/nfsroot/gaston root=/dev/nfs debug vga=0x0f07 rw pci=noacpi earlyprintk=serial,ttyS0,115200 console=ttyS0,115200 earlyprintk=serial,ttyS0,115200 console=tty0 BOOT_IMAGE=bzImage )
-etc.
+A simple patch should fix this, coming up as soon as I can find
+a non-SLES machine and run some client tests.
 
-That is with all =s removed in early_params (i got that wrong in a lot of cases
--- the only option I tested was apic which didn't have it)
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
--Andi
 
->

@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWHGIjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWHGIsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWHGIjz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 04:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWHGIjz
+	id S1751158AbWHGIsw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 04:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWHGIsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 04:39:55 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:62535 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751160AbWHGIjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 04:39:54 -0400
-Subject: Re: [patch 20/23] S390: fix futex_atomic_cmpxchg_inatomic
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20060804054038.GU769@kroah.com>
-References: <20060804053258.391158155@quad.kroah.org>
-	 <20060804054038.GU769@kroah.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 07 Aug 2006 10:39:08 +0200
-Message-Id: <1154939948.6721.4.camel@localhost>
+	Mon, 7 Aug 2006 04:48:52 -0400
+Received: from colin.muc.de ([193.149.48.1]:8714 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751158AbWHGIsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 04:48:52 -0400
+Date: 7 Aug 2006 10:48:50 +0200
+Date: Mon, 7 Aug 2006 10:48:50 +0200
+From: Andi Kleen <ak@muc.de>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
+Message-ID: <20060807084850.GA67713@muc.de>
+References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608062243.45129.dtor@insightbb.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 22:40 -0700, Greg KH wrote:
-> plain text document attachment
-> (s390-fix-futex_atomic_cmpxchg_inatomic.patch)
-> -stable review patch.  If anyone has any objections, please let us know.
+On Sun, Aug 06, 2006 at 10:43:44PM -0400, Dmitry Torokhov wrote:
+> On Saturday 05 August 2006 23:16, Andi Kleen wrote:
+> > This whole thing is broken, e.g. on a preemptive kernel when the
+> > code can switch CPUs 
+> > 
 > 
-> ------------------
-> [S390] fix futex_atomic_cmpxchg_inatomic
-> 
-> futex_atomic_cmpxchg_inatomic has the same bug as the other
-> atomic futex operations: the operation needs to be done in the
-> user address space, not the kernel address space. Add the missing
-> sacf 256 & sacf 0.
-> 
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
+> Would not preempt_disable fix that?
 
-Hi Greg,
-sorry for the late answer. Stable version 2.6.17.8 contains the
-necessary patches to fix the futex hole and I currently do not know of
-any other critical bugs that need fixing. Thanks!
+Partially, but you still have other problems. Please just get rid
+of it. Why do we have timer code in the kernel if you then chose
+not to use it?
 
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+-Andi

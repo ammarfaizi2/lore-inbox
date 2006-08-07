@@ -1,45 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWHGG1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWHGHOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWHGG1L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 02:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWHGG1L
+	id S1751116AbWHGHOW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 03:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWHGHOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 02:27:11 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:55850 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750866AbWHGG1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 02:27:10 -0400
-Date: Mon, 7 Aug 2006 09:27:05 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
-Message-ID: <20060807062705.GB4979@rhun.haifa.ibm.com>
-References: <1154925835.21647.29.camel@localhost.localdomain> <200608070730.17813.ak@muc.de> <1154930669.7642.12.camel@localhost.localdomain> <200608070817.42074.ak@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Aug 2006 03:14:22 -0400
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:34222 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751116AbWHGHOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 03:14:21 -0400
+Message-Id: <1154934860.6783.267775866@webmail.messagingengine.com>
+X-Sasl-Enc: s3bBf20qfVBlVoDJbWHk7Ohl8iYFxXvL6LB4ZBQp3WCc 1154934860
+From: dan@pwienterprises.com
+To: "Eric Sandeen" <sandeen@sandeen.net>, linux-kernel@vger.kernel.org
+Cc: bfennema@falcon.csc.calpoly.edu
 Content-Disposition: inline
-In-Reply-To: <200608070817.42074.ak@muc.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+References: <44D36E60.2020006@sandeen.net>
+Subject: Re: [PATCH]: initialize parts of udf inode earlier in create
+In-Reply-To: <44D36E60.2020006@sandeen.net>
+Date: Mon, 07 Aug 2006 00:14:20 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Monday 07 August 2006 08:04, Rusty Russell wrote:
-> > On Mon, 2006-08-07 at 07:30 +0200, Andi Kleen wrote:
-> > > > ===================================================================
-> > > > --- /dev/null
-> > > > +++ b/include/asm-i386/no_paravirt.h
-> > > 
-> > > I can't say I like the name. After all that should be the normal
-> > > case for a long time now ... native? normal? bareiron?
-> > 
-> > Yeah, I don't like it much either.  native.h doesn't say what the
-> > alternative is.  native_paravirt.h is kind of contradictory.
+> I saw an oops down this path when trying to create a new file on a UDF 
+> filesystem which was internally marked as readonly, but mounted rw:
+> 
+> udf_create
+>         udf_new_inode
+>                 new_inode
+>                         alloc_inode
+>                         	udf_alloc_inode
+>                 udf_new_block
+>                         returns EIO due to readonlyness
+>                 iput (on error)
 
-baremetal.h seems appropriate.
+I ran into the same issue today, but when listing a directory with
+invalid/corrupt entries:
 
-Cheers,
-Muli
+udf_lookup
+        udf_iget
+                get_new_inode_fast
+                        alloc_inode
+                                udf_alloc_inode
+                __udf_read_inode
+                        fails for any reason
+                iput (on error)
+                        ...
+
+The following patch to udf_alloc_inode() should take care of both (and
+other similar) cases, but I've only tested it with udf_lookup().
+
+Dan
+
+--
+
+Signed-off-by: Dan Bastone <dan@pwienterprises.com>
+
+--- linux-2.6.17.7/fs/udf/super.c.orig
++++ linux-2.6.17.7/fs/udf/super.c
+@@ -116,6 +116,13 @@
+        ei = (struct udf_inode_info *)kmem_cache_alloc(udf_inode_cachep,
+        SLAB_KERNEL);
+        if (!ei)
+                return NULL;
++
++       ei->i_unique = 0;
++       ei->i_lenExtents = 0;
++       ei->i_next_alloc_block = 0;
++       ei->i_next_alloc_goal = 0;
++       ei->i_strat4096 = 0;
++
+        return &ei->vfs_inode;
+ }
+
+
+-- 
+  
+  diegogarcia@cluemail.com
+
+-- 
+http://www.fastmail.fm - Email service worth paying for. Try it for free
+

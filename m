@@ -1,116 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWHGR3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWHGRbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWHGR3z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWHGR3y
+	id S932246AbWHGRbo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWHGRbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:29:54 -0400
-Received: from ns2.suse.de ([195.135.220.15]:35470 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932240AbWHGR3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:29:53 -0400
-Subject: RE: Options depending on STANDALONE
-From: Thomas Renninger <trenn@suse.de>
-Reply-To: trenn@suse.de
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       v4l-dvb-maintainer@linuxtv.org, linux-acpi@vger.kernel.org
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB601260CC7@hdsmsx411.amr.corp.intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB601260CC7@hdsmsx411.amr.corp.intel.com>
-Content-Type: text/plain
-Organization: Novell/SUSE
-Date: Mon, 07 Aug 2006 19:33:31 +0200
-Message-Id: <1154972011.4302.712.camel@queen.suse.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 13:31:44 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25060 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932246AbWHGRbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:31:43 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>, "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	<20060807085924.72f832af.rdunlap@xenotime.net>
+Date: Mon, 07 Aug 2006 11:30:24 -0600
+In-Reply-To: <20060807085924.72f832af.rdunlap@xenotime.net> (Randy Dunlap's
+	message of "Mon, 7 Aug 2006 08:59:24 -0700")
+Message-ID: <m1wt9kcv2n.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-03 at 16:49 -0400, Brown, Len wrote:
-> >On Thu, Aug 03, 2006 at 10:25:43PM +0200, Adrian Bunk wrote:
-> >> ACPI_CUSTOM_DSDT seems to be the most interesting case.
-> >> It's anyway not usable for distribution kernels, and AFAIR the ACPI 
-> >> people prefer to get the kernel working with all original DSDTs
-> >> (which usually work with at least one other OS) than letting 
-> >> the people workaround the problem by using a custom DSDT.
-> >
-> >Not true at all.  For SuSE kernels, we have a patch that lets people
-> >load a new DSDT from initramfs due to broken machines requiring a
-> >replacement in order to work properly.
-> 
-> CONFIG_ACPI_CUSTOM_DSDT allows hackers to debug their system
-> by building a modified DSDT into the kernel to over-ride what
-> came with the system.  It would make no sense for a distro
-> to use it, unless the distro were shipping only on 1 model machine.
-> This technique is necessary for debugging, but makes no
-> sense for production.
-> 
-> The initramfs method shipped by SuSE is more flexible, allowing
-> the hacker to stick the DSDT image in the initrd and use it
-> without re-compiling the kernel.
-> 
-> I have refused to accept the initrd patch into Linux many times,
-> and always will.
-> 
-> I've advised SuSE many times that they should not be shipping it,
-> as it means that their supported OS is running on modified firmware --
-> which, by definition, they can not support.  
-Tainting the kernel if done so should be sufficient.
-> Indeed, one could view
-> this method as couter-productive to the evolution of Linux --
-> since it is our stated goal to run on the same machines that Windows
-> runs on -- without requiring customers to modify those machines
-> to run Linux.
 
-There are three reasons for the initrd patch (last one also applies for
-the compile in functionality):
+Currently on a SMP system we can theoretically support
+NR_CPUS*224 irqs.  Unfortunately our data structures
+don't cope will with that many irqs, nor does hardware
+typically provide that many irq sources.
 
-1)
-There might be "BIOS bugs" that will never get fixed:
-https://bugzilla.novell.com/show_bug.cgi?id=160671
-(Because it's an obvious BIOS bug, "compatibility" fixing it could make
-things worse).
+With the number of cores starting to follow Moore's Law,
+and the apicid limits being raised beyond an 8bit
+number trying to track our current maximum with our
+current data structures would be fatal and wasteful.
 
-2)
-There might be "ACPICA/kernel bugs" that take a while until they get
-fixed:
+So this patch decouples the number of irqs we support
+from the number of cpus.  We can revisit this decision
+once someone reworks the current data structures.
 
-This happens often. There comes out a new machine, using AML in a
-slightly other way, we need to fix it in kernel/ACPICA. Until the patch
-appears mainline may take a month or two. Until the distro of your
-choice that makes use of the fix comes out might take half a year or
-more...
-And backporting ACPICA fixes to older kernels is currently not possible
-as ACPICA patches appear in a big bunch of some thousand lines patches.
-But this hopefully changes soon.
+This version has my stupid typos fix and the true maximum
+exposed to make it clear that I have a low default.  The
+worst that I can see happening is there won't be any
+per_cpu space left for modules if someone sets this
+too high, but the system should still boot.
 
-In my mind come:
-- alias broken in certain cases
-   https://bugziall.novell.com/show_bug.cgi?id=113099
-- recon amount of elements in packages
-   https://bugzilla.novell.com/show_bug.cgi?id=189488
-- wrong offsets at Field and Operation Region declarations
-   -> should be compatible for quite a while now
-- ...
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
 
-3)
-Debugging.
-This is why at least compile in or via initrd must be provided in
-mainline kernel IMHO. Intel people themselves ask the bug reporter to
-override ACPI tables with a patched table to debug the system.
-Do you really think ripping out all overriding functionality from the
-kernel is a good idea?
+This of course applies to the -mm tree because the rest
+of the irq work is not yet in the mainline kernel.
 
-     Thomas
+ arch/x86_64/Kconfig      |   14 ++++++++++++++
+ include/asm-x86_64/irq.h |    3 ++-
+ 2 files changed, 16 insertions(+), 1 deletions(-)
 
-It is true that some users are happy with a fixed DSDT, even you tell
-them to find the root cause..., but sooner or later they always come
-back.
+diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+index 7598d99..cea78d7 100644
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -384,6 +384,20 @@ config NR_CPUS
+ 	  This is purely to save memory - each supported CPU requires
+ 	  memory in the static kernel configuration.
+ 
++config NR_IRQS
++	int "Maximum number of IRQs (224-57344)"
++	range 224 57344
++	depends on SMP
++	default "4096"
++	help
++	  This allows you to specify the maximum number of IRQs which this
++	  kernel will support. Current default is 4096 IRQs as that
++	  is slightly larger than has observed in the field.  Setting
++	  a noticeably larger value will exhaust your per cpu memory,
++	  and waste memory in the per irq arrays.
++
++	  If unsure leave this at 4096.
++
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+ 	depends on SMP && HOTPLUG && EXPERIMENTAL
+diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
+index 5006c6e..34b264a 100644
+--- a/include/asm-x86_64/irq.h
++++ b/include/asm-x86_64/irq.h
+@@ -31,7 +31,8 @@ #define NR_VECTORS 256
+ 
+ #define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
+ 
+-#define NR_IRQS (NR_VECTORS + (32 *NR_CPUS))
++/* We can use at most NR_CPUS*224 irqs at one time */
++#define NR_IRQS (CONFIG_NR_IRQS)
+ #define NR_IRQ_VECTORS NR_IRQS
+ 
+ static __inline__ int irq_canonicalize(int irq)
+-- 
+1.4.2.rc3.g7e18e
 

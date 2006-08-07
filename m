@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWHGFfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWHGFkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWHGFfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 01:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWHGFfU
+	id S1751085AbWHGFkb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 01:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWHGFka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 01:35:20 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:57490 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751077AbWHGFfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 01:35:19 -0400
-Date: Mon, 7 Aug 2006 01:34:56 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Theodore Tso <tytso@mit.edu>
-cc: David Miller <davem@davemloft.net>, mchan@broadcom.com,
-       herbert@gondor.apana.org.au, LKML <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-In-Reply-To: <20060803235326.GC7894@thunk.org>
-Message-ID: <Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
-References: <E1G8a0J-0002Pn-00@gondolin.me.apana.org.au> <1154630207.3117.17.camel@rh4>
- <20060803201741.GA7894@thunk.org> <20060803.144845.66061203.davem@davemloft.net>
- <20060803235326.GC7894@thunk.org>
+	Mon, 7 Aug 2006 01:40:30 -0400
+Received: from ns.suse.de ([195.135.220.2]:41385 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751085AbWHGFk3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 01:40:29 -0400
+From: Andi Kleen <ak@muc.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH 2/4] x86 paravirt_ops: paravirt_desc.h for native descriptor ops.
+Date: Mon, 7 Aug 2006 07:40:23 +0200
+User-Agent: KMail/1.9.3
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1154925835.21647.29.camel@localhost.localdomain> <1154925943.21647.32.camel@localhost.localdomain>
+In-Reply-To: <1154925943.21647.32.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608070740.23840.ak@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 07 August 2006 06:45, Rusty Russell wrote:
+> Unfortunately, due to include cycles, we can't put these in
+> paravirt.h: we use a separate header for these.
+> 
+> The implementation comes from Zach's [RFC, PATCH 10/24] i386 Vmi descriptor changes:
+> 
+>   Descriptor and trap table cleanups.  Add cleanly written accessors for
+>   IDT and GDT gates so the subarch may override them.  Note that this
+>   allows the hypervisor to transparently tweak the DPL of the descriptors
+>   as well as the RPL of segments in those descriptors, with no unnecessary
+>   kernel code modification.  It also allows the hypervisor implementation
+>   of the VMI to tweak the gates, allowing for custom exception frames or
+>   extra layers of indirection above the guest fault / IRQ handlers.
 
-On Thu, 3 Aug 2006, Theodore Tso wrote:
+Nice cleanup. The old assembly mess was ripe to be killed for a long time.
 
-> On Thu, Aug 03, 2006 at 02:48:45PM -0700, David Miller wrote:
-> > > eth0: Tigon3 [partno(BCM95704s) rev 2100 PHY(serdes)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:14:5e:86:44:24
-> >
-> > The 5704 chip will set TG3_FLAG_TAGGED_STATUS, and therefore
-> > doesn't need the periodic poking done by tg3_timer().
->
-> Hmm.... all I can say is that I could reliably knock the box off the
-> network by running a four processes that tied up all CPU's at high
-> real-time priorities, and after I applied the horrible hack that
-> guaranteed that tg3_timer() was run every 0.128 seconds, the system
-> stayed on the network.  I'm not sure why, but it did fix the problem.
->
-> Any suggestions on how I could figure out what was really going on and
-> what would be a better fix would be greatly appreciated.
->
-
-Ted,
-
-I took a quick look at the tg3 driver and that timer interrupt as well
-have read this thread.  My suggestion would be to separate that tg3_timer
-into 4 different timers, which is what it actually looks like.  One I
-believe (the first one) is an actual timeout and the other three are
-timers that are expected to be triggered everytime (watchdog like: at 1
-second, 2 seconds and 3 seconds) and thus should be converted into a
-hrtimers that goes off when expected then having some crazy accounting
-thing in one timer.
-
-I don't fully understand the ASF part here, and if it definitely needs to
-go off then set that timer  with the highest prio.  I've ask Thomas to
-add a way to add a hrtimer with a given prio instead of always taking the
-current->normal_prio.  But until he does that, you can do a hack of
-changing the current prio to something very high (like 99) then start the
-timer, and then lower the prio back to what it was.  This is a hack, but
-it might lead to a better solution in the future.
-
--- Steve
+-Andi
 

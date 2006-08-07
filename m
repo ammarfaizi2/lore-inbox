@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWHGBUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWHGBUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWHGBUc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 21:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWHGBUc
+	id S1750871AbWHGBUt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 21:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWHGBUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 21:20:32 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37385 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750867AbWHGBUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 21:20:32 -0400
-Date: Mon, 7 Aug 2006 03:20:30 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       trivial@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use BUG_ON(foo) instead of "if (foo) BUG()" in include/asm-i386/dma-mapping.h
-Message-ID: <20060807012030.GA3691@stusta.de>
-References: <200607280928.54306.eike-kernel@sf-tec.de> <20060728004758.5e7c5120.akpm@osdl.org> <20060805113703.GD4506@ucw.cz>
+	Sun, 6 Aug 2006 21:20:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:12646 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750867AbWHGBUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 21:20:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UuHSAuVDE+yU/TN6aoAta/7XQ4bAE0iZbZWD+eFn7dZ/CM775WoXGLrZnzNmhDcnxSKmi6YT0tf0H4/nHD8+0C8twlb4R3ed3emtwft1FLzakCYCJac3k0pb1K+PU4N4RyUsniCWHOx/J7lPKFpMvtFPthtMAsmHOwu108bM6OE=
+Message-ID: <abcd72470608061820r4c313ebbw80e7cab98d5d2299@mail.gmail.com>
+Date: Sun, 6 Aug 2006 18:20:47 -0700
+From: "Avinash Ramanath" <avinashr@gmail.com>
+To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: Stat in kernel space
+In-Reply-To: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060805113703.GD4506@ucw.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 05, 2006 at 11:37:04AM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > We have BUG_ON() right for this, don't we?
-> > 
-> > Well yes, but there are over a thousand BUG->BUG_ON conversion
-> > possibilities in the tree.  If people start sending them three-at-a-time
-> > we'll all go mad.
-> > 
-> > So.  If we're going to do this, bigger patches, please.
-> 
-> If we are going that way... I guess we should specify if BUG_ON() has
-> to evaluate its arguments even if it is compiled out...
->...
+I wanted to know the file-size using stat.
 
-This is already implemented for ages.
-
-> 							Pavel
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+On 8/6/06, Avinash Ramanath <avinashr@gmail.com> wrote:
+> Could somebody let me know which function equivalent/header file is
+> available in kernel space for "stat"ing?
+> I want an equivalent of stat/lstat/fstat in kernel space.
+>
+> Thanks,
+> Avinash.
+>

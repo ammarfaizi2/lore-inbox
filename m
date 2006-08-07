@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWHGNOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWHGNSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWHGNOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 09:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWHGNOZ
+	id S932073AbWHGNSk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 09:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWHGNSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 09:14:25 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:28585 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932071AbWHGNOY (ORCPT
+	Mon, 7 Aug 2006 09:18:39 -0400
+Received: from styx.suse.cz ([82.119.242.94]:64919 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932073AbWHGNSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 09:14:24 -0400
-Date: Sat, 5 Aug 2006 20:05:42 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, dipankar@in.ibm.com, stern@rowland.harvard.edu
-Subject: [PATCH] Remove redundant cleanup_srcu_struct() declaration
-Message-ID: <20060806030542.GA2352@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
+	Mon, 7 Aug 2006 09:18:39 -0400
+Date: Mon, 7 Aug 2006 15:18:34 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@muc.de>
+Cc: Dmitry Torokhov <dtor@insightbb.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
+Message-ID: <20060807131834.GB21999@suse.cz>
+References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz> <20060807125639.GA88155@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060807125639.GA88155@muc.de>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, if one cleanup_srcu_struct() is good, two must be twice as good,
-right?  This patch removes the spare, which was in my original.  :-/
+On Mon, Aug 07, 2006 at 02:56:39PM +0200, Andi Kleen wrote:
+> On Mon, Aug 07, 2006 at 02:48:55PM +0200, Vojtech Pavlik wrote:
+> > On Mon, Aug 07, 2006 at 02:28:45PM +0200, Andi Kleen wrote:
+> > > On Mon, Aug 07, 2006 at 01:09:31PM +0200, Vojtech Pavlik wrote:
+> > > > On Mon, Aug 07, 2006 at 10:48:50AM +0200, Andi Kleen wrote:
+> > > > > On Sun, Aug 06, 2006 at 10:43:44PM -0400, Dmitry Torokhov wrote:
+> > > > > > On Saturday 05 August 2006 23:16, Andi Kleen wrote:
+> > > > > > > This whole thing is broken, e.g. on a preemptive kernel when the
+> > > > > > > code can switch CPUs 
+> > > > > > > 
+> > > > > > 
+> > > > > > Would not preempt_disable fix that?
+> > > > > 
+> > > > > Partially, but you still have other problems. Please just get rid
+> > > > > of it. Why do we have timer code in the kernel if you then chose
+> > > > > not to use it?
+> > > >  
+> > > > The problem is that gettimeofday() is not always fast. 
+> > > 
+> > > When it is not fast that means it is not reliable and then you're
+> > > also not well off using it anyways.
+> > 
+> > I assume you wanted to say "When gettimeofday() is slow, it means TSC is
+> > not reliable", which I agree with. 
+> > 
+> > But I need, in the driver, in the no-TSC case use i/o counting, not a
+> > slow but reliable method. And I can't say, from outside the timing
+> > subsystem, whether gettimeofday() is fast or slow.
+> 
+> Hmm if that is the only obstacle I can export a "slow gettimeofday" flag.
 
-Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
----
+That would help.
 
- srcu.h |    1 -
- 1 files changed, 1 deletion(-)
-
-diff -urpNa -X dontdiff linux-2.6.18-rc2-mm1/include/linux/srcu.h linux-2.6.18-rc2-mm1-rrcss/include/linux/srcu.h
---- linux-2.6.18-rc2-mm1/include/linux/srcu.h	2006-08-05 16:30:44.000000000 -0700
-+++ linux-2.6.18-rc2-mm1-rrcss/include/linux/srcu.h	2006-08-05 20:00:46.000000000 -0700
-@@ -49,6 +49,5 @@ int srcu_read_lock(struct srcu_struct *s
- void srcu_read_unlock(struct srcu_struct *sp, int idx);
- void synchronize_srcu(struct srcu_struct *sp);
- long srcu_batches_completed(struct srcu_struct *sp);
--void cleanup_srcu_struct(struct srcu_struct *sp);
+> However it would be some work to implement it for all architectures.
+> 
+> > I assume we could make it work with the monotonic timer instead. 
+> 
+> The monotonic timer is the right thing to use to make you independent
+> of ntpd, but it's normally not faster or slower than gettimeofday.
  
- #endif
+Yup.
+
+-- 
+Vojtech Pavlik
+Director SuSE Labs

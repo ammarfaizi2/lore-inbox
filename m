@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWHGWXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWHGWYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbWHGWXp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 18:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWHGWXp
+	id S932309AbWHGWYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 18:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWHGWYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 18:23:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16341 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932280AbWHGWXo (ORCPT
+	Mon, 7 Aug 2006 18:24:23 -0400
+Received: from relay00.pair.com ([209.68.5.9]:62986 "HELO relay00.pair.com")
+	by vger.kernel.org with SMTP id S932285AbWHGWYW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 18:23:44 -0400
-Date: Mon, 7 Aug 2006 15:23:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: arm + sh cross compile suite for amd64 (i386)?
-Message-Id: <20060807152338.1307e631.akpm@osdl.org>
-In-Reply-To: <20060807210625.GB14327@mars.ravnborg.org>
-References: <20060807192708.GA12937@mars.ravnborg.org>
-	<20060807204241.GA11510@kroah.com>
-	<20060807210209.GA14327@mars.ravnborg.org>
-	<20060807210625.GB14327@mars.ravnborg.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 18:24:22 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Mon, 7 Aug 2006 17:24:08 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Edgar Toernig <froese@gmx.de>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org, viro@zeniv.linux.org.uk, alan@lxorguk.ukuu.org.uk,
+       tytso@mit.edu, tigran@veritas.com
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+In-Reply-To: <20060807224144.3bb64ac4.froese@gmx.de>
+Message-ID: <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+ <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
+ <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
+ <20060807224144.3bb64ac4.froese@gmx.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006 23:06:25 +0200
-Sam Ravnborg <sam@ravnborg.org> wrote:
+On Mon, 7 Aug 2006, Edgar Toernig wrote:
 
-> On Mon, Aug 07, 2006 at 11:02:09PM +0200, Sam Ravnborg wrote:
->  
-> > So for sh I would expect the following is a better fix:
-> 
-> Reminds me. Anyone has a pointer to arm+sh gcc + binutils cross-compile
-> suite that can run on my amd64 box?
-> My usual source: http://developer.osdl.org/dev/plm/cross_compile/
-> did have neither sh nor arm :-(
-> 
+>
+> Your implementation is much cruder - it simply takes the fd
+> away from the app; any future use gives EBADF.  As a bonus,
+> it works for regular files and even goes as far as destroying
+> all mappings of the file from all processes (even root processes).
+> IMVHO this is a disaster from a security and reliability point
+> of view.
+>
 
-I was somewhat-successful in building those up.  From my notes:
+I can see the value in these system calls, but I agree that the 
+implementation is crude. "EBADF" is not something that applications are 
+taught to expect. Someone correct me if I'm wrong, but I can think of no 
+situation under which a file descriptor currently gets yanked out from 
+under your feet -- you should always have to formally abandon it with 
+close().
 
-arm:
-	eval `cat arm.dat gcc-3.4.5-glibc-2.3.6.dat` sh all.sh --notest
+This kind of thing only looks proper if it leaves the file descriptor in 
+place and just returns errors / EOF when you attempt to access it.
 
-sh4:
-	eval `cat sh4.dat gcc-3.4.5-glibc-2.3.6.dat` sh all.sh --notest
-
-when you've struggled with crosstool for long enough, that'll become
-meaningful ;)
-
-
-fwiw, I've uploaded x86 binaries to http://userweb.kernel.org/~akpm/. 
-They're a bit flakey but seem to be good enough to get through a defconfig
-build.  The main problem is fancy machine-specific binutils options which
-are present in the kernel Makefiles but which stock binutils doesn't know
-about.
-
-
+Thanks,
+Chase

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWHGPUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWHGPTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWHGPUS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWHGPUS
+	id S932148AbWHGPTx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWHGPTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:20:18 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:49359 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932144AbWHGPT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:19:59 -0400
-Date: Mon, 7 Aug 2006 17:19:57 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Dmitry Torokhov <dtor@insightbb.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
-Message-ID: <20060807151957.GA9911@rhlx01.fht-esslingen.de>
-References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz> <20060807125639.GA88155@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Aug 2006 11:19:53 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:28933 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932148AbWHGPTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:19:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NIAxeOnBcIBs3Fn7GQDAGj5SPySiyAwXT13z6qj5bMHYZLJa55HbXqzhut/QXOZYJSjC0LE76MwkRxkR1lhOAVru0RgzoAyyVlfc1ejDH64D1XBDWtG85Ec75FrJLxgeOsrao5suOn4p69lUfa4g429Kx0VFxbQy92q8Hm/dGfs=
+Message-ID: <787b0d920608070819u5f93b7c5pb45b323d4c74bde4@mail.gmail.com>
+Date: Mon, 7 Aug 2006 11:19:47 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls
+Cc: froese@gmx.de, B.Steinbrink@gmx.de, hurtta+gmane@siilo.fmi.fi,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <84144f020608070345q58a9c12btc2eb57cd7bf8dd14@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060807125639.GA88155@muc.de>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+References: <787b0d920607220105l21251402nc98381edbc27a0c5@mail.gmail.com>
+	 <84144f020608070345q58a9c12btc2eb57cd7bf8dd14@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 02:56:39PM +0200, Andi Kleen wrote:
-> On Mon, Aug 07, 2006 at 02:48:55PM +0200, Vojtech Pavlik wrote:
-> > But I need, in the driver, in the no-TSC case use i/o counting, not a
-> > slow but reliable method. And I can't say, from outside the timing
-> > subsystem, whether gettimeofday() is fast or slow.
-> 
-> Hmm if that is the only obstacle I can export a "slow gettimeofday" flag.
+On 8/7/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> [Albert Cahalan]
+>> Edgar Toernig writes:
 
-Wouldn't it be much more useful to normalize this versus (e.g.) CPU cycles
-for much more information than a plain "this is fast/this is slow" flag,
-to be measured on bootup?
-That way a driver could use
+> > > Urgs, so any user may remove mappings from another process and
+> > > let it crash?
+> > Two good solutions come to mind:
+> >
+> > a. substitute the zero page
+> > b. make the mapping private and touch it as if C-O-W happened
+>
+> Actually, I think revokeat() and frevoke() should be consistent with
+> mmap which will make a process go SIGBUS if it attempts to write to
+> truncated shared mapping.
 
-	if (gtod_cpu_cycles_needed <= 500)
-		gettimeofday();
-	else
-		funky_fast_workaround();
-
-OK, in total we have at least four ways of doing this:
-
-a) gtod_is_slow flag
-b) number of CPU cycles needed
-c) number of nanoseconds needed (but this is less useful since it doesn't
-   properly take into account the fast vs. slow CPUs behaviour, I think)
-d) providing all three items above together, for optimal flexibility??
-
-This is somewhat related to an idea of mine which would be to benchmark all
-clock sources on bootup and print a timing summary, optionally warning
-users if grave performance issues have been found with a specific source
-(and especially if that one is active!).
-Additionally, print timing summary of gettimeofday() itself on bootup?
-
-Andreas Mohr
+You're right. Apps must already be tolerant of SIGBUS.
+There is thus no additional risk.

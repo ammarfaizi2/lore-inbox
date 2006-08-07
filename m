@@ -1,112 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWHGT1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWHGT1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWHGT1J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWHGT1J
+	id S1750836AbWHGT1a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWHGT1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:27:09 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:36987 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750811AbWHGT1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:27:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=sz5soy+/eaGYSursNnohOS1TxzJiTWGvw9Miluf3rgx/fhtvnUAA393vhruDIjKYB1jjq0AmKG0pTeP5tR5N6Zb9wQ+lCdf/t0fyQkqnGdwMcmOvd2Qx60ZXcdYU863a8+eRLkZIrZKdURsJ6rmibCSKvBSnExzCduT8/Sd8v1c=
-Message-ID: <44D793E6.8010500@gmail.com>
-Date: Tue, 08 Aug 2006 04:26:30 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Harald Dunkel <harald.dunkel@t-online.de>
-CC: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davidsen@tmr.com
-Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
-References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com> <20060805212346.GE5417@ucw.cz> <44D6AE59.6070709@gmail.com> <44D789BA.4010206@t-online.de>
-In-Reply-To: <44D789BA.4010206@t-online.de>
-Content-Type: multipart/mixed;
- boundary="------------090000040602060707000700"
+	Mon, 7 Aug 2006 15:27:30 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:24718 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750836AbWHGT12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:27:28 -0400
+Date: Mon, 7 Aug 2006 21:27:09 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PATCH] kbuild fixes for 2.6.18
+Message-ID: <20060807192708.GA12937@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090000040602060707000700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Greg.
+Please apply to 2.6.18.
 
-Harald Dunkel wrote:
-> Tejun Heo wrote:
->> Pavel Machek wrote:
->>>> echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
->>> Really? I thought power/state takes 0/3 (for D0 and D3)
->> Yes, of course.  My mistake.  Sorry about the confusion.  The correct
->> command is 'echo -n 3 > /sys/bus/scsi/devices/x:y:z:w/power/state'.
->>
-> 
-> (Sure?  :-)
+Pull from:
 
-The sleeping part is correct.  That will make libata put the disk to sleep.
+	git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild-2.6.18.git
 
-> Now this did not work at all. The '-n 3' was probably
-> correct, but when I tried to access the disk, then it
-> did not spin up again (I waited for 5 minutes). There
-> was no message on the console, either.
-> 
-> But I could not reproduce this problem.
-> 
-> How do I monitor that the disk spins down and up?
+Patches for both changes appended below.
 
-But the waking up part isn't.  You need to issue wake up explicitly by 
-doing 'echo -n 0 > /sys/...'  I've been a complete idiot in this thread. 
-  Please excuse me.  :-(
+	Sam
 
-I think the solution to your problem is adjusting command timeout to 
-more reasonable values which should make the problem more bearable. 
-It'll take some time to figure out how to make timeouts more intelligent 
-without breaking support for slow devices.  I'll work on that.
+Shortlog:
 
-I'm attaching a temporary patch for the time being.
+Sam Ravnborg:
+      kbuild: do not try to build content of initramfs
+      kbuild: external modules shall not check config consistency
 
--- 
-tejun
+commit 9ee4e3365dd0dab4c1e02fe44dc08a223b826c72
+Author: Sam Ravnborg <sam@mars.ravnborg.org>
+Date:   Mon Aug 7 21:01:36 2006 +0200
 
---------------090000040602060707000700
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+    kbuild: external modules shall not check config consistency
+    
+    external modules needs include/linux/autoconf.h and include/config/auto.conf
+    but skip the integrity test of these. Even with a newer Kconfig file we
+    shall just proceed since external modules simply uses the kernel source and
+    shall not attempt to modify it.
+    Error out if a config fiel is missing since they are mandatory.
+    
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 98bd3aa..5676388 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -99,7 +99,7 @@ #define SD_MAX_DISKS	(((26 * 26) + 26 + 
- /*
-  * Time out in seconds for disks and Magneto-opticals (which are slower).
-  */
--#define SD_TIMEOUT		(30 * HZ)
-+#define SD_TIMEOUT		(7 * HZ)
- #define SD_MOD_TIMEOUT		(75 * HZ)
+commit 58a2f7d85aaf4c41157f15c43a913b5c3c6b3adb
+Author: Sam Ravnborg <sam@mars.ravnborg.org>
+Date:   Mon Aug 7 20:58:28 2006 +0200
+
+    kbuild: do not try to build content of initramfs
+    
+    When a file supplied via CONFIG_INITRAMFS pointed to a file
+    for which kbuild had a rule to compile it (foo.c => foo.o)
+    then kbuild would compile the file before adding the
+    file to the initramfs.
+    
+    Teach make that files included in initramfs shall not be updated by adding
+    an 'empty command'. (See "Using Empty Commands" in info make).
+    
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+
+ Makefile     |   24 ++++++++++++++++++------
+ usr/Makefile |    3 +++
+ 2 files changed, 21 insertions(+), 6 deletions(-)
+
+
+diff --git a/Makefile b/Makefile
+index 110db85..e71fefd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -436,12 +436,13 @@ core-y		:= usr/
+ endif # KBUILD_EXTMOD
  
- /*
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index b941670..45686f9 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -200,9 +200,9 @@ enum {
- 	ATA_HOST_SIMPLEX	= (1 << 0),	/* Host is simplex, one DMA channel per host_set only */
- 	
- 	/* various lengths of time */
--	ATA_TMOUT_BOOT		= 30 * HZ,	/* heuristic */
--	ATA_TMOUT_BOOT_QUICK	= 7 * HZ,	/* heuristic */
--	ATA_TMOUT_INTERNAL	= 30 * HZ,
-+	ATA_TMOUT_BOOT		= 10 * HZ,	/* heuristic */
-+	ATA_TMOUT_BOOT_QUICK	= 5 * HZ,	/* heuristic */
-+	ATA_TMOUT_INTERNAL	= 10 * HZ,
- 	ATA_TMOUT_INTERNAL_QUICK = 5 * HZ,
+ ifeq ($(dot-config),1)
+-# In this section, we need .config
++# Read in config
++-include include/config/auto.conf
  
- 	/* ATA bus states */
-
---------------090000040602060707000700--
++ifeq ($(KBUILD_EXTMOD),)
+ # Read in dependencies to all Kconfig* files, make sure to run
+ # oldconfig if changes are detected.
+ -include include/config/auto.conf.cmd
+--include include/config/auto.conf
+ 
+ # To avoid any implicit rule to kick in, define an empty command
+ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+@@ -451,16 +452,27 @@ # with it and forgot to run make oldconf
+ # if auto.conf.cmd is missing then we are probably in a cleaned tree so
+ # we execute the config step to be sure to catch updated Kconfig files
+ include/config/auto.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+-ifeq ($(KBUILD_EXTMOD),)
+ 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+ else
+-	$(error kernel configuration not valid - run 'make prepare' in $(srctree) to update it)
+-endif
++# external modules needs include/linux/autoconf.h and include/config/auto.conf
++# but do not care if they are up-to-date. Use auto.conf to trigger the test
++PHONY += include/config/auto.conf
++
++include/config/auto.conf:
++	$(Q)test -e include/linux/autoconf.h -a -e $@ || (		\
++	echo;								\
++	echo "  ERROR: Kernel configuration is invalid.";		\
++	echo "         include/linux/autoconf.h or $@ are missing.";	\
++	echo "         Run 'make oldconfig && make prepare' on kernel src to fix it.";	\
++	echo;								\
++	/bin/false)
++
++endif # KBUILD_EXTMOD
+ 
+ else
+ # Dummy target needed, because used as prerequisite
+ include/config/auto.conf: ;
+-endif
++endif # $(dot-config)
+ 
+ # The all: target is the default when no target is given on the
+ # command line.
+diff --git a/usr/Makefile b/usr/Makefile
+index e938242..5b31c0b 100644
+--- a/usr/Makefile
++++ b/usr/Makefile
+@@ -35,6 +35,9 @@ quiet_cmd_initfs = GEN     $@
+       cmd_initfs = $(initramfs) -o $@ $(ramfs-args) $(ramfs-input)
+ 
+ targets := initramfs_data.cpio.gz
++# do not try to update files included in initramfs
++$(deps_initramfs): ;
++
+ $(deps_initramfs): klibcdirs
+ # We rebuild initramfs_data.cpio.gz if:
+ # 1) Any included file is newer then initramfs_data.cpio.gz

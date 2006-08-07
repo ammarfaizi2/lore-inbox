@@ -1,60 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWHGTX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWHGT1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWHGTX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWHGTX5
+	id S1750811AbWHGT1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWHGT1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:23:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26025 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750830AbWHGTXz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:23:55 -0400
-Date: Mon, 7 Aug 2006 12:23:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Shem Multinymous <multinymous@gmail.com>, rlove@rlove.org,
-       khali@linux-fr.org, gregkh@suse.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded
- controller access
-Message-Id: <20060807122319.ed93110a.akpm@osdl.org>
-In-Reply-To: <20060807132628.GC4032@ucw.cz>
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	<11548492242899-git-send-email-multinymous@gmail.com>
-	<20060806005613.01c5a56a.akpm@osdl.org>
-	<41840b750608060256g1a7bb9c3s843d3ac08e512d63@mail.gmail.com>
-	<20060806030749.ab49c887.akpm@osdl.org>
-	<20060807132628.GC4032@ucw.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 15:27:09 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:36987 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750811AbWHGT1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:27:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
+        b=sz5soy+/eaGYSursNnohOS1TxzJiTWGvw9Miluf3rgx/fhtvnUAA393vhruDIjKYB1jjq0AmKG0pTeP5tR5N6Zb9wQ+lCdf/t0fyQkqnGdwMcmOvd2Qx60ZXcdYU863a8+eRLkZIrZKdURsJ6rmibCSKvBSnExzCduT8/Sd8v1c=
+Message-ID: <44D793E6.8010500@gmail.com>
+Date: Tue, 08 Aug 2006 04:26:30 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Harald Dunkel <harald.dunkel@t-online.de>
+CC: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davidsen@tmr.com
+Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
+References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com> <20060805212346.GE5417@ucw.cz> <44D6AE59.6070709@gmail.com> <44D789BA.4010206@t-online.de>
+In-Reply-To: <44D789BA.4010206@t-online.de>
+Content-Type: multipart/mixed;
+ boundary="------------090000040602060707000700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006 13:26:29 +0000
-Pavel Machek <pavel@suse.cz> wrote:
+This is a multi-part message in MIME format.
+--------------090000040602060707000700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hi!
+Harald Dunkel wrote:
+> Tejun Heo wrote:
+>> Pavel Machek wrote:
+>>>> echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
+>>> Really? I thought power/state takes 0/3 (for D0 and D3)
+>> Yes, of course.  My mistake.  Sorry about the confusion.  The correct
+>> command is 'echo -n 3 > /sys/bus/scsi/devices/x:y:z:w/power/state'.
+>>
 > 
-> > > What more is needed that may be realistically expected from a kernel
-> > > patch submission?
-> > 
-> > We who accept the submission would be making a joke of the whole thing if
-> > we accepted the assurances of a person who is concealing his/her identity.
-> > 
-> > I suggested a simple solution: Perhaps one of the other project members
-> > (ie: one who uses a real name) could also sign off the patches?
+> (Sure?  :-)
+
+The sleeping part is correct.  That will make libata put the disk to sleep.
+
+> Now this did not work at all. The '-n 3' was probably
+> correct, but when I tried to access the disk, then it
+> did not spin up again (I waited for 5 minutes). There
+> was no message on the console, either.
 > 
-> I'm willing to sign off these patches. (In legal sense, anyway. I have
-> not yet went through them carefully).
+> But I could not reproduce this problem.
 > 
+> How do I monitor that the disk spins down and up?
 
-Thanks.  So this will amount to Pavel asserting that this code is kosher,
-based upon the knowledge which you've gained from participating in this
-project.
+But the waking up part isn't.  You need to issue wake up explicitly by 
+doing 'echo -n 0 > /sys/...'  I've been a complete idiot in this thread. 
+  Please excuse me.  :-(
 
-I'll run that by Linus when he resurfaces.
+I think the solution to your problem is adjusting command timeout to 
+more reasonable values which should make the problem more bearable. 
+It'll take some time to figure out how to make timeouts more intelligent 
+without breaking support for slow devices.  I'll work on that.
 
-And I'll duck this version of the patch series due to your code review
-comments.  Please cc me on version 2.
+I'm attaching a temporary patch for the time being.
+
+-- 
+tejun
+
+--------------090000040602060707000700
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 98bd3aa..5676388 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -99,7 +99,7 @@ #define SD_MAX_DISKS	(((26 * 26) + 26 + 
+ /*
+  * Time out in seconds for disks and Magneto-opticals (which are slower).
+  */
+-#define SD_TIMEOUT		(30 * HZ)
++#define SD_TIMEOUT		(7 * HZ)
+ #define SD_MOD_TIMEOUT		(75 * HZ)
+ 
+ /*
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index b941670..45686f9 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -200,9 +200,9 @@ enum {
+ 	ATA_HOST_SIMPLEX	= (1 << 0),	/* Host is simplex, one DMA channel per host_set only */
+ 	
+ 	/* various lengths of time */
+-	ATA_TMOUT_BOOT		= 30 * HZ,	/* heuristic */
+-	ATA_TMOUT_BOOT_QUICK	= 7 * HZ,	/* heuristic */
+-	ATA_TMOUT_INTERNAL	= 30 * HZ,
++	ATA_TMOUT_BOOT		= 10 * HZ,	/* heuristic */
++	ATA_TMOUT_BOOT_QUICK	= 5 * HZ,	/* heuristic */
++	ATA_TMOUT_INTERNAL	= 10 * HZ,
+ 	ATA_TMOUT_INTERNAL_QUICK = 5 * HZ,
+ 
+ 	/* ATA bus states */
+
+--------------090000040602060707000700--

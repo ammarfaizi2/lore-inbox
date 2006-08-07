@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWHGVM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWHGVMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWHGVM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWHGVLv
+	id S932381AbWHGVMT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWHGVLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:11:51 -0400
-Received: from xenotime.net ([66.160.160.81]:15579 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932382AbWHGVLM (ORCPT
+	Mon, 7 Aug 2006 17:11:53 -0400
+Received: from xenotime.net ([66.160.160.81]:15067 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932381AbWHGVLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Aug 2006 17:11:12 -0400
-Date: Mon, 7 Aug 2006 14:10:08 -0700
+Date: Mon, 7 Aug 2006 14:07:58 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, matthew@wil.cx,
-       kyle@parisc-linux.org
-Subject: [PATCH 5/9] Replace ARCH_HAS_FLUSH_ANON_PAGE with
- CONFIG_ARCH_FLUSH_ANON_PAGE
-Message-Id: <20060807141008.de9c9c5c.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, geert@linux-m68k.org,
+       zippel@linux-m68k.org, wli@holomorphy.com
+Subject: [PATCH 8/9] Replace __ARCH_HAS_NO_PAGE_ZERO_MAPPED with
+ CONFIG_NO_PAGE_ZERO_MAPPED
+Message-Id: <20060807140758.aea1de6c.rdunlap@xenotime.net>
 In-Reply-To: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 Organization: YPO4
@@ -29,48 +29,102 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Replace ARCH_HAS_FLUSH_ANON_PAGE with CONFIG_ARCH_FLUSH_ANON_PAGE.
+Replace __ARCH_HAS_NO_PAGE_ZERO_MAPPED with CONFIG_NO_PAGE_ZERO_MAPPED.
+Move it from header files to Kconfig space.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- arch/parisc/Kconfig             |    3 +++
- include/asm-parisc/cacheflush.h |    1 -
- include/linux/highmem.h         |    2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ arch/m68k/Kconfig      |    3 +++
+ arch/sparc/Kconfig     |    3 +++
+ drivers/char/mem.c     |    8 ++++----
+ include/asm-m68k/io.h  |    2 --
+ include/asm-sparc/io.h |    2 --
+ 5 files changed, 10 insertions(+), 8 deletions(-)
 
---- linux-2618-rc4-arch.orig/include/asm-parisc/cacheflush.h
-+++ linux-2618-rc4-arch/include/asm-parisc/cacheflush.h
-@@ -189,7 +189,6 @@ flush_anon_page(struct page *page, unsig
- 	if (PageAnon(page))
- 		flush_user_dcache_page(vmaddr);
- }
--#define ARCH_HAS_FLUSH_ANON_PAGE
+--- linux-2618-rc4-arch.orig/drivers/char/mem.c
++++ linux-2618-rc4-arch/drivers/char/mem.c
+@@ -115,7 +115,7 @@ static ssize_t read_mem(struct file * fi
+ 	if (!valid_phys_addr_range(p, count))
+ 		return -EFAULT;
+ 	read = 0;
+-#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
++#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
+ 	/* we don't have page 0 mapped on sparc and m68k.. */
+ 	if (p < PAGE_SIZE) {
+ 		sz = PAGE_SIZE - p;
+@@ -175,7 +175,7 @@ static ssize_t write_mem(struct file * f
  
- static inline void
- flush_kernel_dcache_page(struct page *page)
---- linux-2618-rc4-arch.orig/include/linux/highmem.h
-+++ linux-2618-rc4-arch/include/linux/highmem.h
-@@ -6,7 +6,7 @@
+ 	written = 0;
  
- #include <asm/cacheflush.h>
+-#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
++#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
+ 	/* we don't have page 0 mapped on sparc and m68k.. */
+ 	if (p < PAGE_SIZE) {
+ 		unsigned long sz = PAGE_SIZE - p;
+@@ -333,7 +333,7 @@ static ssize_t read_kmem(struct file *fi
+ 		if (count > (unsigned long) high_memory - p)
+ 			low_count = (unsigned long) high_memory - p;
  
--#ifndef ARCH_HAS_FLUSH_ANON_PAGE
-+#ifndef CONFIG_ARCH_FLUSH_ANON_PAGE
- static inline void flush_anon_page(struct page *page, unsigned long vmaddr)
- {
- }
---- linux-2618-rc4-arch.orig/arch/parisc/Kconfig
-+++ linux-2618-rc4-arch/arch/parisc/Kconfig
-@@ -16,6 +16,9 @@ config PARISC
- config MMU
- 	def_bool y
+-#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
++#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
+ 		/* we don't have page 0 mapped on sparc and m68k.. */
+ 		if (p < PAGE_SIZE && low_count > 0) {
+ 			size_t tmp = PAGE_SIZE - p;
+@@ -411,7 +411,7 @@ do_write_kmem(void *p, unsigned long rea
+ 	unsigned long copied;
  
-+config ARCH_FLUSH_ANON_PAGE
+ 	written = 0;
+-#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
++#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
+ 	/* we don't have page 0 mapped on sparc and m68k.. */
+ 	if (realp < PAGE_SIZE) {
+ 		unsigned long sz = PAGE_SIZE - realp;
+--- linux-2618-rc4-arch.orig/include/asm-m68k/io.h
++++ linux-2618-rc4-arch/include/asm-m68k/io.h
+@@ -360,8 +360,6 @@ extern void dma_cache_inv(unsigned long 
+ 
+ #endif /* __KERNEL__ */
+ 
+-#define __ARCH_HAS_NO_PAGE_ZERO_MAPPED		1
+-
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+  * access
+--- linux-2618-rc4-arch.orig/include/asm-sparc/io.h
++++ linux-2618-rc4-arch/include/asm-sparc/io.h
+@@ -290,8 +290,6 @@ extern void sbus_iounmap(volatile void _
+ 
+ #endif
+ 
+-#define __ARCH_HAS_NO_PAGE_ZERO_MAPPED		1
+-
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+  * access
+--- linux-2618-rc4-arch.orig/arch/m68k/Kconfig
++++ linux-2618-rc4-arch/arch/m68k/Kconfig
+@@ -366,6 +366,9 @@ config 060_WRITETHROUGH
+ 	  is hardwired on.  The 53c710 SCSI driver is known to suffer from
+ 	  this problem.
+ 
++config NO_PAGE_ZERO_MAPPED
 +	def_bool y
 +
- config STACK_GROWSUP
- 	def_bool y
+ source "mm/Kconfig"
  
+ endmenu
+--- linux-2618-rc4-arch.orig/arch/sparc/Kconfig
++++ linux-2618-rc4-arch/arch/sparc/Kconfig
+@@ -229,6 +229,9 @@ config SUNOS_EMUL
+ 
+ source "mm/Kconfig"
+ 
++config NO_PAGE_ZERO_MAPPED
++	def_bool y
++
+ endmenu
+ 
+ source "net/Kconfig"
 
 
 ---

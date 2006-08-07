@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWHGL3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWHGLbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWHGL3E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 07:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWHGL3E
+	id S1750745AbWHGLbG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 07:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWHGLbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 07:29:04 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:32373 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750727AbWHGL3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 07:29:03 -0400
-Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
-	aliasing problem)
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: schwidefsky@googlemail.com, johnstul@us.ibm.com, akpm@osdl.org,
-       zippel@linux-m68k.org, clameter@engr.sgi.com,
-       linux-kernel@vger.kernel.org, ralf@linux-mips.org, ak@muc.de
-In-Reply-To: <20060807.011319.41196590.anemo@mba.ocn.ne.jp>
-References: <6e0cfd1d0608020550k7ae2c44dg94afbe56d66b@mail.gmail.com>
-	 <20060804.005352.128616651.anemo@mba.ocn.ne.jp>
-	 <6e0cfd1d0608040702h15371d31q1c3d1c305c3da424@mail.gmail.com>
-	 <20060807.011319.41196590.anemo@mba.ocn.ne.jp>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 07 Aug 2006 13:28:35 +0200
-Message-Id: <1154950115.6721.34.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Mon, 7 Aug 2006 07:31:06 -0400
+Received: from srvr22.engin.umich.edu ([141.213.75.21]:21999 "EHLO
+	srvr22.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S1750745AbWHGLbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 07:31:05 -0400
+From: Matt Reuther <mreuther@umich.edu>
+Organization: The Knights Who Say... Ni!
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc3-mm2 Compile Error
+Date: Mon, 7 Aug 2006 07:31:44 -0400
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200608062330.19628.mreuther@umich.edu> <20060806222129.f1cfffb9.akpm@osdl.org>
+In-Reply-To: <20060806222129.f1cfffb9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608070731.45133.mreuther@umich.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 01:13 +0900, Atsushi Nemoto wrote:
-> On Fri, 4 Aug 2006 16:02:43 +0200, "Martin Schwidefsky" <schwidefsky@googlemail.com> wrote:
-> > Good start, now you only have the change the 30+ calls to do_timer in
-> > the various architecture backends.
-> 
-> OK, then this is a patch contains the changes.
-> Adding S390 maintainer Martin Schwidefsky to CC.
-> 
-> This patch is against current git tree, so does not contains a change
-> to arch/avr32 which is in mm tree.  I can create a patch against mm
-> tree if expected.
-> 
-> 
-> [PATCH] cleanup do_timer and update_times
-> 
-> Pass ticks to do_timer() and update_times().
-> 
-> This also make a barrier added by
-> 5aee405c662ca644980c184774277fc6d0769a84 needless.
-> 
-> Also adjust x86_64 and s390 timer interrupt handler with this change.
-> 
-> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+On Monday 07 August 2006 01:21 am, Andrew Morton wrote:
+> On Sun, 6 Aug 2006 23:30:19 -0400
+>
+> Matt Reuther <mreuther@umich.edu> wrote:
+> > I got an Error while compiling 2.6.18-rc3-mm2:
+> >
+> >   AR      arch/i386/lib/lib.a
+> >   GEN     .version
+> >   CHK     include/linux/compile.h
+> >   UPD     include/linux/compile.h
+> >   CC      init/version.o
+> >   LD      init/built-in.o
+> >   LD      .tmp_vmlinux1
+> > kernel/built-in.o(.text+0x45667): In function `bacct_add_tsk':
+> > include/linux/time.h:130: undefined reference to `__divdi3'
+> > make: *** [.tmp_vmlinux1] Error 1
+> >
+> > I attached the .config file.
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.
+>6.18-rc3-mm2/hot-fixes/csa-basic-accounting-over-taskstats-fix.patch should
+> fix this, thanks.
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+It does indeed fix the error. Thank you!
 
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+Matt

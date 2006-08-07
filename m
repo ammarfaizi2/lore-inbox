@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWHGU3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWHGUfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWHGU3a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 16:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWHGU3a
+	id S932346AbWHGUfT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 16:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWHGUfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 16:29:30 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:6602 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932250AbWHGU31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 16:29:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pOd3V2UVZtPGAyYrhiyqdqhok7apAxUJ7TcAPVRPrKIcGjArLAGDeVOlSx8ffrTkCMUEMmA/8smiLyduXFX9zEUTOmeNgpVxW7cV1LsZdtxomPPJ35XYi6e29FRZOrbLAl17hdiKqRuObj1V8n6s+SkuEV4nBBDBBcaipEV2O98=
-Message-ID: <5bdc1c8b0608071329r68cbaefboef4ae109203f1b58@mail.gmail.com>
-Date: Mon, 7 Aug 2006 13:29:26 -0700
-From: "Mark Knecht" <markknecht@gmail.com>
-To: "Daniel Walker" <dwalker@mvista.com>
-Subject: Re: Call Trace: 2.6.17-rt5: Call Trace: <ffffffff802500fd>{out_of_memory+55}
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <1154965007.18476.34.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	Mon, 7 Aug 2006 16:35:19 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:9167 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932346AbWHGUfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 16:35:17 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc3-mm2
+Date: Mon, 7 Aug 2006 22:34:12 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Jens Axboe <axboe@suse.de>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060806155454.50935786.akpm@osdl.org> <200608071115.45307.rjw@sisk.pl>
+In-Reply-To: <200608071115.45307.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5bdc1c8b0608070819w653368cm82112655a7b98ec4@mail.gmail.com>
-	 <1154965007.18476.34.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Message-Id: <200608072234.12238.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-   Thanks Daniel. I've not seen this before on any kernels myself.
-I'll keep an eye on it and see if it comes up again.
+On Monday 07 August 2006 11:15, Rafael J. Wysocki wrote:
+> On Monday 07 August 2006 00:54, Andrew Morton wrote:
+> > On Mon, 7 Aug 2006 00:42:10 +0200
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > 
+> > > On Sunday 06 August 2006 12:08, Andrew Morton wrote:
+> > > > 
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> > > 
+> > > My box's (Asus L5D, x86_64) keyboard doesn't work on this kernel at all, even
+> > > if I boot with init=/bin/bash.  On the 2.6.18-rc2-mm1 it worked.
+> > > 
+> > > Unfortunately I have no indication what can be wrong, no oopses, no error
+> > > messages in dmesg, nothing.
+> > > 
+> > > Right now I'm doing a binary search for the offending patch.
+> > > 
+> > 
+> > Thanks.  I'd zoom in on
+> > hdaps-handle-errors-from-input_register_device.patch and git-input.patch.
+> 
+> None of these, but close: remove-polling-timer-from-i8042-v2.patch breaks
+> things here.  [FYI, the box is booted with "noapic", because the IRQ sharing
+> doesn't work otherwise due to a BIOS issue, so it may be related.]
+> 
+> Attached is the dmesg output with i8042.debug=1 for Dmitry.  It's from
+> 2.6.18-rc3 with -mm2 partially applied (up to and including
+> logips2pp-fix-mx300-button-layout.patch).  I'll apply the rest tonight, after
+> I find the patch that broke suspend for me.
 
-   I appreciate the info.
+Unfortunately this one is git-block.patch.  I have no idea which part of it
+may break the suspend.
 
-Cheers,
-Mark
+It hangs during suspend, right after the memory has been shrunk, when devices
+should be suspended.  After pressing SysRq-P it shows it's spinning in the
+idle thread and then hangs hard.
 
-On 8/7/06, Daniel Walker <dwalker@mvista.com> wrote:
-> On Mon, 2006-08-07 at 08:19 -0700, Mark Knecht wrote:
-> > Hi all,
-> >    I've never seen this on 2.6.17-rt5. Up until today it had always
-> > been quite stable. I was running MythTV at the time. Nothing out of
-> > the ordinary.
->
-> Those message are cause by the system running out of memory. I've see
-> MythTV make the system run out of memory on non-RT kernels (must be a
-> memory leak someplace). So I wouldn't think it related to any real time
-> changes.
->
-> >    Excuse my lack of experience here but after an event like this what
-> > is the proper way to make sure the kernel is as stable as it can be?
-> > Do I need to clean anything up? Reboot? Or is the cleanup all
-> > automatic and everything is fine?
->
-> The kernel will kill some running user space tasks to free memory. But
-> the kernel should be fine after that.
->
-> Daniel
->
->
+Greetings,
+Rafael

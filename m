@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWHGQXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWHGQXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWHGQXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHGQXh
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:23:37 -0400
-Received: from smtp.reflexsecurity.com ([72.54.64.74]:34706 "EHLO
-	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
-	id S932206AbWHGQXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932202AbWHGQXg (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 7 Aug 2006 12:23:36 -0400
-Date: Mon, 7 Aug 2006 12:23:24 -0400
-From: Jason Lunz <lunz@gehennom.net>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       andre@linux-ide.org, pavel@suse.cz, linux-pm@osdl.org,
-       linux-ide@vger.kernel.org
-Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
-Message-ID: <20060807162322.GA17564@knob.reflex>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <44D707B6.20501@gmail.com>
-In-Reply-To: <44D707B6.20501@gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHGQXg
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 7 Aug 2006 12:23:36 -0400
+Received: from usea-naimss1.unisys.com ([192.61.61.103]:8205 "EHLO
+	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S932202AbWHGQXf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 12:23:35 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+Date: Mon, 7 Aug 2006 11:23:16 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0C87@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <200608071817.13318.ak@suse.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+Thread-Index: Aca6PPfRXsGrZ8xWTiq0S68dLxef1gAABV/g
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Aug 2006 16:23:17.0126 (UTC) FILETIME=[C9FDC260:01C6BA3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In gmane.linux.kernel, you wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
->
-> I tried it and guess what :)... swsusp doesn't work :@.
->
-> This time I was able to dump process states with sysrq-t:
-> http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
->
-> My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel prints is 
-> suspending device 2.0
 
-Does it go away if you revert this?
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
+> > 4k being a humble maximum is definitely a relative term 
+> here, but on 
+> > the system with "only" 64 or 128 processors the cpu*224 
+> would be much 
+> > higher
+> > :) However, maybe CONFIG_TINY that Andi suggested would 
+> leverage this 
+> > number also. What do you think, Eric?
+> 
+> Best would be something dynamic - kernels should be self 
+> tuning, not require that much CONFIG magic.
+> 
+> Just PCI hotplug gives me headaches with this.
+> 
+> Maybe we just need growable per CPU data.
+> 
+Yes, evaluating dynamically would be best... Should be ACPI job I
+suppose, including accounting of all possible hot plug controllers.
+Unisys boxes have plenty of them, I can look into possible scenarios.
 
-That should only affect resume, not suspend, but it does mess around
-with ide power management. Is this maybe happening on the *second*
-suspend?
-
-> -hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-> +hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
-
-This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
-
-Jason
+--Natalie

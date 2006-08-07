@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWHGVXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWHGViD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWHGVXL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWHGVXL
+	id S1750820AbWHGViD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWHGViD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:23:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30439 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932390AbWHGVXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:23:10 -0400
-Message-ID: <44D7AF34.10301@sgi.com>
-Date: Mon, 07 Aug 2006 14:23:00 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Mon, 7 Aug 2006 17:38:03 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:1494 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750820AbWHGViB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 17:38:01 -0400
+Date: Mon, 7 Aug 2006 17:37:50 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Nate Diller <nate.diller@gmail.com>, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] [2/3] add list_merge to list.h
+In-Reply-To: <20060803222204.f369e6da.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0608071733330.27060@gandalf.stny.rr.com>
+References: <5c49b0ed0608031915g2c1fc44ch623a7657b994bf9c@mail.gmail.com>
+ <20060803222204.f369e6da.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jay Lan <jlan@sgi.com>
-Cc: balbir@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Jes Sorensen <jes@sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
-Subject: Re: [patch 1/3] add basic accounting fields to taskstats
-References: <44CE57EF.2090409@sgi.com> <44CF6433.50108@in.ibm.com> <44CFCCE4.7060702@sgi.com>
-In-Reply-To: <44CFCCE4.7060702@sgi.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
 
-[snip]
+On Thu, 3 Aug 2006, Andrew Morton wrote:
 
->>
->>
->>> +    /* Each process gets a minimum of a half tick cpu time */
->>> +    if ((stats->ac_utime == 0) && (stats->ac_stime == 0)) {
->>> +        stats->ac_stime = USEC_PER_TICK/2;
->>> +    }
->>> +
->>
->>
->>
->> This is confusing. Half tick does not make any sense from the
->> scheduler view point (or am I missing something?), so why
->> return half a tick to the user.
-> 
-> 
-> It must be inherited from old code dated back to Cray UNICOS.
-> I do not know if bad thing can happen if both utime and stime
-> are less than 1 usec...  I guess not. But i agree that
-> half a tick does not make sense. To play safe, we can change
-> it to 1 usec if both utime and stime are sub microsecond.
-> What do you think?
+> On Thu, 3 Aug 2006 19:15:15 -0700
+> "Nate Diller" <nate.diller@gmail.com> wrote:
+>
+> > +/**
+> > + * list_merge - merge two headless lists
+> > + * @list: the new list to merge.
+> > + * @head: the place to add it in the first list.
+> > + *
+> > + * This is similar to list_splice(), except it merges every item onto @list,
+> > + * not excluding @head itself.  It is a noop if @head already immediately
+> > + * preceeds @list.
+>
+> "precedes"
+>
+> > + */
+> > +static inline void list_merge(struct list_head *list, struct list_head *head)
+> > +{
+> > +	struct list_head *last = list->prev;
+> > +	struct list_head *at = head->next;
+> > +
+> > +	list->prev = head;
+> > +	head->next = list;
+> > +
+> > +	last->next = at;
+> > +	at->prev = last;
+> > +}
+>
+> Interesting.  I didn't realise that none of the existing functions could do
+> this.  I wonder if we can flesh the comment out a bit: define "headless" a
+> little more verbosely.
+>
+> Should we call it list_splice_headless() or something?  list_merge is a bit
+> vague.
+>
 
-Hi Balbir,
+Yes, please do explicitly mention headless.  I could see someone using
+this for something with a head and causing some strange bugs.
 
-I figured this out. The tsk->stime (and utime as well) are
-charged by 1 tick (or cputime) from the timer interrupt handler
-through update_process_times->account_{user,system}_time.
+Also, it might be a good idea to get rid of the "head" in the parameter.
+Perhaps call it "start" or something else.  It's a little confusing to
+have a headless list operation that calls the start of a list "head".
 
-The clock resolution is a tick. Any short process less than
-1 tick will the counter being 0. It can be from 0 to 0.99999...
-tick. A half tick is the average value.
+-- Steve
 
-I think it makes more sense to assign a half tick than assign
-1 usec to the stime. What do you think? Certainly the code need
-better explanation.
-
-Regards,
-  - jay
-
-
-[snip]

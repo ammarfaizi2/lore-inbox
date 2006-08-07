@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWHGX3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWHGXai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWHGX3F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWHGX3F
+	id S932397AbWHGXai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWHGXai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:29:05 -0400
-Received: from xenotime.net ([66.160.160.81]:17088 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932349AbWHGX3E (ORCPT
+	Mon, 7 Aug 2006 19:30:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23252 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932397AbWHGXah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:29:04 -0400
-Date: Mon, 7 Aug 2006 16:31:47 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       Paul.Clements@steeleye.com
-Subject: Re: [PATCH -mm 1/5] nbd: printk format warning
-Message-Id: <20060807163147.547b6861.rdunlap@xenotime.net>
-In-Reply-To: <20060807230726.GA2724@elf.ucw.cz>
-References: <20060807154750.5a268055.rdunlap@xenotime.net>
-	<20060807230726.GA2724@elf.ucw.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 19:30:37 -0400
+Date: Tue, 8 Aug 2006 01:30:20 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net, torvalds@osdl.org
+Subject: timeout nonsense [was Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes]
+Message-ID: <20060807233020.GH2759@elf.ucw.cz>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492543835-git-send-email-multinymous@gmail.com> <20060807140721.GH4032@ucw.cz> <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com> <20060807182047.GC26224@atjola.homenet>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060807182047.GC26224@atjola.homenet>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Aug 2006 01:07:26 +0200 Pavel Machek wrote:
+Hi!
 
-> Hi!
+> > On 8/7/06, Pavel Machek <pavel@suse.cz> wrote:
+> > >> +     int total, ret;
+> > >> +     for (total=READ_TIMEOUT_MSECS; total>0; total-=RETRY_MSECS) {
+> > >
+> > >Could we go from 0 to timeout, not the other way around?
+> > 
+> > Sure.
+> > (That's actually vanilla hdapsd code, moved around...)
 > 
-> > Fix printk format warning(s):
-> > drivers/block/nbd.c:410: warning: long unsigned int format, different type arg (arg 4)
-> > 
+> Maybe you could convert that to sth. like this along the way?
 > 
-> ACK, but notice that we have new nbd maintainer... for a few years
-> now.
-
-Please notice that I could not find that info in either of
-MAINTAINERS or CREDITS.... :(
-
-Please have him/her send a patch.
-
-> 							Pavel
+> int ret;
+> unsigned long timeout = jiffies + msec_to_jiffies(READ_TIMEOUT_MSECS);
+> for (;;) {
+> 	ret = thinkpad_ec_lock();
+> 	if (ret)
+> 		return ret;
+> 	ret = __hdaps_update(0);
+> 	thinkpad_ec_unlock();
 > 
-> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> > ---
-> >  drivers/block/nbd.c |    2 +-
-> >  1 files changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > --- linux-2618-rc3mm2.orig/drivers/block/nbd.c
-> > +++ linux-2618-rc3mm2/drivers/block/nbd.c
-> > @@ -407,7 +407,7 @@ static void do_nbd_request(request_queue
-> >  		struct nbd_device *lo;
-> >  
-> >  		blkdev_dequeue_request(req);
-> > -		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%lx)\n",
-> > +		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%x)\n",
-> >  				req->rq_disk->disk_name, req, req->cmd_type);
-> >  
-> >  		if (!blk_fs_request(req))
-> > 
-> > 
-> > ---
+> 	if (ret != -EBUSY)
+> 		return ret;
 
+[imagine TIMEOUT_MSEC pause here, SMM does its job?]
 
----
-~Randy
+> 	if (time_after(timeout, jiffies))
+> 		break;
+> 	msleep(RETRY_MSECS);
+> }
+> return ret;
+> 
+> Rationale: http://lkml.org/lkml/2005/7/14/133 - it's also listed on the
+> kerneljanitors todo list.
+
+Please don't. New variant is _wrong_. Someone should tell
+kerneljanitors :-) ... aha, and Linus.
+
+Minimal fix would be to run one more iteration after timeout.
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWHGPBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWHGPFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWHGPBj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWHGPBj
+	id S932112AbWHGPFT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWHGPFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:01:39 -0400
-Received: from serv07.server-center.de ([83.220.153.152]:24977 "EHLO
-	serv07.server-center.de") by vger.kernel.org with ESMTP
-	id S932081AbWHGPBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:01:38 -0400
-From: Alexander Bigga <ab@mycable.de>
-Organization: mycable GmbH
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: RTC: add RTC class interface to m41t00 driver
-Date: Mon, 7 Aug 2006 17:01:29 +0200
-User-Agent: KMail/1.7.2
-References: <200608041933.39930.david-b@pacbell.net> <44D4D8B0.5010103@mycable.de> <200608051323.16796.david-b@pacbell.net>
-In-Reply-To: <200608051323.16796.david-b@pacbell.net>
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, mgreer@mvista.com,
-       a.zummo@towertech.it, linux-kernel@vger.kernel.org
+	Mon, 7 Aug 2006 11:05:19 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:10700 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932112AbWHGPFS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:05:18 -0400
+Date: Mon, 7 Aug 2006 17:05:16 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [patch] s390: tape class return value handling.
+Message-ID: <20060807150516.GA10416@skybase>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608071701.29897.ab@mycable.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 August 2006 22:23, you wrote:
-> Discussion is now started.  :)
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Hope to hear more arguments ;-)
+[S390] tape class return value handling.
 
-> I suspect not all that board support is upstream yet; I can't see
-> anything creating the m41t00 platform devices as required by the
-> current m41t00.c driver ... neither on katana, nor any other board.
+Without this patch register_tape_dev() will always fail, but might
+return a value that is not an error number. This will lead to accesses
+to already freed memory areas...
 
-Your're right. First, I was confused too, but then Mark pointed me to a patch, 
-which is never gone into mainline:
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-http://lists.lm-sensors.org/pipermail/lm-sensors/2005-December/014727.html
+ drivers/s390/char/tape_class.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Be aware of the different names: m41t00 and m41txx!
-
-> Plus, Mr. Grep tells me there's a separate m41t81 driver in
-> mips/sibyte/swarm/rtc_m41t81.c ...
-
-Oh, yes. I found it too, but didn't checked it further.
-
-> You may end up doing more "switch (chip_type) {...}" than testing of
-> the feature bits, if you get beyond those three chips.
-
-In deed. If I want to support all.
-
-> I noticed that the katana board uses a different scheme for the "initialize
-> the system time/date" problem addressed by CONFIG_RTC_HCTOSYS, and that
-> seems to be the reason for the m41t00.c driver to export an API.  (Much the
-> same way that the PC-style "cmos clock" exports an API used early in x86
-> booting, which likewise bypasses the RTC framework ...)
->
-> I suspect there are arch-specific issues to work through there, both for
-> initializing the clock at boot and for re-initializing it after resume.
-> (CONFIG_RTC_HCTOSYS doesn't currently address the latter...)
-
-This question, only Mark can unswer, or?
-
-
-Alexander
--- 
-Alexander Bigga     Tel: +49 4873 90 10 866
-mycable GmbH        Fax: +49 4873 901 976
-Boeker Stieg 43
-D-24613 Aukrug      eMail: ab@mycable.de
-
+diff -urpN linux-2.6/drivers/s390/char/tape_class.c linux-2.6-patched/drivers/s390/char/tape_class.c
+--- linux-2.6/drivers/s390/char/tape_class.c	2006-08-07 14:14:29.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/tape_class.c	2006-08-07 14:14:42.000000000 +0200
+@@ -76,7 +76,7 @@ struct tape_class_device *register_tape_
+ 				device,
+ 				"%s", tcd->device_name
+ 			);
+-	rc = PTR_ERR(tcd->class_device);
++	rc = IS_ERR(tcd->class_device) ? PTR_ERR(tcd->class_device) : 0;
+ 	if (rc)
+ 		goto fail_with_cdev;
+ 	rc = sysfs_create_link(

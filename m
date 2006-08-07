@@ -1,101 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWHGGEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWHGGI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWHGGEc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 02:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWHGGEb
+	id S1751096AbWHGGI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 02:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWHGGI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 02:04:31 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:15583 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751103AbWHGGEb (ORCPT
+	Mon, 7 Aug 2006 02:08:27 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:7878 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751096AbWHGGI0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 02:04:31 -0400
-Subject: Re: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native
-	ops
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200608070730.17813.ak@muc.de>
-References: <1154925835.21647.29.camel@localhost.localdomain>
-	 <200608070730.17813.ak@muc.de>
-Content-Type: text/plain
-Date: Mon, 07 Aug 2006 16:04:28 +1000
-Message-Id: <1154930669.7642.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 7 Aug 2006 02:08:26 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Where does kernel/resource.c.1 file come from?
+Date: Mon, 7 Aug 2006 08:11:20 +0200
+User-Agent: KMail/1.9.4
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <200607251554.50484.eike-kernel@sf-tec.de> <200607281603.38978.eike-kernel@sf-tec.de> <20060804130339.GA4014@ucw.cz>
+In-Reply-To: <20060804130339.GA4014@ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3285479.Kr4OSBDRPs";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608070811.26612.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 07:30 +0200, Andi Kleen wrote:
-> > ===================================================================
-> > --- /dev/null
-> > +++ b/include/asm-i386/no_paravirt.h
-> 
-> I can't say I like the name. After all that should be the normal
-> case for a long time now ... native? normal? bareiron?
+--nextPart3285479.Kr4OSBDRPs
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yeah, I don't like it much either.  native.h doesn't say what the
-alternative is.  native_paravirt.h is kind of contradictory.
+Pavel Machek wrote:
+> Hi!
+>
+> > > > I'm playing around with my local copy of linux-2.6 git tree. I'm
+> > > > building everything to a separate directory using O= to keep "git
+> > > > status" silent.
+> > > >
+> > > > After building I sometimes find a file kernel/resource.c.1 in my git
+> > > > tree that doesn't really belong there. Who is generating this file,
+> > > > for what reason and why doesn't it get created in my output
+> > > > directory?
+> > >
+> > > Can you also try to make sure that this file is generated as part of
+> > > the build process. git status before and after should do it.
+> >
+> > I did a full rebuild and did not see the file again. Weird.
+>
+> Is not it emacs's (or other editor's?) numbered backup?
 
-> Also I would prefer if you split this file up a bit - the old
-> processor/system/irqflags split wasn't too bad.
+No.
 
-In the paravirt case, they all come into one ops structure, which has to
-be declared in one place.
+Eike
 
-Of course, those headers can do:
+--nextPart3285479.Kr4OSBDRPs
+Content-Type: application/pgp-signature
 
-#ifdef CONFIG_PARAVIRT
-#include <asm/paravirt.h>
-#else
-...
-#endif
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-I'll try this and see what happens.  Playing with the x86 headers can be
-extremely hairy 8(
+iD8DBQBE1tmOXKSJPmm5/E4RApZXAKCY+2Li3HBHttJiYdHjZJ/RWhUKyACfa3n4
+hHeQ8RWUDz55oIlKkW3s70Q=
+=O4y+
+-----END PGP SIGNATURE-----
 
-> > +
-> > +/*
-> > + * Set IOPL bits in EFLAGS from given mask
-> > + */
-> > +static inline void set_iopl_mask(unsigned mask)
-> 
-> This function can be completely written in C using local_save_flags()/local_restore_flags()
-> Please do that. I guess it's still a good idea to keep it separated
-> though because it might allow other optimizations.
-> 
-> e.g. i've been thinking about special casing IF changes in save/restore flags 
-> to optimize CPUs which have slow pushf/popf. If you already make sure
-> all non IF manipulations of flags are separated that would help.
-...
-> > +
-> > +/*
-> > + * Clear and set 'TS' bit respectively
-> > + */
-> 
-> The comment seems out of date (no set TS)
-> 
-> 
-> > +#define clts() __asm__ __volatile__ ("clts")
-> > +#define read_cr0() ({ \
-> > +	unsigned int __dummy; \
-> > +	__asm__ __volatile__( \
-> 
-> Maybe it's just me, but can't you just drop all these __s around
-> asm and volatile? They are completely useless as far I know. 
-> 
-> Also the assembly will be easier readable if you just keep it on a single 
-> line for the simple ones.
-
-I'm just shuffling code here, and if the other approach works, I won't
-even be doing that.
-
-But I'm happy to submit a separate patch which cleans these...
-
-Thanks!
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+--nextPart3285479.Kr4OSBDRPs--

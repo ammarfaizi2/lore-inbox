@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWHGGNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWHGGSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWHGGNp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 02:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWHGGNp
+	id S1751104AbWHGGSz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 02:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWHGGSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 02:13:45 -0400
-Received: from ozlabs.org ([203.10.76.45]:29663 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750819AbWHGGNo (ORCPT
+	Mon, 7 Aug 2006 02:18:55 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:13492 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751104AbWHGGSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 02:13:44 -0400
-Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200608070739.33428.ak@muc.de>
-References: <1154925835.21647.29.camel@localhost.localdomain>
-	 <1154925943.21647.32.camel@localhost.localdomain>
-	 <1154926048.21647.35.camel@localhost.localdomain>
-	 <200608070739.33428.ak@muc.de>
-Content-Type: text/plain
-Date: Mon, 07 Aug 2006 16:13:41 +1000
-Message-Id: <1154931222.7642.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 02:18:54 -0400
+Date: Mon, 7 Aug 2006 08:17:56 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Avinash Ramanath <avinashr@gmail.com>
+cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: Stat in kernel space
+In-Reply-To: <abcd72470608061820r4c313ebbw80e7cab98d5d2299@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0608070817330.31761@yvahk01.tjqt.qr>
+References: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
+ <abcd72470608061820r4c313ebbw80e7cab98d5d2299@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 07:39 +0200, Andi Kleen wrote:
-> On Monday 07 August 2006 06:47, Rusty Russell wrote:
-> > This patch does the dumbest possible replacement of paravirtualized
-> > instructions: calls through a "paravirt_ops" structure.  Currently
-> > these are function implementations of native hardware: hypervisors
-> > will override the ops structure with their own variants.
-> 
-> You should call it HAL - that would make it clearer what it is.
+>
+> I wanted to know the file-size using stat.
 
-People get visions of grandeur when HAL is mentioned: they think it'll
-abstract everything.  I really only want to do the minimum needed for
-the hypervisors we have on the table today.
+inode->i_size
 
-Maybe one day it will abstract everything, then we can call it a HAL.
-But I won't be doing that work 8)
+>
+> On 8/6/06, Avinash Ramanath <avinashr@gmail.com> wrote:
+>> Could somebody let me know which function equivalent/header file is
+>> available in kernel space for "stat"ing?
+>> I want an equivalent of stat/lstat/fstat in kernel space.
+>> 
+>> Thanks,
+>> Avinash.
+>> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-> I think I would prefer to patch always. Is there a particular
-> reason you can't do that?
-
-We could patch all the indirect calls into direct calls, but I don't
-think it's worth bothering: most simply don't matter.
-
-The implementation ensures that someone can get boot on a new hypervisor
-by populating the ops struct.  Later they can go back and implement the
-patching stuff.
-
-> It would be better to merge this with the existing LOCK prefix patching
-> or perhaps the normal alternative() patcher (is there any particular
-> reason you can't use it?)
-> 
-> Three alternative patching mechanisms just seems to be too many
-
-Each backend wants a different patch, so alternative() doesn't cut it.
-We could look at generalizing alternative() I guess, but it works fine
-so I didn't want to touch it.
-
-Rusty.
+Jan Engelhardt
 -- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-

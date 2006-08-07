@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWHGQ1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWHGQa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWHGQ1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWHGQ1l
+	id S932209AbWHGQa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWHGQa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:27:41 -0400
-Received: from mail.gmx.net ([213.165.64.20]:12237 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932175AbWHGQ1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:27:41 -0400
-X-Authenticated: #5039886
-Date: Mon, 7 Aug 2006 18:27:43 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Pavel Machek <pavel@suse.cz>, Robert Love <rlove@rlove.org>,
-       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	Mon, 7 Aug 2006 12:30:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:14200 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932209AbWHGQa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 12:30:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hQKhcTtW0eYPa5u8syAY+KcbshmRoHtnb+FxLTZL09G5rxSHJDrHxOUfij1MWMh1nfaxfcF5cT33bZnbqeRyaVWmj43OnMUrjEvuiIWmpbUok/xbClftxW5sZY2wiAdY1l0ojC4OCb16rfqWNWw7hizH1ej1ovLDFttdN/rWLW4=
+Message-ID: <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com>
+Date: Mon, 7 Aug 2006 19:30:55 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Cc: "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
        hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
-Message-ID: <20060807162743.GA26224@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Shem Multinymous <multinymous@gmail.com>,
-	Pavel Machek <pavel@suse.cz>, Robert Love <rlove@rlove.org>,
-	Jean Delvare <khali@linux-fr.org>,
-	Greg Kroah-Hartman <gregkh@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	hdaps-devel@lists.sourceforge.net
-References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
+In-Reply-To: <20060807140721.GH4032@ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Y-GMX-Trusted: 0
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492543835-git-send-email-multinymous@gmail.com>
+	 <20060807140721.GH4032@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.08.07 18:13:06 +0300, Shem Multinymous wrote:
-> >> +     struct dmi_device *dev = NULL;
-> >
-> >unneeded initializer.
-> 
-> On a local variable?!
+Hi Pavel,
 
-You assign a new value to it on the next line, without ever using its
-initial value.
+On 8/7/06, Pavel Machek <pavel@suse.cz> wrote:
+> > +     int total, ret;
+> > +     for (total=READ_TIMEOUT_MSECS; total>0; total-=RETRY_MSECS) {
+>
+> Could we go from 0 to timeout, not the other way around?
 
-Björn
+Sure.
+(That's actually vanilla hdapsd code, moved around...)
+
+
+> This actually changes userland interface... but that is probably okay.
+
+Those two sysfs attributes were bogus. If anything used them (which I
+very much doubt), it's a good thing we broke it.
+
+OK on the rest.
+
+  Shem

@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWHGXQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWHGXRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWHGXQP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWHGXQP
+	id S1751030AbWHGXRp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWHGXRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:16:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42907 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751175AbWHGXQP (ORCPT
+	Mon, 7 Aug 2006 19:17:44 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44955 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751030AbWHGXRo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:16:15 -0400
-Date: Tue, 8 Aug 2006 01:15:57 +0200
+	Mon, 7 Aug 2006 19:17:44 -0400
+Date: Tue, 8 Aug 2006 01:17:28 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
+To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
        hdaps-devel@lists.sourceforge.net
 Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
-Message-ID: <20060807231557.GA2759@elf.ucw.cz>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
+Message-ID: <20060807231728.GB2759@elf.ucw.cz>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com> <20060807162743.GA26224@atjola.homenet> <41840b750608070941i521fe56crebc491589a67cb59@mail.gmail.com> <20060807165452.GB26224@atjola.homenet>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
+In-Reply-To: <20060807165452.GB26224@atjola.homenet>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,67 +30,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Thanks for the sign-offs!
-
-No problem.
-
-> >> +module_param_named(debug, tp_debug, int, 0600);
-> >> +MODULE_PARM_DESC(debug, "Debug level (0=off, 1=on)");
-> >> +
-> >> +/* A few macros for printk()ing: */
-> >> +#define DPRINTK(fmt, args...) \
-> >> +  do { if (tp_debug) printk(KERN_DEBUG fmt, ## args); } while (0)
-> >
-> >Is not there generic function doing this?
+> > >> >> +     struct dmi_device *dev = NULL;
+> > >> >unneeded initializer.
+> > >> On a local variable?!
+> > >
+> > >You assign a new value to it on the next line, without ever using its
+> > >initial value.
+> > 
+> > The initial value is used in the last parameter to dmi_find_device():
+> > 
+> > 	struct dmi_device *dev = NULL;
+> > 	while ((dev = dmi_find_device(type, NULL, dev))) {
+> > 		if (strstr(dev->name, substr))
+> > 			return 1;
+> > 	}
 > 
-> None that I found. Many drivers do it this way.
+> Sorry, somehow my brain skipped the end of the line.
 
-linux/kernel.h : pr_debug() looks similar.
-
-> >> +EXPORT_SYMBOL_GPL(thinkpad_ec_lock);
-> >> +EXPORT_SYMBOL_GPL(thinkpad_ec_try_lock);
-> >> +void thinkpad_ec_unlock(void)
-> >> +{
-> >> +     up(&thinkpad_ec_mutex);
-> >> +}
-> >> +
-> >
-> >Do we need these wrappers? Perhaps just directly exporting the mutex?
-> 
-> Yes, we may end up needing to lock away other systems (ACPI?) that
-> touch the same ports. Apparently not an issue right now, but could
-> change with new firmware.
-> Also, that's what Alan Cox told me to do. :-)
-
-Okay... but do we really need try_lock variant? lock/unlock would be
-okay, but what is try_lock semantics when taking multiple locks...?
-
-> >> +     struct dmi_device *dev = NULL;
-> >
-> >unneeded initializer.
-> 
-> On a local variable?!
-
-You were right, but see the other mail.
-
-> >> +static int __init thinkpad_ec_init(void)
-> >> +{
-> >> +     if (!check_dmi_for_ec()) {
-> >> +             printk(KERN_ERR "thinkpad_ec: no ThinkPad embedded 
-> >controller!\n");
-> >> +             return -ENODEV;
-> >
-> >KERN_ERR is little strong here, no?
-> 
-> Not sure what's the right one. The user tried to load a module and the
-> module can't do that; I saw some drivers use KERN_ERR some
-> KERN_WARNING in similar cases. Is there some guideline on choosing
-> printk levels?
-
-Well, this will also trigger for thinkpad module compiled into kernel,
-right?
+Ahha, sorry about that, I was blind, too. I thought it is because the
+code is ugly, but now I see I was wrong.
 								Pavel
-
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

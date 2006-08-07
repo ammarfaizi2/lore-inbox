@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWHGPA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWHGPBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWHGPA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWHGPA5
+	id S1750930AbWHGPBO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWHGPBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:00:57 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:58346 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750930AbWHGPA4 (ORCPT
+	Mon, 7 Aug 2006 11:01:12 -0400
+Received: from colin.muc.de ([193.149.48.1]:64004 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750930AbWHGPBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:00:56 -0400
-Date: Mon, 7 Aug 2006 17:00:29 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MTD jedec_probe: Recognize Atmel AT49BV6416
-Message-ID: <20060807170029.3e8c829d@cad-250-152.norway.atmel.com>
-In-Reply-To: <1154682379.31031.190.camel@shinybook.infradead.org>
-References: <11546801142874-git-send-email-hskinnemoen@atmel.com>
-	<1154680798.31031.179.camel@shinybook.infradead.org>
-	<20060804105220.6d125976@cad-250-152.norway.atmel.com>
-	<1154682379.31031.190.camel@shinybook.infradead.org>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+	Mon, 7 Aug 2006 11:01:10 -0400
+Date: 7 Aug 2006 17:01:08 +0200
+Date: Mon, 7 Aug 2006 17:01:08 +0200
+From: Andi Kleen <ak@muc.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
+Message-ID: <20060807150108.GB85602@muc.de>
+References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz> <20060807125639.GA88155@muc.de> <d120d5000608070632p7452ed72ja92b1eb3673372f8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000608070632p7452ed72ja92b1eb3673372f8@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 04 Aug 2006 17:06:19 +0800
-David Woodhouse <dwmw2@infradead.org> wrote:
-
-> On Fri, 2006-08-04 at 10:52 +0200, Haavard Skinnemoen wrote:
-> > It is actually a CFI chip. But I couldn't figure out how to install
-> > the fixup in the other patch in the CFI code. The AT49BV6416 chip
-> > identifies itself as using the AMD command set, so the fixup must be
-> > installed based on the jedec ID... 
+On Mon, Aug 07, 2006 at 09:32:29AM -0400, Dmitry Torokhov wrote:
+> On 8/7/06, Andi Kleen <ak@muc.de> wrote:
+> >On Mon, Aug 07, 2006 at 02:48:55PM +0200, Vojtech Pavlik wrote:
+> >> On Mon, Aug 07, 2006 at 02:28:45PM +0200, Andi Kleen wrote:
+> >> > On Mon, Aug 07, 2006 at 01:09:31PM +0200, Vojtech Pavlik wrote:
+> >> > > On Mon, Aug 07, 2006 at 10:48:50AM +0200, Andi Kleen wrote:
+> >> > > > On Sun, Aug 06, 2006 at 10:43:44PM -0400, Dmitry Torokhov wrote:
+> >> > > > > On Saturday 05 August 2006 23:16, Andi Kleen wrote:
+> >> > > > > > This whole thing is broken, e.g. on a preemptive kernel when 
+> >the
+> >> > > > > > code can switch CPUs
+> >> > > > > >
+> >> > > > >
+> >> > > > > Would not preempt_disable fix that?
+> >> > > >
+> >> > > > Partially, but you still have other problems. Please just get rid
+> >> > > > of it. Why do we have timer code in the kernel if you then chose
+> >> > > > not to use it?
+> >> > >
+> >> > > The problem is that gettimeofday() is not always fast.
+> >> >
+> >> > When it is not fast that means it is not reliable and then you're
+> >> > also not well off using it anyways.
+> >>
+> >> I assume you wanted to say "When gettimeofday() is slow, it means TSC is
+> >> not reliable", which I agree with.
+> >>
+> >> But I need, in the driver, in the no-TSC case use i/o counting, not a
+> >> slow but reliable method. And I can't say, from outside the timing
+> >> subsystem, whether gettimeofday() is fast or slow.
+> >
+> >Hmm if that is the only obstacle I can export a "slow gettimeofday" flag.
+> >
+> >However it would be some work to implement it for all architectures.
+> >
 > 
-> Er, note that the _correct_ answer is to advertise the availability of
-> the lock functionality in the CFI 'extended query' information. Did
-> the hardware designer screw that up?
+> Hmm, would it be easier to export "fast gettimeofday" and assume that
+> we have slow gettimeofday by default (so gameport will fall back on io
+> counting)?
 
-I can't find any information about the softlock feature in the PRI
-block. However, the AT49BV6416 is obsolete, and the replacement chip,
-AT49BV642D, does not power up locked. We'll be using AT49BV642D for new
-designs, but in order to support the AT32STK1000 development board, we
-need to install a fixup for AT49BV6416.
+I would expect fast gettimeofday to be more common than slow.
 
-Another issue is that Atmel uses a different PRI block than AMD. I can
-work around this by installing a CFI fixup that converts the Atmel PRI
-block to look like an AMD block.
-
-Alternatively, we could define a vendor-independent format with just
-the information we need and select different readers/parsers based on
-the JEDEC manufacturer ID. Do you know if there are other vendors using
-the AMD command set but a different PRI format?
-
-Haavard
+-Andi

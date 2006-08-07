@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWHGWpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWHGWxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWHGWpX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 18:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWHGWpX
+	id S932328AbWHGWxL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 18:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWHGWxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 18:45:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41905 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932313AbWHGWpW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 18:45:22 -0400
-Message-ID: <44D7C26F.1040609@sandeen.net>
-Date: Mon, 07 Aug 2006 17:45:03 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: dan@pwienterprises.com
-CC: linux-kernel@vger.kernel.org, bfennema@falcon.csc.calpoly.edu
-Subject: Re: [PATCH]: initialize parts of udf inode earlier in create
-References: <44D36E60.2020006@sandeen.net> <1154934860.6783.267775866@webmail.messagingengine.com>
-In-Reply-To: <1154934860.6783.267775866@webmail.messagingengine.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 18:53:11 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:36741 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S932328AbWHGWxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 18:53:10 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Date: Mon, 7 Aug 2006 22:52:59 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <eb8g8b$837$1@taverner.cs.berkeley.edu>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI> <20060807101745.61f21826.froese@gmx.de> <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com> <20060807224144.3bb64ac4.froese@gmx.de>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1154991179 8295 128.32.168.222 (7 Aug 2006 22:52:59 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Mon, 7 Aug 2006 22:52:59 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dan@pwienterprises.com wrote:
-> I ran into the same issue today, but when listing a directory with
-> invalid/corrupt entries:
+Edgar Toernig  wrote:
+>Your implementation is much cruder - it simply takes the fd
+>away from the app; any future use gives EBADF.  As a bonus,
+>it works for regular files and even goes as far as destroying
+>all mappings of the file from all processes (even root processes).
+>IMVHO this is a disaster from a security and reliability point
+>of view.
 
-...
+I'm still trying to understand the semantics of this proposed
+frevoke() implementation.  Can an attacker use this to forcibly
+close some other processes' file descriptor?  Suppose the target
+process has fd 0 open and the attacker revokes the file corresponding
+to fd 0; what is the state of fd 0 in the target process?  Is it
+closed?  If the target process then open()s another file, does it
+get bound to fd 0?  (Recall that open() always binds to the lowest
+unused fd.)  If the answers are "yes", then the security consequences
+seem very scary.
 
-> The following patch to udf_alloc_inode() should take care of both (and
-> other similar) cases, but I've only tested it with udf_lookup().
-> 
-> Dan
-> 
-> --
-> 
-> Signed-off-by: Dan Bastone <dan@pwienterprises.com>
-> 
-> --- linux-2.6.17.7/fs/udf/super.c.orig
-> +++ linux-2.6.17.7/fs/udf/super.c
-> @@ -116,6 +116,13 @@
->         ei = (struct udf_inode_info *)kmem_cache_alloc(udf_inode_cachep,
->         SLAB_KERNEL);
->         if (!ei)
->                 return NULL;
-> +
-> +       ei->i_unique = 0;
-> +       ei->i_lenExtents = 0;
-> +       ei->i_next_alloc_block = 0;
-> +       ei->i_next_alloc_goal = 0;
-> +       ei->i_strat4096 = 0;
-> +
->         return &ei->vfs_inode;
->  }
+For example, suppose that the attacker opens some file onto fd 2,
+forks and execs /bin/login (say), and revokes that fd while /bin/login
+is in the middle of executing.  Can this cause horrible catastrophes?
+Note that, to defend against stderr attacks, some setuid programs will
+forcibly open /dev/zero three times to make sure that fds 0, 1, and
+2 are open, so that opening some later file (e.g., /etc/passwd)
+doesn't inadvertently get attached to fd 2.  If some other process
+can forcibly close /bin/login's fd 2, then that's very bad.
 
-That looks fine to me, but I wonder if there's a cleaner way, rather 
-than sprinkling these initializations in the code.  If __udf_read_inode 
-fails, then it calls mark_bad_inode; maybe the code should check for 
-that before trying to discard prealloced blocks?  I don't really know 
-enough about all the UDF codepaths (by far!) to know for sure what the 
-best solution is, here.
+Can something like the following happen?
 
-I do notice that for example ext2_put_inode() checks for bad_inode 
-before calling ext2_discard_prealloc.  And it looks like the udf code 
-may have a little ext2 history in it :)
+    Attacker                /bin/login
+    --------                ----------
+    open("foo") -> 2
+    fork()
+    exec("/bin/login")
+                            open("/dev/zero") -> 3
+                            open("/dev/zero") -> 4
+                            open("/dev/zero") -> 5
+    frevoke(2)
+                            open("/etc/passwd") -> 2
+                            ...
+                            perror("wrong password")   # Corrupts /etc/passwd!
 
--Eric
 
-(hm, just realized that my original patch in this thread isn't strictly 
-necessary for the reasons I originally proposed; udf_clear_inode checks 
-for MS_RDONLY before discarding the prealloc, and my first UDF patch set 
-the MS_RDONLY flag on these read-only-marked filesystems... ah well)
+/* A hypothetical implementation of /bin/login: */
+int main() {
+    // Protect ourselves from stderr attacks
+    int ignore;
+    ignore = open("/dev/zero");
+    ignore = open("/dev/zero");
+    ignore = open("/dev/zero");
+
+    int pwfd;
+    pwfd = open("/etc/passwd", O_RDWR);
+    ...
+    if (!correctpassword(uname, pass)) {
+        perror("wrong password");
+        exit(1);
+    }
+    ...
+}

@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWHGQXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWHGQ1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWHGQXg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHGQXg
+	id S932175AbWHGQ1l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWHGQ1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:23:36 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:8205 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S932202AbWHGQXf convert rfc822-to-8bit (ORCPT
+	Mon, 7 Aug 2006 12:27:41 -0400
+Received: from mail.gmx.net ([213.165.64.20]:12237 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932175AbWHGQ1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:23:35 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 7 Aug 2006 12:27:41 -0400
+X-Authenticated: #5039886
+Date: Mon, 7 Aug 2006 18:27:43 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Pavel Machek <pavel@suse.cz>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Message-ID: <20060807162743.GA26224@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Shem Multinymous <multinymous@gmail.com>,
+	Pavel Machek <pavel@suse.cz>, Robert Love <rlove@rlove.org>,
+	Jean Delvare <khali@linux-fr.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	hdaps-devel@lists.sourceforge.net
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-Date: Mon, 7 Aug 2006 11:23:16 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0C87@USRV-EXCH4.na.uis.unisys.com>
-In-Reply-To: <200608071817.13318.ak@suse.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-Thread-Index: Aca6PPfRXsGrZ8xWTiq0S68dLxef1gAABV/g
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Aug 2006 16:23:17.0126 (UTC) FILETIME=[C9FDC260:01C6BA3D]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2006.08.07 18:13:06 +0300, Shem Multinymous wrote:
+> >> +     struct dmi_device *dev = NULL;
+> >
+> >unneeded initializer.
+> 
+> On a local variable?!
 
-> > 4k being a humble maximum is definitely a relative term 
-> here, but on 
-> > the system with "only" 64 or 128 processors the cpu*224 
-> would be much 
-> > higher
-> > :) However, maybe CONFIG_TINY that Andi suggested would 
-> leverage this 
-> > number also. What do you think, Eric?
-> 
-> Best would be something dynamic - kernels should be self 
-> tuning, not require that much CONFIG magic.
-> 
-> Just PCI hotplug gives me headaches with this.
-> 
-> Maybe we just need growable per CPU data.
-> 
-Yes, evaluating dynamically would be best... Should be ACPI job I
-suppose, including accounting of all possible hot plug controllers.
-Unisys boxes have plenty of them, I can look into possible scenarios.
+You assign a new value to it on the next line, without ever using its
+initial value.
 
---Natalie
+Björn

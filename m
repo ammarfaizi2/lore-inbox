@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWHGHYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWHGH1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWHGHYs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 03:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWHGHYs
+	id S1751127AbWHGH1b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 03:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWHGH1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 03:24:48 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:46715 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751125AbWHGHYr (ORCPT
+	Mon, 7 Aug 2006 03:27:31 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:19433 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751127AbWHGH1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 03:24:47 -0400
-Message-ID: <44D6EAFA.8080607@sw.ru>
-Date: Mon, 07 Aug 2006 11:25:46 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@mbligh.org>
-CC: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
-       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru> <44D388DF.8010406@mbligh.org>
-In-Reply-To: <44D388DF.8010406@mbligh.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Aug 2006 03:27:30 -0400
+Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>
+In-Reply-To: <200608070820.09059.ak@muc.de>
+References: <1154925835.21647.29.camel@localhost.localdomain>
+	 <200608070739.33428.ak@muc.de>
+	 <1154931222.7642.21.camel@localhost.localdomain>
+	 <200608070820.09059.ak@muc.de>
+Content-Type: text/plain
+Date: Mon, 07 Aug 2006 17:27:27 +1000
+Message-Id: <1154935648.7642.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OpenVZ assumes that tasks can't move between task-groups for a single 
->> reason:
->> user shouldn't be able to escape from the container.
->> But this have no implication on the design/implementation.
+On Mon, 2006-08-07 at 08:20 +0200, Andi Kleen wrote:
+> > > I think I would prefer to patch always. Is there a particular
+> > > reason you can't do that?
+> > 
+> > We could patch all the indirect calls into direct calls, but I don't
+> > think it's worth bothering: most simply don't matter.
 > 
-> 
-> It does, for the memory controller at least. Things like shared
-> anon_vma's between tasks across containers make it somewhat harder.
-> It's much worse if you allow threads to split across containers.
-we already have the code to account page fractions shared between containers.
-Though, it is quite useless to do so for threads... Since this numbers have no meaning (not a real usage)
-and only the sum of it will be a correct value.
+> I still think it would be better to patch always.
 
->> BTW, do you see any practical use cases for tasks jumping between 
->> resource-containers?
+Actually, I just figured out a neat way to do this without having to
+handle all the cases by hand.  I'll try it and get back to you...
+
+> > Each backend wants a different patch, so alternative() doesn't cut it.
+> > We could look at generalizing alternative() I guess, but it works fine
+> > so I didn't want to touch it.
 > 
-> 
+> You could at least use a common function (with the replacement passed
+> in as argument) for lock prefixes and your stuff
+
+I don't want to rule out patching based on location (reg lifetime etc),
+but there's definitely room for combining these two.  Good point.
+
+Thanks!
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

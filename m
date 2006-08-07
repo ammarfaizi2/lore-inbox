@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWHGV7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWHGWKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWHGV7x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWHGV7x
+	id S1751133AbWHGWKG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 18:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWHGWKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:59:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:29747 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751134AbWHGV7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:59:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PgFxbqKPYF6sgtDh01GnsGkbsp/SftvRbB2Us7/KS5g72ZFSJZfCep0LkU5m2OXXt6uW38l9Tanawl/WYgHbVWx8kYVPaybwDq/LxYqS4dqJxfKjcUbIZyYKZIzeFdAkhHuSycGLuNlOfMTLnTWGVbzxksp0CEr5xNANXOZggLU=
-Message-ID: <a762e240608071459x175eba48j953a202a8374e55@mail.gmail.com>
-Date: Mon, 7 Aug 2006 14:59:51 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Andy Whitcroft" <apw@shadowen.org>
-Subject: Re: [PATCH] x86_64 dirty fix to restore dual command line store
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Keen" <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <a762e240608071447n61c0c421qa923df6eea9f151d@mail.gmail.com>
+	Mon, 7 Aug 2006 18:10:05 -0400
+Received: from aa001msr.fastwebnet.it ([85.18.95.64]:63116 "EHLO
+	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751133AbWHGWKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 18:10:04 -0400
+Date: Tue, 8 Aug 2006 00:09:27 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       linux-pm@osdl.org
+Subject: Re: resume from S3 regression [Was: 2.6.18-rc3-mm2]
+Message-ID: <20060807220927.GA4946@inferi.kami.home>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060807193836.GA4007@inferi.kami.home> <20060807130208.94b58773.akpm@osdl.org> <20060807205708.GC4007@inferi.kami.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44D75691.8070908@shadowen.org>
-	 <20060807151216.GA15194@shadowen.org>
-	 <a762e240608071447n61c0c421qa923df6eea9f151d@mail.gmail.com>
+In-Reply-To: <20060807205708.GC4007@inferi.kami.home>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.18-rc3-mm2-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Keith Mannthey <kmannth@gmail.com> wrote:
-> On 8/7/06, Andy Whitcroft <apw@shadowen.org> wrote:
-> > x86_64 dirty fix to restore dual command line store
-> >
-> > Ok, It seems that the patch below effectivly removes the second
-> > copy of the command line.  This means that any modification to the
-> > 'working' command line (as returned from setup_arch) is incorrectly
-> > visible in userspace via /proc/cmdline.
->
-> Sorry for the side question but why is setup_arch adding things back
-> on the cmdline in the first place?  What do you see in /proc/cmdline?
+On Mon, Aug 07, 2006 at 10:57:08PM +0200, Mattia Dongili wrote:
+> On Mon, Aug 07, 2006 at 01:02:08PM -0700, Andrew Morton wrote:
+> > On Mon, 7 Aug 2006 21:38:36 +0200
+> > Mattia Dongili <malattia@linux.it> wrote:
+> > 
+> > > after resume from ram (tested in single user), I can type commands for a
+> > > few seconds (time is variable), the processes get stuck in io_schedule.
+> > > Poorman's screenshots are here:
+> > > http://oioio.altervista.org/linux/dsc03448.jpg
+> > > http://oioio.altervista.org/linux/dsc03449.jpg
+> > 
+> > That probably measn that the device or device driver has got itself into a
+> > sick state and IO completions aren't occurring. 
+> 
+> BTW: I tried to reverse ide-reprogram-disk-pio-timings-on-resume.patch
+> with no luck.
 
-Sorry for the ping.  I read some more lkml and the context for this
-patch was filled in.
+reverting git-block.patch (plus a couple more to make the thing build)
+let me resume correctly (2 cycles already).
 
-Thanks,
-  Keith
+Suggestion taken from the "swsusp regression" sub-thread.
+
+-- 
+mattia
+:wq!

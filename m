@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWHGVMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWHGVNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWHGVMT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWHGVLx
+	id S932389AbWHGVNv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWHGVLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:11:53 -0400
-Received: from xenotime.net ([66.160.160.81]:15067 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932381AbWHGVLM (ORCPT
+	Mon, 7 Aug 2006 17:11:46 -0400
+Received: from xenotime.net ([66.160.160.81]:14555 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932376AbWHGVLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Aug 2006 17:11:12 -0400
-Date: Mon, 7 Aug 2006 14:07:58 -0700
+Date: Mon, 7 Aug 2006 14:04:03 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, geert@linux-m68k.org,
-       zippel@linux-m68k.org, wli@holomorphy.com
-Subject: [PATCH 8/9] Replace __ARCH_HAS_NO_PAGE_ZERO_MAPPED with
- CONFIG_NO_PAGE_ZERO_MAPPED
-Message-Id: <20060807140758.aea1de6c.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, ralf@linux-mips.org
+Subject: [PATCH 6/9] Replace ARCH_HAS_SOCKET_TYPES with
+ CONFIG_ARCH_SOCKET_TYPES
+Message-Id: <20060807140403.b5b4c86e.rdunlap@xenotime.net>
 In-Reply-To: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 Organization: YPO4
@@ -29,102 +28,69 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Replace __ARCH_HAS_NO_PAGE_ZERO_MAPPED with CONFIG_NO_PAGE_ZERO_MAPPED.
+Replace ARCH_HAS_SOCKET_TYPES with CONFIG_ARCH_SOCKET_TYPES.
 Move it from header files to Kconfig space.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- arch/m68k/Kconfig      |    3 +++
- arch/sparc/Kconfig     |    3 +++
- drivers/char/mem.c     |    8 ++++----
- include/asm-m68k/io.h  |    2 --
- include/asm-sparc/io.h |    2 --
- 5 files changed, 10 insertions(+), 8 deletions(-)
+ arch/mips/Kconfig         |    3 +++
+ include/asm-mips/socket.h |    5 ++---
+ include/linux/net.h       |    4 ++--
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
---- linux-2618-rc4-arch.orig/drivers/char/mem.c
-+++ linux-2618-rc4-arch/drivers/char/mem.c
-@@ -115,7 +115,7 @@ static ssize_t read_mem(struct file * fi
- 	if (!valid_phys_addr_range(p, count))
- 		return -EFAULT;
- 	read = 0;
--#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
-+#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
- 	/* we don't have page 0 mapped on sparc and m68k.. */
- 	if (p < PAGE_SIZE) {
- 		sz = PAGE_SIZE - p;
-@@ -175,7 +175,7 @@ static ssize_t write_mem(struct file * f
+--- linux-2618-rc4-arch.orig/include/asm-mips/socket.h
++++ linux-2618-rc4-arch/include/asm-mips/socket.h
+@@ -77,7 +77,8 @@ To add: #define SO_REUSEPORT 0x0200	/* A
+  *
+  * Please notice that for binary compat reasons MIPS has to
+  * override the enum sock_type in include/linux/net.h, so
+- * we define ARCH_HAS_SOCKET_TYPES here.
++ * include/linux/net.h checks for ifdef CONFIG_ARCH_SOCKET_TYPES
++ * to see if these are already defined.
+  *
+  * @SOCK_DGRAM - datagram (conn.less) socket
+  * @SOCK_STREAM - stream (connection) socket
+@@ -99,8 +100,6 @@ enum sock_type {
  
- 	written = 0;
+ #define SOCK_MAX (SOCK_PACKET + 1)
  
--#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
-+#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
- 	/* we don't have page 0 mapped on sparc and m68k.. */
- 	if (p < PAGE_SIZE) {
- 		unsigned long sz = PAGE_SIZE - p;
-@@ -333,7 +333,7 @@ static ssize_t read_kmem(struct file *fi
- 		if (count > (unsigned long) high_memory - p)
- 			low_count = (unsigned long) high_memory - p;
- 
--#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
-+#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
- 		/* we don't have page 0 mapped on sparc and m68k.. */
- 		if (p < PAGE_SIZE && low_count > 0) {
- 			size_t tmp = PAGE_SIZE - p;
-@@ -411,7 +411,7 @@ do_write_kmem(void *p, unsigned long rea
- 	unsigned long copied;
- 
- 	written = 0;
--#ifdef __ARCH_HAS_NO_PAGE_ZERO_MAPPED
-+#ifdef CONFIG_NO_PAGE_ZERO_MAPPED
- 	/* we don't have page 0 mapped on sparc and m68k.. */
- 	if (realp < PAGE_SIZE) {
- 		unsigned long sz = PAGE_SIZE - realp;
---- linux-2618-rc4-arch.orig/include/asm-m68k/io.h
-+++ linux-2618-rc4-arch/include/asm-m68k/io.h
-@@ -360,8 +360,6 @@ extern void dma_cache_inv(unsigned long 
- 
+-#define ARCH_HAS_SOCKET_TYPES 1
+-
  #endif /* __KERNEL__ */
  
--#define __ARCH_HAS_NO_PAGE_ZERO_MAPPED		1
--
- /*
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
-  * access
---- linux-2618-rc4-arch.orig/include/asm-sparc/io.h
-+++ linux-2618-rc4-arch/include/asm-sparc/io.h
-@@ -290,8 +290,6 @@ extern void sbus_iounmap(volatile void _
+ #endif /* _ASM_SOCKET_H */
+--- linux-2618-rc4-arch.orig/include/linux/net.h
++++ linux-2618-rc4-arch/include/linux/net.h
+@@ -63,7 +63,7 @@ typedef enum {
+ #define SOCK_PASSCRED		3
+ #define SOCK_PASSSEC		4
  
- #endif
+-#ifndef ARCH_HAS_SOCKET_TYPES
++#ifndef CONFIG_ARCH_SOCKET_TYPES
+ /**
+  * enum sock_type - Socket types
+  * @SOCK_STREAM: stream (connection) socket
+@@ -91,7 +91,7 @@ enum sock_type {
  
--#define __ARCH_HAS_NO_PAGE_ZERO_MAPPED		1
--
- /*
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
-  * access
---- linux-2618-rc4-arch.orig/arch/m68k/Kconfig
-+++ linux-2618-rc4-arch/arch/m68k/Kconfig
-@@ -366,6 +366,9 @@ config 060_WRITETHROUGH
- 	  is hardwired on.  The 53c710 SCSI driver is known to suffer from
- 	  this problem.
+ #define SOCK_MAX (SOCK_PACKET + 1)
  
-+config NO_PAGE_ZERO_MAPPED
+-#endif /* ARCH_HAS_SOCKET_TYPES */
++#endif /* CONFIG_ARCH_SOCKET_TYPES */
+ 
+ /**
+  *  struct socket - general BSD socket
+--- linux-2618-rc4-arch.orig/arch/mips/Kconfig
++++ linux-2618-rc4-arch/arch/mips/Kconfig
+@@ -915,6 +915,9 @@ config MIPS_NILE4
+ config MIPS_DISABLE_OBSOLETE_IDE
+ 	bool
+ 
++config ARCH_SOCKET_TYPES
 +	def_bool y
 +
- source "mm/Kconfig"
- 
- endmenu
---- linux-2618-rc4-arch.orig/arch/sparc/Kconfig
-+++ linux-2618-rc4-arch/arch/sparc/Kconfig
-@@ -229,6 +229,9 @@ config SUNOS_EMUL
- 
- source "mm/Kconfig"
- 
-+config NO_PAGE_ZERO_MAPPED
-+	def_bool y
-+
- endmenu
- 
- source "net/Kconfig"
+ #
+ # Endianess selection.  Suffiently obscure so many users don't know what to
+ # answer,so we try hard to limit the available choices.  Also the use of a
 
 
 ---

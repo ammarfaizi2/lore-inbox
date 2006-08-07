@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWHGBUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWHGB0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWHGBUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 21:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWHGBUt
+	id S1750876AbWHGB0k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 21:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWHGB0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 21:20:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:12646 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750867AbWHGBUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 21:20:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UuHSAuVDE+yU/TN6aoAta/7XQ4bAE0iZbZWD+eFn7dZ/CM775WoXGLrZnzNmhDcnxSKmi6YT0tf0H4/nHD8+0C8twlb4R3ed3emtwft1FLzakCYCJac3k0pb1K+PU4N4RyUsniCWHOx/J7lPKFpMvtFPthtMAsmHOwu108bM6OE=
-Message-ID: <abcd72470608061820r4c313ebbw80e7cab98d5d2299@mail.gmail.com>
-Date: Sun, 6 Aug 2006 18:20:47 -0700
-From: "Avinash Ramanath" <avinashr@gmail.com>
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Stat in kernel space
-In-Reply-To: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Aug 2006 21:26:40 -0400
+Received: from colin.muc.de ([193.149.48.1]:64777 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750875AbWHGB0k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 21:26:40 -0400
+Date: 7 Aug 2006 03:26:38 +0200
+Date: Mon, 7 Aug 2006 03:26:38 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>, davej@redhat.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Jan Beulich <jbeulich@novell.com>
+Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at /usr/src/linux-git/kernel/cpu.c:51/unlock_cpu_hotplug()
+Message-ID: <20060807012638.GA42404@muc.de>
+References: <6bffcb0e0608041204u4dad7cd6rab0abc3eca6747c0@mail.gmail.com> <Pine.LNX.4.64.0608041222400.5167@g5.osdl.org> <20060804222400.GC18792@redhat.com> <20060805003142.GH18792@redhat.com> <20060805021051.GA13393@redhat.com> <20060805022356.GC13393@redhat.com> <20060805024947.GE13393@redhat.com> <20060805064727.GF13393@redhat.com> <6bffcb0e0608060959m164436baj9c4c602496e87f5d@mail.gmail.com> <20060806123243.826105fc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <abcd72470608061746o2810f895n9f9979f99c00d273@mail.gmail.com>
+In-Reply-To: <20060806123243.826105fc.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wanted to know the file-size using stat.
+> >  [<c0171577>] vfs_write+0xcd/0x179
+> >  [<c0171c20>] sys_write+0x3b/0x71
+> >  [<c010318d>] sysenter_past_esp+0x56/0x8d
+> This "unwinder stuck" thing seems to be very common.
 
-On 8/6/06, Avinash Ramanath <avinashr@gmail.com> wrote:
-> Could somebody let me know which function equivalent/header file is
-> available in kernel space for "stat"ing?
-> I want an equivalent of stat/lstat/fstat in kernel space.
->
-> Thanks,
-> Avinash.
->
+Yes, there are still a lot of bugs in the unwind annotation
+unfortunately.
+
+We're also slowly discovering that some things we do cannot
+even be expressed in CFI, so some code has to change.
+
+> 
+> It's a false-positive in this case - the backtrace was complete.  It would
+> be good if we could make the did-we-get-stuck detector a bit smarter.  Even
+> special-casing "sysenter_past_esp" would stop a lot of this..
+
+Actually it's not completely false in this case -- it should
+have reached user mode and stopped there, but for some reason
+I didn't and already stopped still in the kernel.
+
+Most likely the CFI annotation for that sysenter path is not complete.
+
+It's on my todo list to investigate but I still hope Jan does it first ;-)
+
+-Andi
+
+

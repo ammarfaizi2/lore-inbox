@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWHGTDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWHGTEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbWHGTDb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWHGTDb
+	id S932315AbWHGTEl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWHGTEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:03:31 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:30312 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932210AbWHGTDa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:03:30 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=GU4yv6LrmJoje5vOkQf50aTcun62/tuRcXNl9/JIZ93JHyMKakQHXuq5GlkUyS6zs
-	mIELDnzU/CkwRsfSmavTA==
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A
-	cpu controller
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
-       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, pj@sgi.com, Andrey Savochkin <saw@sw.ru>
-In-Reply-To: <1154976236.19249.9.camel@localhost.localdomain>
-References: <20060804050753.GD27194@in.ibm.com>
-	 <20060803223650.423f2e6a.akpm@osdl.org>
-	 <20060803224253.49068b98.akpm@osdl.org>
-	 <1154684950.23655.178.camel@localhost.localdomain>
-	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>
-	 <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>
-	 <44D74F77.7080000@mbligh.org>  <44D76B43.5080507@sw.ru>
-	 <1154975486.31962.40.camel@galaxy.corp.google.com>
-	 <1154976236.19249.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Mon, 07 Aug 2006 12:00:57 -0700
-Message-Id: <1154977257.31962.57.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Mon, 7 Aug 2006 15:04:40 -0400
+Received: from wx-out-0506.google.com ([66.249.82.226]:54839 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932315AbWHGTEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:04:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VzPkcBHwxKXelA4T4Tw6uAsksw7O4Ooz+hlnee+ivZ3oi3RDVxCLRJoaYkXw+ULkjkWTvk9BY9Ykma5HO6m+Ngsrd0lUCOzLsZpylRxOBZujj8nN+EOz8UdJRwHQUOCqLGj5XqahT9/c3x+Mlbrw+iD3HcZEs4iHEQ6trrVV9NA=
+Message-ID: <d120d5000608071204r5870424dmae61033421ef74fd@mail.gmail.com>
+Date: Mon, 7 Aug 2006 15:04:36 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Crash on evdev disconnect.
+In-Reply-To: <20060807181043.GA5476@aehallh.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060807155916.GE5472@aehallh.com>
+	 <d120d5000608071035k2ec5b4ffu949a99ad4a8c3d66@mail.gmail.com>
+	 <20060807181043.GA5476@aehallh.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 11:43 -0700, Dave Hansen wrote:
-> On Mon, 2006-08-07 at 11:31 -0700, Rohit Seth wrote:
-> > I think it is not a problem for OpenVZ because there is not that much
-> > of
-> > sharing going between containers as you mentioned (btw, this least
-> > amount of sharing is a very good thing).  Though I'm not sure if one
-> > has
-> > to go to the extent of doing fractions with memory accounting.  If the
-> > containers are set up in such a way that there is some sharing across
-> > containers then it is okay to be unfair and charge one of those
-> > containers for the specific resource completely. 
-> 
-> Right, and if you do reclaim against containers which are over their
-> limits, the containers being unfairly charged will tend to get hit
-> first.  But, once this happens, I would hope that the ownership of those
-> shared pages should settle out among all of the users.
-> 
+On 8/7/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> On Mon, Aug 07, 2006 at 01:35:50PM -0400, Dmitry Torokhov wrote:
+> > Hi,
+> >
+> > On 8/7/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> > >       if (evdev->open) {
+> > >               input_close_device(handle);
+> > >               wake_up_interruptible(&evdev->wait);
+> > >-               list_for_each_entry(list, &evdev->list, node)
+> > >+               list_for_each_entry_safe(list, next, &evdev->list, node)
+> > >                       kill_fasync(&list->fasync, SIGIO, POLL_HUP);
+> >
+> > NAK. kill_fasync does not affect the list state so using _safe does
+> > not buy us anything.
+>
+> Sorry, but you're wrong.
+>
+> Immediately before the kill_fasync call list->node.next is a valid
+> pointer, immediately afterwords it is 0x100100, which happens to be
+> list_poison.  kill_fasync is triggering a close somehow, evdev_close
+> deletes that element of the list, which poisons the next value, which
+> can make us crash and burn.
+>
+> I have a 100% reproducible crash case, which is fixed by the change.
+>
+> If kill_fasync shouldn't be making it close that's another issue, but at
+> the moment it is and this is a fairly non-invasive change which fixes
+> it.
+>
 
-I think there is lot of simplicity and value add by charging one
-container (even unfairly) for one resource completely.  This puts the
-onus on system admin to set up the containers appropriately.
+Unfortunately it does not really fix the problem, it just papers over
+the issue. The crash will still happen if for some reason
+evdev_release runs at a bad moment.
 
-> If you have 100 containers sharing 100 pages, container0 might be
-> charged for all 100 pages at first, but I'd hope that eventually
-> containers 0->99 would each get charged for a single page. 
-> 
+> > BTW, dtor_core@ameritech.net address is dead, please use
+> > dmitry.torokhov@gmail.com or dtor@mail.ru or dtor@isightbb.com.
+>
+> Noted, recommend updating the entry in MAINTAINERS. :)
+>
 
-You would be better off having a notion of "shared" container where
-these kind of resources get charged. So, if 100 processes are all
-touching pages from some common file then the file could be part of
-self-contained container with its own limits etc. 
+Already done ;)
 
--rohit
-
+-- 
+Dmitry

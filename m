@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWHGSmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWHGSn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWHGSmU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 14:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWHGSmU
+	id S932304AbWHGSn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWHGSn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 14:42:20 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:21895 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932301AbWHGSmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 14:42:20 -0400
-Subject: 2.6.18-rc4 jffs2 problems
-From: Richard Purdie <rpurdie@rpsys.net>
-To: linux-mtd <linux-mtd@lists.infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 07 Aug 2006 19:41:50 +0100
-Message-Id: <1154976111.17725.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 14:43:29 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:14736 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932304AbWHGSn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 14:43:29 -0400
+Message-ID: <44D789BA.4010206@t-online.de>
+Date: Mon, 07 Aug 2006 20:43:06 +0200
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davidsen@tmr.com
+Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
+References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com> <20060805212346.GE5417@ucw.cz> <44D6AE59.6070709@gmail.com>
+In-Reply-To: <44D6AE59.6070709@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6D9B6E6155FAFF90F1D40624"
+X-ID: SOl41ZZ-ZeNAnX0EJ1eMumGjB5BGP0AhCd+os6549DPYvA4Q8+pLc8
+X-TOI-MSGID: 7e560e63-2fe2-49f1-a258-9e49ba6e3b7c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I previous reported problems with jffs2 on the Zaurus. I tested
-2.6.18-rc4 and nothing has changed - I see the following when booting,
-both with filesystems that work with 2.6.17 and freshly reflashed
-systems:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6D9B6E6155FAFF90F1D40624
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Linux version 2.6.18-rc4-.dev-snapshot-20060807 (richard@tim) (gcc version 3.4.3) #1 PREEMPT Mon Aug 7 17:47:07 BST 2006
-CPU: XScale-PXA250 [69052904] revision 4 (ARMv5TE), cr=0000397f
-Machine: SHARP Poodle
-[...]
-Sharp SL series flash device: 800000 at 0
-Using static partision definition
-Creating 1 MTD partitions on "sharpsl-flash":
-0x00120000-0x007f0000 : "Boot PROM Filesystem"
-NAND device: Manufacturer ID: 0x98, Chip ID: 0x76 (Toshiba NAND 64MiB 3,3V 8-bit)
-Scanning device for bad blocks
-Creating 3 MTD partitions on "sharpsl-nand":
-0x00000000-0x00700000 : "System Area"
-0x00700000-0x01d00000 : "Root Filesystem"
-0x01d00000-0x04000000 : "Home Filesystem"
-[...]
-Empty flash at 0x0054bc5c ends at 0x0054be00
-VFS: Mounted root (jffs2 filesystem) readonly.
-Freeing init memory: 100K
-JFFS2 error: (472) jffs2_get_inode_nodes: short read at 0x074e84: 68 instead of 380.
-JFFS2 error: (472) jffs2_do_read_inode_internal: cannot read nodes for ino 153, returned error is -5
+Tejun Heo wrote:
+> Pavel Machek wrote:
+>>> echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
+>>
+>> Really? I thought power/state takes 0/3 (for D0 and D3)
+>=20
+> Yes, of course.  My mistake.  Sorry about the confusion.  The correct
+> command is 'echo -n 3 > /sys/bus/scsi/devices/x:y:z:w/power/state'.
+>=20
 
-The empty flash warning is probably due to a slightly corrupted image
-due to a reboot. The last two messages appear on freshly flashed images
-on both this and other Zaurus devices (all using nand/sharpsl.c).
+(Sure?  :-)
 
-Experience shows I can lock the device up with filesystem corruption if
-I use the device :-(.
+Now this did not work at all. The '-n 3' was probably
+correct, but when I tried to access the disk, then it
+did not spin up again (I waited for 5 minutes). There
+was no message on the console, either.
 
-Does anyone know what the problem is or have an idea of where I should
-start debugging this?
+But I could not reproduce this problem.
 
-Regards,
+How do I monitor that the disk spins down and up?
 
-Richard
 
+Regards
+
+Harri
+
+
+
+--------------enig6D9B6E6155FAFF90F1D40624
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFE14m6UTlbRTxpHjcRAqQCAJ0eIjv23eUfUIGXjVeDKna8DrDrqACfQujX
+xMZ6bpN4amkkf5uMaOTWVzw=
+=HohH
+-----END PGP SIGNATURE-----
+
+--------------enig6D9B6E6155FAFF90F1D40624--

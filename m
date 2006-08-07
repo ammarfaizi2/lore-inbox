@@ -1,34 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWHGOeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWHGOej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWHGOeN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 10:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWHGOeM
+	id S1751139AbWHGOej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 10:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWHGOej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 10:34:12 -0400
-Received: from dsl-201-153-40-9.prod-infinitum.com.mx ([201.153.40.9]:41225
-	"EHLO QVUPDU8AK089XH5.ioznixx.com") by vger.kernel.org with ESMTP
-	id S1750967AbWHGOeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 10:34:11 -0400
-Message-ID: <99534786914371.860277EBDC@EZ4RRV>
-From: "Doyle" <codicilaloof@geologist.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Revel in  Put aside any doubts and stuff, this terrific product for smart males really does what you need!
-Date: Mon, 7 Aug 2006 08:34:32 -0600
+	Mon, 7 Aug 2006 10:34:39 -0400
+Received: from dvhart.com ([64.146.134.43]:25539 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932116AbWHGOeh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 10:34:37 -0400
+Message-ID: <44D74F77.7080000@mbligh.org>
+Date: Mon, 07 Aug 2006 07:34:31 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: QIIv6RY5NvgUCD2WaO0uYRfLpPZ3Kk1KswRe
-Content-Type: text/plain;
-        charset="Windows-1252"
+To: Kirill Korotaev <dev@sw.ru>
+Cc: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
+ controller
+References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru> <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>
+In-Reply-To: <44D6EAFA.8080607@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent stuff
+Kirill Korotaev wrote:
 
- Concerned with your size and hardness? Study this, here's the answer! Our product gives you noticeable increases in month or even weeks.
- Increase your male value in bed and beyond it - add a few more inches and be happy! You'll be dazzled to last for hours and hours with your new stronger, longer bed tool. You may find what you need here: http://www.eponertdom.com/gal/ms/ 
-Take control over your male body image. This delivers amazing results and makes your dearest limb bigger and better-working!
+>>> OpenVZ assumes that tasks can't move between task-groups for a 
+>>> single reason:
+>>> user shouldn't be able to escape from the container.
+>>> But this have no implication on the design/implementation.
+>>
+>>
+>>
+>> It does, for the memory controller at least. Things like shared
+>> anon_vma's between tasks across containers make it somewhat harder.
+>> It's much worse if you allow threads to split across containers.
+>
+> we already have the code to account page fractions shared between 
+> containers.
+> Though, it is quite useless to do so for threads... Since this numbers 
+> have no meaning (not a real usage)
+> and only the sum of it will be a correct value.
+>
+THat sort of accounting poses various horrible problems, which is
+why we steered away from it. If you share pages between containers
+(presumably billing them equal shares per user), what happens
+when you're already at your limit, and one of your sharer's exits?
 
- There is an exception to every rule Where the carcass is, there shall the eagles be gathered together  It takes two to make a quarrel Wonders will never cease Discretion is the better part of valour
+Plus, are you billing by vma or address_space?
+
+M.
+
 

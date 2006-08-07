@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWHGCU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWHGC2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWHGCU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 22:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWHGCU4
+	id S1750892AbWHGC2K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 22:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWHGC2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 22:20:56 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:42506 "EHLO
-	asav14.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1750900AbWHGCUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 22:20:55 -0400
+	Sun, 6 Aug 2006 22:28:10 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:31564 "EHLO
+	asav07.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1750892AbWHGC2J convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 22:28:09 -0400
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HAMg+1kSBUQ
+X-IronPort-Anti-Spam-Result: Aa4HADpB1kSBUQ
 From: Dmitry Torokhov <dtor@insightbb.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.18-rc3-mm2
-Date: Sun, 6 Aug 2006 22:20:54 -0400
+To: Marek =?utf-8?q?Va=C5=A1ut?= <marek.vasut@gmail.com>
+Subject: Re: [PATCH] Stowaway 2.6.17.1
+Date: Sun, 6 Aug 2006 22:28:07 -0400
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <200608070042.10485.rjw@sisk.pl> <200608062218.58425.dtor@insightbb.com>
-In-Reply-To: <200608062218.58425.dtor@insightbb.com>
+Cc: linux-kernel@vger.kernel.org
+References: <200608052152.05840.marek.vasut@gmail.com>
+In-Reply-To: <200608052152.05840.marek.vasut@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200608062220.54549.dtor@insightbb.com>
+Message-Id: <200608062228.07964.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 August 2006 22:18, Dmitry Torokhov wrote:
-> On Sunday 06 August 2006 18:42, Rafael J. Wysocki wrote:
-> > On Sunday 06 August 2006 12:08, Andrew Morton wrote:
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
-> > 
-> > My box's (Asus L5D, x86_64) keyboard doesn't work on this kernel at all, even
-> > if I boot with init=/bin/bash.  On the 2.6.18-rc2-mm1 it worked.
-> > 
-> > Unfortunately I have no indication what can be wrong, no oopses, no error
-> > messages in dmesg, nothing.
-> > 
-> > Right now I'm doing a binary search for the offending patch.
-> > 
-> 
-> Can I please have dmesg with i8042.debug=1?
-> 
+On Saturday 05 August 2006 15:52, Marek Vašut wrote:
+> Hi,
+> this patch adds support for stowaway and stowaway compatible (eg. dicota 
+> inutPDA) serial keyboards. I made it on kernel 2.6.16, but it applies cleanly 
+> on 2.6.17.1 too. I tested it on palm zire71 and friend reported me that it 
+> works on palm tungsten T3.
+>
 
-Btw, does 2.6.18-rc4 work?
+Hi,
+
+Looks pretty good, I have a question though:
+
+> +       if (data < 0x80) {
+> +       /* invalid scan codes are probably the init sequence, so we ignore them */
+> +           if (skbd->keycode[data & SKBD_KEY]) { 
+> +                   input_regs(skbd->dev, regs);
+> +                   input_report_key(skbd->dev, skbd->keycode[data & SKBD_KEY], 1);
+> +                   input_sync(skbd->dev); 
+> +           }
+> +           else if (data == 0xe7) /* end of init sequence */
+> +                   printk(KERN_INFO "input: %s on %s\n", skbd->dev->name, serio->phys);
+
+How does "init sequence" gets here? Normally inputattach initializes
+hardware and then creates proper serio port...
+ 
+> +       err = serio_open(serio, drv);
+> +       if (err)
+> +               goto fail;
+> +
+> +       input_register_device(skbd->dev);
+> +       return 0;
+
+You need to handle errors from input_register_device() too.
 
 -- 
 Dmitry

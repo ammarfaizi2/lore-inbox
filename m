@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWHGPtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWHGPuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWHGPtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWHGPtp
+	id S932174AbWHGPuM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWHGPuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:49:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8975 "HELO
+	Mon, 7 Aug 2006 11:50:10 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11535 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932186AbWHGPto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:49:44 -0400
-Date: Mon, 7 Aug 2006 17:49:42 +0200
+	id S932174AbWHGPuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:50:07 -0400
+Date: Mon, 7 Aug 2006 17:50:05 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: [-mm patch] make arch/i386/kernel/apic.c:enable_local_apic static
-Message-ID: <20060807154942.GD3691@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Jordan Crouse <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] drivers/crypto/geode-aes.c: cleanups
+Message-ID: <20060807155004.GF3691@stusta.de>
 References: <20060806030809.2cfb0b1e.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,59 +24,62 @@ User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-enable_local_apic can now become static.
+This patch contains the following cleanups:
+- make needlessly global code static
+- use C99 struct initializers
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- arch/i386/kernel/apic.c |   13 ++++++++++++-
- include/asm-i386/apic.h |   12 ------------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+The {cia,geode_aes}_{setkey,encrypt,decryt} prototype confusion both 
+sparse and gcc are giveng warnings about should also be fixed.
 
---- linux-2.6.18-rc3-mm2-full/include/asm-i386/apic.h.old	2006-08-07 16:10:45.000000000 +0200
-+++ linux-2.6.18-rc3-mm2-full/include/asm-i386/apic.h	2006-08-07 16:12:37.000000000 +0200
-@@ -16,20 +16,8 @@
- #define APIC_VERBOSE 1
- #define APIC_DEBUG   2
- 
--extern int enable_local_apic;
- extern int apic_verbosity;
- 
--static inline void lapic_disable(void)
--{
--	enable_local_apic = -1;
--	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
--}
--
--static inline void lapic_enable(void)
--{
--	enable_local_apic = 1;
--}
--
- /*
-  * Define the default level of output to be very little
-  * This can be turned up by using apic=verbose for more
---- linux-2.6.18-rc3-mm2-full/arch/i386/kernel/apic.c.old	2006-08-07 16:11:08.000000000 +0200
-+++ linux-2.6.18-rc3-mm2-full/arch/i386/kernel/apic.c	2006-08-07 16:12:57.000000000 +0200
-@@ -52,7 +52,18 @@
- /*
-  * Knob to control our willingness to enable the local APIC.
-  */
--int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
-+static int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
-+
-+static inline void lapic_disable(void)
-+{
-+	enable_local_apic = -1;
-+	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-+}
-+
-+static inline void lapic_enable(void)
-+{
-+	enable_local_apic = 1;
-+}
- 
- /*
-  * Debug level
+ drivers/crypto/geode-aes.c |   12 ++++++------
+ drivers/crypto/geode-aes.h |    2 --
+ 2 files changed, 6 insertions(+), 8 deletions(-)
 
+--- linux-2.6.18-rc3-mm2-full/drivers/crypto/geode-aes.h.old	2006-08-07 16:23:25.000000000 +0200
++++ linux-2.6.18-rc3-mm2-full/drivers/crypto/geode-aes.h	2006-08-07 16:23:51.000000000 +0200
+@@ -37,6 +37,4 @@
+   u8 iv[AES_IV_LENGTH];
+ };
+ 
+-unsigned int geode_aes_crypt(struct geode_aes_op *);
+-
+ #endif
+--- linux-2.6.18-rc3-mm2-full/drivers/crypto/geode-aes.c.old	2006-08-07 16:24:03.000000000 +0200
++++ linux-2.6.18-rc3-mm2-full/drivers/crypto/geode-aes.c	2006-08-07 16:50:41.000000000 +0200
+@@ -114,7 +114,7 @@
+ 	AWRITE((status & 0xFF) | AES_INTRA_PENDING, AES_INTR_REG);
+ }
+ 
+-unsigned int
++static unsigned int
+ geode_aes_crypt(struct geode_aes_op *op)
+ {
+ 	u32 flags = 0;
+@@ -361,7 +361,7 @@
+ 	return ret;
+ }
+ 
+-struct pci_device_id geode_aes_tbl[] = {
++static struct pci_device_id geode_aes_tbl[] = {
+ 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LX_AES, PCI_ANY_ID, PCI_ANY_ID} ,
+ 	{ 0, }
+ };
+@@ -369,10 +369,10 @@
+ MODULE_DEVICE_TABLE(pci, geode_aes_tbl);
+ 
+ static struct pci_driver geode_aes_driver = {
+-	name:      "Geode LX AES",
+-	id_table:  geode_aes_tbl,
+-	probe:     geode_aes_probe,
+-	remove:    __devexit_p(geode_aes_remove)
++	.name		= "Geode LX AES",
++	.id_table	= geode_aes_tbl,
++	.probe		= geode_aes_probe,
++	.remove		= __devexit_p(geode_aes_remove)
+ };
+ 
+ static int __devinit

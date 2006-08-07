@@ -1,76 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWHGTEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWHGTEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWHGTEl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWHGTEk
+	id S932307AbWHGTEg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:04:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWHGTEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:04:40 -0400
-Received: from wx-out-0506.google.com ([66.249.82.226]:54839 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932315AbWHGTEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:04:39 -0400
+	Mon, 7 Aug 2006 15:04:35 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:37666 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932307AbWHGTEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:04:35 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VzPkcBHwxKXelA4T4Tw6uAsksw7O4Ooz+hlnee+ivZ3oi3RDVxCLRJoaYkXw+ULkjkWTvk9BY9Ykma5HO6m+Ngsrd0lUCOzLsZpylRxOBZujj8nN+EOz8UdJRwHQUOCqLGj5XqahT9/c3x+Mlbrw+iD3HcZEs4iHEQ6trrVV9NA=
-Message-ID: <d120d5000608071204r5870424dmae61033421ef74fd@mail.gmail.com>
-Date: Mon, 7 Aug 2006 15:04:36 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Crash on evdev disconnect.
-In-Reply-To: <20060807181043.GA5476@aehallh.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=hEaFrNTr9uSCoE5BmISKYudmv/ZNCcma21FdSIFv6slnTv80G8t5rWOJChypchbxK0uAjsKv+Gsnzm4LYhlQ0t960vO1X2MceJPuacwEEHPNVfYTv2z4iB/pELXv2Cqj/WXY75pfUyVtxzOsuWJ44rhW9WXrMnHgXHuaWMF+qfc=
+Message-ID: <cc862f80608071204y5b7b55a9n618dde95eb0c5b4@mail.gmail.com>
+Date: Mon, 7 Aug 2006 15:04:34 -0400
+From: "Tien ChenLi" <cltien@gmail.com>
+To: "Willy Tarreau" <w@1wt.eu>
+Subject: Re: [PATCH]pktgen oops when used with balance-tlb bonding
+Cc: linux-kernel@vger.kernel.org, "David Miller" <davem@davemloft.net>
+In-Reply-To: <20060802203854.GA462@1wt.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060807155916.GE5472@aehallh.com>
-	 <d120d5000608071035k2ec5b4ffu949a99ad4a8c3d66@mail.gmail.com>
-	 <20060807181043.GA5476@aehallh.com>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_12796_30231125.1154977474369"
+References: <cc862f80607221611x52efac88u620516e17edfa03b@mail.gmail.com>
+	 <20060802203854.GA462@1wt.eu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> On Mon, Aug 07, 2006 at 01:35:50PM -0400, Dmitry Torokhov wrote:
-> > Hi,
+------=_Part_12796_30231125.1154977474369
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Indeed the skb->mac.raw is already set just several lines up. Now only
+two lines are needed:
+
+Signed-off-by: Chen-Li Tien <cltien@gmail.com>
+
+--- linux-2.6.17.6/net/core/pktgen.c.orig       2006-07-15
+15:00:43.000000000 -0400
++++ linux-2.6.17.6/net/core/pktgen.c    2006-08-07 14:50:09.000000000 -0400
+@@ -2149,6 +2149,8 @@ static struct sk_buff *fill_packet_ipv4(
+        skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
+        skb->dev = odev;
+        skb->pkt_type = PACKET_HOST;
++       skb->nh.iph = iph;
++       skb->h.uh = udph;
+
+        if (pkt_dev->nfrags <= 0)
+                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
+
+Since google mail extand tab into spaces and I cannot change them back
+to tab, I attached the patch file itself so please use it instead.
+
+Sincerely,
+Chen-Li Tien
+
+On 02/08/06, Willy Tarreau <w@1wt.eu> wrote:
+> On Sat, Jul 22, 2006 at 07:11:21PM -0400, Tien ChenLi wrote:
+> > I fixed a bug in pktgen so it won't cause oops when used with
+> > balance-tlb or balance-alb bonding driver:
 > >
-> > On 8/7/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> > >       if (evdev->open) {
-> > >               input_close_device(handle);
-> > >               wake_up_interruptible(&evdev->wait);
-> > >-               list_for_each_entry(list, &evdev->list, node)
-> > >+               list_for_each_entry_safe(list, next, &evdev->list, node)
-> > >                       kill_fasync(&list->fasync, SIGIO, POLL_HUP);
+> > --- linux-2.6.17.4/net/core/pktgen.c.orig       2006-07-06
+> > 16:02:28.000000000 -0
+> > 400
+> > +++ linux-2.6.17.4/net/core/pktgen.c    2006-07-10 16:40:47.000000000 -0400
+> > @@ -2149,6 +2149,9 @@
+> >        skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
+> >        skb->dev = odev;
+> >        skb->pkt_type = PACKET_HOST;
+> > +       skb->mac.raw = eth;
+>           ^^^^^^^^^^^^
+> Are you sure about this ? I don't understand why you change skb->mac.raw
+> here while it's still assigned 3 lines above. Either of those is unneeded
+> and/or erroneous.
+>
+> > +       skb->nh.iph = iph;
+> > +       skb->h.uh = udph;
 > >
-> > NAK. kill_fasync does not affect the list state so using _safe does
-> > not buy us anything.
+> >        if (pkt_dev->nfrags <= 0)
+> >                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
+> >
+> > The root cause is that the bond_alb_xmit in bonding will peek the
+> > destination address in packet via the skb->nh.iph pointer, generally
+> > this will be filled by upper layer network driver, but the packet
+> > generated by pktgen will be sent to device driver so it will need to
+> > set this pointer correctly. The other two pointers are not necessary
+> > for now, they are set to avoid similar problem.
 >
-> Sorry, but you're wrong.
+> Fine. Please confirm your intention about mac.raw above, and as David
+> said, please sign-off the patch and check your mailer for unexpected
+> tabs/spaces conversions.
 >
-> Immediately before the kill_fasync call list->node.next is a valid
-> pointer, immediately afterwords it is 0x100100, which happens to be
-> list_poison.  kill_fasync is triggering a close somehow, evdev_close
-> deletes that element of the list, which poisons the next value, which
-> can make us crash and burn.
+> > Chen-Li Tien
 >
-> I have a 100% reproducible crash case, which is fixed by the change.
+> Thanks in advance,
+> Willy
 >
-> If kill_fasync shouldn't be making it close that's another issue, but at
-> the moment it is and this is a fairly non-invasive change which fixes
-> it.
->
-
-Unfortunately it does not really fix the problem, it just papers over
-the issue. The crash will still happen if for some reason
-evdev_release runs at a bad moment.
-
-> > BTW, dtor_core@ameritech.net address is dead, please use
-> > dmitry.torokhov@gmail.com or dtor@mail.ru or dtor@isightbb.com.
->
-> Noted, recommend updating the entry in MAINTAINERS. :)
 >
 
-Already done ;)
+------=_Part_12796_30231125.1154977474369
+Content-Type: text/x-patch; name=pktgen.c.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eql7ku5b
+Content-Disposition: attachment; filename="pktgen.c.patch"
 
--- 
-Dmitry
+LS0tIGxpbnV4LTIuNi4xNy42L25ldC9jb3JlL3BrdGdlbi5jLm9yaWcJMjAwNi0wNy0xNSAxNTow
+MDo0My4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LTIuNi4xNy42L25ldC9jb3JlL3BrdGdlbi5j
+CTIwMDYtMDgtMDcgMTQ6NTA6MDkuMDAwMDAwMDAwIC0wNDAwCkBAIC0yMTQ5LDYgKzIxNDksOCBA
+QCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKmZpbGxfcGFja2V0X2lwdjQoCiAJc2tiLT5tYWMucmF3
+ID0gKCh1OCAqKSBpcGgpIC0gMTQgLSBwa3RfZGV2LT5ucl9sYWJlbHMqc2l6ZW9mKHUzMik7CiAJ
+c2tiLT5kZXYgPSBvZGV2OwogCXNrYi0+cGt0X3R5cGUgPSBQQUNLRVRfSE9TVDsKKwlza2ItPm5o
+LmlwaCA9IGlwaDsKKwlza2ItPmgudWggPSB1ZHBoOwogCiAJaWYgKHBrdF9kZXYtPm5mcmFncyA8
+PSAwKQogCQlwZ2ggPSAoc3RydWN0IHBrdGdlbl9oZHIgKilza2JfcHV0KHNrYiwgZGF0YWxlbik7
+Cg==
+------=_Part_12796_30231125.1154977474369--

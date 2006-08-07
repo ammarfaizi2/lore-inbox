@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWHGXHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWHGXNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWHGXHn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWHGXHn
+	id S1751168AbWHGXNW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWHGXNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:07:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65185 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751140AbWHGXHm (ORCPT
+	Mon, 7 Aug 2006 19:13:22 -0400
+Received: from relay00.pair.com ([209.68.5.9]:24591 "HELO relay00.pair.com")
+	by vger.kernel.org with SMTP id S1751168AbWHGXNW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:07:42 -0400
-Date: Tue, 8 Aug 2006 01:07:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       Paul.Clements@steeleye.com
-Subject: Re: [PATCH -mm 1/5] nbd: printk format warning
-Message-ID: <20060807230726.GA2724@elf.ucw.cz>
-References: <20060807154750.5a268055.rdunlap@xenotime.net>
+	Mon, 7 Aug 2006 19:13:22 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+To: Daniel Jacobowitz <dan@debian.org>
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Date: Mon, 7 Aug 2006 18:12:55 -0500
+User-Agent: KMail/1.9.4
+Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI> <eb8g8b$837$1@taverner.cs.berkeley.edu> <20060807225642.GA31752@nevyn.them.org>
+In-Reply-To: <20060807225642.GA31752@nevyn.them.org>
+Organization: Clientec, Inc.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060807154750.5a268055.rdunlap@xenotime.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200608071813.18661.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday 07 August 2006 17:56, Daniel Jacobowitz wrote:
+> On Mon, Aug 07, 2006 at 10:52:59PM +0000, David Wagner wrote:
+> > I'm still trying to understand the semantics of this proposed
+> > frevoke() implementation.  Can an attacker use this to forcibly
+> > close some other processes' file descriptor?  Suppose the target
+> > process has fd 0 open and the attacker revokes the file corresponding
+> > to fd 0; what is the state of fd 0 in the target process?  Is it
+> > closed?  If the target process then open()s another file, does it
+> > get bound to fd 0?  (Recall that open() always binds to the lowest
+> > unused fd.)  If the answers are "yes", then the security consequences
+> > seem very scary.
+>
+> No, that's already been answered at least once.  The file remains open,
+> but returns EBADF on various operations.
 
-> Fix printk format warning(s):
-> drivers/block/nbd.c:410: warning: long unsigned int format, different type arg (arg 4)
-> 
+IIRC, it returns EBADF because the file actually gets closed. The file 
+descriptor, on the other hand, is permanently leaked.
 
-ACK, but notice that we have new nbd maintainer... for a few years
-now.
+Have these details changed?
 
-							Pavel
-
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> ---
->  drivers/block/nbd.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2618-rc3mm2.orig/drivers/block/nbd.c
-> +++ linux-2618-rc3mm2/drivers/block/nbd.c
-> @@ -407,7 +407,7 @@ static void do_nbd_request(request_queue
->  		struct nbd_device *lo;
->  
->  		blkdev_dequeue_request(req);
-> -		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%lx)\n",
-> +		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%x)\n",
->  				req->rq_disk->disk_name, req, req->cmd_type);
->  
->  		if (!blk_fs_request(req))
-> 
-> 
-> ---
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Thanks,
+Chase

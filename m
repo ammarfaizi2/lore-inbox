@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWHGQc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWHGQlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWHGQc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWHGQc5
+	id S932213AbWHGQlO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWHGQlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:32:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27570 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932215AbWHGQc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:32:56 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: Double the per cpu area size
-References: <m1mzagfu03.fsf@ebiederm.dsl.xmission.com>
-	<200608071730.47120.ak@suse.de>
-Date: Mon, 07 Aug 2006 10:31:31 -0600
-In-Reply-To: <200608071730.47120.ak@suse.de> (Andi Kleen's message of "Mon, 7
-	Aug 2006 17:30:47 +0200")
-Message-ID: <m1vep4ecd8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 7 Aug 2006 12:41:14 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:43406 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932213AbWHGQlN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 12:41:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eXJTcw3dvWquaNnh3OPpVRxZk0FlrsGgi/kfL1xfWMm02AVK0+q0H8InjN1S/n8S2Eex62oRl0xeCPoRP62R5hs7c/gMu980MbW2CStBP8gVyeQBymqGxhd2qwQKXnFIDK+NwBCq4Jm3YEohhcuLsb/0gwrXSRcEb02KhuvAsDE=
+Message-ID: <41840b750608070941i521fe56crebc491589a67cb59@mail.gmail.com>
+Date: Mon, 7 Aug 2006 19:41:11 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Cc: "Pavel Machek" <pavel@suse.cz>, "Robert Love" <rlove@rlove.org>,
+       "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060807162743.GA26224@atjola.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492242899-git-send-email-multinymous@gmail.com>
+	 <20060807134440.GD4032@ucw.cz>
+	 <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
+	 <20060807162743.GA26224@atjola.homenet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
-
->>  
->>  #include <asm/pda.h>
->>  
->> +#define PERCPU_ENOUGH_ROOM 65536
+On 8/7/06, Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
+> On 2006.08.07 18:13:06 +0300, Shem Multinymous wrote:
+> > >> +     struct dmi_device *dev = NULL;
+> > >unneeded initializer.
+> > On a local variable?!
 >
-> I would prefer if you didn't do that unconditionally. Can you make
-> it dependent on NR_IRQS or so?  Can you add a test for CONFIG_TINY
-> to make it smaller?
+> You assign a new value to it on the next line, without ever using its
+> initial value.
 
-We already ignore this variable for the per cpu allocation if we
-build a kernel wihtout module support.  I guess a good fix could
-entail changing the concept to be how much per cpu room to reserve
-for modules.
+The initial value is used in the last parameter to dmi_find_device():
 
-I'm a big believer in stupid and simple solutions for as long as
-you can get away with it.  When people trip over this then 
-it will be clear what the real problem is and we can fix it.
+	struct dmi_device *dev = NULL;
+	while ((dev = dmi_find_device(type, NULL, dev))) {
+		if (strstr(dev->name, substr))
+			return 1;
+	}
 
-> Also longer term it should really properly fixed
 
-Agreed.  But we need a solution that works now so we have a solution
-for when the 2.6.19 window opens up.  There is no agreement on even
-what a proper fix is, or even what it looks like.  Keeping the data
-per cpu seems about as good as anything else for memory size savings,
-as most systems don't have many cpus.
-
-Throwing a few more bytes at the problem solves it today and for
-all systems currently built.  This buys us time to look at and discuss
-the problem.  With MSI starting to be useful I have no expectation
-that we will stop here.
-
-There are two fundamental problems that need to be fixed.
-- Small size and static allocate of the per cpu area.
-- Data structures that don't scale to large numbers of possible irqs.
-
-Solving either of these two fundamental problems involves reexamining
-some of our current trade offs in the kernel.
-
-The proper fix for irqs is a refactoring of the data structures so
-we can handle a 16 or better yet a 24 bit irq number, and only
-allocate the pieces we need.  A proper fix needs to find someway
-not to keep a counter for every cpu and irq pair, which no one has
-the will to seriously consider right now.
-
-The proper fix for the per cpu area size is much trickier.
-Especially if we every reach the point of hotplug NUMA nodes.
-One odd observation is that the amount of per cpu data we want
-grows with the size of the system.  
-
-Eric
+  Shem

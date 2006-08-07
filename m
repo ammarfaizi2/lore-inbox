@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWHGQc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWHGQc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWHGQc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWHGQc4
+	id S932215AbWHGQc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWHGQc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 7 Aug 2006 12:32:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27570 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932215AbWHGQc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Aug 2006 12:32:56 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:6789 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932212AbWHGQcz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:32:55 -0400
-Message-ID: <44D76B43.5080507@sw.ru>
-Date: Mon, 07 Aug 2006 20:33:07 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: Double the per cpu area size
+References: <m1mzagfu03.fsf@ebiederm.dsl.xmission.com>
+	<200608071730.47120.ak@suse.de>
+Date: Mon, 07 Aug 2006 10:31:31 -0600
+In-Reply-To: <200608071730.47120.ak@suse.de> (Andi Kleen's message of "Mon, 7
+	Aug 2006 17:30:47 +0200")
+Message-ID: <m1vep4ecd8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
-       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com,
-       Andrey Savochkin <saw@sw.ru>
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A cpu
- controller
-References: <20060804050753.GD27194@in.ibm.com> <20060803223650.423f2e6a.akpm@osdl.org> <20060803224253.49068b98.akpm@osdl.org> <1154684950.23655.178.camel@localhost.localdomain> <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru> <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru> <44D74F77.7080000@mbligh.org>
-In-Reply-To: <44D74F77.7080000@mbligh.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> we already have the code to account page fractions shared between 
->> containers.
->> Though, it is quite useless to do so for threads... Since this numbers 
->> have no meaning (not a real usage)
->> and only the sum of it will be a correct value.
->>
-> THat sort of accounting poses various horrible problems, which is
-> why we steered away from it. If you share pages between containers
-> (presumably billing them equal shares per user), what happens
-> when you're already at your limit, and one of your sharer's exits?
-you come across your limit and new allocations will fail.
-BUT! IMPORTANT!
-in real life use case with OpenVZ we allow sharing not that much data across containers:
-vmas mapped as private, i.e. glibc and other libraries .data section
-(and .code if it is writable). So if you use the same glibc and other executables
-in the containers then your are charged only a fraction of phys memory used by it.
-This kind of sharing is not that huge (<< memory limits usually),
-so the situation you described is not a problem
-in real life (at least for OpenVZ).
+Andi Kleen <ak@suse.de> writes:
 
-> Plus, are you billing by vma or address_space?
-not sure what you mean. we charge pages. first by whole vma.
-but as page gets more used by other containers your usage decreases.
+>>  
+>>  #include <asm/pda.h>
+>>  
+>> +#define PERCPU_ENOUGH_ROOM 65536
+>
+> I would prefer if you didn't do that unconditionally. Can you make
+> it dependent on NR_IRQS or so?  Can you add a test for CONFIG_TINY
+> to make it smaller?
 
-Thanks,
-Kirill
+We already ignore this variable for the per cpu allocation if we
+build a kernel wihtout module support.  I guess a good fix could
+entail changing the concept to be how much per cpu room to reserve
+for modules.
 
+I'm a big believer in stupid and simple solutions for as long as
+you can get away with it.  When people trip over this then 
+it will be clear what the real problem is and we can fix it.
+
+> Also longer term it should really properly fixed
+
+Agreed.  But we need a solution that works now so we have a solution
+for when the 2.6.19 window opens up.  There is no agreement on even
+what a proper fix is, or even what it looks like.  Keeping the data
+per cpu seems about as good as anything else for memory size savings,
+as most systems don't have many cpus.
+
+Throwing a few more bytes at the problem solves it today and for
+all systems currently built.  This buys us time to look at and discuss
+the problem.  With MSI starting to be useful I have no expectation
+that we will stop here.
+
+There are two fundamental problems that need to be fixed.
+- Small size and static allocate of the per cpu area.
+- Data structures that don't scale to large numbers of possible irqs.
+
+Solving either of these two fundamental problems involves reexamining
+some of our current trade offs in the kernel.
+
+The proper fix for irqs is a refactoring of the data structures so
+we can handle a 16 or better yet a 24 bit irq number, and only
+allocate the pieces we need.  A proper fix needs to find someway
+not to keep a counter for every cpu and irq pair, which no one has
+the will to seriously consider right now.
+
+The proper fix for the per cpu area size is much trickier.
+Especially if we every reach the point of hotplug NUMA nodes.
+One odd observation is that the amount of per cpu data we want
+grows with the size of the system.  
+
+Eric

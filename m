@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWHGVNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWHGVNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWHGVNv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWHGVLq
+	id S932388AbWHGVNE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWHGVLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:11:46 -0400
-Received: from xenotime.net ([66.160.160.81]:14555 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932376AbWHGVLM (ORCPT
+	Mon, 7 Aug 2006 17:11:48 -0400
+Received: from xenotime.net ([66.160.160.81]:14811 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932380AbWHGVLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Aug 2006 17:11:12 -0400
-Date: Mon, 7 Aug 2006 14:04:03 -0700
+Date: Mon, 7 Aug 2006 14:05:38 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, ralf@linux-mips.org
-Subject: [PATCH 6/9] Replace ARCH_HAS_SOCKET_TYPES with
- CONFIG_ARCH_SOCKET_TYPES
-Message-Id: <20060807140403.b5b4c86e.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, tony.luck@intel.com
+Subject: [PATCH 7/9] Replace ARCH_HAS_VALID_PHYS_ADDR_RANGE with
+ CONFIG_ARCH_VALID_PHYS_ADDR_RANGE
+Message-Id: <20060807140538.c5dc216b.rdunlap@xenotime.net>
 In-Reply-To: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 Organization: YPO4
@@ -28,69 +28,49 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Replace ARCH_HAS_SOCKET_TYPES with CONFIG_ARCH_SOCKET_TYPES.
+Replace ARCH_HAS_VALID_PHYS_ADDR_RANGE with CONFIG_ARCH_VALID_PHYS_ADDR_RANGE.
 Move it from header files to Kconfig space.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- arch/mips/Kconfig         |    3 +++
- include/asm-mips/socket.h |    5 ++---
- include/linux/net.h       |    4 ++--
- 3 files changed, 7 insertions(+), 5 deletions(-)
+ arch/ia64/Kconfig     |    3 +++
+ drivers/char/mem.c    |    2 +-
+ include/asm-ia64/io.h |    1 -
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
---- linux-2618-rc4-arch.orig/include/asm-mips/socket.h
-+++ linux-2618-rc4-arch/include/asm-mips/socket.h
-@@ -77,7 +77,8 @@ To add: #define SO_REUSEPORT 0x0200	/* A
-  *
-  * Please notice that for binary compat reasons MIPS has to
-  * override the enum sock_type in include/linux/net.h, so
-- * we define ARCH_HAS_SOCKET_TYPES here.
-+ * include/linux/net.h checks for ifdef CONFIG_ARCH_SOCKET_TYPES
-+ * to see if these are already defined.
-  *
-  * @SOCK_DGRAM - datagram (conn.less) socket
-  * @SOCK_STREAM - stream (connection) socket
-@@ -99,8 +100,6 @@ enum sock_type {
+--- linux-2618-rc4-arch.orig/drivers/char/mem.c
++++ linux-2618-rc4-arch/drivers/char/mem.c
+@@ -86,7 +86,7 @@ static inline int uncached_access(struct
+ #endif
+ }
  
- #define SOCK_MAX (SOCK_PACKET + 1)
+-#ifndef ARCH_HAS_VALID_PHYS_ADDR_RANGE
++#ifndef CONFIG_ARCH_VALID_PHYS_ADDR_RANGE
+ static inline int valid_phys_addr_range(unsigned long addr, size_t count)
+ {
+ 	if (addr + count > __pa(high_memory))
+--- linux-2618-rc4-arch.orig/include/asm-ia64/io.h
++++ linux-2618-rc4-arch/include/asm-ia64/io.h
+@@ -87,7 +87,6 @@ phys_to_virt (unsigned long address)
+ 	return (void *) (address + PAGE_OFFSET);
+ }
  
--#define ARCH_HAS_SOCKET_TYPES 1
--
- #endif /* __KERNEL__ */
+-#define ARCH_HAS_VALID_PHYS_ADDR_RANGE
+ extern u64 kern_mem_attribute (unsigned long phys_addr, unsigned long size);
+ extern int valid_phys_addr_range (unsigned long addr, size_t count); /* efi.c */
+ extern int valid_mmap_phys_addr_range (unsigned long pfn, size_t count);
+--- linux-2618-rc4-arch.orig/arch/ia64/Kconfig
++++ linux-2618-rc4-arch/arch/ia64/Kconfig
+@@ -386,6 +386,9 @@ config HAVE_ARCH_NODEDATA_EXTENSION
+ 	def_bool y
+ 	depends on NUMA
  
- #endif /* _ASM_SOCKET_H */
---- linux-2618-rc4-arch.orig/include/linux/net.h
-+++ linux-2618-rc4-arch/include/linux/net.h
-@@ -63,7 +63,7 @@ typedef enum {
- #define SOCK_PASSCRED		3
- #define SOCK_PASSSEC		4
- 
--#ifndef ARCH_HAS_SOCKET_TYPES
-+#ifndef CONFIG_ARCH_SOCKET_TYPES
- /**
-  * enum sock_type - Socket types
-  * @SOCK_STREAM: stream (connection) socket
-@@ -91,7 +91,7 @@ enum sock_type {
- 
- #define SOCK_MAX (SOCK_PACKET + 1)
- 
--#endif /* ARCH_HAS_SOCKET_TYPES */
-+#endif /* CONFIG_ARCH_SOCKET_TYPES */
- 
- /**
-  *  struct socket - general BSD socket
---- linux-2618-rc4-arch.orig/arch/mips/Kconfig
-+++ linux-2618-rc4-arch/arch/mips/Kconfig
-@@ -915,6 +915,9 @@ config MIPS_NILE4
- config MIPS_DISABLE_OBSOLETE_IDE
- 	bool
- 
-+config ARCH_SOCKET_TYPES
++config ARCH_VALID_PHYS_ADDR_RANGE
 +	def_bool y
 +
- #
- # Endianess selection.  Suffiently obscure so many users don't know what to
- # answer,so we try hard to limit the available choices.  Also the use of a
+ config IA32_SUPPORT
+ 	bool "Support for Linux/x86 binaries"
+ 	help
 
 
 ---

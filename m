@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWHGFw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWHGF4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWHGFw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 01:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWHGFw6
+	id S1751092AbWHGF4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 01:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWHGF4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 01:52:58 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:46150 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750924AbWHGFw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 01:52:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=UqwYnL17o4N4Dbn9Ui6i+aZong/K8Ljh4ao1gfMpRL6kaFjeRV7f3gmdSepV0bAtM8yfZuatwcRnrkYYA9Q9LnzvAuxP7AmhR44DsDYjBoQR4Fec25LcVv25HlLe6mECGHI9BV+qTumkbL/i/iwrrSJMieudRd6nsw3qN77jPr4=
-Message-ID: <44D6D511.8060409@gmail.com>
-Date: Mon, 07 Aug 2006 14:52:17 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Mon, 7 Aug 2006 01:56:24 -0400
+Received: from gw.goop.org ([64.81.55.164]:26027 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751092AbWHGF4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 01:56:23 -0400
+Message-ID: <44D6D60E.5080507@goop.org>
+Date: Sun, 06 Aug 2006 22:56:30 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Pavel Roskin <proski@gnu.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace last instances of pci_module_init with pci_register_driver
-References: <20060807043154.7901.74081.stgit@dv.roinet.com> <20060807044737.GA20013@kroah.com>
-In-Reply-To: <20060807044737.GA20013@kroah.com>
+To: Andi Kleen <ak@muc.de>
+CC: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/4] x86 paravirt_ops: implementation of paravirt_ops
+References: <1154925835.21647.29.camel@localhost.localdomain>	<1154925943.21647.32.camel@localhost.localdomain>	<1154926048.21647.35.camel@localhost.localdomain> <200608070739.33428.ak@muc.de>
+In-Reply-To: <200608070739.33428.ak@muc.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Aug 07, 2006 at 12:31:54AM -0400, Pavel Roskin wrote:
->> From: Pavel Roskin <proski@gnu.org>
->>
->> Signed-off-by: Pavel Roskin <proski@gnu.org>
->> ---
->>
->>  drivers/net/3c59x.c                           |    2 +-
->>  drivers/net/8139cp.c                          |    2 +-
-> 
-> You are going to have to send this through the network and scsi driver
-> maintainers, it's not something that I can apply, sorry.
+Andi Kleen wrote:
+> On Monday 07 August 2006 06:47, Rusty Russell wrote:
+>   
+>> This patch does the dumbest possible replacement of paravirtualized
+>> instructions: calls through a "paravirt_ops" structure.  Currently
+>> these are function implementations of native hardware: hypervisors
+>> will override the ops structure with their own variants.
+>>     
+>
+> You should call it HAL - that would make it clearer what it is.
+>   
 
-I'll pick up libata part and push it through Jeff.
+I've always found the term "HAL" to be vague to the point of 
+meaningless.  What would it mean in this case:  "hypervisor abstraction 
+layer"?  It certainly doesn't attempt abstract all hardware.
 
-Thanks.
+> I think I would prefer to patch always. Is there a particular
+> reason you can't do that?
+>   
 
--- 
-tejun
+Some calls just don't need patching; an indirect call is fast enough, 
+and simple.  But I can't think of a good reason to not patch patchable 
+calls, other than for debugging perhaps (easier to place one breakpoint 
+than one per inline site).
+
+    J

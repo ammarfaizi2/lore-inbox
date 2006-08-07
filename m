@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWHGVNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWHGVNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWHGVNE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 17:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWHGVLs
+	id S932383AbWHGVNv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 17:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHGVLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 17:11:48 -0400
-Received: from xenotime.net ([66.160.160.81]:14811 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932380AbWHGVLM (ORCPT
+	Mon, 7 Aug 2006 17:11:45 -0400
+Received: from xenotime.net ([66.160.160.81]:24795 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932384AbWHGVLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 17:11:12 -0400
-Date: Mon, 7 Aug 2006 14:05:38 -0700
+	Mon, 7 Aug 2006 17:11:18 -0400
+Date: Mon, 7 Aug 2006 14:11:09 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, tony.luck@intel.com
-Subject: [PATCH 7/9] Replace ARCH_HAS_VALID_PHYS_ADDR_RANGE with
- CONFIG_ARCH_VALID_PHYS_ADDR_RANGE
-Message-Id: <20060807140538.c5dc216b.rdunlap@xenotime.net>
+Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, paulus@samba.org,
+       schwidefsky@de.ibm.com
+Subject: [PATCH 2/9] Replace __ARCH_HAS_DO_SOFTIRQ with
+ CONFIG_ARCH_DO_SOFTIRQ
+Message-Id: <20060807141109.7e4d912d.rdunlap@xenotime.net>
 In-Reply-To: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
 Organization: YPO4
@@ -28,49 +29,122 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Replace ARCH_HAS_VALID_PHYS_ADDR_RANGE with CONFIG_ARCH_VALID_PHYS_ADDR_RANGE.
+Replace __ARCH_HAS_DO_SOFTIRQ with CONFIG_ARCH_DO_SOFTIRQ.
 Move it from header files to Kconfig space.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- arch/ia64/Kconfig     |    3 +++
- drivers/char/mem.c    |    2 +-
- include/asm-ia64/io.h |    1 -
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ arch/i386/Kconfig          |    4 ++++
+ arch/powerpc/Kconfig       |    3 +++
+ arch/s390/Kconfig          |    3 +++
+ arch/x86_64/Kconfig        |    3 +++
+ include/asm-i386/irq.h     |    1 -
+ include/asm-powerpc/irq.h  |    2 --
+ include/asm-s390/hardirq.h |    1 -
+ include/asm-x86_64/irq.h   |    2 --
+ kernel/softirq.c           |    2 +-
+ 9 files changed, 14 insertions(+), 7 deletions(-)
 
---- linux-2618-rc4-arch.orig/drivers/char/mem.c
-+++ linux-2618-rc4-arch/drivers/char/mem.c
-@@ -86,7 +86,7 @@ static inline int uncached_access(struct
- #endif
+--- linux-2618-rc4-arch.orig/kernel/softirq.c
++++ linux-2618-rc4-arch/kernel/softirq.c
+@@ -249,7 +249,7 @@ restart:
+ 	_local_bh_enable();
  }
  
--#ifndef ARCH_HAS_VALID_PHYS_ADDR_RANGE
-+#ifndef CONFIG_ARCH_VALID_PHYS_ADDR_RANGE
- static inline int valid_phys_addr_range(unsigned long addr, size_t count)
+-#ifndef __ARCH_HAS_DO_SOFTIRQ
++#ifndef CONFIG_ARCH_DO_SOFTIRQ
+ 
+ asmlinkage void do_softirq(void)
  {
- 	if (addr + count > __pa(high_memory))
---- linux-2618-rc4-arch.orig/include/asm-ia64/io.h
-+++ linux-2618-rc4-arch/include/asm-ia64/io.h
-@@ -87,7 +87,6 @@ phys_to_virt (unsigned long address)
- 	return (void *) (address + PAGE_OFFSET);
- }
+--- linux-2618-rc4-arch.orig/include/asm-i386/irq.h
++++ linux-2618-rc4-arch/include/asm-i386/irq.h
+@@ -27,7 +27,6 @@ static __inline__ int irq_canonicalize(i
+ #ifdef CONFIG_4KSTACKS
+   extern void irq_ctx_init(int cpu);
+   extern void irq_ctx_exit(int cpu);
+-# define __ARCH_HAS_DO_SOFTIRQ
+ #else
+ # define irq_ctx_init(cpu) do { } while (0)
+ # define irq_ctx_exit(cpu) do { } while (0)
+--- linux-2618-rc4-arch.orig/include/asm-powerpc/irq.h
++++ linux-2618-rc4-arch/include/asm-powerpc/irq.h
+@@ -813,8 +813,6 @@ extern int distribute_irqs;
+ struct irqaction;
+ struct pt_regs;
  
--#define ARCH_HAS_VALID_PHYS_ADDR_RANGE
- extern u64 kern_mem_attribute (unsigned long phys_addr, unsigned long size);
- extern int valid_phys_addr_range (unsigned long addr, size_t count); /* efi.c */
- extern int valid_mmap_phys_addr_range (unsigned long pfn, size_t count);
---- linux-2618-rc4-arch.orig/arch/ia64/Kconfig
-+++ linux-2618-rc4-arch/arch/ia64/Kconfig
-@@ -386,6 +386,9 @@ config HAVE_ARCH_NODEDATA_EXTENSION
- 	def_bool y
- 	depends on NUMA
+-#define __ARCH_HAS_DO_SOFTIRQ
+-
+ extern void __do_softirq(void);
  
-+config ARCH_VALID_PHYS_ADDR_RANGE
+ #ifdef CONFIG_IRQSTACKS
+--- linux-2618-rc4-arch.orig/include/asm-s390/hardirq.h
++++ linux-2618-rc4-arch/include/asm-s390/hardirq.h
+@@ -28,7 +28,6 @@ typedef struct {
+ #define local_softirq_pending() (S390_lowcore.softirq_pending)
+ 
+ #define __ARCH_IRQ_STAT
+-#define __ARCH_HAS_DO_SOFTIRQ
+ 
+ #define HARDIRQ_BITS	8
+ 
+--- linux-2618-rc4-arch.orig/include/asm-x86_64/irq.h
++++ linux-2618-rc4-arch/include/asm-x86_64/irq.h
+@@ -53,6 +53,4 @@ static __inline__ int irq_canonicalize(i
+ extern void fixup_irqs(cpumask_t map);
+ #endif
+ 
+-#define __ARCH_HAS_DO_SOFTIRQ 1
+-
+ #endif /* _ASM_IRQ_H */
+--- linux-2618-rc4-arch.orig/arch/i386/Kconfig
++++ linux-2618-rc4-arch/arch/i386/Kconfig
+@@ -1162,6 +1162,10 @@ config GENERIC_PENDING_IRQ
+ 	depends on GENERIC_HARDIRQS && SMP
+ 	default y
+ 
++config ARCH_DO_SOFTIRQ
++	def_bool y
++	depends on 4KSTACKS
++
+ config X86_SMP
+ 	bool
+ 	depends on SMP && !X86_VOYAGER
+--- linux-2618-rc4-arch.orig/arch/powerpc/Kconfig
++++ linux-2618-rc4-arch/arch/powerpc/Kconfig
+@@ -34,6 +34,9 @@ config IRQ_PER_CPU
+ 	bool
+ 	default y
+ 
++config ARCH_DO_SOFTIRQ
 +	def_bool y
 +
- config IA32_SUPPORT
- 	bool "Support for Linux/x86 binaries"
- 	help
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+ 
+--- linux-2618-rc4-arch.orig/arch/s390/Kconfig
++++ linux-2618-rc4-arch/arch/s390/Kconfig
+@@ -33,6 +33,9 @@ config GENERIC_CALIBRATE_DELAY
+ config GENERIC_BUST_SPINLOCK
+ 	bool
+ 
++config ARCH_DO_SOFTIRQ
++	def_bool y
++
+ mainmenu "Linux Kernel Configuration"
+ 
+ config S390
+--- linux-2618-rc4-arch.orig/arch/x86_64/Kconfig
++++ linux-2618-rc4-arch/arch/x86_64/Kconfig
+@@ -549,6 +549,9 @@ config GENERIC_IRQ_PROBE
+ 	bool
+ 	default y
+ 
++config ARCH_DO_SOFTIRQ
++	def_bool y
++
+ # we have no ISA slots, but we do have ISA-style DMA.
+ config ISA_DMA_API
+ 	bool
 
 
 ---

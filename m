@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWHGSIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWHGSJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWHGSIK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 14:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWHGSIK
+	id S932255AbWHGSJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWHGSJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 14:08:10 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:46531 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932264AbWHGSIH (ORCPT
+	Mon, 7 Aug 2006 14:09:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13206 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932255AbWHGSJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 14:08:07 -0400
-Date: Mon, 7 Aug 2006 20:06:25 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] UTF-8 input: composing non-latin1 characters, and
- copy-paste
-In-Reply-To: <1154953118.25998.31.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0608072003460.3365@yvahk01.tjqt.qr>
-References: <44D71C25.6090301@ums.usu.ru> <1154953118.25998.31.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-136917954-1154973985=:3365"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 7 Aug 2006 14:09:22 -0400
+Date: Mon, 7 Aug 2006 11:09:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marek =?ISO-8859-1?Q?Va=5F=5Fut?= <marek.vasut@gmail.com>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stowaway 2.6.17.1
+Message-Id: <20060807110915.a538d8f1.akpm@osdl.org>
+In-Reply-To: <200608052152.05840.marek.vasut@gmail.com>
+References: <200608052152.05840.marek.vasut@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, 5 Aug 2006 21:52:05 +0200
+Marek Va__ut <marek.vasut@gmail.com> wrote:
 
---1283855629-136917954-1154973985=:3365
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+> this patch adds support for stowaway and stowaway compatible (eg. dicota 
+> inutPDA) serial keyboards.
 
->
->> argument. This means that only characters present in Latin-1 (i.e., with 
->> codes <256) can be produced by composing while the keyboard is in 
->> Unicode mode. This is certainly unacceptable for Eastern Europe (i.e., 
->> former ISO-8859-2 users) who need to get ^+ Z = Ž.
->
->Its not useful for most of Western europe either nowdays.
-
-As far as I can follow...
-
-I don't think so. I have set my keyboard to US, but I regularly require 
-<Compose><"><a> and such to generate Umlauts and Eszet. Now, ä is present 
-in ISO-8859-1/15, but what if it were not?
-
-
-Jan Engelhardt
--- 
---1283855629-136917954-1154973985=:3365--
+Please review section 11 of Documentation/SubmittingPatches and if you find
+it OK, then send us a Signed-off-by:, thanks.  

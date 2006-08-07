@@ -1,15 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWHGEn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWHGEpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWHGEn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 00:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWHGEn7
+	id S1751021AbWHGEpr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 00:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWHGEpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 00:43:59 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:37595 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751012AbWHGEn6 (ORCPT
+	Mon, 7 Aug 2006 00:45:47 -0400
+Received: from ozlabs.org ([203.10.76.45]:41691 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751012AbWHGEpq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 00:43:58 -0400
-Subject: [PATCH 1/4] x86 paravirt_ops: create no_paravirt.h for native ops
+	Mon, 7 Aug 2006 00:45:46 -0400
+Subject: [PATCH 2/4] x86 paravirt_ops: paravirt_desc.h for native
+	descriptor ops.
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -17,529 +18,272 @@ Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        virtualization <virtualization@lists.osdl.org>,
        Jeremy Fitzhardinge <jeremy@xensource.com>,
        Chris Wright <chrisw@sous-sol.org>
+In-Reply-To: <1154925835.21647.29.camel@localhost.localdomain>
+References: <1154925835.21647.29.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 07 Aug 2006 14:43:54 +1000
-Message-Id: <1154925835.21647.29.camel@localhost.localdomain>
+Date: Mon, 07 Aug 2006 14:45:42 +1000
+Message-Id: <1154925943.21647.32.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Andrew, please sit these in the -mm tree for cooking)
+Unfortunately, due to include cycles, we can't put these in
+paravirt.h: we use a separate header for these.
 
-Create a paravirt.h header for (almost) all the critical operations
-which need to be replaced with hypervisor calls.
+The implementation comes from Zach's [RFC, PATCH 10/24] i386 Vmi descriptor changes:
 
-For the moment, this simply includes no_paravirt.h, where all the
-native implementations now live.
+  Descriptor and trap table cleanups.  Add cleanly written accessors for
+  IDT and GDT gates so the subarch may override them.  Note that this
+  allows the hypervisor to transparently tweak the DPL of the descriptors
+  as well as the RPL of segments in those descriptors, with no unnecessary
+  kernel code modification.  It also allows the hypervisor implementation
+  of the VMI to tweak the gates, allowing for custom exception frames or
+  extra layers of indirection above the guest fault / IRQ handlers.
+
+  Signed-off-by: Zachary Amsden <zach@vmware.com>
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-
 ===================================================================
---- a/arch/i386/kernel/entry.S
-+++ b/arch/i386/kernel/entry.S
-@@ -49,6 +49,7 @@
- #include <asm/page.h>
- #include <asm/desc.h>
- #include <asm/dwarf2.h>
-+#include <asm/paravirt.h>
- #include "irq_vectors.h"
+--- working-2.6.18-rc2-hg-paravirt.orig/arch/i386/kernel/traps.c
++++ working-2.6.18-rc2-hg-paravirt/arch/i386/kernel/traps.c
+@@ -1107,20 +1107,6 @@ void __init trap_init_f00f_bug(void)
+ }
+ #endif
  
- #define nr_syscalls ((syscall_table_size)/4)
-@@ -75,13 +76,6 @@ DF_MASK		= 0x00000400
- DF_MASK		= 0x00000400 
- NT_MASK		= 0x00004000
- VM_MASK		= 0x00020000
+-#define _set_gate(gate_addr,type,dpl,addr,seg) \
+-do { \
+-  int __d0, __d1; \
+-  __asm__ __volatile__ ("movw %%dx,%%ax\n\t" \
+-	"movw %4,%%dx\n\t" \
+-	"movl %%eax,%0\n\t" \
+-	"movl %%edx,%1" \
+-	:"=m" (*((long *) (gate_addr))), \
+-	 "=m" (*(1+(long *) (gate_addr))), "=&a" (__d0), "=&d" (__d1) \
+-	:"i" ((short) (0x8000+(dpl<<13)+(type<<8))), \
+-	 "3" ((char *) (addr)),"2" ((seg) << 16)); \
+-} while (0)
 -
--/* These are replaces for paravirtualization */
--#define DISABLE_INTERRUPTS		cli
--#define ENABLE_INTERRUPTS		sti
--#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
--#define INTERRUPT_RETURN		iret
--#define GET_CR0_INTO_EAX		movl %cr0, %eax
- 
- #ifdef CONFIG_PREEMPT
- #define preempt_stop		DISABLE_INTERRUPTS; TRACE_IRQS_OFF
-===================================================================
---- a/include/asm-i386/irqflags.h
-+++ b/include/asm-i386/irqflags.h
-@@ -9,62 +9,12 @@
+-
+ /*
+  * This needs to use 'idt_table' rather than 'idt', and
+  * thus use the _nonmapped_ version of the IDT, as the
+@@ -1129,7 +1115,7 @@ do { \
   */
- #ifndef _ASM_IRQFLAGS_H
- #define _ASM_IRQFLAGS_H
-+#include <asm/paravirt.h>
- 
- #ifndef __ASSEMBLY__
- 
--static inline unsigned long __raw_local_save_flags(void)
--{
--	unsigned long flags;
--
--	__asm__ __volatile__(
--		"pushfl ; popl %0"
--		: "=g" (flags)
--		: /* no input */
--	);
--
--	return flags;
--}
--
- #define raw_local_save_flags(flags) \
- 		do { (flags) = __raw_local_save_flags(); } while (0)
--
--static inline void raw_local_irq_restore(unsigned long flags)
--{
--	__asm__ __volatile__(
--		"pushl %0 ; popfl"
--		: /* no output */
--		:"g" (flags)
--		:"memory", "cc"
--	);
--}
--
--static inline void raw_local_irq_disable(void)
--{
--	__asm__ __volatile__("cli" : : : "memory");
--}
--
--static inline void raw_local_irq_enable(void)
--{
--	__asm__ __volatile__("sti" : : : "memory");
--}
--
--/*
-- * Used in the idle loop; sti takes one instruction cycle
-- * to complete:
-- */
--static inline void raw_safe_halt(void)
--{
--	__asm__ __volatile__("sti; hlt" : : : "memory");
--}
--
--/*
-- * Used when interrupts are already enabled or to
-- * shutdown the processor:
-- */
--static inline void halt(void)
--{
--	__asm__ __volatile__("hlt": : :"memory");
--}
- 
- static inline int raw_irqs_disabled_flags(unsigned long flags)
+ void set_intr_gate(unsigned int n, void *addr)
  {
-@@ -76,18 +26,6 @@ static inline int raw_irqs_disabled(void
- 	unsigned long flags = __raw_local_save_flags();
- 
- 	return raw_irqs_disabled_flags(flags);
--}
--
--/*
-- * For spinlocks, etc:
-- */
--static inline unsigned long __raw_local_irq_save(void)
--{
--	unsigned long flags = __raw_local_save_flags();
--
--	raw_local_irq_disable();
--
--	return flags;
+-	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
++	_set_gate(n, DESCTYPE_INT, addr, __KERNEL_CS);
  }
  
- #define raw_local_irq_save(flags) \
-===================================================================
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -20,6 +20,7 @@
- #include <linux/threads.h>
- #include <asm/percpu.h>
- #include <linux/cpumask.h>
-+#include <asm/paravirt.h>
- 
- /* flag for disabling the tsc */
- extern int tsc_disable;
-@@ -143,18 +144,6 @@ static inline void detect_ht(struct cpui
- #define X86_EFLAGS_VIP	0x00100000 /* Virtual Interrupt Pending */
- #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
- 
--static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
--			   unsigned int *ecx, unsigned int *edx)
--{
--	/* ecx is often an input as well as an output. */
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (*eax), "2" (*ecx));
--}
--
  /*
-  * Generic CPUID function
-  * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-@@ -281,13 +270,6 @@ static inline void clear_in_cr4 (unsigne
- 	outb((reg), 0x22); \
- 	outb((data), 0x23); \
- } while (0)
--
--/* Stop speculative execution */
--static inline void sync_core(void)
--{
--	int tmp;
--	asm volatile("cpuid" : "=a" (tmp) : "0" (1) : "ebx","ecx","edx","memory");
--}
- 
- static inline void __monitor(const void *eax, unsigned long ecx,
- 		unsigned long edx)
-@@ -508,33 +490,6 @@ static inline void load_esp0(struct tss_
- 	regs->esp = new_esp;					\
- } while (0)
- 
--/*
-- * These special macros can be used to get or set a debugging register
-- */
--#define get_debugreg(var, register)				\
--		__asm__("movl %%db" #register ", %0"		\
--			:"=r" (var))
--#define set_debugreg(value, register)			\
--		__asm__("movl %0,%%db" #register		\
--			: /* no output */			\
--			:"r" (value))
--
--/*
-- * Set IOPL bits in EFLAGS from given mask
-- */
--static inline void set_iopl_mask(unsigned mask)
--{
--	unsigned int reg;
--	__asm__ __volatile__ ("pushfl;"
--			      "popl %0;"
--			      "andl %1, %0;"
--			      "orl %2, %0;"
--			      "pushl %0;"
--			      "popfl"
--				: "=&r" (reg)
--				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
--}
--
- /* Forward declaration, a strange C thing */
- struct task_struct;
- struct mm_struct;
-===================================================================
---- a/include/asm-i386/segment.h
-+++ b/include/asm-i386/segment.h
-@@ -121,5 +121,4 @@
- /* Bottom three bits of xcs give the ring privilege level */
- #define SEGMENT_RPL_MASK 0x3
- 
--#define get_kernel_rpl()  0
- #endif
-===================================================================
---- a/include/asm-i386/spinlock.h
-+++ b/include/asm-i386/spinlock.h
-@@ -5,6 +5,7 @@
- #include <asm/rwlock.h>
- #include <asm/page.h>
- #include <linux/compiler.h>
-+#include <asm/paravirt.h>
- 
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
-@@ -16,9 +17,6 @@
-  *
-  * (the type definitions are in asm/spinlock_types.h)
+@@ -1137,22 +1123,22 @@ void set_intr_gate(unsigned int n, void 
   */
--
--#define CLI_STRING	"cli"
--#define STI_STRING	"sti"
- 
- #define __raw_spin_is_locked(x) \
- 		(*(volatile signed char *)(&(x)->slock) <= 0)
-===================================================================
---- a/include/asm-i386/system.h
-+++ b/include/asm-i386/system.h
-@@ -5,6 +5,7 @@
- #include <asm/segment.h>
- #include <asm/cpufeature.h>
- #include <linux/bitops.h> /* for LOCK_PREFIX */
-+#include <asm/paravirt.h>
- 
- #ifdef __KERNEL__
- 
-@@ -82,67 +83,10 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- #define savesegment(seg, value) \
- 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
- 
--#define read_cr0() ({ \
--	unsigned int __dummy; \
--	__asm__ __volatile__( \
--		"movl %%cr0,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr0(x) \
--	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
--
--#define read_cr2() ({ \
--	unsigned int __dummy; \
--	__asm__ __volatile__( \
--		"movl %%cr2,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr2(x) \
--	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
--
--#define read_cr3() ({ \
--	unsigned int __dummy; \
--	__asm__ ( \
--		"movl %%cr3,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr3(x) \
--	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
--
--#define read_cr4() ({ \
--	unsigned int __dummy; \
--	__asm__( \
--		"movl %%cr4,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define read_cr4_safe() ({			      \
--	unsigned int __dummy;			      \
--	/* This could fault if %cr4 does not exist */ \
--	__asm__("1: movl %%cr4, %0		\n"   \
--		"2:				\n"   \
--		".section __ex_table,\"a\"	\n"   \
--		".long 1b,2b			\n"   \
--		".previous			\n"   \
--		: "=r" (__dummy): "0" (0));	      \
--	__dummy;				      \
--})
--#define write_cr4(x) \
--	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
--
--/*
-- * Clear and set 'TS' bit respectively
-- */
--#define clts() __asm__ __volatile__ ("clts")
-+/* Set 'TS' bit */
- #define stts() write_cr0(8 | read_cr0())
- 
- #endif	/* __KERNEL__ */
--
--#define wbinvd() \
--	__asm__ __volatile__ ("wbinvd": : :"memory")
- 
- static inline unsigned long get_limit(unsigned long segment)
+ static inline void set_system_intr_gate(unsigned int n, void *addr)
  {
+-	_set_gate(idt_table+n, 14, 3, addr, __KERNEL_CS);
++	_set_gate(n, DESCTYPE_INT | DESCTYPE_DPL3, addr, __KERNEL_CS);
+ }
+ 
+ static void __init set_trap_gate(unsigned int n, void *addr)
+ {
+-	_set_gate(idt_table+n,15,0,addr,__KERNEL_CS);
++	_set_gate(n, DESCTYPE_TRAP, addr, __KERNEL_CS);
+ }
+ 
+ static void __init set_system_gate(unsigned int n, void *addr)
+ {
+-	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
++	_set_gate(n, DESCTYPE_TRAP | DESCTYPE_DPL3, addr, __KERNEL_CS);
+ }
+ 
+ static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
+ {
+-	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
++	_set_gate(n, DESCTYPE_TASK, (void *)0, (gdt_entry<<3));
+ }
+ 
+ 
+===================================================================
+--- working-2.6.18-rc2-hg-paravirt.orig/include/asm-i386/desc.h
++++ working-2.6.18-rc2-hg-paravirt/include/asm-i386/desc.h
+@@ -33,50 +33,66 @@ static inline struct desc_struct *get_cp
+ 	return (struct desc_struct *)per_cpu(cpu_gdt_descr, cpu).address;
+ }
+ 
+-#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
+-#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
+-
+-#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
+-#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
+-#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
+-#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
+-
+-#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
+-#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
+-#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
+-#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
+-
+ /*
+  * This is the ldt that every process will get unless we need
+  * something other than this.
+  */
+ extern struct desc_struct default_ldt[];
++extern struct desc_struct idt_table[];
+ extern void set_intr_gate(unsigned int irq, void * addr);
+ 
+-#define _set_tssldt_desc(n,addr,limit,type) \
+-__asm__ __volatile__ ("movw %w3,0(%2)\n\t" \
+-	"movw %w1,2(%2)\n\t" \
+-	"rorl $16,%1\n\t" \
+-	"movb %b1,4(%2)\n\t" \
+-	"movb %4,5(%2)\n\t" \
+-	"movb $0,6(%2)\n\t" \
+-	"movb %h1,7(%2)\n\t" \
+-	"rorl $16,%1" \
+-	: "=m"(*(n)) : "q" (addr), "r"(n), "ir"(limit), "i"(type))
++static inline void pack_descriptor(__u32 *a, __u32 *b,
++	unsigned long base, unsigned long limit, unsigned char type, unsigned char flags)
++{
++	*a = ((base & 0xffff) << 16) | (limit & 0xffff);
++	*b = (base & 0xff000000) | ((base & 0xff0000) >> 16) |
++	     ((type & 0xff) << 8) | ((flags & 0xf) << 12);
++}
+ 
+-static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
++static inline void pack_gate(__u32 *a, __u32 *b,
++	unsigned long base, unsigned short seg, unsigned char type, unsigned char flags)
+ {
+-	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[entry], (int)addr,
+-		offsetof(struct tss_struct, __cacheline_filler) - 1, 0x89);
++	*a = (seg << 16) | (base & 0xffff);
++	*b = (base & 0xffff0000) | ((type & 0xff) << 8) | (flags & 0xff);
+ }
+ 
+-#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
++#define DESCTYPE_LDT 	0x82	/* present, system, DPL-0, LDT */
++#define DESCTYPE_TSS 	0x89	/* present, system, DPL-0, 32-bit TSS */
++#define DESCTYPE_TASK	0x85	/* present, system, DPL-0, task gate */
++#define DESCTYPE_INT	0x8e	/* present, system, DPL-0, interrupt gate */
++#define DESCTYPE_TRAP	0x8f	/* present, system, DPL-0, trap gate */
++#define DESCTYPE_DPL3	0x60	/* DPL-3 */
++#define DESCTYPE_S	0x10	/* !system */
++
++#include <asm/paravirt_desc.h>
++
++static inline void _set_gate(int gate, unsigned int type, void *addr, unsigned short seg)
++{
++	__u32 a, b;
++	pack_gate(&a, &b, (unsigned long)addr, seg, type, 0);
++	write_idt_entry(idt_table, gate, a, b);
++}
++
++static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, const void *addr)
++{
++	__u32 a, b;
++	pack_descriptor(&a, &b, (unsigned long)addr,
++			offsetof(struct tss_struct, __cacheline_filler) - 1,
++			DESCTYPE_TSS, 0);
++	write_gdt_entry(get_cpu_gdt_table(cpu), entry, a, b);
++}
+ 
+-static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
++static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int entries)
+ {
+-	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[GDT_ENTRY_LDT], (int)addr, ((size << 3)-1), 0x82);
++	__u32 a, b;
++	pack_descriptor(&a, &b, (unsigned long)addr,
++			entries * sizeof(struct desc_struct) - 1,
++			DESCTYPE_LDT, 0);
++	write_gdt_entry(get_cpu_gdt_table(cpu), GDT_ENTRY_LDT, a, b);
+ }
+ 
++#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
++
+ #define LDT_entry_a(info) \
+ 	((((info)->base_addr & 0x0000ffff) << 16) | ((info)->limit & 0x0ffff))
+ 
+@@ -102,24 +118,6 @@ static inline void set_ldt_desc(unsigned
+ 	(info)->seg_not_present	== 1	&& \
+ 	(info)->useable		== 0	)
+ 
+-static inline void write_ldt_entry(void *ldt, int entry, __u32 entry_a, __u32 entry_b)
+-{
+-	__u32 *lp = (__u32 *)((char *)ldt + entry*8);
+-	*lp = entry_a;
+-	*(lp+1) = entry_b;
+-}
+-
+-#if TLS_SIZE != 24
+-# error update this code.
+-#endif
+-
+-static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
+-{
+-#define C(i) get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
+-	C(0); C(1); C(2);
+-#undef C
+-}
+-
+ static inline void clear_LDT(void)
+ {
+ 	int cpu = get_cpu();
 ===================================================================
 --- /dev/null
-+++ b/include/asm-i386/no_paravirt.h
-@@ -0,0 +1,189 @@
-+#ifndef __ASM_NO_PARAVIRT_H
-+#define __ASM_NO_PARAVIRT_H
-+/* This is the native implementation of the paravirtualized
-+ * instruction wrappers. */
++++ working-2.6.18-rc2-hg-paravirt/include/asm-i386/no_paravirt_desc.h
+@@ -0,0 +1,41 @@
++#ifndef __ASM_NO_PARAVIRT_DESC_H
++#define __ASM_NO_PARAVIRT_DESC_H
++/* The GDT instructions are here, not in paravirt.h because they need
++ * processor.h, which needs paravirt.h... */
 +
-+#ifndef __ASSEMBLY__
-+/* The non-paravirtualized CPUID instruction. */
-+static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
-+			   unsigned int *ecx, unsigned int *edx)
++#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
++#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
++
++#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
++#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
++#define load_tr(tr) __asm__ __volatile("ltr %0"::"m" (tr))
++#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"m" (ldt))
++
++#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
++#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
++#define store_tr(tr) __asm__ ("str %0":"=m" (tr))
++#define store_ldt(ldt) __asm__ ("sldt %0":"=m" (ldt))
++
++#if TLS_SIZE != 24
++# error update this code.
++#endif
++
++static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
 +{
-+	/* ecx is often an input as well: see processor.h. */
-+	__asm__("cpuid"
-+		: "=a" (*eax),
-+		  "=b" (*ebx),
-+		  "=c" (*ecx),
-+		  "=d" (*edx)
-+		: "0" (*eax), "2" (*ecx));
++#define C(i) get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
++	C(0); C(1); C(2);
++#undef C
 +}
 +
-+/*
-+ * These special macros can be used to get or set a debugging register
-+ */
-+#define get_debugreg(var, register)				\
-+		__asm__("movl %%db" #register ", %0"		\
-+			:"=r" (var))
-+#define set_debugreg(value, register)			\
-+		__asm__("movl %0,%%db" #register		\
-+			: /* no output */			\
-+			:"r" (value))
-+
-+/*
-+ * Set IOPL bits in EFLAGS from given mask
-+ */
-+static inline void set_iopl_mask(unsigned mask)
++static inline void write_dt_entry(void *dt, int entry, __u32 entry_a, __u32 entry_b)
 +{
-+	unsigned int reg;
-+	__asm__ __volatile__ ("pushfl;"
-+			      "popl %0;"
-+			      "andl %1, %0;"
-+			      "orl %2, %0;"
-+			      "pushl %0;"
-+			      "popfl"
-+				: "=&r" (reg)
-+				: "i" (~0x3000 /*X86_EFLAGS_IOPL*/), "r" (mask));
++	__u32 *lp = (__u32 *)((char *)dt + entry*8);
++	*lp = entry_a;
++	*(lp+1) = entry_b;
 +}
 +
-+/* Stop speculative execution */
-+static inline void sync_core(void)
-+{
-+	unsigned int eax = 1, ebx, ecx, edx;
-+	__cpuid(&eax, &ebx, &ecx, &edx);
-+}
++#define write_ldt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
++#define write_gdt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
++#define write_idt_entry(dt, entry, a, b) write_dt_entry(dt, entry, a, b)
 +
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
-+#define read_cr0() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr0,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr0(x) \
-+	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
-+
-+#define read_cr2() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr2,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr2(x) \
-+	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
-+
-+#define read_cr3() ({ \
-+	unsigned int __dummy; \
-+	__asm__ ( \
-+		"movl %%cr3,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr3(x) \
-+	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
-+
-+#define read_cr4() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr4,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+
-+#define read_cr4_safe() ({			      \
-+	unsigned int __dummy;			      \
-+	/* This could fault if %cr4 does not exist */ \
-+	__asm__("1: movl %%cr4, %0		\n"   \
-+		"2:				\n"   \
-+		".section __ex_table,\"a\"	\n"   \
-+		".long 1b,2b			\n"   \
-+		".previous			\n"   \
-+		: "=r" (__dummy): "0" (0));	      \
-+	__dummy;				      \
-+})
-+
-+#define write_cr4(x) \
-+	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
-+
-+static inline unsigned long __raw_local_save_flags(void)
-+{
-+	unsigned long flags;
-+
-+	__asm__ __volatile__(
-+		"pushfl ; popl %0"
-+		: "=g" (flags)
-+		: /* no input */
-+	);
-+
-+	return flags;
-+}
-+
-+static inline void raw_local_irq_restore(unsigned long flags)
-+{
-+	__asm__ __volatile__(
-+		"pushl %0 ; popfl"
-+		: /* no output */
-+		:"g" (flags)
-+		:"memory", "cc"
-+	);
-+}
-+
-+static inline void raw_local_irq_disable(void)
-+{
-+	__asm__ __volatile__("cli" : : : "memory");
-+}
-+
-+static inline unsigned long __raw_local_irq_save(void)
-+{
-+	unsigned long flags = __raw_local_save_flags();
-+
-+	raw_local_irq_disable();
-+
-+	return flags;
-+}
-+
-+static inline void raw_local_irq_enable(void)
-+{
-+	__asm__ __volatile__("sti" : : : "memory");
-+}
-+
-+/*
-+ * Used in the idle loop; sti takes one instruction cycle
-+ * to complete:
-+ */
-+static inline void raw_safe_halt(void)
-+{
-+	__asm__ __volatile__("sti; hlt" : : : "memory");
-+}
-+
-+/*
-+ * Used when interrupts are already enabled or to
-+ * shutdown the processor:
-+ */
-+static inline void halt(void)
-+{
-+	__asm__ __volatile__("hlt": : :"memory");
-+}
-+
-+static inline void wbinvd(void)
-+{
-+	__asm__ __volatile__("wbinvd": : :"memory");
-+}
-+
-+#define get_kernel_rpl()  0
-+
-+#define CLI_STRING	"cli"
-+#define STI_STRING	"sti"
-+
-+#else  /* ... __ASSEMBLY__ */
-+#define INTERRUPT_RETURN		iret
-+#define DISABLE_INTERRUPTS		cli
-+#define ENABLE_INTERRUPTS		sti
-+#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
-+#define GET_CR0_INTO_EAX		mov %cr0, %eax
-+#endif /* __ASSEMBLY__ */
-+
-+#endif /* __ASM_NO_PARAVIRT_H */
++#endif	/* __ASM_NO_PARAVIRT_DESC_H */
 ===================================================================
 --- /dev/null
-+++ b/include/asm-i386/paravirt.h
-@@ -0,0 +1,7 @@
-+#ifndef __ASM_PARAVIRT_H
-+#define __ASM_PARAVIRT_H
-+/* Various instructions on x86 need to be replaced for
-+ * para-virtualization: those hooks are defined here. */
-+#include <asm/no_paravirt.h>
++++ working-2.6.18-rc2-hg-paravirt/include/asm-i386/paravirt_desc.h
+@@ -0,0 +1,6 @@
++#ifndef __ASM_PARAVIRT_DESC_H
++#define __ASM_PARAVIRT_DESC_H
++/* A separate header because they need processor.h, which needs paravirt.h */
++#include <asm/no_paravirt_desc.h>
 +
-+#endif	/* __ASM_PARAVIRT_H */
++#endif	/* __ASM_PARAVIRT_DESC_H */
 
 -- 
 Help! Save Australia from the worst of the DMCA: http://linux.org.au/law

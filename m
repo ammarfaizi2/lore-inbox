@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWHGRmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWHGRr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWHGRmH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWHGRmH
+	id S1750808AbWHGRr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWHGRr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:42:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36003 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750806AbWHGRmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:42:06 -0400
-Date: Mon, 7 Aug 2006 13:44:39 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+	Mon, 7 Aug 2006 13:47:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63904 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750808AbWHGRr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:47:56 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060807174439.GJ16231@redhat.com>
-References: <20060707133518.GA15810@in.ibm.com> <20060707143519.GB13097@host0.dyn.jankratochvil.net> <20060710233219.GF16215@in.ibm.com> <20060711010815.GB1021@host0.dyn.jankratochvil.net> <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com> <20060804210826.GE16231@redhat.com> <m164h8p50c.fsf@ebiederm.dsl.xmission.com> <20060804234327.GF16231@redhat.com> <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	<20060807085924.72f832af.rdunlap@xenotime.net>
+	<m1irl4ebsf.fsf@ebiederm.dsl.xmission.com>
+	<44D771A7.7040605@zytor.com>
+Date: Mon, 07 Aug 2006 11:46:25 -0600
+In-Reply-To: <44D771A7.7040605@zytor.com> (H. Peter Anvin's message of "Mon,
+	07 Aug 2006 10:00:23 -0700")
+Message-ID: <m1k65kcuby.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 05, 2006 at 10:07:01AM -0600, Eric W. Biederman wrote:
-> Don Zickus <dzickus@redhat.com> writes:
-> 
-> >> The length error comes from lib/inflate.c 
-> >> 
-> >> I think it would be interesting to look at orig_len and bytes_out.
-> >> 
-> >> My hunch is that I have tripped over a tool chain bug or a weird
-> >> alignment issue.
-> >
-> > I thought so too, but I took vmlinuz images from people (Vivek) who had it
-> > boot on their systems but those images still failed on my two machines.  
-> >
-> >> 
-> >> The error is the uncompressed length does not math the stored length
-> >> of the data before from before we compressed it.  Now what is
-> >> fascinating is that our crc's match (as that check is performed first).
-> >> 
-> >> Something is very slightly off and I don't see what it is.
-> >
-> > I printed out orig_len -> 5910532 (which matches vmlinux.bin)
-> >              bytes_out -> 5910531
-> >
-> >> 
-> >> After looking at the state variables I would probably start looking
-> >> at the uncompressed data to see if it really was decompressing
-> >> properly.  If nothing else that is the kind of process that would tend
-> >> to spark a clue.
-> >
-> > I am not familiar with the code, so very few sparks are flying.  I'll
-> > still dig through though.  Thanks for the tips.
-> 
-> I guess the interesting thing to do would be to 
-> - Recompute the crc to see if we still match.
-> - Possibly instrument of flush_window.
-> 
-> I have a strange feeling that the uncompressed data is getting corrupted
-> after we have flushed the window.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-It seems to be an AMD64 vs EM64T problem.  AMD chipsets work but Intel
-chipsets don't.  
+> Eric W. Biederman wrote:
+>> a) Because I would like to flush out bugs.
+>> b) Because I want a default that works for everyone.
+>> c) Because with MSI we have a potential for large irq counts on most systems.
+>> d) Because anyone who disagrees with me can send a patch and fix
+>>    the default.
+>> e) Because with the default number of cpus we can very close to needing
+>>    this many irqs in the worst case.
+>> f) This is much better than previous to my patch and setting NR_CPUS=255
+>>    and getting 8K IRQS.
+>> g) Because I probably should have been more inventive than copying the
+>>    NR_IRQS text, but when I did the wording sounded ok to me.
+>>
+>
+> Why not simply reserve 224*NR_CPUS IRQs? If you have 256 CPUs allocating 64K
+> IRQs should hardly matter :)
 
-I also blindly incremented bytes_out (as a really cheap hack), it didn't
-work until I added some random putstr's below it (timing??).  Then the
-kernel booted. 
+Well there is this little matter of 224*NR_CPUS*NR_CPUS counters at that point
+that I think would be prohibitive for most sane people.  Taking 224K of per cpu
+memory in 256 different per cpu areas.
 
-Still looking into things.  
+Still what is 56MB when you have a terrabyte of RAM. :)
 
-Cheers,
-Don
-
-> 
-> Eric
-> 
+Eric

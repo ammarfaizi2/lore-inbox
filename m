@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWHGPGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWHGPHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWHGPGb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWHGPGb
+	id S932126AbWHGPHL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWHGPHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:06:31 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:19 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750913AbWHGPGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:06:30 -0400
-Message-ID: <44D75691.8070908@shadowen.org>
-Date: Mon, 07 Aug 2006 16:04:49 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Mon, 7 Aug 2006 11:07:10 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:21787 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932123AbWHGPHI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:07:08 -0400
+Date: Mon, 7 Aug 2006 17:07:07 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, geraldsc@de.ibm.com
+Subject: [patch] s390: add __cpuinit to appldata_cpu_notify
+Message-ID: <20060807150707.GE10416@skybase>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: x86_64 command line truncated II
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <p73slk8pq6s.fsf_-_@verdi.suse.de> <44D75151.5070504@shadowen.org> <200608071646.53886.ak@suse.de>
-In-Reply-To: <200608071646.53886.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Monday 07 August 2006 16:42, Andy Whitcroft wrote:
->> Andi Kleen wrote:
->>> Andi Kleen <ak@suse.de> writes:
->>>
->>>> Andy Whitcroft <apw@shadowen.org> writes:
->>>>
->>>>> It seems that the command line on x86_64 is being truncated during boot:
->>>> in mm right?
->>>>> Will try and track it down.
->>>> Don't bother, it is likely "early-param" (the patch from
->>>> hell). I'll investigate.
->>> Following up myself ... 
->>>
->>> Are you sure it's a regression? 2.6.17 does the same
->>> and we always had that 255 character limit (I tried 
->>> to increase it once, but it broke some old lilo setups) 
->>>
->>> i386 should be the same btw.
->> Its not being truncated at 255 characters, its being truncated at the 
->> first space.  This is coming out of parse_args, which dumps '\0's into 
->> the command_line as it rips it apart.  We now only have one copy of the 
->> command line (in x86_64) instead of two, so we now expose this trashed 
->> copy in /proc/cmdline.
-> 
-> I don't see this in my version; so it's likely fixed already. I did quite
-> a lot of changes on this patch already.
-> 
-> Please test
-> 
-> ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/early-param
+From: Gerald Schaefer <geraldsc@de.ibm.com>
 
-Easier said than done as the original version is unwilling to revert. 
-Looking at the replacement patch it has the same fix I have been testing 
-to restore the original dual buffer semantic.  So I think it would fix 
-the problem we're seeing here.  I'll follow up to this email with the 
-incremental patch I tested with 2.6.18-rc2-mm2.
+[S390] add __cpuinit to appldata_cpu_notify
 
--apw
+Use __cpuinit for CPU hotplug notifier function.
+
+Signed-off-by: Gerald Schaefer <geraldsc@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ arch/s390/appldata/appldata_base.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -urpN linux-2.6/arch/s390/appldata/appldata_base.c linux-2.6-patched/arch/s390/appldata/appldata_base.c
+--- linux-2.6/arch/s390/appldata/appldata_base.c	2006-08-07 14:14:23.000000000 +0200
++++ linux-2.6-patched/arch/s390/appldata/appldata_base.c	2006-08-07 14:14:46.000000000 +0200
+@@ -618,7 +618,7 @@ appldata_offline_cpu(int cpu)
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-static int
++static int __cpuinit
+ appldata_cpu_notify(struct notifier_block *self,
+ 		    unsigned long action, void *hcpu)
+ {

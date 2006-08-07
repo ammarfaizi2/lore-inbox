@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWHGX3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWHGX3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWHGX3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWHGX3M
+	id S932349AbWHGX3F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 19:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWHGX3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:29:12 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33732 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932395AbWHGX3K (ORCPT
+	Mon, 7 Aug 2006 19:29:05 -0400
+Received: from xenotime.net ([66.160.160.81]:17088 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932349AbWHGX3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:29:10 -0400
-Date: Mon, 7 Aug 2006 16:29:06 -0700
-From: Greg KH <gregkh@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
-       Jean Delvare <khali@linux-fr.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
-Message-ID: <20060807232906.GA16922@suse.de>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492242899-git-send-email-multinymous@gmail.com> <20060807134440.GD4032@ucw.cz> <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com> <20060807231557.GA2759@elf.ucw.cz> <20060807232330.GA16540@suse.de> <20060807232520.GF2759@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807232520.GF2759@elf.ucw.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 7 Aug 2006 19:29:04 -0400
+Date: Mon, 7 Aug 2006 16:31:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       Paul.Clements@steeleye.com
+Subject: Re: [PATCH -mm 1/5] nbd: printk format warning
+Message-Id: <20060807163147.547b6861.rdunlap@xenotime.net>
+In-Reply-To: <20060807230726.GA2724@elf.ucw.cz>
+References: <20060807154750.5a268055.rdunlap@xenotime.net>
+	<20060807230726.GA2724@elf.ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 01:25:20AM +0200, Pavel Machek wrote:
-> On Mon 2006-08-07 16:23:30, Greg KH wrote:
-> > On Tue, Aug 08, 2006 at 01:15:57AM +0200, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > Thanks for the sign-offs!
-> > > 
-> > > No problem.
-> > > 
-> > > > >> +module_param_named(debug, tp_debug, int, 0600);
-> > > > >> +MODULE_PARM_DESC(debug, "Debug level (0=off, 1=on)");
-> > > > >> +
-> > > > >> +/* A few macros for printk()ing: */
-> > > > >> +#define DPRINTK(fmt, args...) \
-> > > > >> +  do { if (tp_debug) printk(KERN_DEBUG fmt, ## args); } while (0)
-> > > > >
-> > > > >Is not there generic function doing this?
-> > > > 
-> > > > None that I found. Many drivers do it this way.
-> > > 
-> > > linux/kernel.h : pr_debug() looks similar.
-> > 
-> > Use dev_dbg() and friends please instead of rolling your own.
+On Tue, 8 Aug 2006 01:07:26 +0200 Pavel Machek wrote:
+
+> Hi!
 > 
-> Ahha, okay, dev_dbg() looks even better. (But we have pr_debug in
-> linux/kernel.h; if it should not be used, comment would be nice).
+> > Fix printk format warning(s):
+> > drivers/block/nbd.c:410: warning: long unsigned int format, different type arg (arg 4)
+> > 
+> 
+> ACK, but notice that we have new nbd maintainer... for a few years
+> now.
 
-Use pr_debug if you aren't doing driver things.  But if you have a
-device, please don't use it.
+Please notice that I could not find that info in either of
+MAINTAINERS or CREDITS.... :(
 
-I guess we could add a comment for it, as if anyone would notice it...
+Please have him/her send a patch.
 
-thanks,
+> 							Pavel
+> 
+> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> > ---
+> >  drivers/block/nbd.c |    2 +-
+> >  1 files changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > --- linux-2618-rc3mm2.orig/drivers/block/nbd.c
+> > +++ linux-2618-rc3mm2/drivers/block/nbd.c
+> > @@ -407,7 +407,7 @@ static void do_nbd_request(request_queue
+> >  		struct nbd_device *lo;
+> >  
+> >  		blkdev_dequeue_request(req);
+> > -		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%lx)\n",
+> > +		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%x)\n",
+> >  				req->rq_disk->disk_name, req, req->cmd_type);
+> >  
+> >  		if (!blk_fs_request(req))
+> > 
+> > 
+> > ---
 
-greg k-h
+
+---
+~Randy

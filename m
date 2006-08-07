@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWHGTdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWHGTjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWHGTdG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWHGTdG
+	id S932323AbWHGTjP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWHGTjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:33:06 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:53711 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932218AbWHGTdE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:33:04 -0400
-Message-ID: <44D7955D.9000601@zytor.com>
-Date: Mon, 07 Aug 2006 12:32:45 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Mon, 7 Aug 2006 15:39:15 -0400
+Received: from aa001msr.fastwebnet.it ([85.18.95.64]:38557 "EHLO
+	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932323AbWHGTjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:39:14 -0400
+Date: Mon, 7 Aug 2006 21:38:36 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
+Subject: resume from S3 regression [Was: 2.6.18-rc3-mm2]
+Message-ID: <20060807193836.GA4007@inferi.kami.home>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, Mike Galbraith <efault@gmx.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc4
-References: <Pine.LNX.4.64.0608061127070.5167@g5.osdl.org> <1154963282.4910.13.camel@Homer.simpson.net> <44D77913.2030602@zytor.com> <Pine.LNX.4.61.0608071951470.3365@yvahk01.tjqt.qr> <44D77F72.9040503@zytor.com> <20060807191430.GA13639@kroah.com>
-In-Reply-To: <20060807191430.GA13639@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.18-rc1-mm2-2 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Aug 07, 2006 at 10:59:14AM -0700, H. Peter Anvin wrote:
->> Jan Engelhardt wrote:
->>>>>> It's been a week since -rc3, so now we have a -rc4.
->>>>> Hm.  It still hasn't arrived on kernel.org...
->>>> Looks like Linus never uploaded it...
->>>>
->>> Not even the incr/patch-2.6.18-rc3-rc4 one...
->> That one is auto-generated.
-> 
-> Oops, I created it myself and added it to the tree.  Wonder if the
-> auto-generator will overwrite it...
-> 
-> Hope I didn't break anything.
-> 
+Hello,
 
-It won't overwrite it; it'll probably be fine the way it is.
+after resume from ram (tested in single user), I can type commands for a
+few seconds (time is variable), the processes get stuck in io_schedule.
+Poorman's screenshots are here:
+http://oioio.altervista.org/linux/dsc03448.jpg
+http://oioio.altervista.org/linux/dsc03449.jpg
 
-	-hpa
+.config:
+http://oioio.altervista.org/linux/config-2.6.18-rc3-mm2-1
+
+Anything useful I could add?
+-- 
+mattia
+:wq!

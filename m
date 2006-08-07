@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWHGPQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWHGPUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbWHGPQk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWHGPQk
+	id S932151AbWHGPUS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWHGPUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:16:40 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:44828 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932135AbWHGPQj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:16:39 -0400
-Date: Mon, 7 Aug 2006 17:16:38 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: torvalds@osdl.org, gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Please pull git390 'for-linus' branch
-Message-ID: <20060807151638.GA14761@skybase>
-MIME-Version: 1.0
+	Mon, 7 Aug 2006 11:20:18 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:49359 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932144AbWHGPT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:19:59 -0400
+Date: Mon, 7 Aug 2006 17:19:57 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Dmitry Torokhov <dtor@insightbb.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
+Message-ID: <20060807151957.GA9911@rhlx01.fht-esslingen.de>
+References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz> <20060807125639.GA88155@muc.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060807125639.GA88155@muc.de>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from 'for-linus' branch of
+On Mon, Aug 07, 2006 at 02:56:39PM +0200, Andi Kleen wrote:
+> On Mon, Aug 07, 2006 at 02:48:55PM +0200, Vojtech Pavlik wrote:
+> > But I need, in the driver, in the no-TSC case use i/o counting, not a
+> > slow but reliable method. And I can't say, from outside the timing
+> > subsystem, whether gettimeofday() is fast or slow.
+> 
+> Hmm if that is the only obstacle I can export a "slow gettimeofday" flag.
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+Wouldn't it be much more useful to normalize this versus (e.g.) CPU cycles
+for much more information than a plain "this is fast/this is slow" flag,
+to be measured on bootup?
+That way a driver could use
 
-to receive the following updates:
+	if (gtod_cpu_cycles_needed <= 500)
+		gettimeofday();
+	else
+		funky_fast_workaround();
 
- drivers/s390/char/tape_class.c |    2 +-
- drivers/s390/cio/device_fsm.c  |    1 +
- drivers/s390/cio/device_ops.c  |    3 +++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+OK, in total we have at least four ways of doing this:
 
-Cornelia Huck:
-      [S390] retry after deferred condition code.
+a) gtod_is_slow flag
+b) number of CPU cycles needed
+c) number of nanoseconds needed (but this is less useful since it doesn't
+   properly take into account the fast vs. slow CPUs behaviour, I think)
+d) providing all three items above together, for optimal flexibility??
 
-Heiko Carstens:
-      [S390] tape class return value handling.
+This is somewhat related to an idea of mine which would be to benchmark all
+clock sources on bootup and print a timing summary, optionally warning
+users if grave performance issues have been found with a specific source
+(and especially if that one is active!).
+Additionally, print timing summary of gettimeofday() itself on bootup?
 
-Peter Oberparleiter:
-      [S390] lost interrupt after chpid vary off/on cycle.
-
-diff --git a/drivers/s390/char/tape_class.c b/drivers/s390/char/tape_class.c
-index 643b6d0..56b8761 100644
---- a/drivers/s390/char/tape_class.c
-+++ b/drivers/s390/char/tape_class.c
-@@ -76,7 +76,7 @@ struct tape_class_device *register_tape_
- 				device,
- 				"%s", tcd->device_name
- 			);
--	rc = PTR_ERR(tcd->class_device);
-+	rc = IS_ERR(tcd->class_device) ? PTR_ERR(tcd->class_device) : 0;
- 	if (rc)
- 		goto fail_with_cdev;
- 	rc = sysfs_create_link(
-diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
-index 7a39e0b..6d91c2e 100644
---- a/drivers/s390/cio/device_fsm.c
-+++ b/drivers/s390/cio/device_fsm.c
-@@ -772,6 +772,7 @@ ccw_device_online_verify(struct ccw_devi
- 	stsch(sch->schid, &sch->schib);
- 
- 	if (sch->schib.scsw.actl != 0 ||
-+	    (sch->schib.scsw.stctl & SCSW_STCTL_STATUS_PEND) ||
- 	    (cdev->private->irb.scsw.stctl & SCSW_STCTL_STATUS_PEND)) {
- 		/*
- 		 * No final status yet or final status not yet delivered
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index a601242..9e3de0b 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -263,6 +263,9 @@ ccw_device_wake_up(struct ccw_device *cd
- 	/* Abuse intparm for error reporting. */
- 	if (IS_ERR(irb))
- 		cdev->private->intparm = -EIO;
-+	else if (irb->scsw.cc == 1)
-+		/* Retry for deferred condition code. */
-+		cdev->private->intparm = -EAGAIN;
- 	else if ((irb->scsw.dstat !=
- 		  (DEV_STAT_CHN_END|DEV_STAT_DEV_END)) ||
- 		 (irb->scsw.cstat != 0)) {
+Andreas Mohr

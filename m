@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWHGR7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWHGSEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWHGR7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWHGR7n
+	id S932259AbWHGSEx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWHGSEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:59:43 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18960 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932254AbWHGR7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:59:42 -0400
-Date: Mon, 7 Aug 2006 19:59:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Josh Boyer <jwboyer@gmail.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060807175939.GJ3691@stusta.de>
-References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060807124044.GB4032@ucw.cz>
+	Mon, 7 Aug 2006 14:04:53 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:44214 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932259AbWHGSEw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 14:04:52 -0400
+Date: Mon, 7 Aug 2006 20:00:49 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Daniel Rodrick <daniel.rodrick@gmail.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>,
+       Linux Newbie <linux-newbie@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
+In-Reply-To: <292693080608070911g57ae1215qd994e03b9dd87b66@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0608071958160.3365@yvahk01.tjqt.qr>
+References: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com> 
+ <44D7579D.1040303@zytor.com> <292693080608070911g57ae1215qd994e03b9dd87b66@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807124044.GB4032@ucw.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 12:40:44PM +0000, Pavel Machek wrote:
+>
+> Agreed. But still having a single driver for all the NICs would be
+> simply GREAT for my setup, in which all the PCs will be booted using
+> PXE only. So apart from performance / relilability issues, what are
+> the technical roadblocks in this?
 
-> Hi!
-> 
-> Thanks for doing this.
-> 
-> I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
-> it still queued or should I resend?
+Netboot, in the current world, could be done like this:
 
-Is this "pdflush: handle resume wakeups"?
+1. Grab the PXE ROM code chip manufacturers offer in case your network card 
+does not support booting via PXE yet and write it to an EPROM which most 
+PCI network cards have a socket for
 
-> 						Pavel
+2. Use PXELINUX, boot that with the help of the PXE ROM code
 
-cu
-Adrian
+3. Put all drivers needed into the kernel or initrd; or send out different 
+initrds depending on the DHCP info the PXE client sent. 
 
+
+Jan Engelhardt
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-

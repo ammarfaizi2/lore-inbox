@@ -1,118 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWHGTEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWHGTHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWHGTEg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 15:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWHGTEf
+	id S932317AbWHGTHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 15:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWHGTHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 15:04:35 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:37666 "EHLO
+	Mon, 7 Aug 2006 15:07:09 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:27737 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932307AbWHGTEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 15:04:35 -0400
+	id S932317AbWHGTHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 15:07:07 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=hEaFrNTr9uSCoE5BmISKYudmv/ZNCcma21FdSIFv6slnTv80G8t5rWOJChypchbxK0uAjsKv+Gsnzm4LYhlQ0t960vO1X2MceJPuacwEEHPNVfYTv2z4iB/pELXv2Cqj/WXY75pfUyVtxzOsuWJ44rhW9WXrMnHgXHuaWMF+qfc=
-Message-ID: <cc862f80608071204y5b7b55a9n618dde95eb0c5b4@mail.gmail.com>
-Date: Mon, 7 Aug 2006 15:04:34 -0400
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DMNWWrNnmGdEhQxH4O9GfmwUFGIpkmocJwd5Cg0Ykg/cn7hTVrQ5ULmZqlROHcn1kJgqNOyOuikKMuOWoLF8PjUdyu+uBxwtoI1nXyJczdv8Uv9omqTvV25LWAaGxClwKqwqXiDroEfeT0GGOIcbt18Kx4Zu+jsGPzLbK7nJyHU=
+Message-ID: <cc862f80608071207q4a0b9662qad49b30096d00187@mail.gmail.com>
+Date: Mon, 7 Aug 2006 15:07:06 -0400
 From: "Tien ChenLi" <cltien@gmail.com>
 To: "Willy Tarreau" <w@1wt.eu>
 Subject: Re: [PATCH]pktgen oops when used with balance-tlb bonding
 Cc: linux-kernel@vger.kernel.org, "David Miller" <davem@davemloft.net>
-In-Reply-To: <20060802203854.GA462@1wt.eu>
+In-Reply-To: <cc862f80608071204y5b7b55a9n618dde95eb0c5b4@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_12796_30231125.1154977474369"
-References: <cc862f80607221611x52efac88u620516e17edfa03b@mail.gmail.com>
-	 <20060802203854.GA462@1wt.eu>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-------=_Part_12796_30231125.1154977474369
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <cc862f80607221611x52efac88u620516e17edfa03b@mail.gmail.com>
+	 <20060802203854.GA462@1wt.eu>
+	 <cc862f80608071204y5b7b55a9n618dde95eb0c5b4@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-Indeed the skb->mac.raw is already set just several lines up. Now only
-two lines are needed:
+Hi,
 
-Signed-off-by: Chen-Li Tien <cltien@gmail.com>
+I forgot that if I also need to patch the fill_packet_ipv6 since I
+don't have experience with it. I guess we should patch that one too.
 
---- linux-2.6.17.6/net/core/pktgen.c.orig       2006-07-15
-15:00:43.000000000 -0400
-+++ linux-2.6.17.6/net/core/pktgen.c    2006-08-07 14:50:09.000000000 -0400
-@@ -2149,6 +2149,8 @@ static struct sk_buff *fill_packet_ipv4(
-        skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
-        skb->dev = odev;
-        skb->pkt_type = PACKET_HOST;
-+       skb->nh.iph = iph;
-+       skb->h.uh = udph;
-
-        if (pkt_dev->nfrags <= 0)
-                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
-
-Since google mail extand tab into spaces and I cannot change them back
-to tab, I attached the patch file itself so please use it instead.
-
-Sincerely,
 Chen-Li Tien
 
-On 02/08/06, Willy Tarreau <w@1wt.eu> wrote:
-> On Sat, Jul 22, 2006 at 07:11:21PM -0400, Tien ChenLi wrote:
-> > I fixed a bug in pktgen so it won't cause oops when used with
-> > balance-tlb or balance-alb bonding driver:
+On 07/08/06, Tien ChenLi <cltien@gmail.com> wrote:
+> Indeed the skb->mac.raw is already set just several lines up. Now only
+> two lines are needed:
+>
+> Signed-off-by: Chen-Li Tien <cltien@gmail.com>
+>
+> --- linux-2.6.17.6/net/core/pktgen.c.orig       2006-07-15
+> 15:00:43.000000000 -0400
+> +++ linux-2.6.17.6/net/core/pktgen.c    2006-08-07 14:50:09.000000000 -0400
+> @@ -2149,6 +2149,8 @@ static struct sk_buff *fill_packet_ipv4(
+>         skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
+>         skb->dev = odev;
+>         skb->pkt_type = PACKET_HOST;
+> +       skb->nh.iph = iph;
+> +       skb->h.uh = udph;
+>
+>         if (pkt_dev->nfrags <= 0)
+>                 pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
+>
+> Since google mail extand tab into spaces and I cannot change them back
+> to tab, I attached the patch file itself so please use it instead.
+>
+> Sincerely,
+> Chen-Li Tien
+>
+> On 02/08/06, Willy Tarreau <w@1wt.eu> wrote:
+> > On Sat, Jul 22, 2006 at 07:11:21PM -0400, Tien ChenLi wrote:
+> > > I fixed a bug in pktgen so it won't cause oops when used with
+> > > balance-tlb or balance-alb bonding driver:
+> > >
+> > > --- linux-2.6.17.4/net/core/pktgen.c.orig       2006-07-06
+> > > 16:02:28.000000000 -0
+> > > 400
+> > > +++ linux-2.6.17.4/net/core/pktgen.c    2006-07-10 16:40:47.000000000 -0400
+> > > @@ -2149,6 +2149,9 @@
+> > >        skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
+> > >        skb->dev = odev;
+> > >        skb->pkt_type = PACKET_HOST;
+> > > +       skb->mac.raw = eth;
+> >           ^^^^^^^^^^^^
+> > Are you sure about this ? I don't understand why you change skb->mac.raw
+> > here while it's still assigned 3 lines above. Either of those is unneeded
+> > and/or erroneous.
 > >
-> > --- linux-2.6.17.4/net/core/pktgen.c.orig       2006-07-06
-> > 16:02:28.000000000 -0
-> > 400
-> > +++ linux-2.6.17.4/net/core/pktgen.c    2006-07-10 16:40:47.000000000 -0400
-> > @@ -2149,6 +2149,9 @@
-> >        skb->mac.raw = ((u8 *) iph) - 14 - pkt_dev->nr_labels*sizeof(u32);
-> >        skb->dev = odev;
-> >        skb->pkt_type = PACKET_HOST;
-> > +       skb->mac.raw = eth;
->           ^^^^^^^^^^^^
-> Are you sure about this ? I don't understand why you change skb->mac.raw
-> here while it's still assigned 3 lines above. Either of those is unneeded
-> and/or erroneous.
->
-> > +       skb->nh.iph = iph;
-> > +       skb->h.uh = udph;
+> > > +       skb->nh.iph = iph;
+> > > +       skb->h.uh = udph;
+> > >
+> > >        if (pkt_dev->nfrags <= 0)
+> > >                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
+> > >
+> > > The root cause is that the bond_alb_xmit in bonding will peek the
+> > > destination address in packet via the skb->nh.iph pointer, generally
+> > > this will be filled by upper layer network driver, but the packet
+> > > generated by pktgen will be sent to device driver so it will need to
+> > > set this pointer correctly. The other two pointers are not necessary
+> > > for now, they are set to avoid similar problem.
 > >
-> >        if (pkt_dev->nfrags <= 0)
-> >                pgh = (struct pktgen_hdr *)skb_put(skb, datalen);
+> > Fine. Please confirm your intention about mac.raw above, and as David
+> > said, please sign-off the patch and check your mailer for unexpected
+> > tabs/spaces conversions.
 > >
-> > The root cause is that the bond_alb_xmit in bonding will peek the
-> > destination address in packet via the skb->nh.iph pointer, generally
-> > this will be filled by upper layer network driver, but the packet
-> > generated by pktgen will be sent to device driver so it will need to
-> > set this pointer correctly. The other two pointers are not necessary
-> > for now, they are set to avoid similar problem.
->
-> Fine. Please confirm your intention about mac.raw above, and as David
-> said, please sign-off the patch and check your mailer for unexpected
-> tabs/spaces conversions.
->
-> > Chen-Li Tien
->
-> Thanks in advance,
-> Willy
+> > > Chen-Li Tien
+> >
+> > Thanks in advance,
+> > Willy
+> >
+> >
 >
 >
-
-------=_Part_12796_30231125.1154977474369
-Content-Type: text/x-patch; name=pktgen.c.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eql7ku5b
-Content-Disposition: attachment; filename="pktgen.c.patch"
-
-LS0tIGxpbnV4LTIuNi4xNy42L25ldC9jb3JlL3BrdGdlbi5jLm9yaWcJMjAwNi0wNy0xNSAxNTow
-MDo0My4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LTIuNi4xNy42L25ldC9jb3JlL3BrdGdlbi5j
-CTIwMDYtMDgtMDcgMTQ6NTA6MDkuMDAwMDAwMDAwIC0wNDAwCkBAIC0yMTQ5LDYgKzIxNDksOCBA
-QCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKmZpbGxfcGFja2V0X2lwdjQoCiAJc2tiLT5tYWMucmF3
-ID0gKCh1OCAqKSBpcGgpIC0gMTQgLSBwa3RfZGV2LT5ucl9sYWJlbHMqc2l6ZW9mKHUzMik7CiAJ
-c2tiLT5kZXYgPSBvZGV2OwogCXNrYi0+cGt0X3R5cGUgPSBQQUNLRVRfSE9TVDsKKwlza2ItPm5o
-LmlwaCA9IGlwaDsKKwlza2ItPmgudWggPSB1ZHBoOwogCiAJaWYgKHBrdF9kZXYtPm5mcmFncyA8
-PSAwKQogCQlwZ2ggPSAoc3RydWN0IHBrdGdlbl9oZHIgKilza2JfcHV0KHNrYiwgZGF0YWxlbik7
-Cg==
-------=_Part_12796_30231125.1154977474369--
+>

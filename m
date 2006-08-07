@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWHGQ57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWHGQ6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWHGQ57 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWHGQ57
+	id S932225AbWHGQ6e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWHGQ6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:57:59 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:15055 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932161AbWHGQ55 (ORCPT
+	Mon, 7 Aug 2006 12:58:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:3257 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932178AbWHGQ6c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:57:57 -0400
-Date: Mon, 7 Aug 2006 11:57:36 -0500
+	Mon, 7 Aug 2006 12:58:32 -0400
+Date: Mon, 7 Aug 2006 11:58:11 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
-       linux-laptop@vger.kernel.org, ben-s3c2410@fluff.org
-Subject: [PATCH 2/3] kthread: switch arch/arm/kernel/apm.c
-Message-ID: <20060807165736.GB11208@sergelap.austin.ibm.com>
+       linux-laptop@vger.kernel.org, ralf@linux-mips.org
+Subject: [PATCH 3/3] kthread: update arch/mips/kernel/apm.c
+Message-ID: <20060807165810.GC11208@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,18 +22,18 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switch arch/arm/kernel/apm.c from using kernel_thread - whose export
-is deprecated - to kthread.
+Update arch/mips/kernel/apm.c to use kthread instead of
+kernel_thread, whose export is deprecated.
 
 Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 ---
- arch/arm/kernel/apm.c |   33 +++++++++++++--------------------
- 1 files changed, 13 insertions(+), 20 deletions(-)
+ arch/mips/kernel/apm.c |   32 +++++++++++++-------------------
+ 1 files changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/arch/arm/kernel/apm.c b/arch/arm/kernel/apm.c
-index 33c5568..ecf4f94 100644
---- a/arch/arm/kernel/apm.c
-+++ b/arch/arm/kernel/apm.c
+diff --git a/arch/mips/kernel/apm.c b/arch/mips/kernel/apm.c
+index 528e731..89215b9 100644
+--- a/arch/mips/kernel/apm.c
++++ b/arch/mips/kernel/apm.c
 @@ -25,6 +25,7 @@ #include <linux/kernel.h>
  #include <linux/list.h>
  #include <linux/init.h>
@@ -46,7 +46,7 @@ index 33c5568..ecf4f94 100644
   */
  static int suspends_pending;
  static int apm_disabled;
--static int arm_apm_active;
+-static int mips_apm_active;
 +static struct task_struct *kapmd_tsk;
  
  static DECLARE_WAIT_QUEUE_HEAD(apm_waitqueue);
@@ -70,10 +70,10 @@ index 33c5568..ecf4f94 100644
  		apm_event_t event;
  
  		wait_event_interruptible(kapmd_wait,
--				!queue_empty(&kapmd_queue) || !arm_apm_active);
-+				!queue_empty(&kapmd_queue) || kthread_should_stop());
+-				!queue_empty(&kapmd_queue) || !mips_apm_active);
++				!queue_empty(&kapmd_queue) || kthread_should_stop())
  
--		if (!arm_apm_active)
+-		if (!mips_apm_active)
 +		if (kthread_should_stop())
  			break;
  
@@ -91,11 +91,11 @@ index 33c5568..ecf4f94 100644
  		return -ENODEV;
  	}
  
--	arm_apm_active = 1;
+-	mips_apm_active = 1;
 -
 -	ret = kernel_thread(kapmd, NULL, CLONE_KERNEL);
 -	if (ret < 0) {
--		arm_apm_active = 0;
+-		mips_apm_active = 0;
 +	kapmd_tsk = kthread_create(kapmd, NULL, "kapmd");
 +	if (IS_ERR(kapmd_tsk)) {
 +		ret = PTR_ERR(kapmd_tsk);
@@ -107,23 +107,22 @@ index 33c5568..ecf4f94 100644
  
  #ifdef CONFIG_PROC_FS
  	create_proc_info_entry("apm", 0, NULL, apm_get_info);
-@@ -535,10 +533,7 @@ #endif
- 	ret = misc_register(&apm_device);
+@@ -536,9 +534,7 @@ #endif
  	if (ret != 0) {
  		remove_proc_entry("apm", NULL);
--
--		arm_apm_active = 0;
+ 
+-		mips_apm_active = 0;
 -		wake_up(&kapmd_wait);
 -		wait_for_completion(&kapmd_exit);
 +		kthread_stop(kapmd_tsk);
  	}
  
  	return ret;
-@@ -549,9 +544,7 @@ static void __exit apm_exit(void)
+@@ -549,9 +545,7 @@ static void __exit apm_exit(void)
  	misc_deregister(&apm_device);
  	remove_proc_entry("apm", NULL);
  
--	arm_apm_active = 0;
+-	mips_apm_active = 0;
 -	wake_up(&kapmd_wait);
 -	wait_for_completion(&kapmd_exit);
 +	kthread_stop(kapmd_tsk);

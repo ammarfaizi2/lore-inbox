@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWHGPKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWHGPL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWHGPKu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 11:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWHGPKu
+	id S932141AbWHGPL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 11:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWHGPL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 11:10:50 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:2835 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932131AbWHGPKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 11:10:49 -0400
-Message-ID: <44D75786.8030603@shadowen.org>
-Date: Mon, 07 Aug 2006 16:08:54 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Mon, 7 Aug 2006 11:11:57 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:52710 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932133AbWHGPLz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 11:11:55 -0400
+Message-ID: <44D7579D.1040303@zytor.com>
+Date: Mon, 07 Aug 2006 08:09:17 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 early_param mem= fix
-References: <Pine.LNX.4.64.0608061811030.19637@blonde.wat.veritas.com> <Pine.LNX.4.64.0608061829430.20012@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0608061829430.20012@blonde.wat.veritas.com>
+To: Daniel Rodrick <daniel.rodrick@gmail.com>
+CC: Linux Newbie <linux-newbie@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
+References: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com>
+In-Reply-To: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Sun, 6 Aug 2006, Hugh Dickins wrote:
->> I was impressed by how fast 2.6.18-rc3-mm2 is under memory pressure,
->> until I noticed that my "mem=512M" boot option was doing nothing.  The
->> two fixes below got it working, but I wonder how many other early_param
->> "option=" args are wrong (e.g. "memmap=" in the same file): x86_64
->> shows many such, i386 shows only one, I've not followed it up further.
+Daniel Rodrick wrote:
+> Hi list,
 > 
-> Oh, and that's not enough for it to show up in x86_64's /proc/cmdline.
+> I was curious as to why a Universal driver (using UNDI API) for Linux
+> does not exist (or does it)?
+> 
+> I want to try and write a such a driver that could (in principle)
+> handle all the NICs that are PXE compatible.
+> 
+> Has this been tried? What are the technical problems that might come in 
+> my way?
+> 
 
-Thats one I've been chasing and is caused by this same patch.  We've 
-lost the separation between command_line and saved_command_line and the 
-user visible line gets trunc'd.  Andi has a later version which has this 
-part fixed as far as I can tell.  I'm posting a dirty patch in response 
-to my report of this to at least get past this bit as our test system 
-relies on the commmand line being maintained to user space.
+It has been tried; in fact Intel did implement this in their "Linux PXE 
+SDK".  The UNDI API is absolutely atrocious, however, being based on 
+NDIS2 which is widely considered the worst of all the many network 
+stacks for DOS.
 
--apw
+Additionally, many UNDI stacks don't work correctly when called from 
+protected mode, since the interface doesn't work right.  Additionally, 
+UNDI is *ONLY* available after booting from the NIC.
+
+	-hpa

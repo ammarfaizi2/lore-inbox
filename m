@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWHGRfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWHGRiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWHGRfx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWHGRfx
+	id S1750785AbWHGRiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWHGRiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:35:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:3538 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932248AbWHGRfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:35:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=C2v10HAbKqWlTLFIjrKOnqh1n5r8McowCE32rlweLZnpaymCB+iZG39RYmcHQ8Qigj+ioH72wExeHPNGUlVsLrulsu8pXwTZzwy0jnyaBF0CvtpvA265sa+qHyuAUWhDTkbZWQKxOsc5OQKGQtSsLZ678ZMQaDRlT0UrjPJuvgw=
-Message-ID: <d120d5000608071035k2ec5b4ffu949a99ad4a8c3d66@mail.gmail.com>
-Date: Mon, 7 Aug 2006 13:35:50 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Crash on evdev disconnect.
-In-Reply-To: <20060807155916.GE5472@aehallh.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060807155916.GE5472@aehallh.com>
+	Mon, 7 Aug 2006 13:38:25 -0400
+Received: from wind.enjellic.com ([209.243.13.15]:44768 "EHLO
+	wind.enjellic.com") by vger.kernel.org with ESMTP id S1750785AbWHGRiZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:38:25 -0400
+Message-Id: <200608071737.k77Hbjph002429@wind.enjellic.com>
+From: greg@enjellic.com
+Date: Mon, 7 Aug 2006 12:37:45 -0500
+In-Reply-To: Theodore Tso <tytso@mit.edu>
+       "Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion" (Jul 31,  3:41pm)
+Reply-To: greg@enjellic.com
+X-Mailer: Mail User's Shell (7.2.5 10/14/92)
+To: Theodore Tso <tytso@mit.edu>, Adrian Ulrich <reiser4@blinkenlights.ch>,
+       vonbrand@inf.utfsm.cl, ipso@snappymail.ca, reiser@namesys.com,
+       lkml@lpbproductions.com, jeff@garzik.org, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Jul 31,  3:41pm, Theodore Tso wrote:
+} Subject: Re: the " 'official' point of view" expressed by kernelnewbies.or
 
-On 8/7/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
->        if (evdev->open) {
->                input_close_device(handle);
->                wake_up_interruptible(&evdev->wait);
-> -               list_for_each_entry(list, &evdev->list, node)
-> +               list_for_each_entry_safe(list, next, &evdev->list, node)
->                        kill_fasync(&list->fasync, SIGIO, POLL_HUP);
+> On Mon, Jul 31, 2006 at 06:54:06PM +0200, Matthias Andree wrote:
+> > > > This looks rather like an education issue rather than a technical limit.
+> > > 
+> > > We aren't talking about the same issue: I was asking to do it
+> > > on-the-fly. Umounting the filesystem, running e2fsck and resize2fs
+> > > is something different ;-)
+> > 
+> > There was stuff by Andreas Dilger, to support "online" resizing of
+> > mounted ext2 file systems. I never cared to look for this (does it
+> > support ext3, does it work with current kernels, merge status) since
+> > offline resizing was always sufficient for me.
 
-NAK. kill_fasync does not affect the list state so using _safe does
-not buy us anything.
+> With the latest e2fsprogs and 2.6 kernels, the online resizing
+> support has been merged in, and as long as the filesystem was
+> created with space reserved for growing the filesystem (which is now
+> the default, or if the filesystem has the off-line prepration step
+> ext2prepare run on it), you can run resize2fs on a mounted
+> filesystem and grow an ext2/3 filesystem on-line.  And yes, you get
+> more inodes as you add more disk blocks, using the original inode
+> ratio that was established when the filesystem was created.
 
-BTW, dtor_core@ameritech.net address is dead, please use
-dmitry.torokhov@gmail.com or dtor@mail.ru or dtor@isightbb.com.
+Are all the necessary tools in and documented in e2fsprogs?
 
--- 
-Dmitry
+It seems that finding all the bits and pieces to do ext3 on-line
+expansion has been a study in obfuscation.  Somewhat surprising since
+this feature is a must for enterprise class storage management.
+
+> 						- Ted
+
+Best wishes for a productive week.
+
+}-- End of excerpt from Theodore Tso
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"Ooohh.. FreeBSD is faster over loopback, when compared to Linux over
+the wire.  Film at 11."
+                                -- Linus Torvalds

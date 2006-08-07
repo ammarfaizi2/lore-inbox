@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWHGRPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWHGRQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWHGRPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 13:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHGRPz
+	id S932235AbWHGRQL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 13:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWHGRQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 13:15:55 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:18374 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750804AbWHGRPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 13:15:54 -0400
-Date: Mon, 7 Aug 2006 10:15:18 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: nagar@watson.ibm.com, akpm@osdl.org, vatsa@in.ibm.com, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, sam@vilain.net, linux-kernel@vger.kernel.org,
-       dev@openvz.org, efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       haveblue@us.ibm.com
-Subject: Re: [ProbableSpam] Re: [RFC, PATCH 0/5] Going forward with Resource
- Management - A cpu  controller
-Message-Id: <20060807101518.aef1f06e.pj@sgi.com>
-In-Reply-To: <44D765E3.9040206@sw.ru>
-References: <20060804050753.GD27194@in.ibm.com>
-	<20060803223650.423f2e6a.akpm@osdl.org>
-	<44D35794.2040003@sw.ru>
-	<44D367F3.8060108@watson.ibm.com>
-	<44D6EBEF.9010804@sw.ru>
-	<20060807023025.2c44f3d1.pj@sgi.com>
-	<44D765E3.9040206@sw.ru>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Mon, 7 Aug 2006 13:16:10 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:43969 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932235AbWHGRQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 13:16:09 -0400
+Message-Id: <200608071715.k77HFkX1004664@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] UML - Fix botched signal handling patch
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 07 Aug 2006 13:15:46 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> we have a /proc which is very convenient for use from shell etc. but
-> is not good for applications, not fast enough etc.
-> moreover, /proc had always problems with locking, races and people tend to
-> feel like they can change text presention of data, while applications parsing
-> it tend to break.
+I botched a previous patch which changed how UML handles signals.  I
+left out a bit which sets the signal handler to be one provided by the
+architecture.
 
-Yes - one can botch a file system API.
+This patch sets the handler correctly.
 
-One can botch syscalls, too.  Do you love 'ioctl'?
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-For some calls, the performance of a raw syscall is critical.  And
-eventually, filesystem API's must resolve to raw file i/o syscalls.
+Index: linux-2.6.18-mm/arch/um/os-Linux/signal.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/os-Linux/signal.c	2006-08-07 10:05:32.000000000 -0400
++++ linux-2.6.18-mm/arch/um/os-Linux/signal.c	2006-08-07 10:15:38.000000000 -0400
+@@ -118,7 +118,8 @@ void set_handler(int sig, void (*handler
+ 	sigset_t sig_mask;
+ 	int mask;
+ 
+-	action.sa_handler = handler;
++	handlers[sig] = (void (*)(int, struct sigcontext *)) handler;
++	action.sa_handler = hard_handler;
+ 
+ 	sigemptyset(&action.sa_mask);
+ 
 
-But for these sorts of system configuration and management, the
-difference in performance between file system API's and raw syscall
-API's is not one of the decisive issues that determines success or
-failure.
-
-Getting a decent API that naturally reflects the long term essential
-shape of the data is one of these decisive issues.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

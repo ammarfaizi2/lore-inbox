@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWHGSRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWHGSUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWHGSRt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 14:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWHGSRs
+	id S932275AbWHGSUp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 14:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWHGSUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 14:17:48 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:56545 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932084AbWHGSRp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 14:17:45 -0400
-Message-ID: <44D78337.40109@zytor.com>
-Date: Mon, 07 Aug 2006 11:15:19 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Mon, 7 Aug 2006 14:20:45 -0400
+Received: from mail.gmx.net ([213.165.64.20]:48822 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932275AbWHGSUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 14:20:44 -0400
+X-Authenticated: #5039886
+Date: Mon, 7 Aug 2006 20:20:47 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Pavel Machek <pavel@suse.cz>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Message-ID: <20060807182047.GC26224@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Shem Multinymous <multinymous@gmail.com>,
+	Pavel Machek <pavel@suse.cz>, Robert Love <rlove@rlove.org>,
+	Jean Delvare <khali@linux-fr.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	hdaps-devel@lists.sourceforge.net
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492543835-git-send-email-multinymous@gmail.com> <20060807140721.GH4032@ucw.cz> <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Daniel Rodrick <daniel.rodrick@gmail.com>,
-       Linux Newbie <linux-newbie@vger.kernel.org>,
-       kernelnewbies <kernelnewbies@nl.linux.org>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
-References: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com>  <44D7579D.1040303@zytor.com> <292693080608070911g57ae1215qd994e03b9dd87b66@mail.gmail.com> <Pine.LNX.4.61.0608071958160.3365@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0608071958160.3365@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> Agreed. But still having a single driver for all the NICs would be
->> simply GREAT for my setup, in which all the PCs will be booted using
->> PXE only. So apart from performance / relilability issues, what are
->> the technical roadblocks in this?
+On 2006.08.07 19:30:55 +0300, Shem Multinymous wrote:
+> Hi Pavel,
 > 
-> Netboot, in the current world, could be done like this:
+> On 8/7/06, Pavel Machek <pavel@suse.cz> wrote:
+> >> +     int total, ret;
+> >> +     for (total=READ_TIMEOUT_MSECS; total>0; total-=RETRY_MSECS) {
+> >
+> >Could we go from 0 to timeout, not the other way around?
 > 
-> 1. Grab the PXE ROM code chip manufacturers offer in case your network card 
-> does not support booting via PXE yet and write it to an EPROM which most 
-> PCI network cards have a socket for
-> 
-> 2. Use PXELINUX, boot that with the help of the PXE ROM code
-> 
-> 3. Put all drivers needed into the kernel or initrd; or send out different 
-> initrds depending on the DHCP info the PXE client sent. 
-> 
+> Sure.
+> (That's actually vanilla hdapsd code, moved around...)
 
-There is a program called "ethersel" included with PXELINUX which can be 
-used to send out different initrds depending on an enumeration of PCI space.
+Maybe you could convert that to sth. like this along the way?
 
-	-hpa
+int ret;
+unsigned long timeout = jiffies + msec_to_jiffies(READ_TIMEOUT_MSECS);
+for (;;) {
+	ret = thinkpad_ec_lock();
+	if (ret)
+		return ret;
+	ret = __hdaps_update(0);
+	thinkpad_ec_unlock();
+
+	if (ret != -EBUSY)
+		return ret;
+	if (time_after(timeout, jiffies))
+		break;
+	msleep(RETRY_MSECS);
+}
+return ret;
+
+Rationale: http://lkml.org/lkml/2005/7/14/133 - it's also listed on the
+kerneljanitors todo list.
+
+Regards
+Björn

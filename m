@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWHGFEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWHGFGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWHGFEB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 01:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWHGFEB
+	id S1751038AbWHGFGD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 01:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWHGFGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 01:04:01 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:33217 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751035AbWHGFEA
+	Mon, 7 Aug 2006 01:06:03 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:39809 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751038AbWHGFGB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 01:04:00 -0400
-Date: Mon, 7 Aug 2006 10:35:17 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, David Smith <dsmith@redhat.com>,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
-       prasanna@in.ibm.com, anil.s.keshavamurthy@intel.com,
-       davem@davemloft.net
-Subject: Re: [PATCH] module interface improvement for kprobes
-Message-ID: <20060807050517.GA18437@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <1154704652.15967.7.camel@dhcp-2.hsv.redhat.com> <20060804155711.GA13271@infradead.org> <20060807045213.GA12898@in.ibm.com>
+	Mon, 7 Aug 2006 01:06:01 -0400
+Date: Mon, 7 Aug 2006 06:06:00 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux v2.6.18-rc4
+Message-ID: <20060807050600.GM29920@ftp.linux.org.uk>
+References: <Pine.LNX.4.64.0608061127070.5167@g5.osdl.org> <20060806224814.GA15883@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060807045213.GA12898@in.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060806224814.GA15883@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 10:22:13AM +0530, Ananth N Mavinakayanahalli wrote:
-> On Fri, Aug 04, 2006 at 04:57:11PM +0100, Christoph Hellwig wrote:
-> > > {
-> > > 	/* grab the module, making sure it won't get unloaded until
-> > > 	 * we're done */
-> > > 	const char *mod_name = "joydev";
-> > > 	if (module_get_byname(mod_name, &mod) != 0)
-> > > 		return 1;
-> > > 
-> > > 	/* Specify the address/offset where you want to insert
-> > > 	 * probe.  If this were a real kprobe module, we'd "relocate"
-> > > 	 * our probe address based on the load address of the module
-> > > 	 * we're interested in. */
-> > > 	kp.addr = (kprobe_opcode_t *) mod->module_core + 0;
-> > > 
-> > > 	/* All set to register with Kprobes */
-> > >         register_kprobe(&kp);
-> > > 	return 0;
-> > > }
-> > 
-> > This interface is horrible.  You actual patch looks good to me, but it
-> > I can't see why you would need it.  kallsyms_lookup_name deals with modules
-> > transparently and you shouldn't put a probe at a relative offset into a
-> > module but only at a symbol you could find with kallsys.
-> > 
-> > That beeing said we should probably change the kprobes interface to
-> > automatically do the kallsysms name lookup for the caller.  It would simplify
-> > the kprobes interface and allow us to get rid of the kallsyms_lookup_name
-> > export that doesn't have a valid use except for kprobes.  With
-> > that change the example kprobe would look like:
+On Sun, Aug 06, 2006 at 03:48:14PM -0700, Greg KH wrote:
+> On Sun, Aug 06, 2006 at 11:35:52AM -0700, Linus Torvalds wrote:
+> > Anyway, I'll be effectively offline for most of the following three weeks 
+> > (vacations and a funeral), and while I hope to be able to update my tree 
+> > every once in a while, I also asked Greg KH to maintain a git tree for any 
+> > worthwhile fixes.
 > 
-> This sounds like a good idea. How about we still allow .addr atleast for
-> users who know what they are doing and would want to just specify a text
-> addr?
+> And for people who want to watch that tree, it can be found at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.git/
 > 
-> > static struct kprobe kp = {
-> 	.addr		= <addr>
-> 
-> > 	.pre_handler	= handler_pre,
-> > 	.post_handler	= handler_post,
-> > 	.fault_handler	= handler_fault,
-> > 	.symbol_name	= "do_fork",
-> > };
-> 
-> The symbol_name lookup can then be done when only when .addr is non-NULL.
+> Right now it only has 2 JFS patches which it seems that Linus missed
+> before he did 2.6.18-rc4.
 
-Duh! I meant to say lookup when .addr is NULL.
-
-Ananth
+There's also a bunch of build fixes; will send your way...

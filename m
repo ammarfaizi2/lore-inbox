@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWHGW4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWHGW4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWHGW4S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 18:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWHGW4S
+	id S932327AbWHGW4x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 18:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWHGW4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 18:56:18 -0400
-Received: from xenotime.net ([66.160.160.81]:24753 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750826AbWHGW4Q (ORCPT
+	Mon, 7 Aug 2006 18:56:47 -0400
+Received: from nevyn.them.org ([66.93.172.17]:55255 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1750952AbWHGW4n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 18:56:16 -0400
-Date: Mon, 7 Aug 2006 15:52:08 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, dwmw2 <dwmw2@infradead.org>
-Subject: [PATCH -mm 3/5] MTD: printk format warning
-Message-Id: <20060807155208.666d7ea3.rdunlap@xenotime.net>
-In-Reply-To: <20060807155044.a8eee456.rdunlap@xenotime.net>
-References: <20060807154750.5a268055.rdunlap@xenotime.net>
-	<20060807155044.a8eee456.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 18:56:43 -0400
+Date: Mon, 7 Aug 2006 18:56:42 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Message-ID: <20060807225642.GA31752@nevyn.them.org>
+Mail-Followup-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI> <20060807101745.61f21826.froese@gmx.de> <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com> <20060807224144.3bb64ac4.froese@gmx.de> <eb8g8b$837$1@taverner.cs.berkeley.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <eb8g8b$837$1@taverner.cs.berkeley.edu>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Mon, Aug 07, 2006 at 10:52:59PM +0000, David Wagner wrote:
+> I'm still trying to understand the semantics of this proposed
+> frevoke() implementation.  Can an attacker use this to forcibly
+> close some other processes' file descriptor?  Suppose the target
+> process has fd 0 open and the attacker revokes the file corresponding
+> to fd 0; what is the state of fd 0 in the target process?  Is it
+> closed?  If the target process then open()s another file, does it
+> get bound to fd 0?  (Recall that open() always binds to the lowest
+> unused fd.)  If the answers are "yes", then the security consequences
+> seem very scary.
 
-Fix printk format warning(s):
-drivers/mtd/mtd_blkdevs.c:72: warning: long int format, different type arg (arg 2)
+No, that's already been answered at least once.  The file remains open,
+but returns EBADF on various operations.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/mtd/mtd_blkdevs.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2618-rc3mm2.orig/drivers/mtd/mtd_blkdevs.c
-+++ linux-2618-rc3mm2/drivers/mtd/mtd_blkdevs.c
-@@ -69,7 +69,7 @@ static int do_blktrans_request(struct mt
- 		return 1;
- 
- 	default:
--		printk(KERN_NOTICE "Unknown request %ld\n", rq_data_dir(req));
-+		printk(KERN_NOTICE "Unknown request %d\n", rq_data_dir(req));
- 		return 0;
- 	}
- }
-
-
----
+-- 
+Daniel Jacobowitz
+CodeSourcery

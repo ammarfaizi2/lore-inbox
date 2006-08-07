@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHGCKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWHGCSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWHGCKf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Aug 2006 22:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWHGCKf
+	id S1750795AbWHGCSK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Aug 2006 22:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWHGCSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Aug 2006 22:10:35 -0400
-Received: from ns1.suse.de ([195.135.220.2]:12171 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750895AbWHGCKf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Aug 2006 22:10:35 -0400
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [patch 7/8] Add a bootparameter to reserve high linear address space.
-Date: Mon, 7 Aug 2006 04:10:22 +0200
+	Sun, 6 Aug 2006 22:18:10 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:5705 "EHLO
+	asav14.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1750795AbWHGCSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Aug 2006 22:18:09 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Aa4HAMg+1kSBUQ
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc3-mm2
+Date: Sun, 6 Aug 2006 22:18:05 -0400
 User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@ucw.cz>, Jeremy Fitzhardinge <jeremy@xensource.com>,
-       akpm@osdl.org, xen-devel@lists.xensource.com,
-       Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
-References: <20060803002510.634721860@xensource.com> <20060803002518.595166293@xensource.com> <19700101001522.GA3999@ucw.cz>
-In-Reply-To: <19700101001522.GA3999@ucw.cz>
+Cc: Fabio Comolli <fabio.comolli@gmail.com>, linux-kernel@vger.kernel.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <b637ec0b0608060848k22af58cbo6f13cee19498c2d2@mail.gmail.com> <20060806120901.ee600a36.akpm@osdl.org>
+In-Reply-To: <20060806120901.ee600a36.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608070410.22803.ak@suse.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608062218.06380.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 January 1970 01:15, Pavel Machek wrote:
-> Hi!
+On Sunday 06 August 2006 15:09, Andrew Morton wrote:
+> -tycho kernel: input: PS/2 Mouse as /class/input/input1
+> -tycho kernel: input: AlpsPS/2 ALPS GlidePoint as /class/input/input2
 > 
-> > Add a bootparameter to reserve high linear address space for hypervisors.
-> > This is necessary to allow dynamically loaded hypervisor modules, which
+> That's not so good.
 > 
-> Dynamically loaded hypervisor? Do we really want to support that?
+> 
+> Dmitry, do you have anything in there which might have caused that?
+> 
+> Perhaps hdaps-handle-errors-from-input_register_device.patch is triggering
+> for some reason.
 
-I hope so. IMHO letting Linux boot first and then the Hypervisor is 
-a better design than the other way round which requires a lot of duplicated code.
+Hmm, I'd be more concerned with i8042-get-rid-of-polling-timer patch...
+Anyway, can I have dmesg from boot with i8042.debug=1, please? Make sure
+you have big log biffer.
 
--Andi
+-- 
+Dmitry

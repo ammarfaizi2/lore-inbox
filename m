@@ -1,55 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWHGLbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWHGLyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWHGLbG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 07:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWHGLbG
+	id S1750796AbWHGLyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 07:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWHGLyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 07:31:06 -0400
-Received: from srvr22.engin.umich.edu ([141.213.75.21]:21999 "EHLO
-	srvr22.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S1750745AbWHGLbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 07:31:05 -0400
-From: Matt Reuther <mreuther@umich.edu>
-Organization: The Knights Who Say... Ni!
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc3-mm2 Compile Error
-Date: Mon, 7 Aug 2006 07:31:44 -0400
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200608062330.19628.mreuther@umich.edu> <20060806222129.f1cfffb9.akpm@osdl.org>
-In-Reply-To: <20060806222129.f1cfffb9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 07:54:16 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:31902 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750796AbWHGLyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 07:54:15 -0400
+Date: Mon, 7 Aug 2006 17:25:37 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] Kprobes: Make kprobe modules more portable
+Message-ID: <20060807115537.GA15253@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608070731.45133.mreuther@umich.edu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 August 2006 01:21 am, Andrew Morton wrote:
-> On Sun, 6 Aug 2006 23:30:19 -0400
->
-> Matt Reuther <mreuther@umich.edu> wrote:
-> > I got an Error while compiling 2.6.18-rc3-mm2:
-> >
-> >   AR      arch/i386/lib/lib.a
-> >   GEN     .version
-> >   CHK     include/linux/compile.h
-> >   UPD     include/linux/compile.h
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      .tmp_vmlinux1
-> > kernel/built-in.o(.text+0x45667): In function `bacct_add_tsk':
-> > include/linux/time.h:130: undefined reference to `__divdi3'
-> > make: *** [.tmp_vmlinux1] Error 1
-> >
-> > I attached the .config file.
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.
->6.18-rc3-mm2/hot-fixes/csa-basic-accounting-over-taskstats-fix.patch should
-> fix this, thanks.
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-It does indeed fix the error. Thank you!
+This patch introduces KPROBE_ADDR, a macro that abstracts out the
+architecture-specific artefacts of getting the correct text address
+given a symbol. While we are at it, also introduce the symbol_name field
+in struct kprobe to allow for users to just specify the address to be
+probed in terms of the kernel symbol. In-kernel kprobes infrastructure
+decodes the actual text address to probe. The symbol resolution happens
+only if the kprobe.addr isn't explicitly specified.
 
-Matt
+---
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Signed-off-by: Prasanna S.P <prasanna@in.ibm.com>
+
+
+---
+ include/asm-powerpc/kprobes.h |    2 ++
+ include/linux/kprobes.h       |    8 ++++++++
+ kernel/kprobes.c              |    4 ++++
+ 3 files changed, 14 insertions(+)
+
+Index: linux-2.6.18-rc3/include/asm-powerpc/kprobes.h
+===================================================================
+--- linux-2.6.18-rc3.orig/include/asm-powerpc/kprobes.h
++++ linux-2.6.18-rc3/include/asm-powerpc/kprobes.h
+@@ -44,6 +44,8 @@ typedef unsigned int kprobe_opcode_t;
+ #define IS_TDI(instr)		(((instr) & 0xfc000000) == 0x08000000)
+ #define IS_TWI(instr)		(((instr) & 0xfc000000) == 0x0c000000)
+ 
++#define KPROBE_ADDR(name) *((kprobe_opcode_t **)(kallsyms_lookup_name(name)))
++
+ #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)((func_descr_t *)pentry)
+ 
+ #define is_trap(instr)	(IS_TW(instr) || IS_TD(instr) || \
+Index: linux-2.6.18-rc3/include/linux/kprobes.h
+===================================================================
+--- linux-2.6.18-rc3.orig/include/linux/kprobes.h
++++ linux-2.6.18-rc3/include/linux/kprobes.h
+@@ -36,6 +36,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/rcupdate.h>
+ #include <linux/mutex.h>
++#include <linux/kallsyms.h>
+ 
+ #ifdef CONFIG_KPROBES
+ #include <asm/kprobes.h>
+@@ -49,6 +50,10 @@
+ /* Attach to insert probes on any functions which should be ignored*/
+ #define __kprobes	__attribute__((__section__(".kprobes.text")))
+ 
++#ifndef KPROBE_ADDR	/* powerpc has its own definition */
++#define KPROBE_ADDR(name) (kprobe_opcode_t *)(kallsyms_lookup_name(name))
++#endif	/* KPROBE_ADDR */
++
+ struct kprobe;
+ struct pt_regs;
+ struct kretprobe;
+@@ -77,6 +82,9 @@ struct kprobe {
+ 	/* location of the probe point */
+ 	kprobe_opcode_t *addr;
+ 
++	/* Allow user to indicate symbol name of the probe point */
++	char *symbol_name;
++
+ 	/* Called before addr is executed. */
+ 	kprobe_pre_handler_t pre_handler;
+ 
+Index: linux-2.6.18-rc3/kernel/kprobes.c
+===================================================================
+--- linux-2.6.18-rc3.orig/kernel/kprobes.c
++++ linux-2.6.18-rc3/kernel/kprobes.c
+@@ -446,6 +446,10 @@ static int __kprobes __register_kprobe(s
+ 	struct kprobe *old_p;
+ 	struct module *probed_mod;
+ 
++	/* Do the kallsyms lookup only if p->addr == NULL */
++	if (!p->addr && (p->symbol_name))
++		p->addr = KPROBE_ADDR(p->symbol_name);
++
+ 	if ((!kernel_text_address((unsigned long) p->addr)) ||
+ 		in_kprobes_functions((unsigned long) p->addr))
+ 		return -EINVAL;

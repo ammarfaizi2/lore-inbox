@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWHGQWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWHGQXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWHGQWn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 12:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWHGQWn
+	id S932206AbWHGQXh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 12:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHGQXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 12:22:43 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:16571 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932203AbWHGQWm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 12:22:42 -0400
-Subject: Re: [patch] s390: hypfs comment cleanup.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
-In-Reply-To: <20060807160327.GA6835@martell.zuzino.mipt.ru>
-References: <20060807150807.GG10416@skybase>
-	 <20060807160327.GA6835@martell.zuzino.mipt.ru>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 07 Aug 2006 18:22:40 +0200
-Message-Id: <1154967760.23486.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 12:23:37 -0400
+Received: from smtp.reflexsecurity.com ([72.54.64.74]:34706 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id S932206AbWHGQXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 12:23:36 -0400
+Date: Mon, 7 Aug 2006 12:23:24 -0400
+From: Jason Lunz <lunz@gehennom.net>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org, pavel@suse.cz, linux-pm@osdl.org,
+       linux-ide@vger.kernel.org
+Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
+Message-ID: <20060807162322.GA17564@knob.reflex>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <44D707B6.20501@gmail.com>
+In-Reply-To: <44D707B6.20501@gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 20:03 +0400, Alexey Dobriyan wrote:
-> On Mon, Aug 07, 2006 at 05:08:07PM +0200, Martin Schwidefsky wrote:
-> > [S390] hypfs comment cleanup.
-> 
-> Please, just delete file lines as they carry no additional info.
+In gmane.linux.kernel, you wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+>
+> I tried it and guess what :)... swsusp doesn't work :@.
+>
+> This time I was able to dump process states with sysrq-t:
+> http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
+>
+> My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel prints is 
+> suspending device 2.0
 
-Hmm, it is common pratice to have the path of the source file in the
-comment. If we decide to remove all these path from the comments, this
-would be a perfect jobs for the kernel janitors. For now I want to keep
-things consistent with the majority of the files in arch/s390.
+Does it go away if you revert this?
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
 
-One thing in favor of having the path in the comment: if you print the
-file or copy it somewhere you still know where it came from. On the
-other hand who prints files from the linux source tree ?
+That should only affect resume, not suspend, but it does mess around
+with ide power management. Is this maybe happening on the *second*
+suspend?
 
--- 
-blue skies,
-  Martin.
+> -hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+> +hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
 
-"Reality continues to ruin my life." - Calvin.
-
-
+Jason

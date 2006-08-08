@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWHHP2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWHHPd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWHHP2A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 11:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWHHP17
+	id S964957AbWHHPd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 11:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWHHPd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 11:27:59 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:26986 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964956AbWHHP16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 11:27:58 -0400
+	Tue, 8 Aug 2006 11:33:27 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:57507 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964957AbWHHPd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 11:33:26 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=HGvYddsqXB1YkZi5INatMtVCoDVfJOoqyqgXBT4cbVJYjo8pVF7JOgI084GvJD8qmNLhtQyY83vbj/SE7zSovrb9+wPWS+gj3cxgXSgF16j0ww+bZ752wx18g9h/MZEh2y1pi6IfPCIJ2LjgTZxMraZtMgVWhhAHr5BTolZUB60=  ;
-Message-ID: <44D8A9BE.3050607@yahoo.com.au>
-Date: Wed, 09 Aug 2006 01:11:58 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hZH7rCgK8bZefEuHW+AY18yMsdx6XgN8pV1/JATmb7S0AQ7HZvAfMiGeebQKZGFtGiqem5Yw4JT/JsksVGniC061eYcFygEfHVRT1rVMba9l+jRbgRnzvVRJzh+Lf6jIRefE1VybxYSokYMYS6PR+/1u5kdgCKLt8OHDgKjcRMU=
+Message-ID: <41840b750608080833p6e7cfffx890f9c4732b93e73@mail.gmail.com>
+Date: Tue, 8 Aug 2006 18:33:25 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Cc: "Muli Ben-Yehuda" <muli@il.ibm.com>, "Pavel Machek" <pavel@suse.cz>,
+       "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>,
+       "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <1155050380.5729.89.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@gmail.com>
-CC: Eric Dumazet <dada1@cosmosbay.com>, Andi Kleen <ak@suse.de>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] NUMA futex hashing
-References: <20060808070708.GA3931@localhost.localdomain>	 <200608081429.44497.dada1@cosmosbay.com>	 <200608081447.42587.ak@suse.de>	 <200608081457.11430.dada1@cosmosbay.com> <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>
-In-Reply-To: <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com>
+	 <20060807182047.GC26224@atjola.homenet>
+	 <20060808122234.GD5497@rhun.haifa.ibm.com>
+	 <20060808125652.GA5284@ucw.cz>
+	 <20060808131724.GE5497@rhun.haifa.ibm.com>
+	 <41840b750608080635j552829a3g4971316ff2d264ad@mail.gmail.com>
+	 <20060808134337.GF5497@rhun.haifa.ibm.com>
+	 <41840b750608080753v27a0ce16xf4da0ad177b08657@mail.gmail.com>
+	 <1155050380.5729.89.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> On 8/8/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
-> 
->> The validity of the virtual address is still tested by normal get_user()
->> call.. If the memory was freed by a thread, then a normal EFAULT error 
->> will
->> be reported... eventually.
-> 
-> 
-> This is indeed what should be done.  Private futexes are the by far
-> more frequent case and I bet you'd see improvements when avoiding the
-> mm mutex even for normal machines since futexes really are everywhere.
-> For shared mutexes you end up doing two lookups and that's fine IMO
-> as long as the first lookup is fast.
+On 8/8/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> If the concern is just the naming then change it to end _trylock
 
-The private futex's namespace is its virtual address, so I don't see
-how you can decouple that from the management of virtual addresses.
+We already have a thinkpad_ec_trylock() for the non-blocking variant.
 
-Let me get this straight: to insert a contended futex into your rbtree,
-you need to hold the mmap sem to ensure that address remains valid,
-then you need to take a lock which protects your rbtree. Then to wake
-up a process and remove the futex, you need to take the rbtree lock. Or
-to unmap any memory you also need to take the rbtree lock and ensure
-there are no futexes there.
-
-So you just add another lock for no reason, or have I got a few screws
-loose myself? I don't see how you can significantly reduce lock
-cacheline bouncing in a futex heavy workload if you're just going to
-add another shared data structure. But if you can, sweet ;)
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+  Shem

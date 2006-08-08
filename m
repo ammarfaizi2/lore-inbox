@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWHHPvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWHHPxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbWHHPvT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 11:51:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWHHPvT
+	id S964979AbWHHPxi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 11:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWHHPxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 11:51:19 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:31854 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964971AbWHHPvS (ORCPT
+	Tue, 8 Aug 2006 11:53:38 -0400
+Received: from xenotime.net ([66.160.160.81]:17820 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964979AbWHHPxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 11:51:18 -0400
-Message-ID: <44D8B2C5.1080905@sw.ru>
-Date: Tue, 08 Aug 2006 19:50:29 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, muli@il.ibm.com, B.Steinbrink@gmx.de,
-       stable@kernel.org, Dave Hansen <haveblue@us.ibm.com>
-Subject: [PATCH] sys_getppid oopses on debug kernel (v2)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 8 Aug 2006 11:53:37 -0400
+Date: Tue, 8 Aug 2006 08:56:14 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       torvalds <torvalds@osdl.org>, matthew@wil.cx, kyle@parisc-linux.org
+Subject: Re: [PATCH 5/9] Replace ARCH_HAS_FLUSH_ANON_PAGE with
+ CONFIG_ARCH_FLUSH_ANON_PAGE
+Message-Id: <20060808085614.dd2bc702.rdunlap@xenotime.net>
+In-Reply-To: <20060808085223.GA20680@infradead.org>
+References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
+	<20060807141008.de9c9c5c.rdunlap@xenotime.net>
+	<20060808085223.GA20680@infradead.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sys_getppid() optimization can access a freed memory.
-On kernels with DEBUG_SLAB turned ON, this results in Oops.
-As Dave Hansen noted, this optimization is also unsafe
-for memory hotplug.
+On Tue, 8 Aug 2006 09:52:23 +0100 Christoph Hellwig wrote:
 
-So this patch always takes the lock to be safe.
+> On Mon, Aug 07, 2006 at 02:10:08PM -0700, Randy.Dunlap wrote:
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> > 
+> > Replace ARCH_HAS_FLUSH_ANON_PAGE with CONFIG_ARCH_FLUSH_ANON_PAGE.
+> 
+> Please just put the dummy flush_anon_page in every architectures header.
 
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+Nope, someone else can do that.
 
-
---- ./kernel/timer.c.ppiddbg	2006-07-14 19:11:06.000000000 +0400
-+++ ./kernel/timer.c	2006-08-08 19:45:57.000000000 +0400
-@@ -1342,28 +1342,11 @@ asmlinkage long sys_getpid(void)
- asmlinkage long sys_getppid(void)
- {
- 	int pid;
--	struct task_struct *me = current;
--	struct task_struct *parent;
- 
--	parent = me->group_leader->real_parent;
--	for (;;) {
--		pid = parent->tgid;
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
--{
--		struct task_struct *old = parent;
-+	read_lock(&tasklist_lock);
-+	pid = current->group_leader->real_parent->tgid;
-+	read_unlock(&tasklist_lock);
- 
--		/*
--		 * Make sure we read the pid before re-reading the
--		 * parent pointer:
--		 */
--		smp_rmb();
--		parent = me->group_leader->real_parent;
--		if (old != parent)
--			continue;
--}
--#endif
--		break;
--	}
- 	return pid;
- }
- 
+---
+~Randy

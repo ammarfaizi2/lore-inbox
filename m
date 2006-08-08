@@ -1,92 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWHHXl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbWHHXnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030334AbWHHXl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 19:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWHHXl6
+	id S1030338AbWHHXnP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 19:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWHHXnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 19:41:58 -0400
-Received: from nigel.suspend2.net ([203.171.70.205]:57480 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1030334AbWHHXl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 19:41:58 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: swsusp and suspend2 like to overheat my laptop
-Date: Wed, 9 Aug 2006 09:42:11 +1000
-User-Agent: KMail/1.9.3
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org, pavel@suse.cz
-References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <Pine.LNX.4.58.0608081831580.18586@gandalf.stny.rr.com> <1155080145.26338.130.camel@mindpipe>
-In-Reply-To: <1155080145.26338.130.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2559238.HXLSHJF9yQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 8 Aug 2006 19:43:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27074 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030338AbWHHXnO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 19:43:14 -0400
+Date: Tue, 8 Aug 2006 16:42:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
+       "Jan Beulich" <jbeulich@novell.com>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
+Message-Id: <20060808164210.edb10cdc.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
+References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
+	<6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
+	<20060808140511.def9b13c.akpm@osdl.org>
+	<6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
+	<20060808143751.42f8d87c.akpm@osdl.org>
+	<6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608090942.12404.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2559238.HXLSHJF9yQ
-Content-Type: text/plain;
-  charset="cp 850"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 9 Aug 2006 00:11:38 +0200
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 
-Hi.
-
-On Wednesday 09 August 2006 09:35, Lee Revell wrote:
-> On Tue, 2006-08-08 at 19:31 -0400, Steven Rostedt wrote:
-> > On Wed, 9 Aug 2006, Nigel Cunningham wrote:
-> > > The problem will be ACPI related, not particular to swsusp or Suspend=
-2,
-> > > which is why you're seeing it with both implementations. I would
-> > > suggest that you contact the ACPI guys, and also look to see whether
-> > > there is a bios update available and/or a DSDT override for your
-> > > machine. The later will help if the problem is with your particular
-> > > machine's ACPI support, the former if it's a more general ACPI issue.
+> On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> > On Tue, 8 Aug 2006 23:19:09 +0200
+> > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 > >
-> > Thanks for the response Nigel,
+> > > >  You
+> > > > can look these things up in gdb or using addr2line, provided you have
+> > > > CONFIG_DEBUG_INFO=y.
+> > > >
+> > > >
+> > >
+> > > (gdb) list *0xc047d609
+> > > 0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
+> > > 572             cpuset_init_early();
+> > > 573             mem_init();
+> > > 574             kmem_cache_init();
+> > > 575             setup_per_cpu_pageset();
+> > > 576             numa_policy_init();
+> > > 577             if (late_time_init)
+> > > 578                     late_time_init();
+> > > 579             calibrate_delay();
+> > > 580             pidmap_init();
+> > > 581             pgtable_cache_init();
 > >
-> > There does exist a recent bios update for this machine:
+> > hm.
 > >
-> > http://www-307.ibm.com/pc/support/site.wss/document.do?sitestyle=3Dleno=
-vo&l
-> >ndocid=3DMIGR-58127
-> >
-> > Hmm, it requires windows, and I've already wiped out that partition.  I
-> > did a search but it seems really scary to update the BIOS via Linux.
-> >
-> > Anyone else out there have a Thinkpad G41 and has successfully upgraded
-> > their BIOS?
->
-> I would just report it to the ACPI people.  It's a bug if Linux does not
-> work with the same BIOS + DSDT that the other OS works on.
+> > - Try to get the full oops record,
+> 
+> BUG: unable to handle kernel paging request at virtual address 01020304
+> printing eip:
+> c041b95c
+> *pde= 00000000
+> Oops: 0000 [#1]
+> 4K_STACK PREEMPT SMP
+> last sysfs file:
+> Modules linked in:
+> CPU 0
+> EIP: 0060: [<c041b95c>] Not tainted VLI
+> EFLAGS: 00010202
+> EIP is at kmem_cache_init+0x389/0x3f0
+> [..]
+> Call Trace:
+> [<c0104063>] show_stack_log_lvl+0x8c/0x97
+> [<c010422b>] show_registers+0x181/0x215
+> [<c0104481>] die+0x1c2/0x2dd
+> [<c0117419>] do_page_fault+0x410/0x4f3
+> [<c02f40a1>] error_code+0x39/0x40
+> [<c040b604>] start_kernel+0x21f/0x39d
+> [<c0100210>] 0xc0100210
+> [..]
+> EIP: [<c041b95c>] kmem_cache_init+0x389/0x3f0 SS:ESP0068:c0409fc4
+> <0> Kernel panic - not syncing: Attempted to kill idle task!
+> 
+> (gdb) list *0xc041b95c
+> 0xc041b95c is in kmem_cache_init (/usr/src/linux-work1/mm/slab.c:714).
+> 709                             lockdep_set_class(&l3->list_lock,
+> &on_slab_l3_key);
+> 710                             alc = l3->alien;
+> 711                             if (!alc)
+> 712                                     continue;
+> 713                             for_each_node(r) {
+> 714                                     if (alc[r])
+> 715                                             lockdep_set_class(&alc[r]->lock,
+> 716                                                  &on_slab_alc_key);
+> 717                             }
+> 718                     }
 
-True. I was assuming (perhaps wrongly?) that Steven is interested in both=20
-getting the bug fixed and being able to hibernate while he waits for the AC=
-PI=20
-guys to achieve bug-for-bug compatibility with M$; hence suggesting doing=20
-both.
+ah-hah, thanks.  The oopsing statement was added by
+slab-fix-lockdep-warnings.patch.
 
-Regards,
+I guess we can fix this by whacking another #ifdef CONFIG_NUMA in there but
+I don't think that's how we want to address this.
 
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
+We've been moving towards making the NUMA slab code work OK in a non-NUMA
+build by setting the NUMA-specific fields to NULL and simply blowing a few
+cycles at runtime to avoid many tens of ifdefs (it's that bad).
 
---nextPart2559238.HXLSHJF9yQ
-Content-Type: application/pgp-signature
+Here, we should have had either l3==NULL or l3->alien==NULL, but that has
+been violated, hence the crash.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBE2SFUN0y+n1M3mo0RAmp5AJ9CRDFqvHngr91z526F0iyBWcbYawCdEVUN
-TrPzo1vId+j5GTzpaeJZAhU=
-=VE9Y
------END PGP SIGNATURE-----
-
---nextPart2559238.HXLSHJF9yQ--
+Kiran, could you take a look please?  The 0x01020304 is interesting...

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWHHRr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWHHRwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWHHRr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWHHRrz
+	id S1030211AbWHHRwo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWHHRwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:47:55 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16064 "EHLO
+	Tue, 8 Aug 2006 13:52:43 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20416 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030206AbWHHRry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:47:54 -0400
-Subject: PATCH: Voyager, tty locking
+	id S1030211AbWHHRwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:52:42 -0400
+Subject: Re: How to lock current->signal->tty
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
+       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
+       davem@redhat.com, jack@suse.cz, dwmw2@infradead.org,
+       tony.luck@intel.com, jdike@karaya.com,
        James.Bottomley@HansenPartnership.com
+In-Reply-To: <1155059046.1123.120.camel@moss-spartans.epoch.ncsc.mil>
+References: <1155050242.5729.88.camel@localhost.localdomain>
+	 <1155057114.1123.97.camel@moss-spartans.epoch.ncsc.mil>
+	 <1155058994.5729.99.camel@localhost.localdomain>
+	 <1155059046.1123.120.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Aug 2006 19:07:49 +0100
-Message-Id: <1155060469.5729.109.camel@localhost.localdomain>
+Date: Tue, 08 Aug 2006 19:10:11 +0100
+Message-Id: <1155060611.5729.112.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Voyager fiddles with current->signal.tty without locking. It turns out
-that the code in question has already cleared current->signal.tty
-correctly because daemonize() does the right thing already.
+Ar Maw, 2006-08-08 am 13:44 -0400, ysgrifennodd Stephen Smalley:
+> SELinux is just revalidating access to the tty when the task changes
+> contexts upon execve, and resetting the tty if the task is no longer
+> allowed to use it.  Likewise with the open file descriptors that would
+> be inherited.  No clearing of the ttys of other tasks required as far as
+> SELinux is concerned, although that might not fit with normal semantics.
 
-The signal handling also appears to be incorrect as it does an
-unprotected sigfillset that also appears unneccessary. As I don't have a
-bowtie and am therefore not a qualified voyager maintainer I leave that
-to James.
+The kernel requires you end up with a session leader etc so an exec that
+loses rights by the session leader does indeed match disassociate_ctty I
+guess. The ctty is a bit of an odd thing in the Unix world and perhaps
+something that shouldn't have happened in that it gives you ability to
+do things even if you have no fd to it.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-
---- linux.vanilla-2.6.18-rc3-mm2/arch/i386/mach-voyager/voyager_thread.c	2006-08-07 16:15:02.000000000 +0100
-+++ linux-2.6.18-rc3-mm2/arch/i386/mach-voyager/voyager_thread.c	2006-08-08 18:19:11.496378872 +0100
-@@ -130,7 +130,6 @@
- 	init_timer(&wakeup_timer);
- 
- 	sigfillset(&current->blocked);
--	current->signal->tty = NULL;
- 
- 	printk(KERN_NOTICE "Voyager starting monitor thread\n");
- 
+Alan
 

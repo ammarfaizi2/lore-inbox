@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWHHKJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWHHKKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWHHKJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 06:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWHHKJ5
+	id S964784AbWHHKKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 06:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWHHKKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 06:09:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62957 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964781AbWHHKJ4 (ORCPT
+	Tue, 8 Aug 2006 06:10:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46748 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964784AbWHHKKj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 06:09:56 -0400
-Date: Tue, 8 Aug 2006 12:09:38 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 03/12] hdaps: Unify and cache hdaps readouts
-Message-ID: <20060808100938.GD4442@elf.ucw.cz>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <1154849246822-git-send-email-multinymous@gmail.com> <20060807140222.GG4032@ucw.cz> <41840b750608070914h5817b8b0m977141be455067c4@mail.gmail.com> <20060807232415.GE2759@elf.ucw.cz> <41840b750608080216l58f56030v9c766427f8582f4c@mail.gmail.com> <20060808092133.GB4245@elf.ucw.cz> <41840b750608080306w584b7524v746c688fa3d58342@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 8 Aug 2006 06:10:39 -0400
+Date: Tue, 8 Aug 2006 20:10:25 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Manuel Reimer <Manuel.Spam@nurfuerspam.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is XFS trustworthy in the latest 2.6.16
+Message-ID: <20060808201025.A2536447@wobbly.melbourne.sgi.com>
+References: <eb9epf$dse$1@sea.gmane.org> <20060808185017.A2528231@wobbly.melbourne.sgi.com> <eb9lp9$3h2$1@sea.gmane.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41840b750608080306w584b7524v746c688fa3d58342@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <eb9lp9$3h2$1@sea.gmane.org>; from Manuel.Spam@nurfuerspam.de on Tue, Aug 08, 2006 at 11:34:10AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >        /* Parse position data: */
-> >        x = *(s16*)(data.val+EC_ACCEL_IDX_XPOS1);
-> >        y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS1);
-> >        transform_axes(&x, &y);
-> >
-> >...which looks even better to me.
+On Tue, Aug 08, 2006 at 11:34:10AM +0200, Manuel Reimer wrote:
+> Nathan Scott schrieb:
+> > On Tue, Aug 08, 2006 at 09:34:48AM +0200, Manuel Reimer wrote:
+> >> Hello,
+> >>
+> >> could someone please tell me if XFS is trustworthy in the latest 2.6.16? 
+> >> There have been some bugs:
+> >>
+> >> http://bugzilla.kernel.org/show_bug.cgi?id=6380
+> >> http://bugzilla.kernel.org/show_bug.cgi?id=6757
+> > 
+> > These are the same problem.  2.6.16 is unaffected.
 > 
-> Yes, that's elegant.
-> But it made me realize there's a race condition here (and and also in
-> the mainline driver): the global pos_x, rest_x etc. could be updated
-> while an attribute's show_* function is called. Ugh. I guess I need to
-> sprinkle spinlocks all over the place.
+> But the bug has been filed for 2.6.16.4.
 
-They are simple integers... so yes, locking is needed, but I'd not
-label it as critical. I guess you should get your series done, first.
-								Pavel
+Indeed, once the corruption exists ondisk all kernels will detect it.
+Read through the entire bug, many details come toward the end.
+
+> Did you want to say, that the latest 2.6.16 is unaffected?
+
+All 2.6.16's are unaffected.
+
+> >> want a stable kernel and 2.6.16 seems to fit all my needs.
+> > 
+> > For XFS, its goodness.  2.6.18 will be good too, and 2.6.17.7+.
+> 
+> What exactly did you want to tell with this sentence. Sorry, but my 
+> native language is german...
+
+Sorry, I meant to say "theres nothing wrong with 2.6.16".
+
+> Is it a good solution to stay on the 2.6.16 branch? Of course I could 
+
+Yes, thats fine.
+
+cheers.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Nathan

@@ -1,67 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWHHWOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWHHWPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWHHWOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 18:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWHHWOM
+	id S1030321AbWHHWPc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 18:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWHHWPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 18:14:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60301 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030315AbWHHWOK (ORCPT
+	Tue, 8 Aug 2006 18:15:32 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:5822 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030321AbWHHWPb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 18:14:10 -0400
-Message-ID: <44D90CA9.1040807@pobox.com>
-Date: Tue, 08 Aug 2006 18:14:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linville@tuxdriver.com
-Subject: Re: [RFC: -mm patch] bcm43xx_main.c: remove 3 functions
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060807210415.GO3691@stusta.de> <200608082032.38365.mb@bu3sch.de>
-In-Reply-To: <200608082032.38365.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Tue, 8 Aug 2006 18:15:31 -0400
+Date: Wed, 9 Aug 2006 00:15:10 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org,
+       Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Still get build warnings - gcc-3.4.6 - 2.6.17.8
+Message-ID: <20060808221509.GB8378@mars.ravnborg.org>
+References: <200608082148.11433.nick@linicks.net> <20060808141246.25ee5db7.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060808141246.25ee5db7.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> On Monday 07 August 2006 23:04, Adrian Bunk wrote:
->> This patch removes three no longer used functions (that are even 
->> generating gcc warnings).
->>
->> This patch doesn't look right, but it is the result of 
->> 58e5528ee464d38040b9489e10033c9387a10d56 in git-netdev...
+On Tue, Aug 08, 2006 at 02:12:46PM -0700, Randy.Dunlap wrote:
+ 
+> It's not a gcc (nor ggc) problem.  Those functions are just deprecated.
+> Current 2.6.18-rc4 and 2.6.18-rc3-mm2 still have those same warnings.
 > 
-> Hm, can't find that commit in a tree.
-> I looked at linus', netdev-2.6.
+> fwiw, I don't seem to have any patches to fix/remove them.
+I have saved following patch from Arnd for ages.
+First I was worried about the use of weak - but we do that in other
+places. And then I just forgot it until now.
 
-It's clearly in netdev-2.6.git#upstream:
+Should be easy to adopt to current kernel - but too late for me today.
 
-commit 58e5528ee464d38040b9489e10033c9387a10d56
-Author: Michael Buesch <mb@bu3sch.de>
-Date:   Sat Jul 8 22:02:18 2006 +0200
+	Sam
 
-     [PATCH] bcm43xx: init routine rewrite
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: EXPORT_SYMBOL generates "is deprecated" noise
+Date:	Mon, 8 Aug 2005 15:46:22 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-Id: <200508081546.23125.arnd@arndb.de>
 
-     Rewrite of the bcm43xx initialization routines.
-     This fixes several issues:
-     * up-down-up-down-up... stale data issue
-       (May fix some DHCP issues)
-     * Fix the init vs IRQ handler race (and remove the workaround)
-     * Fix init for cards with multiple cores (APHY)
-       As softmac has no internal PHY handling (unlike dscape),
-       this adds the file "phymode" to sysfs.
-       The active PHY can be selected by writing either a, b or g
-       to this file. Current PHY can be determined by reading from it.
-     * Fix the controller restart code.
-       Controller restart can now also be triggered through
-       echo 1 > /debug/bcm43xx/ethX/restart
+On Sünndag 07 August 2005 20:26, Martin J. Bligh wrote:
+> Oh, I'm being an idiot and looking at the wrong tree. It's __deprecated,
+> but I still can't think of a clean way to locally undefine that for
+> just EXPORT_SYMBOL.
 
-     Signed-off-by: Michael Buesch <mb@bu3sch.de>
-     Signed-off-by: John W. Linville <linville@tuxdriver.com>
+We could in theory create a new EXPORT_SYMBOL variant that does not
+reference the symbol directly. This does a little less compile-time
+checks but helps reduce the noise. The big advantage of this
+would be that we could once again build kernels with -Werror on
+developer machines.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+diff --git a/include/linux/module.h b/include/linux/module.h
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -182,21 +182,26 @@ void *__symbol_get_gpl(const char *symbo
+ #endif
+ 
+ /* For every exported symbol, place a struct in the __ksymtab section */
+-#define __EXPORT_SYMBOL(sym, sec)				\
+-	__CRC_SYMBOL(sym, sec)					\
+-	static const char __kstrtab_##sym[]			\
++#define __EXPORT_SYMBOL(name, sym, sec)				\
++	__CRC_SYMBOL(name, sec)					\
++	static const char __kstrtab_##name[]			\
+ 	__attribute__((section("__ksymtab_strings")))		\
+-	= MODULE_SYMBOL_PREFIX #sym;                    	\
+-	static const struct kernel_symbol __ksymtab_##sym	\
++	= MODULE_SYMBOL_PREFIX #name;                    	\
++	static const struct kernel_symbol __ksymtab_##name	\
+ 	__attribute_used__					\
+ 	__attribute__((section("__ksymtab" sec), unused))	\
+-	= { (unsigned long)&sym, __kstrtab_##sym }
++	= { (unsigned long)&sym, __kstrtab_##name }
+ 
+ #define EXPORT_SYMBOL(sym)					\
+-	__EXPORT_SYMBOL(sym, "")
++	__EXPORT_SYMBOL(sym, sym, "")
+ 
+ #define EXPORT_SYMBOL_GPL(sym)					\
+-	__EXPORT_SYMBOL(sym, "_gpl")
++	__EXPORT_SYMBOL(sym, sym, "_gpl")
++
++#define EXPORT_DEPRECATED_SYMBOL(sym)				\
++	extern void __deprecated_ ## sym 			\
++			__attribute__((alias(#sym)));		\
++	__EXPORT_SYMBOL(sym, __deprecated_ ## sym, "_gpl")
+ 
+ #endif
+ 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

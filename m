@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWHHMWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWHHMZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbWHHMWj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWHHMWj
+	id S964870AbWHHMZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWHHMZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:22:39 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:28020 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932567AbWHHMWi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:22:38 -0400
-Date: Tue, 8 Aug 2006 15:22:34 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: Shem Multinymous <multinymous@gmail.com>, Pavel Machek <pavel@suse.cz>,
-       Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
-Message-ID: <20060808122234.GD5497@rhun.haifa.ibm.com>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492543835-git-send-email-multinymous@gmail.com> <20060807140721.GH4032@ucw.cz> <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com> <20060807182047.GC26224@atjola.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060807182047.GC26224@atjola.homenet>
-User-Agent: Mutt/1.5.11
+	Tue, 8 Aug 2006 08:25:44 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:62962 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964833AbWHHMZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:25:43 -0400
+Date: Tue, 8 Aug 2006 08:24:10 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: David Miller <davem@davemloft.net>
+cc: tytso@mit.edu, mchan@broadcom.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+In-Reply-To: <20060806.231846.71090637.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0608080819080.7917@gandalf.stny.rr.com>
+References: <20060803.144845.66061203.davem@davemloft.net>
+ <20060803235326.GC7894@thunk.org> <Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
+ <20060806.231846.71090637.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 08:20:47PM +0200, Björn Steinbrink wrote:
-> On 2006.08.07 19:30:55 +0300, Shem Multinymous wrote:
-> > Hi Pavel,
-> > 
-> > On 8/7/06, Pavel Machek <pavel@suse.cz> wrote:
-> > >> +     int total, ret;
-> > >> +     for (total=READ_TIMEOUT_MSECS; total>0; total-=RETRY_MSECS) {
-> > >
-> > >Could we go from 0 to timeout, not the other way around?
-> > 
-> > Sure.
-> > (That's actually vanilla hdapsd code, moved around...)
-> 
-> Maybe you could convert that to sth. like this along the way?
-> 
-> int ret;
-> unsigned long timeout = jiffies + msec_to_jiffies(READ_TIMEOUT_MSECS);
-> for (;;) {
-> 	ret = thinkpad_ec_lock();
-> 	if (ret)
-> 		return ret;
 
-Just in case someone was going to cut and paste, this will return with
-the ec_lock taken.
+On Sun, 6 Aug 2006, David Miller wrote:
 
-Cheers,
-Muli
+> From: Steven Rostedt <rostedt@goodmis.org>
+> Date: Mon, 7 Aug 2006 01:34:56 -0400 (EDT)
+>
+> > My suggestion would be to separate that tg3_timer into 4 different
+> > timers, which is what it actually looks like.
+>
+> Timers have non-trivial cost.  It's cheaper to have one and
+> vector off to the necessary operations each tick internalls.
+>
+> That's why it's implemented as one timer.
+>
+
+hrtimers don't have the cost of a normal timer. And that's why I suggested
+to convert them.  There's a much bigger cost in a single timer that always
+times out than 3 hrtimers.  hrtimers are expected to timeout, but timers
+are not.
+
+Of the 4 timers, only one is a timeout. The other three expire every time,
+forcing the timer wheel into effect.  Even though it's one timer
+implementing 4, it's expensive to use it as a watchdog.
+
+-- Steve
+

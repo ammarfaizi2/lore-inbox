@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWHHTwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWHHTyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030276AbWHHTwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWHHTwJ
+	id S1030264AbWHHTyo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWHHTyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:52:09 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:47628 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1030276AbWHHTwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:52:07 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Thomas Stewart" <thomas@stewarts.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Only 3.2G ram out of 4G seen in an i386 box
-Date: Tue, 8 Aug 2006 12:51:54 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEDCNKAB.davids@webmaster.com>
+	Tue, 8 Aug 2006 15:54:44 -0400
+Received: from ipn26-148.piekary.net ([83.238.26.148]:53010 "EHLO
+	ipn26-148.piekary.net") by vger.kernel.org with ESMTP
+	id S1030264AbWHHTyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:54:44 -0400
+Date: Tue, 8 Aug 2006 21:54:41 +0200
+From: Michal Januszewski <spock@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@kernel.org
+Subject: [PATCH] fbdev: include backlight.h only when __KERNEL__ is defined
+Message-ID: <20060808195441.GA12060@spock.one.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060808101504.GJ2152@stingr.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 08 Aug 2006 12:46:57 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 08 Aug 2006 12:46:57 -0700
+Content-Type: text/plain; charset=utf8
+Content-Disposition: inline
+X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+linux/backlight.h pulls in header files (eg. ioport.h) that break compilation
+of userspace programs. To solve the problem, only include backlight.h in
+fb.h if compiling kernel stuff.
 
-> Replying to Thomas Stewart:
-
-> > Hi,
-> > I have a Dell Optiplex GX280, a Pentium 4 with an Intel chipset. It has
-> > 4G of ram. The problem is I can only see 3.2G, even tho the bios reports
-> > 4G.
-
-> Chipset issue. Some Intel chipsets are doing strange things with memory
-> map. They call this "design flaw" but not offered free replacements
-> yet, so, for example, on SE7221BK1E you can't use more than 3 gigs.
-
-	It is quite funny to read Intel's technical note on this, as they try to
-make it seem like they're blaming the operating system. For example:
-
-When the Intel E7221 chipset is populated to its maximum memory capacity of
-4 GB (Giga Bytes), the Operating System (OS) may report a significantly
-lower amount of available memory.
-
-	Yeah, that stupid operating system.
-
-These requirements may reduce the addressable memory space available to and
-reported by the Operating System. These memory ranges, while unavailable to
-the OS, are still being utilized by subsystems such as I/O, PCI Express and
-Integrated Graphics and are critical to the proper functioning of the
-server.
-
-Use of Available memory below 4 GB by system resources is not specific to
-Intel chipsets, but rather a limitation of existing PC architectures and
-current limitations of some 32-bit operating systems. Some 32-bit operating
-systems may not be capable of recognizing greater than 2 GB of memory. This
-issue potentially impacts any chipset with 4GB maximum memory configuration.
-
-Intel has addressed this from a hardware perspective in future platforms,
-anticipating that future Operating Systems will provide greater than 4 GB of
-memory support.
-
-	Last but not least, their solution.
-
-Corrective Action / Resolution
-Intel Server Board SE7221BK1-E system BIOS will be updated to properly
-indicate the following information screens augment memory configuration
-characteristics for the Intel Server Board SE7221BK1-E and Intel Server
-Platform SR1425BK1-E customers.
- Total physical memory populated in the system
- Total memory dedicated to motherboard resources
- Total memory reported as available to the operating system
-This information will align to the INT15h E820h standard that BIOS uses to
-communicate memory usage to the operating system. This BIOS feature will
-clarify the memory subsystem support and usage for the end user.
-
-	Are these technical notes supposed to be so funny?
-
-	DS
-
+Signed-off-by: Michal Januszewski <spock@gentoo.org>
+---
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 4ad0673..2f335e9 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -1,7 +1,6 @@
+ #ifndef _LINUX_FB_H
+ #define _LINUX_FB_H
+ 
+-#include <linux/backlight.h>
+ #include <asm/types.h>
+ 
+ /* Definitions of frame buffers						*/
+@@ -381,6 +380,7 @@ #include <linux/device.h>
+ #include <linux/workqueue.h>
+ #include <linux/notifier.h>
+ #include <linux/list.h>
++#include <linux/backlight.h>
+ #include <asm/io.h>
+ 
+ struct vm_area_struct;
 

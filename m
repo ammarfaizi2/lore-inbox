@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWHHDjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWHHDk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWHHDjc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 23:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWHHDjc
+	id S932316AbWHHDk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 23:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWHHDk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 23:39:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7617 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932299AbWHHDjb (ORCPT
+	Mon, 7 Aug 2006 23:40:27 -0400
+Received: from possum.icir.org ([192.150.187.67]:30476 "EHLO possum.icir.org")
+	by vger.kernel.org with ESMTP id S932316AbWHHDk1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 23:39:31 -0400
-Date: Mon, 7 Aug 2006 20:39:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg Banks <gnb@melbourne.sgi.com>, Paul Jackson <pj@sgi.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1 of 2] cpumask: use EXPORT_SYMBOL_GPL for new exports
-Message-Id: <20060807203914.6aec29df.akpm@osdl.org>
-In-Reply-To: <1155007534.29877.215.camel@hole.melbourne.sgi.com>
-References: <1155007534.29877.215.camel@hole.melbourne.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 23:40:27 -0400
+Message-Id: <200608080340.k783eOfH076445@possum.icir.org>
+To: linux-kernel@vger.kernel.org
+Cc: roland@topspin.com, pavlin@icir.org
+Subject: Bug in the RTM_SETLINK kernel API for setting MAC address
+Date: Mon, 07 Aug 2006 20:40:24 -0700
+From: Pavlin Radoslavov <pavlin@icir.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Aug 2006 13:25:34 +1000
-Greg Banks <gnb@melbourne.sgi.com> wrote:
+It appears there is a bug in the RTM_SETLINK kernel API for setting
+the MAC address on an interface.
 
-> cpumask: use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL to export
-> node_2_cpu_mask.  Thanks to Zwane Mwaikambo for pointing this out.
-> 
-> Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
-> ---
-> 
->  arch/i386/kernel/smpboot.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: linux-2.6.18-rc2/arch/i386/kernel/smpboot.c
-> ===================================================================
-> --- linux-2.6.18-rc2.orig/arch/i386/kernel/smpboot.c
-> +++ linux-2.6.18-rc2/arch/i386/kernel/smpboot.c
-> @@ -609,7 +609,7 @@ extern struct {
->  /* which logical CPUs are on which nodes */
->  cpumask_t node_2_cpu_mask[MAX_NUMNODES] __read_mostly =
->  				{ [0 ... MAX_NUMNODES-1] = CPU_MASK_NONE };
-> -EXPORT_SYMBOL(node_2_cpu_mask);
-> +EXPORT_SYMBOL_GPL(node_2_cpu_mask);
->  /* which node each logical CPU is on */
->  int cpu_2_node[NR_CPUS] __read_mostly = { [0 ... NR_CPUS-1] = 0 };
->  EXPORT_SYMBOL(cpu_2_node);
+E.g., below is the relevant sample code for setting the Ethernet MAC
+address payload that works on 2.6.17.
 
-All the existing exports in lib/cpumask.c are EXPORT_SYMBOL() so I'd be
-inclined to make any new exports match that.
+    /* Add the MAC address as an attribute */
+    struct sockaddr_storage ss_mac;
+    struct sockaddr* sa_mac_p = (struct sockaddr *)&ss_mac;
+    size_t sa_mac_len = 0;
+    memset(&ss_mac, 0, sizeof(ss_mac));
+    sa_mac_p->sa_family = ARPHRD_ETHER;
+    sa_mac_len = sizeof(sa_mac_p->sa_family) + ETH_ALEN;
 
-<edits the diffs>
+    memcpy(sa_mac_p->sa_data, &ether_addr, ETH_ALEN);
+    rta_len = RTA_LENGTH(sa_mac_len);
+    rtattr = IFLA_RTA(ifinfomsg);
+    rtattr->rta_type = IFLA_ADDRESS;
+    /*
+     * XXX
+     * rtattr->rta_len = rta_len;
+     */
+    rtattr->rta_len = RTA_LENGTH(ETH_ALEN);
+    memcpy(RTA_DATA(rtattr), sa_mac_p, sa_mac_len);
+    nlh->nlmsg_len = NLMSG_ALIGN(nlh->nlmsg_len) + rta_len;
 
-OK?
+    if (ns.sendto(buffer, nlh->nlmsg_len, 0, (struct sockaddr *)&snl,
+                  sizeof(snl)) != (ssize_t)nlh->nlmsg_len) {
+        /* ERROR */
+    }
+
+Note that the payload with the MAC address has to be
+"struct sockaddr" (or equivalent) and the length of that payload is
+the equivalent of "sizeof(sa_family) + mac_address_size".
+
+However, the rta_len of the corresponding message MUST be set to
+"mac_address_size" rather than the real payload size which is
+"sizeof(sa_family) + mac_address_size".
+I believe this is incorrect, and rta_len is suppose to be set to the
+real payload size.
+
+The particular problematic code in the kernel that checks for the
+    payload size is inside net/core/rtnetlink.c, do_setlink():
+
+    ...
+    if (ida[IFLA_ADDRESS - 1]) {
+        ...
+        if (ida[IFLA_ADDRESS - 1]->rta_len != RTA_LENGTH(dev->addr_len))
+            goto out;
+        err = dev->set_mac_address(dev, RTA_DATA(ida[IFLA_ADDRESS - 1]));
+        ...
+
+
+Where dev->set_mac_address() (typically/always?) expects to see a
+second argument of type "struct sockaddr".
+
+Thanks,
+Pavlin
+
+P.S. Please CC to me in your replies, because I am not subscribed to
+the list.

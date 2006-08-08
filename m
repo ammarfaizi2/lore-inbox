@@ -1,35 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbWHHXrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWHHXuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030341AbWHHXrz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 19:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbWHHXrz
+	id S1030330AbWHHXuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 19:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbWHHXuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 19:47:55 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40894
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030341AbWHHXry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 19:47:54 -0400
-Date: Tue, 08 Aug 2006 16:47:59 -0700 (PDT)
-Message-Id: <20060808.164759.23717438.davem@davemloft.net>
-To: pavlin@icir.org
-Cc: linux-kernel@vger.kernel.org, roland@topspin.com
-Subject: Re: Bug in the RTM_SETLINK kernel API for setting MAC address 
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200608081826.k78IQiZM084824@possum.icir.org>
-References: <davem@davemloft.net>
-	<200608081826.k78IQiZM084824@possum.icir.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 19:50:25 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:21147 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030330AbWHHXuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 19:50:24 -0400
+Date: Tue, 8 Aug 2006 19:50:04 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Nigel Cunningham <nigel@suspend2.net>
+cc: Lee Revell <rlrevell@joe-job.com>, LKML <linux-kernel@vger.kernel.org>,
+       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org, pavel@suse.cz
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+In-Reply-To: <200608090942.12404.nigel@suspend2.net>
+Message-ID: <Pine.LNX.4.58.0608081948100.18586@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
+ <Pine.LNX.4.58.0608081831580.18586@gandalf.stny.rr.com>
+ <1155080145.26338.130.camel@mindpipe> <200608090942.12404.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavlin Radoslavov <pavlin@icir.org>
-Date: Tue, 08 Aug 2006 11:26:44 -0700
 
-> Can I presume that the fix will be in the next kernel release
-> (2.6.17.8 or 2.6.18), so we will know to reverse our userland
-> work-around changes when the kernel is out.
+On Wed, 9 Aug 2006, Nigel Cunningham wrote:
 
-Yes, I will submit it for both 2.6.18 and 2.6.17.x-stable
+> Hi.
+>
+> On Wednesday 09 August 2006 09:35, Lee Revell wrote:
+> > On Tue, 2006-08-08 at 19:31 -0400, Steven Rostedt wrote:
+> > > On Wed, 9 Aug 2006, Nigel Cunningham wrote:
+> > > > The problem will be ACPI related, not particular to swsusp or Suspend2,
+> > > > which is why you're seeing it with both implementations. I would
+> > > > suggest that you contact the ACPI guys, and also look to see whether
+> > > > there is a bios update available and/or a DSDT override for your
+> > > > machine. The later will help if the problem is with your particular
+> > > > machine's ACPI support, the former if it's a more general ACPI issue.
+> > >
+> > > Thanks for the response Nigel,
+> > >
+> > > There does exist a recent bios update for this machine:
+> > >
+> > > http://www-307.ibm.com/pc/support/site.wss/document.do?sitestyle=lenovo&l
+> > >ndocid=MIGR-58127
+> > >
+> > > Hmm, it requires windows, and I've already wiped out that partition.  I
+> > > did a search but it seems really scary to update the BIOS via Linux.
+> > >
+> > > Anyone else out there have a Thinkpad G41 and has successfully upgraded
+> > > their BIOS?
+> >
+> > I would just report it to the ACPI people.  It's a bug if Linux does not
+> > work with the same BIOS + DSDT that the other OS works on.
+>
+> True. I was assuming (perhaps wrongly?) that Steven is interested in both
+> getting the bug fixed and being able to hibernate while he waits for the ACPI
+> guys to achieve bug-for-bug compatibility with M$; hence suggesting doing
+> both.
+>
+
+I would prefer to do both, but I really can't tell you if the $OTHER_OS
+works or not. I booted it once with this machine, and that was only to
+register it with IBM. ;)
+
+After that, I slapped in my Debian install CD and the rest is history.
+
+
+-- Steve
+

@@ -1,107 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWHHVTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWHHVXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbWHHVTM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWHHVTM
+	id S1030285AbWHHVXO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHHVXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:19:12 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:38550 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030274AbWHHVTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:19:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=C90FGvmhCo47AO6dcafTDFYWju4LhroUTyq81RojU/0k35TemLthjT379+4tb0d3U0aR14lIhrKN+oCQz9yj3vKSDCyQ9wSm0fJvLJiTDzWMrNJmyX3pKVJRgOmOCsdkc8mmP2btP9DBeUtadrquYuKQYhdrEhoAXg5NfTi4AzM=
-Message-ID: <6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
-Date: Tue, 8 Aug 2006 23:19:09 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
-Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
-       "Jan Beulich" <jbeulich@novell.com>
-In-Reply-To: <20060808140511.def9b13c.akpm@osdl.org>
+	Tue, 8 Aug 2006 17:23:14 -0400
+Received: from mx2.suse.de ([195.135.220.15]:22439 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030285AbWHHVXN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:23:13 -0400
+Date: Tue, 8 Aug 2006 14:22:44 -0700
+From: Greg KH <greg@kroah.com>
+To: mchehab@infradead.org
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 00/14] V4L/DVB updates
+Message-ID: <20060808212244.GA18650@kroah.com>
+References: <20060808210151.PS78629800000@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
-	 <6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
-	 <20060808140511.def9b13c.akpm@osdl.org>
+In-Reply-To: <20060808210151.PS78629800000@infradead.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Tue, 8 Aug 2006 22:29:03 +0200
-> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->
-> > Hi Andrew,
-> >
-> > On 08/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> > > The mm snapshot broken-out-2006-08-08-00-59.tar.gz has been uploaded to
-> > >
-> > >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-08-00-59.tar.gz
-> > >
-> > > It contains the following patches against 2.6.18-rc4:
-> >
-> > It appears very early. 2.6.18-rc3-mm2 was fine.
-> >
-> > DWARF2 unwinder stuck at error_code+0x39/0x40
->
-> The novelty of this thing has worn off.  Guys, please let's not release 2.6.18 in
-> this state.
->
-> > Leftover inexact backtrace
-> > [<c0104194>] show_stack_log_lvl+0x8c/0x97
-> > [<c0104320>] show_registers+0x181/0x215
-> > [<c0104576>] die+0x1c2/0x2dd
-> > [<c0117419>] do_page_fault+ox410/0x4f3
-> > [<c02f5271>] error_code+0x39/0x40
-> > [<c0104194>] show_stack_log_lvl+0x8c/0x97
-> > [<c0104320>] show_registers+0x181/0x215
-> > [<c0104576>] die+0x1c2/0x2dd
-> > [<c0117419>] do_page_fault+0x410/0x4f3
-> > [<c02f5271>] error_code+0x39/0x40
-> > [<c047b609>] start_kernel+0x224/0x3a2
-> > [<c0100210>] 0xc0100210
-> > Code: 00 39 .......
-> > EIP:[<c01040ca>] show_trace_log_lvl+0x11b/0x159 SS:ESP 0068:c0479e74
-> > <0> Kernel panic - not syncing: Attempted to kill idle task!
-> >
-> > http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm1/mm-config
-> >
->
-> So I guess the dwarf unwinder oopsed and wrecked our oops.  Perhaps you'll
-> get better info with CONFIG_UNWIND_INFO=n, CONFIG_STACK_UNWIND=n.
->
-> Now, _perhaps_ it oopsed at "[<c047b609>] start_kernel+0x224/0x3a2".
+On Tue, Aug 08, 2006 at 06:01:51PM -0300, mchehab@infradead.org wrote:
+> ---
+> 
+>  drivers/media/dvb/bt8xx/dst.c                      |   58 -
+>  drivers/media/dvb/dvb-core/Makefile                |    6 
+>  drivers/media/radio/Kconfig                        |   12 
+>  drivers/media/radio/Makefile                       |    1 
+>  drivers/media/radio/dsbr100.c                      |  430 +++++++++++++
+>  drivers/media/video/Kconfig                        |   12 
+>  drivers/media/video/Makefile                       |    2 
+>  drivers/media/video/compat_ioctl32.c               |   32 
+>  drivers/media/video/cx25840/cx25840-core.c         |    4 
+>  drivers/media/video/cx88/cx88-video.c              |    4 
+>  drivers/media/video/dsbr100.c                      |  430 -------------
+>  drivers/media/video/msp3400-kthreads.c             |    4 
+>  drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c |    2 
+>  driverg/media/video/pwc/Kconfig                    |    2 
+>  drivers/media/video/pwc/pwc-if.c                   |    1 
+>  drivers/media/video/saa7134/saa7134-video.c        |    2 
+>  drivers/media/video/tuner-types.c                  |   14 
+>  drivers/media/video/v4l1-compat.c                  |    4 
+>  drivers/media/video/v4l2-common.c                  |    6 
+>  drivers/media/video/videodev.c                     |    2 
+>  drivers/media/video/vivi.c                         |    4 
+>  include/media/v4l2-dev.h                           |    2 
+>  sound/oss/Kconfig                                  |    6 
+>  sound/pci/Kconfig                                  |   70 +-
+>  24 files changed, 569 insertions(+), 541 deletions(-)
 
-eghm... typo.
-[<c047d609>]
+In the future (I know Linus has asked me to do this, and it makes
+sense), can you generate the diffstat with:
+	git diff -M --stat --summary
+so that it shows the renames instead?  That way when I (or Linus) pulls,
+it shows the same thing to me, that you show here.  As an example, when
+I pulled this I got the following:
 
->  You
-> can look these things up in gdb or using addr2line, provided you have
-> CONFIG_DEBUG_INFO=y.
->
->
+Merge ad552692a4489917fa4b71f9c6a91baae4aee799, made by recursive.
+ drivers/media/dvb/bt8xx/dst.c               |   58 ++++++++++------------
+ drivers/media/dvb/dvb-core/Makefile         |    6 +-
+ drivers/media/radio/Kconfig                 |   12 ++++-
+ drivers/media/radio/Makefile                |    1 
+ drivers/media/{video => radio}/dsbr100.c    |    0 
+ drivers/media/video/Kconfig                 |   12 -----
+ drivers/media/video/Makefile                |    2 -
+ drivers/media/video/compat_ioctl32.c        |   32 +++++++++++-
+ drivers/media/video/cx25840/cx25840-core.c  |    4 +-
+ drivers/media/video/cx88/cx88-video.c       |    4 +-
+ drivers/media/video/msp3400-kthreads.c      |    4 +-
+ drivers/media/video/pwc/Kconfig             |    2 -
+ drivers/media/video/pwc/pwc-if.c            |    1 
+ drivers/media/video/saa7134/saa7134-video.c |    2 -
+ drivers/media/video/tuner-types.c           |   14 +++--
+ drivers/media/video/v4l1-compat.c           |    4 ++
+ drivers/media/video/v4l2-common.c           |    6 +-
+ drivers/media/video/videodev.c              |    2 -
+ drivers/media/video/vivi.c                  |    4 +-
+ include/media/v4l2-dev.h                    |    2 -
+ sound/oss/Kconfig                           |    6 +-
+ sound/pci/Kconfig                           |   70 ++++++++++++++-------------
+ 22 files changed, 138 insertions(+), 110 deletions(-)
+ rename drivers/media/{video/dsbr100.c => radio/dsbr100.c} (100%)
 
-(gdb) list *0xc047d609
-0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
-572             cpuset_init_early();
-573             mem_init();
-574             kmem_cache_init();
-575             setup_per_cpu_pageset();
-576             numa_policy_init();
-577             if (late_time_init)
-578                     late_time_init();
-579             calibrate_delay();
-580             pidmap_init();
-581             pgtable_cache_init();
+Which I'm pretty sure is the same as what you ment me to pull.
 
-Regards,
-Michal
+thanks,
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+greg k-h

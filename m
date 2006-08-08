@@ -1,78 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWHHNR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWHHNRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWHHNR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 09:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHHNR1
+	id S932568AbWHHNRv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 09:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWHHNRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 09:17:27 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:34177 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932266AbWHHNR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 09:17:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fpezud5L3v5HmqtZsxCGf3EmW+knR4hRyhmpiICXijMAvhh42CtAkjUe2WaVGTwj4KLc7fSj6CDNZtoAT8jX7ufbaeiqAMWaK4ew2Zq4abWoA7pyCoVD6foYOyWu4mC+bn+8xtWav0WAOOadhD9G+/Qx3fPFSkSKNxDLFODEDto=
-Message-ID: <41840b750608080617t3f20a9c9m77fa5276fb5e5f3@mail.gmail.com>
-Date: Tue, 8 Aug 2006 16:17:25 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Subject: Re: [PATCH 08/12] hdaps: Add explicit hardware configuration functions
-Cc: "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <20060808121619.GF4540@ucw.cz>
+	Tue, 8 Aug 2006 09:17:51 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:60499 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932568AbWHHNRg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 09:17:36 -0400
+Message-ID: <44D88F11.1010603@sw.ru>
+Date: Tue, 08 Aug 2006 17:18:09 +0400
+From: "Pavel V. Emelianov" <xemul@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org
+Subject: Re: [PATCH] unserialized task->files changing (v2)
+References: <44D87611.7070705@sw.ru> <200608081451.58305.dada1@cosmosbay.com>
+In-Reply-To: <200608081451.58305.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <11548492171301-git-send-email-multinymous@gmail.com>
-	 <11548492822826-git-send-email-multinymous@gmail.com>
-	 <20060808121619.GF4540@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/8/06, Pavel Machek <pavel@suse.cz> wrote:
-
-> >  static int needs_calibration = 0;
-> Unneccessary initializer.
-
-OK, though I would prefer to differentiate "initial value is 0" from
-"initial value doesn't matter".
-
-
-> > + * hdaps_set_fake_data_mode - enable or disable EC test mode, which fakes
-> > + * accelerometer data using an incrementing counter.
-> > + * Returns zero on success and negative error code on failure.  Can sleep.
-> > + */
+Eric Dumazet wrote:
+> On Tuesday 08 August 2006 13:31, Kirill Korotaev wrote:
+>> Fixed race on put_files_struct on exec with proc.
+>> Restoring files on current on error path may lead
+>> to proc having a pointer to already kfree-d files_struct.
+>>
+>> ->files changing at exit.c and khtread.c are safe as
+>> exit_files() makes all things under lock.
+>>
+>> v2 patch changes:
+>> - introduced reset_files_struct() as Christoph Hellwig suggested
+>>
+>> Found during OpenVZ stress testing.
 >
-> Why do we want to have fake mode? I see it is useful for debugging,
-> but?
-
-It's useful for debugging userspace too. Apps like the hdapsd daemon
-can use it to figure out how often and how regularly they get fresh
-readouts, and whether they often miss readouts.
-
-
-> > +/*
-> > + * hdaps_check_ec - checks something about the EC.
-> > + * Follows the clean-room spec for HDAPS; we don't know what it means.
-> > + * Returns zero on success and negative error code on failure.  Can sleep.
-> > + */
+> Sorry but there is something I dont understand. You ignored my point.
 >
-> URL for spec?
+> +void reset_files_struct(struct task_struct *tsk, struct files_struct 
+> *files)
+> +{
+> +       struct files_struct *old;
+> +
+> +       old = tsk->files;
+> +       task_lock(tsk);
+> +       tsk->files = files;
+> +       task_unlock(tsk);
+> +       put_files_struct(old);
+> +}
+>
+> Its seems very strange to protect tsk->files = files with a
+> task_lock()/task_unlock(). What is it supposed to guard against ???
+>
+> If this patch corrects the 'bug', then a simpler fix would be to use a 
+> memory
+> barrier between "tsk->files = files" and "put_files_struct(old);"
+>
+> No need to perform 2 atomics ops on the task lock.
+>
+> old = tsk->files;
+> tsk->files = files;
+> smp_mb();
+> put_files_struct(old);
 
-http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html, it's at the
-top of the original file.
+No. The race being discussed is:
+
+proc code:                             resetting code:
+=============================================================================
+task_lock(tsk);
+files = tsk->files;
+                                       old = tsk->files;
+                                       tsk->files = files;
+                                       put_files_struct(old); /* dec to 0 */
+                                            `- kmem_cache_free(files);
+get_files_struct(file); /* already free */
+task_unlock(tsk);
+
+So having smp_mb() before put_files_struct() does not fix the problem.
+
+>
+> That would be enough to guard against proc code (because this code 
+> only needs
+> to read tsk->files of course)
+>
+> The same remark can be said for __exit_files() from kernel/exit.c
+>
+> If this task_lock()/task_unlock() patch is really needed, then a 
+> comment in
+> the source would be very fair.
+>
+> Eric
 
 
-> What happens when we delete this one?
 
-No idea, nor a way to check (on all relevant models). We've always
-done it, this patch just does it a bit more explicitly and by
-correctly following the H8S LPC protocol.
-
-OK on all other comments to patches 06-08.
-
-  Shem

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWHHT6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWHHT7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWHHT6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWHHT6I
+	id S1030279AbWHHT7b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWHHT7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:58:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47489 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030245AbWHHT6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:58:07 -0400
-Date: Tue, 8 Aug 2006 12:58:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: mark two more functions as __init
-Message-Id: <20060808125803.9aac260f.akpm@osdl.org>
-In-Reply-To: <20060808081756.334.46571.sendpatchset@cherry.local>
-References: <20060808081756.334.46571.sendpatchset@cherry.local>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 15:59:31 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35221 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030279AbWHHT7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:59:30 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+Subject: Re: [PATCH] CONFIG_RELOCATABLE modpost fix
+References: <20060808083307.391.45887.sendpatchset@cherry.local>
+	<20060808183954.GA8300@mars.ravnborg.org>
+Date: Tue, 08 Aug 2006 13:59:03 -0600
+In-Reply-To: <20060808183954.GA8300@mars.ravnborg.org> (Sam Ravnborg's message
+	of "Tue, 8 Aug 2006 20:39:54 +0200")
+Message-ID: <m17j1j6ltk.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue,  8 Aug 2006 17:17:00 +0900 (JST)
-Magnus Damm <magnus@valinux.co.jp> wrote:
+Sam Ravnborg <sam@ravnborg.org> writes:
 
-> i386: mark two more functions as __init
-> 
-> cyrix_identify() should be __init because transmeta_identify() is.
-> tsc_init() is only called from setup_arch() which is marked as __init.
-> 
-> These two section mismatches have been detected using running modpost on
-> a vmlinux image compiled with CONFIG_RELOCATABLE=y.
-> 
-> -static void cyrix_identify(struct cpuinfo_x86 * c)
-> +static void __init cyrix_identify(struct cpuinfo_x86 * c)
+> On Tue, Aug 08, 2006 at 05:32:11PM +0900, Magnus Damm wrote:
+>> CONFIG_RELOCATABLE modpost fix
+>> 
+>> Run modpost on vmlinux regardless of CONFIG_MODULES.
+> Below is my take on this one.
+> - Dropped -rR since this is default now
+> - Dropped subdir- assignment in scripts/Makefile since it is redundant
+> - Always pass vmlinux ti modpost so we have full updated info
+> - Print out number of modules being mod posted to distingush from
+>   vmlinux one
+> - use vmlinux as target name to enable nicer quiet command print
 
-Are we sure?  We end up putting a pointer to this into
-arch/i386/kernel/cpu/common.c:cpu_devs[], and that gets used from __cpuinit
-code.  
+Sam, Magnus: 
+
+I'm dense.  Why do we want to run modpost if we are building a kernel
+that doesn't support modules?
+
+I haven't mucked with modpost at all so I don't have a good feel for
+what it does, or why we want to run it.
+
+My quick skimming says modpost is all about generating the module
+version symbol scrambling.  Which if that is all it does means it is
+senseless to run this without modules.
+
+Eric
+
 

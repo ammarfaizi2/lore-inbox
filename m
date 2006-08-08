@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWHHJdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWHHJhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWHHJdx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 05:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWHHJdx
+	id S932167AbWHHJhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 05:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHHJhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 05:33:53 -0400
-Received: from main.gmane.org ([80.91.229.2]:6565 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932160AbWHHJdw (ORCPT
+	Tue, 8 Aug 2006 05:37:25 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:32944 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S932167AbWHHJhY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 05:33:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Manuel Reimer <Manuel.Spam@nurfuerspam.de>
-Subject: Re: Is XFS trustworthy in the latest 2.6.16
-Date: Tue, 08 Aug 2006 11:34:10 +0200
-Message-ID: <eb9lp9$3h2$1@sea.gmane.org>
-References: <eb9epf$dse$1@sea.gmane.org> <20060808185017.A2528231@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pd9e40bf5.dip0.t-ipconnect.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-In-Reply-To: <20060808185017.A2528231@wobbly.melbourne.sgi.com>
+	Tue, 8 Aug 2006 05:37:24 -0400
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       pravin b shelar <pravin.shelar@calsoftinc.com>
+Subject: Re: [RFC] NUMA futex hashing
+References: <20060808070708.GA3931@localhost.localdomain>
+From: Jes Sorensen <jes@sgi.com>
+Date: 08 Aug 2006 05:37:23 -0400
+In-Reply-To: <20060808070708.GA3931@localhost.localdomain>
+Message-ID: <yq0d5bbva98.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott schrieb:
-> On Tue, Aug 08, 2006 at 09:34:48AM +0200, Manuel Reimer wrote:
->> Hello,
->>
->> could someone please tell me if XFS is trustworthy in the latest 2.6.16? 
->> There have been some bugs:
->>
->> http://bugzilla.kernel.org/show_bug.cgi?id=6380
->> http://bugzilla.kernel.org/show_bug.cgi?id=6757
-> 
-> These are the same problem.  2.6.16 is unaffected.
+>>>>> "Ravikiran" == Ravikiran G Thirumalai <kiran@scalex86.org> writes:
 
-But the bug has been filed for 2.6.16.4.
+Ravikiran> Current futex hash scheme is not the best for NUMA.  The
+Ravikiran> futex hash table is an array of struct futex_hash_bucket,
+Ravikiran> which is just a spinlock and a list_head -- this means
+Ravikiran> multiple spinlocks on the same cacheline and on NUMA
+Ravikiran> machines, on the same internode cacheline.  If futexes of
+Ravikiran> two unrelated threads running on two different nodes happen
+Ravikiran> to hash onto adjacent hash buckets, or buckets on the same
+Ravikiran> internode cacheline, then we have the internode cacheline
+Ravikiran> bouncing between nodes.
 
-Did you want to say, that the latest 2.6.16 is unaffected?
+Ravikiran,
 
->> want a stable kernel and 2.6.16 seems to fit all my needs.
-> 
-> For XFS, its goodness.  2.6.18 will be good too, and 2.6.17.7+.
+Using that argument, all you need to do is to add the alignment
+____cacheline_aligned_in_smp to the definition of
+struct futex_hash_bucket and the problem is solved, given that the
+internode cacheline in a NUMA system is defined to be the same as the
+SMP cacheline size.
 
-What exactly did you want to tell with this sentence. Sorry, but my 
-native language is german...
+Ravikiran> Here is a simple scheme which maintains per-node hash
+Ravikiran> tables for futexes.
 
-Is it a good solution to stay on the 2.6.16 branch? Of course I could 
-use 2.6.17 or 2.6.18 but I want to update the kernel as infrequent as 
-possible. After 2.6.18 there will be 2.6.19 and 2.6.20. If I continue 
-that way, then I'll have more downtime than uptime.
+Ravikiran> In this scheme, a private futex is assigned to the node id
+Ravikiran> of the futex's KVA.  The reasoning is, the futex KVA is
+Ravikiran> allocated from the node as indicated by memory policy set
+Ravikiran> by the process, and that should be a good 'home node' for
+Ravikiran> that futex.  Of course this helps workloads where all the
+Ravikiran> threads of a process are bound to the same node, but it
+Ravikiran> seems reasonable to run all threads of a process on the
+Ravikiran> same node.
 
-Thank you very much in advance
+You can't make that assumption at all. In many NUMA workloads it is
+not common to have all threads of a process run on the same node. You
+often see a case where one thread spawns a number of threads that are
+then grouped onto the various nodes.
 
-Yours
+If we want to make the futexes really NUMA aware, having them
+explicitly allocated on a given node would be more useful or
+alternatively have them allocated on a first touch basis.
 
-Manuel
+But to be honest, I doubt it matters too much since the futex
+cacheline is most likely to end up in cache on the node where it's
+being used and as long as the other nodes don't try and touch the same
+futex this becomes a non-issue with the proper alignment.
 
+I don't think your patch is harmful, but it looks awfully complex for
+something that could be solved just as well by a simple alignment
+statement.
+
+Cheers,
+Jes

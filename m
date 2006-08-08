@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWHHJhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWHHJi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWHHJhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 05:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHHJhZ
+	id S932176AbWHHJi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 05:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHHJi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 05:37:25 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:32944 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S932167AbWHHJhY (ORCPT
+	Tue, 8 Aug 2006 05:38:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8841 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932168AbWHHJi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 05:37:24 -0400
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>
-Subject: Re: [RFC] NUMA futex hashing
-References: <20060808070708.GA3931@localhost.localdomain>
-From: Jes Sorensen <jes@sgi.com>
-Date: 08 Aug 2006 05:37:23 -0400
-In-Reply-To: <20060808070708.GA3931@localhost.localdomain>
-Message-ID: <yq0d5bbva98.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 8 Aug 2006 05:38:27 -0400
+To: linux-raid <linux-raid@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: modifying degraded raid 1 then re-adding other members is bad
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat OS Tools Group
+Date: Tue, 08 Aug 2006 06:38:19 -0300
+Message-ID: <or8xlztvn8.fsf@redhat.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ravikiran" == Ravikiran G Thirumalai <kiran@scalex86.org> writes:
+Assume I have a fully-functional raid 1 between two disks, one
+hot-pluggable and the other fixed.
 
-Ravikiran> Current futex hash scheme is not the best for NUMA.  The
-Ravikiran> futex hash table is an array of struct futex_hash_bucket,
-Ravikiran> which is just a spinlock and a list_head -- this means
-Ravikiran> multiple spinlocks on the same cacheline and on NUMA
-Ravikiran> machines, on the same internode cacheline.  If futexes of
-Ravikiran> two unrelated threads running on two different nodes happen
-Ravikiran> to hash onto adjacent hash buckets, or buckets on the same
-Ravikiran> internode cacheline, then we have the internode cacheline
-Ravikiran> bouncing between nodes.
+If I unplug the hot-pluggable disk and reboot, the array will come up
+degraded, as intended.
 
-Ravikiran,
+If I then modify a lot of the data in the raid device (say it's my
+root fs and I'm running daily Fedora development updates :-), which
+modifies only the fixed disk, and then plug the hot-pluggable disk in
+and re-add its members, it appears that it comes up without resyncing
+and, well, major filesystem corruption ensues.
 
-Using that argument, all you need to do is to add the alignment
-____cacheline_aligned_in_smp to the definition of
-struct futex_hash_bucket and the problem is solved, given that the
-internode cacheline in a NUMA system is defined to be the same as the
-SMP cacheline size.
+Is this a known issue, or should I try to gather more info about it?
 
-Ravikiran> Here is a simple scheme which maintains per-node hash
-Ravikiran> tables for futexes.
+This happened with 2.6.18rc3-git[367] (not sure which), plus Fedora
+development patches.
 
-Ravikiran> In this scheme, a private futex is assigned to the node id
-Ravikiran> of the futex's KVA.  The reasoning is, the futex KVA is
-Ravikiran> allocated from the node as indicated by memory policy set
-Ravikiran> by the process, and that should be a good 'home node' for
-Ravikiran> that futex.  Of course this helps workloads where all the
-Ravikiran> threads of a process are bound to the same node, but it
-Ravikiran> seems reasonable to run all threads of a process on the
-Ravikiran> same node.
-
-You can't make that assumption at all. In many NUMA workloads it is
-not common to have all threads of a process run on the same node. You
-often see a case where one thread spawns a number of threads that are
-then grouped onto the various nodes.
-
-If we want to make the futexes really NUMA aware, having them
-explicitly allocated on a given node would be more useful or
-alternatively have them allocated on a first touch basis.
-
-But to be honest, I doubt it matters too much since the futex
-cacheline is most likely to end up in cache on the node where it's
-being used and as long as the other nodes don't try and touch the same
-futex this becomes a non-issue with the proper alignment.
-
-I don't think your patch is harmful, but it looks awfully complex for
-something that could be solved just as well by a simple alignment
-statement.
-
-Cheers,
-Jes
+-- 
+Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
+Secretary for FSF Latin America        http://www.fsfla.org/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

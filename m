@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWHHVXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWHHV0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030302AbWHHVXk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWHHVXj
+	id S1030300AbWHHV0S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWHHV0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:23:39 -0400
-Received: from smtpout.mac.com ([17.250.248.183]:37086 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030304AbWHHVXi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:23:38 -0400
-In-Reply-To: <1155068717.26338.100.camel@mindpipe>
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com> <p73y7tzo4hl.fsf@verdi.suse.de> <1155047956.5729.68.camel@localhost.localdomain> <20060808191631.GF8776@1wt.eu> <1155068717.26338.100.camel@mindpipe>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <E70B70C2-1905-43F4-9195-E1F26CF316B7@mac.com>
-Cc: Willy Tarreau <w@1wt.eu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       linux-kernel@vger.kernel.org, matti.aarnio@zmailer.org
+	Tue, 8 Aug 2006 17:26:18 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:32875 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030300AbWHHV0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:26:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LuX2MqbG/KYfKYZp/4hEV5QcYWvl8pTvpi+BceHVM0Hp4/jXVtEUdD0tSdWzP33jO4ua0GUjQ/FFXyiEO2ZQqJ9xCoq/VX9JecI4xLZopJzbbFfJk+4hev2DGUfdFwXUbUAGP5OqjKJEHTq1sg5Tzm3F1xV3iViKWcSEW11IJU8=
+Message-ID: <a762e240608081426k58122a55pc4fe60150c01ed61@mail.gmail.com>
+Date: Tue, 8 Aug 2006 14:26:15 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] x86_64: Double the per cpu area size
+Cc: "Andi Kleen" <ak@suse.de>, "Andrew Morton" <akpm@osdl.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m1u04n5405.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Date: Tue, 8 Aug 2006 17:23:14 -0400
-To: Lee Revell <rlrevell@joe-job.com>
-X-Mailer: Apple Mail (2.752.2)
+Content-Disposition: inline
+References: <m1mzagfu03.fsf@ebiederm.dsl.xmission.com>
+	 <200608071730.47120.ak@suse.de>
+	 <m1vep4ecd8.fsf@ebiederm.dsl.xmission.com>
+	 <a762e240608081343r3816b906o7985bde9fbd9b463@mail.gmail.com>
+	 <m1u04n5405.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 08, 2006, at 16:25:16, Lee Revell wrote:
-> The spam ratio on LKML is so low that I think this cure would be  
-> worse than the disease.  Why can't the minority of LKML readers who  
-> have absolutely zero tolerance for spam just filter locally?
+On 8/8/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> "Keith Mannthey" <kmannth@gmail.com> writes:
+>
+> > On 8/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> >> Andi Kleen <ak@suse.de> writes:
+> >>
+> >> >>
+> >> >>  #include <asm/pda.h>
+> >> >>
+> >> >> +#define PERCPU_ENOUGH_ROOM 65536
+> >
+> > Is it possible to put this into -mm untill things are sorted?
+> > 2.6.18-rc3-mm2 x86_64 is still without any per-cpu space for modules.
+>
+> I think we are sorted (see the later patch to auto size the per cpu
+> area).  But you should be ok with current -mm if you compile for 64 or
+> fewer cpus.
 
-Given the volume of valid email on the LKML it took me all of 3 days  
-to get a fresh install of my mail client's bayes filter trained to a  
-<5% false negative rate and a <0.5% false positive rate.   
-Theoretically a similarly tuned bayes filter on vger with a web- 
-interface for people to vote on spamminess would allow us to fix any  
-remaining problems; but the spam levels are so low already; why bother?
+Yep it looks like the config file I tote around on this box has
+CONFIG_NR_CPUS=128. I thought this this was the default NR_CPUS but it
+is not.
 
-Cheers,
-Kyle Moffett
-
+Thanks,
+  Keith

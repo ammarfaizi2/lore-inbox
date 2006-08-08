@@ -1,67 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWHHLlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWHHLmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWHHLlV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 07:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWHHLlV
+	id S964834AbWHHLmn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 07:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWHHLmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 07:41:21 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:18515 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964852AbWHHLlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 07:41:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GJTQhdZ2zojorOHGBU8TnFyeCto9l9avMie0eoTqehMTiMS2xMqU9Dm6UXMt0yfgJ5qwHOILmUoZUinhY4N4PM1lNmSr0tLCWyidyWvDPB7xLDn+lotli7cJqI7M0MwaBYImitrGmvumYOMroRUysZb3waGo9fn+a9li/ZdaTBE=
-Message-ID: <f19298770608080441h68fb6696h845b0fd1ed5a7128@mail.gmail.com>
-Date: Tue, 8 Aug 2006 15:41:15 +0400
-From: "Alexey Zaytsev" <alexey.zaytsev@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-In-Reply-To: <17624.29292.673708.654588@cse.unsw.edu.au>
+	Tue, 8 Aug 2006 07:42:43 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:54351 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964834AbWHHLmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 07:42:42 -0400
+Message-ID: <44D87907.6090706@sw.ru>
+Date: Tue, 08 Aug 2006 15:44:07 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>, viro@zeniv.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mishin Dmitry <dim@openvz.org>
+Subject: [PATCH] move IMMUTABLE|APPEND checks to notify_change()
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
-	 <17624.29292.673708.654588@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/8/06, Neil Brown <neilb@suse.de> wrote:
-> On Tuesday August 8, alexey.zaytsev@gmail.com wrote:
-> > Hello, list.
-> >
-> > What are the objections to makeing lkml and other lists at vget
-> > subscribers-only?
->
-> Yes.  Many.  I think this is in the FAQ. (hhmm.. just looked, it isn't exactly).
->
-> > Non-subscribers messages could still be allowed after moderation.
-> > I get 1/4 of my spam from lkml, and see no benefit from allowing
-> > non-subscribers to freely post to the list. If you are not subscribed,
-> > you just have to wait until your mail gets approved by the moderator,
-> > and it is not hard to subscribe anyway.
->
-> We want to barrier to posting to be low so that people will post bug
-> reports.  We want to hear about bug reports. really really.
->
-> Were you volunteering to be a moderator?  What sort of minimum delay
-> would you guarantee :-)
+[PATCH] move IMMUTABLE|APPEND checks to notify_change()
 
-If we had a large moderators group, we could do mail processing within minutes.
-I'm not familiar with any mail list systems, is the mail validation
-done with a web-interface?
-If we could get incoming traffic delivered to the moderator's mailbox,
-rather than appear on the web interface, it would be not hard for him
-to ack/nack certain e-mails. We could even get the traffic split
-betweem moderators, e.g. one gets N e-mails, afters processing them,
-he gets an other N e-mails, and if he does not process theese e-mails
-within M hours, they are sent to an other moderator. But here it's
-only my imagination, maybe people with some mailing list
-administration experience could give more ideas. And yes, if the
-moderators group is large enough, I'm ready to come in.
+This patch moves lots of IMMUTABLE and APPEND flag checks
+scattered all around to more logical place in notify_change().
 
->
-> NeilBrown
->
+Signed-Off-By: Dmitry Mishin <dim@openvz.org>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+
+
+--- ./fs/attr.c.immut	2006-06-18 05:49:35.000000000 +0400
++++ ./fs/attr.c	2006-08-08 15:15:59.000000000 +0400
+@@ -109,6 +109,9 @@ int notify_change(struct dentry * dentry
+ 	struct timespec now;
+ 	unsigned int ia_valid = attr->ia_valid;
+ 
++	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++		return -EPERM;
++
+ 	mode = inode->i_mode;
+ 	now = current_fs_time(inode->i_sb);
+ 
+--- ./fs/open.c.immut	2006-07-14 19:08:29.000000000 +0400
++++ ./fs/open.c	2006-08-08 15:19:58.000000000 +0400
+@@ -252,10 +252,6 @@ static long do_sys_truncate(const char _
+ 	if (IS_RDONLY(inode))
+ 		goto dput_and_out;
+ 
+-	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto dput_and_out;
+-
+ 	/*
+ 	 * Make sure that there are no leases.
+ 	 */
+@@ -316,10 +312,6 @@ static long do_sys_ftruncate(unsigned in
+ 	if (small && length > MAX_NON_LFS)
+ 		goto out_putf;
+ 
+-	error = -EPERM;
+-	if (IS_APPEND(inode))
+-		goto out_putf;
+-
+ 	error = locks_verify_truncate(inode, file, length);
+ 	if (!error)
+ 		error = do_truncate(dentry, length, ATTR_MTIME|ATTR_CTIME, file);
+@@ -385,10 +377,6 @@ asmlinkage long sys_utime(char __user * 
+ 	/* Don't worry, the checks are done in inode_change_ok() */
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (times) {
+-		error = -EPERM;
+-		if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+-			goto dput_and_out;
+-
+ 		error = get_user(newattrs.ia_atime.tv_sec, &times->actime);
+ 		newattrs.ia_atime.tv_nsec = 0;
+ 		if (!error)
+@@ -398,15 +386,9 @@ asmlinkage long sys_utime(char __user * 
+ 			goto dput_and_out;
+ 
+ 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
+-	} else {
+-                error = -EACCES;
+-                if (IS_IMMUTABLE(inode))
+-                        goto dput_and_out;
+-
+-		if (current->fsuid != inode->i_uid &&
++	} else if (current->fsuid != inode->i_uid &&
+ 		    (error = vfs_permission(&nd, MAY_WRITE)) != 0)
+-			goto dput_and_out;
+-	}
++		goto dput_and_out;
+ 	mutex_lock(&inode->i_mutex);
+ 	error = notify_change(nd.dentry, &newattrs);
+ 	mutex_unlock(&inode->i_mutex);
+@@ -442,24 +424,14 @@ long do_utimes(int dfd, char __user *fil
+ 	/* Don't worry, the checks are done in inode_change_ok() */
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (times) {
+-		error = -EPERM;
+-                if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+-                        goto dput_and_out;
+-
+ 		newattrs.ia_atime.tv_sec = times[0].tv_sec;
+ 		newattrs.ia_atime.tv_nsec = times[0].tv_usec * 1000;
+ 		newattrs.ia_mtime.tv_sec = times[1].tv_sec;
+ 		newattrs.ia_mtime.tv_nsec = times[1].tv_usec * 1000;
+ 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
+-	} else {
+-		error = -EACCES;
+-                if (IS_IMMUTABLE(inode))
+-                        goto dput_and_out;
+-
+-		if (current->fsuid != inode->i_uid &&
++	} else if (current->fsuid != inode->i_uid &&
+ 		    (error = vfs_permission(&nd, MAY_WRITE)) != 0)
+-			goto dput_and_out;
+-	}
++		goto dput_and_out;
+ 	mutex_lock(&inode->i_mutex);
+ 	error = notify_change(nd.dentry, &newattrs);
+ 	mutex_unlock(&inode->i_mutex);
+@@ -638,9 +610,6 @@ asmlinkage long sys_fchmod(unsigned int 
+ 	err = -EROFS;
+ 	if (IS_RDONLY(inode))
+ 		goto out_putf;
+-	err = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto out_putf;
+ 	mutex_lock(&inode->i_mutex);
+ 	if (mode == (mode_t) -1)
+ 		mode = inode->i_mode;
+@@ -672,10 +641,6 @@ asmlinkage long sys_fchmodat(int dfd, co
+ 	if (IS_RDONLY(inode))
+ 		goto dput_and_out;
+ 
+-	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto dput_and_out;
+-
+ 	mutex_lock(&inode->i_mutex);
+ 	if (mode == (mode_t) -1)
+ 		mode = inode->i_mode;
+@@ -709,9 +674,6 @@ static int chown_common(struct dentry * 
+ 	error = -EROFS;
+ 	if (IS_RDONLY(inode))
+ 		goto out;
+-	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto out;
+ 	newattrs.ia_valid =  ATTR_CTIME;
+ 	if (user != (uid_t) -1) {
+ 		newattrs.ia_valid |= ATTR_UID;

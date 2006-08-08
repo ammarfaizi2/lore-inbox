@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWHHVGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWHHVJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWHHVGF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWHHVGF
+	id S965046AbWHHVJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWHHVJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:06:05 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:51923 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S965040AbWHHVGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:06:03 -0400
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-In-Reply-To: <20060808135721.5af713fb@localhost.localdomain>
-References: <20060808193325.1396.58813.sendpatchset@lappy>
-	 <20060808193345.1396.16773.sendpatchset@lappy>
-	 <20060808135721.5af713fb@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 23:05:21 +0200
-Message-Id: <1155071122.23134.31.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 17:09:36 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20431 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965046AbWHHVJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:09:34 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Keith Mannthey" <kmannth@gmail.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Andrew Morton" <akpm@osdl.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: Double the per cpu area size
+References: <m1mzagfu03.fsf@ebiederm.dsl.xmission.com>
+	<200608071730.47120.ak@suse.de>
+	<m1vep4ecd8.fsf@ebiederm.dsl.xmission.com>
+	<a762e240608081343r3816b906o7985bde9fbd9b463@mail.gmail.com>
+Date: Tue, 08 Aug 2006 15:09:14 -0600
+In-Reply-To: <a762e240608081343r3816b906o7985bde9fbd9b463@mail.gmail.com>
+	(Keith Mannthey's message of "Tue, 8 Aug 2006 13:43:57 -0700")
+Message-ID: <m1u04n5405.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 13:57 -0700, Stephen Hemminger wrote:
-> On Tue, 08 Aug 2006 21:33:45 +0200
-> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> 
-> > 
-> > The core of the VM deadlock avoidance framework.
-> > 
-> > From the 'user' side of things it provides a function to mark a 'struct sock'
-> > as SOCK_MEMALLOC, meaning this socket may dip into the memalloc reserves on
-> > the receive side.
-> > 
-> > From the net_device side of things, the extra 'struct net_device *' argument
-> > to {,__}netdev_alloc_skb() is used to attribute/account the memalloc usage.
-> > Converted drivers will make use of this new API and will set NETIF_F_MEMALLOC
-> > to indicate the driver fully supports this feature.
-> > 
-> > When a SOCK_MEMALLOC socket is marked, the device is checked for this feature
-> > and tries to increase the memalloc pool; if both succeed, the device is marked
-> > with IFF_MEMALLOC, indicating to {,__}netdev_alloc_skb() that it is OK to dip
-> > into the memalloc pool.
-> > 
-> > Memalloc sk_buff allocations are not done from the SLAB but are done using 
-> > alloc_pages(). sk_buff::memalloc records this exception so that kfree_skbmem()
-> > can do the right thing.
-> > 
-> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > Signed-off-by: Daniel Phillips <phillips@google.com>
-> > 
-> 
-> How much of this is just building special case support for large allocations
-> for jumbo frames? Wouldn't it make more sense to just fix those drivers to
-> do scatter and add the support hooks for that?
+"Keith Mannthey" <kmannth@gmail.com> writes:
 
-Only some of the horrors in __alloc_skb(), esp those related to the
-order argument. OTOH, yes I would very much like all the jumbo capable
-driver to do proper scather/gather on fragments, alas drivers are not my
-storng point.
+> On 8/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> Andi Kleen <ak@suse.de> writes:
+>>
+>> >>
+>> >>  #include <asm/pda.h>
+>> >>
+>> >> +#define PERCPU_ENOUGH_ROOM 65536
+>
+> Is it possible to put this into -mm untill things are sorted?
+> 2.6.18-rc3-mm2 x86_64 is still without any per-cpu space for modules.
 
-If someone (preferably the maintainers) will contribute patches....
+I think we are sorted (see the later patch to auto size the per cpu
+area).  But you should be ok with current -mm if you compile for 64 or
+fewer cpus.
 
+Eric

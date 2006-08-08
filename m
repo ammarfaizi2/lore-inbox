@@ -1,83 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWHHTmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWHHTwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWHHTmg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWHHTmf
+	id S1030276AbWHHTwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWHHTwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:42:35 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24073 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030253AbWHHTme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:42:34 -0400
-Date: Tue, 8 Aug 2006 21:42:31 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, linville@tuxdriver.com,
-       jgarzik@pobox.com
-Subject: Re: [RFC: -mm patch] bcm43xx_main.c: remove 3 functions
-Message-ID: <20060808194231.GQ3691@stusta.de>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060807210415.GO3691@stusta.de> <200608082032.38365.mb@bu3sch.de>
+	Tue, 8 Aug 2006 15:52:09 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:47628 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1030276AbWHHTwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:52:07 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Thomas Stewart" <thomas@stewarts.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Only 3.2G ram out of 4G seen in an i386 box
+Date: Tue, 8 Aug 2006 12:51:54 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEDCNKAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608082032.38365.mb@bu3sch.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20060808101504.GJ2152@stingr.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 08 Aug 2006 12:46:57 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 08 Aug 2006 12:46:57 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 08:32:37PM +0200, Michael Buesch wrote:
-> On Monday 07 August 2006 23:04, Adrian Bunk wrote:
-> > This patch removes three no longer used functions (that are even 
-> > generating gcc warnings).
-> > 
-> > This patch doesn't look right, but it is the result of 
-> > 58e5528ee464d38040b9489e10033c9387a10d56 in git-netdev...
-> 
-> Hm, can't find that commit in a tree.
-> I looked at linus', netdev-2.6.
 
-It's in netdev-2.6.git#ALL that gets included in -mm.
+> Replying to Thomas Stewart:
 
-> But one thing is for sure. This patch is _wrong_. ;)
->...
+> > Hi,
+> > I have a Dell Optiplex GX280, a Pentium 4 with an Intel chipset. It has
+> > 4G of ram. The problem is I can only see 3.2G, even tho the bios reports
+> > 4G.
 
-And it seems to be your fault.  ;-)
+> Chipset issue. Some Intel chipsets are doing strange things with memory
+> map. They call this "design flaw" but not offered free replacements
+> yet, so, for example, on SE7221BK1E you can't use more than 3 gigs.
 
+	It is quite funny to read Intel's technical note on this, as they try to
+make it seem like they're blaming the operating system. For example:
 
-commit 58e5528ee464d38040b9489e10033c9387a10d56
-Author: Michael Buesch <mb@bu3sch.de>
-Date:   Sat Jul 8 22:02:18 2006 +0200
+When the Intel E7221 chipset is populated to its maximum memory capacity of
+4 GB (Giga Bytes), the Operating System (OS) may report a significantly
+lower amount of available memory.
 
-    [PATCH] bcm43xx: init routine rewrite
-    
-    Rewrite of the bcm43xx initialization routines.
-    This fixes several issues:
-    * up-down-up-down-up... stale data issue
-      (May fix some DHCP issues)
-    * Fix the init vs IRQ handler race (and remove the workaround)
-    * Fix init for cards with multiple cores (APHY)
-      As softmac has no internal PHY handling (unlike dscape),
-      this adds the file "phymode" to sysfs.
-      The active PHY can be selected by writing either a, b or g
-      to this file. Current PHY can be determined by reading from it.
-    * Fix the controller restart code.
-      Controller restart can now also be triggered through
-      echo 1 > /debug/bcm43xx/ethX/restart
-    
-    Signed-off-by: Michael Buesch <mb@bu3sch.de>
-    Signed-off-by: John W. Linville <linville@tuxdriver.com>
+	Yeah, that stupid operating system.
 
+These requirements may reduce the addressable memory space available to and
+reported by the Operating System. These memory ranges, while unavailable to
+the OS, are still being utilized by subsystems such as I/O, PCI Express and
+Integrated Graphics and are critical to the proper functioning of the
+server.
 
-> Greetings Michael.
+Use of Available memory below 4 GB by system resources is not specific to
+Intel chipsets, but rather a limitation of existing PC architectures and
+current limitations of some 32-bit operating systems. Some 32-bit operating
+systems may not be capable of recognizing greater than 2 GB of memory. This
+issue potentially impacts any chipset with 4GB maximum memory configuration.
 
-cu
-Adrian
+Intel has addressed this from a hardware perspective in future platforms,
+anticipating that future Operating Systems will provide greater than 4 GB of
+memory support.
 
--- 
+	Last but not least, their solution.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Corrective Action / Resolution
+Intel Server Board SE7221BK1-E system BIOS will be updated to properly
+indicate the following information screens augment memory configuration
+characteristics for the Intel Server Board SE7221BK1-E and Intel Server
+Platform SR1425BK1-E customers.
+ Total physical memory populated in the system
+ Total memory dedicated to motherboard resources
+ Total memory reported as available to the operating system
+This information will align to the INT15h E820h standard that BIOS uses to
+communicate memory usage to the operating system. This BIOS feature will
+clarify the memory subsystem support and usage for the end user.
+
+	Are these technical notes supposed to be so funny?
+
+	DS
+
 

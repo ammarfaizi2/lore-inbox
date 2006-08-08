@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWHHLxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWHHLzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWHHLxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 07:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWHHLxc
+	id S932177AbWHHLzf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 07:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWHHLzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 07:53:32 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26043 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932226AbWHHLxb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 07:53:31 -0400
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <eb8g8b$837$1@taverner.cs.berkeley.edu>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <20060807101745.61f21826.froese@gmx.de>
-	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
-	 <20060807224144.3bb64ac4.froese@gmx.de>
-	 <eb8g8b$837$1@taverner.cs.berkeley.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Aug 2006 13:13:20 +0100
-Message-Id: <1155039200.5729.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 8 Aug 2006 07:55:35 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:43185 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S932177AbWHHLze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 07:55:34 -0400
+To: "Alexey Zaytsev" <alexey.zaytsev@gmail.com>
+Cc: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
+	<p73y7tzo4hl.fsf@verdi.suse.de>
+	<f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com>
+From: Jes Sorensen <jes@sgi.com>
+Date: 08 Aug 2006 07:55:33 -0400
+In-Reply-To: <f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com>
+Message-ID: <yq03bc7v3uy.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-08-07 am 22:52 +0000, ysgrifennodd David Wagner:
-> I'm still trying to understand the semantics of this proposed
-> frevoke() implementation.  Can an attacker use this to forcibly
-> close some other processes' file descriptor?  Suppose the target
+>>>>> "Alexey" == Alexey Zaytsev <alexey.zaytsev@gmail.com> writes:
 
-No.
+Alexey> On 08 Aug 2006 13:23:50 +0200, Andi Kleen <ak@suse.de> wrote:
+>> You would make bug reports impossible from normal people who don't
+>> want to subscribe fully. It would totally wreck the development
+>> model.
+Alexey> If they don't want to subscribe, they can just report to the
+Alexey> list as usual, theyr mail will be only slightly delayed
+Alexey> because of moderation.  We could even use some sort of white
+Alexey> lists, if a user's mail was once approved, all his further
+Alexey> mail will be accepthed without moderation.
 
-> process has fd 0 open and the attacker revokes the file corresponding
-> to fd 0; what is the state of fd 0 in the target process?  Is it
-> closed?  If the target process then open()s another file, does it
+At 400-500 mails per day, who is going to handle the moderation? Sure
+only a portion would be held back, but there's plenty other work to do
+and we want fast turnaround for user bug reports, so if a user is
+asked a question he/she can respond quickly with more details.
 
-No its revoked. Just like a tty hangup
+Moderation is a bad idea, right up there with C++ kernel modules, and
+splitting the source code into smaller tarballs. For some reason they
+all seem to get proposed again and again on a semi regular basis. If
+people would just read the archives.....
 
-> get bound to fd 0?  (Recall that open() always binds to the lowest
-> unused fd.)  If the answers are "yes", then the security consequences
-> seem very scary.
+Just install a proper spam filter like everyone else.
 
-Of course it doesn't. The BSD folk who added revoke were security people
-not idiots.
-
-Alan
-
+Jes

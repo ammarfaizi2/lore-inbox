@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWHHHkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWHHHzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbWHHHkR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 03:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbWHHHkR
+	id S932197AbWHHHzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 03:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHHHzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 03:40:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30189 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932528AbWHHHkQ (ORCPT
+	Tue, 8 Aug 2006 03:55:19 -0400
+Received: from main.gmane.org ([80.91.229.2]:47317 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932197AbWHHHzR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 03:40:16 -0400
-Date: Tue, 8 Aug 2006 00:40:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-mm2: bad e1000 device name
-Message-Id: <20060808004011.ab3cd65f.akpm@osdl.org>
-In-Reply-To: <44D78A48.7050707@goop.org>
-References: <44D78A48.7050707@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 8 Aug 2006 03:55:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Manuel Reimer <Manuel.Spam@nurfuerspam.de>
+Subject: Is XFS trustworthy in the latest 2.6.16
+Date: Tue, 08 Aug 2006 09:34:48 +0200
+Message-ID: <eb9epf$dse$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e40bf5.dip0.t-ipconnect.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Aug 2006 11:45:28 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+Hello,
 
-> With 2.6.18-rc3-mm2, I get a bogus device name for my e1000 device, 
-> which I would expect to be eth0:
-> 
-> : ezr:pts/0; ifconfig -a
-> �6f�      Link encap:Ethernet  HWaddr 00:16:D3:20:D2:0B  
->           UP BROADCAST MULTICAST  MTU:1500  Metric:1
->           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:1000 
->           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
->           Base address:0x2000 Memory:ee000000-ee020000 
-> [...]
+could someone please tell me if XFS is trustworthy in the latest 2.6.16? 
+There have been some bugs:
 
-e1000 seems OK here.  Don't know, sorry.
+http://bugzilla.kernel.org/show_bug.cgi?id=6380
+http://bugzilla.kernel.org/show_bug.cgi?id=6757
+
+and maybe there are more of them. I would like to stay on the 2.6.16 
+branch as I don't like to update my kernel several times a week. I just 
+want a stable kernel and 2.6.16 seems to fit all my needs.
+
+Thank you very much in advance
+
+Yours
+
+Manuel Reimer
+

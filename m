@@ -1,40 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWHHVyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWHHVyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWHHVyL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWHHVyL
+	id S965023AbWHHVyn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHHVyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:54:11 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7629 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030261AbWHHVyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:54:09 -0400
-Subject: Re: [PATCH 03/14] V4L/DVB (4371b): Fix V4L1 dependencies at
-	drivers under sound/oss and sound/pci
-From: Lee Revell <rlrevell@joe-job.com>
-To: mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-In-Reply-To: <20060808210653.PS04143800003@infradead.org>
-References: <20060808210151.PS78629800000@infradead.org>
-	 <20060808210653.PS04143800003@infradead.org>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 17:54:00 -0400
-Message-Id: <1155074040.26338.115.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 8 Aug 2006 17:54:43 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:12217 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965053AbWHHVym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:54:42 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+Date: Wed, 9 Aug 2006 07:50:39 +1000
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Suspend2-devel@lists.suspend2.net,
+       linux-pm@osdl.org, pavel@suse.cz
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1714971.rZ96oxlNLt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608090750.40111.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 18:06 -0300, mchehab@infradead.org wrote:
-> From: Mauro Carvalho Chehab <mchehab@infradead.org>
->  	  For more information on this driver and the degree of support for
->  	  the different card models please check:
->  
-> -	        <http://sourceforge.net/projects/emu10k1/>
-> +		<http://sourceforge.net/projects/emu10k1/>
+--nextPart1714971.rZ96oxlNLt
+Content-Type: text/plain;
+  charset="cp 850"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This seems to contain a ton of unrelated whitespace changes.
+Hi Steven.
 
-Lee
+On Wednesday 09 August 2006 07:40, Steven Rostedt wrote:
+> A few months ago, I installed suspend2 on my laptop.  It worked great for
+> a few days, when suddenly my laptop started to get very hot and the fan
+> costantly went off, and then I started getting these:
+>
+> ---
+> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
+> localhost kernel: CPU0: Temperature above threshold
+>
+> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
+> localhost kernel: CPU1: Temperature above threshold
+>
+>
+> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
+> localhost kernel: CPU0: Running in modulated clock mode
+>
+> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
+> localhost kernel: CPU1: Running in modulated clock mode
+> ---
+>
+> I even posted once since I thought I found the problem, but I was wrong.
+> So I decided to remove Suspend2 and go back to the normal kernel.
+>
+> Recently, I've decided to try out swsusp.  Well, it has been working fine
+> for almost a week now.  But unfortunately, I just started to have my fan
+> go off constantly, and I'm getting the above messages again (hence why
+> the date on the messages is today). Checking out the temp, it's going into
+> the high 70C. That's not too bad, but it only happens when suspending
+> every night instead of shutting down.
+>
+> This is a Thinkpad G41, with a P4HT and this is a unmodified 2.6.18-rc2
+> kernel.  I guess I'll have to start shutting down again, and only suspend
+> every so often.  But just thought I'd let the people of knowledge know.
 
+The problem will be ACPI related, not particular to swsusp or Suspend2, whi=
+ch =20
+is why you're seeing it with both implementations. I would suggest that you=
+=20
+contact the ACPI guys, and also look to see whether there is a bios update=
+=20
+available and/or a DSDT override for your machine. The later will help if t=
+he=20
+problem is with your particular machine's ACPI support, the former if it's =
+a=20
+more general ACPI issue.
+
+Regards,
+
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart1714971.rZ96oxlNLt
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBE2QcwN0y+n1M3mo0RAnE+AKDu0dL1oYismfHoGCTKWGI+qGlEQQCeL3Qf
+mkIewjvFnxUzmJa6P9ytskc=
+=hx6z
+-----END PGP SIGNATURE-----
+
+--nextPart1714971.rZ96oxlNLt--

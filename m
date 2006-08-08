@@ -1,43 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWHHTRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWHHTRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWHHTRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbWHHTRI
+	id S1030205AbWHHTRT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWHHTRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:17:08 -0400
-Received: from khc.piap.pl ([195.187.100.11]:63173 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S965038AbWHHTRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:17:07 -0400
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Neil Brown <neilb@suse.de>, Alexandre Oliva <aoliva@redhat.com>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: modifying degraded raid 1 then re-adding other members is bad
-References: <or8xlztvn8.fsf@redhat.com>
-	<17624.29070.246605.213021@cse.unsw.edu.au>
-	<44D8732C.2060207@tls.msk.ru>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 08 Aug 2006 21:17:05 +0200
-In-Reply-To: <44D8732C.2060207@tls.msk.ru> (Michael Tokarev's message of "Tue, 08 Aug 2006 15:19:08 +0400")
-Message-ID: <m3fyg7m40e.fsf@defiant.localdomain>
+	Tue, 8 Aug 2006 15:17:19 -0400
+Received: from outbound-kan.frontbridge.com ([63.161.60.23]:61070 "EHLO
+	outbound2-kan-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1030188AbWHHTRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:17:18 -0400
+X-BigFish: VP
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+Date: Tue, 8 Aug 2006 13:19:03 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-acpi@vger.kernel.org
+cc: linux-kernel@vger.kernel.org, william.morrow@amd.com
+Subject: [PATCH] ACPI: Clear GPE before disabling it
+Message-ID: <20060808191903.GA10816@cosmic.amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 08 Aug 2006 19:17:03.0776 (UTC)
+ FILETIME=[3B2C0A00:01C6BB1F]
+X-WSS-ID: 68C63CA51NW1326498-01-01
+Content-Type: multipart/mixed;
+ boundary=M9NhX3UHpAaciwkO
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev <mjt@tls.msk.ru> writes:
 
-> Why we're updating it BACKWARD in the first place?
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Another scenario: 1 disk (of 2) is removed, another is added, RAID-1
-is rebuilt, then the disk added last is removed and replaced by
-the disk which was removed first. Would it trigger this problem?
+On AMD Geode BIOSen, we have problems with GPE interrupt storms.  The
+attached patch resolves that.  This should be fine for all implementations,
+though.
 
-> Also, why, when we adding something to the array, the event counter is
-> checked -- should it resync regardless?
-
-I think it's a full start, not a hot add. For hot add contents of
-the new disk should be ignored.
+Jordan
 -- 
-Krzysztof Halasa
+Jordan Crouse
+Senior Linux Engineer
+Advanced Micro Devices, Inc.
+<www.amd.com/embeddedprocessors>
+
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline;
+ filename=acpi-s1-fix.patch
+Content-Transfer-Encoding: 7bit
+
+[PATCH] ACPI:  Clear GPE before disabling it
+
+From: William Morrow <william.morrow@amd.com>
+
+On some BIOSen, the GPE bit will remain set even if it is disabled, 
+resulting in a interrupt storm.  This patch clears the bit before 
+disabling it.
+
+Signed-off-by:  William Morrow <william.morrow@amd.com>
+Signed-off-by:  Jordan Crouse <jordan.crouse@amd.com>
+---
+
+ drivers/acpi/events/evgpe.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/acpi/events/evgpe.c b/drivers/acpi/events/evgpe.c
+index c76c058..1f93b23 100644
+--- a/drivers/acpi/events/evgpe.c
++++ b/drivers/acpi/events/evgpe.c
+@@ -677,10 +677,22 @@ acpi_ev_gpe_dispatch(struct acpi_gpe_eve
+ 	case ACPI_GPE_DISPATCH_METHOD:
+ 
+ 		/*
+-		 * Disable GPE, so it doesn't keep firing before the method has a
++		 * Clear GPE, so it doesn't keep firing before the method has a
+ 		 * chance to run.
+ 		 */
++		status = acpi_hw_clear_gpe(gpe_event_info);
++		if (ACPI_FAILURE(status)) {
++			ACPI_EXCEPTION((AE_INFO, status,
++					"Unable to clear GPE[%2X]",
++					gpe_number));
++			return_UINT32(ACPI_INTERRUPT_NOT_HANDLED);
++		}
++		/*
++		 * Disable GPE, so it doesn't keep happen again.
++		 */
++
+ 		status = acpi_ev_disable_gpe(gpe_event_info);
++
+ 		if (ACPI_FAILURE(status)) {
+ 			ACPI_EXCEPTION((AE_INFO, status,
+ 					"Unable to disable GPE[%2X]",
+
+--M9NhX3UHpAaciwkO--
+
+

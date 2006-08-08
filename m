@@ -1,51 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWHHWKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWHHWLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbWHHWKn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 18:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbWHHWKn
+	id S964984AbWHHWLk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 18:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWHHWLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 18:10:43 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:3014 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030318AbWHHWKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 18:10:42 -0400
+	Tue, 8 Aug 2006 18:11:40 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:46144 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964984AbWHHWLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 18:11:39 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uKMnJa08qy8St05AbfMdqD+NZrVKBMwoo/2ypAgx5x3wnMNdmDaQI1j/w0l5ulH7En66DCDDuzyqEz2nNSY108uGeXywVTPMkg35CKXOfXaklKRaV/ErSBEa7IbNmx3oXCA+hKoLuYibu/5cyAEC4bcWagotez8Db8QIab3VESM=
-Message-ID: <e6babb600608081510q62ea3cb5uf035947c4d9bbaa2@mail.gmail.com>
-Date: Tue, 8 Aug 2006 15:10:40 -0700
-From: "Robert Crocombe" <rcrocomb@gmail.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re: Problems with 2.6.17-rt8
-Cc: "hui Bill Huey" <billh@gnuppy.monkey.org>, linux-kernel@vger.kernel.org,
-       "Ingo Molnar" <mingo@elte.hu>, "Thomas Gleixner" <tglx@linutronix.de>,
-       "Darren Hart" <dvhltc@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0608081740530.17442@gandalf.stny.rr.com>
+        b=Ivhat8dhUEmWCdCQMc0vmyBHsNd9h9cGmPatH+juEUQTwzji4Z2Cu/X2lbfeTPzeRL20zy9eOfnD7zEdrTQSeoM9n5ZmCX8ks4uRIIZsansUr77f3yTEVGPNioi9MVwOwHcySxhkMZqsl/26rIbf+CXY8BV7EMbDFSMTjFjfb+A=
+Message-ID: <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
+Date: Wed, 9 Aug 2006 00:11:38 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
+Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
+       "Jan Beulich" <jbeulich@novell.com>
+In-Reply-To: <20060808143751.42f8d87c.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
-	 <1154541079.25723.8.camel@localhost.localdomain>
-	 <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
-	 <1154615261.32264.6.camel@localhost.localdomain>
-	 <20060808025615.GA20364@gnuppy.monkey.org>
-	 <20060808030524.GA20530@gnuppy.monkey.org>
-	 <e6babb600608081146k663e3ee4g4b93ba325bf9257e@mail.gmail.com>
-	 <Pine.LNX.4.58.0608081506060.16824@gandalf.stny.rr.com>
-	 <e6babb600608081435l575f8ecdhbbc35066a8357f59@mail.gmail.com>
-	 <Pine.LNX.4.58.0608081740530.17442@gandalf.stny.rr.com>
+References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
+	 <6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
+	 <20060808140511.def9b13c.akpm@osdl.org>
+	 <6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
+	 <20060808143751.42f8d87c.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/8/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> Is it easy to poke the problem with -rt8?  Just want to know if -rt8 has
-> caused the problem to be more prevalent.
+On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Tue, 8 Aug 2006 23:19:09 +0200
+> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > >  You
+> > > can look these things up in gdb or using addr2line, provided you have
+> > > CONFIG_DEBUG_INFO=y.
+> > >
+> > >
+> >
+> > (gdb) list *0xc047d609
+> > 0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
+> > 572             cpuset_init_early();
+> > 573             mem_init();
+> > 574             kmem_cache_init();
+> > 575             setup_per_cpu_pageset();
+> > 576             numa_policy_init();
+> > 577             if (late_time_init)
+> > 578                     late_time_init();
+> > 579             calibrate_delay();
+> > 580             pidmap_init();
+> > 581             pgtable_cache_init();
+>
+> hm.
+>
+> - Try to get the full oops record,
 
-Yes.  It has been trivial to cause the problem under -rt7 and -rt8
-(the upgrade from 7 was in hopes that -rt8 didn't have the problem).
+BUG: unable to handle kernel paging request at virtual address 01020304
+printing eip:
+c041b95c
+*pde= 00000000
+Oops: 0000 [#1]
+4K_STACK PREEMPT SMP
+last sysfs file:
+Modules linked in:
+CPU 0
+EIP: 0060: [<c041b95c>] Not tainted VLI
+EFLAGS: 00010202
+EIP is at kmem_cache_init+0x389/0x3f0
+[..]
+Call Trace:
+[<c0104063>] show_stack_log_lvl+0x8c/0x97
+[<c010422b>] show_registers+0x181/0x215
+[<c0104481>] die+0x1c2/0x2dd
+[<c0117419>] do_page_fault+0x410/0x4f3
+[<c02f40a1>] error_code+0x39/0x40
+[<c040b604>] start_kernel+0x21f/0x39d
+[<c0100210>] 0xc0100210
+[..]
+EIP: [<c041b95c>] kmem_cache_init+0x389/0x3f0 SS:ESP0068:c0409fc4
+<0> Kernel panic - not syncing: Attempted to kill idle task!
+
+(gdb) list *0xc041b95c
+0xc041b95c is in kmem_cache_init (/usr/src/linux-work1/mm/slab.c:714).
+709                             lockdep_set_class(&l3->list_lock,
+&on_slab_l3_key);
+710                             alc = l3->alien;
+711                             if (!alc)
+712                                     continue;
+713                             for_each_node(r) {
+714                                     if (alc[r])
+715                                             lockdep_set_class(&alc[r]->lock,
+716                                                  &on_slab_alc_key);
+717                             }
+718                     }
+
+> find out what the faulting address is
+>   ("unable to handle kernel paging request at virtual address xxxx") and
+>   see if that lines up with any symbol in .vmlinux.
+
+Did you mean "list 01020304"?
+
+>
+> - Might be something bad in numa_policy_init().  I assume you don't have
+>   CONFIG_NUMA=y ;)
+
+No, I don't.
+
+>
+>
+> This'll be hard to diagnose without a full oops trace.
+>
+
+Regards,
+Michal
 
 -- 
-Robert Crocombe
-rcrocomb@gmail.com
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

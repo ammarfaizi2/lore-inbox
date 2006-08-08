@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbWHHN3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWHHNfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbWHHN3E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 09:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbWHHN3E
+	id S964871AbWHHNfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 09:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWHHNfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 09:29:04 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:55192 "EHLO
+	Tue, 8 Aug 2006 09:35:25 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:64422 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932584AbWHHN3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 09:29:01 -0400
+	id S964878AbWHHNfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 09:35:24 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nYP6YaxJLE2oZV0Z6GYTiVOUP4E9nRtsnT+dl6OPhlepcCR8vCZnOUYcpVXRDnylUaQouS6IEKhnj+v4lsejrJv60BtqDJXgtyQXMD/5szydmcNiO33yzq/VdxS+jDGUXyRSVNglT2yW0vBk9nKhfXu95H/zWAFZiThn1rogvb4=
-Message-ID: <41840b750608080628s1d785de3xa7a40c6eb5d42833@mail.gmail.com>
-Date: Tue, 8 Aug 2006 16:28:59 +0300
+        b=HKWRxSXy6KRgMfLBZEfGA6w9WzB3LBUuI4UFTCmti999r45fOGqi+eEO7g2xB73G+H3qXR+d01My5eqB8d3fjKOOuQiJUCJjfOaCNAWaIuPWxXQxOaIgI99Pip/BBlRMTlilnDuM1Rnd4we+TiqNnZtK/OAku68+uSICo8LJqRU=
+Message-ID: <41840b750608080635j552829a3g4971316ff2d264ad@mail.gmail.com>
+Date: Tue, 8 Aug 2006 16:35:23 +0300
 From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Subject: Re: [PATCH 10/12] hdaps: Power off accelerometer on suspend and unload
-Cc: "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
+To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Cc: "Pavel Machek" <pavel@suse.cz>,
+       "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>,
+       "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
        "Greg Kroah-Hartman" <gregkh@suse.de>,
        "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
        hdaps-devel@lists.sourceforge.net
-In-Reply-To: <20060808124547.GH4540@ucw.cz>
+In-Reply-To: <20060808131724.GE5497@rhun.haifa.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 References: <11548492171301-git-send-email-multinymous@gmail.com>
-	 <11548492972486-git-send-email-multinymous@gmail.com>
-	 <20060808124547.GH4540@ucw.cz>
+	 <11548492543835-git-send-email-multinymous@gmail.com>
+	 <20060807140721.GH4032@ucw.cz>
+	 <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com>
+	 <20060807182047.GC26224@atjola.homenet>
+	 <20060808122234.GD5497@rhun.haifa.ibm.com>
+	 <20060808125652.GA5284@ucw.cz>
+	 <20060808131724.GE5497@rhun.haifa.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Muli,
 
-On 8/8/06, Pavel Machek <pavel@suse.cz> wrote:
-> > +     if (hdaps_set_power(0))
-> > +             printk(KERN_WARNING "hdaps: cannot power off\n");
-> > +     if (hdaps_set_ec_config(0, 1))
-> > +             printk(KERN_WARNING "hdaps: cannot stop EC sampling\n");
-> > +}
->
-> Maybe propagate error value?
+On 8/8/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
+> > > >   ret = thinkpad_ec_lock();
+> > > >   if (ret)
+> > > >           return ret;
 
-I could do that, but both callers will still discard it -- the power
-draw change is negligible, and it's not interesting enough to abort
-either suspend or module unload.
+> Ugh, I missed that - it's called _lock(), but it's actually
+> down_interruptible().
 
-OK on all remaining comments.
+Why is that confusing?
 
-I'll wait a bit for additional comments and then post the revised series.
+> Why not just get rid of the wrapper and call
+> down_interruptible() directly? That makes it obvious what's going on.
+
+We may end up needing to lock away other subsystems (ACPI?) that
+touch the same ports. Apparently not an issue right now, but could
+change with new firmware. (http://lkml.org/lkml/2006/8/7/147)
 
   Shem

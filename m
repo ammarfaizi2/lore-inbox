@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWHHVLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWHHVLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWHHVLr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWHHVLr
+	id S1030219AbWHHVLS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWHHVLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:11:47 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:48330 "EHLO
+	Tue, 8 Aug 2006 17:11:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45514 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030233AbWHHVLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:11:45 -0400
+	id S1030263AbWHHVLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:11:16 -0400
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
+Cc: linux-dvb-maintainer@linuxtv.org, Diego Calleja <diegocg@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 14/14] V4L/DVB (4485): Fix a warning on PPC64
-Date: Tue, 08 Aug 2006 18:06:55 -0300
-Message-id: <20060808210654.PS88745600014@infradead.org>
+Subject: [PATCH 12/14] V4L/DVB (4430): Quickcam_messenger compilation fix
+Date: Tue, 08 Aug 2006 18:06:54 -0300
+Message-id: <20060808210654.PS54412700012@infradead.org>
 In-Reply-To: <20060808210151.PS78629800000@infradead.org>
 References: <20060808210151.PS78629800000@infradead.org>
 Mime-Version: 1.0
@@ -28,28 +28,34 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
+From: Diego Calleja <diegocg@gmail.com>
 
-drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c: In function 'set_standard':
-drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c:33: warning: format '%llx' expects type 'long long unsigned int', but argument 2 has type 'v4l2_std_id'
+In bugzilla #6943, Maxim Britov reported:
+"I can enable Logitech quickcam support in .config, but it want be compile.
+I have to add into drivers/media/video/Makefile:
+obj-$(CONFIG_USB_QUICKCAM_MESSENGER)    += usbvideo/"
+He's right, just enable that driver as module while disabling every other
+driver that gets into that directory, nothing will get compiled.
+This patch fixes the Makefile.
 
+Signed-off-by: Diego Calleja <diegocg@gmail.com>
+Acked-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/media/video/Makefile |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c b/drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c
-index 8a9933d..05ea17a 100644
---- a/drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c
-+++ b/drivers/media/video/pvrusb2/pvrusb2-i2c-cmd-v4l2.c
-@@ -31,7 +31,7 @@ static void set_standard(struct pvr2_hdw
- 	v4l2_std_id vs;
- 	vs = hdw->std_mask_cur;
- 	pvr2_trace(PVR2_TRACE_CHIPS,
--		   "i2c v4l2 set_standard(0x%llx)",(__u64)vs);
-+		   "i2c v4l2 set_standard(0x%llx)",(long long unsigned)vs);
+diff --git a/drivers/media/video/Makefile b/drivers/media/video/Makefile
+index 010833d..e82e511 100644
+--- a/drivers/media/video/Makefile
++++ b/drivers/media/video/Makefile
+@@ -90,6 +90,7 @@ obj-$(CONFIG_USB_ZC0301)        += zc030
+ obj-$(CONFIG_USB_IBMCAM)        += usbvideo/
+ obj-$(CONFIG_USB_KONICAWC)      += usbvideo/
+ obj-$(CONFIG_USB_VICAM)         += usbvideo/
++obj-$(CONFIG_USB_QUICKCAM_MESSENGER)	+= usbvideo/
  
- 	pvr2_i2c_core_cmd(hdw,VIDIOC_S_STD,&vs);
- }
+ obj-$(CONFIG_VIDEO_VIVI) += vivi.o
+ 
 

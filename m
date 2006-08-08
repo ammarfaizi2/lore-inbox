@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWHHOj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWHHOko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbWHHOj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 10:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWHHOj5
+	id S964930AbWHHOko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 10:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWHHOko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 10:39:57 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:58126 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964929AbWHHOj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 10:39:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Rq2uun7GSS5EcEpXCR2EnktZDVD2mrvN9sbcpiFq+8MQg/vzYQqzJo1npRGXGPwiC+zFKjadFImnZJHqpc7kJyoj3LEWeIL8RlFEfqqgeKI3HA1hevIeeSDryNsvyjIE54f44kwX/ws1CK9lTTyORd74oyhWsGaq3Otg5Rs0Q9Y=
-Message-ID: <9a8748490608080739w2e14e5ceg44a7bf0a3b475704@mail.gmail.com>
-Date: Tue, 8 Aug 2006 16:39:54 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: 2.6.17.8 - do_vfs_lock: VFS is out of sync with lock manager!
-Cc: "Trond Myklebust" <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net
+	Tue, 8 Aug 2006 10:40:44 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:33238 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964934AbWHHOkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 10:40:43 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.18-rc3-mm2: reiserfs problem?
+Date: Tue, 8 Aug 2006 16:39:38 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200608081639.38245.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some webservers that have recently started reporting the
-following message in their logs :
+Hi,
 
-  do_vfs_lock: VFS is out of sync with lock manager!
+I get something like the appended on every attempt to unmount the reiserfs
+filesystem mounted on /tmp.  The other reiserfs filesystems don't have such
+problems and this one didn't have them too with 2.6.18-rc2-mm1.
 
-The serveres kernels were upgraded to 2.6.17.8 and since the upgrade
-the message started appearing.
-The servers were previously running 2.6.13.4 without experiencing this problem.
-Nothing has changed except the kernel.
 
-I've googled a bit and found this mail
-(http://lkml.org/lkml/2005/8/23/254) from Trond saying that
-"The above is a lockd error that states that the VFS is failing to track
-your NFS locks correctly".
-Ok, but that doesn't really help me resolve the issue. The servers are
-indeed running NFS and access their apache DocumentRoots from a NFS
-mount.
+BUG: Dentry ffff810037c573e8{i=3,n=.reiserfs_priv} still in use (1) [unmount of reiserfs hdc7]
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at fs/dcache.c:611
+invalid opcode: 0000 [1] PREEMPT
+last sysfs file: /devices/pci0000:00/0000:00:00.0/irq
+CPU 0
+Modules linked in: ide_cd cdrom xt_pkttype ipt_LOG xt_limit usbserial asus_acpi thermal processor fan button battery ac snd_pcm_oss snd_mix
+er_oss snd_seq snd_seq_device af_packet bcm43xx ieee80211softmac ieee80211 ieee80211_crypt pcmcia firmware_class ohci1394 ieee1394 skge yen
+ta_socket rsrc_nonstatic pcmcia_core usbhid ff_memless ip6t_REJECT xt_tcpudp ipt_REJECT xt_state snd_intel8x0 snd_ac97_codec snd_ac97_bus s
+nd_pcm snd_timer snd iptable_mangle soundcore iptable_nat ip_nat iptable_filter snd_page_alloc ip6table_mangle ehci_hcd ip_conntrack i2c_nf
+orce2 i2c_core ip_tables ohci_hcd ip6table_filter ip6_tables x_tables ipv6 parport_pc lp parport dm_mod
+Pid: 9478, comm: umount Not tainted 2.6.18-rc3-mm2 #7
+RIP: 0010:[<ffffffff802a6eb7>]  [<ffffffff802a6eb7>] shrink_dcache_for_umount_subtree+0x1d7/0x2b0
+RSP: 0018:ffff810059291da8  EFLAGS: 00010296
+RAX: 0000000000000062 RBX: ffff810037c573e8 RCX: 0000000000000003
+RDX: 0000000000000008 RSI: ffff810037c627d8 RDI: 0000000000000001
+RBP: ffff810059291dc8 R08: 0000000000000002 R09: ffffffff8022de59
+R10: 0000000000000000 R11: 0000000000000001 R12: ffff810037c573e8
+R13: ffff81005ddc4800 R14: ffff81005f539250 R15: ffff81005f0a8688
+FS:  00002afc38e00b00(0000) GS:ffffffff808c2000(0000) knlGS:00000000558b4d00
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002ac8a49a1d40 CR3: 000000005f546000 CR4: 00000000000006e0
+Process umount (pid: 9478, threadinfo ffff810059290000, task ffff810037c62080)
+Stack:  ffff81005f0a8b10 ffff81005f0a8688 ffffffff80577a20 ffff810059291ea8
+ ffff810059291de8 ffffffff802a6fc4 ffff81005f0a8688 ffffffff80577a20
+ ffff810059291e18 ffffffff80293bb4 ffff81005f539250 ffff81005e09d140
+Call Trace:
+ [<ffffffff802a6fc4>] shrink_dcache_for_umount+0x34/0x70
+ [<ffffffff80293bb4>] generic_shutdown_super+0x24/0x110
+ [<ffffffff80293cd0>] kill_block_super+0x30/0x50
+ [<ffffffff80293f81>] deactivate_super+0x81/0xa0
+ [<ffffffff802ac008>] mntput_no_expire+0x58/0xa0
+ [<ffffffff8029b83d>] path_release_on_umount+0x1d/0x30
+ [<ffffffff802ad3f4>] sys_umount+0x274/0x290
+ [<ffffffff80209d0e>] system_call+0x7e/0x83
+DWARF2 unwinder stuck at system_call+0x7e/0x83
+Leftover inexact backtrace:
 
-Is there anything I can do to help track down this issue?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Code: 0f 0b 68 41 33 4a 80 c2 63 02 49 8b 5c 24 68 49 39 dc 75 05
+RIP  [<ffffffff802a6eb7>] shrink_dcache_for_umount_subtree+0x1d7/0x2b0
+ RSP <ffff810059291da8>
+

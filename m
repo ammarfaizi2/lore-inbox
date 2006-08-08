@@ -1,87 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWHHTXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWHHTXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbWHHTXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWHHTXL
+	id S1030223AbWHHTXB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWHHTXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:23:11 -0400
-Received: from 1wt.eu ([62.212.114.60]:41485 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1030224AbWHHTXK (ORCPT
+	Tue, 8 Aug 2006 15:23:01 -0400
+Received: from iron.pdx.net ([207.149.241.18]:7385 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S1030223AbWHHTXA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:23:10 -0400
-Date: Tue, 8 Aug 2006 21:07:52 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Message-ID: <20060808190752.GE8776@1wt.eu>
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com> <17624.29292.673708.654588@cse.unsw.edu.au> <f19298770608080441h68fb6696h845b0fd1ed5a7128@mail.gmail.com>
+	Tue, 8 Aug 2006 15:23:00 -0400
+Subject: [BUG] Kernel Panic from AHD when power cycling external Disk/Array
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 08 Aug 2006 12:22:53 -0700
+Message-Id: <1155064973.3002.5.camel@home-desk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f19298770608080441h68fb6696h845b0fd1ed5a7128@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 03:41:15PM +0400, Alexey Zaytsev wrote:
-> On 8/8/06, Neil Brown <neilb@suse.de> wrote:
-> >On Tuesday August 8, alexey.zaytsev@gmail.com wrote:
-> >> Hello, list.
-> >>
-> >> What are the objections to makeing lkml and other lists at vget
-> >> subscribers-only?
-> >
-> >Yes.  Many.  I think this is in the FAQ. (hhmm.. just looked, it isn't 
-> >exactly).
-> >
-> >> Non-subscribers messages could still be allowed after moderation.
-> >> I get 1/4 of my spam from lkml, and see no benefit from allowing
-> >> non-subscribers to freely post to the list. If you are not subscribed,
-> >> you just have to wait until your mail gets approved by the moderator,
-> >> and it is not hard to subscribe anyway.
-> >
-> >We want to barrier to posting to be low so that people will post bug
-> >reports.  We want to hear about bug reports. really really.
+Running a 29320R with CentOS 4.3 and 2.6.17.8 installed.  
 
-100% agreed. Many (I mean MANY) posters add a "PS: please CC me as I'm
-not subscribed" line. This means whe might lose their reports while they're
-often the most important ones.
 
-Another problem is that many of us post from multiple addresses (work, home,
-kernel.org, ...), and this must be taken into account to. Next, some spammers
-use *valid* posters addresses, so those will pass through your filters anyway.
-I'm already getting several spams a day pretending to emerge from several
-LKML posters, so spamlists are also built from large mailing lists.
+Got this interesting BUG from 2.6.17.8 today.  Each time I reset my
+external SCSI Disk connected to my 29320R the kernel throws this error
+and locks up:
 
-> >Were you volunteering to be a moderator?  What sort of minimum delay
-> >would you guarantee :-)
-> 
-> If we had a large moderators group, we could do mail processing within 
-> minutes.
+scsi0: Someone reset channel A
+BUG: soft lockup detected on CPU#0!
+ <c013258b> softlockup_tick+0x7f/0x8e  <c011e6e4> update_process_times
++0x35/0x57 <c0104eda> timer_interrupt+0x3d/0x60  <c0132698>
+handle_IRQ_event+0x21/0x4a
+ <c0132739> __do_IRQ+0x78/0xcb  <c0103eb5> do_IRQ+0x6b/0x7a
+ <c0102c4a> common_interrupt+0x1a/0x20  <c02d3a2a>
+_spin_unlock_irqrestore+0xa/c <e08d0481> ahd_linux_isr+0x173/0x17f
+[aic79xx]  <c0132698> handle_IRQ_event+0xa <c0132739> __do_IRQ+0x78/0xcb
+<c0103ea8> do_IRQ+0x5e/0x7a
+ =======================
+ <c0102c4a> common_interrupt+0x1a/0x20  <c011b5bc> __do_softirq
++0x2c/0x7d
+ <c0103f8c> do_softirq+0x38/0x3f
+ =======================
+ <c0103eba> do_IRQ+0x70/0x7a  <c0102c4a> common_interrupt+0x1a/0x20
+ <c0101150> mwait_idle+0x1a/0x2a  <c01010bf> cpu_idle+0x40/0x5c
+ <c038c618> start_kernel+0x184/0x186
 
-We already have this large moderators group : all the users. I really
-don't mind getting that small rate of spams in my LKML folder. Those
-are very easy to identify at first glance, it will be harder when they
-will begin with [PATCH] or things like this. You need 15 seconds to
-hit the "D" key to remove 30 of them, that's OK.
 
-> I'm not familiar with any mail list systems, is the mail validation
-> done with a web-interface?
-> If we could get incoming traffic delivered to the moderator's mailbox,
-> rather than appear on the web interface, it would be not hard for him
-> to ack/nack certain e-mails. We could even get the traffic split
-> betweem moderators, e.g. one gets N e-mails, afters processing them,
-> he gets an other N e-mails, and if he does not process theese e-mails
-> within M hours, they are sent to an other moderator. But here it's
-> only my imagination, maybe people with some mailing list
-> administration experience could give more ideas. And yes, if the
-> moderators group is large enough, I'm ready to come in.
 
-Your description is generally interesting, but would require a lot of
-work, and I'm not sure you'll find many kind people as you who would
-devote a great part of their time to moderate such a list.
+H/W specs:
+(lspci)
+00:00.0 Host bridge: Intel Corporation 82865G/PE/P DRAM
+Controller/Host-Hub Interface (rev 02)
+00:01.0 PCI bridge: Intel Corporation 82865G/PE/P PCI to AGP Controller
+(rev 02)
+00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+UHCI Controller #1 (rev 02)
+00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+UHCI Controller #2 (rev 02)
+00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+UHCI Controller #3 (rev 02)
+00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+UHCI Controller #4 (rev 02)
+00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2
+EHCI Controller (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC
+Interface Bridge (rev 02)
+00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE
+Controller (rev 02)
+02:05.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001
+Gigabit Ethernet Controller (rev 13)
+02:09.0 VGA compatible controller: Silicon Integrated Systems [SiS]
+315PRO PCI/AGP VGA Display Adapter
+02:0c.0 SCSI storage controller: Adaptec ASC-29320A U320 (rev 10)
 
-Regards,
-Willy
+
 

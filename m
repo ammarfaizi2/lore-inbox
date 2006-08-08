@@ -1,127 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWHHLaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWHHLci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWHHLaF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 07:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWHHLaF
+	id S964770AbWHHLci (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 07:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWHHLci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 07:30:05 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:39745 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932168AbWHHLaD (ORCPT
+	Tue, 8 Aug 2006 07:32:38 -0400
+Received: from rere.qmqm.pl ([86.63.132.164]:6365 "EHLO rere.qmqm.pl")
+	by vger.kernel.org with ESMTP id S964770AbWHHLch (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 07:30:03 -0400
-Message-ID: <44D87611.7070705@sw.ru>
-Date: Tue, 08 Aug 2006 15:31:29 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, xemul@sw.ru,
-       hch@infradead.org, dada1@cosmosbay.com
-Subject: [PATCH] unserialized task->files changing (v2)
-Content-Type: multipart/mixed;
- boundary="------------090502000109070400070404"
+	Tue, 8 Aug 2006 07:32:37 -0400
+Date: Tue, 8 Aug 2006 13:32:27 +0200
+From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+To: dm-devel@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: BUG/OOPS fix
+Message-ID: <20060808113227.GA26434@rere.qmqm.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090502000109070400070404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+[Previous copy probably got into redhat.com's spambox]
 
-Fixed race on put_files_struct on exec with proc.
-Restoring files on current on error path may lead
-to proc having a pointer to already kfree-d files_struct.
+Fix BUG I tripped on while testing failover and multipathing.
 
-->files changing at exit.c and khtread.c are safe as
-exit_files() makes all things under lock.
+BUG shows up on error path in multipath_ctr() when parse_priority_group() fails
+after returning at least once without error. The fix is to initialize m->ti
+early - just after alloc()ing it.
 
-v2 patch changes:
-- introduced reset_files_struct() as Christoph Hellwig suggested
+BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c027c3d2
+*pde = 00000000
+Oops: 0000 [#3]
+Modules linked in: qla2xxx ext3 jbd mbcache sg ide_cd cdrom floppy
+CPU:    0
+EIP:    0060:[<c027c3d2>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.17.3 #1)
+EIP is at dm_put_device+0xf/0x3b
+eax: 00000001   ebx: ee4fcac0   ecx: 00000000   edx: ee4fcac0
+esi: ee4fc4e0   edi: ee4fc4e0   ebp: 00000000   esp: c5db3e78
+ds: 007b   es: 007b   ss: 0068
+Process multipathd (pid: 15912, threadinfo=c5db2000 task=ef485a90)
+Stack: ec4eda40 c02816bd ee4fc4c0 00000000 f7e89498 f883e0bc c02816f6 f7e89480
+       f7e8948c c0281801 ffffffea f7e89480 f883e080 c0281ffe 00000001 00000000
+       00000004 dfe9cab8 f7a693c0 f883e080 f883e0c0 ca4b99c0 c027c6ee 01400000
+Call Trace:
+ <c02816bd> free_pgpaths+0x31/0x45  <c02816f6> free_priority_group+0x25/0x2e
+ <c0281801> free_multipath+0x35/0x67  <c0281ffe> multipath_ctr+0x123/0x12d
+ <c027c6ee> dm_table_add_target+0x11e/0x18b  <c027e5b4> populate_table+0x8a/0xaf
+ <c027e62b> table_load+0x52/0xf9  <c027ec23> ctl_ioctl+0xca/0xfc
+ <c027e5d9> table_load+0x0/0xf9  <c0152146> do_ioctl+0x3e/0x43
+ <c0152360> vfs_ioctl+0x16c/0x178  <c01523b4> sys_ioctl+0x48/0x60
+ <c01029b3> syscall_call+0x7/0xb
+Code: 97 f0 00 00 00 89 c1 83 c9 01 80 e2 01 0f 44 c1 88 43 14 8b 04 24 59 5b 5e 5f 5d c3 53 89 c1 89 d3 ff 4a 08 0f 94 c0 84 c0 74 2a <8b> 01 8b 10 89 d8 e8 f6 fb ff ff 8b 03 8b 53 04 89 50 04 89 02
+EIP: [<c027c3d2>] dm_put_device+0xf/0x3b SS:ESP 0068:c5db3e78
 
-Found during OpenVZ stress testing.
+Signed-off-by: Micha³ Miros³aw <mirq-linux@rere.qmqm.pl>
 
-Signed-Off-By: Pavel Emelianov <xemul@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
-
-
---------------090502000109070400070404
-Content-Type: text/plain;
- name="diff-ms-files-race-fix-200600808"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-files-race-fix-200600808"
-
---- ./fs/binfmt_elf.c.rfs	2006-08-08 15:01:44.000000000 +0400
-+++ ./fs/binfmt_elf.c	2006-08-08 15:07:49.000000000 +0400
-@@ -1037,10 +1037,8 @@ out_free_interp:
- out_free_file:
- 	sys_close(elf_exec_fileno);
- out_free_fh:
--	if (files) {
--		put_files_struct(current->files);
--		current->files = files;
--	}
-+	if (files)
-+		reset_files_struct(current, files);
- out_free_ph:
- 	kfree(elf_phdata);
- 	goto out;
---- ./fs/binfmt_misc.c.rfs	2006-08-08 15:01:44.000000000 +0400
-+++ ./fs/binfmt_misc.c	2006-08-08 15:09:46.000000000 +0400
-@@ -215,10 +215,8 @@ _error:
- 	bprm->interp_flags = 0;
- 	bprm->interp_data = 0;
- _unshare:
--	if (files) {
--		put_files_struct(current->files);
--		current->files = files;
--	}
-+	if (files)
-+		reset_files_struct(current, files);
- 	goto _ret;
- }
+diff -urN linux-2.6.17.8-routes-esfq/drivers/md/dm-mpath.c linux-2.6.17.8-routes-esfq-mq/drivers/md/dm-mpath.c
+--- linux-2.6.17.8-routes-esfq/drivers/md/dm-mpath.c	2006-07-05 18:29:10.000000000 +0200
++++ linux-2.6.17.8-routes-esfq-mq/drivers/md/dm-mpath.c	2006-08-07 15:25:07.000000000 +0200
+@@ -711,6 +711,8 @@
+ 		return -EINVAL;
+ 	}
  
---- ./fs/exec.c.rfs	2006-08-08 15:01:44.000000000 +0400
-+++ ./fs/exec.c	2006-08-08 15:10:09.000000000 +0400
-@@ -903,8 +903,7 @@ int flush_old_exec(struct linux_binprm *
++	m->ti = ti;
++
+ 	r = parse_features(&as, m, ti);
+ 	if (r)
+ 		goto bad;
+@@ -752,7 +754,6 @@
+ 	}
+ 
+ 	ti->private = m;
+-	m->ti = ti;
+ 
  	return 0;
- 
- mmap_failed:
--	put_files_struct(current->files);
--	current->files = files;
-+	reset_files_struct(current, files);
- out:
- 	return retval;
- }
---- ./include/linux/file.h.rfs	2006-04-21 11:59:36.000000000 +0400
-+++ ./include/linux/file.h	2006-08-08 15:08:19.000000000 +0400
-@@ -112,5 +112,6 @@ struct task_struct;
- 
- struct files_struct *get_files_struct(struct task_struct *);
- void FASTCALL(put_files_struct(struct files_struct *fs));
-+void reset_files_struct(struct task_struct *, struct files_struct *);
- 
- #endif /* __LINUX_FILE_H */
---- ./kernel/exit.c.rfs	2006-08-08 15:01:44.000000000 +0400
-+++ ./kernel/exit.c	2006-08-08 15:13:40.000000000 +0400
-@@ -487,6 +487,17 @@ void fastcall put_files_struct(struct fi
- 
- EXPORT_SYMBOL(put_files_struct);
- 
-+void reset_files_struct(struct task_struct *tsk, struct files_struct *files)
-+{
-+	struct files_struct *old;
-+
-+	old = tsk->files;
-+	task_lock(tsk);
-+	tsk->files = files;
-+	task_unlock(tsk);
-+	put_files_struct(old);
-+}
-+
- static inline void __exit_files(struct task_struct *tsk)
- {
- 	struct files_struct * files = tsk->files;
 
---------------090502000109070400070404--

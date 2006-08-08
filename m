@@ -1,95 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWHHA3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWHHAmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWHHA3G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 20:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWHHA3G
+	id S932463AbWHHAmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 20:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWHHAmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 20:29:06 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:139 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932369AbWHHA3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 20:29:05 -0400
-Date: Tue, 8 Aug 2006 09:31:10 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: kmannth@us.ibm.com
-Cc: akpm@osdl.org, discuss@x86-64.org, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [Lhms-devel] [PATCH 1/10] hot-add-mem x86_64: acpi motherboard
- fix
-Message-Id: <20060808093110.f7b2ae04.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1154975968.5790.16.camel@keithlap>
-References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-	<20060805145137.aad34b44.kamezawa.hiroyu@jp.fujitsu.com>
-	<1154975968.5790.16.camel@keithlap>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Aug 2006 20:42:25 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:55249 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932463AbWHHAmY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 20:42:24 -0400
+Message-ID: <44D7DDEF.6070907@vmware.com>
+Date: Mon, 07 Aug 2006 17:42:23 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
+       Sahil Rihan <srihan@vmware.com>
+Subject: Re: A proposal - binary
+References: <44D1CC7D.4010600@vmware.com> <44D217A7.9020608@redhat.com> <44D24236.305@vmware.com> <20060805104507.GA4506@ucw.cz> <44D67109.6020605@vmware.com> <20060808001255.GQ2759@elf.ucw.cz>
+In-Reply-To: <20060808001255.GQ2759@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Aug 2006 11:39:27 -0700
-keith mannthey <kmannth@us.ibm.com> wrote:
+Pavel Machek wrote:
+> Well, I guess we'd like VMI to be buildable in normal kernel build
+> tools ... and at that point, open sourcing it should be _really_ easy.
+>
+> And we'd prefer legal decisions not to influence technical ones. Maybe
+> we will decide to use binary interface after all, but seeing GPLed,
+> easily-buildable interface, first, means we can look at both solutions
+> and decide which one is better.
 
-> On Sat, 2006-08-05 at 14:51 +0900, KAMEZAWA Hiroyuki wrote:
-> > On Fri, 4 Aug 2006 07:13:51 -0600
-> > Keith Mannthey <kmannth@us.ibm.com> wrote:
-> > > I have worked to integrate the feedback I recived on the last round of patches
-> > > and welcome more ideas/advice. Thanks to everyone who has provied input on
-> > > these patches already. 
-> > > 
-> > Just from review...
-> > 
-> > If new zone , which was empty at boot, are added into the system.
-> > build_all_zonelists() has to be called. (see online_pages() in memory_hotplug.c)
-> > it looks x86_64's __add_pages() doesn't calles it.
-> 
-> With RESERVE there are not empty zones.  All zones (including add-areas)
-> are setup during boot and hot add areas reserved in the bootmem
-> allocator. 
-> 
-> Zones don't change size there is no adding to the zone just on-lining on
-> pages at are already present in the zone. 
->   
-Hmm, curious.
-please explain. 
-==
-int __add_pages(struct zone *z, unsigned long start_pfn, unsigned long nr_pages)
-{
-        int err = -EIO;
-        unsigned long pfn;
-        unsigned long total = 0, mem = 0;
-        for (pfn = start_pfn; pfn < start_pfn + nr_pages; pfn++) {
-                if (pfn_valid(pfn)) {
-                        online_page(pfn_to_page(pfn));
-                        err = 0;
-                        mem++;
-                }
-                total++;
-        }
-        if (!err) {
-                z->spanned_pages += total;
-                z->present_pages += mem; -------------------------------(*)
-                z->zone_pgdat->node_spanned_pages += total;
-                z->zone_pgdat->node_present_pages += mem;
-        }
-        return err;
-}
-==
-It looks contents of zone is increased at (*). Do I see old code ?
+I don't think you're actually arguing for the VMI ROM to be built into 
+the kernel.  But since this could be a valid interpretation of what you 
+said, let me address that point so other readers of this thread don't 
+misinterpret.
 
-==
-static inline int populated_zone(struct zone *zone)
-{
-        return (!!zone->present_pages);
-}
-==
-"empty zone" I said means a zone which is not populated.
+On a purely technical level, the VMI layer must not be part of the 
+normal kernel build.  It must be distributed by the hypervisor to which 
+it communicates.  This is what provides hypervisor independence and 
+hardware compatibility, and why it can't be distributed with the 
+kernel.  The kernel interfaces for VMI that are part of the kernel 
+proper are already completely open sourced and GPL'd.  The piece in 
+question is the hypervisor specific VMI layer, which we have not yet 
+released an open source distribution of.
 
-this populated_zone() is used at build_zone_list().
-if populated_zone(z)==0, zone "z" is not included into zonelist and zone will be never
-used.
+We do use standard tools for building it, for the most part - although 
+some perl scripting and elf munging magic is part of the build.  
+Finally, since it is a ROM, we have to use a post-build tool to convert 
+the extracted object to a ROM image and fix up the checksum.  We don't 
+have a problem including any of those tools in an open source 
+distribution of the VMI ESX ROM once we finish sorting through the 
+license issues.  We've already fixed most of the problems we had with 
+entangled header files so that we can create a buildable tarball that 
+requires only standard GNU compilers, elf tools, and perl to run.  I 
+believe the only technical issue left is fixing the makefiles so that 
+building it doesn't require our rather complicated make system.
 
--Kame
+Hopefully we can have all this resolved soon so that you can build and 
+distribute your own ROM images, see how the code operates, and use the 
+base design framework as a blueprint for porting to other hypervisor 
+implementations, porting other operating systems, or just as a general 
+experimental layer that could be used for debugging or performance 
+instrumentation.
 
+Zach

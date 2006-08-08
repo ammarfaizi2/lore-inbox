@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWHHH34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWHHHkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932519AbWHHH34 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 03:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWHHH34
+	id S932534AbWHHHkR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 03:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbWHHHkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 03:29:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15330 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932519AbWHHH3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 03:29:55 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] x86_64:  Auto size the per cpu area.
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	<200608080801.29789.ak@suse.de>
-	<m1lkpz9134.fsf@ebiederm.dsl.xmission.com>
-	<200608080848.03054.ak@suse.de>
-Date: Tue, 08 Aug 2006 01:29:26 -0600
-In-Reply-To: <200608080848.03054.ak@suse.de> (Andi Kleen's message of "Tue, 8
-	Aug 2006 08:48:03 +0200")
-Message-ID: <m1zmef7kix.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Aug 2006 03:40:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30189 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932528AbWHHHkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 03:40:16 -0400
+Date: Tue, 8 Aug 2006 00:40:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-mm2: bad e1000 device name
+Message-Id: <20060808004011.ab3cd65f.akpm@osdl.org>
+In-Reply-To: <44D78A48.7050707@goop.org>
+References: <44D78A48.7050707@goop.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Mon, 07 Aug 2006 11:45:28 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
->> >
->> > However not that particular patch - i already changed that
->> > code in my tree because I needed really early per cpu for something and
->> > i had switched to using a static array for cpu0's cpudata.
->> >
->> > I will modify it to work like your proposal.
->> 
->> Sounds good to me.
->
-> Actually i ended up going with your patch and dropping mine
-> because of some other issues and I solved the problem
-> that caused me to do the other in a different way.
+> With 2.6.18-rc3-mm2, I get a bogus device name for my e1000 device, 
+> which I would expect to be eth0:
+> 
+> : ezr:pts/0; ifconfig -a
+> �6f�      Link encap:Ethernet  HWaddr 00:16:D3:20:D2:0B  
+>           UP BROADCAST MULTICAST  MTU:1500  Metric:1
+>           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:1000 
+>           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+>           Base address:0x2000 Memory:ee000000-ee020000 
+> [...]
 
-Ok.
-
-Since this is the agreed upon path, Andrew can you please pick
-this patch up for the next -mm release?
-
-Then the final practical question does it still make sense to decouple
-the NR_IRQS from NR_CPUS?  As my other patch was doing?
-
-Eric
+e1000 seems OK here.  Don't know, sorry.

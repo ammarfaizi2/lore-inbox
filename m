@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWHHQ7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWHHRFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWHHQ7I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWHHQ7I
+	id S964903AbWHHRFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWHHRFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:59:08 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:19371 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S964994AbWHHQ7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:59:06 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC] NUMA futex hashing
-Date: Tue, 8 Aug 2006 18:59:04 +0200
-User-Agent: KMail/1.9.1
-Cc: Ulrich Drepper <drepper@gmail.com>, Andi Kleen <ak@suse.de>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-References: <20060808070708.GA3931@localhost.localdomain> <44D8BD29.4010102@yahoo.com.au> <200608081849.28458.dada1@cosmosbay.com>
-In-Reply-To: <200608081849.28458.dada1@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 8 Aug 2006 13:05:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:28842 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964903AbWHHRFH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:05:07 -0400
+Subject: Re: + fs-cache-generic-filesystem-caching-facility.patch added to
+	-mm tree
+From: Dave Hansen <haveblue@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mm-commits@vger.kernel.org, dhowells@redhat.com,
+       trond.myklebust@fys.uio.no, zippel@linux-m68k.org
+In-Reply-To: <200608050009.k7509ivU019636@shell0.pdx.osdl.net>
+References: <200608050009.k7509ivU019636@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Tue, 08 Aug 2006 10:04:56 -0700
+Message-Id: <1155056696.19249.81.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608081859.04727.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 18:49, Eric Dumazet wrote:
-> On Tuesday 08 August 2006 18:34, Nick Piggin wrote:
-> > Eric Dumazet wrote:
-> > > We certainly can. But if you insist of using mmap sem at all, then we
-> > > have a problem.
-> > >
-> > > rbtree would not reduce cacheline bouncing, so :
-> > >
-> > > We could use a hashtable (allocated on demand) of size N, N depending
-> > > on NR_CPUS for example. each chain protected by a private spinlock. If
-> > > N is well chosen, we might reduce lock cacheline bouncing. (different
-> > > threads fighting on different private futexes would have a good chance
-> > > to get different cachelines in this hashtable)
-> >
-> > See other mail. We already have a hash table ;)
->
-> Yes but still you want at FUTEX_WAIT time to tell the kernel the futex is
-> private to this process.
->
-> Giving the same info at FUTEX_WAKE time could avoid the kernel to make the
-> second pass (using only a private futex lookup), avoiding again the
-> mmap_sem touch in case no threads are waiting anymore on this futex.
+On Fri, 2006-08-04 at 17:09 -0700, akpm@osdl.org wrote:
+> The attached patch adds a generic intermediary (FS-Cache) by which filesystems
+> may call on local caching capabilities, and by which local caching backends may
+> make caches available:
 
-After looking at kernel/futex.c, I realize we also can avoid the atomic ops 
-(and another cacheline bouncing) done in get_key_refs()/drop_key_refs(), 
-touching the inode i_count or mm_count refcounter)
+I'm getting the following in 2.6.18-rc3-mm2 when I complile AFS  and NFS
+into the kernel.  I left FSCACHE as a module somehow, enabled AFS/NFS
+caching, and hilarity ensues:
 
-Eric
+fs/built-in.o(.text+0xbbcd7): In function `nfs_fscache_release_page':
+lxc/include/linux/fscache.h:482: undefined reference to
+`__fscache_uncache_page'
+
+Is there some way that we can tell fscache's Kconfig option that it can
+not be a module if any of the filesystems using it *are*?  Should we
+take away the option for fscache to be a module?
+
+-- Dave
+

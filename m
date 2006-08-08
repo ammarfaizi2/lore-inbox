@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWHHIyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWHHJAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbWHHIyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 04:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWHHIyZ
+	id S932551AbWHHJAY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 05:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWHHJAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 04:54:25 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30361 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932527AbWHHIyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 04:54:24 -0400
-Date: Tue, 8 Aug 2006 18:54:06 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Avuton Olrich <avuton@gmail.com>, "Tony.Ho" <linux@idccenter.cn>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
-Message-ID: <20060808185405.B2528231@wobbly.melbourne.sgi.com>
-References: <9a8748490608040122l69ff139dtaae27e8981022dae@mail.gmail.com> <20060804200549.A2414667@wobbly.melbourne.sgi.com> <44D55CE8.3090202@idccenter.cn> <44D56A97.2070603@idccenter.cn> <20060807143416.A2501392@wobbly.melbourne.sgi.com> <3aa654a40608072039r2b5c5a19hbd3e68e4fee40869@mail.gmail.com> <20060808134438.E2526901@wobbly.melbourne.sgi.com> <9a8748490608080137k596a6290r3567096668449a64@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9a8748490608080137k596a6290r3567096668449a64@mail.gmail.com>; from jesper.juhl@gmail.com on Tue, Aug 08, 2006 at 10:37:49AM +0200
+	Tue, 8 Aug 2006 05:00:24 -0400
+Received: from smtp.hickorytech.net ([216.114.192.16]:41634 "EHLO
+	avalanche.hickorytech.net") by vger.kernel.org with ESMTP
+	id S932551AbWHHJAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 05:00:23 -0400
+Message-ID: <44D852A5.3080008@mnsu.edu>
+Date: Tue, 08 Aug 2006 04:00:21 -0500
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Nathan Scott <nathans@sgi.com>
+Cc: Manuel Reimer <Manuel.Spam@nurfuerspam.de>, linux-kernel@vger.kernel.org
+Subject: Re: Is XFS trustworthy in the latest 2.6.16
+References: <eb9epf$dse$1@sea.gmane.org> <20060808185017.A2528231@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060808185017.A2528231@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 10:37:49AM +0200, Jesper Juhl wrote:
-> On 08/08/06, Nathan Scott <nathans@sgi.com> wrote:
-> > On Mon, Aug 07, 2006 at 08:39:49PM -0700, Avuton Olrich wrote:
-> > > On 8/6/06, Nathan Scott <nathans@sgi.com> wrote:
-> > > > On Sun, Aug 06, 2006 at 12:05:43PM +0800, Tony.Ho wrote:
-> > > > > I'm sorry about prev mail. I test on a wrong kernel.
-> > > > > The panic is not appear again,
-> > >
-> > > Using 2.6.18-rc4, is this the bug that this thread refers to?
-> >
-> > Yes, try http://oss.sgi.com/archives/xfs/2006-08/msg00054.html
-> > and lemme know what happens - thanks.
-> >
-> Come wednesday would you like me to try rc4 + that patch instead of
-> rc3-git3 with your previous patch?
+Nathan Scott wrote:
+> On Tue, Aug 08, 2006 at 09:34:48AM +0200, Manuel Reimer wrote:
+>   
+>> Hello,
+>>
+>> could someone please tell me if XFS is trustworthy in the latest 2.6.16? 
+>> There have been some bugs:
+>>
+>> http://bugzilla.kernel.org/show_bug.cgi?id=6380
+>> http://bugzilla.kernel.org/show_bug.cgi?id=6757
+>>     
+>
+> These are the same problem.  2.6.16 is unaffected.
+>
+>   
+>> want a stable kernel and 2.6.16 seems to fit all my needs.
+>>     
+>
+> For XFS, its goodness.  2.6.18 will be good too, and 2.6.17.7+.
+>
+> cheers.
+>
+>   
 
-Yep, ignore that first patch.  Thanks!
+If you have run 2.6.17 to 2.6.17.6 or early 2.6.18-rc? however; please 
+run a xfs_repair v.2.6.10; because the corruption may/will have already 
+taken place and a silent time bomb may be waiting.  Three machines 
+already died with symptom of the corruption on kernels that no longer 
+have the problem.
 
 -- 
-Nathan
+Jeffrey Hundstad
+
+
+

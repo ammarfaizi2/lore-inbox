@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWHHMvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWHHM5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWHHMvf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWHHMvD
+	id S932244AbWHHM5P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWHHM5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:51:03 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44039 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964875AbWHHMuY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:50:24 -0400
-Date: Tue, 8 Aug 2006 12:45:48 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 10/12] hdaps: Power off accelerometer on suspend and unload
-Message-ID: <20060808124547.GH4540@ucw.cz>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492972486-git-send-email-multinymous@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Aug 2006 08:57:14 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:62883 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S932244AbWHHM5N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:57:13 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [RFC] NUMA futex hashing
+Date: Tue, 8 Aug 2006 14:57:11 +0200
+User-Agent: KMail/1.9.1
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       pravin b shelar <pravin.shelar@calsoftinc.com>,
+       linux-kernel@vger.kernel.org
+References: <20060808070708.GA3931@localhost.localdomain> <200608081429.44497.dada1@cosmosbay.com> <200608081447.42587.ak@suse.de>
+In-Reply-To: <200608081447.42587.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <11548492972486-git-send-email-multinymous@gmail.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200608081457.11430.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday 08 August 2006 14:47, Andi Kleen wrote:
+> On Tuesday 08 August 2006 14:29, Eric Dumazet wrote:
+> > On Tuesday 08 August 2006 12:36, Andi Kleen wrote:
+> > > > We may have special case for PRIVATE futexes (they dont need to be
+> > > > chained in a global table, but a process private table)
+> > >
+> > > What do you mean with PRIVATE futex?
+> > >
+> > > Even if the futex mapping is only visible by a single MM mmap_sem is
+> > > still needed to protect against other threads doing mmap.
+> >
+> > Hum... I would call that a user error.
+> >
+> > If a thread is munmap()ing the vma that contains active futexes, result
+> > is undefined.
+>
+> We can't allow anything that could crash the kernel, corrupt a kernel,
+> data structure, allow writing to freed memory etc.  No matter how
+> defined it is or not. Working with a vma that doesn't have
+> an existence guarantee would be just that.
 
-> This patch disables accelerometer power and stops its polling by the
-> embedded controller upon suspend and module unload. The power saving
-> is negligible, but it's the right thing to do.
-> 
-> Signed-off-by: Shem Multinymous <multinymous@gmail.com>
+As I said, we do not walk the vmas anymore, no crashes are ever possible.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Just keep a process private list of 'private futexes' , indexed by their 
+virtual address. This list can be of course stored in a efficient data 
+structure, an AVL or RB tree, or hash table.
 
+The validity of the virtual address is still tested by normal get_user() 
+call.. If the memory was freed by a thread, then a normal EFAULT error will 
+be reported... eventually.
 
-> +/*
-> + * hdaps_device_shutdown - power off the accelerometer. Can sleep.
-> + */
-> +static void hdaps_device_shutdown(void) {
-
-{ on newline?
-
-> +	if (hdaps_set_power(0))
-> +		printk(KERN_WARNING "hdaps: cannot power off\n");
-> +	if (hdaps_set_ec_config(0, 1))
-> +		printk(KERN_WARNING "hdaps: cannot stop EC sampling\n");
-> +}
-
-Maybe propagate error value?
-
-> +static int hdaps_suspend(struct platform_device *dev, pm_message_t state)
-> +{
-> +	hdaps_device_shutdown();
-> +	return 0;
-> +}
-> +
-
--- 
-Thanks for all the (sleeping) penguins.
+Eric

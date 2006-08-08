@@ -1,110 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWHHIb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWHHIkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbWHHIb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 04:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWHHIb1
+	id S932585AbWHHIkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 04:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWHHIkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 04:31:27 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:55002 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S932573AbWHHIb1 (ORCPT
+	Tue, 8 Aug 2006 04:40:09 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:5220 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932582AbWHHIkI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 04:31:27 -0400
-From: Magnus Damm <magnus@valinux.co.jp>
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
-       ebiederm@xmission.com
-Message-Id: <20060808083307.391.45887.sendpatchset@cherry.local>
-Subject: [PATCH] CONFIG_RELOCATABLE modpost fix
-Date: Tue,  8 Aug 2006 17:32:11 +0900 (JST)
+	Tue, 8 Aug 2006 04:40:08 -0400
+Date: Tue, 8 Aug 2006 10:41:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Jason Lunz <lunz@gehennom.net>, Jiri Slaby <jirislaby@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org, pavel@suse.cz, linux-pm@osdl.org,
+       linux-ide@vger.kernel.org
+Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
+Message-ID: <20060808084116.GF4025@suse.de>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <44D707B6.20501@gmail.com> <20060807162322.GA17564@knob.reflex> <200608072247.59184.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608072247.59184.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_RELOCATABLE modpost fix
+On Mon, Aug 07 2006, Rafael J. Wysocki wrote:
+> On Monday 07 August 2006 18:23, Jason Lunz wrote:
+> > In gmane.linux.kernel, you wrote:
+> > >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> > >
+> > > I tried it and guess what :)... swsusp doesn't work :@.
+> > >
+> > > This time I was able to dump process states with sysrq-t:
+> > > http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
+> > >
+> > > My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel prints is 
+> > > suspending device 2.0
+> > 
+> > Does it go away if you revert this?
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
+> > 
+> > That should only affect resume, not suspend, but it does mess around
+> > with ide power management. Is this maybe happening on the *second*
+> > suspend?
+> > 
+> > > -hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+> > > +hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
+> > 
+> > This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
+> 
+> I found that git-block.patch broke the suspend for me.  Still have no idea
+> what's up with it.
 
-Run modpost on vmlinux regardless of CONFIG_MODULES. The modpost code is also
-extended to ignore references from ".pci_fixup" to ".init.text".
+Can you apply this on top of -mm and see if that fixes it?
 
-Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
----
+diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+index d2339e9..db647a9 100644
+--- a/drivers/ide/ide-io.c
++++ b/drivers/ide/ide-io.c
+@@ -390,7 +390,7 @@ void ide_end_drive_cmd (ide_drive_t *dri
+ 			args[5] = hwif->INB(IDE_HCYL_REG);
+ 			args[6] = hwif->INB(IDE_SELECT_REG);
+ 		}
+-	} else if (rq->cmd_type & REQ_TYPE_ATA_TASKFILE) {
++	} else if (rq->cmd_type == REQ_TYPE_ATA_TASKFILE) {
+ 		ide_task_t *args = (ide_task_t *) rq->special;
+ 		if (rq->errors == 0)
+ 			rq->errors = !OK_STAT(stat,READY_STAT,BAD_STAT);
 
- This patch applies on top of Eric W. Biedermans CONFIG_RELOCATABLE tree
+-- 
+Jens Axboe
 
- Makefile                 |    1 +
- scripts/Makefile         |    4 ++--
- scripts/Makefile.modpost |    6 +++++-
- scripts/mod/modpost.c    |   14 +++++++++++---
-
---- 0001/Makefile
-+++ work/Makefile	2006-08-07 13:11:44.000000000 +0900
-@@ -723,6 +723,7 @@ endif # ifdef CONFIG_KALLSYMS
- # vmlinux image - including updated kernel symbols
- vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE
- 	$(call if_changed_rule,vmlinux__)
-+	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost __modpost_kernel
- 	$(Q)rm -f .old_version
- 
- # The actual objects are generated when descending, 
---- 0001/scripts/Makefile
-+++ work/scripts/Makefile	2006-08-07 13:09:47.000000000 +0900
-@@ -16,7 +16,7 @@ hostprogs-$(CONFIG_IKCONFIG)     += bin2
- always		:= $(hostprogs-y)
- 
- subdir-$(CONFIG_MODVERSIONS) += genksyms
--subdir-$(CONFIG_MODULES)     += mod
-+subdir-y                     += mod
- 
- # Let clean descend into subdirs
--subdir-	+= basic kconfig package
-+subdir-	+= basic kconfig package mod
---- 0001/scripts/Makefile.modpost
-+++ work/scripts/Makefile.modpost	2006-08-07 13:10:44.000000000 +0900
-@@ -61,7 +61,11 @@ quiet_cmd_modpost = MODPOST
- 	$(filter-out FORCE,$^)
- 
- PHONY += __modpost
--__modpost: $(wildcard vmlinux) $(modules:.ko=.o) FORCE
-+__modpost: $(modules:.ko=.o) FORCE
-+	$(call cmd,modpost)
-+
-+PHONY += __modpost_kernel
-+__modpost_kernel: $(wildcard vmlinux) FORCE
- 	$(call cmd,modpost)
- 
- # Declare generated files as targets for modpost
---- 0001/scripts/mod/modpost.c
-+++ work/scripts/mod/modpost.c	2006-08-07 16:45:30.000000000 +0900
-@@ -581,8 +581,8 @@ static int strrcmp(const char *s, const 
-  *   fromsec = .data
-  *   atsym = *driver, *_template, *_sht, *_ops, *_probe, *probe_one
-  **/
--static int secref_whitelist(const char *tosec, const char *fromsec,
--			    const char *atsym)
-+static int secref_whitelist(const char *modname, const char *tosec, 
-+			    const char *fromsec, const char *atsym)
- {
- 	int f1 = 1, f2 = 1;
- 	const char **s;
-@@ -596,6 +596,13 @@ static int secref_whitelist(const char *
- 		NULL
- 	};
- 
-+	/* Ignore all references from .pci_fixup section if vmlinux */
-+	if (strcmp(modname, "vmlinux") == 0) {
-+		if ((strcmp(fromsec, ".pci_fixup") == 0) && 
-+		    (strcmp(tosec, ".init.text") == 0))
-+		return 1;
-+	}
-+
- 	/* Check for pattern 1 */
- 	if (strcmp(tosec, ".init.data") != 0)
- 		f1 = 0;
-@@ -726,7 +733,8 @@ static void warn_sec_mismatch(const char
- 
- 	/* check whitelist - we may ignore it */
- 	if (before &&
--	    secref_whitelist(secname, fromsec, elf->strtab + before->st_name))
-+	    secref_whitelist(modname, secname, fromsec, 
-+			     elf->strtab + before->st_name))
- 		return;
- 
- 	if (before && after) {

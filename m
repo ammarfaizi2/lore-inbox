@@ -1,158 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWHHLmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWHHLpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWHHLmn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 07:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWHHLmn
+	id S964772AbWHHLpV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 07:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWHHLpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 07:42:43 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:54351 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964834AbWHHLmm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 07:42:42 -0400
-Message-ID: <44D87907.6090706@sw.ru>
-Date: Tue, 08 Aug 2006 15:44:07 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, viro@zeniv.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mishin Dmitry <dim@openvz.org>
-Subject: [PATCH] move IMMUTABLE|APPEND checks to notify_change()
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 8 Aug 2006 07:45:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58589 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964772AbWHHLpU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 07:45:20 -0400
+Subject: PATCH: tty locking on resize
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Aug 2006 13:04:59 +0100
+Message-Id: <1155038699.5729.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] move IMMUTABLE|APPEND checks to notify_change()
+The current kernel serializes console resizes but does not serialize the
+resize against the tty structure updates. This means that while two
+parallel resizes cannot mess up the console you can get incorrect
+results reported.
 
-This patch moves lots of IMMUTABLE and APPEND flag checks
-scattered all around to more logical place in notify_change().
+Secondly while doing this I added vc_lock_resize() to lock and resize
+the console. This leaves all knowledge of the console_sem in the
+vt/console driver and kicks it out of the tty layer, which is good
 
-Signed-Off-By: Dmitry Mishin <dim@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+Thirdly while doing this I decided I couldn't stand "disallocate" any
+longer so I switched it to "deallocate".
 
+Signed-off-by: Alan Cox <alan@redhat.com>
 
---- ./fs/attr.c.immut	2006-06-18 05:49:35.000000000 +0400
-+++ ./fs/attr.c	2006-08-08 15:15:59.000000000 +0400
-@@ -109,6 +109,9 @@ int notify_change(struct dentry * dentry
- 	struct timespec now;
- 	unsigned int ia_valid = attr->ia_valid;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc3-mm2/drivers/char/selection.c linux-2.6.18-rc3-mm2/drivers/char/selection.c
+--- linux.vanilla-2.6.18-rc3-mm2/drivers/char/selection.c	2006-08-07 16:15:18.000000000 +0100
++++ linux-2.6.18-rc3-mm2/drivers/char/selection.c	2006-08-07 16:28:52.000000000 +0100
+@@ -33,7 +33,7 @@
  
-+	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
-+		return -EPERM;
+ /* Variables for selection control. */
+ /* Use a dynamic buffer, instead of static (Dec 1994) */
+-struct vc_data *sel_cons;		/* must not be disallocated */
++struct vc_data *sel_cons;		/* must not be deallocated */
+ static volatile int sel_start = -1; 	/* cleared by clear_selection */
+ static int sel_end;
+ static int sel_buffer_lth;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc3-mm2/drivers/char/vt.c linux-2.6.18-rc3-mm2/drivers/char/vt.c
+--- linux.vanilla-2.6.18-rc3-mm2/drivers/char/vt.c	2006-08-07 16:20:33.000000000 +0100
++++ linux-2.6.18-rc3-mm2/drivers/char/vt.c	2006-08-07 23:54:01.000000000 +0100
+@@ -885,8 +885,17 @@
+ 	return err;
+ }
+ 
++int vc_lock_resize(struct vc_data *vc, unsigned int cols, unsigned int lines)
++{
++	int rc;
 +
- 	mode = inode->i_mode;
- 	now = current_fs_time(inode->i_sb);
++	acquire_console_sem();
++	rc = vc_resize(vc, cols, lines);
++	release_console_sem();
++	return rc;
++}
  
---- ./fs/open.c.immut	2006-07-14 19:08:29.000000000 +0400
-+++ ./fs/open.c	2006-08-08 15:19:58.000000000 +0400
-@@ -252,10 +252,6 @@ static long do_sys_truncate(const char _
- 	if (IS_RDONLY(inode))
- 		goto dput_and_out;
+-void vc_disallocate(unsigned int currcons)
++void vc_deallocate(unsigned int currcons)
+ {
+ 	WARN_CONSOLE_UNLOCKED();
  
--	error = -EPERM;
--	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto dput_and_out;
--
- 	/*
- 	 * Make sure that there are no leases.
- 	 */
-@@ -316,10 +312,6 @@ static long do_sys_ftruncate(unsigned in
- 	if (small && length > MAX_NON_LFS)
- 		goto out_putf;
+@@ -3788,6 +3797,7 @@
+ EXPORT_SYMBOL(update_region);
+ EXPORT_SYMBOL(redraw_screen);
+ EXPORT_SYMBOL(vc_resize);
++EXPORT_SYMBOL(vc_lock_resize);
+ EXPORT_SYMBOL(fg_console);
+ EXPORT_SYMBOL(console_blank_hook);
+ EXPORT_SYMBOL(console_blanked);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc3-mm2/drivers/char/vt_ioctl.c linux-2.6.18-rc3-mm2/drivers/char/vt_ioctl.c
+--- linux.vanilla-2.6.18-rc3-mm2/drivers/char/vt_ioctl.c	2006-08-07 16:15:18.000000000 +0100
++++ linux-2.6.18-rc3-mm2/drivers/char/vt_ioctl.c	2006-08-07 16:30:47.000000000 +0100
+@@ -96,7 +96,7 @@
+ 		if (!perm)
+ 			return -EPERM;
+ 		if (!i && v == K_NOSUCHMAP) {
+-			/* disallocate map */
++			/* deallocate map */
+ 			key_map = key_maps[s];
+ 			if (s && key_map) {
+ 			    key_maps[s] = NULL;
+@@ -819,20 +819,20 @@
+ 		if (arg > MAX_NR_CONSOLES)
+ 			return -ENXIO;
+ 		if (arg == 0) {
+-		    /* disallocate all unused consoles, but leave 0 */
++		    /* deallocate all unused consoles, but leave 0 */
+ 			acquire_console_sem();
+ 			for (i=1; i<MAX_NR_CONSOLES; i++)
+ 				if (! VT_BUSY(i))
+-					vc_disallocate(i);
++					vc_deallocate(i);
+ 			release_console_sem();
+ 		} else {
+-			/* disallocate a single console, if possible */
++			/* deallocate a single console, if possible */
+ 			arg--;
+ 			if (VT_BUSY(arg))
+ 				return -EBUSY;
+ 			if (arg) {			      /* leave 0 */
+ 				acquire_console_sem();
+-				vc_disallocate(arg);
++				vc_deallocate(arg);
+ 				release_console_sem();
+ 			}
+ 		}
+@@ -847,11 +847,8 @@
+ 		if (get_user(ll, &vtsizes->v_rows) ||
+ 		    get_user(cc, &vtsizes->v_cols))
+ 			return -EFAULT;
+-		for (i = 0; i < MAX_NR_CONSOLES; i++) {
+-			acquire_console_sem();
+-			vc_resize(vc_cons[i].d, cc, ll);
+-			release_console_sem();
+-		}
++		for (i = 0; i < MAX_NR_CONSOLES; i++)
++			vc_lock_resize(vc_cons[i].d, cc, ll);
+ 		return 0;
+ 	}
  
--	error = -EPERM;
--	if (IS_APPEND(inode))
--		goto out_putf;
--
- 	error = locks_verify_truncate(inode, file, length);
- 	if (!error)
- 		error = do_truncate(dentry, length, ATTR_MTIME|ATTR_CTIME, file);
-@@ -385,10 +377,6 @@ asmlinkage long sys_utime(char __user * 
- 	/* Don't worry, the checks are done in inode_change_ok() */
- 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
- 	if (times) {
--		error = -EPERM;
--		if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
--			goto dput_and_out;
--
- 		error = get_user(newattrs.ia_atime.tv_sec, &times->actime);
- 		newattrs.ia_atime.tv_nsec = 0;
- 		if (!error)
-@@ -398,15 +386,9 @@ asmlinkage long sys_utime(char __user * 
- 			goto dput_and_out;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc3-mm2/include/linux/vt_kern.h linux-2.6.18-rc3-mm2/include/linux/vt_kern.h
+--- linux.vanilla-2.6.18-rc3-mm2/include/linux/vt_kern.h	2006-08-07 16:15:59.000000000 +0100
++++ linux-2.6.18-rc3-mm2/include/linux/vt_kern.h	2006-08-07 17:13:26.000000000 +0100
+@@ -33,7 +33,8 @@
+ int vc_allocate(unsigned int console);
+ int vc_cons_allocated(unsigned int console);
+ int vc_resize(struct vc_data *vc, unsigned int cols, unsigned int lines);
+-void vc_disallocate(unsigned int console);
++int vc_lock_resize(struct vc_data *vc, unsigned int cols, unsigned int lines);
++void vc_deallocate(unsigned int console);
+ void reset_palette(struct vc_data *vc);
+ void do_blank_screen(int entering_gfx);
+ void do_unblank_screen(int leaving_gfx);
+--- linux.vanilla-2.6.18-rc3-mm2/drivers/char/tty_io.c	2006-08-07 16:20:33.000000000 +0100
++++ linux-2.6.18-rc3-mm2/drivers/char/tty_io.c	2006-08-08 12:16:15.200878984 +0100
+@@ -2770,12 +2770,11 @@
+  *	actually has driver level meaning and triggers a VC resize.
+  *
+  *	Locking:
+- *		The console_sem is used to ensure we do not try and resize
+- *	the console twice at once.
+- *	FIXME: Two racing size sets may leave the console and kernel
+- *		parameters disagreeing. Is this exploitable ?
+- *	FIXME: Random values racing a window size get is wrong
+- *	should lock here against that
++ *		Called function use the console_sem is used to ensure we do
++ *	not try and resize the console twice at once.
++ *		The tty->termios_sem is used to ensure we don't double
++ *	resize and get confused. Lock order - tty->termios.sem before
++ *	console sem
+  */
  
- 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
--	} else {
--                error = -EACCES;
--                if (IS_IMMUTABLE(inode))
--                        goto dput_and_out;
--
--		if (current->fsuid != inode->i_uid &&
-+	} else if (current->fsuid != inode->i_uid &&
- 		    (error = vfs_permission(&nd, MAY_WRITE)) != 0)
--			goto dput_and_out;
--	}
-+		goto dput_and_out;
- 	mutex_lock(&inode->i_mutex);
- 	error = notify_change(nd.dentry, &newattrs);
- 	mutex_unlock(&inode->i_mutex);
-@@ -442,24 +424,14 @@ long do_utimes(int dfd, char __user *fil
- 	/* Don't worry, the checks are done in inode_change_ok() */
- 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
- 	if (times) {
--		error = -EPERM;
--                if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
--                        goto dput_and_out;
--
- 		newattrs.ia_atime.tv_sec = times[0].tv_sec;
- 		newattrs.ia_atime.tv_nsec = times[0].tv_usec * 1000;
- 		newattrs.ia_mtime.tv_sec = times[1].tv_sec;
- 		newattrs.ia_mtime.tv_nsec = times[1].tv_usec * 1000;
- 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
--	} else {
--		error = -EACCES;
--                if (IS_IMMUTABLE(inode))
--                        goto dput_and_out;
--
--		if (current->fsuid != inode->i_uid &&
-+	} else if (current->fsuid != inode->i_uid &&
- 		    (error = vfs_permission(&nd, MAY_WRITE)) != 0)
--			goto dput_and_out;
--	}
-+		goto dput_and_out;
- 	mutex_lock(&inode->i_mutex);
- 	error = notify_change(nd.dentry, &newattrs);
- 	mutex_unlock(&inode->i_mutex);
-@@ -638,9 +610,6 @@ asmlinkage long sys_fchmod(unsigned int 
- 	err = -EROFS;
- 	if (IS_RDONLY(inode))
- 		goto out_putf;
--	err = -EPERM;
--	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto out_putf;
- 	mutex_lock(&inode->i_mutex);
- 	if (mode == (mode_t) -1)
- 		mode = inode->i_mode;
-@@ -672,10 +641,6 @@ asmlinkage long sys_fchmodat(int dfd, co
- 	if (IS_RDONLY(inode))
- 		goto dput_and_out;
+ static int tiocswinsz(struct tty_struct *tty, struct tty_struct *real_tty,
+@@ -2785,17 +2784,17 @@
  
--	error = -EPERM;
--	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto dput_and_out;
+ 	if (copy_from_user(&tmp_ws, arg, sizeof(*arg)))
+ 		return -EFAULT;
++
++	down(&tty->termios_sem);
+ 	if (!memcmp(&tmp_ws, &tty->winsize, sizeof(*arg)))
+-		return 0;
++		goto done;
++
+ #ifdef CONFIG_VT
+ 	if (tty->driver->type == TTY_DRIVER_TYPE_CONSOLE) {
+-		int rc;
 -
- 	mutex_lock(&inode->i_mutex);
- 	if (mode == (mode_t) -1)
- 		mode = inode->i_mode;
-@@ -709,9 +674,6 @@ static int chown_common(struct dentry * 
- 	error = -EROFS;
- 	if (IS_RDONLY(inode))
- 		goto out;
--	error = -EPERM;
--	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto out;
- 	newattrs.ia_valid =  ATTR_CTIME;
- 	if (user != (uid_t) -1) {
- 		newattrs.ia_valid |= ATTR_UID;
+-		acquire_console_sem();
+-		rc = vc_resize(tty->driver_data, tmp_ws.ws_col, tmp_ws.ws_row);
+-		release_console_sem();
+-		if (rc)
+-			return -ENXIO;
++		if (vc_lock_resize(tty->driver_data, tmp_ws.ws_col, tmp_ws.ws_row)) {
++			up(&tty->termios_sem);
++ 			return -ENXIO;
++		}
+ 	}
+ #endif
+ 	if (tty->pgrp > 0)
+@@ -2804,6 +2803,8 @@
+ 		kill_pg(real_tty->pgrp, SIGWINCH, 1);
+ 	tty->winsize = tmp_ws;
+ 	real_tty->winsize = tmp_ws;
++done:	
++	up(&tty->termios_sem);
+ 	return 0;
+ }
+ 
+

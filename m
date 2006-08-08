@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWHHKl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWHHKoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWHHKl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 06:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWHHKl4
+	id S964794AbWHHKoM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 06:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWHHKnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 06:41:56 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:27189 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S932553AbWHHKlz (ORCPT
+	Tue, 8 Aug 2006 06:43:45 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:32190 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964789AbWHHKnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 06:41:55 -0400
-Date: Tue, 8 Aug 2006 12:43:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Jason Lunz <lunz@gehennom.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       andre@linux-ide.org, pavel@suse.cz, linux-pm@osdl.org,
-       linux-ide@vger.kernel.org
-Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
-Message-ID: <20060808104303.GJ4025@suse.de>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <44D707B6.20501@gmail.com> <20060807162322.GA17564@knob.reflex> <200608072247.59184.rjw@sisk.pl> <20060808084116.GF4025@suse.de> <44D85DFB.7050806@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D85DFB.7050806@gmail.com>
+	Tue, 8 Aug 2006 06:43:06 -0400
+Message-ID: <44D86ADA.5000904@sw.ru>
+Date: Tue, 08 Aug 2006 14:43:38 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] unserialized task->files changing
+References: <44D86275.2080406@sw.ru> <20060808101208.GA25956@infradead.org> <200608081223.10434.dada1@cosmosbay.com>
+In-Reply-To: <200608081223.10434.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08 2006, Jiri Slaby wrote:
-> Jens Axboe wrote:
-> >On Mon, Aug 07 2006, Rafael J. Wysocki wrote:
-> >>On Monday 07 August 2006 18:23, Jason Lunz wrote:
-> >>>In gmane.linux.kernel, you wrote:
-> >>>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
-> >>>>I tried it and guess what :)... swsusp doesn't work :@.
-> >>>>
-> >>>>This time I was able to dump process states with sysrq-t:
-> >>>>http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
-> >>>>
-> >>>>My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel 
-> >>>>prints is suspending device 2.0
-> >>>Does it go away if you revert this?
-> >>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
-> >>>
-> >>>That should only affect resume, not suspend, but it does mess around
-> >>>with ide power management. Is this maybe happening on the *second*
-> >>>suspend?
-> >>>
-> >>>>-hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-> >>>>+hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
-> >>>This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
-> >>I found that git-block.patch broke the suspend for me.  Still have no idea
-> >>what's up with it.
-> >
-> >Can you apply this on top of -mm and see if that fixes it?
+Eric Dumazet wrote:
+> On Tuesday 08 August 2006 12:12, Christoph Hellwig wrote:
 > 
-> It doesn't solve the problem for me.
+>>On Tue, Aug 08, 2006 at 02:07:49PM +0400, Kirill Korotaev wrote:
+>>
+>>>Fixed race on put_files_struct on exec with proc.
+>>>Restoring files on current on error path may lead
+>>>to proc having a pointer to already kfree-d files_struct.
+>>
+>>This is three times the exact same code sequence, it should probably go
+>>into a helper:
+>>
+>>void reset_current_files(struct files_struct *files)
+>>{
+>>	struct files_struct *old = current->files;
+>>
+>>	task_lock(current);
+>>	current->files = files;
+>>	task_unlock(current);
+>>	put_files_struct(old);
+>>}
+> 
+> 
+> 
+> More over I think you want to task_lock() before reading current->files 
+> into 'old'
+> 
+> task_lock(current);
+> old = current->files;
+> current->files = files;
+> task_unlock(current);
+> put_files_struct(old);
+> 
+> or maybe a xchg() ?
 
-Ok, thanks for testing, I'll try and reproduce it here.
+yeah, never do assignments in declarations :)
 
--- 
-Jens Axboe
+BTW, not sure about kthread_exit_files() yet, but looks like it suffers too.
 
+unshare_files() changes current->files w/o locking as well. but I can't see
+where it puts the old files... hmm...
+
+Kirill

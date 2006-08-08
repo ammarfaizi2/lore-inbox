@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWHHQt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWHHQxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbWHHQt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWHHQt5
+	id S964997AbWHHQxa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWHHQxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:49:57 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:32072 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964991AbWHHQt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:49:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ShELPypiFxK6eXLt9KR5Pns0LD4ZE2UmADjrJdNQBV85biv/MJLj8M+vPFz7gTHDYzKYKnz0fNGnd3MbbYNPks4cNVn3jSkOhc8PZqMEbNTql9FrWhty6W0dzumH20cuBfFXO4dtRhtBe0jwBx3lXX28UfX0+qwuUllPUKeRnFc=
-Message-ID: <a36005b50608080949y13a8eb2m5d9a2d993ab9fae8@mail.gmail.com>
-Date: Tue, 8 Aug 2006 09:49:54 -0700
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC] NUMA futex hashing
-Cc: "Eric Dumazet" <dada1@cosmosbay.com>, "Andi Kleen" <ak@suse.de>,
-       "Ravikiran G Thirumalai" <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       "pravin b shelar" <pravin.shelar@calsoftinc.com>,
+	Tue, 8 Aug 2006 12:53:30 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:40874 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964997AbWHHQx3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:53:29 -0400
+Subject: Re: 2.6.18-rc3-mm1: O= builds broken
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Jeff Dike <jdike@addtoit.com>,
+       "lkml@o2.pl / IMAP" <lkml@o2.pl>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <44D8BA39.5020405@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <20060807195912.GA14126@mars.ravnborg.org>
+References: <20060806002400.694948a1.akpm@osdl.org>
+	 <20060806082321.GZ25692@stusta.de>
+	 <20060807195912.GA14126@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Tue, 08 Aug 2006 09:33:43 -0700
+Message-Id: <1155054823.19249.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060808070708.GA3931@localhost.localdomain>
-	 <200608081429.44497.dada1@cosmosbay.com>
-	 <200608081447.42587.ak@suse.de>
-	 <200608081457.11430.dada1@cosmosbay.com>
-	 <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>
-	 <44D8A9BE.3050607@yahoo.com.au>
-	 <a36005b50608080836u3e58ab85l61bb50b2bac5a0e3@mail.gmail.com>
-	 <44D8BA39.5020405@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/8/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> I thought mremap (no, that's already kind of messed up); or
-> even just getting consistency in failures (eg. so you don't have
-> the situation that a futex op can succeed on a previously
-> unmapped region).
->
-> If you're not worried about the latter, then it might work...
+On Mon, 2006-08-07 at 21:59 +0200, Sam Ravnborg wrote:
+> On Sun, Aug 06, 2006 at 10:23:21AM +0200, Adrian Bunk wrote:
+> > $ make O=/home/bunk/linux/kernel-2.6/out/full/ oldconfig
+> >   HOSTCC  scripts/basic/fixdep
+> >   HOSTCC  scripts/basic/docproc
+> >   GEN     /home/bunk/linux/kernel-2.6/out/full/Makefile
+> >   HOSTCC  scripts/kconfig/conf.o
+> >   HOSTCC  scripts/kconfig/kxgettext.o
+> >   HOSTCC  scripts/kconfig/lxdialog/checklist.o
+> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc3-mm1/scripts/kconfig/lxdialog/checklist.c:325: 
+> > fatal error: opening dependency file 
+> > scripts/kconfig/lxdialog/.checklist.o.d: No such file or directory
+> > compilation terminated.
+> > make[2]: *** [scripts/kconfig/lxdialog/checklist.o] Error 1
+> > make[1]: *** [oldconfig] Error 2
+> > make: *** [oldconfig] Error 2
+> > $ 
+> >
+> If the lxdialog directory is missing then kbuild barfs out.
+> Fixed by followign patch that is already pushed out to my kbuild.git
+> tree. Thanks for the reports (all senders added to to:).
 
-I'm not the least bit worried about this.  It's 100% an application's
-fault.  You cannot touch an address space if it's used, e.g., for
-mutexes.
+I got the same thing on 2.6.18-rc3-mm2.
 
+Andrew, if another -mm isn't imminent, could this patch make into into
+the hot-fixes directory for -mm1 and/or -mm2?
 
-> I didn't initially click that the private futex API operates
-> purely on tokens rather than virtual memory...
+BTW, I'm also seeing these in my build now:
 
-I haven't looked at the code in some time but I thought this got
-clarified in the comments.  For waiting on private mutexes we need
-nothing but the address value itself.  There is the FUTEX_WAKE_OP
-operation which will also write to memory but this is only the waker
-side and if the memory mapping is gone, just flag an error.  It's
-another program error which shouldn't in any way slow down normal
-operations.
+	scripts/Makefile.host:88: host-objdirs=
+
+It doesn't appear to hurt anything, but it is a bit weird looking.
+
+-- Dave
+

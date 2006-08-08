@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWHHT0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWHHTaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWHHT0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHHT0V
+	id S1030231AbWHHTaB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWHHTaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:26:21 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:31667 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030229AbWHHT0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:26:21 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Tue, 8 Aug 2006 21:25:22 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 4/4] ieee1394: sbp2: enable auto spin-up for all SBP-2 devices
-To: linux-kernel@vger.kernel.org
-cc: Ben Collins <bcollins@ubuntu.com>, Andrew Morton <akpm@osdl.org>,
-       linux1394-devel@lists.sourceforge.net
-In-Reply-To: <tkrat.57bb8cb1b7c97d1e@s5r6.in-berlin.de>
-Message-ID: <tkrat.24bcdb35a499bac0@s5r6.in-berlin.de>
-References: <tkrat.57bb8cb1b7c97d1e@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+	Tue, 8 Aug 2006 15:30:01 -0400
+Received: from iron.pdx.net ([207.149.241.18]:21466 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S1030231AbWHHTaA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:30:00 -0400
+Subject: Re: [BUG] Kernel Panic from AHD when power cycling external
+	Disk/Array
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1155064973.3002.5.camel@home-desk>
+References: <1155064973.3002.5.camel@home-desk>
+Content-Type: text/plain
+Date: Tue, 08 Aug 2006 12:29:54 -0700
+Message-Id: <1155065394.3002.9.camel@home-desk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a follow-up to patch "ieee1394: sbp2: enable auto spin-up for
-Maxtor disks".  When I 'ejected' an OXUF922 based HDD from a Mac OS X
-box, it was spun down by the Mac and did not spin up by itself when
-attached to a Linux box right after that.  The first SCSI command that
-required the bridge to access the drive ended in
-sda:<6>sd 18:0:0:0: Device not ready: <6>: Current: sense key: Not Ready
-    Additional sense: Logical unit not ready, initializing cmd. required
+On Tue, 2006-08-08 at 12:22 -0700, Sean Bruno wrote:
+> Running a 29320R with CentOS 4.3 and 2.6.17.8 installed.  
+> 
+> 
+> Got this interesting BUG from 2.6.17.8 today.  Each time I reset my
+> external SCSI Disk connected to my 29320R the kernel throws this error
+> and locks up:
+> 
+> scsi0: Someone reset channel A
+> BUG: soft lockup detected on CPU#0!
+>  <c013258b> softlockup_tick+0x7f/0x8e  <c011e6e4> update_process_times
+> +0x35/0x57 <c0104eda> timer_interrupt+0x3d/0x60  <c0132698>
+> handle_IRQ_event+0x21/0x4a
+>  <c0132739> __do_IRQ+0x78/0xcb  <c0103eb5> do_IRQ+0x6b/0x7a
+>  <c0102c4a> common_interrupt+0x1a/0x20  <c02d3a2a>
+> _spin_unlock_irqrestore+0xa/c <e08d0481> ahd_linux_isr+0x173/0x17f
+> [aic79xx]  <c0132698> handle_IRQ_event+0xa <c0132739> __do_IRQ+0x78/0xcb
+> <c0103ea8> do_IRQ+0x5e/0x7a
+>  =======================
+>  <c0102c4a> common_interrupt+0x1a/0x20  <c011b5bc> __do_softirq
+> +0x2c/0x7d
+>  <c0103f8c> do_softirq+0x38/0x3f
+>  =======================
+>  <c0103eba> do_IRQ+0x70/0x7a  <c0102c4a> common_interrupt+0x1a/0x20
+>  <c0101150> mwait_idle+0x1a/0x2a  <c01010bf> cpu_idle+0x40/0x5c
+>  <c038c618> start_kernel+0x184/0x186
+> 
+> 
+> 
+> H/W specs:
+> (lspci)
+> 00:00.0 Host bridge: Intel Corporation 82865G/PE/P DRAM
+> Controller/Host-Hub Interface (rev 02)
+> 00:01.0 PCI bridge: Intel Corporation 82865G/PE/P PCI to AGP Controller
+> (rev 02)
+> 00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+> UHCI Controller #1 (rev 02)
+> 00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+> UHCI Controller #2 (rev 02)
+> 00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+> UHCI Controller #3 (rev 02)
+> 00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
+> UHCI Controller #4 (rev 02)
+> 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2
+> EHCI Controller (rev 02)
+> 00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
+> 00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC
+> Interface Bridge (rev 02)
+> 00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE
+> Controller (rev 02)
+> 02:05.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001
+> Gigabit Ethernet Controller (rev 13)
+> 02:09.0 VGA compatible controller: Silicon Integrated Systems [SiS]
+> 315PRO PCI/AGP VGA Display Adapter
+> 02:0c.0 SCSI storage controller: Adaptec ASC-29320A U320 (rev 10)
+> 
+FWIW, this error does not occur with the CentOS stock kernel
+2.6.9-34.0.2.EL
 
-Therefore the flag which instructs scsi_mod to send START STOP UNIT with
-START=1 ("make medium ready") after such a condition is now enabled
-unconditionally for all FireWire storage devices.
-
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-Index: linux/drivers/ieee1394/sbp2.c
-===================================================================
---- linux.orig/drivers/ieee1394/sbp2.c	2006-08-05 16:58:30.000000000 +0200
-+++ linux/drivers/ieee1394/sbp2.c	2006-08-07 20:13:59.000000000 +0200
-@@ -2451,6 +2451,7 @@ static int sbp2scsi_slave_alloc(struct s
- 		(struct scsi_id_instance_data *)sdev->host->hostdata[0];
- 
- 	scsi_id->sdev = sdev;
-+	sdev->allow_restart = 1;
- 
- 	if (scsi_id->workarounds & SBP2_WORKAROUND_INQUIRY_36)
- 		sdev->inquiry_len = 36;
-@@ -2473,9 +2474,6 @@ static int sbp2scsi_slave_configure(stru
- 		sdev->fix_capacity = 1;
- 	if (scsi_id->workarounds & SBP2_WORKAROUND_MODE_SENSE_6)
- 		sdev->use_10_for_ms = 0;
--	if (scsi_id->ne->guid_vendor_id == 0x0010b9 && /* Maxtor's OUI */
--	    (sdev->type == TYPE_DISK || sdev->type == TYPE_RBC))
--		sdev->allow_restart = 1;
- 	return 0;
- }
- 
-
+Sean
 

@@ -1,354 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWHHU6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWHHU6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965037AbWHHU6o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 16:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWHHU6o
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 16:58:44 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:17874 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S965037AbWHHU6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964983AbWHHU6n (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 8 Aug 2006 16:58:43 -0400
-Message-Id: <200608082058.k78KwGa4006531@ccure.user-mode-linux.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWHHU6n
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 8 Aug 2006 16:58:43 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:17618 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964983AbWHHU6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 16:58:42 -0400
+Message-Id: <200608082058.k78KwJpx006536@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
        Rob Landley <rob@landley.net>, Kyle Moffett <mrmacman_g4@mac.com>
-Subject: [PATCH 1/2] Split i386 and x86_64 ptrace.h
+Subject: [PATCH 2/2] UML - use ptrace-abi.h instead of ptrace.h
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Aug 2006 16:58:16 -0400
+Date: Tue, 08 Aug 2006 16:58:19 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The use of SEGMENT_RPL_MASK in the i386 ptrace.h introduced by
-x86-allow-a-kernel-to-not-be-in-ring-0.patch broke the UML build, as
-UML includes the underlying architecture's ptrace.h, but has no easy
-access to the x86 segment definitions.
+Include the host architecture's ptrace-abi.h instead of ptrace.h.
 
-Rather than kludging around this, as in the past, this patch splits
-the userspace-usable parts, which are the bits that UML needs, of
-ptrace.h into ptrace-abi.h, which is included back into ptrace.h.
-Thus, there is no net effect on i386.
-
-As a side-effect, this creates a ptrace header which is close to being
-usable in /usr/include.
-
-x86_64 is also treated in this way for consistency.
-
-This patch was run by linux-arch yesterday with no comment.
+There was some cpp mangling of names around the ptrace.h include to
+avoid symbol clashes between UML and the host architecture.  Most of
+these can go away.  The exception is struct pt_regs, which is
+convenient to have in userspace, but must be renamed in order that UML
+can define its own.
 
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.17/include/asm-i386/ptrace-abi.h
+Index: linux-2.6.18-mm/include/asm-um/ptrace-generic.h
 ===================================================================
---- /dev/null
-+++ linux-2.6.17/include/asm-i386/ptrace-abi.h
-@@ -0,0 +1,60 @@
-+#ifndef I386_PTRACE_ABI_H
-+#define I386_PTRACE_ABI_H
-+
-+#define EBX 0
-+#define ECX 1
-+#define EDX 2
-+#define ESI 3
-+#define EDI 4
-+#define EBP 5
-+#define EAX 6
-+#define DS 7
-+#define ES 8
-+#define FS 9
-+#define GS 10
-+#define ORIG_EAX 11
-+#define EIP 12
-+#define CS  13
-+#define EFL 14
-+#define UESP 15
-+#define SS   16
-+#define FRAME_SIZE 17
-+
-+/* this struct defines the way the registers are stored on the
-+   stack during a system call. */
-+
-+struct pt_regs {
-+	long ebx;
-+	long ecx;
-+	long edx;
-+	long esi;
-+	long edi;
-+	long ebp;
-+	long eax;
-+	int  xds;
-+	int  xes;
-+	long orig_eax;
-+	long eip;
-+	int  xcs;
-+	long eflags;
-+	long esp;
-+	int  xss;
-+};
-+
-+/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
-+#define PTRACE_GETREGS            12
-+#define PTRACE_SETREGS            13
-+#define PTRACE_GETFPREGS          14
-+#define PTRACE_SETFPREGS          15
-+#define PTRACE_GETFPXREGS         18
-+#define PTRACE_SETFPXREGS         19
-+
-+#define PTRACE_OLDSETOPTIONS         21
-+
-+#define PTRACE_GET_THREAD_AREA    25
-+#define PTRACE_SET_THREAD_AREA    26
-+
-+#define PTRACE_SYSEMU		  31
-+#define PTRACE_SYSEMU_SINGLESTEP  32
-+
-+#endif
-Index: linux-2.6.17/include/asm-i386/ptrace.h
-===================================================================
---- linux-2.6.17.orig/include/asm-i386/ptrace.h
-+++ linux-2.6.17/include/asm-i386/ptrace.h
-@@ -1,61 +1,7 @@
- #ifndef _I386_PTRACE_H
- #define _I386_PTRACE_H
+--- linux-2.6.18-mm.orig/include/asm-um/ptrace-generic.h	2006-08-06 14:51:28.000000000 -0400
++++ linux-2.6.18-mm/include/asm-um/ptrace-generic.h	2006-08-06 20:35:20.000000000 -0400
+@@ -8,18 +8,9 @@
  
--#define EBX 0
--#define ECX 1
--#define EDX 2
--#define ESI 3
--#define EDI 4
--#define EBP 5
--#define EAX 6
--#define DS 7
--#define ES 8
--#define FS 9
--#define GS 10
--#define ORIG_EAX 11
--#define EIP 12
--#define CS  13
--#define EFL 14
--#define UESP 15
--#define SS   16
--#define FRAME_SIZE 17
--
--/* this struct defines the way the registers are stored on the 
--   stack during a system call. */
--
--struct pt_regs {
--	long ebx;
--	long ecx;
--	long edx;
--	long esi;
--	long edi;
--	long ebp;
--	long eax;
--	int  xds;
--	int  xes;
--	long orig_eax;
--	long eip;
--	int  xcs;
--	long eflags;
--	long esp;
--	int  xss;
--};
--
--/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
--#define PTRACE_GETREGS            12
--#define PTRACE_SETREGS            13
--#define PTRACE_GETFPREGS          14
--#define PTRACE_SETFPREGS          15
--#define PTRACE_GETFPXREGS         18
--#define PTRACE_SETFPXREGS         19
--
--#define PTRACE_OLDSETOPTIONS         21
--
--#define PTRACE_GET_THREAD_AREA    25
--#define PTRACE_SET_THREAD_AREA    26
--
--#define PTRACE_SYSEMU		  31
--#define PTRACE_SYSEMU_SINGLESTEP  32
-+#include <asm/ptrace-abi.h>
+ #ifndef __ASSEMBLY__
  
- #ifdef __KERNEL__
+-
+ #define pt_regs pt_regs_subarch
+-#define show_regs show_regs_subarch
+-#define send_sigtrap send_sigtrap_subarch
+-
+-#include "asm/arch/ptrace.h"
+-
++#include "asm/arch/ptrace-abi.h"
+ #undef pt_regs
+-#undef show_regs
+-#undef send_sigtrap
+-#undef user_mode
+-#undef instruction_pointer
  
-Index: linux-2.6.17/include/asm-x86_64/ptrace-abi.h
-===================================================================
---- /dev/null
-+++ linux-2.6.17/include/asm-x86_64/ptrace-abi.h
-@@ -0,0 +1,83 @@
-+#ifndef _X86_64_PTRACE_ABI_H
-+#define _X86_64_PTRACE_ABI_H
-+
-+#if defined(__ASSEMBLY__) || defined(__FRAME_OFFSETS)
-+#define R15 0
-+#define R14 8
-+#define R13 16
-+#define R12 24
-+#define RBP 32
-+#define RBX 40
-+/* arguments: interrupts/non tracing syscalls only save upto here*/
-+#define R11 48
-+#define R10 56
-+#define R9 64
-+#define R8 72
-+#define RAX 80
-+#define RCX 88
-+#define RDX 96
-+#define RSI 104
-+#define RDI 112
-+#define ORIG_RAX 120       /* = ERROR */
-+/* end of arguments */
-+/* cpu exception frame or undefined in case of fast syscall. */
-+#define RIP 128
-+#define CS 136
-+#define EFLAGS 144
-+#define RSP 152
-+#define SS 160
-+#define ARGOFFSET R11
-+#endif /* __ASSEMBLY__ */
-+
-+/* top of stack page */
-+#define FRAME_SIZE 168
-+
-+#define PTRACE_OLDSETOPTIONS         21
-+
-+#ifndef __ASSEMBLY__
-+
-+struct pt_regs {
-+	unsigned long r15;
-+	unsigned long r14;
-+	unsigned long r13;
-+	unsigned long r12;
-+	unsigned long rbp;
-+	unsigned long rbx;
-+/* arguments: non interrupts/non tracing syscalls only save upto here*/
-+ 	unsigned long r11;
-+	unsigned long r10;
-+	unsigned long r9;
-+	unsigned long r8;
-+	unsigned long rax;
-+	unsigned long rcx;
-+	unsigned long rdx;
-+	unsigned long rsi;
-+	unsigned long rdi;
-+	unsigned long orig_rax;
-+/* end of arguments */
-+/* cpu exception frame or undefined */
-+	unsigned long rip;
-+	unsigned long cs;
-+	unsigned long eflags;
-+	unsigned long rsp;
-+	unsigned long ss;
-+/* top of stack page */
-+};
-+
-+#endif
-+
-+/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
-+#define PTRACE_GETREGS            12
-+#define PTRACE_SETREGS            13
-+#define PTRACE_GETFPREGS          14
-+#define PTRACE_SETFPREGS          15
-+#define PTRACE_GETFPXREGS         18
-+#define PTRACE_SETFPXREGS         19
-+
-+/* only useful for access 32bit programs */
-+#define PTRACE_GET_THREAD_AREA    25
-+#define PTRACE_SET_THREAD_AREA    26
-+
-+#define PTRACE_ARCH_PRCTL	  30	/* arch_prctl for child */
-+
-+#endif
-Index: linux-2.6.17/include/asm-x86_64/ptrace.h
-===================================================================
---- linux-2.6.17.orig/include/asm-x86_64/ptrace.h
-+++ linux-2.6.17/include/asm-x86_64/ptrace.h
-@@ -1,84 +1,7 @@
- #ifndef _X86_64_PTRACE_H
- #define _X86_64_PTRACE_H
+ #include "sysdep/ptrace.h"
  
--#if defined(__ASSEMBLY__) || defined(__FRAME_OFFSETS) 
--#define R15 0
--#define R14 8
--#define R13 16
--#define R12 24
--#define RBP 32
--#define RBX 40
--/* arguments: interrupts/non tracing syscalls only save upto here*/
--#define R11 48
--#define R10 56	
--#define R9 64
--#define R8 72
--#define RAX 80
--#define RCX 88
--#define RDX 96
--#define RSI 104
--#define RDI 112
--#define ORIG_RAX 120       /* = ERROR */ 
--/* end of arguments */ 	
--/* cpu exception frame or undefined in case of fast syscall. */
--#define RIP 128
--#define CS 136
--#define EFLAGS 144
--#define RSP 152
--#define SS 160
--#define ARGOFFSET R11
--#endif /* __ASSEMBLY__ */
--
--/* top of stack page */ 
--#define FRAME_SIZE 168
--
--#define PTRACE_OLDSETOPTIONS         21
--
--#ifndef __ASSEMBLY__ 
--
--struct pt_regs {
--	unsigned long r15;
--	unsigned long r14;
--	unsigned long r13;
--	unsigned long r12;
--	unsigned long rbp;
--	unsigned long rbx;
--/* arguments: non interrupts/non tracing syscalls only save upto here*/
-- 	unsigned long r11;
--	unsigned long r10;	
--	unsigned long r9;
--	unsigned long r8;
--	unsigned long rax;
--	unsigned long rcx;
--	unsigned long rdx;
--	unsigned long rsi;
--	unsigned long rdi;
--	unsigned long orig_rax;
--/* end of arguments */ 	
--/* cpu exception frame or undefined */
--	unsigned long rip;
--	unsigned long cs;
--	unsigned long eflags; 
--	unsigned long rsp; 
--	unsigned long ss;
--/* top of stack page */ 
--};
--
--#endif
--
--/* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
--#define PTRACE_GETREGS            12
--#define PTRACE_SETREGS            13
--#define PTRACE_GETFPREGS          14
--#define PTRACE_SETFPREGS          15
--#define PTRACE_GETFPXREGS         18
--#define PTRACE_SETFPXREGS         19
--
--/* only useful for access 32bit programs */
--#define PTRACE_GET_THREAD_AREA    25
--#define PTRACE_SET_THREAD_AREA    26
--
--#define PTRACE_ARCH_PRCTL	  30	/* arch_prctl for child */
-+#include <asm/ptrace-abi.h>
- 
- #if defined(__KERNEL__) && !defined(__ASSEMBLY__) 
- #define user_mode(regs) (!!((regs)->cs & 3))
 

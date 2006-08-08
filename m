@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWHHQe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWHHQhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWHHQe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWHHQe4
+	id S964985AbWHHQhz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWHHQhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:34:56 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:28768 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030189AbWHHQe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:34:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VuqQwaHG/rMRmGvr4440G3O+GmCarJTKPybTWLJFiPaHMH0v8WEciTcgLYeCmOWHjKPV2e3Dj+DhiFcFN4SWNQBpp/X+SYUsTo5EWUWurBB6XAH77VHSyj0W7ZPCVBecZoP4R0mTXG5F2tChSu+CnCnjeDcafTzcrOmH+tu+jho=  ;
-Message-ID: <44D8BD29.4010102@yahoo.com.au>
-Date: Wed, 09 Aug 2006 02:34:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 8 Aug 2006 12:37:55 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:32215 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964967AbWHHQhy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:37:54 -0400
+Message-ID: <44D8BD51.8040206@zytor.com>
+Date: Tue, 08 Aug 2006 09:35:29 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Ulrich Drepper <drepper@gmail.com>, Andi Kleen <ak@suse.de>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
+To: Daniel Rodrick <daniel.rodrick@gmail.com>
+CC: Linux Newbie <linux-newbie@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>, linux-net@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] NUMA futex hashing
-References: <20060808070708.GA3931@localhost.localdomain> <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com> <44D8A9BE.3050607@yahoo.com.au> <200608081808.34708.dada1@cosmosbay.com>
-In-Reply-To: <200608081808.34708.dada1@cosmosbay.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
+References: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com>	 <44D7579D.1040303@zytor.com>	 <292693080608070911g57ae1215qd994e03b9dd87b66@mail.gmail.com>	 <44D76F26.9@zytor.com> <292693080608072213n2be75176g46199e92d669f5de@mail.gmail.com>
+In-Reply-To: <292693080608072213n2be75176g46199e92d669f5de@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-
-> We certainly can. But if you insist of using mmap sem at all, then we have a 
-> problem.
+Daniel Rodrick wrote:
 > 
-> rbtree would not reduce cacheline bouncing, so :
+> Hi ... so there seem to be no technical feasibily issues, just
+> reliabliy / ugly design issues? So one can still go ahead and write a
+> Universal Protocol Driver that can work with all (PXE compatible)
+> NICs?
 > 
-> We could use a hashtable (allocated on demand) of size N, N depending on 
-> NR_CPUS for example. each chain protected by a private spinlock. If N is well 
-> chosen, we might reduce lock cacheline bouncing. (different threads fighting 
-> on different private futexes would have a good chance to get different 
-> cachelines in this hashtable)
 
-See other mail. We already have a hash table ;)
+For some definition of "all" = meaning "it might work on some of them."
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> Are there any issues related to real mode / protected mode?
+
+Yes, a whole bunch of PXE/UNDI stacks are broken in protected mode.
+
+	-hpa

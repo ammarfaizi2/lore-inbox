@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWHHU3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWHHUdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWHHU3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 16:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWHHU3j
+	id S1030294AbWHHUdT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 16:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWHHUdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 16:29:39 -0400
-Received: from server99.tchmachines.com ([72.9.230.178]:30347 "EHLO
-	server99.tchmachines.com") by vger.kernel.org with ESMTP
-	id S932227AbWHHU3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 16:29:38 -0400
-Date: Tue, 8 Aug 2006 13:31:20 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>
-Subject: Re: [RFC] NUMA futex hashing
-Message-ID: <20060808203120.GA3762@localhost.localdomain>
-References: <20060808070708.GA3931@localhost.localdomain> <200608081114.50256.dada1@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Aug 2006 16:33:19 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:23769 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030294AbWHHUdS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 16:33:18 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.18-rc3-mm2
+Date: Tue, 8 Aug 2006 22:32:47 +0200
+User-Agent: KMail/1.9.3
+Cc: "Fabio Comolli" <fabio.comolli@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <200608081641.48621.rjw@sisk.pl> <d120d5000608081042i46eca97fvf1c3d67db65731b9@mail.gmail.com>
+In-Reply-To: <d120d5000608081042i46eca97fvf1c3d67db65731b9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608081114.50256.dada1@cosmosbay.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Message-Id: <200608082232.47515.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 11:14:49AM +0200, Eric Dumazet wrote:
-> On Tuesday 08 August 2006 09:07, Ravikiran G Thirumalai wrote:
+On Tuesday 08 August 2006 19:42, Dmitry Torokhov wrote:
+> On 8/8/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> > On Monday 07 August 2006 21:00, Dmitry Torokhov wrote:
+> > > On 8/7/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
+> > ]--snip--[
+> > > >
+> > > > Still interested in dmesg with i8042.debug=1 ?
+> > > >
+> > >
+> > > Yes, _with_ the i8042 polling patch applied.
+> >
+> > I've got one for you (attached).
 > >
 > 
-> Your patch seems fine, but I have one comment.
-> 
-> For non NUMA machine, we would have one useless indirection to get the 
-> futex_queues pointer.
-> 
-> static struct futex_hash_bucket *futex_queues[1];
-> 
-> I think it is worth to redesign your patch so that this extra-indirection is 
-> needed only for NUMA machines.
+> Thnk you, I think I see what the problem is. Rafael, could you please
+> try booting with i8042.nomux and tell me if mouse starts working.
 
-Yes.  Will do in the next iteration.
+It's a touchpad, but I guess that doesn't make a difference?
 
-Thanks,
-Kiran
+Rafael

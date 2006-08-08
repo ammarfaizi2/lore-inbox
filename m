@@ -1,100 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWHHTWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWHHTXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbWHHTWP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHHTWP
+	id S1030224AbWHHTXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWHHTXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:22:15 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:7091 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S964982AbWHHTWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:22:14 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Tue, 8 Aug 2006 21:21:05 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 1/4] video1394: add poll file operation support
-To: linux-kernel@vger.kernel.org
-cc: Ben Collins <bcollins@ubuntu.com>, Andrew Morton <akpm@osdl.org>,
-       linux1394-devel@lists.sourceforge.net
-In-Reply-To: <tkrat.57bb8cb1b7c97d1e@s5r6.in-berlin.de>
-Message-ID: <tkrat.d621130a6a44b56c@s5r6.in-berlin.de>
-References: <tkrat.57bb8cb1b7c97d1e@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+	Tue, 8 Aug 2006 15:23:11 -0400
+Received: from 1wt.eu ([62.212.114.60]:41485 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1030224AbWHHTXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:23:10 -0400
+Date: Tue, 8 Aug 2006 21:07:52 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+Message-ID: <20060808190752.GE8776@1wt.eu>
+References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com> <17624.29292.673708.654588@cse.unsw.edu.au> <f19298770608080441h68fb6696h845b0fd1ed5a7128@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f19298770608080441h68fb6696h845b0fd1ed5a7128@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: Tue, 01 Aug 2006 19:00:31 -0400
-From: David Moore <dcm@acm.org>
-Subject: [PATCH] video1394: add poll file operation support
+On Tue, Aug 08, 2006 at 03:41:15PM +0400, Alexey Zaytsev wrote:
+> On 8/8/06, Neil Brown <neilb@suse.de> wrote:
+> >On Tuesday August 8, alexey.zaytsev@gmail.com wrote:
+> >> Hello, list.
+> >>
+> >> What are the objections to makeing lkml and other lists at vget
+> >> subscribers-only?
+> >
+> >Yes.  Many.  I think this is in the FAQ. (hhmm.. just looked, it isn't 
+> >exactly).
+> >
+> >> Non-subscribers messages could still be allowed after moderation.
+> >> I get 1/4 of my spam from lkml, and see no benefit from allowing
+> >> non-subscribers to freely post to the list. If you are not subscribed,
+> >> you just have to wait until your mail gets approved by the moderator,
+> >> and it is not hard to subscribe anyway.
+> >
+> >We want to barrier to posting to be low so that people will post bug
+> >reports.  We want to hear about bug reports. really really.
 
-This patch adds support for the poll file operation to the video1394
-driver.
+100% agreed. Many (I mean MANY) posters add a "PS: please CC me as I'm
+not subscribed" line. This means whe might lose their reports while they're
+often the most important ones.
 
-Signed-off-by: David Moore <dcm@acm.org>
----
-Index: linux/drivers/ieee1394/video1394.c
-===================================================================
---- linux.orig/drivers/ieee1394/video1394.c	2006-08-02 18:23:28.000000000 +0200
-+++ linux/drivers/ieee1394/video1394.c	2006-08-02 18:23:42.000000000 +0200
-@@ -1181,7 +1181,8 @@ static int video1394_mmap(struct file *f
- 
- 	lock_kernel();
- 	if (ctx->current_ctx == NULL) {
--		PRINT(KERN_ERR, ctx->ohci->host->id, "Current iso context not set");
-+		PRINT(KERN_ERR, ctx->ohci->host->id,
-+				"Current iso context not set");
- 	} else
- 		res = dma_region_mmap(&ctx->current_ctx->dma, file, vma);
- 	unlock_kernel();
-@@ -1189,6 +1190,40 @@ static int video1394_mmap(struct file *f
- 	return res;
- }
- 
-+static unsigned int video1394_poll(struct file *file, poll_table *pt)
-+{
-+	struct file_ctx *ctx;
-+	unsigned int mask = 0;
-+	unsigned long flags;
-+	struct dma_iso_ctx *d;
-+	int i;
-+
-+	lock_kernel();
-+	ctx = file->private_data;
-+	d = ctx->current_ctx;
-+	if (d == NULL) {
-+		PRINT(KERN_ERR, ctx->ohci->host->id,
-+				"Current iso context not set");
-+		mask = POLLERR;
-+		goto done;
-+	}
-+
-+	poll_wait(file, &d->waitq, pt);
-+
-+	spin_lock_irqsave(&d->lock, flags);
-+	for (i = 0; i < d->num_desc; i++) {
-+		if (d->buffer_status[i] == VIDEO1394_BUFFER_READY) {
-+			mask |= POLLIN | POLLRDNORM;
-+			break;
-+		}
-+	}
-+	spin_unlock_irqrestore(&d->lock, flags);
-+done:
-+	unlock_kernel();
-+
-+	return mask;
-+}
-+
- static int video1394_open(struct inode *inode, struct file *file)
- {
- 	int i = ieee1394_file_to_instance(file);
-@@ -1257,6 +1292,7 @@ static struct file_operations video1394_
- #ifdef CONFIG_COMPAT
- 	.compat_ioctl = video1394_compat_ioctl,
- #endif
-+	.poll =		video1394_poll,
- 	.mmap =		video1394_mmap,
- 	.open =		video1394_open,
- 	.release =	video1394_release
+Another problem is that many of us post from multiple addresses (work, home,
+kernel.org, ...), and this must be taken into account to. Next, some spammers
+use *valid* posters addresses, so those will pass through your filters anyway.
+I'm already getting several spams a day pretending to emerge from several
+LKML posters, so spamlists are also built from large mailing lists.
+
+> >Were you volunteering to be a moderator?  What sort of minimum delay
+> >would you guarantee :-)
+> 
+> If we had a large moderators group, we could do mail processing within 
+> minutes.
+
+We already have this large moderators group : all the users. I really
+don't mind getting that small rate of spams in my LKML folder. Those
+are very easy to identify at first glance, it will be harder when they
+will begin with [PATCH] or things like this. You need 15 seconds to
+hit the "D" key to remove 30 of them, that's OK.
+
+> I'm not familiar with any mail list systems, is the mail validation
+> done with a web-interface?
+> If we could get incoming traffic delivered to the moderator's mailbox,
+> rather than appear on the web interface, it would be not hard for him
+> to ack/nack certain e-mails. We could even get the traffic split
+> betweem moderators, e.g. one gets N e-mails, afters processing them,
+> he gets an other N e-mails, and if he does not process theese e-mails
+> within M hours, they are sent to an other moderator. But here it's
+> only my imagination, maybe people with some mailing list
+> administration experience could give more ideas. And yes, if the
+> moderators group is large enough, I'm ready to come in.
+
+Your description is generally interesting, but would require a lot of
+work, and I'm not sure you'll find many kind people as you who would
+devote a great part of their time to moderate such a list.
+
+Regards,
+Willy
 

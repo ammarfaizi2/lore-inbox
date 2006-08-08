@@ -1,56 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWHHOPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWHHOSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWHHOPB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 10:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWHHOPB
+	id S964897AbWHHOSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 10:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWHHOSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 10:15:01 -0400
-Received: from ns.suse.de ([195.135.220.2]:50084 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964893AbWHHOPA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 10:15:00 -0400
-From: Andi Kleen <ak@suse.de>
-To: Paolo Giarrusso <blaisorblade@yahoo.it>
-Subject: Re: [PATCH 1/3] uml: use -mcmodel=kernel for x86_64
-Date: Tue, 8 Aug 2006 16:14:47 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20060808140335.81959.qmail@web25219.mail.ukl.yahoo.com>
-In-Reply-To: <20060808140335.81959.qmail@web25219.mail.ukl.yahoo.com>
+	Tue, 8 Aug 2006 10:18:14 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:25232 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id S964897AbWHHOSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 10:18:13 -0400
+Date: Tue, 8 Aug 2006 10:17:34 -0400
+From: Kyle McMartin <kyle@mcmartin.ca>
+To: Christoph Hellwig <hch@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       torvalds <torvalds@osdl.org>, matthew@wil.cx, kyle@parisc-linux.org
+Subject: Re: [PATCH 5/9] Replace ARCH_HAS_FLUSH_ANON_PAGE with CONFIG_ARCH_FLUSH_ANON_PAGE
+Message-ID: <20060808141734.GB4896@athena.road.mcmartin.ca>
+References: <20060807120928.c0fe7045.rdunlap@xenotime.net> <20060807141008.de9c9c5c.rdunlap@xenotime.net> <20060808085223.GA20680@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608081614.47518.ak@suse.de>
+In-Reply-To: <20060808085223.GA20680@infradead.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 16:03, Paolo Giarrusso wrote:
-> Andi Kleen <ak@suse.de> ha scritto: 
+On Tue, Aug 08, 2006 at 09:52:23AM +0100, Christoph Hellwig wrote:
+> Please just put the dummy flush_anon_page in every architectures header.
 > 
-> > Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it> writes:
-> > 
-> > > From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> > > 
-> > > We have never used this flag and recently one user experienced a
-> > complaining
-> > > warning about this (there was a symbol in the positive half of
-> > the address space
-> > > IIRC). So fix it.
-> > 
-> > You can't use kernel cmodel in user space.  It requires running on
-> > negative
-> > virtual addresses. I would be surprised if it worked for you.
-> 
-> Argh, yes, I didn't test the patch and I didn't think to it a lot. So
-> what about the following bug? Should we hack our own module loader
-> based on x86-64's one?
 
-Add the positive relocations to the standard x86-64 loader
-and send me a patch. Then you can reuse it.
-
-That should be cleaner than forking it
-
--Andi
+That sounds much cleaner.

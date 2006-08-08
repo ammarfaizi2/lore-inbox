@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWHHJV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWHHJX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWHHJV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 05:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWHHJV5
+	id S932162AbWHHJX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 05:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWHHJX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 05:21:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4737 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750841AbWHHJV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 05:21:57 -0400
-Date: Tue, 8 Aug 2006 11:21:33 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	Tue, 8 Aug 2006 05:23:59 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:41651 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932162AbWHHJX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 05:23:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l9iBFDgSQ4OpM8KLw4lVHDaBJt1qW7iGcb0i7IlStNvA6maMupyh8iC/VWWfqR0vAGv2ICEm0xiD2SiVZUBc7ClB/FZKHgDR6C1uII9rH7wU50sP+gUA1ckEu4IwuylbWm8ZtUdz3/g3sAiRBxLMrl9CMKNMqzvg7eq3wGBA+ME=
+Message-ID: <41840b750608080223q3e00370bsaf9893dcac57c8a6@mail.gmail.com>
+Date: Tue, 8 Aug 2006 12:23:57 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Subject: Re: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Cc: "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
        hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 03/12] hdaps: Unify and cache hdaps readouts
-Message-ID: <20060808092133.GB4245@elf.ucw.cz>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <1154849246822-git-send-email-multinymous@gmail.com> <20060807140222.GG4032@ucw.cz> <41840b750608070914h5817b8b0m977141be455067c4@mail.gmail.com> <20060807232415.GE2759@elf.ucw.cz> <41840b750608080216l58f56030v9c766427f8582f4c@mail.gmail.com>
+In-Reply-To: <20060807231557.GA2759@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41840b750608080216l58f56030v9c766427f8582f4c@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492242899-git-send-email-multinymous@gmail.com>
+	 <20060807134440.GD4032@ucw.cz>
+	 <41840b750608070813s6d3ffc2enefd79953e0b55caa@mail.gmail.com>
+	 <20060807231557.GA2759@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 8/8/06, Pavel Machek <pavel@suse.cz> wrote:
+> Okay... but do we really need try_lock variant?
 
-> >Okay, so what about ..
+We need a nonlocking, nonsleeping variant to do the query in the timer
+function (softirq context).
+
+
+> but what is try_lock semantics when taking multiple locks...?
+
+Currently, the same as the undelying down_trylock().
+
+
+> > >> +     if (!check_dmi_for_ec()) {
+> > >> +             printk(KERN_ERR "thinkpad_ec: no ThinkPad embedded
+> > >controller!\n");
+> > >> +             return -ENODEV;
+> > >
+> > >KERN_ERR is little strong here, no?
 > >
-> >#define CONVERT(x) *(s16*)(data.val+x) * (hdaps_invert?-1:1);
-> >
-> >...or better inline function?
-> 
-> Actually, some models require fancier transformations. This was
-> supposed to be reserved for a future patch, but might as well prepare
-> the infrastructure:
+> > Not sure what's the right one. The user tried to load a module and the
+> > module can't do that; I saw some drivers use KERN_ERR some
+> > KERN_WARNING in similar cases. Is there some guideline on choosing
+> > printk levels?
+>
+> Well, this will also trigger for thinkpad module compiled into kernel,
+> right?
 
-Certainly better.
+OK, I'm changing the DMI failure to KERN_WARNING. Subsequent hardware
+checks remains KERN_ERR, since failing those after passing the DMI
+check really is abnormal (and indicative of danger).
 
-> /* Some models require an axis transformation to the standard reprsentation 
-> */
-> static void transform_axes(int inx, int iny, int *outx, int *outy) {
-> 	*outx = inx * (hdaps_invert?-1:1);
-> 	*outy = iny * (hdaps_invert?-1:1);
-> }
-> ...
-> 	/* Parse position data: */
-> 	transform_axes(*(s16*)(data.val+EC_ACCEL_IDX_XPOS1),
-> 	               *(s16*)(data.val+EC_ACCEL_IDX_YPOS1), &pos_x, &pos_y);
-
-You could also do
-
-void transform_axes(int *x, int *y)
-{
- 	*outx = inx * (hdaps_invert?-1:1);
- 	*outy = iny * (hdaps_invert?-1:1);
-}
-...
- 	/* Parse position data: */
-	x = *(s16*)(data.val+EC_ACCEL_IDX_XPOS1);
-	y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS1);
- 	transform_axes(&x, &y);
-
-...which looks even better to me.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+  Shem

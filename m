@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWHHTHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWHHTRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWHHTHE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWHHTHD
+	id S965038AbWHHTRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbWHHTRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:07:03 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:148 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965036AbWHHTHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:07:01 -0400
-Date: Tue, 8 Aug 2006 15:06:52 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Robert Crocombe <rcrocomb@gmail.com>
-cc: hui Bill Huey <billh@gnuppy.monkey.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Darren Hart <dvhltc@us.ibm.com>
-Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re:
- Problems with 2.6.17-rt8
-In-Reply-To: <e6babb600608081146k663e3ee4g4b93ba325bf9257e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0608081506060.16824@gandalf.stny.rr.com>
-References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com> 
- <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com> 
- <1154541079.25723.8.camel@localhost.localdomain> 
- <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com> 
- <1154615261.32264.6.camel@localhost.localdomain>  <20060808025615.GA20364@gnuppy.monkey.org>
-  <20060808030524.GA20530@gnuppy.monkey.org>
- <e6babb600608081146k663e3ee4g4b93ba325bf9257e@mail.gmail.com>
+	Tue, 8 Aug 2006 15:17:08 -0400
+Received: from khc.piap.pl ([195.187.100.11]:63173 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S965038AbWHHTRH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:17:07 -0400
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Neil Brown <neilb@suse.de>, Alexandre Oliva <aoliva@redhat.com>,
+       linux-raid <linux-raid@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modifying degraded raid 1 then re-adding other members is bad
+References: <or8xlztvn8.fsf@redhat.com>
+	<17624.29070.246605.213021@cse.unsw.edu.au>
+	<44D8732C.2060207@tls.msk.ru>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 08 Aug 2006 21:17:05 +0200
+In-Reply-To: <44D8732C.2060207@tls.msk.ru> (Michael Tokarev's message of "Tue, 08 Aug 2006 15:19:08 +0400")
+Message-ID: <m3fyg7m40e.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Tokarev <mjt@tls.msk.ru> writes:
 
-On Tue, 8 Aug 2006, Robert Crocombe wrote:
+> Why we're updating it BACKWARD in the first place?
 
-> On 8/7/06, hui Bill Huey <billh@gnuppy.monkey.org> wrote:
-> > > I tested it with a "make -j4" which triggers the warning and it they all
-> > > go away now.
-> > >
-> > > Reverse patch attached:
->
-> Unfortunately, this makes no difference on my setup.  Patch applied,
-> made the obvious little change:
->
-> -#include <linux/dobject.h>
-> +#include <linux/kobject.h>
->
-> But:
->
->
-> kjournald/1119[CPU#1]: BUG in debug_rt_mutex_unlock at
-> kernel/rtmutex-debug.c:471
->
+Another scenario: 1 disk (of 2) is removed, another is added, RAID-1
+is rebuilt, then the disk added last is removed and replaced by
+the disk which was removed first. Would it trigger this problem?
 
-Robert,
+> Also, why, when we adding something to the array, the event counter is
+> checked -- should it resync regardless?
 
-How far back do you get this bug?  I mean if you go back and test the
-previous kernels, where did you start seeing this?
-
-Thanks,
-
--- Steve
+I think it's a full start, not a hot add. For hot add contents of
+the new disk should be ignored.
+-- 
+Krzysztof Halasa

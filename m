@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWHHRaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWHHRcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965008AbWHHRaT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWHHRaT
+	id S965013AbWHHRcK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWHHRcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:30:19 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:11182 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965008AbWHHRaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:30:18 -0400
-Subject: Re: + fs-cache-make-kafs-use-fs-cache.patch added to -mm tree
-From: Dave Hansen <haveblue@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: dhowells@redhat.com, trond.myklebust@fys.uio.no,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200608050009.k7509mMx019642@shell0.pdx.osdl.net>
-References: <200608050009.k7509mMx019642@shell0.pdx.osdl.net>
+	Tue, 8 Aug 2006 13:32:10 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6794 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965013AbWHHRcI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:32:08 -0400
+Subject: Re: How to lock current->signal->tty
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060808164127.GA11392@intel.com>
+References: <1155050242.5729.88.camel@localhost.localdomain>
+	 <44D8A97B.30607@linux.intel.com>
+	 <1155051876.5729.93.camel@localhost.localdomain>
+	 <20060808164127.GA11392@intel.com>
 Content-Type: text/plain
-Date: Tue, 08 Aug 2006 10:30:06 -0700
-Message-Id: <1155058206.19249.93.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Aug 2006 18:50:05 +0100
+Message-Id: <1155059405.5729.103.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 17:09 -0700, akpm@osdl.org wrote:
-> The attached patch makes the kAFS filesystem in fs/afs/ use FS-Cache, and
-> through it any attached caches.  The kAFS filesystem will use caching
-> automatically if it's available.
+Ar Maw, 2006-08-08 am 09:41 -0700, ysgrifennodd Luck, Tony:
+> unaligned accesses at all is rather controversial.  So its a 50-50
+> shot whether I'll fix it by adding the mutex_lock/mutex_unlock
+> around the use of current->signal->tty, or just rip this out and
+> just leave the printk().
 
-I get the following warning when compiling AFS, but leaving FSCACHE
-compiled out in 2.6.18-rc3-mm2:
+Personally I'd just rip it out full stop. Its trivial to use kprobes and
+friends to audit such things if there is a performance concern.
 
-fs/afs/vnode.c:522: warning: 'afs_vnode_cache_now_uncached' defined but not used
-
-The attached patch fixes it.
-
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-
- lxc-dave/fs/afs/vnode.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN fs/afs/vnode.c~fcache-exports fs/afs/vnode.c
---- lxc/fs/afs/vnode.c~fcache-exports	2006-08-08 10:21:53.000000000 -0700
-+++ lxc-dave/fs/afs/vnode.c	2006-08-08 10:22:53.000000000 -0700
-@@ -508,7 +508,6 @@ static void afs_vnode_cache_mark_pages_c
- 	}
- 
- } /* end afs_vnode_cache_mark_pages_cached() */
--#endif
- 
- /*****************************************************************************/
- /*
-@@ -552,3 +551,4 @@ static void afs_vnode_cache_now_uncached
- 	_leave("");
- 
- } /* end afs_vnode_cache_now_uncached() */
-+#endif
-_
-
-
--- Dave
+Alan
 

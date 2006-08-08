@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWHHGLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWHHGUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWHHGLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 02:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWHHGLx
+	id S1751246AbWHHGUa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 02:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWHHGUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 02:11:53 -0400
-Received: from gw.goop.org ([64.81.55.164]:10732 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751241AbWHHGLx (ORCPT
+	Tue, 8 Aug 2006 02:20:30 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:48526 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1751246AbWHHGUa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 02:11:53 -0400
-Message-ID: <44D82B28.6010709@goop.org>
-Date: Mon, 07 Aug 2006 23:11:52 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
+	Tue, 8 Aug 2006 02:20:30 -0400
+Date: Tue, 8 Aug 2006 15:09:58 +0900
+From: Horms <horms@verge.net.au>
 To: "H. Peter Anvin" <hpa@zytor.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LOADER_TYPE for Xen in boot_params?
-References: <44D3C261.6040800@goop.org> <44D3C397.6010202@zytor.com>
-In-Reply-To: <44D3C397.6010202@zytor.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, vgoyal@in.ibm.com,
+       fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060808060957.GC7681@verge.net.au>
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <20060804225611.GG19244@in.ibm.com> <m1k65onleq.fsf@ebiederm.dsl.xmission.com> <20060808033405.GA6767@verge.net.au> <44D813D7.3050004@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D813D7.3050004@zytor.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
->>
->> Should I be poking some Xen-specific value into the LOADER_TYPE 
->> field?  If so, what value?  Should I just claim 5?  And should this 
->> be Xen in particular, or reserve a value for 'hypervisor' and then 
->> have some other mechanism to distinguish which one?
->>
->
-> It probably should be Xen in particular.  Send me a patch allocating 9 
-> for Xen, and use that.
+On Mon, Aug 07, 2006 at 09:32:23PM -0700, H. Peter Anvin wrote:
+> Horms wrote:
+> >
+> >I also agree that it is non-intitive. But I wonder if a cleaner
+> >fix would be to remove CONFIG_PHYSICAL_START all together. Isn't
+> >it just a work around for the kernel not being relocatable, or
+> >are there uses for it that relocation can't replace?
+> >
+> 
+> Yes, booting with the 2^n existing bootloaders.
 
-Claim an ID number for Xen in the LOADER_TYPE field.
+Ok, I must be confused then. I though CONFIG_PHYSICAL_START was
+introduced in order to allow an alternative address to be provided for
+kdump, and that previously it was hard-coded to some
+architecture-specific value.
 
-Also, keep the table in zero-page.txt consistent with boot.txt.
+What I was really getting as is if it needs to be configurable at
+compile time or not. Obviously there needs to be some sane default
+regardless.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-
-diff -r 4f3c59461622 Documentation/i386/boot.txt
---- a/Documentation/i386/boot.txt	Mon Aug 07 12:01:49 2006 -0700
-+++ b/Documentation/i386/boot.txt	Mon Aug 07 23:06:45 2006 -0700
-@@ -181,6 +181,7 @@ filled out, however:
- 	5  ELILO
- 	7  GRuB
- 	8  U-BOOT
-+	9  Xen
- 
- 	Please contact <hpa@zytor.com> if you need a bootloader ID
- 	value assigned.
-diff -r 4f3c59461622 Documentation/i386/zero-page.txt
---- a/Documentation/i386/zero-page.txt	Mon Aug 07 12:01:49 2006 -0700
-+++ b/Documentation/i386/zero-page.txt	Mon Aug 07 23:07:30 2006 -0700
-@@ -63,6 +63,10 @@ 0x210	char		LOADER_TYPE, = 0, old one
- 				2 for bootsect-loader
- 				3 for SYSLINUX
- 				4 for ETHERBOOT
-+				5 for ELILO
-+				7 for GRuB
-+				8 for U-BOOT
-+				9 for Xen
- 				V = version
- 0x211	char		loadflags:
- 			bit0 = 1: kernel is loaded high (bzImage)
-
+-- 
+Horms
+  H: http://www.vergenet.net/~horms/
+  W: http://www.valinux.co.jp/en/
 

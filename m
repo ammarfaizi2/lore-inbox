@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWHHLQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWHHLQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWHHLQD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 07:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWHHLQD
+	id S964854AbWHHLQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 07:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWHHLQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 07:16:03 -0400
-Received: from cantor.suse.de ([195.135.220.2]:20098 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964846AbWHHLQB (ORCPT
+	Tue, 8 Aug 2006 07:16:56 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:28884 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964850AbWHHLQz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 07:16:01 -0400
-From: Neil Brown <neilb@suse.de>
-To: "Alexey Zaytsev" <alexey.zaytsev@gmail.com>
-Date: Tue, 8 Aug 2006 21:15:56 +1000
+	Tue, 8 Aug 2006 07:16:55 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: swsusp regression [Was: 2.6.18-rc3-mm2]
+Date: Tue, 8 Aug 2006 13:16:00 +0200
+User-Agent: KMail/1.9.3
+Cc: Jiri Slaby <jirislaby@gmail.com>, Jason Lunz <lunz@gehennom.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org, pavel@suse.cz, linux-pm@osdl.org,
+       linux-ide@vger.kernel.org
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060808110447.GM4025@suse.de> <20060808110726.GN4025@suse.de>
+In-Reply-To: <20060808110726.GN4025@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17624.29292.673708.654588@cse.unsw.edu.au>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-In-Reply-To: message from Alexey Zaytsev on Tuesday August 8
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200608081316.00749.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday August 8, alexey.zaytsev@gmail.com wrote:
-> Hello, list.
+On Tuesday 08 August 2006 13:07, Jens Axboe wrote:
+> On Tue, Aug 08 2006, Jens Axboe wrote:
+> > On Tue, Aug 08 2006, Rafael J. Wysocki wrote:
+> > > On Tuesday 08 August 2006 12:43, Jens Axboe wrote:
+> > > > On Tue, Aug 08 2006, Jiri Slaby wrote:
+> > > > > Rafael J. Wysocki wrote:
+> > > > > >On Monday 07 August 2006 18:23, Jason Lunz wrote:
+> > > > > >>In gmane.linux.kernel, you wrote:
+> > > > > >>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> > > > > >>>I tried it and guess what :)... swsusp doesn't work :@.
+> > > > > >>>
+> > > > > >>>This time I was able to dump process states with sysrq-t:
+> > > > > >>>http://www.fi.muni.cz/~xslaby/sklad/ide2.gif
+> > > > > >>>
+> > > > > >>>My guess is ide2/2.0 dies (hpt370 driver), since last thing kernel 
+> > > > > >>>prints is suspending device 2.0
+> > > > > >>Does it go away if you revert this?
+> > > > > >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
+> > > > > >>
+> > > > > >>That should only affect resume, not suspend, but it does mess around
+> > > > > >>with ide power management. Is this maybe happening on the *second*
+> > > > > >>suspend?
+> > > > > >>
+> > > > > >>>-hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+> > > > > >>>+hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
+> > > > > >>This looks suspicious. -mm does have several ide-fix-hpt3xx patches.
+> > > > > >
+> > > > > >I found that git-block.patch broke the suspend for me.  Still have no idea
+> > > > > >what's up with it.
+> > > > > 
+> > > > > I suspect elevator changes. The wait_for_completion is not woken in
+> > > > > ide-io by ll_rw_blk. But I don't understand block layer too much.
+> > > > 
+> > > > The ide changes are far more likely, it's probably missing a completion.
+> > > 
+> > > Actually I think the commit f74bf2e6b415588e562fdcfdd454d587eb33cd46
+> > > (Remove ->waiting member from struct request) is wrong, because
+> > > generic_ide_suspend() uses the end_of_io member of rq to pass the PM data
+> > > to ide_do_drive_cmd() where the pointer gets overwritten by &wait (must_wait
+> > > is "true", because action == ide_wait).  Previously &wait was stored in
+> > > rq->waiting and it didn't overwrite the PM data.
+> > 
+> > Indeed, that looks broken now. That must be what is screwing it up. With
+> > the former patch applied, did cdrom detection still look funny to you?
+
+Hm, I'm not sure what you mean ...
+
+> > 
+> > I'll concoct a fix for that breakage.
 > 
-> What are the objections to makeing lkml and other lists at vget
-> subscribers-only?
+> Something like this.
 
-Yes.  Many.  I think this is in the FAQ. (hhmm.. just looked, it isn't exactly).
+Looks good, I'll give it a try.
 
-> Non-subscribers messages could still be allowed after moderation.
-> I get 1/4 of my spam from lkml, and see no benefit from allowing
-> non-subscribers to freely post to the list. If you are not subscribed,
-> you just have to wait until your mail gets approved by the moderator,
-> and it is not hard to subscribe anyway.
-
-We want to barrier to posting to be low so that people will post bug
-reports.  We want to hear about bug reports. really really.
-
-Were you volunteering to be a moderator?  What sort of minimum delay
-would you guarantee :-)
-
-NeilBrown
+Rafael

@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWHHGCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWHHGEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWHHGCF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 02:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWHHGCF
+	id S1750906AbWHHGEO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 02:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWHHGEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 02:02:05 -0400
-Received: from ns2.suse.de ([195.135.220.15]:8331 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932190AbWHHGCD (ORCPT
+	Tue, 8 Aug 2006 02:04:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4995 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750906AbWHHGEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 02:02:03 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] x86_64:  Auto size the per cpu area.
-Date: Tue, 8 Aug 2006 08:01:29 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com> <1155005284.3042.11.camel@laptopd505.fenrus.org> <m13bc7aidw.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m13bc7aidw.fsf_-_@ebiederm.dsl.xmission.com>
+	Tue, 8 Aug 2006 02:04:14 -0400
+Date: Mon, 7 Aug 2006 23:02:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Clayton <andrew@digital-domain.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc strange hotplug/udev/uevent problem
+Message-ID: <20060808060211.GA3206@kroah.com>
+References: <44D79574.8080703@digital-domain.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608080801.29789.ak@suse.de>
+In-Reply-To: <44D79574.8080703@digital-domain.net>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 07:47, Eric W. Biederman wrote:
+On Mon, Aug 07, 2006 at 08:33:08PM +0100, Andrew Clayton wrote:
+> Hi,
 > 
-> Now for a completely different but trivial approach.
-> I just boot tested it with 255 CPUS and everything worked.
+> Got a weird problem here.
 > 
-> Currently everything (except module data) we place in
-> the per cpu area we know about at compile time.  So
-> instead of allocating a fixed size for the per_cpu area
-> allocate the number of bytes we need plus a fixed constant
-> for to be used for modules.
+> On x86 Fedora Core 5 with 2.6.17 with GNOME, plugging in a usb stick 
+> would result in it being mounted. With 2.6.18-rc this no longer occurs. 
+> FC5 got an update to hal to work with 2.6.18 kernels, but it don't work 
+> for me. I'm having the same problem on 3 x86 FC5 machines.
 > 
-> It isn't perfect but it is much less of a pain to
-> work with than what we are doing now.
+> The weird thing is, this all works on my x86-64 FC5 workstation with 
+> 2.6.18-rc both before and after the hal update.
+> 
+> Anyway I submitted a bug report against HAL suspecting it broken
+> 
+> https://bugs.freedesktop.org/show_bug.cgi?id=7756
+> 
+> Perhaps not. So I turn my attention more to the kernel.
+> 
+> 
+> 2.6.17 was working fine. You could plug/unplug/plug a USB memory stick 
+> and it would get mounted each time.
+> 
+> 2.6.18-rc[23] works the same as above on my x86-64 FC5 box.
+> 
+> 2.6.18-rc[23] and 2.6.18-rc3-git7 on x86 built with 
+> usb/scsi/sd/vfat/nls_* built as modules will mount on the first plug but 
+> not subsequent plugs.
+> 
+> If you rmmod the sd_mod module and plug in, then it will get mounted.
 
-Yes makes sense.
+That's just wierd.  I can't think of anything that has changed recently
+to cause this.
 
-However not that particular patch - i already changed that
-code in my tree because I needed really early per cpu for something and
-i had switched to using a static array for cpu0's cpudata.
+Can you use 'git bisect' to try to narrow it down which change caused
+the problem?
 
-I will modify it to work like your proposal.
+thansk,
 
--Andi
+greg k-h

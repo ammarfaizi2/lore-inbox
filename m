@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWHHRk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWHHRmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965010AbWHHRk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWHHRk6
+	id S965015AbWHHRmj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbWHHRmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:40:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36537 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965010AbWHHRk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:40:57 -0400
-Date: Tue, 8 Aug 2006 10:37:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Adrian Bunk <bunk@stusta.de>,
-       Jeff Dike <jdike@addtoit.com>, "lkml@o2.pl / IMAP" <lkml@o2.pl>,
+	Tue, 8 Aug 2006 13:42:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:47058 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965015AbWHHRmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:42:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oexFzqebtfaQse9wvJ6aGRAMu3MweILkvaf5WXwc98/ahacvoa2uvB6Is3UrfSsOJ28qWJDaQbsESekj3zmogAB17JJXp+kIT06cMiMkCwQShd7JMVQcbgFkXdIFgbh/oq6lbG051Gvxn7HKe+TLBdrzrL4l8PAtzsEmr6zHgx4=
+Message-ID: <d120d5000608081042i46eca97fvf1c3d67db65731b9@mail.gmail.com>
+Date: Tue, 8 Aug 2006 13:42:36 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.18-rc3-mm2
+Cc: "Fabio Comolli" <fabio.comolli@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm1: O= builds broken
-Message-Id: <20060808103730.47b7e3b4.akpm@osdl.org>
-In-Reply-To: <1155054823.19249.66.camel@localhost.localdomain>
-References: <20060806002400.694948a1.akpm@osdl.org>
-	<20060806082321.GZ25692@stusta.de>
-	<20060807195912.GA14126@mars.ravnborg.org>
-	<1155054823.19249.66.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <200608081641.48621.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+	 <b637ec0b0608071147kb8a191bka9d6afe5b5287d08@mail.gmail.com>
+	 <d120d5000608071200k3eb2bfd6v166c6bc92f5dcadf@mail.gmail.com>
+	 <200608081641.48621.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Aug 2006 09:33:43 -0700
-Dave Hansen <haveblue@us.ibm.com> wrote:
+On 8/8/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> On Monday 07 August 2006 21:00, Dmitry Torokhov wrote:
+> > On 8/7/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
+> ]--snip--[
+> > >
+> > > Still interested in dmesg with i8042.debug=1 ?
+> > >
+> >
+> > Yes, _with_ the i8042 polling patch applied.
+>
+> I've got one for you (attached).
+>
 
-> Andrew, if another -mm isn't imminent, could this patch make into into
-> the hot-fixes directory for -mm1 and/or -mm2?
+Thnk you, I think I see what the problem is. Rafael, could you please
+try booting with i8042.nomux and tell me if mouse starts working.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/hot-fixes/kbuild-create-output-directory-for-hostprogs-with-o=-build.patch
+Fabio, do you have a multiplexing controller as well?
 
-> BTW, I'm also seeing these in my build now:
-> 
-> 	scripts/Makefile.host:88: host-objdirs=
-> 
-> It doesn't appear to hurt anything, but it is a bit weird looking.
-
-metoo.  Sam has fixed that now.
+-- 
+Dmitry

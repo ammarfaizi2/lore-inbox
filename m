@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWHHMZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWHHM3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWHHMZo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWHHMZo
+	id S964863AbWHHM3r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWHHM3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:25:44 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:62962 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964833AbWHHMZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:25:43 -0400
-Date: Tue, 8 Aug 2006 08:24:10 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: David Miller <davem@davemloft.net>
-cc: tytso@mit.edu, mchan@broadcom.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       tglx@linutronix.de, mingo@elte.hu
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-In-Reply-To: <20060806.231846.71090637.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.58.0608080819080.7917@gandalf.stny.rr.com>
-References: <20060803.144845.66061203.davem@davemloft.net>
- <20060803235326.GC7894@thunk.org> <Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
- <20060806.231846.71090637.davem@davemloft.net>
+	Tue, 8 Aug 2006 08:29:47 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:15011 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S964863AbWHHM3q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:29:46 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [RFC] NUMA futex hashing
+Date: Tue, 8 Aug 2006 14:29:44 +0200
+User-Agent: KMail/1.9.1
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       pravin b shelar <pravin.shelar@calsoftinc.com>,
+       linux-kernel@vger.kernel.org
+References: <20060808070708.GA3931@localhost.localdomain> <200608081210.40334.dada1@cosmosbay.com> <200608081236.15823.ak@suse.de>
+In-Reply-To: <200608081236.15823.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608081429.44497.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 6 Aug 2006, David Miller wrote:
-
-> From: Steven Rostedt <rostedt@goodmis.org>
-> Date: Mon, 7 Aug 2006 01:34:56 -0400 (EDT)
+On Tuesday 08 August 2006 12:36, Andi Kleen wrote:
+> > We may have special case for PRIVATE futexes (they dont need to be
+> > chained in a global table, but a process private table)
 >
-> > My suggestion would be to separate that tg3_timer into 4 different
-> > timers, which is what it actually looks like.
+> What do you mean with PRIVATE futex?
 >
-> Timers have non-trivial cost.  It's cheaper to have one and
-> vector off to the necessary operations each tick internalls.
->
-> That's why it's implemented as one timer.
->
+> Even if the futex mapping is only visible by a single MM mmap_sem is still
+> needed to protect against other threads doing mmap.
 
-hrtimers don't have the cost of a normal timer. And that's why I suggested
-to convert them.  There's a much bigger cost in a single timer that always
-times out than 3 hrtimers.  hrtimers are expected to timeout, but timers
-are not.
+Hum... I would call that a user error.
 
-Of the 4 timers, only one is a timeout. The other three expire every time,
-forcing the timer wheel into effect.  Even though it's one timer
-implementing 4, it's expensive to use it as a watchdog.
+If a thread is munmap()ing the vma that contains active futexes, result is 
+undefined. Same as today I think (a thread blocked in a FUTEX_WAIT should 
+stay blocked)
 
--- Steve
+The point is that private futexes could be managed using virtual addresses, 
+and no call to find_extend_vma(), hence no mmap_sem contention.
 
+There could be problem if the same futex (32 bits integer) could be mapped at 
+different virtual addresses in the same process.
+
+Eric

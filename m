@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWHHKVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWHHKXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWHHKVP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 06:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWHHKVP
+	id S964779AbWHHKXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 06:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWHHKXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 06:21:15 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:49298 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964775AbWHHKVO (ORCPT
+	Tue, 8 Aug 2006 06:23:13 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:8353 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S964779AbWHHKXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 06:21:14 -0400
-Message-ID: <44D865FD.1040806@sw.ru>
-Date: Tue, 08 Aug 2006 14:22:53 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
+	Tue, 8 Aug 2006 06:23:13 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] unserialized task->files changing
+Date: Tue, 8 Aug 2006 12:23:09 +0200
+User-Agent: KMail/1.9.1
+Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sys_getppid oopses on debug kernel
-Content-Type: multipart/mixed;
- boundary="------------060209080109050207040001"
+References: <44D86275.2080406@sw.ru> <20060808101208.GA25956@infradead.org>
+In-Reply-To: <20060808101208.GA25956@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608081223.10434.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060209080109050207040001
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tuesday 08 August 2006 12:12, Christoph Hellwig wrote:
+> On Tue, Aug 08, 2006 at 02:07:49PM +0400, Kirill Korotaev wrote:
+> > Fixed race on put_files_struct on exec with proc.
+> > Restoring files on current on error path may lead
+> > to proc having a pointer to already kfree-d files_struct.
+>
+> This is three times the exact same code sequence, it should probably go
+> into a helper:
+>
+> void reset_current_files(struct files_struct *files)
+> {
+> 	struct files_struct *old = current->files;
+>
+> 	task_lock(current);
+> 	current->files = files;
+> 	task_unlock(current);
+> 	put_files_struct(old);
+> }
 
-sys_getppid() optimization can access a freed memory.
-On kernels with DEBUG_SLAB turned ON, this results in
-Oops.
 
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+More over I think you want to task_lock() before reading current->files 
+into 'old'
 
+task_lock(current);
+old = current->files;
+current->files = files;
+task_unlock(current);
+put_files_struct(old);
 
---------------060209080109050207040001
-Content-Type: text/plain;
- name="diff-get-ppid-with-slab-debug"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-get-ppid-with-slab-debug"
+or maybe a xchg() ?
 
---- ./kernel/timer.c.ppiddbg	2006-07-14 19:11:06.000000000 +0400
-+++ ./kernel/timer.c	2006-08-08 14:19:24.000000000 +0400
-@@ -1342,6 +1342,7 @@ asmlinkage long sys_getpid(void)
- asmlinkage long sys_getppid(void)
- {
- 	int pid;
-+#ifndef CONFIG_DEBUG_SLAB
- 	struct task_struct *me = current;
- 	struct task_struct *parent;
- 
-@@ -1364,6 +1365,16 @@ asmlinkage long sys_getppid(void)
- #endif
- 		break;
- 	}
-+#else
-+	/*
-+	 * ->real_parent could be released before dereference and
-+	 * we accessed freed kernel memory, which faults with debugging on.
-+	 * Keep it simple and stupid.
-+	 */
-+	read_lock(&tasklist_lock);
-+	pid = current->group_leader->real_parent->tgid;
-+	read_unlock(&tasklist_lock);
-+#endif
- 	return pid;
- }
- 
-
---------------060209080109050207040001--

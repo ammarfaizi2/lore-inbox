@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWHHGf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWHHGf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWHHGf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 02:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWHHGf1
+	id S1751250AbWHHGf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 02:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWHHGf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 02:35:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19170
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751248AbWHHGf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 02:35:26 -0400
-Date: Mon, 07 Aug 2006 23:35:29 -0700 (PDT)
-Message-Id: <20060807.233529.58454613.davem@davemloft.net>
-To: pavlin@icir.org
-Cc: linux-kernel@vger.kernel.org, roland@topspin.com
-Subject: Re: Bug in the RTM_SETLINK kernel API for setting MAC address 
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200608080531.k785VxYL077237@possum.icir.org>
-References: <davem@davemloft.net>
-	<200608080531.k785VxYL077237@possum.icir.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 8 Aug 2006 02:35:56 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:44982
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751250AbWHHGfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 02:35:55 -0400
+Message-Id: <44D84D1F.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Tue, 08 Aug 2006 07:36:47 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Cc: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Dave Jones" <davej@redhat.com>,
+       "Andi Kleen" <ak@suse.de>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at 
+	/usr/src/linux-git/kernel/cpu.c:51
+References: <200608072042_MC3-1-C764-3AF7@compuserve.com>
+In-Reply-To: <200608072042_MC3-1-C764-3AF7@compuserve.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavlin Radoslavov <pavlin@icir.org>
-Date: Mon, 07 Aug 2006 22:31:59 -0700
+>>> Chuck Ebbert <76306.1226@compuserve.com> 08.08.06 02:39 >>>
+>In-Reply-To: <44D7136E.76E4.0078.0@novell.com>
+>
+>On Mon, 07 Aug 2006 09:18:22 +0100, Jan Beulich wrote:
+>
+>> >Most likely the CFI annotation for that sysenter path is not complete.
+>>
+>> Correct, the return point of sysexit (SYSENTER_RETURN) is still in kernel space,
+>> but its annotations are invisible to the unwinder. We should make the VDSO be
+>> treated as user-mode code despite living above PAGE_OFFSET.
+>
+>Umm, that's already been done?
+>
+>include/asm-i386/unwind.h::arch_unw_user_mode():
+>        return info->regs.eip < PAGE_OFFSET
+>               || (info->regs.eip >= __fix_to_virt(FIX_VDSO)
+>                    && info->regs.eip < __fix_to_virt(FIX_VDSO) + PAGE_SIZE)
+>               || info->regs.esp < PAGE_OFFSET;
 
-> The real mismatch is that ida[IFLA_ADDRESS - 1] is (as you say)
-> suppose to be a MAC address, but the set_mac_address() functions
-> for each device assume that the RTA_DATA(ida[IFLA_ADDRESS - 1])
-> payload is a sockaddr.
+Hmm, indeed. Then I'm unclear what the problem might be here.
 
-That's because ->set_mac_address() is usually invoked via
-dev_set_mac_address() which in turn is invoked from places
-SIOCSIFHWADDR ioctl() processing which does want the sockaddr
-wrapped around the MAC address.
+>Could this be the problem?
+>
+>|ENTRY(sysenter_entry)
+>|        CFI_STARTPROC simple
+>|        CFI_DEF_CFA esp, 0
+>|==>     CFI_REGISTER esp, ebp
+>|        movl TSS_sysenter_esp0(%esp),%esp
+>|sysenter_past_esp:
 
-So the netlink code is definitely doing the wrong thing if
-it wants merely the MAC address in the attribute.
+Clearly not. That is the way the user stack gets communicated to the kernel,
+and it would cause problems at earliest in the next outer frame (which is in
+user mode, so we don't care anyway). And I know I saw it unwind properly
+through the sysenter code in other cases in the past.
 
-Since changing all the drivers is a pain, what we probably
-should do is have the netlink code allocate a sockaddr,
-place the MAC address attribute in to that allocated sockaddr,
-and pass it into ->set_mac_address().
+>What does that do?  .cfi_register is not documented anywhere, not
+>even in the gnu.org online documentation for gas.  (I spent 10
+>minutes googling and found nothing other than the changeset that
+>added it to gas.)
 
-This patch should do the trick, can you test it out?
+.cfi_register is the directive equivalent to DW_CFA_register, saying that
+on register is spilled to another (rather than to memory) - see the Dwarf2
+(or Dwarf3) specification for details.
 
-Thanks.
-
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 20e5bb7..30cc1ba 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -394,6 +394,9 @@ static int do_setlink(struct sk_buff *sk
- 	}
- 
- 	if (ida[IFLA_ADDRESS - 1]) {
-+		struct sockaddr *sa;
-+		int len;
-+
- 		if (!dev->set_mac_address) {
- 			err = -EOPNOTSUPP;
- 			goto out;
-@@ -405,7 +408,17 @@ static int do_setlink(struct sk_buff *sk
- 		if (ida[IFLA_ADDRESS - 1]->rta_len != RTA_LENGTH(dev->addr_len))
- 			goto out;
- 
--		err = dev->set_mac_address(dev, RTA_DATA(ida[IFLA_ADDRESS - 1]));
-+		len = sizeof(sa_family_t) + dev->addr_len;
-+		sa = kmalloc(len, GFP_KERNEL);
-+		if (!sa) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+		sa->sa_family = dev->type;
-+		memcpy(sa->sa_data, RTA_DATA(ida[IFLA_ADDRESS - 1]),
-+		       dev->addr_len);
-+		err = dev->set_mac_address(dev, sa);
-+		kfree(sa);
- 		if (err)
- 			goto out;
- 		send_addr_notify = 1;
+Jan

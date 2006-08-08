@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWHHMDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWHHMJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWHHMDK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWHHMDK
+	id S932553AbWHHMJw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHHMJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:03:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:17601 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932088AbWHHMDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:03:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TYvm9+NtzluHuctNr1jEWJ5TSaMBy+6g1JH1yz66S+DYn2kwA0mis/fSMIVIVxj/IzG2Vpw1TF9Vuv3Pn4K1UGtQiJKdopY8xCzIVZ4dbffm4snYS1LiGz4l13E4lQqtb5SG1896KnOfW0glYXtwFLR/2WbKuoodRbNl3gkxxNw=
-Message-ID: <f19298770608080503l349899cftc421239d1985bb3@mail.gmail.com>
-Date: Tue, 8 Aug 2006 16:03:07 +0400
-From: "Alexey Zaytsev" <alexey.zaytsev@gmail.com>
-To: "Jes Sorensen" <jes@sgi.com>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Cc: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <yq03bc7v3uy.fsf@jaguar.mkp.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 8 Aug 2006 08:09:52 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33986 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932180AbWHHMJv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:09:51 -0400
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Edgar Toernig <froese@gmx.de>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org, viro@zeniv.linux.org.uk, tytso@mit.edu,
+       tigran@veritas.com
+In-Reply-To: <20060807224144.3bb64ac4.froese@gmx.de>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	 <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
+	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
+	 <20060807224144.3bb64ac4.froese@gmx.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
-	 <p73y7tzo4hl.fsf@verdi.suse.de>
-	 <f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com>
-	 <yq03bc7v3uy.fsf@jaguar.mkp.net>
+Date: Tue, 08 Aug 2006 13:29:17 +0100
+Message-Id: <1155040157.5729.34.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Aug 2006 07:55:33 -0400, Jes Sorensen <jes@sgi.com> wrote:
-> >>>>> "Alexey" == Alexey Zaytsev <alexey.zaytsev@gmail.com> writes:
->
-> Alexey> On 08 Aug 2006 13:23:50 +0200, Andi Kleen <ak@suse.de> wrote:
-> >> You would make bug reports impossible from normal people who don't
-> >> want to subscribe fully. It would totally wreck the development
-> >> model.
-> Alexey> If they don't want to subscribe, they can just report to the
-> Alexey> list as usual, theyr mail will be only slightly delayed
-> Alexey> because of moderation.  We could even use some sort of white
-> Alexey> lists, if a user's mail was once approved, all his further
-> Alexey> mail will be accepthed without moderation.
->
-> At 400-500 mails per day, who is going to handle the moderation? Sure
-> only a portion would be held back, but there's plenty other work to do
-> and we want fast turnaround for user bug reports, so if a user is
-> asked a question he/she can respond quickly with more details.
+Ar Llu, 2006-08-07 am 22:41 +0200, ysgrifennodd Edgar Toernig:
+> It seems, revoke was intended to disable access to tty devices
+> from old processes in a controlled way.  Sounds sane.
 
-I'm sure not all the 500 mails are from non-subscribers, and, as I
-told, we could split
-the traffic between a large number of moderators.
+Thats the root from which it comes but that alone is insufficient which
+is why our vhangup is not enough.
 
->
-> Moderation is a bad idea, right up there with C++ kernel modules, and
-> splitting the source code into smaller tarballs. For some reason they
-> all seem to get proposed again and again on a semi regular basis. If
-> people would just read the archives.....
+> Your implementation is much cruder - it simply takes the fd
+> away from the app; any future use gives EBADF.  As a bonus,
 
-Ok, if this idea was discussed repeatedly, I'll giveup.
+It needs to give -ENXIO/0 as per BSD that much is clear.
 
->
-> Just install a proper spam filter like everyone else.
->
-> Jes
->
+> it works for regular files and even goes as far as destroying
+> all mappings of the file from all processes (even root processes).
+> IMVHO this is a disaster from a security and reliability point
+> of view.
+
+Actually its no different than if it didn't. The two are identical
+behaviours.
+
+To use revoke() I must own the file
+If I own the file I can make it a symlink to a pty/tty pair
+I can revoke a pty/tty pair
+
+> A serious question: What do you need this feature of revoking
+> regular files (or block devices) for?  Maybe my imagination
+> is lacking, but I can't find a use where fuser(1) (or similar
+> tools) wouldn't be as good or even better than revoke(2).
+
+On a typical non-SELinux system with a typical desktop configuration
+(SELinux can effectively replace revoke) you need revoke on block
+devices in order to guarantee security and on other char devices for
+privacy. I'll provide some demonstrations after we have revoke in some
+form in the kernel and the problems in question fixed.
+
+There are specific cases where being able to revoke access to one of
+your files is useful as well, particularly if you are moving it from
+open permissions to private permissions. That one is to be honest much
+less interesting and it is easy enough to make our revoke()
+implementation return -EINVAL.
+
+The driver only case actually makes it a lot easier because you only
+need to set some kind of f_revoked flag on files owned by that device,
+truncate the virtual memory mappings and then call the driver method.
+The driver would then honour ->f_revoked in its own ioctl/read/write
+methods or in the helpers.
+
+Alan
+

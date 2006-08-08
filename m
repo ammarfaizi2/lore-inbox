@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWHHRY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWHHRX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965005AbWHHRY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWHHRY2
+	id S965003AbWHHRX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWHHRX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:24:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12677 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965005AbWHHRY1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:24:27 -0400
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       Olof Johansson <olof@lixom.net>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: [PATCH] ReiserFS: Make sure all dentries refs are released before calling kill_block_super()
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-References: <200608081639.38245.rjw@sisk.pl> <20060804192540.17098.39244.stgit@warthog.cambridge.redhat.com>
-Date: Tue, 08 Aug 2006 18:23:56 +0100
-Message-ID: <32278.1155057836@warthog.cambridge.redhat.com>
+	Tue, 8 Aug 2006 13:23:57 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29637 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965003AbWHHRX4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:23:56 -0400
+Subject: Re: How to lock current->signal->tty
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
+       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
+       davem@redhat.com, jack@suse.cz, dwmw2@infradead.org,
+       tony.luck@intel.com, jdike@karaya.com,
+       James.Bottomley@HansenPartnership.com
+In-Reply-To: <1155057114.1123.97.camel@moss-spartans.epoch.ncsc.mil>
+References: <1155050242.5729.88.camel@localhost.localdomain>
+	 <1155057114.1123.97.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Aug 2006 18:43:14 +0100
+Message-Id: <1155058994.5729.99.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Maw, 2006-08-08 am 13:11 -0400, ysgrifennodd Stephen Smalley:
+> Does this look sane?  Or do we need a common helper factored from
+> disassociate_ctty()?  Why is the locking different for TIOCNOTTY in the
+> non-leader case?
 
-Make sure all dentries refs are released before calling kill_block_super() so
-that the assumption that generic_shutdown_super() can completely destroy the
-dentry tree for there will be no external references holds true.
+The non-leader case for TIOCNOTTY in the base kernel is different
+because it is wrong and I've fixed that one.
 
-What was being done in the put_super() superblock op, is now done in the
-kill_sb() filesystem op instead, prior to calling kill_block_super().
+If you can factor disassociate_ctty out to do what you need I'd prefer
+that path so the tty locking actually ends up in the tty layer.
 
-This prevents the BUG_ON() in the reduced-locking dcache destroyer patch from
-barking at reiserfs.
+> +	mutex_lock(&tty_mutex);
+> +	tty = current->signal->tty;
+>  	if (tty) {
+>  		file_list_lock();
 
-I've tested this patch by creating a ReiserFS partition, mounting and
-unmounting it a few times, and doing things to its contents whilst it is
-mounted.
+Looks sane and the lock ordering matches vhangup() which may actually
+also do what you want - I'm not 100% sure I follow what SELinux tries to
+do here.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-
- fs/reiserfs/super.c |   19 +++++++++++++------
- 1 files changed, 13 insertions(+), 6 deletions(-)
-
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index 5567328..69eefe2 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -430,22 +430,29 @@ int remove_save_link(struct inode *inode
- 	return journal_end(&th, inode->i_sb, JOURNAL_PER_BALANCE_CNT);
- }
- 
--static void reiserfs_put_super(struct super_block *s)
-+static void reiserfs_kill_sb(struct super_block *s)
- {
--	int i;
--	struct reiserfs_transaction_handle th;
--	th.t_trans_id = 0;
--
- 	if (REISERFS_SB(s)->xattr_root) {
- 		d_invalidate(REISERFS_SB(s)->xattr_root);
- 		dput(REISERFS_SB(s)->xattr_root);
-+		REISERFS_SB(s)->xattr_root = NULL;
- 	}
- 
- 	if (REISERFS_SB(s)->priv_root) {
- 		d_invalidate(REISERFS_SB(s)->priv_root);
- 		dput(REISERFS_SB(s)->priv_root);
-+		REISERFS_SB(s)->priv_root = NULL;
- 	}
- 
-+	kill_block_super(s);
-+}
-+
-+static void reiserfs_put_super(struct super_block *s)
-+{
-+	int i;
-+	struct reiserfs_transaction_handle th;
-+	th.t_trans_id = 0;
-+
- 	/* change file system state to current state if it was mounted with read-write permissions */
- 	if (!(s->s_flags & MS_RDONLY)) {
- 		if (!journal_begin(&th, s, 10)) {
-@@ -2300,7 +2307,7 @@ struct file_system_type reiserfs_fs_type
- 	.owner = THIS_MODULE,
- 	.name = "reiserfs",
- 	.get_sb = get_super_block,
--	.kill_sb = kill_block_super,
-+	.kill_sb = reiserfs_kill_sb,
- 	.fs_flags = FS_REQUIRES_DEV,
- };
- 

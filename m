@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWHHVfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWHHVf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWHHVfO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWHHVfN
+	id S965049AbWHHVf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWHHVf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:35:13 -0400
-Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:63687 "EHLO
-	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S965053AbWHHVfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:35:11 -0400
+	Tue, 8 Aug 2006 17:35:28 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:63394 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965049AbWHHVfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:35:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=dk20050327; d=earthlink.net;
-  b=lQw3DPrI2leu5PuRquVml+ZWiJ1yLELMQw6s0wSJM2b64tOeXKqY2D0BPv3l8Ce8;
-  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
-Message-ID: <04a001c6bb32$79a39380$0225a8c0@Wednesday>
-From: "jdow" <jdow@earthlink.net>
-To: "Alexey Zaytsev" <alexey.zaytsev@gmail.com>, "Jes Sorensen" <jes@sgi.com>
-Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com><p73y7tzo4hl.fsf@verdi.suse.de><f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com> <yq03bc7v3uy.fsf@jaguar.mkp.net>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Date: Tue, 8 Aug 2006 14:34:42 -0700
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bS0gLLOE+LOknea3Xhrfs8GGEWq7j/yJfBd8uMBAG6/FAWhe31rluOVmEAjwwMNpMEiUvjK+a9d0GOyHMCtdBI9gRQ0SWsJbxL2YSPlw1GKPeM6WovYPqCycNV/VLoqv53T2eSmgUkNCkuAIpwPgA0fb4r4YYqV+tZMJGnISDbY=
+Message-ID: <e6babb600608081435l575f8ecdhbbc35066a8357f59@mail.gmail.com>
+Date: Tue, 8 Aug 2006 14:35:22 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: "Steven Rostedt" <rostedt@goodmis.org>
+Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re: Problems with 2.6.17-rt8
+Cc: "hui Bill Huey" <billh@gnuppy.monkey.org>, linux-kernel@vger.kernel.org,
+       "Ingo Molnar" <mingo@elte.hu>, "Thomas Gleixner" <tglx@linutronix.de>,
+       "Darren Hart" <dvhltc@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0608081506060.16824@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120e26356c0b0470470511693093adbbcdf3f5372688b950fe8350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 71.116.182.36
+Content-Disposition: inline
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
+	 <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
+	 <1154541079.25723.8.camel@localhost.localdomain>
+	 <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
+	 <1154615261.32264.6.camel@localhost.localdomain>
+	 <20060808025615.GA20364@gnuppy.monkey.org>
+	 <20060808030524.GA20530@gnuppy.monkey.org>
+	 <e6babb600608081146k663e3ee4g4b93ba325bf9257e@mail.gmail.com>
+	 <Pine.LNX.4.58.0608081506060.16824@gandalf.stny.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jes Sorensen" <jes@sgi.com>
->>>>>> "Alexey" == Alexey Zaytsev <alexey.zaytsev@gmail.com> writes:
+On 8/8/06, Steven Rostedt <rostedt@goodmis.org> wrote:
+> How far back do you get this bug?  I mean if you go back and test the
+> previous kernels, where did you start seeing this?
 
-> Just install a proper spam filter like everyone else.
+I have so far been unable to provoke the problem under 2.6.16-rt29.
 
-There is a modest problem with that, Jes. What looks like spam in
-most emails is often ham for this list, particularly with regards
-to bug reports and patches.
+I was able to provoke things once easily under 17-rt1, but subsequent
+attempts to trigger the bug have so far yielded no results.
 
-With SpamAssasssin I have made an ad-hoc fix that works quite nicely
-for the several "open" mailing lists I am on.
+I'm back to poking at 16-rt29 to see if the problem is simply somewhat
+less likely.
 
-The first fix is a generic one I made once I was sure the BAYES
-filter was well trained with ham and spam such that it seldom if
-ever made a real mistake at the extremes of the score ranges. I
-then increased the BAYES_95 rule score slightly. And have been
-able to raise BAYES_99 to a full threshold of 5 score without
-any false positives. YMMV here. But it does help on personal
-installations.
-
-First I developed a "feature" detection scheme for each of the lists.
-Not all of them are straight forward for detection. Each list has its
-own __L_RULE.... These rules are combined into a __LIST_RELAY meta
-rule. Finally I create a series of meta rules that fire if BAYES_XX
-and __LIST_RELAY are true. These raise the high BAYES scores and
-lower the low BAYES scores.
-
-Today I noticed one single spam out of 263 waiting messages when I
-got to this mailing list. It was in a foreign language so I simply
-fed it to BAYES to raise it from BAYES_80 to BAYES_99. Since it's
-score was already 4.5 "it won't happen again."
-
-I thought I'd pass along this "list amplifier" score trick for
-SpamAssassin because it appears some folks here are seriously
-troubled by the spam getting through.
-
-(SUSE runs SpamAssassin. Unfortunately their BAYES is horridly mis-
-trained. So it misfires left and right. I wish they'd fix that. Quite
-often lists require some level of tweaking on the BAYES scores when
-processing list messages.)
-
-{^_^}   Joanne
+-- 
+Robert Crocombe
+rcrocomb@gmail.com

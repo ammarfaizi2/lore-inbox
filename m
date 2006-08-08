@@ -1,51 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWHHBMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWHHBuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWHHBMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 21:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWHHBMk
+	id S1751203AbWHHBuV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 21:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWHHBuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 21:12:40 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:57837 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751143AbWHHBMj (ORCPT
+	Mon, 7 Aug 2006 21:50:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12934 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751203AbWHHBuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 21:12:39 -0400
-Date: Tue, 8 Aug 2006 03:12:27 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Andrew Morton <akpm@osdl.org>
-cc: Len Brown <len.brown@intel.com>, linux-acpi@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RESEND] [PATCH] ACPI - change GFP_ATOMIC to GFP_KERNEL for
- non-atomic allocation
-In-Reply-To: <20060807135836.d766c50e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0608080300130.26318@twin.jikos.cz>
-References: <Pine.LNX.4.58.0608071602480.26318@twin.jikos.cz>
- <20060807135836.d766c50e.akpm@osdl.org>
+	Mon, 7 Aug 2006 21:50:20 -0400
+Message-ID: <44D7EDC6.6040502@sgi.com>
+Date: Mon, 07 Aug 2006 18:49:58 -0700
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       nagar@watson.ibm.com, balbir@in.ibm.com, jes@sgi.com, csturtiv@sgi.com,
+       tee@sgi.com, guillaume.thouvenin@bull.net
+Subject: Re: [patch 3/3] convert CONFIG tag for extended accounting routines
+References: <44D17A47.4010302@engr.sgi.com> <20060803000331.22fcb4c0.akpm@osdl.org> <44D26769.4070505@sgi.com>
+In-Reply-To: <44D26769.4070505@sgi.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006, Andrew Morton wrote:
+Jay Lan wrote:
+> Andrew Morton wrote:
+> 
 
-> acpi_os_acquire_object() is fixed in -rc4.  I queued the
-> acpi_pci_link_set() improvement for sending on to Len, thanks.  
+[snip]
 
-Thanks. Unfortunately, looking at the refactorized ACPI code in 
-2.6.18-rc4, there are still issues with sleeping functions called with 
-disabled interrupts (during resume), in ACPI code.
+>>
+>>> +        if (delta == 0)
+>>> +            return;
+>>> +        tsk->acct_stimexpd = tsk->stime;
+>>> +        tsk->acct_rss_mem1 += delta * get_mm_rss(tsk->mm);
+>>> +        tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
+>>
+>>
+>>
+>> It's a bit weird to be multiplying RSS by time.  What unit is a "byte
+>> second"?
+>>
+>> If this is not a bug then I guess this is an intermediate term for
+>> additional downstream processing.  There is information loss here and I'd
+>> have thought that it would be better to simply send `delta' and the rss
+>> straight to userspace, let userspace work out what math it wants to 
+>> perform
+>> on it.  If that makes sense?
+>>
+>> I see that the code has been like this for a long time, so treat this 
+>> as a
+>> "please educate me about BSD accounting" email ;)
+> 
+> 
+> This is not a BSD accounting thing. It came from UNICOS and IRIX.
+> I am pinging the person who knows how the real world users use these
+> two fields...
 
-Two random examples:
+Andrew,
 
-- when acpi_pci_link_set() is called during resume (local irqs off), the 
-following callchain happens, which is bad: acpi_pci_link_resume -> 
-acpi_pci_link_set -> acpi_set_current_resources -> 
-acpi_rs_set_srs_method_data -> acpi_ns_evaluate -> acpi_ns_get_node .. 
-here the mutex is acquired. Not good. 
+Here is the explanation i owe you.
 
-- device_power_up -> sysdev_resume -> __sysdev_resume -> cpufreq_resume -> 
-blocking_notifier_call_chain -> down on semaphore. Not good.
+We accumulated the RSS/VM value at each timer interrupt update in terms
+of pages-tick. At userland, the value is divided by tsk->stime (in usec)
+to gain average usage of RSS/VM.
 
-Is there any general idea for solution?
+I need to do a little bit more processing in the kernel to convert
+the pages-tick values to Mbytes-usec unit before delivery to userland
+since the calculation are platform dependent. I will include the
+change in the upcoming update patch.
 
--- 
-JiKos.
+Regards,
+  - jay
+
+
+> 
+> Regards,
+>  - jay
+> 
+>>
+> 
+> 
+

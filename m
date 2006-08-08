@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWHGX4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWHHACn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWHGX4R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 19:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWHGXzv
+	id S932427AbWHHACn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 20:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWHHACn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 19:55:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27010 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932429AbWHGXzU (ORCPT
+	Mon, 7 Aug 2006 20:02:43 -0400
+Received: from ozlabs.org ([203.10.76.45]:25524 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932427AbWHHACn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 19:55:20 -0400
-Date: Mon, 7 Aug 2006 16:55:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andi Kleen <ak@suse.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-Message-Id: <20060807165512.dabefb63.akpm@osdl.org>
-In-Reply-To: <m1slk89ozd.fsf@ebiederm.dsl.xmission.com>
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	<20060807085924.72f832af.rdunlap@xenotime.net>
-	<m1wt9kcv2n.fsf@ebiederm.dsl.xmission.com>
-	<20060807105537.08557636.rdunlap@xenotime.net>
-	<m1psfcbcnk.fsf@ebiederm.dsl.xmission.com>
-	<20060807120454.79b6e1dc.rdunlap@xenotime.net>
-	<m1slk89ozd.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Aug 2006 20:02:43 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17623.54420.461017.882242@cargo.ozlabs.ibm.com>
+Date: Tue, 8 Aug 2006 10:02:28 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Matt Reuther <mreuther@umich.edu>,
+       LKML <linux-kernel@vger.kernel.org>, Jay Lan <jlan@sgi.com>
+Subject: Re: [-mm patch] add timespec_to_us() and use it in kernel/tsacct.c
+In-Reply-To: <20060807132418.037048a5.akpm@osdl.org>
+References: <200608062330.19628.mreuther@umich.edu>
+	<20060806222129.f1cfffb9.akpm@osdl.org>
+	<20060807133240.GB3691@stusta.de>
+	<20060807132418.037048a5.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Aug 2006 16:10:14 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+Andrew Morton writes:
+> On Mon, 7 Aug 2006 15:32:41 +0200
+> Adrian Bunk <bunk@stusta.de> wrote:
+> > This doesn't look correct since do_div() does not guarantee to return 
+> > more than 32bit.
+> 
+> eh?  We use do_div() to do 64bit/something all the time??
 
-> +/* We can be setup to receive at most NR_CPUS*224 irqs simultaneously */
-> +#define NR_IRQS (CONFIG_NR_IRQS)
+Indeed.  If do_div didn't return a 64-bit quotient then
+printk("%lld", ...) wouldn't work.  (The remainder is 32-bit of course,
+because the divisor is 32-bit.)
 
-We know that setting this high can cause machines to run out of per-cpu
-memory, so we're handing people a foot blowing-off tool here.
+Paul.
 
-And it's a pretty nasty one because it can get people into the situation
-where the kernel worked fine for those who released it, but users who
-happen to load more modules (or the right combination of them) will
-experience per-cpu memory exhaustion.
-
-So shouldn't we being scaling the per-cpu memory as well?
-
-
-If so, I'd suggest that we special-case that huge kstat structure.  We can
-calculate its size exactly, so how about we do:
-
-#define SIZE_OF_KSTAT_THING	<complicated expression>
-#define PERCPU_ENOUGH_ROOM	32768
-
-#define PERCPU_ENOUGH_ROOM_WHICH_WE_REALLY_USE \
-		PERCPU_ENOUGH_ROOM + SIZE_OF_KSTAT_THING
-
-
-?
-
-(And as it's a critical managed resource, I'm thinking that we should be
-adding some /proc reporting of the per-cpu memory consumption..)

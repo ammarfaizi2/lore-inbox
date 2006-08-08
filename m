@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWHHGsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWHHGtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbWHHGsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 02:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHHGsa
+	id S932269AbWHHGtn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 02:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWHHGtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 02:48:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4068 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932269AbWHHGs3 (ORCPT
+	Tue, 8 Aug 2006 02:49:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64965 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932269AbWHHGtm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 02:48:29 -0400
-Date: Mon, 7 Aug 2006 23:47:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linas@austin.ibm.com (Linas Vepstas)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, rubini@vision.unipv.it,
-       device@lanana.org, linux-kernel@vger.kernel.org,
-       Amos Waterland <apw@us.ibm.com>
-Subject: Re: [PATCH] Chardev checking of overlapping ranges is incorrect.
-Message-Id: <20060807234753.ff21eb29.akpm@osdl.org>
-In-Reply-To: <20060807225555.GQ10638@austin.ibm.com>
-References: <20060807225555.GQ10638@austin.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 8 Aug 2006 02:49:42 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: 2.6.18-rc3-g3b445eea BUG: warning at  /usr/src/linux-git/kernel/cpu.c:51
+Date: Tue, 8 Aug 2006 08:49:37 +0200
+User-Agent: KMail/1.9.3
+Cc: "Chuck Ebbert" <76306.1226@compuserve.com>,
+       "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Dave Jones" <davej@redhat.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <200608072042_MC3-1-C764-3AF7@compuserve.com> <44D84D1F.76E4.0078.0@novell.com>
+In-Reply-To: <44D84D1F.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608080849.38012.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Aug 2006 17:55:55 -0500
-linas@austin.ibm.com (Linas Vepstas) wrote:
 
-> The current code in register_chrdev_region() attempts to check 
-> for overlapping regions of minor device numbers, but performs 
-> that check incorrectly. For example, if a device with minor 
-> numbers 128, 129, 130 is registered first, and a device with 
-> minor number 3,4,5 is registered later, then the later range
-> is incorrectly identified as "overlapping" (since 130>3), 
-> when clearly this is the wrong conclusion.
+> >include/asm-i386/unwind.h::arch_unw_user_mode():
+> >        return info->regs.eip < PAGE_OFFSET
+> >               || (info->regs.eip >= __fix_to_virt(FIX_VDSO)
+> >                    && info->regs.eip < __fix_to_virt(FIX_VDSO) + PAGE_SIZE)
+> >               || info->regs.esp < PAGE_OFFSET;
 > 
-> This patch fixes the overlap check to work correctly.
+> Hmm, indeed. Then I'm unclear what the problem might be here.
 
+That code will check for the vsyscall page, but sysenter_entry isn't 
+in the vsyscall page, but in the kernel proper.
 
-I yesterday merged the below.   Do you agree that it will fix the bug?
+So it means the EIP never actually reached the vsyscall page. It should
+have gone up another level, but didn't.
 
+-Andi
 
-From: Amos Waterland <apw@us.ibm.com>
-
-The code in __register_chrdev_region checks that if the driver wishing to
-register has the same major as an existing driver the new minor range is
-strictly less than the existing minor range.  However, it does not also
-check that the new minor range is strictly greater than the existing minor
-range.  That is, if driver X has registered with major=x and minor=0-3,
-__register_chrdev_region will allow driver Y to register with major=x and
-minor=1-4.
-
-I came across this in the context of the Xen virtual console driver, but I
-imagine it causes a problem for any driver with the same major number but
-different minor numbers as a driver that has registered ahead of it.
-
-Signed-off-by: Amos Waterland <apw@us.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
-
-diff -puN fs/char_dev.c~fix-bounds-check-bug-in-__register_chrdev_region fs/char_dev.c
---- a/fs/char_dev.c~fix-bounds-check-bug-in-__register_chrdev_region
-+++ a/fs/char_dev.c
-@@ -109,10 +109,13 @@ __register_chrdev_region(unsigned int ma
- 
- 	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
- 		if ((*cp)->major > major ||
--		    ((*cp)->major == major && (*cp)->baseminor >= baseminor))
-+		    ((*cp)->major == major &&
-+		     (((*cp)->baseminor >= baseminor) ||
-+		      ((*cp)->baseminor + (*cp)->minorct > baseminor))))
- 			break;
- 	if (*cp && (*cp)->major == major &&
--	    (*cp)->baseminor < baseminor + minorct) {
-+	    (((*cp)->baseminor < baseminor + minorct) ||
-+	     ((*cp)->baseminor + (*cp)->minorct > baseminor))) {
- 		ret = -EBUSY;
- 		goto out;
- 	}
-_
-
+> 
+> >Could this be the problem?
+> >
+> >|ENTRY(sysenter_entry)
+> >|        CFI_STARTPROC simple
+> >|        CFI_DEF_CFA esp, 0
+> >|==>     CFI_REGISTER esp, ebp
+> >|        movl TSS_sysenter_esp0(%esp),%esp
+> >|sysenter_past_esp:

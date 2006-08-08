@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWHHRcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWHHRf3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbWHHRcu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWHHRct
+	id S1030199AbWHHRf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:35:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWHHRf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:32:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:19122 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965014AbWHHRcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:32:48 -0400
-Date: Tue, 8 Aug 2006 18:32:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Kprobes: Make kprobe modules more portable
-Message-ID: <20060808173242.GA1739@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paulo Marques <pmarques@grupopie.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <20060807115537.GA15253@in.ibm.com> <20060808162421.GA28647@infradead.org> <20060808093400.5f023ea6@localhost.localdomain> <20060808164019.GA3382@infradead.org> <44D8C9BC.40102@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Aug 2006 13:35:29 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:44968
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1030199AbWHHRf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:35:28 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [HW_RNG] How to use generic rng in kernel space
+Date: Tue, 8 Aug 2006 19:34:31 +0200
+User-Agent: KMail/1.9.1
+References: <20060808153947.39735.qmail@web25804.mail.ukl.yahoo.com>
+In-Reply-To: <20060808153947.39735.qmail@web25804.mail.ukl.yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <44D8C9BC.40102@grupopie.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200608081934.31694.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 06:28:28PM +0100, Paulo Marques wrote:
-> Just one side note: kallsyms_lookup_name is _really_ inefficient. The 
-> kallsyms structure is tailored so that kallsyms_lookup (the most 
-> frequently used function) is really fast. Doing it the other way around 
-> involves a O(N) search, uncompressing every symbol name as it goes :P
+On Tuesday 08 August 2006 17:39, moreau francis wrote:
+> Michael Buesch wrote:
+> > So, if you have a special hwrng on your embedded board and you
+> > have some special driver in that board, why not interface
+> > directly from the driver to the hwrng-driver?
 > 
-> I don't think this is really a performance problem for users like 
-> kprobes, but I just wanted people to keep in mind that there is a 
-> penalty involved in calling kallsyms_lookup_name.
+> This is what I'm currently doing. I was just thinking to use the
+> new HW-RNG layer and drop common code...
+> 
+> > This is all pretty special case.
+> > In the hwrng-driver you could still additionally do a
+> > hrwng_register() to export the functionality to
+> > userspace, though.
+> > 
+> 
+> yes I would like to do that but there is a problem: I have no 
+> access to "rng_mutex" to synchronise hw accesses and I'm
+> wondering if there's any issue to use a mutex in driver init
+> code.
 
-That's true.  One more reason to not expose this interface to the public.
+Use your own mutex or spinlock in the data_read callback
+and use that to serialize accesses to the hardware.
+
+-- 
+Greetings Michael.

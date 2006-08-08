@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWHHL4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWHHMA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWHHL4b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 07:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWHHL4b
+	id S1750849AbWHHMA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWHHMA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 07:56:31 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28603 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932470AbWHHL4a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 07:56:30 -0400
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Edgar Toernig <froese@gmx.de>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       tytso@mit.edu, tigran@veritas.com
-In-Reply-To: <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
-	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
-	 <20060807224144.3bb64ac4.froese@gmx.de>
-	 <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Aug 2006 13:15:38 +0100
-Message-Id: <1155039338.5729.21.camel@localhost.localdomain>
+	Tue, 8 Aug 2006 08:00:58 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:463 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S1750847AbWHHMA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:00:57 -0400
+To: Nathan Scott <nathans@sgi.com>, David Chinner <dgc@sgi.com>
+Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] Fix i_state of inode is changed after the inode is freed
+Message-Id: <20060808210026m-saito@mail.aom.tnes.nec.co.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: WeMail32[2.51] ID:1K0086
+From: Masayuki Saito <m-saito@tnes.nec.co.jp>
+Date: Tue, 8 Aug 2006 21:00:26 +0900
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-08-07 am 17:24 -0500, ysgrifennodd Chase Venters:
-> implementation is crude. "EBADF" is not something that applications are 
-> taught to expect. Someone correct me if I'm wrong, but I can think of no 
-> situation under which a file descriptor currently gets yanked out from 
-> under your feet -- you should always have to formally abandon it with 
-> close().
+Fix i_state of the inode is changed after the inode is freed.
 
-The file descriptor is not pulled from under you, the access to it is.
-This is exactly what occurs today when a tty is hung up. That could be
-almost any fd because paths could be symlinks to a pty/tty pair...
+Signed-off-by: Masayuki Saito <m-saito@tnes.nec.co.jp>
+---
 
-In the tty case you get -ENXIO
-
-Alan
+--- linux-2.6.17.7/fs/xfs/xfs_inode.c.orig	2006-08-01 14:20:00.903511531 +0900
++++ linux-2.6.17.7/fs/xfs/xfs_inode.c	2006-08-01 14:14:39.588213059 +0900
+@@ -2736,6 +2736,8 @@ void
+ xfs_iunpin(
+ 	xfs_inode_t	*ip)
+ {
++	int need_unlock;
++
+ 	ASSERT(atomic_read(&ip->i_pincount) > 0);
+ 
+ 	if (atomic_dec_and_test(&ip->i_pincount)) {
+@@ -2751,6 +2753,8 @@ xfs_iunpin(
+ 		 * call as the inode reclaim may be blocked waiting for
+ 		 * the inode to become unpinned.
+ 		 */
++		need_unlock = 1;
++		spin_lock(&ip->i_flags_lock);
+ 		if (!(ip->i_flags & (XFS_IRECLAIM|XFS_IRECLAIMABLE))) {
+ 			vnode_t	*vp = XFS_ITOV_NULL(ip);
+ 
+@@ -2758,10 +2762,22 @@ xfs_iunpin(
+ 			if (vp) {
+ 				struct inode	*inode = vn_to_inode(vp);
+ 
+-				if (!(inode->i_state & I_NEW))
+-					mark_inode_dirty_sync(inode);
++				if (!(inode->i_state &
++						(I_NEW|I_FREEING|I_CLEAR))) {
++					inode = igrab(inode);
++					if (inode != NULL) {
++						mark_inode_dirty_sync(inode);
++						spin_unlock(&ip->i_flags_lock);
++						need_unlock = 0;
++						iput(inode);
++					}
++				}
+ 			}
+ 		}
++		if (need_unlock) {
++			spin_unlock(&ip->i_flags_lock);
++			need_unlock = 0;
++		}
+ 		wake_up(&ip->i_ipin_wait);
+ 	}
+ }
 

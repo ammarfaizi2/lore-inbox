@@ -1,87 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWHHIH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbWHHIMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbWHHIH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 04:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWHHIH3
+	id S932562AbWHHIMG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 04:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbWHHIMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 04:07:29 -0400
-Received: from mail.baslerweb.com ([145.253.187.130]:39056 "EHLO
-	mail.baslerweb.com") by vger.kernel.org with ESMTP id S932535AbWHHIH2 convert rfc822-to-8bit
+	Tue, 8 Aug 2006 04:12:05 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:21379 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932562AbWHHIME
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 04:07:28 -0400
-MIME-Version: 1.0
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Tue, 8 Aug 2006 10:07:08 +0200
-Message-ID: <C5A8FDEFF7647F4C9CB927D7DEB30773019AC43C@AHR075S.basler.corp>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.18-rc4 jffs2 problems
-Thread-index: Aca6urg6oV298rgyTjWXfvBATJKIMQABdoDQ
-From: "Koeller, T." <Thomas.Koeller@baslerweb.com>
-To: "Artem B. Bityutskiy" <dedekind@yandex.ru>,
-       "Richard Purdie" <rpurdie@rpsys.net>
-Cc: "linux-mtd" <linux-mtd@lists.infradead.org>,
-       "LKML" <linux-kernel@vger.kernel.org>
-X-SecurE-Mail-Gateway: Version: 5.00.3.1 (smtpd: 6.53.8.7) Date: 20060808080427Z
-Subject: RE: 2.6.18-rc4 jffs2 problems
-Content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Tue, 8 Aug 2006 04:12:04 -0400
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+	aliasing problem)
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, schwidefsky@googlemail.com,
+       johnstul@us.ibm.com, zippel@linux-m68k.org, clameter@engr.sgi.com,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org, ak@muc.de
+In-Reply-To: <20060807125810.e021c91b.akpm@osdl.org>
+References: <6e0cfd1d0608020550k7ae2c44dg94afbe56d66b@mail.gmail.com>
+	 <20060804.005352.128616651.anemo@mba.ocn.ne.jp>
+	 <6e0cfd1d0608040702h15371d31q1c3d1c305c3da424@mail.gmail.com>
+	 <20060807.011319.41196590.anemo@mba.ocn.ne.jp>
+	 <20060807125810.e021c91b.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Tue, 08 Aug 2006 10:11:59 +0200
+Message-Id: <1155024719.26277.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: linux-mtd-bounces@lists.infradead.org 
-> [mailto:linux-mtd-bounces@lists.infradead.org] On Behalf Of 
-> Artem B. Bityutskiy
-> Sent: Tuesday, August 08, 2006 9:15 AM
-> To: Richard Purdie
-> Cc: linux-mtd; LKML
-> Subject: Re: 2.6.18-rc4 jffs2 problems
-> 
-> Richard Purdie wrote:
-> > JFFS2 error: (472) jffs2_get_inode_nodes: short read at 
-> 0x074e84: 68 instead of 380.
-> > JFFS2 error: (472) jffs2_do_read_inode_internal: cannot 
-> read nodes for ino 153, returned error is -5
+On Mon, 2006-08-07 at 12:58 -0700, Andrew Morton wrote:
+> > [PATCH] cleanup do_timer and update_times
 > > 
-> This looks like an MTD problem, not JFFS2.
+> > Pass ticks to do_timer() and update_times().
+> > 
+> > This also make a barrier added by
+> > 5aee405c662ca644980c184774277fc6d0769a84 needless.
+> > 
+> > Also adjust x86_64 and s390 timer interrupt handler with this change.
+> > 
 > 
-> Try to reproduce this on the mtdram flash emulator. Also, 
-> please, check 
-> if mtd->writesize is correct at your setup (I suppose your 
-> flash is NOR 
-> and it has to be 1).
+> This is a rather terse description for a change of this nature..
 > 
-> -- 
-> Best Regards,
-> Artem B. Bityutskiy,
-> St.-Petersburg, Russia.
+> Why was this patch created?  What problem is it solving?  etcetera.
+
+The problem is that we are wasting time calling do_timer in a loop. This
+is especially true on system that switch off the timer interrupt while
+the cpu is idle. You can easily have thousands of lost ticks.
+
+> > ...
+> >
+> > --- a/kernel/timer.c
+> > +++ b/kernel/timer.c
+> > @@ -1218,7 +1218,7 @@ static inline void calc_load(unsigned lo
+> >  	static int count = LOAD_FREQ;
+> >  
+> >  	count -= ticks;
+> > -	if (count < 0) {
+> > +	while (count < 0) {
+> >  		count += LOAD_FREQ;
+> >  		active_tasks = count_active_tasks();
+> >  		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
 > 
-> ______________________________________________________
-> Linux MTD discussion mailing list
-> http://lists.infradead.org/mailman/listinfo/linux-mtd/
+> OK, we do need the loop here to get the arithmetic in CALC_LOAD to work
+> correctly.
 > 
+> But I don't think the expensive count_active_tasks() needs to be evaluated
+> each time around.
 
-I am currently updating a nand flash driver that used to work
-with kernel 2.6.16-rc4 to current git. Doing so, I encountered
-exactly this problem, but suspected a problem with my driver,
-of course. However, so far I have not been able to find out
-what's wrong. Another symptom I observed is that when doing
-'ls -l /dev/mtdblock0', the size displayed is zero.
+This is what I hoped would happen. The loops gets pushed through the
+layers to the place where it is actually needed. The next step could be
+to get rid of the loop altogether by changing CALC_LOAD.
 
-tk
------------------------------------------------ 
-Thomas Koeller, Software Development 
+-- 
+blue skies,
+  Martin.
 
-Basler Vision Technologies 
-An der Strusbek 60-62 
-22926 Ahrensburg 
-Germany 
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
-Tel +49 (4102) 463-390 
-Fax +49 (4102) 463-46390
+"Reality continues to ruin my life." - Calvin.
 
-mailto:Thomas.Koeller@baslerweb.com 
-http://www.baslerweb.com 
 

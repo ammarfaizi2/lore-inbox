@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWHHFcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWHHFjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWHHFcF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 01:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWHHFcE
+	id S1751013AbWHHFjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 01:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWHHFjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 01:32:04 -0400
-Received: from possum.icir.org ([192.150.187.67]:14857 "EHLO possum.icir.org")
-	by vger.kernel.org with ESMTP id S1750832AbWHHFcE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 01:32:04 -0400
-Message-Id: <200608080531.k785VxYL077237@possum.icir.org>
-To: David Miller <davem@davemloft.net>
-cc: pavlin@icir.org, linux-kernel@vger.kernel.org, roland@topspin.com
-Subject: Re: Bug in the RTM_SETLINK kernel API for setting MAC address 
-In-Reply-To: Message from David Miller <davem@davemloft.net> 
-   of "Mon, 07 Aug 2006 20:48:10 PDT." <20060807.204810.11384152.davem@davemloft.net> 
-Date: Mon, 07 Aug 2006 22:31:59 -0700
-From: Pavlin Radoslavov <pavlin@icir.org>
+	Tue, 8 Aug 2006 01:39:47 -0400
+Received: from loewe.unit-netz.de ([212.202.148.42]:51375 "EHLO
+	loewe.unit-netz.de") by vger.kernel.org with ESMTP id S1751013AbWHHFjr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 01:39:47 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+Subject: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 8 Aug 2006 07:38:36 +0200
+Message-ID: <664E3671B2B6DC439E0C9FFCF8E40CA205F4C6@exchange.I-BNEX>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
+Thread-Index: Aca6rOS2F7ZufODZRU23KqJ8lsKKaQ==
+From: "Beschorner Daniel" <Daniel.Beschorner@facton.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <orion@cora.nwra.com>, <76306.1226@compuserve.com>,
+       "Trond Myklebust" <trond.myklebust@fys.uio.no>, <sfr@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Note that the payload with the MAC address has to be
-> > "struct sockaddr" (or equivalent) and the length of that payload is
-> > the equivalent of "sizeof(sa_family) + mac_address_size".
-> 
-> It should just be the MAC address, that's why the kernel side
-> is coded the way it is.
+>>> static void lease_release_private_callback(struct file_lock *fl) 
+>>> { 
+>>>         if (!fl->fl_file) 
+>>>                 return; 
+>>>         f_delown(fl->fl_file); 
+>>> =>      fl->fl_file->f_owner.signum = 0; 
+>>> } 
 
-I couldn't find any documentation about the API, so I wasn't sure
-whether it is actually suppose to be the MAC address or "sockaddr".
+>> Why should the lease cleanup code be resetting f_owner.signum? That 
+>> looks wrong. 
+>> Stephen, I think this line of code predates the CITI changes. Do you 
+>> know who added it and why? 
 
-In fact, earlier version of our userland code was assuming it
-is just the MAC address, until we found that it doesn't work on
-recent kernels.
+>Because when the original code was written, it was only called when we
+got 
+>a fcntl(F_SETLEASE, F_UNLCK) call.  The code got moved incorrectly and 
+>noone noticed.
 
-> Where does this sockaddr come from?
+Does somebody have a patch for this issue? It breaks one important
+application (Samba) in its default configuration.
 
-The set_mac_address() functions for each network device driver make
-that assumption:
-
-static int set_mac_address(struct net_device *dev, void *p)
-{
-        int i;
-        struct sockaddr *addr = p;
-
-> I don't see how it could work with the sockaddr there in
-> 2.6.17, as 2.6.17 makes the same exact length check:
-> 
-> 		if (ida[IFLA_ADDRESS - 1]->rta_len != RTA_LENGTH(dev->addr_len))
-> 			goto out;
-
-Note that in my example rta_len was tweaked to match the MAC address
-size, but the the payload itself and the netlink message nlmsg_len
-actually match the sockaddr alignment.
-
-The real mismatch is that ida[IFLA_ADDRESS - 1] is (as you say)
-suppose to be a MAC address, but the set_mac_address() functions
-for each device assume that the RTA_DATA(ida[IFLA_ADDRESS - 1])
-payload is a sockaddr.
-
-Pavlin
+Daniel

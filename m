@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWHHQ0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWHHQ1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbWHHQ0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWHHQ0t
+	id S1030187AbWHHQ1F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWHHQ1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:26:49 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:53872 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964978AbWHHQ0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:26:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=R75mbztHhBTSr8c4xTHKtCYs7NoS/nESMKmQug0Vtd2pw37uCOU66pUxNA5EGCwR8xmpftt59bU63Vm0/NatFBCp/fXq9c6VOdwMAPF0pfPOkL7ET3tI9pPE4Mbqvy/5D3eJKfttARoFAVqwJbf4W3FkTfKr86XxR1pdDNWsOmc=  ;
-Message-ID: <44D8BB43.9070908@yahoo.com.au>
-Date: Wed, 09 Aug 2006 02:26:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@gmail.com>
-CC: Eric Dumazet <dada1@cosmosbay.com>, Andi Kleen <ak@suse.de>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] NUMA futex hashing
-References: <20060808070708.GA3931@localhost.localdomain>	 <200608081429.44497.dada1@cosmosbay.com>	 <200608081447.42587.ak@suse.de>	 <200608081457.11430.dada1@cosmosbay.com>	 <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>	 <44D8A9BE.3050607@yahoo.com.au> <a36005b50608080836u3e58ab85l61bb50b2bac5a0e3@mail.gmail.com> <44D8BA39.5020405@yahoo.com.au>
-In-Reply-To: <44D8BA39.5020405@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 12:27:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14541 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030186AbWHHQ1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:27:02 -0400
+Date: Tue, 8 Aug 2006 17:27:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [PATCH 3/3] Kprobes: Update Documentation/kprobes.txt
+Message-ID: <20060808162701.GC28647@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+	linux-kernel@vger.kernel.org,
+	Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+	Jim Keniston <jkenisto@us.ibm.com>
+References: <20060807115537.GA15253@in.ibm.com> <20060807120024.GD15253@in.ibm.com> <20060807120447.GE15253@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060807120447.GE15253@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+On Mon, Aug 07, 2006 at 05:34:47PM +0530, Ananth N Mavinakayanahalli wrote:
+> From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> 
+> Update Documentation/kprobes.txt to reflect addition of KPROBE_ADDR,
+> KPROBE_RETVAL and the in-kernel symbol resolution.
 
-> No we shouldn't slow them down. I'd be interested to see whether
-> locking is significantly sped up with this new data structure,
-> though.
+Thanks.  With my updated patch we shouldn't document KPROBE_ADDR anymore
+but tell people to always use the symbol_name mechanisms. 
 
-OTOH, maybe you don't need a new data structure. Maybe you could
-use the hash and check that for a match on a private futex before
-trying to find a possible shared futex.
+Any chance to add some kerneldoc comments for the exported kprobes
+functions?
 
-Locking I guess becomes no more of a problem than now, and in some
-cases maybe much less. So OK, I stand corrected.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

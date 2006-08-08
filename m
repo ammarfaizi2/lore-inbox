@@ -1,104 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWHHA5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWHHBMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWHHA5A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 20:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWHHA5A
+	id S1751143AbWHHBMk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 21:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWHHBMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 20:57:00 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:18871 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932471AbWHHA47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 20:56:59 -0400
-Subject: Re: [Lhms-devel] [PATCH 1/10] hot-add-mem x86_64: acpi motherboard
-	fix
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: andrew <akpm@osdl.org>, discuss <discuss@x86-64.org>,
-       Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20060808093110.f7b2ae04.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060804131351.21401.4877.sendpatchset@localhost.localdomain>
-	 <20060805145137.aad34b44.kamezawa.hiroyu@jp.fujitsu.com>
-	 <1154975968.5790.16.camel@keithlap>
-	 <20060808093110.f7b2ae04.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Mon, 07 Aug 2006 17:56:56 -0700
-Message-Id: <1154998617.5790.31.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Aug 2006 21:12:40 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:57837 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1751143AbWHHBMj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 21:12:39 -0400
+Date: Tue, 8 Aug 2006 03:12:27 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Andrew Morton <akpm@osdl.org>
+cc: Len Brown <len.brown@intel.com>, linux-acpi@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RESEND] [PATCH] ACPI - change GFP_ATOMIC to GFP_KERNEL for
+ non-atomic allocation
+In-Reply-To: <20060807135836.d766c50e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0608080300130.26318@twin.jikos.cz>
+References: <Pine.LNX.4.58.0608071602480.26318@twin.jikos.cz>
+ <20060807135836.d766c50e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 09:31 +0900, KAMEZAWA Hiroyuki wrote:
-> On Mon, 07 Aug 2006 11:39:27 -0700
-> keith mannthey <kmannth@us.ibm.com> wrote:
-> 
-> > On Sat, 2006-08-05 at 14:51 +0900, KAMEZAWA Hiroyuki wrote:
-> > > On Fri, 4 Aug 2006 07:13:51 -0600
-> > > Keith Mannthey <kmannth@us.ibm.com> wrote:
-> > > > I have worked to integrate the feedback I recived on the last round of patches
-> > > > and welcome more ideas/advice. Thanks to everyone who has provied input on
-> > > > these patches already. 
-> > > > 
-> > > Just from review...
-> > > 
-> > > If new zone , which was empty at boot, are added into the system.
-> > > build_all_zonelists() has to be called. (see online_pages() in memory_hotplug.c)
-> > > it looks x86_64's __add_pages() doesn't calles it.
-> > 
-> > With RESERVE there are not empty zones.  All zones (including add-areas)
-> > are setup during boot and hot add areas reserved in the bootmem
-> > allocator. 
-> > 
-> > Zones don't change size there is no adding to the zone just on-lining on
-> > pages at are already present in the zone. 
-> >   
-> Hmm, curious.
-> please explain. 
-> ==
-> int __add_pages(struct zone *z, unsigned long start_pfn, unsigned long nr_pages)
-> {
->         int err = -EIO;
->         unsigned long pfn;
->         unsigned long total = 0, mem = 0;
->         for (pfn = start_pfn; pfn < start_pfn + nr_pages; pfn++) {
->                 if (pfn_valid(pfn)) {
->                         online_page(pfn_to_page(pfn));
->                         err = 0;
->                         mem++;
->                 }
->                 total++;
->         }
->         if (!err) {
->                 z->spanned_pages += total;
->                 z->present_pages += mem; -------------------------------(*)
+On Mon, 7 Aug 2006, Andrew Morton wrote:
 
-It is an accounting issue.  What I meant by re-sizing is there is no
-change to node_mem_map (with reserve CONFIG_FLAT_NODE_MEM_MAP is set).
-When the original size for the zone is setup it views that add areas as
-a "hole" in the e820 space. 
+> acpi_os_acquire_object() is fixed in -rc4.  I queued the
+> acpi_pci_link_set() improvement for sending on to Len, thanks.  
 
-See arch/x86_64/mm/init.c size_zones. 
+Thanks. Unfortunately, looking at the refactorized ACPI code in 
+2.6.18-rc4, there are still issues with sleeping functions called with 
+disabled interrupts (during resume), in ACPI code.
 
-> ==
-> It looks contents of zone is increased at (*). Do I see old code ?
-> 
-> ==
-> static inline int populated_zone(struct zone *zone)
-> {
->         return (!!zone->present_pages);
-> }
-> ==
-> "empty zone" I said means a zone which is not populated.
+Two random examples:
 
-I know of no x86_64 hardware the supports empty node hot-add memory.  If
-it exists I would recommend using SPARSEMEM based hot-add.  On HW I am
-aware of there is always some memory present in a node at boot.   
- 
+- when acpi_pci_link_set() is called during resume (local irqs off), the 
+following callchain happens, which is bad: acpi_pci_link_resume -> 
+acpi_pci_link_set -> acpi_set_current_resources -> 
+acpi_rs_set_srs_method_data -> acpi_ns_evaluate -> acpi_ns_get_node .. 
+here the mutex is acquired. Not good. 
 
-Thanks,
-  Keith 
+- device_power_up -> sysdev_resume -> __sysdev_resume -> cpufreq_resume -> 
+blocking_notifier_call_chain -> down on semaphore. Not good.
 
+Is there any general idea for solution?
+
+-- 
+JiKos.

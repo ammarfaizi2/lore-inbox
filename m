@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWHHPju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWHHPmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWHHPju (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 11:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWHHPjt
+	id S964970AbWHHPmb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 11:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWHHPmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 11:39:49 -0400
-Received: from web25804.mail.ukl.yahoo.com ([217.12.10.189]:14712 "HELO
-	web25804.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S964966AbWHHPjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 11:39:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=i1MWXQK0blwdN8iqp80kK+1KsteJC90y0Xp98Jx4M5RT3cRYp1o/L8mt9ssd0wLu5lPke4BfgZfVJySXqBEYS6NeD5F7ObANCGZzQhfSFKI7enJ71Uly9/ZnVLOFVGHC3+hFTVKuevgy97bmNv15Nd57xhg2XSrBNDQUtzk1EYU=  ;
-Message-ID: <20060808153947.39735.qmail@web25804.mail.ukl.yahoo.com>
-Date: Tue, 8 Aug 2006 15:39:47 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : [HW_RNG] How to use generic rng in kernel space
-To: Michael Buesch <mb@bu3sch.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608042308.24421.mb@bu3sch.de>
+	Tue, 8 Aug 2006 11:42:31 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:65494 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964966AbWHHPma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 11:42:30 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: Suspend on Dell D420
+Date: Tue, 8 Aug 2006 17:41:23 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060804162300.GA26148@uio.no> <200608081604.00665.rjw@sisk.pl> <20060808150136.GA16272@uio.no>
+In-Reply-To: <20060808150136.GA16272@uio.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608081741.24099.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> So, if you have a special hwrng on your embedded board and you
-> have some special driver in that board, why not interface
-> directly from the driver to the hwrng-driver?
-
-This is what I'm currently doing. I was just thinking to use the
-new HW-RNG layer and drop common code...
-
-> This is all pretty special case.
-> In the hwrng-driver you could still additionally do a
-> hrwng_register() to export the functionality to
-> userspace, though.
+On Tuesday 08 August 2006 17:01, Steinar H. Gunderson wrote:
+> On Tue, Aug 08, 2006 at 04:04:00PM +0200, Rafael J. Wysocki wrote:
+> > Please apply the appended patch to the SMP kernel and try the following:
+> >
+> > [...]
+> >
+> > I think (1) will work and (2) will not, but let's see. :-)
 > 
+> Actually, both worked just fine. The first one (testproc) gave me EPERM on
+> the actual write call according to echo, but I guess that's just a side
+> effect of sloppy test code :-)
 
-yes I would like to do that but there is a problem: I have no 
-access to "rng_mutex" to synchronise hw accesses and I'm
-wondering if there's any issue to use a mutex in driver init
-code.
+Oh, I just forgot to initialize error in kernel/power/disk.c#prepare_processes.c .
+Sorry.
 
-> 
-> I am not a friend of a direct in-kernel hwrng access interface,
-> because it may return crap data by definition. Many (all current)
-> RNG devices may fail and return non-random data. If that's happily
-> used by some in-kernel user by the interface, we are screwed.
-> 
-> Why can't you build your random-data consumer as module and load
-> it later, when random data is available (and was carefully checked
-> by various tests in rngd)?
-> 
+However, this means the drivers' suspend and resume routines seem to work fine
+and the problem is somehow related to the BIOS black magic that happens
+during the "real" suspend.
 
-simply because in this embedded system, there's no module support.
+No idea what to do next. :-(
 
-thanks
-
-Francis
+Rafael

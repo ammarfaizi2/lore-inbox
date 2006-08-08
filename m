@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWHHElt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWHHEnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWHHElt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 00:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWHHElt
+	id S932482AbWHHEnI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 00:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWHHEnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 00:41:49 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:48171 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932479AbWHHEls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 00:41:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=D8wrwSntkcv+NKXtuFsDHqr1vIugoCO7S+fMGu0RZhwp5xf/u5hKtoAspfMf+EzLRyiWjNuFvfs84A8Ft0CKZlLchCRF+EAvdl/6L5IQv5XLTkMJWLAh3ekhRZWjI6nTB05eCBBpZR7zlBlsyOLksywjH26iUeB+UIJLyTodf58=
-Message-ID: <bde732200608072141g747bd814mb16b0a172738329d@mail.gmail.com>
-Date: Tue, 8 Aug 2006 12:41:48 +0800
-From: "cjacker huang" <cjacker@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH]Amoi laptop touchpad detection problem, should be in i8042 NOMUX blacklist.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 8 Aug 2006 00:43:08 -0400
+Received: from bm-5a.paradise.net.nz ([203.96.152.184]:36485 "EHLO
+	linda-5.paradise.net.nz") by vger.kernel.org with ESMTP
+	id S932482AbWHHEnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 00:43:07 -0400
+Date: Tue, 08 Aug 2006 16:38:50 +1200
+From: Theuns Verwoerd <theuns@bluewatersys.com>
+Subject: Re: [PATCH 001/001] I2C: AD7414 I2C chip driver for Linux-2.6.17.7
+In-reply-to: <20060806133115.0b3bfe3f.khali@linux-fr.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Rudolf Marek <r.marek@sh.cvut.cz>,
+       linux-kernel@vger.kernel.org
+Message-id: <44D8155A.5060005@bluewatersys.com>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+User-Agent: Thunderbird 1.5.0.2 (X11/20060522)
+References: <44D28C60.1000304@bluewatersys.com>
+ <20060803202336.07c2b2a2.rdunlap@xenotime.net>
+ <20060806133115.0b3bfe3f.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently, I had test Red Flag Linux on an AMOI laptop(AMOI is PC
-vendor in China), found that the alps touchpad on this laptop can not
-be recognized automatically. after added the i8042.nomux to the kernel
-options, the touchpad works.
+Greetings
 
-So I made this patch, maybe somebody need this.
+Jean Delvare wrote:
+> Hi Theuns, Randy,
+>
+> [Theuns Verwoerd]
+>   
+>>> AD7414 Temperature Sensor I2C driver.  I2C chip driver for the Analog
+>>> Devices AD7414 device, exposes raw and decoded registers via sysfs.
+>>> Signed-off-by: Theuns Verwoerd <theuns.verwoerd@bluewatersys.com>
+...
+> 9* The driver should be submitted for review to the lm-sensors list
+> (see MAINTAINERS) rather than the LKML.
+>   
+Thank you for your comments - merged in, resubmitted to lm-sensors 
+mailing list.
 
-The VENDOR and PRODUCT_NAME is dumped from dmidecode.
-
-
-
---- linux-2.6.17.8.i686/drivers/input/serio/i8042-x86ia64io.h
-2006-08-07 00:18:54.000000000 -0400
-+++ linux-2.6.17.8.i686n/drivers/input/serio/i8042-x86ia64io.h
-2006-08-08 00:09:50.882912192 -0400
-@@ -180,6 +180,13 @@
-            DMI_MATCH(DMI_PRODUCT_NAME, "VGN-FS115B"),
-        },
-    },
-+   {
-+        .ident = "Amoi M636/A737",
-+        .matches = {
-+            DMI_MATCH(DMI_SYS_VENDOR, "Amoi Electronics CO.,LTD."),
-+            DMI_MATCH(DMI_PRODUCT_NAME, "M636/A737 platform"),
-+        },
-+    },
-    { }
- };
+Theuns
+KRN

@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWHHUsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWHHUvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbWHHUsP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 16:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWHHUsP
+	id S965029AbWHHUvn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 16:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWHHUvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 16:48:15 -0400
-Received: from mail.linicks.net ([217.204.244.146]:18827 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S965017AbWHHUsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 16:48:14 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Still get build warnings - gcc-3.4.6 - 2.6.17.8
-Date: Tue, 8 Aug 2006 21:48:11 +0100
-User-Agent: KMail/1.9.4
+	Tue, 8 Aug 2006 16:51:42 -0400
+Received: from mga09.intel.com ([134.134.136.24]:37292 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964986AbWHHUvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 16:51:42 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.07,222,1151910000"; 
+   d="scan'208"; a="105106127:sNHT44003568"
+Message-ID: <44D8F919.7000006@intel.com>
+Date: Tue, 08 Aug 2006 13:50:33 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Daniel Phillips <phillips@google.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: Re: [RFC][PATCH 3/9] e1000 driver conversion
+References: <20060808193325.1396.58813.sendpatchset@lappy> <20060808193355.1396.71047.sendpatchset@lappy>
+In-Reply-To: <20060808193355.1396.71047.sendpatchset@lappy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608082148.11433.nick@linicks.net>
+X-OriginalArrivalTime: 08 Aug 2006 20:51:37.0338 (UTC) FILETIME=[70E0E5A0:01C6BB2C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Peter Zijlstra wrote:
+> Update the driver to make use of the NETIF_F_MEMALLOC feature.
+> 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> Signed-off-by: Daniel Phillips <phillips@google.com>
+> 
+> ---
+>  drivers/net/e1000/e1000_main.c |   11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
+> 
+> Index: linux-2.6/drivers/net/e1000/e1000_main.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/net/e1000/e1000_main.c
+> +++ linux-2.6/drivers/net/e1000/e1000_main.c
+> @@ -4020,8 +4020,6 @@ e1000_alloc_rx_buffers(struct e1000_adap
+>  		 */
+>  		skb_reserve(skb, NET_IP_ALIGN);
+>  
+> -		skb->dev = netdev;
+> -
+>  		buffer_info->skb = skb;
+>  		buffer_info->length = adapter->rx_buffer_len;
+>  map_skb:
+> @@ -4135,8 +4136,6 @@ e1000_alloc_rx_buffers_ps(struct e1000_a
+>  		 */
+>  		skb_reserve(skb, NET_IP_ALIGN);
+>  
+> -		skb->dev = netdev;
+> -
+>  		buffer_info->skb = skb;
+>  		buffer_info->length = adapter->rx_ps_bsize0;
+>  		buffer_info->dma = pci_map_single(pdev, skb->data,
+> -
 
-I have had these warnings for ages:
+can we really delete these??
 
-kernel/power/pm.c:241: warning: `pm_register' is deprecated (declared at 
-kernel/power/pm.c:64)
-kernel/power/pm.c:241: warning: `pm_register' is deprecated (declared at 
-kernel/power/pm.c:64)
-kernel/power/pm.c:242: warning: `pm_unregister_all' is deprecated (declared at 
-kernel/power/pm.c:97)
-kernel/power/pm.c:242: warning: `pm_unregister_all' is deprecated (declared at 
-kernel/power/pm.c:97)
-kernel/power/pm.c:243: warning: `pm_send_all' is deprecated (declared at 
-kernel/power/pm.c:216)
-kernel/power/pm.c:243: warning: `pm_send_all' is deprecated (declared at 
-kernel/power/pm.c:216)
+Cheers,
 
-and I think at one time there was a fix about that I applied, but it seems it 
-never made it into kernel.org.
-
-Or is this my ggc problem?
-
-Thanks,
-
-Nick
--- 
-Every program has two purposes:
-one for which it was written and another for which it wasn't.
+Auke

@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWHHMsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWHHMtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWHHMsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHHMsW
+	id S964858AbWHHMtr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWHHMtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:48:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:194 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932432AbWHHMsV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:48:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [RFC] NUMA futex hashing
-Date: Tue, 8 Aug 2006 14:47:42 +0200
-User-Agent: KMail/1.9.3
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-References: <20060808070708.GA3931@localhost.localdomain> <200608081236.15823.ak@suse.de> <200608081429.44497.dada1@cosmosbay.com>
-In-Reply-To: <200608081429.44497.dada1@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 08:49:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33799 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964858AbWHHMtq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:49:46 -0400
+Date: Tue, 8 Aug 2006 12:46:56 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 11/12] hdaps: Stop polling timer when suspended
+Message-ID: <20060808124655.GI4540@ucw.cz>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <1154849307861-git-send-email-multinymous@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608081447.42587.ak@suse.de>
+In-Reply-To: <1154849307861-git-send-email-multinymous@gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 14:29, Eric Dumazet wrote:
-> On Tuesday 08 August 2006 12:36, Andi Kleen wrote:
-> > > We may have special case for PRIVATE futexes (they dont need to be
-> > > chained in a global table, but a process private table)
-> >
-> > What do you mean with PRIVATE futex?
-> >
-> > Even if the futex mapping is only visible by a single MM mmap_sem is still
-> > needed to protect against other threads doing mmap.
-> 
-> Hum... I would call that a user error.
-> 
-> If a thread is munmap()ing the vma that contains active futexes, result is 
-> undefined.
+Hi!
 
-We can't allow anything that could crash the kernel, corrupt a kernel,
-data structure, allow writing to freed memory etc.  No matter how
-defined it is or not. Working with a vma that doesn't have 
-an existence guarantee would be just that.
+> This patch stops the hdaps driver's polling timer when the module is 
+> suspended. Accessing a shut-down accelerometer is not harmful, but 
+> let's avoid it anyway.
+> 
+> Signed-off-by: Shem Multinymous <multinymous@gmail.com>
 
--Andi
+Looks ok.
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+-- 
+Thanks for all the (sleeping) penguins.

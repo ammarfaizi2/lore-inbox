@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWHHUfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWHHUiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWHHUfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 16:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWHHUfH
+	id S1030268AbWHHUiU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 16:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWHHUiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 16:35:07 -0400
-Received: from www.osadl.org ([213.239.205.134]:38795 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030299AbWHHUfF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 16:35:05 -0400
-Subject: Re: [PATCH] fix hrtimer percpu usage typo
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Jan Blunck <jblunck@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060807130729.GT4995@hasse.suse.de>
-References: <20060807130729.GT4995@hasse.suse.de>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 22:37:10 +0200
-Message-Id: <1155069430.5192.49.camel@localhost.localdomain>
+	Tue, 8 Aug 2006 16:38:20 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:26018 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030268AbWHHUiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 16:38:19 -0400
+Date: Tue, 8 Aug 2006 21:38:14 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, viro@zeniv.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mishin Dmitry <dim@openvz.org>
+Subject: Re: [PATCH] move IMMUTABLE|APPEND checks to notify_change()
+Message-ID: <20060808203814.GO29920@ftp.linux.org.uk>
+References: <44D87907.6090706@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D87907.6090706@sw.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 15:07 +0200, Jan Blunck wrote:
-
-Can you please inline patches ?
-
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-
-
-> From: Jan Blunck <jblunck@suse.de>
-> Subject: fix hrtimer percpu usage
+On Tue, Aug 08, 2006 at 03:44:07PM +0400, Kirill Korotaev wrote:
+> [PATCH] move IMMUTABLE|APPEND checks to notify_change()
 > 
-> The percpu variable is used incorrectly in switch_hrtimer_base().
-> 
-> Signed-off-by: Jan Blunck <jblunck@suse.de>
-> ---
->  kernel/hrtimer.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: linux-2.6/kernel/hrtimer.c
-> ===================================================================
-> --- linux-2.6.orig/kernel/hrtimer.c
-> +++ linux-2.6/kernel/hrtimer.c
-> @@ -187,7 +187,7 @@ switch_hrtimer_base(struct hrtimer *time
->  {
->         struct hrtimer_base *new_base;
->  
-> -       new_base = &__get_cpu_var(hrtimer_bases[base->index]);
-> +       new_base = &__get_cpu_var(hrtimer_bases)[base->index];
->  
->         if (base != new_base) {
->                 /*
-> 
-
+> This patch moves lots of IMMUTABLE and APPEND flag checks
+> scattered all around to more logical place in notify_change().
+ 
+NAK.  For example, you are allowed to do unames(file, NULL) on
+any file you own or can write to, whether it's append-only or
+not.  With your change that gets -EPERM.

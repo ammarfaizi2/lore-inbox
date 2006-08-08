@@ -1,81 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWHHQWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWHHQYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWHHQWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbWHHQWX
+	id S964913AbWHHQYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbWHHQYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:22:23 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:53907 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964956AbWHHQWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:22:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=egkbEGAYM3h9L65WpewaS7trXrz4CJTPzar4w4R6cBsuQjBcSj5SEMI7BpIqrhfnS1Gl+dvVSbaUAytHEcsYKEnFyfvEcxIoJeHe6iomSWE4nKV8gplAfidvdjGDlJgQfWFOpyFJwsdWcQLPoTJfMUZeHrIMFGun+UK+mk79pzw=  ;
-Message-ID: <44D8BA39.5020405@yahoo.com.au>
-Date: Wed, 09 Aug 2006 02:22:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@gmail.com>
-CC: Eric Dumazet <dada1@cosmosbay.com>, Andi Kleen <ak@suse.de>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] NUMA futex hashing
-References: <20060808070708.GA3931@localhost.localdomain>	 <200608081429.44497.dada1@cosmosbay.com>	 <200608081447.42587.ak@suse.de>	 <200608081457.11430.dada1@cosmosbay.com>	 <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>	 <44D8A9BE.3050607@yahoo.com.au> <a36005b50608080836u3e58ab85l61bb50b2bac5a0e3@mail.gmail.com>
-In-Reply-To: <a36005b50608080836u3e58ab85l61bb50b2bac5a0e3@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 12:24:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10957 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964913AbWHHQYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:24:25 -0400
+Date: Tue, 8 Aug 2006 17:24:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org
+Subject: Re: [PATCH 1/3] Kprobes: Make kprobe modules more portable
+Message-ID: <20060808162421.GA28647@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+	linux-kernel@vger.kernel.org, shemminger@osdl.org
+References: <20060807115537.GA15253@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060807115537.GA15253@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> On 8/8/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Mon, Aug 07, 2006 at 05:25:37PM +0530, Ananth N Mavinakayanahalli wrote:
+> From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 > 
->> Let me get this straight: to insert a contended futex into your rbtree,
->> you need to hold the mmap sem to ensure that address remains valid,
->> then you need to take a lock which protects your rbtree.
-> 
-> 
-> Why does it have to remain valid?  As long as the kernel doesn't crash
-> on any of the operations associated with the futex syscalls let the
-> address space region explode, implode, whatever.  It's  a bug in the
-> program if the address region is changed while a futex is placed
-> there.  If the futex syscall hangs forever or returns with a bogus
-> state (error or even success) this is perfectly acceptable.  We
+> This patch introduces KPROBE_ADDR, a macro that abstracts out the
+> architecture-specific artefacts of getting the correct text address
+> given a symbol. While we are at it, also introduce the symbol_name field
+> in struct kprobe to allow for users to just specify the address to be
+> probed in terms of the kernel symbol. In-kernel kprobes infrastructure
+> decodes the actual text address to probe. The symbol resolution happens
+> only if the kprobe.addr isn't explicitly specified.
 
-I thought mremap (no, that's already kind of messed up); or
-even just getting consistency in failures (eg. so you don't have
-the situation that a futex op can succeed on a previously
-unmapped region).
+This looks good.  A few issues are left:
 
-If you're not worried about the latter, then it might work...
+ - the KPROBE_ADDR macro is all uppercase and not exactly very descriptive.
+ - the symbol name variant should be the default, and no one outside
+   kprobes.c should know about the KPROBE_ADDR macro
+ - we should return EINVAL instead of silently discarding things if people
+   specify a symbol and an address.
+ - we should have and offset into the symbol specified
 
-I didn't initially click that the private futex API operates
-purely on tokens rather than virtual memory... comments in
-futex.c talk about futexes being hashed to a particular
-physical page (which is the case for shared). That's whacked.
+The updated patch below does that, aswell as updating the only inkernel
+kprobes user (tcp_probe.c) to the new interface (*) and removing the now
+obsolete kallsysms_lookup_name export.
 
-So actually you would change semantics in some weird corner
-cases, like mremaping a shared futex over a private futex's
-Arguably that's broken, though ;)
+(*) tcp_probe.c shows very well how horrible the old interface was, as it's
+    not portable to ppc64 as-is
 
-> shouldn't slow down correct uses just to make it possible for broken
-> programs to receive a more detailed error description.
-> 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-No we shouldn't slow them down. I'd be interested to see whether
-locking is significantly sped up with this new data structure,
-though.
-
-You might also slow down due to the fact that you'd have to do the
-locking and unconditionally traverse the private futexes even for
-shared futexes.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Index: linux-2.6/include/asm-powerpc/kprobes.h
+===================================================================
+--- linux-2.6.orig/include/asm-powerpc/kprobes.h	2006-08-08 17:47:22.000000000 +0200
++++ linux-2.6/include/asm-powerpc/kprobes.h	2006-08-08 18:13:57.000000000 +0200
+@@ -44,6 +44,9 @@
+ #define IS_TDI(instr)		(((instr) & 0xfc000000) == 0x08000000)
+ #define IS_TWI(instr)		(((instr) & 0xfc000000) == 0x0c000000)
+ 
++#define kprobe_lookup_name(name) \
++	(*((kprobe_opcode_t **)kallsyms_lookup_name(name)))
++
+ #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)((func_descr_t *)pentry)
+ 
+ #define is_trap(instr)	(IS_TW(instr) || IS_TD(instr) || \
+Index: linux-2.6/include/linux/kprobes.h
+===================================================================
+--- linux-2.6.orig/include/linux/kprobes.h	2006-08-08 17:47:22.000000000 +0200
++++ linux-2.6/include/linux/kprobes.h	2006-08-08 17:47:31.000000000 +0200
+@@ -77,6 +77,12 @@
+ 	/* location of the probe point */
+ 	kprobe_opcode_t *addr;
+ 
++	/* Allow user to indicate symbol name of the probe point */
++	char *symbol_name;
++
++	/* Offset into the symbol */
++	unsigned int offset;
++
+ 	/* Called before addr is executed. */
+ 	kprobe_pre_handler_t pre_handler;
+ 
+Index: linux-2.6/kernel/kprobes.c
+===================================================================
+--- linux-2.6.orig/kernel/kprobes.c	2006-08-08 17:47:22.000000000 +0200
++++ linux-2.6/kernel/kprobes.c	2006-08-08 17:47:31.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/moduleloader.h>
++#include <linux/kallsyms.h>
+ #include <asm-generic/sections.h>
+ #include <asm/cacheflush.h>
+ #include <asm/errno.h>
+@@ -45,6 +46,16 @@
+ #define KPROBE_HASH_BITS 6
+ #define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
+ 
++
++/*
++ * Some oddball architectures like 64bit powerpc have function descriptors
++ * so this must be overridable.
++ */
++#ifndef kprobe_lookup_name
++#define kprobe_lookup_name(name) \
++	((kprobe_opcode_t *)(kallsyms_lookup_name(name))
++#endif
++
+ static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
+ static struct hlist_head kretprobe_inst_table[KPROBE_TABLE_SIZE];
+ static atomic_t kprobe_count;
+@@ -447,6 +458,17 @@
+ 	struct kprobe *old_p;
+ 	struct module *probed_mod;
+ 
++	/*
++	 * If we have a symbol_name argument look it up,
++	 * and add it to the address.  That way the addr
++	 * field can either be global or relative to a symbol.
++	 */
++	if (p->symbol_name) {
++		if (p->addr)
++			return -EINVAL;
++		p->addr = kprobe_lookup_name(p->symbol_name) + p->offset;
++	}
++
+ 	if ((!kernel_text_address((unsigned long) p->addr)) ||
+ 		in_kprobes_functions((unsigned long) p->addr))
+ 		return -EINVAL;
+Index: linux-2.6/kernel/kallsyms.c
+===================================================================
+--- linux-2.6.orig/kernel/kallsyms.c	2006-08-08 17:13:14.000000000 +0200
++++ linux-2.6/kernel/kallsyms.c	2006-08-08 17:47:39.000000000 +0200
+@@ -154,7 +154,6 @@
+ 	}
+ 	return module_kallsyms_lookup_name(name);
+ }
+-EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
+ 
+ /*
+  * Lookup an address
+Index: linux-2.6/net/ipv4/tcp_probe.c
+===================================================================
+--- linux-2.6.orig/net/ipv4/tcp_probe.c	2006-08-08 18:13:55.000000000 +0200
++++ linux-2.6/net/ipv4/tcp_probe.c	2006-08-08 18:14:28.000000000 +0200
+@@ -99,8 +99,10 @@
+ }
+ 
+ static struct jprobe tcp_send_probe = {
+-	.kp = { .addr = (kprobe_opcode_t *) &tcp_sendmsg, },
+-	.entry = (kprobe_opcode_t *) &jtcp_sendmsg,
++	.kp = {
++		.symbol_name	= "tcp_sendmsg",
++	},
++	.entry	= JPROBE_ENTRY(jtcp_sendmsg),
+ };
+ 
+ 

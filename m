@@ -1,61 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWHHJAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWHHJBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWHHJAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 05:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWHHJAY
+	id S932560AbWHHJBV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 05:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWHHJBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 05:00:24 -0400
-Received: from smtp.hickorytech.net ([216.114.192.16]:41634 "EHLO
-	avalanche.hickorytech.net") by vger.kernel.org with ESMTP
-	id S932551AbWHHJAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 05:00:23 -0400
-Message-ID: <44D852A5.3080008@mnsu.edu>
-Date: Tue, 08 Aug 2006 04:00:21 -0500
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-Cc: Manuel Reimer <Manuel.Spam@nurfuerspam.de>, linux-kernel@vger.kernel.org
-Subject: Re: Is XFS trustworthy in the latest 2.6.16
-References: <eb9epf$dse$1@sea.gmane.org> <20060808185017.A2528231@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060808185017.A2528231@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 05:01:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9442 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932560AbWHHJBU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 05:01:20 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060807155044.a8eee456.rdunlap@xenotime.net> 
+References: <20060807155044.a8eee456.rdunlap@xenotime.net>  <20060807154750.5a268055.rdunlap@xenotime.net> 
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       dhowells@redhat.com
+Subject: Re: [PATCH -mm 2/5] cachefiles: printk format warning 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 08 Aug 2006 10:01:12 +0100
+Message-ID: <17685.1155027672@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
-> On Tue, Aug 08, 2006 at 09:34:48AM +0200, Manuel Reimer wrote:
->   
->> Hello,
->>
->> could someone please tell me if XFS is trustworthy in the latest 2.6.16? 
->> There have been some bugs:
->>
->> http://bugzilla.kernel.org/show_bug.cgi?id=6380
->> http://bugzilla.kernel.org/show_bug.cgi?id=6757
->>     
->
-> These are the same problem.  2.6.16 is unaffected.
->
->   
->> want a stable kernel and 2.6.16 seems to fit all my needs.
->>     
->
-> For XFS, its goodness.  2.6.18 will be good too, and 2.6.17.7+.
->
-> cheers.
->
->   
+Randy.Dunlap <rdunlap@xenotime.net> wrote:
 
-If you have run 2.6.17 to 2.6.17.6 or early 2.6.18-rc? however; please 
-run a xfs_repair v.2.6.10; because the corruption may/will have already 
-taken place and a silent time bomb may be waiting.  Three machines 
-already died with symptom of the corruption on kernels that no longer 
-have the problem.
+> Fix printk format warning(s):
+> fs/cachefiles/cf-proc.c:247: warning: int format, different type arg (arg 4)
 
--- 
-Jeffrey Hundstad
+Applied, thanks.
 
-
-
+David

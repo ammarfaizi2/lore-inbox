@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWHHMA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWHHMCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWHHMA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWHHMA6
+	id S932117AbWHHMCe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWHHMCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:00:58 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:463 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1750847AbWHHMA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:00:57 -0400
-To: Nathan Scott <nathans@sgi.com>, David Chinner <dgc@sgi.com>
-Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Fix i_state of inode is changed after the inode is freed
-Message-Id: <20060808210026m-saito@mail.aom.tnes.nec.co.jp>
-Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Date: Tue, 8 Aug 2006 21:00:26 +0900
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Aug 2006 08:02:34 -0400
+Received: from mail.suse.de ([195.135.220.2]:21898 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932117AbWHHMCd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:02:33 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Alexey Zaytsev" <alexey.zaytsev@gmail.com>
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+Date: Tue, 8 Aug 2006 14:02:27 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com> <p73y7tzo4hl.fsf@verdi.suse.de> <f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com>
+In-Reply-To: <f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200608081402.27665.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix i_state of the inode is changed after the inode is freed.
+On Tuesday 08 August 2006 13:47, Alexey Zaytsev wrote:
+> On 08 Aug 2006 13:23:50 +0200, Andi Kleen <ak@suse.de> wrote:
+> > "Alexey Zaytsev" <alexey.zaytsev@gmail.com> writes:
+> >
+> > > Hello, list.
+> > >
+> > > What are the objections to makeing lkml and other lists at vget
+> > > subscribers-only?
+> >
+> > You would make bug reports impossible from normal people who
+> > don't want to subscribe fully. It would totally wreck the
+> > development model.
+> If they don't want to subscribe, they can just report to the list as
+> usual, theyr mail will be only slightly delayed because of moderation.
+> We could even use some sort of white lists, if a user's mail was once
+> approved, all his further mail will be accepthed without moderation.
 
-Signed-off-by: Masayuki Saito <m-saito@tnes.nec.co.jp>
----
+That would apply to all of my email - and I send a lot.  I'm not actually
+subscribed but read it through a newsgroup.
 
---- linux-2.6.17.7/fs/xfs/xfs_inode.c.orig	2006-08-01 14:20:00.903511531 +0900
-+++ linux-2.6.17.7/fs/xfs/xfs_inode.c	2006-08-01 14:14:39.588213059 +0900
-@@ -2736,6 +2736,8 @@ void
- xfs_iunpin(
- 	xfs_inode_t	*ip)
- {
-+	int need_unlock;
-+
- 	ASSERT(atomic_read(&ip->i_pincount) > 0);
- 
- 	if (atomic_dec_and_test(&ip->i_pincount)) {
-@@ -2751,6 +2753,8 @@ xfs_iunpin(
- 		 * call as the inode reclaim may be blocked waiting for
- 		 * the inode to become unpinned.
- 		 */
-+		need_unlock = 1;
-+		spin_lock(&ip->i_flags_lock);
- 		if (!(ip->i_flags & (XFS_IRECLAIM|XFS_IRECLAIMABLE))) {
- 			vnode_t	*vp = XFS_ITOV_NULL(ip);
- 
-@@ -2758,10 +2762,22 @@ xfs_iunpin(
- 			if (vp) {
- 				struct inode	*inode = vn_to_inode(vp);
- 
--				if (!(inode->i_state & I_NEW))
--					mark_inode_dirty_sync(inode);
-+				if (!(inode->i_state &
-+						(I_NEW|I_FREEING|I_CLEAR))) {
-+					inode = igrab(inode);
-+					if (inode != NULL) {
-+						mark_inode_dirty_sync(inode);
-+						spin_unlock(&ip->i_flags_lock);
-+						need_unlock = 0;
-+						iput(inode);
-+					}
-+				}
- 			}
- 		}
-+		if (need_unlock) {
-+			spin_unlock(&ip->i_flags_lock);
-+			need_unlock = 0;
-+		}
- 		wake_up(&ip->i_ipin_wait);
- 	}
- }
+Also I don't think it's practical because of the volume and the turnaround
+time and there isn't really that much spam on l-k anyways.
 
+-Andi

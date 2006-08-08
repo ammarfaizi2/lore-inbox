@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWHHHRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWHHHTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbWHHHRH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 03:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWHHHRG
+	id S932089AbWHHHTb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 03:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWHHHTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 03:17:06 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:48506 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932509AbWHHHRF (ORCPT
+	Tue, 8 Aug 2006 03:19:31 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:57478 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932089AbWHHHTa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 03:17:05 -0400
-Message-ID: <44D83A7D.80600@sw.ru>
-Date: Tue, 08 Aug 2006 11:17:17 +0400
+	Tue, 8 Aug 2006 03:19:30 -0400
+Message-ID: <44D83B0C.3080908@sw.ru>
+Date: Tue, 08 Aug 2006 11:19:40 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
 To: rohitseth@google.com
-CC: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
-       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
-       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
-Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management -	A	cpu
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, vatsa@in.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, nickpiggin@yahoo.com.au, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+       haveblue@us.ibm.com, pj@sgi.com, Andrey Savochkin <saw@sw.ru>
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management - A	cpu
  controller
-References: <20060804050753.GD27194@in.ibm.com>	 <20060803223650.423f2e6a.akpm@osdl.org>	 <20060803224253.49068b98.akpm@osdl.org>	 <1154684950.23655.178.camel@localhost.localdomain>	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>	 <20060804153123.GB32412@in.ibm.com>  <44D36FB5.3050002@sw.ru>	 <1154716024.7228.32.camel@galaxy.corp.google.com>  <44D6E98C.9090208@sw.ru> <1154970846.31962.17.camel@galaxy.corp.google.com>
-In-Reply-To: <1154970846.31962.17.camel@galaxy.corp.google.com>
+References: <20060804050753.GD27194@in.ibm.com>	 <20060803223650.423f2e6a.akpm@osdl.org>	 <20060803224253.49068b98.akpm@osdl.org>	 <1154684950.23655.178.camel@localhost.localdomain>	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>	 <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>	 <44D74F77.7080000@mbligh.org>  <44D76B43.5080507@sw.ru> <1154975486.31962.40.camel@galaxy.corp.google.com>
+In-Reply-To: <1154975486.31962.40.camel@galaxy.corp.google.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>>Doesnt the ability to move tasks between groups dynamically affect
->>>>>(atleast) memory controller design (in giving up ownership etc)?
->>>>
->>>>we save object owner on the object. So if you change the container,
->>>>objects are still correctly charged to the creator and are uncharged
->>>>correctly on free.
->>>>
->>>
->>>
->>>Seems like the object owner should also change when the object moves
->>>from one container to another.
-> 
-> 
->>Consider a file which is opened in 2 processes. one of the processes
->>wants to move to another container then. How would you decide whether
->>to change the file owner or not?
+>>you come across your limit and new allocations will fail.
+>>BUT! IMPORTANT!
+>>in real life use case with OpenVZ we allow sharing not that much data across containers:
+>>vmas mapped as private, i.e. glibc and other libraries .data section
+>>(and .code if it is writable). So if you use the same glibc and other executables
+>>in the containers then your are charged only a fraction of phys memory used by it.
+>>This kind of sharing is not that huge (<< memory limits usually),
+>>so the situation you described is not a problem
+>>in real life (at least for OpenVZ).
 >>
 > 
 > 
-> If a process has sufficient rights to move a file to a new container
-> then it should be okay to assign the file to the new container.  
-there is no such notion as  "rights to move a file to a new container".
-The same file can be opened in processes belonging to other containers.
-And you have no any clue whether to have to change the owner or not.
-
-> Though the point is, if a resource (like file) is getting migrated to a
-> new container then all the attributes (like owner, #pages in memory
-> etc.) attached to that resource (file) should also migrate to this new
-> container.  Otherwise the semantics of where does the resource belong
-> becomes very difficult.
-The same for many other resources. It is a big mistake thinking that most resources
-belong to the processes and the owner process can be easily determined.
-
-> And if you really want a resource to not be able to migrate from one
-> container then we could define IMMUTABLE flag to indicate that behavior.
-I hope not that one used in ext[23]? :)
+> I think it is not a problem for OpenVZ because there is not that much of
+> sharing going between containers as you mentioned (btw, this least
+> amount of sharing is a very good thing).  Though I'm not sure if one has
+> to go to the extent of doing fractions with memory accounting.  If the
+> containers are set up in such a way that there is some sharing across
+> containers then it is okay to be unfair and charge one of those
+> containers for the specific resource completely.
+In this case you can't plan your resources, can't say which one consumes
+more memory and can't select the worst container to kill and many other drawbacks.
 
 Kirill
 

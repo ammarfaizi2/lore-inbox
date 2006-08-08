@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWHHXcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWHHXbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbWHHXcf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 19:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWHHXce
+	id S965072AbWHHXbu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 19:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWHHXbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 19:32:34 -0400
-Received: from cantor.suse.de ([195.135.220.2]:27031 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965074AbWHHXcb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 19:32:31 -0400
-From: Neil Brown <neilb@suse.de>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Date: Wed, 9 Aug 2006 08:30:42 +1000
+	Tue, 8 Aug 2006 19:31:50 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:28626 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965072AbWHHXbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 19:31:49 -0400
+Date: Tue, 8 Aug 2006 19:31:30 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Nigel Cunningham <nigel@suspend2.net>
+cc: LKML <linux-kernel@vger.kernel.org>, Suspend2-devel@lists.suspend2.net,
+       linux-pm@osdl.org, pavel@suse.cz
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+In-Reply-To: <200608090750.40111.nigel@suspend2.net>
+Message-ID: <Pine.LNX.4.58.0608081831580.18586@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
+ <200608090750.40111.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17625.4242.910985.97868@cse.unsw.edu.au>
-Cc: Alexandre Oliva <aoliva@redhat.com>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: modifying degraded raid 1 then re-adding other members is bad
-In-Reply-To: message from Michael Tokarev on Tuesday August 8
-References: <or8xlztvn8.fsf@redhat.com>
-	<17624.29070.246605.213021@cse.unsw.edu.au>
-	<44D8732C.2060207@tls.msk.ru>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday August 8, mjt@tls.msk.ru wrote:
-> 
-> Why we're updating it BACKWARD in the first place?
-> 
 
-To avoid writing to spares when it isn't needed - some people want
-their spare drives to go to sleep.
+On Wed, 9 Aug 2006, Nigel Cunningham wrote:
 
-If we increment the event count without writing to the spares, the
-spares quickly get left behind and won't be included next time the
-array is assembled.
-So on superblock updates that are purely for setting/clearing the
-'dirty' bit, we rock back and forward between X and X+1, while leaving
-the spares with 'X'.  A difference of 1 isn't enough to leave a drive
-out of an array, so the spares stay part of the array.
-The 'X is clean, the X+1 is dirty, so if there is any inconsistency
-at startup, the 'dirty' will win, which is proper.
+>
+> The problem will be ACPI related, not particular to swsusp or Suspend2, which
+> is why you're seeing it with both implementations. I would suggest that you
+> contact the ACPI guys, and also look to see whether there is a bios update
+> available and/or a DSDT override for your machine. The later will help if the
+> problem is with your particular machine's ACPI support, the former if it's a
+> more general ACPI issue.
+>
 
-Any other superblock change like drives failing or being added cause a
-normal forward change of 'events' and spares get written to as well.
+Thanks for the response Nigel,
 
+There does exist a recent bios update for this machine:
 
-> Also, why, when we adding something to the array, the event counter is
-> checked -- should it resync regardless?
+http://www-307.ibm.com/pc/support/site.wss/document.do?sitestyle=lenovo&lndocid=MIGR-58127
 
-If we know it to be in sync, why should we resync it?
+Hmm, it requires windows, and I've already wiped out that partition.  I
+did a search but it seems really scary to update the BIOS via Linux.
 
-This is part of a longer term strategy to plan nicely with hotplug.
+Anyone else out there have a Thinkpad G41 and has successfully upgraded
+their BIOS?
 
-What I would like is that whenever hotplug finds a device, the hotplug
-system can call
-   mdadm --hot-plug-this-new-drive-somewhere-useful /dev/newdisk
+Thanks,
 
-(or something like that) and the drive will be added to an appropriate
-array (if there is one).
+-- Steve
 
-So now you have the question: when do you actually activate an array?
-Do I wait until there are just enough drives to start it degraded or
-do I wait until all drives are present?
-The later might never happen.  The former might cause lots of
-unnecessary resync.
-
-With the above feature (hot add of a current drive doesn't cause a
-resync) then I can activate the array as soon as there are enough
-drive for it to work at all.  It can then be read from even though it
-isn't complete.
-Once the first write happens we commit to the current layout and a new
-drive will have to be resynced.  but if the array becomes complete
-before the first write, no resync will be needed.
-
-Hope that makes it a bit clearer.
-
-NeilBrown

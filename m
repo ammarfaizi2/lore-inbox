@@ -1,30 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWHHCsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWHHCtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWHHCsE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 22:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWHHCsE
+	id S1751215AbWHHCtO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 22:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWHHCtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 22:48:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62088 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751214AbWHHCsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 22:48:03 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de
-Subject: 2.6.18-rc4 warning on arch/x86_64/boot/compressed/head.o
+	Mon, 7 Aug 2006 22:49:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37079 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751215AbWHHCtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 22:49:13 -0400
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060807194159.f7c741b5.akpm@osdl.org>
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	 <m1slk89ozd.fsf@ebiederm.dsl.xmission.com>
+	 <20060807165512.dabefb63.akpm@osdl.org> <200608080417.59462.ak@suse.de>
+	 <20060807194159.f7c741b5.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 08 Aug 2006 04:47:49 +0200
+Message-Id: <1155005284.3042.11.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Aug 2006 12:47:48 +1000
-Message-ID: <7161.1155005268@kao2.melbourne.sgi.com>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling 2.6.18-rc4 on x86_64 gets this warning.
+On Mon, 2006-08-07 at 19:41 -0700, Andrew Morton wrote:
+> On Tue, 8 Aug 2006 04:17:59 +0200
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > 
+> > > 
+> > > And it's a pretty nasty one because it can get people into the situation
+> > > where the kernel worked fine for those who released it, but users who
+> > > happen to load more modules (or the right combination of them) will
+> > > experience per-cpu memory exhaustion.
+> > 
+> > Yes, and a high value will waste a lot of memory for normal users.
+> >  
+> > > So shouldn't we being scaling the per-cpu memory as well?
+> > 
+> > If we move it into vmalloc space it would be easy to extend at runtime - just the
+> > virtual address space would need to be prereserved, but then more pages
+> > could be mapped. Maybe we should just do that instead of continuing to kludge around?
+> 
+> Sounds sane.
+> 
+> otoh, we need something for 2.6.19.
+> 
+> > Drawback would be some more TLB misses.
+> 
+> yup.  On some (important) architectures - I'm not sure which architectures
+> do the bigpage-for-kernel trick.
 
-  gcc -Wp,-MD,arch/x86_64/boot/compressed/.head.o.d  -nostdinc -isystem /usr/lib64/gcc/x86_64-suse-linux/4.1.0/include -D__KERNEL__ -Iinclude -Iinclude2 -I$KBUILD_OUTPUT/linux/include -include include/linux/autoconf.h -D__ASSEMBLY__ -m64 -traditional -m32  -c -o arch/x86_64/boot/compressed/head.o $KBUILD_OUTPUT/linux/arch/x86_64/boot/compressed/head.S
-  ld -m elf_i386  -Ttext 0x100000 -e startup_32 -m elf_i386 arch/x86_64/boot/compressed/head.o arch/x86_64/boot/compressed/misc.o arch/x86_64/boot/compressed/piggy.o -o arch/x86_64/boot/compressed/vmlinux 
-ld: warning: i386:x86-64 architecture of input file `arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
+also most of the architectures that do bigpage-for-kernel stuff only
+have a very limited number of tlb entries for bigpages (usually 2 to 4)
+while they have many more entries for normal pages.. so it's not
+automatically worse (now if these data structures are close to the
+kernel text or so.. then yes there's sharing. but with the sorting of
+kernel text that's a lot less true already)
+
 
 

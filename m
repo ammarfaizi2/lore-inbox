@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWHHNNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWHHNR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWHHNNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 09:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHHNNv
+	id S932491AbWHHNR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 09:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWHHNR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 09:13:51 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:2955 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932458AbWHHNNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 09:13:50 -0400
-Date: Tue, 8 Aug 2006 09:13:10 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: David Miller <davem@davemloft.net>
-cc: tytso@mit.edu, mchan@broadcom.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       tglx@linutronix.de, mingo@elte.hu
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-In-Reply-To: <Pine.LNX.4.58.0608080819080.7917@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0608080859330.9872@gandalf.stny.rr.com>
-References: <20060803.144845.66061203.davem@davemloft.net>
- <20060803235326.GC7894@thunk.org> <Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
- <20060806.231846.71090637.davem@davemloft.net> <Pine.LNX.4.58.0608080819080.7917@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Aug 2006 09:17:29 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:18270 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932491AbWHHNR2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 09:17:28 -0400
+Date: Tue, 8 Aug 2006 16:17:24 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
+       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Message-ID: <20060808131724.GE5497@rhun.haifa.ibm.com>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492543835-git-send-email-multinymous@gmail.com> <20060807140721.GH4032@ucw.cz> <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com> <20060807182047.GC26224@atjola.homenet> <20060808122234.GD5497@rhun.haifa.ibm.com> <20060808125652.GA5284@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060808125652.GA5284@ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 08, 2006 at 12:56:52PM +0000, Pavel Machek wrote:
 
-On Tue, 8 Aug 2006, Steven Rostedt wrote:
+> > > 	ret = thinkpad_ec_lock();
+> > > 	if (ret)
+> > > 		return ret;
+> > 
+> > Just in case someone was going to cut and paste, this will return with
+> > the ec_lock taken.
+> 
+> Well, taking lock failed (hence error return) so I think code is
+> correct.
 
->
-> On Sun, 6 Aug 2006, David Miller wrote:
->
-> > From: Steven Rostedt <rostedt@goodmis.org>
-> > Date: Mon, 7 Aug 2006 01:34:56 -0400 (EDT)
-> >
-> > > My suggestion would be to separate that tg3_timer into 4 different
-> > > timers, which is what it actually looks like.
-> >
-> > Timers have non-trivial cost.  It's cheaper to have one and
-> > vector off to the necessary operations each tick internalls.
-> >
-> > That's why it's implemented as one timer.
-> >
->
-> hrtimers don't have the cost of a normal timer. And that's why I suggested
-> to convert them.  There's a much bigger cost in a single timer that always
-> times out than 3 hrtimers.  hrtimers are expected to timeout, but timers
-> are not.
->
-> Of the 4 timers, only one is a timeout. The other three expire every time,
-> forcing the timer wheel into effect.  Even though it's one timer
-> implementing 4, it's expensive to use it as a watchdog.
+Ugh, I missed that - it's called _lock(), but it's actually
+down_interruptible(). Why not just get rid of the wrapper and call
+down_interruptible() directly? That makes it obvious what's going on.
 
-I just got a chance to look a little more deeper at what the tg3 timer is
-doing, and I was wrong.  The timeout is not a timeout but some messing
-around when the network card doesn't use tagged status (whatever that is).
-Which just pushes the point that this should _not_ be a timer, but a
-hrtimer (expected to expire).
-
-So you can keep this as one timer, but I would still switch it to a
-hrtimer regardless, since it is expected to timeout.  (maybe separate out
-the ASF if that still needs to be special?).
-
-Ted,
-
-I don't know what the max latency of that timer is, (I'm sure it wouldn't
-be too hard to measuer, just add some timings around the timer handler,
-let it run for a while and keep account of the max time).  But, since the
-user that opens this network card is the one that initializes the timer,
-if you simply switch the timer to be a hrtimer (that should also go in
-mainline) and then have a really high prio task start up the network, that
-timer would then run at the prio of the task that started the network.
-
-
--- Steve
-
+Cheers,
+Muil

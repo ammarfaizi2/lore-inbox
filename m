@@ -1,105 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWHHUEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWHHUO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbWHHUEg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 16:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWHHUEg
+	id S1030292AbWHHUO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 16:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWHHUO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 16:04:36 -0400
-Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:28964 "EHLO
-	outbound2-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1030288AbWHHUEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 16:04:35 -0400
-X-BigFish: VP
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Tue, 8 Aug 2006 14:04:34 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-acpi@vger.kernel.org
-cc: linux-kernel@vger.kernel.org, william.morrow@amd.com
-Subject: [RFC/PATCH] ACPI:  Correctly recover from a failed S3 attempt
-Message-ID: <20060808200434.GJ14539@cosmic.amd.com>
+	Tue, 8 Aug 2006 16:14:56 -0400
+Received: from mga03.intel.com ([143.182.124.21]:43120 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1030287AbWHHUOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 16:14:55 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.07,222,1151910000"; 
+   d="scan'208"; a="100455830:sNHT23060086"
+Message-ID: <44D8F074.8060001@intel.com>
+Date: Tue, 08 Aug 2006 13:13:40 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 08 Aug 2006 20:02:33.0680 (UTC)
- FILETIME=[96525500:01C6BB25]
-X-WSS-ID: 68C632530Y81541035-01-01
-Content-Type: multipart/mixed;
- boundary=vGgW1X5XWziG23Ko
-Content-Disposition: inline
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Daniel Phillips <phillips@google.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: Re: [RFC][PATCH 4/9] e100 driver conversion
+References: <20060808193325.1396.58813.sendpatchset@lappy> <20060808193405.1396.14701.sendpatchset@lappy>
+In-Reply-To: <20060808193405.1396.14701.sendpatchset@lappy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Aug 2006 20:14:46.0096 (UTC) FILETIME=[4AE02500:01C6BB27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Zijlstra wrote:
+> Update the driver to make use of the netdev_alloc_skb() API and the
+> NETIF_F_MEMALLOC feature.
 
---vGgW1X5XWziG23Ko
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+this should be done in two separate patches. I should take care of the netdev_alloc_skb()
+part too for e100 (which I've already queued internally), also since ixgb still needs it.
 
-We have a poorly behaving BIOS that simply returns from its suspend
-procedure, rather then jumping to the restart routine indicated by
-the FACS.  This appears to Linux as a failed S3 attempt.
+do you have any plans to visit ixgb for this change too?
 
-This would normally succeed, but the sysenter msrs are not
-restored and the restart fails.  It is not clear if this is the only
-omission, but if the sysenter msrs are manually entered in the debugger, 
-the OS resumes.
+Cheers,
 
-The attached patch would invoke the register restore function on failure.
-This has absolutely no effect on correct systems, and, "does the right thing"
-for failed or stupid BIOSes, at least as far as I am concerned.
-
-Comments?
-Jordan
-
--- 
-Jordan Crouse
-Senior Linux Engineer
-Advanced Micro Devices, Inc.
-<www.amd.com/embeddedprocessors>
-
---vGgW1X5XWziG23Ko
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline;
- filename=acpi-s3-fix.patch
-Content-Transfer-Encoding: 7bit
-
-[PATCH] ACPI:  Correctly recover from a failed S3 attempt
-
-From: William Morrrow <william.morrow@amd.com>
-
-This was discovered on a broken BIOS that simply returned from its 
-suspend procedure, appearing to the OS as a failed S3 attempt. 
-
-It is possible to invoke the protected mode register restore routine (which
-would normally restore the sysenter registers) when the bios returns from S3. 
-This has no effect on a correctly running system and repairs the damage
-from broken BIOS.
-
-Signed-off-by: William Morrow <william.morrow@amd.com>
-Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
----
-
- arch/i386/kernel/acpi/wakeup.S |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
-
-diff --git a/arch/i386/kernel/acpi/wakeup.S b/arch/i386/kernel/acpi/wakeup.S
-index 9f408ee..b781b38 100644
---- a/arch/i386/kernel/acpi/wakeup.S
-+++ b/arch/i386/kernel/acpi/wakeup.S
-@@ -292,7 +292,10 @@ ENTRY(do_suspend_lowlevel)
- 	pushl	$3
- 	call	acpi_enter_sleep_state
- 	addl	$4, %esp
--	ret
-+
-+#	In case of S3 failure, we'll emerge here.  Jump
-+# 	to ret_point to recover
-+	jmp	ret_point
- 	.p2align 4,,7
- ret_point:
- 	call	restore_registers
-
---vGgW1X5XWziG23Ko--
+Auke
 
 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> Signed-off-by: Daniel Phillips <phillips@google.com>
+> 
+> ---
+>  drivers/net/e100.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> Index: linux-2.6/drivers/net/e100.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/net/e100.c
+> +++ linux-2.6/drivers/net/e100.c
+> @@ -1763,7 +1763,7 @@ static inline void e100_start_receiver(s
+>  #define RFD_BUF_LEN (sizeof(struct rfd) + VLAN_ETH_FRAME_LEN)
+>  static int e100_rx_alloc_skb(struct nic *nic, struct rx *rx)
+>  {
+> -	if(!(rx->skb = dev_alloc_skb(RFD_BUF_LEN + NET_IP_ALIGN)))
+> +	if(!(rx->skb = netdev_alloc_skb(nic->netdev, RFD_BUF_LEN + NET_IP_ALIGN)))
+>  		return -ENOMEM;
+>  
+>  	/* Align, init, and map the RFD. */
+> @@ -2143,7 +2143,7 @@ static int e100_loopback_test(struct nic
+>  
+>  	e100_start_receiver(nic, NULL);
+>  
+> -	if(!(skb = dev_alloc_skb(ETH_DATA_LEN))) {
+> +	if(!(skb = netdev_alloc_skb(nic->netdev, ETH_DATA_LEN))) {
+>  		err = -ENOMEM;
+>  		goto err_loopback_none;
+>  	}
+> @@ -2573,6 +2573,7 @@ static int __devinit e100_probe(struct p
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>  	netdev->poll_controller = e100_netpoll;
+>  #endif
+> +	netdev->features |= NETIF_F_MEMALLOC;
+>  	strcpy(netdev->name, pci_name(pdev));
+>  
+>  	nic = netdev_priv(netdev);
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

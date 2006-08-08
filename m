@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWHHFKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWHHFNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWHHFKI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 01:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWHHFKI
+	id S1751237AbWHHFNP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 01:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWHHFNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 01:10:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:8655 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750829AbWHHFKG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 01:10:06 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17624.7310.856480.704542@cargo.ozlabs.ibm.com>
-Date: Tue, 8 Aug 2006 15:09:34 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+	Tue, 8 Aug 2006 01:13:15 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:37935 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751237AbWHHFNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 01:13:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=R2vJhVHqPdr1g5ut49touDe/hFsecY1IL9bt9kU4YlNkiFH9qzmAFzlHtH4/KM6i3Fyif+B/9aoy4XfIfOFNXRfAPb20kw0yfQDjb0oSlYRD2OWTpwsmf6KMXDaYHxETzHbTkjoBh/40Z4oeVMx8/ZqwUO0f8wFDYuKV6Q9F4b4=
+Message-ID: <292693080608072213n2be75176g46199e92d669f5de@mail.gmail.com>
+Date: Tue, 8 Aug 2006 10:43:13 +0530
+From: "Daniel Rodrick" <daniel.rodrick@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
+Cc: "Linux Newbie" <linux-newbie@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>, linux-net@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-In-Reply-To: <20060807194159.f7c741b5.akpm@osdl.org>
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	<m1slk89ozd.fsf@ebiederm.dsl.xmission.com>
-	<20060807165512.dabefb63.akpm@osdl.org>
-	<200608080417.59462.ak@suse.de>
-	<20060807194159.f7c741b5.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+In-Reply-To: <44D76F26.9@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com>
+	 <44D7579D.1040303@zytor.com>
+	 <292693080608070911g57ae1215qd994e03b9dd87b66@mail.gmail.com>
+	 <44D76F26.9@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+> >
+> > I'm sure having a single driver for all the NICs is a feature cool
+> > enough to die for. Yes, it might have drawbacks like just pointed out
+> > by Peter, but surely a "single driver for all NIC" feature could prove
+> > to be great in some systems.
+> >
+>
+> Assuming it works, which is questionable in my opinion.
+>
+> > But since it does not already exist in the kernel, there must be some
+> > technical feasibility isse. Any ideas on this?
+>
+> No, that's not the reason.  The Intel code was ugly, and the limitations
+> made other people not want to spend any time hacking on it.
+>
 
-> > Drawback would be some more TLB misses.
-> 
-> yup.  On some (important) architectures - I'm not sure which architectures
-> do the bigpage-for-kernel trick.
+Hi ... so there seem to be no technical feasibily issues, just
+reliabliy / ugly design issues? So one can still go ahead and write a
+Universal Protocol Driver that can work with all (PXE compatible)
+NICs?
 
-I looked at optimizing the per-cpu data accessors on PowerPC and only
-ever saw fractions of a percent change in overall performance, which
-says to me that we don't actually use per-cpu data all that much.  So
-unless you make per-cpu data really really slow, I doubt that we'll
-see any significant performance difference.
+Are there any issues related to real mode / protected mode?
 
-Paul.
+Thanks,
+
+Dan

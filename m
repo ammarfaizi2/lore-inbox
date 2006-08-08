@@ -1,125 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWHHWLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWHHWOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbWHHWLk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 18:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWHHWLk
+	id S1030316AbWHHWOM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 18:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWHHWOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 18:11:40 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:46144 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964984AbWHHWLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 18:11:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ivhat8dhUEmWCdCQMc0vmyBHsNd9h9cGmPatH+juEUQTwzji4Z2Cu/X2lbfeTPzeRL20zy9eOfnD7zEdrTQSeoM9n5ZmCX8ks4uRIIZsansUr77f3yTEVGPNioi9MVwOwHcySxhkMZqsl/26rIbf+CXY8BV7EMbDFSMTjFjfb+A=
-Message-ID: <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
-Date: Wed, 9 Aug 2006 00:11:38 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
-Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
-       "Jan Beulich" <jbeulich@novell.com>
-In-Reply-To: <20060808143751.42f8d87c.akpm@osdl.org>
+	Tue, 8 Aug 2006 18:14:12 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:60301 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030315AbWHHWOK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 18:14:10 -0400
+Message-ID: <44D90CA9.1040807@pobox.com>
+Date: Tue, 08 Aug 2006 18:14:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
+To: Michael Buesch <mb@bu3sch.de>
+CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       linville@tuxdriver.com
+Subject: Re: [RFC: -mm patch] bcm43xx_main.c: remove 3 functions
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060807210415.GO3691@stusta.de> <200608082032.38365.mb@bu3sch.de>
+In-Reply-To: <200608082032.38365.mb@bu3sch.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
-	 <6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
-	 <20060808140511.def9b13c.akpm@osdl.org>
-	 <6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
-	 <20060808143751.42f8d87c.akpm@osdl.org>
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Tue, 8 Aug 2006 23:19:09 +0200
-> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->
-> > >  You
-> > > can look these things up in gdb or using addr2line, provided you have
-> > > CONFIG_DEBUG_INFO=y.
-> > >
-> > >
-> >
-> > (gdb) list *0xc047d609
-> > 0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
-> > 572             cpuset_init_early();
-> > 573             mem_init();
-> > 574             kmem_cache_init();
-> > 575             setup_per_cpu_pageset();
-> > 576             numa_policy_init();
-> > 577             if (late_time_init)
-> > 578                     late_time_init();
-> > 579             calibrate_delay();
-> > 580             pidmap_init();
-> > 581             pgtable_cache_init();
->
-> hm.
->
-> - Try to get the full oops record,
+Michael Buesch wrote:
+> On Monday 07 August 2006 23:04, Adrian Bunk wrote:
+>> This patch removes three no longer used functions (that are even 
+>> generating gcc warnings).
+>>
+>> This patch doesn't look right, but it is the result of 
+>> 58e5528ee464d38040b9489e10033c9387a10d56 in git-netdev...
+> 
+> Hm, can't find that commit in a tree.
+> I looked at linus', netdev-2.6.
 
-BUG: unable to handle kernel paging request at virtual address 01020304
-printing eip:
-c041b95c
-*pde= 00000000
-Oops: 0000 [#1]
-4K_STACK PREEMPT SMP
-last sysfs file:
-Modules linked in:
-CPU 0
-EIP: 0060: [<c041b95c>] Not tainted VLI
-EFLAGS: 00010202
-EIP is at kmem_cache_init+0x389/0x3f0
-[..]
-Call Trace:
-[<c0104063>] show_stack_log_lvl+0x8c/0x97
-[<c010422b>] show_registers+0x181/0x215
-[<c0104481>] die+0x1c2/0x2dd
-[<c0117419>] do_page_fault+0x410/0x4f3
-[<c02f40a1>] error_code+0x39/0x40
-[<c040b604>] start_kernel+0x21f/0x39d
-[<c0100210>] 0xc0100210
-[..]
-EIP: [<c041b95c>] kmem_cache_init+0x389/0x3f0 SS:ESP0068:c0409fc4
-<0> Kernel panic - not syncing: Attempted to kill idle task!
+It's clearly in netdev-2.6.git#upstream:
 
-(gdb) list *0xc041b95c
-0xc041b95c is in kmem_cache_init (/usr/src/linux-work1/mm/slab.c:714).
-709                             lockdep_set_class(&l3->list_lock,
-&on_slab_l3_key);
-710                             alc = l3->alien;
-711                             if (!alc)
-712                                     continue;
-713                             for_each_node(r) {
-714                                     if (alc[r])
-715                                             lockdep_set_class(&alc[r]->lock,
-716                                                  &on_slab_alc_key);
-717                             }
-718                     }
+commit 58e5528ee464d38040b9489e10033c9387a10d56
+Author: Michael Buesch <mb@bu3sch.de>
+Date:   Sat Jul 8 22:02:18 2006 +0200
 
-> find out what the faulting address is
->   ("unable to handle kernel paging request at virtual address xxxx") and
->   see if that lines up with any symbol in .vmlinux.
+     [PATCH] bcm43xx: init routine rewrite
 
-Did you mean "list 01020304"?
+     Rewrite of the bcm43xx initialization routines.
+     This fixes several issues:
+     * up-down-up-down-up... stale data issue
+       (May fix some DHCP issues)
+     * Fix the init vs IRQ handler race (and remove the workaround)
+     * Fix init for cards with multiple cores (APHY)
+       As softmac has no internal PHY handling (unlike dscape),
+       this adds the file "phymode" to sysfs.
+       The active PHY can be selected by writing either a, b or g
+       to this file. Current PHY can be determined by reading from it.
+     * Fix the controller restart code.
+       Controller restart can now also be triggered through
+       echo 1 > /debug/bcm43xx/ethX/restart
 
->
-> - Might be something bad in numa_policy_init().  I assume you don't have
->   CONFIG_NUMA=y ;)
+     Signed-off-by: Michael Buesch <mb@bu3sch.de>
+     Signed-off-by: John W. Linville <linville@tuxdriver.com>
 
-No, I don't.
-
->
->
-> This'll be hard to diagnose without a full oops trace.
->
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

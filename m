@@ -1,65 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWHHXgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWHHXl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWHHXgv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 19:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbWHHXgu
+	id S1030334AbWHHXl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 19:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWHHXl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 19:36:50 -0400
-Received: from ns1.suse.de ([195.135.220.2]:14232 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030319AbWHHXgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 19:36:49 -0400
-To: Don Zickus <dzickus@redhat.com>
-Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [CFT] ELF Relocatable x86 and x86_64 bzImages
-References: <20060710233219.GF16215@in.ibm.com>
-	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
-	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
-	<m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
-	<20060804210826.GE16231@redhat.com>
-	<m164h8p50c.fsf@ebiederm.dsl.xmission.com>
-	<20060804234327.GF16231@redhat.com>
-	<m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
-	<20060807174439.GJ16231@redhat.com>
-	<m17j1kctb8.fsf@ebiederm.dsl.xmission.com>
-	<20060807235727.GM16231@redhat.com>
-From: Andi Kleen <ak@suse.de>
-Date: 09 Aug 2006 01:36:33 +0200
-In-Reply-To: <20060807235727.GM16231@redhat.com>
-Message-ID: <p73psfaol4u.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 8 Aug 2006 19:41:58 -0400
+Received: from nigel.suspend2.net ([203.171.70.205]:57480 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1030334AbWHHXl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 19:41:58 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+Date: Wed, 9 Aug 2006 09:42:11 +1000
+User-Agent: KMail/1.9.3
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org, pavel@suse.cz
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <Pine.LNX.4.58.0608081831580.18586@gandalf.stny.rr.com> <1155080145.26338.130.camel@mindpipe>
+In-Reply-To: <1155080145.26338.130.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart2559238.HXLSHJF9yQ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608090942.12404.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don Zickus <dzickus@redhat.com> writes:
-> > 
-> > Odd.  I wonder if I'm missing a serializing instruction somewhere,
-> > to ensure the effects of ``self modifying code'' aren't a problem.
-> > As I read Intels Documentation if you have a jump before you get
-> > to the code there shouldn't be a problem.
-> > 
-> > Still that doesn't really explain bytes_out.
-> > 
+--nextPart2559238.HXLSHJF9yQ
+Content-Type: text/plain;
+  charset="cp 850"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Sounds nasty.
+Hi.
 
-> 
-> So I narrowed down the problem but it isn't obvious to me why this problem
-> exists.  Basically, even though bytes_out is supposed to be initialized to
-> 0, it becomes -1 before entering decompress_kernel().  Of course, the
-> fallout is in flush_window() bytes_out wounds up being one less than
-> outcnt and hence my original problem.
-> 
-> Any thoughts on how to debug where this could be getting corrupted?  
+On Wednesday 09 August 2006 09:35, Lee Revell wrote:
+> On Tue, 2006-08-08 at 19:31 -0400, Steven Rostedt wrote:
+> > On Wed, 9 Aug 2006, Nigel Cunningham wrote:
+> > > The problem will be ACPI related, not particular to swsusp or Suspend=
+2,
+> > > which is why you're seeing it with both implementations. I would
+> > > suggest that you contact the ACPI guys, and also look to see whether
+> > > there is a bios update available and/or a DSDT override for your
+> > > machine. The later will help if the problem is with your particular
+> > > machine's ACPI support, the former if it's a more general ACPI issue.
+> >
+> > Thanks for the response Nigel,
+> >
+> > There does exist a recent bios update for this machine:
+> >
+> > http://www-307.ibm.com/pc/support/site.wss/document.do?sitestyle=3Dleno=
+vo&l
+> >ndocid=3DMIGR-58127
+> >
+> > Hmm, it requires windows, and I've already wiped out that partition.  I
+> > did a search but it seems really scary to update the BIOS via Linux.
+> >
+> > Anyone else out there have a Thinkpad G41 and has successfully upgraded
+> > their BIOS?
+>
+> I would just report it to the ACPI people.  It's a bug if Linux does not
+> work with the same BIOS + DSDT that the other OS works on.
 
-Use a simulator (hopefully you can reproduce it in there) like qemu
-or AMD SimNow and set a watch point on the address?
+True. I was assuming (perhaps wrongly?) that Steven is interested in both=20
+getting the bug fixed and being able to hibernate while he waits for the AC=
+PI=20
+guys to achieve bug-for-bug compatibility with M$; hence suggesting doing=20
+both.
 
-Or try to find someone who has a Intel target probe to help you out.
+Regards,
 
--Andi
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart2559238.HXLSHJF9yQ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBE2SFUN0y+n1M3mo0RAmp5AJ9CRDFqvHngr91z526F0iyBWcbYawCdEVUN
+TrPzo1vId+j5GTzpaeJZAhU=
+=VE9Y
+-----END PGP SIGNATURE-----
+
+--nextPart2559238.HXLSHJF9yQ--

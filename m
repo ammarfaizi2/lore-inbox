@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWHHMQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWHHMWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbWHHMQM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHHMQM
+	id S932567AbWHHMWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWHHMWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:16:12 -0400
-Received: from wx-out-0506.google.com ([66.249.82.236]:60060 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932561AbWHHMQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:16:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=KoDdms7FBLvoo8So9Z6I+gjU3l1fwfGqhqHU9cxIYDEgm7waT6Qf0ME9mTKwNIwrSJbYixvrlTTEtkNSVBIzhejIvLDYtkbT9AfBpfEDlBa2VOaHODYRbwPNtfs/I94EYyMVbINwKsynvobHWKEH7K7q3Nb4qxj6NWTwioRtVf4=
-Message-ID: <84144f020608080516k183072efmdcc8a4dfc334b2fe@mail.gmail.com>
-Date: Tue, 8 Aug 2006 15:16:10 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Chase Venters" <chase.venters@clientec.com>
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-Cc: "Daniel Jacobowitz" <dan@debian.org>,
-       "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200608071813.18661.chase.venters@clientec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 08:22:39 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:28020 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932567AbWHHMWi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:22:38 -0400
+Date: Tue, 8 Aug 2006 15:22:34 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: Shem Multinymous <multinymous@gmail.com>, Pavel Machek <pavel@suse.cz>,
+       Robert Love <rlove@rlove.org>, Jean Delvare <khali@linux-fr.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Message-ID: <20060808122234.GD5497@rhun.haifa.ibm.com>
+References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492543835-git-send-email-multinymous@gmail.com> <20060807140721.GH4032@ucw.cz> <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com> <20060807182047.GC26224@atjola.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <eb8g8b$837$1@taverner.cs.berkeley.edu>
-	 <20060807225642.GA31752@nevyn.them.org>
-	 <200608071813.18661.chase.venters@clientec.com>
-X-Google-Sender-Auth: b6002b80592b6699
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060807182047.GC26224@atjola.homenet>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 07, 2006 at 08:20:47PM +0200, Björn Steinbrink wrote:
+> On 2006.08.07 19:30:55 +0300, Shem Multinymous wrote:
+> > Hi Pavel,
+> > 
+> > On 8/7/06, Pavel Machek <pavel@suse.cz> wrote:
+> > >> +     int total, ret;
+> > >> +     for (total=READ_TIMEOUT_MSECS; total>0; total-=RETRY_MSECS) {
+> > >
+> > >Could we go from 0 to timeout, not the other way around?
+> > 
+> > Sure.
+> > (That's actually vanilla hdapsd code, moved around...)
+> 
+> Maybe you could convert that to sth. like this along the way?
+> 
+> int ret;
+> unsigned long timeout = jiffies + msec_to_jiffies(READ_TIMEOUT_MSECS);
+> for (;;) {
+> 	ret = thinkpad_ec_lock();
+> 	if (ret)
+> 		return ret;
 
-On Monday 07 August 2006 17:56, Daniel Jacobowitz wrote:
-> > No, that's already been answered at least once.  The file remains open,
-> > but returns EBADF on various operations.
+Just in case someone was going to cut and paste, this will return with
+the ec_lock taken.
 
-On 8/8/06, Chase Venters <chase.venters@clientec.com> wrote:
-> IIRC, it returns EBADF because the file actually gets closed. The file
-> descriptor, on the other hand, is permanently leaked.
->
-> Have these details changed?
-
-No. Your description is accurate.
-
-                                             Pekka
+Cheers,
+Muli

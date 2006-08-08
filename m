@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWHHO5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWHHO6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932598AbWHHO5N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 10:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWHHO5N
+	id S964889AbWHHO6O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 10:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWHHO6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 10:57:13 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:43450 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932598AbWHHO5M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 10:57:12 -0400
-Date: Tue, 8 Aug 2006 17:57:09 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, dev@openvz.org, stable@kernel.org
-Subject: Re: + sys_getppid-oopses-on-debug-kernel.patch added to -mm tree
-Message-ID: <20060808145709.GB3953@rhun.haifa.ibm.com>
-References: <200608081432.k78EWprf007511@shell0.pdx.osdl.net> <20060808143937.GA3953@rhun.haifa.ibm.com> <20060808145138.GA2720@atjola.homenet>
+	Tue, 8 Aug 2006 10:58:14 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:41091 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964889AbWHHO6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 10:58:13 -0400
+Subject: Re: memory resource accounting (was Re: [RFC, PATCH 0/5] Going
+	forward with Resource Management - A	cpu controller)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Martin Bligh <mbligh@mbligh.org>, rohitseth@google.com,
+       Kirill Korotaev <dev@sw.ru>, vatsa@in.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, sam@vilain.net, linux-kernel@vger.kernel.org,
+       dev@openvz.org, efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, pj@sgi.com, Andrey Savochkin <saw@sw.ru>
+In-Reply-To: <44D89D7D.8040006@yahoo.com.au>
+References: <20060804050753.GD27194@in.ibm.com>
+	 <20060803223650.423f2e6a.akpm@osdl.org>
+	 <20060803224253.49068b98.akpm@osdl.org>
+	 <1154684950.23655.178.camel@localhost.localdomain>
+	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>
+	 <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>
+	 <44D74F77.7080000@mbligh.org>  <44D76B43.5080507@sw.ru>
+	 <1154975486.31962.40.camel@galaxy.corp.google.com>
+	 <1154976236.19249.9.camel@localhost.localdomain>
+	 <1154977257.31962.57.camel@galaxy.corp.google.com>
+	 <44D798B1.8010604@mbligh.org>  <44D89D7D.8040006@yahoo.com.au>
+Content-Type: text/plain
+Date: Tue, 08 Aug 2006 07:57:00 -0700
+Message-Id: <1155049020.19249.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060808145138.GA2720@atjola.homenet>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 04:51:38PM +0200, Björn Steinbrink wrote:
+On Wed, 2006-08-09 at 00:19 +1000, Nick Piggin wrote:
+>    This does give you kernel (slab, pagetable, etc) allocations as well as
+>    userspace. I don't like the idea of doing controllers for inode cache
+>    and controllers for dentry cache, etc, etc, ad infinitum.
 
-> There's a note right above the function that explains it:
->  * NOTE! This depends on the fact that even if we _do_
->  * get an old value of "parent", we can happily dereference
->  * the pointer (it was and remains a dereferencable kernel pointer
->  * no matter what): we just can't necessarily trust the result
->  * until we know that the parent pointer is valid.
+Those two might not be such a bad idea.  Of the slab in my system, 90%
+is reliably from those two slabs alone.  Now, a controller for the
+'Acpi-Operand' slab might be going too far. ;)
 
-Even without getting into just how ugly this is, is it really worth
-it?
+Certainly something we should at least consider down the road.
 
-Cheers,
-Muli
+-- Dave
+

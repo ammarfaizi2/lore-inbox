@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWHHVk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbWHHVmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWHHVk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWHHVk3
+	id S965056AbWHHVmu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWHHVmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:40:29 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:61948 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965045AbWHHVk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:40:28 -0400
-Date: Tue, 8 Aug 2006 17:40:08 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: LKML <linux-kernel@vger.kernel.org>
-cc: Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org, pavel@suse.cz,
-       ncunningham@linuxmail.org
-Subject: swsusp and suspend2 like to overheat my laptop
-Message-ID: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
+	Tue, 8 Aug 2006 17:42:50 -0400
+Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:25749 "EHLO
+	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S965056AbWHHVmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:42:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=earthlink.net;
+  b=KKEcU/hHSP5YJ8t4IM+vtcZGRhqTAHqlCC6F2V1FgQQOmQQVR0DL9dTjQvGDRo/H;
+  h=Received:Message-ID:From:To:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
+Message-ID: <04b101c6bb33$9131bd00$0225a8c0@Wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+Date: Tue, 8 Aug 2006 14:42:29 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120e26356c0b0470470ae87f3927ef6ae3b547562a158a8cca8350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 71.116.182.36
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "David Schwartz" <davids@webmaster.com>
+> 
+>> The kernel developers who need to keep the barrier to bug reports low
+>> like the current policy.
+>>
+>> Get a good spam filter, I only get 1-2 pieces a day in my LKML folder.
+>>
+>> Jeff
+> 
+> How is everyone individually spam filtering better than one central spam
+> filter? More likelihood that at least one relevent person will get the bug
+> report? Certainly a single central spam filter can get more resources aimed
+> at it to make sure it doesn't suppress anything important.
 
-A few months ago, I installed suspend2 on my laptop.  It worked great for
-a few days, when suddenly my laptop started to get very hot and the fan
-costantly went off, and then I started getting these:
+If you have the luxury of the ability to write personalized rules and
+whitelist entries for SpamAssassin it can become a startlingly good
+filtering system. And you can tailor the filtering for individual 
+sources with meta rules. Processing large numbers of messages through
+BAYES and large numbers of rules gets quite time consuming, perhaps
+more than vger might want to handle. Processing only a small number
+of email accounts for trustworthy people allows one the luxury of
+custom rules and individual BAYES filtering. Since a lot of what
+one person might consider to be spam is another person's ham this is
+a good thing. (And SURBL is a good thing, too. It is remarkably
+reliable as long as you're not one of the first receiving a particular
+piece of junk. The SpamAssassin "RulesEmporium" has some very nice
+anti-spam rule sets, too.)
 
----
-Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-localhost kernel: CPU0: Temperature above threshold
-
-Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-localhost kernel: CPU1: Temperature above threshold
-
-
-Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-localhost kernel: CPU0: Running in modulated clock mode
-
-Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-localhost kernel: CPU1: Running in modulated clock mode
----
-
-I even posted once since I thought I found the problem, but I was wrong.
-So I decided to remove Suspend2 and go back to the normal kernel.
-
-Recently, I've decided to try out swsusp.  Well, it has been working fine
-for almost a week now.  But unfortunately, I just started to have my fan
-go off constantly, and I'm getting the above messages again (hence why
-the date on the messages is today). Checking out the temp, it's going into
-the high 70C. That's not too bad, but it only happens when suspending
-every night instead of shutting down.
-
-This is a Thinkpad G41, with a P4HT and this is a unmodified 2.6.18-rc2
-kernel.  I guess I'll have to start shutting down again, and only suspend
-every so often.  But just thought I'd let the people of knowledge know.
-
--- Steve
-
+{^_^}   Joanne

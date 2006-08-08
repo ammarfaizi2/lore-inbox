@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWHHQxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWHHQ6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbWHHQxa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWHHQxa
+	id S964977AbWHHQ6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWHHQ6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:53:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:40874 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964997AbWHHQx3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:53:29 -0400
-Subject: Re: 2.6.18-rc3-mm1: O= builds broken
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Jeff Dike <jdike@addtoit.com>,
-       "lkml@o2.pl / IMAP" <lkml@o2.pl>, Andrew Morton <akpm@osdl.org>,
+	Tue, 8 Aug 2006 12:58:12 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:3418 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964977AbWHHQ6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:58:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YOjMMR2MRSIFY7vWJXTbtJbKWYprgz6mO1tN3SPmnZJpMDTRcWjY8O4aAtCa6qmrg7lhKWUWi0dHiixMSN56+7chJQZYNM5HHXyyQy/Qi+3nouUacm7oGnGuzQQfKF/vv2AQ6Yw0zdOKSbkhtY/fmlIpmHqD/ukOmaYb4q/k1tA=
+Message-ID: <a36005b50608080958n192e9324jb9d5a7a59b365eae@mail.gmail.com>
+Date: Tue, 8 Aug 2006 09:58:10 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Eric Dumazet" <dada1@cosmosbay.com>
+Subject: Re: [RFC] NUMA futex hashing
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andi Kleen" <ak@suse.de>,
+       "Ravikiran G Thirumalai" <kiran@scalex86.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       "pravin b shelar" <pravin.shelar@calsoftinc.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060807195912.GA14126@mars.ravnborg.org>
-References: <20060806002400.694948a1.akpm@osdl.org>
-	 <20060806082321.GZ25692@stusta.de>
-	 <20060807195912.GA14126@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 09:33:43 -0700
-Message-Id: <1155054823.19249.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+In-Reply-To: <200608081808.34708.dada1@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060808070708.GA3931@localhost.localdomain>
+	 <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>
+	 <44D8A9BE.3050607@yahoo.com.au>
+	 <200608081808.34708.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 21:59 +0200, Sam Ravnborg wrote:
-> On Sun, Aug 06, 2006 at 10:23:21AM +0200, Adrian Bunk wrote:
-> > $ make O=/home/bunk/linux/kernel-2.6/out/full/ oldconfig
-> >   HOSTCC  scripts/basic/fixdep
-> >   HOSTCC  scripts/basic/docproc
-> >   GEN     /home/bunk/linux/kernel-2.6/out/full/Makefile
-> >   HOSTCC  scripts/kconfig/conf.o
-> >   HOSTCC  scripts/kconfig/kxgettext.o
-> >   HOSTCC  scripts/kconfig/lxdialog/checklist.o
-> > /home/bunk/linux/kernel-2.6/linux-2.6.18-rc3-mm1/scripts/kconfig/lxdialog/checklist.c:325: 
-> > fatal error: opening dependency file 
-> > scripts/kconfig/lxdialog/.checklist.o.d: No such file or directory
-> > compilation terminated.
-> > make[2]: *** [scripts/kconfig/lxdialog/checklist.o] Error 1
-> > make[1]: *** [oldconfig] Error 2
-> > make: *** [oldconfig] Error 2
-> > $ 
-> >
-> If the lxdialog directory is missing then kbuild barfs out.
-> Fixed by followign patch that is already pushed out to my kbuild.git
-> tree. Thanks for the reports (all senders added to to:).
+On 8/8/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
+> So we really can... but for 'private futexes' which are the vast majority of
+> futexes needed by typical program (using POSIX pshared thread mutex attribute
+> PTHREAD_PROCESS_PRIVATE, currently not used by NPTL glibc)
 
-I got the same thing on 2.6.18-rc3-mm2.
+Nonsense.  Mutexes are by default always private.  They explicitly
+have to be marked as sharable.  This happens using the
+pthread_mutexattr_setpshared function which takes
+PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED in the second
+parameter.  So the former _is_ clearly used.
 
-Andrew, if another -mm isn't imminent, could this patch make into into
-the hot-fixes directory for -mm1 and/or -mm2?
 
-BTW, I'm also seeing these in my build now:
+> Of course we would need a new syscall, and to change glibc to be able to
+> actually use this new private_futex syscall.
 
-	scripts/Makefile.host:88: host-objdirs=
+No, why?  The kernel already does recognize private mutexes.  It just
+checks whether the pages used to store it are private or mapped.  This
+requires some interaction with the memory subsystem but as long as no
+crashes happen the data can change underneath.  It's the program's
+fault if it does.
 
-It doesn't appear to hurt anything, but it is a bit weird looking.
-
--- Dave
-
+On the waker side you would search the local futex hash table/tree
+first and if this doesn't yield a match, search the global table.
+Wakeup calls without any waiters are usually rare.

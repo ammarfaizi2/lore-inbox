@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWHHPei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWHHPg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWHHPei (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 11:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWHHPei
+	id S964959AbWHHPg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 11:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWHHPg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 11:34:38 -0400
-Received: from mail.gmx.net ([213.165.64.20]:1205 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964926AbWHHPeh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 11:34:37 -0400
-X-Authenticated: #5039886
-Date: Tue, 8 Aug 2006 17:34:35 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sys_getppid oopses on debug kernel
-Message-ID: <20060808153435.GB2720@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <44D865FD.1040806@sw.ru> <1155050817.19249.42.camel@localhost.localdomain>
+	Tue, 8 Aug 2006 11:36:26 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:41897 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964959AbWHHPgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 11:36:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A4lH7EjTopy2yUeHcJriPA2T7b1jAc3kpSDJOJhvATN4y7JtmSEkkagrVpYPyZju6CVWWHIUlYulacIZYpaBFMq3rsV5oyB3RDLcVs9AyteP+QwiU18MQ6yF6rWJ4s4zUCXY3PTTb94gSKZZQaNRgcQsbMUxmFfBuXHmSN7t87w=
+Message-ID: <a36005b50608080836u3e58ab85l61bb50b2bac5a0e3@mail.gmail.com>
+Date: Tue, 8 Aug 2006 08:36:23 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: [RFC] NUMA futex hashing
+Cc: "Eric Dumazet" <dada1@cosmosbay.com>, "Andi Kleen" <ak@suse.de>,
+       "Ravikiran G Thirumalai" <kiran@scalex86.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       "pravin b shelar" <pravin.shelar@calsoftinc.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44D8A9BE.3050607@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1155050817.19249.42.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Y-GMX-Trusted: 0
+References: <20060808070708.GA3931@localhost.localdomain>
+	 <200608081429.44497.dada1@cosmosbay.com>
+	 <200608081447.42587.ak@suse.de>
+	 <200608081457.11430.dada1@cosmosbay.com>
+	 <a36005b50608080739w2ea03ea8i8ef2f81c7bd55b5d@mail.gmail.com>
+	 <44D8A9BE.3050607@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.08.08 08:26:57 -0700, Dave Hansen wrote:
-> On Tue, 2006-08-08 at 14:22 +0400, Kirill Korotaev wrote:
-> > sys_getppid() optimization can access a freed memory.
-> > On kernels with DEBUG_SLAB turned ON, this results in
-> > Oops.
-> ...
-> > +#else
-> > +	/*
-> > +	 * ->real_parent could be released before dereference and
-> > +	 * we accessed freed kernel memory, which faults with debugging on.
-> > +	 * Keep it simple and stupid.
-> > +	 */
-> > +	read_lock(&tasklist_lock);
-> > +	pid = current->group_leader->real_parent->tgid;
-> > +	read_unlock(&tasklist_lock);
-> > +#endif
-> >  	return pid;
-> >  }
-> 
-> Accessing freed memory is a bug, always, not just *only* when slab
-> debugging is on, right?  Doesn't this mean we could get junk, or that
-> the reader could potentially run off a bad pointer?
-> 
-> It seems that this patch only papers over the problem in the case when
-> it is observed, but doesn't really even fix the normal case.
-> 
-> Could we use a seqlock to determine when real_parent is in flux, and
-> re-read real_parent until we get a consistent one?  We could use in in
-> lieu of the existing for() loop.
+On 8/8/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Let me get this straight: to insert a contended futex into your rbtree,
+> you need to hold the mmap sem to ensure that address remains valid,
+> then you need to take a lock which protects your rbtree.
 
-See this thread: http://lkml.org/lkml/2006/8/8/215
-
-Björn
+Why does it have to remain valid?  As long as the kernel doesn't crash
+on any of the operations associated with the futex syscalls let the
+address space region explode, implode, whatever.  It's  a bug in the
+program if the address region is changed while a futex is placed
+there.  If the futex syscall hangs forever or returns with a bogus
+state (error or even success) this is perfectly acceptable.  We
+shouldn't slow down correct uses just to make it possible for broken
+programs to receive a more detailed error description.

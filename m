@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWHHRFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWHHRIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbWHHRFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWHHRFJ
+	id S965000AbWHHRIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWHHRIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:05:09 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:28842 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964903AbWHHRFH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:05:07 -0400
-Subject: Re: + fs-cache-generic-filesystem-caching-facility.patch added to
-	-mm tree
-From: Dave Hansen <haveblue@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: mm-commits@vger.kernel.org, dhowells@redhat.com,
-       trond.myklebust@fys.uio.no, zippel@linux-m68k.org
-In-Reply-To: <200608050009.k7509ivU019636@shell0.pdx.osdl.net>
-References: <200608050009.k7509ivU019636@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 10:04:56 -0700
-Message-Id: <1155056696.19249.81.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 8 Aug 2006 13:08:21 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:36267 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S965000AbWHHRIU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:08:20 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: "Ulrich Drepper" <drepper@gmail.com>
+Subject: Re: [RFC] NUMA futex hashing
+Date: Tue, 8 Aug 2006 19:08:17 +0200
+User-Agent: KMail/1.9.1
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andi Kleen" <ak@suse.de>,
+       "Ravikiran G Thirumalai" <kiran@scalex86.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       "pravin b shelar" <pravin.shelar@calsoftinc.com>,
+       linux-kernel@vger.kernel.org
+References: <20060808070708.GA3931@localhost.localdomain> <200608081808.34708.dada1@cosmosbay.com> <a36005b50608080958n192e9324jb9d5a7a59b365eae@mail.gmail.com>
+In-Reply-To: <a36005b50608080958n192e9324jb9d5a7a59b365eae@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608081908.18157.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-04 at 17:09 -0700, akpm@osdl.org wrote:
-> The attached patch adds a generic intermediary (FS-Cache) by which filesystems
-> may call on local caching capabilities, and by which local caching backends may
-> make caches available:
+On Tuesday 08 August 2006 18:58, Ulrich Drepper wrote:
+> On 8/8/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
+> > So we really can... but for 'private futexes' which are the vast majority
+> > of futexes needed by typical program (using POSIX pshared thread mutex
+> > attribute PTHREAD_PROCESS_PRIVATE, currently not used by NPTL glibc)
+>
+> Nonsense.  Mutexes are by default always private.  They explicitly
+> have to be marked as sharable.  This happens using the
+> pthread_mutexattr_setpshared function which takes
+> PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED in the second
+> parameter.  So the former _is_ clearly used.
+>
 
-I'm getting the following in 2.6.18-rc3-mm2 when I complile AFS  and NFS
-into the kernel.  I left FSCACHE as a module somehow, enabled AFS/NFS
-caching, and hilarity ensues:
+I was saying that PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED info is 
+not provided to the kernel (because futex api/implementation dont need to). 
+It was not an attack on glibc.
 
-fs/built-in.o(.text+0xbbcd7): In function `nfs_fscache_release_page':
-lxc/include/linux/fscache.h:482: undefined reference to
-`__fscache_uncache_page'
+> > Of course we would need a new syscall, and to change glibc to be able to
+> > actually use this new private_futex syscall.
+>
+> No, why?  The kernel already does recognize private mutexes.  It just
+> checks whether the pages used to store it are private or mapped.  This
+> requires some interaction with the memory subsystem but as long as no
+> crashes happen the data can change underneath.  It's the program's
+> fault if it does.
 
-Is there some way that we can tell fscache's Kconfig option that it can
-not be a module if any of the filesystems using it *are*?  Should we
-take away the option for fscache to be a module?
+But if you let futex code doing the vma walk to check the private/shared 
+status, you still need the mmap_sem locking.
 
--- Dave
+Moreover, a program can mmap() a file (shared in terms of VMA), and continue 
+to use a  PTHREAD_PROCESS_PRIVATE mutex lying in this shared zone
+(Example : shmem or hugetlb mapping, wich API might always give a 'shared' 
+vma)
+
+>
+> On the waker side you would search the local futex hash table/tree
+> first and if this doesn't yield a match, search the global table.
+> Wakeup calls without any waiters are usually rare.
+
+If the two searches touch two different cache lines in the hash table, we 
+might have a performance regression.
+Of course we might chose a hash function so that the same slot is accessed.
+
+Eric
 

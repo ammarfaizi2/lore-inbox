@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWHHSts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWHHTBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWHHSts (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 14:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWHHSts
+	id S965030AbWHHTBM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWHHTBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 14:49:48 -0400
-Received: from h155.mvista.com ([63.81.120.158]:8069 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S965033AbWHHSts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 14:49:48 -0400
-Subject: Re: lockdep spew
-From: Daniel Walker <dwalker@mvista.com>
-To: Dave Jones <davej@redhat.com>
-Cc: kiran@scalex86.org, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060808183856.GA4880@redhat.com>
-References: <20060808183856.GA4880@redhat.com>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 11:49:42 -0700
-Message-Id: <1155062983.16818.15.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 8 Aug 2006 15:01:12 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:38162 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S965030AbWHHTBL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:01:11 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Time to forbid non-subscribers from posting to the list?
+Date: Tue, 8 Aug 2006 12:00:42 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <44D871DE.1040509@garzik.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 08 Aug 2006 11:55:51 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 08 Aug 2006 11:55:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 14:38 -0400, Dave Jones wrote:
-> I don't think I've seen this one reported yet.
-> This kernel was a 2.6.18rc3-gitSomething, but I don't think
-> anything has changed recently that would explain this?
-> 
-> 		Dave
-> 
 
-I think something similar to this was reported by Thomas Gleixner on a
-NUMA machine. The subject was "[BUG] Lockdep recursive locking in
-kmem_cache_free" , there was a patch provided by Ravikiran G Thirumalai
-that remove the warnings.
+> The kernel developers who need to keep the barrier to bug reports low
+> like the current policy.
+>
+> Get a good spam filter, I only get 1-2 pieces a day in my LKML folder.
+>
+> 	Jeff
 
-Daniel
+	How is everyone individually spam filtering better than one central spam
+filter? More likelihood that at least one relevent person will get the bug
+report? Certainly a single central spam filter can get more resources aimed
+at it to make sure it doesn't suppress anything important.
 
-
-> > #######
-> > checking if image is initramfs...
-> > =============================================
-> > [ INFO: possible recursive locking detected ]
-> > ---------------------------------------------
-> > swapper/1 is trying to acquire lock:
-> >  (&nc->lock){....}, at: [<ffffffff8020782c>] kmem_cache_free+0x1a1/0x26c
-> > 
-> > but task is already holding lock:
-> >  (&nc->lock){....}, at: [<ffffffff8020b47e>] kfree+0x1b3/0x27e
-> > 
-> > other info that might help us debug this:
-> > 2 locks held by swapper/1:
-> >  #0:  (&nc->lock){....}, at: [<ffffffff8020b47e>] kfree+0x1b3/0x27e
-> >  #1:  (&parent->list_lock){....}, at: [<ffffffff802dae22>]
-> > __drain_alien_cache+0x37/0
-> > x77
+	DS
 
 

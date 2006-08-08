@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWHHQhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWHHQiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWHHQhz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWHHQhz
+	id S964987AbWHHQiF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWHHQiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:37:55 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:32215 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964967AbWHHQhy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:37:54 -0400
-Message-ID: <44D8BD51.8040206@zytor.com>
-Date: Tue, 08 Aug 2006 09:35:29 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Daniel Rodrick <daniel.rodrick@gmail.com>
-CC: Linux Newbie <linux-newbie@vger.kernel.org>,
-       kernelnewbies <kernelnewbies@nl.linux.org>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
-References: <292693080608070339p6b42feacw9d8f27a147cf1771@mail.gmail.com>	 <44D7579D.1040303@zytor.com>	 <292693080608070911g57ae1215qd994e03b9dd87b66@mail.gmail.com>	 <44D76F26.9@zytor.com> <292693080608072213n2be75176g46199e92d669f5de@mail.gmail.com>
-In-Reply-To: <292693080608072213n2be75176g46199e92d669f5de@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 12:38:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28624 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964984AbWHHQh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:37:59 -0400
+Date: Tue, 8 Aug 2006 12:36:35 -0400
+From: Dave Jones <davej@redhat.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, dev@openvz.org, stable@kernel.org
+Subject: Re: + sys_getppid-oopses-on-debug-kernel.patch added to -mm tree
+Message-ID: <20060808163635.GF28990@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Kirill Korotaev <dev@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Muli Ben-Yehuda <muli@il.ibm.com>,
+	=?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	linux-kernel@vger.kernel.org, dev@openvz.org, stable@kernel.org
+References: <200608081432.k78EWprf007511@shell0.pdx.osdl.net> <20060808143937.GA3953@rhun.haifa.ibm.com> <20060808145138.GA2720@atjola.homenet> <20060808145709.GB3953@rhun.haifa.ibm.com> <1155050547.5729.91.camel@localhost.localdomain> <44D8B048.8060103@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D8B048.8060103@sw.ru>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Rodrick wrote:
-> 
-> Hi ... so there seem to be no technical feasibily issues, just
-> reliabliy / ugly design issues? So one can still go ahead and write a
-> Universal Protocol Driver that can work with all (PXE compatible)
-> NICs?
-> 
+On Tue, Aug 08, 2006 at 07:39:52PM +0400, Kirill Korotaev wrote:
+ > >>Even without getting into just how ugly this is, is it really worth
+ > >>it?
+ > it is impossible to run debug kernels w/o this patch :/
+ > or are you asking whether this optimization worth it?
+ > 
+ > What makes me worry is that this is a sign that vendors
+ > don't even bother to run debug kernels :((((
 
-For some definition of "all" = meaning "it might work on some of them."
+Fedora rawhide is nearly always shipping with DEBUG_SLAB enabled,
+and we didn't hit this once.  Are you sure this is a problem
+with DEBUG_SLAB, and not DEBUG_PAGEALLOC ?
 
-> Are there any issues related to real mode / protected mode?
+		Dave
 
-Yes, a whole bunch of PXE/UNDI stacks are broken in protected mode.
-
-	-hpa
+-- 
+http://www.codemonkey.org.uk

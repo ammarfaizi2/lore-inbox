@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWHHQJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWHHQRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWHHQJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 12:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWHHQJu
+	id S1030185AbWHHQRf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWHHQRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 12:09:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:35535 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932443AbWHHQJt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 12:09:49 -0400
-Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
+	Tue, 8 Aug 2006 12:17:35 -0400
+Received: from gw.goop.org ([64.81.55.164]:22481 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S964925AbWHHQRe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 12:17:34 -0400
+Message-ID: <44D8B927.6010905@goop.org>
+Date: Tue, 08 Aug 2006 09:17:43 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@linux.intel.com>
+CC: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, muli@il.ibm.com, B.Steinbrink@gmx.de,
-       stable@kernel.org
-In-Reply-To: <44D8B2C5.1080905@sw.ru>
-References: <44D8B2C5.1080905@sw.ru>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 09:09:21 -0700
-Message-Id: <1155053361.19249.60.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-mm2: bad e1000 device name
+References: <44D78A48.7050707@goop.org> <20060808004011.ab3cd65f.akpm@osdl.org> <44D8484E.9050904@goop.org> <44D8AB08.3000006@linux.intel.com> <44D8ACFE.3060802@goop.org> <44D8AD3D.60402@linux.intel.com>
+In-Reply-To: <44D8AD3D.60402@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 19:50 +0400, Kirill Korotaev wrote:
-> sys_getppid() optimization can access a freed memory.
-> On kernels with DEBUG_SLAB turned ON, this results in Oops.
-> As Dave Hansen noted, this optimization is also unsafe
-> for memory hotplug. 
+Arjan van de Ven wrote:
+> and you're also sure this is not your userspace using interface 
+> renaming...
+> (could be an initscripts bug for name-by-MAC ethernet device naming)
 
-Yeah, I just tried coding up something to do a seqlock to note when
-tasks are freed, but it doesn't work.  Unless somebody is really going
-crazy with getppid() on a very large system, this should be just fine.
+It's definitely in-kernel, since its specific to this version.  And it 
+seems to have gone away since I turned on slab debugging.
 
--- Dave
-
-
+    J

@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWHHNR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWHHNR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWHHNR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 09:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWHHNR3
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 09:17:29 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:18270 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932491AbWHHNR2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932266AbWHHNR2 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 8 Aug 2006 09:17:28 -0400
-Date: Tue, 8 Aug 2006 16:17:24 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-       Shem Multinymous <multinymous@gmail.com>, Robert Love <rlove@rlove.org>,
-       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHHNR1
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 8 Aug 2006 09:17:27 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:34177 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932266AbWHHNR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 09:17:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fpezud5L3v5HmqtZsxCGf3EmW+knR4hRyhmpiICXijMAvhh42CtAkjUe2WaVGTwj4KLc7fSj6CDNZtoAT8jX7ufbaeiqAMWaK4ew2Zq4abWoA7pyCoVD6foYOyWu4mC+bn+8xtWav0WAOOadhD9G+/Qx3fPFSkSKNxDLFODEDto=
+Message-ID: <41840b750608080617t3f20a9c9m77fa5276fb5e5f3@mail.gmail.com>
+Date: Tue, 8 Aug 2006 16:17:25 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Subject: Re: [PATCH 08/12] hdaps: Add explicit hardware configuration functions
+Cc: "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
        hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
-Message-ID: <20060808131724.GE5497@rhun.haifa.ibm.com>
-References: <11548492171301-git-send-email-multinymous@gmail.com> <11548492543835-git-send-email-multinymous@gmail.com> <20060807140721.GH4032@ucw.cz> <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com> <20060807182047.GC26224@atjola.homenet> <20060808122234.GD5497@rhun.haifa.ibm.com> <20060808125652.GA5284@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20060808121619.GF4540@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060808125652.GA5284@ucw.cz>
-User-Agent: Mutt/1.5.11
+References: <11548492171301-git-send-email-multinymous@gmail.com>
+	 <11548492822826-git-send-email-multinymous@gmail.com>
+	 <20060808121619.GF4540@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 12:56:52PM +0000, Pavel Machek wrote:
+On 8/8/06, Pavel Machek <pavel@suse.cz> wrote:
 
-> > > 	ret = thinkpad_ec_lock();
-> > > 	if (ret)
-> > > 		return ret;
-> > 
-> > Just in case someone was going to cut and paste, this will return with
-> > the ec_lock taken.
-> 
-> Well, taking lock failed (hence error return) so I think code is
-> correct.
+> >  static int needs_calibration = 0;
+> Unneccessary initializer.
 
-Ugh, I missed that - it's called _lock(), but it's actually
-down_interruptible(). Why not just get rid of the wrapper and call
-down_interruptible() directly? That makes it obvious what's going on.
+OK, though I would prefer to differentiate "initial value is 0" from
+"initial value doesn't matter".
 
-Cheers,
-Muil
+
+> > + * hdaps_set_fake_data_mode - enable or disable EC test mode, which fakes
+> > + * accelerometer data using an incrementing counter.
+> > + * Returns zero on success and negative error code on failure.  Can sleep.
+> > + */
+>
+> Why do we want to have fake mode? I see it is useful for debugging,
+> but?
+
+It's useful for debugging userspace too. Apps like the hdapsd daemon
+can use it to figure out how often and how regularly they get fresh
+readouts, and whether they often miss readouts.
+
+
+> > +/*
+> > + * hdaps_check_ec - checks something about the EC.
+> > + * Follows the clean-room spec for HDAPS; we don't know what it means.
+> > + * Returns zero on success and negative error code on failure.  Can sleep.
+> > + */
+>
+> URL for spec?
+
+http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html, it's at the
+top of the original file.
+
+
+> What happens when we delete this one?
+
+No idea, nor a way to check (on all relevant models). We've always
+done it, this patch just does it a bit more explicitly and by
+correctly following the H8S LPC protocol.
+
+OK on all other comments to patches 06-08.
+
+  Shem

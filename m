@@ -1,61 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbWHHXTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWHHXYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbWHHXTb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 19:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbWHHXTb
+	id S965073AbWHHXYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 19:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWHHXYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 19:19:31 -0400
-Received: from mx2.suse.de ([195.135.220.15]:62390 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965068AbWHHXT3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 19:19:29 -0400
-Date: Tue, 8 Aug 2006 16:19:15 -0700
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-Subject: Re: Still get build warnings - gcc-3.4.6 - 2.6.17.8
-Message-ID: <20060808231915.GA23161@kroah.com>
-References: <200608082148.11433.nick@linicks.net> <20060808141246.25ee5db7.rdunlap@xenotime.net>
+	Tue, 8 Aug 2006 19:24:43 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:8491 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965073AbWHHXYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 19:24:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GGYH4eIgywHJQ8rCMFrzHIcHryqHzGhS8cKg36WM+lkI6Jc9dVs3cxiJZWH2xE/6UhU8l5mmo4bJCc+Ac3R9HAGQlDugJTKj17oHIWECVBo/LgEmoS9FFWX2yppfLvzgDrXfoOawvazlx6K4wROsR++X7OaEVUCSjaO64LqVP5g=
+Message-ID: <6bffcb0e0608081624s1373bdbdlb4ad792d6171aaab@mail.gmail.com>
+Date: Wed, 9 Aug 2006 01:24:41 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
+Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
+       "Jan Beulich" <jbeulich@novell.com>
+In-Reply-To: <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060808141246.25ee5db7.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
+	 <6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
+	 <20060808140511.def9b13c.akpm@osdl.org>
+	 <6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
+	 <20060808143751.42f8d87c.akpm@osdl.org>
+	 <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 02:12:46PM -0700, Randy.Dunlap wrote:
-> On Tue, 8 Aug 2006 21:48:11 +0100 Nick Warne wrote:
-> 
-> > Hi all,
-> > 
-> > I have had these warnings for ages:
-> > 
-> > kernel/power/pm.c:241: warning: `pm_register' is deprecated (declared at 
-> > kernel/power/pm.c:64)
-> > kernel/power/pm.c:241: warning: `pm_register' is deprecated (declared at 
-> > kernel/power/pm.c:64)
-> > kernel/power/pm.c:242: warning: `pm_unregister_all' is deprecated (declared at 
-> > kernel/power/pm.c:97)
-> > kernel/power/pm.c:242: warning: `pm_unregister_all' is deprecated (declared at 
-> > kernel/power/pm.c:97)
-> > kernel/power/pm.c:243: warning: `pm_send_all' is deprecated (declared at 
-> > kernel/power/pm.c:216)
-> > kernel/power/pm.c:243: warning: `pm_send_all' is deprecated (declared at 
-> > kernel/power/pm.c:216)
-> > 
-> > and I think at one time there was a fix about that I applied, but it seems it 
-> > never made it into kernel.org.
-> > 
-> > Or is this my ggc problem?
-> 
-> It's not a gcc (nor ggc) problem.  Those functions are just deprecated.
-> Current 2.6.18-rc4 and 2.6.18-rc3-mm2 still have those same warnings.
-> 
-> fwiw, I don't seem to have any patches to fix/remove them.
+On 09/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> > On Tue, 8 Aug 2006 23:19:09 +0200
+> > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+> >
+> > > >  You
+> > > > can look these things up in gdb or using addr2line, provided you have
+> > > > CONFIG_DEBUG_INFO=y.
+> > > >
+> > > >
+> > >
+> > > (gdb) list *0xc047d609
+> > > 0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
+> > > 572             cpuset_init_early();
+> > > 573             mem_init();
+> > > 574             kmem_cache_init();
+> > > 575             setup_per_cpu_pageset();
+> > > 576             numa_policy_init();
+> > > 577             if (late_time_init)
+> > > 578                     late_time_init();
+> > > 579             calibrate_delay();
+> > > 580             pidmap_init();
+> > > 581             pgtable_cache_init();
+> >
+> > hm.
+> >
+> > - Try to get the full oops record,
+>
+> BUG: unable to handle kernel paging request at virtual address 01020304
+> printing eip:
+> c041b95c
+> *pde= 00000000
+> Oops: 0000 [#1]
+> 4K_STACK PREEMPT SMP
+> last sysfs file:
+> Modules linked in:
+> CPU 0
+> EIP: 0060: [<c041b95c>] Not tainted VLI
+> EFLAGS: 00010202
+> EIP is at kmem_cache_init+0x389/0x3f0
+> [..]
+> Call Trace:
+> [<c0104063>] show_stack_log_lvl+0x8c/0x97
+> [<c010422b>] show_registers+0x181/0x215
+> [<c0104481>] die+0x1c2/0x2dd
+> [<c0117419>] do_page_fault+0x410/0x4f3
+> [<c02f40a1>] error_code+0x39/0x40
+> [<c040b604>] start_kernel+0x21f/0x39d
+> [<c0100210>] 0xc0100210
+> [..]
+> EIP: [<c041b95c>] kmem_cache_init+0x389/0x3f0 SS:ESP0068:c0409fc4
+> <0> Kernel panic - not syncing: Attempted to kill idle task!
+>
+> (gdb) list *0xc041b95c
+> 0xc041b95c is in kmem_cache_init (/usr/src/linux-work1/mm/slab.c:714).
+> 709                             lockdep_set_class(&l3->list_lock,
+> &on_slab_l3_key);
+> 710                             alc = l3->alien;
+> 711                             if (!alc)
+> 712                                     continue;
+> 713                             for_each_node(r) {
+> 714                                     if (alc[r])
+> 715                                             lockdep_set_class(&alc[r]->lock,
+> 716                                                  &on_slab_alc_key);
+> 717                             }
+> 718                     }
+>
 
-pm_unregister_all is removed in the -mm tree, from a patch in my tree.
+System works well without this patches
+slab-cache-shrinker-statistics.patch
+slab-fix-lockdep-warnings.patch
+slab-optimize-kmalloc_node-the-same-way-as-kmalloc-fix.patch
+slab-optimize-kmalloc_node-the-same-way-as-kmalloc.patch
+slab-respect-architecture-and-caller-mandated-alignment.patch
 
-thanks,
+Regards,
+Michal
 
-greg k-h
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

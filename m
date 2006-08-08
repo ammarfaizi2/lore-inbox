@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWHHTzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWHHT6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWHHTzO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWHHTzO
+	id S1030245AbWHHT6I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWHHT6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:55:14 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32009 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030277AbWHHTzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:55:13 -0400
-Date: Tue, 8 Aug 2006 21:55:10 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Josh Boyer <jwboyer@gmail.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060808195509.GR3691@stusta.de>
-References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060807124044.GB4032@ucw.cz> <20060807175939.GJ3691@stusta.de> <20060807233046.GI2759@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807233046.GI2759@elf.ucw.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Tue, 8 Aug 2006 15:58:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47489 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030245AbWHHT6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:58:07 -0400
+Date: Tue, 8 Aug 2006 12:58:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: mark two more functions as __init
+Message-Id: <20060808125803.9aac260f.akpm@osdl.org>
+In-Reply-To: <20060808081756.334.46571.sendpatchset@cherry.local>
+References: <20060808081756.334.46571.sendpatchset@cherry.local>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 01:30:46AM +0200, Pavel Machek wrote:
-> On Mon 2006-08-07 19:59:39, Adrian Bunk wrote:
-> > On Mon, Aug 07, 2006 at 12:40:44PM +0000, Pavel Machek wrote:
-> > 
-> > > Hi!
-> > > 
-> > > Thanks for doing this.
-> > > 
-> > > I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
-> > > it still queued or should I resend?
-> > 
-> > Is this "pdflush: handle resume wakeups"?
+On Tue,  8 Aug 2006 17:17:00 +0900 (JST)
+Magnus Damm <magnus@valinux.co.jp> wrote:
+
+> i386: mark two more functions as __init
 > 
-> Yes. Do you have it somewhere or should I dig it up?
+> cyrix_identify() should be __init because transmeta_identify() is.
+> tsc_init() is only called from setup_arch() which is marked as __init.
+> 
+> These two section mismatches have been detected using running modpost on
+> a vmlinux image compiled with CONFIG_RELOCATABLE=y.
+> 
+> -static void cyrix_identify(struct cpuinfo_x86 * c)
+> +static void __init cyrix_identify(struct cpuinfo_x86 * c)
 
-I've applied it.
-
-> 									Pavel
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Are we sure?  We end up putting a pointer to this into
+arch/i386/kernel/cpu/common.c:cpu_devs[], and that gets used from __cpuinit
+code.  
 

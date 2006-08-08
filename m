@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWHHM3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWHHMbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWHHM3r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 08:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWHHM3r
+	id S964869AbWHHMbW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 08:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWHHMbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 08:29:47 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:15011 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S964863AbWHHM3q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 08:29:46 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] NUMA futex hashing
-Date: Tue, 8 Aug 2006 14:29:44 +0200
-User-Agent: KMail/1.9.1
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-References: <20060808070708.GA3931@localhost.localdomain> <200608081210.40334.dada1@cosmosbay.com> <200608081236.15823.ak@suse.de>
-In-Reply-To: <200608081236.15823.ak@suse.de>
+	Tue, 8 Aug 2006 08:31:22 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:46257 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964869AbWHHMbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 08:31:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Yxbn2xm/oWIQTzxB5TYxk9xCelxaxurdKJyaxDPHLmGBurr4vmbH5mjS87KARcVHbCYSKrTb0jv0VfYMKG3ALOr9qfzLORY/d1EJVPR0+cx6B7aK2qhKlmtyYvwHGwSFK8fTHe+5tUFr/hv1ITcfKE3N8xC1No6P287J8KbhVVQ=
+Message-ID: <84144f020608080531y72f8ec41n54196eee6b797279@mail.gmail.com>
+Date: Tue, 8 Aug 2006 15:31:20 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Cc: "Edgar Toernig" <froese@gmx.de>, "Pavel Machek" <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org, viro@zeniv.linux.org.uk, tytso@mit.edu,
+       tigran@veritas.com
+In-Reply-To: <1155040157.5729.34.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608081429.44497.dada1@cosmosbay.com>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	 <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
+	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
+	 <20060807224144.3bb64ac4.froese@gmx.de>
+	 <1155040157.5729.34.camel@localhost.localdomain>
+X-Google-Sender-Auth: 6fd06d997d96cd88
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 12:36, Andi Kleen wrote:
-> > We may have special case for PRIVATE futexes (they dont need to be
-> > chained in a global table, but a process private table)
->
-> What do you mean with PRIVATE futex?
->
-> Even if the futex mapping is only visible by a single MM mmap_sem is still
-> needed to protect against other threads doing mmap.
+Ar Llu, 2006-08-07 am 22:41 +0200, ysgrifennodd Edgar Toernig:
+> > Your implementation is much cruder - it simply takes the fd
+> > away from the app; any future use gives EBADF.  As a bonus,
 
-Hum... I would call that a user error.
+On 8/8/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> It needs to give -ENXIO/0 as per BSD that much is clear.
 
-If a thread is munmap()ing the vma that contains active futexes, result is 
-undefined. Same as today I think (a thread blocked in a FUTEX_WAIT should 
-stay blocked)
+I assume you mean devices only? EBADF makes sense for regular files,
+except for close(2), maybe, for which zero is probably more
+appropriate.
 
-The point is that private futexes could be managed using virtual addresses, 
-and no call to find_extend_vma(), hence no mmap_sem contention.
-
-There could be problem if the same futex (32 bits integer) could be mapped at 
-different virtual addresses in the same process.
-
-Eric
+                                          Pekka

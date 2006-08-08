@@ -1,102 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWHHCx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWHHC4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWHHCx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 22:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWHHCx6
+	id S1751218AbWHHC4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 22:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWHHC4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 22:53:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:62807 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751217AbWHHCx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 22:53:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NOBXUrbwXCkceSmzePgBReqBZEyuk10q8ldFjFWvy0qEi/PG4tZb03uiuUq63Q86FFE+CwkheK+sdUsj9sMKaYcoJi0wUJ4DRCw43/5WyIYM++sSsIGNtERp7XCq2p1srsWDTPjKa5Qlb0ypDEd6H6KUp02/kpMlTD/VJMwexSE=
-Message-ID: <6de39a910608071953l39ce0873w713d59eda4aa5d84@mail.gmail.com>
-Date: Mon, 7 Aug 2006 19:53:55 -0700
-From: "Om N." <xhandle@gmail.com>
-Subject: Re: [KJ] [patch] fix common mistake in polling loops
-Cc: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <82faac5b0608071753q71050d72uadcf55bc1e54f30e@mail.gmail.com>
+	Mon, 7 Aug 2006 22:56:19 -0400
+Received: from ns1.suse.de ([195.135.220.2]:7593 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751218AbWHHC4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 22:56:19 -0400
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Subject: Re: 2.6.18-rc4 warning on arch/x86_64/boot/compressed/head.o
+Date: Tue, 8 Aug 2006 04:55:34 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <7161.1155005268@kao2.melbourne.sgi.com>
+In-Reply-To: <7161.1155005268@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <710c0ee0607280128g2d968c49ycff3bac9e073e7fa@mail.gmail.com>
-	 <20060805114052.GE4506@ucw.cz> <20060805114547.GA5386@ucw.cz>
-	 <82faac5b0608061639v315c6fa9l17cd4bf44b6bbc51@mail.gmail.com>
-	 <20060807233453.GK2759@elf.ucw.cz>
-	 <82faac5b0608071753q71050d72uadcf55bc1e54f30e@mail.gmail.com>
-To: unlisted-recipients:; (no To-header on input)
+Message-Id: <200608080455.34702.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/7/06, Darren Jenkins <darrenrjenkins@gmail.com> wrote:
-> G'day
->
-> On 8/8/06, Pavel Machek <pavel@suse.cz> wrote:
-> > Hi!
-> >
-> > > >> Well, whoever wrote thi has some serious problems (in attitude
-> > > >> department). *Any* loop you design may take half a minute under
-> > > >> streange circumstances.
-> > >
-> > > 6.
-> > > common mistake in polling loops [from Linus]:
-> >
-> > Yes, Linus was wrong here. Or more precisely, he's right original code
-> > is broken, but his suggested "fix" is worse than the original.
-> >
-> >         unsigned long timeout = jiffies + HZ/2;
-> >         for (;;) {
-> >                 if (ready())
-> >                         return 0;
-> > [IMAGINE HALF A SECOND DELAY HERE]
-> >                 if (time_after(timeout, jiffies))
-> >                         break;
-> >                 msleep(10);
-> >         }
-> >
-> > Oops.
-> >
-> > > >Actually it may be broken, depending on use. In some cases this loop
-> > > >may want to poll the hardware 50 times, 10msec appart... and your loop
-> > > >can poll it only once in extreme conditions.
-> > > >
-> > > >Actually your loop is totally broken, and may poll only once (without
-> > > >any delay) and then directly timeout :-P -- that will break _any_
-> > > >user.
-> > >
-> > > The Idea is that we are checking some event in external hardware that
-> > > we know will complete in a given time (This time is not dependant on
-> > > system activity but is fixed). After that time if the event has not
-> > > happened we know something has borked.
-> >
-> > But you have to make sure YOU CHECK READY AFTER THE TIMEOUT. Linus'
-> > code does not do that.
-> >                                                                 Pavel
->
->
-> Sorry I did not realise that was your problem with the code.
-> Would it help if we just explicitly added a
->
-      unsigned long timeout = jiffies + HZ/2;
-       for (;;) {
-               if (ready())
-                       return 0;
-[IMAGINE HALF A SECOND DELAY HERE]
-               if (time_after(timeout, jiffies)) {
-                       if (ready())
-                              return 0;
-                       break;
-                }
-               msleep(10);
-       }
-Wouldn't this be better than adding a check after the break of loop?
+On Tuesday 08 August 2006 04:47, Keith Owens wrote:
+> Compiling 2.6.18-rc4 on x86_64 gets this warning.
+> 
+>   gcc -Wp,-MD,arch/x86_64/boot/compressed/.head.o.d  -nostdinc -isystem /usr/lib64/gcc/x86_64-suse-linux/4.1.0/include -D__KERNEL__ -Iinclude -Iinclude2 -I$KBUILD_OUTPUT/linux/include -include include/linux/autoconf.h -D__ASSEMBLY__ -m64 -traditional -m32  -c -o arch/x86_64/boot/compressed/head.o $KBUILD_OUTPUT/linux/arch/x86_64/boot/compressed/head.S
+>   ld -m elf_i386  -Ttext 0x100000 -e startup_32 -m elf_i386 arch/x86_64/boot/compressed/head.o arch/x86_64/boot/compressed/misc.o arch/x86_64/boot/compressed/piggy.o -o arch/x86_64/boot/compressed/vmlinux 
+> ld: warning: i386:x86-64 architecture of input file `arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
+> 
 
-> if (ready())
->         return 0;
->
-> after the loop, in the example code? so people wont miss adding
-> something like that in?
+It always gave that since some binutils update long ago.
+If you know how to fix it please submit a patch, but as far as I know it's harmless.
+
+-Andi

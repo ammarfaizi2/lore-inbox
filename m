@@ -1,77 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWHHRIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWHHRIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbWHHRIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWHHRIV
+	id S964999AbWHHRIO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWHHRIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:08:21 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:36267 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S965000AbWHHRIU (ORCPT
+	Tue, 8 Aug 2006 13:08:14 -0400
+Received: from dvhart.com ([64.146.134.43]:32708 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S964999AbWHHRIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:08:20 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: "Ulrich Drepper" <drepper@gmail.com>
-Subject: Re: [RFC] NUMA futex hashing
-Date: Tue, 8 Aug 2006 19:08:17 +0200
-User-Agent: KMail/1.9.1
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andi Kleen" <ak@suse.de>,
-       "Ravikiran G Thirumalai" <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       "pravin b shelar" <pravin.shelar@calsoftinc.com>,
-       linux-kernel@vger.kernel.org
-References: <20060808070708.GA3931@localhost.localdomain> <200608081808.34708.dada1@cosmosbay.com> <a36005b50608080958n192e9324jb9d5a7a59b365eae@mail.gmail.com>
-In-Reply-To: <a36005b50608080958n192e9324jb9d5a7a59b365eae@mail.gmail.com>
+	Tue, 8 Aug 2006 13:08:13 -0400
+Message-ID: <44D8C4F9.3000402@mbligh.org>
+Date: Tue, 08 Aug 2006 10:08:09 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rohitseth@google.com, Dave Hansen <haveblue@us.ibm.com>,
+       Kirill Korotaev <dev@sw.ru>, vatsa@in.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, sam@vilain.net, linux-kernel@vger.kernel.org,
+       dev@openvz.org, efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, pj@sgi.com, Andrey Savochkin <saw@sw.ru>
+Subject: Re: memory resource accounting (was Re: [RFC, PATCH 0/5] Going forward
+ with Resource Management - A	cpu controller)
+References: <20060804050753.GD27194@in.ibm.com>	 <20060803223650.423f2e6a.akpm@osdl.org>	 <20060803224253.49068b98.akpm@osdl.org>	 <1154684950.23655.178.camel@localhost.localdomain>	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>	 <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru>	 <44D74F77.7080000@mbligh.org>  <44D76B43.5080507@sw.ru>	 <1154975486.31962.40.camel@galaxy.corp.google.com>	 <1154976236.19249.9.camel@localhost.localdomain> <1154977257.31962.57.camel@galaxy.corp.google.com> <44D798B1.8010604@mbligh.org> <44D89D7D.8040006@yahoo.com.au>
+In-Reply-To: <44D89D7D.8040006@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608081908.18157.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 18:58, Ulrich Drepper wrote:
-> On 8/8/06, Eric Dumazet <dada1@cosmosbay.com> wrote:
-> > So we really can... but for 'private futexes' which are the vast majority
-> > of futexes needed by typical program (using POSIX pshared thread mutex
-> > attribute PTHREAD_PROCESS_PRIVATE, currently not used by NPTL glibc)
->
-> Nonsense.  Mutexes are by default always private.  They explicitly
-> have to be marked as sharable.  This happens using the
-> pthread_mutexattr_setpshared function which takes
-> PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED in the second
-> parameter.  So the former _is_ clearly used.
->
+>> It also saves you from maintaining huge lists against each page.
+>>
+>> Worse case, you want to bill everyone who opens that address_space
+>> equally. But the semantics on exit still suck.
+>>
+>> What was Alan's quote again? "unfair, unreliable, inefficient ...
+>> pick at least one out of the three". or something like that.
+> 
+> What's the sucking semantics on exit? I haven't looked much at the
+> existing memory controllers going around, but the implementation I
+> imagine looks something like this (I think it is conceptually similar
+> to the basic beancounters idea):
 
-I was saying that PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED info is 
-not provided to the kernel (because futex api/implementation dont need to). 
-It was not an attack on glibc.
+You have to increase the other processes allocations, putting them
+over their limits. If you then force them into reclaim, they're going
+to stall, and give bad latency.
 
-> > Of course we would need a new syscall, and to change glibc to be able to
-> > actually use this new private_futex syscall.
->
-> No, why?  The kernel already does recognize private mutexes.  It just
-> checks whether the pages used to store it are private or mapped.  This
-> requires some interaction with the memory subsystem but as long as no
-> crashes happen the data can change underneath.  It's the program's
-> fault if it does.
+> - anyone who allocates a page for anything gets charged for that page.
+>   Except interrupt/softirq context. Could we ignore these for the moment?
+> 
+>   This does give you kernel (slab, pagetable, etc) allocations as well as
+>   userspace. I don't like the idea of doing controllers for inode cache
+>   and controllers for dentry cache, etc, etc, ad infinitum.
+> 
+> - each struct page has a backpointer to its billed container. At the mm
+>   summit Linus said he didn't want back pointers, but I clarified with him
+>   and he isn't against them if they are easily configured out when not 
+>   using memory controllers.
+> 
+> - memory accounting containers are in a hierarchy. If you want to destroy a
+>   container but it still has billed memory outstanding, that gets charged
+>   back to the parent. The data structure itself obviously still needs to
+>   stay around, to keep the backpointers from going stale... but that could
+>   be as little as a word or two in size.
+> 
+> The reason I like this way of accounting is that it can be done with a 
+> couple
+> of hooks into page_alloc.c and an ifdef in mm.h, and that is the extent of
+> the impact on core mm/ so I'd be against anything more intrusive unless 
+> this
+> really doesn't work.
+> 
 
-But if you let futex code doing the vma walk to check the private/shared 
-status, you still need the mmap_sem locking.
+See "inefficent" above (sorry ;-)) What you've chosen is more correct,
+but much higher overhead. The point was that there's tradeoffs either
+way - the conclusion we came to last time was that to make it 100%
+correct, you'd be better off going with a model like Xen.
 
-Moreover, a program can mmap() a file (shared in terms of VMA), and continue 
-to use a  PTHREAD_PROCESS_PRIVATE mutex lying in this shared zone
-(Example : shmem or hugetlb mapping, wich API might always give a 'shared' 
-vma)
+1. You're adding a backpointer to struct page.
 
->
-> On the waker side you would search the local futex hash table/tree
-> first and if this doesn't yield a match, search the global table.
-> Wakeup calls without any waiters are usually rare.
+2. Each page is not accounted to one container, but shared across them,
+so the billing changes every time someone forks or exits. And not just
+for that container, but all of them. Think pte chain based rmap ...
+except worse.
 
-If the two searches touch two different cache lines in the hash table, we 
-might have a performance regression.
-Of course we might chose a hash function so that the same slot is accessed.
+3. When a container needs to "shrink" when somebody else exits, how do
+we do reclaim pages from a specific container?
 
-Eric
+M.
 

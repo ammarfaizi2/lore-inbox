@@ -1,80 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWHHTXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWHHTXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWHHTXB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 15:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWHHTXB
+	id S1030225AbWHHTXy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 15:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHHTXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 15:23:01 -0400
-Received: from iron.pdx.net ([207.149.241.18]:7385 "EHLO iron.pdx.net")
-	by vger.kernel.org with ESMTP id S1030223AbWHHTXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 15:23:00 -0400
-Subject: [BUG] Kernel Panic from AHD when power cycling external Disk/Array
-From: Sean Bruno <sean.bruno@dsl-only.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 12:22:53 -0700
-Message-Id: <1155064973.3002.5.camel@home-desk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 15:23:53 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:16819 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1030229AbWHHTXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 15:23:52 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Tue, 8 Aug 2006 21:22:54 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2/4] ieee1394: safer definition of empty macros
+To: linux-kernel@vger.kernel.org
+cc: Ben Collins <bcollins@ubuntu.com>, Andrew Morton <akpm@osdl.org>,
+       linux1394-devel@lists.sourceforge.net
+In-Reply-To: <tkrat.57bb8cb1b7c97d1e@s5r6.in-berlin.de>
+Message-ID: <tkrat.a4ed36860ca1de89@s5r6.in-berlin.de>
+References: <tkrat.57bb8cb1b7c97d1e@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running a 29320R with CentOS 4.3 and 2.6.17.8 installed.  
+A deactivated macro, defined as "#define foo(bar)", will result in
+silent corruption if somebody forgets a semicolon after a call to foo.
+Replace it by "#define foo(bar) do {} while (0)" which will reveal any
+respective syntax errors.
 
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+ drivers/ieee1394/dv1394.c         |    4 ++--
+ drivers/ieee1394/ieee1394_core.c  |    2 +-
+ drivers/ieee1394/ieee1394_types.h |    2 +-
+ drivers/ieee1394/ohci1394.c       |    8 ++++----
+ drivers/ieee1394/raw1394.c        |    2 +-
+ drivers/ieee1394/sbp2.c           |   18 +++++++++---------
+ drivers/ieee1394/video1394.c      |    2 +-
+ 7 files changed, 19 insertions(+), 19 deletions(-)
 
-Got this interesting BUG from 2.6.17.8 today.  Each time I reset my
-external SCSI Disk connected to my 29320R the kernel throws this error
-and locks up:
-
-scsi0: Someone reset channel A
-BUG: soft lockup detected on CPU#0!
- <c013258b> softlockup_tick+0x7f/0x8e  <c011e6e4> update_process_times
-+0x35/0x57 <c0104eda> timer_interrupt+0x3d/0x60  <c0132698>
-handle_IRQ_event+0x21/0x4a
- <c0132739> __do_IRQ+0x78/0xcb  <c0103eb5> do_IRQ+0x6b/0x7a
- <c0102c4a> common_interrupt+0x1a/0x20  <c02d3a2a>
-_spin_unlock_irqrestore+0xa/c <e08d0481> ahd_linux_isr+0x173/0x17f
-[aic79xx]  <c0132698> handle_IRQ_event+0xa <c0132739> __do_IRQ+0x78/0xcb
-<c0103ea8> do_IRQ+0x5e/0x7a
- =======================
- <c0102c4a> common_interrupt+0x1a/0x20  <c011b5bc> __do_softirq
-+0x2c/0x7d
- <c0103f8c> do_softirq+0x38/0x3f
- =======================
- <c0103eba> do_IRQ+0x70/0x7a  <c0102c4a> common_interrupt+0x1a/0x20
- <c0101150> mwait_idle+0x1a/0x2a  <c01010bf> cpu_idle+0x40/0x5c
- <c038c618> start_kernel+0x184/0x186
-
-
-
-H/W specs:
-(lspci)
-00:00.0 Host bridge: Intel Corporation 82865G/PE/P DRAM
-Controller/Host-Hub Interface (rev 02)
-00:01.0 PCI bridge: Intel Corporation 82865G/PE/P PCI to AGP Controller
-(rev 02)
-00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI Controller #1 (rev 02)
-00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI Controller #2 (rev 02)
-00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI Controller #3 (rev 02)
-00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI Controller #4 (rev 02)
-00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2
-EHCI Controller (rev 02)
-00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
-00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC
-Interface Bridge (rev 02)
-00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE
-Controller (rev 02)
-02:05.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001
-Gigabit Ethernet Controller (rev 13)
-02:09.0 VGA compatible controller: Silicon Integrated Systems [SiS]
-315PRO PCI/AGP VGA Display Adapter
-02:0c.0 SCSI storage controller: Adaptec ASC-29320A U320 (rev 10)
-
+Index: linux/drivers/ieee1394/dv1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/dv1394.c	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/dv1394.c	2006-08-01 20:36:25.000000000 +0200
+@@ -137,13 +137,13 @@
+ #if DV1394_DEBUG_LEVEL >= 2
+ #define irq_printk( args... ) printk( args )
+ #else
+-#define irq_printk( args... )
++#define irq_printk( args... ) do {} while (0)
+ #endif
+ 
+ #if DV1394_DEBUG_LEVEL >= 1
+ #define debug_printk( args... ) printk( args)
+ #else
+-#define debug_printk( args... )
++#define debug_printk( args... ) do {} while (0)
+ #endif
+ 
+ /* issue a dummy PCI read to force the preceding write
+Index: linux/drivers/ieee1394/ieee1394_core.c
+===================================================================
+--- linux.orig/drivers/ieee1394/ieee1394_core.c	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/ieee1394_core.c	2006-08-01 20:37:04.000000000 +0200
+@@ -85,7 +85,7 @@ static void dump_packet(const char *text
+ 	printk("\n");
+ }
+ #else
+-#define dump_packet(a,b,c,d)
++#define dump_packet(a,b,c,d) do {} while (0)
+ #endif
+ 
+ static void abort_requests(struct hpsb_host *host);
+Index: linux/drivers/ieee1394/ieee1394_types.h
+===================================================================
+--- linux.orig/drivers/ieee1394/ieee1394_types.h	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/ieee1394_types.h	2006-08-01 20:37:55.000000000 +0200
+@@ -41,7 +41,7 @@ typedef u16 arm_length_t;
+ #define HPSB_VERBOSE(fmt, args...)	HPSB_PRINT(KERN_DEBUG, fmt , ## args)
+ #define HPSB_DEBUG_TLABELS
+ #else
+-#define HPSB_VERBOSE(fmt, args...)
++#define HPSB_VERBOSE(fmt, args...)	do {} while (0)
+ #endif
+ 
+ #ifdef __BIG_ENDIAN
+Index: linux/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/ohci1394.c	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/ohci1394.c	2006-08-01 20:53:27.000000000 +0200
+@@ -136,7 +136,7 @@
+ #define DBGMSG(fmt, args...) \
+ printk(KERN_INFO "%s: fw-host%d: " fmt "\n" , OHCI1394_DRIVER_NAME, ohci->host->id , ## args)
+ #else
+-#define DBGMSG(fmt, args...)
++#define DBGMSG(fmt, args...) do {} while (0)
+ #endif
+ 
+ #ifdef CONFIG_IEEE1394_OHCI_DMA_DEBUG
+@@ -148,8 +148,8 @@ printk(KERN_INFO "%s: fw-host%d: " fmt "
+ 		--global_outstanding_dmas, ## args)
+ static int global_outstanding_dmas = 0;
+ #else
+-#define OHCI_DMA_ALLOC(fmt, args...)
+-#define OHCI_DMA_FREE(fmt, args...)
++#define OHCI_DMA_ALLOC(fmt, args...) do {} while (0)
++#define OHCI_DMA_FREE(fmt, args...) do {} while (0)
+ #endif
+ 
+ /* print general (card independent) information */
+@@ -210,7 +210,7 @@ static inline void packet_swab(quadlet_t
+ }
+ #else
+ /* Don't waste cycles on same sex byte swaps */
+-#define packet_swab(w,x)
++#define packet_swab(w,x) do {} while (0)
+ #endif /* !LITTLE_ENDIAN */
+ 
+ /***********************************
+Index: linux/drivers/ieee1394/raw1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/raw1394.c	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/raw1394.c	2006-08-01 20:39:34.000000000 +0200
+@@ -67,7 +67,7 @@
+ #define DBGMSG(fmt, args...) \
+ printk(KERN_INFO "raw1394:" fmt "\n" , ## args)
+ #else
+-#define DBGMSG(fmt, args...)
++#define DBGMSG(fmt, args...) do {} while (0)
+ #endif
+ 
+ static LIST_HEAD(host_info_list);
+Index: linux/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux.orig/drivers/ieee1394/sbp2.c	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.c	2006-08-01 20:54:17.000000000 +0200
+@@ -203,9 +203,9 @@ static u32 global_outstanding_command_or
+ #define outstanding_orb_incr global_outstanding_command_orbs++
+ #define outstanding_orb_decr global_outstanding_command_orbs--
+ #else
+-#define SBP2_ORB_DEBUG(fmt, args...)
+-#define outstanding_orb_incr
+-#define outstanding_orb_decr
++#define SBP2_ORB_DEBUG(fmt, args...)	do {} while (0)
++#define outstanding_orb_incr		do {} while (0)
++#define outstanding_orb_decr		do {} while (0)
+ #endif
+ 
+ #ifdef CONFIG_IEEE1394_SBP2_DEBUG_DMA
+@@ -217,8 +217,8 @@ static u32 global_outstanding_command_or
+ 		 --global_outstanding_dmas, ## args)
+ static u32 global_outstanding_dmas = 0;
+ #else
+-#define SBP2_DMA_ALLOC(fmt, args...)
+-#define SBP2_DMA_FREE(fmt, args...)
++#define SBP2_DMA_ALLOC(fmt, args...)	do {} while (0)
++#define SBP2_DMA_FREE(fmt, args...)	do {} while (0)
+ #endif
+ 
+ #if CONFIG_IEEE1394_SBP2_DEBUG >= 2
+@@ -232,7 +232,7 @@ static u32 global_outstanding_dmas = 0;
+ #define SBP2_NOTICE(fmt, args...)	HPSB_NOTICE("sbp2: "fmt, ## args)
+ #define SBP2_WARN(fmt, args...)		HPSB_WARN("sbp2: "fmt, ## args)
+ #else
+-#define SBP2_DEBUG(fmt, args...)
++#define SBP2_DEBUG(fmt, args...)	do {} while (0)
+ #define SBP2_INFO(fmt, args...)		HPSB_INFO("sbp2: "fmt, ## args)
+ #define SBP2_NOTICE(fmt, args...)       HPSB_NOTICE("sbp2: "fmt, ## args)
+ #define SBP2_WARN(fmt, args...)         HPSB_WARN("sbp2: "fmt, ## args)
+@@ -375,8 +375,8 @@ static inline void sbp2util_cpu_to_be32_
+ }
+ #else /* BIG_ENDIAN */
+ /* Why waste the cpu cycles? */
+-#define sbp2util_be32_to_cpu_buffer(x,y)
+-#define sbp2util_cpu_to_be32_buffer(x,y)
++#define sbp2util_be32_to_cpu_buffer(x,y) do {} while (0)
++#define sbp2util_cpu_to_be32_buffer(x,y) do {} while (0)
+ #endif
+ 
+ #ifdef CONFIG_IEEE1394_SBP2_PACKET_DUMP
+@@ -412,7 +412,7 @@ static void sbp2util_packet_dump(void *b
+ 	return;
+ }
+ #else
+-#define sbp2util_packet_dump(w,x,y,z)
++#define sbp2util_packet_dump(w,x,y,z) do {} while (0)
+ #endif
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(access_wq);
+Index: linux/drivers/ieee1394/video1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/video1394.c	2006-07-29 20:11:13.000000000 +0200
++++ linux/drivers/ieee1394/video1394.c	2006-08-01 20:42:56.000000000 +0200
+@@ -129,7 +129,7 @@ struct file_ctx {
+ #define DBGMSG(card, fmt, args...) \
+ printk(KERN_INFO "video1394_%d: " fmt "\n" , card , ## args)
+ #else
+-#define DBGMSG(card, fmt, args...)
++#define DBGMSG(card, fmt, args...) do {} while (0)
+ #endif
+ 
+ /* print general (card independent) information */
 
 

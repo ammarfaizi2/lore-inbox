@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWHHP7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWHHQDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbWHHP7v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 11:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWHHP7v
+	id S1030184AbWHHQDA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 12:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWHHQDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 11:59:51 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:61352 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1030182AbWHHP7u (ORCPT
+	Tue, 8 Aug 2006 12:03:00 -0400
+Received: from main.gmane.org ([80.91.229.2]:58041 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030184AbWHHQC7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 11:59:50 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Kirill Korotaev <dev@sw.ru>
-Subject: Re: [PATCH] unserialized task->files changing (v2)
-Date: Tue, 8 Aug 2006 17:59:48 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, xemul@sw.ru,
-       hch@infradead.org
-References: <44D87611.7070705@sw.ru> <200608081451.58305.dada1@cosmosbay.com> <44D8B35D.2070908@sw.ru>
-In-Reply-To: <44D8B35D.2070908@sw.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608081759.48434.dada1@cosmosbay.com>
+	Tue, 8 Aug 2006 12:02:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kari Hurtta <hurtta+gmane@siilo.fmi.fi>
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Date: 08 Aug 2006 19:02:15 +0300
+Message-ID: <5dpsfbrzaw.fsf@attruh.keh.iki.fi>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI> <eb8g8b$837$1@taverner.cs.berkeley.edu> <20060807225642.GA31752@nevyn.them.org> <200608071813.18661.chase.venters@clientec.com> <84144f020608080516k183072efmdcc8a4dfc334b2fe@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cs181108174.pp.htv.fi
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 17:53, Kirill Korotaev wrote:
-> Eric,
->
-> > Sorry but there is something I dont understand. You ignored my point.
->
-> Sorry, I missed it thinking that you are talking about another thing...
-> Pavel described the race in more details and why barrier doesn't help.
-> Hope, it became more clear now.
+"Pekka Enberg" <penberg@cs.helsinki.fi> writes:
 
-Yes it became very clear :)
-Sorry for the confusion.
+> On 8/8/06, Chase Venters <chase.venters@clientec.com> wrote:
+> > IIRC, it returns EBADF because the file actually gets closed. The file
+> > descriptor, on the other hand, is permanently leaked.
+> >
+> > Have these details changed?
+> 
+> No. Your description is accurate.
+> 
+>                                              Pekka
 
-Thank you
+So application can not close() it and recover file description?
 
-Eric
+/ Kari Hurtta
+

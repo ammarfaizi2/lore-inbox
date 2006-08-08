@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWHHWAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWHHWAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWHHWAP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 18:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWHHWAP
+	id S1030278AbWHHWAG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 18:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWHHWAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 18:00:15 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:37837 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030298AbWHHWAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 18:00:13 -0400
-Subject: RE: Time to forbid non-subscribers from posting to the list?
-From: Lee Revell <rlrevell@joe-job.com>
-To: davids@webmaster.com
-Cc: "Linux-Kernel@Vger.Kernel.Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 18:00:04 -0400
-Message-Id: <1155074405.26338.119.camel@mindpipe>
+	Tue, 8 Aug 2006 18:00:05 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44717
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030278AbWHHWAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 18:00:02 -0400
+Date: Tue, 08 Aug 2006 15:00:06 -0700 (PDT)
+Message-Id: <20060808.150006.48399434.davem@davemloft.net>
+To: rostedt@goodmis.org
+Cc: tytso@mit.edu, mchan@broadcom.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0608080819080.7917@gandalf.stny.rr.com>
+References: <Pine.LNX.4.58.0608070124340.15870@gandalf.stny.rr.com>
+	<20060806.231846.71090637.davem@davemloft.net>
+	<Pine.LNX.4.58.0608080819080.7917@gandalf.stny.rr.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 12:00 -0700, David Schwartz wrote:
-> > The kernel developers who need to keep the barrier to bug reports low
-> > like the current policy.
-> >
-> > Get a good spam filter, I only get 1-2 pieces a day in my LKML folder.
-> >
-> > 	Jeff
-> 
-> 	How is everyone individually spam filtering better than one central spam
-> filter? More likelihood that at least one relevent person will get the bug
-> report? Certainly a single central spam filter can get more resources aimed
-> at it to make sure it doesn't suppress anything important.
+From: Steven Rostedt <rostedt@goodmis.org>
+Date: Tue, 8 Aug 2006 08:24:10 -0400 (EDT)
 
-There IS one central spam filter already, but apparently a 100:1
-ham:spam ratio is not good enough for some people.  Do you have any idea
-what this list would look like if there were no filtering at all?
+> Of the 4 timers, only one is a timeout. The other three expire every time,
+> forcing the timer wheel into effect.  Even though it's one timer
+> implementing 4, it's expensive to use it as a watchdog.
 
-At some point you just have to say it's good enough, that to filter any
-more aggressively would entail an unacceptable risk of false positives,
-and that the small minority for whom a single spam is intolerable can do
-their own filtering.
+It's not a watchdog, the timer continually fires.
 
-Lee
+It is the on-chip ASF firmware that "times out" if it does not
+see  the heartbeat message from the driver within 5 seconds.
 
+The driver timer in question runs every 2 seconds to write this
+heartbeat message to the chip.

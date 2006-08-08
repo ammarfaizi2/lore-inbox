@@ -1,113 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWHHRKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWHHRTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWHHRKa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWHHRKa
+	id S964953AbWHHRTF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWHHRTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:10:30 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:32230 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1030195AbWHHRK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:10:29 -0400
-Subject: Re: How to lock current->signal->tty
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Eric Paris <eparis@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
-       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
-       davem@redhat.com, jack@suse.cz, dwmw2@infradead.org,
-       tony.luck@intel.com, jdike@karaya.com,
-       James.Bottomley@HansenPartnership.com
-In-Reply-To: <1155050242.5729.88.camel@localhost.localdomain>
-References: <1155050242.5729.88.camel@localhost.localdomain>
+	Tue, 8 Aug 2006 13:19:05 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:26551 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S964953AbWHHRTE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:19:04 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=pSkuOo3C9Db2HAyPp+OfQj/3XfWCXxRGI1ZR+To+qhj0Cn5Hw/XSaSFxG5xYimwFX
+	PcA/oM+quRmf1pMwCJT+w==
+Subject: Re: [RFC, PATCH 0/5] Going forward with Resource Management
+	-	A	cpu controller
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       sam@vilain.net, linux-kernel@vger.kernel.org, dev@openvz.org,
+       efault@gmx.de, balbir@in.ibm.com, sekharan@us.ibm.com,
+       nagar@watson.ibm.com, haveblue@us.ibm.com, pj@sgi.com
+In-Reply-To: <44D83A7D.80600@sw.ru>
+References: <20060804050753.GD27194@in.ibm.com>
+	 <20060803223650.423f2e6a.akpm@osdl.org>
+	 <20060803224253.49068b98.akpm@osdl.org>
+	 <1154684950.23655.178.camel@localhost.localdomain>
+	 <20060804114109.GA28988@in.ibm.com> <44D35F0B.5000801@sw.ru>
+	 <20060804153123.GB32412@in.ibm.com>  <44D36FB5.3050002@sw.ru>
+	 <1154716024.7228.32.camel@galaxy.corp.google.com> <44D6E98C.9090208@sw.ru>
+	 <1154970846.31962.17.camel@galaxy.corp.google.com>  <44D83A7D.80600@sw.ru>
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 08 Aug 2006 13:11:54 -0400
-Message-Id: <1155057114.1123.97.camel@moss-spartans.epoch.ncsc.mil>
+Organization: Google Inc
+Date: Tue, 08 Aug 2006 10:16:32 -0700
+Message-Id: <1155057392.1072.66.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 16:17 +0100, Alan Cox wrote:
-> The biggest crawly horror I've found so far in auditing the tty locking
-> is current->signal->tty. The tty layer currently and explicitly protects
-> this using tty_mutex. The core kernel likewise knows about this.
+On Tue, 2006-08-08 at 11:17 +0400, Kirill Korotaev wrote:
+> >>>>>Doesnt the ability to move tasks between groups dynamically affect
+> >>>>>(atleast) memory controller design (in giving up ownership etc)?
+> >>>>
+> >>>>we save object owner on the object. So if you change the container,
+> >>>>objects are still correctly charged to the creator and are uncharged
+> >>>>correctly on free.
+> >>>>
+> >>>
+> >>>
+> >>>Seems like the object owner should also change when the object moves
+> >>>from one container to another.
+> > 
+> > 
+> >>Consider a file which is opened in 2 processes. one of the processes
+> >>wants to move to another container then. How would you decide whether
+> >>to change the file owner or not?
+> >>
+> > 
+> > 
+> > If a process has sufficient rights to move a file to a new container
+> > then it should be okay to assign the file to the new container.  
+
+> there is no such notion as  "rights to move a file to a new container".
+> The same file can be opened in processes belonging to other containers.
+> And you have no any clue whether to have to change the owner or not.
 > 
-> Unfortunately:
-> 	SELinux doesn't do any locking at all
-> 	Dquot passes the tty to tty_write_message without locking
-> 	audit_log_exit doesn't do any locking at all
-> 	acct.c thinks tasklist_lock protects it (wrong)
-> 	drivers/char/sx misuses it unlocked in debug info
-> 	fs/proc/array thinks tasklist_lock will save it (also wrong)
-> 	fs3270 does fascinating things with it which don't look safe
-> 	ebtables remote debugging (#if 0 thankfully) does no locking
-> 		and just for fun calls the tty driver directly with no
-> 		driver locking either.
-> 	voyager_thread sets up a thread and then touches ->tty unlocked
-> 		(and it seems daemonize already fixed it)
-> 	Sparc solaris_procids sets it to NULL without locking
-> 	arch/ia64/kernel/unanligned seems to write to it without locking
-> 	arch/um/kernel/exec.c appears to believe task_lock is used
+
+I think this is where more details on a design will help.  What I'm
+thinking is each address_space to have a container pointer.  In this
+case, pages belonging to a file will charge against one single container
+(irrespective of how many processes are touching those pages).
+
+> > Though the point is, if a resource (like file) is getting migrated to a
+> > new container then all the attributes (like owner, #pages in memory
+> > etc.) attached to that resource (file) should also migrate to this new
+> > container.  Otherwise the semantics of where does the resource belong
+> > becomes very difficult.
+> The same for many other resources. It is a big mistake thinking that most resources
+> belong to the processes and the owner process can be easily determined.
 > 
-> The semantics are actually as follows
-> 
-> signal->tty must not be changed without holding tty_mutex
-> signal->tty must not be used unless tty_mutex is held from before
-> reading it to completing using it
-> Simple if(signal->tty == NULL) type checks are ok
-> 
-> I'm looking longer term at tty ref counting and the like but for now and
-> current distributions it might be an idea to fix the existing problems.
 
-Does this look sane?  Or do we need a common helper factored from
-disassociate_ctty()?  Why is the locking different for TIOCNOTTY in the
-non-leader case?
+Sure that some resources it wouldn't make sense to move (or find out at
+which is the real owner).  And I'm not saying that we have to bind them
+hard to a process either...but to a single container if they belong to a
+same file (for example).
 
----
-
-selinux:  fix tty locking
-
-Take tty_mutex when accessing ->signal->tty.
-Noted by Alan Cox.  
-
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
----
-
- security/selinux/hooks.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5d1b8c7..4b0f904 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1711,10 +1711,12 @@ static inline void flush_unauthorized_fi
- {
- 	struct avc_audit_data ad;
- 	struct file *file, *devnull = NULL;
--	struct tty_struct *tty = current->signal->tty;
-+	struct tty_struct *tty;
- 	struct fdtable *fdt;
- 	long j = -1;
- 
-+	mutex_lock(&tty_mutex);
-+	tty = current->signal->tty;
- 	if (tty) {
- 		file_list_lock();
- 		file = list_entry(tty->tty_files.next, typeof(*file), f_u.fu_list);
-@@ -1734,6 +1736,7 @@ static inline void flush_unauthorized_fi
- 		}
- 		file_list_unlock();
- 	}
-+	mutex_unlock(&tty_mutex);
- 
- 	/* Revalidate access to inherited open files. */
- 
-
-
--- 
-Stephen Smalley
-National Security Agency
+-rohit
 

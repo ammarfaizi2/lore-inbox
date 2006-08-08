@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWHHPFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWHHPLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWHHPFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 11:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWHHPFv
+	id S964942AbWHHPLC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 11:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWHHPLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 11:05:51 -0400
-Received: from gimli.datakultur.com ([212.28.216.234]:50636 "EHLO
-	gimli.datakultur.com") by vger.kernel.org with ESMTP
-	id S964900AbWHHPFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 11:05:50 -0400
-From: Hans Eklund <hans@rubico.se>
-Reply-To: hans@rubico.se
-Organization: Rubico AB
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: Block request processing for MMC/SD over SPI bus
-Date: Tue, 8 Aug 2006 17:07:25 +0200
-User-Agent: KMail/1.9.1
-References: <200608011037.27721.hans@rubico.se> <20060801084209.GB9556@flint.arm.linux.org.uk>
-In-Reply-To: <20060801084209.GB9556@flint.arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 8 Aug 2006 11:11:01 -0400
+Received: from mga05.intel.com ([192.55.52.89]:26174 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964942AbWHHPLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 11:11:00 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.07,222,1151910000"; 
+   d="scan'208"; a="113419032:sNHT7036766905"
+Message-ID: <44D8A97B.30607@linux.intel.com>
+Date: Tue, 08 Aug 2006 08:10:51 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, davem@redhat.com, sds@tycho.nsa.gov,
+       jack@suse.cz, dwmw2@infradead.org, tony.luck@intel.com,
+       jdike@karaya.com, James.Bottomley@HansenPartnership.com
+Subject: Re: How to lock current->signal->tty
+References: <1155050242.5729.88.camel@localhost.localdomain>
+In-Reply-To: <1155050242.5729.88.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608081707.26003.hans@rubico.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 August 2006 10:42, Russell King wrote:
-> On Tue, Aug 01, 2006 at 10:37:27AM +0200, Hans Eklund wrote:
-> > The driver is also independent of any previous MMC related work at this
-> > point since MMC over SPI mode differs somewhat from the MMC mode.
->
-> You may be interested to know that David Brownell (I believe) has a
-> driver which connects the SPI framework to the MMC subsystem, allowing
-> the MMC subsystem to talk to cards in SPI mode.
->
-> Maybe David can help, or point you in the direction of someone who
-> can in the case that I'm misremembering.
+Alan Cox wrote:
+> The biggest crawly horror I've found so far in auditing the tty locking
+> is current->signal->tty. The tty layer currently and explicitly protects
+> this using tty_mutex. The core kernel likewise knows about this.
+> 
+> Unfortunately:
+> 	Dquot passes the tty to tty_write_message without locking
+> 	arch/ia64/kernel/unanligned seems to write to it without locking
 
-
-Hi again Russel.
-
-I have been talking to David Brownell and some other developers connected to 
-ADI(Analgo devices) about the SPI to MMC subsystem driver. That idea will 
-probably be implemented in a later phase. For now, i will complete my MMC/SD 
-driver that connects to the common SPI framwork and will remain independent 
-of the MMC subsystem so it can be used on uClinux platforms(ADI Blackfin 
-based to a start) sooner.
-
-For that reason am i talking to you. By a mere coincidence i saw that you are 
-the author of /drivers/mmc/mmc_queue.c driver and hence i guess you have some 
-knowledge regarding request processing that may be useful to the project.
-
-I would say my driver need some attention to that particular part. And i would 
-appreciate any help. As of now, it is a very naive way of walking the request 
-queue(a la LDD handbook) and it need to support some basic error handling.
-
-I have posted a copy of the make_request implementation here(~150 lines):
-
-http://hasse.yohoo.nu/strat.txt
-
-It is quite extesively commented, and some important questions at the end.
-Hope you can have look at it and maybe give me a guideline.
-
-If you dont have the time, i understand, maybe you know someone who has?
-
-best regards
-
-Hans Eklund,
-Rubico AB, www.rubico.se
-Sweden.
-
+these two have absolutely no business at all using anything tty.... they should
+just use printk with KERN_EMERG or whatever

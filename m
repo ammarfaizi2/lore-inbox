@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWHHDo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWHHDsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWHHDo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 23:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWHHDo4
+	id S932368AbWHHDsI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 23:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWHHDsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 23:44:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:51595 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932343AbWHHDoz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 23:44:55 -0400
-Date: Tue, 8 Aug 2006 13:44:38 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: "Tony.Ho" <linux@idccenter.cn>, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
-Message-ID: <20060808134438.E2526901@wobbly.melbourne.sgi.com>
-References: <9a8748490608040122l69ff139dtaae27e8981022dae@mail.gmail.com> <20060804200549.A2414667@wobbly.melbourne.sgi.com> <44D55CE8.3090202@idccenter.cn> <44D56A97.2070603@idccenter.cn> <20060807143416.A2501392@wobbly.melbourne.sgi.com> <3aa654a40608072039r2b5c5a19hbd3e68e4fee40869@mail.gmail.com>
+	Mon, 7 Aug 2006 23:48:07 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42432
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932368AbWHHDsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 23:48:07 -0400
+Date: Mon, 07 Aug 2006 20:48:10 -0700 (PDT)
+Message-Id: <20060807.204810.11384152.davem@davemloft.net>
+To: pavlin@icir.org
+Cc: linux-kernel@vger.kernel.org, roland@topspin.com
+Subject: Re: Bug in the RTM_SETLINK kernel API for setting MAC address
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200608080340.k783eOfH076445@possum.icir.org>
+References: <200608080340.k783eOfH076445@possum.icir.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3aa654a40608072039r2b5c5a19hbd3e68e4fee40869@mail.gmail.com>; from avuton@gmail.com on Mon, Aug 07, 2006 at 08:39:49PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 07, 2006 at 08:39:49PM -0700, Avuton Olrich wrote:
-> On 8/6/06, Nathan Scott <nathans@sgi.com> wrote:
-> > On Sun, Aug 06, 2006 at 12:05:43PM +0800, Tony.Ho wrote:
-> > > I'm sorry about prev mail. I test on a wrong kernel.
-> > > The panic is not appear again,
-> 
-> Using 2.6.18-rc4, is this the bug that this thread refers to?
+From: Pavlin Radoslavov <pavlin@icir.org>
+Date: Mon, 07 Aug 2006 20:40:24 -0700
 
-Yes, try http://oss.sgi.com/archives/xfs/2006-08/msg00054.html
-and lemme know what happens - thanks.
+> Note that the payload with the MAC address has to be
+> "struct sockaddr" (or equivalent) and the length of that payload is
+> the equivalent of "sizeof(sa_family) + mac_address_size".
 
-cheers.
+It should just be the MAC address, that's why the kernel side
+is coded the way it is.
 
--- 
-Nathan
+Where does this sockaddr come from?
+
+I don't see how it could work with the sockaddr there in
+2.6.17, as 2.6.17 makes the same exact length check:
+
+		if (ida[IFLA_ADDRESS - 1]->rta_len != RTA_LENGTH(dev->addr_len))
+			goto out;

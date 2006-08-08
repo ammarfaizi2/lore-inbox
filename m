@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWHHKHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWHHKHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWHHKHu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 06:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWHHKHt
+	id S964783AbWHHKHy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 06:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWHHKHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 06:07:49 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:43952 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S964781AbWHHKHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 06:07:48 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       pravin b shelar <pravin.shelar@calsoftinc.com>
-Subject: Re: [RFC] NUMA futex hashing
-References: <20060808070708.GA3931@localhost.localdomain>
-	<yq0d5bbva98.fsf@jaguar.mkp.net> <p737j1jpn00.fsf@verdi.suse.de>
-From: Jes Sorensen <jes@sgi.com>
-Date: 08 Aug 2006 06:07:47 -0400
-In-Reply-To: <p737j1jpn00.fsf@verdi.suse.de>
-Message-ID: <yq07j1jv8uk.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 8 Aug 2006 06:07:54 -0400
+Received: from tango.0pointer.de ([217.160.223.3]:59153 "EHLO
+	tango.0pointer.de") by vger.kernel.org with ESMTP id S964783AbWHHKHw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 06:07:52 -0400
+Date: Tue, 8 Aug 2006 12:07:46 +0200
+From: Lennart Poettering <mzxreary@0pointer.de>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] input: A few new KEY_xxx definitions
+Message-ID: <20060808100744.GA16201@tango.0pointer.de>
+References: <20060808000925.GA6220@curacao> <200608072219.02315.dtor@insightbb.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608072219.02315.dtor@insightbb.com>
+Organization: .phi.
+X-Campaign-1: ()  ASCII Ribbon Campaign
+X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
+X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
+X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
+X-Disclaimer-3: keiner Unterschrift.
+User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andi" == Andi Kleen <ak@suse.de> writes:
+On Mon, 07.08.06 22:19, Dmitry Torokhov (dtor@insightbb.com) wrote:
 
-Andi> Jes Sorensen <jes@sgi.com> writes:
->>  Using that argument, all you need to do is to add the alignment
->> ____cacheline_aligned_in_smp to the definition of struct
->> futex_hash_bucket and the problem is solved, given that the
->> internode cacheline in a NUMA system is defined to be the same as
->> the SMP cacheline size.
+> > KEY_POWERPLUG, KEY_POWERUNPLUG:
+> > 
+> >     Some laptops generate a fake key event when the power cord is
+> >     plugged or unplugged. (Notably MSI laptops, such as S270)
+> > 
+> 
+> How do these events get delivered? Are you saying that atkbd reports
+> key presses when pulling out AC cord?
 
-Andi> Yes but it would waste quite a lot of memory and cache.  Wasted
-Andi> cache = slow.
+Yes, exactly.
 
-Compared to the extra level of indirection, I doubt it would be
-measurable. The cache space is barely wasted, we're talking
-approximately half a cacheline per futex hash bucket in use.
-
-Jes
+Lennart

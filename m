@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWHHGhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWHHGkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWHHGhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 02:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWHHGhE
+	id S1751254AbWHHGkY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 02:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWHHGkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 02:37:04 -0400
-Received: from mms2.broadcom.com ([216.31.210.18]:64784 "EHLO
-	mms2.broadcom.com") by vger.kernel.org with ESMTP id S1751249AbWHHGhD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 02:37:03 -0400
-X-Server-Uuid: D9EB6F12-1469-4C1C-87A2-5E4C0D6F9D06
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: Re: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-Date: Mon, 7 Aug 2006 23:36:50 -0700
-Message-ID: <1551EAE59135BE47B544934E30FC4FC093FA21@NT-IRVA-0751.brcm.ad.broadcom.com>
-In-Reply-To: <20060805202603.GA9740@thunk.org>
-Thread-Topic: [PATCH -rt DO NOT APPLY] Fix for tg3 networking lockup
-thread-index: Aca4zW2mkiRsVjPlSEKe32T4tlc4xgB5OXlA
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Theodore Tso" <tytso@mit.edu>
-cc: "David Miller" <davem@davemloft.net>, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006080801; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413031303230322E34344438333036462E303032372D422D2F342B574C684A754433704B705975633943514C71513D3D;
- ENG=IBF; TS=20060808063657; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006080801_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 68C6EE8D0X82028301-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Tue, 8 Aug 2006 02:40:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49890 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751254AbWHHGkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 02:40:23 -0400
+Date: Mon, 7 Aug 2006 23:40:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: linux-mtd <linux-mtd@lists.infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc4 jffs2 problems
+Message-Id: <20060807234010.f9a281ed.akpm@osdl.org>
+In-Reply-To: <1154976111.17725.8.camel@localhost.localdomain>
+References: <1154976111.17725.8.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+On Mon, 07 Aug 2006 19:41:50 +0100
+Richard Purdie <rpurdie@rpsys.net> wrote:
 
-> Thanks, that description was very helpful.  Would you accept a patch
-> with adding a comment describing this?
-
-I will put it on my queue to add some comments for ASF.
-
+> I previous reported problems with jffs2 on the Zaurus. I tested
+> 2.6.18-rc4 and nothing has changed - I see the following when booting,
+> both with filesystems that work with 2.6.17 and freshly reflashed
+> systems:
 > 
-> It appears that there is no way of disabling ASF; is that a true
-> statement?
+> Linux version 2.6.18-rc4-.dev-snapshot-20060807 (richard@tim) (gcc version 3.4.3) #1 PREEMPT Mon Aug 7 17:47:07 BST 2006
+> CPU: XScale-PXA250 [69052904] revision 4 (ARMv5TE), cr=0000397f
+> Machine: SHARP Poodle
+> [...]
+> Sharp SL series flash device: 800000 at 0
+> Using static partision definition
+> Creating 1 MTD partitions on "sharpsl-flash":
+> 0x00120000-0x007f0000 : "Boot PROM Filesystem"
+> NAND device: Manufacturer ID: 0x98, Chip ID: 0x76 (Toshiba NAND 64MiB 3,3V 8-bit)
+> Scanning device for bad blocks
+> Creating 3 MTD partitions on "sharpsl-nand":
+> 0x00000000-0x00700000 : "System Area"
+> 0x00700000-0x01d00000 : "Root Filesystem"
+> 0x01d00000-0x04000000 : "Home Filesystem"
+> [...]
+> Empty flash at 0x0054bc5c ends at 0x0054be00
+> VFS: Mounted root (jffs2 filesystem) readonly.
+> Freeing init memory: 100K
+> JFFS2 error: (472) jffs2_get_inode_nodes: short read at 0x074e84: 68 instead of 380.
+> JFFS2 error: (472) jffs2_do_read_inode_internal: cannot read nodes for ino 153, returned error is -5
+> 
+> The empty flash warning is probably due to a slightly corrupted image
+> due to a reboot. The last two messages appear on freshly flashed images
+> on both this and other Zaurus devices (all using nand/sharpsl.c).
+> 
+> Experience shows I can lock the device up with filesystem corruption if
+> I use the device :-(.
+> 
+> Does anyone know what the problem is or have an idea of where I should
+> start debugging this?
 > 
 
-Turning off ASF is just a matter of changing some bits in NVRAM
-and recalculating the checksum.  If you need the tool to do this,
-I'll have someone send it to you.
-
-Note that on some of the blade servers, I believe ASF is vital
-and should not be disabled.
+Nope, but please be sure to take a block-level copy of the filesystem so
+that you and others can reproduce the problem.
 

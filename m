@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWHHVPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWHHVRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWHHVPl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 17:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWHHVPk
+	id S1030301AbWHHVRN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 17:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWHHVRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 17:15:40 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:33049 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030273AbWHHVPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 17:15:37 -0400
-Subject: Re: [RFC][PATCH 3/9] e1000 driver conversion
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Auke Kok <auke-jan.h.kok@intel.com>
+	Tue, 8 Aug 2006 17:17:13 -0400
+Received: from postel.suug.ch ([194.88.212.233]:37251 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S1030266AbWHHVRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 17:17:11 -0400
+Date: Tue, 8 Aug 2006 23:17:32 +0200
+From: Thomas Graf <tgraf@suug.ch>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>
-In-Reply-To: <44D8F919.7000006@intel.com>
-References: <20060808193325.1396.58813.sendpatchset@lappy>
-	 <20060808193355.1396.71047.sendpatchset@lappy> <44D8F919.7000006@intel.com>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 22:59:14 +0200
-Message-Id: <1155070755.23134.26.camel@lappy>
+       Daniel Phillips <phillips@google.com>
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+Message-ID: <20060808211731.GR14627@postel.suug.ch>
+References: <20060808193325.1396.58813.sendpatchset@lappy> <20060808193345.1396.16773.sendpatchset@lappy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060808193345.1396.16773.sendpatchset@lappy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 13:50 -0700, Auke Kok wrote:
-> Peter Zijlstra wrote:
-> > Update the driver to make use of the NETIF_F_MEMALLOC feature.
-> > 
-> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > Signed-off-by: Daniel Phillips <phillips@google.com>
-> > 
-> > ---
-> >  drivers/net/e1000/e1000_main.c |   11 +++++------
-> >  1 file changed, 5 insertions(+), 6 deletions(-)
-> > 
-> > Index: linux-2.6/drivers/net/e1000/e1000_main.c
-> > ===================================================================
-> > --- linux-2.6.orig/drivers/net/e1000/e1000_main.c
-> > +++ linux-2.6/drivers/net/e1000/e1000_main.c
-> > @@ -4020,8 +4020,6 @@ e1000_alloc_rx_buffers(struct e1000_adap
-> >  		 */
-> >  		skb_reserve(skb, NET_IP_ALIGN);
-> >  
-> > -		skb->dev = netdev;
-> > -
-> >  		buffer_info->skb = skb;
-> >  		buffer_info->length = adapter->rx_buffer_len;
-> >  map_skb:
-> > @@ -4135,8 +4136,6 @@ e1000_alloc_rx_buffers_ps(struct e1000_a
-> >  		 */
-> >  		skb_reserve(skb, NET_IP_ALIGN);
-> >  
-> > -		skb->dev = netdev;
-> > -
-> >  		buffer_info->skb = skb;
-> >  		buffer_info->length = adapter->rx_ps_bsize0;
-> >  		buffer_info->dma = pci_map_single(pdev, skb->data,
-> > -
-> 
-> can we really delete these??
+* Peter Zijlstra <a.p.zijlstra@chello.nl> 2006-08-08 21:33
+> +struct sk_buff *__netdev_alloc_skb(struct net_device *dev,
+> +		unsigned length, gfp_t gfp_mask)
+> +{
+> +	struct sk_buff *skb;
+> +
+> +	if (dev && (dev->flags & IFF_MEMALLOC)) {
+> +		WARN_ON(gfp_mask & (__GFP_NOMEMALLOC | __GFP_MEMALLOC));
+> +		gfp_mask &= ~(__GFP_NOMEMALLOC | __GFP_MEMALLOC);
+> +
+> +		if ((skb = ___netdev_alloc_skb(dev, length,
+> +					       gfp_mask | __GFP_NOMEMALLOC)))
+> +			goto done;
+> +		if (dev_reserve_used(dev) >= dev->rx_reserve)
+> +			goto out;
+> +		if (!(skb = ___netdev_alloc_skb(dev, length,
+> +						gfp_mask | __GFP_MEMALLOC)))
+> +			goto out;
+> +		atomic_inc(&dev->rx_reserve_used);
+> +	} else
+> +		if (!(skb = ___netdev_alloc_skb(dev, length, gfp_mask)))
+> +			goto out;
+> +
+> +done:
+> +	skb->dev = dev;
+> +out:
+> +	return skb;
+> +}
+> +
 
-The new {,__}netdev_alloc_skb() will set it when the allocation
-succeeds.
+>  void __kfree_skb(struct sk_buff *skb)
+>  {
+> +	struct net_device *dev = skb->dev;
+> +
+>  	dst_release(skb->dst);
+>  #ifdef CONFIG_XFRM
+>  	secpath_put(skb->sp);
+> @@ -389,6 +480,8 @@ void __kfree_skb(struct sk_buff *skb)
+>  #endif
+>  
+>  	kfree_skbmem(skb);
+> +	if (dev && (dev->flags & IFF_MEMALLOC))
+> +		dev_unreserve_skb(dev);
+>  }
 
+skb->dev is not guaranteed to still point to the "allocating" device
+once the skb is freed again so reserve/unreserve isn't symmetric.
+You'd need skb->alloc_dev or something.

@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWHHGoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWHHGqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWHHGoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 02:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWHHGoP
+	id S932220AbWHHGqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 02:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWHHGqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 02:44:15 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:19933 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932201AbWHHGoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 02:44:15 -0400
-Message-Id: <1155019454.29767.267870507@webmail.messagingengine.com>
-X-Sasl-Enc: Ivl/XbOfiOjGA/WFAH5CxSLVIm75z9Vl0ena+m/ehdRw 1155019454
-From: "Dan Bastone" <dan@pwienterprises.com>
-To: "Eric Sandeen" <sandeen@sandeen.net>
-Cc: linux-kernel@vger.kernel.org, bfennema@falcon.csc.calpoly.edu
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
+	Tue, 8 Aug 2006 02:46:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43461 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932260AbWHHGqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 02:46:44 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] x86_64:  Auto size the per cpu area.
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
+	<1155005284.3042.11.camel@laptopd505.fenrus.org>
+	<m13bc7aidw.fsf_-_@ebiederm.dsl.xmission.com>
+	<200608080801.29789.ak@suse.de>
+Date: Tue, 08 Aug 2006 00:46:23 -0600
+In-Reply-To: <200608080801.29789.ak@suse.de> (Andi Kleen's message of "Tue, 8
+	Aug 2006 08:01:29 +0200")
+Message-ID: <m1lkpz9134.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-References: <44D36E60.2020006@sandeen.net>
-   <1154934860.6783.267775866@webmail.messagingengine.com>
-   <44D7C26F.1040609@sandeen.net>
-Subject: Re: [PATCH]: initialize parts of udf inode earlier in create
-In-Reply-To: <44D7C26F.1040609@sandeen.net>
-Date: Mon, 07 Aug 2006 23:44:14 -0700
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Aug 2006 17:45:03 -0500, "Eric Sandeen" <sandeen@sandeen.net>
-said:
-> That looks fine to me, but I wonder if there's a cleaner way, rather
-> than sprinkling these initializations in the code.  If __udf_read_inode
-> fails, then it calls mark_bad_inode; maybe the code should check for
-> that before trying to discard prealloced blocks?  I don't really know
-> enough about all the UDF codepaths (by far!) to know for sure what the
-> best solution is, here.
+Andi Kleen <ak@suse.de> writes:
 
-I'm certainly not an expert on this code either, but it seems like doing
-the initializations once in udf_alloc_inode() makes the most sense.  As
-I said it should fix both of the scenarios you & I experienced as well
-as any others that assume the udf_inode_info structs are zeroed.  Now
-that I look at it again, I think it also makes the initializations in
-udf_new_inode() redundant.
+> On Tuesday 08 August 2006 07:47, Eric W. Biederman wrote:
+>> 
+>> Now for a completely different but trivial approach.
+>> I just boot tested it with 255 CPUS and everything worked.
+>> 
+>> Currently everything (except module data) we place in
+>> the per cpu area we know about at compile time.  So
+>> instead of allocating a fixed size for the per_cpu area
+>> allocate the number of bytes we need plus a fixed constant
+>> for to be used for modules.
+>> 
+>> It isn't perfect but it is much less of a pain to
+>> work with than what we are doing now.
+>
+> Yes makes sense.
+>
+> However not that particular patch - i already changed that
+> code in my tree because I needed really early per cpu for something and
+> i had switched to using a static array for cpu0's cpudata.
+>
+> I will modify it to work like your proposal.
 
-So, assuming my previous patch is applied and yours is not, I think the
-following is right:
+Sounds good to me.
 
----
 
-Signed-off-by: Dan Bastone <dan@pwienterprises.com>
-
---- linux-2.6.17.7/fs/udf/ialloc.c.orig
-+++ linux-2.6.17.7/fs/udf/ialloc.c
-@@ -84,11 +84,6 @@
-        }
-
-        mutex_lock(&sbi->s_alloc_mutex);
--       UDF_I_UNIQUE(inode) = 0;
--       UDF_I_LENEXTENTS(inode) = 0;
--       UDF_I_NEXT_ALLOC_BLOCK(inode) = 0;
--       UDF_I_NEXT_ALLOC_GOAL(inode) = 0;
--       UDF_I_STRAT4096(inode) = 0;
-        if (UDF_SB_LVIDBH(sb))
-        {
-                struct logicalVolHeaderDesc *lvhd;
-
----
-
-Dan
-
--- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
-
+Eric

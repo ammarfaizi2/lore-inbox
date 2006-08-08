@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWHHACn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWHHAJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWHHACn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Aug 2006 20:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWHHACn
+	id S932445AbWHHAJb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Aug 2006 20:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWHHAJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Aug 2006 20:02:43 -0400
-Received: from ozlabs.org ([203.10.76.45]:25524 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932427AbWHHACn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Aug 2006 20:02:43 -0400
+	Mon, 7 Aug 2006 20:09:31 -0400
+Received: from tango.0pointer.de ([217.160.223.3]:39940 "EHLO
+	tango.0pointer.de") by vger.kernel.org with ESMTP id S932445AbWHHAJa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Aug 2006 20:09:30 -0400
+Date: Tue, 8 Aug 2006 02:09:25 +0200
+From: Lennart Poettering <mzxreary@0pointer.de>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] input: A few new KEY_xxx definitions
+Message-ID: <20060808000925.GA6220@curacao>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17623.54420.461017.882242@cargo.ozlabs.ibm.com>
-Date: Tue, 8 Aug 2006 10:02:28 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Matt Reuther <mreuther@umich.edu>,
-       LKML <linux-kernel@vger.kernel.org>, Jay Lan <jlan@sgi.com>
-Subject: Re: [-mm patch] add timespec_to_us() and use it in kernel/tsacct.c
-In-Reply-To: <20060807132418.037048a5.akpm@osdl.org>
-References: <200608062330.19628.mreuther@umich.edu>
-	<20060806222129.f1cfffb9.akpm@osdl.org>
-	<20060807133240.GB3691@stusta.de>
-	<20060807132418.037048a5.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Organization: .phi.
+X-Campaign-1: ()  ASCII Ribbon Campaign
+X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
+X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
+X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
+X-Disclaimer-3: keiner Unterschrift.
+User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
-> On Mon, 7 Aug 2006 15:32:41 +0200
-> Adrian Bunk <bunk@stusta.de> wrote:
-> > This doesn't look correct since do_div() does not guarantee to return 
-> > more than 32bit.
-> 
-> eh?  We use do_div() to do 64bit/something all the time??
+From: Lennart Poettering <mzxreary@0pointer.de>
 
-Indeed.  If do_div didn't return a 64-bit quotient then
-printk("%lld", ...) wouldn't work.  (The remainder is 32-bit of course,
-because the divisor is 32-bit.)
+The attached patch adds four new KEY_xxx definitions to linux/input.h.
 
-Paul.
+KEY_BLUETOOTH, KEY_WLAN:
 
+    Some laptops have seperate "rfkill"
+    buttons for disabling/enabling Bluetooth and WLAN. 
+
+KEY_POWERPLUG, KEY_POWERUNPLUG:
+
+    Some laptops generate a fake key event when the power cord is
+    plugged or unplugged. (Notably MSI laptops, such as S270)
+
+Applies to all recent 2.6 kernels.
+             
+Please merge,
+       Lennart
+
+Signed-off-by: Lennart Poettering <mzxreary@0pointer.de>
+---
+
+--- include/linux/input.h.orig	2006-08-08 01:25:52.000000000 +0200
++++ include/linux/input.h	2006-08-08 01:43:13.000000000 +0200
+@@ -347,8 +347,14 @@ struct input_absinfo {
+ 
+ #define KEY_BATTERY		236
+ 
++#define KEY_BLUETOOTH		237
++#define KEY_WLAN		238
++
+ #define KEY_UNKNOWN		240
+ 
++#define KEY_POWERPLUG		239
++#define KEY_POWERUNPLUG		241
++
+ #define BTN_MISC		0x100
+ #define BTN_0			0x100
+ #define BTN_1			0x101

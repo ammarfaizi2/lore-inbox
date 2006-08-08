@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWHHRX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWHHR2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWHHRX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 13:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWHHRX5
+	id S965002AbWHHR2f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 13:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWHHR2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 13:23:57 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29637 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965003AbWHHRX4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 13:23:56 -0400
-Subject: Re: How to lock current->signal->tty
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
-       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
-       davem@redhat.com, jack@suse.cz, dwmw2@infradead.org,
-       tony.luck@intel.com, jdike@karaya.com,
-       James.Bottomley@HansenPartnership.com
-In-Reply-To: <1155057114.1123.97.camel@moss-spartans.epoch.ncsc.mil>
-References: <1155050242.5729.88.camel@localhost.localdomain>
-	 <1155057114.1123.97.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
+	Tue, 8 Aug 2006 13:28:35 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:59325 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S965002AbWHHR2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 13:28:34 -0400
+Message-ID: <44D8C9BC.40102@grupopie.com>
+Date: Tue, 08 Aug 2006 18:28:28 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Kprobes: Make kprobe modules more portable
+References: <20060807115537.GA15253@in.ibm.com> <20060808162421.GA28647@infradead.org> <20060808093400.5f023ea6@localhost.localdomain> <20060808164019.GA3382@infradead.org>
+In-Reply-To: <20060808164019.GA3382@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Aug 2006 18:43:14 +0100
-Message-Id: <1155058994.5729.99.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-08 am 13:11 -0400, ysgrifennodd Stephen Smalley:
-> Does this look sane?  Or do we need a common helper factored from
-> disassociate_ctty()?  Why is the locking different for TIOCNOTTY in the
-> non-leader case?
+Christoph Hellwig wrote:
+> On Tue, Aug 08, 2006 at 09:34:00AM -0700, Stephen Hemminger wrote:
+>> Okay, does this makes kprobe's the first reflective kernel interface.
+> 
+> Actually kallsyms_lookup_name was the first interface like that.  And lots
+> of external kprobes used it like that - in fact tcp_probe.c is the first
+> one I've seen doing it differently.  But kallsyms_lookup_name is a really
+> awkward lowlevel buildingblock that's almost impossible to use correctly,
+> so this patch hides it behind the proper kprobes interface.
 
-The non-leader case for TIOCNOTTY in the base kernel is different
-because it is wrong and I've fixed that one.
+Just one side note: kallsyms_lookup_name is _really_ inefficient. The 
+kallsyms structure is tailored so that kallsyms_lookup (the most 
+frequently used function) is really fast. Doing it the other way around 
+involves a O(N) search, uncompressing every symbol name as it goes :P
 
-If you can factor disassociate_ctty out to do what you need I'd prefer
-that path so the tty locking actually ends up in the tty layer.
+I don't think this is really a performance problem for users like 
+kprobes, but I just wanted people to keep in mind that there is a 
+penalty involved in calling kallsyms_lookup_name.
 
-> +	mutex_lock(&tty_mutex);
-> +	tty = current->signal->tty;
->  	if (tty) {
->  		file_list_lock();
+-- 
+Paulo Marques - www.grupopie.com
 
-Looks sane and the lock ordering matches vhangup() which may actually
-also do what you want - I'm not 100% sure I follow what SELinux tries to
-do here.
-
+"The face of a child can say it all, especially the
+mouth part of the face."

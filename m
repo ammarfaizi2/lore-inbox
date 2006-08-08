@@ -1,105 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWHHScu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWHHSd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWHHScu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 14:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWHHScu
+	id S964899AbWHHSd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 14:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWHHSd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 14:32:50 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:43993 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751142AbWHHSct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 14:32:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NSqyutw2eU2f9iZPD3NdYDr75tOukbpWCC6yCASMCBKcBiTvE5w0b4cNZKt9BkySMtrOnFMNvy7yTzxL3whmkMhFwjONajREt+VPW0NbmZE4qFpZtn8/OWLhJnx7df1qtbGnH2xT5YG/IvlYAXEuULh6Y1De4KDRMLiGnNjZoik=
-Message-ID: <b1bc6a000608081132p2178caa3sd0c9e12813e28ef2@mail.gmail.com>
-Date: Tue, 8 Aug 2006 11:32:40 -0700
-From: "adam radford" <aradford@gmail.com>
-To: "Andy Davidson" <andy@nosignal.org>
-Subject: Re: 3ware 9550 using 3w-9xxx driver lockups ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44D89D5D.1000808@nosignal.org>
+	Tue, 8 Aug 2006 14:33:59 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:35257
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S964899AbWHHSd6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 14:33:58 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [RFC: -mm patch] bcm43xx_main.c: remove 3 functions
+Date: Tue, 8 Aug 2006 20:32:37 +0200
+User-Agent: KMail/1.9.1
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060807210415.GO3691@stusta.de>
+In-Reply-To: <20060807210415.GO3691@stusta.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, linville@tuxdriver.com,
+       jgarzik@pobox.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <44D89D5D.1000808@nosignal.org>
+Message-Id: <200608082032.38365.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks to me like you have a bad drive (or several bad drives, if
-other drives on other machines are reallocating sectors as well).
+On Monday 07 August 2006 23:04, Adrian Bunk wrote:
+> This patch removes three no longer used functions (that are even 
+> generating gcc warnings).
+> 
+> This patch doesn't look right, but it is the result of 
+> 58e5528ee464d38040b9489e10033c9387a10d56 in git-netdev...
 
-Many reallocated sectors could be a sign that your drive is about to die...
-Are you booting off this disk?
+Hm, can't find that commit in a tree.
+I looked at linus', netdev-2.6.
 
-Have you run smartmontools on those bad disks?
+But one thing is for sure. This patch is _wrong_. ;)
 
-You fail to mention your raid configuration.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Are you running the latest 3ware firmware for that controller?  There
-is a Linux specific userspace firmware update utility.
+NACK.
 
-Also, this topic is better served on the linux-scsi email list.
-
--Adam
-
-On 8/8/06, Andy Davidson <andy@nosignal.org> wrote:
->
->
-> Hi,
->
-> One of our servers locked up (no kernel panic, but no response to
-> console/network) with the following output on console :
->
-> Aug  8 14:10:34 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x4383A7F.
-> Aug  8 14:10:39 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x438C4D9.
-> Aug  8 14:10:41 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x438C4DC.
-> Aug  8 14:10:47 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x438FB34.
-> Aug  8 14:10:49 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x438FB36.
-> Aug  8 14:10:52 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x439051D.
-> Aug  8 14:11:08 how-mail-1 kernel: 3w-9xxx: scsi0: AEN: WARNING
-> (0x04:0x0023): Sector repair completed:port=1,LBA=0x4378D8A.
->
-> I'd put this down to bad hardware until an identically spec'd machine
-> (with fresh disks) did the same thing.
->
->
-> Anyone else noticed any issues using the newer 3-ware 9550S cards with
-> the 3w-9xxx driver ?
->
->
-> Other details :
-> Linux how-mail-1 2.6.16-2-686-smp #1 SMP Sat Jul 15 22:33:00 UTC 2006 i686
->
-> from lspci:
-> 03:03.0 RAID bus controller: 3ware Inc 9550SX SATA-RAID
->
->
-> 3ware 9000 Storage Controller device driver for Linux v2.26.02.007.
-> ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 24 (level, low) -> IRQ 177
-> scsi0 : 3ware 9000 Storage Controller
-> 3w-9xxx: scsi0: Found a 3ware 9000 Storage Controller at 0xda300000,
-> IRQ: 177.
-> 3w-9xxx: scsi0: Firmware FE9X 3.01.01.028, BIOS BE9X 3.01.00.024, Ports:
-> 4. Vendor: AMCC      Model: 9550SX-4LP DISK
-> Rev: 3.01 Type:   Direct-Access                      ANSI SCSI revision: 03f
->
->
-> We'd welcome any help ?
->
-> Thanks,
-> Andy
+>  drivers/net/wireless/bcm43xx/bcm43xx_main.c |   33 --------------------
+>  1 file changed, 33 deletions(-)
+> 
+> --- linux-2.6.18-rc3-mm2-full/drivers/net/wireless/bcm43xx/bcm43xx_main.c.old	2006-08-07 18:21:31.000000000 +0200
+> +++ linux-2.6.18-rc3-mm2-full/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-08-07 18:23:36.000000000 +0200
+> @@ -3194,39 +3194,6 @@
+>  	bcm43xx_clear_keys(bcm);
+>  }
+>  
+> -static int bcm43xx_rng_read(struct hwrng *rng, u32 *data)
+> -{
+> -	struct bcm43xx_private *bcm = (struct bcm43xx_private *)rng->priv;
+> -	unsigned long flags;
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> -	spin_lock_irqsave(&(bcm)->irq_lock, flags);
+> -	*data = bcm43xx_read16(bcm, BCM43xx_MMIO_RNG);
+> -	spin_unlock_irqrestore(&(bcm)->irq_lock, flags);
+> -
+> -	return (sizeof(u16));
+> -}
+> -
+> -static void bcm43xx_rng_exit(struct bcm43xx_private *bcm)
+> -{
+> -	hwrng_unregister(&bcm->rng);
+> -}
+> -
+> -static int bcm43xx_rng_init(struct bcm43xx_private *bcm)
+> -{
+> -	int err;
+> -
+> -	snprintf(bcm->rng_name, ARRAY_SIZE(bcm->rng_name),
+> -		 "%s_%s", KBUILD_MODNAME, bcm->net_dev->name);
+> -	bcm->rng.name = bcm->rng_name;
+> -	bcm->rng.data_read = bcm43xx_rng_read;
+> -	bcm->rng.priv = (unsigned long)bcm;
+> -	err = hwrng_register(&bcm->rng);
+> -	if (err)
+> -		printk(KERN_ERR PFX "RNG init failed (%d)\n", err);
+> -
+> -	return err;
+> -}
+> -
+>  static int bcm43xx_shutdown_all_wireless_cores(struct bcm43xx_private *bcm)
+>  {
+
+-- 
+Greetings Michael.

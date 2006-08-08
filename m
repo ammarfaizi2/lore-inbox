@@ -1,52 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWHHI3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWHHIb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbWHHI3q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 04:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWHHI3q
+	id S932573AbWHHIb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 04:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWHHIb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 04:29:46 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:16043 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S932574AbWHHI3p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 04:29:45 -0400
-Subject: Re: [PATCH 2/9] Replace __ARCH_HAS_DO_SOFTIRQ with
-	CONFIG_ARCH_DO_SOFTIRQ
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       torvalds <torvalds@osdl.org>, paulus@samba.org
-In-Reply-To: <20060807141109.7e4d912d.rdunlap@xenotime.net>
-References: <20060807120928.c0fe7045.rdunlap@xenotime.net>
-	 <20060807141109.7e4d912d.rdunlap@xenotime.net>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Tue, 08 Aug 2006 10:29:43 +0200
-Message-Id: <1155025783.26277.27.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 04:31:27 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:55002 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932573AbWHHIb1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 04:31:27 -0400
+From: Magnus Damm <magnus@valinux.co.jp>
+To: linux-kernel@vger.kernel.org
+Cc: Magnus Damm <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       ebiederm@xmission.com
+Message-Id: <20060808083307.391.45887.sendpatchset@cherry.local>
+Subject: [PATCH] CONFIG_RELOCATABLE modpost fix
+Date: Tue,  8 Aug 2006 17:32:11 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-07 at 14:11 -0700, Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Replace __ARCH_HAS_DO_SOFTIRQ with CONFIG_ARCH_DO_SOFTIRQ.
-> Move it from header files to Kconfig space.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+CONFIG_RELOCATABLE modpost fix
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Run modpost on vmlinux regardless of CONFIG_MODULES. The modpost code is also
+extended to ignore references from ".pci_fixup" to ".init.text".
 
--- 
-blue skies,
-  Martin.
+Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+---
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+ This patch applies on top of Eric W. Biedermans CONFIG_RELOCATABLE tree
 
-"Reality continues to ruin my life." - Calvin.
+ Makefile                 |    1 +
+ scripts/Makefile         |    4 ++--
+ scripts/Makefile.modpost |    6 +++++-
+ scripts/mod/modpost.c    |   14 +++++++++++---
 
-
+--- 0001/Makefile
++++ work/Makefile	2006-08-07 13:11:44.000000000 +0900
+@@ -723,6 +723,7 @@ endif # ifdef CONFIG_KALLSYMS
+ # vmlinux image - including updated kernel symbols
+ vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE
+ 	$(call if_changed_rule,vmlinux__)
++	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost __modpost_kernel
+ 	$(Q)rm -f .old_version
+ 
+ # The actual objects are generated when descending, 
+--- 0001/scripts/Makefile
++++ work/scripts/Makefile	2006-08-07 13:09:47.000000000 +0900
+@@ -16,7 +16,7 @@ hostprogs-$(CONFIG_IKCONFIG)     += bin2
+ always		:= $(hostprogs-y)
+ 
+ subdir-$(CONFIG_MODVERSIONS) += genksyms
+-subdir-$(CONFIG_MODULES)     += mod
++subdir-y                     += mod
+ 
+ # Let clean descend into subdirs
+-subdir-	+= basic kconfig package
++subdir-	+= basic kconfig package mod
+--- 0001/scripts/Makefile.modpost
++++ work/scripts/Makefile.modpost	2006-08-07 13:10:44.000000000 +0900
+@@ -61,7 +61,11 @@ quiet_cmd_modpost = MODPOST
+ 	$(filter-out FORCE,$^)
+ 
+ PHONY += __modpost
+-__modpost: $(wildcard vmlinux) $(modules:.ko=.o) FORCE
++__modpost: $(modules:.ko=.o) FORCE
++	$(call cmd,modpost)
++
++PHONY += __modpost_kernel
++__modpost_kernel: $(wildcard vmlinux) FORCE
+ 	$(call cmd,modpost)
+ 
+ # Declare generated files as targets for modpost
+--- 0001/scripts/mod/modpost.c
++++ work/scripts/mod/modpost.c	2006-08-07 16:45:30.000000000 +0900
+@@ -581,8 +581,8 @@ static int strrcmp(const char *s, const 
+  *   fromsec = .data
+  *   atsym = *driver, *_template, *_sht, *_ops, *_probe, *probe_one
+  **/
+-static int secref_whitelist(const char *tosec, const char *fromsec,
+-			    const char *atsym)
++static int secref_whitelist(const char *modname, const char *tosec, 
++			    const char *fromsec, const char *atsym)
+ {
+ 	int f1 = 1, f2 = 1;
+ 	const char **s;
+@@ -596,6 +596,13 @@ static int secref_whitelist(const char *
+ 		NULL
+ 	};
+ 
++	/* Ignore all references from .pci_fixup section if vmlinux */
++	if (strcmp(modname, "vmlinux") == 0) {
++		if ((strcmp(fromsec, ".pci_fixup") == 0) && 
++		    (strcmp(tosec, ".init.text") == 0))
++		return 1;
++	}
++
+ 	/* Check for pattern 1 */
+ 	if (strcmp(tosec, ".init.data") != 0)
+ 		f1 = 0;
+@@ -726,7 +733,8 @@ static void warn_sec_mismatch(const char
+ 
+ 	/* check whitelist - we may ignore it */
+ 	if (before &&
+-	    secref_whitelist(secname, fromsec, elf->strtab + before->st_name))
++	    secref_whitelist(modname, secname, fromsec, 
++			     elf->strtab + before->st_name))
+ 		return;
+ 
+ 	if (before && after) {

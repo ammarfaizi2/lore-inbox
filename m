@@ -1,221 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWHHOmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWHHOr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbWHHOmU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 10:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWHHOmU
+	id S932457AbWHHOr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 10:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWHHOr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 10:42:20 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:35798 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964933AbWHHOmT (ORCPT
+	Tue, 8 Aug 2006 10:47:56 -0400
+Received: from z2.cat.iki.fi ([212.16.98.133]:60567 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S932457AbWHHOrz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 10:42:19 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.18-rc3-mm2
-Date: Tue, 8 Aug 2006 16:41:48 +0200
-User-Agent: KMail/1.9.3
-Cc: "Fabio Comolli" <fabio.comolli@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+	Tue, 8 Aug 2006 10:47:55 -0400
+Date: Tue, 8 Aug 2006 17:47:54 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+Cc: Jes Sorensen <jes@sgi.com>, Andi Kleen <ak@suse.de>,
        linux-kernel@vger.kernel.org
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <b637ec0b0608071147kb8a191bka9d6afe5b5287d08@mail.gmail.com> <d120d5000608071200k3eb2bfd6v166c6bc92f5dcadf@mail.gmail.com>
-In-Reply-To: <d120d5000608071200k3eb2bfd6v166c6bc92f5dcadf@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_sKK2EY04PvBWWEK"
-Message-Id: <200608081641.48621.rjw@sisk.pl>
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+Message-ID: <20060808144754.GB3021@mea-ext.zmailer.org>
+References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com> <p73y7tzo4hl.fsf@verdi.suse.de> <f19298770608080447l3e31465fqb6fbc8cfed71cb80@mail.gmail.com> <yq03bc7v3uy.fsf@jaguar.mkp.net> <f19298770608080503l349899cftc421239d1985bb3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f19298770608080503l349899cftc421239d1985bb3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_sKK2EY04PvBWWEK
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Monday 07 August 2006 21:00, Dmitry Torokhov wrote:
-> On 8/7/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
-]--snip--[
+On Tue, Aug 08, 2006 at 04:03:07PM +0400, Alexey Zaytsev wrote:
+> On 08 Aug 2006 07:55:33 -0400, Jes Sorensen <jes@sgi.com> wrote:
+> >>>>>> "Alexey" == Alexey Zaytsev <alexey.zaytsev@gmail.com> writes:
+> >Alexey> On 08 Aug 2006 13:23:50 +0200, Andi Kleen <ak@suse.de> wrote:
+> >>> You would make bug reports impossible from normal people who don't
+> >>> want to subscribe fully. It would totally wreck the development
+> >>> model.
+> >Alexey> If they don't want to subscribe, they can just report to the
+> >Alexey> list as usual, theyr mail will be only slightly delayed
+> >Alexey> because of moderation.  We could even use some sort of white
+> >Alexey> lists, if a user's mail was once approved, all his further
+> >Alexey> mail will be accepthed without moderation.
 > >
-> > Still interested in dmesg with i8042.debug=1 ?
-> >
+> >At 400-500 mails per day, who is going to handle the moderation? Sure
+> >only a portion would be held back, but there's plenty other work to do
+> >and we want fast turnaround for user bug reports, so if a user is
+> >asked a question he/she can respond quickly with more details.
 > 
-> Yes, _with_ the i8042 polling patch applied.
+> I'm sure not all the 500 mails are from non-subscribers, and, as I
+> told, we could split the traffic between a large number of moderators.
 
-I've got one for you (attached).
+We already have a rather well working filter that very rarely rejects
+any valid emails.   That is around 300 to 900 per day (yes, we do collect
+them all into daily message folders.)
 
-Greetings,
-Rafael
+Postings by non-members are rare - and even for those regular posters
+that don't want to receive but do want to send we could have a simple
+"subscribe to linux-posters -list" rule.  Nevertheless that does not
+validate message poster person to be list member, just that the email
+address in the "From:" header is known.   (I have been receiving for
+years some email virus that claims to be coming from Alan Cox...)
 
---Boundary-00=_sKK2EY04PvBWWEK
-Content-Type: application/x-gzip;
-  name="dmesg.log.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="dmesg.log.gz"
+So, having a well working web-based "approve these" filter (something
+totally different from what Mailman does - that does not work with
+tens of thousands of messages in the moderation queue) that gets only
+a very small subset of things could work -- but whom would you trust
+to be the moderator ?  If anybody could become one (for ease to get
+people to do it), could they still do similar stupidities as these
+recent "lets subscribe  linux-kernel  -list on many email lists"
+attacks have tried to be ?
 
-H4sICOmd2EQAA2RtZXNnLmxvZwDkXOtz4kiS/zrBX5GxvRcDc4BVeiHY9cRgjNusjc0Z3Dt3vRMd
-QiqBFoEYSfjRsX/8ZZYkHrZEsd3z4SKuJwZjKTMrlZX1y0eVfBGGiWsnNoQLqDrhcmmvXAj8FQc/
-hghvnp+5/Ols7jomPM3s81ZbhZgjweblXIFVaK99ByIeb5Z8S6mBE67iMODnSfI6VupGy1SU/WsK
-cDsKXteRv0oW5zGPfDuo79O6fLqZgW8putoU388ZaLXKLQ0LTzyK/XAFatNsMqsROVpjuVShGtme
-zYNf7GDKI8df1KA6c5wttd5UmiqoimIobYVBdR3xiAfcjjkSjh/HfRDSazX40ILRQ78/HE1gsuHQ
-RU0sYEZH1Tq6Ab3+eEJizMrF4H7cWEfhk+9yF9bz19h37AAeukNY2utOBQQBt1SlA8qbf9DYv9T2
-HLxU3cT2NOC1MsaU6oDRFrKqaH8ePXG3lJW/G5Mpp7Gyt+oanqenrMfU3VIdMBopY7c3GgA5XSmv
-8YbXzM2W8t59Ghezetx5qy9dYic8qsf5e1b+jvVyOEDH02BNl1ZJs0IKdeBhfDmC6hMR0wV0Acm/
-GvwCysveFHktkys7aRMhjUEXhjAAuO8PxUXiIePoqgHD8dVkK6PdOpSYT0Am8apbIPEK7/2bEtWt
-ROS/eCeR7PpvSUQ6XakA/Pzzz9B/eLh/6MBg9WQHvgvOnDsLxJVsvMudTeDWuLyx0k+F6VuJ+HVw
-N7ml31FPVVHNd1YW/yr3K0Qul4MCSZjYwdqe8bgDmmXobRWVuRx24Wu44h1glsVA3K7D7eDqHqZ2
-4sw7SkqkqRmZZmkmKyLUWOUO4cG3YRrakYu4lnAn4W4TBrNViPA3E+4Cib/kEYSIVRGCSe5Uo2Fj
-Im4M7mEURgk66wtOqlUZrBIewHATJP4oCh0ex2EE4zV3fA8hKCG4e2JNVsEZgcFlB7qIbxN+A4DU
-7sZJxEU0384du6NBD2wxwlW/n1ppJ/qDQvinp1Q5oDKzMji7T699YPApv9xCOUJMT4hpVsY8ScST
-EmUUbsQvSQheYCe7QXAC0FhhbD9xsF0XlxfGH3s1428wUCnEQDmnrbzj5KdxloFnpRsEIZkbH2fU
-G1AUDDcRPg3EiR2Jy2iJVsaD0QiDAuRI1mlnUFWrXGz8IAEmfCnw4yRuAkzIL+HQMW94hASwH6Q7
-/8dCNHqmnyCl/5Wevjd6/IBuNLiEuR3PIaFwAQiakU9PpSttE6ph5PIIp16tg6a2TAumrwmPaxVa
-EU2nA48xSdKaRqttYPQdXn+Fv3dvb3FtwMfJ/SWMBpOzybiXrqDmlu0yW2jojm2jqeEqJs517mzN
-Si991A4+c4CzBu5muXzFh3ryHQ6W8qIaldvQWeCVNV+5fOW8goAlOwlR3V64fo382TzBnKkmsgF4
-wMGu7aSO+OU06XMWwjAMVnZUaTabMOz++uX2vndz2R99GT9e9G6743F/3KG1Zx0QfEGKyXVntzQ1
-5Z2Am/5/j7cUqqKnEoTM6+74+st48D/9PQnAFFV/J6R/N3kYZCqAxdDB3lL0rruDu3ygLYW4WjQM
-TWgFlnwZRq+widEe01cI3hjRX3khTjdTFVhcVGCN6JbY8aIRJxEBU8btoVcL10NS01JSp6hcku+8
-gmNjaCh0KdVUma5vnapdR+O0W8xQc68aEOw3ygUwjSktdSvAqqPpdAsdPhfQo6AkVjZqnmwijhap
-oJ8DZhL5JYw53MoWfex/5ejcFgwvKkPxbDiIoZmaai3OmNFC/cwF2E+2HwhNqqrBtAUs8qXuclwX
-BuqwgDwHQZ3MFluIBAq/t9UFGtVPUDf0z2mU4pHLA5smQUCtiCFxFh4yBEbFUXBbayJYXISzcDgY
-jaEarP953mJWy9JZDXHb2UR+8gpXkb3kz2G0oKiiNBUxnljl3MVR1/bUD4judjw8uDUMN6vkiLVV
-wyTbYShimD/0iA4BUr+BqqmnBj8jkKvV4TKb9IKbmQQ15ydfLyHqDi+hm8yDcFVNljUUBrsQp+Fs
-/ScCN1+vyWaKncXgXogTGiEspCUHpaItpZXdjLPI1r/tPVBEo7QDql4ULkFxVIT2FL0oSgRp+Evn
-Ah0bI/1mjVBfIWAm+Fd1s9XWtMoOudQmXhK4tWNFhOOxGPMOE9FnSjLccAa0Lu9vmhUnd0/fA3+J
-0YOqOJoSnEEvRio/wSurHxG3prYLs6/+GmuVGXrFarPEsimu/QW1DRcxRpcFxsRVyuxWriLOhVzx
-a7ZMO2QPZQEe3nQroyFa2HVTKg/DO1r1LoSLTdxZY6THX5eVu/4Es1s+wyiH1ZdLgJyEiMDg2Us/
-eKWc4oiYpwQDVJ5/TjcxJK9rDmvHxwnKRVYwEudRA6k9f7aJ0oxIELOMmzKoCHN4/ER/JLd0szsp
-KxmcRt7OVJ64YFQQBHG45DglmKGS7fftTmiAFvl9I/DOmVM+4TYLn8t21n6HPvKED7OIB4Q+uMA0
-ECfvM15QfoOqSBgoVRAPh047zXOOOWaVzza6aJXsIUiOTIPjZ5JSQXgNUzvEy8YHBVNzdJW57yJM
-w5TPfcwwYJqq8UFRBY2OlTIB8I8o6NyOY3+2auCwMY9/xHFFLY0zscZMFZI5h8yzcV2IXKSRgRpl
-fv4LUuB4iJiYyyAgBK+VC3pwqqXDPAz7MaT6MlS5qewZabCdlocsn5wIaPn8jy/jiy9NMlvzy+hh
-8luhOVD9TmaIVLCUiJ1GxORE6imS1NMkqXIi85ThrFOI7FOIpicQsVOGQyK5CZBIbgIk0iRE6ile
-oJ7iBeopXiCIZIoLohMUZ01dTiR3uoMV1sdQ4FJPC5PkJAqDAEHyM5ZziEQzxFCNsGK7AJfhXsF6
-4tIcKSOWrc9/m1E9wnjrrxbw+fbupouqDh7+KwYNdDCgBW3MCzDrxKAKTMcMrAY/KXVwfdHCcov1
-30q7KJT207644wJ67wX89Eaf4wIuv1eD/vcJeBwr3yuAfa8AdV/AT4WTekzAze3dH+gU3cfB983p
-zfD+D1TnZjz8A6VNBsX+9o2mmhysRhOlbWX9dGio8BmR5iFro8Dnj1ddmrPQ82qVTTx1MBXv7KV6
-sOLPKRB5NpK7kf+E7EjoxaeTzzfTUuIsDdkJ3k8uRd+OQBSfbJscivsDD+wtb8hFuk3VUx0oefoT
-JU9Ez/3o9z81gcgxK5/zYB3XYR3GCXKnWVTFnq1nNvX9tkVB9+Moz8qU3e28w7ZZwx2q5HCNCItz
-ziwXzHh3MkjytoLFzAuL1qHonua1LD1c43LYRW3EtJPUwf1w+NhMH/sKa1jUENM7O+2LcSoTtl0x
-+MCUjpqK+oXlnTSh0mGA/cNksV2Wq9WxgIxcypFT63UOBwVqsT5jzhs+p3em+H8j/eJ5Bbf1/LYu
-bo8e+lf9Se96S5R3/Rot5ol/O130o7qwgsGsfDCrUBcnv+2U6KLmumgHuhwMnmV4B9KFEVxPSB32
-h9vrnmWnAj1upwKPWuD4qNO3o+5A5c2oZjsb1WqXjuqYqbc2uNnaGzVfIFiHiqos67d7+TLdtwF5
-nalL84usaqQWLyEAy7wtbwmk18DGSpo/8aCRRP5sJgrUIsH7zvgZhTd+PhgLf/04HpC8qpBWxyL9
-uUaXs6Fl6ct7ZSVasM8Xh1pcnKCFrLpXK4ORgEp+pIdnGoa26wu36mCoumpt+8KT3gh4TDx+PMcx
-ikSkjeT9LqBmtNW2uS9jSgVuYQvQ1Cz9oAMoeoLKHnMHrreM8bbLgMpU9zXL2tk0jpCZjhvxVXjQ
-rihKy7N2CRbs8XoRHYPxpcODcHaMIl7Z63geItJvXB9x3t/v0K94EtAMx6Gz4AlU87VXS6mrjBmG
-YiDYGc22aXVYbY8flU93Ka43Mz65vch7tzliu3UMUZ+uxiJeLOD3DRLH4NLPL2bTQKS7pO9H+oMG
-y1uxgMmG2C/Y9nH3txmi13USziJ7Pfcd6pVV/BBiFOpuqHJZheF63+IHN+1V4jv+mrr6r/vhv+py
-z94ESe2Q3OW2Kw5HlMlzvN9Pnt0nHtsewV/6BRGO+qzTjeeRYrSH5mYYWqcDBes0ICovBGuOwHSW
-3U37vCbTdUoyxKSIZbTYiqYqTUR1RdVf0C9fNLUudpACvpol83Mybj3dbzpnW67YoeoPZVNq5Eb2
-8/bOJNpw2jnBJUIt7nOrI/6rQzz3veRc1TvMxAvFZed+O4/tdmLiZz9x5tnmYLYtI0wCmU0ysMbM
-5EW3Kt5U6cCn/rgLnz52iwiPju3Ektv2sftR4lQeOJqZ9mehJzY5LtM0kTZeVds5xj1f8yQ7y5Kl
-X3t56ZPSZHQ+xanBJe1L/i1c8bgyFhtwiEeqoZwxnFwlT0v//JA1pxG6mm0F/ow5NiWPmEwSLMdz
-W2wz503Oox6ZbvPRGJXd1w6IbT8RO87u0f80D8EVk1c4B110DW0QGnXfMbEdk7pj0g6ZHrrDy8H4
-Jn+ePXwhMBbHaRCWFjGFa3LTm2xTBT0ZpmR5+rUS4CrvYECyqW9RXdovYGVugHDxuPLp+dId88Yo
-e1zoNwaX/XzcnRlbTUWxg/XcViu+i37ZjePNUuxCatSMj19xcS9F/zlecxyNTDjCBIbWWPyX7S4+
-5iTJHHzaG43PX14qd1f3D72+1mBkHRrY2XVX0EwUiuMgTHa5CPXJDphwcawxv9htR6AFDylWyI+g
-8B+wshN8KqFSBxUJAgrGU4SA6PdYZEHRIaM4uOH6LtUqNIQjkHjqJxTfogiLj+C1Cf1VlvdTOWNj
-JF9hlnYgZ195OjbzBDbWio9YNjBN23viCm0Yom1o6CFVFSngeZ6NuSz9wMAvdMryKYwGc9furP2w
-jl+mHeTIRbB3IqxUhFcgwiFOEuGSrEreSqfp2C1B0ov29WggmNyPrwcXXbj8dNl4uB/CGH+oBu1X
-Y2GLJWDv8iy/JTzp2MInweRTSqoq8+hhmdeq06IyAWeUVggr7uiRLypU1JTpzFKdHUx3u8Px491H
-uB6iM/ytJ1SF3SKTqMhIRZap2BIqtoSKrZ2KRqmKVE4JJWgNim0QrGhpiYp4fuNfpHdZ29BazMAM
-KUbnCqMYqhTNNAWGFzV4PqPtZiROd/Xq0Lsen1MWpZ2phnFmYj1HPkUstVRemkV4wQZzL1yYmzVh
-IOKdmHP6YPShgjj7gB86/JV+GCCOTeBHiz4s+mgLcgV+Pg6W4uhDJUWP+MxfrTfJGQFgeJYeinBo
-e4yyY/Hr9nBlDT4bvx1nMw34ayNnizhW5KtTuIoHYzK+lr7Ht7YpjqJTncLpaoUjqqaEz7BLRjyF
-s8AyUja7Vaiorkr4SuZPt+QmLVBTymZbxe4i4ytR09Rk1ixUU8pW4mgtXTacWTLtUs4SR7NkfLZR
-MqKUs+QZ2zK+0sUk5Sx5RqbIGD2lbP2ewlrgAHK+Ml2ZzFNLXeAk1iJdpXxlumqyxW+X4qKUlbFC
-XYlvS7Nt6dpOmqpRbroO+Et2ciFLlOqU7WFmz5rfiP7Kt8O/jHXXOaJ0iNLdcJNgSf0qziaRhLZE
-QrtEa1O6souhkpkyd2izYsaW1B1KRmy1ZCOqxYwW+8YRLVlcbpe4vCWbjrIRpeC15wmFjtCWTUuJ
-+6qKbFrMMogXrIK4k92+ubgUlXGa2ZoKprSmnqazhZleyiw+lUNJ3cdflTJRxRv7e7LYO1msXNZb
-UvV0Uu2bNSwmyA8RxfbmRSZBqyyx8u7AaHymYhG6iXnevKG5xSJCnH7CqnRZ1qfZE6ZXxMxTt5oO
-udsLKphjOHMCO869QnwqWWfX2W/BSY+cSULk/updTN2GeG8F3YuysjVtWK7C58bC6sAVlcPATjhl
-uD2GjEXP7mUmOoCB1cxxbfbz3+0ZjDq1R5lIhKUp5vS4gJYs+dOZRIBMA5yCYoNasqUue3hLNrSi
-lAzdlj21bGgpvnla8dCaor1xI/ynADL4Lr25AlULtR5ef63V6WwcVeSSmlOiqsZkZi6zksZa71Vl
-W1UtLODNN7qa36eqtK7z9BJVNfZeVXWrqo2qvjXrd1pVw9CaoVR3ApPIXsXUZXNp5xFHXvDX9AWg
-QtySQFBJkqRJ87MD7NqPjYI1fo438Zqwkd4MgSs6tTyi91bEadntiyICnbfH3lOm9Gxxer4gYxeH
-nqlPi6by946EVLNWTAxjBcYMxhqMdRgbO6CLEuds7iRh/BqT0hvRqKYtgHDNV4B389BRxe8ygCyx
-lc5ktjqApX1byVmHj78C+kOIuXqc2Mkmpva21qqnyQ9+9zj1GqSzxYtdTBVeRjvWmFSJroVsWZTk
-uLq0bil1GDnraUaQdlxONoK0mVJiBENa3JZ6gpy10AitN0YwmLQsLzGC9sYIhtSnSmoPQ46sZZ4g
-Zz3NCJqsbDrZCFKfKjOCNGiXe4KUtdAI0zdGMBVp2lBiBP2NEUypT5XUhCaT1YSlniBnPc0I2rcC
-4zsjaFJgLDFCW+ZCpZ4gZy3LHAzUnnqf0gq3ROmWIltBSlljUM5aZvJcaWnXrSQOt1Rppl3mbiew
-OseV1mQCSkJGS1pYlCstZT0pbrba3zphb+OmpUiNUIyWlnQXotQIctaTQoZl/lEhw5I2+0rWXFv9
-ZiPIWU9Cy/Y3x823aNmWx80SI8iL3VIjyFmPoyVTpNBV1vxkUsuVgvwJvDK9mf6NsYkxQ9YnLsX5
-E3glQM+YKZNQqrf5zTnmKbzHsZ6xlvFbfrIIZ/YlUbH2D3h2dscTrTo7Sc8PgbKjvA1t0Yek43V0
-/OAzE0Xtb3TSIgRUUfxKr3z+64ezHxo//OOH/38/3XCFtb842Sne8MZ1Q3+FAqpvzFw7+gLCkxMX
-t933juCxrMOwDJ+OijhGgUIW/ww30coO3O0f5mgC9NBV/ezg3ZMdgEEHUcKVG1f6v060hhfTocn0
-6fY8R5zpEkdS8boA5vT9t2JraPvWgIjbaLrgtVmZRK/ZMUfUm0MYZDx44Sx7w5pcLP9OL5GIo138
-xY+T7G/HUIvlcSVUJFm5jD3Z9Fo2uazoymSHc0lsuLBfty90b1biLzVk7+bm73WLvyqQvtb998hP
-uOiacyf9yy1znpPTEzXokYQp/re9a31OHEfi3/NX6HY+JKmCRLLNI67jahOSTFKXBwXMTu2lUllj
-TOIL2Cw2M5n//rpbtrHBLwK7w1VlHglY6pbUkls/PbpbZ1q99rojff5Ri49a/CW1+G7MHLoRHZzi
-sD+8F/d74DlnX/o9wVfEHeADeHXg9Tf9cXht1DTG4z1vOofZDBBeU6mdnC6MaXW8sts42koZqMXY
-ZQ9v7OEVt4osBbQgC7RhXlPljmuVbp3P9hLfdGa7UBa87EfNI16lL+wAHWNU4Z+CN4KDG7we3uAd
-TqpDNBb5FRTWi+EfAULYSvPeodMX0qilSOM9Wr9rQSNnqPrx2qAe4IoZPR15KNAJgIxf1KP6L5IH
-1NUZ4jlAWOoyB3mTf6WovZBnmIMuOrKBMZvZgJFW2ATsGaEqIAp20DGxIq9P4/3KSpRvZM+8EA2J
-ZoXubvp4iMHGlkNXreUz8moGi3suv5pS3uhnROVxKvlkpVqRmwzKhRdfoD/G7jM7wPTDlfzS0nJW
-C6xDXObhibYDQHGpyYJvLHxksQ3pI59s8Qv+0+QveEEHCH64SlG6Cxob90BjOx3QyJN/46eJv1Eg
-/cbhSv482W+k/5pb0n+rihwSy2rwVeKxV5IU+hXPFDleCal6/o+xJa+5qI0m+szpdTqVfve61z/t
-XzzujafRmx3SwXJT2jUVL1HyLZgQEfBiYFKcxcgvyFbMKt+Dn0/G0Jii0yJ6orPw60PvFm2LnUu0
-/laixyAV9MT5mLBXW+USkkkmMWL+ViPL7/yaiRWeolzNtPyaiYKaaXzPfTHtpxdzqEsnfLfGD6Zo
-7EvvDK9Msv37qeXssys0qo/5Mjm4v2pfH4YGWwcd+BJjJNUAagmP9oSanPlDdlIv9I+xjpGt9ASU
-NPUlJoVGtuvZMyuRPXPYwESazlAUywKKtl7m3uAYPSPAQhTfdzSzgCUflYzage0HFlb75Sk4F/tZ
-dUGfC9h1aFq1GBYVJl1NoT9BHEjkqIyJLCZUHqop8k9JSiwrK92GE6ALXfIuwN9G1mCERu9ZBOiC
-TwqerjvgNi00iZ7uV8JLu6xFF+4ymZDEY7ZfxCU3sziC2eXuHiajZwM6O7hREYkos31hhaA6TZV1
-v17A/za7al/2Wi4geXKLBjNA+6zXbamZTCbDYDs6cKTLevftVmbrYF6ZJfNzrrHeZV5++eLgHSKZ
-32C311DXc/b1/CqL7sU0jcDo8xPaDWV2mev6L/PBkcHQWlYoXGWd+37nc78lQKTtDrvr9Njdeael
-HqiHRUwGkQ9Y1um0b1v06bxLv4toQ6HAn6Yk+3pRREMXZyTdA+iGQKCCiu+tQyw2IVZWiOEtR3co
-ApEVmUmDInKe5wh7IKfGT2I5Yo5UCB/C6zb8zXKG7qwljZftYeCVWIoxldLzZ9KC73Y0a6mV0I9x
-CzBcz0Kb0zvSCi0RIw/yZKi4Rb5bw5mPAIzNZ7i4lWa5S67lQ2HFqOLF6gkhps6WQKQjYYzDHNS7
-48cfeIMnstJ8KrZfhryQCea4J2uaEFrS5+EnAaDT9QDEksKib8h5kd+Q/AXAAIEmm5IeCCsx48IM
-t4LYqICQOAafo6bBQIo9i1oX8S3MwKrs2QU8O0zmxDkCH9B4SibJS89e5Gg7mSrXH2PXscjvTyLN
-cRndGIyZoR9Qo47QxHApJ9r4Vs35DFSXH+2Nuk4yn2SHnidD1s+uO6S5GuDKxEvmlk5CgypILze2
-RxTJfH60vxuoTZoLorIc16nKFlDiSjPlnNUIxKTCgHim0cusbxKblB11zdy9sijnmsigyIXY2hhr
-yZEJMdk6xhI5GEtsirE4V9IRk1gPMSlZTMoiJpGBmMys2U+si5isdBD+5wsTdc7+JBjObPgl0MW5
-LWF5ntBLwSyxCcwS24BZYj2YJVJhlqax7lWvnYW1xDuxliiJtcQ2sJbYAGuJd2AtsQnWyiAOsZbg
-KhesDT1y0zs/RS6s3V6LUybwUgqBl/Ju4KVsBryUksBLeRfwUnKAV/p8FAAvJcYhCbyU9wAvZQl4
-KWsCLyUCXsp7gZcSA15KCvBSioBXXoYk8FKygZeSC7yUHOCllAZeSkngpawFvJSSwEvZDHgpWwRe
-SmngpawNvDLU0mfL70ltlKHqWrnKbqlbQF5KdLsNKSqBf3QsFb6Ioxq7HRx7hY5gl2BgbdX3Xm09
-13vSn/ZDO4kVlQgr1lKhYm1tpKgESNFKETcohYsNkaK6n8V5HaSoZjEh3AZwwHuSJytojsYVrVln
-wwHGfzHNlsKm8FNj/5hOTTnWW/V8dphJOgXk8FfQX86KqmCGVTA4FI/eXyTIRJCi1OrHNaEck4so
-yPaaxQzTGM9KlXiYRm2wJJBOZsgBHJ0iQRejUa28nBP5nMGwJyk9n1VMZCCF3TOzJqDT2Hfj1ZpP
-sygQhdeWQPjQ5JkNkTIL4wYBJBpwhdreUgFNv0DyS6uJvvhtd9gioXWJ4ur0pp9ZB8eOsUTXPSd0
-ie/1sMUjpiJkCj3Cul/usphhy3Gnmo6ycFReBHgcfQzLXXoBKM4ycZdfCydRtRAFqeujoC3oQZ7Q
-g+l1WRtXqTFclaolFvlK4CprCVepObgq3Ro8wFVqjEMSV6nvwVXqEq5S18RVaoSr1PfiKjWGq9QU
-XKUW4aq8DElcpWbjqiipnoar1BxcpZbGVVFO2xna3+zhnGAQaLs8kBUR9YAhTDr9fvJxv09Ov2x4
-/3F2nuAobeLJ8wD0BU6MHjuo1+vM8ZYqkQ/aeIDa1JKoTd0SaoM5APoEXRlI9KIH7jVFozahOG9I
-BdpPfpHLcdAAK70Ug37190A/tTT0U9eGfhlKeaHyqOla1EAuNFrZf73owjT43Holfde+v7u7aPeX
-OxUpF5CvtgL5tCaXkC9BtyR2LRJ7KOkUsQPvzHleNgCgW+CysQoADiavqeHguF5bAKoGE6gUwP3X
-u7gY1sP8mTuGPwl2lxv6OX0AvDdskkAfgDC6uvE2dS5ku4oCMizvDvMUn9x87YVBffmgnsoKN5F5
-+iZyuDAPoPdi6KGuD0BAcNsplBciqTAKpbLmyqKee86/JfFHLfJebXJHLKAenjmzpz66cxn5YWgz
-mguj3HkgLRJQFkbT6sM4RjNry5JNA1QiG1DFqCM8hV3StUwLleYieQlGuc82zIMvOfsxyoI2BoXk
-93fsMCkLJEQ8ygMhyh7tLynv3V9SYvtLSgIHlax9uZ0KZc2jEKz9uPnGnyaW4UHnPBnmSePJxAMD
-nQXPhqymndRqeJvM9CIK4Ie5AjygNbNmXmSoc9CDpzfteo1frhFNBOOnfcP88CkmthSoWCJPDC3a
-w+rUHo5G+iK2LHynVVg8EdehBsOIq3KcVWjPbO5P534YUyTwUhKO58TgT3dPooQ0mPUKeOO5Hkdr
-F88CbZjG6BGxFbSoGldC8gUpHcUFmpUYGbJG2FhkgaMDBk9dDyuFDwPqwmBMq/NEbjgEvhqUoV1i
-AvBeQdeJozopdVqmGyM6jqBTNE7unNnv81eAoDdoY4OO/hqSyvJf6HIf0kEdLN2o66amDwZ6s7n3
-O7yChs7axmx4FgURWdi0RdXG1x6dOaq6aNa0x5DuundKNZwY3ivp/JNmhVouD/f2ejIWgJwadHJZ
-xTHc/dScmLZBmya4LkCKoGj08B1FJHnDC1QYLfmNIodkU8lwqDHCMKwIEUehRdZgEIVaRgZR2JHy
-4hLbFFdA3jVsGS9yPnBnoGYQEA7m3iecxIMm4c7bwSeuHEpVjhEZQT194o3/W5HblmUJ9URDx4CR
-N/dgAmPYRhnI9w97irnST/1j/bK0L1vu7Uv1Tx3Wa/S9CpOnL7d7ZE3DR/LYqooPGU2ceD2UDHNa
-MDoeGbu9vb5vPaCwMDwDxcAZNkYjTDHeWMfA4dB6wKjM8Oi6e3zdpxNi6833Wg/aMYystEK7cwdv
-Q7PhxAg8KLGBZRqoYu8wdgNouGCfkcJQk4ibXBHiycTwFwmNaoyf3Zntv0zY/t2Xm5v9RWadNVET
-C7rEfTwxHIBjE+iM4/AMG4ax+VphoNKr6HNUqHHaWNTrNkW91qrwo8ZkOPq2i5erJTr5539BCBjq
-5FcK/XlEMzDa/vxrb2BONPXtLU9VR12/ckW2XByaoAh0WwUaFiTH3zSV16UrVVikLDJIUIjvIk4f
-GHIkRowTCrnql6flITksZ78ROMXPiqZWotgKSVIRkqJzVElaWyENA64s0SpRscOQVilZrBqRNrJJ
-M4rVIlotpD0pLrZz9TuOcEfuT0WPIwe3kK6z36SfQx1Xon2MxAu/w5ALsNpZpeoaQ3RneX0OJApu
-HDRG7IAwuc7w82+IyjEB2cCnwwUPImXodRf4uKCPslPSXsXTPr2Fwa65/9aCrjdAe/uR6cbE9rDe
-MT3XDnbLgv376+5t+LpiuoHvCacdh7FtOH5lcS8GffbnqirOLY7e6rgqTgaiUYsVSlvABkbqJDmd
-fek9YCQwXXBFBd3z+cv1+cMyeXpE3MzSqgCNgoUETI01rr0y77sxZXEPcUcMllI2apwfelWgsT1I
-wtMF4OiZ63l6SLkjBpwftdjFWmRnyPVGiwyUwkoW5zCKSkkPxRtjoBaWUZzDKColPTJIjIFWWEZx
-DqOolPTgHzEGtcIyinMYRaXkh4oHBvXCMopzGEWllBydGw+sjcfExt35l/ZE6Td0Ky/YVt6PrQzv
-jUdnbLvACqMzLTaZCp1fNz6G98fw3uHh/TE6P0bnx+j8GJ0fo/Mnjc6/eFm1G7XYjcXdbtRiN5aY
-u1GL3Vjo7kYtdmO5/XfVIrasoqMH22PzKR4XoiXW7WDqVdhoPh6z4RxDtsEXvOATHqL4b3SXZ5Ye
-JmnrAKFYOW6kU7Y5u34ovw/l96H8dl35fSxrPpY1u7uskTcGTtsg/sDD2GmbP7ID16miZdZhkOHM
-8CHxB+uNXZ89nJ32Mc8geDjF81fHPyzeIOV7Y1dn58F5OR50fkPnABd4yIlnwN7ededbnUwmGHzS
-mD93HIu2YZM3HMji4Gzu+67DDi4vD9lD52v38jFI7o0taxolt28huXfTOQuTb+wh65GZAnu4uT5/
-TGVKVMA0oqIwZBTOi6ojL8o+XN6hQzjfZefqmvkuDSd8fOCORqGkrx26ksI6Zzf/RoeJz/4LmtCH
-zF+s2cQYs/+gkcpD/6p7C9R1ztpA7s09dgOd6E4ZZkapzgyPhTER+ZHK9xi7qZ2Tv8FxZARTiQV4
-X+dKoUc3gRO3CuUj/FiVH/FiId4plLeGV7xAoGNEGJHPlgPp5jtKfwpJ16lF4KoOiyrQPKUdFu76
-mvzvmmZ+Mq7deKoqbGZRCYVzWbHeLpyQSyj2cqC4eAraCDaXhKPFc9hG4twGEJRrV8dlND2RffXM
-C+e9vf8BMZlbGvarAAA=
+Having two-tiered moderation could work -- taboo-filters reject
+pure junk, and that does not arrive to voluntary moderators at
+all. Then rest can be processed by volunteers, and all that they
+get (via dedicated linux-list-moderators  -list or some such) is
+an email every 3 hours of "NN messages in moderation queue" along
+with queue management tool URL.  No authentication, just queue
+processing, and the tool shows only beginnings of ten oldest
+messages in the queue with some smart javascript to optionally hide
+99% of message headers (and to reveal them when somebody wants to
+peek inside to know what is happening..)
 
---Boundary-00=_sKK2EY04PvBWWEK--
+That way the burden shouldn't be too bad (burden that will kill such
+moderation effort) while likely valid messages still do get thru.
+
+If they need help (horrible flood of junk passed thru pre-filters)
+they can issue a help request to system postmasters to tune the
+pre-filters and to use some heavy-duty tools to shove away most
+junk from the queue.
+
+Any volunteers to write couple perl tools ?
+
+
+> >Just install a proper spam filter like everyone else.
+> >Jes
+
+/Matti Aarnio

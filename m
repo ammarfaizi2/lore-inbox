@@ -1,137 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWHIUUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWHIUdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWHIUUb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 16:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWHIUUb
+	id S1751335AbWHIUdO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 16:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWHIUdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 16:20:31 -0400
-Received: from relay2.beelinegprs.ru ([217.118.71.5]:18247 "EHLO
-	relay1.beelinegprs.ru") by vger.kernel.org with ESMTP
-	id S1751145AbWHIUU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 16:20:29 -0400
-From: Alexander Zarochentsev <zam@namesys.com>
-Organization: namesys
-To: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net
-Subject: [PATCH] not empty pages list after fuse_readpages
-Date: Thu, 10 Aug 2006 00:20:29 +0400
-User-Agent: KMail/1.9.1
+	Wed, 9 Aug 2006 16:33:14 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:13284 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751335AbWHIUdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 16:33:14 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+Date: Wed, 9 Aug 2006 22:32:03 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org,
+       ncunningham@linuxmail.org
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <200608091415.51226.rjw@sisk.pl> <Pine.LNX.4.58.0608090913480.3560@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0608090913480.3560@gandalf.stny.rr.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608100020.29880.zam@namesys.com>
-X-SpamTest-Info: Profile: Formal (493/060809)
-X-SpamTest-Info: Profile: Detect Standard No RBL (4/030526)
-X-SpamTest-Info: Profile: SysLog
-X-SpamTest-Info: Profile: Marking Spam - Subject (2/030321)
-X-SpamTest-Status: Not detected
-X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0125], KAS/Release
+Message-Id: <200608092232.03360.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday 09 August 2006 15:16, Steven Rostedt wrote:
+> 
+> On Wed, 9 Aug 2006, Rafael J. Wysocki wrote:
+> 
+> >
+> > If it's a P4, we rather don't, because the ACPI tables should be above the
+> > last pfn in the normal zone.  Still, Steven please send your dmesg after a
+> > fresh boot.
+> >
+> 
+> Attached is a gzipped version of my dmesg.
 
-fuse_readpages looks buggy for me because it doesn't care 
-about making the @pages list empty at exit.
+Thanks.
 
-If it is indeed a bug, I suggest the following patch:
+I don't think we overwrite anything important from the hardware's perspective.
 
-don't let fuse_readpages leave the @pages list not empty
-when exiting on error.
-
-Signed-off-by: Alexander Zarochentsev <zam@namesys.com>
----
- fs/fuse/file.c          |   15 +++++++++++----
- include/linux/pagemap.h |    1 +
- mm/readahead.c          |   24 +++++++++++++++++-------
- 3 files changed, 29 insertions(+), 11 deletions(-)
-
---- linux-2.6-git.orig/fs/fuse/file.c
-+++ linux-2.6-git/fs/fuse/file.c
-@@ -395,14 +395,18 @@ static int fuse_readpages(struct file *f
- 	struct fuse_readpages_data data;
- 	int err;
- 
--	if (is_bad_inode(inode))
--		return -EIO;
-+	if (is_bad_inode(inode)) {
-+		err = -EIO;
-+		goto clean_pages_up;
-+	}
- 
- 	data.file = file;
- 	data.inode = inode;
- 	data.req = fuse_get_req(fc);
--	if (IS_ERR(data.req))
--		return PTR_ERR(data.req);
-+	if (IS_ERR(data.req)) {
-+		err = PTR_ERR(data.req);
-+		goto clean_pages_up;
-+	}
- 
- 	err = read_cache_pages(mapping, pages, fuse_readpages_fill, &data);
- 	if (!err) {
-@@ -411,6 +415,10 @@ static int fuse_readpages(struct file *f
- 		else
- 			fuse_put_request(fc, data.req);
- 	}
-+	if (0) {
-+clean_pages_up:
-+		readpages_cleanup_helper(pages);
-+	}
- 	return err;
- }
- 
---- linux-2.6-git.orig/include/linux/pagemap.h
-+++ linux-2.6-git/include/linux/pagemap.h
-@@ -100,6 +100,7 @@ extern struct page * read_cache_page(str
- 				void *data);
- extern int read_cache_pages(struct address_space *mapping,
- 		struct list_head *pages, filler_t *filler, void *data);
-+extern void readpages_cleanup_helper(struct list_head *);
- 
- static inline struct page *read_mapping_page(struct address_space *mapping,
- 					     unsigned long index, void *data)
---- linux-2.6-git.orig/mm/readahead.c
-+++ linux-2.6-git/mm/readahead.c
-@@ -229,6 +229,22 @@ static inline unsigned long get_next_ra_
- #define list_to_page(head) (list_entry((head)->prev, struct page, lru))
- 
- /**
-+ * may be useful in foo_fs_readpages method for the page pool cleanup
-+ * before exiting on error.
-+ */
-+void readpages_cleanup_helper(struct list_head *pages)
-+{
-+	while (!list_empty(pages)) {
-+		struct page *victim;
-+
-+		victim = list_to_page(pages);
-+		list_del(&victim->lru);
-+		page_cache_release(victim);
-+	}
-+}
-+EXPORT_SYMBOL(readpages_cleanup_helper);
-+
-+/**
-  * read_cache_pages - populate an address space with some pages & start reads against them
-  * @mapping: the address_space
-  * @pages: The address of a list_head which contains the target pages.  These
-@@ -260,13 +276,7 @@ int read_cache_pages(struct address_spac
- 			__pagevec_lru_add(&lru_pvec);
- 		}
- 		if (ret) {
--			while (!list_empty(pages)) {
--				struct page *victim;
--
--				victim = list_to_page(pages);
--				list_del(&victim->lru);
--				page_cache_release(victim);
--			}
-+			readpages_cleanup_helper(pages);
- 			break;
- 		}
- 	}
-
-
+Rafael

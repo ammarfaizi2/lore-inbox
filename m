@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWHIQoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWHIQvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWHIQoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWHIQoZ
+	id S1750996AbWHIQvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWHIQvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:44:25 -0400
-Received: from antares.tat.physik.uni-tuebingen.de ([134.2.170.62]:12240 "EHLO
-	antares.tat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S1751017AbWHIQoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:44:24 -0400
-Date: Wed, 9 Aug 2006 18:44:21 +0200
-From: Daniel Kobras <kobras@linux.de>
-To: dm-devel@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] dm: Fix deadlock under high i/o load in raid1 setup.
-Message-ID: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de>
-Mail-Followup-To: Daniel Kobras <kobras@linux.de>, dm-devel@redhat.com,
-	linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 9 Aug 2006 12:51:13 -0400
+Received: from no-dns-yet.demon.co.uk ([194.70.145.210]:9253 "EHLO
+	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
+	id S1750981AbWHIQvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:51:12 -0400
+Subject: Re: [Alsa-devel] ALSA problems with 2.6.18-rc3
+From: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Benton <b3nt@ukonline.co.uk>, Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1155141333.26338.186.camel@mindpipe>
+References: <44D8F3E5.5020508@ukonline.co.uk>
+	 <1155073853.26338.112.camel@mindpipe> <44DA0D93.2080307@ukonline.co.uk>
+	 <1155141333.26338.186.camel@mindpipe>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 17:51:09 +0100
+Message-Id: <1155142269.18821.45.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Aug 2006 16:51:27.0535 (UTC) FILETIME=[0E6133F0:01C6BBD4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement private fallback if immediate allocation from mempool fails.
-Standard mempool_alloc() fallback can yield a deadlock when only the
-calling process is able to refill the pool. In out-of-memory situations,
-instead of waiting for itself, kmirrord now waits for someone else to
-free some space, using a standard blocking allocation.
+On Wed, 2006-08-09 at 12:35 -0400, Lee Revell wrote:
+> On Wed, 2006-08-09 at 17:30 +0100, Andrew Benton wrote:
+> > Lee Revell wrote:
+> > > Please try to identify the change that introduced the regression.  What
+> > > was the last kernel/ALSA version that worked correctly?
+> > 
+> > The change happened between 2.6.17 and 2.6.18-rc1. Specifically, 
+> > 2.6.17-git4 works and 2.6.17-git5 doesn't.
+> 
+> Takashi-san,
+> 
+> Does this help at all?  Many users are reporting that sound broke with
+> 2.6.18-rc*.
 
-Signed-off-by: Daniel Kobras <kobras@linux.de>
----
-[Resending with Cc to l-k. First attempt apparently hasn't made it through to 
-dm-devel.]
+Fwiw, 2.6.18-rc1 works on arm (pxa2xx). Maybe this is related to another
+subsystem not found on arm.
 
-Hi!
+Liam
 
-On an nForce4-equipped machine with two SATA disk in raid1 setup using
-dmraid, we experienced frequent deadlock of the system under high i/o
-load. 'cat /dev/zero > ~/zero' was the most reliable way to reproduce
-them: Randomly after a few GB, 'cp' would be left in 'D' state along
-with kjournald and kmirrord. The functions cp and kjournald were blocked
-in did vary, but kmirrord's wchan always pointed to 'mempool_alloc()'.
-We've seen this pattern on 2.6.15 and 2.6.17 kernels.
-http://lkml.org/lkml/2005/4/20/142 indicates that this problem has been
-around even before.
-
-So much for the facts, here's my interpretation: mempool_alloc() first
-tries to atomically allocate the requested memory, or falls back to hand
-out preallocated chunks from the mempool. If both fail, it puts the
-calling process (kmirrord in this case) on a private waitqueue until
-somebody refills the pool. Where the only 'somebody' is kmirrord itself,
-so we have a deadlock.
-
-I worked around this problem by falling back to a (blocking) kmalloc
-when before kmirrord would have ended up on the waitqueue. This defeats
-part of the benefits of using the mempool, but at least keeps the system
-running. And it could be done with a two-line change. Note that
-mempool_alloc() clears the GFP_NOIO flag internally, and only uses it to
-decide whether to wait or return an error if immediate allocation fails,
-so the attached patch doesn't change behaviour in the non-deadlocking case.
-Path is against current git (2.6.18-rc4), but should apply to earlier
-versions as well. I've tested on 2.6.15, where this patch makes the
-difference between random lockup and a stable system.
-
-Regards,
-
-Daniel.
-
-diff -r dcc321d1340a -r d52bb3a14d60 drivers/md/dm-raid1.c
---- a/drivers/md/dm-raid1.c	Sun Aug 06 19:00:05 2006 +0000
-+++ b/drivers/md/dm-raid1.c	Mon Aug 07 23:16:44 2006 +0200
-@@ -255,7 +255,9 @@ static struct region *__rh_alloc(struct 
- 	struct region *reg, *nreg;
- 
- 	read_unlock(&rh->hash_lock);
--	nreg = mempool_alloc(rh->region_pool, GFP_NOIO);
-+	nreg = mempool_alloc(rh->region_pool, GFP_ATOMIC);
-+	if (unlikely(!nreg))
-+		nreg = kmalloc(sizeof(struct region), GFP_NOIO);
- 	nreg->state = rh->log->type->in_sync(rh->log, region, 1) ?
- 		RH_CLEAN : RH_NOSYNC;
- 	nreg->rh = rh;
 

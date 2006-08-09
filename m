@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWHITW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWHITZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWHITW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 15:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWHITW2
+	id S1750858AbWHITZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 15:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWHITZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 15:22:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:43682 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751298AbWHITW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 15:22:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=swpe6x7R5Zv3SepPJJPiYnXP74Cn6ELmrpPwVyv4+eir+TMLxHIXkJ72Rme6SyUAk5OmH3JRPH/UzCoh6yXW/WxykuvXAq9qg5yfBnwDVt6oJznnnLXj9Uvsvt3XMWj+SI6/SLg8QJ6vnY6dYvTYsUOAfCL3HsOccLDi3hcfB8c=
-Message-ID: <84144f020608091213u4bbb1d07xe8486a4549208016@mail.gmail.com>
-Date: Wed, 9 Aug 2006 22:13:21 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Re: [RFC/PATCH] revoke/frevoke system calls V2
-Cc: "Edgar Toernig" <froese@gmx.de>,
-       "Chase Venters" <chase.venters@clientec.com>,
-       "Pavel Machek" <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       tytso@mit.edu, tigran@veritas.com
-In-Reply-To: <1155148605.5729.251.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 15:25:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62175 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750854AbWHITZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 15:25:26 -0400
+Date: Wed, 9 Aug 2006 15:25:09 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: greg@kroah.com
+Subject: remove dead HOTPLUG_PCI_SHPC_PHPRM_LEGACY option.
+Message-ID: <20060809192509.GK10930@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <20060807101745.61f21826.froese@gmx.de>
-	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
-	 <20060807224144.3bb64ac4.froese@gmx.de>
-	 <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
-	 <1155039338.5729.21.camel@localhost.localdomain>
-	 <20060809104159.1f1737d3.froese@gmx.de>
-	 <1155119999.5729.141.camel@localhost.localdomain>
-	 <20060809200010.2404895a.froese@gmx.de>
-	 <1155148605.5729.251.camel@localhost.localdomain>
-X-Google-Sender-Auth: ad5ef2d334706051
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-09 am 20:00 +0200, ysgrifennodd Edgar Toernig:
-> > But anyway, correct me if I'm wrong, revoke (V2) not simply removes the
-> > pages from the mmaped area as truncating does (the vma stays);  revoke
-> > seems to completely remove the vma which is clearly a security bug.
-> > Future mappings may silently get mapped into the area of the revoked
-> > file without the app noticing it.  It may then hand out data of the new
-> > file still thinking it's sending the old one.
+Nothing in the tree references this config option.
 
-On 8/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> I agree with that point 100%.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Agreed also. I already had a version that simply replaced the ->nopage
-method of vma_ops but took what forced unmount patch had to get proper
-->close dealings. But I completely agree that sane revocation should
-allow close(2) and munmap(2) on the revoked fd and shared mapping.
-I'll put them on my todo and in the meanwhile, you can find the latest
-patches here: http://www.kernel.org/pub/linux/kernel/people/penberg/patches/revoke/
+--- linux-2.6.17.noarch/drivers/pci/hotplug/Kconfig~	2006-08-09 15:23:16.000000000 -0400
++++ linux-2.6.17.noarch/drivers/pci/hotplug/Kconfig	2006-08-09 15:24:23.000000000 -0400
+@@ -153,13 +153,6 @@ config HOTPLUG_PCI_SHPC_POLL_EVENT_MODE
+ 
+ 	  When in doubt, say N.
+ 
+-config HOTPLUG_PCI_SHPC_PHPRM_LEGACY
+-	bool "For AMD SHPC only: Use $HRT for resource/configuration"
+-	depends on HOTPLUG_PCI_SHPC && !ACPI 
+-	help
+-	  Say Y here for AMD SHPC. You have to select this option if you are 
+-	  using this driver on platform with AMD SHPC.
+-
+ config HOTPLUG_PCI_RPA
+ 	tristate "RPA PCI Hotplug driver"
+ 	depends on HOTPLUG_PCI && PPC_PSERIES && PPC64 && !HOTPLUG_PCI_FAKE
 
-Thanks for taking the time to review the patch!
-
-                                     Pekka
+-- 
+http://www.codemonkey.org.uk

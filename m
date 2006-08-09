@@ -1,65 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWHIUBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWHIUBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWHIUBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 16:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWHIUBy
+	id S1751327AbWHIUBi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 16:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWHIUBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 16:01:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32213 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751324AbWHIUBx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 16:01:53 -0400
-Date: Wed, 9 Aug 2006 13:01:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
-Message-Id: <20060809130151.f1ff09eb.akpm@osdl.org>
-In-Reply-To: <200608091906.k79J6Zrc009211@turing-police.cc.vt.edu>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-	<200608091906.k79J6Zrc009211@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 9 Aug 2006 16:01:37 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:9902 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751322AbWHIUBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 16:01:37 -0400
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Indan Zupancic <indan@nul.nu>
+Cc: Daniel Phillips <phillips@google.com>, netdev@vger.kernel.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <62411.194.109.238.121.1155148442.squirrel@194.109.238.121>
+References: <20060808193325.1396.58813.sendpatchset@lappy>
+	 <20060808193345.1396.16773.sendpatchset@lappy>
+	 <42414.81.207.0.53.1155080443.squirrel@81.207.0.53>
+	 <44D92B78.20408@google.com>
+	 <35608.81.207.0.53.1155124956.squirrel@81.207.0.53>
+	 <1155128046.12225.40.camel@twins>
+	 <39903.81.207.0.53.1155131329.squirrel@81.207.0.53>
+	 <1155132032.12225.65.camel@twins>
+	 <62411.194.109.238.121.1155148442.squirrel@194.109.238.121>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 21:45:44 +0200
+Message-Id: <1155152744.23134.67.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Aug 2006 15:06:35 -0400
-Valdis.Kletnieks@vt.edu wrote:
+On Wed, 2006-08-09 at 20:34 +0200, Indan Zupancic wrote:
+> On Wed, August 9, 2006 16:00, Peter Zijlstra said:
+> > On Wed, 2006-08-09 at 15:48 +0200, Indan Zupancic wrote:
+> >> On Wed, August 9, 2006 14:54, Peter Zijlstra said:
+> >> > On Wed, 2006-08-09 at 14:02 +0200, Indan Zupancic wrote:
+> >> >>  That avoids lots of checks and should guarantee that the
+> >> >> accounting is correct, except in the case when the IFF_MEMALLOC flag is
+> >> >> cleared and the counter is set to zero manually. Can't that be avoided and
+> >> >> just let it decrease to zero naturally?
+> >> >
+> >> > That would put the atomic op on the free path unconditionally, I think
+> >> > davem gets nightmares from that.
+> >>
+> >> I confused SOCK_MEMALLOC with sk_buff::memalloc, sorry. What I meant was
+> >> to unconditionally decrement the reserved usage only when memalloc is true
+> >> on the free path. That way all skbs that increased the reserve also decrease
+> >> it, and the counter should never go below zero.
+> >
+> > OK, so far so good, except we loose the notion of getting memory back
+> > from regular skbs.
+> 
+> I don't understand this, regular skbs don't have anything to do with
+> rx_reserve_used as far as I can see. I'm only talking about keeping
+> that field up to date and correct. rx_reserve_used is only increased
+> by a skb when memalloc is set to true on that skb, so only if that field
+> is set rx_reserve_used needs to be reduced when the skb is freed.
 
-> On Sun, 06 Aug 2006 03:08:09 PDT, Andrew Morton said:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
-> 
-> Yum managed to get wedged: 'echo t > /proc/sysrq-trigger' says:
-> 
-> [ 4514.840000] yum           D D5C32AA0     0  4747   4430                     (NOTLB)
-> [ 4514.840000]        d5c3dda4 d5c3dd78 00000007 d5c32aa0 bd3ddd00 00000338 00000000 d5c32bc0
-> [ 4514.840000]        c1601628 d5c3dd9c 64600300 0000001f d5c3ddd8 d5c3ddd8 c1601628 d5c3ddac
-> [ 4514.840000]        c034fef8 d5c3ddb4 c0136e8e d5c3ddcc c0350026 c0136e58 d5c3ddd8 00000000
-> [ 4514.840000] Call Trace:
-> [ 4514.840000]  [<c034fef8>] io_schedule+0x25/0x44
-> [ 4514.840000]  [<c0136e8e>] sync_page+0x36/0x3a
-> [ 4514.840000]  [<c0350026>] __wait_on_bit_lock+0x30/0x58
-> [ 4514.840000]  [<c0136e44>] __lock_page+0x51/0x59
-> [ 4514.840000]  [<c013f099>] truncate_inode_pages_range+0x1de/0x230
-> [ 4514.840000]  [<c013f0f7>] truncate_inode_pages+0xc/0x11
-> [ 4514.840000]  [<c018ea12>] ext3_delete_inode+0x16/0xbd
-> [ 4514.840000]  [<c016798f>] generic_delete_inode+0xb6/0x130
-> [ 4514.840000]  [<c0167a1b>] generic_drop_inode+0x12/0x166
-> [ 4514.840000]  [<c01673f1>] iput+0x67/0x6a
-> [ 4514.840000]  [<c0165662>] dentry_iput+0x97/0xcc
-> [ 4514.840000]  [<c016613d>] dput+0x183/0x19c
-> [ 4514.840000]  [<c015f64f>] sys_renameat+0x17a/0x1d3
-> [ 4514.840000]  [<c015f6ba>] sys_rename+0x12/0x14
-> [ 4514.840000]  [<c0102849>] sysenter_past_esp+0x56/0x79
-> 
-> A careful check of the dmesg doesn't reveal anything particularly helpful,
-> like an oops or other relevant kernel message.
+I know what you ment, and if you've looked at -v2 you'll see that I've
+done this, basically because its easier. However the thought behind the
+other semantics is, any skb freed will reduce memory pressure.
 
-Usually this means that there's an IO request in flight and it got lost
-somewhere.  Device driver bug, IO scheduler bug, etc.  Conceivably a
-lost interrupt (hardware bug, PCI setup bug, etc).
+> Why is it needed for the protocol specific code to call dev_unreserve_skb?
 
-Which device driver and which IO sched are you using?
+It uses this to get an indication of memory pressure; if we have
+memalloc'ed skbs memory pressure must be high, hence we must drop all
+non critical packets. But you are right in that this is a problematic
+area; the mapping from skb to device is non trivial.
+
+Your suggestion of testing skb->memalloc might work just as good; indeed
+if we have regressed into the fallback allocator we know we have
+pressure.
+
+> Only problem is if the device can change. rx_reserve_used should probably
+> be updated when that happens, as a skb can't use reserved memory on a device
+> it was moved away from. (right?)
+
+Well yes, this is a problem, only today have I understood how volatile
+the mapping actually is. I think you are right in that transferring the
+accounting from the old to the new device is correct solution.
+
+However this brings us the problem of limiting the fallback allocator;
+currently this is done in __netdev_alloc_skb where rx_reserve_used it
+compared against rx_reserve. If we transfer accounting away this will
+not work anymore. I'll have to think about this case, perhaps we already
+have a problem here.
+
+> >> Also as far as I can see it should be possible to replace all atomic
+> >> "if (unlikely(dev_reserve_used(skb->dev)))" checks witha check if
+> >> memalloc is set. That should make davem happy, as there aren't any
+> >> atomic instructions left in hot paths.
+> >
+> > dev_reserve_used() uses atomic_read() which isn't actually a LOCK'ed
+> > instruction, so that should not matter.
+> 
+> Perhaps, but the main reason to check memalloc instead of using
+> dev_reserve_used is because the latter doesn't tell which skb did the
+> reservation.
+
+Very good point indeed.
+
+> >> If IFF_MEMALLOC is set new skbs set memalloc and increase the reserve.
+> >
+> > Not quite, if IFF_MEMALLOC is set new skbs _could_ get memalloc set. We
+> > only fall back to alloc_pages() if the regular path fails to alloc. If the
+> > skb is backed by a page (as opposed to kmem_cache fluff) sk_buff::memalloc
+> > is set.
+> 
+> Yes, true. But doesn't matter for the rx_reserve_used accounting, as long as
+> memalloc set means that it did increase rx_reserve_used.
+> 
+> > Also, I've been thinking (more pain), should I not up the reserve for
+> > each SOCK_MEMALLOC socket.
+> 
+> Up rx_reserve_used or the total ammount of reserved memory? Probably 'no' for
+> both though, as it's either device specific or skb dependent.
+
+I came up with yes, if for each socket you gain a request queue, the
+number of in-flight pages is proportional to the number of sockets.
+

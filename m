@@ -1,87 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWHIDrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWHIEBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbWHIDrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 23:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWHIDrZ
+	id S1030339AbWHIEBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 00:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWHIEBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 23:47:25 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:27012 "EHLO
-	asav14.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1030446AbWHIDrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 23:47:24 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HAOL22ESBUQ
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Fabio Comolli <fabio.comolli@gmail.com>
-Subject: Re: 2.6.18-rc3-mm2
-Date: Tue, 8 Aug 2006 23:47:22 -0400
-User-Agent: KMail/1.9.3
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <d120d5000608081124s53777b42v4bb4d48c90f6a59e@mail.gmail.com> <b637ec0b0608081136o3adf98dbn15e206c8eea41a1c@mail.gmail.com>
-In-Reply-To: <b637ec0b0608081136o3adf98dbn15e206c8eea41a1c@mail.gmail.com>
+	Wed, 9 Aug 2006 00:01:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:18536 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030339AbWHIEBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 00:01:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SGCLihcYbU50jPYhlp5/Wtp1/6HxyyJWFkiCIbEE0va3mPSUWdd/0XDrkSoF2M8YcfjSyWEaOtAZV49cXQvcC93diAtxBom137HGvXkS+kkF5/JVFXts4dvXzPM4fjO49bpvc2wvu1s/ayqwtnN3Lo6AvsnYhHP2l9vcUIhlnNE=
+Message-ID: <787b0d920608082101h2f1c1200rf94be91eefdcdac0@mail.gmail.com>
+Date: Wed, 9 Aug 2006 00:01:06 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: sds@tycho.nsa.gov, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       davem@redhat.com, viro@ftp.linux.org.uk
+Subject: Re: How to lock current->signal->tty
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608082347.22544.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 August 2006 14:36, Fabio Comolli wrote:
-> Hi.
-> 
-> On 8/8/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On 8/8/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
-> > > Hi Dmitry.
-> > >
-> > > On 8/8/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > >
-> > > > Fabio, do you have a multiplexing controller as well?
-> > >
-> > > Well, I don't even know what this means :-(
-> > > How do I know?
-> > >
-> > > However, it's a HP laptop, model name Pavillion DV4378EA.
-> > >
-> >
-> > Yep, you do have it:
-> >
-> > > i8042.c: Detected active multiplexing controller, rev 1.1.
-> >
-> > Could you please try booting with i8042.nomux and tell me if it works?
-> >
-> 
-> Yup, it works.
-> 
+Stephen Smalley writes:
 
-Fabio, Rafael,
+> SELinux is just revalidating access to the tty when the task
+> changes contexts upon execve, and resetting the tty if the
+> task is no longer allowed to use it.  Likewise with the open
+> file descriptors that would be inherited.  No clearing of the
+> ttys of other tasks required as far as SELinux is concerned,
+> although that might not fit with normal semantics.
 
-Could you please try applying the patch below on top of -rc3-mm2 and
-see if it works without needing i8042.nomux?
+If the process goes back to the old context after a second
+execve or via special rights, it ought regain access to the tty.
 
-Thank you! 
-
--- 
-Dmitry
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/serio/i8042.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: work/drivers/input/serio/i8042.c
-===================================================================
---- work.orig/drivers/input/serio/i8042.c
-+++ work/drivers/input/serio/i8042.c
-@@ -435,7 +435,7 @@ static int i8042_enable_mux_ports(void)
- 		i8042_command(&param, I8042_CMD_AUX_ENABLE);
- 	}
- 
--	return 0;
-+	return i8042_enable_aux_port();
- }
- 
- /*
+(just block access instead of resetting the tty)

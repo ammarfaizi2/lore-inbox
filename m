@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWHIIvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWHIIzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbWHIIvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 04:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWHIIvx
+	id S965108AbWHIIzd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 04:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbWHIIzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 04:51:53 -0400
-Received: from mail.gmx.net ([213.165.64.20]:28310 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965104AbWHIIvw (ORCPT
+	Wed, 9 Aug 2006 04:55:33 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:52113 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S965108AbWHIIzc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 04:51:52 -0400
-X-Authenticated: #428038
-Date: Wed, 9 Aug 2006 10:51:49 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: jdow <jdow@earthlink.net>
-Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Message-ID: <20060809085149.GB27939@merlin.emma.line.org>
-Mail-Followup-To: jdow <jdow@earthlink.net>, davids@webmaster.com,
-	linux-kernel@vger.kernel.org
-References: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com> <04b101c6bb33$9131bd00$0225a8c0@Wednesday>
+	Wed, 9 Aug 2006 04:55:32 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG?] possible recursive locking detected (blkdev_open)
+Date: Wed, 9 Aug 2006 10:58:36 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <200608090757.32006.eike-kernel@sf-tec.de> <20060809013034.ac15526a.akpm@osdl.org>
+In-Reply-To: <20060809013034.ac15526a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <04b101c6bb33$9131bd00$0225a8c0@Wednesday>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-08-09)
-X-Y-GMX-Trusted: 0
+Content-Type: multipart/signed;
+  boundary="nextPart1427318.iu2EpPSxUZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608091058.41578.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Aug 2006, jdow wrote:
+--nextPart1427318.iu2EpPSxUZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> If you have the luxury of the ability to write personalized rules and
-> whitelist entries for SpamAssassin it can become a startlingly good
-> filtering system. And you can tailor the filtering for individual 
-> sources with meta rules. Processing large numbers of messages through
-> BAYES and large numbers of rules gets quite time consuming, perhaps
+Andrew Morton wrote:
+> On Wed, 9 Aug 2006 07:57:31 +0200
+>
+> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+> > =============================================
+> > [ INFO: possible recursive locking detected ]
+> > ---------------------------------------------
+> > parted/7929 is trying to acquire lock:
+> >  (&bdev->bd_mutex){--..}, at: [<c105eb8d>] __blkdev_put+0x1e/0x13c
+> >
+> > but task is already holding lock:
+> >  (&bdev->bd_mutex){--..}, at: [<c105eec6>] do_open+0x72/0x3a8
 
-Bayes and distributed filtering in SpamAssassin, although it integrates
-nicely with the scoring, is so painfully slow that I've ditched it after
-a short test drive. Systems such as bogofilter, spamprobe or qsf are way
-faster - and can also look at tags that SpamAssassin (in local non-bayes
-mode) may have added to the header.
+> kernel version?
 
--- 
-Matthias Andree
+compiled from git 2006-08-03 16:02 (+0200), it's -rc3 and a bit.
+
+Eike
+
+--nextPart1427318.iu2EpPSxUZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBE2aPBXKSJPmm5/E4RAhrsAJ9ZrFTkVUn4bEwrCPZHIu9vCGMhawCfRK4i
+67E7nzxsJ3r0FaFEDCbsrjc=
+=sXms
+-----END PGP SIGNATURE-----
+
+--nextPart1427318.iu2EpPSxUZ--

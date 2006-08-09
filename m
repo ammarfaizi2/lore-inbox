@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWHIRBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWHIRDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWHIRBz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 13:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWHIRBy
+	id S1751262AbWHIRDD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 13:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWHIRDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 13:01:54 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:30735 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751027AbWHIRBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 13:01:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=YubFDa6Td8UBujWhZ8b+n8w9Z8lxDRLm+quVF0PH5WuKTBtldsOWURUjtk4oDt+a1jAWNvyekbNykCpCIR8m1gdQeUPvWnne8wnkBc6CzF3VebOojnV70LmFAYnbHaFSavhuU5mx/m81WHdq2nO/LmdChQXj2hoqDBykvtGwZC8=
-From: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Date: Wed, 9 Aug 2006 10:01:41 -0700
-User-Agent: KMail/1.8.1
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, mtosatti@redhat.com,
-       marcelo@kvack.org
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <200608040957.05034.benjamin.cherian.kernel@gmail.com> <20060804165550.GA26701@1wt.eu>
-In-Reply-To: <20060804165550.GA26701@1wt.eu>
+	Wed, 9 Aug 2006 13:03:02 -0400
+Received: from pool-72-75-81-136.washdc.east.verizon.net ([72.75.81.136]:5828
+	"EHLO ceg5xgn.1icm9o6s.adelphia.net") by vger.kernel.org with ESMTP
+	id S1751242AbWHIRDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 13:03:00 -0400
+Message-ID: <66926041160793.240633BB4B@P10U>
+From: "Laura" <acquiescentcoliform@singapore.com>
+To: <linux-laptop@vger.kernel.org>
+Subject: Feel Pleasure from You are just a click away from something which will eliminate your most distressing trouble.
+Date: Wed, 9 Aug 2006 13:02:45 -0400
 MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: Pj0vxaFx7X3dzDpEwx44u0RId2OeDdrVjUy4
 Content-Type: text/plain;
-  charset="iso-8859-1"
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608091001.43570.benjamin.cherian.kernel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy,
-Sorry I didn't notice your email till now.
+Enjoy the newest
+ Unlike other products, this one gives you permanent gains in size - and loads of pleasure! You will be pleased with the surprisingly great results after weeks, or even days.
+ Did she ever tell you your size is insufficient? No? Maybe she was just being polite? Tell her right now you'll get lots of extra size in a very short time of using this! Come in here: http://www.ktrnavig.com/gal/ms/ 
+Had doubts that these things really work? Check this out and join the thousands of happy men!
 
-On Friday 04 August 2006 09:55, Willy Tarreau wrote:
-> The problem is that Marcelo is very very busy those days (as you might have
-> noticed from the delay between each release), and there are a good bunch of
-> security fixes in -rc3 which should wait too much in -rc. Maybe an -rc4
-> would be OK, but I don't know if Marcelo has enough time to spend on yet
-> another RC. Otherwise, if I produce a 2.4.34-pre1 about one week after
-> 2.4.33, does that fit your needs ? I already have a few fixes waiting which
-> might be worth a first pre-release.
 
-It would be nice if you could do another rc, because otherwise it seems the 
-patch wouldn't get into a stable kernel for a long time. But if it's really 
-too much work for Marcelo, I would understand you putting it in th 2.4.34 
-pre-release.
+ Second place is first loser Never say die The most beautiful women are made for lovers who lack imagination Gluttony kills more than the sword 
 
-Thanks again,
-Ben

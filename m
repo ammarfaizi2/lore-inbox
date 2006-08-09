@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWHIMat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWHIMbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWHIMat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWHIMas
+	id S1750720AbWHIMbK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWHIMbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:30:48 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:10136 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750714AbWHIMas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:30:48 -0400
-Subject: Re: Marvell PATA IDE Controller
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060809113650.GA2959@mail.muni.cz>
-References: <20060809113650.GA2959@mail.muni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Aug 2006 13:50:50 +0100
-Message-Id: <1155127850.5729.164.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 9 Aug 2006 08:31:10 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9887 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750717AbWHIMbI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:31:08 -0400
+Date: Wed, 9 Aug 2006 14:30:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Linux ACPI <linux-acpi@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
+Message-ID: <20060809123052.GB3808@elf.ucw.cz>
+References: <200608091426.31762.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608091426.31762.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-09 am 13:36 +0200, ysgrifennodd Lukas Hejtmanek:
-> Hello,
+Hi!
 > 
-> is there a chance to get working Marvell PATA IDE Controller?
-> According to lspci it has 11ab:6101 ID.
+> It looks like the CMOS clock gets corrupted during the suspend to disk
+> on i386.  I've observed this on 2 different boxes.  Moreover, one of them is
+> AMD64-based and the x86_64 kernel doesn't have this problem on it.
+> 
+> Also, I've done some tests that indicate the corruption doesn't occur before
+> saving the suspend image.  It rather happens when the box is powered off
+> or rebooted (tested both cases).
+> 
+> Unfortunately, I have no more time to debug it further right now.
 
-If Marvell docs/hw access land on my desk then yes. If not then no.
-Thats why we now have jmicron support 8)
-
-Alan
-
+Do you have Linus' "please corrupt my cmos for debuggin" hack enabled?
+:-).
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

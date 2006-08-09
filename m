@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWHIRsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWHIRtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbWHIRsY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 13:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWHIRsY
+	id S1751233AbWHIRtE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 13:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWHIRtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 13:48:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47279 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751273AbWHIRsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 13:48:23 -0400
-Date: Wed, 9 Aug 2006 10:47:38 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take6 1/3] kevent: Core files.
-Message-ID: <20060809104738.1498723f@localhost.localdomain>
-In-Reply-To: <11551105602734@2ka.mipt.ru>
-References: <11551105592821@2ka.mipt.ru>
-	<11551105602734@2ka.mipt.ru>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Aug 2006 13:49:03 -0400
+Received: from qb-out-0506.google.com ([72.14.204.235]:36414 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751233AbWHIRtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 13:49:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=tc0wiBqP2Q+Do4sEdO2Hq+/uSQqv1wZeMPyxaljn7b5H+BNrdq7ekeSXecWGgvL1DG1N25Od243ayIY5rMPV4Ttjy1Rf1f9MLds1D0g9OtFZnNSpECXcZdJ+ImlEwoBs5DwLtYLGS1XWgJfbLK9lVz6ZKA9irjHJqELi3bfmQGw=
+Message-ID: <b572c9e10608091049q5223adddxb2fd854c31877670@mail.gmail.com>
+Date: Wed, 9 Aug 2006 13:49:00 -0400
+From: "Forrest Voight" <voights@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] arch/i386/kernel/cpu/transmeta.c, kernel 2.6.17.8
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Aug 2006 12:02:40 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+Corrects warning:
 
-> 
-> Core files.
-> 
-> This patch includes core kevent files:
->  - userspace controlling
->  - kernelspace interfaces
->  - initialization
->  - notification state machines
-> 
-> It might also inlclude parts from other subsystem (like network related
-> syscalls, so it is possible that it will not compile without other
-> patches applied).
-> 
-> Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> 
-> 
-> +#ifdef CONFIG_KEVENT_USER_STAT
-> +static inline void kevent_user_stat_init(struct kevent_user *u)
-> +{
-> +	u->wait_num = u->im_num = u->total = 0;
-> +}
-> +static inline void kevent_user_stat_print(struct kevent_user *u)
-> +{
-> +	pr_debug("%s: u=%p, wait=%lu, immediately=%lu, total=%lu.\n", 
-> +			__func__, u, u->wait_num, u->im_num, u->total);
-> +}
-> +static inline void kevent_user_stat_increase_im(struct kevent_user *u)
-> +{
-> +	u->im_num++;
-> +}
-> +static inline void kevent_user_stat_increase_wait(struct kevent_user *u)
-> +{
-> +	u->wait_num++;
-> +}
-> +static inline void kevent_user_stat_increase_total(struct kevent_user *u)
-> +{
-> +	u->total++;
-> +}
->
+  CC      arch/i386/kernel/cpu/centaur.o
+  CC      arch/i386/kernel/cpu/transmeta.o
+arch/i386/kernel/cpu/transmeta.c: In function 'init_transmeta':
+arch/i386/kernel/cpu/transmeta.c:12: warning: 'cpu_freq' may be used
+uninitialized in this function
+  CC      arch/i386/kernel/cpu/intel.o
 
-static wrapper_functions_with_execessive_long_names(struct i_really_hate *this)
-{
-	suck();
-}
+
+
+--- linux-2.6.17.8/arch/i386/kernel/cpu/transmeta.c     2006-08-07
+00:18:54.000000000 -0400
++++ linux/arch/i386/kernel/cpu/transmeta.c      2006-08-09
+13:32:05.000000000 -0400
+@@ -9,7 +9,7 @@
+ {
+        unsigned int cap_mask, uk, max, dummy;
+        unsigned int cms_rev1, cms_rev2;
+-       unsigned int cpu_rev, cpu_freq, cpu_flags, new_cpu_rev;
++       unsigned int cpu_rev, cpu_freq = 0, cpu_flags, new_cpu_rev;
+        char cpu_info[65];
+
+        get_model_name(c);      /* Same as AMD/Cyrix */

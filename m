@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWHIFrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbWHIFra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWHIFrj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 01:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWHIFrj
+	id S1030491AbWHIFra (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 01:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030488AbWHIFra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 01:47:39 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:23432 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S965077AbWHIFrh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 01:47:37 -0400
-Date: Wed, 9 Aug 2006 09:46:48 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-Message-ID: <20060809054648.GD17446@2ka.mipt.ru>
-References: <20060808193325.1396.58813.sendpatchset@lappy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060808193325.1396.58813.sendpatchset@lappy>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 09 Aug 2006 09:46:50 +0400 (MSD)
+	Wed, 9 Aug 2006 01:47:30 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:37960 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965075AbWHIFr3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 01:47:29 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=C23uuMajBeFPpvJkAgNud2gLm7zlV8lOQoiuadgNIZtS5wz+63se9W2cPbBSWtRma
+	oo6ljY9ZRYlIr70pB4nNw==
+Message-ID: <44D976E6.5010106@google.com>
+Date: Tue, 08 Aug 2006 22:47:18 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: tgraf@suug.ch, a.p.zijlstra@chello.nl, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+References: <20060808193345.1396.16773.sendpatchset@lappy>	<20060808211731.GR14627@postel.suug.ch>	<44D93BB3.5070507@google.com> <20060808.183920.41636471.davem@davemloft.net>
+In-Reply-To: <20060808.183920.41636471.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 09:33:25PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
->    http://lwn.net/Articles/144273/
->    "Kernel Summit 2005: Convergence of network and storage paths"
+David Miller wrote:
+> From: Daniel Phillips <phillips@google.com>
+  >>Can you please characterize the conditions under which skb->dev changes
+>>after the alloc?  Are there writings on this subtlety?
 > 
-> We believe that an approach very much like today's patch set is
-> necessary for NBD, iSCSI, AoE or the like ever to work reliably. 
-> We further believe that a properly working version of at least one of
-> these subsystems is critical to the viability of Linux as a modern
-> storage platform.
+> The packet scheduler and classifier can redirect packets to different
+> devices, and can the netfilter layer.
+> 
+> The setting of skb->dev is wholly transient and you cannot rely upon
+> it to be the same as when you set it on allocation.
+>
+> Even simple things like the bonding device change skb->dev on every
+> receive.
 
-There is another approach for that - do not use slab allocator for
-network dataflow at all. It automatically has all you pros amd if
-implemented correctly can have a lot of additional usefull and
-high-performance features like full zero-copy and total fragmentation
-avoidance.
+Thankyou, this is easily fixed.
 
--- 
-	Evgeniy Polyakov
+> I think you need to study the networking stack a little more before
+> you continue to play in this delicate area :-)
+
+The VM deadlock is also delicate.  Perhaps we can work together.
+
+Regards,
+
+Daniel

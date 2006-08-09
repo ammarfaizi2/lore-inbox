@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWHINSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWHINTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWHINSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 09:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWHINSZ
+	id S1750764AbWHINTX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 09:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWHINTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 09:18:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30444 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750761AbWHINSY (ORCPT
+	Wed, 9 Aug 2006 09:19:23 -0400
+Received: from postel.suug.ch ([194.88.212.233]:31640 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S1750764AbWHINTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 09:18:24 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060809094516.GA17993@infradead.org> 
-References: <20060809094516.GA17993@infradead.org>  <20060807115537.GA15253@in.ibm.com> <20060807120024.GD15253@in.ibm.com> <20060808162559.GB28647@infradead.org> <20060809094311.GA20050@in.ibm.com> 
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Jim Keniston <jkenisto@us.ibm.com>, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 2/3] Kprobes: Define retval helper 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 09 Aug 2006 14:16:04 +0100
-Message-ID: <26750.1155129364@warthog.cambridge.redhat.com>
+	Wed, 9 Aug 2006 09:19:22 -0400
+Date: Wed, 9 Aug 2006 15:19:42 +0200
+From: Thomas Graf <tgraf@suug.ch>
+To: Daniel Phillips <phillips@google.com>
+Cc: David Miller <davem@davemloft.net>, a.p.zijlstra@chello.nl,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+Message-ID: <20060809131942.GY14627@postel.suug.ch>
+References: <20060808193345.1396.16773.sendpatchset@lappy> <20060808211731.GR14627@postel.suug.ch> <44D93BB3.5070507@google.com> <20060808.183920.41636471.davem@davemloft.net> <44D976E6.5010106@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D976E6.5010106@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+* Daniel Phillips <phillips@google.com> 2006-08-08 22:47
+> David Miller wrote:
+> >From: Daniel Phillips <phillips@google.com>
+>  >>Can you please characterize the conditions under which skb->dev changes
+> >>after the alloc?  Are there writings on this subtlety?
+> >
+> >The packet scheduler and classifier can redirect packets to different
+> >devices, and can the netfilter layer.
+> >
+> >The setting of skb->dev is wholly transient and you cannot rely upon
+> >it to be the same as when you set it on allocation.
+> >
+> >Even simple things like the bonding device change skb->dev on every
+> >receive.
+> 
+> Thankyou, this is easily fixed.
 
-> > > Good idea.  You should add parentheses around regs, otherwise the C
-> > > preprocessor might bite users.  Also the shouting name is quite ugly.
-> > > In fact it should probably go to asm/system.h or similar and not have
-> > > a kprobes name - it just extracts the return value from a struct pt_regs
-> > > after all.
-> > 
-> > Done! How does this look? I added it to asm/ptrace.h so it lives along
-> > with the instruction_pointer() definition.
+It's not that simple, in order to just fix the most obvious case
+being packet forwarding when skb->dev changes its meaning from
+device the packet is coming from to device the packet will be leaving
+on is difficult.
 
-I presume we don't care about return values that span multiple registers - for
-instance if you return a 64-bit value on i386 it'll wind up in EDX:EAX.
-
-David
+You can't unreserve at that point so you need to keep the original
+skb->dev. Since the packet is mostly likely queued before freeing
+you will lose the refcnt on the original skb->dev. Keeping a
+refcnt just for this memalloc stuff is out of question. Even keeping
+the ifindex on a best effort basis is unlikely an option, sk_buff is
+way overweight already.

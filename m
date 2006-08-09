@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030700AbWHILgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030703AbWHILhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030700AbWHILgt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030703AbWHILgt
+	id S1030703AbWHILhT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030704AbWHILhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:36:49 -0400
-Received: from anubis.fi.muni.cz ([147.251.54.96]:53153 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1030700AbWHILgs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:36:48 -0400
-Date: Wed, 9 Aug 2006 13:36:50 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Marvell PATA IDE Controller
-Message-ID: <20060809113650.GA2959@mail.muni.cz>
+	Wed, 9 Aug 2006 07:37:18 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:23775 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030705AbWHILhQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 07:37:16 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [RFC][PATCH -mm 1/5] swsusp: Introduce memory bitmaps
+Date: Wed, 9 Aug 2006 13:36:16 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
+References: <200608091152.49094.rjw@sisk.pl> <200608091257.16663.rjw@sisk.pl> <20060809112701.GO3308@elf.ucw.cz>
+In-Reply-To: <20060809112701.GO3308@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608091336.17137.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-is there a chance to get working Marvell PATA IDE Controller?
+On Wednesday 09 August 2006 13:27, Pavel Machek wrote:
+> > > > Introduce the memory bitmap data structure and make swsusp use in the suspend
+> > > > phase.
+> > > > 
+> > > > The current swsusp's internal data structure is not very efficient from the
+> > > > memory usage point of view, so it seems reasonable to replace it with a data
+> > > > structure that will require less memory, such as a pair of bitmaps.
+> > > 
+> > > Well, 500 lines of code  for what... 0.25% bigger image?
 
-According to lspci it has 11ab:6101 ID.
+BTW, that depends on the total size of RAM.  On a 1.5 GB i386 box that would
+be something like 100%.
 
-If I add this ID into ahci.c, it finds one SATA port with no drive attached.
+> > > I see it  enables you to do some cleanups... but could we get those
+> > > cleanups without those 500 lines? :-).
+> > 
+> > Out of the 500 lines, something like 100 are comments and other 50 are
+> > definitions of structures. ;-)
+> 
+> Yes, and of the 100 lines of comments, 10 are fixmes :-).
 
-Actually, it has one PATA connector with DVD+RW attached to it.
+No, no, they are just notes. ;-)
 
-In Windows XP, it is recognized as generic PCI IDE device.
+> > Seriously speaking, I could do that without the bitmaps, but the code wouldn't
+> > be that much shorter.  Apart from this, I would need to introduce yet another
+> > type of PBEs (for storing pfns) and try not to get lost in the resulting mess.
+> > 
+> > Instead of doing this I prefer to add some extra code to set up a decent data
+> > structure and just use it.
+> 
+> Okay, I guess that if we need to change the structure anyway, we may
+> well use the effective structure...
 
--- 
-Luká¹ Hejtmánek
+That's exactly what I thought when I was writing this code. :-)
+
+Rafael

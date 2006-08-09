@@ -1,66 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030635AbWHIKOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030636AbWHIKPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030635AbWHIKOj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 06:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030636AbWHIKOj
+	id S1030636AbWHIKPF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 06:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030638AbWHIKPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 06:14:39 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:9935 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1030635AbWHIKOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 06:14:39 -0400
-Date: Wed, 9 Aug 2006 18:38:16 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@sw.ru>
-Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
-Message-ID: <20060809143816.GA142@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 9 Aug 2006 06:15:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58601 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030636AbWHIKPE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 06:15:04 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200608090116.38476.rjw@sisk.pl> 
+References: <200608090116.38476.rjw@sisk.pl>  <200608081639.38245.rjw@sisk.pl> <20060804192540.17098.39244.stgit@warthog.cambridge.redhat.com> <32278.1155057836@warthog.cambridge.redhat.com> 
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       Olof Johansson <olof@lixom.net>
+Subject: Re: [PATCH] ReiserFS: Make sure all dentries refs are released before calling kill_block_super() 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 09 Aug 2006 11:14:27 +0100
+Message-ID: <6818.1155118467@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
-> Although I'm not sure it's needed for this problem. A getppid() which does
->
-> asmlinkage long sys_getppid(void)
-> {
-> 	int pid;
->
-> 	read_lock(&tasklist_lock);
-> 	pid = current->group_leader->real_parent->tgid;
-> 	read_unlock(&tasklist_lock);
->
-> 	return pid;
-> }
->
-> seems like a fine implementation to me ;)
+Rafael J. Wysocki <rjw@sisk.pl> wrote:
 
-Why do we need to use ->group_leader? All threads should have the same
-->real_parent.
+> It didn't apply cleanly to -rc3-mm2 for me and produces the appended oops
+> every time at the kernel startup (on x86_64).
 
-Why do we need tasklist_lock? I think rcu_read_lock() is enough.
+Can you send me your modified patch?
 
-In other words, do you see any problems with this code
-
-	smlinkage long sys_getppid(void)
-	{
-		int pid;
-
-		rcu_read_lock();
-		pid = rcu_dereference(current->real_parent)->tgid;
-		rcu_read_unlock();
-
-		return pid;
-	}
-
-? Yes, we may read a stale value for ->real_parent, but the memory
-can't be freed while we are under rcu_read_lock(). And in this case
-the returned value is ok because the task could be reparented just
-after return anyway.
-
-Oleg.
-
+David

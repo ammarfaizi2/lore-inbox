@@ -1,68 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030638AbWHIKPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030640AbWHIKQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030638AbWHIKPe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 06:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030640AbWHIKPe
+	id S1030640AbWHIKQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 06:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030642AbWHIKQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 06:15:34 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:65251 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1030638AbWHIKP2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 06:15:28 -0400
-Message-ID: <44D9A7AE.5060405@namesys.com>
-Date: Wed, 09 Aug 2006 03:15:26 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Wed, 9 Aug 2006 06:16:27 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:26590 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030640AbWHIKQ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 06:16:26 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH -mm 4/5] swsusp: Change the name of pagedir_nosave
+Date: Wed, 9 Aug 2006 12:11:34 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, Linux PM <linux-pm@osdl.org>
+References: <200608091152.49094.rjw@sisk.pl>
+In-Reply-To: <200608091152.49094.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: David Masover <ninja@slaphack.com>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Bernd Schubert <bernd-schubert@gmx.de>, reiserfs-list@namesys.com,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Clay Barnes <clay.barnes@gmail.com>,
-       Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, ipso@snappymail.ca,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <44CF87E6.1050004@slaphack.com> <20060806225912.GC4205@ucw.cz> <44D99ED9.1030003@namesys.com> <20060809094813.GE3308@elf.ucw.cz>
-In-Reply-To: <20060809094813.GE3308@elf.ucw.cz>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608091211.34615.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+The name of the pagedir_nosave variable does not make sense any more, so it
+seems reasonable to change it to something more meaningful.
 
->On Wed 2006-08-09 02:37:45, Hans Reiser wrote:
->  
->
->>Pavel Machek wrote:
->>
->>    
->>
->>>Yes, I'm afraid redundancy/checksums kill write speed,
->>>
->>>      
->>>
->>they kill write speed to cache, but not to disk....  our compression
->>plugin is faster than the uncompressed plugin.....
->>    
->>
->
->Yes, you can get clever. But your compression plugin also means that
->single bit error means whole block is lost, so there _is_ speed
->vs. stability-against-hw-problems.
->
->But you are right that compression will catch same class of errors
->checksums will, so that it is probably good thing w.r.t. stability.
->
->								Pavel
->  
->
-So we need to use ecc not checksums if we want to increase
-reliability.   Edward, can you comment in more detail regarding your
-views and the performance issues for ecc that you see?
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ arch/i386/power/swsusp.S         |    2 +-
+ arch/powerpc/kernel/swsusp_32.S  |    4 ++--
+ arch/x86_64/kernel/suspend_asm.S |    2 +-
+ kernel/power/power.h             |    2 --
+ kernel/power/snapshot.c          |   15 +++++++++------
+ 5 files changed, 13 insertions(+), 12 deletions(-)
+
+Index: linux-2.6.18-rc3-mm2/arch/i386/power/swsusp.S
+===================================================================
+--- linux-2.6.18-rc3-mm2.orig/arch/i386/power/swsusp.S
++++ linux-2.6.18-rc3-mm2/arch/i386/power/swsusp.S
+@@ -32,7 +32,7 @@ ENTRY(swsusp_arch_resume)
+ 	movl	$swsusp_pg_dir-__PAGE_OFFSET, %ecx
+ 	movl	%ecx, %cr3
+ 
+-	movl	pagedir_nosave, %edx
++	movl	restore_pblist, %edx
+ 	.p2align 4,,7
+ 
+ copy_loop:
+Index: linux-2.6.18-rc3-mm2/arch/powerpc/kernel/swsusp_32.S
+===================================================================
+--- linux-2.6.18-rc3-mm2.orig/arch/powerpc/kernel/swsusp_32.S
++++ linux-2.6.18-rc3-mm2/arch/powerpc/kernel/swsusp_32.S
+@@ -159,8 +159,8 @@ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
+ 	isync
+ 
+ 	/* Load ptr the list of pages to copy in r3 */
+-	lis	r11,(pagedir_nosave - KERNELBASE)@h
+-	ori	r11,r11,pagedir_nosave@l
++	lis	r11,(restore_pblist - KERNELBASE)@h
++	ori	r11,r11,restore_pblist@l
+ 	lwz	r10,0(r11)
+ 
+ 	/* Copy the pages. This is a very basic implementation, to
+Index: linux-2.6.18-rc3-mm2/arch/x86_64/kernel/suspend_asm.S
+===================================================================
+--- linux-2.6.18-rc3-mm2.orig/arch/x86_64/kernel/suspend_asm.S
++++ linux-2.6.18-rc3-mm2/arch/x86_64/kernel/suspend_asm.S
+@@ -54,7 +54,7 @@ ENTRY(restore_image)
+ 	movq	%rcx, %cr3;
+ 	movq	%rax, %cr4;  # turn PGE back on
+ 
+-	movq	pagedir_nosave(%rip), %rdx
++	movq	restore_pblist(%rip), %rdx
+ loop:
+ 	testq	%rdx, %rdx
+ 	jz	done
+Index: linux-2.6.18-rc3-mm2/kernel/power/power.h
+===================================================================
+--- linux-2.6.18-rc3-mm2.orig/kernel/power/power.h
++++ linux-2.6.18-rc3-mm2/kernel/power/power.h
+@@ -38,8 +38,6 @@ extern struct subsystem power_subsys;
+ /* References to section boundaries */
+ extern const void __nosave_begin, __nosave_end;
+ 
+-extern struct pbe *pagedir_nosave;
+-
+ /* Preferred image size in bytes (default 500 MB) */
+ extern unsigned long image_size;
+ extern int in_suspend;
+Index: linux-2.6.18-rc3-mm2/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.18-rc3-mm2.orig/kernel/power/snapshot.c
++++ linux-2.6.18-rc3-mm2/kernel/power/snapshot.c
+@@ -38,8 +38,11 @@
+  * the suspend and included in the suspend image, but have also been
+  * allocated by the "resume" kernel, so their contents cannot be written
+  * directly to their "original" page frames.
++ *
++ * NOTE: It cannot be static, because it is used by the architecture-dependent
++ * atomic restore code.
+  */
+-struct pbe *pagedir_nosave;
++struct pbe *restore_pblist;
+ 
+ /* Pointer to an auxiliary buffer (1 page) */
+ static void *buffer;
+@@ -824,7 +827,7 @@ void swsusp_free(void)
+ 	}
+ 	nr_copy_pages = 0;
+ 	nr_meta_pages = 0;
+-	pagedir_nosave = NULL;
++	restore_pblist = NULL;
+ 	buffer = NULL;
+ }
+ 
+@@ -1203,7 +1206,7 @@ load_header(struct swsusp_info *info)
+ {
+ 	int error;
+ 
+-	pagedir_nosave = NULL;
++	restore_pblist = NULL;
+ 	error = check_header(info);
+ 	if (!error) {
+ 		nr_copy_pages = info->image_pages;
+@@ -1562,8 +1565,8 @@ static void *get_buffer(struct memory_bi
+ 	pbe->orig_address = page_address(page);
+ 	pbe->address = safe_pages_list;
+ 	safe_pages_list = safe_pages_list->next;
+-	pbe->next = pagedir_nosave;
+-	pagedir_nosave = pbe;
++	pbe->next = restore_pblist;
++	restore_pblist = pbe;
+ 	return (void *)pbe->address;
+ }
+ 
+@@ -1628,7 +1631,7 @@ int snapshot_write_next(struct snapshot_
+ 
+ 				chain_init(&ca, GFP_ATOMIC, 1);
+ 				bm_position_reset(&orig_bm);
+-				pagedir_nosave = NULL;
++				restore_pblist = NULL;
+ 				handle->sync_read = 0;
+ 				handle->buffer = get_buffer(&orig_bm, &ca);
+ 				if (!handle->buffer)
+

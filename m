@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWHIVnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWHIVw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWHIVnm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 17:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWHIVnm
+	id S1751377AbWHIVw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 17:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHIVw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 17:43:42 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53635 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750750AbWHIVnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 17:43:41 -0400
-Subject: Re: /dev/sd*
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Wed, 9 Aug 2006 17:52:28 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:6572 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751377AbWHIVw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 17:52:28 -0400
+Date: Wed, 9 Aug 2006 17:45:53 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
 To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20060809212124.GC3691@stusta.de>
-References: <1155144599.5729.226.camel@localhost.localdomain>
-	 <20060809212124.GC3691@stusta.de>
-Content-Type: text/plain
+Cc: Pavel Machek <pavel@suse.cz>, Josh Boyer <jwboyer@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200608091749_MC3-1-C796-5E8D@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Aug 2006 23:01:43 +0100
-Message-Id: <1155160903.5729.263.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-09 am 23:21 +0200, ysgrifennodd Adrian Bunk:
-> It might be a bit out of the scope of this thread, but why do some many 
-> subsystems use the /dev/sd* namespace?
+In-Reply-To: <20060808195509.GR3691@stusta.de>
+
+On Tue, 8 Aug 2006 21:55:10 +0200, Adrian Bunk wrote:
+
+> > > > I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
+> > > > it still queued or should I resend?
+> > > 
+> > > Is this "pdflush: handle resume wakeups"?
+> > 
+> > Yes. Do you have it somewhere or should I dig it up?
 > 
-> Real SCSI devices use it.
-> The USB mass storage driver uses it.
+> I've applied it.
 
-USB storage is real SCSI.
+Umm, is there some place we can check to see what you've applied?
 
-> libata uses it.
-> 
-> I'd expext SATA or PATA devices at /dev/hd* or perhaps at /dev/ata* - 
-> but why are they at /dev/sd*?
+I sent you "tty: serialize flush_to_ldisc" and I've got a few more
+but I don't want to duplicate what you already have.
 
-ATA uses the top half of the scsi stack so ends up using the top layer
-scsi drivers. Its probably more efficient than writing new driver
-clones, especially as non disk ATA is also real SCSI (or very close).
-
-You can use /dev/ata if you want - its just a udev problem ;)
-
-Alan
+-- 
+Chuck
 

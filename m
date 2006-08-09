@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWHIRiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWHIRkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWHIRiv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 13:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWHIRiv
+	id S1751236AbWHIRkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 13:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWHIRkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 13:38:51 -0400
-Received: from mail.linicks.net ([217.204.244.146]:34771 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1751177AbWHIRiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 13:38:50 -0400
-From: Nick Warne <nick@linicks.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Still get build warnings - gcc-3.4.6 - 2.6.17.8
-Date: Wed, 9 Aug 2006 18:38:44 +0100
-User-Agent: KMail/1.9.4
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-References: <200608082148.11433.nick@linicks.net> <20060808141246.25ee5db7.rdunlap@xenotime.net> <20060808231915.GA23161@kroah.com>
-In-Reply-To: <20060808231915.GA23161@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 13:40:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19334 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751236AbWHIRkV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 13:40:21 -0400
+Date: Wed, 9 Aug 2006 13:38:30 -0400
+From: Dave Jones <davej@redhat.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, dev@openvz.org, stable@kernel.org
+Subject: Re: + sys_getppid-oopses-on-debug-kernel.patch added to -mm tree
+Message-ID: <20060809173830.GA10930@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Kirill Korotaev <dev@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Muli Ben-Yehuda <muli@il.ibm.com>,
+	=?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	linux-kernel@vger.kernel.org, dev@openvz.org, stable@kernel.org
+References: <200608081432.k78EWprf007511@shell0.pdx.osdl.net> <20060808143937.GA3953@rhun.haifa.ibm.com> <20060808145138.GA2720@atjola.homenet> <20060808145709.GB3953@rhun.haifa.ibm.com> <1155050547.5729.91.camel@localhost.localdomain> <44D8B048.8060103@sw.ru> <20060808163635.GF28990@redhat.com> <44D99901.20202@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608091838.44989.nick@linicks.net>
+In-Reply-To: <44D99901.20202@sw.ru>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 00:19, Greg KH wrote:
+On Wed, Aug 09, 2006 at 12:12:49PM +0400, Kirill Korotaev wrote:
+ > >  > >>Even without getting into just how ugly this is, is it really worth
+ > >  > >>it?
+ > >  > it is impossible to run debug kernels w/o this patch :/
+ > >  > or are you asking whether this optimization worth it?
+ > >  > 
+ > >  > What makes me worry is that this is a sign that vendors
+ > >  > don't even bother to run debug kernels :((((
+ > > 
+ > > Fedora rawhide is nearly always shipping with DEBUG_SLAB enabled,
+ > > and we didn't hit this once.  Are you sure this is a problem
+ > > with DEBUG_SLAB, and not DEBUG_PAGEALLOC ?
+ > Sorry, it's my fault. Surely, CONFIG_DEBUG_PAGEALLOC.
 
-> > fwiw, I don't seem to have any patches to fix/remove them.
->
-> pm_unregister_all is removed in the -mm tree, from a patch in my tree.
->
+Then you're correct, vendors rarely turn this on :)
+I do sometimes if I'm trying to chase down something particularly
+difficult, and it usually gets me a bunch of mail from users
+asking why 'everything got all slow', so it's a last-resort option
+rather than a 'on all the time' option.
 
-OK, thanks all.  For love nor money could I find the mail/patch somebody sent 
-me ages ago for this... but anyway, it's been sorted now.
+		Dave
 
-Nick
 -- 
-Every program has two purposes:
-one for which it was written and another for which it wasn't.
+http://www.codemonkey.org.uk

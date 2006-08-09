@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWHIURH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWHIUSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWHIURH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 16:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWHIURH
+	id S1751349AbWHIUSk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 16:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWHIUSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 16:17:07 -0400
-Received: from wx-out-0506.google.com ([66.249.82.236]:7280 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751346AbWHIURG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 16:17:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=VFillbbj2pwpqy6eel8ZB7gcmuxh9aUioeE72v0YRnIv5DS56qp1/r+1lnNiBI1/zKUq4480a3XLmlqi6C0J482bsywq3P+TdKIBz+veJDnhmqj7+6/uF/HtouLtANHMqgg57dEuseJv7jjVuO70uu36npwe9Z5Xsr7fvNiC4v4=
-Message-ID: <e9e943910608091317p37bdbd66t91bc1e16c3d9986a@mail.gmail.com>
-Date: Wed, 9 Aug 2006 21:17:04 +0100
-From: "Duane Griffin" <duaneg@dghda.com>
-To: "Molle Bestefich" <molle.bestefich@gmail.com>
-Subject: Re: ext3 corruption
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
+	Wed, 9 Aug 2006 16:18:40 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:16469 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751349AbWHIUSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 16:18:40 -0400
+Message-ID: <44DA431A.1010902@tls.msk.ru>
+Date: Thu, 10 Aug 2006 00:18:34 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Forrest Voight <voights@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arch/i386/kernel/cpu/transmeta.c, kernel 2.6.17.8
+References: <b572c9e10608091049q5223adddxb2fd854c31877670@mail.gmail.com>
+In-Reply-To: <b572c9e10608091049q5223adddxb2fd854c31877670@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com>
-	 <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>
-	 <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com>
-	 <62b0912f0608090822n2d0c44c4uc33b5b1db00e9d33@mail.gmail.com>
-	 <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com>
-	 <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
-X-Google-Sender-Auth: 84b00e6f1f1bdaa7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/08/06, Molle Bestefich <molle.bestefich@gmail.com> wrote:
-[snip]
-> And what will e2fsck do to my dear filesystem if I let it have a go at it?
+Forrest Voight wrote:
+> Corrects warning:
+> 
+>  CC      arch/i386/kernel/cpu/centaur.o
+>  CC      arch/i386/kernel/cpu/transmeta.o
+> arch/i386/kernel/cpu/transmeta.c: In function 'init_transmeta':
+> arch/i386/kernel/cpu/transmeta.c:12: warning: 'cpu_freq' may be used
+> uninitialized in this function
+>  CC      arch/i386/kernel/cpu/intel.o
+> 
 
-To be safe, run it on an image of your filesystem first. You can use
-the dd command to take the image, then run e2fsck on it. Afterwards
-mount it and make sure everything looks kosher. That is assuming you
-have enough spare space, of course. If not then you should at least
-run e2fsck with -n first to find out what it wants to do. Personally,
-my risk tolerance would be closely correlated with the quality of my
-backups.
+This is a false alarm.
+Here's the code (details omitted):
 
-Cheers,
-Duane.
+ if ( max >= 0x80860001 ) {
+   cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags);
+                                       ^^^^^^^^^
+ }
+ if ( max >= 0x80860002 ) {
+    printk(KERN_INFO "CPU: Processor %u MHz\n", cpu_freq);
+ }
 
--- 
-"I never could learn to drink that blood and call it wine" - Bob Dylan
+Note the two conditions: if second is true, the first is
+true too, so both branches are executed, so first cpu_freq
+is initialized (by cpuid() call) and next it's used in printk.
+
+The same thing will be done by the following code:
+
+ if ( max >= 0x80860001 ) {
+   cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags);
+   if ( max >= 0x80860002 ) {
+      printk(KERN_INFO "CPU: Processor %u MHz\n", cpu_freq);
+   }
+ }
+
+and in this case gcc will not (hopefully) issue the warning.
+
+BTW, cpu_rev gets initialized to 0 here as well - looks like
+it's done also just to prevent warning message.
+
+/mjt
+

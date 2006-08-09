@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbWHIMEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWHIMG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161013AbWHIMEo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161011AbWHIMEo
+	id S1030228AbWHIMG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWHIMG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:04:44 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:706 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161013AbWHIMEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:04:43 -0400
-Date: Wed, 9 Aug 2006 08:04:22 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Pavel Machek <pavel@suse.cz>
-cc: LKML <linux-kernel@vger.kernel.org>, Suspend2-devel@lists.suspend2.net,
-       linux-pm@osdl.org, ncunningham@linuxmail.org
-Subject: Re: swsusp and suspend2 like to overheat my laptop
-In-Reply-To: <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0608090751340.2500@gandalf.stny.rr.com>
-References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
- <20060808235352.GA4751@elf.ucw.cz> <Pine.LNX.4.58.0608082215090.20396@gandalf.stny.rr.com>
- <20060809073958.GK4886@elf.ucw.cz> <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com>
+	Wed, 9 Aug 2006 08:06:59 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:49160 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030228AbWHIMG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:06:58 -0400
+Message-ID: <44D9D03B.6060907@sw.ru>
+Date: Wed, 09 Aug 2006 16:08:27 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
+References: <20060809143816.GA142@oleg>
+In-Reply-To: <20060809143816.GA142@oleg>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>Although I'm not sure it's needed for this problem. A getppid() which does
+>>
+>>asmlinkage long sys_getppid(void)
+>>{
+>>	int pid;
+>>
+>>	read_lock(&tasklist_lock);
+>>	pid = current->group_leader->real_parent->tgid;
+>>	read_unlock(&tasklist_lock);
+>>
+>>	return pid;
+>>}
+>>
+>>seems like a fine implementation to me ;)
+> 
+> 
+> Why do we need to use ->group_leader? All threads should have the same
+> ->real_parent.
+I'm not sure this is true for old LinuxThreads...
 
+> Why do we need tasklist_lock? I think rcu_read_lock() is enough.
+> 
+> In other words, do you see any problems with this code
+> 
+> 	smlinkage long sys_getppid(void)
+> 	{
+> 		int pid;
+> 
+> 		rcu_read_lock();
+> 		pid = rcu_dereference(current->real_parent)->tgid;
+> 		rcu_read_unlock();
+> 
+> 		return pid;
+> 	}
+> 
+> ? Yes, we may read a stale value for ->real_parent, but the memory
+> can't be freed while we are under rcu_read_lock(). And in this case
+> the returned value is ok because the task could be reparented just
+> after return anyway.
+Your patch doesn't cure the problem.
+rcu_read_lock just disables preemtion and rcu_dereference
+introduces memory barrier. _None_ of this _prevents_
+another CPU from freeing old real_parent in parallel with your dereference.
 
-On Wed, 9 Aug 2006, Steven Rostedt wrote:
+You can minimize the probability very much by making local_irq_disable()/enable()
+around the code in question, but still it won't be a real fix (at least due to NMIs).
 
-> >
-> > cat we get contents of /proc/acpi/thermal*/*/* ?
->
-> I'm running after a poweroff (left it running over night in the hotel, and
-> I'm still in the hotel).
->
-> $ grep . /proc/acpi/thermal_zone/THRM/*
-> /proc/acpi/thermal_zone/THRM/cooling_mode:<setting not supported>
-> /proc/acpi/thermal_zone/THRM/cooling_mode:cooling mode: passive
-> /proc/acpi/thermal_zone/THRM/polling_frequency:<polling disabled>
-> /proc/acpi/thermal_zone/THRM/state:state:                   ok
-> /proc/acpi/thermal_zone/THRM/temperature:temperature:             48 C
-> /proc/acpi/thermal_zone/THRM/trip_points:critical (S5):           88 C
-> /proc/acpi/thermal_zone/THRM/trip_points:passive:                 81 C: tc1=4 tc2=3 tsp=100 devices=0xcf6c2338
->
-> Note thermal_zone/THRM was finished with bash tab completion so they are
-> the only things that match the above glob expr.
->
-
-Note: I just did a swsusp and resume and here's the same data:
-
-$ grep . /proc/acpi/thermal_zone/THRM/*
-/proc/acpi/thermal_zone/THRM/cooling_mode:<setting not supported>
-/proc/acpi/thermal_zone/THRM/cooling_mode:cooling mode: passive
-/proc/acpi/thermal_zone/THRM/polling_frequency:<polling disabled>
-/proc/acpi/thermal_zone/THRM/state:state:                   ok
-/proc/acpi/thermal_zone/THRM/temperature:temperature:             60 C
-/proc/acpi/thermal_zone/THRM/trip_points:critical (S5):           88 C
-/proc/acpi/thermal_zone/THRM/trip_points:passive:                 81 C: tc1=4 tc2=3 tsp=100 devices=0xcf6c2338
-
-
-And just leaving my system idle for a few minutes:
-
-$ grep . /proc/acpi/thermal_zone/THRM/temperature
-temperature:             62 C
-
-and a few more minutes:
-
-temperature:             64 C
-
-
-And a few more:
-
-temperature:             66 C
-
-
-right now after typing this:
-
-temperature:             69 C
-
-
-So this definitely shows somethings not letting the CPU rest.
-
--- Steve
-
+Kirill
 

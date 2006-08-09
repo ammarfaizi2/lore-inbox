@@ -1,50 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWHIQYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWHIQaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWHIQYo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWHIQYo
+	id S1751130AbWHIQaS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWHIQaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:24:44 -0400
-Received: from mga09.intel.com ([134.134.136.24]:28992 "EHLO
-	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750997AbWHIQYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:24:43 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.07,225,1151910000"; 
-   d="scan'208"; a="105671145:sNHT36899275"
-Date: Wed, 9 Aug 2006 09:24:40 -0700
-From: "Luck, Tony" <tony.luck@intel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to lock current->signal->tty
-Message-ID: <20060809162440.GA14143@intel.com>
-References: <1155050242.5729.88.camel@localhost.localdomain> <44D8A97B.30607@linux.intel.com> <1155051876.5729.93.camel@localhost.localdomain> <20060808164127.GA11392@intel.com> <1155059405.5729.103.camel@localhost.localdomain> <yq0u04mtjni.fsf@jaguar.mkp.net> <1155120250.5729.146.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155120250.5729.146.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 9 Aug 2006 12:30:18 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:10718 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751130AbWHIQaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:30:17 -0400
+Date: Wed, 09 Aug 2006 12:29:50 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
+ compatibilty?
+In-reply-to: <200608091207.26156.gene.heskett@verizon.net>
+To: linux-kernel@vger.kernel.org
+Cc: alsa-user@lists.sourceforge.net
+Message-id: <200608091229.50745.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200608091140.02777.gene.heskett@verizon.net>
+ <20060809184658.2bdfb169@comp.home.net>
+ <200608091207.26156.gene.heskett@verizon.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 11:44:10AM +0100, Alan Cox wrote:
-> 
-> The users won't see them anyway, they are hidden behind the GUI.
+On Wednesday 09 August 2006 12:07, Gene Heskett wrote:
+>On Wednesday 09 August 2006 11:46, Sergei Steshenko wrote:
+>>On Wed, 09 Aug 2006 11:40:02 -0400
+>>
+>>Gene Heskett <gene.heskett@verizon.net> wrote:
+>>> Greetings;
+>>>
+>>> The old fart is back again. :)
+>>>
+>>> I've just done a divide and conquer on kernel versions, and have found
+>>> that while I DO have a kde audio signon for kernels
+>>> 2.6.18-rc1-rc3-rc4, I do not have any other functioning audio,
+>>> including the kde sound effects I normally get.  xmms and tvtime are
+>>> mute, as are the firefox plugins to play videos from the network.
+>>> 2.6.17.8 and below works great yet.
+>>>
+>>> So whats the fix?
+>>
+>>Demand stable ABI.
+>
+>It does not appear to be so.  And ATM booted to 18-rc1, I didn't see an
+>error message when rc.local made a call of "[root@coyote gene]# alsactl
+>restore
+>alsactl: set_control:894: warning: name mismatch (Mic Boost (+20dB)/Mic
+>Boost (+20dB) Switch) for control #45
+>alsactl: set_control:896: warning: index mismatch (0/0) for control #45
+>alsactl: set_control:898: failed to obtain info for control #45
+> (Operation not permitted)
+>[root@coyote gene]#
+>
+>But as you can see, the error was there nontheless.  I've seen this or a
+>very similar error for .18-rc3 and .18-rc4.
+>
+>This walks and qwacks like the alsa interface has been diddled, again. 
+> But since it KNOWS what hardware its running, in this case an audigy 2,
+> not Value, so why was apparently working code broken and then commited
+> to the kernel tree?
+>
+>Humm, because of my use of 2 independant audio channels here, I'm forced
+> to use kamix in order to address both systems.  And I found it! 
+> Somehow, that card managed to get its "external amplifier" 'led' turned
+> on, which apparently kills the normal line outs that drive my speakers. 
+> The display also looks slightly busier, like another slider has been
+> added?
+>
+>Now to check the newer kernels again after doing an 'alsactl store' from
+>the cli.  Once I've done that, the above error is not repeated.
+>
+>And, even kookier, is that after doing the alsactl store, the external
+>amplifier button no longer effects it.  Anybody got any migrain medicine?
+>
+>And tvtime now has a voice too, goodie.. :)
 
-I think that the majority of IA-64 users are connected to the target
-machine via ssh login, rather than a directly connected VGA screen.
-So they should see the message on their pty.
+But, once booted to 2.6.18-rc4, the audio except for the kde signon splash, 
+is well and truely muted for all other usage.
 
-> > These messages are normally caused by userland code, so kprobes
-> > probably wont do much good :)
-> 
-> Jes, read up on kprobes a little if you think its of no use in these
-> kind of situations. A systemtap script to count/measure alignment fault
-> rates and see who is causing the load isn't very hard to write.
+I haven't built -rc2 yet, I'll try that next.  Alsamixer cannot coax a peep 
+out of it now.
 
-But this does make sense ... the system administrator of a mainframe or
-super-computer can (and arguably should) be monitoring resource
-utilization and providing feedback to users on how to get the best
-performance from their applications.
-
--Tony (currently at 90% rip out this message, 10% add the mutex lock/unlock).
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

@@ -1,65 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWHIQEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWHIQHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWHIQEh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWHIQEh
+	id S1751090AbWHIQHk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWHIQHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:04:37 -0400
-Received: from h155.mvista.com ([63.81.120.155]:63203 "EHLO imap.sh.mvista.com")
-	by vger.kernel.org with ESMTP id S1751038AbWHIQEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:04:36 -0400
-Message-ID: <44DA07D6.9010101@ru.mvista.com>
-Date: Wed, 09 Aug 2006 20:05:42 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: albertl@mail.com, Mikael Pettersson <mikpe@it.uu.se>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       alan@redhat.com, Unicorn Chang <uchang@tw.ibm.com>,
-       Doug Maxey <dwm@enoyolf.org>
-Subject: Re: libata pata_pdc2027x success on sparc64
-References: <200607172358.k6HNwYhF002052@harpo.it.uu.se>	<44BD2370.8090506@ru.mvista.com>	<44C841B5.40806@tw.ibm.com> <17626.1619.653854.241578@alkaid.it.uu.se>
-In-Reply-To: <17626.1619.653854.241578@alkaid.it.uu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 12:07:40 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:9918 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751090AbWHIQHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:07:39 -0400
+Date: Wed, 09 Aug 2006 12:07:26 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
+ compatibilty?
+In-reply-to: <20060809184658.2bdfb169@comp.home.net>
+To: linux-kernel@vger.kernel.org
+Cc: Sergei Steshenko <steshenko_sergei@list.ru>,
+       alsa-user@lists.sourceforge.net
+Message-id: <200608091207.26156.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200608091140.02777.gene.heskett@verizon.net>
+ <20060809184658.2bdfb169@comp.home.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wednesday 09 August 2006 11:46, Sergei Steshenko wrote:
+>On Wed, 09 Aug 2006 11:40:02 -0400
+>
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>> Greetings;
+>>
+>> The old fart is back again. :)
+>>
+>> I've just done a divide and conquer on kernel versions, and have found
+>> that while I DO have a kde audio signon for kernels 2.6.18-rc1-rc3-rc4,
+>> I do not have any other functioning audio, including the kde sound
+>> effects I normally get.  xmms and tvtime are mute, as are the firefox
+>> plugins to play videos from the network. 2.6.17.8 and below works great
+>> yet.
+>>
+>> So whats the fix?
+>
+>Demand stable ABI.
 
-Mikael Pettersson wrote:
+It does not appear to be so.  And ATM booted to 18-rc1, I didn't see an 
+error message when rc.local made a call of "[root@coyote gene]# alsactl 
+restore
+alsactl: set_control:894: warning: name mismatch (Mic Boost (+20dB)/Mic 
+Boost (+20dB) Switch) for control #45
+alsactl: set_control:896: warning: index mismatch (0/0) for control #45
+alsactl: set_control:898: failed to obtain info for control #45 (Operation 
+not permitted)
+[root@coyote gene]#
 
->  > The libata version has three improvements compared to the IDE version.
->  > 
->  > 1. The PLL calibration patches in the above URLs (for IDE)
->  > still need more improvement as done in the pdc_read_counter()
->  > of the libata version.
->  > 
->  > 2. The Promise 2027x adapters check the "set features - xfer mode"
->  >    and set the timing register automatically. However, the automatically
->  >    set values are not correct under 133MHz. Libata has a hook
->  >    pdc2027x_post_set_mode() to set the values back by software.
->  > 
->  > 3. ATAPI DMA is supported (please see pdc2027x_check_atapi_dma()).
->  >    Maybe we also need to add this to the IDE version.
+But as you can see, the error was there nontheless.  I've seen this or a 
+very similar error for .18-rc3 and .18-rc4.
 
-> Do you know how large the difference is between the 20267 (old driver)
-> and the 20269 (new driver) in the areas touched by these patches?
+This walks and qwacks like the alsa interface has been diddled, again.  But 
+since it KNOWS what hardware its running, in this case an audigy 2, not 
+Value, so why was apparently working code broken and then commited to the 
+kernel tree?
 
-    Immense. They belong to the different families, register compatibe only in 
-the standard PCI/BM IDE regisrer set -- hence was the driver split.
+Humm, because of my use of 2 independant audio channels here, I'm forced to 
+use kamix in order to address both systems.  And I found it!  Somehow, 
+that card managed to get its "external amplifier" 'led' turned on, which 
+apparently kills the normal line outs that drive my speakers.  The display 
+also looks slightly busier, like another slider has been added?
 
-> Long ago I tried a 20267 PCI card in my PowerMac, and it had the same
-> issues that the 20269 card had. So I'm interested in porting the
-> calibration/timing fixes to pdc202xx_old.c.
+Now to check the newer kernels again after doing an 'alsactl store' from 
+the cli.  Once I've done that, the above error is not repeated.
 
-    They don't apply to this driver at all.  The "older" chip family didn't 
-have the PLL to calibrate.  It must be some different issue.
+And, even kookier, is that after doing the alsactl store, the external 
+amplifier button no longer effects it.  Anybody got any migrain medicine?
 
-> /Mikael
+And tvtime now has a voice too, goodie.. :)
 
-WBR, Sergei
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

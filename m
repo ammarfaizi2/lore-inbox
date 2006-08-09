@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWHIMlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWHIMrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWHIMlp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWHIMlo
+	id S1750724AbWHIMrT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWHIMrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:41:44 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:17595 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1750732AbWHIMln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:41:43 -0400
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-In-Reply-To: <20060809054648.GD17446@2ka.mipt.ru>
-References: <20060808193325.1396.58813.sendpatchset@lappy>
-	 <20060809054648.GD17446@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Wed, 09 Aug 2006 14:37:20 +0200
-Message-Id: <1155127040.12225.25.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.91 
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 08:47:18 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:51933 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750724AbWHIMrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:47:18 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Wed, 09 Aug 2006 14:40:31 +0200
+References: <6EIOG-2xY-31@gated-at.bofh.it> <6EIOG-2xY-33@gated-at.bofh.it> <6EIOG-2xY-35@gated-at.bofh.it> <6EIOG-2xY-37@gated-at.bofh.it> <6EIOG-2xY-39@gated-at.bofh.it> <6EIOG-2xY-19@gated-at.bofh.it> <6Gf5M-2zt-23@gated-at.bofh.it> <6Gfpt-30C-49@gated-at.bofh.it> <6GhAA-6bP-19@gated-at.bofh.it> <6Gx2C-436-5@gated-at.bofh.it> <6HhoT-5E7-33@gated-at.bofh.it> <6HhRQ-6uk-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1GAnMi-0000iG-DH@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-09 at 09:46 +0400, Evgeniy Polyakov wrote:
-> On Tue, Aug 08, 2006 at 09:33:25PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> >    http://lwn.net/Articles/144273/
-> >    "Kernel Summit 2005: Convergence of network and storage paths"
-> > 
-> > We believe that an approach very much like today's patch set is
-> > necessary for NBD, iSCSI, AoE or the like ever to work reliably. 
-> > We further believe that a properly working version of at least one of
-> > these subsystems is critical to the viability of Linux as a modern
-> > storage platform.
-> 
-> There is another approach for that - do not use slab allocator for
-> network dataflow at all. It automatically has all you pros amd if
-> implemented correctly can have a lot of additional usefull and
-> high-performance features like full zero-copy and total fragmentation
-> avoidance.
+Eric W. Biederman <ebiederm@xmission.com> wrote:
 
-On your site where you explain the Network Tree Allocator:
+> Odd.  I wonder if I'm missing a serializing instruction somewhere,
+> to ensure the effects of ``self modifying code'' aren't a problem.
+> As I read Intels Documentation if you have a jump before you get
+> to the code there shouldn't be a problem.
 
- http://tservice.net.ru/~s0mbre/blog/devel/networking/nta/index.html
+ACK, a short jump to the next instruction *should* be all it takes, but if
+it doesn't, maybe a long jump will do the trick.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-You only test the fragmentation scenario with the full scale of sizes.
-Fragmentation will look different if you use a limited number of sizes
-that share no factors (other than the block size); try 19, 37 and 79 
-blocks with 1:1:1 ratio.
-
-Also, I have yet to see how you will do full zero-copy receives; full 
-zero-copy would mean getting the data from driver DMA to user-space
-without
-a single copy. The to user-space part almost requires that each packet
-live
-on its own page.
-
-As for the VM deadlock avoidance; I see no zero overhead allocation path
--
-you do not want to deadlock your allocator. I see no critical resource 
-isolation (our SOCK_MEMALLOC). Without these things your allocator might
-improve the status quo but it will not aid in avoiding the deadlock we
-try
-to tackle here.
-
-
-
+http://david.woodhou.se/why-not-spf.html

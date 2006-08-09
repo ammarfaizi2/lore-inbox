@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWHIMyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWHIM60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWHIMyi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWHIMyh
+	id S1750737AbWHIM60 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWHIM60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:54:37 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:47246 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750734AbWHIMyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:54:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UO4Aqg+BboPYqsgXR732XCG9F3mj6BNauUN0HKJ19DGvPCguQAr8oGSneJnZf8XUYuE/lXYMyhBsR1eV2gOBiy1wUESFFsG3Nlqk6/P48IjAqd9gYvvOTcvqwUPBZdE1LfptsPxypCd4Wa5F5XSwfLDD4q4wYDUUyEmobDal6bs=
-Message-ID: <517e86fb0608090554s7ccdbd1esc89dd6112b22e78d@mail.gmail.com>
-Date: Wed, 9 Aug 2006 12:54:35 +0000
-From: "alessandro salvatori" <sandr8@gmail.com>
-Reply-To: sandr8@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: trivial hostap_config.h patch
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 9 Aug 2006 08:58:26 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:16293 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750737AbWHIM6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:58:25 -0400
+Subject: Re: [RFC] [PATCH] Relative lazy atime
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Valerie Henson <val_henson@linux.intel.com>,
+       Matthew Wilcox <matthew@wil.cx>, dean gaudet <dean@arctic.org>,
+       David Lang <dlang@digitalinsight.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
+       Arjan van de Ven <arjan@linux.intel.com>,
+       Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Akkana Peck <akkana@shallowsky.com>,
+       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
+       Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <20060809122134.GF27863@wohnheim.fh-wedel.de>
+References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de>
+	 <1154797123.12108.6.camel@kleikamp.austin.ibm.com>
+	 <1154797475.3054.79.camel@laptopd505.fenrus.org>
+	 <20060805183609.GA7564@tuatara.stupidest.org>
+	 <20060805222247.GQ29686@ca-server1.us.oracle.com>
+	 <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz>
+	 <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org>
+	 <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober>
+	 <20060809122134.GF27863@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 09 Aug 2006 07:58:20 -0500
+Message-Id: <1155128301.10228.2.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel,
+On Wed, 2006-08-09 at 14:21 +0200, Jörn Engel wrote:
+> 1. standard
+> Every read access to a file/directory causes an atime update.
+> 
+> 2. nodiratime
+> Every read access to a non-directory causes an atime update.
+> 
+> 3. lazy atime
+> The first read access to a file/directory causes an atime update.
+> 
+> 4. noatime
+> No read access to a file/directory causes an atime update.
+> 
+> In comparison, lazy atime will cause more atime updates for
+> directories and vastly fewer for non-directories.
 
-I could be wrong, but I believe that given hostap's Kconfig still
-prompts the user for HOSTAP_FIRMWARE, this should not be
-short-circuited in hostap_config.h [or else the switch should be
-removed from the Kconfig, but me and other people working on a virtual
-prism device would prefer to keep that as a configuration option].
+Using nodiratime and lazy atime together would probably be the best
+option for those that only want atime for mutt/shell mail notification.
 
-cheers
+>  Effectively atime
+> is turned into little more than a flag, stating whether the file was
+> ever read since the last write to it.  And it appears as if neither
+> mutt nor the shell use atime for more than this flagging purpose, so I
+> am rather fond of the idea.
+> 
+> Jörn
+> 
 -- 
-Alessandro Salvatori
+David Kleikamp
+IBM Linux Technology Center
 
---- linux-2.6.18-rc3-old/drivers/net/wireless/hostap/hostap_config.h
- 2006-08-09 14:48:01.000000000 +0000
-+++ linux-2.6.18-rc3/drivers/net/wireless/hostap/hostap_config.h
- 2006-08-09 14:48:18.000000000 +0000
-@@ -13,9 +13,6 @@
- /* Maximum number of events handler per one interrupt */
- #define PRISM2_MAX_INTERRUPT_EVENTS 20
-
--/* Include code for downloading firmware images into volatile RAM. */
--#define PRISM2_DOWNLOAD_SUPPORT
--
- /* Allow kernel configuration to enable download support. */
- #if !defined(PRISM2_DOWNLOAD_SUPPORT) && defined(CONFIG_HOSTAP_FIRMWARE)
- #define PRISM2_DOWNLOAD_SUPPORT

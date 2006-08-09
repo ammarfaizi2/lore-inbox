@@ -1,265 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030615AbWHIJrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030619AbWHIJsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030615AbWHIJrj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 05:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWHIJrj
+	id S1030619AbWHIJsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030621AbWHIJsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 05:47:39 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:27587 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030615AbWHIJri
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 05:47:38 -0400
-Date: Wed, 9 Aug 2006 15:18:59 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [PATCH 3/3] Kprobes: Update Documentation/kprobes.txt
-Message-ID: <20060809094859.GB20050@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20060807115537.GA15253@in.ibm.com> <20060807120024.GD15253@in.ibm.com> <20060807120447.GE15253@in.ibm.com> <20060808162701.GC28647@infradead.org>
+	Wed, 9 Aug 2006 05:48:15 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:26086 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1030619AbWHIJsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 05:48:14 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Wed, 9 Aug 2006 10:48:03 +0100
+From: Jonathan Davies <jjd27@cam.ac.uk>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, jjd27@cam.ac.uk
+Subject: Re: [PATCH] ftdi_sio driver - new PIDs
+Message-ID: <20060809094803.GA22922@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060808162701.GC28647@infradead.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 05:27:01PM +0100, Christoph Hellwig wrote:
-> On Mon, Aug 07, 2006 at 05:34:47PM +0530, Ananth N Mavinakayanahalli wrote:
-> > From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-> > 
-> > Update Documentation/kprobes.txt to reflect addition of KPROBE_ADDR,
-> > KPROBE_RETVAL and the in-kernel symbol resolution.
+
+Greg KH wrote:
+> On Mon, Aug 07, 2006 at 02:44:15PM +0100, Jonathan Davies wrote:
+>>> Your patch is line-wrapped and the tabs are eaten, making it hard to
+>>> apply the patch :(
+>> Sorry; I'll try again with a different mail client!
 > 
-> Thanks.  With my updated patch we shouldn't document KPROBE_ADDR anymore
-> but tell people to always use the symbol_name mechanisms. 
+> Closer, the tabs are now fine, but the patch is line-wrapped, and you
+> are using a mime email, which means I can't directly apply the patch...
 
-Done! Updated patch to documentation below.
+Time to try a third mail client.
 
-> Any chance to add some kerneldoc comments for the exported kprobes
-> functions?
+> Care to try again, third time's the charm :)
 
-Its on the TODO list along with the other CodingStyle cleanups.
+Here we go again:
 
-Ananth
----
+Signed-off-by: Jonathan Davies <jjd27@cam.ac.uk>
 
-Update Documentation/kprobes.txt:
-- Add usage details of "symbol_name" and "offset" fields of struct kprobe
-- Document JPROBE_ENTRY
-- Update references list
-- Update module examples to use module_init/module_exit interfaces
-
-
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-
----
- Documentation/kprobes.txt |   77 ++++++++++++++++++++++++++++------------------
- 1 files changed, 47 insertions(+), 30 deletions(-)
-
-Index: linux-2.6.18-rc3/Documentation/kprobes.txt
-===================================================================
---- linux-2.6.18-rc3.orig/Documentation/kprobes.txt
-+++ linux-2.6.18-rc3/Documentation/kprobes.txt
-@@ -179,6 +179,21 @@ occurs during execution of kp->pre_handl
- or during single-stepping of the probed instruction, Kprobes calls
- kp->fault_handler.  Any or all handlers can be NULL.
+diff -uprN -X linux-2.6.18-rc3-vanilla/Documentation/dontdiff linux-2.6.18-rc3-vanilla/drivers/usb/serial/ftdi_sio.c linux-2.6.18-rc3/drivers/usb/serial/ftdi_sio.c
+--- linux-2.6.18-rc3-vanilla/drivers/usb/serial/ftdi_sio.c	2006-07-30 07:15:36.000000000 +0100
++++ linux-2.6.18-rc3/drivers/usb/serial/ftdi_sio.c	2006-08-07 11:33:15.000000000 +0100
+@@ -306,6 +306,8 @@ static struct ftdi_sio_quirk ftdi_HE_TIR
  
-+NOTE:
-+1. With the introduction of the "symbol_name" field to struct kprobe,
-+the probepoint address resolution will now be taken care of by the kernel.
-+The following will now work:
+ 
+ static struct usb_device_id id_table_combined [] = {
++	{ USB_DEVICE(FTDI_VID, FTDI_AMC232_PID) },
++	{ USB_DEVICE(FTDI_VID, FTDI_CANUSB_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_ACTZWAVE_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_IPLUS_PID) },
+diff -uprN -X linux-2.6.18-rc3-vanilla/Documentation/dontdiff linux-2.6.18-rc3-vanilla/drivers/usb/serial/ftdi_sio.h linux-2.6.18-rc3/drivers/usb/serial/ftdi_sio.h
+--- linux-2.6.18-rc3-vanilla/drivers/usb/serial/ftdi_sio.h	2006-07-30 07:15:36.000000000 +0100
++++ linux-2.6.18-rc3/drivers/usb/serial/ftdi_sio.h	2006-08-09 10:34:50.000000000 +0100
+@@ -32,6 +32,12 @@
+ #define FTDI_NF_RIC_PID	0x0001	/* Product Id */
+ 
+ 
++/* www.canusb.com Lawicel CANUSB device */
++#define FTDI_CANUSB_PID 0xFFA8 /* Product Id */
 +
-+	kp.symbol_name = "symbol_name";
++/* AlphaMicro Components AMC-232USB01 device */
++#define FTDI_AMC232_PID 0xFF00 /* Product Id */
 +
-+2. Use the "offset" field of struct kprobe if the offset into the symbol
-+to install a probepoint is known. This field is used to calculate the
-+probepoint address only if the "symbol_name" method of address resolution
-+is used.
-+
-+3. Specify either the kprobe "symbol_name" with "offset" OR the "addr".
-+If both are specified, kprobe registration will fail with -EINVAL.
-+
- register_kprobe() returns 0 on success, or a negative errno otherwise.
+ /* ACT Solutions HomePro ZWave interface (http://www.act-solutions.com/HomePro.htm) */
+ #define FTDI_ACTZWAVE_PID	0xF2D0
  
- User's pre-handler (kp->pre_handler):
-@@ -225,6 +240,12 @@ control to Kprobes.)  If the probed func
- fastcall, or anything else that affects how args are passed, the
- handler's declaration must match.
- 
-+NOTE: A macro JPROBE_ENTRY is provided to handle architecture-specific
-+aliasing of jp->entry. In the interest of portability, it is advised
-+to use:
-+
-+	jp->entry = JPROBE_ENTRY(handler);
-+
- register_jprobe() returns 0 on success, or a negative errno otherwise.
- 
- 4.3 register_kretprobe
-@@ -251,6 +272,11 @@ of interest:
- - ret_addr: the return address
- - rp: points to the corresponding kretprobe object
- - task: points to the corresponding task struct
-+
-+The get_retval(regs) macro provides a simple abstraction to extract
-+the return value from the appropriate register as defined by the
-+architecture's ABI.
-+
- The handler's return value is currently ignored.
- 
- 4.4 unregister_*probe
-@@ -369,7 +395,6 @@ stack trace and selected i386 registers 
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
- #include <linux/sched.h>
- 
- /*For each probe you need to allocate a kprobe structure*/
-@@ -403,18 +428,14 @@ int handler_fault(struct kprobe *p, stru
- 	return 0;
- }
- 
--int init_module(void)
-+static int __init kprobe_init(void)
- {
- 	int ret;
- 	kp.pre_handler = handler_pre;
- 	kp.post_handler = handler_post;
- 	kp.fault_handler = handler_fault;
--	kp.addr = (kprobe_opcode_t*) kallsyms_lookup_name("do_fork");
--	/* register the kprobe now */
--	if (!kp.addr) {
--		printk("Couldn't find %s to plant kprobe\n", "do_fork");
--		return -1;
--	}
-+	kp.symbol_name = "do_fork";
-+
- 	if ((ret = register_kprobe(&kp) < 0)) {
- 		printk("register_kprobe failed, returned %d\n", ret);
- 		return -1;
-@@ -423,12 +444,14 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit kprobe_exit(void)
- {
- 	unregister_kprobe(&kp);
- 	printk("kprobe unregistered\n");
- }
- 
-+module_init(kprobe_init)
-+module_exit(kprobe_exit)
- MODULE_LICENSE("GPL");
- ----- cut here -----
- 
-@@ -463,7 +486,6 @@ the arguments of do_fork().
- #include <linux/fs.h>
- #include <linux/uio.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
- 
- /*
-  * Jumper probe for do_fork.
-@@ -485,17 +507,13 @@ long jdo_fork(unsigned long clone_flags,
- }
- 
- static struct jprobe my_jprobe = {
--	.entry = (kprobe_opcode_t *) jdo_fork
-+	.entry = JPROBE_ENTRY(jdo_fork)
- };
- 
--int init_module(void)
-+static int __init jprobe_init(void)
- {
- 	int ret;
--	my_jprobe.kp.addr = (kprobe_opcode_t *) kallsyms_lookup_name("do_fork");
--	if (!my_jprobe.kp.addr) {
--		printk("Couldn't find %s to plant jprobe\n", "do_fork");
--		return -1;
--	}
-+	my_jprobe.kp.symbol_name = "do_fork";
- 
- 	if ((ret = register_jprobe(&my_jprobe)) <0) {
- 		printk("register_jprobe failed, returned %d\n", ret);
-@@ -506,12 +524,14 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit jprobe_exit(void)
- {
- 	unregister_jprobe(&my_jprobe);
- 	printk("jprobe unregistered\n");
- }
- 
-+module_init(jprobe_init)
-+module_exit(jprobe_exit)
- MODULE_LICENSE("GPL");
- ----- cut here -----
- 
-@@ -530,16 +550,13 @@ report failed calls to sys_open().
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
- 
- static const char *probed_func = "sys_open";
- 
- /* Return-probe handler: If the probed function fails, log the return value. */
- static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs)
- {
--	// Substitute the appropriate register name for your architecture --
--	// e.g., regs->rax for x86_64, regs->gpr[3] for ppc64.
--	int retval = (int) regs->eax;
-+	int retval = get_retval(regs);
- 	if (retval < 0) {
- 		printk("%s returns %d\n", probed_func, retval);
- 	}
-@@ -552,15 +569,11 @@ static struct kretprobe my_kretprobe = {
- 	.maxactive = 20
- };
- 
--int init_module(void)
-+static int __init kretprobe_init(void)
- {
- 	int ret;
--	my_kretprobe.kp.addr =
--		(kprobe_opcode_t *) kallsyms_lookup_name(probed_func);
--	if (!my_kretprobe.kp.addr) {
--		printk("Couldn't find %s to plant return probe\n", probed_func);
--		return -1;
--	}
-+	my_kretprobe.kp.symbol_name = (char *)probed_func;
-+
- 	if ((ret = register_kretprobe(&my_kretprobe)) < 0) {
- 		printk("register_kretprobe failed, returned %d\n", ret);
- 		return -1;
-@@ -569,7 +582,7 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit kretprobe_exit(void)
- {
- 	unregister_kretprobe(&my_kretprobe);
- 	printk("kretprobe unregistered\n");
-@@ -578,6 +591,8 @@ void cleanup_module(void)
- 		my_kretprobe.nmissed, probed_func);
- }
- 
-+module_init(kretprobe_init)
-+module_exit(kretprobe_exit)
- MODULE_LICENSE("GPL");
- ----- cut here -----
- 
-@@ -590,3 +605,5 @@ messages.)
- For additional information on Kprobes, refer to the following URLs:
- http://www-106.ibm.com/developerworks/library/l-kprobes.html?ca=dgr-lnxw42Kprobe
- http://www.redhat.com/magazine/005mar05/features/kprobes/
-+http://www-users.cs.umn.edu/~boutcher/kprobes/
-+http://www.linuxsymposium.org/2006/linuxsymposium_procv2.pdf (pages 101-115)

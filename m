@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWHIMG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWHIMHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWHIMG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWHIMG7
+	id S1161001AbWHIMHh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161016AbWHIMHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:06:59 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:49160 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030228AbWHIMG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:06:58 -0400
-Message-ID: <44D9D03B.6060907@sw.ru>
-Date: Wed, 09 Aug 2006 16:08:27 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
-References: <20060809143816.GA142@oleg>
-In-Reply-To: <20060809143816.GA142@oleg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 08:07:37 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:438 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1161001AbWHIMHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:07:36 -0400
+Date: Wed, 9 Aug 2006 14:07:34 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org,
+       ncunningham@linuxmail.org
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+Message-ID: <20060809120734.GA30544@rhlx01.fht-esslingen.de>
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <20060808235352.GA4751@elf.ucw.cz> <Pine.LNX.4.58.0608082215090.20396@gandalf.stny.rr.com> <20060809073958.GK4886@elf.ucw.cz> <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Although I'm not sure it's needed for this problem. A getppid() which does
->>
->>asmlinkage long sys_getppid(void)
->>{
->>	int pid;
->>
->>	read_lock(&tasklist_lock);
->>	pid = current->group_leader->real_parent->tgid;
->>	read_unlock(&tasklist_lock);
->>
->>	return pid;
->>}
->>
->>seems like a fine implementation to me ;)
-> 
-> 
-> Why do we need to use ->group_leader? All threads should have the same
-> ->real_parent.
-I'm not sure this is true for old LinuxThreads...
+On Wed, Aug 09, 2006 at 07:45:23AM -0400, Steven Rostedt wrote:
+> It does look like something isn't setting up the ACPI power properly on
+> resume, and that the CPU is probably in a busy loop while the machine is
+> idle.  Just a guess.
 
-> Why do we need tasklist_lock? I think rcu_read_lock() is enough.
-> 
-> In other words, do you see any problems with this code
-> 
-> 	smlinkage long sys_getppid(void)
-> 	{
-> 		int pid;
-> 
-> 		rcu_read_lock();
-> 		pid = rcu_dereference(current->real_parent)->tgid;
-> 		rcu_read_unlock();
-> 
-> 		return pid;
-> 	}
-> 
-> ? Yes, we may read a stale value for ->real_parent, but the memory
-> can't be freed while we are under rcu_read_lock(). And in this case
-> the returned value is ok because the task could be reparented just
-> after return anyway.
-Your patch doesn't cure the problem.
-rcu_read_lock just disables preemtion and rcu_dereference
-introduces memory barrier. _None_ of this _prevents_
-another CPU from freeing old real_parent in parallel with your dereference.
+In that case could you post
+cat /proc/acpi/processor/CPU?/*
+?
 
-You can minimize the probability very much by making local_irq_disable()/enable()
-around the code in question, but still it won't be a real fix (at least due to NMIs).
+Perhaps we're losing ACPI C2/C3 state power saving, and checking
+the busmaster activity indicators there would be useful, too.
 
-Kirill
+Oh, in this context maybe it's actually a problem of a misbehaving driver?
+An active USB mouse is known to distort ACPI power saving, causing reduced
+notebook battery operation length (due to busmaster activity preventing
+ACPI idling, I think). Now what if some certain driver actually caused
+permanent busmaster activity...?
 
+Andreas Mohr

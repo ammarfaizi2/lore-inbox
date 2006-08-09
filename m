@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWHISRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWHISR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWHISRB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 14:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWHISRB
+	id S1751294AbWHISR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 14:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWHISR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 14:17:01 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8392 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751152AbWHISRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 14:17:00 -0400
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Edgar Toernig <froese@gmx.de>
-Cc: Chase Venters <chase.venters@clientec.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org, viro@zeniv.linux.org.uk, tytso@mit.edu,
-       tigran@veritas.com
-In-Reply-To: <20060809200010.2404895a.froese@gmx.de>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
-	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
-	 <20060807224144.3bb64ac4.froese@gmx.de>
-	 <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
-	 <1155039338.5729.21.camel@localhost.localdomain>
-	 <20060809104159.1f1737d3.froese@gmx.de>
-	 <1155119999.5729.141.camel@localhost.localdomain>
-	 <20060809200010.2404895a.froese@gmx.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Aug 2006 19:36:45 +0100
-Message-Id: <1155148605.5729.251.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 9 Aug 2006 14:17:59 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:63730 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751294AbWHISR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 14:17:58 -0400
+Date: Wed, 09 Aug 2006 14:17:55 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: ALSA problems with 2.6.18-rc3
+In-reply-to: <1155141333.26338.186.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Benton <b3nt@ukonline.co.uk>,
+       Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Message-id: <200608091417.55431.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <44D8F3E5.5020508@ukonline.co.uk> <44DA0D93.2080307@ukonline.co.uk>
+ <1155141333.26338.186.camel@mindpipe>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-09 am 20:00 +0200, ysgrifennodd Edgar Toernig:
-> But anyway, correct me if I'm wrong, revoke (V2) not simply removes the
-> pages from the mmaped area as truncating does (the vma stays);  revoke
-> seems to completely remove the vma which is clearly a security bug.
-> Future mappings may silently get mapped into the area of the revoked
-> file without the app noticing it.  It may then hand out data of the new
-> file still thinking it's sending the old one.
+On Wednesday 09 August 2006 12:35, Lee Revell wrote:
+>On Wed, 2006-08-09 at 17:30 +0100, Andrew Benton wrote:
+>> Lee Revell wrote:
+>> > Please try to identify the change that introduced the regression. 
+>> > What was the last kernel/ALSA version that worked correctly?
+>>
+>> The change happened between 2.6.17 and 2.6.18-rc1. Specifically,
+>> 2.6.17-git4 works and 2.6.17-git5 doesn't.
+>
+>Takashi-san,
+>
+>Does this help at all?  Many users are reporting that sound broke with
+>2.6.18-rc*.
+>
+>Lee
+>
+Takashi-san's suggestion earlier today of running an "alsactl -F restore" 
+seems to have fixed all those diffs right up, I now have good sound with 
+an emu10k1 using an audigy 2 as card-0, running kernel-2.6.18-rc4.
 
-I agree with that point 100%.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

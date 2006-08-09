@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWHIDIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWHIDcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWHIDIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 23:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWHIDIT
+	id S1030442AbWHIDcp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 23:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWHIDco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 23:08:19 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:15795 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030424AbWHIDIT (ORCPT
+	Tue, 8 Aug 2006 23:32:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56451 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030434AbWHIDcn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 23:08:19 -0400
-Subject: Re: [RFC][PATCH 2/6] x86_64: hpet_address cleanup
-From: john stultz <johnstul@us.ibm.com>
+	Tue, 8 Aug 2006 23:32:43 -0400
+Date: Tue, 8 Aug 2006 20:31:59 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608090431.13309.ak@suse.de>
-References: <20060809021707.23103.5607.sendpatchset@cog.beaverton.ibm.com>
-	 <20060809021720.23103.26378.sendpatchset@cog.beaverton.ibm.com>
-	 <200608090431.13309.ak@suse.de>
-Content-Type: text/plain
-Date: Tue, 08 Aug 2006 20:08:16 -0700
-Message-Id: <1155092896.13030.114.camel@cog.beaverton.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       haveblue@us.ibm.com, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] sys_getppid oopses on debug kernel
+Message-Id: <20060808203159.a317f5d3.akpm@osdl.org>
+In-Reply-To: <p73lkpyobag.fsf@verdi.suse.de>
+References: <44D865FD.1040806@sw.ru>
+	<1155050817.19249.42.camel@localhost.localdomain>
+	<44D8B12C.40200@sw.ru>
+	<p73lkpyobag.fsf@verdi.suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-09 at 04:31 +0200, Andi Kleen wrote:
-> On Wednesday 09 August 2006 04:17, john stultz wrote:
-> > In preparation for supporting generic timekeeping, this patch cleans up 
-> > x86-64's use of vxtime.hpet_address, changing it to just hpet_address 
-> > as is also used in i386. This is necessary since the vxtime structure 
-> > will be going away.
+On 09 Aug 2006 05:09:11 +0200
+Andi Kleen <ak@suse.de> wrote:
+
+> Kirill Korotaev <dev@sw.ru> writes:
 > 
-> Does the kernel still boot with that patch only? 
+> [adding linux-arch]
+> 
+> > > Accessing freed memory is a bug, always, not just *only* when slab
+> > > debugging is on, right?  Doesn't this mean we could get junk, or that
+> > > the reader could potentially run off a bad pointer?
+> > no, read the comment in sys_getppid.
+> > It is a valid optimization. _safe_ and alowing to bypass taking the lock.
+> > BUT! This optimization relies on the fact that kernel memory (DMA + normal zone)
+> > is always mapped into virtual address space.
+> > Which is invalid for debug kernels only.
+> 
+> In x86 arch code we would use __get_user for this (and we do in a couple 
+> of places). But it wouldn't be portable because sometimes _user is 
+> in a different address space.
+> 
+> Maybe it would be time to make a similar facility (read/write_kernel_safe() or similar)
+> with error return available to generic code? 
+> 
+> It should be easy to implement - iirc near all architectures already
+> use the exception handling frame work and it is a simple extension 
+> of that. x86 could just define it to __put/get_user
+> 
 
-Just tested, and yes it still boots, but my box doesn't have HPET so
-that isn't much of a test. :(
+I just did something like that:
 
-As I said in the announce mail, I've not boot tested each step, I
-suspect patches 4/6 and 5/6 will have troubles (vsyscall isn't disabled,
-but the updating is). I'll try to address that in the next release.
+Similar to ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/add-probe_kernel_address.patch
 
+Although I'm not sure it's needed for this problem. A getppid() which does
 
-> Your new variable doesn't seem to be exported to vsyscalls
+asmlinkage long sys_getppid(void)
+{
+	int pid;
 
-The vxtime structure hasn't yet been removed and we set
-vxtime.hpet_address = hpet_address in necessary spots, so it should be
-ok.
+	read_lock(&tasklist_lock);
+	pid = current->group_leader->real_parent->tgid;
+	read_unlock(&tasklist_lock);
 
+	return pid;
+}
 
-thanks
--john
-
+seems like a fine implementation to me ;)

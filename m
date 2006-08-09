@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWHIXFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWHIXGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWHIXFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 19:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWHIXFZ
+	id S1751433AbWHIXGG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 19:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWHIXGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 19:05:25 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:42880 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751430AbWHIXFY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 19:05:24 -0400
-Date: Wed, 9 Aug 2006 16:05:06 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Pavel Machek <pavel@suse.cz>, Josh Boyer <jwboyer@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060809230506.GF11244@sequoia.sous-sol.org>
-References: <200608091749_MC3-1-C796-5E8D@compuserve.com> <20060809220048.GE3691@stusta.de> <20060809221854.GA15395@kroah.com> <20060809224529.GH3691@stusta.de> <20060809225326.GA18560@kroah.com>
+	Wed, 9 Aug 2006 19:06:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:47774 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751433AbWHIXGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 19:06:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=eB5K3pPBk135rmktc6UrEQwhx2GoHIVmx0dTb0KDmUiUOAcQBWZ0eBj/y9sZwPm8HwK75u9Ej+ThL57e0jQhPS1gB4IIuwfL3kS1Qw7EUto8VVQqKiOC5zxJOBw7TLdYLiH1zHgXFiy+R36WBvRQO34SVuaNHZmVXNzwrN+8No0=
+Date: Thu, 10 Aug 2006 03:06:00 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: nathans@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: XFS warning in 2.6.18-rc4
+Message-ID: <20060809230559.GA7679@martell.zuzino.mipt.ru>
+References: <Pine.SOC.4.61.0608092303570.27011@math.ut.ee>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060809225326.GA18560@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.SOC.4.61.0608092303570.27011@math.ut.ee>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> On Thu, Aug 10, 2006 at 12:45:29AM +0200, Adrian Bunk wrote:
-> > > No, I would not use the main git tree to queue patches up.  What happens
-> > > when you want to rip the middle one out because in review it turns out
-> > > that it is incorrect?
-> > 
-> >   git-revert
-> 
-> Ok, fair enough, but it messes with the changelogs a bunch.
+On Wed, Aug 09, 2006 at 11:04:53PM +0300, Meelis Roos wrote:
+> fs/xfs/xfs_bmap.c: In function 'xfs_bmapi':
+> fs/xfs/xfs_bmap.c:2662: warning: 'rtx' is used uninitialized in this function
 
-You can always keep it all on a "pending" branch, and cherrypick if
-needed (instead of straight merge if you needed to drop something) to
-keep the final changelogs sane.
+gcc bug again? Corresponding preprocessed source when XFS realtime allocator
+is off:
 
-thanks,
--chris
+static int xfs_bmap_rtalloc(xfs_bmalloca_t *ap)
+{
+		...
+	xfs_rtblock_t rtx;
+
+		...
+	if (ap->eof && ap->off == 0) {
+===>		error = (251);		<===
+		if (error)
+			return error;
+		ap->rval = rtx * mp->m_sb.sb_rextsize;
+	} else {
+		ap->rval = 0;
+	}
+
+This is the only place where rtx is "used".
+
+When realtime allocator is on, xfs_rtpick_extent() is real function
+either a) returning error and leaving garbage in "rtx", or b)
+initializing "rtx" and returning 0.
+

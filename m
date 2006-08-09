@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030547AbWHIGcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030556AbWHIGit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030547AbWHIGcm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 02:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030549AbWHIGcl
+	id S1030556AbWHIGit (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 02:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030557AbWHIGit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 02:32:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:19188 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030547AbWHIGcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 02:32:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=fBgWupJ4Btm7ZJ9xIM0XpH5W4fLC9weYlu2WwHFmVamvaZbGrYaqkLr+bCBdEqpDHJ+uv8rErFTLTGEOaO7kRL9inXW+PAXap/nn7bjDjWgmEk6FPCYhr5uKv0yVTjtlIGNey73SYRv3s0gcpqcJEvnjUyVZMCX6+xNbQuwMMH4=
-Message-ID: <84144f020608082332s5f6f4faboc007faf358a98f82@mail.gmail.com>
-Date: Wed, 9 Aug 2006 09:32:20 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Theodore Tso" <tytso@mit.edu>, "Kari Hurtta" <hurtta+gmane@siilo.fmi.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-In-Reply-To: <20060808215450.GA12365@thunk.org>
+	Wed, 9 Aug 2006 02:38:49 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:49634 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030544AbWHIGis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 02:38:48 -0400
+Date: Wed, 9 Aug 2006 08:35:38 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Neil Brown <neilb@suse.de>
+cc: Michael Tokarev <mjt@tls.msk.ru>, Alexandre Oliva <aoliva@redhat.com>,
+       linux-raid <linux-raid@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modifying degraded raid 1 then re-adding other members is bad
+In-Reply-To: <17625.4242.910985.97868@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.61.0608090834060.11585@yvahk01.tjqt.qr>
+References: <or8xlztvn8.fsf@redhat.com> <17624.29070.246605.213021@cse.unsw.edu.au>
+ <44D8732C.2060207@tls.msk.ru> <17625.4242.910985.97868@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <eb8g8b$837$1@taverner.cs.berkeley.edu>
-	 <20060807225642.GA31752@nevyn.them.org>
-	 <200608071813.18661.chase.venters@clientec.com>
-	 <84144f020608080516k183072efmdcc8a4dfc334b2fe@mail.gmail.com>
-	 <5dpsfbrzaw.fsf@attruh.keh.iki.fi> <20060808215450.GA12365@thunk.org>
-X-Google-Sender-Auth: 1001acb7652e30c8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 07:02:15PM +0300, Kari Hurtta wrote:
-> > So application can not close() it and recover file description?
+>> Why we're updating it BACKWARD in the first place?
+>
+>To avoid writing to spares when it isn't needed - some people want
+>their spare drives to go to sleep.
 
-On 8/9/06, Theodore Tso <tytso@mit.edu> wrote:
-> That would be correct behavior, IMHO, and matches what happens with a
-> tty hangup.
+That sounds a little dangerous. What if it decrements below 0?
 
-Agreed.
 
-                                           Pekka
+Jan Engelhardt
+-- 

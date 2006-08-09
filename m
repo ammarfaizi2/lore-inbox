@@ -1,38 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030697AbWHILdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030702AbWHILeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030697AbWHILdi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030699AbWHILdi
+	id S1030702AbWHILeG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbWHILeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:33:38 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:19333 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030697AbWHILdi (ORCPT
+	Wed, 9 Aug 2006 07:34:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18364 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030702AbWHILeD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:33:38 -0400
-Date: Wed, 9 Aug 2006 13:33:12 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH -mm] NTP: Move all the NTP related code to ntp.c
-In-Reply-To: <1155090945.13030.99.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0608091329180.6761@scrub.home>
-References: <1155090945.13030.99.camel@cog.beaverton.ibm.com>
+	Wed, 9 Aug 2006 07:34:03 -0400
+Date: Wed, 9 Aug 2006 13:33:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
+Subject: Re: [RFC][PATCH -mm 2/5] swsusp: Use memory bitmaps during resume
+Message-ID: <20060809113335.GP3308@elf.ucw.cz>
+References: <200608091152.49094.rjw@sisk.pl> <200608091204.36186.rjw@sisk.pl> <20060809103442.GJ3308@elf.ucw.cz> <200608091304.35746.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608091304.35746.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Tue, 8 Aug 2006, john stultz wrote:
+> > Okay, I'm little out of time now, and I do not understand 2 and 3 in
+> > the series.
+> 
+> Well ...
+> 
+> > > Make swsusp use memory bitmaps to store its internal information during the
+> > > resume phase of the suspend-resume cycle.
+> > > 
+> > > If the pfns of saveable pages are saved during the suspend phase instead of
+> > > the kernel virtual addresses of these pages, we can use them during the resume
+> > > phase directly to set the corresponding bits in a memory bitmap.  Then, this
+> > > bitmap is used to mark the page frames corresponding to the pages that were
+> > > saveable before the suspend (aka "unsafe" page frames).
+> > > 
+> > > Next, we allocate as many page frames as needed to store the entire suspend
+> > > image and make sure that there will be some extra free "safe" page frames for
+> > > the list of PBEs constructed later.  Subsequently, the image is loaded and,
+> > > if possible, the data loaded from it are written into their "original" page frames
+> > > (ie. the ones they had occupied before the suspend).  The image data that
+> > > cannot be written into their "original" page frames are loaded into "safe" page
+> > > frames and their "original" kernel virtual addresses, as well as the addresses
+> > > of the "safe" pages containing their copies, are stored in a list of PBEs.
+> > > Finally, the list of PBEs is used to copy the remaining image data into their
+> > > "original" page frames (this is done atomically, by the architecture-dependent
+> > > parts of swsusp).
+> > 
+> > So... if page in highmem is allocated during resume, you'll still need
+> > to copy it during assembly "atomic copy", right?
+> 
+> No.  It can be copied before the assembly gets called, because we are in the
+> kernel at that time which certainly is not in the highmem. :-)
 
-> Roman: I know you wanted me to hold off on this because you had NTP
-> changes you were working on,
+Ahha, okay, nice trick.
 
-Oh, I meant this in regard to a possible reindentation. This OTOH should 
-only require minimal patch editing. :)
-My patches are mostly ready, I'll finish them in the evening.
+> > Unfortunately, our assembler parts can't do it just now...?
+> 
+> No, they can't, but that just isn't necessary.  During the resume we create
+> two lists of PBEs - one for "normal" pages, and one for highmem pages.  The
+> first one is handled by the "atomic copy" code as usual, but the second one
+> may be handled by some C code a bit earlier.
 
-bye, Roman
+I'm still not sure if highmem support is worth the complexity -- I
+hope highmem dies painful death in next 3 weeks or so.
+
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

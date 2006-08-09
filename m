@@ -1,111 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWHIR5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWHIR66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWHIR5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 13:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHIR5Y
+	id S1751251AbWHIR66 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 13:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWHIR65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 13:57:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60825 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750987AbWHIR5X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 13:57:23 -0400
-Date: Wed, 9 Aug 2006 13:56:42 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, arjan@infradead.org
-Subject: Re: [BUG?] possible recursive locking detected (blkdev_open)
-Message-ID: <20060809175642.GC10930@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Rolf Eike Beer <eike-kernel@sf-tec.de>,
-	linux-kernel@vger.kernel.org, mingo@redhat.com, arjan@infradead.org
-References: <200608090757.32006.eike-kernel@sf-tec.de> <20060809013034.ac15526a.akpm@osdl.org>
+	Wed, 9 Aug 2006 13:58:57 -0400
+Received: from mga01.intel.com ([192.55.52.88]:27500 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751251AbWHIR64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 13:58:56 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,107,1154934000"; 
+   d="scan'208"; a="114120662:sNHT19542327"
+Date: Wed, 9 Aug 2006 10:58:54 -0700
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
+Message-ID: <20060809175854.GA14382@intel.com>
+References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com> <20060807194159.f7c741b5.akpm@osdl.org> <17624.7310.856480.704542@cargo.ozlabs.ibm.com> <200608080714.21151.ak@suse.de> <1155025073.26277.18.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060809013034.ac15526a.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <1155025073.26277.18.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 01:30:34AM -0700, Andrew Morton wrote:
- > On Wed, 9 Aug 2006 07:57:31 +0200
- > Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
- > 
- > > =============================================
- > > [ INFO: possible recursive locking detected ]
- > > ---------------------------------------------
- > 
- > kernel version?
- 
-This question comes up time after time when we get lockdep reports.
-Lets do the same thing we do for oopses - print out the version in the report.
-It's an extra line of output though.  We could tack it on the end of the
-INFO: lines, but that screws up Ingo's pretty output.
+On Tue, Aug 08, 2006 at 10:17:53AM +0200, Martin Schwidefsky wrote:
+> "vmalloc reserve first; allocate pages later" would be a really nice
+> feature. We could use this on s390 to implement the virtual mem_map
+> array spanning the whole 64 bit address range (with holes in it). To
+> make it perfect a "deallocate pages; keep vmalloc reserve" should be
+> added, then we could free parts of the mem_map array again on hot memory
+> remove. 
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+IA-64 already has some arch. specific code to allocate a sparse
+virtual memory map ... having generic code to do so would be
+nice, but I foresee some chicken&egg problems in getting enough
+of the vmalloc/vmap framework up & running before mem_map[] has
+been allocated.
 
+That and the hotplug memory folks don't like the virtual mem_map
+code and have spurned it in favour of SPARSE.
 
---- linux-2.6/kernel/lockdep.c~	2006-08-09 13:53:49.000000000 -0400
-+++ linux-2.6/kernel/lockdep.c	2006-08-09 13:53:59.000000000 -0400
-@@ -36,6 +36,7 @@
- #include <linux/stacktrace.h>
- #include <linux/debug_locks.h>
- #include <linux/irqflags.h>
-+#include <linux/utsname.h>
- 
- #include <asm/sections.h>
-@@ -524,6 +524,9 @@ print_circular_bug_header(struct lock_li
- 
- 	printk("\n=======================================================\n");
- 	printk(  "[ INFO: possible circular locking dependency detected ]\n");
-+	printk(  "%s %.*s\n", system_utsname.release,
-+		(int)strcspn(system_utsname.version, " "),
-+		system_utsname.version);
- 	printk(  "-------------------------------------------------------\n");
- 	printk("%s/%d is trying to acquire lock:\n",
- 		curr->comm, curr->pid);
-@@ -705,6 +708,9 @@ print_bad_irq_dependency(struct task_str
- 	printk("\n======================================================\n");
- 	printk(  "[ INFO: %s-safe -> %s-unsafe lock order detected ]\n",
- 		irqclass, irqclass);
-+	printk(  "%s %.*s\n", system_utsname.release,
-+		(int)strcspn(system_utsname.version, " "),
-+		system_utsname.version);
- 	printk(  "------------------------------------------------------\n");
- 	printk("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] is trying to acquire:\n",
- 		curr->comm, curr->pid,
-@@ -786,6 +792,9 @@ print_deadlock_bug(struct task_struct *c
- 
- 	printk("\n=============================================\n");
- 	printk(  "[ INFO: possible recursive locking detected ]\n");
-+	printk(  "%s %.*s\n", system_utsname.release,
-+		(int)strcspn(system_utsname.version, " "),
-+		system_utsname.version);
- 	printk(  "---------------------------------------------\n");
- 	printk("%s/%d is trying to acquire lock:\n",
- 		curr->comm, curr->pid);
-@@ -1368,6 +1377,9 @@ print_irq_inversion_bug(struct task_stru
- 
- 	printk("\n=========================================================\n");
- 	printk(  "[ INFO: possible irq lock inversion dependency detected ]\n");
-+	printk(  "%s %.*s\n", system_utsname.release,
-+		(int)strcspn(system_utsname.version, " "),
-+		system_utsname.version);
- 	printk(  "---------------------------------------------------------\n");
- 	printk("%s/%d just changed the state of lock:\n",
- 		curr->comm, curr->pid);
-@@ -1462,6 +1474,9 @@ print_usage_bug(struct task_struct *curr
- 
- 	printk("\n=================================\n");
- 	printk(  "[ INFO: inconsistent lock state ]\n");
-+	printk(  "%s %.*s\n", system_utsname.release,
-+		(int)strcspn(system_utsname.version, " "),
-+		system_utsname.version);
- 	printk(  "---------------------------------\n");
- 
- 	printk("inconsistent {%s} -> {%s} usage.\n",
-
--- 
-http://www.codemonkey.org.uk
+-Tony

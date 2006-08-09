@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHIOee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWHIOpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWHIOee (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 10:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWHIOee
+	id S1750863AbWHIOpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWHIOpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 10:34:34 -0400
-Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:49426 "EHLO
-	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1750707AbWHIOed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 10:34:33 -0400
-Date: Wed, 9 Aug 2006 16:34:30 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: David Schwartz <davids@webmaster.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Message-ID: <20060809143429.GD5815@vanheusden.com>
-References: <44D871DE.1040509@garzik.org>
-	<MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
+	Wed, 9 Aug 2006 10:45:03 -0400
+Received: from web25222.mail.ukl.yahoo.com ([217.146.176.208]:52075 "HELO
+	web25222.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750863AbWHIOpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:45:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=ECQbmRq09X1oflQOenIWWRskno8OKif8EEpLKnDqm5QZR5NsYtY+FB+kgS4shjejfeYfFXMN0u8JZo/gWIl4wG2AFP3bfnMADCP6qDmbjuMdjs6UOqkAYgYuZOMI6ZimwNRP9J5Omu7dOCtCsNwoO5F/ZYlo4gKCP3t2Tn51a44=  ;
+Message-ID: <20060809144459.58896.qmail@web25222.mail.ukl.yahoo.com>
+Date: Wed, 9 Aug 2006 16:44:59 +0200 (CEST)
+From: Paolo Giarrusso <blaisorblade@yahoo.it>
+Subject: Re: [PATCH 2/3] uml: fix proc-vs-interrupt context spinlock deadlock
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Andrew Morton <akpm@osdl.org>, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060808200231.GA6463@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Thu Aug 10 15:58:54 CEST 2006
-X-Message-Flag: www.unixexpert.nl
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The kernel developers who need to keep the barrier to bug reports low
-> > like the current policy.
-> > Get a good spam filter, I only get 1-2 pieces a day in my LKML folder.
-> 	How is everyone individually spam filtering better than one central spam
-> filter? More likelihood that at least one relevent person will get the bug
-> report? Certainly a single central spam filter can get more resources aimed
-> at it to make sure it doesn't suppress anything important.
+Jeff Dike <jdike@addtoit.com> ha scritto: 
 
-What about just using the spamhaus.org blocklist at vger? Stops quite a
-bit of spam over here (http://keetweej.vanheusden.com/nspam_graph.png).
+> On Tue, Aug 08, 2006 at 12:59:05PM +0200, Paolo Giarrusso wrote:
+> > I could be wrong, but I trust that thanks to deep and good work
+> by
+> > who designed locking in the network layer, this patch is correct.
+> And
+> > indeed I addressed your issues below.
+> 
+> OK, but there will need to be comments explaining why it is OK that
+> this data only looks half-locked.
+
+Guess I'll put it in Documentation and reference it.
+
+> The locking, as it stands, looks consistent and conservative.
+Yes, it is.
+> However, there are some places where critical sections are too big
+> and
+> the locking should be narrowed.
+
+Yes, in particular we cannot hold a spinlock for the whole _open
+since it must call sleeping functions. 
+
+> > This is also true of char/block devices (you don't need to lock
+> > against write/read in open/close; UBD doesn't know that but I
+> have
+> > unfinished patches for it), but there it's simpler: if userspace
+> you
+> > call close while a read is executing, thanks to refcounting
+> (sys_read
+> > does fget) the ->close (or ->release) is only called after the
+> end of
+> > ->read.
+> 
+> In my current patchset, there is a per-queue lock which is mostly
+> managed by the block layer.
+
+I'll try then to finish the patches soon and merge them; the main
+problem is splitting (including the use of different locks) normal
+locking from our peculiar locking of _open/_close against mconsole
+changes.
 
 
-Folkert van Heusden
-
-www.vanheusden.com/multitail - multitail is tail on steroids. multiple
-               windows, filtering, coloring, anything you can think of
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

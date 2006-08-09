@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWHIWKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWHIWLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWHIWKB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWHIWKB
+	id S1751398AbWHIWLe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 18:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWHIWLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:10:01 -0400
-Received: from mail.visionpro.com ([63.91.95.13]:27786 "EHLO
-	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
-	id S1751397AbWHIWKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:10:00 -0400
-User-Agent: Microsoft-Entourage/11.2.4.060510
-Date: Wed, 09 Aug 2006 15:10:00 -0700
-Subject: Re: Upgrading kernel across multiple machines
-From: Brian McGrew <brian@visionpro.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: <linux-kernel@vger.kernel.org>
-Message-ID: <C0FFAB48.89A4%brian@visionpro.com>
-Thread-Topic: Upgrading kernel across multiple machines
-Thread-Index: Aca8AI5LzJm+2CfzEdu24AAKlbl8Ig==
-In-Reply-To: <20060809150737.7a0c99ee.rdunlap@xenotime.net>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	Wed, 9 Aug 2006 18:11:34 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:64700 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751398AbWHIWLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 18:11:33 -0400
+Subject: Re: ALSA problems with 2.6.18-rc3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Andrew Benton <b3nt@ukonline.co.uk>, Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+In-Reply-To: <200608092307.27615.s0348365@sms.ed.ac.uk>
+References: <44D8F3E5.5020508@ukonline.co.uk>
+	 <200608092222.05993.s0348365@sms.ed.ac.uk>
+	 <1155159278.26338.208.camel@mindpipe>
+	 <200608092307.27615.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 18:11:37 -0400
+Message-Id: <1155161498.26338.216.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the most debug I get.  I've taken the rhgb and quiet options out of
-my grub.conf file and I still only get about ten lines printed before it
-blows up.  There are no files updated on disk that I can find.
-
-:b!
-
-
-On 8/9/06 3:07 PM, "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-
-> On Wed, 09 Aug 2006 14:52:41 -0700 Brian McGrew wrote:
+On Wed, 2006-08-09 at 23:07 +0100, Alistair John Strachan wrote:
+> > It's impossible to predict the effect of some mixer controls across
+> the
+> > wide range of hardware that ALSA supports.  What makes sound work on
+> one
+> > machine is likely to break it on another.
 > 
->> Hello,
->> 
->> I'm using a Dell PE1800 and I've built a new 2.6.16.16 kernel on the machine
->> that works fine.  However, if I tar up /lib/modules/2.6.16.16 and /boot and
->> move it onto another Dell PE1800 running the exact same software (FC3/Stock
->> install) the new kernel doesn't boot.
->> 
->> On machine #1 life is good but moving it to machine #2, I get
->> 
->> /lib/ata_piix.ko: -l unknown symbol in module.
->> 
->> What am I missing?  Someone help please, I'm in a major time crunch!
-> 
-> Hi again,
-> Were you able to get any more kernel log messages?
-> They will say exactly which symbol(s) is missing.
-> 
-> Maybe adding "debug" to the kernel command line would produce more
-> messages, although many init scripts change that setting (ugh).
-> 
-> ---
-> ~Randy
+> However, ALSA _has_ defaults for these controls, which I believe are 
+> usually "off" or "zero". All I'm suggesting is that these defaults are
+> plainly suboptimal for emu10k1, and probably other cards to which this
+> statement simply does not apply. Shipping defaults is one thing, but
+> shipping useless defaults is quite another. We have policy all over
+> the kernel for providing "sane defaults" e.g. filesystem mount
+> options. 
 
+I think muted is a sane default - the only sane default.  Otherwise you
+could damage speakers or hearing.  Also many devices will be noisier if
+unused inputs are enabled.  Is it really that hard for users to unmute
+the mixer or for distros to create their own config?
 
-:b!
+Also, analog output on my emu10k1 works perfectly with "External
+Amplifier" disabled.
 
-
--- 
-Brian McGrew    { brian@visionpro.com || brian@doubledimenison.com }
-
-> YOU!!!  Off my planet!
+Lee
 

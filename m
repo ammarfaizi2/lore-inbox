@@ -1,168 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWHIJtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbWHIJvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030621AbWHIJtv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 05:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030623AbWHIJtu
+	id S1030627AbWHIJvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWHIJvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 05:49:50 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62101 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030621AbWHIJtt (ORCPT
+	Wed, 9 Aug 2006 05:51:08 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:9641 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030623AbWHIJvH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 05:49:49 -0400
-Date: Wed, 9 Aug 2006 15:21:11 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       shemminger@osdl.org
-Subject: Re: [PATCH 1/3] Kprobes: Make kprobe modules more portable
-Message-ID: <20060809095111.GC20050@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20060807115537.GA15253@in.ibm.com> <20060808162421.GA28647@infradead.org>
+	Wed, 9 Aug 2006 05:51:07 -0400
+Date: Wed, 9 Aug 2006 11:50:47 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+Cc: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 5/6] ehea: makefile
+Message-ID: <20060809095047.GA11555@mars.ravnborg.org>
+References: <44D99F74.1000704@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060808162421.GA28647@infradead.org>
+In-Reply-To: <44D99F74.1000704@de.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 05:24:21PM +0100, Christoph Hellwig wrote:
-> On Mon, Aug 07, 2006 at 05:25:37PM +0530, Ananth N Mavinakayanahalli wrote:
-> > From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-> > 
-> > This patch introduces KPROBE_ADDR, a macro that abstracts out the
-> > architecture-specific artefacts of getting the correct text address
-> > given a symbol. While we are at it, also introduce the symbol_name field
-> > in struct kprobe to allow for users to just specify the address to be
-> > probed in terms of the kernel symbol. In-kernel kprobes infrastructure
-> > decodes the actual text address to probe. The symbol resolution happens
-> > only if the kprobe.addr isn't explicitly specified.
+On Wed, Aug 09, 2006 at 10:40:20AM +0200, Jan-Bernd Themann wrote:
+> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
 > 
-> This looks good.  A few issues are left:
 > 
->  - the KPROBE_ADDR macro is all uppercase and not exactly very descriptive.
->  - the symbol name variant should be the default, and no one outside
->    kprobes.c should know about the KPROBE_ADDR macro
->  - we should return EINVAL instead of silently discarding things if people
->    specify a symbol and an address.
->  - we should have and offset into the symbol specified
-
-Agreed.
-
-> The updated patch below does that, aswell as updating the only inkernel
-> kprobes user (tcp_probe.c) to the new interface (*) and removing the now
-> obsolete kallsysms_lookup_name export.
+>  drivers/net/ehea/Makefile |    7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> (*) tcp_probe.c shows very well how horrible the old interface was, as it's
->     not portable to ppc64 as-is
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> 
+> --- linux-2.6.18-rc4-orig/drivers/net/ehea/Makefile	1969-12-31 
+> 16:00:00.000000000 -0800
+> +++ kernel/drivers/net/ehea/Makefile	2006-08-08 23:59:38.083467216 -0700
+> @@ -0,0 +1,7 @@
+> +#
+> +# Makefile for the eHEA ethernet device driver for IBM eServer System p
+> +#
+> +
+> +ehea_mod-objs = ehea_main.o ehea_phyp.o ehea_qmr.o ehea_ethtool.o 
+> ehea_phyp.o
+> +obj-$(CONFIG_EHEA) += ehea_mod.o
+> +
 
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Using -objs is deprecated, please use ehea_mod-y.
+This needs to be documented and later warned upon which I will do soon.
 
-> Index: linux-2.6/include/asm-powerpc/kprobes.h
-> ===================================================================
-> --- linux-2.6.orig/include/asm-powerpc/kprobes.h	2006-08-08 17:47:22.000000000 +0200
-> +++ linux-2.6/include/asm-powerpc/kprobes.h	2006-08-08 18:13:57.000000000 +0200
-> @@ -44,6 +44,9 @@
->  #define IS_TDI(instr)		(((instr) & 0xfc000000) == 0x08000000)
->  #define IS_TWI(instr)		(((instr) & 0xfc000000) == 0x0c000000)
->  
-> +#define kprobe_lookup_name(name) \
-> +	(*((kprobe_opcode_t **)kallsyms_lookup_name(name)))
-> +
->  #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)((func_descr_t *)pentry)
->  
->  #define is_trap(instr)	(IS_TW(instr) || IS_TD(instr) || \
-> Index: linux-2.6/include/linux/kprobes.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/kprobes.h	2006-08-08 17:47:22.000000000 +0200
-> +++ linux-2.6/include/linux/kprobes.h	2006-08-08 17:47:31.000000000 +0200
-> @@ -77,6 +77,12 @@
->  	/* location of the probe point */
->  	kprobe_opcode_t *addr;
->  
-> +	/* Allow user to indicate symbol name of the probe point */
-> +	char *symbol_name;
-> +
-> +	/* Offset into the symbol */
-> +	unsigned int offset;
-> +
->  	/* Called before addr is executed. */
->  	kprobe_pre_handler_t pre_handler;
->  
-> Index: linux-2.6/kernel/kprobes.c
-> ===================================================================
-> --- linux-2.6.orig/kernel/kprobes.c	2006-08-08 17:47:22.000000000 +0200
-> +++ linux-2.6/kernel/kprobes.c	2006-08-08 17:47:31.000000000 +0200
-> @@ -37,6 +37,7 @@
->  #include <linux/slab.h>
->  #include <linux/module.h>
->  #include <linux/moduleloader.h>
-> +#include <linux/kallsyms.h>
->  #include <asm-generic/sections.h>
->  #include <asm/cacheflush.h>
->  #include <asm/errno.h>
-> @@ -45,6 +46,16 @@
->  #define KPROBE_HASH_BITS 6
->  #define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
->  
-> +
-> +/*
-> + * Some oddball architectures like 64bit powerpc have function descriptors
-> + * so this must be overridable.
-> + */
-> +#ifndef kprobe_lookup_name
-> +#define kprobe_lookup_name(name) \
-> +	((kprobe_opcode_t *)(kallsyms_lookup_name(name))
-> +#endif
-> +
->  static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
->  static struct hlist_head kretprobe_inst_table[KPROBE_TABLE_SIZE];
->  static atomic_t kprobe_count;
-> @@ -447,6 +458,17 @@
->  	struct kprobe *old_p;
->  	struct module *probed_mod;
->  
-> +	/*
-> +	 * If we have a symbol_name argument look it up,
-> +	 * and add it to the address.  That way the addr
-> +	 * field can either be global or relative to a symbol.
-> +	 */
-> +	if (p->symbol_name) {
-> +		if (p->addr)
-> +			return -EINVAL;
-> +		p->addr = kprobe_lookup_name(p->symbol_name) + p->offset;
-> +	}
-> +
->  	if ((!kernel_text_address((unsigned long) p->addr)) ||
->  		in_kprobes_functions((unsigned long) p->addr))
->  		return -EINVAL;
-> Index: linux-2.6/kernel/kallsyms.c
-> ===================================================================
-> --- linux-2.6.orig/kernel/kallsyms.c	2006-08-08 17:13:14.000000000 +0200
-> +++ linux-2.6/kernel/kallsyms.c	2006-08-08 17:47:39.000000000 +0200
-> @@ -154,7 +154,6 @@
->  	}
->  	return module_kallsyms_lookup_name(name);
->  }
-> -EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
->  
->  /*
->   * Lookup an address
-> Index: linux-2.6/net/ipv4/tcp_probe.c
-> ===================================================================
-> --- linux-2.6.orig/net/ipv4/tcp_probe.c	2006-08-08 18:13:55.000000000 +0200
-> +++ linux-2.6/net/ipv4/tcp_probe.c	2006-08-08 18:14:28.000000000 +0200
-> @@ -99,8 +99,10 @@
->  }
->  
->  static struct jprobe tcp_send_probe = {
-> -	.kp = { .addr = (kprobe_opcode_t *) &tcp_sendmsg, },
-> -	.entry = (kprobe_opcode_t *) &jtcp_sendmsg,
-> +	.kp = {
-> +		.symbol_name	= "tcp_sendmsg",
-> +	},
-> +	.entry	= JPROBE_ENTRY(jtcp_sendmsg),
->  };
->  
->  
+	Sam
+

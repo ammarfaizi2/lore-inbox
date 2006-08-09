@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWHIIsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWHIIvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWHIIsj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 04:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWHIIsj
+	id S965104AbWHIIvy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 04:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWHIIvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 04:48:39 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:24252 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964936AbWHIIsi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 04:48:38 -0400
-Message-ID: <44D9A0A6.7070808@aitel.hist.no>
-Date: Wed, 09 Aug 2006 10:45:26 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 9 Aug 2006 04:51:53 -0400
+Received: from mail.gmx.net ([213.165.64.20]:28310 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965104AbWHIIvw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 04:51:52 -0400
+X-Authenticated: #428038
+Date: Wed, 9 Aug 2006 10:51:49 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: jdow <jdow@earthlink.net>
+Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
 Subject: Re: Time to forbid non-subscribers from posting to the list?
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
-In-Reply-To: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060809085149.GB27939@merlin.emma.line.org>
+Mail-Followup-To: jdow <jdow@earthlink.net>, davids@webmaster.com,
+	linux-kernel@vger.kernel.org
+References: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com> <04b101c6bb33$9131bd00$0225a8c0@Wednesday>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <04b101c6bb33$9131bd00$0225a8c0@Wednesday>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.12 (2006-08-09)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Zaytsev wrote:
-> Hello, list.
->
-> What are the objections to makeing lkml and other lists at vget
-> subscribers-only?
-> Non-subscribers messages could still be allowed after moderation.
-> I get 1/4 of my spam from lkml, and see no benefit from allowing
-> non-subscribers to freely post to the list. If you are not subscribed,
-> you just have to wait until your mail gets approved by the moderator,
-> and it is not hard to subscribe anyway. 
-This doesn't really prevent spam - the spammers can
-subscribe - post spam - unsubscribe
-or subscribe from free webmail accounts that they don't care about
-anyway.
+On Tue, 08 Aug 2006, jdow wrote:
 
-The moderator setup have the problem that nobody wants to be
-moderator.  Today, you are moderator of your own lkml mailbox,
-and you hate that. :-/
+> If you have the luxury of the ability to write personalized rules and
+> whitelist entries for SpamAssassin it can become a startlingly good
+> filtering system. And you can tailor the filtering for individual 
+> sources with meta rules. Processing large numbers of messages through
+> BAYES and large numbers of rules gets quite time consuming, perhaps
 
-I don't  filter my lkml mail, yet the spam is not a problem for me.
-I receive lkml in a mailbox of its own, and the few spam messages
-are obvious from the subject line alone.  So I never read them,
-just delete them along with the mass deletion of other uninteresting
-messages. (I.e. issues with hw I don't have.)
+Bayes and distributed filtering in SpamAssassin, although it integrates
+nicely with the scoring, is so painfully slow that I've ditched it after
+a short test drive. Systems such as bogofilter, spamprobe or qsf are way
+faster - and can also look at tags that SpamAssassin (in local non-bayes
+mode) may have added to the header.
 
-Most mail systems allow you to filter lkml into a mailbox of its own.
-Mail readers like mozilla or mutt lets you skip dubious messages
-easily, mozilla even have a filter of its own if you care to use it.
-
-Helge Hafting
-
-
+-- 
+Matthias Andree

@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWHIGwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbWHIG4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbWHIGwx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 02:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWHIGww
+	id S1030516AbWHIG4H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 02:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWHIG4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 02:52:52 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:34200 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S965086AbWHIGww (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 02:52:52 -0400
-Date: Wed, 9 Aug 2006 08:47:17 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Willy Tarreau <w@1wt.eu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       linux-kernel@vger.kernel.org, matti.aarnio@zmailer.org
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-In-Reply-To: <1155068717.26338.100.camel@mindpipe>
-Message-ID: <Pine.LNX.4.61.0608090842040.11585@yvahk01.tjqt.qr>
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com> 
- <p73y7tzo4hl.fsf@verdi.suse.de>  <1155047956.5729.68.camel@localhost.localdomain>
-  <20060808191631.GF8776@1wt.eu> <1155068717.26338.100.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 9 Aug 2006 02:56:06 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:10509 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S965086AbWHIG4F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 02:56:05 -0400
+Message-ID: <20060809105603.A26520@castle.nmd.msu.ru>
+Date: Wed, 9 Aug 2006 10:56:03 +0400
+From: Andrey Savochkin <saw@sw.ru>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Martin Bligh <mbligh@mbligh.org>, rohitseth@google.com,
+       Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       vatsa@in.ibm.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, sam@vilain.net,
+       linux-kernel@vger.kernel.org, dev@openvz.org, efault@gmx.de,
+       balbir@in.ibm.com, sekharan@us.ibm.com, nagar@watson.ibm.com,
+       pj@sgi.com
+Subject: Re: memory resource accounting (was Re: [RFC, PATCH 0/5] Going forward with Resource Management - A	cpu controller)
+References: <44D35F0B.5000801@sw.ru> <44D388DF.8010406@mbligh.org> <44D6EAFA.8080607@sw.ru> <44D74F77.7080000@mbligh.org> <44D76B43.5080507@sw.ru> <1154975486.31962.40.camel@galaxy.corp.google.com> <1154976236.19249.9.camel@localhost.localdomain> <1154977257.31962.57.camel@galaxy.corp.google.com> <44D798B1.8010604@mbligh.org> <44D89D7D.8040006@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <44D89D7D.8040006@yahoo.com.au>; from "Nick Piggin" on Wed, Aug 09, 2006 at 12:19:41AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Tag subject lines from non subscribes with [nonsub] and everyone can
->> > then decide for themselves.
->> 
->> This looks like a very clever yet simple idea (if easy to implement at all) !
->> While I have no anti-spam and am not annoyed at all by the low spam rate on
->> LKML, I think this would make my cleaning operations even more effective.
+Nick,
 
-+1
+On Wed, Aug 09, 2006 at 12:19:41AM +1000, Nick Piggin wrote:
+[snip]
+> 
+> What's the sucking semantics on exit? I haven't looked much at the
+> existing memory controllers going around, but the implementation I
+> imagine looks something like this (I think it is conceptually similar
+> to the basic beancounters idea):
 
+What you suggests implies an over-simplification of how memory is used in the
+system, and doesn't take into account sharing and caching.
 
->That would mean 8 fewer characters of useful information visible in the
->subject line.
+Namely:
 
-For those who use a graphical client this should not be a problem, pixels 
-are plenty. For 80x25 readers, well, I can only suggest to use an index 
-listing optimized to your needs. For example, the default pine listing 
-left too few space for the subject for me on LKML, so I changed it to be 
-like
+> - anyone who allocates a page for anything gets charged for that page.
+>    Except interrupt/softirq context. Could we ignore these for the moment?
+> 
+>    This does give you kernel (slab, pagetable, etc) allocations as well as
+>    userspace. I don't like the idea of doing controllers for inode cache
+>    and controllers for dentry cache, etc, etc, ad infinitum.
 
-(index-format=MSGNO STATUS SUBJECT FROM SMARTTIME SIZENARROW)
+So, are you suggesting that the user (or container) that initially looked up
+some directory /var/dir, will stay billed for this memory until
+ - all users of all subdirectories /var/dir/a/b/c/d/e/f/g/h/i etc.
+   are gone, and
+ - dentry cache has been shrunk because of memory pressure?
 
-314   D   | | |-Re: Time to forbid non-subscri Andi Kleen          Tue02pm  (3K)
-315     . | |-Re: Time to forbid non-subscribe Alan Cox            Tue03pm  (3K)
-316     . |   |-Re: Time to forbid non-subscri Willy Tarreau       Tue09pm  (3K)
-317     . |     |-Re: Time to forbid non-subsc Lee Revell          Tue04pm  (3K)
-318       |       |-Re: Time to forbid non-sub Kyle Moffett        Tue05pm  (3K)
-319   N   |-Re: Time to forbid non-subscribers David Miller        Tue03pm  (2K)
+It is unfair.
+But more than that:
+one of the goals of resource accounting and restrictions is to give users the
+idea of how much resources they are using.  Then, when they start to use more
+than their allotment, they should be given the opportunity to consider what
+they are doing and reduce resource usage.
 
-Since a lot of mails are already prefixed with something [], like [PATCH], 
-I do not really mind if there's [nonsub], or if you like to keep it short, 
-you can make that [NSUB], and it even outperforms [PATCH] wrt. length.
+In my opinion, to make resource accounting useful, serious efforts should
+be made not to bill anyone for resources which he isn't really using and has
+no control over releasing them.
 
-Then it would only take the key sequence ;ts[NSUB]<Enter>adx to kill all 
-the nonsub messages. However, I would also be fine with an extra header in 
-the mail header saying "this comes from a non-subscriber", the key seq in 
-pine would be slightly bigger though, 
-";thMajordomo-Info<Enter>nonsub<Enter>adx".
+> 
+> - each struct page has a backpointer to its billed container. At the mm
+>    summit Linus said he didn't want back pointers, but I clarified with him
+>    and he isn't against them if they are easily configured out when not using
+>    memory controllers.
 
+The same thing: if one user mapped and then released some pages from a shared
+library, should he be billed for these pages until all other users unmapped
+this library, and page cache has been shrunk?
 
-Jan Engelhardt
--- 
+Best regards
+		Andrey

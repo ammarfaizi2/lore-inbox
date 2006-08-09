@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWHJBrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWHJBzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWHJBrP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 21:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHJBrP
+	id S1030448AbWHJBzg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 21:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbWHJBzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 21:47:15 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:8435 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751295AbWHJBrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 21:47:14 -0400
-Date: Wed, 09 Aug 2006 21:47:11 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: ALSA problems with 2.6.18-rc3
-In-reply-to: <1155157036.26338.200.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Benton <b3nt@ukonline.co.uk>,
-       Takashi Iwai <tiwai@suse.de>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Message-id: <200608092147.11457.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <44D8F3E5.5020508@ukonline.co.uk>
- <200608091651.28077.gene.heskett@verizon.net>
- <1155157036.26338.200.camel@mindpipe>
-User-Agent: KMail/1.7
+	Wed, 9 Aug 2006 21:55:36 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:47580 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1030448AbWHJBzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 21:55:35 -0400
+Message-Id: <200608091815.k79IFQVB005310@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Matt Mackall <mpm@selenic.com>,
+       Joern Engel <joern@wohnheim.fh-wedel.de>
+Subject: [PATCH] UML - support checkstack
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 09 Aug 2006 14:15:24 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 16:57, Lee Revell wrote:
->On Wed, 2006-08-09 at 16:51 -0400, Gene Heskett wrote:
->> On Wednesday 09 August 2006 16:41, Lee Revell wrote:
->> [...]
->>
->> >> >Takashi-san,
->> >> >
->> >> >Does this help at all?  Many users are reporting that sound broke
->> >> > with 2.6.18-rc*.
->> >> >
->> >> >Lee
->> >>
->> >> Takashi-san's suggestion earlier today of running an "alsactl -F
->> >> restore" seems to have fixed all those diffs right up, I now have
->> >> good sound with an emu10k1 using an audigy 2 as card-0, running
->> >> kernel-2.6.18-rc4.
->> >
->> >Distros should probably be using this as a default.  Otherwise, simply
->> >adding a new mixer control will cause restoring mixer settings to
->> > fail.
->> >
->> >Lee
->>
->> I already have the 'alsactl restore' in my rc.local.  Would there be
->> any harm in just adding the -F to that invocation, or will that just
->> restore it to a 'default' condition always.  Seems like it would,
->> canceling anything you have done & then did an 'alsactl store' to
->> save..
->
->That's what I was suggesting - just add -F to the alsactl restore in
->your init script.  It won't restore it to a default state - the only
->difference is that it will do a better job restoring your mixer state if
->new controls are added by a driver update.
->
->alsactl --help:
->
->  -F,--force      try to restore the matching controls as much as
->possible
->
->Lee
+Make checkstack work for UML.  We need to pass the underlying architecture
+name, rather than "um" to checkstack.pl.
 
-Great, Lee, thanks.  That also gave me a good excuse to expand the 
-operating $PATH for rc.local, recent heyu changes seem to have killed my 
-restoration of the config that existed after cron made the last change in 
-config.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
+Index: linux-2.6.18-mm/Makefile
+===================================================================
+--- linux-2.6.18-mm.orig/Makefile	2006-08-07 13:49:52.000000000 -0400
++++ linux-2.6.18-mm/Makefile	2006-08-07 13:53:34.000000000 -0400
+@@ -1315,9 +1315,13 @@ endif #ifeq ($(config-targets),1)
+ endif #ifeq ($(mixed-targets),1)
+ 
+ PHONY += checkstack kernelrelease kernelversion
++
++# Use $(SUBARCH) here instead of $(ARCH) so that this works for UML.
++# In the UML case, $(SUBARCH) is the name of the underlying
++# architecture, while for all other arches, it is the same as $(ARCH).
+ checkstack:
+ 	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
+-	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
++	$(PERL) $(src)/scripts/checkstack.pl $(SUBARCH)
+ 
+ kernelrelease:
+ 	$(if $(wildcard include/config/kernel.release), $(Q)echo $(KERNELRELEASE), \
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

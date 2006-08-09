@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030565AbWHIHFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030570AbWHIHJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030565AbWHIHFI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 03:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030567AbWHIHFI
+	id S1030570AbWHIHJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 03:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030572AbWHIHJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 03:05:08 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:44169 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1030565AbWHIHFG (ORCPT
+	Wed, 9 Aug 2006 03:09:33 -0400
+Received: from ns.suse.de ([195.135.220.2]:4311 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030570AbWHIHJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 03:05:06 -0400
-Subject: Re: [PATCH] CONFIG_RELOCATABLE modpost fix
-From: Magnus Damm <magnus@valinux.co.jp>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
-       ebiederm@xmission.com
-In-Reply-To: <20060809062918.GA10903@mars.ravnborg.org>
-References: <20060808083307.391.45887.sendpatchset@cherry.local>
-	 <20060808183954.GA8300@mars.ravnborg.org>
-	 <1155087156.4341.66.camel@localhost>
-	 <20060809062918.GA10903@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Wed, 09 Aug 2006 16:06:38 +0900
-Message-Id: <1155107198.4341.87.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Wed, 9 Aug 2006 03:09:32 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: 2.6.18-rc4 warning on arch/x86_64/boot/compressed/head.o
+Date: Wed, 9 Aug 2006 09:09:19 +0200
+User-Agent: KMail/1.9.3
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+References: <7161.1155005268@kao2.melbourne.sgi.com> <200608080455.34702.ak@suse.de> <Pine.LNX.4.61.0608090823570.11585@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608090823570.11585@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608090909.19985.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-09 at 08:29 +0200, Sam Ravnborg wrote:
-> On Wed, Aug 09, 2006 at 10:32:36AM +0900, Magnus Damm wrote:
->  
-> > Your patch seems to work as expected if I add a return 0 at the end of
-> > modpost.c:secref_whitelist(). I like how you printed out the number of
-> > modules being processed.
-> Thanks - fixed now. My gcc (3.4.6-r1 from Gentoo did not warn)
-
-Interesting. I have the 3.4.6-r1 ebuild installed too, but I happened to
-have the 3.3.6 profile selected by default. Which explains why things
-still work as expected here.
-
-> >I have one minor comment about your patch:
-> > 
-> > Modpost seems to get run twice on vmlinux if the kernel is built with
-> > "make all". I think it would be best to run modpost on vmlinux only when
-> > vmlinux is built - never when modules are processed.
+On Wednesday 09 August 2006 08:26, Jan Engelhardt wrote:
+> >> Compiling 2.6.18-rc4 on x86_64 gets this warning.
+> >> 
+> >>   gcc -Wp,-MD,arch/x86_64/boot/compressed/.head.o.d  -nostdinc -isystem /usr/lib64/gcc/x86_64-suse-linux/4.1.0/include -D__KERNEL__ -Iinclude -Iinclude2 -I$KBUILD_OUTPUT/linux/include -include include/linux/autoconf.h -D__ASSEMBLY__ -m64 -traditional -m32  -c -o arch/x86_64/boot/compressed/head.o $KBUILD_OUTPUT/linux/arch/x86_64/boot/compressed/head.S
+> >>   ld -m elf_i386  -Ttext 0x100000 -e startup_32 -m elf_i386 arch/x86_64/boot/compressed/head.o arch/x86_64/boot/compressed/misc.o arch/x86_64/boot/compressed/piggy.o -o arch/x86_64/boot/compressed/vmlinux 
+> >> ld: warning: i386:x86-64 architecture of input file `arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
+> >
+> >It always gave that since some binutils update long ago.
+> >If you know how to fix it please submit a patch, but as far as I know it's harmless.
 > 
-> Thesecond time modpost runs vmlinux is used to pick up symbol
-> information to check that all symbols are valid etc.
-> The alternative was to trust the symbols being read from Module.symvers
-> and that would be OK in most cases but I could imagine situations where
-> Module.symvers was deleted but vmlinux kept.
-> 
-> So therefore the more expensive solution to run modpost twice on vmlinux
-> was chosen.
+> Why is -m elf_i386 passed to ld?
+> I suppose because this is necessary because AMD64 starts in i386 16-bit 
+> real mode?
+> Might try -m elf32-little or -m elf64-little.
 
-I understand. I'm not that worried about build performance, more the
-fact that all the warnings from vmlinux will get spit out twice.
+If you think you have a solution please submit a tested patch.
 
-Thanks,
-
-/ magnus
-
+-Andi

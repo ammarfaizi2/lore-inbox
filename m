@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWHIMbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWHIMce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWHIMbH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWHIMbH
+	id S1750717AbWHIMce (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWHIMcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:31:07 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:21130 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1750715AbWHIMbE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:31:04 -0400
-Date: Wed, 9 Aug 2006 20:54:41 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
-Message-ID: <20060809165441.GA187@oleg>
-References: <20060809143816.GA142@oleg> <44D9D03B.6060907@sw.ru>
+	Wed, 9 Aug 2006 08:32:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42190 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750717AbWHIMcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:32:32 -0400
+Subject: Re: [PATCH 03/14] V4L/DVB (4371b): Fix V4L1 dependencies at
+	drivers under sound/oss and sound/pci
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
+In-Reply-To: <1155074040.26338.115.camel@mindpipe>
+References: <20060808210151.PS78629800000@infradead.org>
+	 <20060808210653.PS04143800003@infradead.org>
+	 <1155074040.26338.115.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 09 Aug 2006 09:32:06 -0300
+Message-Id: <1155126726.13439.53.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D9D03B.6060907@sw.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/09, Kirill Korotaev wrote:
->
-> >Why do we need to use ->group_leader? All threads should have the same
-> >->real_parent.
-> I'm not sure this is true for old LinuxThreads...
+Em Ter, 2006-08-08 às 17:54 -0400, Lee Revell escreveu:
+> On Tue, 2006-08-08 at 18:06 -0300, mchehab@infradead.org wrote:
+> > From: Mauro Carvalho Chehab <mchehab@infradead.org>
+> >  	  For more information on this driver and the degree of support for
+> >  	  the different card models please check:
+> >  
+> > -	        <http://sourceforge.net/projects/emu10k1/>
+> > +		<http://sourceforge.net/projects/emu10k1/>
+> 
+> This seems to contain a ton of unrelated whitespace changes.
+Sorry for that.
 
-Yes, from the user-space pov it may be not true, but ->group_leader->real_parent
-should be equal ->real_parent anyway.
+We have a zero tolerancy for bad whitespacing for the stuff under
+drivers/media, so, I have a script that do a cleanup on whitespaces for
+the files I touch, to avoid a propagation of whitespaces.
 
-> >Why do we need tasklist_lock? I think rcu_read_lock() is enough.
-> >
-> >In other words, do you see any problems with this code
-> >
-> >	smlinkage long sys_getppid(void)
-> >	{
-> >		int pid;
-> >
-> >		rcu_read_lock();
-> >		pid = rcu_dereference(current->real_parent)->tgid;
-> >		rcu_read_unlock();
-> >
-> >		return pid;
-> >	}
-> >
-> >? Yes, we may read a stale value for ->real_parent, but the memory
-> >can't be freed while we are under rcu_read_lock(). And in this case
-> >the returned value is ok because the task could be reparented just
-> >after return anyway.
-> Your patch doesn't cure the problem.
-> rcu_read_lock just disables preemtion and rcu_dereference
-> introduces memory barrier. _None_ of this _prevents_
-> another CPU from freeing old real_parent in parallel with your dereference.
+I didn't realized the script runned against sound/oss, fixed all those
+bad whitespacing stuff there.
 
-How so? Note that release_task() doesn't call put_task_struct(), it does
-call_rcu(&p->rcu, delayed_put_task_struct) instead. When delayed_put_task_struct()
-is called, all CPUs must see the new value of ->real_parent (otherwise
-RCU is just broken). If CPU sees the old value of ->real_parent, rcu_read_lock()
-protects us from delayed_put_task_struct() on another CPU.
-
-Ok, I think this is the same "classic" pattern as:
-
-	old = global_ptr;
-	global_ptr = new;
-	call_rcu(..free_old...);
-vs
-	rcu_read_lock();
-	use(global_ptr);
-	rcu_read_unlock();
-
-Do you agree?
-
-Oleg.
+> Lee
+> 
+Cheers, 
+Mauro.
 

@@ -1,138 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWHJBzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbWHJCCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWHJBzb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 21:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWHJBza
+	id S1030520AbWHJCCt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 22:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbWHJCCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 21:55:30 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:43996 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751182AbWHJBza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 21:55:30 -0400
-Message-Id: <200608091815.k79IFW3W005315@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH] UML - Stack usage reduction
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 09 Aug 2006 14:15:30 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Wed, 9 Aug 2006 22:02:49 -0400
+Received: from srvr22.engin.umich.edu ([141.213.75.21]:40356 "EHLO
+	srvr22.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S1030520AbWHJCCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 22:02:48 -0400
+From: Matt Reuther <mreuther@umich.edu>
+Organization: The Knights Who Say... Ni!
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [-mm patch] add timespec_to_us() and use it in kernel/tsacct.c
+Date: Wed, 9 Aug 2006 07:57:12 -0400
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Jay Lan <jlan@sgi.com>
+References: <200608062330.19628.mreuther@umich.edu> <20060806222129.f1cfffb9.akpm@osdl.org> <20060807133240.GB3691@stusta.de>
+In-Reply-To: <20060807133240.GB3691@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608090757.12890.mreuther@umich.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The KSTK_* macros used an inordinate amount of stack.  In order to
-overcome an impedance mismatch between their interface, which just
-returns a single register value, and the interface of get_thread_regs,
-which took a full pt_regs, the implementation created an on-stack
-pt_regs, filled it in, and returned one field.  do_task_stat calls
-KSTK_* twice, resulting in two local pt_regs, blowing out the stack.
+On Monday 07 August 2006 09:32 am, Adrian Bunk wrote:
+> On Sun, Aug 06, 2006 at 10:21:29PM -0700, Andrew Morton wrote:
+> > On Sun, 6 Aug 2006 23:30:19 -0400
 
-This patch changes the interface (and name) of get_thread_regs to just
-return a single register from a jmp_buf.
+> What about the patch below that adds a timespec_to_us() to time.h and
+> uses this function in kernel/tsacct.c?
+>
+>
+> <--  snip  -->
+>
+>
+> This patch adds a timespec_to_us() to include/linux/time.h and uses it
+> to fix a compile error in kernel/tsacct.c .
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> ---
+>
+>  include/linux/time.h |   12 ++++++++++++
+>  kernel/tsacct.c      |    2 +-
+>  2 files changed, 13 insertions(+), 1 deletion(-)
+>
+> --- linux-2.6.18-rc3-mm2-full/include/linux/time.h.old	2006-08-06
+> 19:56:50.000000000 +0200 +++
+> linux-2.6.18-rc3-mm2-full/include/linux/time.h	2006-08-06
+> 20:00:51.000000000 +0200 @@ -132,6 +132,18 @@
+>  }
+>
+>  /**
+> + * timespec_to_us - Convert timespec to microseconds
+> + * @ts:		pointer to the timespec variable to be converted
+> + *
+> + * Returns the scalar microsecond representation of the timespec
+> + * parameter.
+> + */
+> +static inline s64 timespec_to_us(const struct timespec *ts)
+> +{
+> +	return ((s64) ts->tv_sec * USEC_PER_SEC) + ts->tv_nsec / NSEC_PER_USEC;
+> +}
+> +
+> +/**
+>   * timeval_to_ns - Convert timeval to nanoseconds
+>   * @ts:		pointer to the timeval variable to be converted
+>   *
+> --- linux-2.6.18-rc3-mm2-full/kernel/tsacct.c.old	2006-08-06
+> 19:54:45.000000000 +0200 +++
+> linux-2.6.18-rc3-mm2-full/kernel/tsacct.c	2006-08-06 19:56:44.000000000
+> +0200 @@ -36,7 +36,7 @@
+>  	do_posix_clock_monotonic_gettime(&uptime);
+>  	ts = timespec_sub(uptime, current->group_leader->start_time);
+>  	/* rebase elapsed time to usec */
+> -	stats->ac_etime = (timespec_to_ns(&ts))/NSEC_PER_USEC;
+> +	stats->ac_etime = timespec_to_us(&ts);
+>  	stats->ac_btime = xtime.tv_sec - ts.tv_sec;
+>  	if (thread_group_leader(tsk)) {
+>  		stats->ac_exitcode = tsk->exit_code;
 
-The include of archsetjmp.h" in registers.h to get the definition of
-jmp_buf exposed a bogus include of <setjmp.h> in start_up.c.
-<setjmp.h> shouldn't be used anywhere any more since UML uses the
-klibc setjmp/longjmp.
+This patch also compiles for me without errors.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-
-Index: linux-2.6.17/arch/um/include/registers.h
-===================================================================
---- linux-2.6.17.orig/arch/um/include/registers.h	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17/arch/um/include/registers.h	2006-08-09 13:42:06.000000000 -0400
-@@ -7,6 +7,7 @@
- #define __REGISTERS_H
- 
- #include "sysdep/ptrace.h"
-+#include "sysdep/archsetjmp.h"
- 
- extern void init_thread_registers(union uml_pt_regs *to);
- extern int save_fp_registers(int pid, unsigned long *fp_regs);
-@@ -15,6 +16,6 @@ extern void save_registers(int pid, unio
- extern void restore_registers(int pid, union uml_pt_regs *regs);
- extern void init_registers(int pid);
- extern void get_safe_registers(unsigned long * regs, unsigned long * fp_regs);
--extern void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer);
-+extern unsigned long get_thread_reg(int reg, jmp_buf *buf);
- 
- #endif
-Index: linux-2.6.17/arch/um/os-Linux/sys-i386/registers.c
-===================================================================
---- linux-2.6.17.orig/arch/um/os-Linux/sys-i386/registers.c	2006-08-09 13:36:17.000000000 -0400
-+++ linux-2.6.17/arch/um/os-Linux/sys-i386/registers.c	2006-08-09 13:42:06.000000000 -0400
-@@ -130,11 +130,14 @@ void get_safe_registers(unsigned long *r
- 		       HOST_FP_SIZE * sizeof(unsigned long));
- }
- 
--void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer)
-+unsigned long get_thread_reg(int reg, jmp_buf *buf)
- {
--	struct __jmp_buf *jmpbuf = buffer;
--
--	UPT_SET(uml_regs, EIP, jmpbuf->__eip);
--	UPT_SET(uml_regs, UESP, jmpbuf->__esp);
--	UPT_SET(uml_regs, EBP, jmpbuf->__ebp);
-+	switch(reg){
-+	case EIP: return buf[0]->__eip;
-+	case UESP: return buf[0]->__esp;
-+	case EBP: return buf[0]->__ebp;
-+	default:
-+		printk("get_thread_regs - unknown register %d\n", reg);
-+		return 0;
-+	}
- }
-Index: linux-2.6.17/arch/um/os-Linux/sys-x86_64/registers.c
-===================================================================
---- linux-2.6.17.orig/arch/um/os-Linux/sys-x86_64/registers.c	2006-08-09 13:36:17.000000000 -0400
-+++ linux-2.6.17/arch/um/os-Linux/sys-x86_64/registers.c	2006-08-09 13:42:06.000000000 -0400
-@@ -78,11 +78,14 @@ void get_safe_registers(unsigned long *r
- 		       HOST_FP_SIZE * sizeof(unsigned long));
- }
- 
--void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer)
-+unsigned long get_thread_reg(int reg, jmp_buf *buf)
- {
--	struct __jmp_buf *jmpbuf = buffer;
--
--	UPT_SET(uml_regs, RIP, jmpbuf->__rip);
--	UPT_SET(uml_regs, RSP, jmpbuf->__rsp);
--	UPT_SET(uml_regs, RBP, jmpbuf->__rbp);
-+	switch(reg){
-+	case RIP: return buf[0]->__rip;
-+	case RSP: return buf[0]->__rsp;
-+	case RBP: return buf[0]->__rbp;
-+	default:
-+		printk("get_thread_regs - unknown register %d\n", reg);
-+		return 0;
-+	}
- }
-Index: linux-2.6.17/include/asm-um/processor-generic.h
-===================================================================
---- linux-2.6.17.orig/include/asm-um/processor-generic.h	2006-08-09 13:35:31.000000000 -0400
-+++ linux-2.6.17/include/asm-um/processor-generic.h	2006-08-09 13:42:06.000000000 -0400
-@@ -138,9 +138,7 @@ extern struct cpuinfo_um cpu_data[];
- 
- #ifdef CONFIG_MODE_SKAS
- #define KSTK_REG(tsk, reg) \
--	({ union uml_pt_regs regs; \
--	   get_thread_regs(&regs, tsk->thread.mode.skas.switch_buf); \
--	   UPT_REG(&regs, reg); })
-+	get_thread_reg(reg, tsk->thread.mode.skas.switch_buf)
- #else
- #define KSTK_REG(tsk, reg) (0xbadbabe)
- #endif
-Index: linux-2.6.17/arch/um/os-Linux/start_up.c
-===================================================================
---- linux-2.6.17.orig/arch/um/os-Linux/start_up.c	2006-08-09 13:56:44.000000000 -0400
-+++ linux-2.6.17/arch/um/os-Linux/start_up.c	2006-08-09 13:56:54.000000000 -0400
-@@ -14,7 +14,6 @@
- #include <sched.h>
- #include <fcntl.h>
- #include <errno.h>
--#include <setjmp.h>
- #include <sys/time.h>
- #include <sys/wait.h>
- #include <sys/mman.h>
+Matt
 

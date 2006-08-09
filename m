@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWHIPsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWHIPsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWHIPsB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 11:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWHIPsB
+	id S1751052AbWHIPsj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 11:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWHIPsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 11:48:01 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:55473 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751034AbWHIPr7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 11:47:59 -0400
-Date: Wed, 9 Aug 2006 17:47:18 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jes Sorensen <jes@sgi.com>
-cc: Lee Revell <rlrevell@joe-job.com>, Willy Tarreau <w@1wt.eu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       matti.aarnio@zmailer.org
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-In-Reply-To: <yq0y7tytjwl.fsf@jaguar.mkp.net>
-Message-ID: <Pine.LNX.4.62.0608091746320.9599@pademelon.sonytel.be>
-References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
- <p73y7tzo4hl.fsf@verdi.suse.de> <1155047956.5729.68.camel@localhost.localdomain>
- <20060808191631.GF8776@1wt.eu> <1155068717.26338.100.camel@mindpipe>
- <yq0y7tytjwl.fsf@jaguar.mkp.net>
+	Wed, 9 Aug 2006 11:48:39 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:40876 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751052AbWHIPsi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 11:48:38 -0400
+Message-ID: <44DA03D1.1000100@slaphack.com>
+Date: Wed, 09 Aug 2006 11:48:33 -0400
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Hans Reiser <reiser@namesys.com>, Edward Shishkin <edward@namesys.com>,
+       Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org> <44D219F9.9080404@namesys.com> <44D231DF.1080804@namesys.com> <44D37E1B.1040109@namesys.com> <44D3ECB5.1060106@namesys.com> <44D66ADD.6020007@namesys.com> <44D99F96.4090804@namesys.com> <Pine.LNX.4.61.0608091352440.23404@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608091352440.23404@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Aug 2006, Jes Sorensen wrote:
-> >>>>> "Lee" == Lee Revell <rlrevell@joe-job.com> writes:
+Jan Engelhardt wrote:
+>>> Yes, it looks like a business of node plugin, but AFAIK, you
+>>> objected against such checks:
+>> Did I really?  Well, I think that allowing users to choose whether to
+>> checksum or not is a reasonable thing to allow them.  I personally would
+>> skip the checksum on my computer, but others....
+>>
+>> It could be a useful mkfs option....
 > 
-> Lee> On Tue, 2006-08-08 at 21:16 +0200, Willy Tarreau wrote:
-> >> This looks like a very clever yet simple idea (if easy to implement
-> >> at all) !  While I have no anti-spam and am not annoyed at all by
-> >> the low spam rate on LKML, I think this would make my cleaning
-> >> operations even more effective.
-> 
-> Lee> That would mean 8 fewer characters of useful information visible
-> Lee> in the subject line.
-> 
-> Or tag it with "X-Non-Subscriber: Yes" - then those who care can
-> filter it into a seperate inbox in a jiffy and we don't lose the
-> information on the subject line.
+> It should preferably a runtime tunable variable, at best even
+> per-superblock and (overriding the sb setting), per-file.
 
-Nice, and lkml will become much quieter if Andi's emails end up in a separate
-inbox ;-)
-
-SCNR...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Sounds almost exactly like a plugin.  And yes, that would be the way to 
+do it, especially considering some files will already have internal 
+consistency checking -- just as we should allow direct disk IO to some 
+files (no journaling) when the files in question are databases that do 
+their own journaling.

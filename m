@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030659AbWHIKXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030665AbWHIKYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030659AbWHIKXn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 06:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030655AbWHIKXn
+	id S1030665AbWHIKYS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 06:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030661AbWHIKYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 06:23:43 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:40926 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030659AbWHIKXl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 06:23:41 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] ReiserFS: Make sure all dentries refs are released before calling kill_block_super()
-Date: Wed, 9 Aug 2006 12:23:04 +0200
-User-Agent: KMail/1.9.3
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, Olof Johansson <olof@lixom.net>
-References: <200608090116.38476.rjw@sisk.pl> <32278.1155057836@warthog.cambridge.redhat.com> <6818.1155118467@warthog.cambridge.redhat.com>
-In-Reply-To: <6818.1155118467@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Wed, 9 Aug 2006 06:24:18 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1452 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030666AbWHIKYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 06:24:16 -0400
+Subject: Re: How to lock current->signal->tty
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jes Sorensen <jes@sgi.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <yq0u04mtjni.fsf@jaguar.mkp.net>
+References: <1155050242.5729.88.camel@localhost.localdomain>
+	 <44D8A97B.30607@linux.intel.com>
+	 <1155051876.5729.93.camel@localhost.localdomain>
+	 <20060808164127.GA11392@intel.com>
+	 <1155059405.5729.103.camel@localhost.localdomain>
+	 <yq0u04mtjni.fsf@jaguar.mkp.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608091223.04492.rjw@sisk.pl>
+Date: Wed, 09 Aug 2006 11:44:10 +0100
+Message-Id: <1155120250.5729.146.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 12:14, David Howells wrote:
-> Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> 
-> > It didn't apply cleanly to -rc3-mm2 for me and produces the appended oops
-> > every time at the kernel startup (on x86_64).
-> 
-> Can you send me your modified patch?
+Ar Mer, 2006-08-09 am 04:09 -0400, ysgrifennodd Jes Sorensen:
+> Personally I don't like the current approach. However, I believe the
+> philosophy behind it is that users rarely look in dmesg and they
+> should be notified (and beaten with a stick) when their badly written
+> app spawns unaligned accesses which end up being emulated by the
+> kernel.
 
-Index: linux-2.6.18-rc3-mm2/fs/reiserfs/super.c
-===================================================================
---- linux-2.6.18-rc3-mm2.orig/fs/reiserfs/super.c
-+++ linux-2.6.18-rc3-mm2/fs/reiserfs/super.c
-@@ -430,21 +430,29 @@ int remove_save_link(struct inode *inode
- 	return journal_end(&th, inode->i_sb, JOURNAL_PER_BALANCE_CNT);
- }
- 
--static void reiserfs_put_super(struct super_block *s)
-+static void reiserfs_kill_sb(struct super_block *s)
- {
--	struct reiserfs_transaction_handle th;
--	th.t_trans_id = 0;
--
- 	if (REISERFS_SB(s)->xattr_root) {
- 		d_invalidate(REISERFS_SB(s)->xattr_root);
- 		dput(REISERFS_SB(s)->xattr_root);
-+		REISERFS_SB(s)->xattr_root = NULL;
- 	}
- 
- 	if (REISERFS_SB(s)->priv_root) {
- 		d_invalidate(REISERFS_SB(s)->priv_root);
- 		dput(REISERFS_SB(s)->priv_root);
-+		REISERFS_SB(s)->priv_root = NULL;
- 	}
- 
-+	kill_block_super(s);
-+}
-+
-+static void reiserfs_put_super(struct super_block *s)
-+{
-+	int i;
-+	struct reiserfs_transaction_handle th;
-+	th.t_trans_id = 0;
-+
- 	/* change file system state to current state if it was mounted with read-write permissions */
- 	if (!(s->s_flags & MS_RDONLY)) {
- 		if (!journal_begin(&th, s, 10)) {
-@@ -2155,7 +2163,7 @@ struct file_system_type reiserfs_fs_type
- 	.owner = THIS_MODULE,
- 	.name = "reiserfs",
- 	.get_sb = get_super_block,
--	.kill_sb = kill_block_super,
-+	.kill_sb = reiserfs_kill_sb,
- 	.fs_flags = FS_REQUIRES_DEV,
- };
- 
+The users won't seem the anyway, they are hidden behind the GUI.
+
+> These messages are normally caused by userland code, so kprobes
+> probably wont do much good :)
+
+Jes, read up on kprobes a little if you think its of no use in these
+kind of situations. A systemtap script to count/measure alignment fault
+rates and see who is causing the load isn't very hard to write.
+
+Alan
+

@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030702AbWHILeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030701AbWHILeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030702AbWHILeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbWHILeG
+	id S1030701AbWHILeB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbWHILeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:34:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18364 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030702AbWHILeD (ORCPT
+	Wed, 9 Aug 2006 07:34:01 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:29458 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030701AbWHILeA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:34:03 -0400
-Date: Wed, 9 Aug 2006 13:33:35 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-Subject: Re: [RFC][PATCH -mm 2/5] swsusp: Use memory bitmaps during resume
-Message-ID: <20060809113335.GP3308@elf.ucw.cz>
-References: <200608091152.49094.rjw@sisk.pl> <200608091204.36186.rjw@sisk.pl> <20060809103442.GJ3308@elf.ucw.cz> <200608091304.35746.rjw@sisk.pl>
+	Wed, 9 Aug 2006 07:34:00 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608091304.35746.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 09 Aug 2006 11:33:58.0732 (UTC) FILETIME=[B46888C0:01C6BBA7]
+Content-class: urn:content-classes:message
+Subject: Re: ext3 corruption
+Date: Wed, 9 Aug 2006 07:33:58 -0400
+Message-ID: <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com>
+In-Reply-To: <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ext3 corruption
+Thread-Index: Aca7p7SO1iiylu71TqGCxBmLhW3FsA==
+References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com> <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Molle Bestefich" <molle.bestefich@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Okay, I'm little out of time now, and I do not understand 2 and 3 in
-> > the series.
-> 
-> Well ...
-> 
-> > > Make swsusp use memory bitmaps to store its internal information during the
-> > > resume phase of the suspend-resume cycle.
-> > > 
-> > > If the pfns of saveable pages are saved during the suspend phase instead of
-> > > the kernel virtual addresses of these pages, we can use them during the resume
-> > > phase directly to set the corresponding bits in a memory bitmap.  Then, this
-> > > bitmap is used to mark the page frames corresponding to the pages that were
-> > > saveable before the suspend (aka "unsafe" page frames).
-> > > 
-> > > Next, we allocate as many page frames as needed to store the entire suspend
-> > > image and make sure that there will be some extra free "safe" page frames for
-> > > the list of PBEs constructed later.  Subsequently, the image is loaded and,
-> > > if possible, the data loaded from it are written into their "original" page frames
-> > > (ie. the ones they had occupied before the suspend).  The image data that
-> > > cannot be written into their "original" page frames are loaded into "safe" page
-> > > frames and their "original" kernel virtual addresses, as well as the addresses
-> > > of the "safe" pages containing their copies, are stored in a list of PBEs.
-> > > Finally, the list of PBEs is used to copy the remaining image data into their
-> > > "original" page frames (this is done atomically, by the architecture-dependent
-> > > parts of swsusp).
-> > 
-> > So... if page in highmem is allocated during resume, you'll still need
-> > to copy it during assembly "atomic copy", right?
-> 
-> No.  It can be copied before the assembly gets called, because we are in the
-> kernel at that time which certainly is not in the highmem. :-)
+On Tue, 8 Aug 2006, Molle Bestefich wrote:
 
-Ahha, okay, nice trick.
+> I have a ~1TB filesystem that fails to mount, the message is:
+>
+> EXT3-fs error (device loop0): ext3_check_descriptors: Block bitmap for
+                  ^^^^^^^^^^^_________
 
-> > Unfortunately, our assembler parts can't do it just now...?
-> 
-> No, they can't, but that just isn't necessary.  During the resume we create
-> two lists of PBEs - one for "normal" pages, and one for highmem pages.  The
-> first one is handled by the "atomic copy" code as usual, but the second one
-> may be handled by some C code a bit earlier.
+It seems as though you have a LOT of RAM if you can make a 1TB
+filesystem on the loopback device!
 
-I'm still not sure if highmem support is worth the complexity -- I
-hope highmem dies painful death in next 3 weeks or so.
+Seriously, what are you doing, attempting to mount a big file-system
+through the loop-back device or is this a copied-down message message
+you got during boot when initrd tried to mount a RAM disk?
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> group 2338 not in group (block 1607003381)!
+> EXT3-fs: group descriptors corrupted !
+>
+
+Ordinary disk repair involves running fsck on an UNMOUNTED file-system.
+
+> A day before, it worked flawlessly.
+>
+> What could have happened, and what's the best course of action?
+
+Any bad RAM, any shutdown without a proper unmount, any device hardware
+error like DMA not completing properly, can cause file-system corruption.
+That's why there are tools to fix it.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

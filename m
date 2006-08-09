@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWHIUv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWHIUw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWHIUv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 16:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWHIUv4
+	id S1751371AbWHIUw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 16:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWHIUw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 16:51:56 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:32762 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751367AbWHIUvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 16:51:55 -0400
-Date: Wed, 09 Aug 2006 16:51:27 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: ALSA problems with 2.6.18-rc3
-In-reply-to: <1155156090.26338.193.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Benton <b3nt@ukonline.co.uk>,
-       Takashi Iwai <tiwai@suse.de>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Message-id: <200608091651.28077.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <44D8F3E5.5020508@ukonline.co.uk>
- <200608091417.55431.gene.heskett@verizon.net>
- <1155156090.26338.193.camel@mindpipe>
-User-Agent: KMail/1.7
+	Wed, 9 Aug 2006 16:52:58 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:28132 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751368AbWHIUw5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 16:52:57 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
+Date: Wed, 9 Aug 2006 22:51:57 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Linux ACPI <linux-acpi@vger.kernel.org>
+References: <200608091426.31762.rjw@sisk.pl> <200608092201.42885.rjw@sisk.pl> <20060809131232.75a260e1.akpm@osdl.org>
+In-Reply-To: <20060809131232.75a260e1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608092251.58062.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 16:41, Lee Revell wrote:
-[...]
->> >Takashi-san,
->> >
->> >Does this help at all?  Many users are reporting that sound broke with
->> >2.6.18-rc*.
->> >
->> >Lee
->>
->> Takashi-san's suggestion earlier today of running an "alsactl -F
->> restore" seems to have fixed all those diffs right up, I now have good
->> sound with an emu10k1 using an audigy 2 as card-0, running
->> kernel-2.6.18-rc4.
->
->Distros should probably be using this as a default.  Otherwise, simply
->adding a new mixer control will cause restoring mixer settings to fail.
->
->Lee
+On Wednesday 09 August 2006 22:12, Andrew Morton wrote:
+> On Wed, 9 Aug 2006 22:01:42 +0200
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> 
+> > On Wednesday 09 August 2006 14:30, Pavel Machek wrote:
+> > > Hi!
+> > > > 
+> > > > It looks like the CMOS clock gets corrupted during the suspend to disk
+> > > > on i386.  I've observed this on 2 different boxes.  Moreover, one of them is
+> > > > AMD64-based and the x86_64 kernel doesn't have this problem on it.
+> > > > 
+> > > > Also, I've done some tests that indicate the corruption doesn't occur before
+> > > > saving the suspend image.  It rather happens when the box is powered off
+> > > > or rebooted (tested both cases).
+> > > > 
+> > > > Unfortunately, I have no more time to debug it further right now.
+> > > 
+> > > Do you have Linus' "please corrupt my cmos for debuggin" hack enabled?
+> > 
+> > Well, I know nothing about that. ;-)
+> > 
+> 
+> CONFIG_PM_TRACE=y will scrog your CMOS clock each time you suspend.
 
-I already have the 'alsactl restore' in my rc.local.  Would there be any 
-harm in just adding the -F to that invocation, or will that just restore 
-it to a 'default' condition always.  Seems like it would, canceling 
-anything you have done & then did an 'alsactl store' to save..
+Oh dear.  Of course it's set in my .config.  Thanks a lot for this hint. :-)
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+BTW, it's a dangerous setting, because some drivers get mad if the time after
+the resume appears to be earlier than the time before the suspend.  Also the
+timer .suspend/.resume routines aren't prepared for that.
+

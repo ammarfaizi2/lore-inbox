@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWHIAT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWHIAWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030367AbWHIAT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 20:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWHIAT5
+	id S1030364AbWHIAWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 20:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWHIAWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 20:19:57 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:25440 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030367AbWHIAT5 convert rfc822-to-8bit (ORCPT
+	Tue, 8 Aug 2006 20:22:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45719 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030364AbWHIAWP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 20:19:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=gbwI0brR7uxbeXZ3c2swpYLJM9AooaZofyneryOIjyN5fAy31bTVWCaZ/6htAE9SyBGuzuvSQ/xWHWDA1c+Ms81IJLWv5Dl1625FIn5bccdcCDynRZ+IpvrHZG2xjoL3NU1yMovyrY2ki9hP6DFUBl+3jEnZdie4u0Kr0EkxiOk=
-Date: Wed, 9 Aug 2006 02:19:45 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       mchehab@infradead.org, akpm@osdl.org
-Subject: Re: [PATCH 12/14] V4L/DVB (4430): Quickcam_messenger compilation
- fix
-Message-Id: <20060809021945.043f9ecb.diegocg@gmail.com>
-In-Reply-To: <20060808210654.PS54412700012@infradead.org>
-References: <20060808210151.PS78629800000@infradead.org>
-	<20060808210654.PS54412700012@infradead.org>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Tue, 8 Aug 2006 20:22:15 -0400
+Date: Wed, 9 Aug 2006 02:21:59 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Suspend on Dell D420
+Message-ID: <20060809002159.GE4886@elf.ucw.cz>
+References: <20060804162300.GA26148@uio.no> <200608081604.00665.rjw@sisk.pl> <20060808150136.GA16272@uio.no> <200608081741.24099.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608081741.24099.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 08 Aug 2006 18:06:54 -0300,
-mchehab@infradead.org escribió:
+On Tue 2006-08-08 17:41:23, Rafael J. Wysocki wrote:
+> On Tuesday 08 August 2006 17:01, Steinar H. Gunderson wrote:
+> > On Tue, Aug 08, 2006 at 04:04:00PM +0200, Rafael J. Wysocki wrote:
+> > > Please apply the appended patch to the SMP kernel and try the following:
+> > >
+> > > [...]
+> > >
+> > > I think (1) will work and (2) will not, but let's see. :-)
+> > 
+> > Actually, both worked just fine. The first one (testproc) gave me EPERM on
+> > the actual write call according to echo, but I guess that's just a side
+> > effect of sloppy test code :-)
+> 
+> Oh, I just forgot to initialize error in kernel/power/disk.c#prepare_processes.c .
+> Sorry.
+> 
+> However, this means the drivers' suspend and resume routines seem to work fine
+> and the problem is somehow related to the BIOS black magic that happens
+> during the "real" suspend.
+> 
+> No idea what to do next. :-(
 
-> --- a/drivers/media/video/Makefile
-> +++ b/drivers/media/video/Makefile
-> @@ -90,6 +90,7 @@ obj-$(CONFIG_USB_ZC0301)        += zc030
->  obj-$(CONFIG_USB_IBMCAM)        += usbvideo/
->  obj-$(CONFIG_USB_KONICAWC)      += usbvideo/
->  obj-$(CONFIG_USB_VICAM)         += usbvideo/
-> +obj-$(CONFIG_USB_QUICKCAM_MESSENGER)	+= usbvideo/
+(Can we get bugzilla entry? I somehow lost track).
 
-This one has already been picked up by akpm
+Can you try with method=powerdown or method=reboot? BIOS black magic
+is not involved at least in reboot parts...
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

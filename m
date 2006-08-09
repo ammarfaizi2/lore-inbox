@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHIObm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHIOee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWHIObm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 10:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWHIObm
+	id S1750898AbWHIOee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWHIOee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 10:31:42 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:48520 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750894AbWHIObm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 10:31:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=iK4P4+WOy8ma6lXIfw9LFOyNfzvA4xkeXV+jCQQp5xTrKkoMUdkPXyiXRoooRzcEG3Xl3Bn/iq4uDZ9ijsciCFU4Xc0gnupyfz/FuSB/dUeMKfAHCeseZ7jnFx8UwuGvWtvAzwLek3Es+dnErlKZUUZUJHn0RSO4m8hLB937RZ8=
-Message-ID: <44D9F1D7.7050407@gmail.com>
-Date: Wed, 09 Aug 2006 16:31:28 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Wed, 9 Aug 2006 10:34:34 -0400
+Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:49426 "EHLO
+	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1750707AbWHIOed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:34:33 -0400
+Date: Wed, 9 Aug 2006 16:34:30 +0200
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+Message-ID: <20060809143429.GD5815@vanheusden.com>
+References: <44D871DE.1040509@garzik.org>
+	<MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: sasha <sasha@scalemp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Map memory to user, then map it back to kernel
-References: <44D98BF3.5060706@scalemp.com>
-In-Reply-To: <44D98BF3.5060706@scalemp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Thu Aug 10 15:58:54 CEST 2006
+X-Message-Flag: www.unixexpert.nl
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sasha wrote:
-> Hi folks.
-> 
-> I am looking for a way to map a memory (allocated with get_free_pages()) 
-> from kernel space to user space, so that I will later be able to map it 
-> back with get_user_pages().
-> 
-> I tried remap_pfn_range(), but it didn't work as it assumes the memory 
-> being mapped is IO range (marking vma with VM_IO flag), while 
-> get_user_pages() works on regular memory.
-> 
-> Any ideas?
+> > The kernel developers who need to keep the barrier to bug reports low
+> > like the current policy.
+> > Get a good spam filter, I only get 1-2 pieces a day in my LKML folder.
+> 	How is everyone individually spam filtering better than one central spam
+> filter? More likelihood that at least one relevent person will get the bug
+> report? Certainly a single central spam filter can get more resources aimed
+> at it to make sure it doesn't suppress anything important.
 
-VM_IO flag means not to swap this memory and don't do any side-effects bound 
-with that IIRC.
+What about just using the spamhaus.org blocklist at vger? Stops quite a
+bit of spam over here (http://keetweej.vanheusden.com/nspam_graph.png).
 
-If you want to mmap some memory in kernel to allow userspace to be able to read 
-from it, just remap and don't care. I actually don't understand, what you mean 
-by remapping it back to kernelspace, can you be more specific?
 
-Caveat of get_free_pages is that it allocates physically contiguous memory and 
-this may fail in later times, when the memory is not so free. You can use 
-virtual memory to avoid this: vmalloc_32_user, remap_vmalloc_range, vfree.
+Folkert van Heusden
 
-regards,
--- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+www.vanheusden.com/multitail - multitail is tail on steroids. multiple
+               windows, filtering, coloring, anything you can think of
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

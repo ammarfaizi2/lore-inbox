@@ -1,223 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWHIPYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWHIP1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWHIPYy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 11:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWHIPYy
+	id S1751015AbWHIP1h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 11:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWHIP1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 11:24:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26244 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750993AbWHIPYw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 11:24:52 -0400
-Date: Wed, 9 Aug 2006 08:24:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.org.uk
-Subject: Re: rc4: lukewarm irq warning during boot
-Message-Id: <20060809082442.16879b17.akpm@osdl.org>
-In-Reply-To: <20060809085534.GA1694@elf.ucw.cz>
-References: <20060809085534.GA1694@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Aug 2006 11:27:36 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:6456 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751015AbWHIP1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 11:27:35 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=vce9GxggxviqhPQTHv1rUBnR+Ie76R4c9eDOkVYkqD9xljqSGjxibRJsE3haCz2Np
+	tcY+Hf2HPEQJIY9pguN0w==
+Message-ID: <e561bacc0608090827m45fc8f2fia02589be4efce178@mail.google.com>
+Date: Wed, 9 Aug 2006 11:27:21 -0400
+From: "Alex Polvi" <polvi@google.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Subject: [PATCHv2] sunrpc/auth_gss: NULL pointer deref in gss_pipe_release()
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1154378242.13744.14.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
+	 <1154378242.13744.14.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Aug 2006 10:55:35 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
+On 7/31/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> On Mon, 2006-07-31 at 10:50 -0400, Alex Polvi wrote:
+> > Proposed (trivial) patch to fix a NULL pointer deref in
+> > gss_pipe_release(). While this does seem to fix the problem, I'm not
+> > entirely sure it is the correct place to handle the NULL pointer.
+> >
+> > Included below is the script I used to recreate the problem, the oops,
+> > and the patch.
+>
+> Sorry, but that is not the correct fix. The problem here is rather that
+> something is causing us to call rpc_close_pipes() on the file after the
+> call to gss_destroy(). That is supposed to be illegal.
 
-> Hi!
-> 
-> I'm getting this... I guess this is known and too hard to fix for
-> 2.6.18... but perhaps warning should be disabled? (Or is that already
-> a plan for 2.6.18?)
-> 
-> 								Pavel
-> Lukewarm IQ detected in hotplug locking
-> BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
->  [<c0104343>] show_trace_log_lvl+0x163/0x190
->  [<c01057af>] show_trace+0xf/0x20
->  [<c01057d5>] dump_stack+0x15/0x20
->  [<c01427fc>] lock_cpu_hotplug+0x7c/0x90
->  [<c0138af7>] __create_workqueue+0x47/0x140
->  [<c04bb58b>] cpufreq_governor_dbs+0x2cb/0x320
->  [<c04b97d6>] __cpufreq_governor+0x46/0xf0
->  [<c04b9a82>] __cpufreq_set_policy+0xf2/0x140
->  [<c04b9d22>] store_scaling_governor+0xd2/0x1c0
->  [<c04b95cd>] store+0x3d/0x60
->  [<c01ab55f>] sysfs_write_file+0x8f/0xe0
->  [<c016e056>] vfs_write+0xa6/0x160
->  [<c016ea11>] sys_write+0x41/0x70
->  [<c010303f>] syscall_call+0x7/0xb
->  [<b7ec52ce>] 0xb7ec52ce
->  [<c01427fc>] lock_cpu_hotplug+0x7c/0x90
->  [<c0138af7>] __create_workqueue+0x47/0x140
->  [<c04bb58b>] cpufreq_governor_dbs+0x2cb/0x320
->  [<c013531b>] notifier_call_chain+0x2b/0x60
->  [<c04b97d6>] __cpufreq_governor+0x46/0xf0
->  [<c04b9a82>] __cpufreq_set_policy+0xf2/0x140
->  [<c04b9d22>] store_scaling_governor+0xd2/0x1c0
->  [<c04ba710>] handle_update+0x0/0x10
->  [<c0269500>] kobject_set_name+0x20/0xb0
->  [<c04b9c50>] store_scaling_governor+0x0/0x1c0
->  [<c04b95cd>] store+0x3d/0x60
->  [<c01ab55f>] sysfs_write_file+0x8f/0xe0
->  [<c016e056>] vfs_write+0xa6/0x160
->  [<c01ab4d0>] sysfs_write_file+0x0/0xe0
->  [<c016ea11>] sys_write+0x41/0x70
->  [<c010303f>] syscall_call+0x7/0xb
-> 
+Since rpc_rmdir can potentially call rpc_pipe_release, here is a patch
+to make sure it is not called after rpcauth_destroy (which calls
+gss_destroy)!
 
-This should fix that particular bogon:
+Signed-off-by: Alex Polvi <polvi@google.com>
+-- 
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index d6409e7..d2ff886 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -312,16 +312,16 @@ rpc_destroy_client(struct rpc_clnt *clnt
 
-
-
-From: Andrew Morton <akpm@osdl.org>
-
-Use a private lock instead.  It protects all per-cpu data structures in
-workqueue.c, including the workqueues list.
-
-Fix a bug in schedule_on_each_cpu(): it was forgetting to lock down the
-per-cpu resources.
-
-Unfixed long-standing bug: if someone unplugs the CPU identified by
-`singlethread_cpu' the kernel will get very sick.
-
-Cc: Dave Jones <davej@codemonkey.org.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- kernel/workqueue.c |   33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
-
-diff -puN kernel/workqueue.c~workqueue-remove-lock_cpu_hotplug kernel/workqueue.c
---- a/kernel/workqueue.c~workqueue-remove-lock_cpu_hotplug
-+++ a/kernel/workqueue.c
-@@ -68,7 +68,7 @@ struct workqueue_struct {
- 
- /* All the per-cpu workqueues on the system, for hotplug cpu to add/remove
-    threads to each one as cpus come/go. */
--static DEFINE_SPINLOCK(workqueue_lock);
-+static DEFINE_MUTEX(workqueue_mutex);
- static LIST_HEAD(workqueues);
- 
- static int singlethread_cpu;
-@@ -320,10 +320,10 @@ void fastcall flush_workqueue(struct wor
- 	} else {
- 		int cpu;
- 
--		lock_cpu_hotplug();
-+		mutex_lock(&workqueue_mutex);
- 		for_each_online_cpu(cpu)
- 			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
--		unlock_cpu_hotplug();
-+		mutex_unlock(&workqueue_mutex);
+ 	dprintk("RPC: destroying %s client for %s\n",
+ 			clnt->cl_protname, clnt->cl_server);
+-	if (clnt->cl_auth) {
+-		rpcauth_destroy(clnt->cl_auth);
+-		clnt->cl_auth = NULL;
+-	}
+ 	if (clnt->cl_parent != clnt) {
+ 		rpc_destroy_client(clnt->cl_parent);
+ 		goto out_free;
  	}
- }
- EXPORT_SYMBOL_GPL(flush_workqueue);
-@@ -371,8 +371,7 @@ struct workqueue_struct *__create_workqu
- 	}
- 
- 	wq->name = name;
--	/* We don't need the distraction of CPUs appearing and vanishing. */
--	lock_cpu_hotplug();
-+	mutex_lock(&workqueue_mutex);
- 	if (singlethread) {
- 		INIT_LIST_HEAD(&wq->list);
- 		p = create_workqueue_thread(wq, singlethread_cpu);
-@@ -381,9 +380,7 @@ struct workqueue_struct *__create_workqu
- 		else
- 			wake_up_process(p);
- 	} else {
--		spin_lock(&workqueue_lock);
- 		list_add(&wq->list, &workqueues);
--		spin_unlock(&workqueue_lock);
- 		for_each_online_cpu(cpu) {
- 			p = create_workqueue_thread(wq, cpu);
- 			if (p) {
-@@ -393,7 +390,7 @@ struct workqueue_struct *__create_workqu
- 				destroy = 1;
- 		}
- 	}
--	unlock_cpu_hotplug();
-+	mutex_unlock(&workqueue_mutex);
- 
- 	/*
- 	 * Was there any error during startup? If yes then clean up:
-@@ -434,17 +431,15 @@ void destroy_workqueue(struct workqueue_
- 	flush_workqueue(wq);
- 
- 	/* We don't need the distraction of CPUs appearing and vanishing. */
--	lock_cpu_hotplug();
-+	mutex_lock(&workqueue_mutex);
- 	if (is_single_threaded(wq))
- 		cleanup_workqueue_thread(wq, singlethread_cpu);
- 	else {
- 		for_each_online_cpu(cpu)
- 			cleanup_workqueue_thread(wq, cpu);
--		spin_lock(&workqueue_lock);
- 		list_del(&wq->list);
--		spin_unlock(&workqueue_lock);
- 	}
--	unlock_cpu_hotplug();
-+	mutex_unlock(&workqueue_mutex);
- 	free_percpu(wq->cpu_wq);
- 	kfree(wq);
- }
-@@ -515,11 +510,13 @@ int schedule_on_each_cpu(void (*func)(vo
- 	if (!works)
- 		return -ENOMEM;
- 
-+	mutex_lock(&workqueue_mutex);
- 	for_each_online_cpu(cpu) {
- 		INIT_WORK(per_cpu_ptr(works, cpu), func, info);
- 		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
- 				per_cpu_ptr(works, cpu));
- 	}
-+	mutex_unlock(&workqueue_mutex);
- 	flush_workqueue(keventd_wq);
- 	free_percpu(works);
- 	return 0;
-@@ -635,6 +632,7 @@ static int __devinit workqueue_cpu_callb
- 
- 	switch (action) {
- 	case CPU_UP_PREPARE:
-+		mutex_lock(&workqueue_mutex);
- 		/* Create a new workqueue thread for it. */
- 		list_for_each_entry(wq, &workqueues, list) {
- 			if (!create_workqueue_thread(wq, hotcpu)) {
-@@ -653,6 +651,7 @@ static int __devinit workqueue_cpu_callb
- 			kthread_bind(cwq->thread, hotcpu);
- 			wake_up_process(cwq->thread);
- 		}
-+		mutex_unlock(&workqueue_mutex);
- 		break;
- 
- 	case CPU_UP_CANCELED:
-@@ -664,6 +663,15 @@ static int __devinit workqueue_cpu_callb
- 				     any_online_cpu(cpu_online_map));
- 			cleanup_workqueue_thread(wq, hotcpu);
- 		}
-+		mutex_unlock(&workqueue_mutex);
-+		break;
-+
-+	case CPU_DOWN_PREPARE:
-+		mutex_lock(&workqueue_mutex);
-+		break;
-+
-+	case CPU_DOWN_FAILED:
-+		mutex_unlock(&workqueue_mutex);
- 		break;
- 
- 	case CPU_DEAD:
-@@ -671,6 +679,7 @@ static int __devinit workqueue_cpu_callb
- 			cleanup_workqueue_thread(wq, hotcpu);
- 		list_for_each_entry(wq, &workqueues, list)
- 			take_over_work(wq, hotcpu);
-+		mutex_unlock(&workqueue_mutex);
- 		break;
- 	}
- 
-_
+ 	if (clnt->cl_pathname[0])
+ 		rpc_rmdir(clnt->cl_pathname);
++	if (clnt->cl_auth) {
++		rpcauth_destroy(clnt->cl_auth);
++		clnt->cl_auth = NULL;
++	}
+ 	if (clnt->cl_xprt) {
+ 		xprt_destroy(clnt->cl_xprt);
+ 		clnt->cl_xprt = NULL;
 
+
+
+
+
+
+> > polvi@return:~/sysops/experimental/polvi$ cat oopsmynfs.sh
+> > #!/bin/bash
+> >
+> > cd / # make sure we are not in the dir
+> >
+> > PROG=${0##*/}
+> >
+> > function usage {
+> >   cat <<EOF
+> > usage: $PROG /nfs/path/
+> >
+> > will oops sunrpc using the nfs host that serves /nfs/path/
+> > EOF
+> >   exit 1
+> > }
+> >
+> > DIR=$1
+> >
+> > [ -d "$DIR" ] || usage
+> >
+> > sudo umount $DIR 2> /dev/null # just house-keeping...
+> >
+> > sudo mount -o sec=krb5 randomfiler:/vol/to/some/share $DIR # must use krb5
+> >
+> > # with out this ls the cd below will say permission denied and not
+> > hang after the
+> > # nfs server has been turned off. It has something to do with stat64
+> > returning EACCES
+> > ls $DIR > /dev/null
+> >
+> > echo "Make the nfs server unusable by the client (turn off nfs, iptables, etc)."
+> > read -p "press enter when ready"
+> >
+> > # if the echo is hit, this script failed to oops sunrpc
+> > (cd $DIR/. ;  echo "will not cause an oops") & # this should hang
+> >
+> > sudo umount -l $DIR
+> >
+> > echo "Turn the nfs server back on and watch for the oops.  Should not
+> > take more then 10s"
+> >
+> >
+> > [  204.385339] net/sunrpc/rpc_pipe.c: rpc_lookup_parent failed to find
+> > path /nfs/clnt4/krb5
+> > [  204.385427] BUG: unable to handle kernel NULL pointer dereference
+> > at virtual address 0000006c
+> > [  204.385554]  printing eip:
+> > [  204.385595] c01d2322
+> > [  204.385678] *pde = 00000000
+> > [  204.385719] Oops: 0000 [#1]
+> > [  204.385781] SMP
+> > [  204.385875] Modules linked in: des binfmt_misc autofs4 video button
+> > battery ac nfs lockd af_packet sg sr_mod pcspkr rtc psm
+> >
+> >
+> >                                    ouse mousedev ide_disk ide_cd cdrom
+> > rpcsec_gss_krb5 auth_rpcgss sunrpc ext3 jbd mbcache thermal processor
+> > fan tg3 sd_mod ide_g
+> >
+> >
+> > eneric ata_piix libata scsi_mod generic ide_core unix
+> > [  204.387417] CPU:    0
+> > [  204.387418] EIP:    0060:[<c01d2322>]    Not tainted VLI
+> > [  204.387419] EFLAGS: 00010292   (2.6.18-rc2-git #1)
+> > [  204.387538] EIP is at _raw_spin_lock+0x12/0x170
+> > [  204.387578] eax: 00000068   ebx: 00000068   ecx: f7157d3c   edx: f7157d3c
+> > [  204.387621] esi: 00000068   edi: 00000000   ebp: f7157d00   esp: f7157cdc
+> > [  204.387664] ds: 007b   es: 007b   ss: 0068
+> > [  204.387704] Process oopsmynfs.sh (pid: 6114, ti=f7156000
+> > task=dffb5aa0 task.ti=f7156000)
+> > [  204.387748] Stack: dffb5aa0 f7157d1c c029ee7d f7157cfc f7156000
+> > f7156000 f73acd00 00000068
+> > [  204.388040]        00000000 f7157d0c c029ff7e 00000068 f7157d24
+> > f88d82cf f73acd00 f73acd00
+> > [  204.388332]        f73acecc f88e1554 f7157d50 f8cbd6a9 f73acd00
+> > f7288460 f73acd80 f73acd70
+> > [  204.388625] Call Trace:
+> > [  204.388868]  [<c029ff7e>] _spin_lock+0xe/0x10
+> > [  204.388997]  [<f88d82cf>] gss_pipe_release+0x1f/0x70 [auth_rpcgss]
+> > [  204.389075]  [<f8cbd6a9>] rpc_close_pipes+0xe9/0x130 [sunrpc]
+> > [  204.389173]  [<f8cbd91f>] rpc_depopulate+0xff/0x140 [sunrpc]
+> > [  204.389267]  [<f8cbda8d>] rpc_rmdir+0x6d/0xa0 [sunrpc]
+> > [  204.389360]  [<f8cac95e>] rpc_destroy_client+0xde/0x110 [sunrpc]
+> > [  204.389443]  [<f8cac8e1>] rpc_destroy_client+0x61/0x110 [sunrpc]
+> > [  204.389524]  [<f8cacab7>] rpc_shutdown_client+0xb7/0x120 [sunrpc]
+> > [  204.389605]  [<f8b2643b>] nfs_kill_super+0x3b/0x90 [nfs]
+> > [  204.389692]  [<c016e2c1>] deactivate_super+0x81/0xa0
+> > [  204.389858]  [<c0185522>] mntput_no_expire+0x52/0x90
+> > [  204.390039]  [<c01770da>] path_release+0x2a/0x30
+> > [  204.390211]  [<c01715cb>] vfs_stat_fd+0x4b/0x60
+> > [  204.390378]  [<c0171600>] vfs_stat+0x20/0x30
+> > [  204.390545]  [<c0171fc9>] sys_stat64+0x19/0x30
+> > [  204.390712]  [<c0102fb1>] sysenter_past_esp+0x56/0x79
+> > [  204.390787]  [<b7fff410>] 0xb7fff410
+> > [  204.390854] Code: 2b c0 89 f8 e8 00 fe ff ff e9 14 ff ff ff 8d 74
+> > 26 00 8d bc 27 00 00 00 00 55 89 e5 83 ec 24 89 5d f4 8b
+> >
+> >
+> >                                      5d 08 89 75 f8 89 7d fc <81> 7b
+> > 04 ad 4e ad de 75 4c 89 e0 25 00 e0 ff ff 8b 00 39 43 0c
+> > [  204.392662] EIP: [<c01d2322>] _raw_spin_lock+0x12/0x170 SS:ESP 0068:f7157cdc
+> >
+> > Signed-off-by: Alex Polvi <polvi@google.com>
+> > ---
+> > diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
+> > index 4a9aa93..2db3bd1 100644
+> > --- a/net/sunrpc/auth_gss/auth_gss.c
+> > +++ b/net/sunrpc/auth_gss/auth_gss.c
+> > @@ -607,6 +607,9 @@ gss_pipe_release(struct inode *inode)
+> >        struct rpc_auth *auth;
+> >        struct gss_auth *gss_auth;
+> >
+> > +       if (rpci->ops == NULL)
+> > +               return;
+> > +
+> >        clnt = rpci->private;
+> >        auth = clnt->cl_auth;
+> >        gss_auth = container_of(auth, struct gss_auth, rpc_auth);
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+>

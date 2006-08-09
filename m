@@ -1,73 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWHIS2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWHISeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWHIS2q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 14:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWHIS2q
+	id S1751305AbWHISeS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 14:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWHISeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 14:28:46 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:36785 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751300AbWHIS2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 14:28:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FnrAyIqU58YFYEIK8hGRoQQAqhSWpQaardf8qkutWxkM1kmXgCnvoHMgpT3srHDKhZZqvBJm3HUm7UOrhK5BjaYV6k1yEleViglcG14Zr/RHHYUXM5GQJBz4pdVBkMEqQXJB+p/GUGOgNJXAA8DD+T6G18+cmFyr4Nc2FB0MO6g=
-Message-ID: <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
-Date: Wed, 9 Aug 2006 20:28:34 +0200
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-To: "Michael Loftis" <mloftis@wgops.com>
-Subject: Re: ext3 corruption
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com>
+	Wed, 9 Aug 2006 14:34:18 -0400
+Received: from helium.samage.net ([83.149.67.129]:22146 "EHLO
+	helium.samage.net") by vger.kernel.org with ESMTP id S1751302AbWHISeR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 14:34:17 -0400
+Message-ID: <62411.194.109.238.121.1155148442.squirrel@194.109.238.121>
+In-Reply-To: <1155132032.12225.65.camel@twins>
+References: <20060808193325.1396.58813.sendpatchset@lappy> 
+    <20060808193345.1396.16773.sendpatchset@lappy> 
+    <42414.81.207.0.53.1155080443.squirrel@81.207.0.53> 
+    <44D92B78.20408@google.com> 
+    <35608.81.207.0.53.1155124956.squirrel@81.207.0.53> 
+    <1155128046.12225.40.camel@twins> 
+    <39903.81.207.0.53.1155131329.squirrel@81.207.0.53>
+    <1155132032.12225.65.camel@twins>
+Date: Wed, 9 Aug 2006 20:34:02 +0200 (CEST)
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+From: "Indan Zupancic" <indan@nul.nu>
+To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+Cc: "Daniel Phillips" <phillips@google.com>, netdev@vger.kernel.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com>
-	 <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>
-	 <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com>
-	 <62b0912f0608090822n2d0c44c4uc33b5b1db00e9d33@mail.gmail.com>
-	 <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Loftis wrote:
-> > Is there no intelligent ordering of
-> > shutdown events in Linux at all?
+On Wed, August 9, 2006 16:00, Peter Zijlstra said:
+> On Wed, 2006-08-09 at 15:48 +0200, Indan Zupancic wrote:
+>> On Wed, August 9, 2006 14:54, Peter Zijlstra said:
+>> > On Wed, 2006-08-09 at 14:02 +0200, Indan Zupancic wrote:
+>> >>  That avoids lots of checks and should guarantee that the
+>> >> accounting is correct, except in the case when the IFF_MEMALLOC flag is
+>> >> cleared and the counter is set to zero manually. Can't that be avoided and
+>> >> just let it decrease to zero naturally?
+>> >
+>> > That would put the atomic op on the free path unconditionally, I think
+>> > davem gets nightmares from that.
+>>
+>> I confused SOCK_MEMALLOC with sk_buff::memalloc, sorry. What I meant was
+>> to unconditionally decrement the reserved usage only when memalloc is true
+>> on the free path. That way all skbs that increased the reserve also decrease
+>> it, and the counter should never go below zero.
 >
-> The kernel doesn't perform those, your distro's init scripts do that.
+> OK, so far so good, except we loose the notion of getting memory back
+> from regular skbs.
 
-Right.  It's all just "Linux" to me ;-).
+I don't understand this, regular skbs don't have anything to do with
+rx_reserve_used as far as I can see. I'm only talking about keeping
+that field up to date and correct. rx_reserve_used is only increased
+by a skb when memalloc is set to true on that skb, so only if that field
+is set rx_reserve_used needs to be reduced when the skb is freed.
 
-(Maybe the kernel SHOULD coordinate it somehow,
- seems like some of the distros are doing a pretty bad job as is.)
+Why is it needed for the protocol specific code to call dev_unreserve_skb?
 
-> And various distros have various success at doing the right thing.  I've had
-> the best luck with Debian and Ubuntu doing this in the right order.  RH
-> seems to insist on turning off the network then network services such as
-> sshd.
+Only problem is if the device can change. rx_reserve_used should probably
+be updated when that happens, as a skb can't use reserved memory on a device
+it was moved away from. (right?)
 
-Seems things are worse than that.  Seems like it actually kills the
-block device before it has successfully (or forcefully) unmounted the
-filesystems.  Thus the killing must also be before stopping Samba,
-since that's what was (always is) holding the filesystem.
-
-It's indeed a redhat, though - Red Hat Linux release 9 (Shrike).
-
-> > Samba was serving files to remote computers and had no desire to let
-> > go of the filesystem while still running.  After 5 seconds or so,
-> > Linux just shutdown the MD device with the filesystem still mounted.
+>> Also as far as I can see it should be possible to replace all atomic
+>> "if (unlikely(dev_reserve_used(skb->dev)))" checks witha check if
+>> memalloc is set. That should make davem happy, as there aren't any
+>> atomic instructions left in hot paths.
 >
-> The kernel probably didn't do this, usually by the time the kernel gets to
-> this point init has already sent kills to everything.  If it hasn't it
-> points to problems with your init scripts, not the kernel.
+> dev_reserve_used() uses atomic_read() which isn't actually a LOCK'ed
+> instruction, so that should not matter.
 
-Ok, so LKML is not appropriate for the init script issue.
-Never mind that, I'll just try another distro when time comes.
+Perhaps, but the main reason to check memalloc instead of using
+dev_reserve_used is because the latter doesn't tell which skb did the
+reservation.
 
-I'd really like to know what the "Block bitmap for group not in group"
-message means (block bitmap is pretty self explanatory, but what's a
-group?).
+>> If IFF_MEMALLOC is set new skbs set memalloc and increase the reserve.
+>
+> Not quite, if IFF_MEMALLOC is set new skbs _could_ get memalloc set. We
+> only fall back to alloc_pages() if the regular path fails to alloc. If the
+> skb is backed by a page (as opposed to kmem_cache fluff) sk_buff::memalloc
+> is set.
 
-And what will e2fsck do to my dear filesystem if I let it have a go at it?
+Yes, true. But doesn't matter for the rx_reserve_used accounting, as long as
+memalloc set means that it did increase rx_reserve_used.
+
+> Also, I've been thinking (more pain), should I not up the reserve for
+> each SOCK_MEMALLOC socket.
+
+Up rx_reserve_used or the total ammount of reserved memory? Probably 'no' for
+both though, as it's either device specific or skb dependent.
+
+I'm slowly getting a clearer image of the big picture, I'll take another look
+when you post the updated code.
+
+Greetings,
+
+Indan
+
+

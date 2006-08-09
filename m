@@ -1,90 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWHIQHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWHIQJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWHIQHk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWHIQHk
+	id S1751096AbWHIQJA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWHIQJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:07:40 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:9918 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751090AbWHIQHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:07:39 -0400
-Date: Wed, 09 Aug 2006 12:07:26 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
- compatibilty?
-In-reply-to: <20060809184658.2bdfb169@comp.home.net>
-To: linux-kernel@vger.kernel.org
-Cc: Sergei Steshenko <steshenko_sergei@list.ru>,
-       alsa-user@lists.sourceforge.net
-Message-id: <200608091207.26156.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200608091140.02777.gene.heskett@verizon.net>
- <20060809184658.2bdfb169@comp.home.net>
-User-Agent: KMail/1.7
+	Wed, 9 Aug 2006 12:09:00 -0400
+Received: from static-ip-62-75-163-132.inaddr.intergenia.de ([62.75.163.132]:16812
+	"EHLO vs163132.vserver.de") by vger.kernel.org with ESMTP
+	id S1751096AbWHIQI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:08:58 -0400
+From: Alexander Hans <alex@ahans.de>
+To: bzolnier@gmail.com
+Subject: [PATCH 2.6.18_rc4 1/1] via82cxxx: Add support for 8237A ISA bridge
+Date: Wed, 9 Aug 2006 18:05:51 +0200
+User-Agent: KMail/1.9.3
+Cc: vojtech@ucw.cz, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <200608091805.52945.alex@ahans.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1956684.EmtyKidt4V";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 11:46, Sergei Steshenko wrote:
->On Wed, 09 Aug 2006 11:40:02 -0400
->
->Gene Heskett <gene.heskett@verizon.net> wrote:
->> Greetings;
->>
->> The old fart is back again. :)
->>
->> I've just done a divide and conquer on kernel versions, and have found
->> that while I DO have a kde audio signon for kernels 2.6.18-rc1-rc3-rc4,
->> I do not have any other functioning audio, including the kde sound
->> effects I normally get.  xmms and tvtime are mute, as are the firefox
->> plugins to play videos from the network. 2.6.17.8 and below works great
->> yet.
->>
->> So whats the fix?
->
->Demand stable ABI.
+--nextPart1956684.EmtyKidt4V
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-It does not appear to be so.  And ATM booted to 18-rc1, I didn't see an 
-error message when rc.local made a call of "[root@coyote gene]# alsactl 
-restore
-alsactl: set_control:894: warning: name mismatch (Mic Boost (+20dB)/Mic 
-Boost (+20dB) Switch) for control #45
-alsactl: set_control:896: warning: index mismatch (0/0) for control #45
-alsactl: set_control:898: failed to obtain info for control #45 (Operation 
-not permitted)
-[root@coyote gene]#
+Hello,
 
-But as you can see, the error was there nontheless.  I've seen this or a 
-very similar error for .18-rc3 and .18-rc4.
+Some mainboards (e.g. Asrock 775Dual-VSTA) come with a
+PCI_DEVICE_ID_VIA_82C586_1 IDE controller together with a VIA VT8237A
+southbridge.
 
-This walks and qwacks like the alsa interface has been diddled, again.  But 
-since it KNOWS what hardware its running, in this case an audigy 2, not 
-Value, so why was apparently working code broken and then commited to the 
-kernel tree?
+While the corresponding PCI ID is already present in pci_ids.h, the via82cxxx
+driver doesn't know about it yet and disables DMA.
 
-Humm, because of my use of 2 independant audio channels here, I'm forced to 
-use kamix in order to address both systems.  And I found it!  Somehow, 
-that card managed to get its "external amplifier" 'led' turned on, which 
-apparently kills the normal line outs that drive my speakers.  The display 
-also looks slightly busier, like another slider has been added?
+Signed-off-by: Alexander Hans <alex@ahans.de>
 
-Now to check the newer kernels again after doing an 'alsactl store' from 
-the cli.  Once I've done that, the above error is not repeated.
+--
 
-And, even kookier, is that after doing the alsactl store, the external 
-amplifier button no longer effects it.  Anybody got any migrain medicine?
+--- a/drivers/ide/pci/via82cxxx.c	2006-08-09 17:49:38.000000000 +0200
++++ b/drivers/ide/pci/via82cxxx.c	2006-08-09 17:53:38.578053677 +0200
+@@ -6,7 +6,7 @@
+  *
+  *   vt82c576, vt82c586, vt82c586a, vt82c586b, vt82c596a, vt82c596b,
+  *   vt82c686, vt82c686a, vt82c686b, vt8231, vt8233, vt8233c, vt8233a,
+- *   vt8235, vt8237
++ *   vt8235, vt8237, vt8237a
+  *
+  * Copyright (c) 2000-2002 Vojtech Pavlik
+  *
+@@ -81,6 +81,7 @@
+ 	{ "vt6410",	PCI_DEVICE_ID_VIA_6410,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8251",	PCI_DEVICE_ID_VIA_8251,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
++	{ "vt8237a",	PCI_DEVICE_ID_VIA_8237A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8233c",	PCI_DEVICE_ID_VIA_8233C_0,  0x00, 0x2f, VIA_UDMA_100 },
 
-And tvtime now has a voice too, goodie.. :)
+--nextPart1956684.EmtyKidt4V
+Content-Type: application/pgp-signature
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+
+iD8DBQBE2gfgqFtLGM/cY+MRAkSdAKCtzSxXR3W4t0ptJPTY17j9JxzBJACdEes4
+WEHe1lI5UzuSc/zd3j6X/Is=
+=D0cU
+-----END PGP SIGNATURE-----
+
+--nextPart1956684.EmtyKidt4V--

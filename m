@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWHIOVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHIObm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWHIOVH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 10:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWHIOVH
+	id S1750894AbWHIObm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWHIObm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 10:21:07 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:5938 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750866AbWHIOVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 10:21:05 -0400
+	Wed, 9 Aug 2006 10:31:42 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:48520 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750894AbWHIObm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:31:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i1Rmop7TrMUDC2BIao6OczZHHR6e8L1lct+vr4ja0rk3ddeU/x9uSbJd/NDFz/xEJZLcyFYKt3VGJjpssW92L5uaLnhvlOorzJzYbzfKNBgtRXayNSrucoeZXDvhLoiHG81SHYIjnz/fmSbUg9zN4ejGLEVjSecGHh9tGAFDC3o=
-Message-ID: <6bffcb0e0608090720g2ac739desd25a77e3c98ef268@mail.gmail.com>
-Date: Wed, 9 Aug 2006 16:20:57 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=iK4P4+WOy8ma6lXIfw9LFOyNfzvA4xkeXV+jCQQp5xTrKkoMUdkPXyiXRoooRzcEG3Xl3Bn/iq4uDZ9ijsciCFU4Xc0gnupyfz/FuSB/dUeMKfAHCeseZ7jnFx8UwuGvWtvAzwLek3Es+dnErlKZUUZUJHn0RSO4m8hLB937RZ8=
+Message-ID: <44D9F1D7.7050407@gmail.com>
+Date: Wed, 09 Aug 2006 16:31:28 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
+To: sasha <sasha@scalemp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Map memory to user, then map it back to kernel
+References: <44D98BF3.5060706@scalemp.com>
+In-Reply-To: <44D98BF3.5060706@scalemp.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> The mm snapshot broken-out-2006-08-08-00-59.tar.gz has been uploaded to
->
->    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-08-00-59.tar.gz
->
+sasha wrote:
+> Hi folks.
+> 
+> I am looking for a way to map a memory (allocated with get_free_pages()) 
+> from kernel space to user space, so that I will later be able to map it 
+> back with get_user_pages().
+> 
+> I tried remap_pfn_range(), but it didn't work as it assumes the memory 
+> being mapped is IO range (marking vma with VM_IO flag), while 
+> get_user_pages() works on regular memory.
+> 
+> Any ideas?
 
-When I want to halt system I type "init 0", but it stops on
+VM_IO flag means not to swap this memory and don't do any side-effects bound 
+with that IIRC.
 
-Halting system...
-Synchronizing SCSI cache for disk sda
-Shutdown: hda
+If you want to mmap some memory in kernel to allow userspace to be able to read 
+from it, just remap and don't care. I actually don't understand, what you mean 
+by remapping it back to kernelspace, can you be more specific?
 
-Problem appears on 2.6.18-rc3-mm*. I guess that this is an IDE or ACPI bug.
-I'll revert IDE and ACPI patches. If it won't help, I'll do binary search.
+Caveat of get_free_pages is that it allocates physically contiguous memory and 
+this may fail in later times, when the memory is not so free. You can use 
+virtual memory to avoid this: vmalloc_32_user, remap_vmalloc_range, vfree.
 
-Regards,
-Michal
-
+regards,
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

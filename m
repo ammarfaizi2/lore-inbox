@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWHIUEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWHIUEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWHIUEW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 16:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWHIUEW
+	id S1751341AbWHIUEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 16:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHIUEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 16:04:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22155 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751339AbWHIUEV (ORCPT
+	Wed, 9 Aug 2006 16:04:50 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:58595 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751341AbWHIUEt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 16:04:21 -0400
-Date: Wed, 9 Aug 2006 16:06:42 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: fastboot@osdl.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       linux-kernel@vger.kernel.org, vgoyal@in.ibm.com
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060809200642.GD7861@redhat.com>
-References: <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com> <20060804210826.GE16231@redhat.com> <m164h8p50c.fsf@ebiederm.dsl.xmission.com> <20060804234327.GF16231@redhat.com> <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com> <20060807174439.GJ16231@redhat.com> <m17j1kctb8.fsf@ebiederm.dsl.xmission.com> <20060807235727.GM16231@redhat.com> <m1ejvrakhq.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Aug 2006 16:04:49 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
+Date: Wed, 9 Aug 2006 22:04:13 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Linux ACPI <linux-acpi@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>
+References: <200608091426.31762.rjw@sisk.pl> <1155145440.5418.21.camel@localhost.localdomain>
+In-Reply-To: <1155145440.5418.21.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m1ejvrakhq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200608092204.13711.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looking at my build it appears bytes_out is being placed in the .bss.
-> A little odd since it is zero initialized but no big deal.
-> Could you confirm that bytes_out is being placed in the .bss section 
-> by inspecting arch/x86_64/boot/compresssed/misc.o and
-> arch/x86_64/boot_compressed/vmlinux.   "readelf -a $file" and then
-> looking up the section number and looking at the section table to see
-> which section it is was my technique.
+On Wednesday 09 August 2006 19:44, john stultz wrote:
+> On Wed, 2006-08-09 at 14:26 +0200, Rafael J. Wysocki wrote:
+> > It looks like the CMOS clock gets corrupted during the suspend to disk
+> > on i386.  I've observed this on 2 different boxes.  Moreover, one of them is
+> > AMD64-based and the x86_64 kernel doesn't have this problem on it.
+> > 
+> > Also, I've done some tests that indicate the corruption doesn't occur before
+> > saving the suspend image.  It rather happens when the box is powered off
+> > or rebooted (tested both cases).
 > 
-> If bytes_out is in the .bss for you then I suspect something is not
-> correctly zeroing the .bss.  Or else the .bss is being stomped.
-> 
-> I'm not certain how rep stosb can be done wrong but some bad pointer
-> math could have done it.
-> 
-> Eric
+> Hmmm. Could you better describe the corruption you're seeing? 
 
-It seems Vivek came up with a solution that works.  He sent it to me this
-morning.  We tested a bunch of machines and things seem to work now.  It
-looks like it mimics the i386 behaviour now.
+After I do "echo disk > /sys/power/state" and the system suspends, the
+CMOS clock settings, as visible via the BIOS setup, are more or less random.
 
-Cheers,
-Don
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- arch/x86_64/boot/compressed/head.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN arch/x86_64/boot/compressed/head.S~x86_64-bss-clearing-test
-arch/x86_64/boot/compressed/head.S
----
-linux-2.6.18-rc3-1M/arch/x86_64/boot/compressed/head.S~x86_64-bss-clearing-test
-2006-08-09 09:43:17.000000000 -0400
-+++ linux-2.6.18-rc3-1M-root/arch/x86_64/boot/compressed/head.S 2006-08-09
-09:43:34.000000000 -0400
-@@ -235,8 +235,8 @@ relocated:
- /*
-  * Clear BSS
-  */
--       movq    $_edata, %rdi
--       movq    $_end, %rcx
-+        leaq    _edata(%rbx), %rdi
-+        leaq    _end(%rbx), %rcx
-        subq    %rdi, %rcx
-        cld
-        rep
-_
-
+Rafael

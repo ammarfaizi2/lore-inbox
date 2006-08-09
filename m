@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWHIWoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHIWpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWHIWoa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWHIWo3
+	id S1751413AbWHIWpe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 18:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWHIWpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:44:29 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:38472 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751411AbWHIWo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:44:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZEIz3mXeHEeVYqKUmCUDXVvGEgRnul6TTDlXfKHwcuwYmH73Wbumv0FBbMzm4cNCppegnDS1NdCwUgMplXbrpHp5UilCQrnN63v5MNfoC6aM4ZHdYJxuYrsZPTyWlVOtfYUouELhN7Z62lYVMWU4ibSK2J1tyTePCLBcviDaT8s=
-Message-ID: <6bffcb0e0608091544l376c37c6j5c766b38426c318b@mail.gmail.com>
-Date: Thu, 10 Aug 2006 00:44:28 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
-Cc: "Jens Axboe" <axboe@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0608090720g2ac739desd25a77e3c98ef268@mail.gmail.com>
+	Wed, 9 Aug 2006 18:45:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:26898 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751413AbWHIWpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 18:45:33 -0400
+Date: Thu, 10 Aug 2006 00:45:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Pavel Machek <pavel@suse.cz>,
+       Josh Boyer <jwboyer@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+Message-ID: <20060809224529.GH3691@stusta.de>
+References: <200608091749_MC3-1-C796-5E8D@compuserve.com> <20060809220048.GE3691@stusta.de> <20060809221854.GA15395@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
-	 <6bffcb0e0608090720g2ac739desd25a77e3c98ef268@mail.gmail.com>
+In-Reply-To: <20060809221854.GA15395@kroah.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Aug 09, 2006 at 03:18:54PM -0700, Greg KH wrote:
+> On Thu, Aug 10, 2006 at 12:00:49AM +0200, Adrian Bunk wrote:
+> > On Wed, Aug 09, 2006 at 05:45:53PM -0400, Chuck Ebbert wrote:
+> > > In-Reply-To: <20060808195509.GR3691@stusta.de>
+> > > 
+> > > On Tue, 8 Aug 2006 21:55:10 +0200, Adrian Bunk wrote:
+> > > 
+> > > > > > > I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
+> > > > > > > it still queued or should I resend?
+> > > > > > 
+> > > > > > Is this "pdflush: handle resume wakeups"?
+> > > > > 
+> > > > > Yes. Do you have it somewhere or should I dig it up?
+> > > > 
+> > > > I've applied it.
+> > > 
+> > > Umm, is there some place we can check to see what you've applied?
+> > 
+> > git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+> 
+> No, I would not use the main git tree to queue patches up.  What happens
+> when you want to rip the middle one out because in review it turns out
+> that it is incorrect?
 
-On 09/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> On 08/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> > The mm snapshot broken-out-2006-08-08-00-59.tar.gz has been uploaded to
-> >
-> >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-08-00-59.tar.gz
-> >
->
-> When I want to halt system I type "init 0", but it stops on
->
-> Halting system...
-> Synchronizing SCSI cache for disk sda
-> Shutdown: hda
->
-> Problem appears on 2.6.18-rc3-mm*. I guess that this is an IDE or ACPI bug.
-> I'll revert IDE and ACPI patches. If it won't help, I'll do binary search.
+  git-revert
 
-It's a git-block.patch
+> Please use a quilt tree of patches instead, and then only commit the
+> patches when you do a release.  It's much simpler that way.
 
-Jens, can you look at this?
+The way I'm doing it it's more the way the 2.4 and 2.6 trees work than 
+how the -stable tree works.
 
-Here is a config file
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm1/mm-config2
+I prefer it the way I'm doing it.
 
-Regards,
-Michal
+If it turns out I was wrong I can always switch to a quilt tree.
+
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

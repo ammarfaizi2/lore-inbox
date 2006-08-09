@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030629AbWHIKCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWHIKJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030629AbWHIKCz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 06:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWHIKCz
+	id S1030612AbWHIKJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 06:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWHIKJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 06:02:55 -0400
-Received: from web25801.mail.ukl.yahoo.com ([217.12.10.186]:52093 "HELO
-	web25801.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030629AbWHIKCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 06:02:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=cj66T7o34OsUTdCIn92yRe/cRMujrO3QDI1XxeAfiRaKyDeX6VI4o5axJJTcxpr+GA2bvbpkVQl8Mcs/HGD96ziG7w/O8D4eIZ/ByX+hWvgCBXKJHvR2FAmKwRUAwducY7je1NbWFuHsZC99u5PEslALKChvU7M1vwO24hESGt4=  ;
-Message-ID: <20060809100253.78092.qmail@web25801.mail.ukl.yahoo.com>
-Date: Wed, 9 Aug 2006 10:02:53 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : [HW_RNG] How to use generic rng in kernel space
-To: Michael Buesch <mb@bu3sch.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608081934.31694.mb@bu3sch.de>
+	Wed, 9 Aug 2006 06:09:52 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:28012 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030612AbWHIKJv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 06:09:51 -0400
+Message-ID: <44D9B4C4.90304@sw.ru>
+Date: Wed, 09 Aug 2006 14:11:16 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, viro@zeniv.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mishin Dmitry <dim@openvz.org>
+Subject: Re: [PATCH] move IMMUTABLE|APPEND checks to notify_change()
+References: <44D87907.6090706@sw.ru> <20060808203814.GO29920@ftp.linux.org.uk>
+In-Reply-To: <20060808203814.GO29920@ftp.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> On Tuesday 08 August 2006 17:39, moreau francis wrote:
->> Michael Buesch wrote:
->>> So, if you have a special hwrng on your embedded board and you
->>> have some special driver in that board, why not interface
->>> directly from the driver to the hwrng-driver?
->> This is what I'm currently doing. I was just thinking to use the
->> new HW-RNG layer and drop common code...
+Al Viro wrote:
+> On Tue, Aug 08, 2006 at 03:44:07PM +0400, Kirill Korotaev wrote:
+> 
+>>[PATCH] move IMMUTABLE|APPEND checks to notify_change()
 >>
->>> This is all pretty special case.
->>> In the hwrng-driver you could still additionally do a
->>> hrwng_register() to export the functionality to
->>> userspace, though.
->>>
->> yes I would like to do that but there is a problem: I have no 
->> access to "rng_mutex" to synchronise hw accesses and I'm
->> wondering if there's any issue to use a mutex in driver init
->> code.
+>>This patch moves lots of IMMUTABLE and APPEND flag checks
+>>scattered all around to more logical place in notify_change().
 > 
-> Use your own mutex or spinlock in the data_read callback
-> and use that to serialize accesses to the hardware.
+>  
+> NAK.  For example, you are allowed to do unames(file, NULL) on
+> any file you own or can write to, whether it's append-only or
+> not.  With your change that gets -EPERM.
 > 
 
-I think I miss something there but I need to lock this whole
-sequence when reading a random data:
+Does such check in notify_change() looks better for you?
 
-    lock(hwrng);
-    rng_data_present();
-    rng_data_read();
-    unlock(hwrng);
+notify_change():
+        if (IS_IMMUTABLE(inode))
+                return -EPERM;
+        if (IS_APPEND(inode) &&
+                        (ia_valid & ~(ATTR_CTIME | ATTR_MTIME | ATTR_ATIME)))
+                return -EPERM;
 
-not only data_read callback. To do that I can only use "rng_mutex",
-no ?
-
-thanks
-
-Francis
-
-
+Thanks,
+Kirill

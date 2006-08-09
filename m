@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWHIOLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWHIOLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWHIOLL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 10:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWHIOLL
+	id S1750880AbWHIOLp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWHIOLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 10:11:11 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:6080 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750869AbWHIOLK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 10:11:10 -0400
-Date: Wed, 9 Aug 2006 15:11:00 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dmitry Mishin <dim@openvz.org>
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       viro@zeniv.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] move IMMUTABLE|APPEND checks to notify_change()
-Message-ID: <20060809141100.GP29920@ftp.linux.org.uk>
-References: <44D87907.6090706@sw.ru> <20060808203814.GO29920@ftp.linux.org.uk> <200608091115.12949.dim@openvz.org>
+	Wed, 9 Aug 2006 10:11:45 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:35996 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750880AbWHIOLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:11:44 -0400
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: Daniel Phillips <phillips@google.com>, David Miller <davem@davemloft.net>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060809131942.GY14627@postel.suug.ch>
+References: <20060808193345.1396.16773.sendpatchset@lappy>
+	 <20060808211731.GR14627@postel.suug.ch> <44D93BB3.5070507@google.com>
+	 <20060808.183920.41636471.davem@davemloft.net>
+	 <44D976E6.5010106@google.com>  <20060809131942.GY14627@postel.suug.ch>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 16:07:20 +0200
+Message-Id: <1155132440.12225.70.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608091115.12949.dim@openvz.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.7.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 11:15:12AM +0400, Dmitry Mishin wrote:
-> Do you meant utimes(file, NULL)?
-> But is it correct behaviour? Why then do you get -EPERM on utimes(file, smth) 
-> if the file is append-only? And why do you get -EACCESS on utimes(file, 
-> NULL), if this file is immutable?
+On Wed, 2006-08-09 at 15:19 +0200, Thomas Graf wrote:
+> * Daniel Phillips <phillips@google.com> 2006-08-08 22:47
+> > David Miller wrote:
+> > >From: Daniel Phillips <phillips@google.com>
+> >  >>Can you please characterize the conditions under which skb->dev changes
+> > >>after the alloc?  Are there writings on this subtlety?
+> > >
+> > >The packet scheduler and classifier can redirect packets to different
+> > >devices, and can the netfilter layer.
+> > >
+> > >The setting of skb->dev is wholly transient and you cannot rely upon
+> > >it to be the same as when you set it on allocation.
+> > >
+> > >Even simple things like the bonding device change skb->dev on every
+> > >receive.
+> > 
+> > Thankyou, this is easily fixed.
 > 
-> Could you explain, why is it done so?
+> It's not that simple, in order to just fix the most obvious case
+> being packet forwarding when skb->dev changes its meaning from
+> device the packet is coming from to device the packet will be leaving
+> on is difficult.
+> 
+> You can't unreserve at that point so you need to keep the original
+> skb->dev. Since the packet is mostly likely queued before freeing
+> you will lose the refcnt on the original skb->dev. Keeping a
+> refcnt just for this memalloc stuff is out of question. Even keeping
+> the ifindex on a best effort basis is unlikely an option, sk_buff is
+> way overweight already.
 
-RTFPOSIX...
+I think Daniel was thinking of adding struct net_device *
+sk_buff::alloc_dev,
+I know I was after reading the first few mails. However if adding a
+field 
+there is strict no-no....
 
-Short version:
-	* immutable files are immutable, including metadata
-	* append-only files may be touched (when you write to the end), which
-means that you can touch them.  Which is what utimes(file, NULL) does.
-	* you can not truncate append-only file, overwrite already written
-data or set timestamps to arbitrary values.
+/me takes a look at struct sk_buff
 
-That's where the difference between utimes(file, NULL) and utimes(file, p)
-is - the former basically is a write-without-write ("touch foo") and the
-latter directly assigns to timestamps.  Permissions needed for these are
-obviously different.
+Hmm, what does sk_buff::input_dev do? That seems to store the initial
+device?
 
-Please, read POSIX/SuS when modifying behaviour of syscalls.  Really.
+

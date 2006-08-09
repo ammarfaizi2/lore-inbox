@@ -1,80 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWHIMXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWHIMYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWHIMXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWHIMXJ
+	id S1750704AbWHIMYT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWHIMYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:23:09 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:8104 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750702AbWHIMXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:23:08 -0400
-Date: Wed, 9 Aug 2006 14:21:34 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, dean gaudet <dean@arctic.org>,
-       David Lang <dlang@digitalinsight.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-Message-ID: <20060809122134.GF27863@wohnheim.fh-wedel.de>
-References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de> <1154797123.12108.6.camel@kleikamp.austin.ibm.com> <1154797475.3054.79.camel@laptopd505.fenrus.org> <20060805183609.GA7564@tuatara.stupidest.org> <20060805222247.GQ29686@ca-server1.us.oracle.com> <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz> <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org> <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober>
+	Wed, 9 Aug 2006 08:24:19 -0400
+Received: from natblert.rzone.de ([81.169.145.181]:29352 "EHLO
+	natblert.rzone.de") by vger.kernel.org with ESMTP id S1750704AbWHIMYS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:24:18 -0400
+Date: Wed, 9 Aug 2006 14:24:09 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: dependency errors in scripts/ and arch/powerpc/boot
+Message-ID: <20060809122409.GA4596@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060809063947.GA13474@goober>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 August 2006 23:39:49 -0700, Valerie Henson wrote:
-> On Sat, Aug 05, 2006 at 09:01:47PM -0600, Matthew Wilcox wrote:
-> > On Sat, Aug 05, 2006 at 04:28:29PM -0700, dean gaudet wrote:
-> > > you can work around mutt's silly dependancy on atime by configuring it 
-> > > with --enable-buffy-size.  so far mutt is the only program i've discovered 
-> > > which cares about atime.
-> > 
-> > For the shell, atime is the difference between 'you have mail' and 'you
-> > have new mail'.
-> > 
-> > I still don't understand though, how much does this really buy us over
-> > nodiratime?
-> 
-> Lazy atime buys us a reduction in writes over nodiratime for any
-> workload which reads files, such as grep -r, a kernel compile, or
-> backup software.  Do I misunderstand the question?
 
-At the risk of stating the obvious, let me try to explain what each
-method does:
+Sam,
 
-1. standard
-Every read access to a file/directory causes an atime update.
+this script results in build errors because stuff in scripts/ and boot/
+doesnt get rebuilt if the source dir changes. I was under the impression
+that the absolute path of the source dir is part of the build dependency.
+Even going from 2.6.18 to 2.6.17 fails.
+This used to work with older kernels, I think.
 
-2. nodiratime
-Every read access to a non-directory causes an atime update.
+#!/bin/bash
+set -ex
+mydir=/dev/shm/$PPID
+numcpus=`grep -Ec '^cpu[0-9]' /proc/stat || echo 1`
 
-3. lazy atime
-The first read access to a file/directory causes an atime update.
+rm -rf $mydir
+mkdir -p $mydir
+cd $mydir
+mkdir O
 
-4. noatime
-No read access to a file/directory causes an atime update.
+tar xfz /mounts/mirror/kernel/v2.6/linux-2.6.17.8.tar.gz
+tar xfz /mounts/mirror/kernel/v2.6/testing/linux-2.6.18-rc4.tar.gz
+cd linux-2.6.18-rc4
+cp arch/powerpc/configs/pseries_defconfig ../O/.config
+yes '' | make -j$numcpus O=../O oldconfig > /dev/null
+make -j$numcpus O=../O zImage > /dev/null
+cd ../linux-2.6.17.8
+make -j$numcpus O=../O zImage
 
-In comparison, lazy atime will cause more atime updates for
-directories and vastly fewer for non-directories.  Effectively atime
-is turned into little more than a flag, stating whether the file was
-ever read since the last write to it.  And it appears as if neither
-mutt nor the shell use atime for more than this flagging purpose, so I
-am rather fond of the idea.
 
-J�rn
+...
 
--- 
-The cheapest, fastest and most reliable components of a computer
-system are those that aren't there.
--- Gordon Bell, DEC labratories
++ cd ../linux-2.6.17.8
++ make -j14 O=../O zImage
+  GEN     /dev/shm/13410/O/Makefile
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  Using /dev/shm/13410/linux-2.6.17.8 as source for kernel
+  GEN     /dev/shm/13410/O/Makefile
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/basic/split-include
+  HOSTCC  scripts/basic/docproc
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/kxgettext.o
+  HOSTCC  scripts/kconfig/mconf.o
+  HOSTCC  scripts/kconfig/zconf.tab.o
+In file included from scripts/kconfig/zconf.tab.c:158:
+scripts/kconfig/zconf.hash.c: In function ‘kconf_id_lookup’:
+scripts/kconfig/zconf.hash.c:190: error: ‘T_OPT_DEFCONFIG_LIST’ undeclared (first use in this function)
+scripts/kconfig/zconf.hash.c:190: error: (Each undeclared identifier is reported only once
+scripts/kconfig/zconf.hash.c:190: error: for each function it appears in.)
+scripts/kconfig/zconf.hash.c:190: error: ‘TF_OPTION’ undeclared (first use in this function)
+scripts/kconfig/zconf.hash.c:203: error: ‘T_OPT_MODULES’ undeclared (first use in this function)
+scripts/kconfig/zconf.tab.c: In function ‘zconfparse’:
+scripts/kconfig/zconf.tab.c:1557: error: ‘TF_OPTION’ undeclared (first use in this function)
+scripts/kconfig/zconf.tab.c:1557: error: invalid operands to binary &
+scripts/kconfig/zconf.tab.c:1558: warning: implicit declaration of function ‘menu_add_option’
+make[3]: *** [scripts/kconfig/zconf.tab.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+make[2]: *** [silentoldconfig] Error 2
+make[1]: *** [include/linux/autoconf.h] Error 2
+make: *** [zImage] Error 2
+

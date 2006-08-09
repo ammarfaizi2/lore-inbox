@@ -1,51 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWHIWE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWHIWGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWHIWE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWHIWE4
+	id S1751395AbWHIWGF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 18:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWHIWGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:04:56 -0400
-Received: from xenotime.net ([66.160.160.81]:29609 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751393AbWHIWEz (ORCPT
+	Wed, 9 Aug 2006 18:06:05 -0400
+Received: from mx02.stofanet.dk ([212.10.10.12]:11984 "EHLO mx02.stofanet.dk")
+	by vger.kernel.org with ESMTP id S1751395AbWHIWGD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:04:55 -0400
-Date: Wed, 9 Aug 2006 15:07:37 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Brian McGrew <brian@visionpro.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Upgrading kernel across multiple machines
-Message-Id: <20060809150737.7a0c99ee.rdunlap@xenotime.net>
-In-Reply-To: <C0FFA739.8986%brian@visionpro.com>
-References: <C0FFA739.8986%brian@visionpro.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 18:06:03 -0400
+Date: Thu, 10 Aug 2006 00:05:57 +0200 (CEST)
+From: Esben Nielsen <nielsen.esben@gogglemail.com>
+X-X-Sender: simlo@frodo.shire
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Steven Rostedt <rostedt@goodmis.org>, Robert Crocombe <rcrocomb@gmail.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re:
+ Problems with 2.6.17-rt8
+In-Reply-To: <20060808030524.GA20530@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.64.0608090050500.23474@frodo.shire>
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
+ <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
+ <1154541079.25723.8.camel@localhost.localdomain>
+ <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
+ <1154615261.32264.6.camel@localhost.localdomain> <20060808025615.GA20364@gnuppy.monkey.org>
+ <20060808030524.GA20530@gnuppy.monkey.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Aug 2006 14:52:41 -0700 Brian McGrew wrote:
 
-> Hello,
-> 
-> I'm using a Dell PE1800 and I've built a new 2.6.16.16 kernel on the machine
-> that works fine.  However, if I tar up /lib/modules/2.6.16.16 and /boot and
-> move it onto another Dell PE1800 running the exact same software (FC3/Stock
-> install) the new kernel doesn't boot.
-> 
-> On machine #1 life is good but moving it to machine #2, I get
-> 
-> /lib/ata_piix.ko: -l unknown symbol in module.
-> 
-> What am I missing?  Someone help please, I'm in a major time crunch!
 
-Hi again,
-Were you able to get any more kernel log messages?
-They will say exactly which symbol(s) is missing.
+On Mon, 7 Aug 2006, Bill Huey wrote:
 
-Maybe adding "debug" to the kernel command line would produce more
-messages, although many init scripts change that setting (ugh).
+> On Mon, Aug 07, 2006 at 07:56:15PM -0700, Bill Huey wrote:
+>> On Thu, Aug 03, 2006 at 10:27:41AM -0400, Steven Rostedt wrote:
+>>
+>> ...(output and commentary a log deleted)...
+>>
+>>> This could also have a side effect that messes things up.
+>>>
+>>> Unfortunately, right now I'm assigned to other tasks and I cant spend
+>>> much more time on this at the moment.  So hopefully, Ingo, Thomas or
+>>> Bill, or someone else can help you find the reason for this problem.
+>>
+>> Steve and company,
+>>
+>> Speaking of which, after talking to Steve about this and confirming this
+>> with a revert of changes. put_task_struct() can't deallocated memory from
+>> either the zone or SLAB cache without taking a sleeping lock. It can't
+>> be called directly from finish_task_switch to reap the thread because of
+>> that (violation in atomic).
+>>
+>> It is for this reason the RCU call back to delay processing was put into
+>> place to reap threads and was, seemingly by accident, missing from
+>> patch-2.6.17-rt7 to -rt8. That is what broke it in the first place.
+>>
+>> I tested it with a "make -j4" which triggers the warning and it they all
+>> go away now.
+>>
+>> Reverse patch attached:
+>
+> Resend with instrumentation code removed:
+>
+> bill
+>
+>
 
----
-~Randy
+I had a long discussion with Paul McKenney about this. I opposed the patch 
+from a latency point of view: Suddenly a high-priority RT task could be 
+made into releasing a task_struct. It would be better for latencies to 
+defer it to a low priority task.
+
+The conclusion we ended up with was that it is not a job for the RCU 
+system, but it ought to be deferred to some other low priority task to 
+free the task_struct.
+
+Esben
+

@@ -1,150 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbWHIHyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWHIH7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030363AbWHIHyW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 03:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWHIHyW
+	id S1030402AbWHIH7I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 03:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWHIH7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 03:54:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26311 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030363AbWHIHyV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 03:54:21 -0400
-Date: Wed, 9 Aug 2006 00:54:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrew Clayton <andrew@digital-domain.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc strange hotplug/udev/uevent problem
-Message-Id: <20060809005416.82f30445.akpm@osdl.org>
-In-Reply-To: <20060809014104.0be41976@alpha.digital-domain.net>
-References: <44D79574.8080703@digital-domain.net>
-	<20060808060211.GA3206@kroah.com>
-	<20060809014104.0be41976@alpha.digital-domain.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 9 Aug 2006 03:59:08 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63367
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965053AbWHIH7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 03:59:07 -0400
+Date: Wed, 09 Aug 2006 00:58:56 -0700 (PDT)
+Message-Id: <20060809.005856.104034268.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, netdev@vger.kernel.org,
+       zach.brown@oracle.com
+Subject: Re: [take6 0/3] kevent: Generic event handling mechanism.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <11551105592821@2ka.mipt.ru>
+References: <20060731103322.GA1898@2ka.mipt.ru>
+	<11551105592821@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Aug 2006 01:41:04 +0100
-Andrew Clayton <andrew@digital-domain.net> wrote:
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Wed, 9 Aug 2006 12:02:39 +0400
 
-> On Mon, 7 Aug 2006 23:02:11 -0700, Greg KH wrote:
->  
-> > Can you use 'git bisect' to try to narrow it down which change caused
-> > the problem?
-> 
-> I did 
-> 
-> git bisect start drivers/scsi drivers/usb
-> git bad v2.6.18-rc1
-> git good v2.6.17
-> 
-> Heres what git bisect came up with
-> 
-> c32ba30f76eb18b3d4449072fe9c345a9574796b is first bad commit
-> commit c32ba30f76eb18b3d4449072fe9c345a9574796b
-> Author: Paul Serice <paul@serice.net>
-> Date:   Wed Jun 7 10:23:38 2006 -0700
-> 
->     [PATCH] USB: EHCI works again on NVidia controllers with >2GB RAM
-> 
->     From: Paul Serice <paul@serice.net>
-> 
->     The workaround in commit f7201c3dcd7799f2aa3d6ec427b194225360ecee
->     broke.  The work around requires memory for DMA transfers for some
->     NVidia EHCI controllers to be below 2GB, but recent changes have
->     caused some DMA memory to be allocated before the DMA mask is set.
-> 
->     Signed-off-by: Paul Serice <paul@serice.net>
->     Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
->     Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> :040000 040000 754a9f8cccedc71e8e3689f2b0dee811d94fdc11 5559c0eafe042377430052272d027f0458805126 M      drivers
-> 
-> 
-> What would be the way to revert that patch from 2.6.18-rc4 to confirm it's the culprit?
->  
+Evgeniy, it's things like the following that make it very draining
+mentally to review your work.
 
-Here's a backout patch, against 2.6.18-rc4:
+>  * removed AIO stuff from patchset
 
-From: Andrew Morton <akpm@osdl.org>
+You didn't really do this, you leave the aio_* syscalls and stubs in
+there, and you also left things like tcp_async_send() in there.
 
-Revert c32ba30f76eb18b3d4449072fe9c345a9574796b: it broke Andrew Clayton's
-machine.
+All the foo_naio_*() stuff is still in there to.
 
-Cc: Andrew Clayton <andrew@digital-domain.net>
-Cc: Paul Serice <paul@serice.net>
-Cc: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Please remove all of async business we've asked you to.
 
- drivers/usb/host/ehci-pci.c |   39 +++++++++++++---------------------
- 1 file changed, 15 insertions(+), 24 deletions(-)
-
-diff -puN drivers/usb/host/ehci-pci.c~revert-usb-ehci-works-again-on-nvidia-controllers-with-2gb-ram drivers/usb/host/ehci-pci.c
---- a/drivers/usb/host/ehci-pci.c~revert-usb-ehci-works-again-on-nvidia-controllers-with-2gb-ram
-+++ a/drivers/usb/host/ehci-pci.c
-@@ -76,30 +76,6 @@ static int ehci_pci_setup(struct usb_hcd
- 	dbg_hcs_params(ehci, "reset");
- 	dbg_hcc_params(ehci, "reset");
- 
--        /* ehci_init() causes memory for DMA transfers to be
--         * allocated.  Thus, any vendor-specific workarounds based on
--         * limiting the type of memory used for DMA transfers must
--         * happen before ehci_init() is called. */
--	switch (pdev->vendor) {
--	case PCI_VENDOR_ID_NVIDIA:
--		/* NVidia reports that certain chips don't handle
--		 * QH, ITD, or SITD addresses above 2GB.  (But TD,
--		 * data buffer, and periodic schedule are normal.)
--		 */
--		switch (pdev->device) {
--		case 0x003c:	/* MCP04 */
--		case 0x005b:	/* CK804 */
--		case 0x00d8:	/* CK8 */
--		case 0x00e8:	/* CK8S */
--			if (pci_set_consistent_dma_mask(pdev,
--						DMA_31BIT_MASK) < 0)
--				ehci_warn(ehci, "can't enable NVidia "
--					"workaround for >2GB RAM\n");
--			break;
--		}
--		break;
--	}
--
- 	/* cache this readonly data; minimize chip reads */
- 	ehci->hcs_params = readl(&ehci->caps->hcs_params);
- 
-@@ -112,6 +88,8 @@ static int ehci_pci_setup(struct usb_hcd
- 	if (retval)
- 		return retval;
- 
-+	/* NOTE:  only the parts below this line are PCI-specific */
-+
- 	switch (pdev->vendor) {
- 	case PCI_VENDOR_ID_TDI:
- 		if (pdev->device == PCI_DEVICE_ID_TDI_EHCI) {
-@@ -129,6 +107,19 @@ static int ehci_pci_setup(struct usb_hcd
- 		break;
- 	case PCI_VENDOR_ID_NVIDIA:
- 		switch (pdev->device) {
-+		/* NVidia reports that certain chips don't handle
-+		 * QH, ITD, or SITD addresses above 2GB.  (But TD,
-+		 * data buffer, and periodic schedule are normal.)
-+		 */
-+		case 0x003c:	/* MCP04 */
-+		case 0x005b:	/* CK804 */
-+		case 0x00d8:	/* CK8 */
-+		case 0x00e8:	/* CK8S */
-+			if (pci_set_consistent_dma_mask(pdev,
-+						DMA_31BIT_MASK) < 0)
-+				ehci_warn(ehci, "can't enable NVidia "
-+					"workaround for >2GB RAM\n");
-+			break;
- 		/* Some NForce2 chips have problems with selective suspend;
- 		 * fixed in newer silicon.
- 		 */
-_
-
+Thanks.

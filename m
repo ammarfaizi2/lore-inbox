@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWHIVWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWHIV3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWHIVWG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 17:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWHIVWG
+	id S1751384AbWHIV3u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 17:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWHIV3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 17:22:06 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:32530 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751351AbWHIVWE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 17:22:04 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: ALSA problems with 2.6.18-rc3
-Date: Wed, 9 Aug 2006 22:22:05 +0100
-User-Agent: KMail/1.9.4
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Andrew Benton <b3nt@ukonline.co.uk>, Takashi Iwai <tiwai@suse.de>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-References: <44D8F3E5.5020508@ukonline.co.uk> <200608091651.28077.gene.heskett@verizon.net> <1155157036.26338.200.camel@mindpipe>
-In-Reply-To: <1155157036.26338.200.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Wed, 9 Aug 2006 17:29:50 -0400
+Received: from mail.gmx.net ([213.165.64.20]:25475 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751384AbWHIV3s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 17:29:48 -0400
+X-Authenticated: #271361
+Date: Wed, 9 Aug 2006 23:29:39 +0200
+From: Edgar Toernig <froese@gmx.de>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Chase Venters" <chase.venters@clientec.com>,
+       "Pavel Machek" <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
+       tytso@mit.edu, tigran@veritas.com
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Message-Id: <20060809232939.13f1f8e9.froese@gmx.de>
+In-Reply-To: <84144f020608091213u4bbb1d07xe8486a4549208016@mail.gmail.com>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	<20060807101745.61f21826.froese@gmx.de>
+	<84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
+	<20060807224144.3bb64ac4.froese@gmx.de>
+	<Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
+	<1155039338.5729.21.camel@localhost.localdomain>
+	<20060809104159.1f1737d3.froese@gmx.de>
+	<1155119999.5729.141.camel@localhost.localdomain>
+	<20060809200010.2404895a.froese@gmx.de>
+	<1155148605.5729.251.camel@localhost.localdomain>
+	<84144f020608091213u4bbb1d07xe8486a4549208016@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608092222.05993.s0348365@sms.ed.ac.uk>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 21:57, Lee Revell wrote:
-> On Wed, 2006-08-09 at 16:51 -0400, Gene Heskett wrote:
-[snip]
-> > I already have the 'alsactl restore' in my rc.local.  Would there be any
-> > harm in just adding the -F to that invocation, or will that just restore
-> > it to a 'default' condition always.  Seems like it would, canceling
-> > anything you have done & then did an 'alsactl store' to save..
+Pekka Enberg wrote:
 >
-> That's what I was suggesting - just add -F to the alsactl restore in
-> your init script.  It won't restore it to a default state - the only
-> difference is that it will do a better job restoring your mixer state if
-> new controls are added by a driver update.
->
-> alsactl --help:
->
->   -F,--force      try to restore the matching controls as much as
-> possible
+> I'll put them on my todo and in the meanwhile, you can find the latest
+> patches here:
+>   http://www.kernel.org/pub/linux/kernel/people/penberg/patches/revoke/
+> 
+> Thanks for taking the time to review the patch!
 
-I assume there are drawbacks to such an option, since whatever method is used 
-to "force" the control may make a mistake if similarly named controls are 
-renamed.
++		err = close_files(this);
++
++		put_task_struct(this->owner);
++		if (err)
++			break;
++	}
++	if (err)
++		restore_files(&to_cleanup[i], nr_fds-i);
 
-Personally, I think the correct approach would be to have more sensible 
-default values. Having the External Amplifier default off when it cripples 
-analogue output on emu10k1, and has no effect on digital output, seems rather 
-weird. Also, I never really understood the rationale for the "all zeros" 
-mixer default. Why not 50%?
+I think, the error path is wrong as it tries to restore "this"
+which means the now invalid filp (close always closes, even in
+case of errors) is put back into the fd-table; and, the task
+struct is put twice.  I think, you should ignore errors on close.
+(But I guess, this part of revoke gets rewritten anyway to match
+BSD behaviour.)  I wonder, if revoke should really abort when
+there's an error from one fd or better continue and try its best.
 
--- 
-Cheers,
-Alistair.
+restore_files:
++			spin_lock(&files->file_lock);
++			fdt = files_fdtable(files);
++			rcu_assign_pointer(fdt->fd[this->fd], this->file);
++			FD_SET(this->fd, fdt->close_on_exec);
++			spin_unlock(&files->file_lock);
++			put_files_struct(files);
++		}
++
++		put_task_struct(this->owner);
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+This sets close_on_exec unconditionally, even if it wasn't set
+before.  Hm..., if a cloned thread is able to exec, it seems a
+little bit dangerous to restore the fd-table with filps that
+were valid some time ago - the fd-table may have changed in the
+meantime...  But maybe I simply missed something...
+
+Ciao, ET.

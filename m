@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030703AbWHILhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030706AbWHILij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030703AbWHILhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030704AbWHILhS
+	id S1030706AbWHILij (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030707AbWHILij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:37:18 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:23775 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030705AbWHILhQ (ORCPT
+	Wed, 9 Aug 2006 07:38:39 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50827 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030706AbWHILii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:37:16 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC][PATCH -mm 1/5] swsusp: Introduce memory bitmaps
-Date: Wed, 9 Aug 2006 13:36:16 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-References: <200608091152.49094.rjw@sisk.pl> <200608091257.16663.rjw@sisk.pl> <20060809112701.GO3308@elf.ucw.cz>
-In-Reply-To: <20060809112701.GO3308@elf.ucw.cz>
+	Wed, 9 Aug 2006 07:38:38 -0400
+Date: Wed, 9 Aug 2006 13:38:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       Linux PM <linux-pm@osdl.org>
+Subject: Re: [RFC][PATCH -mm 0/5] swsusp: Fix handling of highmem
+Message-ID: <20060809113822.GQ3308@elf.ucw.cz>
+References: <200608091152.49094.rjw@sisk.pl> <200608092047.13493.ncunningham@linuxmail.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608091336.17137.rjw@sisk.pl>
+In-Reply-To: <200608092047.13493.ncunningham@linuxmail.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Wednesday 09 August 2006 13:27, Pavel Machek wrote:
-> > > > Introduce the memory bitmap data structure and make swsusp use in the suspend
-> > > > phase.
-> > > > 
-> > > > The current swsusp's internal data structure is not very efficient from the
-> > > > memory usage point of view, so it seems reasonable to replace it with a data
-> > > > structure that will require less memory, such as a pair of bitmaps.
-> > > 
-> > > Well, 500 lines of code  for what... 0.25% bigger image?
-
-BTW, that depends on the total size of RAM.  On a 1.5 GB i386 box that would
-be something like 100%.
-
-> > > I see it  enables you to do some cleanups... but could we get those
-> > > cleanups without those 500 lines? :-).
-> > 
-> > Out of the 500 lines, something like 100 are comments and other 50 are
-> > definitions of structures. ;-)
+> > Comments welcome.
 > 
-> Yes, and of the 100 lines of comments, 10 are fixmes :-).
+> Thanks for the reminder. I'd forgotten half the reason why I didn't want to 
+> make Suspend2 into incremental patches! You're a brave man!
 
-No, no, they are just notes. ;-)
+Why does this serve as a reminder? No, it is not easy to merge big
+patches to mainline. But it is actually a feature.
 
-> > Seriously speaking, I could do that without the bitmaps, but the code wouldn't
-> > be that much shorter.  Apart from this, I would need to introduce yet another
-> > type of PBEs (for storing pfns) and try not to get lost in the resulting mess.
-> > 
-> > Instead of doing this I prefer to add some extra code to set up a decent data
-> > structure and just use it.
-> 
-> Okay, I guess that if we need to change the structure anyway, we may
-> well use the effective structure...
+> while (1) {
+>   size=$RANDOM * 65536 + 1
+>   dd if=/dev/random bs=1 count=$size | patch -p0-b
+>   make && break
+>}
 
-That's exactly what I thought when I was writing this code. :-)
+Is this what you use to generate suspend2 patches? :-)))))
 
-Rafael
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

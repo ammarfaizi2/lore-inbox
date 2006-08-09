@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWHIWxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWHIW4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWHIWxq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWHIWxq
+	id S1751416AbWHIW4b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 18:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWHIW4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:53:46 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:3743 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751350AbWHIWxq (ORCPT
+	Wed, 9 Aug 2006 18:56:31 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55722 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751416AbWHIW4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:53:46 -0400
-Date: Wed, 9 Aug 2006 15:53:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Pavel Machek <pavel@suse.cz>,
-       Josh Boyer <jwboyer@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060809225326.GA18560@kroah.com>
-References: <200608091749_MC3-1-C796-5E8D@compuserve.com> <20060809220048.GE3691@stusta.de> <20060809221854.GA15395@kroah.com> <20060809224529.GH3691@stusta.de>
-MIME-Version: 1.0
+	Wed, 9 Aug 2006 18:56:30 -0400
+Date: Thu, 10 Aug 2006 08:56:16 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: XFS warning in 2.6.18-rc4
+Message-ID: <20060810085616.C2581413@wobbly.melbourne.sgi.com>
+References: <Pine.SOC.4.61.0608092303570.27011@math.ut.ee>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060809224529.GH3691@stusta.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SOC.4.61.0608092303570.27011@math.ut.ee>; from mroos@linux.ee on Wed, Aug 09, 2006 at 11:04:53PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 12:45:29AM +0200, Adrian Bunk wrote:
-> On Wed, Aug 09, 2006 at 03:18:54PM -0700, Greg KH wrote:
-> > On Thu, Aug 10, 2006 at 12:00:49AM +0200, Adrian Bunk wrote:
-> > > On Wed, Aug 09, 2006 at 05:45:53PM -0400, Chuck Ebbert wrote:
-> > > > In-Reply-To: <20060808195509.GR3691@stusta.de>
-> > > > 
-> > > > On Tue, 8 Aug 2006 21:55:10 +0200, Adrian Bunk wrote:
-> > > > 
-> > > > > > > > I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
-> > > > > > > > it still queued or should I resend?
-> > > > > > > 
-> > > > > > > Is this "pdflush: handle resume wakeups"?
-> > > > > > 
-> > > > > > Yes. Do you have it somewhere or should I dig it up?
-> > > > > 
-> > > > > I've applied it.
-> > > > 
-> > > > Umm, is there some place we can check to see what you've applied?
-> > > 
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-> > 
-> > No, I would not use the main git tree to queue patches up.  What happens
-> > when you want to rip the middle one out because in review it turns out
-> > that it is incorrect?
-> 
->   git-revert
+On Wed, Aug 09, 2006 at 11:04:53PM +0300, Meelis Roos wrote:
+> fs/xfs/xfs_bmap.c: In function 'xfs_bmapi':
+> fs/xfs/xfs_bmap.c:2662: warning: 'rtx' is used uninitialized in this function
 
-Ok, fair enough, but it messes with the changelogs a bunch.
+You have a particularly dense compiler, unfortunately.  This code
+has always been this way, its just a false cc warning that can be
+safely ignored until you upgrade to a fixed compiler (unless I'm
+missing something - please enlighten me if so).  It does seem to
+be the case that there is no way 'rtx' will be used uninitialised
+when xfs_rtpick_extent() doesn't fail... no?
 
-> > Please use a quilt tree of patches instead, and then only commit the
-> > patches when you do a release.  It's much simpler that way.
-> 
-> The way I'm doing it it's more the way the 2.4 and 2.6 trees work than 
-> how the -stable tree works.
-> 
-> I prefer it the way I'm doing it.
-> 
-> If it turns out I was wrong I can always switch to a quilt tree.
+cheers.
 
-Ok, it's your tree, you can mess with it as you like, just trying to
-pass along a little advice from someone who has been there before... :)
-
-good luck,
-
-greg k-h
+-- 
+Nathan

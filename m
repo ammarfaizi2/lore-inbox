@@ -1,57 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWHINB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWHINDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWHINB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 09:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWHINB0
+	id S1750738AbWHINDU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 09:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWHINDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 09:01:26 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:58292 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750731AbWHINB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 09:01:26 -0400
-Message-ID: <44D9DCFF.2080400@sw.ru>
-Date: Wed, 09 Aug 2006 17:02:55 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
-References: <20060809143816.GA142@oleg> <44D9D03B.6060907@sw.ru> <20060809165441.GA187@oleg>
-In-Reply-To: <20060809165441.GA187@oleg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 09:03:20 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:18392 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750738AbWHINDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 09:03:20 -0400
+Date: Wed, 9 Aug 2006 15:03:18 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org,
+       ncunningham@linuxmail.org
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+Message-ID: <20060809130318.GA22729@rhlx01.fht-esslingen.de>
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <20060808235352.GA4751@elf.ucw.cz> <Pine.LNX.4.58.0608082215090.20396@gandalf.stny.rr.com> <20060809073958.GK4886@elf.ucw.cz> <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com> <20060809120734.GA30544@rhlx01.fht-esslingen.de> <Pine.LNX.4.58.0608090837120.3177@gandalf.stny.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0608090837120.3177@gandalf.stny.rr.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Your patch doesn't cure the problem.
->>rcu_read_lock just disables preemtion and rcu_dereference
->>introduces memory barrier. _None_ of this _prevents_
->>another CPU from freeing old real_parent in parallel with your dereference.
-> 
-> 
-> How so? Note that release_task() doesn't call put_task_struct(), it does
-> call_rcu(&p->rcu, delayed_put_task_struct) instead. When delayed_put_task_struct()
-> is called, all CPUs must see the new value of ->real_parent (otherwise
-> RCU is just broken). If CPU sees the old value of ->real_parent, rcu_read_lock()
-> protects us from delayed_put_task_struct() on another CPU.
-> 
-> Ok, I think this is the same "classic" pattern as:
-> 
-> 	old = global_ptr;
-> 	global_ptr = new;
-> 	call_rcu(..free_old...);
-> vs
-> 	rcu_read_lock();
-> 	use(global_ptr);
-> 	rcu_read_unlock();
-> 
-> Do you agree?
-Agree :)
-Sorry, I didn't notice that task structs are freed now with RCU :)))
-In this case your patch really helps the problem. Care to prepare it?
+Hi,
 
-Thanks,
-Kirill
+On Wed, Aug 09, 2006 at 08:38:27AM -0400, Steven Rostedt wrote:
+> This is after a suspend:
+> 
+> $ cat /proc/acpi/processor/CPU*/*
+> processor id:            0
+> acpi id:                 0
+> bus mastering control:   yes
+> power management:        no
+> throttling control:      yes
+> limit interface:         yes
+> active limit:            P0:T0
+> user limit:              P0:T0
+> thermal limit:           P0:T0
+> active state:            C1
+> max_cstate:              C8
+> bus master activity:     00000000
+> states:
+>    *C1:                  type[C1] promotion[--] demotion[--] latency[000]
+> usage[00000000] duration[00000000000000000000]
+> state count:             4
+> active state:            T0
+> states:
+>    *T0:                  00%
+>     T1:                  25%
+>     T2:                  50%
+>     T3:                  75%
+
+This is almost *exactly* the same as on my very cheap'n stupid HP/Compaq
+desktop P4 HT which doesn't support ACPI C2/C3 at all despite proper support
+by other P4 HT desktop machines (missing _CST ACPI object in the DSDT,
+as confirmed after messing with Intel's DSDT decompiler):
+
+# cat /proc/acpi/processor/CPU?/*
+processor id:            0
+acpi id:                 1
+bus mastering control:   no
+power management:        no
+throttling control:      yes
+limit interface:         yes
+active limit:            P0:T0
+user limit:              P0:T0
+thermal limit:           P0:T0
+active state:            C1
+max_cstate:              C8
+bus master activity:     00000000
+states:
+   *C1:                  type[C1] promotion[--] demotion[--] latency[000] usage[00000000] duration[00000000000000000000]
+state count:             8
+active state:            T0
+states:
+   *T0:                  00%
+    T1:                  12%
+    T2:                  25%
+    T3:                  37%
+    T4:                  50%
+    T5:                  62%
+    T6:                  75%
+    T7:                  87%
+
+
+Note that
+
+max_cstate:              C8
+
+can be considered a bug (this is a C state init value from an ACPI define
+mistakenly left unchanged in case of missing _CST) since I thus only have C1
+and it should thus be set to C1.
+
+What would be interesting is this output *before* any suspend, not after ;)
+
+
+Oh, and your temperature after boot goes backwards since booting is a very
+active period, obviously.
+
+Andreas

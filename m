@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbWHIFyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030498AbWHIFxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030501AbWHIFyh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 01:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWHIFyg
+	id S1030498AbWHIFxw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 01:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030499AbWHIFxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 01:54:36 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:38349 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1030501AbWHIFyf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 01:54:35 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG?] possible recursive locking detected (blkdev_open)
-Date: Wed, 9 Aug 2006 07:57:31 +0200
-User-Agent: KMail/1.9.4
+	Wed, 9 Aug 2006 01:53:51 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:29400 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1030498AbWHIFxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 01:53:50 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Trond Myklebust" <trond.myklebust@fys.uio.no>,
+       nfs@lists.sourceforge.net
+Subject: Re: 2.6.17.8 - do_vfs_lock: VFS is out of sync with lock manager!
+Date: Wed, 09 Aug 2006 15:53:25 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <ketid21n1s5bn108lo7ps9t8a85db5bgs9@4ax.com>
+References: <9a8748490608080739w2e14e5ceg44a7bf0a3b475704@mail.gmail.com>
+In-Reply-To: <9a8748490608080739w2e14e5ceg44a7bf0a3b475704@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-X-Length: 2335
-Content-Type: multipart/signed;
-  boundary="nextPart5675739.KRuEWDOSUT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608090757.32006.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5675739.KRuEWDOSUT
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 8 Aug 2006 16:39:54 +0200, "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
 
-=============================================
-[ INFO: possible recursive locking detected ]
----------------------------------------------
-parted/7929 is trying to acquire lock:
- (&bdev->bd_mutex){--..}, at: [<c105eb8d>] __blkdev_put+0x1e/0x13c
+>I have some webservers that have recently started reporting the
+>following message in their logs :
+>
+>  do_vfs_lock: VFS is out of sync with lock manager!
+>
+>The serveres kernels were upgraded to 2.6.17.8 and since the upgrade
+>the message started appearing.
+>The servers were previously running 2.6.13.4 without experiencing this problem.
+>Nothing has changed except the kernel.
+>
+>I've googled a bit and found this mail
+>(http://lkml.org/lkml/2005/8/23/254) from Trond saying that
+>"The above is a lockd error that states that the VFS is failing to track
+>your NFS locks correctly".
+>Ok, but that doesn't really help me resolve the issue. The servers are
+>indeed running NFS and access their apache DocumentRoots from a NFS
+>mount.
+>
+>Is there anything I can do to help track down this issue?
 
-but task is already holding lock:
- (&bdev->bd_mutex){--..}, at: [<c105eec6>] do_open+0x72/0x3a8
+I don't have an answer, but offer this observation: five boxen running 
+2.6.17.8 doing six simultaneous
 
-other info that might help us debug this:
-1 lock held by parted/7929:
- #0:  (&bdev->bd_mutex){--..}, at: [<c105eec6>] do_open+0x72/0x3a8
-stack backtrace:
- [<c1003aad>] show_trace_log_lvl+0x58/0x15b
- [<c100495f>] show_trace+0xd/0x10
- [<c1004979>] dump_stack+0x17/0x1a
- [<c102dee5>] __lock_acquire+0x753/0x99c
- [<c102e3b0>] lock_acquire+0x4a/0x6a
- [<c1204501>] mutex_lock_nested+0xc8/0x20c
- [<c105eb8d>] __blkdev_put+0x1e/0x13c
- [<c105ecc4>] blkdev_put+0xa/0xc
- [<c105f18a>] do_open+0x336/0x3a8
- [<c105f21b>] blkdev_open+0x1f/0x4c
- [<c1057b40>] __dentry_open+0xc7/0x1aa
- [<c1057c91>] nameidata_to_filp+0x1c/0x2e
- [<c1057cd1>] do_filp_open+0x2e/0x35
- [<c1057dd7>] do_sys_open+0x38/0x68
- [<c1057e33>] sys_open+0x16/0x18
- [<c1002845>] sysenter_past_esp+0x56/0x8d
-DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
-Leftover inexact backtrace:
- [<c100495f>] show_trace+0xd/0x10
- [<c1004979>] dump_stack+0x17/0x1a
- [<c102dee5>] __lock_acquire+0x753/0x99c
- [<c102e3b0>] lock_acquire+0x4a/0x6a
- [<c1204501>] mutex_lock_nested+0xc8/0x20c
- [<c105eb8d>] __blkdev_put+0x1e/0x13c
- [<c105ecc4>] blkdev_put+0xa/0xc
- [<c105f18a>] do_open+0x336/0x3a8
- [<c105f21b>] blkdev_open+0x1f/0x4c
- [<c1057b40>] __dentry_open+0xc7/0x1aa
- [<c1057c91>] nameidata_to_filp+0x1c/0x2e
- [<c1057cd1>] do_filp_open+0x2e/0x35
- [<c1057dd7>] do_sys_open+0x38/0x68
- [<c1057e33>] sys_open+0x16/0x18
- [<c1002845>] sysenter_past_esp+0x56/0x8d
+  bzcat /home/share/linux-2.6/patch-2.6.18-rc4.bz2|patch -p1
 
---nextPart5675739.KRuEWDOSUT
-Content-Type: application/pgp-signature
+didn't burp.  The /home/share/ is an NFS export from another box running 
+2.4.33-rc3a, me not sure if this was exercising any NFS locking as the 
+NFS source file was only opened for non-exclusive read-only.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBE2XlLXKSJPmm5/E4RAtrNAKCVtS+SAxCLme2wrQpN5mUeInPh3QCfbx6i
-qWPeEdt0QBTnpC6tPHv8XHE=
-=Q8DR
------END PGP SIGNATURE-----
-
---nextPart5675739.KRuEWDOSUT--
+Grant.

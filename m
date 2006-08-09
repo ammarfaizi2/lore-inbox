@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWHIH7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWHIICM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030402AbWHIH7I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 03:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWHIH7I
+	id S965043AbWHIICM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 04:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWHIICL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 03:59:08 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63367
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965053AbWHIH7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 03:59:07 -0400
-Date: Wed, 09 Aug 2006 00:58:56 -0700 (PDT)
-Message-Id: <20060809.005856.104034268.davem@davemloft.net>
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, netdev@vger.kernel.org,
-       zach.brown@oracle.com
-Subject: Re: [take6 0/3] kevent: Generic event handling mechanism.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <11551105592821@2ka.mipt.ru>
-References: <20060731103322.GA1898@2ka.mipt.ru>
-	<11551105592821@2ka.mipt.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 04:02:11 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33504 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965043AbWHIICJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 04:02:09 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, haveblue@us.ibm.com, serue@us.ibm.com,
+       clg@fr.ibm.com, lxc-devel@lists.sourceforge.net
+Subject: Re: [RFC] [PATCH] pidspace: is_init()
+References: <20060804224105.GA19866@us.ibm.com>
+Date: Wed, 09 Aug 2006 02:01:47 -0600
+In-Reply-To: <20060804224105.GA19866@us.ibm.com> (Sukadev Bhattiprolu's
+	message of "Fri, 4 Aug 2006 15:41:05 -0700")
+Message-ID: <m14pwm5od0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Date: Wed, 9 Aug 2006 12:02:39 +0400
+Sukadev Bhattiprolu <sukadev@us.ibm.com> writes:
 
-Evgeniy, it's things like the following that make it very draining
-mentally to review your work.
+> This is an updated version of Eric Biederman's is_init() patch.
+> (http://lkml.org/lkml/2006/2/6/280). It applies cleanly to 2.6.18-rc2
+> and replaces a few more instances of ->pid == 1 with is_init().
+>
+> Further, is_init() checks pid and thus removes dependency on Eric's
+> other patches for now.
 
->  * removed AIO stuff from patchset
+Sorry for the delay.  I've been catching up on other things before
+I dived back in.
 
-You didn't really do this, you leave the aio_* syscalls and stubs in
-there, and you also left things like tcp_async_send() in there.
+> Couple of questions:
+>
+> 	Are there cases where child_reaper is not pid = 1. Should the
+> 	"tsk == child_reaper" check in do_exit() be replaced with is_init() ? 
 
-All the foo_naio_*() stuff is still in there to.
+There are cases where there are multiple child_reapers.
+So is_init() is not the right test there.
 
-Please remove all of async business we've asked you to.
+There is a really weird case when you have a threaded init and the primary
+thread exits where things get weird.  As I recall there wind up being two
+tasks with tgid == 1 and pid == 1.  So simply testing the pid is not
+sufficient.
 
-Thanks.
+> 	Looks like, we would need a similar, is_idle() wrapper for "pid==0"
+> 	checks - although the name is_idle_task() maybe more intuitive. If
+> 	so, should we rename is_init() to is_init_task() ? 
+
+Whatever works.  I'm not too particular as long as the important bits happen.
+However pid == 0 only ever lives in the root pspace and never shows up in
+the pid hash tables so we can get away without a special check.
+
+Eric

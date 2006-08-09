@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWHIVV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWHIVWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751379AbWHIVV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 17:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWHIVV2
+	id S1751351AbWHIVWG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 17:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWHIVWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 17:21:28 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60945 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751379AbWHIVV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 17:21:28 -0400
-Date: Wed, 9 Aug 2006 23:21:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: /dev/sd*
-Message-ID: <20060809212124.GC3691@stusta.de>
-References: <1155144599.5729.226.camel@localhost.localdomain>
+	Wed, 9 Aug 2006 17:22:06 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:32530 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751351AbWHIVWE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 17:22:04 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: ALSA problems with 2.6.18-rc3
+Date: Wed, 9 Aug 2006 22:22:05 +0100
+User-Agent: KMail/1.9.4
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Andrew Benton <b3nt@ukonline.co.uk>, Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+References: <44D8F3E5.5020508@ukonline.co.uk> <200608091651.28077.gene.heskett@verizon.net> <1155157036.26338.200.camel@mindpipe>
+In-Reply-To: <1155157036.26338.200.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155144599.5729.226.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608092222.05993.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 06:29:59PM +0100, Alan Cox wrote:
->...
-> - Drives appear as /dev/sda /dev/sr0 etc along with the libata SATA
-> devices (and since you can't tell SATA from PATA at times its hard to
-> avoid). That means people with some older distros wanting to try it
-> might need to change their fstab or rootdev. People not trying it won't
-> be affected.
->...
+On Wednesday 09 August 2006 21:57, Lee Revell wrote:
+> On Wed, 2006-08-09 at 16:51 -0400, Gene Heskett wrote:
+[snip]
+> > I already have the 'alsactl restore' in my rc.local.  Would there be any
+> > harm in just adding the -F to that invocation, or will that just restore
+> > it to a 'default' condition always.  Seems like it would, canceling
+> > anything you have done & then did an 'alsactl store' to save..
+>
+> That's what I was suggesting - just add -F to the alsactl restore in
+> your init script.  It won't restore it to a default state - the only
+> difference is that it will do a better job restoring your mixer state if
+> new controls are added by a driver update.
+>
+> alsactl --help:
+>
+>   -F,--force      try to restore the matching controls as much as
+> possible
 
-It might be a bit out of the scope of this thread, but why do some many 
-subsystems use the /dev/sd* namespace?
+I assume there are drawbacks to such an option, since whatever method is used 
+to "force" the control may make a mistake if similarly named controls are 
+renamed.
 
-Real SCSI devices use it.
-The USB mass storage driver uses it.
-libata uses it.
-
-I'd expext SATA or PATA devices at /dev/hd* or perhaps at /dev/ata* - 
-but why are they at /dev/sd*?
-
-> Alan
-
-cu
-Adrian
+Personally, I think the correct approach would be to have more sensible 
+default values. Having the External Amplifier default off when it cripples 
+analogue output on emu10k1, and has no effect on digital output, seems rather 
+weird. Also, I never really understood the rationale for the "all zeros" 
+mixer default. Why not 50%?
 
 -- 
+Cheers,
+Alistair.
 
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

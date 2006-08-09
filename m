@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030691AbWHIL1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030694AbWHIL33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030691AbWHIL1U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030695AbWHIL1U
+	id S1030694AbWHIL33 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030695AbWHIL33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:27:20 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1715 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030693AbWHIL1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:27:19 -0400
-Date: Wed, 9 Aug 2006 13:27:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-Subject: Re: [RFC][PATCH -mm 1/5] swsusp: Introduce memory bitmaps
-Message-ID: <20060809112701.GO3308@elf.ucw.cz>
-References: <200608091152.49094.rjw@sisk.pl> <200608091158.38458.rjw@sisk.pl> <20060809103120.GI3308@elf.ucw.cz> <200608091257.16663.rjw@sisk.pl>
-MIME-Version: 1.0
+	Wed, 9 Aug 2006 07:29:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40416 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030694AbWHIL32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 07:29:28 -0400
+Date: Wed, 9 Aug 2006 12:29:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: merlin@sztaki.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question about kill PIDTYPE_TGID patch
+Message-ID: <20060809112922.GA15224@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, merlin@sztaki.hu,
+	linux-kernel@vger.kernel.org
+References: <200608091323.12426.merlin@sztaki.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608091257.16663.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <200608091323.12426.merlin@sztaki.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Introduce the memory bitmap data structure and make swsusp use in the suspend
-> > > phase.
-> > > 
-> > > The current swsusp's internal data structure is not very efficient from the
-> > > memory usage point of view, so it seems reasonable to replace it with a data
-> > > structure that will require less memory, such as a pair of bitmaps.
-> > 
-> > Well, 500 lines of code  for what... 0.25% bigger image? I see it
-> > enables you to do some cleanups... but could we get those cleanups
-> > without those 500 lines? :-).
+On Wed, Aug 09, 2006 at 01:23:12PM +0200, merlin@sztaki.hu wrote:
+> Hello,
 > 
-> Out of the 500 lines, something like 100 are comments and other 50 are
-> definitions of structures. ;-)
-
-Yes, and of the 100 lines of comments, 10 are fixmes :-).
-
-> Seriously speaking, I could do that without the bitmaps, but the code wouldn't
-> be that much shorter.  Apart from this, I would need to introduce yet another
-> type of PBEs (for storing pfns) and try not to get lost in the resulting mess.
+> I'm trying to compile IBM GPFS(2.3.0-15) Portability Layer with a 2.6.16 
+> kernel (2.6.16-1.2289_FC6-xen-i686). The compiler stops with 
+> the error message below:
 > 
-> Instead of doing this I prefer to add some extra code to set up a decent data
-> structure and just use it.
+> kdump-kern.c:163: error: `PIDTYPE_TGID' undeclared (first use in this 
+> function)
+> 
+> As I think, this is because of the PIDTYPE_TGID patch. 
+> 
+> I don't want to get out that patch from the kernel , if there's
+> a more simple solution.
+> 
+> I hope you can suggest me a solution for the three lines where PIDTYPE_TGID
+> appears (see below) in the source code.
 
-Okay, I guess that if we need to change the structure anyway, we may
-well use the effective structure...
+Just stop using broken, propritary out of tree code.  If you refuse to
+do that go to your IBM support contact and whine to them, it's their fault
+after all.
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

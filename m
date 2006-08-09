@@ -1,100 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWHIQoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWHIQoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWHIQoK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWHIQoJ
+	id S1751017AbWHIQoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWHIQoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:44:09 -0400
-Received: from mx27.mail.ru ([194.67.23.65]:38713 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S1750996AbWHIQoI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:44:08 -0400
-Date: Wed, 9 Aug 2006 19:44:03 +0300
-From: Sergei Steshenko <steshenko_sergei@list.ru>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: "Sam Ravnborg" <sam@ravnborg.org>,
-       "Benoit Fouet" <benoit.fouet@purplelabs.com>,
-       "Gene Heskett" <gene.heskett@verizon.net>,
-       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
- compatibilty?
-Message-ID: <20060809194403.5960132c@comp.home.net>
-In-Reply-To: <d120d5000608090936j794449e9v6c57ac44801bd3d5@mail.gmail.com>
-References: <200608091140.02777.gene.heskett@verizon.net>
-	<20060809184658.2bdfb169@comp.home.net>
-	<44DA05C9.5050600@purplelabs.com>
-	<20060809160043.GA12571@mars.ravnborg.org>
-	<20060809191748.7550edaa@comp.home.net>
-	<d120d5000608090936j794449e9v6c57ac44801bd3d5@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.3; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 12:44:25 -0400
+Received: from antares.tat.physik.uni-tuebingen.de ([134.2.170.62]:12240 "EHLO
+	antares.tat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S1751017AbWHIQoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:44:24 -0400
+Date: Wed, 9 Aug 2006 18:44:21 +0200
+From: Daniel Kobras <kobras@linux.de>
+To: dm-devel@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] dm: Fix deadlock under high i/o load in raid1 setup.
+Message-ID: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de>
+Mail-Followup-To: Daniel Kobras <kobras@linux.de>, dm-devel@redhat.com,
+	linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Aug 2006 12:36:23 -0400
-"Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+Implement private fallback if immediate allocation from mempool fails.
+Standard mempool_alloc() fallback can yield a deadlock when only the
+calling process is able to refill the pool. In out-of-memory situations,
+instead of waiting for itself, kmirrord now waits for someone else to
+free some space, using a standard blocking allocation.
 
-> On 8/9/06, Sergei Steshenko <steshenko_sergei@list.ru> wrote:
-> > On Wed, 9 Aug 2006 18:00:43 +0200
-> > Sam Ravnborg <sam@ravnborg.org> wrote:
-> >
-> > > On Wed, Aug 09, 2006 at 05:56:57PM +0200, Benoit Fouet wrote:
-> > > > >
-> > > > >Demand stable ABI.
-> > > > >
-> > > > >
-> > > > >
-> > > > sorry for the noise, but it's been a while now since i began reading
-> > > > mails from this list, and i must admit i don't always (never?) see the
-> > > > point of such messages...
-> > > > if you can help me understand, i'll be very happy to get something more
-> > > > detailed from you...
-> > > Documentation/stable_api_nonsense.txt
-> > >
-> > >       Sam
-> > >
-> >
-> > I love senselessness and technical incompetence of the document.
-> >
-> > As I was taught at school, to prove that a statement is wrong one
-> > has to prove that it is wrong once.
-> >
-> 
-> Yep, the only trick is that you need a valid proof ;)
-> 
-> > Regardless of what the document says stable ABI can be achieved
-> > today - run a chosen Linux kernel version + chosen ALSA version under XEN or
-> > similar, and assign sound card to these (chosen Linux kernel version +
-> > chosen ALSA version).
-> >
-> > Redirect sound ('ncat' + friends) to this (chosen Linux kernel version +
-> > chosen ALSA version) from your kernel in which developers refuse
-> > to ensure stable ABI.
-> >
-> > Because of the chosen (kernel+ALSA) you have stable ABI regardless
-> > of what Documentation/stable_api_nonsense.txt says and ALSA + kernel
-> > developers think.
-> >
-> 
-> You are confused. By your logic you do not need XEN at all - just take
-> a kernel version + alsa and never change/update it - and viola!
-> "stable" ABI.
-> 
+Signed-off-by: Daniel Kobras <kobras@linux.de>
+---
+[Resending with Cc to l-k. First attempt apparently hasn't made it through to 
+dm-devel.]
 
-I simply described how one ABI (ALSA <-> kernel in this case) can
-be stabilized, while new non-ALSA related features (and potentially
-unstable ABI) can still be had.
+Hi!
 
-If computer has enough resources, practically every ABI can be
-stabilized (if desired) this way - as long as the ABI is PCI slot
-related.
+On an nForce4-equipped machine with two SATA disk in raid1 setup using
+dmraid, we experienced frequent deadlock of the system under high i/o
+load. 'cat /dev/zero > ~/zero' was the most reliable way to reproduce
+them: Randomly after a few GB, 'cp' would be left in 'D' state along
+with kjournald and kmirrord. The functions cp and kjournald were blocked
+in did vary, but kmirrord's wchan always pointed to 'mempool_alloc()'.
+We've seen this pattern on 2.6.15 and 2.6.17 kernels.
+http://lkml.org/lkml/2005/4/20/142 indicates that this problem has been
+around even before.
 
-That is, I can, for example, stabilize ALSA-kernel interface choosing
-(ALSA 1.0.11 + kernel 2.6.17) and I can stabilize TV card interface
-using (whatever v4l + kernel 2.6.18), etc,
+So much for the facts, here's my interpretation: mempool_alloc() first
+tries to atomically allocate the requested memory, or falls back to hand
+out preallocated chunks from the mempool. If both fail, it puts the
+calling process (kmirrord in this case) on a private waitqueue until
+somebody refills the pool. Where the only 'somebody' is kmirrord itself,
+so we have a deadlock.
 
---Sergei.
--- 
-Visit my http://appsfromscratch.berlios.de/ open source project.
+I worked around this problem by falling back to a (blocking) kmalloc
+when before kmirrord would have ended up on the waitqueue. This defeats
+part of the benefits of using the mempool, but at least keeps the system
+running. And it could be done with a two-line change. Note that
+mempool_alloc() clears the GFP_NOIO flag internally, and only uses it to
+decide whether to wait or return an error if immediate allocation fails,
+so the attached patch doesn't change behaviour in the non-deadlocking case.
+Path is against current git (2.6.18-rc4), but should apply to earlier
+versions as well. I've tested on 2.6.15, where this patch makes the
+difference between random lockup and a stable system.
+
+Regards,
+
+Daniel.
+
+diff -r dcc321d1340a -r d52bb3a14d60 drivers/md/dm-raid1.c
+--- a/drivers/md/dm-raid1.c	Sun Aug 06 19:00:05 2006 +0000
++++ b/drivers/md/dm-raid1.c	Mon Aug 07 23:16:44 2006 +0200
+@@ -255,7 +255,9 @@ static struct region *__rh_alloc(struct 
+ 	struct region *reg, *nreg;
+ 
+ 	read_unlock(&rh->hash_lock);
+-	nreg = mempool_alloc(rh->region_pool, GFP_NOIO);
++	nreg = mempool_alloc(rh->region_pool, GFP_ATOMIC);
++	if (unlikely(!nreg))
++		nreg = kmalloc(sizeof(struct region), GFP_NOIO);
+ 	nreg->state = rh->log->type->in_sync(rh->log, region, 1) ?
+ 		RH_CLEAN : RH_NOSYNC;
+ 	nreg->rh = rh;
+

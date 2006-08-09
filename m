@@ -1,120 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWHIABF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWHIALZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbWHIABF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 20:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWHIABF
+	id S1030362AbWHIALZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 20:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWHIALY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 20:01:05 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:21146 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030358AbWHIABE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 20:01:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PxtD23nK57EqvSLle6kYZJc5FHFzan0/zz7kgQOrASGPJDkA5SotUg/ZNjFtYiYIAuXYvE7EYuXFlshL1dP2HRASDUJTp6FumJNclT8Wocl9DcUAAFMHqvXgBtemLng6Ic+f/e88Q228yaLyqZZyvtueQ2L2x4LZpmyCjyLSPaI=
-Message-ID: <6bffcb0e0608081701r6412d0a2q1089c3f329e1ca79@mail.gmail.com>
-Date: Wed, 9 Aug 2006 02:01:03 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
-Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
-       "Jan Beulich" <jbeulich@novell.com>,
-       "Ravikiran G Thirumalai" <kiran@scalex86.org>
-In-Reply-To: <20060808164210.edb10cdc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Aug 2006 20:11:24 -0400
+Received: from server99.tchmachines.com ([72.9.230.178]:21167 "EHLO
+	server99.tchmachines.com") by vger.kernel.org with ESMTP
+	id S1030362AbWHIALX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 20:11:23 -0400
+Date: Tue, 8 Aug 2006 17:13:03 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andi Kleen <ak@suse.de>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       pravin b shelar <pravin.shelar@calsoftinc.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] NUMA futex hashing
+Message-ID: <20060809001303.GB3762@localhost.localdomain>
+References: <20060808070708.GA3931@localhost.localdomain> <p73bqqvpn14.fsf@verdi.suse.de> <200608081210.40334.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
-	 <6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
-	 <20060808140511.def9b13c.akpm@osdl.org>
-	 <6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
-	 <20060808143751.42f8d87c.akpm@osdl.org>
-	 <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
-	 <20060808164210.edb10cdc.akpm@osdl.org>
+In-Reply-To: <200608081210.40334.dada1@cosmosbay.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Wed, 9 Aug 2006 00:11:38 +0200
-> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->
-> > On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > On Tue, 8 Aug 2006 23:19:09 +0200
-> > > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-> > >
-> > > > >  You
-> > > > > can look these things up in gdb or using addr2line, provided you have
-> > > > > CONFIG_DEBUG_INFO=y.
-> > > > >
-> > > > >
-> > > >
-> > > > (gdb) list *0xc047d609
-> > > > 0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
-> > > > 572             cpuset_init_early();
-> > > > 573             mem_init();
-> > > > 574             kmem_cache_init();
-> > > > 575             setup_per_cpu_pageset();
-> > > > 576             numa_policy_init();
-> > > > 577             if (late_time_init)
-> > > > 578                     late_time_init();
-> > > > 579             calibrate_delay();
-> > > > 580             pidmap_init();
-> > > > 581             pgtable_cache_init();
-> > >
-> > > hm.
-> > >
-> > > - Try to get the full oops record,
+On Tue, Aug 08, 2006 at 12:10:39PM +0200, Eric Dumazet wrote:
+> On Tuesday 08 August 2006 11:57, Andi Kleen wrote:
+> > Ravikiran G Thirumalai <kiran@scalex86.org> writes:
+> > > Current futex hash scheme is not the best for NUMA.   The futex hash
+> > > table is an array of struct futex_hash_bucket, which is just a spinlock
+> > > and a list_head -- this means multiple spinlocks on the same cacheline
+> > > and on NUMA machines, on the same internode cacheline.  If futexes of two
+> > > unrelated threads running on two different nodes happen to hash onto
+> > > adjacent hash buckets, or buckets on the same internode cacheline, then
+> > > we have the internode cacheline bouncing between nodes.
 > >
-> > BUG: unable to handle kernel paging request at virtual address 01020304
-> > printing eip:
-> > c041b95c
-> > *pde= 00000000
-> > Oops: 0000 [#1]
-> > 4K_STACK PREEMPT SMP
-> > last sysfs file:
-> > Modules linked in:
-> > CPU 0
-> > EIP: 0060: [<c041b95c>] Not tainted VLI
-> > EFLAGS: 00010202
-> > EIP is at kmem_cache_init+0x389/0x3f0
-> > [..]
-> > Call Trace:
-> > [<c0104063>] show_stack_log_lvl+0x8c/0x97
-> > [<c010422b>] show_registers+0x181/0x215
-> > [<c0104481>] die+0x1c2/0x2dd
-> > [<c0117419>] do_page_fault+0x410/0x4f3
-> > [<c02f40a1>] error_code+0x39/0x40
-> > [<c040b604>] start_kernel+0x21f/0x39d
-> > [<c0100210>] 0xc0100210
-> > [..]
-> > EIP: [<c041b95c>] kmem_cache_init+0x389/0x3f0 SS:ESP0068:c0409fc4
-> > <0> Kernel panic - not syncing: Attempted to kill idle task!
-> >
-> > (gdb) list *0xc041b95c
-> > 0xc041b95c is in kmem_cache_init (/usr/src/linux-work1/mm/slab.c:714).
-> > 709                             lockdep_set_class(&l3->list_lock,
-> > &on_slab_l3_key);
-> > 710                             alc = l3->alien;
-> > 711                             if (!alc)
-> > 712                                     continue;
-> > 713                             for_each_node(r) {
-> > 714                                     if (alc[r])
-> > 715                                             lockdep_set_class(&alc[r]->lock,
-> > 716                                                  &on_slab_alc_key);
-> > 717                             }
-> > 718                     }
->
-> ah-hah, thanks.  The oopsing statement was added by
-> slab-fix-lockdep-warnings.patch.
+> > When I did some testing with a (arguably far too lock intensive) benchmark
+> > on a bigger box I got most bouncing cycles not in the futex locks itself,
+> > but in the down_read on the mm semaphore.
+> 
+> This is true, even with a normal application (not a biased benchmark) and 
+> using oprofile. mmap_sem is the killer.
 
-Confirmed.
+Not if two threads of two different process (so no same mmap_sem) hash onto
+futexes on the same cacheline.   But agreed, mmap_sem needs to be fixed too.
+If everyone agrees on a per-process hash table for private futexes, then
+we will work on that approach.  
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Thanks,
+Kiran

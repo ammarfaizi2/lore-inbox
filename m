@@ -1,98 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWHIQaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWHIQaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWHIQaS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWHIQaS
+	id S1751082AbWHIQaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWHIQaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:30:18 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:10718 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751130AbWHIQaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:30:17 -0400
-Date: Wed, 09 Aug 2006 12:29:50 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
- compatibilty?
-In-reply-to: <200608091207.26156.gene.heskett@verizon.net>
-To: linux-kernel@vger.kernel.org
-Cc: alsa-user@lists.sourceforge.net
-Message-id: <200608091229.50745.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200608091140.02777.gene.heskett@verizon.net>
- <20060809184658.2bdfb169@comp.home.net>
- <200608091207.26156.gene.heskett@verizon.net>
-User-Agent: KMail/1.7
+	Wed, 9 Aug 2006 12:30:16 -0400
+Received: from smarthost4.mail.uk.easynet.net ([212.135.6.14]:6154 "EHLO
+	smarthost4.mail.uk.easynet.net") by vger.kernel.org with ESMTP
+	id S1751082AbWHIQaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:30:15 -0400
+Message-ID: <44DA0D93.2080307@ukonline.co.uk>
+Date: Wed, 09 Aug 2006 17:30:11 +0100
+From: Andrew Benton <b3nt@ukonline.co.uk>
+User-Agent: Thunderbird 3.0a1 (X11/20060804)
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ALSA problems with 2.6.18-rc3
+References: <44D8F3E5.5020508@ukonline.co.uk> <1155073853.26338.112.camel@mindpipe>
+In-Reply-To: <1155073853.26338.112.camel@mindpipe>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 12:07, Gene Heskett wrote:
->On Wednesday 09 August 2006 11:46, Sergei Steshenko wrote:
->>On Wed, 09 Aug 2006 11:40:02 -0400
->>
->>Gene Heskett <gene.heskett@verizon.net> wrote:
->>> Greetings;
->>>
->>> The old fart is back again. :)
->>>
->>> I've just done a divide and conquer on kernel versions, and have found
->>> that while I DO have a kde audio signon for kernels
->>> 2.6.18-rc1-rc3-rc4, I do not have any other functioning audio,
->>> including the kde sound effects I normally get.  xmms and tvtime are
->>> mute, as are the firefox plugins to play videos from the network.
->>> 2.6.17.8 and below works great yet.
->>>
->>> So whats the fix?
->>
->>Demand stable ABI.
->
->It does not appear to be so.  And ATM booted to 18-rc1, I didn't see an
->error message when rc.local made a call of "[root@coyote gene]# alsactl
->restore
->alsactl: set_control:894: warning: name mismatch (Mic Boost (+20dB)/Mic
->Boost (+20dB) Switch) for control #45
->alsactl: set_control:896: warning: index mismatch (0/0) for control #45
->alsactl: set_control:898: failed to obtain info for control #45
-> (Operation not permitted)
->[root@coyote gene]#
->
->But as you can see, the error was there nontheless.  I've seen this or a
->very similar error for .18-rc3 and .18-rc4.
->
->This walks and qwacks like the alsa interface has been diddled, again. 
-> But since it KNOWS what hardware its running, in this case an audigy 2,
-> not Value, so why was apparently working code broken and then commited
-> to the kernel tree?
->
->Humm, because of my use of 2 independant audio channels here, I'm forced
-> to use kamix in order to address both systems.  And I found it! 
-> Somehow, that card managed to get its "external amplifier" 'led' turned
-> on, which apparently kills the normal line outs that drive my speakers. 
-> The display also looks slightly busier, like another slider has been
-> added?
->
->Now to check the newer kernels again after doing an 'alsactl store' from
->the cli.  Once I've done that, the above error is not repeated.
->
->And, even kookier, is that after doing the alsactl store, the external
->amplifier button no longer effects it.  Anybody got any migrain medicine?
->
->And tvtime now has a voice too, goodie.. :)
+Lee Revell wrote:
+> Please try to identify the change that introduced the regression.  What
+> was the last kernel/ALSA version that worked correctly?
 
-But, once booted to 2.6.18-rc4, the audio except for the kde signon splash, 
-is well and truely muted for all other usage.
+The change happened between 2.6.17 and 2.6.18-rc1. Specifically, 
+2.6.17-git4 works and 2.6.17-git5 doesn't.
 
-I haven't built -rc2 yet, I'll try that next.  Alsamixer cannot coax a peep 
-out of it now.
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Andy

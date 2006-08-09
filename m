@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030432AbWHIC7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWHIDJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030432AbWHIC7L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 22:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWHIC7K
+	id S1030433AbWHIDJO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 23:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWHIDJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 22:59:10 -0400
-Received: from mx2.suse.de ([195.135.220.15]:20689 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030432AbWHIC7J (ORCPT
+	Tue, 8 Aug 2006 23:09:13 -0400
+Received: from mail.suse.de ([195.135.220.2]:38837 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030433AbWHIDJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 22:59:09 -0400
+	Tue, 8 Aug 2006 23:09:12 -0400
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       haveblue@us.ibm.com, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] sys_getppid oopses on debug kernel
+References: <44D865FD.1040806@sw.ru>
+	<1155050817.19249.42.camel@localhost.localdomain>
+	<44D8B12C.40200@sw.ru>
 From: Andi Kleen <ak@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [RFC][PATCH 1/6] x86_64: Enable arch-generic vsyscall support.
-Date: Wed, 9 Aug 2006 04:59:05 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060809021707.23103.5607.sendpatchset@cog.beaverton.ibm.com> <200608090429.49951.ak@suse.de> <1155092218.13030.107.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1155092218.13030.107.camel@cog.beaverton.ibm.com>
+Date: 09 Aug 2006 05:09:11 +0200
+In-Reply-To: <44D8B12C.40200@sw.ru>
+Message-ID: <p73lkpyobag.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608090459.05028.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 04:56, john stultz wrote:
-> On Wed, 2006-08-09 at 04:29 +0200, Andi Kleen wrote:
-> > > diff --git a/kernel/timer.c b/kernel/timer.c
-> > > index b650f04..08b4a02 100644
-> > > --- a/kernel/timer.c
-> > > +++ b/kernel/timer.c
-> > > @@ -1023,6 +1023,12 @@ static int __init timekeeping_init_devic
-> > >  
-> > >  device_initcall(timekeeping_init_device);
-> > >  
-> > > +#ifdef CONFIG_GENERIC_TIME_VSYSCALL
-> > > +extern void update_vsyscall(struct timespec* ts, struct clocksource* c);
-> > > +#else
-> > > +#define update_vsyscall(now, c)
-> > > +#endif
-> > 
-> > Using a weak dummy function would be a bit cleaner.
-> 
-> Will compilers optimize out the call properly?
+Kirill Korotaev <dev@sw.ru> writes:
 
-No, but it's just a call ; ret then.
+[adding linux-arch]
 
-> 
-> Looking at it now, it probably should go in a .h file and the empty
-> define should be a proper "do { } while(0)" 
+> > Accessing freed memory is a bug, always, not just *only* when slab
+> > debugging is on, right?  Doesn't this mean we could get junk, or that
+> > the reader could potentially run off a bad pointer?
+> no, read the comment in sys_getppid.
+> It is a valid optimization. _safe_ and alowing to bypass taking the lock.
+> BUT! This optimization relies on the fact that kernel memory (DMA + normal zone)
+> is always mapped into virtual address space.
+> Which is invalid for debug kernels only.
 
-Or use weak
+In x86 arch code we would use __get_user for this (and we do in a couple 
+of places). But it wouldn't be portable because sometimes _user is 
+in a different address space.
+
+Maybe it would be time to make a similar facility (read/write_kernel_safe() or similar)
+with error return available to generic code? 
+
+It should be easy to implement - iirc near all architectures already
+use the exception handling frame work and it is a simple extension 
+of that. x86 could just define it to __put/get_user
 
 -Andi
-
- 

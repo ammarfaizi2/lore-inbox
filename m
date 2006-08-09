@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWHIVCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWHIVV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWHIVCr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 17:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWHIVCr
+	id S1751379AbWHIVV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 17:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWHIVV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 17:02:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:36314 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751265AbWHIVCq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 17:02:46 -0400
-Subject: Re: [PATCH] not empty pages list after fuse_readpages
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Alexander Zarochentsev <zam@namesys.com>
-Cc: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net
-In-Reply-To: <200608100020.29880.zam@namesys.com>
-References: <200608100020.29880.zam@namesys.com>
-Content-Type: text/plain
-Date: Wed, 09 Aug 2006 14:02:36 -0700
-Message-Id: <1155157356.19249.188.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 17:21:28 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60945 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751379AbWHIVV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 17:21:28 -0400
+Date: Wed, 9 Aug 2006 23:21:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: /dev/sd*
+Message-ID: <20060809212124.GC3691@stusta.de>
+References: <1155144599.5729.226.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155144599.5729.226.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 00:20 +0400, Alexander Zarochentsev wrote:
-> 
->         }
-> +       if (0) {
-> +clean_pages_up:
-> +               readpages_cleanup_helper(pages);
-> +       }
->         return err;
->  }
+On Wed, Aug 09, 2006 at 06:29:59PM +0100, Alan Cox wrote:
+>...
+> - Drives appear as /dev/sda /dev/sr0 etc along with the libata SATA
+> devices (and since you can't tell SATA from PATA at times its hard to
+> avoid). That means people with some older distros wanting to try it
+> might need to change their fstab or rootdev. People not trying it won't
+> be affected.
+>...
 
-If the list is really empty during a normal exit, does it hurt to call
-the helper?  The whole goto inside of an if(0) statement looks a little
-funky.
+It might be a bit out of the scope of this thread, but why do some many 
+subsystems use the /dev/sd* namespace?
 
-The following would be the same number of lines of code, and this is
-used pretty commonly in the kernel:
+Real SCSI devices use it.
+The USB mass storage driver uses it.
+libata uses it.
 
-	return err;
-clean_pages_up:
-	readpages_cleanup_helper(pages);
-	return err;
+I'd expext SATA or PATA devices at /dev/hd* or perhaps at /dev/ata* - 
+but why are they at /dev/sd*?
 
-But, I really wonder what is wrong with this:
+> Alan
 
-clean_pages_up:
-	readpages_cleanup_helper(pages);
-	return err;
+cu
+Adrian
 
--- Dave
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

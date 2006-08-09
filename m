@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbWHIJvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030626AbWHIJ4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030627AbWHIJvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 05:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWHIJvI
+	id S1030626AbWHIJ4O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWHIJ4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 05:51:08 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:9641 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030623AbWHIJvH (ORCPT
+	Wed, 9 Aug 2006 05:56:14 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59540 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030625AbWHIJ4N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 05:51:07 -0400
-Date: Wed, 9 Aug 2006 11:50:47 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 5/6] ehea: makefile
-Message-ID: <20060809095047.GA11555@mars.ravnborg.org>
-References: <44D99F74.1000704@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Aug 2006 05:56:13 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 2/3] Kprobes: Define retval helper
+Date: Wed, 9 Aug 2006 11:55:50 +0200
+User-Agent: KMail/1.9.3
+Cc: Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       linux-kernel@vger.kernel.org,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Jim Keniston <jkenisto@us.ibm.com>, linux-arch@vger.kernel.org
+References: <20060807115537.GA15253@in.ibm.com> <20060809094311.GA20050@in.ibm.com> <20060809094516.GA17993@infradead.org>
+In-Reply-To: <20060809094516.GA17993@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44D99F74.1000704@de.ibm.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608091155.50842.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 10:40:20AM +0200, Jan-Bernd Themann wrote:
-> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
-> 
-> 
->  drivers/net/ehea/Makefile |    7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> 
-> 
-> --- linux-2.6.18-rc4-orig/drivers/net/ehea/Makefile	1969-12-31 
-> 16:00:00.000000000 -0800
-> +++ kernel/drivers/net/ehea/Makefile	2006-08-08 23:59:38.083467216 -0700
-> @@ -0,0 +1,7 @@
-> +#
-> +# Makefile for the eHEA ethernet device driver for IBM eServer System p
-> +#
-> +
-> +ehea_mod-objs = ehea_main.o ehea_phyp.o ehea_qmr.o ehea_ethtool.o 
-> ehea_phyp.o
-> +obj-$(CONFIG_EHEA) += ehea_mod.o
-> +
 
-Using -objs is deprecated, please use ehea_mod-y.
-This needs to be documented and later warned upon which I will do soon.
+> >  #define instruction_pointer(regs) ((regs)->eip)
+> > +#define get_retval(regs) ((regs)->eax)
 
-	Sam
+return_value() would match the names of the existing macro better
+
+-Andi
 

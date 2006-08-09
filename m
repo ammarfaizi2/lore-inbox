@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWHIKJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030635AbWHIKOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030612AbWHIKJw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 06:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWHIKJw
+	id S1030635AbWHIKOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 06:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030636AbWHIKOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 06:09:52 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:28012 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030612AbWHIKJv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 06:09:51 -0400
-Message-ID: <44D9B4C4.90304@sw.ru>
-Date: Wed, 09 Aug 2006 14:11:16 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, viro@zeniv.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mishin Dmitry <dim@openvz.org>
-Subject: Re: [PATCH] move IMMUTABLE|APPEND checks to notify_change()
-References: <44D87907.6090706@sw.ru> <20060808203814.GO29920@ftp.linux.org.uk>
-In-Reply-To: <20060808203814.GO29920@ftp.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 06:14:39 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:9935 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1030635AbWHIKOj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 06:14:39 -0400
+Date: Wed, 9 Aug 2006 18:38:16 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@sw.ru>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sys_getppid oopses on debug kernel (v2)
+Message-ID: <20060809143816.GA142@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Tue, Aug 08, 2006 at 03:44:07PM +0400, Kirill Korotaev wrote:
-> 
->>[PATCH] move IMMUTABLE|APPEND checks to notify_change()
->>
->>This patch moves lots of IMMUTABLE and APPEND flag checks
->>scattered all around to more logical place in notify_change().
-> 
->  
-> NAK.  For example, you are allowed to do unames(file, NULL) on
-> any file you own or can write to, whether it's append-only or
-> not.  With your change that gets -EPERM.
-> 
+Andrew Morton wrote:
+>
+> Although I'm not sure it's needed for this problem. A getppid() which does
+>
+> asmlinkage long sys_getppid(void)
+> {
+> 	int pid;
+>
+> 	read_lock(&tasklist_lock);
+> 	pid = current->group_leader->real_parent->tgid;
+> 	read_unlock(&tasklist_lock);
+>
+> 	return pid;
+> }
+>
+> seems like a fine implementation to me ;)
 
-Does such check in notify_change() looks better for you?
+Why do we need to use ->group_leader? All threads should have the same
+->real_parent.
 
-notify_change():
-        if (IS_IMMUTABLE(inode))
-                return -EPERM;
-        if (IS_APPEND(inode) &&
-                        (ia_valid & ~(ATTR_CTIME | ATTR_MTIME | ATTR_ATIME)))
-                return -EPERM;
+Why do we need tasklist_lock? I think rcu_read_lock() is enough.
 
-Thanks,
-Kirill
+In other words, do you see any problems with this code
+
+	smlinkage long sys_getppid(void)
+	{
+		int pid;
+
+		rcu_read_lock();
+		pid = rcu_dereference(current->real_parent)->tgid;
+		rcu_read_unlock();
+
+		return pid;
+	}
+
+? Yes, we may read a stale value for ->real_parent, but the memory
+can't be freed while we are under rcu_read_lock(). And in this case
+the returned value is ok because the task could be reparented just
+after return anyway.
+
+Oleg.
+

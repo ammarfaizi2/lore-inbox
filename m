@@ -1,71 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWHHXyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWHIABF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030345AbWHHXyM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 19:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWHHXyM
+	id S1030358AbWHIABF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 20:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWHIABF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 19:54:12 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27345 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030345AbWHHXyK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 19:54:10 -0400
-Date: Wed, 9 Aug 2006 01:53:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Suspend2-devel@lists.suspend2.net,
-       linux-pm@osdl.org, ncunningham@linuxmail.org
-Subject: Re: swsusp and suspend2 like to overheat my laptop
-Message-ID: <20060808235352.GA4751@elf.ucw.cz>
-References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
+	Tue, 8 Aug 2006 20:01:05 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:21146 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030358AbWHIABE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 20:01:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PxtD23nK57EqvSLle6kYZJc5FHFzan0/zz7kgQOrASGPJDkA5SotUg/ZNjFtYiYIAuXYvE7EYuXFlshL1dP2HRASDUJTp6FumJNclT8Wocl9DcUAAFMHqvXgBtemLng6Ic+f/e88Q228yaLyqZZyvtueQ2L2x4LZpmyCjyLSPaI=
+Message-ID: <6bffcb0e0608081701r6412d0a2q1089c3f329e1ca79@mail.gmail.com>
+Date: Wed, 9 Aug 2006 02:01:03 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
+Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@muc.de>,
+       "Jan Beulich" <jbeulich@novell.com>,
+       "Ravikiran G Thirumalai" <kiran@scalex86.org>
+In-Reply-To: <20060808164210.edb10cdc.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <200608080800.k7880noU028915@shell0.pdx.osdl.net>
+	 <6bffcb0e0608081329r732e191dsec0f391ea70f7d28@mail.gmail.com>
+	 <20060808140511.def9b13c.akpm@osdl.org>
+	 <6bffcb0e0608081419p4430b5cei7b4aa990cd0d4422@mail.gmail.com>
+	 <20060808143751.42f8d87c.akpm@osdl.org>
+	 <6bffcb0e0608081511x17508f89j60705bf74e09e820@mail.gmail.com>
+	 <20060808164210.edb10cdc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 09/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Wed, 9 Aug 2006 00:11:38 +0200
+> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > On 08/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > On Tue, 8 Aug 2006 23:19:09 +0200
+> > > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+> > >
+> > > > >  You
+> > > > > can look these things up in gdb or using addr2line, provided you have
+> > > > > CONFIG_DEBUG_INFO=y.
+> > > > >
+> > > > >
+> > > >
+> > > > (gdb) list *0xc047d609
+> > > > 0xc047d609 is in start_kernel (/usr/src/linux-work1/init/main.c:577).
+> > > > 572             cpuset_init_early();
+> > > > 573             mem_init();
+> > > > 574             kmem_cache_init();
+> > > > 575             setup_per_cpu_pageset();
+> > > > 576             numa_policy_init();
+> > > > 577             if (late_time_init)
+> > > > 578                     late_time_init();
+> > > > 579             calibrate_delay();
+> > > > 580             pidmap_init();
+> > > > 581             pgtable_cache_init();
+> > >
+> > > hm.
+> > >
+> > > - Try to get the full oops record,
+> >
+> > BUG: unable to handle kernel paging request at virtual address 01020304
+> > printing eip:
+> > c041b95c
+> > *pde= 00000000
+> > Oops: 0000 [#1]
+> > 4K_STACK PREEMPT SMP
+> > last sysfs file:
+> > Modules linked in:
+> > CPU 0
+> > EIP: 0060: [<c041b95c>] Not tainted VLI
+> > EFLAGS: 00010202
+> > EIP is at kmem_cache_init+0x389/0x3f0
+> > [..]
+> > Call Trace:
+> > [<c0104063>] show_stack_log_lvl+0x8c/0x97
+> > [<c010422b>] show_registers+0x181/0x215
+> > [<c0104481>] die+0x1c2/0x2dd
+> > [<c0117419>] do_page_fault+0x410/0x4f3
+> > [<c02f40a1>] error_code+0x39/0x40
+> > [<c040b604>] start_kernel+0x21f/0x39d
+> > [<c0100210>] 0xc0100210
+> > [..]
+> > EIP: [<c041b95c>] kmem_cache_init+0x389/0x3f0 SS:ESP0068:c0409fc4
+> > <0> Kernel panic - not syncing: Attempted to kill idle task!
+> >
+> > (gdb) list *0xc041b95c
+> > 0xc041b95c is in kmem_cache_init (/usr/src/linux-work1/mm/slab.c:714).
+> > 709                             lockdep_set_class(&l3->list_lock,
+> > &on_slab_l3_key);
+> > 710                             alc = l3->alien;
+> > 711                             if (!alc)
+> > 712                                     continue;
+> > 713                             for_each_node(r) {
+> > 714                                     if (alc[r])
+> > 715                                             lockdep_set_class(&alc[r]->lock,
+> > 716                                                  &on_slab_alc_key);
+> > 717                             }
+> > 718                     }
+>
+> ah-hah, thanks.  The oopsing statement was added by
+> slab-fix-lockdep-warnings.patch.
 
-> A few months ago, I installed suspend2 on my laptop.  It worked great for
-> a few days, when suddenly my laptop started to get very hot and the fan
-> costantly went off, and then I started getting these:
+Confirmed.
 
-I take it as "if I keep it for a week powered off, it will not do
-this".
+Regards,
+Michal
 
-> ---
-> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-> localhost kernel: CPU0: Temperature above threshold
-> 
-> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-> localhost kernel: CPU1: Temperature above threshold
-> 
-> 
-> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-> localhost kernel: CPU0: Running in modulated clock mode
-> 
-> Message from syslogd@localhost at Tue Aug  8 16:08:53 2006 ...
-> localhost kernel: CPU1: Running in modulated clock mode
-> ---
-
-P4 has thermal protection, so you are actually safe.
-
-Nigel is right, this is acpi problem, but I guess we can help it.  Do
-you have /proc/acpi/fan? Do you have /proc/acpi/ibm/fan? Can you try
-playing with them?
-
-And yes, this should go into bugzilla.kernel.org.
-
-> Recently, I've decided to try out swsusp.  Well, it has been working fine
-> for almost a week now.  But unfortunately, I just started to have my fan
-> go off constantly, and I'm getting the above messages again (hence why
-> the date on the messages is today). Checking out the temp, it's going into
-> the high 70C. That's not too bad, but it only happens when suspending
-> every night instead of shutting down.
-
-									Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

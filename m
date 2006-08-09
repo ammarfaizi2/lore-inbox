@@ -1,126 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWHICRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWHICRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWHICRf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 22:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbWHICRe
+	id S1030269AbWHICRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 22:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWHICRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 22:17:34 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:33466 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751235AbWHICR3 (ORCPT
+	Tue, 8 Aug 2006 22:17:20 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:22194 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751245AbWHICRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 22:17:29 -0400
-Date: Tue, 8 Aug 2006 22:17:27 -0400
+	Tue, 8 Aug 2006 22:17:19 -0400
+Date: Tue, 8 Aug 2006 22:17:14 -0400
 From: john stultz <johnstul@us.ibm.com>
 To: ak@suse.de
 Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Message-Id: <20060809021726.23103.85003.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20060809021714.23103.24280.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20060809021707.23103.5607.sendpatchset@cog.beaverton.ibm.com>
 References: <20060809021707.23103.5607.sendpatchset@cog.beaverton.ibm.com>
-Subject: [RFC][PATCH 3/6] x86_64: Remove apic_runs_main_timer
+Subject: [RFC][PATCH 1/6] x86_64: Enable arch-generic vsyscall support.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part of the x86-64 cleanup for generic timekeeping. 
-Remove apic_runs_main_timer, on request from Andi, since it doesn't 
-work on many systems.
+Provides generic infrastructure for vsyscall-gtod.
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- arch/x86_64/kernel/apic.c |   30 +-----------------------------
- arch/x86_64/kernel/time.c |    2 --
- include/asm-x86_64/apic.h |    1 -
- 3 files changed, 1 insertion(+), 32 deletions(-)
+ include/linux/clocksource.h |    2 ++
+ kernel/timer.c              |    7 +++++++
+ 2 files changed, 9 insertions(+)
 
-linux-2.6.18-rc4_timeofday-arch-x86-64-part2_C5.patch
+linux-2.6.18-rc4_timeofday-vsyscall-support_C5.patch
 ============================================
-diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
-index 1b9e3d3..6173b2f 100644
---- a/arch/x86_64/kernel/apic.c
-+++ b/arch/x86_64/kernel/apic.c
-@@ -39,7 +39,6 @@
- #include <asm/hpet.h>
+diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
+index d852024..f554273 100644
+--- a/include/linux/clocksource.h
++++ b/include/linux/clocksource.h
+@@ -46,6 +46,7 @@ typedef u64 cycle_t;
+  * @shift:		cycle to nanosecond divisor (power of two)
+  * @update_callback:	called when safe to alter clocksource values
+  * @is_continuous:	defines if clocksource is free-running.
++ * @vread:		vsyscall based read
+  * @cycle_interval:	Used internally by timekeeping core, please ignore.
+  * @xtime_interval:	Used internally by timekeeping core, please ignore.
+  */
+@@ -59,6 +60,7 @@ struct clocksource {
+ 	u32 shift;
+ 	int (*update_callback)(void);
+ 	int is_continuous;
++	cycle_t (*vread)(void);
  
- int apic_verbosity;
--int apic_runs_main_timer;
- int apic_calibrate_pmtmr __initdata;
+ 	/* timekeeping specific data, ignore */
+ 	cycle_t cycle_last, cycle_interval;
+diff --git a/kernel/timer.c b/kernel/timer.c
+index b650f04..08b4a02 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -1023,6 +1023,12 @@ static int __init timekeeping_init_devic
  
- int disable_apic_timer __initdata;
-@@ -747,16 +746,6 @@ static void setup_APIC_timer(unsigned in
- 		} while (c2 - c1 < 300);
+ device_initcall(timekeeping_init_device);
+ 
++#ifdef CONFIG_GENERIC_TIME_VSYSCALL
++extern void update_vsyscall(struct timespec* ts, struct clocksource* c);
++#else
++#define update_vsyscall(now, c)
++#endif
++
+ /*
+  * If the error is already larger, we look ahead even further
+  * to compensate for late or lost adjustments.
+@@ -1165,6 +1171,7 @@ static void update_wall_time(void)
+ 		clock->xtime_nsec = 0;
+ 		clocksource_calculate_interval(clock, tick_nsec);
  	}
- 	__setup_APIC_LVTT(clocks);
--	/* Turn off PIT interrupt if we use APIC timer as main timer.
--	   Only works with the PM timer right now
--	   TBD fix it for HPET too. */
--	if (vxtime.mode == VXTIME_PMTMR &&
--		smp_processor_id() == boot_cpu_id &&
--		apic_runs_main_timer == 1 &&
--		!cpu_isset(boot_cpu_id, timer_interrupt_broadcast_ipi_mask)) {
--		stop_timer_interrupt();
--		apic_runs_main_timer++;
--	}
- 	local_irq_restore(flags);
++	update_vsyscall(&xtime, clock);
  }
- 
-@@ -946,8 +935,6 @@ void smp_local_timer_interrupt(struct pt
- #ifdef CONFIG_SMP
- 	update_process_times(user_mode(regs));
- #endif
--	if (apic_runs_main_timer > 1 && smp_processor_id() == boot_cpu_id)
--		main_timer_handler(regs);
- 	/*
- 	 * We take the 'long' return path, and there every subsystem
- 	 * grabs the appropriate locks (kernel lock/ irq lock).
-@@ -1162,26 +1149,11 @@ static __init int setup_noapictimer(char
- 	return 1;
- } 
- 
--static __init int setup_apicmaintimer(char *str)
--{
--	apic_runs_main_timer = 1;
--	nohpet = 1;
--	return 1;
--}
--__setup("apicmaintimer", setup_apicmaintimer);
--
--static __init int setup_noapicmaintimer(char *str)
--{
--	apic_runs_main_timer = -1;
--	return 1;
--}
--__setup("noapicmaintimer", setup_noapicmaintimer);
--
- static __init int setup_apicpmtimer(char *s)
- {
- 	apic_calibrate_pmtmr = 1;
- 	notsc_setup(NULL);
--	return setup_apicmaintimer(NULL);
-+	return 1;
- }
- __setup("apicpmtimer", setup_apicpmtimer);
- 
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index da89e60..a4aef4e 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -469,8 +469,6 @@ void main_timer_handler(struct pt_regs *
- 
- static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
--	if (apic_runs_main_timer > 1)
--		return IRQ_HANDLED;
- 	main_timer_handler(regs);
- #ifdef CONFIG_X86_LOCAL_APIC
- 	if (using_apic_timer)
-diff --git a/include/asm-x86_64/apic.h b/include/asm-x86_64/apic.h
-index 9c96a0a..06fcdc2 100644
---- a/include/asm-x86_64/apic.h
-+++ b/include/asm-x86_64/apic.h
-@@ -16,7 +16,6 @@
- #define APIC_DEBUG   2
- 
- extern int apic_verbosity;
--extern int apic_runs_main_timer;
  
  /*
-  * Define the default level of output to be very little

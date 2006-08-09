@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030711AbWHILwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWHILwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030711AbWHILwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030712AbWHILwJ
+	id S1160999AbWHILwS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWHILwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:52:09 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:36063 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030711AbWHILwH (ORCPT
+	Wed, 9 Aug 2006 07:52:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:958 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1160999AbWHILwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:52:07 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC][PATCH -mm 2/5] swsusp: Use memory bitmaps during resume
-Date: Wed, 9 Aug 2006 13:51:06 +0200
-User-Agent: KMail/1.9.3
+	Wed, 9 Aug 2006 07:52:15 -0400
+Date: Wed, 9 Aug 2006 13:51:45 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
 Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-References: <200608091152.49094.rjw@sisk.pl> <200608091304.35746.rjw@sisk.pl> <20060809113335.GP3308@elf.ucw.cz>
-In-Reply-To: <20060809113335.GP3308@elf.ucw.cz>
+Subject: Re: [RFC][PATCH -mm 3/5] swsusp: Fix handling of highmem
+Message-ID: <20060809115145.GT3308@elf.ucw.cz>
+References: <200608091152.49094.rjw@sisk.pl> <200608091209.03695.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608091351.06596.rjw@sisk.pl>
+In-Reply-To: <200608091209.03695.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Wednesday 09 August 2006 13:33, Pavel Machek wrote:
-]--snip--[
-> 
-> I'm still not sure if highmem support is worth the complexity -- I
-> hope highmem dies painful death in next 3 weeks or so.
+> Make swsusp handle highmem pages similarly to the pages of the "normal"
+> memory.
 
-metoo, but currently quite a lot of Core Duo-based notebooks with 1 GB of RAM
-and more are still being sold, let alone the Celerons, Semprons etc.
+Is it feasible to create kernel/power/highmem.c?
 
-The patch is designed so that the higmem-related parts are just dropped by the
-compiler if CONFIG_HIGHMEM is not set.  That makes it a bit larger, but then
-they don't get in the way when they are not needed.
+>  include/linux/suspend.h |    6 
+>  kernel/power/power.h    |    2 
+>  kernel/power/snapshot.c |  822 ++++++++++++++++++++++++++++++++++++------------
+>  kernel/power/swap.c     |    2 
+>  kernel/power/swsusp.c   |   53 +--
+>  kernel/power/user.c     |    2 
+>  mm/vmscan.c             |    3 
+>  7 files changed, 658 insertions(+), 232 deletions(-)
 
-[Well, I've been using 64-bit machines only for quite some time anyway, but
-I thought it would be nice to do something for the others, too. ;-) ]
++400 lines for highmem... I hope highmem dies, dies, dies. Anyway, I'd
+hate to debug this at the same time as the bitmap code. Can we get the
+bitmaps in, wait for a while, and only then change highmem handling?
 
-Rafael
+							Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

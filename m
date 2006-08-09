@@ -1,54 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030680AbWHILH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030582AbWHILSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030680AbWHILH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWHILH0
+	id S1030582AbWHILSc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030689AbWHILSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:07:26 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:3039 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030680AbWHILHY (ORCPT
+	Wed, 9 Aug 2006 07:18:32 -0400
+Received: from smoker.itak.sztaki.hu ([195.111.0.10]:45494 "EHLO
+	smoker.itak.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1030582AbWHILSb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:07:24 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC][PATCH -mm 1/5] swsusp: Introduce memory bitmaps
-Date: Wed, 9 Aug 2006 12:57:16 +0200
+	Wed, 9 Aug 2006 07:18:31 -0400
+From: merlin@sztaki.hu
+To: linux-kernel@vger.kernel.org
+Subject: question about kill PIDTYPE_TGID patch
+Date: Wed, 9 Aug 2006 13:23:12 +0200
 User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-References: <200608091152.49094.rjw@sisk.pl> <200608091158.38458.rjw@sisk.pl> <20060809103120.GI3308@elf.ucw.cz>
-In-Reply-To: <20060809103120.GI3308@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200608091257.16663.rjw@sisk.pl>
+Message-Id: <200608091323.12426.merlin@sztaki.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Wednesday 09 August 2006 12:31, Pavel Machek wrote:
-> > Introduce the memory bitmap data structure and make swsusp use in the suspend
-> > phase.
-> > 
-> > The current swsusp's internal data structure is not very efficient from the
-> > memory usage point of view, so it seems reasonable to replace it with a data
-> > structure that will require less memory, such as a pair of bitmaps.
-> 
-> Well, 500 lines of code  for what... 0.25% bigger image? I see it
-> enables you to do some cleanups... but could we get those cleanups
-> without those 500 lines? :-).
+I'm trying to compile IBM GPFS(2.3.0-15) Portability Layer with a 2.6.16 
+kernel (2.6.16-1.2289_FC6-xen-i686). The compiler stops with 
+the error message below:
 
-Out of the 500 lines, something like 100 are comments and other 50 are
-definitions of structures. ;-)
+kdump-kern.c:163: error: `PIDTYPE_TGID' undeclared (first use in this 
+function)
 
-Seriously speaking, I could do that without the bitmaps, but the code wouldn't
-be that much shorter.  Apart from this, I would need to introduce yet another
-type of PBEs (for storing pfns) and try not to get lost in the resulting mess.
+As I think, this is because of the PIDTYPE_TGID patch. 
 
-Instead of doing this I prefer to add some extra code to set up a decent data
-structure and just use it.
+I don't want to get out that patch from the kernel , if there's
+a more simple solution.
 
-Rafael
+I hope you can suggest me a solution for the three lines where PIDTYPE_TGID
+appears (see below) in the source code.
 
+I'm not subscribed, please CC me the answer!
+Thank you very much.
+Michael HÉDER
+
+Here comes a part of /usr/lpp/mmfs/src/gpl-linux/kdump-kern.c, this is the 
+only function where  PIDTYPE_TGID appears.
+=========================================== 
+/* Step to next thread in current task.  If no more threads, step to
+   next task.  If no more tasks, return false. */
+static Boolean tiNext(struct threadIter *ti)
+{
+#if LINUX_KERNEL_VERSION >= 2060000
+
+#if LINUX_KERNEL_VERSION < 2060900
+  unsigned long pidAddr, headAddr, nextAddr;
+  struct pid_link *linkP;
+
+  assert(ti->taskP != NULL);
+  linkP = &ti->threadP->pids[PIDTYPE_TGID];
+
+  pidAddr = (unsigned long) linkP->pidptr;
+  headAddr = pidAddr + offsetof(struct pid, task_list);
+
+  nextAddr = (unsigned long) linkP->pid_chain.next;
+
+  if (nextAddr == headAddr)
+  {
+    struct pid *pidP = GenericGet(pidAddr, sizeof(struct pid));
+    nextAddr = (unsigned long) pidP->task_list.next;
+    kFree(pidP);
+  }
+#else
+  unsigned long nextAddr;
+  nextAddr = ti->threadP->pids[PIDTYPE_TGID].pid_list.next;
+#endif
+
+  ti->threadAddr = (unsigned long) pid_task((struct list_head *) nextAddr,
+                                            PIDTYPE_TGID);
+  if (ti->threadAddr != ti->taskAddr)
+  {
+    if (ti->threadP != ti->taskP)
+      kFree(ti->threadP);
+    ti->threadP = GetTaskStruct(ti->threadAddr);
+  }
+  else
+  {
+    ti->taskAddr = ti->threadAddr = (unsigned long) NEXT_TASK(ti->taskP);
+    kFree(ti->taskP);
+    if (ti->threadP != ti->taskP)
+      kFree(ti->threadP);
+    ti->taskP = ti->threadP = (ti->taskAddr == TaskAddress) ?
+      NULL : GetTaskStruct(ti->taskAddr);
+  }
+
+  return ti->threadP != NULL;
+#else
+  assert(ti->taskP != NULL);
+  ti->taskAddr = ti->threadAddr = (unsigned long) NEXT_TASK(ti->taskP);
+  kFree(ti->taskP);
+                  ti->taskP = ti->threadP = (ti->taskAddr == TaskAddress) ?
+    NULL : GetTaskStruct(ti->taskAddr);
+
+  return ti->threadP != NULL;
+#endif
+}
+     

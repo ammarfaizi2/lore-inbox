@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWHII74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbWHIJCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965099AbWHII74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 04:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWHII74
+	id S1030471AbWHIJCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030589AbWHIJCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 04:59:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:58026 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965099AbWHII7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 04:59:55 -0400
-Date: Wed, 9 Aug 2006 09:59:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alexander Zarochentsev <zam@namesys.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: partial reiser4 review comments
-Message-ID: <20060809085946.GA6177@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alexander Zarochentsev <zam@namesys.com>,
-	Andrew Morton <akpm@osdl.org>, reiserfs-dev@namesys.com,
-	linux-kernel@vger.kernel.org
-References: <20060803001741.4ee9ff72.akpm@osdl.org> <20060803142644.GC20405@infradead.org> <200608061838.35004.zam@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Aug 2006 05:02:42 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:37859 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030471AbWHIJCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 05:02:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n8I8zc3AUT3vn4+WtkS2/JFXQ+01n3znCaNKiiPB3TKQN0jradN0TK78wkqauMiIdUqXPMd378lFXNL93rzWLrKAk/uImhtHiHYDxmNLGhlUA6YHuP9cTuGj8bY9m/DJHJW0uZLMP1Mk7E6kK4c4w70eF1TIIF0A2lY1W7pQQG0=
+Message-ID: <41840b750608090202k4dcac1b3h38c1f98d398af479@mail.gmail.com>
+Date: Wed, 9 Aug 2006 12:02:39 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: [PATCH 04/12] hdaps: Correct readout and remove nonsensical attributes
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Pavel Machek" <pavel@suse.cz>,
+       "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>,
+       "Robert Love" <rlove@rlove.org>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060809034434.GA4665@rhun.haifa.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608061838.35004.zam@namesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <41840b750608070930p59a250a4l99c07260229dda8e@mail.gmail.com>
+	 <20060808122234.GD5497@rhun.haifa.ibm.com>
+	 <20060808125652.GA5284@ucw.cz>
+	 <20060808131724.GE5497@rhun.haifa.ibm.com>
+	 <41840b750608080635j552829a3g4971316ff2d264ad@mail.gmail.com>
+	 <20060808134337.GF5497@rhun.haifa.ibm.com>
+	 <41840b750608080753v27a0ce16xf4da0ad177b08657@mail.gmail.com>
+	 <1155050380.5729.89.camel@localhost.localdomain>
+	 <41840b750608080833p6e7cfffx890f9c4732b93e73@mail.gmail.com>
+	 <20060809034434.GA4665@rhun.haifa.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 06, 2006 at 06:38:34PM +0400, Alexander Zarochentsev wrote:
-> > > - reiser4_readpages() shouldn't need to clean up the remaining
-> > > pages on *pages.  read_cache_pages() does that now.
+On 8/9/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
+> > >If the concern is just the naming then change it to end _trylock
 > >
-> > Without looking at the code I remember someone from the Namesys
-> > people told me they could use plain mpage_readpages now.  Anything
-> > still blocking using that function?
-> 
-> reiser4 tries to reduce number of tree lookups. better, if there would 
-> be one tree lookup for one readpages call.
+> > We already have a thinkpad_ec_trylock() for the non-blocking
+> > variant.
+>
+> thinkpad_ec_down_interruptible()?
 
-Right now mpage_redpages does one get_block per extent.  I think it's
-pretty messy do do one block allocator call that can return multiple
-extents because that leads into a lot of complexity for a rather
-questionable gain.(XFS on IRIX does that)
+Just ran out, of that sir,
 
-> 
-> what we are currently doing in a not-yet-submitted patch (below), i 
-> don't see how it can be done by mpage_readpages.
-> 
-> +struct uf_readpages_context {
-> +	lock_handle lh;
-> +	coord_t coord;
-> +};
+If we'll need to lock away ACPI (just matter of time, my guess), we'll
+stumble upon the non-interruptible down()s deep inside in the ACPI
+code. So we can't guarantee and shouldn't promise it's really
+interruptible.
 
-I must admit that standalone code snipplet doesn't really tell me a lot.
-Do you mean the possibility to pass around a filesystem-defined structure
-to multiple allocator calls?  I'm pretty sure can add that, I though it
-would be useful multiple times in the past but always found ways around
-it.
+It's not that strange that a function might fail even if it's named
+"do_something()", you know. It's down() that forms an exception - it's
+so simple we know it can't fail.
 
-> BTW, read_cache_page() and mpage_readpages are similar, I guess the 
-> second can be rewritten using the first one, no?
-
-Do you mean read_cache_page() or read_cache_pages() ?
-
-(Yeah, it really bad that we have two functions sounding the same but doing
-thing quite differently..)
-
-read_cache_pages() could probably be folded into mpages_readpages by allowing
-it to give an additional readpage callback similar to how mpage_writepages
-can either do real direct to bio or be used as an interator over writepages
-calls.
-
-read_cache_page() is quite different from read_cache_pages() and
-mpages_readpages in that it is synchronous and waits for the read to complete
-before returning.
+  Shem

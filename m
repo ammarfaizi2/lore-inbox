@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWHIPwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWHIPxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWHIPwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 11:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWHIPwg
+	id S1751077AbWHIPxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 11:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWHIPxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 11:52:36 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:35200 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751021AbWHIPwf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 11:52:35 -0400
-Message-ID: <44DA04C1.7040306@slaphack.com>
-Date: Wed, 09 Aug 2006 11:52:33 -0400
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Pavel Machek <pavel@ucw.cz>, "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Bernd Schubert <bernd-schubert@gmx.de>, reiserfs-list@namesys.com,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Clay Barnes <clay.barnes@gmail.com>,
-       Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, ipso@snappymail.ca,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+	Wed, 9 Aug 2006 11:53:12 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:56030 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751077AbWHIPxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 11:53:11 -0400
+Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
+	compatibilty?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Sergei Steshenko <steshenko_sergei@list.ru>
+Cc: Gene Heskett <gene.heskett@verizon.net>, alsa-user@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <44CF87E6.1050004@slaphack.com> <20060806225912.GC4205@ucw.cz> <44D99ED9.1030003@namesys.com>
-In-Reply-To: <44D99ED9.1030003@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <20060809184658.2bdfb169@comp.home.net>
+References: <200608091140.02777.gene.heskett@verizon.net>
+	 <20060809184658.2bdfb169@comp.home.net>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 11:53:09 -0400
+Message-Id: <1155138789.26338.170.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Pavel Machek wrote:
+On Wed, 2006-08-09 at 18:46 +0300, Sergei Steshenko wrote:
+> On Wed, 09 Aug 2006 11:40:02 -0400
+> Gene Heskett <gene.heskett@verizon.net> wrote:
 > 
->>
->> Yes, I'm afraid redundancy/checksums kill write speed,
->>
-> they kill write speed to cache, but not to disk....  our compression
-> plugin is faster than the uncompressed plugin.....
+> > Greetings;
+> > 
+> > The old fart is back again. :)
+> > 
+> > I've just done a divide and conquer on kernel versions, and have found that 
+> > while I DO have a kde audio signon for kernels 2.6.18-rc1-rc3-rc4, I do 
+> > not have any other functioning audio, including the kde sound effects I 
+> > normally get.  xmms and tvtime are mute, as are the firefox plugins to 
+> > play videos from the network. 2.6.17.8 and below works great yet.
+> > 
+> > So whats the fix?
+> > 
+> 
+> 
+> Demand stable ABI.
+> 
 
-Regarding cache, do we do any sort of consistency checking for RAM, or 
-do we leave that to some of the stranger kernel patches -- or just an 
-occasional memtest?
+Stable ABI has nothing to do with this, it's called "a bug".
+
+Lee
+

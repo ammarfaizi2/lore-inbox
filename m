@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWHITPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWHITR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWHITPg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 15:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWHITPg
+	id S1751290AbWHITR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 15:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWHITR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 15:15:36 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:9700 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751336AbWHITPf (ORCPT
+	Wed, 9 Aug 2006 15:17:57 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:20199 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751290AbWHITR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 15:15:35 -0400
-Subject: Re: [PATCH 5/6] clean up OCFS2 nlink handling
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060809171253.GE7324@infradead.org>
-References: <20060809165729.FE36B262@localhost.localdomain>
-	 <20060809165733.704AD0F5@localhost.localdomain>
-	 <20060809171253.GE7324@infradead.org>
-Content-Type: text/plain
-Date: Wed, 09 Aug 2006 12:15:26 -0700
-Message-Id: <1155150926.19249.175.camel@localhost.localdomain>
+	Wed, 9 Aug 2006 15:17:56 -0400
+Date: Wed, 9 Aug 2006 23:17:18 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take6 1/3] kevent: Core files.
+Message-ID: <20060809191718.GA2102@2ka.mipt.ru>
+References: <11551105592821@2ka.mipt.ru> <11551105602734@2ka.mipt.ru> <20060809104738.1498723f@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060809104738.1498723f@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 09 Aug 2006 23:17:19 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-09 at 18:12 +0100, Christoph Hellwig wrote:
-> On Wed, Aug 09, 2006 at 09:57:33AM -0700, Dave Hansen wrote:
-> > OCFS2 does some operations on i_nlink, then reverts them if some
-> > of its operations fail to complete.  This does not fit in well
-> > with the drop_nlink() logic where we expect i_nlink to stay at
-> > zero once it gets there.
-> > 
-> > So, delay all of the nlink operations until we're sure that the
-> > operations have completed.  Also, introduce a small helper to
-> > check whether an inode has proper "unlinkable" i_nlink counts
-> > no matter whether it is a directory or regular inode.
-> > 
-> > This patch is broken out from the others because it does contain
-> > some logical changes.
+On Wed, Aug 09, 2006 at 10:47:38AM -0700, Stephen Hemminger (shemminger@osdl.org) wrote:
+> > +static inline void kevent_user_stat_increase_total(struct kevent_user *u)
+> > +{
+> > +	u->total++;
+> > +}
+> >
 > 
-> looks good to me, although I probably can't ACK ocfs2 patches.
+> static wrapper_functions_with_execessive_long_names(struct i_really_hate *this)
+> {
+> 	suck();
+> }
 
-That's probably OK.  One of the Oracle guys was nice enough to help me
-beat it into shape and sign off on it.
+Understood...
 
-> did you look whether gfs2 in -mm needs something similar?
-
-It doesn't appear to.  It doesn't manipulate i_nlink in the same, direct
-manner.
-
--- Dave
-
+-- 
+	Evgeniy Polyakov

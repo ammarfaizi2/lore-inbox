@@ -1,77 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbWHIHoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbWHIHyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030418AbWHIHoN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 03:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbWHIHoN
+	id S1030363AbWHIHyW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 03:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWHIHyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 03:44:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10679 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964927AbWHIHoN (ORCPT
+	Wed, 9 Aug 2006 03:54:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26311 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030363AbWHIHyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 03:44:13 -0400
-Date: Wed, 9 Aug 2006 09:43:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jack Lo <jlo@vmware.com>,
-       Sahil Rihan <srihan@vmware.com>
-Subject: Re: A proposal - binary
-Message-ID: <20060809074352.GL4886@elf.ucw.cz>
-References: <44D1CC7D.4010600@vmware.com> <44D217A7.9020608@redhat.com> <44D24236.305@vmware.com> <20060805104507.GA4506@ucw.cz> <44D67109.6020605@vmware.com> <20060808001255.GQ2759@elf.ucw.cz> <44D7DDEF.6070907@vmware.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44D7DDEF.6070907@vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 9 Aug 2006 03:54:21 -0400
+Date: Wed, 9 Aug 2006 00:54:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrew Clayton <andrew@digital-domain.net>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc strange hotplug/udev/uevent problem
+Message-Id: <20060809005416.82f30445.akpm@osdl.org>
+In-Reply-To: <20060809014104.0be41976@alpha.digital-domain.net>
+References: <44D79574.8080703@digital-domain.net>
+	<20060808060211.GA3206@kroah.com>
+	<20060809014104.0be41976@alpha.digital-domain.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 9 Aug 2006 01:41:04 +0100
+Andrew Clayton <andrew@digital-domain.net> wrote:
 
-> >Well, I guess we'd like VMI to be buildable in normal kernel build
-> >tools ... and at that point, open sourcing it should be _really_ easy.
-> >
-> >And we'd prefer legal decisions not to influence technical ones. Maybe
-> >we will decide to use binary interface after all, but seeing GPLed,
-> >easily-buildable interface, first, means we can look at both solutions
-> >and decide which one is better.
+> On Mon, 7 Aug 2006 23:02:11 -0700, Greg KH wrote:
+>  
+> > Can you use 'git bisect' to try to narrow it down which change caused
+> > the problem?
 > 
-> I don't think you're actually arguing for the VMI ROM to be built into 
-> the kernel.  But since this could be a valid interpretation of what you 
-> said, let me address that point so other readers of this thread don't 
-> misinterpret.
+> I did 
+> 
+> git bisect start drivers/scsi drivers/usb
+> git bad v2.6.18-rc1
+> git good v2.6.17
+> 
+> Heres what git bisect came up with
+> 
+> c32ba30f76eb18b3d4449072fe9c345a9574796b is first bad commit
+> commit c32ba30f76eb18b3d4449072fe9c345a9574796b
+> Author: Paul Serice <paul@serice.net>
+> Date:   Wed Jun 7 10:23:38 2006 -0700
+> 
+>     [PATCH] USB: EHCI works again on NVidia controllers with >2GB RAM
+> 
+>     From: Paul Serice <paul@serice.net>
+> 
+>     The workaround in commit f7201c3dcd7799f2aa3d6ec427b194225360ecee
+>     broke.  The work around requires memory for DMA transfers for some
+>     NVidia EHCI controllers to be below 2GB, but recent changes have
+>     caused some DMA memory to be allocated before the DMA mask is set.
+> 
+>     Signed-off-by: Paul Serice <paul@serice.net>
+>     Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+>     Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> :040000 040000 754a9f8cccedc71e8e3689f2b0dee811d94fdc11 5559c0eafe042377430052272d027f0458805126 M      drivers
+> 
+> 
+> What would be the way to revert that patch from 2.6.18-rc4 to confirm it's the culprit?
+>  
 
-I actually was arguing for VMI ROM to be built into kernel. You have
-pretty strong arguments why it will not work, but Xen is doing that,
-and it would be at least very interesting to see how it works for
-vmware. (And perhaps to decide that it does not work :-).
+Here's a backout patch, against 2.6.18-rc4:
 
-> On a purely technical level, the VMI layer must not be part of the 
-> normal kernel build.  It must be distributed by the hypervisor to
-> which 
+From: Andrew Morton <akpm@osdl.org>
 
-Oh yes, it can be part of kernel build. #ifdef vmware_version_3_0_4 is
-ugly, but at least it would force you not to change the interfaces too
-often, which might be good thing.
+Revert c32ba30f76eb18b3d4449072fe9c345a9574796b: it broke Andrew Clayton's
+machine.
 
-> We do use standard tools for building it, for the most part - although 
-> some perl scripting and elf munging magic is part of the build.  
-> Finally, since it is a ROM, we have to use a post-build tool to convert 
-> the extracted object to a ROM image and fix up the checksum.  We don't 
-> have a problem including any of those tools in an open source 
-> distribution of the VMI ESX ROM once we finish sorting through the 
-> license issues.  We've already fixed most of the problems we had with 
-> entangled header files so that we can create a buildable tarball that 
-> requires only standard GNU compilers, elf tools, and perl to run.  I 
-> believe the only technical issue left is fixing the makefiles so that 
-> building it doesn't require our rather complicated make system.
+Cc: Andrew Clayton <andrew@digital-domain.net>
+Cc: Paul Serice <paul@serice.net>
+Cc: David Brownell <dbrownell@users.sourceforge.net>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Good, nice, so you are close. Now get us GPLed release ;-).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+ drivers/usb/host/ehci-pci.c |   39 +++++++++++++---------------------
+ 1 file changed, 15 insertions(+), 24 deletions(-)
+
+diff -puN drivers/usb/host/ehci-pci.c~revert-usb-ehci-works-again-on-nvidia-controllers-with-2gb-ram drivers/usb/host/ehci-pci.c
+--- a/drivers/usb/host/ehci-pci.c~revert-usb-ehci-works-again-on-nvidia-controllers-with-2gb-ram
++++ a/drivers/usb/host/ehci-pci.c
+@@ -76,30 +76,6 @@ static int ehci_pci_setup(struct usb_hcd
+ 	dbg_hcs_params(ehci, "reset");
+ 	dbg_hcc_params(ehci, "reset");
+ 
+-        /* ehci_init() causes memory for DMA transfers to be
+-         * allocated.  Thus, any vendor-specific workarounds based on
+-         * limiting the type of memory used for DMA transfers must
+-         * happen before ehci_init() is called. */
+-	switch (pdev->vendor) {
+-	case PCI_VENDOR_ID_NVIDIA:
+-		/* NVidia reports that certain chips don't handle
+-		 * QH, ITD, or SITD addresses above 2GB.  (But TD,
+-		 * data buffer, and periodic schedule are normal.)
+-		 */
+-		switch (pdev->device) {
+-		case 0x003c:	/* MCP04 */
+-		case 0x005b:	/* CK804 */
+-		case 0x00d8:	/* CK8 */
+-		case 0x00e8:	/* CK8S */
+-			if (pci_set_consistent_dma_mask(pdev,
+-						DMA_31BIT_MASK) < 0)
+-				ehci_warn(ehci, "can't enable NVidia "
+-					"workaround for >2GB RAM\n");
+-			break;
+-		}
+-		break;
+-	}
+-
+ 	/* cache this readonly data; minimize chip reads */
+ 	ehci->hcs_params = readl(&ehci->caps->hcs_params);
+ 
+@@ -112,6 +88,8 @@ static int ehci_pci_setup(struct usb_hcd
+ 	if (retval)
+ 		return retval;
+ 
++	/* NOTE:  only the parts below this line are PCI-specific */
++
+ 	switch (pdev->vendor) {
+ 	case PCI_VENDOR_ID_TDI:
+ 		if (pdev->device == PCI_DEVICE_ID_TDI_EHCI) {
+@@ -129,6 +107,19 @@ static int ehci_pci_setup(struct usb_hcd
+ 		break;
+ 	case PCI_VENDOR_ID_NVIDIA:
+ 		switch (pdev->device) {
++		/* NVidia reports that certain chips don't handle
++		 * QH, ITD, or SITD addresses above 2GB.  (But TD,
++		 * data buffer, and periodic schedule are normal.)
++		 */
++		case 0x003c:	/* MCP04 */
++		case 0x005b:	/* CK804 */
++		case 0x00d8:	/* CK8 */
++		case 0x00e8:	/* CK8S */
++			if (pci_set_consistent_dma_mask(pdev,
++						DMA_31BIT_MASK) < 0)
++				ehci_warn(ehci, "can't enable NVidia "
++					"workaround for >2GB RAM\n");
++			break;
+ 		/* Some NForce2 chips have problems with selective suspend;
+ 		 * fixed in newer silicon.
+ 		 */
+_
+

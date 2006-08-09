@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWHIICM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWHIIEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbWHIICM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 04:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWHIICL
+	id S965076AbWHIIEN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 04:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWHIIEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 04:02:11 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33504 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965043AbWHIICJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 04:02:09 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, haveblue@us.ibm.com, serue@us.ibm.com,
-       clg@fr.ibm.com, lxc-devel@lists.sourceforge.net
-Subject: Re: [RFC] [PATCH] pidspace: is_init()
-References: <20060804224105.GA19866@us.ibm.com>
-Date: Wed, 09 Aug 2006 02:01:47 -0600
-In-Reply-To: <20060804224105.GA19866@us.ibm.com> (Sukadev Bhattiprolu's
-	message of "Fri, 4 Aug 2006 15:41:05 -0700")
-Message-ID: <m14pwm5od0.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 9 Aug 2006 04:04:13 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:13016 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S965076AbWHIIEL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 04:04:11 -0400
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Willy Tarreau <w@1wt.eu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, Alexey Zaytsev <alexey.zaytsev@gmail.com>,
+       linux-kernel@vger.kernel.org, matti.aarnio@zmailer.org
+Subject: Re: Time to forbid non-subscribers from posting to the list?
+References: <f19298770608080407n5788faa8x779ad84fe53726cb@mail.gmail.com>
+	<p73y7tzo4hl.fsf@verdi.suse.de>
+	<1155047956.5729.68.camel@localhost.localdomain>
+	<20060808191631.GF8776@1wt.eu> <1155068717.26338.100.camel@mindpipe>
+From: Jes Sorensen <jes@sgi.com>
+Date: 09 Aug 2006 04:04:10 -0400
+In-Reply-To: <1155068717.26338.100.camel@mindpipe>
+Message-ID: <yq0y7tytjwl.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sukadev Bhattiprolu <sukadev@us.ibm.com> writes:
+>>>>> "Lee" == Lee Revell <rlrevell@joe-job.com> writes:
 
-> This is an updated version of Eric Biederman's is_init() patch.
-> (http://lkml.org/lkml/2006/2/6/280). It applies cleanly to 2.6.18-rc2
-> and replaces a few more instances of ->pid == 1 with is_init().
->
-> Further, is_init() checks pid and thus removes dependency on Eric's
-> other patches for now.
+Lee> On Tue, 2006-08-08 at 21:16 +0200, Willy Tarreau wrote:
+>> This looks like a very clever yet simple idea (if easy to implement
+>> at all) !  While I have no anti-spam and am not annoyed at all by
+>> the low spam rate on LKML, I think this would make my cleaning
+>> operations even more effective.
 
-Sorry for the delay.  I've been catching up on other things before
-I dived back in.
+Lee> That would mean 8 fewer characters of useful information visible
+Lee> in the subject line.
 
-> Couple of questions:
->
-> 	Are there cases where child_reaper is not pid = 1. Should the
-> 	"tsk == child_reaper" check in do_exit() be replaced with is_init() ? 
+Or tag it with "X-Non-Subscriber: Yes" - then those who care can
+filter it into a seperate inbox in a jiffy and we don't lose the
+information on the subject line.
 
-There are cases where there are multiple child_reapers.
-So is_init() is not the right test there.
-
-There is a really weird case when you have a threaded init and the primary
-thread exits where things get weird.  As I recall there wind up being two
-tasks with tgid == 1 and pid == 1.  So simply testing the pid is not
-sufficient.
-
-> 	Looks like, we would need a similar, is_idle() wrapper for "pid==0"
-> 	checks - although the name is_idle_task() maybe more intuitive. If
-> 	so, should we rename is_init() to is_init_task() ? 
-
-Whatever works.  I'm not too particular as long as the important bits happen.
-However pid == 0 only ever lives in the root pspace and never shows up in
-the pid hash tables so we can get away without a special check.
-
-Eric
+Cheers,
+Jes

@@ -1,65 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWHISR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWHISTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWHISR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 14:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWHISR7
+	id S1750705AbWHISTU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 14:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWHISTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 14:17:59 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:63730 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751294AbWHISR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 14:17:58 -0400
-Date: Wed, 09 Aug 2006 14:17:55 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: ALSA problems with 2.6.18-rc3
-In-reply-to: <1155141333.26338.186.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Benton <b3nt@ukonline.co.uk>,
-       Takashi Iwai <tiwai@suse.de>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Message-id: <200608091417.55431.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <44D8F3E5.5020508@ukonline.co.uk> <44DA0D93.2080307@ukonline.co.uk>
- <1155141333.26338.186.camel@mindpipe>
-User-Agent: KMail/1.7
+	Wed, 9 Aug 2006 14:19:19 -0400
+Received: from wx-out-0506.google.com ([66.249.82.235]:61078 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750705AbWHISTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 14:19:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XSvqhf+t295wpwhZBV+HcL/mkfjky400mfqd51fDVkPMghH/R/xUJKVtaE0vALH0wL+HFGvN1fgJZN9UnOJ3iJa73pyeJM7H9/xLgq+cwNI6KSuwfepkPSB4+qtZy2+auvG9hFrrTfJqceoFrzHxNxZNG3N9F59t9QP0+HOICto=
+Message-ID: <5a4c581d0608091117l45aa4b33n4fe0d134a413e96d@mail.gmail.com>
+Date: Wed, 9 Aug 2006 20:17:42 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2200 doesn't load firmware on battery-powered boot
+In-Reply-To: <5a4c581d0608091105r2e43bd9bx1bd78b2280dca13b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5a4c581d0608091105r2e43bd9bx1bd78b2280dca13b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 12:35, Lee Revell wrote:
->On Wed, 2006-08-09 at 17:30 +0100, Andrew Benton wrote:
->> Lee Revell wrote:
->> > Please try to identify the change that introduced the regression. 
->> > What was the last kernel/ALSA version that worked correctly?
->>
->> The change happened between 2.6.17 and 2.6.18-rc1. Specifically,
->> 2.6.17-git4 works and 2.6.17-git5 doesn't.
+On 8/9/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
+> Dell Latitude D610, FC5, happens at least since 2.6.18-rc2 and
+>  it's fully reproducable. Sorry for not reporting earlier but I've been
+>  recently either on vacation or very busy...
 >
->Takashi-san,
+> Booting with AC always makes interface eth1 appear:
 >
->Does this help at all?  Many users are reporting that sound broke with
->2.6.18-rc*.
+> Aug  8 21:32:48 sandman kernel: ipw2200: Intel(R) PRO/Wireless
+> 2200/2915 Network Driver, 1.1.2kmpr
+> Aug  8 21:32:48 sandman kernel: ipw2200: Copyright(c) 2003-2006 Intel
+> Corporation
+> Aug  8 21:32:49 sandman kernel: ipw2200: Detected Intel PRO/Wireless
+> 2200BG Network Connection
+> Aug  8 21:32:49 sandman kernel: ipw2200: Detected geography ZZD (13
+> 802.11bg channels, 0 802.11a channels)
 >
->Lee
+> Booting without AC always fails to load firmware:
 >
-Takashi-san's suggestion earlier today of running an "alsactl -F restore" 
-seems to have fixed all those diffs right up, I now have good sound with 
-an emu10k1 using an audigy 2 as card-0, running kernel-2.6.18-rc4.
+> Aug  9 19:06:01 sandman kernel: ipw2200: Intel(R) PRO/Wireless
+> 2200/2915 Network Driver, 1.1.2kmpr
+> Aug  9 19:06:01 sandman kernel: ipw2200: Copyright(c) 2003-2006 Intel
+> Corporation
+> Aug  9 19:06:01 sandman kernel: ipw2200: Detected Intel PRO/Wireless
+> 2200BG Network Connection
+> Aug  9 19:06:01 sandman kernel: ipw2200: ipw2200-bss.fw
+> request_firmware failed: Reason -2
+> Aug  9 19:06:01 sandman kernel: ipw2200: Unable to load firmware: -2
+> Aug  9 19:06:01 sandman kernel: ipw2200: failed to register network device
+> Aug  9 19:06:01 sandman kernel: ipw2200: probe of 0000:03:03.0 failed
+> with error -5
+>
+> A post-boot modprobe -r ipw2200; modprobe ipw2200 makes eth1
+>  appear even on battery power:
+>
+> Aug  9 19:14:36 sandman kernel: ieee80211: 802.11
+> data/management/control stack, git-1.1.13
+> Aug  9 19:14:36 sandman kernel: ieee80211: Copyright (C) 2004-2005
+> Intel Corporation <jketreno@linux.intel.com>
+> Aug  9 19:14:36 sandman kernel: ipw2200: Intel(R) PRO/Wireless
+> 2200/2915 Network Driver, 1.1.2kmpr
+> Aug  9 19:14:36 sandman kernel: ipw2200: Copyright(c) 2003-2006 Intel
+> Corporation
+> Aug  9 19:14:36 sandman kernel: ACPI: PCI Interrupt 0000:03:03.0[A] ->
+> Link [LNKB] -> GSI 5 (level, low) -> IRQ 5
+> Aug  9 19:14:36 sandman kernel: ipw2200: Detected Intel PRO/Wireless
+> 2200BG Network Connection
+> Aug  9 19:14:36 sandman kernel: ipw2200: Detected geography ZZD (13
+> 802.11bg channels, 0 802.11a channels)
+> Aug  9 19:14:36 sandman kernel: eth1: NETDEV_TX_BUSY returned; driver
+> should report queue full via ieee_device->is_queue_full.
+>
+> The above log snippets are from 2.6.18-rc4 kernels; full boot logs
+>  from both cases attached.
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Right, so I managed to save logs as root, perm 600, and try and
+ attach them as non-root and got not even a warning from either
+ Firefox or the GMail interface. Tsk, tsk.
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+In any case, I now put them up here:
+
+http://xoomer.alice.it/incident/messages-boot-ac.log
+http://xoomer.alice.it/incident/messages-boot-battery.log
+
+Sorry for the double message. Thanks,
+
+--alessandro
+
+"What's the name of the word for the precise moment when you
+ realize that you've actually forgotten how it felt to make love
+ to somebody you really liked a long time ago?"
+"There isn't one."
+"Oh. I thought maybe there was."
+     (The Sandman, dialogue between Delirium and Dream)

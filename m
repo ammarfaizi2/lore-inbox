@@ -1,71 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWHIRyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWHIR5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWHIRyc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 13:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHIRyc
+	id S1750987AbWHIR5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 13:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHIR5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 13:54:32 -0400
-Received: from wx-out-0506.google.com ([66.249.82.237]:5227 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751284AbWHIRyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 13:54:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cdlvfUDK4tmqscsPqiYLSK/MWpAyGeSQfWRvWRShC5rTHB2uui6Fhg+52FqFLE4n4J80rDdYPQBDyB1gOdFGrKKRi2tZ8R1WjmZLhPpy6Ws3HFnoZxKeOgy2yznkPWhLsfSNf1NbaKGeKKFN01gjHYV+TfFuwvs9Xzbq1Xg8828=
-Message-ID: <d120d5000608091054s1c1a2a4cre33341c9b1f69ee9@mail.gmail.com>
-Date: Wed, 9 Aug 2006 13:54:29 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Sergei Steshenko" <steshenko_sergei@list.ru>
-Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward compatibilty?
-Cc: "Sam Ravnborg" <sam@ravnborg.org>,
-       "Benoit Fouet" <benoit.fouet@purplelabs.com>,
-       "Gene Heskett" <gene.heskett@verizon.net>,
-       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20060809194403.5960132c@comp.home.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 13:57:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60825 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750987AbWHIR5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 13:57:23 -0400
+Date: Wed, 9 Aug 2006 13:56:42 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, arjan@infradead.org
+Subject: Re: [BUG?] possible recursive locking detected (blkdev_open)
+Message-ID: <20060809175642.GC10930@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Rolf Eike Beer <eike-kernel@sf-tec.de>,
+	linux-kernel@vger.kernel.org, mingo@redhat.com, arjan@infradead.org
+References: <200608090757.32006.eike-kernel@sf-tec.de> <20060809013034.ac15526a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608091140.02777.gene.heskett@verizon.net>
-	 <20060809184658.2bdfb169@comp.home.net>
-	 <44DA05C9.5050600@purplelabs.com>
-	 <20060809160043.GA12571@mars.ravnborg.org>
-	 <20060809191748.7550edaa@comp.home.net>
-	 <d120d5000608090936j794449e9v6c57ac44801bd3d5@mail.gmail.com>
-	 <20060809194403.5960132c@comp.home.net>
+In-Reply-To: <20060809013034.ac15526a.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/9/06, Sergei Steshenko <steshenko_sergei@list.ru> wrote:
-> On Wed, 9 Aug 2006 12:36:23 -0400
-> "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
-> >
-> > You are confused. By your logic you do not need XEN at all - just take
-> > a kernel version + alsa and never change/update it - and viola!
-> > "stable" ABI.
-> >
->
-> I simply described how one ABI (ALSA <-> kernel in this case) can
-> be stabilized, while new non-ALSA related features (and potentially
-> unstable ABI) can still be had.
->
-> If computer has enough resources, practically every ABI can be
-> stabilized (if desired) this way - as long as the ABI is PCI slot
-> related.
->
+On Wed, Aug 09, 2006 at 01:30:34AM -0700, Andrew Morton wrote:
+ > On Wed, 9 Aug 2006 07:57:31 +0200
+ > Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+ > 
+ > > =============================================
+ > > [ INFO: possible recursive locking detected ]
+ > > ---------------------------------------------
+ > 
+ > kernel version?
+ 
+This question comes up time after time when we get lockdep reports.
+Lets do the same thing we do for oopses - print out the version in the report.
+It's an extra line of output though.  We could tack it on the end of the
+INFO: lines, but that screws up Ingo's pretty output.
 
-And in extreme case once you "stablizie" everything you end up with a
-system that is not upgradeable at all.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-> That is, I can, for example, stabilize ALSA-kernel interface choosing
-> (ALSA 1.0.11 + kernel 2.6.17) and I can stabilize TV card interface
-> using (whatever v4l + kernel 2.6.18), etc,
->
 
-But you are not stabilizing ABI, you are freezing a subsystem. Stable
-ABI does not mean that bugs do not get fixed and new hardware support
-is not being addeed, as in your case.
+--- linux-2.6/kernel/lockdep.c~	2006-08-09 13:53:49.000000000 -0400
++++ linux-2.6/kernel/lockdep.c	2006-08-09 13:53:59.000000000 -0400
+@@ -36,6 +36,7 @@
+ #include <linux/stacktrace.h>
+ #include <linux/debug_locks.h>
+ #include <linux/irqflags.h>
++#include <linux/utsname.h>
+ 
+ #include <asm/sections.h>
+@@ -524,6 +524,9 @@ print_circular_bug_header(struct lock_li
+ 
+ 	printk("\n=======================================================\n");
+ 	printk(  "[ INFO: possible circular locking dependency detected ]\n");
++	printk(  "%s %.*s\n", system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
+ 	printk(  "-------------------------------------------------------\n");
+ 	printk("%s/%d is trying to acquire lock:\n",
+ 		curr->comm, curr->pid);
+@@ -705,6 +708,9 @@ print_bad_irq_dependency(struct task_str
+ 	printk("\n======================================================\n");
+ 	printk(  "[ INFO: %s-safe -> %s-unsafe lock order detected ]\n",
+ 		irqclass, irqclass);
++	printk(  "%s %.*s\n", system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
+ 	printk(  "------------------------------------------------------\n");
+ 	printk("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] is trying to acquire:\n",
+ 		curr->comm, curr->pid,
+@@ -786,6 +792,9 @@ print_deadlock_bug(struct task_struct *c
+ 
+ 	printk("\n=============================================\n");
+ 	printk(  "[ INFO: possible recursive locking detected ]\n");
++	printk(  "%s %.*s\n", system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
+ 	printk(  "---------------------------------------------\n");
+ 	printk("%s/%d is trying to acquire lock:\n",
+ 		curr->comm, curr->pid);
+@@ -1368,6 +1377,9 @@ print_irq_inversion_bug(struct task_stru
+ 
+ 	printk("\n=========================================================\n");
+ 	printk(  "[ INFO: possible irq lock inversion dependency detected ]\n");
++	printk(  "%s %.*s\n", system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
+ 	printk(  "---------------------------------------------------------\n");
+ 	printk("%s/%d just changed the state of lock:\n",
+ 		curr->comm, curr->pid);
+@@ -1462,6 +1474,9 @@ print_usage_bug(struct task_struct *curr
+ 
+ 	printk("\n=================================\n");
+ 	printk(  "[ INFO: inconsistent lock state ]\n");
++	printk(  "%s %.*s\n", system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
+ 	printk(  "---------------------------------\n");
+ 
+ 	printk("inconsistent {%s} -> {%s} usage.\n",
 
 -- 
-Dmitry
+http://www.codemonkey.org.uk

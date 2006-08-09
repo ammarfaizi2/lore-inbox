@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030647AbWHIKQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030642AbWHIKUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030647AbWHIKQz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 06:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030641AbWHIKQz
+	id S1030642AbWHIKUj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 06:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030645AbWHIKUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 06:16:55 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:27614 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030642AbWHIKQ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 06:16:28 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH -mm 0/5] swsusp: Fix handling of highmem
-Date: Wed, 9 Aug 2006 11:52:49 +0200
-User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@ucw.cz>, Linux PM <linux-pm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608091152.49094.rjw@sisk.pl>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 9 Aug 2006 06:20:39 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63636 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030642AbWHIKUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 06:20:37 -0400
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Edgar Toernig <froese@gmx.de>
+Cc: Chase Venters <chase.venters@clientec.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org, viro@zeniv.linux.org.uk, tytso@mit.edu,
+       tigran@veritas.com
+In-Reply-To: <20060809104159.1f1737d3.froese@gmx.de>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	 <20060805122936.GC5417@ucw.cz> <20060807101745.61f21826.froese@gmx.de>
+	 <84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
+	 <20060807224144.3bb64ac4.froese@gmx.de>
+	 <Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
+	 <1155039338.5729.21.camel@localhost.localdomain>
+	 <20060809104159.1f1737d3.froese@gmx.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Aug 2006 11:39:59 +0100
+Message-Id: <1155119999.5729.141.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Mer, 2006-08-09 am 10:41 +0200, ysgrifennodd Edgar Toernig:
+> If I read the code correctly, the behaviour for hung up ttys is completely
+> different: read returns EOF, write returns EIO, select/poll/epoll return
+> ready, close works.  As rather boring but totally sane behaviour for an fd.
+> 
+> But after revoke you get EBADF for any operation, even select or close.
 
-Currently swsusp handles highmem in a simplistic way, by trying to store a
-copy of each saveable highmem page in the "normal" memory before creating
-the suspend image.  These copies are then copied once again before saving,
-because they are treated as any other non-highmem pages with data.  For this
-reason, to save one highmem page swsusp needs two free pages in the "normal"
-memory, so on a system with high memory it is practically impossible to create
-a suspend image above 400 kilobytes.  Moreover, if there's much more highmem
-than the "normal" memory in the system, it may be impossible to suspend at all
-due to the lack of space for saving non-freeable highmem pages.
+Thats a detail of the proposed implementation that isn't hard to fix.
 
-This limitation may be overcome in a satisfactory way if swsusp does its best
-to store the copies of saveable highmem pages in the highmem itself.  However,
-for this purpose swsusp has to be taught to use pfns, or (struct page *)
-pointers, instead of kernel virtual addresses to identify memory pages.
-Yet, if this is to be implemented, we can also attack the minor problem that
-the current swsusp's internal data structure, the list of page backup entries
-(aka PBEs), is not very efficient as far as the memory usage is concerned.
+> And IMHO that's insane that a regular user may close fds in someone else's
+> processes (or munmap some of its memory).  I already see people trying
+> to exploit bugs in system services:
 
-This issue can be addressed by replacing the list of PBEs with a pair of
-memory bitmaps.  Still, to remove the list of PBEs completely, we would
-have to make some complicated modifications to the architecture-dependent
-parts of the code which would be quite undesirable.  However, we can use
-the observation that memory is only a limiting resource during the suspend
-phase of the suspend-resume cycle, because during the resume phase
-many image pages may be loaded directly to their "original" page frames, so
-we don't need to keep a copy of each of them in the memory.  Thus the list of
-PBEs may be used safely in the last part of the resume phase without limitting
-the amount of memory we can use.
+I can do this already today. In fact the index.html one can be used to
+crash certain products now depending on their configuration. Just do
 
-The following series of patches introduces the memory bitmap data structure,
-makes swsusp use it to store its internal information and implements the
-improved handling of saveable highmem pages.
+	while { true } do
+		cp some.html index.html
+		> index.html
+	done
 
-Comments welcome.
+with a shell that truncates on > and you'll be able to bus error them if
+they mmap and are not well written.
 
-Greetings,
-Rafael
+These are not actually changes in behaviour. At any point I can shrink a
+file I own and you get read -> 0, mmap access -> bus error. Write
+behaviour is new but thats no different to filling the disk up or other
+real write errors.
+
 

@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWHIMQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWHIMXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWHIMQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWHIMQ1
+	id S1750702AbWHIMXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWHIMXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:16:27 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:224 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750703AbWHIMQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:16:27 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp and suspend2 like to overheat my laptop
-Date: Wed, 9 Aug 2006 14:15:51 +0200
-User-Agent: KMail/1.9.3
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org,
-       ncunningham@linuxmail.org
-References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com> <20060809115843.GB3747@elf.ucw.cz>
-In-Reply-To: <20060809115843.GB3747@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 08:23:09 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:8104 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750702AbWHIMXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:23:08 -0400
+Date: Wed, 9 Aug 2006 14:21:34 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, dean gaudet <dean@arctic.org>,
+       David Lang <dlang@digitalinsight.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
+       Arjan van de Ven <arjan@linux.intel.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Akkana Peck <akkana@shallowsky.com>,
+       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [RFC] [PATCH] Relative lazy atime
+Message-ID: <20060809122134.GF27863@wohnheim.fh-wedel.de>
+References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de> <1154797123.12108.6.camel@kleikamp.austin.ibm.com> <1154797475.3054.79.camel@laptopd505.fenrus.org> <20060805183609.GA7564@tuatara.stupidest.org> <20060805222247.GQ29686@ca-server1.us.oracle.com> <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz> <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org> <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200608091415.51226.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060809063947.GA13474@goober>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 13:58, Pavel Machek wrote:
-> Hi!
-> 
-> > > Okay, can you try to leave it up for a week or two (no suspends, no
-> > > poweroffs) and see what happens?
+On Tue, 8 August 2006 23:39:49 -0700, Valerie Henson wrote:
+> On Sat, Aug 05, 2006 at 09:01:47PM -0600, Matthew Wilcox wrote:
+> > On Sat, Aug 05, 2006 at 04:28:29PM -0700, dean gaudet wrote:
+> > > you can work around mutt's silly dependancy on atime by configuring it 
+> > > with --enable-buffy-size.  so far mutt is the only program i've discovered 
+> > > which cares about atime.
 > > 
-> > I've had this laptop running for a couple of months without shutting down
-> > and it doesn't have a problem.  The only time that I do shut it down
-> 
-> Ok.
-> 
-> > > > > P4 has thermal protection, so you are actually safe.
-> > > >
-> > > > Yeah, but still, the keyboard gets pretty hot too, and I'm actually more
-> > > > worried about damaging something that is close by than damaging the CPU
-> > > > itself.
-> > >
-> > > If you damage something, machine was misdesigned in the first place.
+> > For the shell, atime is the difference between 'you have mail' and 'you
+> > have new mail'.
 > > 
-> > agreed, but you never know ;)  This laptop is currently my lifeline :)
+> > I still don't understand though, how much does this really buy us over
+> > nodiratime?
 > 
-> You'd have good reason to get new one.
-> 
-> > > cat we get contents of /proc/acpi/thermal*/*/* ?
-> > 
-> > I'm running after a poweroff (left it running over night in the hotel, and
-> > I'm still in the hotel).
-> > 
-> > $ grep . /proc/acpi/thermal_zone/THRM/*
-> > /proc/acpi/thermal_zone/THRM/cooling_mode:<setting not supported>
-> > /proc/acpi/thermal_zone/THRM/cooling_mode:cooling mode: passive
-> > /proc/acpi/thermal_zone/THRM/polling_frequency:<polling disabled>
-> > /proc/acpi/thermal_zone/THRM/state:state:                   ok
-> > /proc/acpi/thermal_zone/THRM/temperature:temperature:             48 C
-> > /proc/acpi/thermal_zone/THRM/trip_points:critical (S5):           88 C
-> > /proc/acpi/thermal_zone/THRM/trip_points:passive:                 81 C: tc1=4 tc2=3 tsp=100 devices=0xcf6c2338
-> > 
-> > Note thermal_zone/THRM was finished with bash tab completion so they are
-> > the only things that match the above glob expr.
-> 
-> Ok, so it is the bios doing temperature control up-to 81C. At 81C,
-> linux should start cooling it, and at 88C, linux should shutdown. At
-> little higher temperature, hardware should emergency shutdown.
-> 
-> > > How s2ram works would be useful info.
-> > 
-> > No idea.
-> 
-> Well, try it :-). suspend.sf.net.
-> 
-> > It does look like something isn't setting up the ACPI power properly on
-> > resume, and that the CPU is probably in a busy loop while the machine is
-> > idle.  Just a guess.
-> 
-> Fan is not controlled by ACPI. But we may be saving some memory we
-> should not save, or something like that.
+> Lazy atime buys us a reduction in writes over nodiratime for any
+> workload which reads files, such as grep -r, a kernel compile, or
+> backup software.  Do I misunderstand the question?
 
-If it's a P4, we rather don't, because the ACPI tables should be above the
-last pfn in the normal zone.  Still, Steven please send your dmesg after a
-fresh boot.
+At the risk of stating the obvious, let me try to explain what each
+method does:
 
-Rafael
+1. standard
+Every read access to a file/directory causes an atime update.
+
+2. nodiratime
+Every read access to a non-directory causes an atime update.
+
+3. lazy atime
+The first read access to a file/directory causes an atime update.
+
+4. noatime
+No read access to a file/directory causes an atime update.
+
+In comparison, lazy atime will cause more atime updates for
+directories and vastly fewer for non-directories.  Effectively atime
+is turned into little more than a flag, stating whether the file was
+ever read since the last write to it.  And it appears as if neither
+mutt nor the shell use atime for more than this flagging purpose, so I
+am rather fond of the idea.
+
+Jörn
+
+-- 
+The cheapest, fastest and most reliable components of a computer
+system are those that aren't there.
+-- Gordon Bell, DEC labratories

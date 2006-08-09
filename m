@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWHIQeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWHIQd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWHIQeN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWHIQeN
+	id S1751007AbWHIQd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWHIQd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:34:13 -0400
-Received: from lixom.net ([66.141.50.11]:48261 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S1750740AbWHIQeL (ORCPT
+	Wed, 9 Aug 2006 12:33:59 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:6627 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750740AbWHIQd6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:34:11 -0400
-Date: Wed, 9 Aug 2006 11:33:13 -0500
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
-       linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>
-Subject: Re: [PATCH 6/6] ehea: Kernel build (Kconfig / Makefile)
-Message-ID: <20060809163313.GC29823@pb15.lixom.net>
-References: <44D99F92.60407@de.ibm.com>
-MIME-Version: 1.0
+	Wed, 9 Aug 2006 12:33:58 -0400
+Date: Wed, 9 Aug 2006 18:33:27 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Sergei Steshenko <steshenko_sergei@list.ru>
+Cc: Benoit Fouet <benoit.fouet@purplelabs.com>,
+       Gene Heskett <gene.heskett@verizon.net>,
+       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward compatibilty?
+Message-ID: <20060809163327.GB12571@mars.ravnborg.org>
+References: <200608091140.02777.gene.heskett@verizon.net> <20060809184658.2bdfb169@comp.home.net> <44DA05C9.5050600@purplelabs.com> <20060809160043.GA12571@mars.ravnborg.org> <20060809191748.7550edaa@comp.home.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44D99F92.60407@de.ibm.com>
+In-Reply-To: <20060809191748.7550edaa@comp.home.net>
 User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 10:40:50AM +0200, Jan-Bernd Themann wrote:
-> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+On Wed, Aug 09, 2006 at 07:17:48PM +0300, Sergei Steshenko wrote:
+> On Wed, 9 Aug 2006 18:00:43 +0200
+> Sam Ravnborg <sam@ravnborg.org> wrote:
 > 
+> > On Wed, Aug 09, 2006 at 05:56:57PM +0200, Benoit Fouet wrote:
+> > > >
+> > > >Demand stable ABI.
+> > > >
+> > > >  
+> > > >
+> > > sorry for the noise, but it's been a while now since i began reading
+> > > mails from this list, and i must admit i don't always (never?) see the
+> > > point of such messages...
+> > > if you can help me understand, i'll be very happy to get something more
+> > > detailed from you...
+> > Documentation/stable_api_nonsense.txt
+> > 
+> > 	Sam
+> > 
 > 
->   drivers/net/Kconfig  |    6 ++++++
->   drivers/net/Makefile |    1 +
->   2 files changed, 7 insertions(+)
+> I love senselessness and technical incompetence of the document.
 > 
+> As I was taught at school, to prove that a statement is wrong one
+> has to prove that it is wrong once.
 > 
-> 
-> diff -Nurp -X dontdiff linux-2.6.18-rc4/drivers/net/Kconfig patched_kernel/drivers/net/Kconfig
-> --- linux-2.6.18-rc4/drivers/net/Kconfig	2006-08-06 11:20:11.000000000 -0700
-> +++ patched_kernel/drivers/net/Kconfig	2006-08-08 03:00:49.526421944 -0700
-> @@ -2277,6 +2277,12 @@ config CHELSIO_T1
->             To compile this driver as a module, choose M here: the module
->             will be called cxgb.
-> 
-> +config EHEA
-> +        tristate "eHEA Ethernet support"
-> +        depends on IBMEBUS
-> +        ---help---
-> +          This driver supports the IBM pSeries ethernet adapter
+> Regardless of what the document says stable ABI can be achieved
+> today - run a chosen Linux kernel version + chosen ALSA version under XEN or
+> similar, and assign sound card to these (chosen Linux kernel version +
+> chosen ALSA version).
+Your focus is on user<->kernel API. The document is about kernel
+internal API. Thats two different things and it was not clear if the
+first poster was pointing at one or the other.
 
-Does this adapter really not have a better name for the option
-description? That's a very vague description given that IBM pSeries
-machines have had all sorts of ethernet adapters through the years.
+user<->kernel API is supposed to be stable - if ALSA breaks that then
+ALSA has something to fix.
 
-
-
--Olof
+	Sam

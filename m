@@ -1,42 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWHIBHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbWHIBLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbWHIBHl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 21:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWHIBHl
+	id S1030394AbWHIBLU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 21:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWHIBLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 21:07:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6097 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030390AbWHIBHk (ORCPT
+	Tue, 8 Aug 2006 21:11:20 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:43665 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1030394AbWHIBLT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 21:07:40 -0400
-Date: Wed, 9 Aug 2006 11:07:18 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Cc: David Chinner <dgc@sgi.com>, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Add new spin_lock for i_flags of xfs_inode
-Message-ID: <20060809110718.B2508736@wobbly.melbourne.sgi.com>
-References: <20060808205855m-saito@mail.aom.tnes.nec.co.jp>
+	Tue, 8 Aug 2006 21:11:19 -0400
+Subject: Re: [PATCH] CONFIG_RELOCATABLE modpost fix
+From: Magnus Damm <magnus@valinux.co.jp>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       ebiederm@xmission.com
+In-Reply-To: <20060808151657.GA18059@mars.ravnborg.org>
+References: <20060808083307.391.45887.sendpatchset@cherry.local>
+	 <20060808151657.GA18059@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Wed, 09 Aug 2006 10:12:52 +0900
+Message-Id: <1155085973.4341.55.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060808205855m-saito@mail.aom.tnes.nec.co.jp>; from m-saito@tnes.nec.co.jp on Tue, Aug 08, 2006 at 08:58:55PM +0900
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 08:58:55PM +0900, Masayuki Saito wrote:
-> It is the problem that i_flags of xfs_inode has no consistent
-> locking protection.
+Hi Sam,
+
+Thanks for picking up the patch!
+
+On Tue, 2006-08-08 at 17:16 +0200, Sam Ravnborg wrote:
+> On Tue, Aug 08, 2006 at 05:32:11PM +0900, Magnus Damm wrote:
+> > CONFIG_RELOCATABLE modpost fix
+> > 
+> > Run modpost on vmlinux regardless of CONFIG_MODULES. The modpost code is also
+> > extended to ignore references from ".pci_fixup" to ".init.text".
+> I've splitted the patch in two parts.
+> First is this one (I slightly modified your version and removed trailing
+> whitespaces).
 > 
-> For the reason, I define a new spin_lock(i_flags_lock) for i_flags
-> of xfs_inode.  And I add this spin_lock for appropriate places.
+> 	Sam
+> 
+> commit 1f43a633dc485f90fddf667270179058a07b9d77
+> Author: Magnus Damm <magnus@valinux.co.jp>
+> Date:   Tue Aug 8 17:32:11 2006 +0900
+> 
+>     kbuild: ignore references from ".pci_fixup" to ".init.text"
+>     
+>     The modpost code is extended to ignore references
+>     from ".pci_fixup" to ".init.text".
+>     
+>     Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+> 
+> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+> index dfde0e8..5028d46 100644
+> --- a/scripts/mod/modpost.c
+> +++ b/scripts/mod/modpost.c
+> @@ -581,8 +581,8 @@ static int strrcmp(const char *s, const 
+>   *   fromsec = .data
+>   *   atsym = *driver, *_template, *_sht, *_ops, *_probe, *probe_one
+>   **/
+> -static int secref_whitelist(const char *tosec, const char *fromsec,
+> -			    const char *atsym)
+> +static int secref_whitelist(const char *modname, const char *tosec,
+> +			    const char *fromsec, const char *atsym)
+>  {
+>  	int f1 = 1, f2 = 1;
+>  	const char **s;
+> @@ -618,8 +618,15 @@ static int secref_whitelist(const char *
+>  	for (s = pat2sym; *s; s++)
+>  		if (strrcmp(atsym, *s) == 0)
+>  			f1 = 1;
+> +	if (f1 && f2)
+> +		return 1;
+>  
+> -	return f1 && f2;
+> +	/* Whitelist all references from .pci_fixup section if vmlinux */
+> +	if (is_vmlinux(modname)) {
+> +		if ((strcmp(fromsec, ".pci_fixup") == 0) &&
+> +		    (strcmp(tosec, ".init.text") == 0))
+> +		return 1;
+> +	}
+>  }
 
-Thanks Masayuki.  I've queued these two patches in my test
-kernels, and if Dave has no more comments, I will get this
-merged soon (probably 2.6.19 material, as its not had much
-exposure yet afaik).
+You forget to return a value which result in the following warning:
 
-cheers.
+  HOSTCC  scripts/mod/modpost.o
+scripts/mod/modpost.c: In function `secref_whitelist':
+scripts/mod/modpost.c:630: warning: control reaches end of non-void
+function
+  HOSTCC  scripts/mod/sumversion.o
 
--- 
-Nathan
+Cheers,
+
+/magnus
+

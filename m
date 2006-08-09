@@ -1,105 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWHISeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWHISlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWHISeS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 14:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWHISeS
+	id S1751312AbWHISlh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 14:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWHISlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 14:34:18 -0400
-Received: from helium.samage.net ([83.149.67.129]:22146 "EHLO
-	helium.samage.net") by vger.kernel.org with ESMTP id S1751302AbWHISeR
+	Wed, 9 Aug 2006 14:41:37 -0400
+Received: from nijmegen.renzel.net ([195.243.213.130]:49310 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S1751312AbWHISlg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 14:34:17 -0400
-Message-ID: <62411.194.109.238.121.1155148442.squirrel@194.109.238.121>
-In-Reply-To: <1155132032.12225.65.camel@twins>
-References: <20060808193325.1396.58813.sendpatchset@lappy> 
-    <20060808193345.1396.16773.sendpatchset@lappy> 
-    <42414.81.207.0.53.1155080443.squirrel@81.207.0.53> 
-    <44D92B78.20408@google.com> 
-    <35608.81.207.0.53.1155124956.squirrel@81.207.0.53> 
-    <1155128046.12225.40.camel@twins> 
-    <39903.81.207.0.53.1155131329.squirrel@81.207.0.53>
-    <1155132032.12225.65.camel@twins>
-Date: Wed, 9 Aug 2006 20:34:02 +0200 (CEST)
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-From: "Indan Zupancic" <indan@nul.nu>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Cc: "Daniel Phillips" <phillips@google.com>, netdev@vger.kernel.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Wed, 9 Aug 2006 14:41:36 -0400
+From: Mws <mws@twisted-brains.org>
+To: "Molle Bestefich" <molle.bestefich@gmail.com>
+Subject: Re: ext3 corruption
+Date: Wed, 9 Aug 2006 20:41:25 +0200
+User-Agent: KMail/1.9.4
+Cc: "Michael Loftis" <mloftis@wgops.com>, linux-kernel@vger.kernel.org
+References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com> <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com> <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
+In-Reply-To: <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: multipart/signed;
+  boundary="nextPart2991082.R8XoNIMgl5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608092041.31359.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, August 9, 2006 16:00, Peter Zijlstra said:
-> On Wed, 2006-08-09 at 15:48 +0200, Indan Zupancic wrote:
->> On Wed, August 9, 2006 14:54, Peter Zijlstra said:
->> > On Wed, 2006-08-09 at 14:02 +0200, Indan Zupancic wrote:
->> >>  That avoids lots of checks and should guarantee that the
->> >> accounting is correct, except in the case when the IFF_MEMALLOC flag is
->> >> cleared and the counter is set to zero manually. Can't that be avoided and
->> >> just let it decrease to zero naturally?
->> >
->> > That would put the atomic op on the free path unconditionally, I think
->> > davem gets nightmares from that.
->>
->> I confused SOCK_MEMALLOC with sk_buff::memalloc, sorry. What I meant was
->> to unconditionally decrement the reserved usage only when memalloc is true
->> on the free path. That way all skbs that increased the reserve also decrease
->> it, and the counter should never go below zero.
->
-> OK, so far so good, except we loose the notion of getting memory back
-> from regular skbs.
+--nextPart2991082.R8XoNIMgl5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I don't understand this, regular skbs don't have anything to do with
-rx_reserve_used as far as I can see. I'm only talking about keeping
-that field up to date and correct. rx_reserve_used is only increased
-by a skb when memalloc is set to true on that skb, so only if that field
-is set rx_reserve_used needs to be reduced when the skb is freed.
+On Wednesday 09 August 2006 20:28, Molle Bestefich wrote:
+> Michael Loftis wrote:
+> > > Is there no intelligent ordering of
+> > > shutdown events in Linux at all?
+> >
+> > The kernel doesn't perform those, your distro's init scripts do that.
+>=20
+> Right.  It's all just "Linux" to me ;-).
+>=20
+> (Maybe the kernel SHOULD coordinate it somehow,
+>  seems like some of the distros are doing a pretty bad job as is.)
+>=20
+> > And various distros have various success at doing the right thing.  I'v=
+e had
+> > the best luck with Debian and Ubuntu doing this in the right order.  RH
+> > seems to insist on turning off the network then network services such as
+> > sshd.
+>=20
+> Seems things are worse than that.  Seems like it actually kills the
+> block device before it has successfully (or forcefully) unmounted the
+> filesystems.  Thus the killing must also be before stopping Samba,
+> since that's what was (always is) holding the filesystem.
+>=20
+> It's indeed a redhat, though - Red Hat Linux release 9 (Shrike).
+>=20
+> > > Samba was serving files to remote computers and had no desire to let
+> > > go of the filesystem while still running.  After 5 seconds or so,
+> > > Linux just shutdown the MD device with the filesystem still mounted.
+> >
+> > The kernel probably didn't do this, usually by the time the kernel gets=
+ to
+> > this point init has already sent kills to everything.  If it hasn't it
+> > points to problems with your init scripts, not the kernel.
+>=20
+> Ok, so LKML is not appropriate for the init script issue.
+> Never mind that, I'll just try another distro when time comes.
+>=20
+> I'd really like to know what the "Block bitmap for group not in group"
+> message means (block bitmap is pretty self explanatory, but what's a
+> group?).
+>=20
+> And what will e2fsck do to my dear filesystem if I let it have a go at it?
+> -
+hi,=20
+what i am missing is a kind of information, what type of pc you own/use.
 
-Why is it needed for the protocol specific code to call dev_unreserve_skb?
+i personally builded a new one the last few days and also encountered
+problems with ext3.
 
-Only problem is if the device can change. rx_reserve_used should probably
-be updated when that happens, as a skb can't use reserved memory on a device
-it was moved away from. (right?)
+i do own a amd64 x2 5000+ with asus m2n32 ws pro motherboard.
 
->> Also as far as I can see it should be possible to replace all atomic
->> "if (unlikely(dev_reserve_used(skb->dev)))" checks witha check if
->> memalloc is set. That should make davem happy, as there aren't any
->> atomic instructions left in hot paths.
->
-> dev_reserve_used() uses atomic_read() which isn't actually a LOCK'ed
-> instruction, so that should not matter.
+i yesterday changed my root partition from ext3 to xfs and my problems
+went away. so imho there might be some issues in having 64 bit systems,
+dual processor and ext3 in combination.
 
-Perhaps, but the main reason to check memalloc instead of using
-dev_reserve_used is because the latter doesn't tell which skb did the
-reservation.
+kernel is 2.6.17
 
->> If IFF_MEMALLOC is set new skbs set memalloc and increase the reserve.
->
-> Not quite, if IFF_MEMALLOC is set new skbs _could_ get memalloc set. We
-> only fall back to alloc_pages() if the regular path fails to alloc. If the
-> skb is backed by a page (as opposed to kmem_cache fluff) sk_buff::memalloc
-> is set.
+behaviour was like:=20
+filesystem became corrupted due to uncommitted transactions, resulting=20
+in manually "fsck" checking the partition, loads of errors i did correct, b=
+ut
+a lot of files got corrupted. i didn't check if the sata attached drives wo=
+uld also
+fail on ext3 cause i had them already prepared for xfs.
 
-Yes, true. But doesn't matter for the rx_reserve_used accounting, as long as
-memalloc set means that it did increase rx_reserve_used.
-
-> Also, I've been thinking (more pain), should I not up the reserve for
-> each SOCK_MEMALLOC socket.
-
-Up rx_reserve_used or the total ammount of reserved memory? Probably 'no' for
-both though, as it's either device specific or skb dependent.
-
-I'm slowly getting a clearer image of the big picture, I'll take another look
-when you post the updated code.
-
-Greetings,
-
-Indan
+regards
+marcel
 
 
+
+
+
+--nextPart2991082.R8XoNIMgl5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBE2ixbPpA+SyJsko8RAvYXAKCXwQK+cUP93sGw6w4T+c038FS7DQCaA4Jg
+HwtfoLA3Vt3rI4tAIhmyNP8=
+=sSla
+-----END PGP SIGNATURE-----
+
+--nextPart2991082.R8XoNIMgl5--

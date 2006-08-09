@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWHIM60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWHIM65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWHIM60 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 08:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWHIM60
+	id S1750745AbWHIM65 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 08:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWHIM6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 08:58:26 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:16293 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750737AbWHIM6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 08:58:25 -0400
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Valerie Henson <val_henson@linux.intel.com>,
-       Matthew Wilcox <matthew@wil.cx>, dean gaudet <dean@arctic.org>,
-       David Lang <dlang@digitalinsight.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, Akkana Peck <akkana@shallowsky.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
-       Al Viro <viro@ftp.linux.org.uk>
-In-Reply-To: <20060809122134.GF27863@wohnheim.fh-wedel.de>
-References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de>
-	 <1154797123.12108.6.camel@kleikamp.austin.ibm.com>
-	 <1154797475.3054.79.camel@laptopd505.fenrus.org>
-	 <20060805183609.GA7564@tuatara.stupidest.org>
-	 <20060805222247.GQ29686@ca-server1.us.oracle.com>
-	 <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz>
-	 <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org>
-	 <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober>
-	 <20060809122134.GF27863@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 09 Aug 2006 07:58:20 -0500
-Message-Id: <1155128301.10228.2.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 8bit
+	Wed, 9 Aug 2006 08:58:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61150 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750740AbWHIM6y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 08:58:54 -0400
+Date: Wed, 9 Aug 2006 14:58:40 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Suspend2-devel@lists.suspend2.net,
+       linux-pm@osdl.org, ncunningham@linuxmail.org
+Subject: Re: swsusp and suspend2 like to overheat my laptop
+Message-ID: <20060809125840.GD3808@elf.ucw.cz>
+References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <20060808235352.GA4751@elf.ucw.cz> <Pine.LNX.4.58.0608082215090.20396@gandalf.stny.rr.com> <20060809073958.GK4886@elf.ucw.cz> <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com> <Pine.LNX.4.58.0608090751340.2500@gandalf.stny.rr.com> <20060809120844.GD3747@elf.ucw.cz> <Pine.LNX.4.58.0608090831440.3177@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0608090831440.3177@gandalf.stny.rr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-09 at 14:21 +0200, Jörn Engel wrote:
-> 1. standard
-> Every read access to a file/directory causes an atime update.
+On Wed 2006-08-09 08:35:47, Steven Rostedt wrote:
 > 
-> 2. nodiratime
-> Every read access to a non-directory causes an atime update.
+> On Wed, 9 Aug 2006, Pavel Machek wrote:
 > 
-> 3. lazy atime
-> The first read access to a file/directory causes an atime update.
+> >
+> > Okay, run top to see what goes on, and look for
+> > /proc/acpi/processor/*/* -- you are interested in C states before and
+> > after suspend.
 > 
-> 4. noatime
-> No read access to a file/directory causes an atime update.
-> 
-> In comparison, lazy atime will cause more atime updates for
-> directories and vastly fewer for non-directories.
+> I don't quite understand.  What am I looking for in top?
 
-Using nodiratime and lazy atime together would probably be the best
-option for those that only want atime for mutt/shell mail notification.
+Some process that is running and eating 99% cpu when it should not be
+running and doing anything?
+								Pavel
 
->  Effectively atime
-> is turned into little more than a flag, stating whether the file was
-> ever read since the last write to it.  And it appears as if neither
-> mutt nor the shell use atime for more than this flagging purpose, so I
-> am rather fond of the idea.
+
+> Here's the before and after:
 > 
-> Jörn
+> before:
 > 
+> $ grep C /proc/acpi/processor/*/*
+> /proc/acpi/processor/CPU0/power:active state:            C1
+> /proc/acpi/processor/CPU0/power:max_cstate:              C8
+> /proc/acpi/processor/CPU0/power:   *C1:                  type[C1]
+> promotion[--] demotion[--] latency[000] usage[00000000] duration[00000000000000000000]
+
+All zeros? Strange...
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

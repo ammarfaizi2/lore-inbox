@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWHILx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWHILxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWHILx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 07:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWHILx7
+	id S1161000AbWHILxx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 07:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWHILxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 07:53:59 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:39913 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1161003AbWHILx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 07:53:58 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: swsusp and suspend2 like to overheat my laptop
-Date: Wed, 9 Aug 2006 21:54:15 +1000
-User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Suspend2-devel@lists.suspend2.net, linux-pm@osdl.org
-References: <Pine.LNX.4.58.0608081612380.17442@gandalf.stny.rr.com> <20060809073958.GK4886@elf.ucw.cz> <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0608090732100.2500@gandalf.stny.rr.com>
+	Wed, 9 Aug 2006 07:53:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12268 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161000AbWHILxw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 07:53:52 -0400
+Date: Wed, 9 Aug 2006 13:53:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
+Subject: Re: [RFC][PATCH -mm 1/5] swsusp: Introduce memory bitmaps
+Message-ID: <20060809115335.GA3747@elf.ucw.cz>
+References: <200608091152.49094.rjw@sisk.pl> <200608091257.16663.rjw@sisk.pl> <20060809112701.GO3308@elf.ucw.cz> <200608091336.17137.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart15404602.IkaQGrMOvA";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200608092154.16559.nigel@suspend2.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608091336.17137.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart15404602.IkaQGrMOvA
-Content-Type: text/plain;
-  charset="cp 850"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed 2006-08-09 13:36:16, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Wednesday 09 August 2006 13:27, Pavel Machek wrote:
+> > > > > Introduce the memory bitmap data structure and make swsusp use in the suspend
+> > > > > phase.
+> > > > > 
+> > > > > The current swsusp's internal data structure is not very efficient from the
+> > > > > memory usage point of view, so it seems reasonable to replace it with a data
+> > > > > structure that will require less memory, such as a pair of bitmaps.
+> > > > 
+> > > > Well, 500 lines of code  for what... 0.25% bigger image?
+> 
+> BTW, that depends on the total size of RAM.  On a 1.5 GB i386 box that would
+> be something like 100%.
 
-Hi Steven.
-
-Have you tried building the ACPI modules as modules (if you're not already=
-=20
-doing so), and unloading them while suspending? If not, I'd give that a go.
-
-Regards,
-
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart15404602.IkaQGrMOvA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBE2czoN0y+n1M3mo0RAoQUAJ4oukCig28y/Xik3Aq0qEN8JRJegQCaA0Rn
-7yQxA8rMaC8VcCHuQZLMLSE=
-=wwWK
------END PGP SIGNATURE-----
-
---nextPart15404602.IkaQGrMOvA--
+Well, well, but 99.75% of that is from 3/5 patch, and we could still
+get those 99.75% without bitmaps, right?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

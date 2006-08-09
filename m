@@ -1,88 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWHINuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWHIOAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbWHINuy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 09:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWHINuy
+	id S1750856AbWHIOAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWHIOAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 09:50:54 -0400
-Received: from mga01.intel.com ([192.55.52.88]:62221 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750817AbWHINux convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 09:50:53 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.07,225,1151910000"; 
-   d="scan'208"; a="113984458:sNHT48049148"
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Acpi oops 2.6.17.7 vanilla
-Date: Wed, 9 Aug 2006 21:50:34 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1120723@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Acpi oops 2.6.17.7 vanilla
-Thread-Index: Aca7sETldUkdnMAATry/vMwNPcROrwACmguQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Johan Rutgeerts" <johan.rutgeerts@mech.kuleuven.be>,
-       <linux-acpi@vger.kernel.org>
-Cc: "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Aug 2006 13:50:38.0455 (UTC) FILETIME=[CBD2F870:01C6BBBA]
+	Wed, 9 Aug 2006 10:00:38 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:52903 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1750855AbWHIOAh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:00:37 -0400
+Date: Wed, 9 Aug 2006 22:24:13 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] sys_getppid-oopses-on-debug-kernel-v2-simplify
+Message-ID: <20060809182413.GA1205@oleg>
+References: <20060809143816.GA142@oleg> <44D9D03B.6060907@sw.ru> <20060809165441.GA187@oleg> <44D9DCFF.2080400@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D9DCFF.2080400@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please open a bug on bugzilla.kernel.org in ACPI category
+On top of Kirill's sys_getppid-oopses-on-debug-kernel-v2.patch
 
-Thanks
-Luming 
+- We don't need ->group_leader->real_parent, all threads should
+  have the same ->real_parent.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org 
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Johan Rutgeerts
-Sent: 2006Äê8ÔÂ9ÈÕ 20:33
-To: linux-acpi@vger.kernel.org
-Cc: Brown, Len; linux-kernel@vger.kernel.org
-Subject: Acpi oops 2.6.17.7 vanilla
+- We don't need tasklist_lock, task_struct is freed by RCU, so
+  rcu_read_lock() should be enough.
 
+(Compile tested)
 
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Hi,
+--- 2.6.18-rc3/kernel/timer.c~	2006-08-09 22:08:51.000000000 +0400
++++ 2.6.18-rc3/kernel/timer.c	2006-08-09 22:15:35.000000000 +0400
+@@ -1324,28 +1324,18 @@ asmlinkage long sys_getpid(void)
+ }
+ 
+ /*
+- * Accessing ->group_leader->real_parent is not SMP-safe, it could
+- * change from under us. However, rather than getting any lock
+- * we can use an optimistic algorithm: get the parent
+- * pid, and go back and check that the parent is still
+- * the same. If it has changed (which is extremely unlikely
+- * indeed), we just try again..
+- *
+- * NOTE! This depends on the fact that even if we _do_
+- * get an old value of "parent", we can happily dereference
+- * the pointer (it was and remains a dereferencable kernel pointer
+- * no matter what): we just can't necessarily trust the result
+- * until we know that the parent pointer is valid.
+- *
+- * NOTE2: ->group_leader never changes from under us.
++ * Accessing ->real_parent is not SMP-safe, it could
++ * change from under us. However, we can use a stale
++ * value of ->real_parent under rcu_read_lock(), see
++ * release_task()->call_rcu(delayed_put_task_struct).
+  */
+ asmlinkage long sys_getppid(void)
+ {
+ 	int pid;
+ 
+-	read_lock(&tasklist_lock);
+-	pid = current->group_leader->real_parent->tgid;
+-	read_unlock(&tasklist_lock);
++	rcu_read_lock();
++	pid = rcu_dereference(current->real_parent)->tgid;
++	rcu_read_unlock();
+ 
+ 	return pid;
+ }
 
-
-I frequently get kernel oopses (NULL pointer dereference), 
-which seem acpi 
-related.
-
-
-Attached file contains kern.log info for a non-tainted 2.6.17.7 vanilla 
-kernel.
-
-
-
-If it is of interest: I have put lots of similar oops reports 
-online, for 
-different kernels versions (ubuntu kernels and vanilla), at:
-<http://people.mech.kuleuven.be/~jrutgeer/oopses/>.
-
-For the earlier kernels of those, I used to have a lot of 
-"ACPI: read EC, IB 
-not empty" messages. These seem gone since I compiled a vanilla 
-2.6.17.7 
-kernel.
-
-
-I'm testing a 2.6.18-rc4 kernel now. If there is anything else 
-I can do (e.g. 
-test older kernels), please let me know.
-
-
-
-Greetings,
-
-Johan Rutgeerts
-
-
-Disclaimer: http://www.kuleuven.be/cwis/email_disclaimer.htm

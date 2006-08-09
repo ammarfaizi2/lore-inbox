@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWHIOy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWHIO4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWHIOy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 10:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWHIOy7
+	id S1750929AbWHIO4n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWHIO4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 10:54:59 -0400
-Received: from wr-out-0506.google.com ([64.233.184.226]:16026 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750920AbWHIOy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 10:54:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Rh22SjrvesTBR/3RLiyW6cnRvYR9AOCx+uwhq9uvQK5t+KpIIYzeUwin3WGOSHbiREmRDBnTpGAoJMeqV042pyspsaxbTOde08auYzGfZR+RP7bhqep/hzc5NbnURlmjqCM1f/+vzF6WPfKdev8AuJErQPyGFO7q4RELwIZ2Gw0=
-Message-ID: <f96157c40608090754m1f10e0f2h5fbf3b256d2e55e1@mail.gmail.com>
-Date: Wed, 9 Aug 2006 14:54:56 +0000
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Joel Jaeggli" <joelja@uoregon.edu>
-Subject: Re: Only 3.2G ram out of 4G seen in an i386 box
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060809074815.bec7f32c.joelja@uoregon.edu>
+	Wed, 9 Aug 2006 10:56:43 -0400
+Received: from smtp.enter.net ([216.193.128.24]:39693 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1750934AbWHIO4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:56:42 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Horms <horms@verge.net.au>
+Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
+Date: Wed, 9 Aug 2006 10:56:38 -0400
+User-Agent: KMail/1.9.3
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, vgoyal@in.ibm.com, fastboot@osdl.org,
+       linux-kernel@vger.kernel.org, Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, Linda Wang <lwang@redhat.com>
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <m18xlz8zdo.fsf@ebiederm.dsl.xmission.com> <20060808075849.GA11285@verge.net.au>
+In-Reply-To: <20060808075849.GA11285@verge.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060808101504.GJ2152@stingr.net>
-	 <MDEHLPKNGKAHNMBLJOLKKEDCNKAB.davids@webmaster.com>
-	 <f96157c40608082351j301efa57n412284f8d28124ef@mail.gmail.com>
-	 <20060809074815.bec7f32c.joelja@uoregon.edu>
+Message-Id: <200608091056.39770.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/9/06, Joel Jaeggli <joelja@uoregon.edu> wrote:
-> On Wed, 9 Aug 2006 08:51:41 +0200
-> "gmu 2k6" <gmu2006@gmail.com> wrote:
->
-> > >        Are these technical notes supposed to be so funny?
-> > >
-> > >        DS
+On Tuesday 08 August 2006 03:58, Horms wrote:
+> On Tue, Aug 08, 2006 at 01:23:15AM -0600, Eric W. Biederman wrote:
+> > Horms <horms@verge.net.au> writes:
+<snip>
+> > For maintenance reasons I propose we introduce CONFIG_PHYSICAL_ALIGN.
+> > Which will round our load address up to the nearest aligned address
+> > and run the kernel there.  That is roughly what I am doing on x86_64
+> > at this point.
 > >
-> > I guess this is all related to older Intel chipsets, right? I mean the
-> > chipset *75X something I'm going to have in the new box I will get
-> > soonish will support up to 8 GiB. I hope it does not mean that it will
-> > be capped at 7.4GiB although I will only have 4GiB installed for now.
+> > s/CONFIG_PHYSICAL_START/CONFIG_PHYSICAL_ALIGN/ gives me well defined
+> > behavior and allows the alignment optimization without getting into
+> > weird semantics.
+> >
+> > Before CONFIG_PHYSICAL_START we _always_ ran the arch/i386 kernel
+> > where it was loaded and I assumed we always would.  Since people have
+> > realized better aligned kernels can run better this assumption became
+> > false.  Going to CONFIG_PHYSICAL_ALIGN allows us to return to the
+> > simple assumption of always running the kernel where it is loaded
+> > modulo a little extra alignment.
 >
-> most modern 64 bit x86 systems will relocate this memory hole to somewhere else within the address space (memory hoisting)... You'll probably find the it reappers the first time you buy a system with 1TB of ram...
+> That sounds reasonable to me. Though it is a little less flexible,
+> do you think that could be a problem? Perhaps we could have both,
+> though that would probably be quite confusing.
 
-so what does it mean that one of Xeons here shows me the full 4GiB as
-total physical memory via `free`?
+More than reasonable. By changing this it seems that the kernel would still 
+work with older bootloaders, function properly under kexec and might actually 
+lead to a way to potentially recover a system from a crash without a reboot 
+by allowing the kexec'd kernel to reset the system.
 
-btw, the box I'm getting will have the 975X chip and include 4GiB RAM
-and if I understood the problem correctly even with 3GiB there will be
-some memory lost to mapping-issues besides the HI/LO mem
-kernel-reserving issue.
-this is what I get on ia32 P4 with 3GiB
-             total       used       free     shared    buffers     cached
-Mem:       3116108    2608196     507912          0     246652    2039708
-and this is what I get on ia32 Xeon with 4GiB
-             total       used       free     shared    buffers     cached
-Mem:       4087660     268828    3818832          0      57168     103568
+Of course the last is only a wish... Never happen because of the complexity 
+involved. It would require a lot of work (I'd do this, but I'm currently 
+arguing with the kernel over my attempts at building a functional DRM backed 
+console) in having to switch back to real-mode to make the proper BIOS calls 
+to reset the busses et. al. before switching *back* to kernel mode to run the 
+standard startup.
+
+Still, by letting a kernel run where it's loaded plus some modulo to get it 
+properly aligned in memory solves several problems. It removes the need for 
+CONFIG_PHYSICAL_START and the code involved in handling that. The kexec code 
+that reserves memory for the new kernel image can be tweaked to always 
+allocate the memory *aligned*...
+
+Anyway, I'd better get back to the DRMCon code...
+
+DRH

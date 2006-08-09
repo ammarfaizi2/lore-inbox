@@ -1,125 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbWHIBPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbWHIBSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030391AbWHIBPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 21:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbWHIBPW
+	id S1030379AbWHIBSd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 21:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWHIBSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 21:15:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:15787 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030391AbWHIBPV (ORCPT
+	Tue, 8 Aug 2006 21:18:33 -0400
+Received: from gw.goop.org ([64.81.55.164]:18598 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030379AbWHIBSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 21:15:21 -0400
-Date: Tue, 8 Aug 2006 20:15:19 -0500
-To: Amos Waterland <apw@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       rubini@vision.unipv.it, device@lanana.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Chardev checking of overlapping ranges is incorrect.
-Message-ID: <20060809011519.GZ10638@austin.ibm.com>
-References: <20060807225555.GQ10638@austin.ibm.com> <20060807234753.ff21eb29.akpm@osdl.org> <20060808205258.GA6111@kvasir.watson.ibm.com> <20060808213331.GW10638@austin.ibm.com> <20060808222041.GA9708@kvasir.watson.ibm.com>
+	Tue, 8 Aug 2006 21:18:32 -0400
+Message-ID: <44D937EE.1020404@goop.org>
+Date: Tue, 08 Aug 2006 18:18:38 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060808222041.GA9708@kvasir.watson.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.18-rc3-mm2] KPROBE_ENTRY ends up putting code into .fixup
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 06:20:41PM -0400, Amos Waterland wrote:
-> > 
-> > Actually, there's still a problem. An added device could still 
-> > overlap with a previously added device and not be detected. 
-> > We should keep the devices in order, and check that the region
-> > fits in between the last and the next device.  So, for example,
-> > the following will make the latest patch accept an invalid region:
-> > 
-> > First, add maj=x, minor=64-127
-> > Next, add  maj=x, minor=0-63
-> > Next, add  maj=x, minor=32-63
-> > 
-> > When going to insert the third chardev, the for-loop will catch 
-> > the first elt in the chain, do the bounds-check, and add it
-> > without complaint.  I'll try a patch shortly.
-> 
-> Are you sure?  I do not see how that can happen.  
+KPROBE_ENTRY does a .section .kprobes.text, and expects its users to
+do a .previous at the end of the function.
 
-On closer examination, indeed, this cannot happen.  I was presuming an
-order dependence when there wasn't one. I am now older and wiser: 
-although I had to write my own patch to become that. 
+Unfortunately, if any code within the function switches sections, for
+example .fixup, then the .previous ends up putting all subsequent code
+into .fixup.  Worse, any subsequent .fixup code gets intermingled with
+the code its supposed to be fixing (which is also in .fixup).  It's
+surprising this didn't cause more havok.
 
-I beleive there's still an off-by-one error:
-Presume list contains
-  maj=x, minor=0-64  (and nothing else)
-Go to add
-  maj=x, minor=64-127
+The fix is to use .pushsection/.popsection, so this stuff nests
+properly.  A further cleanup would be to get rid of all
+.section/.previous pairs, since they're inherently fragile.
 
-The conditions to break out of the for-loop are never met, so
-the loop terminates naturally, with *cp null, (or with a higher 
-major number), and the new interval is added when it should not 
-have been.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 
-I beleive the patch below avoids this.  Perhaps it might be 
-easier to understand? I have not run your test harness on it.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
-----
- fs/char_dev.c |   34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
-
-Index: linux-2.6.18-rc3-mm2/fs/char_dev.c
-===================================================================
---- linux-2.6.18-rc3-mm2.orig/fs/char_dev.c	2006-08-08 16:52:47.000000000 -0500
-+++ linux-2.6.18-rc3-mm2/fs/char_dev.c	2006-08-08 20:07:35.000000000 -0500
-@@ -76,6 +76,7 @@ __register_chrdev_region(unsigned int ma
- 			   int minorct, const char *name)
- {
- 	struct char_device_struct *cd, **cp;
-+	int prev_top, curr_top;
- 	int ret = 0;
- 	int i;
+diff -r 30f9dfcdff81 arch/i386/kernel/entry.S
+--- a/arch/i386/kernel/entry.S	Mon Aug 07 16:08:33 2006 -0700
++++ b/arch/i386/kernel/entry.S	Tue Aug 08 17:40:03 2006 -0700
+@@ -646,7 +646,7 @@ error_code:
+ 	call *%edi
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-.previous
++.popsection
  
-@@ -107,18 +108,35 @@ __register_chrdev_region(unsigned int ma
+ ENTRY(coprocessor_error)
+ 	RING0_INT_FRAME
+@@ -722,7 +722,7 @@ debug_stack_correct:
+ 	call do_debug
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-.previous
++.popsection
  
- 	i = major_to_index(major);
+ /*
+  * NMI is doubly nasty. It can happen _while_ we're handling
+@@ -819,7 +819,7 @@ KPROBE_ENTRY(int3)
+ 	call do_int3
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-.previous
++.popsection
  
--	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
--		if ((*cp)->major > major ||
--		    ((*cp)->major == major &&
--		     (((*cp)->baseminor >= baseminor) ||
--		      ((*cp)->baseminor + (*cp)->minorct > baseminor))))
-+	prev_top = -1;
-+	curr_top = baseminor + minorct - 1;
-+
-+	/* Insert into list, with sort order of low to high. */
-+	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next) {
-+		if ((*cp)->major > major)
- 			break;
--	if (*cp && (*cp)->major == major &&
--	    (((*cp)->baseminor < baseminor + minorct) ||
--	     ((*cp)->baseminor + (*cp)->minorct > baseminor))) {
-+		if((*cp)->major == major) {
-+
-+			/* If it fits between this and the previous, accept it. */
-+			if (((*cp)->baseminor > curr_top) &&
-+				 (prev_top < (int) baseminor))
-+				break;
-+
-+			/* If it overlaps this interval, reject it */
-+			prev_top = (*cp)->baseminor + (*cp)->minorct - 1;
-+			if (prev_top >= (int) baseminor) {
-+				ret = -EBUSY;
-+				goto out;
-+			}
-+		}
-+	}
-+
-+	/* If it overlaps this interval, reject it */
-+	if ((*cp) && (curr_top >= (*cp)->baseminor)) {
- 		ret = -EBUSY;
- 		goto out;
- 	}
-+
- 	cd->next = *cp;
- 	*cp = cd;
- 	mutex_unlock(&chrdevs_lock);
+ ENTRY(overflow)
+ 	RING0_INT_FRAME
+@@ -884,7 +884,7 @@ KPROBE_ENTRY(general_protection)
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	jmp error_code
+ 	CFI_ENDPROC
+-.previous
++.popsection
+ 
+ ENTRY(alignment_check)
+ 	RING0_EC_FRAME
+diff -r 30f9dfcdff81 arch/x86_64/kernel/entry.S
+--- a/arch/x86_64/kernel/entry.S	Mon Aug 07 16:08:33 2006 -0700
++++ b/arch/x86_64/kernel/entry.S	Tue Aug 08 17:41:13 2006 -0700
+@@ -904,7 +904,7 @@ error_kernelspace:
+         je   error_swapgs
+ 	jmp  error_sti
+ END(error_entry)
+-	.previous
++	.popsection
+ 	
+        /* Reload gs selector with exception handling */
+        /* edi:  new selector */ 
+@@ -1024,7 +1024,7 @@ KPROBE_ENTRY(page_fault)
+ KPROBE_ENTRY(page_fault)
+ 	errorentry do_page_fault
+ END(page_fault)
+-	.previous
++	.popsection
+ 
+ ENTRY(coprocessor_error)
+ 	zeroentry do_coprocessor_error
+@@ -1046,7 +1046,7 @@ KPROBE_ENTRY(debug)
+ 	paranoidentry do_debug, DEBUG_STACK
+ 	paranoidexit
+ END(debug)
+-	.previous
++	.popsection
+ 
+ 	/* runs on exception stack */	
+ KPROBE_ENTRY(nmi)
+@@ -1061,7 +1061,7 @@ KPROBE_ENTRY(nmi)
+  	CFI_ENDPROC
+ #endif
+ END(nmi)
+-	.previous
++	.popsection
+ 
+ KPROBE_ENTRY(int3)
+  	INTR_FRAME
+@@ -1071,7 +1071,7 @@ KPROBE_ENTRY(int3)
+  	jmp paranoid_exit1
+  	CFI_ENDPROC
+ END(int3)
+-	.previous
++	.popsection
+ 
+ ENTRY(overflow)
+ 	zeroentry do_overflow
+@@ -1120,7 +1120,7 @@ KPROBE_ENTRY(general_protection)
+ KPROBE_ENTRY(general_protection)
+ 	errorentry do_general_protection
+ END(general_protection)
+-	.previous
++	.popsection
+ 
+ ENTRY(alignment_check)
+ 	errorentry do_alignment_check
+diff -r 30f9dfcdff81 include/linux/linkage.h
+--- a/include/linux/linkage.h	Mon Aug 07 16:08:33 2006 -0700
++++ b/include/linux/linkage.h	Tue Aug 08 17:41:23 2006 -0700
+@@ -35,7 +35,7 @@
+ #endif
+ 
+ #define KPROBE_ENTRY(name) \
+-  .section .kprobes.text, "ax"; \
++  .pushsection .kprobes.text, "ax"; \
+   ENTRY(name)
+ 
+ #ifndef END
+

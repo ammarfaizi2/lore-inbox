@@ -1,82 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030611AbWHIJk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030614AbWHIJlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030611AbWHIJk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 05:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWHIJk4
+	id S1030614AbWHIJlx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWHIJlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 05:40:56 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:13754 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1030611AbWHIJk4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 05:40:56 -0400
-Message-ID: <44D99F96.4090804@namesys.com>
-Date: Wed, 09 Aug 2006 02:40:54 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Edward Shishkin <edward@namesys.com>
-CC: Matthias Andree <matthias.andree@gmx.de>, ric@emc.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de> <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com> <44CF3DE0.3010501@namesys.com> <20060803140344.GC7431@merlin.emma.line.org> <44D219F9.9080404@namesys.com> <44D231DF.1080804@namesys.com> <44D37E1B.1040109@namesys.com> <44D3ECB5.1060106@namesys.com> <44D66ADD.6020007@namesys.com>
-In-Reply-To: <44D66ADD.6020007@namesys.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 05:41:53 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:58803 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030613AbWHIJlw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 05:41:52 -0400
+Date: Wed, 9 Aug 2006 15:13:11 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [PATCH 2/3] Kprobes: Define retval helper
+Message-ID: <20060809094311.GA20050@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <20060807115537.GA15253@in.ibm.com> <20060807120024.GD15253@in.ibm.com> <20060808162559.GB28647@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060808162559.GB28647@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward Shishkin wrote:
+On Tue, Aug 08, 2006 at 05:25:59PM +0100, Christoph Hellwig wrote:
+> On Mon, Aug 07, 2006 at 05:30:24PM +0530, Ananth N Mavinakayanahalli wrote:
+> > From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> > 
+> > Add the KPROBE_RETVAL macro to help extract the return value on
+> > different architectures, while using function-return probes.
+> 
+> Good idea.  You should add parentheses around regs, otherwise the C
+> preprocessor might bite users.  Also the shouting name is quite ugly.
+> In fact it should probably go to asm/system.h or similar and not have
+> a kprobes name - it just extracts the return value from a struct pt_regs
+> after all.
 
-> Hans Reiser wrote:
->
->> Edward Shishkin wrote:
->>
->>
->>>>
->>>> How about we switch to ecc, which would help with bit rot not sector
->>>> loss?
->>>
->>>
->>>
->>> Interesting aspect.
->>>
->>> Yes, we can implement ECC as a special crypto transform that inflates
->>> data. As I mentioned earlier, it is possible via translation of key
->>> offsets with scale factor > 1.
->>>
->>> Of course, it is better then nothing, but anyway meta-data remains
->>> ecc-unprotected, and, hence, robustness is not increased..
->>>
->>> Edward.
->>
->>
->>
->> Would you prefer to do it as a node layout plugin instead, so as to get
->> the metadata?
->>
->
-> Yes, it looks like a business of node plugin, but AFAIK, you
-> objected against such checks:
+Done! How does this look? I added it to asm/ptrace.h so it lives along
+with the instruction_pointer() definition.
 
-Did I really?  Well, I think that allowing users to choose whether to
-checksum or not is a reasonable thing to allow them.  I personally would
-skip the checksum on my computer, but others....
+Ananth
 
-It could be a useful mkfs option....
+---
 
-> currently only bitmap nodes have
-> a protection (checksum); supporting ecc-signatures is more
-> space/cpu expensive.
->
-> Edward.
->
->
+Add the "get_retval" macro that just extracts the return value given the
+pt_regs. Useful in situations such as while using function-return
+probes.
 
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+
+---
+ include/asm-i386/ptrace.h    |    3 +++
+ include/asm-ia64/ptrace.h    |    3 +++
+ include/asm-powerpc/ptrace.h |    2 ++
+ include/asm-x86_64/ptrace.h  |    2 ++
+ 4 files changed, 10 insertions(+)
+
+Index: linux-2.6.18-rc3/include/asm-i386/ptrace.h
+===================================================================
+--- linux-2.6.18-rc3.orig/include/asm-i386/ptrace.h
++++ linux-2.6.18-rc3/include/asm-i386/ptrace.h
+@@ -79,7 +79,10 @@ static inline int user_mode_vm(struct pt
+ {
+ 	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
+ }
++
+ #define instruction_pointer(regs) ((regs)->eip)
++#define get_retval(regs) ((regs)->eax)
++
+ #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ #else
+Index: linux-2.6.18-rc3/include/asm-ia64/ptrace.h
+===================================================================
+--- linux-2.6.18-rc3.orig/include/asm-ia64/ptrace.h
++++ linux-2.6.18-rc3/include/asm-ia64/ptrace.h
+@@ -237,6 +237,9 @@ struct switch_stack {
+  * the canonical representation by adding to instruction pointer.
+  */
+ # define instruction_pointer(regs) ((regs)->cr_iip + ia64_psr(regs)->ri)
++
++#define get_retval(regs) ((regs)->r8)
++
+ /* Conserve space in histogram by encoding slot bits in address
+  * bits 2 and 3 rather than bits 0 and 1.
+  */
+Index: linux-2.6.18-rc3/include/asm-powerpc/ptrace.h
+===================================================================
+--- linux-2.6.18-rc3.orig/include/asm-powerpc/ptrace.h
++++ linux-2.6.18-rc3/include/asm-powerpc/ptrace.h
+@@ -73,6 +73,8 @@ struct pt_regs {
+ #ifndef __ASSEMBLY__
+ 
+ #define instruction_pointer(regs) ((regs)->nip)
++#define get_retval(regs) ((regs)->gpr[3])
++
+ #ifdef CONFIG_SMP
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ #else
+Index: linux-2.6.18-rc3/include/asm-x86_64/ptrace.h
+===================================================================
+--- linux-2.6.18-rc3.orig/include/asm-x86_64/ptrace.h
++++ linux-2.6.18-rc3/include/asm-x86_64/ptrace.h
+@@ -84,6 +84,8 @@ struct pt_regs {
+ #define user_mode(regs) (!!((regs)->cs & 3))
+ #define user_mode_vm(regs) user_mode(regs)
+ #define instruction_pointer(regs) ((regs)->rip)
++#define get_retval(regs) ((regs)->rax)
++
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
+ 

@@ -1,183 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWHINGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWHINIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWHINGy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 09:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWHINGx
+	id S1750756AbWHINIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 09:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWHINIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 09:06:53 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:32167 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750751AbWHINGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 09:06:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=s17e48Ds1Da2cpcgQh0m4j4V3Um2ziqlLIJfv4P9k81QePKIve6owXxDhtKgcfiuEuxSlmHyegLldr0EvEVCF3oEJC3RvRuv1P0aIJrItsspZdi364rnKMg/0LsG+n7fz4RMqbycjbijfXS+MsFOWAEc24GZVKeCB/wGxH6MoQY=
-Date: Wed, 9 Aug 2006 17:06:46 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Marcus Eder <meder@de.ibm.com>,
-       Christoph Raisch <raisch@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 1/6] ehea: interface to network stack
-Message-ID: <20060809130646.GA6846@martell.zuzino.mipt.ru>
-References: <44D99EFC.3000105@de.ibm.com>
+	Wed, 9 Aug 2006 09:08:32 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:7315 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750753AbWHINIb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 09:08:31 -0400
+Date: Wed, 9 Aug 2006 17:07:52 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Daniel Phillips <phillips@google.com>
+Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
+Message-ID: <20060809130752.GA17953@2ka.mipt.ru>
+References: <20060808193325.1396.58813.sendpatchset@lappy> <20060809054648.GD17446@2ka.mipt.ru> <1155127040.12225.25.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <44D99EFC.3000105@de.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1155127040.12225.25.camel@twins>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 09 Aug 2006 17:07:53 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 10:38:20AM +0200, Jan-Bernd Themann wrote:
-> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_main.c
-> +++ kernel/drivers/net/ehea/ehea_main.c
+On Wed, Aug 09, 2006 at 02:37:20PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
+> On Wed, 2006-08-09 at 09:46 +0400, Evgeniy Polyakov wrote:
+> > On Tue, Aug 08, 2006 at 09:33:25PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
+> > >    http://lwn.net/Articles/144273/
+> > >    "Kernel Summit 2005: Convergence of network and storage paths"
+> > > 
+> > > We believe that an approach very much like today's patch set is
+> > > necessary for NBD, iSCSI, AoE or the like ever to work reliably. 
+> > > We further believe that a properly working version of at least one of
+> > > these subsystems is critical to the viability of Linux as a modern
+> > > storage platform.
+> > 
+> > There is another approach for that - do not use slab allocator for
+> > network dataflow at all. It automatically has all you pros amd if
+> > implemented correctly can have a lot of additional usefull and
+> > high-performance features like full zero-copy and total fragmentation
+> > avoidance.
+> 
+> On your site where you explain the Network Tree Allocator:
+> 
+>  http://tservice.net.ru/~s0mbre/blog/devel/networking/nta/index.html
+> 
+> You only test the fragmentation scenario with the full scale of sizes.
+> Fragmentation will look different if you use a limited number of sizes
+> that share no factors (other than the block size); try 19, 37 and 79 
+> blocks with 1:1:1 ratio.
 
-> +static inline u64 get_swqe_addr(u64 tmp_addr, int addr_seg)
-> +{
-> +	u64 addr;
-> +	addr = tmp_addr;
-> +	return addr;
-> +}
-> +
-> +static inline u64 get_rwqe_addr(u64 tmp_addr)
-> +{
-> +	return tmp_addr;
-> +}
+19, 37 and 79 will be rounded by SLAB to 32, 64 and 128 bytes, with NTA it 
+will be 32, 64 and 96 bytes. NTA wins in each allocation which is not
+power-of-two (I use 32 bytes alignemnt, as the smallest one which SLAB
+uses). And as you saw in the blog, network tree allocator is faster
+than SLAB one, although it can have different side effects which are not
+yet 100% discovered.
 
-The point of this exercise?
+> Also, I have yet to see how you will do full zero-copy receives; full 
+> zero-copy would mean getting the data from driver DMA to user-space
+> without
+> a single copy. The to user-space part almost requires that each packet
+> live
+> on its own page.
 
-> +static inline int ehea_refill_rq3_def(struct ehea_port_res *pr, int nr_of_wqes)
+Each page can easily have several packets inside.
 
-Way too big to be inline function.
+> As for the VM deadlock avoidance; I see no zero overhead allocation path
+> - you do not want to deadlock your allocator. I see no critical resource 
+> isolation (our SOCK_MEMALLOC). Without these things your allocator might
+> improve the status quo but it will not aid in avoiding the deadlock we
+> try to tackle here.
 
-> +{
-> +	int i;
-> +	int ret = 0;
-> +	struct ehea_qp *qp;
-> +	struct ehea_rwqe *rwqe;
-> +	int skb_arr_rq3_len = pr->skb_arr_rq3_len;
-> +	struct sk_buff **skb_arr_rq3 = pr->skb_arr_rq3;
-> +	EDEB_EN(8, "pr=%p, nr_of_wqes=%d", pr, nr_of_wqes);
-> +	if (nr_of_wqes == 0)
-> +		return -EINVAL;
-> +	qp = pr->qp;
-> +	for (i = 0; i < nr_of_wqes; i++) {
-> +		int index = pr->skb_rq3_index++;
-> +		struct sk_buff *skb = dev_alloc_skb(EHEA_MAX_PACKET_SIZE
-> +						    + NET_IP_ALIGN);
-> +
-> +		if (!skb) {
-> +			EDEB_ERR(4, "No memory for skb. Only %d rwqe 
-> filled.",
-> +				 i);
-> +			ret = -ENOMEM;
-> +			break;
-> +		}
-> +		skb_reserve(skb, NET_IP_ALIGN);
-> +
-> +		rwqe = ehea_get_next_rwqe(qp, 3);
-> +		pr->skb_rq3_index %= skb_arr_rq3_len;
-> +		skb_arr_rq3[index] = skb;
-> +		rwqe->wr_id = EHEA_BMASK_SET(EHEA_WR_ID_TYPE, 
-> EHEA_RWQE3_TYPE)
-> +		    | EHEA_BMASK_SET(EHEA_WR_ID_INDEX, index);
-> +		rwqe->sg_list[0].l_key = ehea_get_recv_lkey(pr);
-> +		rwqe->sg_list[0].vaddr = get_rwqe_addr((u64)skb->data);
-> +		rwqe->sg_list[0].len = EHEA_MAX_PACKET_SIZE;
-> +		rwqe->data_segments = 1;
-> +	}
-> +
-> +	/* Ring doorbell */
-> +	iosync();
-> +	ehea_update_rq3a(qp, i);
-> +	EDEB_EX(8, "");
-> +	return ret;
-> +}
-> +
-> +
-> +static inline int ehea_refill_rq3(struct ehea_port_res *pr, int nr_of_wqes)
-> +{
-> +	return ehea_refill_rq3_def(pr, nr_of_wqes);
-> +}
+Because such reservation is not needed at all.
+SLAB OOM can be handled by reserving pool using SOCK_MEMALLOC and
+similar hacks, and different allocator, which obviously work with own
+pool of pages, can not suffer from SLAB problems.
 
-ehea_refill_rq3[123] appears to be 1:1 wrappers around
-ehea_refill_rq3[123]_def. Any idea behind them?
+You say "critical resource isolation", but it is not the case - consider
+NFS over UDP - remote side will not stop sending just because receiving 
+socket code drops data due to OOM, or IPsec or compression, which can
+requires reallocation. There is no "critical resource isolation", since
+reserved pool _must_ be used by everyone in the kernel network stack.
 
-> +	init_attr = (struct ehea_qp_init_attr*)
-> +	    kzalloc(sizeof(struct ehea_qp_init_attr), GFP_KERNEL);
+And as you saw fragmentation issues are handled very good in NTA, just
+consider usual packet with data with 1500 MTU - 500 bytes are wasted.
+If you use jumbo frames... it is posible to end up with 32k allocation
+for 9k jumbo frame with some hardware.
 
-Useless cast.
-
-> +	pr->skb_arr_sq = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
-> +						    * (max_rq_entries + 1));
-
-Useless cast
-
-> +	pr->skb_arr_rq1 = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
-> +						     * (max_rq_entries + 1));
-
-> +	pr->skb_arr_rq2 = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
-> +						     * (max_rq_entries + 1));
-
-> +	pr->skb_arr_rq3 = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
-> +						     * (max_rq_entries + 1));
-
-> +static int ehea_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
-> +{
-> +	EDEB_ERR(4, "ioctl not supported: dev=%s cmd=%d", dev->name, cmd);
-
-Then copy NULL into ->do_ioctl!
-
-> +	return -EOPNOTSUPP;
-> +}
-
-> +	ehea_port_cb_0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-> +
-> +	if (!ehea_port_cb_0) {
-> +		EDEB_ERR(4, "No memory for ehea_port control block");
-> +		ret = -ENOMEM;
-> +		goto kzalloc_failed;
-> +	}
-> +
-> +	memcpy((u8*)(&(ehea_port_cb_0->port_mac_addr)),
-> +	       (u8*)&(mac_addr->sa_data[0]), 6);
-
-No casts on memcpy arguments.
-
-> +	memcpy((u8*)&ehea_mcl_entry->macaddr, mc_mac_addr, ETH_ALEN);
-
-> +static inline void ehea_xmit2(struct sk_buff *skb,
-> +			      struct net_device *dev, struct ehea_swqe *swqe,
-> +			      u32 lkey)
-> +{
-> +	int nfrags;
-> +	unsigned short skb_protocol = skb->protocol;
-
-Useless variable. And it should be __be16, FYI.
-
-> +	nfrags = skb_shinfo(skb)->nr_frags;
-> +	EDEB_EN(7, "skb->nfrags=%d (0x%X)", nfrags, nfrags);
-> +
-> +	if (skb_protocol == ETH_P_IP) {
-
-ITYM, htons(ETH_P_IP).
-
-> +static inline void ehea_xmit3(struct sk_buff *skb,
-> +			      struct net_device *dev, struct ehea_swqe *swqe)
-> +{
-> +	int i;
-> +	skb_frag_t *frag;
-> +	int nfrags = skb_shinfo(skb)->nr_frags;
-> +	u8 *imm_data = &swqe->u.immdata_nodesc.immediate_data[0];
-> +	u64 skb_protocol = skb->protocol;
-
-Useless var.
-
-> +
-> +	EDEB_EN(7, "");
-> +	if (likely(skb_protocol == ETH_P_IP)) {
-
-				   htons(ETH_P_IP)
-
+-- 
+	Evgeniy Polyakov

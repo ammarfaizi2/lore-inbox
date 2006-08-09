@@ -1,105 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWHITcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWHITdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWHITcK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 15:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWHITcK
+	id S1751314AbWHITdH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 15:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWHITdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 15:32:10 -0400
-Received: from mga01.intel.com ([192.55.52.88]:37536 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751313AbWHITcJ (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 15:32:09 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,107,1154934000"; 
-   d="asc'?scan'208"; a="114163749:sNHT58869636"
-Subject: Announcing free software graphics drivers for Intel i965 chipset
-From: Keith Packard <keith.packard@intel.com>
-Reply-To: keith.packard@intel.com
-To: Linux-kernel@vger.kernel.org
-Cc: keith.packard@intel.com, Dirk Hohndel <dirk.hohndel@intel.com>,
-       Imad Sousou <imad.sousou@intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-smCpXOTLRs9u0FsVq+hF"
-Organization: Intel Corp
-Date: Wed, 09 Aug 2006 12:31:43 -0700
-Message-Id: <1155151903.11104.112.camel@neko.keithp.com>
+	Wed, 9 Aug 2006 15:33:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51148 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751314AbWHITdF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 15:33:05 -0400
+Date: Wed, 9 Aug 2006 12:32:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, arjan@infradead.org
+Subject: Re: [BUG?] possible recursive locking detected (blkdev_open)
+Message-Id: <20060809123241.fb2cca9c.akpm@osdl.org>
+In-Reply-To: <20060809175642.GC10930@redhat.com>
+References: <200608090757.32006.eike-kernel@sf-tec.de>
+	<20060809013034.ac15526a.akpm@osdl.org>
+	<20060809175642.GC10930@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 Aug 2006 13:56:42 -0400
+Dave Jones <davej@redhat.com> wrote:
 
---=-smCpXOTLRs9u0FsVq+hF
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+> On Wed, Aug 09, 2006 at 01:30:34AM -0700, Andrew Morton wrote:
+>  > On Wed, 9 Aug 2006 07:57:31 +0200
+>  > Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+>  > 
+>  > > =============================================
+>  > > [ INFO: possible recursive locking detected ]
+>  > > ---------------------------------------------
+>  > 
+>  > kernel version?
+>  
+> This question comes up time after time when we get lockdep reports.
+> Lets do the same thing we do for oopses - print out the version in the report.
+> It's an extra line of output though.  We could tack it on the end of the
+> INFO: lines, but that screws up Ingo's pretty output.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> 
+> --- linux-2.6/kernel/lockdep.c~	2006-08-09 13:53:49.000000000 -0400
+> +++ linux-2.6/kernel/lockdep.c	2006-08-09 13:53:59.000000000 -0400
+> @@ -36,6 +36,7 @@
+>  #include <linux/stacktrace.h>
+>  #include <linux/debug_locks.h>
+>  #include <linux/irqflags.h>
+> +#include <linux/utsname.h>
+>  
+>  #include <asm/sections.h>
+> @@ -524,6 +524,9 @@ print_circular_bug_header(struct lock_li
 
-The Intel Open Source Technology Center graphics team is pleased to announc=
-e
-the immediate availability of free software drivers for the Intel=C2=AE 965
-Express Chipset family graphics controller. These drivers include support
-for 2D and 3D graphics features for the newest generation Intel graphics
-architecture. The project Web site is http://IntelLinuxGraphics.org.
+hm, corrupted patch.  Needed a blank line before the @@ line,
 
-This release represents the start of a long term effort by Intel to work
-with the X.org and Mesa communities to continuously improve and enhance
-the drivers.  While these drivers represent significant work at both
-Tungsten Graphics and Intel, as our first release of this code, they're
-still in need of significant testing, tuning and bug fixing before
-they'll be ready for production use. We're releasing them now to
-demonstrate our ongoing commitment to providing free software drivers
-for Intel hardware.
+>  	printk("\n=======================================================\n");
+>  	printk(  "[ INFO: possible circular locking dependency detected ]\n");
+> +	printk(  "%s %.*s\n", system_utsname.release,
+> +		(int)strcspn(system_utsname.version, " "),
+> +		system_utsname.version);
 
-The Intel=C2=AE 965 Express Chipset represents the first product family tha=
-t
-implements fourth generation Intel graphics architecture. Designed to
-support advanced rendering features in modern graphics APIs, this chipset
-family includes support for programmable vertex, geometry, and fragment
-shaders. By open sourcing the drivers for this new technology, Intel enable=
-s
-the open source community to experiment, develop, and contribute to the
-continuing advancement of open source 3D graphics.
+argh.  Every time someone adds one of these I get to go and fix up
+namespaces-utsname-*.patch again.
 
-We would like to especially thank our partners at Tungsten Graphics - Alan
-Hourihane and Keith Whitwell - for developing the new 3D driver and enhanci=
-ng
-the 2D driver to support the new hardware.=20
+So I did it as below:
 
-Intel has assembled a team within the Open Source Technology Center to
-manage Intel graphics driver development going forward:
+--- a/kernel/lockdep.c~lockdep-print-kernel-version
++++ a/kernel/lockdep.c
+@@ -36,6 +36,7 @@
+ #include <linux/stacktrace.h>
+ #include <linux/debug_locks.h>
+ #include <linux/irqflags.h>
++#include <linux/utsname.h>
+ 
+ #include <asm/sections.h>
+ 
+@@ -508,6 +509,13 @@ print_circular_bug_entry(struct lock_lis
+ 	return 0;
+ }
+ 
++static void print_kernel_version(void)
++{
++	printk("%s %.*s\n", system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
++}
++
+ /*
+  * When a circular dependency is detected, print the
+  * header first:
+@@ -524,6 +532,7 @@ print_circular_bug_header(struct lock_li
+ 
+ 	printk("\n=======================================================\n");
+ 	printk(  "[ INFO: possible circular locking dependency detected ]\n");
++	print_kernel_version();
+ 	printk(  "-------------------------------------------------------\n");
+ 	printk("%s/%d is trying to acquire lock:\n",
+ 		curr->comm, curr->pid);
+@@ -705,6 +714,7 @@ print_bad_irq_dependency(struct task_str
+ 	printk("\n======================================================\n");
+ 	printk(  "[ INFO: %s-safe -> %s-unsafe lock order detected ]\n",
+ 		irqclass, irqclass);
++	print_kernel_version();
+ 	printk(  "------------------------------------------------------\n");
+ 	printk("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] is trying to acquire:\n",
+ 		curr->comm, curr->pid,
+@@ -786,6 +796,7 @@ print_deadlock_bug(struct task_struct *c
+ 
+ 	printk("\n=============================================\n");
+ 	printk(  "[ INFO: possible recursive locking detected ]\n");
++	print_kernel_version();
+ 	printk(  "---------------------------------------------\n");
+ 	printk("%s/%d is trying to acquire lock:\n",
+ 		curr->comm, curr->pid);
+@@ -1368,6 +1379,7 @@ print_irq_inversion_bug(struct task_stru
+ 
+ 	printk("\n=========================================================\n");
+ 	printk(  "[ INFO: possible irq lock inversion dependency detected ]\n");
++	print_kernel_version();
+ 	printk(  "---------------------------------------------------------\n");
+ 	printk("%s/%d just changed the state of lock:\n",
+ 		curr->comm, curr->pid);
+@@ -1462,6 +1474,7 @@ print_usage_bug(struct task_struct *curr
+ 
+ 	printk("\n=================================\n");
+ 	printk(  "[ INFO: inconsistent lock state ]\n");
++	print_kernel_version();
+ 	printk(  "---------------------------------\n");
+ 
+ 	printk("inconsistent {%s} -> {%s} usage.\n",
+_
 
-Development
-
-        Eric Anholt <eric.anholt@intel.com>
-        Guangdeng Liao <guangdeng.laio@intel.com>
-        Keith Packard <keith.packard@intel.com>
-        Zhenyu Wang <zhenyu.z.wang@intel.com>
-
-Testing
-
-        Gordon Jin <gordon.jin@intel.com>
-        Shuang He <shuang.he@intel.com>
-        Wang Wei <wei.z.wang@intel.com>
-        Weiliang Chong <weiliang.chong@intel.com>
-        Wu Nian <nian.wu@intel.com>
-
-Following the release of this driver, future work will continue in the
-public X.org and Mesa project source code repositories. The project Web sit=
-e,
-http://IntelLinuxGraphics.org, will serve as the central site for users of
-Intel graphics hardware in open source operating systems.
-
---=20
-keith.packard@intel.com
-
---=-smCpXOTLRs9u0FsVq+hF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBE2jgfQp8BWwlsTdMRAtmPAJ0YytmXAbHAGzDEuaBflfhJwdOSLQCgkrPA
-lvLAPzSkTqgWk6cZ75AEk9Y=
-=KGH3
------END PGP SIGNATURE-----
-
---=-smCpXOTLRs9u0FsVq+hF--

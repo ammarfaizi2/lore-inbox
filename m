@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWHIOpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWHIOtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWHIOpD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 10:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWHIOpD
+	id S1750918AbWHIOtG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 10:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWHIOtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 10:45:03 -0400
-Received: from web25222.mail.ukl.yahoo.com ([217.146.176.208]:52075 "HELO
-	web25222.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750863AbWHIOpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 10:45:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=ECQbmRq09X1oflQOenIWWRskno8OKif8EEpLKnDqm5QZR5NsYtY+FB+kgS4shjejfeYfFXMN0u8JZo/gWIl4wG2AFP3bfnMADCP6qDmbjuMdjs6UOqkAYgYuZOMI6ZimwNRP9J5Omu7dOCtCsNwoO5F/ZYlo4gKCP3t2Tn51a44=  ;
-Message-ID: <20060809144459.58896.qmail@web25222.mail.ukl.yahoo.com>
-Date: Wed, 9 Aug 2006 16:44:59 +0200 (CEST)
-From: Paolo Giarrusso <blaisorblade@yahoo.it>
-Subject: Re: [PATCH 2/3] uml: fix proc-vs-interrupt context spinlock deadlock
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Andrew Morton <akpm@osdl.org>, user-mode-linux-devel@lists.sourceforge.net,
+	Wed, 9 Aug 2006 10:49:06 -0400
+Received: from mserv3.uoregon.edu ([128.223.142.101]:60612 "EHLO
+	smtp.uoregon.edu") by vger.kernel.org with ESMTP id S1750918AbWHIOtF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 10:49:05 -0400
+Date: Wed, 9 Aug 2006 07:48:15 -0700
+From: Joel Jaeggli <joelja@uoregon.edu>
+To: "gmu 2k6" <gmu2006@gmail.com>
+Cc: davids@webmaster.com, "Thomas Stewart" <thomas@stewarts.org.uk>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060808200231.GA6463@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: Only 3.2G ram out of 4G seen in an i386 box
+Message-Id: <20060809074815.bec7f32c.joelja@uoregon.edu>
+In-Reply-To: <f96157c40608082351j301efa57n412284f8d28124ef@mail.gmail.com>
+References: <20060808101504.GJ2152@stingr.net>
+	<MDEHLPKNGKAHNMBLJOLKKEDCNKAB.davids@webmaster.com>
+	<f96157c40608082351j301efa57n412284f8d28124ef@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike <jdike@addtoit.com> ha scritto: 
+On Wed, 9 Aug 2006 08:51:41 +0200
+"gmu 2k6" <gmu2006@gmail.com> wrote:
 
-> On Tue, Aug 08, 2006 at 12:59:05PM +0200, Paolo Giarrusso wrote:
-> > I could be wrong, but I trust that thanks to deep and good work
-> by
-> > who designed locking in the network layer, this patch is correct.
-> And
-> > indeed I addressed your issues below.
+> >        Are these technical notes supposed to be so funny?
+> >
+> >        DS
 > 
-> OK, but there will need to be comments explaining why it is OK that
-> this data only looks half-locked.
+> I guess this is all related to older Intel chipsets, right? I mean the
+> chipset *75X something I'm going to have in the new box I will get
+> soonish will support up to 8 GiB. I hope it does not mean that it will
+> be capped at 7.4GiB although I will only have 4GiB installed for now.
 
-Guess I'll put it in Documentation and reference it.
+most modern 64 bit x86 systems will relocate this memory hole to somewhere else within the address space (memory hoisting)... You'll probably find the it reappers the first time you buy a system with 1TB of ram...  
 
-> The locking, as it stands, looks consistent and conservative.
-Yes, it is.
-> However, there are some places where critical sections are too big
-> and
-> the locking should be narrowed.
-
-Yes, in particular we cannot hold a spinlock for the whole _open
-since it must call sleeping functions. 
-
-> > This is also true of char/block devices (you don't need to lock
-> > against write/read in open/close; UBD doesn't know that but I
-> have
-> > unfinished patches for it), but there it's simpler: if userspace
-> you
-> > call close while a read is executing, thanks to refcounting
-> (sys_read
-> > does fget) the ->close (or ->release) is only called after the
-> end of
-> > ->read.
-> 
-> In my current patchset, there is a per-queue lock which is mostly
-> managed by the block layer.
-
-I'll try then to finish the patches soon and merge them; the main
-problem is splitting (including the use of different locks) normal
-locking from our peculiar locking of _open/_close against mconsole
-changes.
-
-
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

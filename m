@@ -1,82 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWHIWGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWHIWH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWHIWGF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWHIWGF
+	id S1751396AbWHIWH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 18:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWHIWH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:06:05 -0400
-Received: from mx02.stofanet.dk ([212.10.10.12]:11984 "EHLO mx02.stofanet.dk")
-	by vger.kernel.org with ESMTP id S1751395AbWHIWGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:06:03 -0400
-Date: Thu, 10 Aug 2006 00:05:57 +0200 (CEST)
-From: Esben Nielsen <nielsen.esben@gogglemail.com>
-X-X-Sender: simlo@frodo.shire
-To: Bill Huey <billh@gnuppy.monkey.org>
-cc: Steven Rostedt <rostedt@goodmis.org>, Robert Crocombe <rcrocomb@gmail.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Darren Hart <dvhltc@us.ibm.com>
-Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re:
- Problems with 2.6.17-rt8
-In-Reply-To: <20060808030524.GA20530@gnuppy.monkey.org>
-Message-ID: <Pine.LNX.4.64.0608090050500.23474@frodo.shire>
-References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
- <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
- <1154541079.25723.8.camel@localhost.localdomain>
- <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
- <1154615261.32264.6.camel@localhost.localdomain> <20060808025615.GA20364@gnuppy.monkey.org>
- <20060808030524.GA20530@gnuppy.monkey.org>
+	Wed, 9 Aug 2006 18:07:26 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:8964 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751396AbWHIWHZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 18:07:25 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: ALSA problems with 2.6.18-rc3
+Date: Wed, 9 Aug 2006 23:07:27 +0100
+User-Agent: KMail/1.9.4
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Andrew Benton <b3nt@ukonline.co.uk>, Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+References: <44D8F3E5.5020508@ukonline.co.uk> <200608092222.05993.s0348365@sms.ed.ac.uk> <1155159278.26338.208.camel@mindpipe>
+In-Reply-To: <1155159278.26338.208.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608092307.27615.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 7 Aug 2006, Bill Huey wrote:
-
-> On Mon, Aug 07, 2006 at 07:56:15PM -0700, Bill Huey wrote:
->> On Thu, Aug 03, 2006 at 10:27:41AM -0400, Steven Rostedt wrote:
->>
->> ...(output and commentary a log deleted)...
->>
->>> This could also have a side effect that messes things up.
->>>
->>> Unfortunately, right now I'm assigned to other tasks and I cant spend
->>> much more time on this at the moment.  So hopefully, Ingo, Thomas or
->>> Bill, or someone else can help you find the reason for this problem.
->>
->> Steve and company,
->>
->> Speaking of which, after talking to Steve about this and confirming this
->> with a revert of changes. put_task_struct() can't deallocated memory from
->> either the zone or SLAB cache without taking a sleeping lock. It can't
->> be called directly from finish_task_switch to reap the thread because of
->> that (violation in atomic).
->>
->> It is for this reason the RCU call back to delay processing was put into
->> place to reap threads and was, seemingly by accident, missing from
->> patch-2.6.17-rt7 to -rt8. That is what broke it in the first place.
->>
->> I tested it with a "make -j4" which triggers the warning and it they all
->> go away now.
->>
->> Reverse patch attached:
+On Wednesday 09 August 2006 22:34, Lee Revell wrote:
+> On Wed, 2006-08-09 at 22:22 +0100, Alistair John Strachan wrote:
+> > On Wednesday 09 August 2006 21:57, Lee Revell wrote:
+> > > On Wed, 2006-08-09 at 16:51 -0400, Gene Heskett wrote:
+> >
+> > [snip]
+> >
+> > > > I already have the 'alsactl restore' in my rc.local.  Would there be
+> > > > any harm in just adding the -F to that invocation, or will that just
+> > > > restore it to a 'default' condition always.  Seems like it would,
+> > > > canceling anything you have done & then did an 'alsactl store' to
+> > > > save..
+> > >
+> > > That's what I was suggesting - just add -F to the alsactl restore in
+> > > your init script.  It won't restore it to a default state - the only
+> > > difference is that it will do a better job restoring your mixer state
+> > > if new controls are added by a driver update.
+> > >
+> > > alsactl --help:
+> > >
+> > >   -F,--force      try to restore the matching controls as much as
+> > > possible
+> >
+> > I assume there are drawbacks to such an option, since whatever method is
+> > used to "force" the control may make a mistake if similarly named
+> > controls are renamed.
+> >
+> > Personally, I think the correct approach would be to have more sensible
+> > default values. Having the External Amplifier default off when it
+> > cripples analogue output on emu10k1, and has no effect on digital output,
+> > seems rather weird.
 >
-> Resend with instrumentation code removed:
+> It's impossible to predict the effect of some mixer controls across the
+> wide range of hardware that ALSA supports.  What makes sound work on one
+> machine is likely to break it on another.
+
+However, ALSA _has_ defaults for these controls, which I believe are 
+usually "off" or "zero". All I'm suggesting is that these defaults are 
+plainly suboptimal for emu10k1, and probably other cards to which this 
+statement simply does not apply. Shipping defaults is one thing, but shipping 
+useless defaults is quite another. We have policy all over the kernel for 
+providing "sane defaults" e.g. filesystem mount options.
+
+> >  Also, I never really understood the rationale for the "all zeros"
+> > mixer default. Why not 50%?
 >
-> bill
->
->
+> This is policy and policy belongs in userspace.  Distros are free to
+> ship with any default mixer settings they choose.
 
-I had a long discussion with Paul McKenney about this. I opposed the patch 
-from a latency point of view: Suddenly a high-priority RT task could be 
-made into releasing a task_struct. It would be better for latencies to 
-defer it to a low priority task.
+True, I suppose if the mixers aren't even vaguely compatible across 
+hardware, "zero" is your best bet. I still see people reporting bugs (such as 
+this) where the distro has failed them. -F is not a complete solution.
 
-The conclusion we ended up with was that it is not a job for the RCU 
-system, but it ought to be deferred to some other low priority task to 
-free the task_struct.
+-- 
+Cheers,
+Alistair.
 
-Esben
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

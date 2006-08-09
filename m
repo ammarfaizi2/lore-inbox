@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030585AbWHIImM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030588AbWHIIpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030585AbWHIImM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 04:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030582AbWHIImL
+	id S1030588AbWHIIpF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 04:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030592AbWHIIpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 04:42:11 -0400
-Received: from mail.gmx.net ([213.165.64.20]:48289 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030586AbWHIImI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 04:42:08 -0400
-X-Authenticated: #271361
-Date: Wed, 9 Aug 2006 10:41:59 +0200
-From: Edgar Toernig <froese@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chase Venters <chase.venters@clientec.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org, viro@zeniv.linux.org.uk, tytso@mit.edu,
-       tigran@veritas.com
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-Message-Id: <20060809104159.1f1737d3.froese@gmx.de>
-In-Reply-To: <1155039338.5729.21.camel@localhost.localdomain>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	<20060805122936.GC5417@ucw.cz>
-	<20060807101745.61f21826.froese@gmx.de>
-	<84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>
-	<20060807224144.3bb64ac4.froese@gmx.de>
-	<Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>
-	<1155039338.5729.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 9 Aug 2006 04:45:05 -0400
+Received: from cassarossa.samfundet.no ([129.241.93.19]:35503 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S1030588AbWHIIpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 04:45:03 -0400
+Date: Wed, 9 Aug 2006 10:44:59 +0200
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Suspend on Dell D420
+Message-ID: <20060809084459.GB1368@uio.no>
+References: <20060804162300.GA26148@uio.no> <200608081604.00665.rjw@sisk.pl> <20060808150136.GA16272@uio.no> <200608081741.24099.rjw@sisk.pl> <20060809002159.GE4886@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060809002159.GE4886@elf.ucw.cz>
+X-Operating-System: Linux 2.6.16trofastxen on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Spam-Score: -2.5 (--)
+X-Spam-Report: Status=No hits=-2.5 required=5.0 tests=AWL,BAYES_00,NO_RELAYS version=3.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->
-> Ar Llu, 2006-08-07 am 17:24 -0500, ysgrifennodd Chase Venters:
-> > implementation is crude. "EBADF" is not something that applications are 
-> > taught to expect. Someone correct me if I'm wrong, but I can think of no 
-> > situation under which a file descriptor currently gets yanked out from 
-> > under your feet -- you should always have to formally abandon it with 
-> > close().
-> 
-> The file descriptor is not pulled from under you, the access to it is.
-> This is exactly what occurs today when a tty is hung up.
+On Wed, Aug 09, 2006 at 02:21:59AM +0200, Pavel Machek wrote:
+> Can you try with method=powerdown or method=reboot? BIOS black magic
+> is not involved at least in reboot parts...
 
-If I read the code correctly, the behaviour for hung up ttys is completely
-different: read returns EOF, write returns EIO, select/poll/epoll return
-ready, close works.  As rather boring but totally sane behaviour for an fd.
+I lost you here; I've never heard of these options, nor does Google seem to.
+Do I specify them on the kernel command line, or something else?
 
-But after revoke you get EBADF for any operation, even select or close.
-The fd becomes nearly indistinguishable from a really closed fd (the only
-difference is that the fd-number won't be reused (potentional DoS)).
-And IMHO that's insane that a regular user may close fds in someone else's
-processes (or munmap some of its memory).  I already see people trying
-to exploit bugs in system services:
-
-	for (;;) revoke("index.html");
-	for (;;) revoke("some_print_job");
-	for (;;) revoke("some_mail");
-
-Ciao, ET.
+/* Steinar */
+-- 
+Homepage: http://www.sesse.net/

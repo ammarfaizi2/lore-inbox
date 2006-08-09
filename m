@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWHIAO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWHIAT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbWHIAO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 20:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbWHIAO2
+	id S1030367AbWHIAT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 20:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWHIAT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 20:14:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:22857 "EHLO
+	Tue, 8 Aug 2006 20:19:57 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:25440 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030359AbWHIAO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 20:14:27 -0400
+	id S1030367AbWHIAT5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Aug 2006 20:19:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jB4ZOdScdzLdguC0RTEElDqn752Ll/9dPicKPbaewemvcsU8gcoYDNPfdYgnI2Jx7XO03MSpDe4V0G09mwuJcS2v3NEhZBvOYBZ8LyKS8Lzgbh7arroBIM0dQd1koy1DtMURUfSQ43fs9wCO7LB/FKQ1CbSbPXH1obb0JSHct+A=
-Message-ID: <aec7e5c30608081714g19783fecn3ad5ac770cd85e3d@mail.gmail.com>
-Date: Wed, 9 Aug 2006 09:14:17 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH] i386: mark two more functions as __init
-Cc: "Magnus Damm" <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060808125803.9aac260f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060808081756.334.46571.sendpatchset@cherry.local>
-	 <20060808125803.9aac260f.akpm@osdl.org>
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=gbwI0brR7uxbeXZ3c2swpYLJM9AooaZofyneryOIjyN5fAy31bTVWCaZ/6htAE9SyBGuzuvSQ/xWHWDA1c+Ms81IJLWv5Dl1625FIn5bccdcCDynRZ+IpvrHZG2xjoL3NU1yMovyrY2ki9hP6DFUBl+3jEnZdie4u0Kr0EkxiOk=
+Date: Wed, 9 Aug 2006 02:19:45 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       mchehab@infradead.org, akpm@osdl.org
+Subject: Re: [PATCH 12/14] V4L/DVB (4430): Quickcam_messenger compilation
+ fix
+Message-Id: <20060809021945.043f9ecb.diegocg@gmail.com>
+In-Reply-To: <20060808210654.PS54412700012@infradead.org>
+References: <20060808210151.PS78629800000@infradead.org>
+	<20060808210654.PS54412700012@infradead.org>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/9/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Tue,  8 Aug 2006 17:17:00 +0900 (JST)
-> Magnus Damm <magnus@valinux.co.jp> wrote:
->
-> > i386: mark two more functions as __init
-> >
-> > cyrix_identify() should be __init because transmeta_identify() is.
-> > tsc_init() is only called from setup_arch() which is marked as __init.
-> >
-> > These two section mismatches have been detected using running modpost on
-> > a vmlinux image compiled with CONFIG_RELOCATABLE=y.
-> >
-> > -static void cyrix_identify(struct cpuinfo_x86 * c)
-> > +static void __init cyrix_identify(struct cpuinfo_x86 * c)
->
-> Are we sure?  We end up putting a pointer to this into
-> arch/i386/kernel/cpu/common.c:cpu_devs[], and that gets used from __cpuinit
-> code.
+El Tue, 08 Aug 2006 18:06:54 -0300,
+mchehab@infradead.org escribió:
 
-Uh, right. The problem is that almost all cpu code is put in the
-__init section today. I'll break out and resend the tsc code, and on
-top of that post a set of patches that puts cpu code and data into
-__cpuinit and __cpuinitdata sections.
+> --- a/drivers/media/video/Makefile
+> +++ b/drivers/media/video/Makefile
+> @@ -90,6 +90,7 @@ obj-$(CONFIG_USB_ZC0301)        += zc030
+>  obj-$(CONFIG_USB_IBMCAM)        += usbvideo/
+>  obj-$(CONFIG_USB_KONICAWC)      += usbvideo/
+>  obj-$(CONFIG_USB_VICAM)         += usbvideo/
+> +obj-$(CONFIG_USB_QUICKCAM_MESSENGER)	+= usbvideo/
 
-Thanks!
-
-/ magnus
+This one has already been picked up by akpm

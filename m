@@ -1,123 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030617AbWHIJpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030615AbWHIJrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030617AbWHIJpY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 05:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWHIJpY
+	id S1030615AbWHIJrj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWHIJrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 05:45:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38025 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030613AbWHIJpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 05:45:23 -0400
-Date: Wed, 9 Aug 2006 10:45:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	Wed, 9 Aug 2006 05:47:39 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:27587 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030615AbWHIJri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 05:47:38 -0400
+Date: Wed, 9 Aug 2006 15:18:59 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
        Prasanna S Panchamukhi <prasanna@in.ibm.com>,
        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Jim Keniston <jkenisto@us.ibm.com>, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 2/3] Kprobes: Define retval helper
-Message-ID: <20060809094516.GA17993@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-	linux-kernel@vger.kernel.org,
-	Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-	Jim Keniston <jkenisto@us.ibm.com>, linux-arch@vger.kernel.org
-References: <20060807115537.GA15253@in.ibm.com> <20060807120024.GD15253@in.ibm.com> <20060808162559.GB28647@infradead.org> <20060809094311.GA20050@in.ibm.com>
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [PATCH 3/3] Kprobes: Update Documentation/kprobes.txt
+Message-ID: <20060809094859.GB20050@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <20060807115537.GA15253@in.ibm.com> <20060807120024.GD15253@in.ibm.com> <20060807120447.GE15253@in.ibm.com> <20060808162701.GC28647@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060809094311.GA20050@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20060808162701.GC28647@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 03:13:11PM +0530, Ananth N Mavinakayanahalli wrote:
-> > Good idea.  You should add parentheses around regs, otherwise the C
-> > preprocessor might bite users.  Also the shouting name is quite ugly.
-> > In fact it should probably go to asm/system.h or similar and not have
-> > a kprobes name - it just extracts the return value from a struct pt_regs
-> > after all.
+On Tue, Aug 08, 2006 at 05:27:01PM +0100, Christoph Hellwig wrote:
+> On Mon, Aug 07, 2006 at 05:34:47PM +0530, Ananth N Mavinakayanahalli wrote:
+> > From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> > 
+> > Update Documentation/kprobes.txt to reflect addition of KPROBE_ADDR,
+> > KPROBE_RETVAL and the in-kernel symbol resolution.
 > 
-> Done! How does this look? I added it to asm/ptrace.h so it lives along
-> with the instruction_pointer() definition.
+> Thanks.  With my updated patch we shouldn't document KPROBE_ADDR anymore
+> but tell people to always use the symbol_name mechanisms. 
 
-Looks good, but it would be much better if we had it for every single
-architecture.  I've cc'ed linux-arch so the arch maintainers can comments.
+Done! Updated patch to documentation below.
 
-Even if we don't manage to get every architecture maintainer to help out
-you should at least add sparc and s390 to have full coverage of
-architectures with kprobes support
+> Any chance to add some kerneldoc comments for the exported kprobes
+> functions?
 
-> Add the "get_retval" macro that just extracts the return value given the
-> pt_regs. Useful in situations such as while using function-return
-> probes.
-> 
-> Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-> 
-> ---
->  include/asm-i386/ptrace.h    |    3 +++
->  include/asm-ia64/ptrace.h    |    3 +++
->  include/asm-powerpc/ptrace.h |    2 ++
->  include/asm-x86_64/ptrace.h  |    2 ++
->  4 files changed, 10 insertions(+)
-> 
-> Index: linux-2.6.18-rc3/include/asm-i386/ptrace.h
-> ===================================================================
-> --- linux-2.6.18-rc3.orig/include/asm-i386/ptrace.h
-> +++ linux-2.6.18-rc3/include/asm-i386/ptrace.h
-> @@ -79,7 +79,10 @@ static inline int user_mode_vm(struct pt
->  {
->  	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
->  }
-> +
->  #define instruction_pointer(regs) ((regs)->eip)
-> +#define get_retval(regs) ((regs)->eax)
-> +
->  #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
->  extern unsigned long profile_pc(struct pt_regs *regs);
->  #else
-> Index: linux-2.6.18-rc3/include/asm-ia64/ptrace.h
-> ===================================================================
-> --- linux-2.6.18-rc3.orig/include/asm-ia64/ptrace.h
-> +++ linux-2.6.18-rc3/include/asm-ia64/ptrace.h
-> @@ -237,6 +237,9 @@ struct switch_stack {
->   * the canonical representation by adding to instruction pointer.
->   */
->  # define instruction_pointer(regs) ((regs)->cr_iip + ia64_psr(regs)->ri)
-> +
-> +#define get_retval(regs) ((regs)->r8)
-> +
->  /* Conserve space in histogram by encoding slot bits in address
->   * bits 2 and 3 rather than bits 0 and 1.
->   */
-> Index: linux-2.6.18-rc3/include/asm-powerpc/ptrace.h
-> ===================================================================
-> --- linux-2.6.18-rc3.orig/include/asm-powerpc/ptrace.h
-> +++ linux-2.6.18-rc3/include/asm-powerpc/ptrace.h
-> @@ -73,6 +73,8 @@ struct pt_regs {
->  #ifndef __ASSEMBLY__
->  
->  #define instruction_pointer(regs) ((regs)->nip)
-> +#define get_retval(regs) ((regs)->gpr[3])
-> +
->  #ifdef CONFIG_SMP
->  extern unsigned long profile_pc(struct pt_regs *regs);
->  #else
-> Index: linux-2.6.18-rc3/include/asm-x86_64/ptrace.h
-> ===================================================================
-> --- linux-2.6.18-rc3.orig/include/asm-x86_64/ptrace.h
-> +++ linux-2.6.18-rc3/include/asm-x86_64/ptrace.h
-> @@ -84,6 +84,8 @@ struct pt_regs {
->  #define user_mode(regs) (!!((regs)->cs & 3))
->  #define user_mode_vm(regs) user_mode(regs)
->  #define instruction_pointer(regs) ((regs)->rip)
-> +#define get_retval(regs) ((regs)->rax)
-> +
->  extern unsigned long profile_pc(struct pt_regs *regs);
->  void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
->  
----end quoted text---
+Its on the TODO list along with the other CodingStyle cleanups.
+
+Ananth
+---
+
+Update Documentation/kprobes.txt:
+- Add usage details of "symbol_name" and "offset" fields of struct kprobe
+- Document JPROBE_ENTRY
+- Update references list
+- Update module examples to use module_init/module_exit interfaces
+
+
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+
+---
+ Documentation/kprobes.txt |   77 ++++++++++++++++++++++++++++------------------
+ 1 files changed, 47 insertions(+), 30 deletions(-)
+
+Index: linux-2.6.18-rc3/Documentation/kprobes.txt
+===================================================================
+--- linux-2.6.18-rc3.orig/Documentation/kprobes.txt
++++ linux-2.6.18-rc3/Documentation/kprobes.txt
+@@ -179,6 +179,21 @@ occurs during execution of kp->pre_handl
+ or during single-stepping of the probed instruction, Kprobes calls
+ kp->fault_handler.  Any or all handlers can be NULL.
+ 
++NOTE:
++1. With the introduction of the "symbol_name" field to struct kprobe,
++the probepoint address resolution will now be taken care of by the kernel.
++The following will now work:
++
++	kp.symbol_name = "symbol_name";
++
++2. Use the "offset" field of struct kprobe if the offset into the symbol
++to install a probepoint is known. This field is used to calculate the
++probepoint address only if the "symbol_name" method of address resolution
++is used.
++
++3. Specify either the kprobe "symbol_name" with "offset" OR the "addr".
++If both are specified, kprobe registration will fail with -EINVAL.
++
+ register_kprobe() returns 0 on success, or a negative errno otherwise.
+ 
+ User's pre-handler (kp->pre_handler):
+@@ -225,6 +240,12 @@ control to Kprobes.)  If the probed func
+ fastcall, or anything else that affects how args are passed, the
+ handler's declaration must match.
+ 
++NOTE: A macro JPROBE_ENTRY is provided to handle architecture-specific
++aliasing of jp->entry. In the interest of portability, it is advised
++to use:
++
++	jp->entry = JPROBE_ENTRY(handler);
++
+ register_jprobe() returns 0 on success, or a negative errno otherwise.
+ 
+ 4.3 register_kretprobe
+@@ -251,6 +272,11 @@ of interest:
+ - ret_addr: the return address
+ - rp: points to the corresponding kretprobe object
+ - task: points to the corresponding task struct
++
++The get_retval(regs) macro provides a simple abstraction to extract
++the return value from the appropriate register as defined by the
++architecture's ABI.
++
+ The handler's return value is currently ignored.
+ 
+ 4.4 unregister_*probe
+@@ -369,7 +395,6 @@ stack trace and selected i386 registers 
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/kprobes.h>
+-#include <linux/kallsyms.h>
+ #include <linux/sched.h>
+ 
+ /*For each probe you need to allocate a kprobe structure*/
+@@ -403,18 +428,14 @@ int handler_fault(struct kprobe *p, stru
+ 	return 0;
+ }
+ 
+-int init_module(void)
++static int __init kprobe_init(void)
+ {
+ 	int ret;
+ 	kp.pre_handler = handler_pre;
+ 	kp.post_handler = handler_post;
+ 	kp.fault_handler = handler_fault;
+-	kp.addr = (kprobe_opcode_t*) kallsyms_lookup_name("do_fork");
+-	/* register the kprobe now */
+-	if (!kp.addr) {
+-		printk("Couldn't find %s to plant kprobe\n", "do_fork");
+-		return -1;
+-	}
++	kp.symbol_name = "do_fork";
++
+ 	if ((ret = register_kprobe(&kp) < 0)) {
+ 		printk("register_kprobe failed, returned %d\n", ret);
+ 		return -1;
+@@ -423,12 +444,14 @@ int init_module(void)
+ 	return 0;
+ }
+ 
+-void cleanup_module(void)
++static void __exit kprobe_exit(void)
+ {
+ 	unregister_kprobe(&kp);
+ 	printk("kprobe unregistered\n");
+ }
+ 
++module_init(kprobe_init)
++module_exit(kprobe_exit)
+ MODULE_LICENSE("GPL");
+ ----- cut here -----
+ 
+@@ -463,7 +486,6 @@ the arguments of do_fork().
+ #include <linux/fs.h>
+ #include <linux/uio.h>
+ #include <linux/kprobes.h>
+-#include <linux/kallsyms.h>
+ 
+ /*
+  * Jumper probe for do_fork.
+@@ -485,17 +507,13 @@ long jdo_fork(unsigned long clone_flags,
+ }
+ 
+ static struct jprobe my_jprobe = {
+-	.entry = (kprobe_opcode_t *) jdo_fork
++	.entry = JPROBE_ENTRY(jdo_fork)
+ };
+ 
+-int init_module(void)
++static int __init jprobe_init(void)
+ {
+ 	int ret;
+-	my_jprobe.kp.addr = (kprobe_opcode_t *) kallsyms_lookup_name("do_fork");
+-	if (!my_jprobe.kp.addr) {
+-		printk("Couldn't find %s to plant jprobe\n", "do_fork");
+-		return -1;
+-	}
++	my_jprobe.kp.symbol_name = "do_fork";
+ 
+ 	if ((ret = register_jprobe(&my_jprobe)) <0) {
+ 		printk("register_jprobe failed, returned %d\n", ret);
+@@ -506,12 +524,14 @@ int init_module(void)
+ 	return 0;
+ }
+ 
+-void cleanup_module(void)
++static void __exit jprobe_exit(void)
+ {
+ 	unregister_jprobe(&my_jprobe);
+ 	printk("jprobe unregistered\n");
+ }
+ 
++module_init(jprobe_init)
++module_exit(jprobe_exit)
+ MODULE_LICENSE("GPL");
+ ----- cut here -----
+ 
+@@ -530,16 +550,13 @@ report failed calls to sys_open().
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/kprobes.h>
+-#include <linux/kallsyms.h>
+ 
+ static const char *probed_func = "sys_open";
+ 
+ /* Return-probe handler: If the probed function fails, log the return value. */
+ static int ret_handler(struct kretprobe_instance *ri, struct pt_regs *regs)
+ {
+-	// Substitute the appropriate register name for your architecture --
+-	// e.g., regs->rax for x86_64, regs->gpr[3] for ppc64.
+-	int retval = (int) regs->eax;
++	int retval = get_retval(regs);
+ 	if (retval < 0) {
+ 		printk("%s returns %d\n", probed_func, retval);
+ 	}
+@@ -552,15 +569,11 @@ static struct kretprobe my_kretprobe = {
+ 	.maxactive = 20
+ };
+ 
+-int init_module(void)
++static int __init kretprobe_init(void)
+ {
+ 	int ret;
+-	my_kretprobe.kp.addr =
+-		(kprobe_opcode_t *) kallsyms_lookup_name(probed_func);
+-	if (!my_kretprobe.kp.addr) {
+-		printk("Couldn't find %s to plant return probe\n", probed_func);
+-		return -1;
+-	}
++	my_kretprobe.kp.symbol_name = (char *)probed_func;
++
+ 	if ((ret = register_kretprobe(&my_kretprobe)) < 0) {
+ 		printk("register_kretprobe failed, returned %d\n", ret);
+ 		return -1;
+@@ -569,7 +582,7 @@ int init_module(void)
+ 	return 0;
+ }
+ 
+-void cleanup_module(void)
++static void __exit kretprobe_exit(void)
+ {
+ 	unregister_kretprobe(&my_kretprobe);
+ 	printk("kretprobe unregistered\n");
+@@ -578,6 +591,8 @@ void cleanup_module(void)
+ 		my_kretprobe.nmissed, probed_func);
+ }
+ 
++module_init(kretprobe_init)
++module_exit(kretprobe_exit)
+ MODULE_LICENSE("GPL");
+ ----- cut here -----
+ 
+@@ -590,3 +605,5 @@ messages.)
+ For additional information on Kprobes, refer to the following URLs:
+ http://www-106.ibm.com/developerworks/library/l-kprobes.html?ca=dgr-lnxw42Kprobe
+ http://www.redhat.com/magazine/005mar05/features/kprobes/
++http://www-users.cs.umn.edu/~boutcher/kprobes/
++http://www.linuxsymposium.org/2006/linuxsymposium_procv2.pdf (pages 101-115)

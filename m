@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030592AbWHIJFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030590AbWHIJFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030592AbWHIJFe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 05:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbWHIJFe
+	id S1030590AbWHIJFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 05:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbWHIJFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 05:05:34 -0400
-Received: from cassarossa.samfundet.no ([129.241.93.19]:39619 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S1030592AbWHIJFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 05:05:33 -0400
-Date: Wed, 9 Aug 2006 11:05:30 +0200
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Suspend on Dell D420
-Message-ID: <20060809090530.GA1633@uio.no>
-References: <20060804162300.GA26148@uio.no> <200608081604.00665.rjw@sisk.pl> <20060808150136.GA16272@uio.no> <200608081741.24099.rjw@sisk.pl> <20060809002159.GE4886@elf.ucw.cz> <20060809084459.GB1368@uio.no> <20060809090208.GB3087@elf.ucw.cz>
+	Wed, 9 Aug 2006 05:05:08 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:34236 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1030589AbWHIJFG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 05:05:06 -0400
+Message-ID: <44D9A483.1020203@aitel.hist.no>
+Date: Wed, 09 Aug 2006 11:01:55 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060809090208.GB3087@elf.ucw.cz>
-X-Operating-System: Linux 2.6.16trofastxen on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Neil Brown <neilb@suse.de>, Alexandre Oliva <aoliva@redhat.com>,
+       linux-raid <linux-raid@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modifying degraded raid 1 then re-adding other members is bad
+References: <or8xlztvn8.fsf@redhat.com> <17624.29070.246605.213021@cse.unsw.edu.au> <44D8732C.2060207@tls.msk.ru>
+In-Reply-To: <44D8732C.2060207@tls.msk.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 11:02:08AM +0200, Pavel Machek wrote:
->> I lost you here; I've never heard of these options, nor does Google seem to.
->> Do I specify them on the kernel command line, or something else?
-> echo reboot > /sys/power/disk
+Michael Tokarev wrote:
+> Why we're updating it BACKWARD in the first place?
+>   
+Don't know this one...
+> Also, why, when we adding something to the array, the event counter is
+> checked -- should it resync regardless?
+If you remove a drive and then add it back with
+no changes in the meantime, then you don't want
+a resync to happen.  Some people reboot their machine
+every day (too much noise, heat or electricity at night),
+a daily resync is excessive.
 
-But we were discussing suspend-to-RAM, not suspend-to-disk, right?
-Suspend-to-disk works just fine.
+An which drive would you consider
+the "master copy" anyway, if the event counts match?
 
-/* Steinar */
--- 
-Homepage: http://www.sesse.net/
+Helge Hafting
+

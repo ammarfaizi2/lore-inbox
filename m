@@ -1,181 +1,424 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030532AbWHIGZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbWHIG0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030532AbWHIGZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 02:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbWHIGZS
+	id S1030534AbWHIG0d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 02:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbWHIG0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 02:25:18 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:21657 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030521AbWHIGZQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 02:25:16 -0400
-Date: Wed, 9 Aug 2006 02:25:14 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Cc: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [git patches] libata fixes
-Message-ID: <20060809062514.GA27491@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 9 Aug 2006 02:26:32 -0400
+Received: from mf01.sitadelle.com ([212.94.174.68]:23372 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1030534AbWHIG0b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 02:26:31 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Ulrich Drepper <drepper@gmail.com>,
+       Andi Kleen <ak@suse.de>, Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: [RFC] NUMA futex hashing
+Date: Wed, 9 Aug 2006 08:26:27 +0200
+User-Agent: KMail/1.9.1
+Cc: "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       pravin b shelar <pravin.shelar@calsoftinc.com>,
+       linux-kernel@vger.kernel.org
+References: <20060808070708.GA3931@localhost.localdomain> <a36005b50608080958n192e9324jb9d5a7a59b365eae@mail.gmail.com> <44D94142.3050703@yahoo.com.au>
+In-Reply-To: <44D94142.3050703@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_UAY2EYia1ifUTA4"
+Message-Id: <200608090826.28249.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_UAY2EYia1ifUTA4
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Please pull from 'upstream-greg' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-greg
+Based on various discussions and feedbacks, I cooked a patch that implements 
+the notion of private futexes (private to a process, in the spirit of POSIX 
+pshared PTHREAD_PROCESS_PRIVATE )
 
-to receive the following updates:
+[PATCH] futex : Add new PRIVATE futex primitives for performance improvements
 
- drivers/scsi/ata_piix.c    |    5 +++--
- drivers/scsi/libata-core.c |   34 ++++++++--------------------------
- drivers/scsi/libata-scsi.c |   13 +++++++++++++
- drivers/scsi/sata_sil24.c  |    1 -
- 4 files changed, 24 insertions(+), 29 deletions(-)
+When a futex is privately used by a process, we dont really need to lookup the 
+list of vmas of the process in order to discover if the futex is backed by a 
+inode or by the mm struct. We dont really need to keep a refcount on the 
+inode or mm.
 
-Jeff Garzik:
-      [libata] manually inline ata_host_remove()
+This patch introduces new futex calls, that could be used by user land (glibc 
+of course) when private futexes are used.
 
-Keith Owens:
-      Fix compile problem when sata debugging is on
+Avoiding vmas lookup means avoiding taking the mmap_sem (and forcing cacheline 
+bouncings).
 
-Tejun Heo:
-      libata: fix ata_port_detach() for old EH ports
-      ata_piix: fix host_set private_data intialization
-      sata_sil24: don't set probe_ent->mmio_base
-      libata: fix ata_device_add() error path
-      libata: clear sdev->locked on door lock failure
+Avoiding refcounting on underlying inode or mm struct also avoids cacheline 
+bouncing.
 
-diff --git a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
-index 19745a3..5e8afc8 100644
---- a/drivers/scsi/ata_piix.c
-+++ b/drivers/scsi/ata_piix.c
-@@ -567,8 +567,8 @@ static int piix_sata_prereset(struct ata
- 			present = 1;
- 	}
+Thats two cacheline bounces avoided per FUTEX syscall
+
+glibc could use the new futex primitives introduced here (in particular for 
+PTHREAD_PROCESS_PRIVATE semantic), and fallback to old one if running on 
+older kernel. Fallback could set a global variable with the number of syscall 
+so that only one failed syscall is done in the process lifetime.
+
+Note : Compatibility should be maintained by this patch, as old applications 
+will use the 'SHARED' functionality, unchanged.
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+
+--Boundary-00=_UAY2EYia1ifUTA4
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="futex_priv1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="futex_priv1.patch"
+
+--- linux-2.6.18-rc4/include/linux/futex.h	2006-08-08 22:46:13.000000000 +0200
++++ linux-2.6.18-rc4-ed/include/linux/futex.h	2006-08-08 23:23:13.000000000 +0200
+@@ -15,6 +15,11 @@
+ #define FUTEX_LOCK_PI		6
+ #define FUTEX_UNLOCK_PI		7
+ #define FUTEX_TRYLOCK_PI	8
++#define FUTEX_WAIT_PRIVATE         9
++#define FUTEX_WAKE_PRIVATE        10
++#define FUTEX_REQUEUE_PRIVATE     11
++#define FUTEX_CMP_REQUEUE_PRIVATE 12
++#define FUTEX_WAKE_OP_PRIVATE     13
  
--	DPRINTK("ata%u: LEAVE, pcs=0x%x present_mask=0x%x\n",
--		ap->id, pcs, present_mask);
-+	DPRINTK("ata%u: LEAVE, pcs=0x%x present=0x%x\n",
-+		ap->id, pcs, present);
+ /*
+  * Support for robust futexes: the kernel cleans up held futexes at
+--- linux-2.6.18-rc4/kernel/futex.c	2006-08-08 22:45:46.000000000 +0200
++++ linux-2.6.18-rc4-ed/kernel/futex.c	2006-08-09 07:26:19.000000000 +0200
+@@ -60,8 +60,9 @@
+  * Don't rearrange members without looking at hash_futex().
+  *
+  * offset is aligned to a multiple of sizeof(u32) (== 4) by definition.
+- * We set bit 0 to indicate if it's an inode-based key.
+  */
++#define OFF_INODE    1 /* We set bit 0 if it has a reference on inode */
++#define OFF_MMSHARED 2 /* We set bit 1 if it has a reference on mm */
+ union futex_key {
+ 	struct {
+ 		unsigned long pgoff;
+@@ -79,6 +80,8 @@
+ 		int offset;
+ 	} both;
+ };
++#define FUT_SHARED  1 /* we should walk vmas */
++#define FUT_PRIVATE 0 /* private futex: no need to walk vmas*/
  
- 	if (!present) {
- 		ata_port_printk(ap, KERN_INFO, "SATA port has no device.\n");
-@@ -828,6 +828,7 @@ static void __devinit piix_init_sata_map
- 		case IDE:
- 			WARN_ON((i & 1) || map[i + 1] != IDE);
- 			pinfo[i / 2] = piix_port_info[ich5_pata];
-+			pinfo[i / 2].private_data = hpriv;
- 			i++;
- 			printk(" IDE IDE");
- 			break;
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index 386e5f2..16fc2dd 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -5185,28 +5185,6 @@ void ata_host_stop (struct ata_host_set 
- 		iounmap(host_set->mmio_base);
+ /*
+  * Priority Inheritance state:
+@@ -140,7 +143,7 @@
+ static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS];
+ 
+ /* Futex-fs vfsmount entry: */
+-static struct vfsmount *futex_mnt;
++static struct vfsmount *futex_mnt __read_mostly;
+ 
+ /*
+  * We hash on the keys returned from get_futex_key (see below).
+@@ -175,7 +178,7 @@
+  *
+  * Should be called with &current->mm->mmap_sem but NOT any spinlocks.
+  */
+-static int get_futex_key(u32 __user *uaddr, union futex_key *key)
++static int get_futex_key(u32 __user *uaddr, union futex_key *key, int shared)
+ {
+ 	unsigned long address = (unsigned long)uaddr;
+ 	struct mm_struct *mm = current->mm;
+@@ -191,6 +194,11 @@
+ 		return -EINVAL;
+ 	address -= key->both.offset;
+ 
++	if (shared == FUT_PRIVATE) {
++		key->private.mm = mm;
++		key->private.address = address;
++		return 0;
++	}
+ 	/*
+ 	 * The futex is hashed differently depending on whether
+ 	 * it's in a shared or private mapping.  So check vma first.
+@@ -215,6 +223,7 @@
+ 	 * mappings of _writable_ handles.
+ 	 */
+ 	if (likely(!(vma->vm_flags & VM_MAYSHARE))) {
++		key->both.offset += OFF_MMSHARED; /* reference taken on mm */
+ 		key->private.mm = mm;
+ 		key->private.address = address;
+ 		return 0;
+@@ -224,7 +233,7 @@
+ 	 * Linear file mappings are also simple.
+ 	 */
+ 	key->shared.inode = vma->vm_file->f_dentry->d_inode;
+-	key->both.offset++; /* Bit 0 of offset indicates inode-based key. */
++	key->both.offset += OFF_INODE; /* reference taken on inode */
+ 	if (likely(!(vma->vm_flags & VM_NONLINEAR))) {
+ 		key->shared.pgoff = (((address - vma->vm_start) >> PAGE_SHIFT)
+ 				     + vma->vm_pgoff);
+@@ -256,8 +265,8 @@
+  */
+ static inline void get_key_refs(union futex_key *key)
+ {
+-	if (key->both.ptr != 0) {
+-		if (key->both.offset & 1)
++	if (key->both.offset & (OFF_INODE|OFF_MMSHARED)) {
++		if (key->both.offset & OFF_INODE)
+ 			atomic_inc(&key->shared.inode->i_count);
+ 		else
+ 			atomic_inc(&key->private.mm->mm_count);
+@@ -270,8 +279,8 @@
+  */
+ static void drop_key_refs(union futex_key *key)
+ {
+-	if (key->both.ptr != 0) {
+-		if (key->both.offset & 1)
++	if (key->both.offset & (OFF_INODE|OFF_MMSHARED)) {
++		if (key->both.offset & OFF_INODE)
+ 			iput(key->shared.inode);
+ 		else
+ 			mmdrop(key->private.mm);
+@@ -650,7 +659,7 @@
+  * Wake up all waiters hashed on the physical page that is mapped
+  * to this virtual address:
+  */
+-static int futex_wake(u32 __user *uaddr, int nr_wake)
++static int futex_wake(u32 __user *uaddr, int nr_wake, int shared)
+ {
+ 	struct futex_hash_bucket *hb;
+ 	struct futex_q *this, *next;
+@@ -658,9 +667,10 @@
+ 	union futex_key key;
+ 	int ret;
+ 
+-	down_read(&current->mm->mmap_sem);
++	if (shared)
++		down_read(&current->mm->mmap_sem);
+ 
+-	ret = get_futex_key(uaddr, &key);
++	ret = get_futex_key(uaddr, &key, shared);
+ 	if (unlikely(ret != 0))
+ 		goto out;
+ 
+@@ -682,7 +692,8 @@
+ 
+ 	spin_unlock(&hb->lock);
+ out:
+-	up_read(&current->mm->mmap_sem);
++	if (shared)
++		up_read(&current->mm->mmap_sem);
+ 	return ret;
  }
  
--
--/**
-- *	ata_host_remove - Unregister SCSI host structure with upper layers
-- *	@ap: Port to unregister
-- *	@do_unregister: 1 if we fully unregister, 0 to just stop the port
-- *
-- *	LOCKING:
-- *	Inherited from caller.
-- */
--
--static void ata_host_remove(struct ata_port *ap, unsigned int do_unregister)
--{
--	struct Scsi_Host *sh = ap->host;
--
--	DPRINTK("ENTER\n");
--
--	if (do_unregister)
--		scsi_remove_host(sh);
--
--	ap->ops->port_stop(ap);
--}
--
- /**
-  *	ata_dev_init - Initialize an ata_device structure
-  *	@dev: Device structure to initialize
-@@ -5532,8 +5510,11 @@ int ata_device_add(const struct ata_prob
+@@ -692,7 +703,7 @@
+  */
+ static int
+ futex_wake_op(u32 __user *uaddr1, u32 __user *uaddr2,
+-	      int nr_wake, int nr_wake2, int op)
++	      int nr_wake, int nr_wake2, int op, int shared)
+ {
+ 	union futex_key key1, key2;
+ 	struct futex_hash_bucket *hb1, *hb2;
+@@ -703,10 +714,10 @@
+ retryfull:
+ 	down_read(&current->mm->mmap_sem);
  
- err_out:
- 	for (i = 0; i < count; i++) {
--		ata_host_remove(host_set->ports[i], 1);
--		scsi_host_put(host_set->ports[i]->host);
-+		struct ata_port *ap = host_set->ports[i];
-+		if (ap) {
-+			ap->ops->port_stop(ap);
-+			scsi_host_put(ap->host);
-+		}
- 	}
- err_free_ret:
- 	kfree(host_set);
-@@ -5558,7 +5539,7 @@ void ata_port_detach(struct ata_port *ap
- 	int i;
+-	ret = get_futex_key(uaddr1, &key1);
++	ret = get_futex_key(uaddr1, &key1, shared);
+ 	if (unlikely(ret != 0))
+ 		goto out;
+-	ret = get_futex_key(uaddr2, &key2);
++	ret = get_futex_key(uaddr2, &key2, shared);
+ 	if (unlikely(ret != 0))
+ 		goto out;
  
- 	if (!ap->ops->error_handler)
--		return;
-+		goto skip_eh;
+@@ -802,7 +813,7 @@
+  * physical page.
+  */
+ static int futex_requeue(u32 __user *uaddr1, u32 __user *uaddr2,
+-			 int nr_wake, int nr_requeue, u32 *cmpval)
++			 int nr_wake, int nr_requeue, u32 *cmpval, int shared)
+ {
+ 	union futex_key key1, key2;
+ 	struct futex_hash_bucket *hb1, *hb2;
+@@ -811,12 +822,13 @@
+ 	int ret, drop_count = 0;
  
- 	/* tell EH we're leaving & flush EH */
- 	spin_lock_irqsave(ap->lock, flags);
-@@ -5594,6 +5575,7 @@ void ata_port_detach(struct ata_port *ap
- 	cancel_delayed_work(&ap->hotplug_task);
- 	flush_workqueue(ata_aux_wq);
+  retry:
+-	down_read(&current->mm->mmap_sem);
++	if (shared)
++		down_read(&current->mm->mmap_sem);
  
-+ skip_eh:
- 	/* remove the associated SCSI host */
- 	scsi_remove_host(ap->host);
+-	ret = get_futex_key(uaddr1, &key1);
++	ret = get_futex_key(uaddr1, &key1, shared);
+ 	if (unlikely(ret != 0))
+ 		goto out;
+-	ret = get_futex_key(uaddr2, &key2);
++	ret = get_futex_key(uaddr2, &key2, shared);
+ 	if (unlikely(ret != 0))
+ 		goto out;
+ 
+@@ -839,7 +851,8 @@
+ 			 * If we would have faulted, release mmap_sem, fault
+ 			 * it in and start all over again.
+ 			 */
+-			up_read(&current->mm->mmap_sem);
++			if (shared)
++				up_read(&current->mm->mmap_sem);
+ 
+ 			ret = get_user(curval, uaddr1);
+ 
+@@ -888,7 +901,8 @@
+ 		drop_key_refs(&key1);
+ 
+ out:
+-	up_read(&current->mm->mmap_sem);
++	if (shared)
++		up_read(&current->mm->mmap_sem);
+ 	return ret;
  }
-@@ -5662,7 +5644,7 @@ int ata_scsi_release(struct Scsi_Host *h
- 	DPRINTK("ENTER\n");
  
- 	ap->ops->port_disable(ap);
--	ata_host_remove(ap, 0);
-+	ap->ops->port_stop(ap);
+@@ -999,7 +1013,7 @@
+ 	drop_key_refs(&q->key);
+ }
  
- 	DPRINTK("EXIT\n");
- 	return 1;
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
-index 7ced41e..e92c31d 100644
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -2353,6 +2353,19 @@ static void atapi_qc_complete(struct ata
- 			ata_gen_ata_desc_sense(qc);
+-static int futex_wait(u32 __user *uaddr, u32 val, unsigned long time)
++static int futex_wait(u32 __user *uaddr, u32 val, unsigned long time, int shared)
+ {
+ 	struct task_struct *curr = current;
+ 	DECLARE_WAITQUEUE(wait, curr);
+@@ -1010,9 +1024,10 @@
+ 
+ 	q.pi_state = NULL;
+  retry:
+-	down_read(&curr->mm->mmap_sem);
++	if (shared)
++		down_read(&curr->mm->mmap_sem);
+ 
+-	ret = get_futex_key(uaddr, &q.key);
++	ret = get_futex_key(uaddr, &q.key, shared);
+ 	if (unlikely(ret != 0))
+ 		goto out_release_sem;
+ 
+@@ -1047,7 +1062,8 @@
+ 		 * If we would have faulted, release mmap_sem, fault it in and
+ 		 * start all over again.
+ 		 */
+-		up_read(&curr->mm->mmap_sem);
++		if (shared)
++			up_read(&curr->mm->mmap_sem);
+ 
+ 		ret = get_user(uval, uaddr);
+ 
+@@ -1066,7 +1082,8 @@
+ 	 * Now the futex is queued and we have checked the data, we
+ 	 * don't want to hold mmap_sem while we sleep.
+ 	 */
+-	up_read(&curr->mm->mmap_sem);
++	if (shared)
++		up_read(&curr->mm->mmap_sem);
+ 
+ 	/*
+ 	 * There might have been scheduling since the queue_me(), as we
+@@ -1108,7 +1125,8 @@
+ 	queue_unlock(&q, hb);
+ 
+  out_release_sem:
+-	up_read(&curr->mm->mmap_sem);
++	if (shared)
++		up_read(&curr->mm->mmap_sem);
+ 	return ret;
+ }
+ 
+@@ -1134,7 +1152,7 @@
+  retry:
+ 	down_read(&curr->mm->mmap_sem);
+ 
+-	ret = get_futex_key(uaddr, &q.key);
++	ret = get_futex_key(uaddr, &q.key, FUT_SHARED);
+ 	if (unlikely(ret != 0))
+ 		goto out_release_sem;
+ 
+@@ -1435,7 +1453,7 @@
+ 	 */
+ 	down_read(&current->mm->mmap_sem);
+ 
+-	ret = get_futex_key(uaddr, &key);
++	ret = get_futex_key(uaddr, &key, FUT_SHARED);
+ 	if (unlikely(ret != 0))
+ 		goto out;
+ 
+@@ -1551,7 +1569,7 @@
+ 	return ret;
+ }
+ 
+-static struct file_operations futex_fops = {
++static const struct file_operations futex_fops = {
+ 	.release	= futex_close,
+ 	.poll		= futex_poll,
+ };
+@@ -1600,7 +1618,7 @@
+ 	q->pi_state = NULL;
+ 
+ 	down_read(&current->mm->mmap_sem);
+-	err = get_futex_key(uaddr, &q->key);
++	err = get_futex_key(uaddr, &q->key, FUT_SHARED);
+ 
+ 	if (unlikely(err != 0)) {
+ 		up_read(&current->mm->mmap_sem);
+@@ -1742,7 +1760,7 @@
+ 		 */
+ 		if (!pi) {
+ 			if (uval & FUTEX_WAITERS)
+-				futex_wake(uaddr, 1);
++				futex_wake(uaddr, 1, FUT_SHARED);
  		}
+ 	}
+ 	return 0;
+@@ -1830,23 +1848,38 @@
  
-+		/* SCSI EH automatically locks door if sdev->locked is
-+		 * set.  Sometimes door lock request continues to
-+		 * fail, for example, when no media is present.  This
-+		 * creates a loop - SCSI EH issues door lock which
-+		 * fails and gets invoked again to acquire sense data
-+		 * for the failed command.
-+		 *
-+		 * If door lock fails, always clear sdev->locked to
-+		 * avoid this infinite loop.
-+		 */
-+		if (qc->cdb[0] == ALLOW_MEDIUM_REMOVAL)
-+			qc->dev->sdev->locked = 0;
-+
- 		qc->scsicmd->result = SAM_STAT_CHECK_CONDITION;
- 		qc->scsidone(cmd);
- 		ata_qc_free(qc);
-diff --git a/drivers/scsi/sata_sil24.c b/drivers/scsi/sata_sil24.c
-index 2e0f4a4..3f368c7 100644
---- a/drivers/scsi/sata_sil24.c
-+++ b/drivers/scsi/sata_sil24.c
-@@ -1106,7 +1106,6 @@ static int sil24_init_one(struct pci_dev
- 
- 	probe_ent->irq = pdev->irq;
- 	probe_ent->irq_flags = IRQF_SHARED;
--	probe_ent->mmio_base = port_base;
- 	probe_ent->private_data = hpriv;
- 
- 	hpriv->host_base = host_base;
+ 	switch (op) {
+ 	case FUTEX_WAIT:
+-		ret = futex_wait(uaddr, val, timeout);
++		ret = futex_wait(uaddr, val, timeout, FUT_SHARED);
++		break;
++	case FUTEX_WAIT_PRIVATE:
++		ret = futex_wait(uaddr, val, timeout, FUT_PRIVATE);
+ 		break;
+ 	case FUTEX_WAKE:
+-		ret = futex_wake(uaddr, val);
++		ret = futex_wake(uaddr, val, FUT_SHARED);
++		break;
++	case FUTEX_WAKE_PRIVATE:
++		ret = futex_wake(uaddr, val, FUT_PRIVATE);
+ 		break;
+ 	case FUTEX_FD:
+ 		/* non-zero val means F_SETOWN(getpid()) & F_SETSIG(val) */
+ 		ret = futex_fd(uaddr, val);
+ 		break;
+ 	case FUTEX_REQUEUE:
+-		ret = futex_requeue(uaddr, uaddr2, val, val2, NULL);
++		ret = futex_requeue(uaddr, uaddr2, val, val2, NULL, FUT_SHARED);
++		break;
++	case FUTEX_REQUEUE_PRIVATE:
++		ret = futex_requeue(uaddr, uaddr2, val, val2, NULL, FUT_PRIVATE);
+ 		break;
+ 	case FUTEX_CMP_REQUEUE:
+-		ret = futex_requeue(uaddr, uaddr2, val, val2, &val3);
++		ret = futex_requeue(uaddr, uaddr2, val, val2, &val3, FUT_SHARED);
++		break;
++	case FUTEX_CMP_REQUEUE_PRIVATE:
++		ret = futex_requeue(uaddr, uaddr2, val, val2, &val3, FUT_PRIVATE);
+ 		break;
+ 	case FUTEX_WAKE_OP:
+-		ret = futex_wake_op(uaddr, uaddr2, val, val2, val3);
++		ret = futex_wake_op(uaddr, uaddr2, val, val2, val3, FUT_SHARED);
++		break;
++	case FUTEX_WAKE_OP_PRIVATE:
++		ret = futex_wake_op(uaddr, uaddr2, val, val2, val3, FUT_PRIVATE);
+ 		break;
+ 	case FUTEX_LOCK_PI:
+ 		ret = futex_lock_pi(uaddr, val, timeout, val2, 0);
+
+--Boundary-00=_UAY2EYia1ifUTA4--

@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWHIUr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWHIUv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWHIUr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 16:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWHIUr1
+	id S1751367AbWHIUv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 16:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWHIUv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 16:47:27 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:28188 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751357AbWHIUr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 16:47:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fmwIDAzUmSbofsQtF6HD2LvGCxP22+OHdB0cNT9/U8DLRGLaMrR7LxBJr456ZG2rGfCx+oaL5GzUi02Pya5qnhjfXvzWozaYRz2TKARtZVDfVQzBEIllVXKkoQWJDOh+UT5CgrwndTkBBWoGkYf1/X522MffUwZjWtgrMlkm8hs=
-Message-ID: <62b0912f0608091347u8b86d40q3679991e9e16526f@mail.gmail.com>
-Date: Wed, 9 Aug 2006 22:47:00 +0200
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-To: "Duane Griffin" <duaneg@dghda.com>
-Subject: Re: ext3 corruption
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e9e943910608091317p37bdbd66t91bc1e16c3d9986a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com>
-	 <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>
-	 <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com>
-	 <62b0912f0608090822n2d0c44c4uc33b5b1db00e9d33@mail.gmail.com>
-	 <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com>
-	 <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
-	 <e9e943910608091317p37bdbd66t91bc1e16c3d9986a@mail.gmail.com>
+	Wed, 9 Aug 2006 16:51:56 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:32762 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751367AbWHIUvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 16:51:55 -0400
+Date: Wed, 09 Aug 2006 16:51:27 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: ALSA problems with 2.6.18-rc3
+In-reply-to: <1155156090.26338.193.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Benton <b3nt@ukonline.co.uk>,
+       Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Message-id: <200608091651.28077.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <44D8F3E5.5020508@ukonline.co.uk>
+ <200608091417.55431.gene.heskett@verizon.net>
+ <1155156090.26338.193.camel@mindpipe>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duane Griffin wrote:
-> > And what will e2fsck do to my dear filesystem if I let it have a go at it?
+On Wednesday 09 August 2006 16:41, Lee Revell wrote:
+[...]
+>> >Takashi-san,
+>> >
+>> >Does this help at all?  Many users are reporting that sound broke with
+>> >2.6.18-rc*.
+>> >
+>> >Lee
+>>
+>> Takashi-san's suggestion earlier today of running an "alsactl -F
+>> restore" seems to have fixed all those diffs right up, I now have good
+>> sound with an emu10k1 using an audigy 2 as card-0, running
+>> kernel-2.6.18-rc4.
 >
-> To be safe, run it on an image of your filesystem first.
+>Distros should probably be using this as a default.  Otherwise, simply
+>adding a new mixer control will cause restoring mixer settings to fail.
+>
+>Lee
 
-Yes, hmm, I don't have another terabyte handy, unfortunately.
+I already have the 'alsactl restore' in my rc.local.  Would there be any 
+harm in just adding the -F to that invocation, or will that just restore 
+it to a 'default' condition always.  Seems like it would, canceling 
+anything you have done & then did an 'alsactl store' to save..
 
-> That is assuming you have enough spare space, of course.
-> If not then you should at least run e2fsck with -n first to find out
-> what it wants to do.
-
-How close to 1-1 does "-n" relate to non-"-n" ?
-
-For example, does e2fsck take into consideration the changes it would
-have done itself in regular mode when it proceeds to the next problem
-and/or phase of a -n operation?
-
-If it doesn't, then that command is, well, totally useless.
-
-So :-).  Does it take that into consideration?
-
-> Personally, my risk tolerance would be closely correlated with
-> the quality of my backups.
-
-I hear you loud and clear...
-Sigh ;-).
-
-> "I never could learn to drink that blood and call it wine" - Bob Dylan
-
-Hmm.  I like it.
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

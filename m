@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWHIB1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWHIBbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbWHIB1y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 21:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWHIB1y
+	id S1030398AbWHIBbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 21:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWHIBbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 21:27:54 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:54405 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030397AbWHIB1x (ORCPT
+	Tue, 8 Aug 2006 21:31:04 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:18650 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1030398AbWHIBbD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 21:27:53 -0400
-Subject: Re: 2.6.18-rc3-mm2 early_param mem= fix
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Mannthey <kmannth@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, apw@shadowen.org
-In-Reply-To: <a762e240608081710h532f6bbl7a1670537fd481bd@mail.gmail.com>
-References: <Pine.LNX.4.64.0608061811030.19637@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0608061829430.20012@blonde.wat.veritas.com>
-	 <m13bc8b6ca.fsf@ebiederm.dsl.xmission.com>
-	 <a762e240608081710h532f6bbl7a1670537fd481bd@mail.gmail.com>
+	Tue, 8 Aug 2006 21:31:03 -0400
+Subject: Re: [PATCH] CONFIG_RELOCATABLE modpost fix
+From: Magnus Damm <magnus@valinux.co.jp>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       ebiederm@xmission.com
+In-Reply-To: <20060808183954.GA8300@mars.ravnborg.org>
+References: <20060808083307.391.45887.sendpatchset@cherry.local>
+	 <20060808183954.GA8300@mars.ravnborg.org>
 Content-Type: text/plain
-Date: Wed, 09 Aug 2006 11:27:51 +1000
-Message-Id: <1155086871.26428.5.camel@localhost.localdomain>
+Date: Wed, 09 Aug 2006 10:32:36 +0900
+Message-Id: <1155087156.4341.66.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-08 at 17:10 -0700, Keith Mannthey wrote:
-> The parameter hotadd_percent is setup right but there is a
-> "Malformed early option 'numa'" message.
+Hi again Sam,
 
-For the record: this happens when the function registered with
-early_param() returns non-zero.  __setup() functions return 1 if OK,
-module_param() and early_param() return 0 or a -ve error code.
+On Tue, 2006-08-08 at 20:39 +0200, Sam Ravnborg wrote:
+> On Tue, Aug 08, 2006 at 05:32:11PM +0900, Magnus Damm wrote:
+> > CONFIG_RELOCATABLE modpost fix
+> > 
+> > Run modpost on vmlinux regardless of CONFIG_MODULES.
+> Below is my take on this one.
+> - Dropped -rR since this is default now
+> - Dropped subdir- assignment in scripts/Makefile since it is redundant
+> - Always pass vmlinux ti modpost so we have full updated info
+> - Print out number of modules being mod posted to distingush from
+>   vmlinux one
+> - use vmlinux as target name to enable nicer quiet command print
 
-Hope that clarifies,
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+Your patch seems to work as expected if I add a return 0 at the end of
+modpost.c:secref_whitelist(). I like how you printed out the number of
+modules being processed. I have one minor comment about your patch:
+
+Modpost seems to get run twice on vmlinux if the kernel is built with
+"make all". I think it would be best to run modpost on vmlinux only when
+vmlinux is built - never when modules are processed.
+
+Thanks,
+
+/ magnus
+
 

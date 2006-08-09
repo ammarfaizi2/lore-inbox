@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHIWpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWHIWpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWHIWpe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWHIWpe
+	id S1751417AbWHIWpn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 18:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWHIWpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:45:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26898 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751413AbWHIWpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:45:33 -0400
-Date: Thu, 10 Aug 2006 00:45:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <greg@kroah.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Pavel Machek <pavel@suse.cz>,
-       Josh Boyer <jwboyer@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060809224529.GH3691@stusta.de>
-References: <200608091749_MC3-1-C796-5E8D@compuserve.com> <20060809220048.GE3691@stusta.de> <20060809221854.GA15395@kroah.com>
+	Wed, 9 Aug 2006 18:45:43 -0400
+Received: from mail.suse.de ([195.135.220.2]:24732 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751417AbWHIWpm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 18:45:42 -0400
+Date: Wed, 9 Aug 2006 15:45:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] libata fixes
+Message-ID: <20060809224527.GB17840@kroah.com>
+References: <20060809062514.GA27491@havoc.gtf.org> <20060809184749.GA12941@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060809221854.GA15395@kroah.com>
+In-Reply-To: <20060809184749.GA12941@kroah.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 03:18:54PM -0700, Greg KH wrote:
-> On Thu, Aug 10, 2006 at 12:00:49AM +0200, Adrian Bunk wrote:
-> > On Wed, Aug 09, 2006 at 05:45:53PM -0400, Chuck Ebbert wrote:
-> > > In-Reply-To: <20060808195509.GR3691@stusta.de>
-> > > 
-> > > On Tue, 8 Aug 2006 21:55:10 +0200, Adrian Bunk wrote:
-> > > 
-> > > > > > > I believe I had 'fix pdflush after suspend' queued in Greg's tree. Is
-> > > > > > > it still queued or should I resend?
-> > > > > > 
-> > > > > > Is this "pdflush: handle resume wakeups"?
-> > > > > 
-> > > > > Yes. Do you have it somewhere or should I dig it up?
-> > > > 
-> > > > I've applied it.
-> > > 
-> > > Umm, is there some place we can check to see what you've applied?
+On Wed, Aug 09, 2006 at 11:47:49AM -0700, Greg KH wrote:
+> On Wed, Aug 09, 2006 at 02:25:14AM -0400, Jeff Garzik wrote:
 > > 
-> > git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+> > Please pull from 'upstream-greg' branch of
+> > master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-greg
 > 
-> No, I would not use the main git tree to queue patches up.  What happens
-> when you want to rip the middle one out because in review it turns out
-> that it is incorrect?
-
-  git-revert
-
-> Please use a quilt tree of patches instead, and then only commit the
-> patches when you do a release.  It's much simpler that way.
-
-The way I'm doing it it's more the way the 2.4 and 2.6 trees work than 
-how the -stable tree works.
-
-I prefer it the way I'm doing it.
-
-If it turns out I was wrong I can always switch to a quilt tree.
-
-> thanks,
+> Applied, thanks.
 > 
-> greg k-h
+> Hm, should these fixes solve my SATA cdrom driver timeout issue?  I'll
+> go test that, it was still broken in 2.6.18-rc4...
 
-cu
-Adrian
+Nope, still get the same timeout error at boot time.  This works just
+fine with 2.6.17, and I reported it a while ago.  Any ideas of things I
+can do to work on this getting fixed?
 
--- 
+2.6.18 shouldn't go out with this broken, imo.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+thanks,
 
+greg k-h

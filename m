@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWHICUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWHICUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWHICUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Aug 2006 22:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWHICUV
+	id S1030395AbWHICUs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Aug 2006 22:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWHICUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Aug 2006 22:20:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:50124 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751257AbWHICUT (ORCPT
+	Tue, 8 Aug 2006 22:20:48 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52172 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030395AbWHICU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Aug 2006 22:20:19 -0400
+	Tue, 8 Aug 2006 22:20:26 -0400
 From: Andi Kleen <ak@suse.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 2.6.18-rc3-mm2] KPROBE_ENTRY ends up putting code into .fixup
-Date: Wed, 9 Aug 2006 04:13:54 +0200
+To: Magnus Damm <magnus@valinux.co.jp>
+Subject: Re: [PATCH 06/06] x86_64: mark init_amd() as __cpuinit
+Date: Wed, 9 Aug 2006 04:17:47 +0200
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <44D937EE.1020404@goop.org>
-In-Reply-To: <44D937EE.1020404@goop.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20060809010345.25458.86096.sendpatchset@cherry.local> <20060809010410.25458.59204.sendpatchset@cherry.local>
+In-Reply-To: <20060809010410.25458.59204.sendpatchset@cherry.local>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608090413.54286.ak@suse.de>
+Message-Id: <200608090417.47642.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 August 2006 03:18, Jeremy Fitzhardinge wrote:
-> KPROBE_ENTRY does a .section .kprobes.text, and expects its users to
-> do a .previous at the end of the function.
+On Wednesday 09 August 2006 03:03, Magnus Damm wrote:
+> x86_64: mark init_amd() as __cpuinit
 > 
-> Unfortunately, if any code within the function switches sections, for
-> example .fixup, then the .previous ends up putting all subsequent code
-> into .fixup.  Worse, any subsequent .fixup code gets intermingled with
-> the code its supposed to be fixing (which is also in .fixup).  It's
-> surprising this didn't cause more havok.
-> 
-> The fix is to use .pushsection/.popsection, so this stuff nests
-> properly.  A further cleanup would be to get rid of all
-> .section/.previous pairs, since they're inherently fragile.
+> The init_amd() function is only called from identify_cpu() which is already
+> marked as __cpuinit. So let's mark it as __cpuinit.
 
-Added thanks.
+I added all 6 patches. Thanks.
 -Andi

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWHIW4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWHIXFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWHIW4b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 18:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWHIW4b
+	id S1751430AbWHIXFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 19:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWHIXFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 18:56:31 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55722 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751416AbWHIW4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 18:56:30 -0400
-Date: Thu, 10 Aug 2006 08:56:16 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: XFS warning in 2.6.18-rc4
-Message-ID: <20060810085616.C2581413@wobbly.melbourne.sgi.com>
-References: <Pine.SOC.4.61.0608092303570.27011@math.ut.ee>
+	Wed, 9 Aug 2006 19:05:25 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:42880 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751430AbWHIXFY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 19:05:24 -0400
+Date: Wed, 9 Aug 2006 16:05:06 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Greg KH <greg@kroah.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Pavel Machek <pavel@suse.cz>, Josh Boyer <jwboyer@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+Message-ID: <20060809230506.GF11244@sequoia.sous-sol.org>
+References: <200608091749_MC3-1-C796-5E8D@compuserve.com> <20060809220048.GE3691@stusta.de> <20060809221854.GA15395@kroah.com> <20060809224529.GH3691@stusta.de> <20060809225326.GA18560@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOC.4.61.0608092303570.27011@math.ut.ee>; from mroos@linux.ee on Wed, Aug 09, 2006 at 11:04:53PM +0300
+In-Reply-To: <20060809225326.GA18560@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 11:04:53PM +0300, Meelis Roos wrote:
-> fs/xfs/xfs_bmap.c: In function 'xfs_bmapi':
-> fs/xfs/xfs_bmap.c:2662: warning: 'rtx' is used uninitialized in this function
+* Greg KH (greg@kroah.com) wrote:
+> On Thu, Aug 10, 2006 at 12:45:29AM +0200, Adrian Bunk wrote:
+> > > No, I would not use the main git tree to queue patches up.  What happens
+> > > when you want to rip the middle one out because in review it turns out
+> > > that it is incorrect?
+> > 
+> >   git-revert
+> 
+> Ok, fair enough, but it messes with the changelogs a bunch.
 
-You have a particularly dense compiler, unfortunately.  This code
-has always been this way, its just a false cc warning that can be
-safely ignored until you upgrade to a fixed compiler (unless I'm
-missing something - please enlighten me if so).  It does seem to
-be the case that there is no way 'rtx' will be used uninitialised
-when xfs_rtpick_extent() doesn't fail... no?
+You can always keep it all on a "pending" branch, and cherrypick if
+needed (instead of straight merge if you needed to drop something) to
+keep the final changelogs sane.
 
-cheers.
-
--- 
-Nathan
+thanks,
+-chris

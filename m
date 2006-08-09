@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWHIPth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWHIPwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWHIPth (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 11:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWHIPtg
+	id S1751073AbWHIPwg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 11:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWHIPwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 11:49:36 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:31426 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751053AbWHIPte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 11:49:34 -0400
-Date: Wed, 9 Aug 2006 11:49:09 -0400
-Message-Id: <200608091549.k79Fn9Ht020260@agora.fsl.cs.sunysb.edu>
-From: Erez Zadok <ezk@cs.sunysb.edu>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, Chris Wedgwood <cw@f00f.org>,
-       jsipek@cs.sunysb.edu, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC] [PATCH] Relative lazy atime 
-In-reply-to: Your message of "Wed, 09 Aug 2006 07:03:49 PDT."
-             <20060809140349.GE13474@goober> 
-X-MailKey: Erez_Zadok
+	Wed, 9 Aug 2006 11:52:36 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:35200 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751021AbWHIPwf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 11:52:35 -0400
+Message-ID: <44DA04C1.7040306@slaphack.com>
+Date: Wed, 09 Aug 2006 11:52:33 -0400
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Pavel Machek <pavel@ucw.cz>, "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Bernd Schubert <bernd-schubert@gmx.de>, reiserfs-list@namesys.com,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Clay Barnes <clay.barnes@gmail.com>,
+       Rudy Zijlstra <rudy@edsons.demon.nl>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>, ipso@snappymail.ca,
+       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl> <44CF87E6.1050004@slaphack.com> <20060806225912.GC4205@ucw.cz> <44D99ED9.1030003@namesys.com>
+In-Reply-To: <44D99ED9.1030003@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, there may be another atime mode to consider, which I believe is what
-Windows XP does w/ NTFS: only update the atime if it's newer than the
-on-disk file's atime by N seconds (defaults to one hour, but I believe it's
-configurable).  There could be scenarios in which this mode is preferable.
+Hans Reiser wrote:
+> Pavel Machek wrote:
+> 
+>>
+>> Yes, I'm afraid redundancy/checksums kill write speed,
+>>
+> they kill write speed to cache, but not to disk....  our compression
+> plugin is faster than the uncompressed plugin.....
 
-Erez.
+Regarding cache, do we do any sort of consistency checking for RAM, or 
+do we leave that to some of the stranger kernel patches -- or just an 
+occasional memtest?

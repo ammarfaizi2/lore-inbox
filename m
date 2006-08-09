@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWHIQcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWHIQe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWHIQcS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 12:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWHIQcS
+	id S1750740AbWHIQe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 12:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWHIQe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 12:32:18 -0400
-Received: from animx.eu.org ([216.98.75.249]:26512 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S1750723AbWHIQcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 12:32:18 -0400
-Date: Wed, 9 Aug 2006 12:28:48 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Folkert van Heusden <folkert@vanheusden.com>,
-       David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Time to forbid non-subscribers from posting to the list?
-Message-ID: <20060809162848.GA12306@animx.eu.org>
-Mail-Followup-To: Matti Aarnio <matti.aarnio@zmailer.org>,
-	Folkert van Heusden <folkert@vanheusden.com>,
-	David Schwartz <davids@webmaster.com>,
-	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <44D871DE.1040509@garzik.org> <MDEHLPKNGKAHNMBLJOLKIECNNKAB.davids@webmaster.com> <20060809143429.GD5815@vanheusden.com> <20060809150851.GH3021@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060809150851.GH3021@mea-ext.zmailer.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Aug 2006 12:34:27 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:31391 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750740AbWHIQeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 12:34:25 -0400
+Date: Wed, 09 Aug 2006 12:33:16 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [Alsa-user] another in kernel alsa update that breaks backward
+ compatibilty?
+In-reply-to: <s5h3bc5zy3q.wl%tiwai@suse.de>
+To: linux-kernel@vger.kernel.org
+Message-id: <200608091233.16264.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200608091140.02777.gene.heskett@verizon.net>
+ <200608091207.26156.gene.heskett@verizon.net> <s5h3bc5zy3q.wl%tiwai@suse.de>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio wrote:
-> I have seen these lists classify major ISP relays as spam sources(*),
-> even classify VGER as one.  Their maintenance standards are varying,
-> some demand ridiculous things out of DNS zone SOA timers, some are
-> otherwise retarded in their "we are the world police, beware or be
-> sorry"..   and then they simply evaporate into the bit heaven.
+On Wednesday 09 August 2006 12:13, Takashi Iwai wrote:
+>At Wed, 09 Aug 2006 12:07:26 -0400,
+>
+>Gene Heskett wrote:
+>> On Wednesday 09 August 2006 11:46, Sergei Steshenko wrote:
+>> >On Wed, 09 Aug 2006 11:40:02 -0400
+>> >
+>> >Gene Heskett <gene.heskett@verizon.net> wrote:
+>> >> Greetings;
+>> >>
+>> >> The old fart is back again. :)
+>> >>
+>> >> I've just done a divide and conquer on kernel versions, and have
+>> >> found that while I DO have a kde audio signon for kernels
+>> >> 2.6.18-rc1-rc3-rc4, I do not have any other functioning audio,
+>> >> including the kde sound effects I normally get.  xmms and tvtime are
+>> >> mute, as are the firefox plugins to play videos from the network.
+>> >> 2.6.17.8 and below works great yet.
+>> >>
+>> >> So whats the fix?
+>> >
+>> >Demand stable ABI.
+>>
+>> It does not appear to be so.  And ATM booted to 18-rc1, I didn't see an
+>> error message when rc.local made a call of "[root@coyote gene]# alsactl
+>> restore
+>> alsactl: set_control:894: warning: name mismatch (Mic Boost (+20dB)/Mic
+>> Boost (+20dB) Switch) for control #45
+>> alsactl: set_control:896: warning: index mismatch (0/0) for control #45
+>> alsactl: set_control:898: failed to obtain info for control #45
+>> (Operation not permitted)
+>> [root@coyote gene]#
+>
+>This kind of problems can be fixed by calling "alsactl restore" with
+>-F option.  The warnings may be still there but the values are handled
+>better.
+>
+>The behavior with -F could be default, but it's kept so just for the
+>compatibility reason.
+>
+>
+Humm, and that fixed it for 2.6.18-rc4.  Gawd, I'd sure like to get some of 
+that stuff, it must be great stuff.  Goes off scratching head & letting 
+imagination work overtime.
 
-Be nice if those that get listed and have real spammer problems actually
-clean up.  Some don't care.
+>Takashi
 
-> Spamhouse and Spamcop have long(er) existence compared to most
-> DNS BLs, but still I am utterly worried...
-> ("Many times burned, forever distrustful..")
-
-Personally, I use several RBLs, spamhaus and spamcop being 2 of those.
-
-If it's possible, one suggesting I have is to filter out some HELO strings.
-I have 3 of those in my suggestion:
-1) strings consisting of either the IP or the hostname of the receiving
-server (vger.kernel.org I assume)
-2) any helo that does not contain a dot.  I do not know the impact on the
-list if that were used
-3) tom.com and 163.com.  I have noticed that these are very common in some
-of the spam on the list and others that I am on.
-
-These are only suggestions and I do not expect anyone to blindly use them. 
-I do use these methods and others, however, I am the only user of the mail
-server in which I'm sending this email.
-
+Many thanks Takashi.
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

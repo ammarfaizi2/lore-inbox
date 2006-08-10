@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWHJGEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWHJGIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbWHJGEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 02:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWHJGEb
+	id S1161051AbWHJGIV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 02:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWHJGIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 02:04:31 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:29050 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161052AbWHJGEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 02:04:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NPVuRjfSlhIs6d1VnX2lb3WV3i8f+Bqlf3ImORD5kHYyBvyVSW/nj7msGP5xjNnC5q3jOq0AB7SN+sCASqwN5jgr/T0lpmXR720zwGkmK3miEreXExK5cqg7sZ6v7HpLw1tfMk/xMjJleyq+t+eiZRos9C9EaTRKnts8wShNo/g=
-Message-ID: <4ae3c140608092304p5d3b0a83r186ebe5466369189@mail.gmail.com>
-Date: Thu, 10 Aug 2006 02:04:29 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Neil Brown" <neilb@suse.de>
-Subject: Re: Urgent help needed on an NFS question, please help!!!
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <17626.49136.384370.284757@cse.unsw.edu.au>
+	Thu, 10 Aug 2006 02:08:21 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:50128 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161051AbWHJGIV (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 02:08:21 -0400
+Message-ID: <44DACD51.7080607@garzik.org>
+Date: Thu, 10 Aug 2006 02:08:17 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
-	 <17626.49136.384370.284757@cse.unsw.edu.au>
+To: keith.packard@intel.com
+CC: Linux-kernel@vger.kernel.org, Dirk Hohndel <dirk.hohndel@intel.com>,
+       Imad Sousou <imad.sousou@intel.com>
+Subject: Re: Announcing free software graphics drivers for Intel i965 chipset
+References: <1155151903.11104.112.camel@neko.keithp.com>
+In-Reply-To: <1155151903.11104.112.camel@neko.keithp.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think nfs_compare_fh() might do the file handle verification task.
-However, it is still possible that AFTER C1 gets a valid file handle,
-BUT BEFORE C1 sends out the getattr() request, C2 deletes file X and
-creates a different file X1 which has the same inode number. Looks
-like the server side must verify the generation number carried in the
-file handle. Unfortunately, I didn't find this code at the server
-side. Any further insight on this?
+Keith Packard wrote:
+> The Intel Open Source Technology Center graphics team is pleased to announce
+> the immediate availability of free software drivers for the Intel® 965
+> Express Chipset family graphics controller. These drivers include support
+> for 2D and 3D graphics features for the newest generation Intel graphics
+> architecture. The project Web site is http://IntelLinuxGraphics.org.
+
+Very cool, and I definitely applaud Intel for supporting open source 
+here.  A couple questions...
+
+* is the 3D stuff available from git somewhere?  The download filename 
+includes "-git-", but the checkout instructions reference cvs.
+
+* is anyone working on a more dynamic GLSL compilation system?  i.e. a 
+"JIT", in compiler technology terms.
 
 Thanks,
-Xin
 
-On 8/10/06, Neil Brown <neilb@suse.de> wrote:
-> On Thursday August 10, uszhaoxin@gmail.com wrote:
-> > I just ran into a problem about NFS. It might be a fundmental problem
-> > of my current work. So please help!
-> >
-> > I am wondering how NFS guarantees a client didn't get wrong file
-> > attributes. Consider the following scenario:
-> >
-> > Suppose we have an NFS server S and two clients C1 and C2.
-> >
-> > Now C1 needs to access the file attributes of file X, it first does
-> > lookup() to get the file handle of file X.
-> >
-> > After C1 gets X's file handle and before C1 issues the getattr()
-> > request, C2 cuts in. Now C2 deletes file X and creates a new file X1,
-> > which has different name but the same inode number and device ID as
-> > the nonexistent file X.
-> >
-> > When C1 issues getattr() with the old file handle, it may get file
-> > attribute on wrong file X1. Is this true?
-> >
-> > If not, how NFS avoid this problem? Please direct me to the code that
-> > verifies this.
->
-> Generation numbers.
->
-> When the filesystem creates a new file it assigns a random number
-> as the 'generation' number and stores that in the inode.
-> This gets included in the filehandle, and checked when the filehandle
-> lookup is done.
->
-> Look for references to 'i_generation' in fs/ext3/*
->
-> Other files systems may approach this slightly differently, but the
-> filesystem is responsible for providing a unique-over-time filehandle,
-> and 'generation number' is the 'standard' way of doing this.
->
-> NeilBrown
->
+	Jeff
+
+
+

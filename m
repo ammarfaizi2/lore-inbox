@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWHJAMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWHJAOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWHJAMq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 20:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWHJAMq
+	id S932288AbWHJAOv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 20:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWHJAOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 20:12:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S932285AbWHJAMp (ORCPT
+	Wed, 9 Aug 2006 20:14:51 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:12682 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932288AbWHJAOu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 20:12:45 -0400
-Date: Thu, 10 Aug 2006 00:12:33 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux ACPI <linux-acpi@vger.kernel.org>
-Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
-Message-ID: <20060810001232.GB4249@ucw.cz>
-References: <200608091426.31762.rjw@sisk.pl> <200608092201.42885.rjw@sisk.pl> <20060809131232.75a260e1.akpm@osdl.org> <200608092251.58062.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608092251.58062.rjw@sisk.pl>
-User-Agent: Mutt/1.5.9i
+	Wed, 9 Aug 2006 20:14:50 -0400
+Message-Id: <20060810001113.881368000@linux-m68k.org>
+References: <20060810000146.913645000@linux-m68k.org>
+User-Agent: quilt/0.45-1
+Date: Thu, 10 Aug 2006 02:01:48 +0200
+From: zippel@linux-m68k.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+Subject: [NTP 2/9] add time_adj to tick length
+Content-Disposition: inline; filename=0002-NTP-add-time_adj-to-tick-length.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This makes time_adj local to second_overflow() and integrates it into
+the tick length instead of adding it everytime.
 
-> > > > > It looks like the CMOS clock gets corrupted during the suspend to disk
-> > > > > on i386.  I've observed this on 2 different boxes.  Moreover, one of them is
-> > > > > AMD64-based and the x86_64 kernel doesn't have this problem on it.
-> > > > > 
-> > > > > Also, I've done some tests that indicate the corruption doesn't occur before
-> > > > > saving the suspend image.  It rather happens when the box is powered off
-> > > > > or rebooted (tested both cases).
-> > > > > 
-> > > > > Unfortunately, I have no more time to debug it further right now.
-> > > > 
-> > > > Do you have Linus' "please corrupt my cmos for debuggin" hack enabled?
-> > > 
-> > > Well, I know nothing about that. ;-)
-> > 
-> > CONFIG_PM_TRACE=y will scrog your CMOS clock each time you suspend.
-> 
-> Oh dear.  Of course it's set in my .config.  Thanks a lot for this hint. :-)
-> 
-> BTW, it's a dangerous setting, because some drivers get mad if the time after
-> the resume appears to be earlier than the time before the suspend.  Also the
-> timer .suspend/.resume routines aren't prepared for that.
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+---
+ kernel/time/ntp.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Its config option should just go away. People comfortable using *that*
-should just edit some header file. Rafael, could you do patch doing
-something like that?
+Index: linux-2.6-mm/kernel/time/ntp.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/time/ntp.c
++++ linux-2.6-mm/kernel/time/ntp.c
+@@ -45,7 +45,6 @@ long time_maxerror = NTP_PHASE_LIMIT;	/*
+ long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
+ long time_freq = (((NSEC_PER_SEC + HZ/2) % HZ - HZ/2) << SHIFT_USEC) / NSEC_PER_USEC;
+ 					/* frequency offset (scaled ppm)*/
+-static long time_adj;			/* tick adjust (scaled 1 / HZ)	*/
+ long time_reftime;			/* time at last adjustment (s)	*/
+ long time_adjust;
+ long time_next_adjust;
+@@ -90,7 +89,7 @@ void ntp_update_frequency(void)
+  */
+ void second_overflow(void)
+ {
+-	long ltemp;
++	long ltemp, time_adj;
+ 
+ 	/* Bump the maxerror field */
+ 	time_maxerror += time_tolerance >> SHIFT_USEC;
+@@ -195,6 +194,7 @@ void second_overflow(void)
+ 	time_adj += shift_right(time_adj, 6) + shift_right(time_adj, 7);
+ #endif
+ 	tick_length = tick_length_base;
++	tick_length += (s64)time_adj << (TICK_LENGTH_SHIFT - (SHIFT_SCALE - 10));
+ }
+ 
+ /*
+@@ -251,11 +251,9 @@ u64 current_tick_length(void)
+ 	u64 ret;
+ 
+ 	/* calculate the finest interval NTP will allow.
+-	 *    ie: nanosecond value shifted by (SHIFT_SCALE - 10)
+ 	 */
+ 	ret = tick_length;
+ 	ret += (u64)(adjtime_adjustment() * 1000) << TICK_LENGTH_SHIFT;
+-	ret += (s64)time_adj << (TICK_LENGTH_SHIFT - (SHIFT_SCALE - 10));
+ 
+ 	return ret;
+ }
 
--- 
-Thanks for all the (sleeping) penguins.
+--
+

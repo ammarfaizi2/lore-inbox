@@ -1,225 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbWHJUY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWHJU0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932614AbWHJUY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWHJUOn
+	id S1751569AbWHJU0H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWHJUZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:14:43 -0400
-Received: from cantor.suse.de ([195.135.220.2]:37520 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932603AbWHJTgN (ORCPT
+	Thu, 10 Aug 2006 16:25:54 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:13700 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932520AbWHJUZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:13 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [54/145] x86_64: Remove obsolete PIC mode
-Message-Id: <20060810193609.2977113C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:09 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:25:00 -0400
+Message-ID: <44DB9613.1060609@garzik.org>
+Date: Thu, 10 Aug 2006 16:24:51 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+CC: Theodore Tso <tytso@mit.edu>, Erik Mouw <erik@harddisk-recovery.com>,
+       Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
+References: <1155172642.3161.74.camel@localhost.localdomain>	 <20060810092021.GB11361@harddisk-recovery.com>	 <20060810175920.GC19238@thunk.org>  <44DB8EBE.6060003@garzik.org> <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
+In-Reply-To: <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+Dave Kleikamp wrote:
+> IF it's decided to register the file system as ext3dev (Would ext4dev
+> make more sense?), I would prefer the config options and code continues
+> to simply use ext4.
 
-PIC mode is an outdated way to drive the APICs that was used on 
-some early MP boards. It is not supported in the ACPI model.
+Code, I strongly agree.
 
-It is unlikely to be ever configured by any x86-64 system
+But config options are a dime a dozen.  They change all the time, even 
+for the same driver.
 
-Remove it thus.
+	Jeff
 
-Signed-off-by: Andi Kleen <ak@suse.de>
 
----
- arch/x86_64/kernel/apic.c    |   92 +++++++++++++------------------------------
- arch/x86_64/kernel/mpparse.c |    8 ---
- arch/x86_64/kernel/smpboot.c |    1 
- include/asm-x86_64/mpspec.h  |    1 
- include/asm-x86_64/smp.h     |    1 
- 5 files changed, 29 insertions(+), 74 deletions(-)
-
-Index: linux/arch/x86_64/kernel/apic.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/apic.c
-+++ linux/arch/x86_64/kernel/apic.c
-@@ -136,72 +136,40 @@ void clear_local_APIC(void)
- 	apic_read(APIC_ESR);
- }
- 
--void __init connect_bsp_APIC(void)
--{
--	if (pic_mode) {
--		/*
--		 * Do not trust the local APIC being empty at bootup.
--		 */
--		clear_local_APIC();
--		/*
--		 * PIC mode, enable APIC mode in the IMCR, i.e.
--		 * connect BSP's local APIC to INT and NMI lines.
--		 */
--		apic_printk(APIC_VERBOSE, "leaving PIC mode, enabling APIC mode.\n");
--		outb(0x70, 0x22);
--		outb(0x01, 0x23);
--	}
--}
--
- void disconnect_bsp_APIC(int virt_wire_setup)
- {
--	if (pic_mode) {
--		/*
--		 * Put the board back into PIC mode (has an effect
--		 * only on certain older boards).  Note that APIC
--		 * interrupts, including IPIs, won't work beyond
--		 * this point!  The only exception are INIT IPIs.
--		 */
--		apic_printk(APIC_QUIET, "disabling APIC mode, entering PIC mode.\n");
--		outb(0x70, 0x22);
--		outb(0x00, 0x23);
--	}
--	else {
--		/* Go back to Virtual Wire compatibility mode */
--		unsigned long value;
--
--		/* For the spurious interrupt use vector F, and enable it */
--		value = apic_read(APIC_SPIV);
--		value &= ~APIC_VECTOR_MASK;
--		value |= APIC_SPIV_APIC_ENABLED;
--		value |= 0xf;
--		apic_write(APIC_SPIV, value);
--
--		if (!virt_wire_setup) {
--			/* For LVT0 make it edge triggered, active high, external and enabled */
--			value = apic_read(APIC_LVT0);
--			value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
--				APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
--				APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
--			value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
--			value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
--			apic_write(APIC_LVT0, value);
--		}
--		else {
--			/* Disable LVT0 */
--			apic_write(APIC_LVT0, APIC_LVT_MASKED);
--		}
-+	/* Go back to Virtual Wire compatibility mode */
-+	unsigned long value;
- 
--		/* For LVT1 make it edge triggered, active high, nmi and enabled */
--		value = apic_read(APIC_LVT1);
--		value &= ~(
--			APIC_MODE_MASK | APIC_SEND_PENDING |
-+	/* For the spurious interrupt use vector F, and enable it */
-+	value = apic_read(APIC_SPIV);
-+	value &= ~APIC_VECTOR_MASK;
-+	value |= APIC_SPIV_APIC_ENABLED;
-+	value |= 0xf;
-+	apic_write(APIC_SPIV, value);
-+
-+	if (!virt_wire_setup) {
-+		/* For LVT0 make it edge triggered, active high, external and enabled */
-+		value = apic_read(APIC_LVT0);
-+		value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
- 			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
--			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
-+			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
- 		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
--		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
--		apic_write(APIC_LVT1, value);
-+		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
-+		apic_write(APIC_LVT0, value);
-+	} else {
-+		/* Disable LVT0 */
-+		apic_write(APIC_LVT0, APIC_LVT_MASKED);
- 	}
-+
-+	/* For LVT1 make it edge triggered, active high, nmi and enabled */
-+	value = apic_read(APIC_LVT1);
-+	value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
-+			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
-+			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
-+	value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
-+	value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
-+	apic_write(APIC_LVT1, value);
- }
- 
- void disable_local_APIC(void)
-@@ -418,7 +386,7 @@ void __cpuinit setup_local_APIC (void)
- 	 * TODO: set up through-local-APIC from through-I/O-APIC? --macro
- 	 */
- 	value = apic_read(APIC_LVT0) & APIC_LVT_MASKED;
--	if (!smp_processor_id() && (pic_mode || !value)) {
-+	if (!smp_processor_id() && !value) {
- 		value = APIC_DM_EXTINT;
- 		apic_printk(APIC_VERBOSE, "enabled ExtINT on CPU#%d\n", smp_processor_id());
- 	} else {
-@@ -1096,8 +1064,6 @@ int __init APIC_init_uniprocessor (void)
- 
- 	verify_local_APIC();
- 
--	connect_bsp_APIC();
--
- 	phys_cpu_present_map = physid_mask_of_physid(boot_cpu_id);
- 	apic_write(APIC_ID, SET_APIC_ID(boot_cpu_id));
- 
-Index: linux/arch/x86_64/kernel/mpparse.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/mpparse.c
-+++ linux/arch/x86_64/kernel/mpparse.c
-@@ -56,7 +56,6 @@ struct mpc_config_intsrc mp_irqs[MAX_IRQ
- int mp_irq_entries;
- 
- int nr_ioapics;
--int pic_mode;
- unsigned long mp_lapic_addr = 0;
- 
- 
-@@ -514,13 +513,6 @@ void __init get_smp_config (void)
-  		printk(KERN_INFO "Using ACPI for processor (LAPIC) configuration information\n");
- 
- 	printk("Intel MultiProcessor Specification v1.%d\n", mpf->mpf_specification);
--	if (mpf->mpf_feature2 & (1<<7)) {
--		printk(KERN_INFO "    IMCR and PIC compatibility mode.\n");
--		pic_mode = 1;
--	} else {
--		printk(KERN_INFO "    Virtual Wire compatibility mode.\n");
--		pic_mode = 0;
--	}
- 
- 	/*
- 	 * Now see if we need to read further.
-Index: linux/include/asm-x86_64/mpspec.h
-===================================================================
---- linux.orig/include/asm-x86_64/mpspec.h
-+++ linux/include/asm-x86_64/mpspec.h
-@@ -178,7 +178,6 @@ extern int mp_irq_entries;
- extern struct mpc_config_intsrc mp_irqs [MAX_IRQ_SOURCES];
- extern int mpc_default_type;
- extern unsigned long mp_lapic_addr;
--extern int pic_mode;
- 
- #ifdef CONFIG_ACPI
- extern void mp_register_lapic (u8 id, u8 enabled);
-Index: linux/include/asm-x86_64/smp.h
-===================================================================
---- linux.orig/include/asm-x86_64/smp.h
-+++ linux/include/asm-x86_64/smp.h
-@@ -33,7 +33,6 @@ extern cpumask_t cpu_initialized;
-  
- extern void smp_alloc_memory(void);
- extern volatile unsigned long smp_invalidate_needed;
--extern int pic_mode;
- extern void lock_ipi_call_lock(void);
- extern void unlock_ipi_call_lock(void);
- extern int smp_num_siblings;
-Index: linux/arch/x86_64/kernel/smpboot.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/smpboot.c
-+++ linux/arch/x86_64/kernel/smpboot.c
-@@ -1090,7 +1090,6 @@ void __init smp_prepare_cpus(unsigned in
- 	/*
- 	 * Switch from PIC to APIC mode.
- 	 */
--	connect_bsp_APIC();
- 	setup_local_APIC();
- 
- 	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_id) {

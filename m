@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWHJGl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWHJGtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161100AbWHJGl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 02:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWHJGlz
+	id S1161053AbWHJGtA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 02:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWHJGtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 02:41:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23962 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161098AbWHJGlw (ORCPT
+	Thu, 10 Aug 2006 02:49:00 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:51170 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751187AbWHJGs7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 02:41:52 -0400
-Date: Wed, 9 Aug 2006 23:41:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: cmm@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 9/9]ext4 super block changes for >32 bit blocks numbers
-Message-Id: <20060809234105.67414f03.akpm@osdl.org>
-In-Reply-To: <1155172945.3161.88.camel@localhost.localdomain>
-References: <1155172945.3161.88.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 10 Aug 2006 02:48:59 -0400
+Date: Thu, 10 Aug 2006 10:48:39 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org, zach.brown@oracle.com
+Subject: Re: [take6 1/3] kevent: Core files.
+Message-ID: <20060810064839.GA11845@2ka.mipt.ru>
+References: <11551105602734@2ka.mipt.ru> <20060809152127.481fb346.akpm@osdl.org> <20060810061433.GA4689@2ka.mipt.ru> <20060809.234235.71555079.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060809.234235.71555079.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 10 Aug 2006 10:48:40 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Aug 2006 18:22:25 -0700
-Mingming Cao <cmm@us.ibm.com> wrote:
-
-> In-kernel and on-disk super block changes to support >32 bit blocks numbers.
+On Wed, Aug 09, 2006 at 11:42:35PM -0700, David Miller (davem@davemloft.net) wrote:
+> > > > +	k->kevent_entry.next = LIST_POISON1;
+> > > > +	k->storage_entry.prev = LIST_POISON2;
+> > > > +	k->ready_entry.next = LIST_POISON1;
+> > > 
+> > > Nope ;)
+> > 
+> > I use pointer checks to determine if entry is in the list or not, why it
+> > is frowned upon here?
 > 
-> +static inline u32 EXT4_RELATIVE_ENCODE(ext4_fsblk_t group_base,
-> +				       ext4_fsblk_t fs_block)
-> +{
-> +	s32 gdp_block;
-> +
-> +	if (fs_block < (1ULL<<32) && group_base < (1ULL<<32))
-> +		return fs_block;
-> +
-> +	gdp_block = (fs_block - group_base);
-> +	BUG_ON ((group_base + gdp_block) != fs_block);
-> +
-> +	return gdp_block;
-> +}
-> +
-> +static inline ext4_fsblk_t EXT4_RELATIVE_DECODE(ext4_fsblk_t group_base,
-> +						u32 gdp_block)
-> +{
-> +	if (group_base >= (1ULL<<32))
-> +		return group_base + (s32) gdp_block;
-> +
-> +	if ((s32) gdp_block >= 0 && gdp_block < group_base &&
-> +		  group_base + gdp_block >= (1ULL<<32))
-> +		return group_base + gdp_block;
-> +
-> +	return gdp_block;
-> +}
+> As Andrew mentioned in another posting, these poison macros
+> are likely to simply go away some day, so you should not use
+> them.
 
-These seem far too large and far too commonly called to be inlined.
+They exist for ages and sudently can go away?..
+ 
+> If you want pointer encoded tags you use internally, define your own.
 
->  
-> +
-> +#define EXT4_BLOCKS_COUNT(s)	\
-> +	(ext4_fsblk_t)(((__u64)le32_to_cpu((s)->s_blocks_count_hi) << 32) |	\
-> +	 	(__u64)le32_to_cpu((s)->s_blocks_count))
-> +#define EXT4_BLOCKS_COUNT_SET(s,v)	do {				\
-> +	(s)->s_blocks_count = cpu_to_le32((v));				\
-> +	(s)->s_blocks_count_hi = cpu_to_le32(((__u64)(v)) >> 32);	\
-> +} while (0)
-> +
-> +#define EXT4_R_BLOCKS_COUNT(s)	\
-> +	(ext4_fsblk_t)(((__u64)le32_to_cpu((s)->s_r_blocks_count_hi) << 32) |	\
-> +		 (__u64)le32_to_cpu((s)->s_r_blocks_count))
-> +#define EXT4_R_BLOCKS_COUNT_SET(s,v)	do {				\
-> +	(s)->s_r_blocks_count = cpu_to_le32((v));			\
-> +	(s)->s_r_blocks_count_hi = cpu_to_le32(((__u64)(v)) >> 32);	\
-> +} while (0)
-> +
-> +#define EXT4_FREE_BLOCKS_COUNT(s)					\
-> +	(ext4_fsblk_t)(((__u64)le32_to_cpu((s)->s_free_blocks_count_hi) << 32) | \
-> +		 (__u64)le32_to_cpu((s)->s_free_blocks_count))
-> +#define EXT4_FREE_BLOCKS_COUNT_SET(s,v)	do {				\
-> +	(s)->s_free_blocks_count = cpu_to_le32((v));			\
-> +	(s)->s_free_blocks_count_hi = cpu_to_le32(((__u64)(v)) >> 32);	\
-> +} while (0)
+I think if I will add code like this
+list_del(&k->entry);
+k->entry.prev = KEVENT_POISON1;
+k->entry.next = KEVENT_POISON2;
 
-Can these not be implemented as C functions?
+I will be suggested to make myself a lobotomy.
 
+I have enough space in flags in each kevent, so I will use some bits there.
+
+-- 
+	Evgeniy Polyakov

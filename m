@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWHJMXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWHJMYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161196AbWHJMXt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161206AbWHJMXs
+	id S1161206AbWHJMYz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161207AbWHJMYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:23:48 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:4062 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161196AbWHJMXr (ORCPT
+	Thu, 10 Aug 2006 08:24:54 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:32772 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1161206AbWHJMYy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:23:47 -0400
-Message-ID: <44DB2550.6000802@garzik.org>
-Date: Thu, 10 Aug 2006 08:23:44 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] libata fixes
-References: <20060809062514.GA27491@havoc.gtf.org> <20060809184749.GA12941@kroah.com> <20060809224527.GB17840@kroah.com>
-In-Reply-To: <20060809224527.GB17840@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 10 Aug 2006 08:24:54 -0400
+Date: Thu, 10 Aug 2006 14:26:11 +0200
+From: Jens Axboe <axboe@suse.de>
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: softirq considered harmful
+Message-ID: <20060810122610.GR11829@suse.de>
+References: <20060810110627.GM11829@suse.de> <20060810.044133.50597818.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060810.044133.50597818.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Nope, still get the same timeout error at boot time.  This works just
-> fine with 2.6.17, and I reported it a while ago.  Any ideas of things I
-> can do to work on this getting fixed?
+On Thu, Aug 10 2006, David Miller wrote:
+> From: Jens Axboe <axboe@suse.de>
+> Date: Thu, 10 Aug 2006 13:06:27 +0200
 > 
-> 2.6.18 shouldn't go out with this broken, imo.
+> > run_timer_softirq+0x0/0x18e: took 3750
+> > run_timer_softirq+0x0/0x18e: took 2595
+> > run_timer_softirq+0x0/0x18e: took 6265
+> > run_timer_softirq+0x0/0x18e: took 2608
+> > 
+> > So from 2.6 to 6.2msecs just that handler, auch. During normal running,
+> > the 2.6 msec variant triggers quite often.
+> 
+> It would be interesting to know what timers ran when
+> the overhead got this high.
+> 
+> You can probably track this with a per-cpu array
+> of pointers, have run_timer_softirq record the
+> t->func pointers into the array as it runs the
+> current slew of timers, then if the "took" is
+> very large dump the array.
 
-FWIW agreed (as you see from another email)
+I did that, and it got me nowhere, no timers are to blame. Trying to
+reproduce the slowdowns reported, these tests were with full preemtion
+enabled. Running the exact same test that showed:
 
-	Jeff
+centera:/sys/block/sdc/queue # cat complete
+8596, 8148, 6833, 7768, 11332, 7781, 8652, 6956, 6716, 13710
 
+before (almost 14 msecs!!), now shows:
+
+centera:/sys/block/sdc/queue # cat complete
+172, 138, 125, 152, 122, 179, 157, 155, 142, 155
+
+which is a hell of a lot more reasonable. Preempting the io completion
+is, well, shall we say pretty suboptimal. So much for improving latency
+:-)
+
+-- 
+Jens Axboe
 

@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbWHJUAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932682AbWHJT73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932705AbWHJUAR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWHJT7j
+	id S932682AbWHJT73 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932714AbWHJT71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:59:39 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:62955 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932647AbWHJTgv (ORCPT
+	Thu, 10 Aug 2006 15:59:27 -0400
+Received: from mail.suse.de ([195.135.220.2]:6545 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932651AbWHJTg6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:51 -0400
+	Thu, 10 Aug 2006 15:36:58 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [93/145] i386/x86-64: Move acpi_disabled variables into acpi/boot.c
-Message-Id: <20060810193650.AA00313B8E@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:50 +0200 (CEST)
+Subject: [PATCH for review] [99/145] x86_64: Fix sparse warnings in compat aout code
+Message-Id: <20060810193657.0A51F13C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:57 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-Removes code duplication between i386/x86-64.
-
-Not needed anymore in setup.c since early_param cleanup
-
-Cc: len.brown@intel.com
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/acpi/boot.c |    7 +++++++
- arch/i386/kernel/setup.c     |    7 -------
- arch/x86_64/kernel/setup.c   |    3 ---
- 3 files changed, 7 insertions(+), 10 deletions(-)
+ arch/x86_64/ia32/ia32_aout.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
-Index: linux/arch/i386/kernel/acpi/boot.c
+Index: linux/arch/x86_64/ia32/ia32_aout.c
 ===================================================================
---- linux.orig/arch/i386/kernel/acpi/boot.c
-+++ linux/arch/i386/kernel/acpi/boot.c
-@@ -38,6 +38,13 @@
+--- linux.orig/arch/x86_64/ia32/ia32_aout.c
++++ linux/arch/x86_64/ia32/ia32_aout.c
+@@ -333,7 +333,8 @@ static int load_aout_binary(struct linux
+ 			return error;
+ 		}
  
- int __initdata acpi_force = 0;
- 
-+#ifdef	CONFIG_ACPI
-+int acpi_disabled = 0;
-+#else
-+int acpi_disabled = 1;
-+#endif
-+EXPORT_SYMBOL(acpi_disabled);
-+
- #ifdef	CONFIG_X86_64
- 
- extern void __init clustered_apic_check(void);
-Index: linux/arch/i386/kernel/setup.c
-===================================================================
---- linux.orig/arch/i386/kernel/setup.c
-+++ linux/arch/i386/kernel/setup.c
-@@ -89,13 +89,6 @@ EXPORT_SYMBOL(boot_cpu_data);
- 
- unsigned long mmu_cr4_features;
- 
--#ifdef	CONFIG_ACPI
--	int acpi_disabled = 0;
--#else
--	int acpi_disabled = 1;
--#endif
--EXPORT_SYMBOL(acpi_disabled);
--
- /* for MCA, but anyone else can use it if they want */
- unsigned int machine_id;
- #ifdef CONFIG_MCA
-Index: linux/arch/x86_64/kernel/setup.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/setup.c
-+++ linux/arch/x86_64/kernel/setup.c
-@@ -74,9 +74,6 @@ EXPORT_SYMBOL(boot_cpu_data);
- 
- unsigned long mmu_cr4_features;
- 
--int acpi_disabled;
--EXPORT_SYMBOL(acpi_disabled);
--
- int acpi_numa __initdata;
- 
- /* Boot loader ID as an integer, for the benefit of proc_dointvec */
+-		error = bprm->file->f_op->read(bprm->file, (char *)text_addr,
++		error = bprm->file->f_op->read(bprm->file,
++			 (char __user *)text_addr,
+ 			  ex.a_text+ex.a_data, &pos);
+ 		if ((signed long)error < 0) {
+ 			send_sig(SIGKILL, current, 0);
+@@ -366,7 +367,8 @@ static int load_aout_binary(struct linux
+ 			down_write(&current->mm->mmap_sem);
+ 			do_brk(N_TXTADDR(ex), ex.a_text+ex.a_data);
+ 			up_write(&current->mm->mmap_sem);
+-			bprm->file->f_op->read(bprm->file,(char *)N_TXTADDR(ex),
++			bprm->file->f_op->read(bprm->file,
++					(char __user *)N_TXTADDR(ex),
+ 					ex.a_text+ex.a_data, &pos);
+ 			flush_icache_range((unsigned long) N_TXTADDR(ex),
+ 					   (unsigned long) N_TXTADDR(ex) +
+@@ -477,7 +479,7 @@ static int load_aout_library(struct file
+ 		do_brk(start_addr, ex.a_text + ex.a_data + ex.a_bss);
+ 		up_write(&current->mm->mmap_sem);
+ 		
+-		file->f_op->read(file, (char *)start_addr,
++		file->f_op->read(file, (char __user *)start_addr,
+ 			ex.a_text + ex.a_data, &pos);
+ 		flush_icache_range((unsigned long) start_addr,
+ 				   (unsigned long) start_addr + ex.a_text + ex.a_data);

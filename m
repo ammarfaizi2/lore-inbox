@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWHJT4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWHJTzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWHJT4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWHJT4D
+	id S1751492AbWHJTzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWHJThO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:56:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37505 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751496AbWHJTz2 (ORCPT
+	Thu, 10 Aug 2006 15:37:14 -0400
+Received: from cantor.suse.de ([195.135.220.2]:12945 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932660AbWHJThG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:55:28 -0400
+	Thu, 10 Aug 2006 15:37:06 -0400
 From: Andi Kleen <ak@suse.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH for review] [130/145] i386: clean up topology.c
-Date: Thu, 10 Aug 2006 21:55:16 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20060810 935.775038000@suse.de> <20060810193729.EC90B13C0B@wotan.suse.de> <1155239403.19249.271.camel@localhost.localdomain>
-In-Reply-To: <1155239403.19249.271.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608102155.16849.ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [107/145] x86_64: Calgary IOMMU: eradicate sole remaining 80 chars per line offender
+Message-Id: <20060810193705.7FA9513C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:05 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 August 2006 21:50, Dave Hansen wrote:
-> On Thu, 2006-08-10 at 21:37 +0200, Andi Kleen wrote:
-> >  static int __init topology_init(void)
-> >  {
-> >         int i;
-> >  
-> > +#ifdef CONFIG_NUMA
-> >         for_each_online_node(i)
-> >                 register_one_node(i);
-> > +#endif /* CONFIG_NUMA */
-> >  
-> >         for_each_present_cpu(i)
-> >                 arch_register_cpu(i);
-> >         return 0;
-> >  } 
-> 
-> Wouldn't it be more proper here to make register_one_node() have a
-> non-NUMA definition, instead of putting an #ifdef in a .c file like
-> this?
+r
 
-I don't see a particular advantage of that for something simple like this. 
-But if you feel strongly about it please submit a tested replacement patch.
+From: Muli Ben-Yehuda <muli@il.ibm.com>
 
--Andi
+Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+ arch/x86_64/kernel/pci-calgary.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+Index: linux/arch/x86_64/kernel/pci-calgary.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/pci-calgary.c
++++ linux/arch/x86_64/kernel/pci-calgary.c
+@@ -86,7 +86,8 @@
+ 
+ #define MAX_NUM_OF_PHBS		8 /* how many PHBs in total? */
+ #define MAX_NUM_CHASSIS		8 /* max number of chassis */
+-#define MAX_PHB_BUS_NUM		(MAX_NUM_OF_PHBS * MAX_NUM_CHASSIS * 2) /* max dev->bus->number */
++/* MAX_PHB_BUS_NUM is the maximal possible dev->bus->number */
++#define MAX_PHB_BUS_NUM		(MAX_NUM_OF_PHBS * MAX_NUM_CHASSIS * 2)
+ #define PHBS_PER_CALGARY	4
+ 
+ /* register offsets in Calgary's internal register space */

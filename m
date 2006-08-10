@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWHJE7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWHJFE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbWHJE7u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 00:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWHJE7u
+	id S1161029AbWHJFE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 01:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbWHJFE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 00:59:50 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:40852 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161023AbWHJE7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 00:59:50 -0400
-Date: Thu, 10 Aug 2006 14:01:53 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: mpm@selenic.com, npiggin@suse.de, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta
- information
-Message-Id: <20060810140153.e5932e76.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <Pine.LNX.4.64.0608091744290.4966@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0608091744290.4966@schroedinger.engr.sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 01:04:29 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:8376 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161029AbWHJFE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 01:04:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=O7gLJroHQxCYLdBL1xmOHMG/W2D70svYwY2vVTfZNMuHRQ1bay/RIr7su/gHfVC+8KclPqBUCss1evHDEuW1kswL48KzdKFae8pOCcVKOzrU5KZvm7QKHK3+tcfIwJ15nzWndHvZlyu95EXHV3Yj7UbvbmCTRWLL46RDKTU+cqQ=
+Message-ID: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
+Date: Thu, 10 Aug 2006 01:04:27 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Urgent help needed on an NFS question, please help!!!
+Cc: linux-fsdevel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I just ran into a problem about NFS. It might be a fundmental problem
+of my current work. So please help!
 
-On Wed, 9 Aug 2006 17:52:00 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+I am wondering how NFS guarantees a client didn't get wrong file
+attributes. Consider the following scenario:
 
-> struct page overloading:
-> 
-> - _mapcout	=> Used to count the objects in use in a slab
-> - mapping	=> Reference to the slab structure
-> - index		=> Pointer to the first free element in a slab
-> - lru		=> Used for list management.
-> 
-it seems it's time that the page struct should have more unions ;)
+Suppose we have an NFS server S and two clients C1 and C2.
 
+Now C1 needs to access the file attributes of file X, it first does
+lookup() to get the file handle of file X.
 
-> There is no freelist for slabs. slabs are immediately returned to the page
-> allocator.  The page allocator has its own per cpu page queues that should provide
-> enough caching.
-> 
+After C1 gets X's file handle and before C1 issues the getattr()
+request, C2 cuts in. Now C2 deletes file X and creates a new file X1,
+which has different name but the same inode number and device ID as
+the nonexistent file X.
 
-I think that the advantage of Slab allocator is 
-- object is already initizalized at setup, so you don't have to initialize it again at
-  allocation.
-- object is initialized only once when slab is created.
+When C1 issues getattr() with the old file handle, it may get file
+attribute on wrong file X1. Is this true?
 
-If a slab page is returned to page allocator ASAP, # of object initilization may
-increase. 
+If not, how NFS avoid this problem? Please direct me to the code that
+verifies this.
 
--Kame
+Many many thanks!
 
+-x

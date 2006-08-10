@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161204AbWHJMQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030645AbWHJMR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161204AbWHJMQa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161206AbWHJMQa
+	id S1030645AbWHJMR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030575AbWHJMR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:16:30 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:18922 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161204AbWHJMQ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:16:29 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
-Date: Thu, 10 Aug 2006 14:15:21 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux ACPI <linux-acpi@vger.kernel.org>
-References: <200608091426.31762.rjw@sisk.pl> <200608092251.58062.rjw@sisk.pl> <20060810001232.GB4249@ucw.cz>
-In-Reply-To: <20060810001232.GB4249@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 10 Aug 2006 08:17:56 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17045 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030552AbWHJMRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 08:17:55 -0400
+Subject: Re: Merging libata PATA support into the base kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <p733bc5nm5g.fsf@verdi.suse.de>
+References: <1155144599.5729.226.camel@localhost.localdomain>
+	 <p733bc5nm5g.fsf@verdi.suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608101415.21505.rjw@sisk.pl>
+Date: Thu, 10 Aug 2006 13:37:44 +0100
+Message-Id: <1155213464.22922.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday 10 August 2006 02:12, Pavel Machek wrote:
-> > > > > > It looks like the CMOS clock gets corrupted during the suspend to disk
-> > > > > > on i386.  I've observed this on 2 different boxes.  Moreover, one of them is
-> > > > > > AMD64-based and the x86_64 kernel doesn't have this problem on it.
-> > > > > > 
-> > > > > > Also, I've done some tests that indicate the corruption doesn't occur before
-> > > > > > saving the suspend image.  It rather happens when the box is powered off
-> > > > > > or rebooted (tested both cases).
-> > > > > > 
-> > > > > > Unfortunately, I have no more time to debug it further right now.
-> > > > > 
-> > > > > Do you have Linus' "please corrupt my cmos for debuggin" hack enabled?
-> > > > 
-> > > > Well, I know nothing about that. ;-)
-> > > 
-> > > CONFIG_PM_TRACE=y will scrog your CMOS clock each time you suspend.
-> > 
-> > Oh dear.  Of course it's set in my .config.  Thanks a lot for this hint. :-)
-> > 
-> > BTW, it's a dangerous setting, because some drivers get mad if the time after
-> > the resume appears to be earlier than the time before the suspend.  Also the
-> > timer .suspend/.resume routines aren't prepared for that.
+Ar Iau, 2006-08-10 am 08:24 +0200, ysgrifennodd Andi Kleen:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > - No support for host-protected-area yet
 > 
-> Its config option should just go away. People comfortable using *that*
-> should just edit some header file. Rafael, could you do patch doing
-> something like that?
+> Even the support in the old one for that wasn't complete. It didn't
+> redo the HPA disabling on resume-from-ram, which made parts of the
+> disk not accessible anymore after wakeup. So at least on laptops it
+> always had to be disabled anyways.
 
-Just remove the option from Kconfig or the whole setting?
+drivers/ide does not support power management yet. Never has. Some
+people are brave and use it as it is rather than fix it.
 
-Shouldn't we also change the timer .resume() routines to check if the time
-after the resume is later than (or at least the same as) the time before the
-suspend and set the "sleep length" to 0 if not?
-
-Rafael
+Alan

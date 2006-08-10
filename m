@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161298AbWHJOxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161289AbWHJO4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161298AbWHJOxx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 10:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161289AbWHJOxx
+	id S1161289AbWHJO4G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 10:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161297AbWHJO4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 10:53:53 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:53890 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1161288AbWHJOxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 10:53:52 -0400
-Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Dave Hansen <haveblue@us.ibm.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-Reply-To: <44DB4547.80007@shadowen.org>
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>
-	 <20060807194159.f7c741b5.akpm@osdl.org>
-	 <17624.7310.856480.704542@cargo.ozlabs.ibm.com>
-	 <200608080714.21151.ak@suse.de> <1155025073.26277.18.camel@localhost>
-	 <20060809175854.GA14382@intel.com>
-	 <1155147948.19249.171.camel@localhost.localdomain>
-	 <1155214538.14749.54.camel@localhost>  <44DB4547.80007@shadowen.org>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Thu, 10 Aug 2006 16:53:48 +0200
-Message-Id: <1155221628.14749.60.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 10:56:06 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:14487 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1161289AbWHJO4E convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 10:56:04 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit DMA capabilitychecker
+Date: Thu, 10 Aug 2006 08:55:19 -0600
+Message-ID: <890BF3111FB9484E9526987D912B261932E331@NAMAIL3.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit DMA capabilitychecker
+Thread-Index: AcaycpVVJKvL6lmwSUqdzDRDCcUADgKGTrMg
+From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>
+Cc: <vvs@sw.ru>, <akpm@osdl.org>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>,
+       "Patro, Sumant" <Sumant.Patro@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>
+X-OriginalArrivalTime: 10 Aug 2006 14:55:20.0003 (UTC) FILETIME=[FFD1F130:01C6BC8C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 15:40 +0100, Andy Whitcroft wrote:
-> Well you could do something more fun with the top of the address.  You
-> don't need to keep the bytes in the same order for instance.  If this
-> is really a fair size chunk at the bottom and one at the top then
-> taking the address and swapping the bytes like:
+Hi,
+Friday, July 28, 2006 2:21 PM, James Bottomley wrote:
+> I'll fix it up this time, but in future could you trailing whitespace
+> check your patches? (git will do this for you).
+I have one clarification.
+When will be these patches merged into scsi-misc tree?
+I've seen them merged into -mm tree.
+I have another patch to create, which tree should I against for it?
+
+Seokmann
+
+> -----Original Message-----
+> From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
+> Sent: Friday, July 28, 2006 2:21 PM
+> To: Ju, Seokmann
+> Cc: vvs@sw.ru; akpm@osdl.org; linux-scsi@vger.kernel.org; 
+> linux-kernel@vger.kernel.org; Patro, Sumant; Yang, Bo
+> Subject: Re: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit 
+> DMA capabilitychecker
 > 
->         ABCDEFGH => BCDAEFGH
+> On Tue, 2006-07-25 at 08:44 -0600, Ju, Seokmann wrote:
+> > This patch contains 
+> > - a fix for 64-bit DMA capability check in 
+> megaraid_{mm,mbox} driver.
+> > - includes changes (going back to 32-bit DMA mask if 64-bit DMA mask
+> > failes) suggested by James with previous patch.
+> > - addition of SATA 150-4/6 as commented by Vasily Averin.
 > 
-> Would be a pretty trivial bit of register wibbling (ie very quick),
-> but would probabally mean a single flat, smaller sparsemem table would
-> cover all likely areas. 
-
-Not if you don't know where the objects will be mapped..
-
--- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+> Warning: trailing whitespace in lines 885,889 of
+> drivers/scsi/megaraid/megaraid_mbox.c
+> Warning: trailing whitespace in lines
+> 13,15,16,19,21,22,26,27,29,31,33,37,39,46 of
+> Documentation/scsi/ChangeLog.megaraid
+> 
+> I'll fix it up this time, but in future could you trailing whitespace
+> check your patches? (git will do this for you).
+> 
+> Also, when you do a git workflow, the body of the email becomes the
+> commit message, so things like this
+> 
+> > This is a third patch which follows prevous two patches ([PATCH 1/3]
+> > and
+> > [PATCH 2/3]).
+> 
+> while no doubt being useful to the members of linux-scsi who are
+> actually unable to count aren't actually useful in commit messages.
+> 
+> James
+> 
+> 
+> 

@@ -1,214 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWHJXIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWHJXL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWHJXIq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 19:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWHJXIq
+	id S932215AbWHJXL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 19:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWHJXL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 19:08:46 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:64595 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932122AbWHJXIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 19:08:45 -0400
+	Thu, 10 Aug 2006 19:11:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:24614 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932215AbWHJXLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 19:11:55 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gYj10p1gu8GO2b+le3Y4OFpnwvsr9BJ5c/wtry5p7nbEjsFbt+s5zPm3GZ/loY0InO2Y4oPvCP+o6WrwotVeoByYSR0mzEoc1PA1zd5LUe08BBDbTT1nMYKLPZGhe3j03Gbnad19QiM/MrSx37FFywH9GIZzpku4DcxW5sH3yBU=
-Message-ID: <6bffcb0e0608101608j4fc41945of65173793703a065@mail.gmail.com>
-Date: Fri, 11 Aug 2006 01:08:44 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: xfs-masters@oss.sgi.com
-Subject: Re: 2.6.18-rc4+ext4 oops while mounting xfs
-Cc: nathans@sgi.com, xfs@oss.sgi.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <6bffcb0e0608100805k42357f5bxa73189c38fb926df@mail.gmail.com>
+        b=QfORFcmjYF55B4FiVJt/SZgKbNAytTXjdFdULpzJQl+uogMf1Rlo4y5CeG3sd1Qj8L4HQCM8qFbZpACtbY0frjT5ccsh0PNQAg/0POdZl42l1CqS/WCCRzidcbB5pRMBlD49vPxX4QulJO9gq0bnJ3s0Z6pzIsR+qH7VQacfKFE=
+Message-ID: <9a8748490608101611x2e4eaa42qe987535031d27213@mail.gmail.com>
+Date: Fri, 11 Aug 2006 01:11:53 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Jean Delvare" <khali@linux-fr.org>
+Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers (version 2)
+Cc: "Greg KH" <gregkh@suse.de>, "Andrew Morton" <akpm@osdl.org>,
+       "Robert Love" <rlove@rlove.org>,
+       "Shem Multinymous" <multinymous@gmail.com>,
+       linux-kernel@vger.kernel.org, "Pavel Machek" <pavel@suse.cz>,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060810230545.84bbcb45.khali@linux-fr.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <6bffcb0e0608100805k42357f5bxa73189c38fb926df@mail.gmail.com>
+References: <1155203330179-git-send-email-multinymous@gmail.com>
+	 <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
+	 <20060810131820.23f00680.akpm@osdl.org>
+	 <20060810203736.GA15208@suse.de>
+	 <20060810230545.84bbcb45.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Hi,
+On 10/08/06, Jean Delvare <khali@linux-fr.org> wrote:
+> All,
 >
-> This script is awesome :)
+> > On Thu, Aug 10, 2006 at 01:18:20PM -0700, Andrew Morton wrote:
+> > > On Thu, 10 Aug 2006 09:46:47 -0400
+> > > "Robert Love" <rlove@rlove.org> wrote:
+> > >
+> > > > Patches look great and I am glad someone has apparently better access
+> > > > to hardware specs than I did.
+> > >
+> > > This situation is still a concern.  From where did this additional register
+> > > information come?
+> > >
+> > > Was it reverse-engineered?  If so, by whom and how can we satisfy ourselves
+> > > of this?
+> > >
+> > > Was it from published documents?
+> > >
+> > > Was it improperly obtained from NDA'ed documentation?
+> > >
+> > > Presumably the answer to the third question will be "no", but if
+> > > challenged, how can we defend this assertion?
+> > >
+> > > So hm.  We're setting precedent here and we need Linus around to resolve
+> > > this.  Perhaps we can ask "Shem" to reveal his true identity to Linus (and
+> > > maybe me) privately and then we proceed on that basis.  The rule could be
+> > > "each of the Signed-off-by:ers should know the identity of the others".
+> >
+> > For what it's worth, I'm not going to be handling these patches at all
+> > (normally the hwmon patches go to Linus through Jean and then through
+> > me.)
 >
-> #! /bin/bash
+> I said it in private before, and I say it publicly again: I am not
+> handling these patches either. I don't even want to read them.
 >
-> m_fs() {
-> #    sudo mount -o loop -t ext2 /home/fs-farm/ext2.img /mnt/fs-farm/ext2/
-> #    sudo mount -o loop -t ext3 /home/fs-farm/ext3.img /mnt/fs-farm/ext3/
-> #    sudo mount -o loop -t ext3dev /home/fs-farm/ext4.img /mnt/fs-farm/ext4/
-> #    sudo mount -o loop -t reiserfs /home/fs-farm/reiser3.img
-> /mnt/fs-farm/reiser3/
->     sudo mount -o loop -t xfs /home/fs-farm/xfs.img /mnt/fs-farm/xfs/
-> #    sudo mount -o loop -t jfs /home/fs-farm/jfs.img /mnt/fs-farm/jfs/
-> }
+> > If the original developer does not want to work in the open like the
+> > rest of us, I can respect that, but unfortunatly I can't accept the risk
+> > of accepting their code.
+> >
+> > And no, this is not "been beaten over the head by IP lawyers for three
+> > years about risks like this" portion of me talking, although that side
+> > does have a lot he could say about this situation...
 >
-> u_fs() {
-> #    sudo umount /mnt/fs-farm/ext2/
-> #    sudo umount /mnt/fs-farm/ext3/
-> #    sudo umount /mnt/fs-farm/ext4/
-> #    sudo umount /mnt/fs-farm/reiser3/
->     sudo umount /mnt/fs-farm/xfs/
-> #    sudo umount /mnt/fs-farm/jfs/
-> }
+> As far as I am concerned, even the real name of the person who wrote
+> and sent these patches wouldn't be enough for me to take them. I would
+> ask for an explanation of how that person got access to information
+> about the HDAPS which even the original author of the driver didn't
+> know about. And I would ask for proofs of that explanation.
 >
-> while true
-> do
-> m_fs
-> u_fs
-> done
->
-> Aug 10 16:50:53 ltg01-fedora kernel: BUG: unable to handle kernel
-> paging request at virtual address 6b6b6c07
-> Aug 10 16:50:53 ltg01-fedora kernel:  printing eip:
-> Aug 10 16:50:53 ltg01-fedora kernel: c013551a
-> Aug 10 16:50:53 ltg01-fedora kernel: *pde = 00000000
-> Aug 10 16:50:53 ltg01-fedora kernel: Oops: 0002 [#1]
-> Aug 10 16:50:53 ltg01-fedora kernel: PREEMPT SMP
-> Aug 10 16:50:53 ltg01-fedora kernel: Modules linked in: xfs ext3dev
-> jbd2 loop ipv6 w83627hf hwmon_vid hwmon i2c_isa af_packe
-> t ip_conntrack_netbios_ns ipt_REJECT xt_state ip_conntrack nfnetlink
-> xt_tcpudp iptable_filter ip_tables x_tables cpufreq_use
-> rspace p4_clockmod speedstep_lib binfmt_misc thermal processor fan
-> container evdev snd_intel8x0 snd_ac97_codec snd_ac97_bus
-> snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device
-> snd_pcm_oss snd_mixer_oss snd_pcm sk98lin snd_timer snd
-> ide_cd soundcore skge snd_page_alloc cdrom i2c_i801 intel_agp agpgart rtc unix
-> Aug 10 16:50:53 ltg01-fedora kernel: CPU:    0
-> Aug 10 16:50:53 ltg01-fedora kernel: EIP:    0060:[<c013551a>]    Not
-> tainted VLI
-> Aug 10 16:50:53 ltg01-fedora kernel: EFLAGS: 00010002   (2.6.18-rc4 #119)
-> Aug 10 16:50:53 ltg01-fedora kernel: EIP is at __lock_acquire+0x2ca/0x9b6
-> Aug 10 16:50:53 ltg01-fedora kernel: eax: d9c53d4c   ebx: 6b6b6b6b
-> ecx: 00000000   edx: 00000000
-> Aug 10 16:50:53 ltg01-fedora kernel: esi: 00000002   edi: df966d20
-> ebp: e44a8e7c   esp: e44a8e4c
-> Aug 10 16:50:53 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
-> Aug 10 16:50:53 ltg01-fedora kernel: Process umount (pid: 16133,
-> ti=e44a8000 task=df966d20 task.ti=e44a8000)
-> Aug 10 16:50:53 ltg01-fedora kernel: Stack: 00000000 00000000 d9c53d4c
-> df966d20 00000000 00000378 00000008 df9672f8
-> Aug 10 16:50:53 ltg01-fedora kernel:        df966d20 df9672a8 00000002
-> df966d20 e44a8eb0 c0135ccb 00000000 00000002
-> Aug 10 16:50:53 ltg01-fedora kernel:        00000000 fe5778b7 c02d580c
-> 00000003 df967280 00000004 df966d20 f4202a00
-> Aug 10 16:50:53 ltg01-fedora kernel: Call Trace:
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0135ccb>]
-> lock_release_non_nested+0xc5/0x11d
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0136026>] lock_release+0x12f/0x159
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d579e>]
-> __mutex_unlock_slowpath+0x99/0xff
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d580c>] mutex_unlock+0x8/0xa
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d3b2>]
-> generic_shutdown_super+0xbb/0x113
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d42a>] kill_block_super+0x20/0x32
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d4ea>] deactivate_super+0x5d/0x6f
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0180336>] mntput_no_expire+0x42/0x72
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0173147>]
-> path_release_on_umount+0x15/0x18
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c018147c>] sys_umount+0x1e7/0x21b
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01814bd>] sys_oldumount+0xd/0xf
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> Aug 10 16:50:53 ltg01-fedora kernel: DWARF2 unwinder stuck at
-> sysenter_past_esp+0x56/0x8d
-> Aug 10 16:50:53 ltg01-fedora kernel: Leftover inexact backtrace:
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c010418c>] show_stack_log_lvl+0x8c/0x97
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01042e8>] show_registers+0x151/0x1c6
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01044d9>] die+0x17c/0x281
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0116677>] do_page_fault+0x3b3/0x480
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0103b19>] error_code+0x39/0x40
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0135ccb>]
-> lock_release_non_nested+0xc5/0x11d
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0136026>] lock_release+0x12f/0x159
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d579e>]
-> __mutex_unlock_slowpath+0x99/0xff
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d580c>] mutex_unlock+0x8/0xa
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d3b2>]
-> generic_shutdown_super+0xbb/0x113
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d42a>] kill_block_super+0x20/0x32
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d4ea>] deactivate_super+0x5d/0x6f
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0180336>] mntput_no_expire+0x42/0x72
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0173147>]
-> path_release_on_umount+0x15/0x18
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c018147c>] sys_umount+0x1e7/0x21b
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01814bd>] sys_oldumount+0xd/0xf
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> Aug 10 16:50:53 ltg01-fedora kernel: Code: 2a e8 73 94 0a 00 85 c0 74
-> 21 68 ab a2 2d c0 68 d5 04 00 00 68 d9 37 2f c0 68 ee
-> d0 2e c0 e8 b5 9d fe ff e8 45 f2 fc ff 83 c4 10 <f0> ff 83 9c 00 00 00
-> 8b 55 dc 8b 92 5c 05 00 00 89 55 e4 83 fa
-> Aug 10 16:50:53 ltg01-fedora kernel: EIP: [<c013551a>]
-> __lock_acquire+0x2ca/0x9b6 SS:ESP 0068:e44a8e4c
-> Aug 10 16:50:53 ltg01-fedora kernel:  <3>BUG: sleeping function called
-> from invalid context at /usr/src/linux-work2/mm/slab.c:2901
-> Aug 10 16:50:53 ltg01-fedora kernel: in_atomic():0, irqs_disabled():1
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0104006>] show_trace_log_lvl+0x58/0x152
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01046ad>] show_trace+0xd/0x10
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0104775>] dump_stack+0x19/0x1b
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01181df>] __might_sleep+0x8d/0x95
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0163c61>] kmem_cache_zalloc+0x28/0xcc
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c014b83c>]
-> taskstats_exit_alloc+0x32/0x70
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01213e1>] do_exit+0x111/0x7f1
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01045b8>] die+0x25b/0x281
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0116677>] do_page_fault+0x3b3/0x480
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0103b19>] error_code+0x39/0x40
-> Aug 10 16:50:53 ltg01-fedora kernel: DWARF2 unwinder stuck at
-> error_code+0x39/0x40
-> Aug 10 16:50:53 ltg01-fedora kernel: Leftover inexact backtrace:
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01046ad>] show_trace+0xd/0x10
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0104775>] dump_stack+0x19/0x1b
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01181df>] __might_sleep+0x8d/0x95
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0163c61>] kmem_cache_zalloc+0x28/0xcc
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c014b83c>]
-> taskstats_exit_alloc+0x32/0x70
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01213e1>] do_exit+0x111/0x7f1
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01045b8>] die+0x25b/0x281
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0116677>] do_page_fault+0x3b3/0x480
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0103b19>] error_code+0x39/0x40
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0135ccb>]
-> lock_release_non_nested+0xc5/0x11d
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0136026>] lock_release+0x12f/0x159
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d579e>]
-> __mutex_unlock_slowpath+0x99/0xff
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d580c>] mutex_unlock+0x8/0xa
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d3b2>]
-> generic_shutdown_super+0xbb/0x113
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d42a>] kill_block_super+0x20/0x32
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d4ea>] deactivate_super+0x5d/0x6f
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0180336>] mntput_no_expire+0x42/0x72
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0173147>]
-> path_release_on_umount+0x15/0x18
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c018147c>] sys_umount+0x1e7/0x21b
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c01814bd>] sys_oldumount+0xd/0xf
-> Aug 10 16:50:53 ltg01-fedora kernel:  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> Aug 10 16:50:53 ltg01-fedora kernel: Filesystem "loop2": Disabling
-> barriers, not supported by the underlying device
-> Aug 10 16:50:53 ltg01-fedora kernel: XFS mounting filesystem loop2
->
-> (gdb) list *0xc013551a
-> 0xc013551a is in __lock_acquire (include2/asm/atomic.h:96).
-> 91       *
-> 92       * Atomically increments @v by 1.
-> 93       */
-> 94      static __inline__ void atomic_inc(atomic_t *v)
-> 95      {
-> 96              __asm__ __volatile__(
-> 97                      LOCK_PREFIX "incl %0"
-> 98                      :"+m" (v->counter));
-> 99      }
-> 100
->
-> Here is a config file http://www.stardust.webpages.pl/files/o_bugs/test-config
 
-It's fixed in latest 2.6.18-rc4-git*.
+As the person who wrote the initial version of the driver (not the
+only one, other people wrote versions at the same time, but mine was
+the one that was the basis for what Robert took over and what got
+merged in mainline) I'd also be interrested in where this person got
+his/her info from. I looked long and hard for docs and send lots of
+emails to IBM and others requesting info (unsuccessfully), all I could
+ever find was http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html
+ which is then what I used to write the initial driver from.
 
-Regards,
-Michal
+
+> All this is very unlikely to happen as I understand it, and anyway it's
+> all too late. Regardless of its technical merits, this patchset has too
+> much legal uncertainty attached to it by now. I'm maintaining the hwmon
+> subsystem on my own time and money, it's painful and unrewarding enough
+> as it is without adding legal hazard into the picture.
+>
+Maybe if the person behind these patches could do the following
+
+1) Come out with his/her real name.
+2) Provide detailed information about what sources of info these
+patches are based on.
+3) Provide names and contact info for people at IBM/Lenovo/the company
+who made the gyroscope (can't remember who they are) etc etc, so that
+we can contact them and verify these patches are based on stuff that's
+OK.
+
+then we could accept the patches...
+
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,77 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161183AbWHJLjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161178AbWHJLl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161183AbWHJLjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 07:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161184AbWHJLjZ
+	id S1161178AbWHJLl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 07:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161185AbWHJLlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 07:39:25 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:36889 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161183AbWHJLjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 07:39:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=CZkHAKhcBV558hPwSmGcinykBLpvMEZ/EKTsnCgo9Fa02PP/iy5vzU0J4hNxjn/i4XcruqsXugnuryHskieAc2+cBlbddWc/DV+7nUBBl3CJtblyeShEeRCi3Vm8aJR5mnhglV9LQJt3XQPIPa2uAzd0W6bDEh7BYWSONM6U8AM=
-Message-ID: <44DB1AF6.2020101@gmail.com>
-Date: Thu, 10 Aug 2006 13:39:11 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 10 Aug 2006 07:41:25 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:35854 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1161178AbWHJLlZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 07:41:25 -0400
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <200608091906.k79J6Zrc009211@turing-police.cc.vt.edu> <20060809130151.f1ff09eb.akpm@osdl.org>            <200608092043.k79KhKdt012789@turing-police.cc.vt.edu> <200608100332.k7A3Wvck009169@turing-police.cc.vt.edu>
-In-Reply-To: <200608100332.k7A3Wvck009169@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 10 Aug 2006 11:41:23.0156 (UTC) FILETIME=[E7B80140:01C6BC71]
+Content-class: urn:content-classes:message
+Subject: Re: ext3 corruption
+Date: Thu, 10 Aug 2006 07:41:22 -0400
+Message-ID: <Pine.LNX.4.61.0608100730580.3624@chaos.analogic.com>
+In-Reply-To: <62b0912f0608100248w2b3c2243xec588aee8c5a9079@mail.gmail.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ext3 corruption
+Thread-Index: Aca8cefBhBdXAA/vSUetmDKqAOJ/cA==
+References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com> <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com> <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com> <62b0912f0608090822n2d0c44c4uc33b5b1db00e9d33@mail.gmail.com> <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com> <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com> <20060810030602.GA29664@mail> <62b0912f0608100248w2b3c2243xec588aee8c5a9079@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Molle Bestefich" <molle.bestefich@gmail.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 09 Aug 2006 16:43:20 EDT, Valdis.Kletnieks@vt.edu said:
-> 
->>> Usually this means that there's an IO request in flight and it got lost
->>> somewhere.  Device driver bug, IO scheduler bug, etc.  Conceivably a
->>> lost interrupt (hardware bug, PCI setup bug, etc).
-> 
->> Aug  9 14:30:24 turing-police kernel: [ 3535.720000] end_request: I/O error, dev fd0, sector 0
-> 
-> Red herring.  yum just wedged again, this time with no reference to floppy drive.
-> Same traceback.  Anybody have anything to suggest before I start playing
-> hunt-the-wumpus with a -mm bisection?
 
-Hmm, I have the accurately same problem...
-yum + CFQ + BLK_DEV_PIIX + nothing odd in dmesg
+On Thu, 10 Aug 2006, Molle Bestefich wrote:
 
-[ 3438.574864] yum           D 00000000     0 21659   3838 
-(NOTLB)
-[ 3438.575098]        e5c09d24 00000001 c180f5a8 00000000 e5c09ce0 c01683e8 
-fe37c0bc 000002c4
-[ 3438.575388]        00001000 00000001 c18fbbd0 0023001f 00000007 f26cc560 
-c1913560 fe4166d5
-[ 3438.575713]        000002c4 0009a619 00000001 f26cc66c c180ec40 c04ff140 
-e5c09d14 c01fad44
-[ 3438.576039] Call Trace:
-[ 3438.576113]  [<c0373d3b>] io_schedule+0x26/0x30
-[ 3438.576187]  [<c014653c>] sync_page+0x39/0x45
-[ 3438.576260]  [<c0374401>] __wait_on_bit_lock+0x41/0x64
-[ 3438.576333]  [<c01464ef>] __lock_page+0x57/0x5f
-[ 3438.576405]  [<c014f5f2>] truncate_inode_pages_range+0x1b6/0x304
-[ 3438.576480]  [<c014f76f>] truncate_inode_pages+0x2f/0x40
-[ 3438.576553]  [<c01a7bc4>] ext3_delete_inode+0x29/0xf7
-[ 3438.576627]  [<c017f26b>] generic_delete_inode+0x65/0xe7
-[ 3438.576701]  [<c017f3aa>] generic_drop_inode+0xbd/0x173
-[ 3438.576774]  [<c017ed25>] iput+0x6b/0x7b
-[ 3438.576846]  [<c017cc57>] dentry_iput+0x68/0xb3
-[ 3438.576919]  [<c017d99e>] dput+0x4f/0x19f
-[ 3438.576990]  [<c0176164>] sys_renameat+0x1e0/0x212
-[ 3438.577063]  [<c01761be>] sys_rename+0x28/0x2a
-[ 3438.577135]  [<c01030fb>] syscall_call+0x7/0xb
+> Duane Griffin wrote:
+>> It takes into account some of them (such as reading data from the
+>> backup superblock if it detects corruption). Others will be
+>> irrelevent for further operations.
+>
+> Ok, maybe it is accurate?
+>
+>> Many reports will be accurate
+>
+> Ok, perhaps not then :-).
+>
+> I'm still confused as to the performance of "-n".
+> It would be _very_ good to fix this deficiency in the man page of e2fsck.
+>
+>
+> Thanks Duane, you've been most helpful.
+>
+>
+> Jim Crilly wrote:
+>>> Right.  It's all just "Linux" to me ;-).
+>>
+>> Then I guess it's time to break out the learning cap and figure
+>> out what's what. =)
+>
+> ;-).
+>
+> You can start by phoning Red Hat.  They call their entire product
+> "Red Hat Linux", so that pretty much means that "Linux" basically
+> covers everything, not just the kernel.
+>
+>
+>>> It's indeed a redhat, though - Red Hat Linux release 9 (Shrike).
+>>
+>> Why are you using such an old distribution? I know it's only been 3
+>> years, but a lot has changed and I don't think anyone supports RH9
+>> or earlier anymore.
+>
+> As far as I remember, I configured it to automatically update everything.
+> Apparently that function just broke itself very early on :-).
+>
+> I guess the problem is that I don't know a single Linux packaging system
+> that actually works well enough to keep a system up to date at all times,
+> and I don't have any free time to spend on reinstalling systems all the
+> time.
+>
+> I think most of the package managers break because their dependency system
+> sucks.  Some of them doesn't suck, but they break because there's no
+> integrity checks, and package maintainers can dump any kind of bizarre
+> corrupt dependencies they like into them.  That's how Gentoo works, for
+> example.  Others have even more bizarre ways of breaking, again Gentoo as
+> an example requires the user to run a "switch to newer GCC" command from
+> time to time, otherwise random packages just start breaking.
+>
+> AFAIK, every single Linux package manager on the planet is half-ass, broken
+> like above or in some other way.  If you know of one that's actually well
+> thought through on all planes and well implemented and thus works good enough
+> to keep a system up to date for three years in a row without human
+> intervention....
+> Please speak up!!!
+>
+>
+>>> (Maybe the kernel SHOULD coordinate it somehow,
+>>> seems like some of the distros are doing a pretty bad job as is.)
+>>
+>> That's pretty much impossible, the best the kernel can do is send
+>> signals to all of the running processes.
+>
+> Impossible?  Few things in the software world are impossible.
+>
+> Surely it's possible to create a kernel interface where processes
+> can tell the kernel about which other processes they'd like to
+> outlive and which ones they'd like to get killed before.
+>
+> The kernel could then coordinate the killing of processes in a
+> "shutdown" function, which the various distro's 'reboot' and
+> 'shutdown' scripts could call.
+>
+> And voila, that difficult task of assessing in which order to do
+> things is out of the hands of distros like Red Hat, and into the
+> hands of those people who actually make the binaries.
+>
+> Which is probably a good thing, because
+>
+> a) Red Hat's init scripts probably fails for me because there's
+>   something in my setup that Red Hat didn't expect.  A greatly
+>   simplified system as outlined above would help to fix things
+>   like this.
+>
+> b) Less duplicated effort in the form of init script coding for
+>   the distro maintainers.
+>
+> I realize that details totally absent in the above, but at least
+> it doesn't look to me like it's impossible at all.
+>
+>
+>> ext2 breaks the filesystem up into block groups,
+>
+> Thanks for the info!
+>
+>> a wild guess about the error message would be that it couldn't
+>> find the block bitmap for a certain group
+>
+> Hmm, I would have expected it to find something completely
+> corrupt somewhere instead of finding nothing at all.
+>
+>> or the bitmap that it did find wasn't in the correct group.
+>
+> Implying that they're linked both ways?
+> That would probably be a very good thing wrt. recoverability.
+> Interesting thought!
 
-regards,
--- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+What is it that you are attempting to do? First you show us some
+text obtained while attempting to run fsck on the loop device,
+claiming that this was obtained from a 1TB file-system that
+was destroyed by Linux. Then you spend several days telling us
+that linux is no good. Enough is enough.
+
+If you had a 1TB file-system and you knew anything about Unix or
+Linux, it would have been fixed by now -- and BTW, samba can't
+destroy a file-system, no matter how many files were open.
+The worse possible situation is that files, open for write, may
+not be completely written and this only for files that were
+being created or extended. You still have the original file-data
+and all the rest of the files on your file system.
+
+Another point... ext3 is a journaled file-system. Even when
+forced off by hitting the reset switch, ext3 will quietly
+announce "recovering from journal" and mount just fine.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

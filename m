@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161215AbWHJM1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbWHJMaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161215AbWHJM1g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161217AbWHJM1g
+	id S1161221AbWHJMaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWHJMaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:27:36 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:1866 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161215AbWHJM1f (ORCPT
+	Thu, 10 Aug 2006 08:30:05 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:24974 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161219AbWHJMaA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:27:35 -0400
-Date: Thu, 10 Aug 2006 14:28:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Matthias Dahl <mlkernel@mortal-soul.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sluggish system responsiveness under higher IO load
-Message-ID: <20060810122853.GS11829@suse.de>
-References: <200608061200.37701.mlkernel@mortal-soul.de> <200608061554.42992.mlkernel@mortal-soul.de> <20060807134841.GC10444@suse.de> <200608081944.12630.mlkernel@mortal-soul.de> <20060808190241.GB11829@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060808190241.GB11829@suse.de>
+	Thu, 10 Aug 2006 08:30:00 -0400
+Date: Thu, 10 Aug 2006 14:24:13 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Jeff Garzik <jeff@garzik.org>
+cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+In-Reply-To: <44DB203A.6050901@garzik.org>
+Message-ID: <Pine.LNX.4.64.0608101409350.6762@scrub.home>
+References: <1155172843.3161.81.camel@localhost.localdomain>
+ <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
+ <44DB203A.6050901@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08 2006, Jens Axboe wrote:
-> On Tue, Aug 08 2006, Matthias Dahl wrote:
-> > > Can you see if this makes any difference whatsoever?
+Hi,
+
+On Thu, 10 Aug 2006, Jeff Garzik wrote:
+
+> > On Wed, 9 Aug 2006, Andrew Morton wrote:
 > > 
-> > Sorry but no change for the better with this patch.
+> > > That also being said...  does a 32-bit sector_t make any sense on a
+> > > 48-bit-blocknumber filesystem?  I'd have thought that we'd just make ext4
+> > > depend on 64-bit sector_t and be done with it.
 > > 
-> > Are there any more informations I can provide to help?
+> > Is this really necessary? There are a few features, which would make ext4
+> > also interesting at the low end (e.g. extents). Storing 64bit values on disk
+> > is fine, but they should be converted to native values as soon as possible.
 > 
-> Ok, it was worth a shot. I got another report that the patch fixes this
-> behaviour, so maybe we are dealing with two seperate issues. It would be
-> nice if you could gather vmstat 1 info during a problematic period.
-> blktrace info could also be very useful:
-> 
-> http://brick.kernel.dk/snaps/blktrace-git-20060807122505.tar.gz
+> Consider what that means.  "converted to native" means dealing with truncation
+> issues...
 
-Some more things to try/questions:
+Yes, it does, but I don't think it's that difficult - basically returning 
+-EIO, it should be part of the basic error handling. Afterwards you don't 
+have to waste cpu/memory on unused data anymore.
 
-- Did 2.6.16 work well for you?
-
-- Does disabling preemtion (CONFIG_PREEMPT_NONE=y) help?
-
--- 
-Jens Axboe
-
+bye, Roman

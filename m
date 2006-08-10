@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161478AbWHJR0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161486AbWHJR15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161478AbWHJR0N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161484AbWHJR0M
+	id S1161486AbWHJR15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161484AbWHJR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:26:12 -0400
-Received: from mail.tmr.com ([64.65.253.246]:19099 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S1161478AbWHJR0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:26:11 -0400
-Message-ID: <44DB6CCE.9010708@tmr.com>
-Date: Thu, 10 Aug 2006 13:28:46 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+	Thu, 10 Aug 2006 13:27:57 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:24758 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161481AbWHJR14
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 13:27:56 -0400
+Message-ID: <44DB6C83.5030402@us.ibm.com>
+Date: Thu, 10 Aug 2006 10:27:31 -0700
+From: Mingming Cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Valerie Henson <val_henson@linux.intel.com>
-CC: dean gaudet <dean@arctic.org>, David Lang <dlang@digitalinsight.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-References: <20060803063622.GB8631@goober> <20060805122537.GA23239@lst.de> <1154797123.12108.6.camel@kleikamp.austin.ibm.com> <1154797475.3054.79.camel@laptopd505.fenrus.org> <20060805183609.GA7564@tuatara.stupidest.org> <20060805222247.GQ29686@ca-server1.us.oracle.com> <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz> <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org> <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober>
-In-Reply-To: <20060809063947.GA13474@goober>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 8/9] 48-bit block numbers for extended attributes
+References: <1155172929.3161.87.camel@localhost.localdomain> <20060809234100.9337162d.akpm@osdl.org>
+In-Reply-To: <20060809234100.9337162d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valerie Henson wrote:
-> On Sat, Aug 05, 2006 at 09:01:47PM -0600, Matthew Wilcox wrote:
->> On Sat, Aug 05, 2006 at 04:28:29PM -0700, dean gaudet wrote:
->>> you can work around mutt's silly dependancy on atime by configuring it 
->>> with --enable-buffy-size.  so far mutt is the only program i've discovered 
->>> which cares about atime.
->> For the shell, atime is the difference between 'you have mail' and 'you
->> have new mail'.
->>
->> I still don't understand though, how much does this really buy us over
->> nodiratime?
+Andrew Morton wrote:
+
+> On Wed, 09 Aug 2006 18:22:09 -0700
+> Mingming Cao <cmm@us.ibm.com> wrote:
 > 
-> Lazy atime buys us a reduction in writes over nodiratime for any
-> workload which reads files, such as grep -r, a kernel compile, or
-> backup software.  Do I misunderstand the question?
+> 
+>>As we are planning to support 48-bit block numbers for ext4,
+>>we need to support 48-bit block numbers for extended attributes.
+>>In the short term, we can do this by reuse (on-disk) 16-bit
+>>padding (linux2.i_pad1 currently used only by "hurd") as high 
+>>order bits for xattr. This patch basically does that.
+> 
+> 
+> Short-term tends to become medium-term, then you're stuck with it.
+> 
+> What is the plan here?
 
-I mentioned lazy atime about a year ago, and have played with a patch to 
-do what I (personally) had in mind. My thinking is that for files the 
-atime is almost always used in one of two ways, as part of system 
-administration to see if a file is being used, and to sort files by 
-atime to identify recently accessed files, such as the one you read just 
-before the weekend.
+At the time we discuss how to support 48 bit xattr in the current inode, 
+we were thinking about patching ext3, thus it's not likely we will going 
+to do a deep surgery on the on-disk ext3 inode itself to have room for 
+another 16bit xattr. So the plan at that is to steal some unused bits 
+and construct with existing 32bit xattr to come with a 48bit xattr in total.
 
-So in that light, I proposed that a filesystem might have a mount option 
-such that atime was only updated when an open or close was done on the 
-file. In many cases this will both reduce inode writes and still 
-preserve information "current enough" to be useful, which is unavailable 
-with noatime. And since noatime is thought useful as a attribute, lazy 
-atime probably would be, as well.
+Given the fact that we are creating a new filesystem ext4, the ideal way 
+(long term) probably we should support 64bit xattr in the ext4 inode, 
+that is possible. The plan is to focus on support 48bit ext4 first, then 
+probably move on next few things that also requires on-disk format 
+changes, this is an experiment filesystem at this moment....
 
--- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
+Thanks,
+Mingming
+

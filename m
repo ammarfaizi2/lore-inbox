@@ -1,85 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWHJTtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWHJTuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbWHJTtb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWHJTrl
+	id S932299AbWHJTuS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWHJThW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:47:41 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:36038 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932681AbWHJTh0 (ORCPT
+	Thu, 10 Aug 2006 15:37:22 -0400
+Received: from mx1.suse.de ([195.135.220.2]:9873 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932654AbWHJThC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:26 -0400
-Subject: Re: [Ext2-devel] [PATCH 1/5] Forking ext4 filesystem from ext3
-	filesystem
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060810122340.185b8d8f.akpm@osdl.org>
-References: <1155172622.3161.73.camel@localhost.localdomain>
-	 <20060809233914.35ab8792.akpm@osdl.org> <44DB8036.5020706@us.ibm.com>
-	 <20060810122340.185b8d8f.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 10 Aug 2006 14:36:10 -0500
-Message-Id: <1155238570.12082.11.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 15:37:02 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [103/145] i386/x86-64: rename is_at_popf(), add iret to tests and fix
+Message-Id: <20060810193701.439E913C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:01 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 12:23 -0700, Andrew Morton wrote:
-> On Thu, 10 Aug 2006 11:51:34 -0700
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> 
-> > Andrew Morton wrote:
-> > > Also, JBD is presently feeding into submit_bh() buffer_heads which span two
-> > > machine pages, and some device drivers spit the dummy.  It'd be better to
-> > > fix that once, rather than twice..  
-> > >   
-> > Andrew,
-> > 
-> > I looked at this few days ago. I am not sure how we end up having 
-> > multiple pages (especially,
-> > why we end up having buffers with bh_size > pagesize) ? Do you know why ?
-> > 
-> 
-> It's one or both of the jbd_kmalloc(bh->b_size) calls in
-> fs/jbd/transaction.c.  Here we're allocating data to attach to a bh which
-> later gets fed into submit_bh().
-> 
-> Problem is, with CONFIG_DEBUG_SLAB=y, the data which kmalloc() returns can
-> be offset by 4 bytes due to redzoning.
-> 
-> Example: if the fs is using a 1k blocksize and we have a 4k pagesize, the
-> data coming back from kmalloc may have an address of 0xnnnnxc04, so the
-> data which we later feed into submit_bh() will span two pages.
-> 
-> A simple fix would be to replace kmalloc() with a call to alloc_page(). 
-> We'd need to work out how much memory that will worst-case-waste.  If "not
-> much" then OK.
-> 
-> If "quite a lot in the worst case" then we'd need something more elaborate.
+r
 
-Would some like this be okay:
+From: Chuck Ebbert <76306.1226@compuserve.com>
 
-#ifdef CONFIG_DEBUG_SLAB
-	return alloc_page(...
-#else
-	return kmalloc(...
-#endif
+is_at_popf() needs to test for the iret instruction as well as
+popf.  So add that test and rename it to is_setting_trap_flag().
 
-This keeps it simple, and should be still be efficient in the
-non-DEBUG_SLAB case.
+Also change max insn length from 16 to 15 to match reality.
 
->  I'd suggest that ext3 implement ext3-private slab caches of size 1024,
-> 2048, 4096 and perhaps 8192.  Those caches should be kmem_cache_create()d
-> on-demand at mount-time.  They should be created with appropriate slab
-> options to defeat the redzoning.  The transaction.c code should use the
-> appropriate slab (based on b_size) rather than using kmalloc().  The
-> up-to-four private slab caches should be destroyed on ext3 rmmod.
--- 
-David Kleikamp
-IBM Linux Technology Center
+LAHF / SAHF can't affect TF, so the comment in x86_64 is removed.
 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+
+Tested on x86_64.
+
+---
+ arch/i386/kernel/ptrace.c   |   10 +++++-----
+ arch/x86_64/kernel/ptrace.c |   12 +++++-------
+ 2 files changed, 10 insertions(+), 12 deletions(-)
+
+Index: linux/arch/i386/kernel/ptrace.c
+===================================================================
+--- linux.orig/arch/i386/kernel/ptrace.c
++++ linux/arch/i386/kernel/ptrace.c
+@@ -185,17 +185,17 @@ static unsigned long convert_eip_to_line
+ 	return addr;
+ }
+ 
+-static inline int is_at_popf(struct task_struct *child, struct pt_regs *regs)
++static inline int is_setting_trap_flag(struct task_struct *child, struct pt_regs *regs)
+ {
+ 	int i, copied;
+-	unsigned char opcode[16];
++	unsigned char opcode[15];
+ 	unsigned long addr = convert_eip_to_linear(child, regs);
+ 
+ 	copied = access_process_vm(child, addr, opcode, sizeof(opcode), 0);
+ 	for (i = 0; i < copied; i++) {
+ 		switch (opcode[i]) {
+-		/* popf */
+-		case 0x9d:
++		/* popf and iret */
++		case 0x9d: case 0xcf:
+ 			return 1;
+ 		/* opcode and address size prefixes */
+ 		case 0x66: case 0x67:
+@@ -247,7 +247,7 @@ static void set_singlestep(struct task_s
+ 	 * don't mark it as being "us" that set it, so that we
+ 	 * won't clear it by hand later.
+ 	 */
+-	if (is_at_popf(child, regs))
++	if (is_setting_trap_flag(child, regs))
+ 		return;
+ 	
+ 	child->ptrace |= PT_DTRACE;
+Index: linux/arch/x86_64/kernel/ptrace.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/ptrace.c
++++ linux/arch/x86_64/kernel/ptrace.c
+@@ -116,17 +116,17 @@ unsigned long convert_rip_to_linear(stru
+ 	return addr;
+ }
+ 
+-static int is_at_popf(struct task_struct *child, struct pt_regs *regs)
++static int is_setting_trap_flag(struct task_struct *child, struct pt_regs *regs)
+ {
+ 	int i, copied;
+-	unsigned char opcode[16];
++	unsigned char opcode[15];
+ 	unsigned long addr = convert_rip_to_linear(child, regs);
+ 
+ 	copied = access_process_vm(child, addr, opcode, sizeof(opcode), 0);
+ 	for (i = 0; i < copied; i++) {
+ 		switch (opcode[i]) {
+-		/* popf */
+-		case 0x9d:
++		/* popf and iret */
++		case 0x9d: case 0xcf:
+ 			return 1;
+ 
+ 			/* CHECKME: 64 65 */
+@@ -189,10 +189,8 @@ static void set_singlestep(struct task_s
+ 	 * ..but if TF is changed by the instruction we will trace,
+ 	 * don't mark it as being "us" that set it, so that we
+ 	 * won't clear it by hand later.
+-	 *
+-	 * AK: this is not enough, LAHF and IRET can change TF in user space too.
+ 	 */
+-	if (is_at_popf(child, regs))
++	if (is_setting_trap_flag(child, regs))
+ 		return;
+ 
+ 	child->ptrace |= PT_DTRACE;

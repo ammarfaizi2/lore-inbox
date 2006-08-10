@@ -1,56 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWHJULT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbWHJULw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751513AbWHJULT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWHJULS
+	id S1751527AbWHJULw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWHJULU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:11:18 -0400
-Received: from cantor.suse.de ([195.135.220.2]:50832 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932622AbWHJTgb (ORCPT
+	Thu, 10 Aug 2006 16:11:20 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:52203 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932627AbWHJTgb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Aug 2006 15:36:31 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [74/145] x86_64: Calgary IOMMU: rearrange 'struct iommu_table' members
-Message-Id: <20060810193630.87F2213C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:30 +0200 (CEST)
+Subject: [PATCH for review] [73/145] x86_64: Add stack documentation document from Keith Owens
+Message-Id: <20060810193629.79C4013C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:29 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Muli Ben-Yehuda <muli@il.ibm.com>
+Describes the stack organization on x86-64.
 
-Rearrange struct members loosely based on size for improved alignment
-and to save a few bytes.
+I changed it a bit and removed some obsolete information and the 
+questions.
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+Cc: kaos@sgi.com
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- include/asm-x86_64/calgary.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ Documentation/x86_64/kernel-stacks |   99 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 99 insertions(+)
 
-Index: linux/include/asm-x86_64/calgary.h
+Index: linux/Documentation/x86_64/kernel-stacks
 ===================================================================
---- linux.orig/include/asm-x86_64/calgary.h
-+++ linux/include/asm-x86_64/calgary.h
-@@ -34,12 +34,12 @@ struct iommu_table {
- 	unsigned long  it_base;      /* mapped address of tce table */
- 	unsigned long  it_hint;      /* Hint for next alloc */
- 	unsigned long *it_map;       /* A simple allocation bitmap for now */
-+	void __iomem  *bbar;         /* Bridge BAR */
-+	u64	       tar_val;      /* Table Address Register */
-+	struct timer_list watchdog_timer;
- 	spinlock_t     it_lock;      /* Protects it_map */
- 	unsigned int   it_size;      /* Size of iommu table in entries */
- 	unsigned char  it_busno;     /* Bus number this table belongs to */
--	void __iomem  *bbar;
--	u64	       tar_val;
--	struct timer_list watchdog_timer;
- };
- 
- #define TCE_TABLE_SIZE_UNSPECIFIED	~0
+--- /dev/null
++++ linux/Documentation/x86_64/kernel-stacks
+@@ -0,0 +1,99 @@
++Most of the text from Keith Owens, hacked by AK
++
++x86_64 page size (PAGE_SIZE) is 4K.
++
++Like all other architectures, x86_64 has a kernel stack for every
++active thread.  These thread stacks are THREAD_SIZE (2*PAGE_SIZE) big.
++These stacks contain useful data as long as a thread is alive or a
++zombie. While the thread is in user space the kernel stack is empty
++except for the thread_info structure at the bottom.
++
++In addition to the per thread stacks, there are specialized stacks
++associated with each cpu.  These stacks are only used while the kernel
++is in control on that cpu, when a cpu returns to user space the
++specialized stacks contain no useful data.  The main cpu stacks is
++
++* Interrupt stack.  IRQSTACKSIZE
++
++  Used for external hardware interrupts.  If this is the first external
++  hardware interrupt (i.e. not a nested hardware interrupt) then the
++  kernel switches from the current task to the interrupt stack.  Like
++  the split thread and interrupt stacks on i386 (with CONFIG_4KSTACKS),
++  this gives more room for kernel interrupt processing without having
++  to increase the size of every per thread stack.
++
++  The interrupt stack is also used when processing a softirq.
++
++Switching to the kernel interrupt stack is done by software based on a
++per CPU interrupt nest counter. This is needed because x86-64 "IST"
++hardware stacks cannot nest without races.
++
++x86_64 also has a feature which is not available on i386, the ability
++to automatically switch to a new stack for designated events such as
++double fault or NMI, which makes it easier to handle these unusual
++events on x86_64.  This feature is called the Interrupt Stack Table
++(IST).  There can be up to 7 IST entries per cpu. The IST code is an
++index into the Task State Segment (TSS), the IST entries in the TSS
++point to dedicated stacks, each stack can be a different size.
++
++An IST is selected by an non-zero value in the IST field of an
++interrupt-gate descriptor.  When an interrupt occurs and the hardware
++loads such a descriptor, the hardware automatically sets the new stack
++pointer based on the IST value, then invokes the interrupt handler.  If
++software wants to allow nested IST interrupts then the handler must
++adjust the IST values on entry to and exit from the interrupt handler.
++(this is occasionally done, e.g. for debug exceptions)
++
++Events with different IST codes (i.e. with different stacks) can be
++nested.  For example, a debug interrupt can safely be interrupted by an
++NMI.  arch/x86_64/kernel/entry.S::paranoidentry adjusts the stack
++pointers on entry to and exit from all IST events, in theory allowing
++IST events with the same code to be nested.  However in most cases, the
++stack size allocated to an IST assumes no nesting for the same code.
++If that assumption is ever broken then the stacks will become corrupt.
++
++The currently assigned IST stacks are :-
++
++* STACKFAULT_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
++
++  Used for interrupt 12 - Stack Fault Exception (#SS).
++
++  This allows to recover from invalid stack segments. Rarely
++  happens.
++
++* DOUBLEFAULT_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
++
++  Used for interrupt 8 - Double Fault Exception (#DF).
++
++  Invoked when handling a exception causes another exception. Happens
++  when the kernel is very confused (e.g. kernel stack pointer corrupt)
++  Using a separate stack allows to recover from it well enough in many
++  cases to still output an oops.
++
++* NMI_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
++
++  Used for non-maskable interrupts (NMI).
++
++  NMI can be delivered at any time, including when the kernel is in the
++  middle of switching stacks.  Using IST for NMI events avoids making
++  assumptions about the previous state of the kernel stack.
++
++* DEBUG_STACK.  DEBUG_STKSZ
++
++  Used for hardware debug interrupts (interrupt 1) and for software
++  debug interrupts (INT3).
++
++  When debugging a kernel, debug interrupts (both hardware and
++  software) can occur at any time.  Using IST for these interrupts
++  avoids making assumptions about the previous state of the kernel
++  stack.
++
++* MCE_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
++
++  Used for interrupt 18 - Machine Check Exception (#MC).
++
++  MCE can be delivered at any time, including when the kernel is in the
++  middle of switching stacks.  Using IST for MCE events avoids making
++  assumptions about the previous state of the kernel stack.
++
++For more details see the Intel IA32 or AMD AMD64 architecture manuals.

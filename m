@@ -1,66 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWHJLew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161181AbWHJLgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161180AbWHJLew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 07:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWHJLew
+	id S1161181AbWHJLgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 07:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWHJLgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 07:34:52 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:50828 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1161177AbWHJLeu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 07:34:50 -0400
-Date: Thu, 10 Aug 2006 13:34:49 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: =?iso-8859-15?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Valerie Henson <val_henson@linux.intel.com>,
-       Matthew Wilcox <matthew@wil.cx>, dean gaudet <dean@arctic.org>,
-       David Lang <dlang@digitalinsight.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Akkana Peck <akkana@shallowsky.com>,
-       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC] [PATCH] Relative lazy atime
-Message-ID: <20060810113449.GA7627@janus>
-References: <20060805122537.GA23239@lst.de> <1154797123.12108.6.camel@kleikamp.austin.ibm.com> <1154797475.3054.79.camel@laptopd505.fenrus.org> <20060805183609.GA7564@tuatara.stupidest.org> <20060805222247.GQ29686@ca-server1.us.oracle.com> <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz> <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org> <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober> <20060809122134.GF27863@wohnheim.fh-wedel.de>
+	Thu, 10 Aug 2006 07:36:16 -0400
+Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:4245 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
+	id S1161181AbWHJLgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 07:36:16 -0400
+Subject: [PATCH 1/2] i386: Disallow kprobes on NMI handlers - try #2
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: Andi Kleen <ak@suse.de>
+Cc: prasanna@in.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Thu, 10 Aug 2006 20:36:13 +0900
+Message-Id: <1155209773.4141.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20060809122134.GF27863@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 09, 2006 at 02:21:34PM +0200, Jörn Engel wrote:
-> At the risk of stating the obvious, let me try to explain what each
-> method does:
-> 
-> 1. standard
-> Every read access to a file/directory causes an atime update.
-> 
-> 2. nodiratime
-> Every read access to a non-directory causes an atime update.
-> 
-> 3. lazy atime
-> The first read access to a file/directory causes an atime update.
-> 
-> 4. noatime
-> No read access to a file/directory causes an atime update.
+A kprobe executes IRET early and that could cause NMI recursion and stack
+corruption.
 
-5. lazy atime writeout
+Note: This problem was originally spotted and solved by Andi Kleen in the
+x86_64 architecture. This patch is an adaption of his patch for i386.
 
-To reduce the pain of a fully functional atime only flush "atime-dirty"
-inodes when the on-disk/in-core atime difference becomes big enough
-(e.g. by maintaining an "atime dirtyness" level for the in-core inode).
+Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+---
 
-I haven't seen anyone mentioning it but properly written cleanup programs
-for /tmp et.al. do depend on atimes. When a system crashes after a long
-time then (3) and (4) will probably cause /tmp to be wiped out because
-at the next boot all atimes will be really old.
+diff -urNp linux-2.6.18-rc4-orig/arch/i386/kernel/entry.S linux-2.6.18-rc4/arch/i386/kernel/entry.S
+--- linux-2.6.18-rc4-orig/arch/i386/kernel/entry.S	2006-08-10 20:04:10.000000000 +0900
++++ linux-2.6.18-rc4/arch/i386/kernel/entry.S	2006-08-10 20:06:11.000000000 +0900
+@@ -725,7 +725,7 @@ debug_stack_correct:
+  * check whether we got an NMI on the debug path where the debug
+  * fault happened on the sysenter path.
+  */
+-ENTRY(nmi)
++KPROBE_ENTRY(nmi)
+ 	RING0_INT_FRAME
+ 	pushl %eax
+ 	CFI_ADJUST_CFA_OFFSET 4
+diff -urNp linux-2.6.18-rc4-orig/arch/i386/kernel/nmi.c linux-2.6.18-rc4/arch/i386/kernel/nmi.c
+--- linux-2.6.18-rc4-orig/arch/i386/kernel/nmi.c	2006-08-10 20:04:10.000000000 +0900
++++ linux-2.6.18-rc4/arch/i386/kernel/nmi.c	2006-08-10 20:07:06.000000000 +0900
+@@ -21,6 +21,7 @@
+ #include <linux/sysdev.h>
+ #include <linux/sysctl.h>
+ #include <linux/percpu.h>
++#include <linux/kprobes.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/nmi.h>
+@@ -579,7 +580,7 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
+ 
+ extern void die_nmi(struct pt_regs *, const char *msg);
+ 
+-void nmi_watchdog_tick (struct pt_regs * regs)
++void __kprobes nmi_watchdog_tick (struct pt_regs * regs)
+ {
+ 
+ 	/*
+diff -urNp linux-2.6.18-rc4-orig/arch/i386/kernel/traps.c linux-2.6.18-rc4/arch/i386/kernel/traps.c
+--- linux-2.6.18-rc4-orig/arch/i386/kernel/traps.c	2006-08-10 20:04:11.000000000 +0900
++++ linux-2.6.18-rc4/arch/i386/kernel/traps.c	2006-08-10 20:06:11.000000000 +0900
+@@ -626,7 +626,8 @@ gp_in_kernel:
+ 	}
+ }
+ 
+-static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
++static __kprobes void
++mem_parity_error(unsigned char reason, struct pt_regs * regs)
+ {
+ 	printk(KERN_EMERG "Uhhuh. NMI received. Dazed and confused, but trying "
+ 			"to continue\n");
+@@ -637,7 +638,8 @@ static void mem_parity_error(unsigned ch
+ 	clear_mem_error(reason);
+ }
+ 
+-static void io_check_error(unsigned char reason, struct pt_regs * regs)
++static __kprobes void
++io_check_error(unsigned char reason, struct pt_regs * regs)
+ {
+ 	unsigned long i;
+ 
+@@ -653,7 +655,8 @@ static void io_check_error(unsigned char
+ 	outb(reason, 0x61);
+ }
+ 
+-static void unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
++static __kprobes void
++unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
+ {
+ #ifdef CONFIG_MCA
+ 	/* Might actually be able to figure out what the guilty party
+@@ -671,7 +674,7 @@ static void unknown_nmi_error(unsigned c
+ 
+ static DEFINE_SPINLOCK(nmi_print_lock);
+ 
+-void die_nmi (struct pt_regs *regs, const char *msg)
++void __kprobes die_nmi(struct pt_regs *regs, const char *msg)
+ {
+ 	if (notify_die(DIE_NMIWATCHDOG, msg, regs, 0, 2, SIGINT) ==
+ 	    NOTIFY_STOP)
+@@ -703,7 +706,7 @@ void die_nmi (struct pt_regs *regs, cons
+ 	do_exit(SIGSEGV);
+ }
+ 
+-static void default_do_nmi(struct pt_regs * regs)
++static __kprobes void default_do_nmi(struct pt_regs * regs)
+ {
+ 	unsigned char reason = 0;
+ 
+@@ -741,14 +744,14 @@ static void default_do_nmi(struct pt_reg
+ 	reassert_nmi();
+ }
+ 
+-static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
++static __kprobes int dummy_nmi_callback(struct pt_regs * regs, int cpu)
+ {
+ 	return 0;
+ }
+  
+ static nmi_callback_t nmi_callback = dummy_nmi_callback;
+  
+-fastcall void do_nmi(struct pt_regs * regs, long error_code)
++fastcall __kprobes void do_nmi(struct pt_regs * regs, long error_code)
+ {
+ 	int cpu;
+ 
 
--- 
-Frank
+

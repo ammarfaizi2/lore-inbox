@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWHJNqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWHJNwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161275AbWHJNqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbWHJNqu
+	id S1161281AbWHJNwo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161280AbWHJNwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:46:50 -0400
-Received: from ug-out-f131.google.com ([66.249.92.131]:6350 "EHLO
-	ug-out-f131.google.com") by vger.kernel.org with ESMTP
-	id S1161043AbWHJNqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:46:49 -0400
-Message-ID: <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
-Date: Thu, 10 Aug 2006 09:46:47 -0400
-From: "Robert Love" <rlove@rlove.org>
-To: "Shem Multinymous" <multinymous@gmail.com>
-Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers (version 2)
-Cc: linux-kernel@vger.kernel.org, "Pavel Machek" <pavel@suse.cz>,
-       "Jean Delvare" <khali@linux-fr.org>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>, "Andrew Morton" <akpm@osdl.org>,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <1155203330179-git-send-email-multinymous@gmail.com>
+	Thu, 10 Aug 2006 09:52:43 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:33423 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161269AbWHJNwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 09:52:43 -0400
+Date: Thu, 10 Aug 2006 15:52:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Jeff Garzik <jeff@garzik.org>
+cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+In-Reply-To: <44DB34FF.4000303@garzik.org>
+Message-ID: <Pine.LNX.4.64.0608101547261.6761@scrub.home>
+References: <1155172843.3161.81.camel@localhost.localdomain>
+ <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
+ <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
+ <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
+ <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home>
+ <44DB3151.8050904@garzik.org> <Pine.LNX.4.64.0608101519560.6762@scrub.home>
+ <44DB34FF.4000303@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1155203330179-git-send-email-multinymous@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/10/06, Shem Multinymous <multinymous@gmail.com> wrote:
-> This resubmission addresses all the comments I've received on LKML,
-> except where said otherwise in reply. Other changes are very minor.
+Hi,
 
-I reviewed this second patchset will sign-off once in this email, for
-all 12 patches in the patchset.
+On Thu, 10 Aug 2006, Jeff Garzik wrote:
 
-Patches look great and I am glad someone has apparently better access
-to hardware specs than I did.
+> Roman Zippel wrote:
+> > If you force everyone to use 64bit sector numbers, I don't understand how
+> > you can claim "still working just fine on 32bit"?
+> 
+> 64bit sector numbers work just fine on 32-bit machines.
 
-Signed-off-by: Robert Love <rml@novell.com>
+Depends on the definition of "fine".
 
-        Robert Love
+> > At some point ext4 is probably going to be the de facto standard, which very
+> > many people want to use, because it has all the new features, which won't be
+> > ported to ext2/3. So I still don't understand, what's so wrong about a
+> > little tuning in both directions?
+> 
+> Just seems like wasted effort to me.
+
+I disagree.
+Many developer still brag about how Linux runs on about everything, but 
+it's little steps like this, which make it more and more a joke.
+
+bye, Roman

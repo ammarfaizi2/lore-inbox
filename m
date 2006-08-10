@@ -1,81 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161337AbWHJP1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161338AbWHJP17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161337AbWHJP1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 11:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161338AbWHJP1y
+	id S1161338AbWHJP17 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 11:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161345AbWHJP17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 11:27:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5830 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161337AbWHJP1x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 11:27:53 -0400
-Date: Thu, 10 Aug 2006 08:27:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
-Message-Id: <20060810082749.6b39a07b.akpm@osdl.org>
-In-Reply-To: <44DB1AF6.2020101@gmail.com>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-	<200608091906.k79J6Zrc009211@turing-police.cc.vt.edu>
-	<20060809130151.f1ff09eb.akpm@osdl.org>
-	<200608092043.k79KhKdt012789@turing-police.cc.vt.edu>
-	<200608100332.k7A3Wvck009169@turing-police.cc.vt.edu>
-	<44DB1AF6.2020101@gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 11:27:59 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:12075 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161338AbWHJP15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 11:27:57 -0400
+Message-ID: <44DB4782.9050602@de.ibm.com>
+Date: Thu, 10 Aug 2006 16:49:38 +0200
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: netdev@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Marcus Eder <meder@de.ibm.com>,
+       Christoph Raisch <raisch@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 1/6] ehea: interface to network stack
+References: <44D99EFC.3000105@de.ibm.com> <20060809130646.GA6846@martell.zuzino.mipt.ru>
+In-Reply-To: <20060809130646.GA6846@martell.zuzino.mipt.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 13:39:11 +0159
-Jiri Slaby <jirislaby@gmail.com> wrote:
+Hi,
 
-> Valdis.Kletnieks@vt.edu wrote:
-> > On Wed, 09 Aug 2006 16:43:20 EDT, Valdis.Kletnieks@vt.edu said:
-> > 
-> >>> Usually this means that there's an IO request in flight and it got lost
-> >>> somewhere.  Device driver bug, IO scheduler bug, etc.  Conceivably a
-> >>> lost interrupt (hardware bug, PCI setup bug, etc).
-> > 
-> >> Aug  9 14:30:24 turing-police kernel: [ 3535.720000] end_request: I/O error, dev fd0, sector 0
-> > 
-> > Red herring.  yum just wedged again, this time with no reference to floppy drive.
-> > Same traceback.  Anybody have anything to suggest before I start playing
-> > hunt-the-wumpus with a -mm bisection?
+thanks for your comments!
+
+We'll post a modified patch very soon.
+
+Jan-Bernd
+
+Alexey Dobriyan wrote:
+> On Wed, Aug 09, 2006 at 10:38:20AM +0200, Jan-Bernd Themann wrote:
+>> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_main.c
+>> +++ kernel/drivers/net/ehea/ehea_main.c
 > 
-> Hmm, I have the accurately same problem...
-> yum + CFQ + BLK_DEV_PIIX + nothing odd in dmesg
+>> +static inline u64 get_swqe_addr(u64 tmp_addr, int addr_seg)
+>> +{
+>> +	u64 addr;
+>> +	addr = tmp_addr;
+>> +	return addr;
+>> +}
+>> +
+>> +static inline u64 get_rwqe_addr(u64 tmp_addr)
+>> +{
+>> +	return tmp_addr;
+>> +}
 > 
-> [ 3438.574864] yum           D 00000000     0 21659   3838 
-> (NOTLB)
-> [ 3438.575098]        e5c09d24 00000001 c180f5a8 00000000 e5c09ce0 c01683e8 
-> fe37c0bc 000002c4
-> [ 3438.575388]        00001000 00000001 c18fbbd0 0023001f 00000007 f26cc560 
-> c1913560 fe4166d5
-> [ 3438.575713]        000002c4 0009a619 00000001 f26cc66c c180ec40 c04ff140 
-> e5c09d14 c01fad44
-> [ 3438.576039] Call Trace:
-> [ 3438.576113]  [<c0373d3b>] io_schedule+0x26/0x30
-> [ 3438.576187]  [<c014653c>] sync_page+0x39/0x45
-> [ 3438.576260]  [<c0374401>] __wait_on_bit_lock+0x41/0x64
-> [ 3438.576333]  [<c01464ef>] __lock_page+0x57/0x5f
-> [ 3438.576405]  [<c014f5f2>] truncate_inode_pages_range+0x1b6/0x304
-> [ 3438.576480]  [<c014f76f>] truncate_inode_pages+0x2f/0x40
-> [ 3438.576553]  [<c01a7bc4>] ext3_delete_inode+0x29/0xf7
-> [ 3438.576627]  [<c017f26b>] generic_delete_inode+0x65/0xe7
-> [ 3438.576701]  [<c017f3aa>] generic_drop_inode+0xbd/0x173
-> [ 3438.576774]  [<c017ed25>] iput+0x6b/0x7b
-> [ 3438.576846]  [<c017cc57>] dentry_iput+0x68/0xb3
-> [ 3438.576919]  [<c017d99e>] dput+0x4f/0x19f
-> [ 3438.576990]  [<c0176164>] sys_renameat+0x1e0/0x212
-> [ 3438.577063]  [<c01761be>] sys_rename+0x28/0x2a
-> [ 3438.577135]  [<c01030fb>] syscall_call+0x7/0xb
+> The point of this exercise?
+
+has been removed
+
+> 
+>> +static inline int ehea_refill_rq3_def(struct ehea_port_res *pr, int nr_of_wqes)
+> 
+> Way too big to be inline function.
+> 
+>> +{
+>> +	int i;
+>> +	int ret = 0;
+>> +	struct ehea_qp *qp;
+>> +	struct ehea_rwqe *rwqe;
+>> +	int skb_arr_rq3_len = pr->skb_arr_rq3_len;
+>> +	struct sk_buff **skb_arr_rq3 = pr->skb_arr_rq3;
+>> +	EDEB_EN(8, "pr=%p, nr_of_wqes=%d", pr, nr_of_wqes);
+>> +	if (nr_of_wqes == 0)
+>> +		return -EINVAL;
+>> +	qp = pr->qp;
+>> +	for (i = 0; i < nr_of_wqes; i++) {
+>> +		int index = pr->skb_rq3_index++;
+>> +		struct sk_buff *skb = dev_alloc_skb(EHEA_MAX_PACKET_SIZE
+>> +						    + NET_IP_ALIGN);
+>> +
+>> +		if (!skb) {
+>> +			EDEB_ERR(4, "No memory for skb. Only %d rwqe 
+>> filled.",
+>> +				 i);
+>> +			ret = -ENOMEM;
+>> +			break;
+>> +		}
+>> +		skb_reserve(skb, NET_IP_ALIGN);
+>> +
+>> +		rwqe = ehea_get_next_rwqe(qp, 3);
+>> +		pr->skb_rq3_index %= skb_arr_rq3_len;
+>> +		skb_arr_rq3[index] = skb;
+>> +		rwqe->wr_id = EHEA_BMASK_SET(EHEA_WR_ID_TYPE, 
+>> EHEA_RWQE3_TYPE)
+>> +		    | EHEA_BMASK_SET(EHEA_WR_ID_INDEX, index);
+>> +		rwqe->sg_list[0].l_key = ehea_get_recv_lkey(pr);
+>> +		rwqe->sg_list[0].vaddr = get_rwqe_addr((u64)skb->data);
+>> +		rwqe->sg_list[0].len = EHEA_MAX_PACKET_SIZE;
+>> +		rwqe->data_segments = 1;
+>> +	}
+>> +
+>> +	/* Ring doorbell */
+>> +	iosync();
+>> +	ehea_update_rq3a(qp, i);
+>> +	EDEB_EX(8, "");
+>> +	return ret;
+>> +}
+>> +
+>> +
+>> +static inline int ehea_refill_rq3(struct ehea_port_res *pr, int nr_of_wqes)
+>> +{
+>> +	return ehea_refill_rq3_def(pr, nr_of_wqes);
+>> +}
+> 
+> ehea_refill_rq3[123] appears to be 1:1 wrappers around
+> ehea_refill_rq3[123]_def. Any idea behind them?
 > 
 
-Is yum the only process which was stuck in D state?
+introduced for near future features
 
-If so, I'd still be expecting a device driver/iosched bug.
+>> +	init_attr = (struct ehea_qp_init_attr*)
+>> +	    kzalloc(sizeof(struct ehea_qp_init_attr), GFP_KERNEL);
+> 
+> Useless cast.
+> 
 
-If not, it's probably a vfs/fs deadlock.
+removed
+
+>> +	pr->skb_arr_sq = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
+>> +						    * (max_rq_entries + 1));
+> 
+> Useless cast
+
+removed
+> 
+>> +	pr->skb_arr_rq1 = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
+>> +						     * (max_rq_entries + 1));
+> 
+>> +	pr->skb_arr_rq2 = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
+>> +						     * (max_rq_entries + 1));
+> 
+>> +	pr->skb_arr_rq3 = (struct sk_buff**)vmalloc(sizeof(struct sk_buff*)
+>> +						     * (max_rq_entries + 1));
+> 
+>> +static int ehea_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+>> +{
+>> +	EDEB_ERR(4, "ioctl not supported: dev=%s cmd=%d", dev->name, cmd);
+> 
+> Then copy NULL into ->do_ioctl!
+> 
+
+done
+
+>> +	return -EOPNOTSUPP;
+>> +}
+> 
+>> +	ehea_port_cb_0 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
+>> +
+>> +	if (!ehea_port_cb_0) {
+>> +		EDEB_ERR(4, "No memory for ehea_port control block");
+>> +		ret = -ENOMEM;
+>> +		goto kzalloc_failed;
+>> +	}
+>> +
+>> +	memcpy((u8*)(&(ehea_port_cb_0->port_mac_addr)),
+>> +	       (u8*)&(mac_addr->sa_data[0]), 6);
+> 
+> No casts on memcpy arguments.
+
+done
+
+> 
+>> +	memcpy((u8*)&ehea_mcl_entry->macaddr, mc_mac_addr, ETH_ALEN);
+> 
+>> +static inline void ehea_xmit2(struct sk_buff *skb,
+>> +			      struct net_device *dev, struct ehea_swqe *swqe,
+>> +			      u32 lkey)
+>> +{
+>> +	int nfrags;
+>> +	unsigned short skb_protocol = skb->protocol;
+> 
+> Useless variable. And it should be __be16, FYI.
+> 
+
+changed
+
+>> +	nfrags = skb_shinfo(skb)->nr_frags;
+>> +	EDEB_EN(7, "skb->nfrags=%d (0x%X)", nfrags, nfrags);
+>> +
+>> +	if (skb_protocol == ETH_P_IP) {
+> 
+> ITYM, htons(ETH_P_IP).
+> 
+
+good point, thx
+
+>> +static inline void ehea_xmit3(struct sk_buff *skb,
+>> +			      struct net_device *dev, struct ehea_swqe *swqe)
+>> +{
+>> +	int i;
+>> +	skb_frag_t *frag;
+>> +	int nfrags = skb_shinfo(skb)->nr_frags;
+>> +	u8 *imm_data = &swqe->u.immdata_nodesc.immediate_data[0];
+>> +	u64 skb_protocol = skb->protocol;
+> 
+> Useless var.
+
+removed
+
+> 
+>> +
+>> +	EDEB_EN(7, "");
+>> +	if (likely(skb_protocol == ETH_P_IP)) {
+> 
+> 				   htons(ETH_P_IP)
+> 
+

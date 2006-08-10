@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWHJUC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbWHJUBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWHJUC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWHJUBv
+	id S932668AbWHJUBt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWHJT7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:01:51 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:24977 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932669AbWHJT7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Aug 2006 15:59:35 -0400
-Date: Thu, 10 Aug 2006 21:59:29 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: Re: [NTP 8/9] convert to the NTP4 reference model
-In-Reply-To: <20060810122905.b8dd7104.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0608102139410.6761@scrub.home>
-References: <20060810000146.913645000@linux-m68k.org> <20060810001115.525351000@linux-m68k.org>
- <20060810114903.089825bc.akpm@osdl.org> <Pine.LNX.4.64.0608102106180.6761@scrub.home>
- <20060810122905.b8dd7104.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mx1.suse.de ([195.135.220.2]:3729 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932649AbWHJTgx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:36:53 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [95/145] x86_64: Move e820 map into e820.c
+Message-Id: <20060810193652.C8E7313C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:52 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+r
 
-On Thu, 10 Aug 2006, Andrew Morton wrote:
+Minor cleanup. Keep setup.c free from unrelated clutter.
 
-> > It's the behaviour the current ntp daemon expects, the ntp documentation 
-> > has more information and a link to the package (e.g. under Debian at 
-> > /usr/share/doc/ntp-doc/html/kern.html).
-> > 
-> 
-> So...  the current kernel is behaving in a manner other than that which the
-> NTP daemon expects?  Does this cause any problems?
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-It's not drastically different, so for normal internet usage there is no 
-big difference.
-http://www.ntp.org/ntpfaq/NTP-s-compat.htm has a bit more information on 
-this topic.
+---
+ arch/x86_64/kernel/e820.c  |    2 ++
+ arch/x86_64/kernel/setup.c |    1 -
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-> I'm trying to work out what reason we might have for merging this patch.
-
-It also allows us to sanely readd the PPS bits, where the changes were 
-more significant.
-
-bye, Roman
+Index: linux/arch/x86_64/kernel/e820.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/e820.c
++++ linux/arch/x86_64/kernel/e820.c
+@@ -24,6 +24,8 @@
+ #include <asm/bootsetup.h>
+ #include <asm/sections.h>
+ 
++struct e820map e820 __initdata;
++
+ /* 
+  * PFN of last memory page.
+  */
+Index: linux/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/setup.c
++++ linux/arch/x86_64/kernel/setup.c
+@@ -97,7 +97,6 @@ struct sys_desc_table_struct {
+ 
+ struct edid_info edid_info;
+ EXPORT_SYMBOL_GPL(edid_info);
+-struct e820map e820;
+ 
+ extern int root_mountflags;
+ 

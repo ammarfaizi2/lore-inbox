@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422667AbWHJRow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWHJRrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422667AbWHJRow (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWHJRov
+	id S1422669AbWHJRrP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbWHJRrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:44:51 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:33255 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1422664AbWHJRot (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:44:49 -0400
-Message-Id: <200608101744.k7AHiXHF004896@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Mattia Dongili <malattia@linux.it>
-Cc: Andrew Morton <akpm@osdl.org>, Jiri Slaby <jirislaby@gmail.com>,
+	Thu, 10 Aug 2006 13:47:14 -0400
+Received: from xenotime.net ([66.160.160.81]:35815 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422664AbWHJRrM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 13:47:12 -0400
+Date: Thu, 10 Aug 2006 10:49:54 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Alex Tomas <alex@clusterfs.com>
+Cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
-In-Reply-To: Your message of "Thu, 10 Aug 2006 19:33:13 +0200."
-             <20060810173312.GC21123@inferi.kami.home>
-From: Valdis.Kletnieks@vt.edu
-References: <20060806030809.2cfb0b1e.akpm@osdl.org> <200608091906.k79J6Zrc009211@turing-police.cc.vt.edu> <20060809130151.f1ff09eb.akpm@osdl.org> <200608092043.k79KhKdt012789@turing-police.cc.vt.edu> <200608100332.k7A3Wvck009169@turing-police.cc.vt.edu> <44DB1AF6.2020101@gmail.com> <20060810082749.6b39a07b.akpm@osdl.org>
-            <20060810173312.GC21123@inferi.kami.home>
+Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
+Message-Id: <20060810104954.0e03c83e.rdunlap@xenotime.net>
+In-Reply-To: <m37j1hlyzv.fsf@bzzz.home.net>
+References: <1155172827.3161.80.camel@localhost.localdomain>
+	<20060809233940.50162afb.akpm@osdl.org>
+	<m37j1hlyzv.fsf@bzzz.home.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1155231873_3998P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Thu, 10 Aug 2006 13:44:33 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1155231873_3998P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 10 Aug 2006 13:29:56 +0400 Alex Tomas wrote:
 
-On Thu, 10 Aug 2006 19:33:13 +0200, Mattia Dongili said:
+> >>>>> Andrew Morton (AM) writes:
+> 
+>  >> From a quick scan:
+> 
+>  AM> - The code is very poorly commented.  I'd want to spend a lot of time
+>  AM>   reviewing this implementation, but not in its present state.  
+> 
+> what sort of comments are you expecting?
 
-> oooh, same setup and same trace here, but no yum, see some screenshots
-> here:
-> http://oioio.altervista.org/linux/dsc03448.jpg
-> http://oioio.altervista.org/linux/dsc03449.jpg
+Helpful ones.  Not obvious stuff.  Intents.
+Tricks used (if they are the right thing to do).
 
-Not quite the same trace - the first few lines are the same, but your call to
-__lock_page() comes in via do_generic_mapping_read(), while Jiri and I are
-seeing the call to __lock_page() coming from truncate_inode_pages_range()....
+How, what, why.  But not nitty-gritty details of how.
+"Why" is often more important.
 
+>  AM> - The existing comments could benefit from some rework by a native English
+>  AM>   speaker.
+> 
+> could someone assist here, please?
 
---==_Exmh_1155231873_3998P
-Content-Type: application/pgp-signature
+Yes.  How would you like it?  Just comments via email or (quilt) patches?
+Which files/patches?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFE23CBcC3lWbTT17ARAq57AJwLmJ2h+lPI9e6r1KWb1DWXm/sRaQCdEtsf
-S5ExwXqPKlco0WTVwzhpGyA=
-=/5CM
------END PGP SIGNATURE-----
-
---==_Exmh_1155231873_3998P--
+---
+~Randy

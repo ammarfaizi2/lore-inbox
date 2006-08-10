@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWHJBLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbWHJBQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030374AbWHJBLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 21:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbWHJBLJ
+	id S1030526AbWHJBQh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 21:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030522AbWHJBQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 21:11:09 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:8571 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030374AbWHJBLI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 21:11:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ExLunXB0wcl10VrCsefrwnPjbYGaEfUuWto2dscCfNFwiBQumRbDkdTMd/wQ7v9aSqYgdzVvFJwkPvf2S5nYNh0dmPVRSRkMUMhDRQp7bJBwz4HvtNUM6lkyzHZC/yaXXehYT+MX4pRsIDp0R6n3sYn+ld9iRfwTVhmSGl63Yxk=
-Message-ID: <82faac5b0608091811v1217ac44i3e48006e4d1eed44@mail.gmail.com>
-Date: Thu, 10 Aug 2006 11:11:06 +1000
-From: "Darren Jenkins" <darrenrjenkins@gmail.com>
-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
-Subject: Re: [KJ] [patch] fix common mistake in polling loops
-Cc: "Om N." <xhandle@gmail.com>, kernel-janitors@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200608092025.02259.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 9 Aug 2006 21:16:37 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:45703 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030520AbWHJBQg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 21:16:36 -0400
+Subject: [PATCH 0/5] Forking ext4 filesystem and JBD2
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Wed, 09 Aug 2006 18:16:37 -0700
+Message-Id: <1155172597.3161.72.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <710c0ee0607280128g2d968c49ycff3bac9e073e7fa@mail.gmail.com>
-	 <82faac5b0608071753q71050d72uadcf55bc1e54f30e@mail.gmail.com>
-	 <6de39a910608071953l39ce0873w713d59eda4aa5d84@mail.gmail.com>
-	 <200608092025.02259.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-G'day,
+This series of patch forkes a new filesystem, ext4, from the current
+ext3 filesystem, as the code base to work on, for the big features such
+as extents and larger fs(48 bit blk number) support, per our discussion
+on lkml a few weeks ago. 
 
-On 8/10/06, Andrew James Wade <andrew.j.wade@gmail.com> wrote:
-> You're getting duplicated code there. That'll be an issue in more
-> complex loops. How about:
->
-> unsigned long timeout = jiffies + HZ/2;
-> int timeup = 0;
->
-> for (;;;) {
->         if (ready())
->                 return 0;
->         if (timeup)
->                 break;
->         msleep(10);
->         timeup = time_after(timeout, jiffies);
-> };
-> ... timeout ...
->
+[patch 1/5] ext4-fork.patch
+1) create a ext4 dir under fs/
+2) copy all ext3 files to fs/ext4
+3) rename all ext3/EXT3 symbols in ext4 filesystem source code to
+ext4/EXT4 correspondingly.
 
-Nice, looks better than my idea.
-Removes the code duplication and reduces complexity(a little) at the
-cost of an extra variable.
+[patch 2/5] register-ext3dev.patch
+Registered the ext4 filesystem as ext3dev at this moment, as Ted Tso has
+proposed before.  The intention is to explicitly tell the new filesystem
+is still under development. And it will be re-register itself as ext4
+filesystem once the on-disk format changes are pretty much developed and
+merged.
 
-The only Nitpick is
+[patch 3/5] fork-jbd2.patch
+Forking JBD2 from JBD at the same time forking ext4 filesystem, as we
+discussed before. New JBD2 layer is only used by ext4 for now, and will
+support both 64bit and 32 bit blk number.
 
-- int timeup = 0;
-+ unsigned char timeup = 0;
+[patch 4/5] jbd2-rename-funcs.patch
+Rename all exported symbols in JBD2 layer with a jbd2_ prefix to
+distinguish them from those symbols from JBD layer.
 
+[patch 5/5] rename-jbd2-in-ext4.patch
+Use JBD2 functions/header files in ext4 filesystem
 
->
-> Andrew Wade
+Tested the changes on i386 machine(load ext4and jbd2 as module and also
+tested as built-in). Able to mount ext3dev filesystem on an exisiting
+ext3 filesystem, and survived a few hours fsx tests and tiobench tests. 
 
-Darren J.
+Patches against 2.6.18-rc4 kernel. Previous extents and 48bit ext3
+patches are rebased to against ext4 filesystem, will send them out in
+another thread.  The whole series of ext4 patches (including patches to
+fork ext4 filesystem and patches to add extents and 48 bit blk number)
+are avaible at
+http://ext2.sourceforge.net/48bitext3/patches/latest/
+
+Any comments? Could we add ext4/jbd2 to mm tree for a wider testing?
+
+Thanks,
+Mingming
+

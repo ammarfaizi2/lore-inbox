@@ -1,117 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbWHJJ4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWHJJ4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161134AbWHJJ4G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 05:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWHJJyk
+	id S1751463AbWHJJ4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 05:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbWHJJzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 05:54:40 -0400
-Received: from mx-outbound.sourceforge.net ([66.35.250.223]:1692 "EHLO
+	Thu, 10 Aug 2006 05:55:22 -0400
+Received: from mx-outbound.sourceforge.net ([66.35.250.223]:10140 "EHLO
 	sc8-sf-sshgate.sourceforge.net") by vger.kernel.org with ESMTP
-	id S1161133AbWHJJy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 05:54:29 -0400
+	id S1161133AbWHJJy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 05:54:56 -0400
 From: Shem Multinymous <multinymous@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: Robert Love <rlove@rlove.org>, Pavel Machek <pavel@suse.cz>,
        Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
        Andrew Morton <akpm@osdl.org>, hdaps-devel@lists.sourceforge.net
-Subject: [PATCH 06/12] hdaps: Limit hardware query rate
+Subject: [PATCH 10/12] hdaps: Power off accelerometer on suspend and unload
 Reply-To: Shem Multinymous <multinymous@gmail.com>
-Date: Thu, 10 Aug 2006 12:48:44 +0300
-Message-Id: <11552033701218-git-send-email-multinymous@gmail.com>
+Date: Thu, 10 Aug 2006 12:48:48 +0300
+Message-Id: <1155203398339-git-send-email-multinymous@gmail.com>
 X-Mailer: git-send-email 1.4.1
 In-Reply-To: <1155203330179-git-send-email-multinymous@gmail.com>
 References: <1155203330179-git-send-email-multinymous@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current hdaps driver queries the hardware on (almost) any sysfs read.
-Since fresh readouts are genereated by the hardware at a constant rate,
-this means apps are eating each other's events. Also, polling multiple
-attributes will genereate excessive hardware queries and excessive CPU
-load due to the duration of the hardware query transaction.
-
-With this patch, the driver will normally update its cached readouts
-only in its timer function (which exists anyway, for the input device).
-If that read failed, it will be retried upon the actual sysfs access.
-In all cases, query rate is bounded and apps will get reasonably
-fresh and usually cached readouts.
-
-The polling rate is increased to 50Hz, as needed by the hdaps daemon.
-A later patch makes this configurable.
+This patch disables accelerometer power and stops its polling by the
+embedded controller upon suspend and module unload. The power saving
+is negligible, but it's the right thing to do.
 
 Signed-off-by: Shem Multinymous <multinymous@gmail.com>
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 ---
- drivers/hwmon/hdaps.c |   19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/hwmon/hdaps.c |   26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 --- a/drivers/hwmon/hdaps.c
 +++ b/drivers/hwmon/hdaps.c
-@@ -57,7 +57,7 @@ static const struct thinkpad_ec_row ec_a
- #define READ_TIMEOUT_MSECS	100	/* wait this long for device read */
- #define RETRY_MSECS		3	/* retry delay */
+@@ -373,6 +373,23 @@ good:
+ 	return ret;
+ }
  
--#define HDAPS_POLL_PERIOD	(HZ/20)	/* poll for input every 1/20s */
-+#define HDAPS_POLL_PERIOD	(HZ/50)	/* poll for input every 1/50s */
- #define HDAPS_INPUT_FUZZ	4	/* input event threshold */
- #define HDAPS_INPUT_FLAT	4
- #define KMACT_REMEMBER_PERIOD   (HZ/10) /* keyboard/mouse persistance */
-@@ -67,10 +67,11 @@ static struct platform_device *pdev;
- static struct input_dev *hdaps_idev;
- static unsigned int hdaps_invert;
++/**
++ * hdaps_device_shutdown - power off the accelerometer
++ * Returns nonzero on failure. Can sleep.
++ */
++static int hdaps_device_shutdown(void)
++{
++	int ret;
++	ret = hdaps_set_power(0);
++	if (ret) {
++		printk(KERN_WARNING "hdaps: cannot power off\n");
++		return ret;
++	}
++	ret = hdaps_set_ec_config(0, 1);
++	if (ret)
++		printk(KERN_WARNING "hdaps: cannot stop EC sampling\n");
++	return ret;
++}
  
--/* Latest state readout */
--static int pos_x, pos_y;   /* position */
--static int temperature;    /* temperature */
--static int rest_x, rest_y; /* calibrated rest position */
-+/* Latest state readout: */
-+static int pos_x, pos_y;      /* position */
-+static int temperature;       /* temperature */
-+static int stale_readout = 1; /* last read invalid */
-+static int rest_x, rest_y;    /* calibrated rest position */
+ /* Device model stuff */
  
- /* Last time we saw keyboard and mouse activity: */
- static u64 last_keyboard_jiffies = INITIAL_JIFFIES;
-@@ -135,6 +136,7 @@ static int __hdaps_update(int fast)
- 
- 	temperature = data.val[EC_ACCEL_IDX_TEMP1];
- 
-+	stale_readout = 0;
+@@ -388,6 +405,12 @@ static int hdaps_probe(struct platform_d
  	return 0;
  }
  
-@@ -149,6 +151,8 @@ static int __hdaps_update(int fast)
- static int hdaps_update(void)
- {
- 	int total, ret;
-+	if (!stale_readout) /* already updated recently? */
-+		return 0;
- 	for (total=0; total<READ_TIMEOUT_MSECS; total+=RETRY_MSECS) {
- 		ret = thinkpad_ec_lock();
- 		if (ret)
-@@ -244,6 +248,7 @@ bad:
- 	thinkpad_ec_invalidate();
- 	ret = -ENXIO;
- good:
-+	stale_readout = 1;
- 	thinkpad_ec_unlock();
- 	return ret;
- }
-@@ -295,6 +300,8 @@ static void hdaps_mousedev_poll(unsigned
- {
- 	int ret;
- 
-+	stale_readout = 1;
++static int hdaps_suspend(struct platform_device *dev, pm_message_t state)
++{
++	hdaps_device_shutdown(); /* ignore errors, effect is negligible */
++	return 0;
++}
 +
- 	/* Cannot sleep.  Try nonblockingly.  If we fail, try again later. */
- 	if (thinkpad_ec_try_lock())
- 		goto keep_active;
-@@ -304,7 +311,7 @@ static void hdaps_mousedev_poll(unsigned
- 	/* Any of "successful", "not yet ready" and "not prefetched"? */
- 	if (ret!=0 && ret!=-EBUSY && ret!=-ENODATA) {
- 		printk(KERN_ERR
--		       "hdaps: poll failed, disabling mousedev updates\n");
-+		       "hdaps: poll failed, disabling updates\n");
- 		return;
- 	}
+ static int hdaps_resume(struct platform_device *dev)
+ {
+ 	return hdaps_device_init();
+@@ -395,6 +418,7 @@ static int hdaps_resume(struct platform_
  
+ static struct platform_driver hdaps_driver = {
+ 	.probe = hdaps_probe,
++	.suspend = hdaps_suspend,
+ 	.resume = hdaps_resume,
+ 	.driver	= {
+ 		.name = "hdaps",
+@@ -776,6 +800,7 @@ out_device:
+ 	platform_device_unregister(pdev);
+ out_driver:
+ 	platform_driver_unregister(&hdaps_driver);
++	hdaps_device_shutdown();
+ out:
+ 	printk(KERN_WARNING "hdaps: driver init failed (ret=%d)!\n", ret);
+ 	return ret;
+@@ -785,6 +810,7 @@ static void __exit hdaps_exit(void)
+ {
+ 	del_timer_sync(&hdaps_timer);
+ 	input_unregister_device(hdaps_idev);
++	hdaps_device_shutdown(); /* ignore errors, effect is negligible */
+ 	sysfs_remove_group(&pdev->dev.kobj, &hdaps_attribute_group);
+ 	platform_device_unregister(pdev);
+ 	platform_driver_unregister(&hdaps_driver);

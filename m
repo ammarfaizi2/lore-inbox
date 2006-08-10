@@ -1,69 +1,609 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWHJUQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWHJURh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWHJUQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWHJUQT
+	id S932146AbWHJURh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWHJUQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:16:19 -0400
-Received: from ns2.suse.de ([195.135.220.15]:19588 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932627AbWHJUOK (ORCPT
+	Thu, 10 Aug 2006 16:16:12 -0400
+Received: from mx2.suse.de ([195.135.220.15]:1003 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932193AbWHJTfX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:14:10 -0400
-Message-ID: <44DB945F.5080102@suse.com>
-Date: Thu, 10 Aug 2006 16:17:35 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-Organization: SUSE Labs, Novell, Inc
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <20060810191747.GL20581@ca-server1.us.oracle.com> <20060810194440.GA6845@martell.zuzino.mipt.ru>
-In-Reply-To: <20060810194440.GA6845@martell.zuzino.mipt.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 15:35:23 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [5/145] x86_64: Add performance counter reservation framework for UP kernels
+Message-Id: <20060810193517.2C81F13B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:17 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+r
 
-Alexey Dobriyan wrote:
-> On Thu, Aug 10, 2006 at 12:17:47PM -0700, Joel Becker wrote:
->> On Wed, Aug 09, 2006 at 11:40:19PM -0700, Andrew Morton wrote:
->>> On Wed, 09 Aug 2006 18:20:43 -0700
->>> Mingming Cao <cmm@us.ibm.com> wrote:
->>>
->>>> Define SECTOR_FMT to print sector_t in proper format
->>> We've thus-far avoided doing this.  In fact a similar construct in
->>> device-mapper was recently removed.
->> 	Yeah, OCFS2 had similar formats, and we were asked to change
->> them to naked casts before inclusion.  Seems quite consistent with the
->> rest of the kernel.
-> 
-> Will
-> 
-> 	printk("%S", sector_t);
-> 
-> kill at least one kitten?
+From: dzickus <dzickus@redhat.com>
 
-I like the general idea. I think that having to cast every time you want
-to print a sector number is pretty gross. I had something more like %Su
-in mind, though.
+Adds basic infrastructure to allow subsystems to reserve performance
+counters on the x86 chips.  Only UP kernels are supported in this patch to
+make reviewing easier.  The SMP portion makes a lot more changes. 
 
-- -Jeff
+Think of this as a locking mechanism where each bit represents a different
+counter.  In addition, each subsystem should also reserve an appropriate
+event selection register that will correspond to the performance counter it
+will be using (this is mainly neccessary for the Pentium 4 chips as they
+break the 1:1 relationship to performance counters). 
 
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+This will help prevent subsystems like oprofile from interfering with the
+nmi watchdog. 
 
-iD8DBQFE25RfLPWxlyuTD7IRAshdAJ0dboV4trG1Pgy6P+sqPiV0bWabYQCgiZng
-FuaanX+K+jSTwlrapumR1XY=
-=jLoe
------END PGP SIGNATURE-----
+Signed-off-by:  Don Zickus <dzickus@redhat.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+ arch/i386/kernel/nmi.c   |  188 +++++++++++++++++++++++++++++++++++++++--------
+ arch/x86_64/kernel/nmi.c |  178 ++++++++++++++++++++++++++++++++++----------
+ include/asm-i386/nmi.h   |    7 +
+ include/asm-x86_64/nmi.h |    8 +-
+ 4 files changed, 308 insertions(+), 73 deletions(-)
+
+Index: linux/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/nmi.c
++++ linux/arch/x86_64/kernel/nmi.c
+@@ -27,6 +27,20 @@
+ #include <asm/kdebug.h>
+ #include <asm/mce.h>
+ 
++/* perfctr_nmi_owner tracks the ownership of the perfctr registers:
++ * evtsel_nmi_owner tracks the ownership of the event selection
++ * - different performance counters/ event selection may be reserved for
++ *   different subsystems this reservation system just tries to coordinate
++ *   things a little
++ */
++static DEFINE_PER_CPU(unsigned, perfctr_nmi_owner);
++static DEFINE_PER_CPU(unsigned, evntsel_nmi_owner[2]);
++
++/* this number is calculated from Intel's MSR_P4_CRU_ESCR5 register and it's
++ * offset from MSR_P4_BSU_ESCR0.  It will be the max for all platforms (for now)
++ */
++#define NMI_MAX_COUNTER_BITS 66
++
+ /*
+  * lapic_nmi_owner tracks the ownership of the lapic NMI hardware:
+  * - it may be reserved by some other driver, or not
+@@ -90,6 +104,95 @@ static unsigned int nmi_p4_cccr_val;
+ 	(P4_CCCR_OVF_PMI0|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
+ 	 P4_CCCR_COMPARE|P4_CCCR_REQUIRED|P4_CCCR_ESCR_SELECT(4)|P4_CCCR_ENABLE)
+ 
++/* converts an msr to an appropriate reservation bit */
++static inline unsigned int nmi_perfctr_msr_to_bit(unsigned int msr)
++{
++	/* returns the bit offset of the performance counter register */
++	switch (boot_cpu_data.x86_vendor) {
++	case X86_VENDOR_AMD:
++		return (msr - MSR_K7_PERFCTR0);
++	case X86_VENDOR_INTEL:
++		return (msr - MSR_P4_BPU_PERFCTR0);
++	}
++	return 0;
++}
++
++/* converts an msr to an appropriate reservation bit */
++static inline unsigned int nmi_evntsel_msr_to_bit(unsigned int msr)
++{
++	/* returns the bit offset of the event selection register */
++	switch (boot_cpu_data.x86_vendor) {
++	case X86_VENDOR_AMD:
++		return (msr - MSR_K7_EVNTSEL0);
++	case X86_VENDOR_INTEL:
++		return (msr - MSR_P4_BSU_ESCR0);
++	}
++	return 0;
++}
++
++/* checks for a bit availability (hack for oprofile) */
++int avail_to_resrv_perfctr_nmi_bit(unsigned int counter)
++{
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	return (!test_bit(counter, &__get_cpu_var(perfctr_nmi_owner)));
++}
++
++/* checks the an msr for availability */
++int avail_to_resrv_perfctr_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_perfctr_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	return (!test_bit(counter, &__get_cpu_var(perfctr_nmi_owner)));
++}
++
++int reserve_perfctr_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_perfctr_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	if (!test_and_set_bit(counter, &__get_cpu_var(perfctr_nmi_owner)))
++		return 1;
++	return 0;
++}
++
++void release_perfctr_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_perfctr_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	clear_bit(counter, &__get_cpu_var(perfctr_nmi_owner));
++}
++
++int reserve_evntsel_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_evntsel_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	if (!test_and_set_bit(counter, &__get_cpu_var(evntsel_nmi_owner)))
++		return 1;
++	return 0;
++}
++
++void release_evntsel_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_evntsel_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	clear_bit(counter, &__get_cpu_var(evntsel_nmi_owner));
++}
++
+ static __cpuinit inline int nmi_known_cpu(void)
+ {
+ 	switch (boot_cpu_data.x86_vendor) {
+@@ -325,34 +428,22 @@ late_initcall(init_lapic_nmi_sysfs);
+ 
+ #endif	/* CONFIG_PM */
+ 
+-/*
+- * Activate the NMI watchdog via the local APIC.
+- * Original code written by Keith Owens.
+- */
+-
+-static void clear_msr_range(unsigned int base, unsigned int n)
++static int setup_k7_watchdog(void)
+ {
+-	unsigned int i;
+-
+-	for(i = 0; i < n; ++i)
+-		wrmsr(base+i, 0, 0);
+-}
+-
+-static void setup_k7_watchdog(void)
+-{
+-	int i;
+ 	unsigned int evntsel;
+ 
+ 	nmi_perfctr_msr = MSR_K7_PERFCTR0;
+ 
+-	for(i = 0; i < 4; ++i) {
+-		/* Simulator may not support it */
+-		if (checking_wrmsrl(MSR_K7_EVNTSEL0+i, 0UL)) {
+-			nmi_perfctr_msr = 0;
+-			return;
+-		}
+-		wrmsrl(MSR_K7_PERFCTR0+i, 0UL);
+-	}
++	if (!reserve_perfctr_nmi(nmi_perfctr_msr))
++		goto fail;
++
++	if (!reserve_evntsel_nmi(MSR_K7_EVNTSEL0))
++		goto fail1;
++
++	/* Simulator may not support it */
++	if (checking_wrmsrl(MSR_K7_EVNTSEL0, 0UL))
++		goto fail2;
++	wrmsrl(MSR_K7_PERFCTR0, 0UL);
+ 
+ 	evntsel = K7_EVNTSEL_INT
+ 		| K7_EVNTSEL_OS
+@@ -364,6 +455,13 @@ static void setup_k7_watchdog(void)
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	evntsel |= K7_EVNTSEL_ENABLE;
+ 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
++	return 1;
++fail2:
++	release_evntsel_nmi(MSR_K7_EVNTSEL0);
++fail1:
++	release_perfctr_nmi(nmi_perfctr_msr);
++fail:
++	return 0;
+ }
+ 
+ 
+@@ -382,22 +480,11 @@ static int setup_p4_watchdog(void)
+ 		nmi_p4_cccr_val |= P4_CCCR_OVF_PMI1;
+ #endif
+ 
+-	if (!(misc_enable & MSR_P4_MISC_ENABLE_PEBS_UNAVAIL))
+-		clear_msr_range(0x3F1, 2);
+-	/* MSR 0x3F0 seems to have a default value of 0xFC00, but current
+-	   docs doesn't fully define it, so leave it alone for now. */
+-	if (boot_cpu_data.x86_model >= 0x3) {
+-		/* MSR_P4_IQ_ESCR0/1 (0x3ba/0x3bb) removed */
+-		clear_msr_range(0x3A0, 26);
+-		clear_msr_range(0x3BC, 3);
+-	} else {
+-		clear_msr_range(0x3A0, 31);
+-	}
+-	clear_msr_range(0x3C0, 6);
+-	clear_msr_range(0x3C8, 6);
+-	clear_msr_range(0x3E0, 2);
+-	clear_msr_range(MSR_P4_CCCR0, 18);
+-	clear_msr_range(MSR_P4_PERFCTR0, 18);
++	if (!reserve_perfctr_nmi(nmi_perfctr_msr))
++		goto fail;
++
++	if (!reserve_evntsel_nmi(MSR_P4_CRU_ESCR0))
++		goto fail1;
+ 
+ 	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
+ 	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
+@@ -406,6 +493,10 @@ static int setup_p4_watchdog(void)
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+ 	return 1;
++fail1:
++	release_perfctr_nmi(nmi_perfctr_msr);
++fail:
++	return 0;
+ }
+ 
+ void setup_apic_nmi_watchdog(void)
+@@ -416,7 +507,8 @@ void setup_apic_nmi_watchdog(void)
+ 			return;
+ 		if (strstr(boot_cpu_data.x86_model_id, "Screwdriver"))
+ 			return;
+-		setup_k7_watchdog();
++		if (!setup_k7_watchdog())
++			return;
+ 		break;
+ 	case X86_VENDOR_INTEL:
+ 		if (boot_cpu_data.x86 != 15)
+@@ -588,6 +680,12 @@ int proc_unknown_nmi_panic(struct ctl_ta
+ 
+ EXPORT_SYMBOL(nmi_active);
+ EXPORT_SYMBOL(nmi_watchdog);
++EXPORT_SYMBOL(avail_to_resrv_perfctr_nmi);
++EXPORT_SYMBOL(avail_to_resrv_perfctr_nmi_bit);
++EXPORT_SYMBOL(reserve_perfctr_nmi);
++EXPORT_SYMBOL(release_perfctr_nmi);
++EXPORT_SYMBOL(reserve_evntsel_nmi);
++EXPORT_SYMBOL(release_evntsel_nmi);
+ EXPORT_SYMBOL(reserve_lapic_nmi);
+ EXPORT_SYMBOL(release_lapic_nmi);
+ EXPORT_SYMBOL(disable_timer_nmi_watchdog);
+Index: linux/include/asm-x86_64/nmi.h
+===================================================================
+--- linux.orig/include/asm-x86_64/nmi.h
++++ linux/include/asm-x86_64/nmi.h
+@@ -56,7 +56,13 @@ extern int panic_on_timeout;
+ extern int unknown_nmi_panic;
+ 
+ extern int check_nmi_watchdog(void);
+- 
++extern int avail_to_resrv_perfctr_nmi_bit(unsigned int);
++extern int avail_to_resrv_perfctr_nmi(unsigned int);
++extern int reserve_perfctr_nmi(unsigned int);
++extern void release_perfctr_nmi(unsigned int);
++extern int reserve_evntsel_nmi(unsigned int);
++extern void release_evntsel_nmi(unsigned int);
++
+ extern void setup_apic_nmi_watchdog (void);
+ extern int reserve_lapic_nmi(void);
+ extern void release_lapic_nmi(void);
+Index: linux/arch/i386/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/i386/kernel/nmi.c
++++ linux/arch/i386/kernel/nmi.c
+@@ -34,6 +34,20 @@ static unsigned int nmi_perfctr_msr;	/* 
+ static unsigned int nmi_p4_cccr_val;
+ extern void show_registers(struct pt_regs *regs);
+ 
++/* perfctr_nmi_owner tracks the ownership of the perfctr registers:
++ * evtsel_nmi_owner tracks the ownership of the event selection
++ * - different performance counters/ event selection may be reserved for
++ *   different subsystems this reservation system just tries to coordinate
++ *   things a little
++ */
++static DEFINE_PER_CPU(unsigned long, perfctr_nmi_owner);
++static DEFINE_PER_CPU(unsigned long, evntsel_nmi_owner[3]);
++
++/* this number is calculated from Intel's MSR_P4_CRU_ESCR5 register and it's
++ * offset from MSR_P4_BSU_ESCR0.  It will be the max for all platforms (for now)
++ */
++#define NMI_MAX_COUNTER_BITS 66
++
+ /*
+  * lapic_nmi_owner tracks the ownership of the lapic NMI hardware:
+  * - it may be reserved by some other driver, or not
+@@ -95,6 +109,105 @@ int nmi_active;
+ 	(P4_CCCR_OVF_PMI0|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
+ 	 P4_CCCR_COMPARE|P4_CCCR_REQUIRED|P4_CCCR_ESCR_SELECT(4)|P4_CCCR_ENABLE)
+ 
++/* converts an msr to an appropriate reservation bit */
++static inline unsigned int nmi_perfctr_msr_to_bit(unsigned int msr)
++{
++	/* returns the bit offset of the performance counter register */
++	switch (boot_cpu_data.x86_vendor) {
++	case X86_VENDOR_AMD:
++		return (msr - MSR_K7_PERFCTR0);
++	case X86_VENDOR_INTEL:
++		switch (boot_cpu_data.x86) {
++		case 6:
++			return (msr - MSR_P6_PERFCTR0);
++		case 15:
++			return (msr - MSR_P4_BPU_PERFCTR0);
++		}
++	}
++	return 0;
++}
++
++/* converts an msr to an appropriate reservation bit */
++static inline unsigned int nmi_evntsel_msr_to_bit(unsigned int msr)
++{
++	/* returns the bit offset of the event selection register */
++	switch (boot_cpu_data.x86_vendor) {
++	case X86_VENDOR_AMD:
++		return (msr - MSR_K7_EVNTSEL0);
++	case X86_VENDOR_INTEL:
++		switch (boot_cpu_data.x86) {
++		case 6:
++			return (msr - MSR_P6_EVNTSEL0);
++		case 15:
++			return (msr - MSR_P4_BSU_ESCR0);
++		}
++	}
++	return 0;
++}
++
++/* checks for a bit availability (hack for oprofile) */
++int avail_to_resrv_perfctr_nmi_bit(unsigned int counter)
++{
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	return (!test_bit(counter, &__get_cpu_var(perfctr_nmi_owner)));
++}
++
++/* checks the an msr for availability */
++int avail_to_resrv_perfctr_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_perfctr_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	return (!test_bit(counter, &__get_cpu_var(perfctr_nmi_owner)));
++}
++
++int reserve_perfctr_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_perfctr_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	if (!test_and_set_bit(counter, &__get_cpu_var(perfctr_nmi_owner)))
++		return 1;
++	return 0;
++}
++
++void release_perfctr_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_perfctr_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	clear_bit(counter, &__get_cpu_var(perfctr_nmi_owner));
++}
++
++int reserve_evntsel_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_evntsel_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	if (!test_and_set_bit(counter, &__get_cpu_var(evntsel_nmi_owner)[0]))
++		return 1;
++	return 0;
++}
++
++void release_evntsel_nmi(unsigned int msr)
++{
++	unsigned int counter;
++
++	counter = nmi_evntsel_msr_to_bit(msr);
++	BUG_ON(counter > NMI_MAX_COUNTER_BITS);
++
++	clear_bit(counter, &__get_cpu_var(evntsel_nmi_owner)[0]);
++}
++
+ #ifdef CONFIG_SMP
+ /* The performance counters used by NMI_LOCAL_APIC don't trigger when
+  * the CPU is idle. To make sure the NMI watchdog really ticks on all
+@@ -344,14 +457,6 @@ late_initcall(init_lapic_nmi_sysfs);
+  * Original code written by Keith Owens.
+  */
+ 
+-static void clear_msr_range(unsigned int base, unsigned int n)
+-{
+-	unsigned int i;
+-
+-	for(i = 0; i < n; ++i)
+-		wrmsr(base+i, 0, 0);
+-}
+-
+ static void write_watchdog_counter(const char *descr)
+ {
+ 	u64 count = (u64)cpu_khz * 1000;
+@@ -362,14 +467,19 @@ static void write_watchdog_counter(const
+ 	wrmsrl(nmi_perfctr_msr, 0 - count);
+ }
+ 
+-static void setup_k7_watchdog(void)
++static int setup_k7_watchdog(void)
+ {
+ 	unsigned int evntsel;
+ 
+ 	nmi_perfctr_msr = MSR_K7_PERFCTR0;
+ 
+-	clear_msr_range(MSR_K7_EVNTSEL0, 4);
+-	clear_msr_range(MSR_K7_PERFCTR0, 4);
++	if (!reserve_perfctr_nmi(nmi_perfctr_msr))
++		goto fail;
++
++	if (!reserve_evntsel_nmi(MSR_K7_EVNTSEL0))
++		goto fail1;
++
++	wrmsrl(MSR_K7_PERFCTR0, 0UL);
+ 
+ 	evntsel = K7_EVNTSEL_INT
+ 		| K7_EVNTSEL_OS
+@@ -381,16 +491,24 @@ static void setup_k7_watchdog(void)
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	evntsel |= K7_EVNTSEL_ENABLE;
+ 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
++	return 1;
++fail1:
++	release_perfctr_nmi(nmi_perfctr_msr);
++fail:
++	return 0;
+ }
+ 
+-static void setup_p6_watchdog(void)
++static int setup_p6_watchdog(void)
+ {
+ 	unsigned int evntsel;
+ 
+ 	nmi_perfctr_msr = MSR_P6_PERFCTR0;
+ 
+-	clear_msr_range(MSR_P6_EVNTSEL0, 2);
+-	clear_msr_range(MSR_P6_PERFCTR0, 2);
++	if (!reserve_perfctr_nmi(nmi_perfctr_msr))
++		goto fail;
++
++	if (!reserve_evntsel_nmi(MSR_P6_EVNTSEL0))
++		goto fail1;
+ 
+ 	evntsel = P6_EVNTSEL_INT
+ 		| P6_EVNTSEL_OS
+@@ -402,6 +520,11 @@ static void setup_p6_watchdog(void)
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	evntsel |= P6_EVNTSEL0_ENABLE;
+ 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
++	return 1;
++fail1:
++	release_perfctr_nmi(nmi_perfctr_msr);
++fail:
++	return 0;
+ }
+ 
+ static int setup_p4_watchdog(void)
+@@ -419,22 +542,11 @@ static int setup_p4_watchdog(void)
+ 		nmi_p4_cccr_val |= P4_CCCR_OVF_PMI1;
+ #endif
+ 
+-	if (!(misc_enable & MSR_P4_MISC_ENABLE_PEBS_UNAVAIL))
+-		clear_msr_range(0x3F1, 2);
+-	/* MSR 0x3F0 seems to have a default value of 0xFC00, but current
+-	   docs doesn't fully define it, so leave it alone for now. */
+-	if (boot_cpu_data.x86_model >= 0x3) {
+-		/* MSR_P4_IQ_ESCR0/1 (0x3ba/0x3bb) removed */
+-		clear_msr_range(0x3A0, 26);
+-		clear_msr_range(0x3BC, 3);
+-	} else {
+-		clear_msr_range(0x3A0, 31);
+-	}
+-	clear_msr_range(0x3C0, 6);
+-	clear_msr_range(0x3C8, 6);
+-	clear_msr_range(0x3E0, 2);
+-	clear_msr_range(MSR_P4_CCCR0, 18);
+-	clear_msr_range(MSR_P4_PERFCTR0, 18);
++	if (!reserve_perfctr_nmi(nmi_perfctr_msr))
++		goto fail;
++
++	if (!reserve_evntsel_nmi(MSR_P4_CRU_ESCR0))
++		goto fail1;
+ 
+ 	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
+ 	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
+@@ -442,6 +554,10 @@ static int setup_p4_watchdog(void)
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+ 	return 1;
++fail1:
++	release_perfctr_nmi(nmi_perfctr_msr);
++fail:
++	return 0;
+ }
+ 
+ void setup_apic_nmi_watchdog (void)
+@@ -450,7 +566,8 @@ void setup_apic_nmi_watchdog (void)
+ 	case X86_VENDOR_AMD:
+ 		if (boot_cpu_data.x86 != 6 && boot_cpu_data.x86 != 15)
+ 			return;
+-		setup_k7_watchdog();
++		if (!setup_k7_watchdog())
++			return;
+ 		break;
+ 	case X86_VENDOR_INTEL:
+ 		switch (boot_cpu_data.x86) {
+@@ -458,7 +575,8 @@ void setup_apic_nmi_watchdog (void)
+ 			if (boot_cpu_data.x86_model > 0xd)
+ 				return;
+ 
+-			setup_p6_watchdog();
++			if(!setup_p6_watchdog())
++				return;
+ 			break;
+ 		case 15:
+ 			if (boot_cpu_data.x86_model > 0x4)
+@@ -612,6 +730,12 @@ int proc_unknown_nmi_panic(ctl_table *ta
+ 
+ EXPORT_SYMBOL(nmi_active);
+ EXPORT_SYMBOL(nmi_watchdog);
++EXPORT_SYMBOL(avail_to_resrv_perfctr_nmi);
++EXPORT_SYMBOL(avail_to_resrv_perfctr_nmi_bit);
++EXPORT_SYMBOL(reserve_perfctr_nmi);
++EXPORT_SYMBOL(release_perfctr_nmi);
++EXPORT_SYMBOL(reserve_evntsel_nmi);
++EXPORT_SYMBOL(release_evntsel_nmi);
+ EXPORT_SYMBOL(reserve_lapic_nmi);
+ EXPORT_SYMBOL(release_lapic_nmi);
+ EXPORT_SYMBOL(disable_timer_nmi_watchdog);
+Index: linux/include/asm-i386/nmi.h
+===================================================================
+--- linux.orig/include/asm-i386/nmi.h
++++ linux/include/asm-i386/nmi.h
+@@ -25,6 +25,13 @@ void set_nmi_callback(nmi_callback_t cal
+  */
+ void unset_nmi_callback(void);
+ 
++extern int avail_to_resrv_perfctr_nmi_bit(unsigned int);
++extern int avail_to_resrv_perfctr_nmi(unsigned int);
++extern int reserve_perfctr_nmi(unsigned int);
++extern void release_perfctr_nmi(unsigned int);
++extern int reserve_evntsel_nmi(unsigned int);
++extern void release_evntsel_nmi(unsigned int);
++
+ extern void setup_apic_nmi_watchdog (void);
+ extern int reserve_lapic_nmi(void);
+ extern void release_lapic_nmi(void);

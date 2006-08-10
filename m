@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWHJRGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161473AbWHJRIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbWHJRGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWHJRGj
+	id S1161473AbWHJRIr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161468AbWHJRIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:06:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53909 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932493AbWHJRGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:06:38 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: vgoyal@in.ibm.com
-Cc: Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-References: <20060804210826.GE16231@redhat.com>
-	<m164h8p50c.fsf@ebiederm.dsl.xmission.com>
-	<20060804234327.GF16231@redhat.com>
-	<m1hd0rmaje.fsf@ebiederm.dsl.xmission.com>
-	<20060807174439.GJ16231@redhat.com>
-	<m17j1kctb8.fsf@ebiederm.dsl.xmission.com>
-	<20060807235727.GM16231@redhat.com>
-	<m1ejvrakhq.fsf@ebiederm.dsl.xmission.com>
-	<20060809200642.GD7861@redhat.com>
-	<m1u04l2kaz.fsf@ebiederm.dsl.xmission.com>
-	<20060810131323.GB9888@in.ibm.com>
-Date: Thu, 10 Aug 2006 11:05:22 -0600
-In-Reply-To: <20060810131323.GB9888@in.ibm.com> (Vivek Goyal's message of
-	"Thu, 10 Aug 2006 09:13:23 -0400")
-Message-ID: <m18xlw34j1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 10 Aug 2006 13:08:47 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:8940 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161464AbWHJRIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 13:08:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Bszj7En8rw0BQRdrHY26358hXhqQurlu9gsIK7SzM/KDIYkbyNzIEJ0txk53L75SKlxL8qbaYbjvIr+v22iU+S/NDhu20Xyj1XgqwcFCLZkgUabQkA89lJV3QzNvR9RumC9AdvdnO8QR7kU1yG3JwYuMsGXm5tRTOD2YZnLk/Ww=
+Message-ID: <4ae3c140608101008t4e9a4451r8d1a7bd3c49c4f8b@mail.gmail.com>
+Date: Thu, 10 Aug 2006 13:08:45 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: "Matthew Wilcox" <matthew@wil.cx>
+Subject: Re: Urgent help needed on an NFS question, please help!!!
+Cc: "Neil Brown" <neilb@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060810165431.GD4379@parisc-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
+	 <17626.49136.384370.284757@cse.unsw.edu.au>
+	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
+	 <17626.52269.828274.831029@cse.unsw.edu.au>
+	 <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
+	 <20060810161107.GC4379@parisc-linux.org>
+	 <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
+	 <20060810165431.GD4379@parisc-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+Well. For regular NFS, because it needs to consider interoperability,
+it cannot use file handle as an opaque object.
 
-> Apart from this I think something is still off on x86_64. I have not
-> been able to make kdump work on x86_64. Second kernel simply hangs.
-> Two different machines are showing different results.
+However, in our case, we essentially derived a VM based data sharing
+infrastructure from NFS. This would allow multiple virtual machines in
+a single server to share data efficiently. With some tricks, we are
+able to export inode cache from server to client. Also, we modify the
+file handle composer to carry the server-side inode address, inode
+number, i_gen, dev along with a file handle. Upon receiving a file
+handle, a client can directly access the inode object in the exported
+inode cache and bypass the inter-VM communication.
+
+So, in our case, we don't need to consider interoperability (at least
+for now), and we DO know the inode number, generation, as well as
+exported device info.
+
+I think this explains why I want to make sure the conclusion is right:
+
+Conclusion: Given a stored file handle and an inode object received from the
+server,  an NFS client can safely determine whether this inode
+corresponds to the file handle by checking the inode+dev+i_generation.
+
+Many thanks for this helpful discussion.
+
+Xin
+
+On 8/10/06, Matthew Wilcox <matthew@wil.cx> wrote:
+> On Thu, Aug 10, 2006 at 12:23:12PM -0400, Xin Zhao wrote:
+> > That makes sense.
+> >
+> > Can we make the following two conclusions?
+> > 1. In a single machine, inode+dev ID+i_generation can uniquely identify a
+> > file
 >
-> - On one machine, it seems to be stuck somewhere in decompress_kernel().
->   Serial console is not behaving properly even with earlyprintk(). Somehow
->   I feel it is some bss corruption even after my changes.
+> sure.
 >
-> - Other machines seems to be going till start_kernel() and even after
->   that (No messages on the console, all serial debugging) and then
->   either it hangs or jumps back to BIOS.
+> > 2. Given a stored file handle and an inode object received from the
+> > server,  an NFS client can safely determine whether this inode
+> > corresponds to the file handle by checking the inode+dev+i_generation.
 >
-> Will look more into it.
-
-Thanks.
-
-I'm a little disappointed but at this point it isn't a great surprise,
-the code is early yet and hasn't had much testing or attention.
-I wonder if I have missed something else silly.
-
-As for testing, can you use plain kexec to load the kernel at a
-different address?  I'm curious to know if it is something related
-to the kexec on panic path or if it is just running at a different
-location that is the problem.
-
-I'm back on the namespace stuff this week so it will be a while before
-I get back to this.  It doesn't look like I have time to work the whole
-patchset at once.  So my current plan is to take as many pieces that
-make sense by themselves and push them upstream.  Until we get down to
-just the relocatable kernel patches that are outstanding.
-
-Everything was fairly well received on the round of reviews with some
-minor nits that needed to be picked.  So I think this is doable.
-
-Eric
+> The NFS client makes up its own inode numbers for use on the local
+> machine.  It doesn't know the device+inode+generation numbers on the
+> server (and indeed, the server may not even have the concepts of
+> inodes).  To quote RFC 1813:
+>
+>    The file handle contains all the information the server needs to
+>    distinguish an individual file.  To the client, the file handle is
+>    opaque. The client stores file handles for use in a later request
+>    and can compare two file handles from the same server for equality by
+>    doing a byte-by-byte comparison, but cannot otherwise interpret the
+>    contents of file handles. If two file handles from the same server
+>    are equal, they must refer to the same file, but if they are not
+>    equal, no conclusions can be drawn.  Servers should try to maintain
+>    a one-to-one correspondence between file handles and files, but this
+>    is not required. Clients should use file handle comparisons only to
+>    improve performance, not for correct behavior.
+>

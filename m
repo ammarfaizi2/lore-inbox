@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161129AbWHJI3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbWHJIcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161129AbWHJI3m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 04:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbWHJI3m
+	id S1161135AbWHJIcd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 04:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbWHJIcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 04:29:42 -0400
-Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:29961 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1161129AbWHJI3l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 04:29:41 -0400
-Date: Thu, 10 Aug 2006 10:29:44 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Komal Shah <komal_shah802003@yahoo.com>,
-       David Brownell <david-b@pacbell.net>, r-woodruff2@ti.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>, i2c@lm-sensors.org
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #3
-Message-Id: <20060810102944.a12329b9.khali@linux-fr.org>
-In-Reply-To: <20060807145832.GF10387@atomide.com>
-References: <1154689868.12791.267626769@webmail.messagingengine.com>
-	<20060805103113.058ce8fe.khali@linux-fr.org>
-	<20060807145832.GF10387@atomide.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 04:32:33 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:22198 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1161135AbWHJIcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 04:32:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=duWz177JTk66lSFJAcF6zE0aZipnPxdmrkd2wy2t6ynjk0bAF/v9en83wUnH94pTNnqm6UeNOFuTCnJLG4dS6l3R4iYlLTrTfy1CZCfRk3bt8xbsd9QmDHdkff0kKLfMmFdFMUeQTcG8O0bVKJhN+EsNlU0vWRT3kH9PkSyvtUs=
+Message-ID: <44DAEF19.6000401@gmail.com>
+Date: Thu, 10 Aug 2006 17:32:25 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Ben Buxton <kernel@bb.cactii.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA S3 resume problems on HP NC6400 notebook
+References: <20060807211146.GA17092@cactii.net>
+In-Reply-To: <20060807211146.GA17092@cactii.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tony, Komal,
-
-> Hmmm, this sounds like a bug somewhere. TRM for 5912 says the I2C clock
-> must be prescaled to be between 7 - 12 MHz [1]. The XOR input clock is
-> typically 12, 13 or 19.2 MHz. So we should have code that produces:
+Ben Buxton wrote:
+> After a while, there are SCSI errors reported, naturally.
 > 
-> XOR Mhz	Divider	Prescaler
-> 12		1	0
-> 13		2	1
-> 19.2		2	1
-
-Not that 13 MHz cannot actually be prescaled between 7 and 12 MHz, no
-matter how you look at it.
-
-> Then again the original old code produces something different too [2]...
+> And this is the error with 2.6.17.7 vanilla.
 > 
-> I suspect the original code had some hw workarounds and and later code
-> may have a conversion bug somewhere :)
+> ata1: handling error/timeout
+> ata1: port reset. p_is 400000 is 0 pis 400000 cmd 2004 tf 80 ss 113 se 4050000
+> ata1: status=0x50 { DriveReady SeekComplete }
+> sda: Current: sense key: No Sense
+>     Additional sense: No additional sense information
+> Info fld=0x8b8008e
 > 
-> I suggest we keep the code as is for now since it's known to work on
-> all omaps, and then submit a follow-up patch later once we have
-> verified that that code based on the TRM works on all omaps.
+> Which repeats before ext3 gives an error.
+> 
+> So...what can I do to help get this up and running?
 
-I've now taken Komal's patch (#4). Here is a proposed patch which brings
-the prescaler computation formula in line with your comment and table
-above. It could be applied on top of Komal's patch unless it causes a
-problem on some of the OMAP systems. For XOR = 13 MHz, it changes the
-prescaler from 0 to 1. For XOR = 19.2 MHz it changes the prescaler from
-2 to 1.
-
-I don't have any hardware to test it, though. If it happens to be
-better to be slightly over 12 MHz than slightly below 7 MHz, the
-"> 12000000" condition below can be replaced with "> 14000000".
-
-
-i2c: Fix OMAP clock prescaler to match the comment
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/i2c/busses/i2c-omap.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.18-rc4.orig/drivers/i2c/busses/i2c-omap.c	2006-08-10 09:56:54.000000000 +0200
-+++ linux-2.6.18-rc4/drivers/i2c/busses/i2c-omap.c	2006-08-10 10:12:03.000000000 +0200
-@@ -231,8 +231,8 @@
- 		 * 13		2		1
- 		 * 19.2		2		1
- 		 */
--		if (fclk_rate > 16000000)
--			psc = (fclk_rate + 8000000) / 12000000;
-+		if (fclk_rate > 12000000)
-+			psc = fclk_rate / 12000000;
- 	}
- 
- 	/* Setup clock prescaler to obtain approx 12MHz I2C module clock: */
-
+AHCI suspend/resume is already in libata devel tree and the latest -mm 
+should also have it.  I don't think it will be merged into 2.6.18-rcX 
+though.  It will probably go into 2.6.19.  So, give a shot at 
+2.6.18-rc3-mm2.
 
 -- 
-Jean Delvare
+tejun

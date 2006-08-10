@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161490AbWHJNJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161742AbWHJNNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161490AbWHJNJK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161484AbWHJNJK
+	id S1161742AbWHJNNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161749AbWHJNNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:09:10 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:44942 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161292AbWHJNJI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:09:08 -0400
-Date: Thu, 10 Aug 2006 15:08:54 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-In-Reply-To: <44DB27A3.1040606@garzik.org>
-Message-ID: <Pine.LNX.4.64.0608101459260.6761@scrub.home>
-References: <1155172843.3161.81.camel@localhost.localdomain>
- <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
- <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
- <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
- <44DB27A3.1040606@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Aug 2006 09:13:05 -0400
+Received: from outbound4.mail.tds.net ([216.170.230.94]:14213 "EHLO
+	outbound4.mail.tds.net") by vger.kernel.org with ESMTP
+	id S1161742AbWHJNNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 09:13:04 -0400
+Subject: RE: Upgrading kernel across multiple machines
+From: David Lloyd <dmlloyd@flurg.com>
+To: "Brian D. McGrew" <brian@visionpro.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA001167638@chicken.machinevisionproducts.com>
+References: <14CFC56C96D8554AA0B8969DB825FEA001167638@chicken.machinevisionproducts.com>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 08:13:57 -0500
+Message-Id: <1155215638.24896.3.camel@ultros>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2006-08-09 at 17:18 -0700, Brian D. McGrew wrote:
+> I tried copying over the initrd as well as making a new one!
 
-On Thu, 10 Aug 2006, Jeff Garzik wrote:
+Ok.  The only reason I mention it is that in many cases, necessary boot
+modules are stored in /lib on the initrd image.  Failure to load such a
+module would show up early in the boot sequence, before "real" init
+started up.
 
-> > > Or you could just not bother, and leave everything as u64.
-> > 
-> > Why?
-> 
-> To eliminate needless complexity and keep things simple and obvious?
+- DML
 
-Considering the amount of complexity we add for the high end, why is it 
-suddenly a bad thing to add even a _little_ complexity for the other end?
-
-bye, Roman

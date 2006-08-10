@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWHJGVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWHJGWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbWHJGVV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 02:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWHJGVV
+	id S1161071AbWHJGWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 02:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWHJGWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 02:21:21 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:460 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161067AbWHJGVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 02:21:20 -0400
-Date: Thu, 10 Aug 2006 08:19:08 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: /dev/sd*
-In-Reply-To: <1155174291.18272.1.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0608100815450.10926@yvahk01.tjqt.qr>
-References: <1155144599.5729.226.camel@localhost.localdomain> 
- <20060809212124.GC3691@stusta.de>  <1155160903.5729.263.camel@localhost.localdomain>
-  <20060809221857.GG3691@stusta.de> <1155174291.18272.1.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Thu, 10 Aug 2006 02:22:01 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.192.81]:48796 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1161071AbWHJGWA (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 02:22:00 -0400
+Subject: Re: Announcing free software graphics drivers for Intel i965
+	chipset
+From: Nicholas Miell <nmiell@comcast.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: keith.packard@intel.com, Linux-kernel@vger.kernel.org,
+       Dirk Hohndel <dirk.hohndel@intel.com>,
+       Imad Sousou <imad.sousou@intel.com>
+In-Reply-To: <44DACD51.7080607@garzik.org>
+References: <1155151903.11104.112.camel@neko.keithp.com>
+	 <44DACD51.7080607@garzik.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 09 Aug 2006 23:21:57 -0700
+Message-Id: <1155190917.2349.4.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-08-10 at 02:08 -0400, Jeff Garzik wrote:
+> Keith Packard wrote:
+> > The Intel Open Source Technology Center graphics team is pleased to announce
+> > the immediate availability of free software drivers for the Intel® 965
+> > Express Chipset family graphics controller. These drivers include support
+> > for 2D and 3D graphics features for the newest generation Intel graphics
+> > architecture. The project Web site is http://IntelLinuxGraphics.org.
+> 
+> Very cool, and I definitely applaud Intel for supporting open source 
+> here.  A couple questions...
+> 
+> * is the 3D stuff available from git somewhere?  The download filename 
+> includes "-git-", but the checkout instructions reference cvs.
+> 
+> * is anyone working on a more dynamic GLSL compilation system?  i.e. a 
+> "JIT", in compiler technology terms.
+> 
+> Thanks,
+> 
+> 	Jeff
+> 
 
->> And things become even more confusing considering that the drive might 
->> show up as /dev/sda or /dev/uba depending on the driver used.
->
->Windows people seem to cope ok with C: being IDE and E: being SCSI ;)
+More importantly, where's the source to intel_hal.so?
 
-You can't compare it like that. Actually, drive letters are more like
-bind mounts from "device names" to drive letters. In fact, net drives
-are not IDE or SCSI or USB at all, yet they have a drive letter. So the
-real CDROM for example is, IIRC, sth. like \\Device\Cdrom0 (it's not a
-network path even if it looks like).
-
-
-Jan Engelhardt
 -- 
+Nicholas Miell <nmiell@comcast.net>
+

@@ -1,590 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbWHJJx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWHJJyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161112AbWHJJx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 05:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbWHJJx5
+	id S1161148AbWHJJyq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 05:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161133AbWHJJyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 05:53:57 -0400
-Received: from mx-outbound.sourceforge.net ([66.35.250.223]:51867 "EHLO
+	Thu, 10 Aug 2006 05:54:41 -0400
+Received: from mx-outbound.sourceforge.net ([66.35.250.223]:64923 "EHLO
 	sc8-sf-sshgate.sourceforge.net") by vger.kernel.org with ESMTP
-	id S1161112AbWHJJxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 05:53:55 -0400
+	id S1161128AbWHJJyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 05:54:21 -0400
 From: Shem Multinymous <multinymous@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: Robert Love <rlove@rlove.org>, Pavel Machek <pavel@suse.cz>,
        Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
        Andrew Morton <akpm@osdl.org>, hdaps-devel@lists.sourceforge.net
-Subject: [PATCH 01/12] thinkpad_ec: New driver for ThinkPad embedded controller access
+Subject: [PATCH 05/12] hdaps: Remember keyboard and mouse activity
 Reply-To: Shem Multinymous <multinymous@gmail.com>
-Date: Thu, 10 Aug 2006 12:48:39 +0300
-Message-Id: <11552033361108-git-send-email-multinymous@gmail.com>
+Date: Thu, 10 Aug 2006 12:48:43 +0300
+Message-Id: <11552033643022-git-send-email-multinymous@gmail.com>
 X-Mailer: git-send-email 1.4.1
 In-Reply-To: <1155203330179-git-send-email-multinymous@gmail.com>
 References: <1155203330179-git-send-email-multinymous@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The embedded controller on ThinkPad laptops has a non-standard interface
-at IO ports 0x1600-0x161F (mapped to LCP channel 3 of the H8S chip).
-The interface provides various system management services (currently 
-known: battery information and accelerometer readouts). This driver
-provides access and mutual exclusion for the EC interface.
+When the current hdaps driver is queried for recent keyboard/mouse activity
+(which is provided by the hardware for use in disk parking daemons), it
+simply returns the last readout. However, every hardware query resets the
+activity flag in the hardware, and this is triggered by (almost) any
+hdaps sysfs attribute read, so the flag could be reset before it is 
+observed and is thus nearly useless.
 
-The mainline hdaps driver already uses this hardware interface (in an 
-incorrect and unsafe way), and will be converted to use this module in
-the following patches. Another driver using this module, tp_smapi, will 
-be submitted later.
-
-The Kconfig entry is set to tristate and will be selected by hdaps and
-(eventually) tp_smapi, since thinkpad_ec does nothing by itself.
+This patch makes the activities flags persist for 0.1sec, by remembering
+when was the last time we saw them set. This gives apps like the hdaps
+daemon enough time to poll the flag.
 
 Signed-off-by: Shem Multinymous <multinymous@gmail.com>
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 ---
+ drivers/hwmon/hdaps.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
-This depends on dmi-decode-and-save-oem-string-information.patch 
-pending in -mm ("[PATCH] DMI: Decode and save OEM String information" 
-on LKML).
-
- drivers/firmware/Kconfig       |    3 
- drivers/firmware/Makefile      |    1 
- drivers/firmware/thinkpad_ec.c |  465 +++++++++++++++++++++++++++++++++++++++++
- include/linux/thinkpad_ec.h    |   47 ++++
- 4 files changed, 516 insertions(+)
-
-
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -84,4 +84,7 @@ config DCDBAS
- 	  Say Y or M here to enable the driver for use by Dell systems
- 	  management software such as Dell OpenManage.
+--- a/drivers/hwmon/hdaps.c
++++ b/drivers/hwmon/hdaps.c
+@@ -53,8 +53,6 @@ static const struct thinkpad_ec_row ec_a
  
-+config THINKPAD_EC
-+	tristate
+ #define KEYBD_MASK		0x20	/* set if keyboard activity */
+ #define MOUSE_MASK		0x40	/* set if mouse activity */
+-#define KEYBD_ISSET(n)		(!! (n & KEYBD_MASK))	/* keyboard used? */
+-#define MOUSE_ISSET(n)		(!! (n & MOUSE_MASK))	/* mouse used? */
+ 
+ #define READ_TIMEOUT_MSECS	100	/* wait this long for device read */
+ #define RETRY_MSECS		3	/* retry delay */
+@@ -62,6 +60,7 @@ static const struct thinkpad_ec_row ec_a
+ #define HDAPS_POLL_PERIOD	(HZ/20)	/* poll for input every 1/20s */
+ #define HDAPS_INPUT_FUZZ	4	/* input event threshold */
+ #define HDAPS_INPUT_FLAT	4
++#define KMACT_REMEMBER_PERIOD   (HZ/10) /* keyboard/mouse persistance */
+ 
+ static struct timer_list hdaps_timer;
+ static struct platform_device *pdev;
+@@ -71,9 +70,12 @@ static unsigned int hdaps_invert;
+ /* Latest state readout */
+ static int pos_x, pos_y;   /* position */
+ static int temperature;    /* temperature */
+-static u8 km_activity;
+ static int rest_x, rest_y; /* calibrated rest position */
+ 
++/* Last time we saw keyboard and mouse activity: */
++static u64 last_keyboard_jiffies = INITIAL_JIFFIES;
++static u64 last_mouse_jiffies = INITIAL_JIFFIES;
 +
- endmenu
---- a/drivers/firmware/Makefile
-+++ b/drivers/firmware/Makefile
-@@ -7,3 +7,4 @@ obj-$(CONFIG_EFI_VARS)		+= efivars.o
- obj-$(CONFIG_EFI_PCDP)		+= pcdp.o
- obj-$(CONFIG_DELL_RBU)          += dell_rbu.o
- obj-$(CONFIG_DCDBAS)		+= dcdbas.o
-+obj-$(CONFIG_THINKPAD_EC)       += thinkpad_ec.o
---- /dev/null
-+++ b/drivers/firmware/thinkpad_ec.c
-@@ -0,0 +1,465 @@
-+/*
-+ *  thinkpad_ec.c - coordinate access to ThinkPad-specific hardware resources
-+ *
-+ *  The embedded controller on ThinkPad laptops has a non-standard interface
-+ *  at IO ports 0x1600-0x161F (mapped to LCP channel 3 of the H8S chip).
-+ *  The interface provides various system management services (currently
-+ *  known: battery information and accelerometer readouts). This driver
-+ *  provides access and mutual exclusion for the EC interface.
-+ *  For information about the LPC protocol and terminology, see:
-+ *  "H8S/2104B Group Hardware Manual",
-+ * http://documentation.renesas.com/eng/products/mpumcu/rej09b0300_2140bhm.pdf
-+ *
-+ *  Copyright (C) 2006 Shem Multinymous <multinymous@gmail.com>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/dmi.h>
-+#include <linux/ioport.h>
-+#include <linux/delay.h>
-+#include <linux/thinkpad_ec.h>
-+#include <linux/jiffies.h>
-+#include <asm/io.h>
-+
-+#define TP_VERSION "0.28"
-+
-+MODULE_AUTHOR("Shem Multinymous");
-+MODULE_DESCRIPTION("ThinkPad embedded controller hardware access");
-+MODULE_VERSION(TP_VERSION);
-+MODULE_LICENSE("GPL");
-+
-+/* IO ports used by embedded controller LPC channel 3: */
-+#define TPC_BASE_PORT 0x1600
-+#define TPC_NUM_PORTS 0x20
-+#define TPC_STR3_PORT 0x1604  /* Reads H8S EC register STR3 */
-+#define TPC_TWR0_PORT  0x1610 /* Mapped to H8S EC register TWR0MW/SW  */
-+#define TPC_TWR15_PORT 0x161F /* Mapped to H8S EC register TWR15. */
-+  /* (and port TPC_TWR0_PORT+i is mapped to H8S reg TWRi for 0<i<16) */
-+
-+/* H8S STR3 status flags (see "H8S/2104B Group Hardware Manual" p.549) */
-+#define H8S_STR3_IBF3B 0x80  /* Bidi. Data Register Input Buffer Full */
-+#define H8S_STR3_OBF3B 0x40  /* Bidi. Data Register Output Buffer Full */
-+#define H8S_STR3_MWMF  0x20  /* Master Write Mode Flag */
-+#define H8S_STR3_SWMF  0x10  /* Slave Write Mode Flag */
-+#define H8S_STR3_MASK  0xF0  /* All bits we care about in STR3 */
-+
-+/* Timeouts and retries */
-+#define TPC_READ_RETRIES    150
-+#define TPC_READ_NDELAY     500
-+#define TPC_REQUEST_RETRIES 100
-+#define TPC_REQUEST_NDELAY   10
-+#define TPC_PREFETCH_TIMEOUT   (HZ/10)  /* invalidate prefetch after 0.1sec */
-+
-+/* A few macros for printk()ing: */
-+#define MSG_FMT(fmt, args...) \
-+  "thinkpad_ec: %s: " fmt "\n", __func__, ## args
-+#define REQ_FMT(msg, code) \
-+  MSG_FMT("%s: (0x%02x:0x%02x)->0x%02x", \
-+          msg, args->val[0x0], args->val[0xF], code)
-+
-+/* State of request prefetching: */
-+static u8 prefetch_arg0, prefetch_argF;           /* Args of last prefetch */
-+static u64 prefetch_jiffies;                      /* time of prefetch, or: */
-+#define TPC_PREFETCH_NONE   INITIAL_JIFFIES       /* - No prefetch */
-+#define TPC_PREFETCH_JUNK   (INITIAL_JIFFIES+1)   /* - Ignore prefetch */
-+
-+/* Locking: */
-+
-+static DECLARE_MUTEX(thinkpad_ec_mutex);
-+
-+/**
-+ * thinkpad_ec_lock - get lock on the ThinkPad EC
-+ *
-+ * Get exclusive lock for accesing the ThinkPad embedded controller LPC3
-+ * interface. Returns 0 iff lock acquired.
-+ */
-+int thinkpad_ec_lock(void)
-+{
-+	int ret;
-+	ret = down_interruptible(&thinkpad_ec_mutex);
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_lock);
-+
-+/**
-+ * thinkpad_ec_try_lock - try getting lock on the ThinkPad EC
-+ *
-+ * Try getting an exclusive lock for accesing the ThinkPad embedded
-+ * controller LPC3. Returns immediately if lock is not available; neither
-+ * blocks nor sleeps. Returns 0 iff lock acquired .
-+ */
-+int thinkpad_ec_try_lock(void)
-+{
-+	return down_trylock(&thinkpad_ec_mutex);
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_try_lock);
-+
-+/**
-+ * thinkpad_ec_unlock - release lock on ThinkPad EC
-+ *
-+ * Release a previously acquired exclusive lock on the ThinkPad ebmedded
-+ * controller LPC3 interface.
-+ */
-+void thinkpad_ec_unlock(void)
-+{
-+ 	up(&thinkpad_ec_mutex);
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_unlock);
-+
-+/* Tell embedded controller to prepare a row */
-+static int thinkpad_ec_request_row(const struct thinkpad_ec_row *args)
-+{
-+	u8 str3;
-+	int i;
-+
-+	/* EC protocol requires write to TWR0 (function code): */
-+	if (!(args->mask & 0x0001)) {
-+		printk(KERN_ERR MSG_FMT("bad args->mask=0x%02x", args->mask));
-+		return -EINVAL;
-+	}
-+
-+	/* Check initial STR3 status: */
-+	str3 = inb(TPC_STR3_PORT) & H8S_STR3_MASK;
-+	if (str3 & H8S_STR3_OBF3B) { /* data already pending */
-+		inb(TPC_TWR15_PORT); /* marks end of previous transaction */
-+		if (prefetch_jiffies == TPC_PREFETCH_NONE)
-+			printk(KERN_WARNING
-+			       REQ_FMT("readout already pending", str3));
-+		return -EBUSY; /* EC will be ready in a few usecs */
-+	} else if (str3 == H8S_STR3_SWMF) { /* busy with previous request */
-+		if (prefetch_jiffies == TPC_PREFETCH_NONE)
-+			printk(KERN_WARNING
-+			       REQ_FMT("EC handles previous request", str3));
-+		return -EBUSY; /* data will be pending in a few usecs */
-+	} else if (str3 != 0x00) { /* unexpected status? */
-+		printk(KERN_WARNING REQ_FMT("bad initial STR3", str3));
-+		return -EIO;
-+	}
-+
-+	/* Send TWR0MW: */
-+	outb(args->val[0], TPC_TWR0_PORT);
-+	str3 = inb(TPC_STR3_PORT) & H8S_STR3_MASK;
-+	if (str3 != H8S_STR3_MWMF) { /* not accepted? */
-+		printk(KERN_WARNING REQ_FMT("arg0 rejected", str3));
-+		return -EIO;
-+	}
-+
-+	/* Send TWR1 through TWR14: */
-+	for (i=1; i<TP_CONTROLLER_ROW_LEN-1; i++)
-+		if ((args->mask>>i)&1)
-+			outb(args->val[i], TPC_TWR0_PORT+i);
-+
-+	/* Send TWR15 (default to 0x01). This marks end of command. */
-+	outb((args->mask & 0x8000) ? args->val[0xF] : 0x01, TPC_TWR15_PORT);
-+
-+	/* Wait until EC starts writing its reply (~60ns on average).
-+	 * Releasing locks before this happens may cause an EC hang
-+	 * due to firmware bug!
+ /* Some models require an axis transformation to the standard reprsentation */
+ void transform_axes(int *x, int *y)
+ {
+@@ -122,7 +124,14 @@ static int __hdaps_update(int fast)
+ 	pos_y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS1);
+ 	transform_axes(&pos_x, &pos_y);
+ 
+-	km_activity = data.val[EC_ACCEL_IDX_KMACT];
++	/* Keyboard and mouse activity status is cleared as soon as it's read,
++	 * so applications will eat each other's events. Thus we remember any
++	 * event for KMACT_REMEMBER_PERIOD jiffies.
 +	 */
-+	for (i=0; i<TPC_REQUEST_RETRIES; i++) {
-+		str3 = inb(TPC_STR3_PORT) & H8S_STR3_MASK;
-+		if (str3 & H8S_STR3_SWMF) /* EC started replying */
-+			return 0;
-+		else if (str3==(H8S_STR3_IBF3B|H8S_STR3_MWMF) ||
-+		         str3==0x00) /* normal progress, wait it out */
-+			ndelay(TPC_REQUEST_NDELAY);
-+		else { /* weird EC status */
-+			printk(KERN_WARNING
-+			       REQ_FMT("bad end STR3", str3));
-+			return -EIO;
-+		}
-+	}
-+	printk(KERN_WARNING REQ_FMT("EC is mysteriously silent", str3));
-+	return -EIO;
-+}
-+
-+/* Read current row data from the controller, assuming it's already
-+ * requested.
-+ */
-+static int thinkpad_ec_read_data(struct thinkpad_ec_row *data)
-+{
-+	int i;
-+	u8 str3 = inb(TPC_STR3_PORT) & H8S_STR3_MASK;
-+	/* Once we make a request, STR3 assumes the sequence of values listed
-+         * in the following 'if' as it reads the request and writes its data.
-+	 * It takes about a few dozen nanosecs total, with very high variance.
-+	 */
-+	if (str3==(H8S_STR3_IBF3B|H8S_STR3_MWMF) ||
-+	    str3==0x00 ||   /* the 0x00 is indistinguishable from idle EC! */
-+	    str3==H8S_STR3_SWMF )
-+		return -EBUSY; /* not ready yet */
-+	/* Finally, the EC signals output buffer full: */
-+	if (str3 != (H8S_STR3_OBF3B|H8S_STR3_SWMF)) {
-+		printk(KERN_WARNING
-+		       MSG_FMT("bad initial STR3 (0x%02x)", str3));
-+		return -EIO;
-+	}
-+
-+	/* Read first byte (signals start of read transactions): */
-+	data->val[0] = inb(TPC_TWR0_PORT);
-+	/* Optionally read 14 more bytes: */
-+	for (i=1; i<TP_CONTROLLER_ROW_LEN-1; i++)
-+		if ((data->mask >> i)&1)
-+			data->val[i] = inb(TPC_TWR0_PORT+i);
-+	/* Read last byte from 0x161F (signals end of read transaction): */
-+	data->val[0xF] = inb(TPC_TWR15_PORT);
-+
-+	/* Readout still pending? */
-+	str3 = inb(TPC_STR3_PORT) & H8S_STR3_MASK;
-+	if (str3 & H8S_STR3_OBF3B)
-+		printk(KERN_WARNING
-+		       MSG_FMT("OBF3B=1 after read (0x%02x)", str3));
-+	return 0;
-+}
-+
-+/* Is the given row currently prefetched?
-+ * To keep things simple we compare only the first and last args;
-+ * in practice this suffices                                        .*/
-+static int thinkpad_ec_is_row_fetched(const struct thinkpad_ec_row *args)
-+{
-+	return (prefetch_jiffies != TPC_PREFETCH_NONE) &&
-+	       (prefetch_jiffies != TPC_PREFETCH_JUNK) &&
-+	       (prefetch_arg0 == args->val[0]) &&
-+	       (prefetch_argF == args->val[0xF]) &&
-+	       (get_jiffies_64() < prefetch_jiffies + TPC_PREFETCH_TIMEOUT);
-+}
-+
-+/**
-+ * thinkpad_ec_read_row - request and read data from ThinkPad EC
-+ * @args Input register arguments
-+ * @data Output register values
-+ *
-+ * Read a data row from the ThinkPad embedded controller LPC3 interface.
-+ * Does fetching and retrying if needed. The row args are specified by
-+ * 16 byte arguments, some of which may be missing (but the first is
-+ * mandatory). These are given in @args->val[], where @args->val[i] is
-+ * used iff (@args->mask>>i)&1). The rows's data is stored in @data->val[],
-+ * but is only guaranteed to be valid for indices corresponding to set
-+ * bit in @data->mask. That is, if (@data->mask>>i)&1==0 then @data->val[i]
-+ * may not be filled (to save time).
-+ *
-+ * Returns -EBUSY on transient error and -EIO on abnormal condition.
-+ * Caller must hold controller lock.
-+ */
-+int thinkpad_ec_read_row(const struct thinkpad_ec_row *args,
-+                           struct thinkpad_ec_row *data)
-+{
-+	int retries, ret;
-+
-+	if (thinkpad_ec_is_row_fetched(args))
-+		goto read_row; /* already requested */
-+
-+	/* Request the row */
-+	for (retries=0; retries<TPC_READ_RETRIES; ++retries) {
-+		ret = thinkpad_ec_request_row(args);
-+		if (!ret)
-+			goto read_row;
-+		if (ret != -EBUSY)
-+			break;
-+		ndelay(TPC_READ_NDELAY);
-+	}
-+	printk(KERN_ERR REQ_FMT("failed requesting row", ret));
-+	goto out;
-+
-+read_row:
-+	/* Read the row's data */
-+	for (retries=0; retries<TPC_READ_RETRIES; ++retries) {
-+		ret = thinkpad_ec_read_data(data);
-+		if (!ret)
-+			goto out;
-+		if (ret!=-EBUSY)
-+			break;
-+		ndelay(TPC_READ_NDELAY);
-+	}
-+
-+	printk(KERN_ERR REQ_FMT("failed waiting for data", ret));
-+
-+out:
-+	prefetch_jiffies = TPC_PREFETCH_JUNK;
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_read_row);
-+
-+/**
-+ * thinkpad_ec_try_read_row - try reading prefetched data from ThinkPad EC
-+ * @args Input register arguments
-+ * @data Output register values
-+ *
-+ * Try reading a data row from the ThinkPad embedded controller LPC3
-+ * interface, if this raw was recently prefetched using
-+ * thinkpad_ec_prefetch_row(). Does not fetch, retry or block.
-+ * The parameters have the same meaning as in thinkpad_ec_read_row().
-+ *
-+ * Returns -EBUSY is data not ready and -ENODATA if row not prefetched.
-+ * Caller must hold controller lock.
-+ */
-+int thinkpad_ec_try_read_row(const struct thinkpad_ec_row *args,
-+                               struct thinkpad_ec_row *data)
-+{
-+	int ret;
-+	if (!thinkpad_ec_is_row_fetched(args)) {
-+		ret = -ENODATA;
-+	} else {
-+		ret = thinkpad_ec_read_data(data);
-+		if (!ret)
-+			prefetch_jiffies = TPC_PREFETCH_NONE; /* eaten up */
-+	}
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_try_read_row);
-+
-+/**
-+ * thinkpad_ec_prefetch_row - prefetch data from ThinkPad EC
-+ * @args Input register arguments
-+ *
-+ * Prefetch a data row from the ThinkPad embedded controller LCP3
-+ * interface. A subsequent call to thinkpad_ec_read_row() with the
-+ * same arguments will be faster, and a subsequent call to
-+ * thinkpad_ec_try_read_row() stands a good chance of succeeding if
-+ * done neither too soon nor too late. See
-+ * thinkpad_ec_read_row() for the meaning of @args.
-+ *
-+ * Returns -EBUSY on transient error and -EIO on abnormal condition.
-+ * Caller must hold controller lock.
-+ */
-+int thinkpad_ec_prefetch_row(const struct thinkpad_ec_row *args)
-+{
-+	int ret;
-+ 	ret = thinkpad_ec_request_row(args);
-+	if (ret) {
-+		prefetch_jiffies = TPC_PREFETCH_JUNK;
-+	} else {
-+		prefetch_jiffies = get_jiffies_64();
-+		prefetch_arg0 = args->val[0x0];
-+		prefetch_argF = args->val[0xF];
-+	}
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_prefetch_row);
-+
-+/**
-+ * thinkpad_ec_invalidate - invalidate prefetched ThinkPad EC data
-+ *
-+ * Invalidate the data prefetched via thinkpad_ec_prefetch_row() from the
-+ * ThinkPad embedded controller LPC3 interface.
-+ * Must be called before unlocking by any code that accesses the controller
-+ * ports directly.
-+ */
-+void thinkpad_ec_invalidate(void)
-+{
-+	prefetch_jiffies = TPC_PREFETCH_JUNK;
-+}
-+
-+EXPORT_SYMBOL_GPL(thinkpad_ec_invalidate);
-+
-+
-+/*** Checking for EC hardware ***/
-+
-+/* thinkpad_ec_test:
-+ * Ensure the EC LPC3 channel really works on this machine by making
-+ * an arbitrary harmless EC request and seeing if the EC follows protocol.
-+ * This test writes to IO ports, so execute only after checking DMI.
-+ */
-+static int thinkpad_ec_test(void)
-+{
-+	int ret;
-+	const struct thinkpad_ec_row args = /* battery 0 basic status */
-+	  { .mask=0x8001, .val={0x01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0x00} };
-+	struct thinkpad_ec_row data = { .mask = 0x0000 };
-+	ret = thinkpad_ec_lock();
++	if (data.val[EC_ACCEL_IDX_KMACT] & KEYBD_MASK)
++		last_keyboard_jiffies = get_jiffies_64();
++	if (data.val[EC_ACCEL_IDX_KMACT] & MOUSE_MASK)
++		last_mouse_jiffies = get_jiffies_64();
+ 
+ 	temperature = data.val[EC_ACCEL_IDX_TEMP1];
+ 
+@@ -332,14 +341,22 @@ static ssize_t hdaps_keyboard_activity_s
+ 					    struct device_attribute *attr,
+ 					    char *buf)
+ {
+-	return sprintf(buf, "%u\n", KEYBD_ISSET(km_activity));
++	int ret = hdaps_update();
 +	if (ret)
 +		return ret;
-+	ret = thinkpad_ec_read_row(&args, &data);
-+	thinkpad_ec_unlock();
-+	return ret;
-+}
-+
-+/* Search all DMI device names of a given type for a substring */
-+static int __init dmi_find_substring(int type, const char *substr)
-+{
-+	struct dmi_device *dev = NULL;
-+	while ((dev = dmi_find_device(type, NULL, dev))) {
-+		if (strstr(dev->name, substr))
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+#define TP_DMI_MATCH(vendor,model)	{		\
-+	.ident = vendor " " model,			\
-+	.matches = {					\
-+		DMI_MATCH(DMI_BOARD_VENDOR, vendor),	\
-+		DMI_MATCH(DMI_PRODUCT_VERSION, model)	\
-+	}						\
-+}
-+
-+/* Check DMI for existence of ThinkPad embedded controller */
-+static int __init check_dmi_for_ec(void)
-+{
-+	/* A few old models that have a good EC but don't report it in DMI */
-+	struct dmi_system_id tp_whitelist[] = {
-+		TP_DMI_MATCH("IBM","ThinkPad A30"),
-+		TP_DMI_MATCH("IBM","ThinkPad T23"),
-+		TP_DMI_MATCH("IBM","ThinkPad X24"),
-+		{ .ident = NULL }
-+	};
-+	return dmi_find_substring(DMI_DEV_TYPE_OEM_STRING,
-+	                          "IBM ThinkPad Embedded Controller") ||
-+	       dmi_check_system(tp_whitelist);
-+}
-+
-+/*** Init and cleanup ***/
-+
-+static int __init thinkpad_ec_init(void)
-+{
-+	if (!check_dmi_for_ec()) {
-+		printk(KERN_WARNING "thinkpad_ec: no ThinkPad embedded controller!\n");
-+		return -ENODEV;
-+	}
-+
-+	if (!request_region(TPC_BASE_PORT, TPC_NUM_PORTS,
-+	                    "thinkpad_ec")) {
-+		printk(KERN_ERR "thinkpad_ec: cannot claim io ports %#x-%#x\n",
-+		       TPC_BASE_PORT,
-+		       TPC_BASE_PORT + TPC_NUM_PORTS -1);
-+		return -ENXIO;
-+	}
-+	prefetch_jiffies = TPC_PREFETCH_JUNK;
-+	if (thinkpad_ec_test()) {
-+		printk(KERN_ERR "thinkpad_ec: initial ec test failed\n");
-+		release_region(TPC_BASE_PORT, TPC_NUM_PORTS);
-+		return -ENXIO;
-+	}
-+	printk(KERN_INFO "thinkpad_ec: thinkpad_ec " TP_VERSION " loaded.\n");
-+	return 0;
-+}
-+
-+static void __exit thinkpad_ec_exit(void)
-+{
-+	release_region(TPC_BASE_PORT, TPC_NUM_PORTS);
-+	printk(KERN_INFO "thinkpad_ec: unloaded.\n");
-+}
-+
-+module_init(thinkpad_ec_init);
-+module_exit(thinkpad_ec_exit);
---- /dev/null
-+++ b/include/linux/thinkpad_ec.h
-@@ -0,0 +1,47 @@
-+/*
-+ *  thinkpad_ec.h - interface to ThinkPad embedded controller LPC3 functions
-+ *
-+ *  Copyright (C) 2005 Shem Multinymous <multinymous@gmail.com>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#ifndef _THINKPAD_EC_H
-+#define _THINKPAD_EC_H
-+
-+#ifdef __KERNEL__
-+
-+#define TP_CONTROLLER_ROW_LEN 16
-+
-+/* EC transactions input and output (possibly partial) vectors of 16 bytes. */
-+struct thinkpad_ec_row {
-+	u16 mask; /* bitmap of which entries of val[] are meaningful */
-+	u8 val[TP_CONTROLLER_ROW_LEN];
-+};
-+
-+extern int thinkpad_ec_lock(void);
-+extern int thinkpad_ec_try_lock(void);
-+extern void thinkpad_ec_unlock(void);
-+
-+extern int thinkpad_ec_read_row(const struct thinkpad_ec_row *args,
-+                                struct thinkpad_ec_row *data);
-+extern int thinkpad_ec_try_read_row(const struct thinkpad_ec_row *args,
-+                                    struct thinkpad_ec_row *mask);
-+extern int thinkpad_ec_prefetch_row(const struct thinkpad_ec_row *args);
-+extern void thinkpad_ec_invalidate(void);
-+
-+
-+#endif /* __KERNEL */
-+#endif /* _THINKPAD_EC_H */
++	return sprintf(buf, "%u\n",
++	   get_jiffies_64() < last_keyboard_jiffies + KMACT_REMEMBER_PERIOD);
+ }
+ 
+ static ssize_t hdaps_mouse_activity_show(struct device *dev,
+ 					 struct device_attribute *attr,
+ 					 char *buf)
+ {
+-	return sprintf(buf, "%u\n", MOUSE_ISSET(km_activity));
++	int ret = hdaps_update();
++	if (ret)
++		return ret;
++	return sprintf(buf, "%u\n",
++	   get_jiffies_64() < last_mouse_jiffies + KMACT_REMEMBER_PERIOD);
+ }
+ 
+ static ssize_t hdaps_calibrate_show(struct device *dev,

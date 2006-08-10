@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161798AbWHJNNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161887AbWHJNPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161798AbWHJNNv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161796AbWHJNNu
+	id S1161887AbWHJNPG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:15:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161885AbWHJNPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:13:50 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:6060 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161798AbWHJNNt (ORCPT
+	Thu, 10 Aug 2006 09:15:06 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:16608 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161883AbWHJNPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:13:49 -0400
-Date: Thu, 10 Aug 2006 09:13:23 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060810131323.GB9888@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060804210826.GE16231@redhat.com> <m164h8p50c.fsf@ebiederm.dsl.xmission.com> <20060804234327.GF16231@redhat.com> <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com> <20060807174439.GJ16231@redhat.com> <m17j1kctb8.fsf@ebiederm.dsl.xmission.com> <20060807235727.GM16231@redhat.com> <m1ejvrakhq.fsf@ebiederm.dsl.xmission.com> <20060809200642.GD7861@redhat.com> <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Thu, 10 Aug 2006 09:15:04 -0400
+Message-ID: <44DB3151.8050904@garzik.org>
+Date: Thu, 10 Aug 2006 09:14:57 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home> <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home> <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home> <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0608101459260.6761@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 12:09:56AM -0600, Eric W. Biederman wrote:
-> Don Zickus <dzickus@redhat.com> writes:
+Roman Zippel wrote:
+> On Thu, 10 Aug 2006, Jeff Garzik wrote:
+>>>> Or you could just not bother, and leave everything as u64.
+>>> Why?
+>> To eliminate needless complexity and keep things simple and obvious?
 > 
-> >> Looking at my build it appears bytes_out is being placed in the .bss.
-> >> A little odd since it is zero initialized but no big deal.
-> >> Could you confirm that bytes_out is being placed in the .bss section 
-> >> by inspecting arch/x86_64/boot/compresssed/misc.o and
-> >> arch/x86_64/boot_compressed/vmlinux.   "readelf -a $file" and then
-> >> looking up the section number and looking at the section table to see
-> >> which section it is was my technique.
-> >> 
-> >> If bytes_out is in the .bss for you then I suspect something is not
-> >> correctly zeroing the .bss.  Or else the .bss is being stomped.
-> >> 
-> >> I'm not certain how rep stosb can be done wrong but some bad pointer
-> >> math could have done it.
-> >> 
-> >> Eric
-> >
-> > It seems Vivek came up with a solution that works.  He sent it to me this
-> > morning.  We tested a bunch of machines and things seem to work now.  It
-> > looks like it mimics the i386 behaviour now.
-> 
-> Yes, this looks right.  It looks like I forgot to make this change when
-> the logic from i386 was adopted to x86_64, ages ago.
-> 
-> This is exactly the place in the code I would have expected a bug
-> from the symptoms you were seeing.
-> 
-> Thanks all I will include this in my version of the patches.
+> Considering the amount of complexity we add for the high end, why is it 
+> suddenly a bad thing to add even a _little_ complexity for the other end?
 
-Apart from this I think something is still off on x86_64. I have not
-been able to make kdump work on x86_64. Second kernel simply hangs.
-Two different machines are showing different results.
+This is ext4 not ext3 we're talking about.  The next gen Linux 
+filesystem should be tuned for modern machines -- 64bit, moving forward 
+-- while still working just fine on 32bit.
 
-- On one machine, it seems to be stuck somewhere in decompress_kernel().
-  Serial console is not behaving properly even with earlyprintk(). Somehow
-  I feel it is some bss corruption even after my changes.
+	Jeff
 
-- Other machines seems to be going till start_kernel() and even after
-  that (No messages on the console, all serial debugging) and then
-  either it hangs or jumps back to BIOS.
 
-Will look more into it.
-
-Thanks
-Vivek
- 

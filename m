@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161082AbWHJSrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWHJSvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161082AbWHJSrq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 14:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWHJSrq
+	id S1161161AbWHJSvl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 14:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161158AbWHJSvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 14:47:46 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:14278 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1161082AbWHJSrp (ORCPT
+	Thu, 10 Aug 2006 14:51:41 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:36038 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161155AbWHJSvk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 14:47:45 -0400
-Message-ID: <44DB7F29.3060901@colorfullife.com>
-Date: Thu, 10 Aug 2006 20:47:05 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Thu, 10 Aug 2006 14:51:40 -0400
+Message-ID: <44DB8036.5020706@us.ibm.com>
+Date: Thu, 10 Aug 2006 11:51:34 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, mpm@selenic.com,
-       npiggin@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
-References: <Pine.LNX.4.64.0608091744290.4966@schroedinger.engr.sgi.com> <20060810140153.e5932e76.kamezawa.hiroyu@jp.fujitsu.com> <Pine.LNX.4.64.0608092211320.5806@schroedinger.engr.sgi.com> <20060810144451.13591e4b.kamezawa.hiroyu@jp.fujitsu.com> <20060810151305.bc4602e0.kamezawa.hiroyu@jp.fujitsu.com> <Pine.LNX.4.64.0608100823580.8368@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608100823580.8368@schroedinger.engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5] Forking ext4 filesystem from ext3 filesystem
+References: <1155172622.3161.73.camel@localhost.localdomain> <20060809233914.35ab8792.akpm@osdl.org>
+In-Reply-To: <20060809233914.35ab8792.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+Andrew Morton wrote:
+> Also, JBD is presently feeding into submit_bh() buffer_heads which span two
+> machine pages, and some device drivers spit the dummy.  It'd be better to
+> fix that once, rather than twice..  
+>   
+Andrew,
 
->On Thu, 10 Aug 2006, KAMEZAWA Hiroyuki wrote:
->
->  
->
->>BTW, in recent Linux, many objects are freed by call_rcu(hoo, dealyed_free_foo).
->>Objects are freed far after it was touched.
->>I think catching this kind of freeing will not boost performance by cache-hit if
->>reuse freed page (object). 
->>    
->>
->
->Yes that is a general problem with RCU freeing. One can use the 
->SLAB_DESTROY_BY_RCU option to have RCU applied to the whole slab. In that 
->case on can use the cache hot effect but has the additional problem in RCU 
->of dealing with the issue that the object can be replaced at any time.
->  
->
-No SLAB_DESTROY_BY_RCU is not equivalent to delayed_free_foo().
-SLAB_DESTROY_BY_RCU just means that the slab allocator uses 
-delayed_free_pages() instead of free_pages().
-kmem_cache_free() does not delay the reuse, an object will be returned 
-by the next kmem_cache_alloc, without any grace periods in between.
+I looked at this few days ago. I am not sure how we end up having 
+multiple pages (especially,
+why we end up having buffers with bh_size > pagesize) ? Do you know why ?
 
-Independantly from that point, we need some benchmarks to test the 
-allocator.
+Easiest fix would be to fix submit_bh() to deal with multiple vecs - 
+which is vetoed by
+Jens and I agree with him :(
 
-The last benchmarks  of the slab allocator (that I'm aware of) were done 
-with packet routing - packet routing was the reason why the shared_array 
-layer was added:
-The shared_array layer is used to perform inter-cpu bulk object 
-transfers. Without that cache, i.e. if a list_add() / list_del() was 
-required to transfer one object from one cpu to another cpu, a 
-significant amount of time was spent in the allocator.
+Thanks,
+Badari
 
-Christoph, could you run a test? GigE routing with tiny packets should 
-be sufficient. Two cpu bound nics, one does rx, the other one tx. Move 
-the skb_head_cache to sslab.
-
---
-    Manfred

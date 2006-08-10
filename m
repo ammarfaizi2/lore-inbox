@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161305AbWHJOWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161309AbWHJOWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161305AbWHJOWG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 10:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161309AbWHJOWF
+	id S1161309AbWHJOWc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 10:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161310AbWHJOWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 10:22:05 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:33506 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161305AbWHJOWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 10:22:04 -0400
-Message-ID: <44DB4107.5050001@garzik.org>
-Date: Thu, 10 Aug 2006 10:21:59 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Eric Sandeen <sandeen@sandeen.net>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/9] sector_t format string
-References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home> <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home> <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home> <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home> <44DB3151.8050904@garzik.org> <Pine.LNX.4.64.0608101519560.6762@scrub.home> <44DB34FF.4000303@garzik.org> <Pine.LNX.4.64.0608101547261.6761@scrub.home> <44DB3CED.7080802@sandeen.net> <Pine.LNX.4.64.0608101612390.6761@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0608101612390.6761@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 10 Aug 2006 10:22:32 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:48295 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S1161309AbWHJOWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 10:22:25 -0400
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: catalin.marinas@gmail.com
+Subject: [PATCH] Fix memory leak in vc_resize/vc_allocate
+Date: Thu, 10 Aug 2006 15:22:21 +0100
+Message-Id: <20060810142221.31793.20635.stgit@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
+X-OriginalArrivalTime: 10 Aug 2006 14:22:22.0329 (UTC) FILETIME=[6508D690:01C6BC88]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 10 Aug 2006, Eric Sandeen wrote:
-> 
->> ext4 is being developed primarily to address scaling issues at the high end of
->> the storage spectrum.  If you're concerned about carrying 64-bit containers,
->> just use ext3, and be happy with your 32-bit, < 16TB filesystems, I'd say.
-> 
-> The problem being that it doesn't _exclusively_ address scaling issues, 
-> some new features may well be interesting to non high end users as well. 
-> If it's supposed to be a high end only fs, then please don't call ext4, 
-> otherwise it would mislead users about what it doesn't is - a general 
-> purpose fs.
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-It will work just fine on 32-bit machines.
+Memory leaks can happen in the vc_resize() function in drivers/char/vt.c
+because of the vc->vc_screenbuf variable overriding in vc_allocate(). The
+kmemleak reported trace is as follows:
 
-You're making a mountain out of a molehill.
+  <__kmalloc>
+  <vc_resize>
+  <fbcon_init>
+  <visual_init>
+  <vc_allocate>
+  <con_open>
+  <tty_open>
+  <chrdev_open>
 
-	Jeff
+This patch no longer allocates a screen buffer in vc_allocate() if it was
+already allocated by vc_resize().
 
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+---
 
+ drivers/char/vt.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/char/vt.c b/drivers/char/vt.c
+index da7e66a..31c8b32 100644
+--- a/drivers/char/vt.c
++++ b/drivers/char/vt.c
+@@ -730,7 +730,8 @@ int vc_allocate(unsigned int currcons)	/
+ 	    visual_init(vc, currcons, 1);
+ 	    if (!*vc->vc_uni_pagedir_loc)
+ 		con_set_default_unimap(vc);
+-	    vc->vc_screenbuf = kmalloc(vc->vc_screenbuf_size, GFP_KERNEL);
++	    if (!vc->vc_kmalloced)
++		vc->vc_screenbuf = kmalloc(vc->vc_screenbuf_size, GFP_KERNEL);
+ 	    if (!vc->vc_screenbuf) {
+ 		kfree(vc);
+ 		vc_cons[currcons].d = NULL;

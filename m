@@ -1,94 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161205AbWHJMNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWHJMNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161205AbWHJMNj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbWHJMNj
+	id S1161203AbWHJMNn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbWHJMNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:13:39 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:47316 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1161200AbWHJMNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:13:38 -0400
-Date: Thu, 10 Aug 2006 16:12:50 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Thu, 10 Aug 2006 08:13:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:17159 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161203AbWHJMNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 08:13:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=geo0Y1kz+59GxWDwUDbPsSUokfcFKpuNhqSJfqIuXUheCEpMkB5bnC4yMT5t3tG9Sl6FG7dG/q4q9fVLwSBBq0vvuAdTaocD0LFkLZ4KVnhpKkJlemkgjW2okxQAIqo1H888jdCfIjxvktTgUPIZ5FBbyXwQ/qtFfir3pcFl404=
+Date: Thu, 10 Aug 2006 14:13:36 +0200
+From: Frederik Deweerdt <deweerdt@free.fr>
 To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: [take7 0/1] kevent: generic event handling mechanism.
-Message-ID: <20060810121250.GA28665@2ka.mipt.ru>
-References: <11551105592821@2ka.mipt.ru> <11551105602734@2ka.mipt.ru> <20060809152127.481fb346.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Cc: linux-kernel@vger.kernel.org, acme@ghostprotocols.net, davem@davemloft.net,
+       jet@gyve.org
+Subject: [patch] Use rwsems instead of custom locking scheme in net/socket.c and net/dccp/ccid.c
+Message-ID: <20060810121336.GB1462@slug>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060809152127.481fb346.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 10 Aug 2006 16:12:51 +0400 (MSD)
+In-Reply-To: <20060806030809.2cfb0b1e.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sun, Aug 06, 2006 at 03:08:09AM -0700, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> 
+Hi Andrew,
 
-Generic event handling mechanism.
+This patch aims at removing two implementations (spotted by Masatake YAMATO) of
+pseudo-rwlocks using a spinlock_t and an atomic_t. One in net/socket.c
+and another in net/bluetooth/af_bluetooth.c. I think that both could be
+converted to rwsems, saving some lines of code.
 
-Changes from 'take6' patchset:
- * a lot of comments!
- * do not use list poisoning for detection of the fact, that entry is in the list
- * return number of ready kevents even if copy*user() fails
- * strict check for number of kevents in syscall
- * use ARRAY_SIZE for array size calculation
- * changed superblock magic number
- * use SLAB_PANIC instead of direct panic() call
- * changed -E* return values
- * a lot of small cleanups and indent fixes
- * fully removed AIO stuff from patchset
-
-Changes from 'take5' patchset:
- * removed compilation warnings about unused wariables when lockdep is not turned on
- * do not use internal socket structures, use appropriate (exported) wrappers instead
- * removed default 1 second timeout
- * removed AIO stuff from patchset
-
-Changes from 'take4' patchset:
- * use miscdevice instead of chardevice
- * comments fixes
-
-Changes from 'take3' patchset:
- * removed serializing mutex from kevent_user_wait()
- * moved storage list processing to RCU
- * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
-	to differentiate between various cases
- * remove kevent from storage if is marked as broken after callback
- * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
-
-Changes from 'take2' patchset:
- * split kevent_finish_user() to locked and unlocked variants
- * do not use KEVENT_STAT ifdefs, use inline functions instead
- * use array of callbacks of each type instead of each kevent callback initialization
- * changed name of ukevent guarding lock
- * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
- * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
- * various indent cleanups
- * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
- * mapped buffer (initial) implementation (no userspace yet)
-
-Changes from 'take1' patchset:
- - rebased against 2.6.18-git tree
- - removed ioctl controlling
- - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
-			unsigned int timeout, void __user *buf, unsigned flags)
- - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
-	initialization
- - use mutuxes instead of semaphores
- - added file descriptor check and return error if provided descriptor does not match
-	kevent file operations
- - various indent fixes
- - removed aio_sendfile() declarations.
-
-Thank you.
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Regards,
+Frederik
 
 
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
 
--- 
-	Evgeniy Polyakov
+ net/dccp/ccid.c |   63 ++++++++++++------------------------------------------------
+ net/socket.c    |   58 +++++++------------------------------------------------
+ 2 files changed, 21 insertions(+), 100 deletions(-)
+
+diff --git a/net/dccp/ccid.c b/net/dccp/ccid.c
+--- a/net/dccp/ccid.c
++++ b/net/dccp/ccid.c
+@@ -12,48 +12,11 @@
+  */
+ 
+ #include "ccid.h"
++#include <linux/rwsem.h>
+ 
+ static struct ccid_operations *ccids[CCID_MAX];
+-#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+-static atomic_t ccids_lockct = ATOMIC_INIT(0);
+-static DEFINE_SPINLOCK(ccids_lock);
++static DECLARE_RWSEM(ccids_sem);
+ 
+-/*
+- * The strategy is: modifications ccids vector are short, do not sleep and
+- * veeery rare, but read access should be free of any exclusive locks.
+- */
+-static void ccids_write_lock(void)
+-{
+-	spin_lock(&ccids_lock);
+-	while (atomic_read(&ccids_lockct) != 0) {
+-		spin_unlock(&ccids_lock);
+-		yield();
+-		spin_lock(&ccids_lock);
+-	}
+-}
+-
+-static inline void ccids_write_unlock(void)
+-{
+-	spin_unlock(&ccids_lock);
+-}
+-
+-static inline void ccids_read_lock(void)
+-{
+-	atomic_inc(&ccids_lockct);
+-	spin_unlock_wait(&ccids_lock);
+-}
+-
+-static inline void ccids_read_unlock(void)
+-{
+-	atomic_dec(&ccids_lockct);
+-}
+-
+-#else
+-#define ccids_write_lock() do { } while(0)
+-#define ccids_write_unlock() do { } while(0)
+-#define ccids_read_lock() do { } while(0)
+-#define ccids_read_unlock() do { } while(0)
+-#endif
+ 
+ static kmem_cache_t *ccid_kmem_cache_create(int obj_size, const char *fmt,...)
+ {
+@@ -103,13 +66,13 @@ int ccid_register(struct ccid_operations
+ 	if (ccid_ops->ccid_hc_tx_slab == NULL)
+ 		goto out_free_rx_slab;
+ 
+-	ccids_write_lock();
++	down_write(&ccids_sem);
+ 	err = -EEXIST;
+ 	if (ccids[ccid_ops->ccid_id] == NULL) {
+ 		ccids[ccid_ops->ccid_id] = ccid_ops;
+ 		err = 0;
+ 	}
+-	ccids_write_unlock();
++	up_write(&ccids_sem);
+ 	if (err != 0)
+ 		goto out_free_tx_slab;
+ 
+@@ -131,9 +94,9 @@ EXPORT_SYMBOL_GPL(ccid_register);
+ 
+ int ccid_unregister(struct ccid_operations *ccid_ops)
+ {
+-	ccids_write_lock();
++	down_write(&ccids_sem);
+ 	ccids[ccid_ops->ccid_id] = NULL;
+-	ccids_write_unlock();
++	up_write(&ccids_sem);
+ 
+ 	ccid_kmem_cache_destroy(ccid_ops->ccid_hc_tx_slab);
+ 	ccid_ops->ccid_hc_tx_slab = NULL;
+@@ -152,15 +115,15 @@ struct ccid *ccid_new(unsigned char id, 
+ 	struct ccid_operations *ccid_ops;
+ 	struct ccid *ccid = NULL;
+ 
+-	ccids_read_lock();
++	down_read(&ccids_sem);
+ #ifdef CONFIG_KMOD
+ 	if (ccids[id] == NULL) {
+ 		/* We only try to load if in process context */
+-		ccids_read_unlock();
++		up_read(&ccids_sem);
+ 		if (gfp & GFP_ATOMIC)
+ 			goto out;
+ 		request_module("net-dccp-ccid-%d", id);
+-		ccids_read_lock();
++		down_read(&ccids_sem);
+ 	}
+ #endif
+ 	ccid_ops = ccids[id];
+@@ -170,7 +133,7 @@ #endif
+ 	if (!try_module_get(ccid_ops->ccid_owner))
+ 		goto out_unlock;
+ 
+-	ccids_read_unlock();
++	up_read(&ccids_sem);
+ 
+ 	ccid = kmem_cache_alloc(rx ? ccid_ops->ccid_hc_rx_slab :
+ 				     ccid_ops->ccid_hc_tx_slab, gfp);
+@@ -191,7 +154,7 @@ #endif
+ out:
+ 	return ccid;
+ out_unlock:
+-	ccids_read_unlock();
++	up_read(&ccids_sem);
+ 	goto out;
+ out_free_ccid:
+ 	kmem_cache_free(rx ? ccid_ops->ccid_hc_rx_slab :
+@@ -235,10 +198,10 @@ static void ccid_delete(struct ccid *cci
+ 			ccid_ops->ccid_hc_tx_exit(sk);
+ 		kmem_cache_free(ccid_ops->ccid_hc_tx_slab,  ccid);
+ 	}
+-	ccids_read_lock();
++	down_read(&ccids_sem);
+ 	if (ccids[ccid_ops->ccid_id] != NULL)
+ 		module_put(ccid_ops->ccid_owner);
+-	ccids_read_unlock();
++	up_read(&ccids_sem);
+ }
+ 
+ void ccid_hc_rx_delete(struct ccid *ccid, struct sock *sk)
+diff --git a/net/socket.c b/net/socket.c
+index 53cb85b..bc52aeb 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -85,6 +85,7 @@ #include <linux/compat.h>
+ #include <linux/kmod.h>
+ #include <linux/audit.h>
+ #include <linux/wireless.h>
++#include <linux/rwsem.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -143,50 +144,7 @@ #endif
+ 
+ static struct net_proto_family *net_families[NPROTO];
+ 
+-#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+-static atomic_t net_family_lockct = ATOMIC_INIT(0);
+-static DEFINE_SPINLOCK(net_family_lock);
+-
+-/* The strategy is: modifications net_family vector are short, do not
+-   sleep and veeery rare, but read access should be free of any exclusive
+-   locks.
+- */
+-
+-static void net_family_write_lock(void)
+-{
+-	spin_lock(&net_family_lock);
+-	while (atomic_read(&net_family_lockct) != 0) {
+-		spin_unlock(&net_family_lock);
+-
+-		yield();
+-
+-		spin_lock(&net_family_lock);
+-	}
+-}
+-
+-static __inline__ void net_family_write_unlock(void)
+-{
+-	spin_unlock(&net_family_lock);
+-}
+-
+-static __inline__ void net_family_read_lock(void)
+-{
+-	atomic_inc(&net_family_lockct);
+-	spin_unlock_wait(&net_family_lock);
+-}
+-
+-static __inline__ void net_family_read_unlock(void)
+-{
+-	atomic_dec(&net_family_lockct);
+-}
+-
+-#else
+-#define net_family_write_lock() do { } while(0)
+-#define net_family_write_unlock() do { } while(0)
+-#define net_family_read_lock() do { } while(0)
+-#define net_family_read_unlock() do { } while(0)
+-#endif
+-
++static DECLARE_RWSEM(net_family_sem);
+ 
+ /*
+  *	Statistics counters of the socket lists
+@@ -1132,7 +1090,7 @@ #if defined(CONFIG_KMOD)
+ 	}
+ #endif
+ 
+-	net_family_read_lock();
++	down_read(&net_family_sem);
+ 	if (net_families[family] == NULL) {
+ 		err = -EAFNOSUPPORT;
+ 		goto out;
+@@ -1185,7 +1143,7 @@ #endif
+ 		goto out_release;
+ 
+ out:
+-	net_family_read_unlock();
++	up_read(&net_family_sem);
+ 	return err;
+ out_module_put:
+ 	module_put(net_families[family]->owner);
+@@ -2034,13 +1992,13 @@ int sock_register(struct net_proto_famil
+ 		printk(KERN_CRIT "protocol %d >= NPROTO(%d)\n", ops->family, NPROTO);
+ 		return -ENOBUFS;
+ 	}
+-	net_family_write_lock();
++	down_write(&net_family_sem);
+ 	err = -EEXIST;
+ 	if (net_families[ops->family] == NULL) {
+ 		net_families[ops->family]=ops;
+ 		err = 0;
+ 	}
+-	net_family_write_unlock();
++	up_write(&net_family_sem);
+ 	printk(KERN_INFO "NET: Registered protocol family %d\n",
+ 	       ops->family);
+ 	return err;
+@@ -2057,9 +2015,9 @@ int sock_unregister(int family)
+ 	if (family < 0 || family >= NPROTO)
+ 		return -1;
+ 
+-	net_family_write_lock();
++	down_write(&net_family_sem);
+ 	net_families[family]=NULL;
+-	net_family_write_unlock();
++	up_write(&net_family_sem);
+ 	printk(KERN_INFO "NET: Unregistered protocol family %d\n",
+ 	       family);
+ 	return 0;

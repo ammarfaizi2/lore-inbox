@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161202AbWHJMCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbWHJMCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161202AbWHJMCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161201AbWHJMCg
+	id S1161199AbWHJMCL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWHJMCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:02:36 -0400
-Received: from wx-out-0506.google.com ([66.249.82.231]:53677 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1161193AbWHJMCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:02:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=g9HAp3M8XVqATwZ7Til957dUrOBkZBxjD4oe/XwenPbIbhZwr7vwsKhmMkXbysitMaNXHTxk4T+J+zXCmzbgDGQ15RHsAue/edydS+wjR+PZmo53Pz+4UFJI3jhEd77E8cOEp2W+EVNsnU+iz/OLexw6aqy5dJf00Vg9BE3jrII=
-Message-ID: <9a8748490608100502wd9a097cwab80c662300020e8@mail.gmail.com>
-Date: Thu, 10 Aug 2006 14:02:34 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: locks_insert_block: removing duplicated lock (pid=2711 0-9223372036854775807 type=1)
+	Thu, 10 Aug 2006 08:02:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:8669 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161196AbWHJMCJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 08:02:09 -0400
+Message-ID: <44DB203A.6050901@garzik.org>
+Date: Thu, 10 Aug 2006 08:02:02 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0608101302270.6762@scrub.home>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a server running 2.6.11.11 that just reported the following in dmesg :
+Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 9 Aug 2006, Andrew Morton wrote:
+> 
+>> That also being said...  does a 32-bit sector_t make any sense on a
+>> 48-bit-blocknumber filesystem?  I'd have thought that we'd just make ext4
+>> depend on 64-bit sector_t and be done with it.
+> 
+> Is this really necessary? There are a few features, which would make ext4 
+> also interesting at the low end (e.g. extents). Storing 64bit values on 
+> disk is fine, but they should be converted to native values as soon as 
+> possible.
 
-locks_insert_block: removing duplicated lock (pid=2711
-0-9223372036854775807 type=1)
+Consider what that means.  "converted to native" means dealing with 
+truncation issues...
 
-Should I worry?
-Any info I can provide that would be useful?
+	Jeff
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+

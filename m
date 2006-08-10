@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWHJNDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbWHJNFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbWHJNDn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWHJNDn
+	id S1161237AbWHJNFI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWHJNFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:03:43 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:50180 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1161237AbWHJNDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:03:42 -0400
-Message-ID: <44DB2EAD.8070302@vmware.com>
-Date: Thu, 10 Aug 2006 06:03:41 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization@lists.osdl.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain> <20060810103012.GA2356@muc.de> <1155207946.18420.18.camel@localhost.localdomain> <200608101331.19954.ak@muc.de>
-In-Reply-To: <200608101331.19954.ak@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 09:05:08 -0400
+Received: from kunzite.stewarts.org.uk ([80.68.93.148]:1294 "EHLO
+	kunzite.stewarts.org.uk") by vger.kernel.org with ESMTP
+	id S1161237AbWHJNFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 09:05:07 -0400
+Date: Thu, 10 Aug 2006 14:04:58 +0100
+To: Joel Jaeggli <joelja@uoregon.edu>
+Cc: gmu 2k6 <gmu2006@gmail.com>, davids@webmaster.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Only 3.2G ram out of 4G seen in an i386 box
+Message-ID: <20060810130458.GA20292@stewarts.org.uk>
+References: <20060808101504.GJ2152@stingr.net> <MDEHLPKNGKAHNMBLJOLKKEDCNKAB.davids@webmaster.com> <f96157c40608082351j301efa57n412284f8d28124ef@mail.gmail.com> <20060809074815.bec7f32c.joelja@uoregon.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060809074815.bec7f32c.joelja@uoregon.edu>
+User-Agent: Mutt/1.5.9i
+From: Thomas Stewart <thomas@stewarts.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Hmm, i still see a lot of them (and __volatile too) 
->
-> Also maybe it's my mail client, but the resulting patch seems to be also full of
-> MIME damage:
->
->  EXTRA_AFLAGS   :=3D -traditional
->   
+Hi,
 
-Hmm.  I don't see that here. 
+I tried Dell support, but it was unhelpful. I also upgraded the bios to
+the latest revision, but that changed nothing. I think I'll just have to
+live with it.
+
+Thanks for the comments.
+--
+Tom

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWHJT4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932673AbWHJT5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751521AbWHJT4z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWHJT4H
+	id S932673AbWHJT5I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWHJTzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:56:07 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:15744 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751139AbWHJTz1 (ORCPT
+	Thu, 10 Aug 2006 15:55:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:7660 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932662AbWHJThQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:55:27 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Merging libata PATA support into the base kernel
-Date: Thu, 10 Aug 2006 21:54:25 +0200
-User-Agent: KMail/1.9.3
-Cc: Jason Lunz <lunz@falooley.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-References: <1155144599.5729.226.camel@localhost.localdomain> <20060810190222.GA12818@knob.reflex> <20060810194734.GE11829@suse.de>
-In-Reply-To: <20060810194734.GE11829@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608102154.25594.rjw@sisk.pl>
+	Thu, 10 Aug 2006 15:37:16 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [116/145] i386: don't taint UP K7's running SMP kernels.
+Message-Id: <20060810193715.12CE713C16@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:15 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 August 2006 21:47, Jens Axboe wrote:
-> On Thu, Aug 10 2006, Jason Lunz wrote:
-> > In gmane.linux.kernel, you wrote:
-]--snip--[
-> > 
-> > It's not surprising you're not getting many bug reports. It's common for
-> > several things to go wrong during s2ram, and the user often ends up
-> > looking at a hung system with a dead screen. It takes some quality time
-> > with netconsole to even begin to narrow down that it's IDE hanging the
-> > system, after which you can *begin* solving the no-video-on-resume
-> > issue.
-> 
-> I'm not on any of the suspend lists, I was merely comparing the
-> suspend-others or suspend-libata ration to suspend-ide on linux-kernel,
-> and the latter is clearly in the minority. I've used ide suspend quite a
-> bit myself, and never had issues with it (or whichever ones I saw
-> initially, I fixed). Of course it depends very much on the hardware. I'd
-> still say that ide suspend probably supports a much wider range of
-> hardware, than does libata suspend.
+r
 
-As far as the suspend to disk is concerned, you are probably right, but
-I'm not sure about the suspend to RAM.
+From: Dave Jones <davej@redhat.com>
 
-Greetings,
-Rafael
+We have a test that looks for invalid pairings of certain athlon/durons
+that weren't designed for SMP, and taint accordingly (with 'S') if we find
+such a configuration.  However, this test shouldn't fire if there's only
+a single CPU present. It's perfectly valid for an SMP kernel to boot on UP
+hardware for example.
+
+AK: changed to num_possible_cpus()
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+ arch/i386/kernel/smpboot.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux/arch/i386/kernel/smpboot.c
+===================================================================
+--- linux.orig/arch/i386/kernel/smpboot.c
++++ linux/arch/i386/kernel/smpboot.c
+@@ -177,6 +177,9 @@ static void __devinit smp_store_cpu_info
+ 	 */
+ 	if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
+ 
++		if (num_possible_cpus() == 1)
++			goto valid_k7;
++
+ 		/* Athlon 660/661 is valid. */	
+ 		if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
+ 			goto valid_k7;

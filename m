@@ -1,139 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbWHJULw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWHJULS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751527AbWHJULw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWHJULU
+	id S1751382AbWHJULS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbWHJTga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:11:20 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:52203 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932627AbWHJTgb (ORCPT
+	Thu, 10 Aug 2006 15:36:30 -0400
+Received: from ns.suse.de ([195.135.220.2]:49040 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932622AbWHJTg1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:31 -0400
+	Thu, 10 Aug 2006 15:36:27 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [73/145] x86_64: Add stack documentation document from Keith Owens
-Message-Id: <20060810193629.79C4013C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:29 +0200 (CEST)
+Subject: [PATCH for review] [70/145] x86_64: initialize end of memory variables as early as possible
+Message-Id: <20060810193626.45F5313C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:26 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-Describes the stack organization on x86-64.
+From: "Jan Beulich" <jbeulich@novell.com>
+While an earlier patch already did a small step into that direction,
+this patch moves initialization of all memory end variables to as
+early as possible, so that dependent code doesn't need to check
+whether these variables have already been set.
 
-I changed it a bit and removed some obsolete information and the 
-questions.
+Also, remove a misleading (perhaps just outdated) comment, and make
+static a variable only used in a single file.
 
-Cc: kaos@sgi.com
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- Documentation/x86_64/kernel-stacks |   99 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 99 insertions(+)
+ arch/x86_64/kernel/e820.c  |    2 +-
+ arch/x86_64/kernel/setup.c |    7 ++++++-
+ arch/x86_64/mm/init.c      |    6 ------
+ 3 files changed, 7 insertions(+), 8 deletions(-)
 
-Index: linux/Documentation/x86_64/kernel-stacks
+Index: linux/arch/x86_64/kernel/e820.c
 ===================================================================
---- /dev/null
-+++ linux/Documentation/x86_64/kernel-stacks
-@@ -0,0 +1,99 @@
-+Most of the text from Keith Owens, hacked by AK
+--- linux.orig/arch/x86_64/kernel/e820.c
++++ linux/arch/x86_64/kernel/e820.c
+@@ -40,7 +40,7 @@ unsigned long end_pfn_map; 
+ /* 
+  * Last pfn which the user wants to use.
+  */
+-unsigned long end_user_pfn = MAXMEM>>PAGE_SHIFT;  
++static unsigned long __initdata end_user_pfn = MAXMEM>>PAGE_SHIFT;
+ 
+ extern struct resource code_resource, data_resource;
+ 
+Index: linux/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/setup.c
++++ linux/arch/x86_64/kernel/setup.c
+@@ -556,7 +556,7 @@ void __init setup_arch(char **cmdline_p)
+ 	 * we are rounding upwards:
+ 	 */
+ 	end_pfn = e820_end_of_ram();
+-	num_physpages = end_pfn;		/* for pfn_valid */
++	num_physpages = end_pfn;
+ 
+ 	check_efer();
+ 
+@@ -576,6 +576,11 @@ void __init setup_arch(char **cmdline_p)
+ 	acpi_boot_table_init();
+ #endif
+ 
++	/* How many end-of-memory variables you have, grandma! */
++	max_low_pfn = end_pfn;
++	max_pfn = end_pfn;
++	high_memory = (void *)__va(end_pfn * PAGE_SIZE - 1) + 1;
 +
-+x86_64 page size (PAGE_SIZE) is 4K.
-+
-+Like all other architectures, x86_64 has a kernel stack for every
-+active thread.  These thread stacks are THREAD_SIZE (2*PAGE_SIZE) big.
-+These stacks contain useful data as long as a thread is alive or a
-+zombie. While the thread is in user space the kernel stack is empty
-+except for the thread_info structure at the bottom.
-+
-+In addition to the per thread stacks, there are specialized stacks
-+associated with each cpu.  These stacks are only used while the kernel
-+is in control on that cpu, when a cpu returns to user space the
-+specialized stacks contain no useful data.  The main cpu stacks is
-+
-+* Interrupt stack.  IRQSTACKSIZE
-+
-+  Used for external hardware interrupts.  If this is the first external
-+  hardware interrupt (i.e. not a nested hardware interrupt) then the
-+  kernel switches from the current task to the interrupt stack.  Like
-+  the split thread and interrupt stacks on i386 (with CONFIG_4KSTACKS),
-+  this gives more room for kernel interrupt processing without having
-+  to increase the size of every per thread stack.
-+
-+  The interrupt stack is also used when processing a softirq.
-+
-+Switching to the kernel interrupt stack is done by software based on a
-+per CPU interrupt nest counter. This is needed because x86-64 "IST"
-+hardware stacks cannot nest without races.
-+
-+x86_64 also has a feature which is not available on i386, the ability
-+to automatically switch to a new stack for designated events such as
-+double fault or NMI, which makes it easier to handle these unusual
-+events on x86_64.  This feature is called the Interrupt Stack Table
-+(IST).  There can be up to 7 IST entries per cpu. The IST code is an
-+index into the Task State Segment (TSS), the IST entries in the TSS
-+point to dedicated stacks, each stack can be a different size.
-+
-+An IST is selected by an non-zero value in the IST field of an
-+interrupt-gate descriptor.  When an interrupt occurs and the hardware
-+loads such a descriptor, the hardware automatically sets the new stack
-+pointer based on the IST value, then invokes the interrupt handler.  If
-+software wants to allow nested IST interrupts then the handler must
-+adjust the IST values on entry to and exit from the interrupt handler.
-+(this is occasionally done, e.g. for debug exceptions)
-+
-+Events with different IST codes (i.e. with different stacks) can be
-+nested.  For example, a debug interrupt can safely be interrupted by an
-+NMI.  arch/x86_64/kernel/entry.S::paranoidentry adjusts the stack
-+pointers on entry to and exit from all IST events, in theory allowing
-+IST events with the same code to be nested.  However in most cases, the
-+stack size allocated to an IST assumes no nesting for the same code.
-+If that assumption is ever broken then the stacks will become corrupt.
-+
-+The currently assigned IST stacks are :-
-+
-+* STACKFAULT_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
-+
-+  Used for interrupt 12 - Stack Fault Exception (#SS).
-+
-+  This allows to recover from invalid stack segments. Rarely
-+  happens.
-+
-+* DOUBLEFAULT_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
-+
-+  Used for interrupt 8 - Double Fault Exception (#DF).
-+
-+  Invoked when handling a exception causes another exception. Happens
-+  when the kernel is very confused (e.g. kernel stack pointer corrupt)
-+  Using a separate stack allows to recover from it well enough in many
-+  cases to still output an oops.
-+
-+* NMI_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
-+
-+  Used for non-maskable interrupts (NMI).
-+
-+  NMI can be delivered at any time, including when the kernel is in the
-+  middle of switching stacks.  Using IST for NMI events avoids making
-+  assumptions about the previous state of the kernel stack.
-+
-+* DEBUG_STACK.  DEBUG_STKSZ
-+
-+  Used for hardware debug interrupts (interrupt 1) and for software
-+  debug interrupts (INT3).
-+
-+  When debugging a kernel, debug interrupts (both hardware and
-+  software) can occur at any time.  Using IST for these interrupts
-+  avoids making assumptions about the previous state of the kernel
-+  stack.
-+
-+* MCE_STACK.  EXCEPTION_STKSZ (PAGE_SIZE).
-+
-+  Used for interrupt 18 - Machine Check Exception (#MC).
-+
-+  MCE can be delivered at any time, including when the kernel is in the
-+  middle of switching stacks.  Using IST for MCE events avoids making
-+  assumptions about the previous state of the kernel stack.
-+
-+For more details see the Intel IA32 or AMD AMD64 architecture manuals.
+ #ifdef CONFIG_ACPI_NUMA
+ 	/*
+ 	 * Parse SRAT to discover nodes.
+Index: linux/arch/x86_64/mm/init.c
+===================================================================
+--- linux.orig/arch/x86_64/mm/init.c
++++ linux/arch/x86_64/mm/init.c
+@@ -597,12 +597,6 @@ void __init mem_init(void)
+ 
+ 	pci_iommu_alloc();
+ 
+-	/* How many end-of-memory variables you have, grandma! */
+-	max_low_pfn = end_pfn;
+-	max_pfn = end_pfn;
+-	num_physpages = end_pfn;
+-	high_memory = (void *) __va(end_pfn * PAGE_SIZE);
+-
+ 	/* clear the zero-page */
+ 	memset(empty_zero_page, 0, PAGE_SIZE);
+ 

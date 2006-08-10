@@ -1,130 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWHJXS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWHJX05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWHJXS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 19:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWHJXS6
+	id S932255AbWHJX05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 19:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWHJX05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 19:18:58 -0400
-Received: from smtp6-g19.free.fr ([212.27.42.36]:2255 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932310AbWHJXSz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 19:18:55 -0400
-Message-ID: <44DBBF2B.2050605@free.fr>
-Date: Fri, 11 Aug 2006 01:20:11 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.4) Gecko/20060405 SeaMonkey/1.0.2
+	Thu, 10 Aug 2006 19:26:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:3184 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932255AbWHJX04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 19:26:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dEnnEFvOnswC7G/f2C6+fszoPMtj+5N5YYpXq8fpnoi7FZMcYoVvYujFq+ZaopdfSr+Na7ep/821s1hEk6gbfUmwAyHG7pXrHvkamBZrskh/iOLpzbqHZH0Yf6Uplk+eccDVUvmiGBjt+eIAdeEeKhOPbOHzl1NmYMm71he2UKs=
+Message-ID: <41840b750608101626rc9a7e18o60bcc4f855f5a9e7@mail.gmail.com>
+Date: Fri, 11 Aug 2006 02:26:54 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers (version 2)
+Cc: "Robert Love" <rlove@rlove.org>, linux-kernel@vger.kernel.org,
+       "Pavel Machek" <pavel@suse.cz>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20060810131820.23f00680.akpm@osdl.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-mm2 - OOM storm
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>	<44DAF6A4.9000004@free.fr> <20060810021957.38c82311.akpm@osdl.org>
-In-Reply-To: <20060810021957.38c82311.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1155203330179-git-send-email-multinymous@gmail.com>
+	 <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
+	 <20060810131820.23f00680.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 8/10/06, Andrew Morton <akpm@osdl.org> wrote:
+> This situation is still a concern.  From where did this additional register
+> information come?
+>
+> Was it reverse-engineered?  If so, by whom and how can we satisfy ourselves
+> of this?
+>
+> Was it from published documents?
+
+Here's a more detailed explanation:
+
+All the low level LPC register access is publicly documented in the
+manual of the embedded controller. See [1] and in particular [2]. The
+submitted thinkpad_ec code just follows these specs (very defensively
+with and a lot of extra status checks, because some EC hangs were
+reported in older versions). The only remaining information is about
+the accelerometer-specific commands implemented by the firmware; the
+public APS spec [3] and the mainline code based on this already
+contain most of the this information, and a few corrections and
+extentions were gleaned from the reverse-engineered the firmware code
+[4]. If case you're wondering about the "opaque" function,
+hdaps_check_ec(), then note that it's just code from the original
+hdaps driver (following [3]) that's translated to use thinkpad_ec
+instead of direct IO port access.
 
 
-Le 10.08.2006 11:19, Andrew Morton a écrit :
-> On Thu, 10 Aug 2006 11:04:36 +0200
-> Laurent Riffard <laurent.riffard@free.fr> wrote:
-> 
->> Le 06.08.2006 12:08, Andrew Morton a écrit :
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/26.18-rc3-mm2/
->> Hello,
->>
->> On my system, a cron runs every day to check the integrity of
->> installed RPMS, it runs "rpm -v" on each package, which computes
->> MD5 hash for each installed file and compares this result, the file 
->> size and modification time with values stored in RPM database.
->>
->> This is the workload. Since 2.6.18-rc3-mm2, this processus eats 
->> all the memory and triggers OOM.
->>
->> On my system, "free -t" output normally looks like this ("cached" value 
->> is about half of RAM):
->> # free -t 
->>              total       used       free     shared    buffers     cached
->> Mem:        515032     508512       6520          0      22992     256032
->> -/+ buffers/cache:     229488     285544
->> Swap:      1116428        324    1116104
->> Total:     1631460     508836    1122624
->>
->> After the rpm database check, "free -t" says:
->>              total       used       free     shared    buffers     cached
->> Mem:        515032     507124       7908          0       8132     398296
->> -/+ buffers/cache:     100696     414336
->> Swap:      1116428      34896    1081532
->> Total:     1631460     542020    1089440
->>
->> And the value of "cached" won't decrease.
->>
-> 
-> Yes, I was just trying to reproduce this.  No luck so far.  Will try your
-> .config tomorrow.
-> 
-> It would be interesting to try disabling CONFIG_ADAPTIVE_READAHEAD -
-> perhaps that got broken.
+> Was it improperly obtained from NDA'ed documentation?
 
-I just try it: when CONFIG_ADAPTIVE_READAHEAD is disabled, 
-/proc/meminfo:Cached is stable and never exceeded 230.000, the system 
-didn't even try to swap.
+Absolutely not. I've never signed any NDA remotely related to this.
+(and why I do so when the above sources already contain all the needed
+information?)
 
-$ cat /proc/meminfo   # taken a few minutes after the end of rpm -V
-MemTotal:       515032 kB
-MemFree:          6612 kB
-Buffers:         42212 kB
-Cached:         182236 kB
-SwapCached:          0 kB
-Active:         376256 kB
-Inactive:        75468 kB
-SwapTotal:     1116428 kB
-SwapFree:      1116428 kB
-Dirty:             272 kB
-Writeback:           0 kB
-AnonPages:      227260 kB
-Mapped:          62812 kB
-Slab:            44968 kB
-PageTables:       2152 kB
-NFS Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:   1373944 kB
-Committed_AS:   637400 kB
-VmallocTotal:   515796 kB
-VmallocUsed:      6916 kB
-VmallocChunk:   508760 kB
+BTW, I can't help wondering: do you have a similarly detailed account
+for an appreciable fraction of the driver code in mainline?
 
-> Also, are you able to determine whether the problem is specific to `rpm
-> -V'?  Are you able to make the leak trigger using other filesystem
-> workloads?
 
-Will try...
- 
-> If it's specific to `rpm -V' then perhaps direct-io is somehow causing
-> pagecache leakage.  That would be a bit odd.
-> 
-> 
-> 
-> btw, it's not necessary to go all the way to oom to work out if the
-> pagecache leak is happening.  After booting, do
-> 
-> 	echo 3 > /proc/sys/vm/drop_pagecache
-> 
-> and record the `Cached' figure in /proc/meminfo.  After running some test,
-> run `echo 3 > /proc/sys/vm/drop_pagecache' again and check
-> /proc/meminfo:Cached.  If it dodn't do gown to a similarly low figure,
-> we're leaking pagecache.
+> So hm.  We're setting precedent here and we need Linus around to resolve
+> this.  Perhaps we can ask "Shem" to reveal his true identity to Linus (and
+> maybe me) privately and then we proceed on that basis.
 
-I played with these values and as far I can remember, I get some poor  
-improvement. Will try to gather some data.
- 
-> btw2: please use /proc/meminfo output rather than free(1).  Because free(1)
-> shows less info, and it does mysterious mangling of the info which it does
-> read in ways which confuse me.
+Sure, we can do this. Actually I've alredy e-mailed Linus to this
+effect several days ago, before realizing he's off-line.
 
-Ok
- 
--- 
-laurent
+
+> "each of the Signed-off-by:ers should know the identity of the others".
+
+How following the DCO's chain-of-trust model?
+
+--- a/Documentation/SubmittingPatches
++++ b/Documentation/SubmittingPatches
+@@ -296,7 +296,7 @@ can certify the below:
+
+         (c) The contribution was provided directly to me by some other
+             person who certified (a), (b) or (c) and I have not modified
+-            it.
++            it, and the legal identity of that person is known to me.
+
+        (d) I understand and agree that this project and the contribution
+            are public and that a record of the contribution (including all
+
+
+  Shem
+
+[1]http://thinkwiki.org/wiki/Renesas_H8S/2161BV and in particular
+[2]http://documentation.renesas.com/eng/products/mpumcu/rej09b0300_2140bhm.pdf
+[3]http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html
+[4]http://forum.thinkpads.com/viewtopic.php?t=20958

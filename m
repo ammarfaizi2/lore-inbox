@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932673AbWHJT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWHJT5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932673AbWHJT5I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWHJTzN
+	id S1751499AbWHJT5r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWHJTzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:55:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:7660 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932662AbWHJThQ (ORCPT
+	Thu, 10 Aug 2006 15:55:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20652 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751094AbWHJTyp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:16 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [116/145] i386: don't taint UP K7's running SMP kernels.
-Message-Id: <20060810193715.12CE713C16@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:15 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 15:54:45 -0400
+Date: Thu, 10 Aug 2006 12:54:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 1/5] Forking ext4 filesystem from ext3
+ filesystem
+Message-Id: <20060810125429.6dded9b6.akpm@osdl.org>
+In-Reply-To: <1155238570.12082.11.camel@kleikamp.austin.ibm.com>
+References: <1155172622.3161.73.camel@localhost.localdomain>
+	<20060809233914.35ab8792.akpm@osdl.org>
+	<44DB8036.5020706@us.ibm.com>
+	<20060810122340.185b8d8f.akpm@osdl.org>
+	<1155238570.12082.11.camel@kleikamp.austin.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, 10 Aug 2006 14:36:10 -0500
+Dave Kleikamp <shaggy@austin.ibm.com> wrote:
 
-From: Dave Jones <davej@redhat.com>
+> On Thu, 2006-08-10 at 12:23 -0700, Andrew Morton wrote:
+> > On Thu, 10 Aug 2006 11:51:34 -0700
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > 
+> > > Andrew Morton wrote:
+> > > > Also, JBD is presently feeding into submit_bh() buffer_heads which span two
+> > > > machine pages, and some device drivers spit the dummy.  It'd be better to
+> > > > fix that once, rather than twice..  
+> > > >   
+> > > Andrew,
+> > > 
+> > > I looked at this few days ago. I am not sure how we end up having 
+> > > multiple pages (especially,
+> > > why we end up having buffers with bh_size > pagesize) ? Do you know why ?
+> > > 
+> > 
+> > It's one or both of the jbd_kmalloc(bh->b_size) calls in
+> > fs/jbd/transaction.c.  Here we're allocating data to attach to a bh which
+> > later gets fed into submit_bh().
+> > 
+> > Problem is, with CONFIG_DEBUG_SLAB=y, the data which kmalloc() returns can
+> > be offset by 4 bytes due to redzoning.
+> > 
+> > Example: if the fs is using a 1k blocksize and we have a 4k pagesize, the
+> > data coming back from kmalloc may have an address of 0xnnnnxc04, so the
+> > data which we later feed into submit_bh() will span two pages.
+> > 
+> > A simple fix would be to replace kmalloc() with a call to alloc_page(). 
+> > We'd need to work out how much memory that will worst-case-waste.  If "not
+> > much" then OK.
+> > 
+> > If "quite a lot in the worst case" then we'd need something more elaborate.
+> 
+> Would some like this be okay:
+> 
+> #ifdef CONFIG_DEBUG_SLAB
+> 	return alloc_page(...
+> #else
+> 	return kmalloc(...
+> #endif
+> 
+> This keeps it simple, and should be still be efficient in the
+> non-DEBUG_SLAB case.
+> 
 
-We have a test that looks for invalid pairings of certain athlon/durons
-that weren't designed for SMP, and taint accordingly (with 'S') if we find
-such a configuration.  However, this test shouldn't fire if there's only
-a single CPU present. It's perfectly valid for an SMP kernel to boot on UP
-hardware for example.
-
-AK: changed to num_possible_cpus()
-
-Signed-off-by: Dave Jones <davej@redhat.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- arch/i386/kernel/smpboot.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-Index: linux/arch/i386/kernel/smpboot.c
-===================================================================
---- linux.orig/arch/i386/kernel/smpboot.c
-+++ linux/arch/i386/kernel/smpboot.c
-@@ -177,6 +177,9 @@ static void __devinit smp_store_cpu_info
- 	 */
- 	if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
- 
-+		if (num_possible_cpus() == 1)
-+			goto valid_k7;
-+
- 		/* Athlon 660/661 is valid. */	
- 		if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
- 			goto valid_k7;
+I guess that would work OK.  It does appear that a lot of people build and
+distribute CONFIG_DEBUG_SLAB kernels though.  Fedora, for one.

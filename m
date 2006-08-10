@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbWHJF7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWHJGD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161046AbWHJF7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 01:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbWHJF7K
+	id S1161055AbWHJGD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 02:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWHJGD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 01:59:10 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:15568 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161046AbWHJF7J (ORCPT
+	Thu, 10 Aug 2006 02:03:29 -0400
+Received: from mx1.suse.de ([195.135.220.2]:49885 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161048AbWHJGD2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 01:59:09 -0400
-Message-ID: <44DACB21.9080002@garzik.org>
-Date: Thu, 10 Aug 2006 01:58:57 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 10 Aug 2006 02:03:28 -0400
+From: Neil Brown <neilb@suse.de>
+To: "Xin Zhao" <uszhaoxin@gmail.com>
+Date: Thu, 10 Aug 2006 16:03:25 +1000
 MIME-Version: 1.0
-To: cmm@us.ibm.com
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
-References: <1155172597.3161.72.camel@localhost.localdomain>
-In-Reply-To: <1155172597.3161.72.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Message-ID: <17626.52269.828274.831029@cse.unsw.edu.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: Urgent help needed on an NFS question, please help!!!
+In-Reply-To: message from Xin Zhao on Thursday August 10
+References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
+	<17626.49136.384370.284757@cse.unsw.edu.au>
+	<4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao wrote:
-> This series of patch forkes a new filesystem, ext4, from the current
-> ext3 filesystem, as the code base to work on, for the big features such
-> as extents and larger fs(48 bit blk number) support, per our discussion
-> on lkml a few weeks ago. 
-[...]
-> Any comments? Could we add ext4/jbd2 to mm tree for a wider testing?
+On Thursday August 10, uszhaoxin@gmail.com wrote:
+> Many thanks for your kind help!
+> 
+> Your answer is what I expected. But what frustrated me is that I
+> cannot find the code that verifies the generation number in NFS V3
+> codes. Do you know where it check the generation number?
 
-ext4 developers should create a git tree with the consensus-accepted 
-patches.
+NFSD doesn't.  The individual filesystem does.  You need to look in
+the filesystem code.
 
-That way Linus can pull as soon as the merge window opens, Andrew is 
-guaranteed to have the latest in his -mm tree, and users and other 
-kernel hackers can easily follow the development without having to 
-gather scattered patches from lkml.
+Some filesystems use common code from fs/exportfs/expfs.c
+See "export_iget".
 
-	Jeff
-
-
+NeilBrown.

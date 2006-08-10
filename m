@@ -1,120 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWHJUO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWHJUO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWHJUO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbWHJTgN
+	id S932140AbWHJUO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWHJTgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:36:13 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:6891 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932316AbWHJTfa (ORCPT
+	Thu, 10 Aug 2006 15:36:05 -0400
+Received: from mx1.suse.de ([195.135.220.2]:17040 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932348AbWHJTfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:30 -0400
+	Thu, 10 Aug 2006 15:35:37 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [16/145] x86_64: x86 clean up nmi panic messages
-Message-Id: <20060810193528.E0ADE13C16@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:28 +0200 (CEST)
+Subject: [PATCH for review] [23/145] i386: Enable NMI watchdog by default
+Message-Id: <20060810193536.52EFC13B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:36 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Don Zickus <dzickus@redhat.com>
-Clean up some of the output messages on the nmi error paths to make more
-sense when they are displayed.  This is mainly a cosmetic fix and
-shouldn't impact any normal code path.  
+I've had good experiences with having this on by default on x86-64.
+It turns nasty hangs into easier to debug oopses.
 
-Signed-off-by:  Don Zickus <dzickus@redhat.com>
+Enable the local APIC wdog by default for systems newer than 2004.
+
+This comes from a strange compromise: according to arjan the reason
+it was off by default was some old IBM systems that corrupted
+registered when NMI happened in SMI. Can't remember more specific,
+but >= 2004 should avoid these. It's probably overly broad
+because most older systems should be ok (and the really old systems
+won't be supported by the local apic watchdog anyways) 
+
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/traps.c   |   15 ++++++++-------
- arch/x86_64/kernel/traps.c |   21 ++++++++++++++-------
- 2 files changed, 22 insertions(+), 14 deletions(-)
+ arch/i386/kernel/nmi.c |    9 +++++++++
+ 1 files changed, 9 insertions(+)
 
-Index: linux/arch/i386/kernel/traps.c
+Index: linux/arch/i386/kernel/nmi.c
 ===================================================================
---- linux.orig/arch/i386/kernel/traps.c
-+++ linux/arch/i386/kernel/traps.c
-@@ -628,13 +628,15 @@ gp_in_kernel:
+--- linux.orig/arch/i386/kernel/nmi.c
++++ linux/arch/i386/kernel/nmi.c
+@@ -21,6 +21,7 @@
+ #include <linux/sysdev.h>
+ #include <linux/sysctl.h>
+ #include <linux/percpu.h>
++#include <linux/dmi.h>
  
- static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
- {
--	printk(KERN_EMERG "Uhhuh. NMI received. Dazed and confused, but trying "
--			"to continue\n");
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
-+		"CPU %d.\n", reason, smp_processor_id());
- 	printk(KERN_EMERG "You probably have a hardware problem with your RAM "
- 			"chips\n");
- 	if (panic_on_unrecovered_nmi)
-                 panic("NMI: Not continuing");
+ #include <asm/smp.h>
+ #include <asm/nmi.h>
+@@ -204,6 +205,14 @@ static int __init check_nmi_watchdog(voi
+ 	unsigned int *prev_nmi_count;
+ 	int cpu;
  
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
++	/* Enable NMI watchdog for newer systems.
++           Actually it should be safe for most systems before 2004 too except
++	   for some IBM systems that corrupt registers when NMI happens
++	   during SMM. Unfortunately we don't have more exact information
++ 	   on these and use this coarse check. */
++	if (nmi_watchdog == NMI_DEFAULT && dmi_get_year(DMI_BIOS_DATE) >= 2004)
++		nmi_watchdog = NMI_LOCAL_APIC;
 +
- 	/* Clear and disable the memory parity error line. */
- 	clear_mem_error(reason);
- }
-@@ -665,14 +667,13 @@ static void unknown_nmi_error(unsigned c
- 		return;
- 	}
- #endif
--	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
--		reason, smp_processor_id());
--	printk("Dazed and confused, but trying to continue\n");
--	printk("Do you have a strange power saving mode enabled?\n");
--
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
-+		"CPU %d.\n", reason, smp_processor_id());
-+	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
- 	if (panic_on_unrecovered_nmi)
-                 panic("NMI: Not continuing");
+ 	if ((nmi_watchdog == NMI_NONE) || (nmi_watchdog == NMI_DEFAULT))
+ 		return 0;
  
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
- }
- 
- static DEFINE_SPINLOCK(nmi_print_lock);
-Index: linux/arch/x86_64/kernel/traps.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/traps.c
-+++ linux/arch/x86_64/kernel/traps.c
-@@ -726,10 +726,15 @@ asmlinkage void __kprobes do_general_pro
- static __kprobes void
- mem_parity_error(unsigned char reason, struct pt_regs * regs)
- {
--	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
--	printk("You probably have a hardware problem with your RAM chips\n");
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x.\n",
-+		reason);
-+	printk(KERN_EMERG "You probably have a hardware problem with your "
-+		"RAM chips\n");
-+
- 	if (panic_on_unrecovered_nmi)
--               panic("NMI: Not continuing");
-+		panic("NMI: Not continuing");
-+
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
- 
- 	/* Clear and disable the memory parity error line. */
- 	reason = (reason & 0xf) | 4;
-@@ -752,13 +757,15 @@ io_check_error(unsigned char reason, str
- 
- static __kprobes void
- unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
--{	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
--	printk("Dazed and confused, but trying to continue\n");
--	printk("Do you have a strange power saving mode enabled?\n");
-+{
-+	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x.\n",
-+		reason);
-+	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
- 
- 	if (panic_on_unrecovered_nmi)
--                panic("NMI: Not continuing");
-+		panic("NMI: Not continuing");
- 
-+	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
- }
- 
- /* Runs on IST stack. This code must keep interrupts off all the time.

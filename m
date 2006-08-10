@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161887AbWHJNPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162203AbWHJNTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161887AbWHJNPG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161885AbWHJNPG
+	id S1162203AbWHJNTU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161477AbWHJNTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:15:06 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:16608 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161883AbWHJNPE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:15:04 -0400
-Message-ID: <44DB3151.8050904@garzik.org>
-Date: Thu, 10 Aug 2006 09:14:57 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 10 Aug 2006 09:19:20 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:24978 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161476AbWHJNTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 09:19:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=Tvv+5qd4REF2MaUznq6zTNkyc8ZDD9u5u5WHCK+dU27ha1x3r6PHOOTyehVXj/Xmsc8bdjq+TRjzjNU8puX1xlQ2Vok4BY140sPLU+uvD/TKVdc1ci8wDeB0lH8E94r2UcBbXJrxleY4AFqhBbU9k9iHK1OqVMlllgoCrpbend4=
+Date: Thu, 10 Aug 2006 15:19:16 +0200
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: David Miller <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, acme@ghostprotocols.net,
+       jet@gyve.org
+Subject: Re: [patch] Use rwsems instead of custom locking scheme in net/socket.c and net/dccp/ccid.c
+Message-ID: <20060810131916.GA1221@slug>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <20060810121336.GB1462@slug> <20060810.055711.56053014.davem@davemloft.net>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home> <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home> <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home> <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0608101459260.6761@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060810.055711.56053014.davem@davemloft.net>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> On Thu, 10 Aug 2006, Jeff Garzik wrote:
->>>> Or you could just not bother, and leave everything as u64.
->>> Why?
->> To eliminate needless complexity and keep things simple and obvious?
+On Thu, Aug 10, 2006 at 05:57:11AM -0700, David Miller wrote:
+> From: Frederik Deweerdt <deweerdt@free.fr>
+> Date: Thu, 10 Aug 2006 14:13:36 +0200
 > 
-> Considering the amount of complexity we add for the high end, why is it 
-> suddenly a bad thing to add even a _little_ complexity for the other end?
+> > This patch aims at removing two implementations (spotted by Masatake YAMATO) of
+> > pseudo-rwlocks using a spinlock_t and an atomic_t. One in net/socket.c
+> > and another in net/bluetooth/af_bluetooth.c. I think that both could be
+> > converted to rwsems, saving some lines of code.
+> 
+> The net/socket.c one has been converted to RCU by Stephen
+> Hemminger already.
+> 
+> If the bluetooth case is in an important code path it should
+> use RCU as well.
+Sorry, I made a mistake there: net/bluetooth/af_bluetooth.c should read
+net/dccp/ccid.c. Does your comment regarding af_bluetooth.c applies to
+ccid.c as well?
+Also, is there a place where I can find Stephen Hemminger's work?
+- Note, this is pure curiosity, it can wait a kernel release or two :) -
 
-This is ext4 not ext3 we're talking about.  The next gen Linux 
-filesystem should be tuned for modern machines -- 64bit, moving forward 
--- while still working just fine on 32bit.
-
-	Jeff
-
-
+Thanks,
+Frederik

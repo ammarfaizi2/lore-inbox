@@ -1,150 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932702AbWHJTiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbWHJTit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932702AbWHJTiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWHJTiH
+	id S932666AbWHJTit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWHJTic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:38:07 -0400
-Received: from mx1.suse.de ([195.135.220.2]:45969 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932698AbWHJThr (ORCPT
+	Thu, 10 Aug 2006 15:38:32 -0400
+Received: from ns2.suse.de ([195.135.220.15]:21996 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932666AbWHJThi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:47 -0400
+	Thu, 10 Aug 2006 15:37:38 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [145/145] i386: Disallow kprobes on NMI handlers
-Message-Id: <20060810193745.DBBAA13B8E@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:45 +0200 (CEST)
+Subject: [PATCH for review] [137/145] i386: KPROBE_ENTRY ends up putting code into .fixup
+Message-Id: <20060810193737.62EA113C16@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:37 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
-A kprobe executes IRET early and that could cause NMI recursion and stack
-corruption.
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 
-Note: This problem was originally spotted and solved by Andi Kleen in the
-x86_64 architecture. This patch is an adaption of his patch for i386.
+KPROBE_ENTRY does a .section .kprobes.text, and expects its users to
+do a .previous at the end of the function.
 
-AK: Merged with current code which was a bit different.
-AK: Removed printk in nmi handler that shouldn't be there in the first time
-AK: Added missing include.
+Unfortunately, if any code within the function switches sections, for
+example .fixup, then the .previous ends up putting all subsequent code
+into .fixup.  Worse, any subsequent .fixup code gets intermingled with
+the code its supposed to be fixing (which is also in .fixup).  It's
+surprising this didn't cause more havok.
 
-Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+The fix is to use .pushsection/.popsection, so this stuff nests
+properly.  A further cleanup would be to get rid of all
+.section/.previous pairs, since they're inherently fragile.
+
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
-
----
- arch/i386/kernel/entry.S |    2 +-
- arch/i386/kernel/nmi.c   |    6 +++---
- arch/i386/kernel/traps.c |   15 +++++++++------
- 3 files changed, 13 insertions(+), 10 deletions(-)
+ arch/i386/kernel/entry.S   |    8 ++++----
+ arch/x86_64/kernel/entry.S |   12 ++++++------
+ include/linux/linkage.h    |    2 +-
+ 3 files changed, 11 insertions(+), 11 deletions(-)
 
 Index: linux/arch/i386/kernel/entry.S
 ===================================================================
 --- linux.orig/arch/i386/kernel/entry.S
 +++ linux/arch/i386/kernel/entry.S
-@@ -725,7 +725,7 @@ debug_stack_correct:
-  * check whether we got an NMI on the debug path where the debug
-  * fault happened on the sysenter path.
-  */
--ENTRY(nmi)
-+KPROBE_ENTRY(nmi)
+@@ -639,7 +639,7 @@ error_code:
+ 	call *%edi
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-.previous
++.popsection
+ 
+ ENTRY(coprocessor_error)
  	RING0_INT_FRAME
- 	pushl %eax
+@@ -715,7 +715,7 @@ debug_stack_correct:
+ 	call do_debug
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-.previous
++.popsection
+ 
+ /*
+  * NMI is doubly nasty. It can happen _while_ we're handling
+@@ -812,7 +812,7 @@ KPROBE_ENTRY(int3)
+ 	call do_int3
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-.previous
++.popsection
+ 
+ ENTRY(overflow)
+ 	RING0_INT_FRAME
+@@ -877,7 +877,7 @@ KPROBE_ENTRY(general_protection)
  	CFI_ADJUST_CFA_OFFSET 4
-Index: linux/arch/i386/kernel/nmi.c
+ 	jmp error_code
+ 	CFI_ENDPROC
+-.previous
++.popsection
+ 
+ ENTRY(alignment_check)
+ 	RING0_EC_FRAME
+Index: linux/arch/x86_64/kernel/entry.S
 ===================================================================
---- linux.orig/arch/i386/kernel/nmi.c
-+++ linux/arch/i386/kernel/nmi.c
-@@ -22,6 +22,7 @@
- #include <linux/sysctl.h>
- #include <linux/percpu.h>
- #include <linux/dmi.h>
-+#include <linux/kprobes.h>
+--- linux.orig/arch/x86_64/kernel/entry.S
++++ linux/arch/x86_64/kernel/entry.S
+@@ -904,7 +904,7 @@ error_kernelspace:
+         je   error_swapgs
+ 	jmp  error_sti
+ END(error_entry)
+-	.previous
++	.popsection
+ 	
+        /* Reload gs selector with exception handling */
+        /* edi:  new selector */ 
+@@ -1024,7 +1024,7 @@ ENDPROC(execve)
+ KPROBE_ENTRY(page_fault)
+ 	errorentry do_page_fault
+ END(page_fault)
+-	.previous
++	.popsection
  
- #include <asm/smp.h>
- #include <asm/nmi.h>
-@@ -882,7 +883,7 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
+ ENTRY(coprocessor_error)
+ 	zeroentry do_coprocessor_error
+@@ -1046,7 +1046,7 @@ KPROBE_ENTRY(debug)
+ 	paranoidentry do_debug, DEBUG_STACK
+ 	paranoidexit
+ END(debug)
+-	.previous
++	.popsection
  
- extern void die_nmi(struct pt_regs *, const char *msg);
+ 	/* runs on exception stack */	
+ KPROBE_ENTRY(nmi)
+@@ -1061,7 +1061,7 @@ KPROBE_ENTRY(nmi)
+  	CFI_ENDPROC
+ #endif
+ END(nmi)
+-	.previous
++	.popsection
  
--int nmi_watchdog_tick (struct pt_regs * regs, unsigned reason)
-+__kprobes int nmi_watchdog_tick(struct pt_regs * regs, unsigned reason)
- {
+ KPROBE_ENTRY(int3)
+  	INTR_FRAME
+@@ -1071,7 +1071,7 @@ KPROBE_ENTRY(int3)
+  	jmp paranoid_exit1
+  	CFI_ENDPROC
+ END(int3)
+-	.previous
++	.popsection
  
- 	/*
-@@ -962,8 +963,7 @@ int nmi_watchdog_tick (struct pt_regs * 
- 			 * This matches the old behaviour.
- 			 */
- 			rc = 1;
--		} else
--			printk(KERN_WARNING "Unknown enabled NMI hardware?!\n");
-+		}
- 	}
- done:
- 	return rc;
-Index: linux/arch/i386/kernel/traps.c
+ ENTRY(overflow)
+ 	zeroentry do_overflow
+@@ -1120,7 +1120,7 @@ END(stack_segment)
+ KPROBE_ENTRY(general_protection)
+ 	errorentry do_general_protection
+ END(general_protection)
+-	.previous
++	.popsection
+ 
+ ENTRY(alignment_check)
+ 	errorentry do_alignment_check
+Index: linux/include/linux/linkage.h
 ===================================================================
---- linux.orig/arch/i386/kernel/traps.c
-+++ linux/arch/i386/kernel/traps.c
-@@ -680,7 +680,8 @@ gp_in_kernel:
- 	}
- }
+--- linux.orig/include/linux/linkage.h
++++ linux/include/linux/linkage.h
+@@ -35,7 +35,7 @@
+ #endif
  
--static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
-+static __kprobes void
-+mem_parity_error(unsigned char reason, struct pt_regs * regs)
- {
- 	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on "
- 		"CPU %d.\n", reason, smp_processor_id());
-@@ -695,7 +696,8 @@ static void mem_parity_error(unsigned ch
- 	clear_mem_error(reason);
- }
+ #define KPROBE_ENTRY(name) \
+-  .section .kprobes.text, "ax"; \
++  .pushsection .kprobes.text, "ax"; \
+   ENTRY(name)
  
--static void io_check_error(unsigned char reason, struct pt_regs * regs)
-+static __kprobes void
-+io_check_error(unsigned char reason, struct pt_regs * regs)
- {
- 	unsigned long i;
- 
-@@ -711,7 +713,8 @@ static void io_check_error(unsigned char
- 	outb(reason, 0x61);
- }
- 
--static void unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
-+static __kprobes void
-+unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
- {
- #ifdef CONFIG_MCA
- 	/* Might actually be able to figure out what the guilty party
-@@ -732,7 +735,7 @@ static void unknown_nmi_error(unsigned c
- 
- static DEFINE_SPINLOCK(nmi_print_lock);
- 
--void die_nmi (struct pt_regs *regs, const char *msg)
-+void __kprobes die_nmi(struct pt_regs *regs, const char *msg)
- {
- 	if (notify_die(DIE_NMIWATCHDOG, msg, regs, 0, 2, SIGINT) ==
- 	    NOTIFY_STOP)
-@@ -764,7 +767,7 @@ void die_nmi (struct pt_regs *regs, cons
- 	do_exit(SIGSEGV);
- }
- 
--static void default_do_nmi(struct pt_regs * regs)
-+static __kprobes void default_do_nmi(struct pt_regs * regs)
- {
- 	unsigned char reason = 0;
- 
-@@ -802,7 +805,7 @@ static void default_do_nmi(struct pt_reg
- 	reassert_nmi();
- }
- 
--fastcall void do_nmi(struct pt_regs * regs, long error_code)
-+fastcall __kprobes void do_nmi(struct pt_regs * regs, long error_code)
- {
- 	int cpu;
- 
+ #ifndef END

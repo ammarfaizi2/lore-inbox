@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWHJTCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWHJTEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWHJTCl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWHJTCl
+	id S932309AbWHJTEA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWHJTEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:02:41 -0400
-Received: from smtp.reflexsecurity.com ([72.54.64.74]:23714 "EHLO
-	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
-	id S932301AbWHJTCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:02:40 -0400
-Date: Thu, 10 Aug 2006 15:02:22 -0400
-From: Jason Lunz <lunz@falooley.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Merging libata PATA support into the base kernel
-Message-ID: <20060810190222.GA12818@knob.reflex>
-References: <1155144599.5729.226.camel@localhost.localdomain> <p733bc5nm5g.fsf@verdi.suse.de> <1155213464.22922.6.camel@localhost.localdomain> <20060810122056.GP11829@suse.de>
-In-Reply-To: <20060810122056.GP11829@suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 10 Aug 2006 15:04:00 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:28825 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S932309AbWHJTD7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:03:59 -0400
+X-Comment-To: "Randy.Dunlap"
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
+References: <1155172827.3161.80.camel@localhost.localdomain>
+	<20060809233940.50162afb.akpm@osdl.org> <m37j1hlyzv.fsf@bzzz.home.net>
+	<20060810104954.0e03c83e.rdunlap@xenotime.net>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Thu, 10 Aug 2006 23:05:14 +0400
+In-Reply-To: <20060810104954.0e03c83e.rdunlap@xenotime.net> (Randy Dunlap's message of "Thu, 10 Aug 2006 10:49:54 -0700")
+Message-ID: <m3mzacl8d1.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In gmane.linux.kernel, you wrote:
-> You make it sound much worse than it is. Apart for HPA, I'm not aware of
-> any setups that require extra treatment. And the amount of reported bugs
-> against it are pretty close to zero :-)
+>>>>> Randy Dunlap (RD) writes:
 
-*ahem*.
+ RD> On Thu, 10 Aug 2006 13:29:56 +0400 Alex Tomas wrote:
+ >> >>>>> Andrew Morton (AM) writes:
+ >> 
+ >> >> From a quick scan:
+ >> 
+ AM> - The code is very poorly commented.  I'd want to spend a lot of time
+ AM> reviewing this implementation, but not in its present state.  
+ >> 
+ >> what sort of comments are you expecting?
 
-I needed to do this to cure IDE hangs on resume:
+ RD> Helpful ones.  Not obvious stuff.  Intents.
+ RD> Tricks used (if they are the right thing to do).
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
+ RD> How, what, why.  But not nitty-gritty details of how.
+ RD> "Why" is often more important.
 
-Are you watching the suspend mailing lists? There's no shortage of them:
+well, it's a simple b+tree and i'm not sure there are ticks in.
+I'll try to re-read them again WRT what you wrote.
 
-suspend-devel:	http://dir.gmane.org/gmane.linux.kernel.suspend.devel
-linux-pm:	http://dir.gmane.org/gmane.linux.power-management.general
-suspend2-devel:	http://dir.gmane.org/gmane.linux.swsusp.devel
-suspend2-users:	http://dir.gmane.org/gmane.linux.swsusp.general
 
-I'm currently trying to help out one Sheer El-Showk, whose piix ide
-requires 30 seconds of floundering followed by a bus reset to resume:
+ AM> - The existing comments could benefit from some rework by a native English
+ AM> speaker.
+ >> 
+ >> could someone assist here, please?
 
-http://thread.gmane.org/gmane.linux.kernel.suspend.devel/276/focus=347
+ RD> Yes.  How would you like it?  Just comments via email or (quilt) patches?
+ RD> Which files/patches?
 
-But I know next-to-nothing about ATA.
+please, have a look at ext4-extents.patch first
 
-It's not surprising you're not getting many bug reports. It's common for
-several things to go wrong during s2ram, and the user often ends up
-looking at a hung system with a dead screen. It takes some quality time
-with netconsole to even begin to narrow down that it's IDE hanging the
-system, after which you can *begin* solving the no-video-on-resume
-issue.
-
-Jason
+thanks, Alex

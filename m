@@ -1,117 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161348AbWHJPhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161352AbWHJPiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161348AbWHJPhe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 11:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161352AbWHJPhd
+	id S1161352AbWHJPiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 11:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161355AbWHJPiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 11:37:33 -0400
-Received: from web25808.mail.ukl.yahoo.com ([217.12.10.193]:38323 "HELO
-	web25808.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1161348AbWHJPhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 11:37:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=OSVxs9KgxRbQBMBRB1lOJHzrW6nZZqP20yw5Sl7WkWbYbTbl9nQdNQFug1ixKxZu8JWcnhuaRfTEBhwO8wD0Js032QQwioqFrmKmqTu34iWzQNlBParXsp7WztgOuBvbA95Rm5V0CuDa/+6e3RShYhKpPZAQsDKGDHkYvzkc2E8=  ;
-Message-ID: <20060810153731.22728.qmail@web25808.mail.ukl.yahoo.com>
-Date: Thu, 10 Aug 2006 15:37:31 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : Re : sparsemem usage
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <44DB4F04.7060503@shadowen.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Aug 2006 11:38:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63433 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161352AbWHJPiP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 11:38:15 -0400
+Date: Thu, 10 Aug 2006 08:38:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc3-mm2   [oops: shrink_dcache_for_umount_subtree ?]
+Message-Id: <20060810083806.a50c70ed.akpm@osdl.org>
+In-Reply-To: <44DB3819.3050902@reub.net>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+	<44DB3819.3050902@reub.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft wrote:
-> moreau francis wrote:
->> KAMEZAWA Hiroyuki wrote:
->>> On Thu, 10 Aug 2006 14:40:52 +0200 (CEST)
->>> moreau francis <francis_moreau2000@yahoo.fr> wrote:
->>>>> BTW, ioresouce information (see kernel/resouce.c)
->>>>>
->>>>> [kamezawa@aworks Development]$ cat /proc/iomem | grep RAM
->>>>> 00000000-0009fbff : System RAM
->>>>> 000a0000-000bffff : Video RAM area
->>>>> 00100000-2dfeffff : System RAM
->>>>>
->>>>> is not enough ?
->>>>>
->>>> well actually you show that to get a really simple information, ie does
->>>> a page exist ?, we need to parse some kernel data structures like
->>>> ioresource (which is, IMHO, hackish) or duplicate in each architecture
->>>> some data to keep track of existing pages.
->>>>
->>> becasue memory map from e820(x86) or efi(ia64) are registered to
->>> iomem_resource,
->>> we should avoid duplicates that information. kdump and memory hotplug
->>> uses
->>> this information. (memory hotplug updates this iomem_resource.)
->>>
->>> Implementing "page_is_exist" function based on ioresouce is one of
->>> generic
->>> and rubust way to go, I think.
->>> (if performance of list walking is problem, enhancing ioresouce code is
->>>  better.)
->>>  
->>
->> Why not implementing page_exist() by simply using mem_map[] ? When
->> allocating mem_map[], we can just fill it with a special value. And
->> then when registering memory area, we clear this special value with
->> the "reserved" value. Hence for flatmem model, we can have:
->>
->> #define page_exist(pfn)        (mem_map[pfn] != SPECIAL_VALUE)
->>
->> and it should work for sparsemem too and other models that will use
->> mem_map[].
-> 
-> The mem_map isn't a pointer, its a physical structure.  We have a
-
-ok
-
-> special value to tell you if the page is usable within that, thats
-> called PG_reserved.  If this page is reserved the kernel can't touch it,
-> can't look at it.
-
-can't we introduce a new special value, such as "PG_real" ?
+On Fri, 11 Aug 2006 01:43:53 +1200
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
 
 > 
->> Another point, is page_exist() going to replace page_valid() ?
->> I mean page_exist() is going to be something more accurate than
->> page_valid(). All tests on page_valid() _only_ will be fine to test
->> page_exist(). But all tests such:
->>
->>     if (page_valid(x) && page_is_ram(x))
->>
->> can be replaced by
->>
->>     if (page_exist(x))
->>
->> So, again, why not simply improving page_valid() definition rather
->> than introduce a new service ?
 > 
-> Whilst I can understand that not knowing if a page is real or not is
-> perhaps unappealing, I've yet to see any case where we need or care.
-> Changing things to make things 'nicer' interlectually is sometimes
-> worthwhile.  But what is the user here.
+> On 6/08/2006 10:08 p.m., Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/
+> > 
+> > - 2.6.18-rc3-mm1 gets mysterious udev timeouts during boot and crashes in
+> >   NFS.  This kernel reverts the patches which were causing that.
 > 
-> The only consumer you have shown is show_mem() which is a debug
-> function, and that only dumps out the current memory counts.  Its not
-> clear it cares to really know if a page is real or not.
+> Just hit this one upon shutdown (no traces logged before then):
 > 
+> INIT: Sending processes the TERM signal
+> INITStopping clamd: [FAILED]
+> Starting killall:  Stopping clamd: [FAILED]
+> [  OK  ]
+> Sending all processes the TERM signal...
+> Sending all processes the KILL signal...
+> Saving random seed:
+> Syncing hardware clock to system time
+> Turning off swap:
+> Unmounting file systems:  umount2: Device or resource busy
+> umount: /var/www/html: device is busy
+> umount2: Device or resource busy
+> umount: /var/www/html: device is busy
+> BUG: Dentry ffff81003d0f34f0{i=3,n=.reiserfs_priv} still in use (1) [unmount of 
+> reiserfs sdc8]
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at fs/dcache.c:611
+> invalid opcode: 0000 [1] SMP
+> last sysfs file: 
+> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/2-1.2:1.0/bInterfaceProtocol
+> CPU 0
+> Modules linked in: ipv6 ip_gre binfmt_misc i2c_i801 iTCO_wdt serio_raw
+> Pid: 22715, comm: umount Not tainted 2.6.18-rc3-mm2 #1
+> RIP: 0010:[<ffffffff802ce943>]  [<ffffffff802ce943>] 
+> shrink_dcache_for_umount_subtree+0x1a3/0x2a7
+> RSP: 0018:ffff81002ec6fd98  EFLAGS: 00010292
+> RAX: 0000000000000062 RBX: ffff81003d0f34f0 RCX: 0000000000000003
+> RDX: 0000000000000008 RSI: ffff810035224740 RDI: ffff810035224040
+> RBP: ffff81002ec6fdb8 R08: 0000000000000001 R09: 0000000000000001
+> R10: ffffffff80216800 R11: 0000000000000000 R12: ffff81003d0f34f0
+> R13: ffff8100025b2ce8 R14: ffff81002f936d30 R15: 0000000000000000
+> FS:  00002b532ecdd4b0(0000) GS:ffffffff808b5000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 00002b532ecd0000 CR3: 000000003273e000 CR4: 00000000000006e0
+> Process umount (pid: 22715, threadinfo ffff81002ec6e000, task ffff810035224040)
+> Stack:  ffff81003d29c980 ffff81003d29c588 ffffffff80595640 ffff81002ec6fea8
+>   ffff81002ec6fdd8 ffffffff802ceea9 ffffffff805955e0 ffff81003d29c588
+>   ffff81002ec6fe08 ffffffff802c6944 ffff81002f936d30 ffff81003e99e2c0
+> Call Trace:
+>   [<ffffffff802ceea9>] shrink_dcache_for_umount+0x37/0x6e
+>   [<ffffffff802c6944>] generic_shutdown_super+0x24/0x151
+>   [<ffffffff802c6a97>] kill_block_super+0x26/0x3b
+>   [<ffffffff802c6b65>] deactivate_super+0x4c/0x67
+>   [<ffffffff8022d061>] mntput_no_expire+0x58/0x92
+>   [<ffffffff80232562>] path_release_on_umount+0x1d/0x2b
+>   [<ffffffff802d1182>] sys_umount+0x252/0x29b
+>   [<ffffffff8025f45e>] system_call+0x7e/0x83
 
-I understand your point of view, but even if it's a debug function,
-it must exist and report correct information. And my point is that
-I think it should be really easy to implement :) that by using
-a new "special value". Can you confirm that it's really easy to
-implement that ?
-
-thanks
-
-Francis
-
+yup, thanks.  We're expecting that
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/hot-fixes/reiserfs-make-sure-all-dentries-refs-are-released-before-calling-kill_block_super-try-2.patch
+will fix this.
 

@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbWHJFhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWHJFjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161035AbWHJFhr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 01:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWHJFhr
+	id S1161041AbWHJFjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 01:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWHJFjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 01:37:47 -0400
-Received: from py-out-1314.google.com ([64.233.166.174]:24360 "EHLO
-	py-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161035AbWHJFhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 01:37:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:message-id:user-agent:x-http-useragent:x-http-via:mime-version:content-type;
-        b=NEguHqPshY8+ypqT6QFEuKoqK3hzi+wPXSv2vtHTzn0jCVbR+Bvys3MDQ0tbwDojMRUTfsuvz5nrWxNxJHBILpIESRmGZGVSwWy8df/3e+X7I3GaFyJx8RM5ye6ssh3Aa74+FvOEdefPBfM9M8VuMCipsBhAn/cRcibhDO8Tn5o=
-From: "Ch3ru5" <muppadivya@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Regd: Programming a Video Converter
-Date: Thu, 10 Aug 2006 05:37:44 -0000
-Message-ID: <1155188264.556299.112220@m79g2000cwm.googlegroups.com>
-User-Agent: G2/0.2
-X-HTTP-UserAgent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.6) Gecko/20060728 Firefox/1.5.0.6,gzip(gfe),gzip(gfe)
-X-HTTP-Via: 1.1 ProxyServer:8080 (squid/2.5.STABLE13)
+	Thu, 10 Aug 2006 01:39:25 -0400
+Received: from ns.suse.de ([195.135.220.2]:13275 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161041AbWHJFjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 01:39:24 -0400
+Date: Wed, 9 Aug 2006 22:38:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Eric Sandeen <esandeen@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, jack@suse.cz, neilb@suse.de,
+       Marcel Holtmann <marcel@holtmann.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [stable] [patch 16/23] ext3: avoid triggering ext3_error on bad NFS file handle
+Message-ID: <20060810053828.GA14987@kroah.com>
+References: <20060804053258.391158155@quad.kroah.org> <20060804054010.GQ769@kroah.com> <44D35DA0.4060403@redhat.com> <20060804145254.GA20640@infradead.org> <44D36946.7020601@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D36946.7020601@redhat.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I want to write an avi to flv converter in php but i am a complete
-newbie to it.
+On Fri, Aug 04, 2006 at 10:35:34AM -0500, Eric Sandeen wrote:
+> Christoph Hellwig wrote:
+> >On Fri, Aug 04, 2006 at 09:45:52AM -0500, Eric Sandeen wrote:
+> >>Greg KH wrote:
+> >>>-stable review patch.  If anyone has any objections, please let us know.
+> >>>
+> >>>------------------
+> >>>From: Neil Brown <neilb@suse.de>
+> >>>
+> >>>The inode number out of an NFS file handle gets passed eventually to
+> >>>ext3_get_inode_block() without any checking.  If ext3_get_inode_block()
+> >>>allows it to trigger an error, then bad filehandles can have unpleasant
+> >>>effect - ext3_error() will usually cause a forced read-only remount, or a
+> >>>panic if `errors=panic' was used.
+> >>>
+> >>>So remove the call to ext3_error there and put a matching check in
+> >>>ext3/namei.c where inode numbers are read off storage.
+> >>This patch and the ext2 patch (23/23) are accomplishing the same thing in 
+> >>2 different ways, I think, and introducing unnecessary differences 
+> >>between ext2 and ext3.  I'd personally prefer to see both ext2 and ext3 
+> >>handled with the get_dentry op addition, and I'd be happy to quickly whip 
+> >>up the ext3 patch to do this if there's agreement on this path.
+> >
+> >I completly agree with Eric here.  Also pushing out only the fix for one
+> >(and today probably the lesser used) filesystems to -stable seems wrong.
+> 
+> so how's this? (compile tested)
+> 
+> Thanks,
+> -Eric
 
-I would like to know the basic flow of entire process of how a
-converter code is written (ie. the basic algorithm ) in any programming
-language.
+> Signed-off-by: Eric Sandeen <sandeen@sandeen.net>
+> 
+> (tho blatantly ripped off from Neil Brown's ext2 patch)
 
-That is basically i want to know about what is video compression ,
-encoding or decoding and how we can convert from one format to another
+Thanks, I've queued this up.
 
-Example: "You first create an flv stream , then compress the avi code ,
-then copy that code into the flv stream created ."
-
-The above flow may or may not be correct but what i want to know is
-this flow .
-
-Any good tutorials or resources where i can learn the basics.
-
-Thank You,
-Raja.
-
+greg k-h

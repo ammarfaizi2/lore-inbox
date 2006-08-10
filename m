@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWHJRrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWHJRqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422669AbWHJRrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbWHJRrO
+	id S1422657AbWHJRqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbWHJRqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:47:14 -0400
-Received: from xenotime.net ([66.160.160.81]:35815 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422664AbWHJRrM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:47:12 -0400
-Date: Thu, 10 Aug 2006 10:49:54 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
-Message-Id: <20060810104954.0e03c83e.rdunlap@xenotime.net>
-In-Reply-To: <m37j1hlyzv.fsf@bzzz.home.net>
-References: <1155172827.3161.80.camel@localhost.localdomain>
-	<20060809233940.50162afb.akpm@osdl.org>
-	<m37j1hlyzv.fsf@bzzz.home.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 13:46:54 -0400
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:36757 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1422657AbWHJRqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 13:46:54 -0400
+Date: Thu, 10 Aug 2006 13:39:17 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: annotate the rest of entry.s::nmi
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org, "Andi Kleen" <ak@suse.de>
+Message-ID: <200608101343_MC3-1-C7B1-9E81@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 13:29:56 +0400 Alex Tomas wrote:
+In-Reply-To: <44DB532F.76E4.0078.0@novell.com>
 
-> >>>>> Andrew Morton (AM) writes:
+On Thu, 10 Aug 2006 15:39:27 +0200, Jan Beulich wrote:
+>
+> >> The point is that the push-es in FIX_STACK() aren't annotated, so
+> >> things won't be correct at those points anyway.
+> >
+> >I have a patch here that adds that, but it won't compile
+> >because that part of the NMI handler is un-annotated:
 > 
->  >> From a quick scan:
-> 
->  AM> - The code is very poorly commented.  I'd want to spend a lot of time
->  AM>   reviewing this implementation, but not in its present state.  
-> 
-> what sort of comments are you expecting?
+> But you didn't clarify why you need this piece of code annotated...
 
-Helpful ones.  Not obvious stuff.  Intents.
-Tricks used (if they are the right thing to do).
+Uh, which one didn't I clarify?
 
-How, what, why.  But not nitty-gritty details of how.
-"Why" is often more important.
+FIX_STACK() is already invoked from debug(), which is annotated, but
+FIX_STACK() isn't.  And that messes with the stack, so for a few
+instructions the annotations are all wrong.
 
->  AM> - The existing comments could benefit from some rework by a native English
->  AM>   speaker.
-> 
-> could someone assist here, please?
+When I annotated FIX_STACK(), I found entry.S wouldn't compile because
+nmi() included FIX_STACK() but was completely missing annotations
+in that piece. So I added them so FIX_STACK()'s annotations would
+compile...
 
-Yes.  How would you like it?  Just comments via email or (quilt) patches?
-Which files/patches?
+Should I send a combined patch, leave the two patches separate, or just
+drop it?
 
----
-~Randy
+-- 
+Chuck
+

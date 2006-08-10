@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbWHJGlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161099AbWHJGmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161095AbWHJGlK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 02:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWHJGlK
+	id S1161099AbWHJGmb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 02:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWHJGma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 02:41:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49817 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161091AbWHJGlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 02:41:08 -0400
-Date: Wed, 9 Aug 2006 23:40:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: cmm@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-Message-Id: <20060809234019.c8a730e3.akpm@osdl.org>
-In-Reply-To: <1155172843.3161.81.camel@localhost.localdomain>
-References: <1155172843.3161.81.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 10 Aug 2006 02:42:30 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26576
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161099AbWHJGm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 02:42:28 -0400
+Date: Wed, 09 Aug 2006 23:42:35 -0700 (PDT)
+Message-Id: <20060809.234235.71555079.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org, zach.brown@oracle.com
+Subject: Re: [take6 1/3] kevent: Core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060810061433.GA4689@2ka.mipt.ru>
+References: <11551105602734@2ka.mipt.ru>
+	<20060809152127.481fb346.akpm@osdl.org>
+	<20060810061433.GA4689@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Aug 2006 18:20:43 -0700
-Mingming Cao <cmm@us.ibm.com> wrote:
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Thu, 10 Aug 2006 10:14:33 +0400
 
+> On Wed, Aug 09, 2006 at 03:21:27PM -0700, Andrew Morton (akpm@osdl.org) wrote:
+> > On big-endian machines, this pointer will appear to be word-swapped as far
+> > as a 64-bit kernel is concerned.  Or something.
+> > 
+> > IOW: What's going on here??
 > 
-> Define SECTOR_FMT to print sector_t in proper format
+> It is user data - I put there a union just to simplify userspace, so it
+> sould not require some typecasting.
+
+And this is consistent with similar mechianism we use for
+netlink socket dumping, so that we don't have compat layer
+crap just because we provide a place for the user to store
+his pointer or whatever there.
+
+> > > +	k->kevent_entry.next = LIST_POISON1;
+> > > +	k->storage_entry.prev = LIST_POISON2;
+> > > +	k->ready_entry.next = LIST_POISON1;
+> > 
+> > Nope ;)
 > 
-> ...
->
->  #define HAVE_SECTOR_T
->  typedef u64 sector_t;
-> +#define SECTOR_FMT "%llu"
+> I use pointer checks to determine if entry is in the list or not, why it
+> is frowned upon here?
 
-We've thus-far avoided doing this.  In fact a similar construct in
-device-mapper was recently removed.
+As Andrew mentioned in another posting, these poison macros
+are likely to simply go away some day, so you should not use
+them.
 
-Unlike many other attempts, this one appears to be correct (people usually
-get powerpc wrong, due to its u64=unsigned long).
-
-That being said, I'm not really sure we want to add this.  It produces
-rather nasty-looking source code and thus far we've just used %llu and we've
-typecasted the sector_t to `unsigned long long'.  That happens in a lot of
-places in the kernel and perhaps we don't want to start innovating in ext4
-;)
-
-That also being said...  does a 32-bit sector_t make any sense on a
-48-bit-blocknumber filesystem?  I'd have thought that we'd just make ext4
-depend on 64-bit sector_t and be done with it.
-
-Consequently, sector_t should largely vanish from ext4 and JBD2, except for
-those places where it interfaces with the VFS and the block layer. 
-Internally it should just use 64-bit quantities.  That could be u64, but
-I'd suggest that the fs simply open-code `unsigned long long' so that we
-don't need to play any gams at all when passing these things into printk.
-
-Finally, perhaps the code is printing block numbers too much ;)
-
-
-<Notices E3FSBLK, wonders how that snuck through>
-
-I'd suggest that "[patch] ext3: remove E3FSBLK" be written and merged
-before we clone ext4, too...
-
+If you want pointer encoded tags you use internally, define your own.

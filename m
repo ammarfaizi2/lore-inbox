@@ -1,249 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWHJUO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbWHJUeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWHJUO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWHJTfy
+	id S1751532AbWHJUeM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWHJUOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:35:54 -0400
-Received: from ns1.suse.de ([195.135.220.2]:22672 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932121AbWHJTfp (ORCPT
+	Thu, 10 Aug 2006 16:14:33 -0400
+Received: from ns2.suse.de ([195.135.220.15]:42731 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932520AbWHJTgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:45 -0400
+	Thu, 10 Aug 2006 15:36:16 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [30/145] x86_64: x86-64 TIF flags for debug regs and io bitmap in ctxsw
-Message-Id: <20060810193543.B7AB713B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:43 +0200 (CEST)
+Subject: [PATCH for review] [60/145] x86_64: Move early chipset quirks out to new file
+Message-Id: <20060810193615.80DCC13B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:15 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Stephane Eranian <eranian@hpl.hp.com>
-Hello,
+They did not really belong into io_apic.c. Move them into a new file
+and clean it up a bit.
 
-Following my discussion with Andi. Here is a patch that introduces
-two new TIF flags to simplify the context switch code in __switch_to().
-The idea is to minimize the number of cache lines accessed in the common
-case, i.e., when neither the debug registers nor the I/O bitmap are used.
-
-This patch covers the x86-64 modifications. A patch for i386 follows.
-
-Changelog:
-	- add TIF_DEBUG to track when debug registers are active
-	- add TIF_IO_BITMAP to track when I/O bitmap is used
-	- modify __switch_to() to use the new TIF flags
-
-<signed-off-by>: eranian@hpl.hp.com
+Also remove outdated ATI quirk that was obsolete,
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/ia32/ptrace32.c      |    4 ++
- arch/x86_64/kernel/ioport.c      |    1 
- arch/x86_64/kernel/process.c     |   73 ++++++++++++++++++++++-----------------
- arch/x86_64/kernel/ptrace.c      |    8 +++-
- include/asm-x86_64/thread_info.h |    7 +++
- 5 files changed, 60 insertions(+), 33 deletions(-)
+ arch/x86_64/kernel/Makefile       |    2 
+ arch/x86_64/kernel/early-quirks.c |  118 ++++++++++++++++++++++++++++++++++++++
+ arch/x86_64/kernel/io_apic.c      |  101 --------------------------------
+ arch/x86_64/kernel/setup.c        |    2 
+ include/asm-x86_64/proto.h        |    2 
+ 5 files changed, 121 insertions(+), 104 deletions(-)
 
-Index: linux/arch/x86_64/ia32/ptrace32.c
+Index: linux/arch/x86_64/kernel/Makefile
 ===================================================================
---- linux.orig/arch/x86_64/ia32/ptrace32.c
-+++ linux/arch/x86_64/ia32/ptrace32.c
-@@ -117,6 +117,10 @@ static int putreg32(struct task_struct *
- 			if ((0x5454 >> ((val >> (16 + 4*i)) & 0xf)) & 1)
- 			       return -EIO;
- 		child->thread.debugreg7 = val; 
-+		if (val)
-+			set_tsk_thread_flag(child, TIF_DEBUG);
-+		else
-+			clear_tsk_thread_flag(child, TIF_DEBUG);
- 		break; 
- 		    
- 	default:
-Index: linux/arch/x86_64/kernel/ioport.c
+--- linux.orig/arch/x86_64/kernel/Makefile
++++ linux/arch/x86_64/kernel/Makefile
+@@ -8,7 +8,7 @@ obj-y	:= process.o signal.o entry.o trap
+ 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
+ 		x8664_ksyms.o i387.o syscall.o vsyscall.o \
+ 		setup64.o bootflag.o e820.o reboot.o quirks.o i8237.o \
+-		pci-dma.o pci-nommu.o alternative.o
++		pci-dma.o pci-nommu.o alternative.o early-quirks.o
+ 
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ obj-$(CONFIG_X86_MCE)         += mce.o
+Index: linux/arch/x86_64/kernel/io_apic.c
 ===================================================================
---- linux.orig/arch/x86_64/kernel/ioport.c
-+++ linux/arch/x86_64/kernel/ioport.c
-@@ -56,6 +56,7 @@ asmlinkage long sys_ioperm(unsigned long
+--- linux.orig/arch/x86_64/kernel/io_apic.c
++++ linux/arch/x86_64/kernel/io_apic.c
+@@ -280,107 +280,6 @@ static int __init setup_enable_8254_time
+ __setup("disable_8254_timer", setup_disable_8254_timer);
+ __setup("enable_8254_timer", setup_enable_8254_timer);
  
- 		memset(bitmap, 0xff, IO_BITMAP_BYTES);
- 		t->io_bitmap_ptr = bitmap;
-+		set_thread_flag(TIF_IO_BITMAP);
- 	}
- 
- 	/*
-Index: linux/arch/x86_64/kernel/process.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/process.c
-+++ linux/arch/x86_64/kernel/process.c
-@@ -350,6 +350,7 @@ void exit_thread(void)
- 
- 		kfree(t->io_bitmap_ptr);
- 		t->io_bitmap_ptr = NULL;
-+		clear_thread_flag(TIF_IO_BITMAP);
- 		/*
- 		 * Careful, clear this in the TSS too:
- 		 */
-@@ -369,6 +370,7 @@ void flush_thread(void)
- 		if (t->flags & _TIF_IA32)
- 			current_thread_info()->status |= TS_COMPAT;
- 	}
-+	t->flags &= ~_TIF_DEBUG;
- 
- 	tsk->thread.debugreg0 = 0;
- 	tsk->thread.debugreg1 = 0;
-@@ -461,7 +463,7 @@ int copy_thread(int nr, unsigned long cl
- 	asm("mov %%es,%0" : "=m" (p->thread.es));
- 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
- 
--	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
-+	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
- 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
- 		if (!p->thread.io_bitmap_ptr) {
- 			p->thread.io_bitmap_max = 0;
-@@ -469,6 +471,7 @@ int copy_thread(int nr, unsigned long cl
- 		}
- 		memcpy(p->thread.io_bitmap_ptr, me->thread.io_bitmap_ptr,
- 				IO_BITMAP_BYTES);
-+		set_tsk_thread_flag(p, TIF_IO_BITMAP);
- 	} 
- 
- 	/*
-@@ -498,6 +501,40 @@ out:
-  */
- #define loaddebug(thread,r) set_debugreg(thread->debugreg ## r, r)
- 
-+static inline void __switch_to_xtra(struct task_struct *prev_p,
-+			     	    struct task_struct *next_p,
-+			     	    struct tss_struct *tss)
-+{
-+	struct thread_struct *prev, *next;
-+
-+	prev = &prev_p->thread,
-+	next = &next_p->thread;
-+
-+	if (test_tsk_thread_flag(next_p, TIF_DEBUG)) {
-+		loaddebug(next, 0);
-+		loaddebug(next, 1);
-+		loaddebug(next, 2);
-+		loaddebug(next, 3);
-+		/* no 4 and 5 */
-+		loaddebug(next, 6);
-+		loaddebug(next, 7);
-+	}
-+
-+	if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
-+		/*
-+		 * Copy the relevant range of the IO bitmap.
-+		 * Normally this is 128 bytes or less:
-+		 */
-+		memcpy(tss->io_bitmap, next->io_bitmap_ptr,
-+		       max(prev->io_bitmap_max, next->io_bitmap_max));
-+	} else if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
-+		/*
-+		 * Clear any possible leftover bits:
-+		 */
-+		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
-+	}
-+}
-+
- /*
-  *	switch_to(x,y) should switch tasks from x to y.
-  *
-@@ -586,37 +623,11 @@ __switch_to(struct task_struct *prev_p, 
- 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
- 
- 	/*
--	 * Now maybe reload the debug registers
-+	 * Now maybe reload the debug registers and handle I/O bitmaps
- 	 */
--	if (unlikely(next->debugreg7)) {
--		loaddebug(next, 0);
--		loaddebug(next, 1);
--		loaddebug(next, 2);
--		loaddebug(next, 3);
--		/* no 4 and 5 */
--		loaddebug(next, 6);
--		loaddebug(next, 7);
--	}
+-#include <asm/pci-direct.h>
+-#include <linux/pci_ids.h>
+-#include <linux/pci.h>
 -
 -
--	/* 
--	 * Handle the IO bitmap 
--	 */ 
--	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr)) {
--		if (next->io_bitmap_ptr)
--			/*
--			 * Copy the relevant range of the IO bitmap.
--			 * Normally this is 128 bytes or less:
-- 			 */
--			memcpy(tss->io_bitmap, next->io_bitmap_ptr,
--				max(prev->io_bitmap_max, next->io_bitmap_max));
--		else {
--			/*
--			 * Clear any possible leftover bits:
--			 */
--			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
+-#ifdef CONFIG_ACPI
+-
+-static int nvidia_hpet_detected __initdata;
+-
+-static int __init nvidia_hpet_check(unsigned long phys, unsigned long size)
+-{
+-	nvidia_hpet_detected = 1;
+-	return 0;
+-}
+-#endif
+-
+-/* Temporary Hack. Nvidia and VIA boards currently only work with IO-APIC
+-   off. Check for an Nvidia or VIA PCI bridge and turn it off.
+-   Use pci direct infrastructure because this runs before the PCI subsystem. 
+-
+-   Can be overwritten with "apic"
+-
+-   And another hack to disable the IOMMU on VIA chipsets.
+-
+-   ... and others. Really should move this somewhere else.
+-
+-   Kludge-O-Rama. */
+-void __init check_ioapic(void) 
+-{ 
+-	int num,slot,func; 
+-	/* Poor man's PCI discovery */
+-	for (num = 0; num < 32; num++) { 
+-		for (slot = 0; slot < 32; slot++) { 
+-			for (func = 0; func < 8; func++) { 
+-				u32 class;
+-				u32 vendor;
+-				u8 type;
+-				class = read_pci_config(num,slot,func,
+-							PCI_CLASS_REVISION);
+-				if (class == 0xffffffff)
+-					break; 
+-
+-		       		if ((class >> 16) != PCI_CLASS_BRIDGE_PCI)
+-					continue; 
+-
+-				vendor = read_pci_config(num, slot, func, 
+-							 PCI_VENDOR_ID);
+-				vendor &= 0xffff;
+-				switch (vendor) { 
+-				case PCI_VENDOR_ID_VIA:
+-#ifdef CONFIG_IOMMU
+-					if ((end_pfn > MAX_DMA32_PFN ||
+-					     force_iommu) &&
+-					    !iommu_aperture_allowed) {
+-						printk(KERN_INFO
+-    "Looks like a VIA chipset. Disabling IOMMU. Override with \"iommu=allowed\"\n");
+-						iommu_aperture_disabled = 1;
+-					}
+-#endif
+-					return;
+-				case PCI_VENDOR_ID_NVIDIA:
+-#ifdef CONFIG_ACPI
+-					/*
+-					 * All timer overrides on Nvidia are
+-					 * wrong unless HPET is enabled.
+-					 */
+-					nvidia_hpet_detected = 0;
+-					acpi_table_parse(ACPI_HPET,
+-							nvidia_hpet_check);
+-					if (nvidia_hpet_detected == 0) {
+-						acpi_skip_timer_override = 1;
+-						printk(KERN_INFO "Nvidia board "
+-						    "detected. Ignoring ACPI "
+-						    "timer override.\n");
+-					}
+-#endif
+-					/* RED-PEN skip them on mptables too? */
+-					return;
+-
+-				/* This should be actually default, but
+-				   for 2.6.16 let's do it for ATI only where
+-				   it's really needed. */
+-				case PCI_VENDOR_ID_ATI:
+-					if (timer_over_8254 == 1) {	
+-						timer_over_8254 = 0;	
+-					printk(KERN_INFO
+-		"ATI board detected. Disabling timer routing over 8254.\n");
+-					}	
+-					return;
+-				} 
+-
+-
+-				/* No multi-function device? */
+-				type = read_pci_config_byte(num,slot,func,
+-							    PCI_HEADER_TYPE);
+-				if (!(type & 0x80))
+-					break;
+-			} 
 -		}
 -	}
-+	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
-+	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
-+		__switch_to_xtra(prev_p, next_p, tss);
- 
- 	return prev_p;
- }
-Index: linux/arch/x86_64/kernel/ptrace.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/ptrace.c
-+++ linux/arch/x86_64/kernel/ptrace.c
-@@ -420,9 +420,13 @@ long arch_ptrace(struct task_struct *chi
- 				if ((0x5554 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
- 					break;
- 			if (i == 4) {
--				child->thread.debugreg7 = data;
-+			  child->thread.debugreg7 = data;
-+			  if (data)
-+			  	set_tsk_thread_flag(child, TIF_DEBUG);
-+			  else
-+			  	clear_tsk_thread_flag(child, TIF_DEBUG);
- 			  ret = 0;
--		  }
-+		  	}
- 		  break;
- 		}
- 		break;
-Index: linux/include/asm-x86_64/thread_info.h
-===================================================================
---- linux.orig/include/asm-x86_64/thread_info.h
-+++ linux/include/asm-x86_64/thread_info.h
-@@ -120,6 +120,8 @@ static inline struct thread_info *stack_
- #define TIF_FORK		18	/* ret_from_fork */
- #define TIF_ABI_PENDING		19
- #define TIF_MEMDIE		20
-+#define TIF_DEBUG		21	/* uses debug registers */
-+#define TIF_IO_BITMAP		22	/* uses I/O bitmap */
- 
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
-@@ -133,6 +135,8 @@ static inline struct thread_info *stack_
- #define _TIF_IA32		(1<<TIF_IA32)
- #define _TIF_FORK		(1<<TIF_FORK)
- #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
-+#define _TIF_DEBUG		(1<<TIF_DEBUG)
-+#define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
- 
- /* work to do on interrupt/exception return */
- #define _TIF_WORK_MASK \
-@@ -140,6 +144,9 @@ static inline struct thread_info *stack_
- /* work to do on any return to user space */
- #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
- 
-+/* flags to check in __switch_to() */
-+#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
-+
- #define PREEMPT_ACTIVE     0x10000000
+-} 
  
  /*
+  * Find the IRQ entry number of a certain pin.
+Index: linux/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/setup.c
++++ linux/arch/x86_64/kernel/setup.c
+@@ -655,7 +655,7 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	paging_init();
+ 
+-	check_ioapic();
++	early_quirks();
+ 
+ 	/*
+ 	 * set this early, so we dont allocate cpu0
+Index: linux/include/asm-x86_64/proto.h
+===================================================================
+--- linux.orig/include/asm-x86_64/proto.h
++++ linux/include/asm-x86_64/proto.h
+@@ -92,7 +92,7 @@ extern void syscall32_cpu_init(void);
+ 
+ extern void setup_node_bootmem(int nodeid, unsigned long start, unsigned long end);
+ 
+-extern void check_ioapic(void);
++extern void early_quirks(void);
+ extern void check_efer(void);
+ 
+ extern int unhandled_signal(struct task_struct *tsk, int sig);
+Index: linux/arch/x86_64/kernel/early-quirks.c
+===================================================================
+--- /dev/null
++++ linux/arch/x86_64/kernel/early-quirks.c
+@@ -0,0 +1,118 @@
++/* Various workarounds for chipset bugs.
++   This code runs very early and can't use the regular PCI subsystem
++   The entries are keyed to PCI bridges which usually identify chipsets
++   uniquely.
++   This is only for whole classes of chipsets with specific problems which
++   need early invasive action (e.g. before the timers are initialized).
++   Most PCI device specific workarounds can be done later and should be
++   in standard PCI quirks
++   Mainboard specific bugs should be handled by DMI entries.
++   CPU specific bugs in setup.c */
++
++#include <linux/pci.h>
++#include <linux/acpi.h>
++#include <linux/pci_ids.h>
++#include <asm/pci-direct.h>
++#include <asm/proto.h>
++#include <asm/dma.h>
++
++static void via_bugs(void)
++{
++#ifdef CONFIG_IOMMU
++	if ((end_pfn > MAX_DMA32_PFN ||  force_iommu) &&
++	    !iommu_aperture_allowed) {
++		printk(KERN_INFO
++  "Looks like a VIA chipset. Disabling IOMMU. Override with iommu=allowed\n");
++		iommu_aperture_disabled = 1;
++	}
++#endif
++}
++
++#ifdef CONFIG_ACPI
++
++static int nvidia_hpet_detected __initdata;
++
++static int __init nvidia_hpet_check(unsigned long phys, unsigned long size)
++{
++	nvidia_hpet_detected = 1;
++	return 0;
++}
++#endif
++
++static void nvidia_bugs(void)
++{
++#ifdef CONFIG_ACPI
++	/*
++	 * All timer overrides on Nvidia are
++	 * wrong unless HPET is enabled.
++	 */
++	nvidia_hpet_detected = 0;
++	acpi_table_parse(ACPI_HPET, nvidia_hpet_check);
++	if (nvidia_hpet_detected == 0) {
++		acpi_skip_timer_override = 1;
++		printk(KERN_INFO "Nvidia board "
++		       "detected. Ignoring ACPI "
++		       "timer override.\n");
++	}
++#endif
++	/* RED-PEN skip them on mptables too? */
++
++}
++
++static void ati_bugs(void)
++{
++#if 1 /* for testing */
++	printk("ATI board detected\n");
++#endif
++	/* No bugs right now */
++}
++
++struct chipset {
++	u16 vendor;
++	void (*f)(void);
++};
++
++static struct chipset early_qrk[] = {
++	{ PCI_VENDOR_ID_NVIDIA, nvidia_bugs },
++	{ PCI_VENDOR_ID_VIA, via_bugs },
++	{ PCI_VENDOR_ID_ATI, ati_bugs },
++	{}
++};
++
++void __init early_quirks(void)
++{
++	int num, slot, func;
++	/* Poor man's PCI discovery */
++	for (num = 0; num < 32; num++) {
++		for (slot = 0; slot < 32; slot++) {
++			for (func = 0; func < 8; func++) {
++				u32 class;
++				u32 vendor;
++				u8 type;
++				int i;
++				class = read_pci_config(num,slot,func,
++							PCI_CLASS_REVISION);
++				if (class == 0xffffffff)
++					break;
++
++		       		if ((class >> 16) != PCI_CLASS_BRIDGE_PCI)
++					continue;
++
++				vendor = read_pci_config(num, slot, func,
++							 PCI_VENDOR_ID);
++				vendor &= 0xffff;
++
++				for (i = 0; early_qrk[i].f; i++)
++					if (early_qrk[i].vendor == vendor) {
++						early_qrk[i].f();
++						return;
++					}
++
++				type = read_pci_config_byte(num, slot, func,
++							    PCI_HEADER_TYPE);
++				if (!(type & 0x80))
++					break;
++			}
++		}
++	}
++}

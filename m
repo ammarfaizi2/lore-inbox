@@ -1,58 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161368AbWHJQCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161377AbWHJQEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161368AbWHJQCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161369AbWHJQCt
+	id S1161377AbWHJQEf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161375AbWHJQEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:02:49 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:38337 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161368AbWHJQCs (ORCPT
+	Thu, 10 Aug 2006 12:04:14 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:34536 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1161360AbWHJQEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:02:48 -0400
-Subject: Re: + r-o-bind-mount-clean-up-ocfs2-nlink-handling.patch added to
-	-mm tree
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, hch@lst.de, mark.fasheh@oracle.com,
-       viro@zeniv.linux.org.uk
-In-Reply-To: <1155218195.16579.3.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-References: <200608091912.k79JCnGh027465@shell0.pdx.osdl.net>
-	 <1155218195.16579.3.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Thu, 10 Aug 2006 09:02:37 -0700
-Message-Id: <1155225757.19249.232.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 12:04:11 -0400
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>
+Subject: [PATCH 1/14] Generic ioremap_page_range: implementation
+Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date: Thu, 10 Aug 2006 18:03:33 +0200
+Message-Id: <1155225827754-git-send-email-hskinnemoen@atmel.com>
+X-Mailer: git-send-email 1.4.0
+In-Reply-To: <1155225826761-git-send-email-hskinnemoen@atmel.com>
+References: <1155225826761-git-send-email-hskinnemoen@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 06:56 -0700, Daniel Walker wrote:
-> On Wed, 2006-08-09 at 12:12 -0700, akpm@osdl.org wrote:
-> > -	/* We can set nlink on the dinode now. clear the saved version
-> > -	 * so that it doesn't get set later. */
-> > +	if (S_ISDIR(inode->i_mode))
-> > +		drop_nlink(inode);
-> > +	drop_nlink(inode);
-> >  	fe->i_links_count = cpu_to_le16(inode->i_nlink);
-> > -	saved_nlink = 0;
-> >  
-> >  	status = ocfs2_journal_dirty(handle, fe_bh);
->
-> There's one too many drop_nlink()'s in this block, unless I'm not
-> reading this right.
+This patch adds a generic implementation of ioremap_page_range() in
+lib/ioremap.c based on the i386 implementation. It differs from the
+i386 version in the following ways:
 
-It needs to be double-dropped for any directory inodes.  Some of the
-older code just did i_nlink-=2, and I chose to just call drop_nlink()
-twice instead of making another helper to do arbitrary arithmetic on
-i_nlink.
+  * The PTE flags are passed as a pgprot_t argument and must be
+    determined up front by the arch-specific code. No additional
+    PTE flags are added.
+  * Uses set_pte_at() instead of set_pte()
 
-I believe this made up for the 
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ include/linux/io.h |    4 ++
+ lib/Makefile       |    2 +
+ lib/ioremap.c      |   93 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 98 insertions(+), 1 deletions(-)
 
-        if (S_ISDIR(inode->i_mode))
-                inode->i_nlink = 0;
-
-in the old code.
-
--- Dave
+diff --git a/include/linux/io.h b/include/linux/io.h
+index 420e2fd..aa3f5af 100644
+--- a/include/linux/io.h
++++ b/include/linux/io.h
+@@ -19,8 +19,12 @@ #ifndef _LINUX_IO_H
+ #define _LINUX_IO_H
+ 
+ #include <asm/io.h>
++#include <asm/page.h>
+ 
+ void __iowrite32_copy(void __iomem *to, const void *from, size_t count);
+ void __iowrite64_copy(void __iomem *to, const void *from, size_t count);
+ 
++int ioremap_page_range(unsigned long addr, unsigned long end,
++		       unsigned long phys_addr, pgprot_t prot);
++
+ #endif /* _LINUX_IO_H */
+diff --git a/lib/Makefile b/lib/Makefile
+index be9719a..a4dcb07 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -5,7 +5,7 @@ #
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+ 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+-	 sha1.o
++	 sha1.o ioremap.o
+ 
+ lib-$(CONFIG_SMP) += cpumask.o
+ 
+diff --git a/lib/ioremap.c b/lib/ioremap.c
+new file mode 100644
+index 0000000..6419101
+--- /dev/null
++++ b/lib/ioremap.c
+@@ -0,0 +1,93 @@
++/*
++ * Re-map IO memory to kernel address space so that we can access it.
++ * This is needed for high PCI addresses that aren't mapped in the
++ * 640k-1MB IO memory area on PC's
++ *
++ * (C) Copyright 1995 1996 Linus Torvalds
++ */
++#include <linux/io.h>
++#include <linux/vmalloc.h>
++
++#include <asm/cacheflush.h>
++#include <asm/pgtable.h>
++
++static int ioremap_pte_range(pmd_t *pmd, unsigned long addr,
++		unsigned long end, unsigned long phys_addr, pgprot_t prot)
++{
++	pte_t *pte;
++	unsigned long pfn;
++
++	pfn = phys_addr >> PAGE_SHIFT;
++	pte = pte_alloc_kernel(pmd, addr);
++	if (!pte)
++		return -ENOMEM;
++	do {
++		BUG_ON(!pte_none(*pte));
++		set_pte_at(&init_mm, addr, pte, pfn_pte(pfn, prot));
++		pfn++;
++	} while (pte++, addr += PAGE_SIZE, addr != end);
++	return 0;
++}
++
++static inline int ioremap_pmd_range(pud_t *pud, unsigned long addr,
++		unsigned long end, unsigned long phys_addr, pgprot_t prot)
++{
++	pmd_t *pmd;
++	unsigned long next;
++
++	phys_addr -= addr;
++	pmd = pmd_alloc(&init_mm, pud, addr);
++	if (!pmd)
++		return -ENOMEM;
++	do {
++		next = pmd_addr_end(addr, end);
++		if (ioremap_pte_range(pmd, addr, next, phys_addr + addr, prot))
++			return -ENOMEM;
++	} while (pmd++, addr = next, addr != end);
++	return 0;
++}
++
++static inline int ioremap_pud_range(pgd_t *pgd, unsigned long addr,
++		unsigned long end, unsigned long phys_addr, pgprot_t prot)
++{
++	pud_t *pud;
++	unsigned long next;
++
++	phys_addr -= addr;
++	pud = pud_alloc(&init_mm, pgd, addr);
++	if (!pud)
++		return -ENOMEM;
++	do {
++		next = pud_addr_end(addr, end);
++		if (ioremap_pmd_range(pud, addr, next, phys_addr + addr, prot))
++			return -ENOMEM;
++	} while (pud++, addr = next, addr != end);
++	return 0;
++}
++
++int ioremap_page_range(unsigned long addr,
++		       unsigned long end, unsigned long phys_addr, pgprot_t prot)
++{
++	pgd_t *pgd;
++	unsigned long start;
++	unsigned long next;
++	int err;
++
++	BUG_ON(addr >= end);
++
++	flush_cache_all();
++
++	start = addr;
++	phys_addr -= addr;
++	pgd = pgd_offset_k(addr);
++	do {
++		next = pgd_addr_end(addr, end);
++		err = ioremap_pud_range(pgd, addr, next, phys_addr+addr, prot);
++		if (err)
++			break;
++	} while (pgd++, addr = next, addr != end);
++
++	flush_tlb_all();
++
++	return err;
++}
+-- 
+1.4.0
 

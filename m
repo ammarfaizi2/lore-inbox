@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWHJU1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWHJU2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751542AbWHJU1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWHJU1q
+	id S1751575AbWHJU2f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWHJU2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:27:46 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:35460 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750953AbWHJU1d (ORCPT
+	Thu, 10 Aug 2006 16:28:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27572 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750781AbWHJU2J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:27:33 -0400
-Message-ID: <44DB96B1.6040304@garzik.org>
-Date: Thu, 10 Aug 2006 16:27:29 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 10 Aug 2006 16:28:09 -0400
+Message-ID: <44DB965A.3050208@redhat.com>
+Date: Thu, 10 Aug 2006 16:26:02 -0400
+From: Prarit Bhargava <prarit@redhat.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
-CC: Theodore Tso <tytso@mit.edu>, Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
-References: <1155172642.3161.74.camel@localhost.localdomain> <20060810092021.GB11361@harddisk-recovery.com> <20060810175920.GC19238@thunk.org> <44DB8EBE.6060003@garzik.org> <20060810202307.GB12766@harddisk-recovery.com>
-In-Reply-To: <20060810202307.GB12766@harddisk-recovery.com>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+CC: akpm@osdl.org, "Brown, Len" <len.brown@intel.com>,
+       keith mannthey <kmannth@us.ibm.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot
+ time from 2.6.18-rc4.
+References: <20060804213230.D5D4.Y-GOTO@jp.fujitsu.com> <20060810142329.EB03.Y-GOTO@jp.fujitsu.com>
+In-Reply-To: <20060810142329.EB03.Y-GOTO@jp.fujitsu.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
-> So what about "ext4dev"? That shows that the filesystem is not ext3 and
-> experimental.
-
-<shrug>  Whatever people prefer most.
-
-The important point is that CONFIG_EXPERIMENTAL isn't enough.
-
-	Jeff
 
 
+Yasunori Goto wrote:
+> Hello.
+>
+> I would like to repost this patch to remove noisy useless message at boot
+> time from 2.6.18-rc4.
+> (I said "-mm doesn't shows this message in previous post", but it was wrong.
+>  This messages are shown by -mm too.)
+>
+> -------------------------
+> This is to remove noisy useless message at boot time from 2.6.18-rc4.
+> The message is a ton of
+> "ACPI Exception (acpi_memory-0492): AE_ERROR, handle is no memory device"
+>
+>   
+I'm seeing this on some of my ia64 boxes, however, I see
+
+ACPI Exception (acpi_memory-0491): AE_ERROR, handle is no memory device 
+[20060707]
+
+What's interesting is that last little bit looks an awful lot like a 
+date.... It's almost as if we were
+reading beyond the end of the ACPI table?
+
+Still investigating,
+
+P.

@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWHJMYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161207AbWHJMZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161206AbWHJMYz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161207AbWHJMYy
+	id S1161207AbWHJMZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161211AbWHJMZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:24:54 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:32772 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161206AbWHJMYy (ORCPT
+	Thu, 10 Aug 2006 08:25:46 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:14046 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161207AbWHJMZp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:24:54 -0400
-Date: Thu, 10 Aug 2006 14:26:11 +0200
-From: Jens Axboe <axboe@suse.de>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: softirq considered harmful
-Message-ID: <20060810122610.GR11829@suse.de>
-References: <20060810110627.GM11829@suse.de> <20060810.044133.50597818.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060810.044133.50597818.davem@davemloft.net>
+	Thu, 10 Aug 2006 08:25:45 -0400
+Message-ID: <44DB25C1.1020807@garzik.org>
+Date: Thu, 10 Aug 2006 08:25:37 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home> <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0608101409350.6762@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10 2006, David Miller wrote:
-> From: Jens Axboe <axboe@suse.de>
-> Date: Thu, 10 Aug 2006 13:06:27 +0200
-> 
-> > run_timer_softirq+0x0/0x18e: took 3750
-> > run_timer_softirq+0x0/0x18e: took 2595
-> > run_timer_softirq+0x0/0x18e: took 6265
-> > run_timer_softirq+0x0/0x18e: took 2608
-> > 
-> > So from 2.6 to 6.2msecs just that handler, auch. During normal running,
-> > the 2.6 msec variant triggers quite often.
-> 
-> It would be interesting to know what timers ran when
-> the overhead got this high.
-> 
-> You can probably track this with a per-cpu array
-> of pointers, have run_timer_softirq record the
-> t->func pointers into the array as it runs the
-> current slew of timers, then if the "took" is
-> very large dump the array.
+Roman Zippel wrote:
+> Yes, it does, but I don't think it's that difficult - basically returning 
+> -EIO, it should be part of the basic error handling. Afterwards you don't 
+> have to waste cpu/memory on unused data anymore.
 
-I did that, and it got me nowhere, no timers are to blame. Trying to
-reproduce the slowdowns reported, these tests were with full preemtion
-enabled. Running the exact same test that showed:
+Or you could just not bother, and leave everything as u64.
 
-centera:/sys/block/sdc/queue # cat complete
-8596, 8148, 6833, 7768, 11332, 7781, 8652, 6956, 6716, 13710
+	Jeff
 
-before (almost 14 msecs!!), now shows:
-
-centera:/sys/block/sdc/queue # cat complete
-172, 138, 125, 152, 122, 179, 157, 155, 142, 155
-
-which is a hell of a lot more reasonable. Preempting the io completion
-is, well, shall we say pretty suboptimal. So much for improving latency
-:-)
-
--- 
-Jens Axboe
 

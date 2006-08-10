@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbWHJNil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161268AbWHJNk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161265AbWHJNil (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161268AbWHJNil
+	id S1161268AbWHJNk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161272AbWHJNk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:38:41 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:60593 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1161265AbWHJNil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:38:41 -0400
-Message-Id: <44DB532F.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 10 Aug 2006 15:39:27 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Chuck Ebbert" <76306.1226@compuserve.com>
-Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386: annotate the rest of entry.s::nmi
-References: <200608100851_MC3-1-C7A8-8B6A@compuserve.com>
-In-Reply-To: <200608100851_MC3-1-C7A8-8B6A@compuserve.com>
+	Thu, 10 Aug 2006 09:40:56 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:19104 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161268AbWHJNkz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 09:40:55 -0400
+Date: Thu, 10 Aug 2006 06:41:35 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: stelian@popies.net, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       paulus@au1.ibm.com, anton@au1.ibm.com, open-iscsi@googlegroups.com,
+       pradeep@us.ibm.com, mashirle@us.ibm.com
+Subject: Re: [PATCH] memory ordering in __kfifo primitives
+Message-ID: <20060810134135.GB1298@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060810001823.GA3026@us.ibm.com> <20060810003310.GA3071@us.ibm.com> <44DAC892.7000100@cs.wisc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <44DAC892.7000100@cs.wisc.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >Part of the NMI handler is missing annotations.  Just moving
->> >the RING0_INT_FRAME macro fixes it.  And additional comments
->> >should warn anyone changing this to recheck the annotations.
->> 
->> I have to admit that I can't see the value of this movement; the
->> code sequence in question was left un-annotated intentionally.
->> The point is that the push-es in FIX_STACK() aren't annotated, so
->> things won't be correct at those points anyway.
->
->I have a patch here that adds that, but it won't compile
->because that part of the NMI handler is un-annotated:
+On Thu, Aug 10, 2006 at 01:48:02AM -0400, Mike Christie wrote:
+> Paul E. McKenney wrote:
+> > OK, it appears that we are even.  I forgot to attach the promised
+> > analysis of the callers to __kfifo_put() and __kfifo_get(), and
+> > the open-iscsi@googlegroups.com email address listed as maintainer
+> > in drivers/scsi/libiscsi.c bounces complaining that, as a non-member,
+> > I am not allowed to send it email.  ;-)
+> 
+> Sorry about that. I do not have any control over the email list. I will
+> change the maintainer info entry to indicate that users should just send
+> mail to me or linux-scsi.
 
-But you didn't clarify why you need this piece of code annotated...
+Sounds good!
 
-Jan
+> > Anyway, this time the analysis really is attached, sorry for my confusion!
+> 
+> We have change the code a little since the analysis was made. But, it
+> does not really matter much now. I am fine with us just grabbing the
+> session lock or xmitmitex (I will send a patch and test it as well) if
+> your barrier patch is not accepted. We grab the session lock in the fast
+> path now so there is not much benefit left for us.
+
+I am happy to go either way -- the patch with the memory barriers
+(which does have the side-effect of slowing down kfifo_get() and
+kfifo_put(), by the way), or a patch removing the comments saying
+that it is OK to invoke __kfifo_get() and __kfifo_put() without
+locking.
+
+Any other thoughts on which is better?  (1) the memory barriers or
+(2) requiring the caller hold appropriate locks across calls to
+__kfifo_get() and __kfifo_put()?
+
+							Thanx, Paul

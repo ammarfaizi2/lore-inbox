@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161456AbWHJQyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161463AbWHJQyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161456AbWHJQyf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWHJQye
+	id S1161463AbWHJQyz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161462AbWHJQyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:54:34 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:12226 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1161456AbWHJQyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:54:33 -0400
-Date: Thu, 10 Aug 2006 10:54:31 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Urgent help needed on an NFS question, please help!!!
-Message-ID: <20060810165431.GD4379@parisc-linux.org>
-References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com> <17626.49136.384370.284757@cse.unsw.edu.au> <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com> <17626.52269.828274.831029@cse.unsw.edu.au> <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com> <20060810161107.GC4379@parisc-linux.org> <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 10 Aug 2006 12:54:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30944 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161459AbWHJQym (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 12:54:42 -0400
+Date: Thu, 10 Aug 2006 09:54:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Jeff Garzik <jeff@garzik.org>,
+       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+Message-Id: <20060810095413.3797b4a2.akpm@osdl.org>
+In-Reply-To: <17627.23974.848640.278643@stoffel.org>
+References: <1155172843.3161.81.camel@localhost.localdomain>
+	<20060809234019.c8a730e3.akpm@osdl.org>
+	<Pine.LNX.4.64.0608101302270.6762@scrub.home>
+	<44DB203A.6050901@garzik.org>
+	<Pine.LNX.4.64.0608101409350.6762@scrub.home>
+	<44DB25C1.1020807@garzik.org>
+	<Pine.LNX.4.64.0608101429510.6762@scrub.home>
+	<44DB27A3.1040606@garzik.org>
+	<Pine.LNX.4.64.0608101459260.6761@scrub.home>
+	<44DB3151.8050904@garzik.org>
+	<Pine.LNX.4.64.0608101519560.6762@scrub.home>
+	<17627.23974.848640.278643@stoffel.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 12:23:12PM -0400, Xin Zhao wrote:
-> That makes sense.
+On Thu, 10 Aug 2006 12:24:06 -0400
+"John Stoffel" <john@stoffel.org> wrote:
+
+> >>>>> "Roman" == Roman Zippel <zippel@linux-m68k.org> writes:
 > 
-> Can we make the following two conclusions?
-> 1. In a single machine, inode+dev ID+i_generation can uniquely identify a 
-> file
+> Roman> If you force everyone to use 64bit sector numbers, I don't
+> Roman> understand how you can claim "still working just fine on
+> Roman> 32bit"?  At some point ext4 is probably going to be the de
+> Roman> facto standard, which very many people want to use, because it
+> Roman> has all the new features, which won't be ported to ext2/3. So I
+> Roman> still don't understand, what's so wrong about a little tuning
+> Roman> in both directions?
+> 
+> The problem as I see it, is that you want extents, but you don't want
+> the RAM/DISK/ROM penalty of 64bit blocks, since embedded devices won't
+> ever go past the existing ext3 sizes, right?
 
-sure.
+For ext3 on x86:
 
-> 2. Given a stored file handle and an inode object received from the
-> server,  an NFS client can safely determine whether this inode
-> corresponds to the file handle by checking the inode+dev+i_generation.
+CONFIG_LBD=y:
 
-The NFS client makes up its own inode numbers for use on the local
-machine.  It doesn't know the device+inode+generation numbers on the
-server (and indeed, the server may not even have the concepts of
-inodes).  To quote RFC 1813:
+box:/usr/src/25> size fs/jbd/jbd.o fs/ext3/ext3.o
+   text    data     bss     dec     hex filename
+  51076       8      32   51116    c7ac fs/jbd/jbd.o
+  87466    1020       4   88490   159aa fs/ext3/ext3.o
 
-   The file handle contains all the information the server needs to
-   distinguish an individual file.  To the client, the file handle is
-   opaque. The client stores file handles for use in a later request
-   and can compare two file handles from the same server for equality by
-   doing a byte-by-byte comparison, but cannot otherwise interpret the
-   contents of file handles. If two file handles from the same server
-   are equal, they must refer to the same file, but if they are not
-   equal, no conclusions can be drawn.  Servers should try to maintain
-   a one-to-one correspondence between file handles and files, but this
-   is not required. Clients should use file handle comparisons only to
-   improve performance, not for correct behavior.
+CONFIG_LBD=n:
+
+box:/usr/src/25> size fs/jbd/jbd.o fs/ext3/ext3.o
+   text    data     bss     dec     hex filename
+  51133       8      32   51173    c7e5 fs/jbd/jbd.o
+  87679    1020       4   88703   15a7f fs/ext3/ext3.o
+
+That's a grand total of 270 bytes of text saved.  aka 0.19%.
+
+We'll save four bytes in the inode (unlikely to save anything due to slab
+packing).
+
+We'll save 12 bytes against open-for-writing files due to
+ext3_block_alloc_info shrinkage (unlikely to save anything due to kmalloc
+size roundup).
+
+IOW, unless I've missed something major, we're looking at a total saving of
+around a 16th of a page.  We can save more than that any day of the week by
+going around and deleting some crap from somewhere.  We can surely save
+more than this by taming ext4's inlining frenzy.
+
+I'd expect any runtime savings to be similarly modest.

@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWHJTp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWHJTqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWHJTp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWHJTpE
+	id S1751459AbWHJTqo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWHJTqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:45:04 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:16060 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751484AbWHJToo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:44:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=KOtz1uXU65wdJV+UE9uw8TRxLkk5kB0fx3J50mHEw6WX6Qd3luK5PDYIfOv4MueGBBrT6J3Z2853JXdMJ82P5DOwPq4LPDYQSaQ7l0G51nLsRAtcmZkgdd1jooUsEZgc758t8MCnuFSjkEq5n+tefyVkUEv7s9xVa05kTGpGDlw=
-Date: Thu, 10 Aug 2006 23:44:40 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-Message-ID: <20060810194440.GA6845@martell.zuzino.mipt.ru>
-References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <20060810191747.GL20581@ca-server1.us.oracle.com>
+	Thu, 10 Aug 2006 15:46:43 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:47677 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1751013AbWHJTqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:46:16 -0400
+Date: Thu, 10 Aug 2006 21:47:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jason Lunz <lunz@falooley.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Merging libata PATA support into the base kernel
+Message-ID: <20060810194734.GE11829@suse.de>
+References: <1155144599.5729.226.camel@localhost.localdomain> <p733bc5nm5g.fsf@verdi.suse.de> <1155213464.22922.6.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060810191747.GL20581@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060810190222.GA12818@knob.reflex>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 12:17:47PM -0700, Joel Becker wrote:
-> On Wed, Aug 09, 2006 at 11:40:19PM -0700, Andrew Morton wrote:
-> > On Wed, 09 Aug 2006 18:20:43 -0700
-> > Mingming Cao <cmm@us.ibm.com> wrote:
-> > 
-> > > Define SECTOR_FMT to print sector_t in proper format
-> > 
-> > We've thus-far avoided doing this.  In fact a similar construct in
-> > device-mapper was recently removed.
+On Thu, Aug 10 2006, Jason Lunz wrote:
+> In gmane.linux.kernel, you wrote:
+> > You make it sound much worse than it is. Apart for HPA, I'm not aware of
+> > any setups that require extra treatment. And the amount of reported bugs
+> > against it are pretty close to zero :-)
 > 
-> 	Yeah, OCFS2 had similar formats, and we were asked to change
-> them to naked casts before inclusion.  Seems quite consistent with the
-> rest of the kernel.
+> *ahem*.
+> 
+> I needed to do this to cure IDE hangs on resume:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
+> 
+> Are you watching the suspend mailing lists? There's no shortage of them:
+> 
+> suspend-devel:	http://dir.gmane.org/gmane.linux.kernel.suspend.devel
+> linux-pm:	http://dir.gmane.org/gmane.linux.power-management.general
+> suspend2-devel:	http://dir.gmane.org/gmane.linux.swsusp.devel
+> suspend2-users:	http://dir.gmane.org/gmane.linux.swsusp.general
+> 
+> I'm currently trying to help out one Sheer El-Showk, whose piix ide
+> requires 30 seconds of floundering followed by a bus reset to resume:
+> 
+> http://thread.gmane.org/gmane.linux.kernel.suspend.devel/276/focus=347
+> 
+> But I know next-to-nothing about ATA.
+> 
+> It's not surprising you're not getting many bug reports. It's common for
+> several things to go wrong during s2ram, and the user often ends up
+> looking at a hung system with a dead screen. It takes some quality time
+> with netconsole to even begin to narrow down that it's IDE hanging the
+> system, after which you can *begin* solving the no-video-on-resume
+> issue.
 
-Will
+I'm not on any of the suspend lists, I was merely comparing the
+suspend-others or suspend-libata ration to suspend-ide on linux-kernel,
+and the latter is clearly in the minority. I've used ide suspend quite a
+bit myself, and never had issues with it (or whichever ones I saw
+initially, I fixed). Of course it depends very much on the hardware. I'd
+still say that ide suspend probably supports a much wider range of
+hardware, than does libata suspend.
 
-	printk("%S", sector_t);
-
-kill at least one kitten?
+-- 
+Jens Axboe
 

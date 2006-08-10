@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHJTHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWHJTKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWHJTHR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWHJTHR
+	id S1750873AbWHJTKc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWHJTKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:07:17 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:57220 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932204AbWHJTHP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:07:15 -0400
-Subject: Re: [PATCH 5/6] clean up OCFS2 nlink handling
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <1155197252.3384.418.camel@quoit.chygwyn.com>
-References: <20060809165729.FE36B262@localhost.localdomain>
-	 <20060809165733.704AD0F5@localhost.localdomain>
-	 <20060809171253.GE7324@infradead.org>
-	 <1155150926.19249.175.camel@localhost.localdomain>
-	 <1155197252.3384.418.camel@quoit.chygwyn.com>
-Content-Type: text/plain
-Date: Thu, 10 Aug 2006 12:06:58 -0700
-Message-Id: <1155236818.19249.265.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 10 Aug 2006 15:10:32 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:50439 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750873AbWHJTKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:10:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S2/e9d9r7E7Zpp744QIsp4ZhKf22/euYyo38OJP2J4Ngsg5mIkWYTHGrO+GFPC+P7ODuiTu18gU+iKLgscuCoiQVg50QLJYiXhzEdm1hpPd2i1QW7Tg19l/1Rxoal332S8g854odVGRhGe4CP5fVmP2QQFFyvmMVIVTiOFne46A=
+Message-ID: <62b0912f0608101210k708ff3f5ua6af62e751fef7c7@mail.gmail.com>
+Date: Thu, 10 Aug 2006 21:10:29 +0200
+From: "Molle Bestefich" <molle.bestefich@gmail.com>
+To: "John Stoffel" <john@stoffel.org>
+Subject: Re: ext3 corruption
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17627.23159.236724.190546@stoffel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com>
+	 <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>
+	 <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com>
+	 <62b0912f0608090822n2d0c44c4uc33b5b1db00e9d33@mail.gmail.com>
+	 <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com>
+	 <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>
+	 <20060810030602.GA29664@mail>
+	 <62b0912f0608100248w2b3c2243xec588aee8c5a9079@mail.gmail.com>
+	 <17627.23159.236724.190546@stoffel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 09:07 +0100, Steven Whitehouse wrote:
-> On Wed, 2006-08-09 at 12:15 -0700, Dave Hansen wrote:
-> > On Wed, 2006-08-09 at 18:12 +0100, Christoph Hellwig wrote:
-> [snip]
-> > > did you look whether gfs2 in -mm needs something similar?
-> > 
-> > It doesn't appear to.  It doesn't manipulate i_nlink in the same, direct
-> > manner.
-> 
-> I think it will need something similar. I suspect the required changes
-> will all be confined to routines in inode.c. If the link count is
-> changed by (a) remote node(s), then gfs2_inode_attr_in() might change
-> the link count. Also gfs2_change_nlink() is the other place to look. I
-> think everywhere else is ok,
+John Stoffel wrote:
+> Molle> And voila, that difficult task of assessing in which order to
+> Molle> do things is out of the hands of distros like Red Hat, and into
+> Molle> the hands of those people who actually make the binaries.
+>
+> *bwah hah hah!*
 
-Well, I think this is all that it needs.  I'm trying to decide if we
-need a set_nlink() function for users like this, but I'm not sure there
-are enough of them.
+No need to ridicule :-).
+After all, I'm just saying that there's got to be a simpler, stabler
+and more transparent way than to have all this logic sit in shell
+scripts.
 
----
+> So what happens when two packages, call them A and B,
+> have a circular dependency on each other?  Who wins then?
 
- lxc-dave/fs/gfs2/inode.c |    3 +++
- 2 files changed, 3 insertions(+)
+They both get terminated at *exactly* the same time :-)... Nah, just kidding.
 
-diff -puN fs/gfs2/inode.c~gfs fs/gfs2/inode.c
---- lxc/fs/gfs2/inode.c~gfs	2006-08-10 09:52:33.000000000 -0700
-+++ lxc-dave/fs/gfs2/inode.c	2006-08-10 12:05:06.000000000 -0700
-@@ -332,6 +332,9 @@ int gfs2_change_nlink(struct gfs2_inode 
- 	ip->i_di.di_ctime = get_seconds();
- 	ip->i_inode.i_nlink = nlink;
- 
-+	if (!nlink)
-+		ip->i_inode.i_state |= I_AWAITING_FINAL_IPUT;
-+
- 	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
- 	gfs2_dinode_out(&ip->i_di, dibh->b_data);
- 	brelse(dibh);
+In that case, I imagine either
+a) the system will log errors to syslog and pick a random order, or
+b) the system will refuse to shutdown, politely returning back a
+message to the user space tool that asked for the shutdown, saying
+"there's an inconsistency in the ordering rules, please fix that
+first".  They guy who tapped in "shutdown" would have to kill one of
+the processes manually.  (And probably also upgrade the affected
+software, or file a bug report, or whatever.)
 
+I Googled for a similar software construct, and came upon the SCM in Windows.
+Seems you can make Windows drivers and system services depend on each other.
+In the case where there exists a circular dependency, the SCM refuses
+to even start the affected services.
 
--- Dave
-
+So there's a third possibility.

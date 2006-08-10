@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWHJRaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422645AbWHJRdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbWHJRaz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422641AbWHJRaz
+	id S1422645AbWHJRdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422643AbWHJRdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:30:55 -0400
-Received: from xenotime.net ([66.160.160.81]:62682 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422637AbWHJRay (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:30:54 -0400
-Date: Thu, 10 Aug 2006 10:33:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
-Message-Id: <20060810103336.ce80c80c.rdunlap@xenotime.net>
-In-Reply-To: <20060810092021.GB11361@harddisk-recovery.com>
-References: <1155172642.3161.74.camel@localhost.localdomain>
-	<20060810092021.GB11361@harddisk-recovery.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 10 Aug 2006 13:33:12 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:64959 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1422642AbWHJRdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 13:33:10 -0400
+Subject: Re: [PATCH 1/1] scsi : megaraid_{mm, mbox} : irq data type fix
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Seokmann Ju <sju@lsil.com>
+Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1155228887.6698.7.camel@dhcp-65-957.se.lsil.com>
+References: <1155228887.6698.7.camel@dhcp-65-957.se.lsil.com>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 12:32:51 -0500
+Message-Id: <1155231171.3670.32.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 11:20:22 +0200 Erik Mouw wrote:
+On Thu, 2006-08-10 at 12:54 -0400, Seokmann Ju wrote:
+> This patch fixes incorrect irq data type in the driver which led driver initialization failure in some cases.
+> The problem was reported by Eric @. Biederman <ebiederm@xmission.com>.
+[...]
+> 	uint32_t		unique_id;
+> -	uint8_t			irq;
+> +	unsigned int		irq;
+>  	uint8_t			ito;
 
-> On Wed, Aug 09, 2006 at 06:17:22PM -0700, Mingming Cao wrote:
-> > Register ext4 filesystem as ext3dev filesystem in kernel.
-> 
-> Why confuse users with the name "ext3dev"? If a filesystem lives in
-> fs/blah/, it's registered as "blah" and can be mounted with "-t blah".
-> Just register the filesystem as "ext4" and mark it "EXPERIMENTAL" in
-> Kconfig.
+This doesn't look right ... you're altering the size of a packed field
+within the ioctl body.  This will break the ioctl ABI (and thus all
+tools which use it) unless you employ versioning or some other mechanism
+to detect the breakage and compensate.  I really don't think you want to
+do this.
 
-Yes, please.
+James
 
----
-~Randy
+

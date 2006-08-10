@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWHJUT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWHJUTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWHJUT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWHJUPt
+	id S932350AbWHJUTe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHJUT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:15:49 -0400
-Received: from ns2.suse.de ([195.135.220.15]:24811 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932468AbWHJTfw (ORCPT
+	Thu, 10 Aug 2006 16:19:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52660 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932098AbWHJUSt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:52 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [37/145] x86_64: Support patchable lock prefix for pure assembly files
-Message-Id: <20060810193551.28F3613B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:51 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:18:49 -0400
+Date: Thu, 10 Aug 2006 13:18:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Robert Love" <rlove@rlove.org>
+Cc: "Shem Multinymous" <multinymous@gmail.com>, linux-kernel@vger.kernel.org,
+       "Pavel Machek" <pavel@suse.cz>, "Jean Delvare" <khali@linux-fr.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers
+ (version 2)
+Message-Id: <20060810131820.23f00680.akpm@osdl.org>
+In-Reply-To: <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
+References: <1155203330179-git-send-email-multinymous@gmail.com>
+	<acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, 10 Aug 2006 09:46:47 -0400
+"Robert Love" <rlove@rlove.org> wrote:
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+> Patches look great and I am glad someone has apparently better access
+> to hardware specs than I did.
 
----
- include/asm-x86_64/alternative-asm.i |   14 ++++++++++++++
- 1 files changed, 14 insertions(+)
+This situation is still a concern.  From where did this additional register
+information come?
 
-Index: linux/include/asm-x86_64/alternative-asm.i
-===================================================================
---- /dev/null
-+++ linux/include/asm-x86_64/alternative-asm.i
-@@ -0,0 +1,14 @@
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_SMP
-+	.macro LOCK_PREFIX
-+1:	lock
-+	.section .smp_locks,"a"
-+	.align 8
-+	.quad 1b
-+	.previous
-+	.endm
-+#else
-+	.macro LOCK_PREFIX
-+	.endm
-+#endif
+Was it reverse-engineered?  If so, by whom and how can we satisfy ourselves
+of this?
+
+Was it from published documents?
+
+Was it improperly obtained from NDA'ed documentation?
+
+Presumably the answer to the third question will be "no", but if
+challenged, how can we defend this assertion?
+
+So hm.  We're setting precedent here and we need Linus around to resolve
+this.  Perhaps we can ask "Shem" to reveal his true identity to Linus (and
+maybe me) privately and then we proceed on that basis.  The rule could be
+"each of the Signed-off-by:ers should know the identity of the others".

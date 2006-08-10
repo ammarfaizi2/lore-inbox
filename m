@@ -1,74 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWHJTmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWHJTm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWHJTmE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWHJTlu
+	id S1751205AbWHJTm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWHJTiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:41:50 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:59117 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750829AbWHJTli (ORCPT
+	Thu, 10 Aug 2006 15:38:09 -0400
+Received: from mx2.suse.de ([195.135.220.15]:27884 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932697AbWHJThr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:41:38 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jason Lunz <lunz@falooley.org>
-Subject: Re: Merging libata PATA support into the base kernel
-Date: Thu, 10 Aug 2006 21:40:36 +0200
-User-Agent: KMail/1.9.3
-Cc: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       Stefan Seyfried <seife@suse.de>
-References: <1155144599.5729.226.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
-In-Reply-To: <20060810190222.GA12818@knob.reflex>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608102140.36733.rjw@sisk.pl>
+	Thu, 10 Aug 2006 15:37:47 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [144/145] i386: Disallow kprobes on NMI handlers
+Message-Id: <20060810193744.CF0AB13B8E@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:44 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 August 2006 21:02, Jason Lunz wrote:
-> In gmane.linux.kernel, you wrote:
-> > You make it sound much worse than it is. Apart for HPA, I'm not aware of
-> > any setups that require extra treatment. And the amount of reported bugs
-> > against it are pretty close to zero :-)
+r
 
-No, it's not.
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
 
-> *ahem*.
-> 
-> I needed to do this to cure IDE hangs on resume:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
-> 
-> Are you watching the suspend mailing lists? There's no shortage of them:
-> 
-> suspend-devel:	http://dir.gmane.org/gmane.linux.kernel.suspend.devel
-> linux-pm:	http://dir.gmane.org/gmane.linux.power-management.general
-> suspend2-devel:	http://dir.gmane.org/gmane.linux.swsusp.devel
-> suspend2-users:	http://dir.gmane.org/gmane.linux.swsusp.general
-> 
-> I'm currently trying to help out one Sheer El-Showk, whose piix ide
-> requires 30 seconds of floundering followed by a bus reset to resume:
-> 
-> http://thread.gmane.org/gmane.linux.kernel.suspend.devel/276/focus=347
-> 
-> But I know next-to-nothing about ATA.
-> 
-> It's not surprising you're not getting many bug reports. It's common for
-> several things to go wrong during s2ram, and the user often ends up
-> looking at a hung system with a dead screen. It takes some quality time
-> with netconsole to even begin to narrow down that it's IDE hanging the
-> system, after which you can *begin* solving the no-video-on-resume
-> issue.
+A kprobe executes IRET early and that could cause NMI recursion and stack
+corruption.
 
-I agree.  Moreover, the disk-related resume-from-ram problems are the hardest
-ones (the graphics may be handled from the user land to a reasonable extent).
+Note: This problem was originally spotted by Andi Kleen. This patch
+      adds fixes not included in his original patch.
+[AK: Jan Beulich originally discovered these classes of bugs]
 
-Actually, I'm looking for someone who'd agree to be Cced on bug reports where
-we suspect the problem may be related to IDE/PATA/SATA . ;-)
+Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-Greetings,
-Rafael
+---
+
+---
+ arch/i386/kernel/mca.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+Index: linux/arch/i386/kernel/mca.c
+===================================================================
+--- linux.orig/arch/i386/kernel/mca.c
++++ linux/arch/i386/kernel/mca.c
+@@ -42,6 +42,7 @@
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/mca.h>
++#include <linux/kprobes.h>
+ #include <asm/system.h>
+ #include <asm/io.h>
+ #include <linux/proc_fs.h>
+@@ -414,7 +415,8 @@ subsys_initcall(mca_init);
+ 
+ /*--------------------------------------------------------------------*/
+ 
+-static void mca_handle_nmi_device(struct mca_device *mca_dev, int check_flag)
++static __kprobes void
++mca_handle_nmi_device(struct mca_device *mca_dev, int check_flag)
+ {
+ 	int slot = mca_dev->slot;
+ 
+@@ -444,7 +446,7 @@ static void mca_handle_nmi_device(struct
+ 
+ /*--------------------------------------------------------------------*/
+ 
+-static int mca_handle_nmi_callback(struct device *dev, void *data)
++static int __kprobes mca_handle_nmi_callback(struct device *dev, void *data)
+ {
+ 	struct mca_device *mca_dev = to_mca_device(dev);
+ 	unsigned char pos5;
+@@ -462,7 +464,7 @@ static int mca_handle_nmi_callback(struc
+ 	return 0;
+ }
+ 
+-void mca_handle_nmi(void)
++void __kprobes mca_handle_nmi(void)
+ {
+ 	/* First try - scan the various adapters and see if a specific
+ 	 * adapter was responsible for the error.

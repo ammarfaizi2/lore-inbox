@@ -1,87 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWHJTHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHJTHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWHJTHF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWHJTHE
+	id S932204AbWHJTHR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWHJTHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:07:04 -0400
-Received: from bayc1-pasmtp04.bayc1.hotmail.com ([65.54.191.164]:63626 "EHLO
-	BAYC1-PASMTP04.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S932147AbWHJTHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:07:02 -0400
-Message-ID: <BAYC1-PASMTP0447FD63244C3ED669CA2FB94A0@CEZ.ICE>
-X-Originating-IP: [65.92.42.161]
-X-Originating-Email: [johnmccuthan@sympatico.ca]
-Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
-From: John McCutchan <john@johnmccutchan.com>
-Reply-To: john@johnmccutchan.com
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: cmm@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
-       John McCutchan <ttb@tentacle.dhs.org>, Robert Love <rml@novell.com>
-In-Reply-To: <6bffcb0e0608100815q4b0b35b6mc2799181abd5786e@mail.gmail.com>
-References: <1155172597.3161.72.camel@localhost.localdomain>
-	 <6bffcb0e0608100702m1ad3925bw3e5f0e4804210fc9@mail.gmail.com>
-	 <6bffcb0e0608100815q4b0b35b6mc2799181abd5786e@mail.gmail.com>
+	Thu, 10 Aug 2006 15:07:17 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:57220 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932204AbWHJTHP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:07:15 -0400
+Subject: Re: [PATCH 5/6] clean up OCFS2 nlink handling
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <1155197252.3384.418.camel@quoit.chygwyn.com>
+References: <20060809165729.FE36B262@localhost.localdomain>
+	 <20060809165733.704AD0F5@localhost.localdomain>
+	 <20060809171253.GE7324@infradead.org>
+	 <1155150926.19249.175.camel@localhost.localdomain>
+	 <1155197252.3384.418.camel@quoit.chygwyn.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 10 Aug 2006 15:06:41 -0400
-Message-Id: <1155236801.3162.1.camel@localhost.localdomain>
+Date: Thu, 10 Aug 2006 12:06:58 -0700
+Message-Id: <1155236818.19249.265.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-X-OriginalArrivalTime: 10 Aug 2006 19:07:01.0315 (UTC) FILETIME=[28E74930:01C6BCB0]
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-08 at 17:15 +0200, Michal Piotrowski wrote:
-> On 10/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > Hi,
-> >
-> > On 10/08/06, Mingming Cao <cmm@us.ibm.com> wrote:
-> > > This series of patch forkes a new filesystem, ext4, from the current
-> > > ext3 filesystem, as the code base to work on, for the big features such
-> > > as extents and larger fs(48 bit blk number) support, per our discussion
-> > > on lkml a few weeks ago.
-> >
-> > It appears after a few minutes of running
-> >
-> > #! /bin/bash
-> > while true
-> > do
-> > sudo mount -o loop -t ext3dev /home/fs-farm/ext4.img /mnt/fs-farm/ext4/
-> > sudo umount /mnt/fs-farm/ext4/
-> > done
-> >
-> > BUG: warning at /usr/src/linux-work2/fs/inotify.c:171/set_dentry_child_flags()
-> >  [<c0104006>] show_trace_log_lvl+0x58/0x152
-> >  [<c01046ad>] show_trace+0xd/0x10
-> >  [<c0104775>] dump_stack+0x19/0x1b
-> >  [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
-> >  [<c018ab94>] remove_watch_no_event+0x56/0x64
-> >  [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
-> >  [<c018af1b>] inotify_rm_wd+0x75/0x93
-> >  [<c018b468>] sys_inotify_rm_watch+0x40/0x58
-> >  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> > DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
-> > Leftover inexact backtrace:
-> >  [<c01046ad>] show_trace+0xd/0x10
-> >  [<c0104775>] dump_stack+0x19/0x1b
-> >  [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
-> >  [<c018ab94>] remove_watch_no_event+0x56/0x64
-> >  [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
-> >  [<c018af1b>] inotify_rm_wd+0x75/0x93
-> >  [<c018b468>] sys_inotify_rm_watch+0x40/0x58
-> >  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> > kjournald2 starting.  Commit interval 5 seconds
+On Thu, 2006-08-10 at 09:07 +0100, Steven Whitehouse wrote:
+> On Wed, 2006-08-09 at 12:15 -0700, Dave Hansen wrote:
+> > On Wed, 2006-08-09 at 18:12 +0100, Christoph Hellwig wrote:
+> [snip]
+> > > did you look whether gfs2 in -mm needs something similar?
+> > 
+> > It doesn't appear to.  It doesn't manipulate i_nlink in the same, direct
+> > manner.
 > 
-> Definitely it's an inotify bug. I have checked this with other file systems.
+> I think it will need something similar. I suspect the required changes
+> will all be confined to routines in inode.c. If the link count is
+> changed by (a) remote node(s), then gfs2_inode_attr_in() might change
+> the link count. Also gfs2_change_nlink() is the other place to look. I
+> think everywhere else is ok,
+
+Well, I think this is all that it needs.  I'm trying to decide if we
+need a set_nlink() function for users like this, but I'm not sure there
+are enough of them.
+
+---
+
+ lxc-dave/fs/gfs2/inode.c |    3 +++
+ 2 files changed, 3 insertions(+)
+
+diff -puN fs/gfs2/inode.c~gfs fs/gfs2/inode.c
+--- lxc/fs/gfs2/inode.c~gfs	2006-08-10 09:52:33.000000000 -0700
++++ lxc-dave/fs/gfs2/inode.c	2006-08-10 12:05:06.000000000 -0700
+@@ -332,6 +332,9 @@ int gfs2_change_nlink(struct gfs2_inode 
+ 	ip->i_di.di_ctime = get_seconds();
+ 	ip->i_inode.i_nlink = nlink;
+ 
++	if (!nlink)
++		ip->i_inode.i_state |= I_AWAITING_FINAL_IPUT;
++
+ 	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
+ 	gfs2_dinode_out(&ip->i_di, dibh->b_data);
+ 	brelse(dibh);
 
 
-I'm going on vacation today, so I won't be able to look at it for a
-while. Right off the bat it seems related to Nick Piggin's patch from
-February:
-inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch.
+-- Dave
 
-
--- 
-John McCutchan <john@johnmccutchan.com>

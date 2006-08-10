@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWHJUQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWHJUQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWHJUQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWHJUQR
+	id S932343AbWHJUQF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWHJUQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:16:17 -0400
-Received: from mail.suse.de ([195.135.220.2]:7568 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932241AbWHJTfY (ORCPT
+	Thu, 10 Aug 2006 16:16:00 -0400
+Received: from mx1.suse.de ([195.135.220.2]:24464 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932524AbWHJTfr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:24 -0400
+	Thu, 10 Aug 2006 15:35:47 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [11/145] x86_64: Add ppoll/pselect syscalls
-Message-Id: <20060810193523.9734713C1F@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:23 +0200 (CEST)
+Subject: [PATCH for review] [32/145] x86_64: A few trivial spelling and grammar fixes
+Message-Id: <20060810193545.D30ED13C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:45 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-Needed TIF_RESTORE_SIGMASK first
+From: "Adam Henley" <adamazing@gmail.com>
+A few trivial spelling and grammar mistakes picked up in
+"arch/x86_64/aperture.c", "arch/x86_64/crash.c" and
+"arch/x86_64/apic.c". I think all are correct fixes but am ever aware
+of my fallibility :o) This is my first patch submission so all
+feedback is appreciated, esp. WRT CCing to Linus, Andi and
+trivial@kernel.org, is this correct? And which is the most appropriate
+kernel version to diff against? If any.
 
+Should apply cleanly to 2.6.18-rc1
+
+Signed-off-by: Adam Henley <adamazing@gmail.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
----
- arch/x86_64/ia32/ia32entry.S |    4 ++--
- include/asm-x86_64/unistd.h  |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+-  adam
 
-Index: linux/arch/x86_64/ia32/ia32entry.S
+---
+ arch/x86_64/kernel/aperture.c |    2 +-
+ arch/x86_64/kernel/apic.c     |    4 ++--
+ arch/x86_64/kernel/crash.c    |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+Index: linux/arch/x86_64/kernel/aperture.c
 ===================================================================
---- linux.orig/arch/x86_64/ia32/ia32entry.S
-+++ linux/arch/x86_64/ia32/ia32entry.S
-@@ -703,8 +703,8 @@ ia32_sys_call_table:
- 	.quad sys_readlinkat		/* 305 */
- 	.quad sys_fchmodat
- 	.quad sys_faccessat
--	.quad quiet_ni_syscall		/* pselect6 for now */
--	.quad quiet_ni_syscall		/* ppoll for now */
-+	.quad compat_sys_pselect6
-+	.quad compat_sys_ppoll
- 	.quad sys_unshare		/* 310 */
- 	.quad compat_sys_set_robust_list
- 	.quad compat_sys_get_robust_list
-Index: linux/include/asm-x86_64/unistd.h
+--- linux.orig/arch/x86_64/kernel/aperture.c
++++ linux/arch/x86_64/kernel/aperture.c
+@@ -48,7 +48,7 @@ static u32 __init allocate_aperture(void
+ 
+ 	/* 
+ 	 * Aperture has to be naturally aligned. This means an 2GB aperture won't
+-	 * have much chances to find a place in the lower 4GB of memory.
++	 * have much chance of finding a place in the lower 4GB of memory.
+ 	 * Unfortunately we cannot move it up because that would make the
+ 	 * IOMMU useless.
+ 	 */
+Index: linux/arch/x86_64/kernel/apic.c
 ===================================================================
---- linux.orig/include/asm-x86_64/unistd.h
-+++ linux/include/asm-x86_64/unistd.h
-@@ -600,9 +600,9 @@ __SYSCALL(__NR_fchmodat, sys_fchmodat)
- #define __NR_faccessat		269
- __SYSCALL(__NR_faccessat, sys_faccessat)
- #define __NR_pselect6		270
--__SYSCALL(__NR_pselect6, sys_ni_syscall)	/* for now */
-+__SYSCALL(__NR_pselect6, sys_pselect6)
- #define __NR_ppoll		271
--__SYSCALL(__NR_ppoll,	sys_ni_syscall)		/* for now */
-+__SYSCALL(__NR_ppoll,	sys_ppoll)
- #define __NR_unshare		272
- __SYSCALL(__NR_unshare,	sys_unshare)
- #define __NR_set_robust_list	273
+--- linux.orig/arch/x86_64/kernel/apic.c
++++ linux/arch/x86_64/kernel/apic.c
+@@ -400,7 +400,7 @@ void __cpuinit setup_local_APIC (void)
+ 	value |= APIC_SPIV_APIC_ENABLED;
+ 
+ 	/*
+-	 * Some unknown Intel IO/APIC (or APIC) errata is biting us with
++	 * Some unknown Intel IO/APIC (or APIC) errata are biting us with
+ 	 * certain networking cards. If high frequency interrupts are
+ 	 * happening on a particular IOAPIC pin, plus the IOAPIC routing
+ 	 * entry is masked/unmasked at a high rate as well then sooner or
+@@ -950,7 +950,7 @@ void smp_local_timer_interrupt(struct pt
+ 	 * We take the 'long' return path, and there every subsystem
+ 	 * grabs the appropriate locks (kernel lock/ irq lock).
+ 	 *
+-	 * we might want to decouple profiling from the 'long path',
++	 * We might want to decouple profiling from the 'long path',
+ 	 * and do the profiling totally in assembly.
+ 	 *
+ 	 * Currently this isn't too much of an issue (performance wise),
+Index: linux/arch/x86_64/kernel/crash.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/crash.c
++++ linux/arch/x86_64/kernel/crash.c
+@@ -69,7 +69,7 @@ static void crash_save_this_cpu(struct p
+ 	 * for the data I pass, and I need tags
+ 	 * on the data to indicate what information I have
+ 	 * squirrelled away.  ELF notes happen to provide
+-	 * all of that that no need to invent something new.
++	 * all of that, no need to invent something new.
+ 	 */
+ 
+ 	buf = (u32*)per_cpu_ptr(crash_notes, cpu);

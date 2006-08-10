@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161172AbWHJLLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbWHJLX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161172AbWHJLLF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 07:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161168AbWHJLLF
+	id S1161174AbWHJLX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 07:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161170AbWHJLX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 07:11:05 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:4750 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161166AbWHJLLD (ORCPT
+	Thu, 10 Aug 2006 07:23:27 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:61147 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161169AbWHJLX0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 07:11:03 -0400
-Date: Thu, 10 Aug 2006 13:05:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-In-Reply-To: <20060809234019.c8a730e3.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0608101302270.6762@scrub.home>
-References: <1155172843.3161.81.camel@localhost.localdomain>
- <20060809234019.c8a730e3.akpm@osdl.org>
+	Thu, 10 Aug 2006 07:23:26 -0400
+Message-ID: <44DB1727.2000502@pobox.com>
+Date: Thu, 10 Aug 2006 07:23:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jesse Huang <jesse@icplus.com.tw>
+CC: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Hello, We had some patch need to submit for sundance.c
+References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw> <20060727190707.GA24157@electric-eye.fr.zoreil.com> <002701c6bc24$2a9f10f0$4964a8c0@icplus.com.tw>
+In-Reply-To: <002701c6bc24$2a9f10f0$4964a8c0@icplus.com.tw>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jesse Huang wrote:
+> Dear All:
+> 
+> We had some patch need to submit. Would you tell me where to get current
+> sundance.c for myself to generate those patch files.
+> 
+> Sorry, I only got this link:
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=f13b2a195c708fe32d8c53d05988875a51bd52e1;hb=1668b19f75cb949f930814a23b74201ad6f76a53;f=drivers/net/sundance.c
 
-On Wed, 9 Aug 2006, Andrew Morton wrote:
+You need to install the "git" software package, and then check out the 
+"upstream" branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
-> That also being said...  does a 32-bit sector_t make any sense on a
-> 48-bit-blocknumber filesystem?  I'd have thought that we'd just make ext4
-> depend on 64-bit sector_t and be done with it.
+Then provide patches against the drivers/net/sundance.c driver found there.
 
-Is this really necessary? There are a few features, which would make ext4 
-also interesting at the low end (e.g. extents). Storing 64bit values on 
-disk is fine, but they should be converted to native values as soon as 
-possible.
+git software download: http://www.kernel.org/pub/software/scm/git/
+git overview: http://git.or.cz/
+git tutorial: http://www.kernel.org/pub/software/scm/git/docs/tutorial.html
+git man pages: http://www.kernel.org/pub/software/scm/git/docs
 
-bye, Roman
+Thanks,
+
+	Jeff
+
+

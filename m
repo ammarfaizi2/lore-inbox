@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWHJTsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWHJTsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWHJTsw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbWHJTsM
+	id S932661AbWHJTsL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWHJTro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:48:12 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:38028 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932660AbWHJTro (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Aug 2006 15:47:44 -0400
-Subject: Re: [PATCH for review] [3/145] i386: Allow to use GENERICARCH for
-	UP kernels
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Keith Mannthey <kmannth@us.ibm.com>
-In-Reply-To: <20060810193515.0E65213B90@wotan.suse.de>
+Received: from ns1.suse.de ([195.135.220.2]:29329 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932652AbWHJThY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:37:24 -0400
+From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
-	 <20060810193515.0E65213B90@wotan.suse.de>
-Content-Type: text/plain
-Date: Thu, 10 Aug 2006 12:47:31 -0700
-Message-Id: <1155239251.19249.268.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [124/145] i386: make fault notifier unconditional and export it
+Message-Id: <20060810193723.912C613B8E@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:23 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 21:35 +0200, Andi Kleen wrote:
-> --- linux.orig/include/asm-i386/mach-summit/mach_apic.h
-> +++ linux/include/asm-i386/mach-summit/mach_apic.h
-> @@ -46,10 +46,12 @@ extern u8 cpu_2_logical_apicid[];
->  static inline void init_apic_ldr(void)
->  {
->         unsigned long val, id;
-> -       int i, count;
-> -       u8 lid;
-> +       int count = 0;
->         u8 my_id = (u8)hard_smp_processor_id();
->         u8 my_cluster = (u8)apicid_cluster(my_id);
-> +#ifdef CONFIG_SMP
-> +       u8 lid;
-> +       int i;
->  
->         /* Create logical APIC IDs by counting CPUs already in cluster. */
->         for (count = 0, i = NR_CPUS; --i >= 0; ) {
-> @@ -57,6 +59,7 @@ static inline void init_apic_ldr(void)
->                 if (lid != BAD_APICID && apicid_cluster(lid) == my_cluster)
->                         ++count;
->         }
-> +#endif 
+r
 
-Why does this particular loop have to go?  I'm sure it's OK, but I also
-wonder if there is a nice way to do it without the #ifdef.
+It's needed for external debuggers and overhead is very small.
 
--- Dave
+Also make the actual notifier chain they use static
 
+Cc: jbeulich@novell.com
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+ arch/i386/mm/fault.c |   14 ++++----------
+ 1 files changed, 4 insertions(+), 10 deletions(-)
+
+Index: linux/arch/i386/mm/fault.c
+===================================================================
+--- linux.orig/arch/i386/mm/fault.c
++++ linux/arch/i386/mm/fault.c
+@@ -30,18 +30,20 @@
+ 
+ extern void die(const char *,struct pt_regs *,long);
+ 
+-#ifdef CONFIG_KPROBES
+-ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
++static ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
++
+ int register_page_fault_notifier(struct notifier_block *nb)
+ {
+ 	vmalloc_sync_all();
+ 	return atomic_notifier_chain_register(&notify_page_fault_chain, nb);
+ }
++EXPORT_SYMBOL_GPL(register_page_fault_notifier);
+ 
+ int unregister_page_fault_notifier(struct notifier_block *nb)
+ {
+ 	return atomic_notifier_chain_unregister(&notify_page_fault_chain, nb);
+ }
++EXPORT_SYMBOL_GPL(unregister_page_fault_notifier);
+ 
+ static inline int notify_page_fault(enum die_val val, const char *str,
+ 			struct pt_regs *regs, long err, int trap, int sig)
+@@ -55,14 +57,6 @@ static inline int notify_page_fault(enum
+ 	};
+ 	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
+ }
+-#else
+-static inline int notify_page_fault(enum die_val val, const char *str,
+-			struct pt_regs *regs, long err, int trap, int sig)
+-{
+-	return NOTIFY_DONE;
+-}
+-#endif
+-
+ 
+ /*
+  * Unlock any spinlocks which will prevent us from getting the

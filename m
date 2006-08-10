@@ -1,74 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbWHJRET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161472AbWHJRHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932501AbWHJRET (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWHJRET
+	id S1161472AbWHJRHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161465AbWHJRHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:04:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22243 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932494AbWHJRES (ORCPT
+	Thu, 10 Aug 2006 13:07:01 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:48561 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1161467AbWHJRHA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:04:18 -0400
-Date: Thu, 10 Aug 2006 10:00:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
-Message-Id: <20060810100012.abc1b5a1.akpm@osdl.org>
-In-Reply-To: <44DB5FC0.5070405@us.ibm.com>
-References: <1155172597.3161.72.camel@localhost.localdomain>
-	<44DACB21.9080002@garzik.org>
-	<44DB5FC0.5070405@us.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 13:07:00 -0400
+Subject: [PATCH 1/1] scsi : megaraid_{mm, mbox} : irq data type fix
+From: Seokmann Ju <sju@lsil.com>
+To: Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Cc: sju@lsil.com, ebiederm@xmission.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 10 Aug 2006 12:54:47 -0400
+Message-Id: <1155228887.6698.7.camel@dhcp-65-957.se.lsil.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+X-OriginalArrivalTime: 10 Aug 2006 17:06:33.0192 (UTC) FILETIME=[549B3E80:01C6BC9F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 09:33:04 -0700
-Mingming Cao <cmm@us.ibm.com> wrote:
+This patch fixes incorrect irq data type in the driver which led driver initialization failure in some cases.
+The problem was reported by Eric @. Biederman <ebiederm@xmission.com>.
 
-> Jeff Garzik wrote:
-> > Mingming Cao wrote:
-> > 
-> >> This series of patch forkes a new filesystem, ext4, from the current
-> >> ext3 filesystem, as the code base to work on, for the big features such
-> >> as extents and larger fs(48 bit blk number) support, per our discussion
-> >> on lkml a few weeks ago. 
-> > 
-> 
-> > [...]
-> > 
-> >> Any comments? Could we add ext4/jbd2 to mm tree for a wider testing?
-> > 
-> > 
-> > ext4 developers should create a git tree with the consensus-accepted 
-> > patches.
-> > 
-> > That way Linus can pull as soon as the merge window opens, Andrew is 
-> > guaranteed to have the latest in his -mm tree, and users and other 
-> > kernel hackers can easily follow the development without having to 
-> > gather scattered patches from lkml.
-> >
-> 
-> We do maintain a quilt(akpm) style patches on http://ext2.sf.net, the 
-> latest patches are always at 
-> http://ext2.sourceforge.net/48bitext3/patches/latest/
-> 
-> We thought about doing git initially, still open for that doing do, if 
-> it's more preferable by Linus or Andrew. Just thought  it's a lot 
-> easiler for non git user to pull the patches from a project website.
-> 
-
-We should aim to get the big copy-ext3-to-ext4 patch into Linus's tree as
-early as possible.
-
-I'm just not sure when to do that.  Immediately after 2.6.19-rc1 is
-released would be good because it is when every tree (including -mm) is in
-its most-synced-up state.
-
-otoh, we should work out what our processes will be for keeping ext3 and
-ext4 in sync wrt bugfixes, cleanups, speedups, etc.  If those processes are
-good, we can do the copy-n-paste any time.  And they need to be good...
+Signed-off-by: Seokmann Ju <seokmann.ju@lsil.com>
+---
+diff -Naur old/Documentation/scsi/ChangeLog.megaraid new/Documentation/scsi/ChangeLog.megaraid
+--- old/Documentation/scsi/ChangeLog.megaraid	2006-08-08 15:52:49.000000000 -0400
++++ new/Documentation/scsi/ChangeLog.megaraid	2006-08-09 08:39:18.000000000 -0400
+@@ -1,5 +1,5 @@
+ Release Date	: Fri May 19 09:31:45 EST 2006 - Seokmann Ju <sju@lsil.com>
+-Current Version : 2.20.4.9 (scsi module), 2.20.2.6 (cmm module)
++Current Version : 2.20.4.9 (scsi module), 2.20.2.7 (cmm module)
+ Older Version	: 2.20.4.8 (scsi module), 2.20.2.6 (cmm module)
+ 
+ 1.	Fixed a bug in megaraid_init_mbox().
+@@ -121,6 +121,23 @@
+ 	> **************************************************************
+ 	> ****************
+ 
++4.	Incorrect data type has been used for 'irq' variable in the driver
++	as pointed out by Eric below.
++
++	> Sent: Monday, August 07, 2006 11:29 AM
++	> Subject: [PATCH] megaraid: Use the proper type to hold the irq number.
++	> 
++	> When testing on a Unisys machine it was discovered that
++	> the megaraid driver would not initialize as it was
++	> requesting irq 162 instead of irq 1442 it was assigned.
++	> The problem was the irq number had been truncated by being
++	> stored in an unsigned char.
++	> 
++	> The ioctl interface appears fundamentally broken as it exports
++	> the irq number to user space in an unsigned char. 
++	> 
++	> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
++
+ Release Date	: Mon Apr 11 12:27:22 EST 2006 - Seokmann Ju <sju@lsil.com>
+ Current Version : 2.20.4.8 (scsi module), 2.20.2.6 (cmm module)
+ Older Version	: 2.20.4.7 (scsi module), 2.20.2.6 (cmm module)
+diff -Naur old/drivers/scsi/megaraid/mega_common.h new/drivers/scsi/megaraid/mega_common.h
+--- old/drivers/scsi/megaraid/mega_common.h	2006-08-08 15:53:44.000000000 -0400
++++ new/drivers/scsi/megaraid/mega_common.h	2006-08-08 15:56:03.000000000 -0400
+@@ -175,7 +175,7 @@
+ 	uint8_t			max_lun;
+ 
+ 	uint32_t		unique_id;
+-	uint8_t			irq;
++	unsigned int		irq;
+ 	uint8_t			ito;
+ 	caddr_t			ibuf;
+ 	dma_addr_t		ibuf_dma_h;
+diff -Naur old/drivers/scsi/megaraid/megaraid_ioctl.h new/drivers/scsi/megaraid/megaraid_ioctl.h
+--- old/drivers/scsi/megaraid/megaraid_ioctl.h	2006-08-08 15:53:44.000000000 -0400
++++ new/drivers/scsi/megaraid/megaraid_ioctl.h	2006-08-08 15:56:41.000000000 -0400
+@@ -183,7 +183,7 @@
+ 	uint8_t		pci_bus;
+ 	uint8_t		pci_dev_fn;
+ 	uint8_t		pci_slot;
+-	uint8_t		irq;
++	unsigned int	irq;
+ 
+ 	uint32_t	unique_id;
+ 	uint32_t	host_no;
+@@ -209,7 +209,7 @@
+ typedef struct mcontroller {
+ 
+ 	uint64_t	base;
+-	uint8_t		irq;
++	unsigned int	irq;
+ 	uint8_t		numldrv;
+ 	uint8_t		pcibus;
+ 	uint16_t	pcidev;
+---

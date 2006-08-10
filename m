@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161407AbWHJQpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161443AbWHJQqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161407AbWHJQpq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161434AbWHJQpq
+	id S1161443AbWHJQqp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161441AbWHJQqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:45:46 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:8427 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1161407AbWHJQpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:45:45 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Thu, 10 Aug 2006 18:45:16 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.16.27] ieee1394: sbp2: enable auto spin-up for Maxtor
- disks
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44DB1F19.8000504@s5r6.in-berlin.de>
-Message-ID: <tkrat.0cdc5b6163736033@s5r6.in-berlin.de>
-References: <200608091749_MC3-1-C796-5E8D@compuserve.com>
- <20060809220048.GE3691@stusta.de> <44DB1F19.8000504@s5r6.in-berlin.de>
+	Thu, 10 Aug 2006 12:46:45 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:55256 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161434AbWHJQqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 12:46:44 -0400
+Message-ID: <44DB62EE.3050801@us.ibm.com>
+Date: Thu, 10 Aug 2006 09:46:38 -0700
+From: Mingming Cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/9] extents for ext4
+References: <1155172827.3161.80.camel@localhost.localdomain> <20060809233940.50162afb.akpm@osdl.org>
+In-Reply-To: <20060809233940.50162afb.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At least Maxtor OneTouch III require a "start stop unit" command after
-auto spin-down before the next access can proceed.  This patch activates
-the responsible code in scsi_mod for all Maxtor SBP-2 disks.
-https://bugzilla.novell.com/show_bug.cgi?id=183011
+Andrew Morton wrote:
 
-Maybe that should be done for all SBP-2 disks, but better be cautious.
+> On Wed, 09 Aug 2006 18:20:26 -0700
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> 
+> 
+>>Add extent map support to ext4. Patch from Alex Tomas.
+>>
+>>On disk extents format:
+>>/*
+>>  * this is extent on-disk structure
+>>  * it's used at the bottom of the tree
+>>  */
+>>struct ext3_extent {
+>>        __le32  ee_block;       /* first logical block extent covers */
+>>        __le16  ee_len;         /* number of blocks covered by extent */
+>>        __le16  ee_start_hi;    /* high 16 bits of physical block */
+>>        __le32  ee_start;       /* low 32 bigs of physical block */
+>>};
+>>
+> 
+> 
+>>From a quick scan:
+> 
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-This patch also appeared in 2.6.17.8 and 2.6.18.
+> - There are several places which appear to be putting block numbers into
+>   an `int'.
+> 
 
-Index: linux-2.6.16.27/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.16.27.orig/drivers/ieee1394/sbp2.c	2006-08-10 18:10:13.000000000 +0200
-+++ linux-2.6.16.27/drivers/ieee1394/sbp2.c	2006-08-10 18:18:54.000000000 +0200
-@@ -2505,6 +2505,9 @@ static int sbp2scsi_slave_configure(stru
- 		SBP2_INFO("enabling iPod workaround: decrement disk capacity");
- 		sdev->fix_capacity = 1;
- 	}
-+	if (scsi_id->ne->guid_vendor_id == 0x0010b9 && /* Maxtor's OUI */
-+	    (sdev->type == TYPE_DISK || sdev->type == TYPE_RBC))
-+		sdev->allow_restart = 1;
- 	return 0;
- }
- 
+This is fixed in [PATCH 4/9] 48bit support in extents, where we 
+converted those "int" type block numbers to ext4_fsblk_t (which is 
+typedefined as sector_t to support 48bit)
 
+Thanks,
+Mingming
 

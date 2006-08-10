@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161460AbWHJQsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161423AbWHJQue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161460AbWHJQsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161456AbWHJQss
+	id S1161423AbWHJQue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161454AbWHJQue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:48:48 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:43151 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1161455AbWHJQsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:48:47 -0400
-Date: Thu, 10 Aug 2006 18:48:32 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Forking ext4 filesystem from ext3 filesystem
-Message-ID: <20060810164832.GA305@wohnheim.fh-wedel.de>
-References: <1155172622.3161.73.camel@localhost.localdomain> <20060809233914.35ab8792.akpm@osdl.org> <44DB61D7.1000109@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44DB61D7.1000109@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 10 Aug 2006 12:50:34 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:28637 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1161423AbWHJQud (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 12:50:33 -0400
+Message-ID: <52827.71.131.40.63.1155228632.squirrel@rocky.pathscale.com>
+Date: Thu, 10 Aug 2006 09:50:32 -0700 (PDT)
+Subject: How to revoke mmap mappings
+From: ralphc@pathscale.com
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.6
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 August 2006 09:41:59 -0700, Mingming Cao wrote:
-> 
-> I agree with you that the timing is right, to do the clean up now rather 
-> than later. I would give it a try. If I could get more help from more 
-> code reviewer, it probably makes the effort a lot easier. For those 
-> issues you pointed out : coding style problem??incorrect comments, 
-> poorly-named variables  -- do you have any specific examples in your mind?
+I am looking for suggestions on how a device driver which implements
+mmap() similar to the "scullv" example driver can revoke the
+mapping.  I would like the driver to be able to invalidate
+all of the pages faulted in through struct vm_operations_struct.nopage
+so that the vmalloc() memory can be freed.  If the user process
+tries to touch the mmap region afterwards, it will get a SIGBUS
+or SIGSEGV.
 
-For whitespace damage, you can try the following regex:
-/\s\+$\| \+\ze\t/
+I looked in mm/memory.c but unmap_mapping_range() and
+vmtruncate() require file mappings so I don't think I
+can use these.
 
-Or if you use vim as an editor, you can add this to your vimrc:
-highlight RedundantSpaces ctermbg=red guibg=red
-match RedundantSpaces /\s\+$\| \+\ze\t/
-
-For example, it will show 4 cases of trailing whitespace in the quoted
-part of your email above. :)
-
-Jörn
-
--- 
-You ain't got no problem, Jules. I'm on the motherfucker. Go back in
-there, chill them niggers out and wait for the Wolf, who should be
-coming directly.
--- Marsellus Wallace

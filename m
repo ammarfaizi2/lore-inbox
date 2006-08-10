@@ -1,272 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWHJUY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbWHJUY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWHJUY3 (ORCPT <rfc822;willy@w.ods.org>);
+	id S932614AbWHJUY3 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 10 Aug 2006 16:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbWHJUOq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWHJUOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:14:46 -0400
-Received: from mail.suse.de ([195.135.220.2]:40080 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932607AbWHJTgN (ORCPT
+	Thu, 10 Aug 2006 16:14:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:37520 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932603AbWHJTgN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Aug 2006 15:36:13 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [57/145] i386: Factor out common io apic routing entry access
-Message-Id: <20060810193612.581D513B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:12 +0200 (CEST)
+Subject: [PATCH for review] [54/145] x86_64: Remove obsolete PIC mode
+Message-Id: <20060810193609.2977113C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:09 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-The IO APIC code had lots of duplicated code to read/write 64bit
-routing entries into the IO-APIC. Factor this out int common read/write
-functions
+PIC mode is an outdated way to drive the APICs that was used on 
+some early MP boards. It is not supported in the ACPI model.
 
-In a few cases the IO APIC lock is taken more often now, but this
-isn't a problem because it's all initialization/shutdown only
-slow path code.
+It is unlikely to be ever configured by any x86-64 system
 
-Similar to earlier x86-64 patch.
-
-Includes a fix by Jiri Slaby for a mistake that broke resume
+Remove it thus.
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/io_apic.c |  100 +++++++++++++++++++--------------------------
- 1 files changed, 43 insertions(+), 57 deletions(-)
+ arch/x86_64/kernel/apic.c    |   92 +++++++++++++------------------------------
+ arch/x86_64/kernel/mpparse.c |    8 ---
+ arch/x86_64/kernel/smpboot.c |    1 
+ include/asm-x86_64/mpspec.h  |    1 
+ include/asm-x86_64/smp.h     |    1 
+ 5 files changed, 29 insertions(+), 74 deletions(-)
 
-Index: linux/arch/i386/kernel/io_apic.c
+Index: linux/arch/x86_64/kernel/apic.c
 ===================================================================
---- linux.orig/arch/i386/kernel/io_apic.c
-+++ linux/arch/i386/kernel/io_apic.c
-@@ -94,6 +94,34 @@ int vector_irq[NR_VECTORS] __read_mostly
- #define vector_to_irq(vector)	(vector)
- #endif
- 
-+
-+union entry_union {
-+	struct { u32 w1, w2; };
-+	struct IO_APIC_route_entry entry;
-+};
-+
-+static struct IO_APIC_route_entry ioapic_read_entry(int apic, int pin)
-+{
-+	union entry_union eu;
-+	unsigned long flags;
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	eu.w1 = io_apic_read(apic, 0x10 + 2 * pin);
-+	eu.w2 = io_apic_read(apic, 0x11 + 2 * pin);
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	return eu.entry;
-+}
-+
-+static void ioapic_write_entry(int apic, int pin, struct IO_APIC_route_entry e)
-+{
-+	unsigned long flags;
-+	union entry_union eu;
-+	eu.entry = e;
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	io_apic_write(apic, 0x10 + 2*pin, eu.w1);
-+	io_apic_write(apic, 0x11 + 2*pin, eu.w2);
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
-+}
-+
- /*
-  * The common case is 1:1 IRQ<->pin mappings. Sometimes there are
-  * shared ISA-space IRQs, so we have to support them. We are super
-@@ -201,13 +229,9 @@ static void unmask_IO_APIC_irq (unsigned
- static void clear_IO_APIC_pin(unsigned int apic, unsigned int pin)
- {
- 	struct IO_APIC_route_entry entry;
--	unsigned long flags;
- 	
- 	/* Check delivery_mode to be sure we're not clearing an SMI pin */
--	spin_lock_irqsave(&ioapic_lock, flags);
--	*(((int*)&entry) + 0) = io_apic_read(apic, 0x10 + 2 * pin);
--	*(((int*)&entry) + 1) = io_apic_read(apic, 0x11 + 2 * pin);
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	entry = ioapic_read_entry(apic, pin);
- 	if (entry.delivery_mode == dest_SMI)
- 		return;
- 
-@@ -216,10 +240,7 @@ static void clear_IO_APIC_pin(unsigned i
- 	 */
- 	memset(&entry, 0, sizeof(entry));
- 	entry.mask = 1;
--	spin_lock_irqsave(&ioapic_lock, flags);
--	io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry) + 0));
--	io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry) + 1));
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	ioapic_write_entry(apic, pin, entry);
+--- linux.orig/arch/x86_64/kernel/apic.c
++++ linux/arch/x86_64/kernel/apic.c
+@@ -136,72 +136,40 @@ void clear_local_APIC(void)
+ 	apic_read(APIC_ESR);
  }
  
- static void clear_IO_APIC (void)
-@@ -1284,9 +1305,8 @@ static void __init setup_IO_APIC_irqs(vo
- 			if (!apic && (irq < 16))
- 				disable_8259A_irq(irq);
- 		}
-+		ioapic_write_entry(apic, pin, entry);
- 		spin_lock_irqsave(&ioapic_lock, flags);
--		io_apic_write(apic, 0x11+2*pin, *(((int *)&entry)+1));
--		io_apic_write(apic, 0x10+2*pin, *(((int *)&entry)+0));
- 		set_native_irq_info(irq, TARGET_CPUS);
- 		spin_unlock_irqrestore(&ioapic_lock, flags);
- 	}
-@@ -1302,7 +1322,6 @@ static void __init setup_IO_APIC_irqs(vo
- static void __init setup_ExtINT_IRQ0_pin(unsigned int apic, unsigned int pin, int vector)
+-void __init connect_bsp_APIC(void)
+-{
+-	if (pic_mode) {
+-		/*
+-		 * Do not trust the local APIC being empty at bootup.
+-		 */
+-		clear_local_APIC();
+-		/*
+-		 * PIC mode, enable APIC mode in the IMCR, i.e.
+-		 * connect BSP's local APIC to INT and NMI lines.
+-		 */
+-		apic_printk(APIC_VERBOSE, "leaving PIC mode, enabling APIC mode.\n");
+-		outb(0x70, 0x22);
+-		outb(0x01, 0x23);
+-	}
+-}
+-
+ void disconnect_bsp_APIC(int virt_wire_setup)
  {
- 	struct IO_APIC_route_entry entry;
--	unsigned long flags;
+-	if (pic_mode) {
+-		/*
+-		 * Put the board back into PIC mode (has an effect
+-		 * only on certain older boards).  Note that APIC
+-		 * interrupts, including IPIs, won't work beyond
+-		 * this point!  The only exception are INIT IPIs.
+-		 */
+-		apic_printk(APIC_QUIET, "disabling APIC mode, entering PIC mode.\n");
+-		outb(0x70, 0x22);
+-		outb(0x00, 0x23);
+-	}
+-	else {
+-		/* Go back to Virtual Wire compatibility mode */
+-		unsigned long value;
+-
+-		/* For the spurious interrupt use vector F, and enable it */
+-		value = apic_read(APIC_SPIV);
+-		value &= ~APIC_VECTOR_MASK;
+-		value |= APIC_SPIV_APIC_ENABLED;
+-		value |= 0xf;
+-		apic_write(APIC_SPIV, value);
+-
+-		if (!virt_wire_setup) {
+-			/* For LVT0 make it edge triggered, active high, external and enabled */
+-			value = apic_read(APIC_LVT0);
+-			value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
+-				APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
+-				APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
+-			value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
+-			value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
+-			apic_write(APIC_LVT0, value);
+-		}
+-		else {
+-			/* Disable LVT0 */
+-			apic_write(APIC_LVT0, APIC_LVT_MASKED);
+-		}
++	/* Go back to Virtual Wire compatibility mode */
++	unsigned long value;
  
- 	memset(&entry,0,sizeof(entry));
+-		/* For LVT1 make it edge triggered, active high, nmi and enabled */
+-		value = apic_read(APIC_LVT1);
+-		value &= ~(
+-			APIC_MODE_MASK | APIC_SEND_PENDING |
++	/* For the spurious interrupt use vector F, and enable it */
++	value = apic_read(APIC_SPIV);
++	value &= ~APIC_VECTOR_MASK;
++	value |= APIC_SPIV_APIC_ENABLED;
++	value |= 0xf;
++	apic_write(APIC_SPIV, value);
++
++	if (!virt_wire_setup) {
++		/* For LVT0 make it edge triggered, active high, external and enabled */
++		value = apic_read(APIC_LVT0);
++		value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
+ 			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
+-			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
++			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
+ 		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
+-		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
+-		apic_write(APIC_LVT1, value);
++		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
++		apic_write(APIC_LVT0, value);
++	} else {
++		/* Disable LVT0 */
++		apic_write(APIC_LVT0, APIC_LVT_MASKED);
+ 	}
++
++	/* For LVT1 make it edge triggered, active high, nmi and enabled */
++	value = apic_read(APIC_LVT1);
++	value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
++			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
++			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
++	value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
++	value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
++	apic_write(APIC_LVT1, value);
+ }
  
-@@ -1332,10 +1351,7 @@ static void __init setup_ExtINT_IRQ0_pin
+ void disable_local_APIC(void)
+@@ -418,7 +386,7 @@ void __cpuinit setup_local_APIC (void)
+ 	 * TODO: set up through-local-APIC from through-I/O-APIC? --macro
+ 	 */
+ 	value = apic_read(APIC_LVT0) & APIC_LVT_MASKED;
+-	if (!smp_processor_id() && (pic_mode || !value)) {
++	if (!smp_processor_id() && !value) {
+ 		value = APIC_DM_EXTINT;
+ 		apic_printk(APIC_VERBOSE, "enabled ExtINT on CPU#%d\n", smp_processor_id());
+ 	} else {
+@@ -1096,8 +1064,6 @@ int __init APIC_init_uniprocessor (void)
+ 
+ 	verify_local_APIC();
+ 
+-	connect_bsp_APIC();
+-
+ 	phys_cpu_present_map = physid_mask_of_physid(boot_cpu_id);
+ 	apic_write(APIC_ID, SET_APIC_ID(boot_cpu_id));
+ 
+Index: linux/arch/x86_64/kernel/mpparse.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/mpparse.c
++++ linux/arch/x86_64/kernel/mpparse.c
+@@ -56,7 +56,6 @@ struct mpc_config_intsrc mp_irqs[MAX_IRQ
+ int mp_irq_entries;
+ 
+ int nr_ioapics;
+-int pic_mode;
+ unsigned long mp_lapic_addr = 0;
+ 
+ 
+@@ -514,13 +513,6 @@ void __init get_smp_config (void)
+  		printk(KERN_INFO "Using ACPI for processor (LAPIC) configuration information\n");
+ 
+ 	printk("Intel MultiProcessor Specification v1.%d\n", mpf->mpf_specification);
+-	if (mpf->mpf_feature2 & (1<<7)) {
+-		printk(KERN_INFO "    IMCR and PIC compatibility mode.\n");
+-		pic_mode = 1;
+-	} else {
+-		printk(KERN_INFO "    Virtual Wire compatibility mode.\n");
+-		pic_mode = 0;
+-	}
+ 
  	/*
- 	 * Add it to the IO-APIC irq-routing table:
+ 	 * Now see if we need to read further.
+Index: linux/include/asm-x86_64/mpspec.h
+===================================================================
+--- linux.orig/include/asm-x86_64/mpspec.h
++++ linux/include/asm-x86_64/mpspec.h
+@@ -178,7 +178,6 @@ extern int mp_irq_entries;
+ extern struct mpc_config_intsrc mp_irqs [MAX_IRQ_SOURCES];
+ extern int mpc_default_type;
+ extern unsigned long mp_lapic_addr;
+-extern int pic_mode;
+ 
+ #ifdef CONFIG_ACPI
+ extern void mp_register_lapic (u8 id, u8 enabled);
+Index: linux/include/asm-x86_64/smp.h
+===================================================================
+--- linux.orig/include/asm-x86_64/smp.h
++++ linux/include/asm-x86_64/smp.h
+@@ -33,7 +33,6 @@ extern cpumask_t cpu_initialized;
+  
+ extern void smp_alloc_memory(void);
+ extern volatile unsigned long smp_invalidate_needed;
+-extern int pic_mode;
+ extern void lock_ipi_call_lock(void);
+ extern void unlock_ipi_call_lock(void);
+ extern int smp_num_siblings;
+Index: linux/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/smpboot.c
++++ linux/arch/x86_64/kernel/smpboot.c
+@@ -1090,7 +1090,6 @@ void __init smp_prepare_cpus(unsigned in
+ 	/*
+ 	 * Switch from PIC to APIC mode.
  	 */
--	spin_lock_irqsave(&ioapic_lock, flags);
--	io_apic_write(apic, 0x11+2*pin, *(((int *)&entry)+1));
--	io_apic_write(apic, 0x10+2*pin, *(((int *)&entry)+0));
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	ioapic_write_entry(apic, pin, entry);
+-	connect_bsp_APIC();
+ 	setup_local_APIC();
  
- 	enable_8259A_irq(0);
- }
-@@ -1445,10 +1461,7 @@ void __init print_IO_APIC(void)
- 	for (i = 0; i <= reg_01.bits.entries; i++) {
- 		struct IO_APIC_route_entry entry;
- 
--		spin_lock_irqsave(&ioapic_lock, flags);
--		*(((int *)&entry)+0) = io_apic_read(apic, 0x10+i*2);
--		*(((int *)&entry)+1) = io_apic_read(apic, 0x11+i*2);
--		spin_unlock_irqrestore(&ioapic_lock, flags);
-+		entry = ioapic_read_entry(apic, i);
- 
- 		printk(KERN_DEBUG " %02x %03X %02X  ",
- 			i,
-@@ -1667,10 +1680,7 @@ static void __init enable_IO_APIC(void)
- 		/* See if any of the pins is in ExtINT mode */
- 		for (pin = 0; pin < nr_ioapic_registers[apic]; pin++) {
- 			struct IO_APIC_route_entry entry;
--			spin_lock_irqsave(&ioapic_lock, flags);
--			*(((int *)&entry) + 0) = io_apic_read(apic, 0x10 + 2 * pin);
--			*(((int *)&entry) + 1) = io_apic_read(apic, 0x11 + 2 * pin);
--			spin_unlock_irqrestore(&ioapic_lock, flags);
-+			entry = ioapic_read_entry(apic, pin);
- 
- 
- 			/* If the interrupt line is enabled and in ExtInt mode
-@@ -1727,7 +1737,6 @@ void disable_IO_APIC(void)
- 	 */
- 	if (ioapic_i8259.pin != -1) {
- 		struct IO_APIC_route_entry entry;
--		unsigned long flags;
- 
- 		memset(&entry, 0, sizeof(entry));
- 		entry.mask            = 0; /* Enabled */
-@@ -1744,12 +1753,7 @@ void disable_IO_APIC(void)
- 		/*
- 		 * Add it to the IO-APIC irq-routing table:
- 		 */
--		spin_lock_irqsave(&ioapic_lock, flags);
--		io_apic_write(ioapic_i8259.apic, 0x11+2*ioapic_i8259.pin,
--			*(((int *)&entry)+1));
--		io_apic_write(ioapic_i8259.apic, 0x10+2*ioapic_i8259.pin,
--			*(((int *)&entry)+0));
--		spin_unlock_irqrestore(&ioapic_lock, flags);
-+		ioapic_write_entry(ioapic_i8259.apic, ioapic_i8259.pin, entry);
- 	}
- 	disconnect_bsp_APIC(ioapic_i8259.pin != -1);
- }
-@@ -2214,17 +2218,13 @@ static inline void unlock_ExtINT_logic(v
- 	int apic, pin, i;
- 	struct IO_APIC_route_entry entry0, entry1;
- 	unsigned char save_control, save_freq_select;
--	unsigned long flags;
- 
- 	pin  = find_isa_irq_pin(8, mp_INT);
- 	apic = find_isa_irq_apic(8, mp_INT);
- 	if (pin == -1)
- 		return;
- 
--	spin_lock_irqsave(&ioapic_lock, flags);
--	*(((int *)&entry0) + 1) = io_apic_read(apic, 0x11 + 2 * pin);
--	*(((int *)&entry0) + 0) = io_apic_read(apic, 0x10 + 2 * pin);
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	entry0 = ioapic_read_entry(apic, pin);
- 	clear_IO_APIC_pin(apic, pin);
- 
- 	memset(&entry1, 0, sizeof(entry1));
-@@ -2237,10 +2237,7 @@ static inline void unlock_ExtINT_logic(v
- 	entry1.trigger = 0;
- 	entry1.vector = 0;
- 
--	spin_lock_irqsave(&ioapic_lock, flags);
--	io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry1) + 1));
--	io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry1) + 0));
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	ioapic_write_entry(apic, pin, entry1);
- 
- 	save_control = CMOS_READ(RTC_CONTROL);
- 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
-@@ -2259,10 +2256,7 @@ static inline void unlock_ExtINT_logic(v
- 	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
- 	clear_IO_APIC_pin(apic, pin);
- 
--	spin_lock_irqsave(&ioapic_lock, flags);
--	io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry0) + 1));
--	io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry0) + 0));
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	ioapic_write_entry(apic, pin, entry0);
- }
- 
- int timer_uses_ioapic_pin_0;
-@@ -2462,17 +2456,12 @@ static int ioapic_suspend(struct sys_dev
- {
- 	struct IO_APIC_route_entry *entry;
- 	struct sysfs_ioapic_data *data;
--	unsigned long flags;
- 	int i;
- 	
- 	data = container_of(dev, struct sysfs_ioapic_data, dev);
- 	entry = data->entry;
--	spin_lock_irqsave(&ioapic_lock, flags);
--	for (i = 0; i < nr_ioapic_registers[dev->id]; i ++, entry ++ ) {
--		*(((int *)entry) + 1) = io_apic_read(dev->id, 0x11 + 2 * i);
--		*(((int *)entry) + 0) = io_apic_read(dev->id, 0x10 + 2 * i);
--	}
--	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	for (i = 0; i < nr_ioapic_registers[dev->id]; i ++)
-+		entry[i] = ioapic_read_entry(dev->id, i);
- 
- 	return 0;
- }
-@@ -2494,11 +2483,9 @@ static int ioapic_resume(struct sys_devi
- 		reg_00.bits.ID = mp_ioapics[dev->id].mpc_apicid;
- 		io_apic_write(dev->id, 0, reg_00.raw);
- 	}
--	for (i = 0; i < nr_ioapic_registers[dev->id]; i ++, entry ++ ) {
--		io_apic_write(dev->id, 0x11+2*i, *(((int *)entry)+1));
--		io_apic_write(dev->id, 0x10+2*i, *(((int *)entry)+0));
--	}
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	for (i = 0; i < nr_ioapic_registers[dev->id]; i ++)
-+		ioapic_write_entry(dev->id, i, entry[i]);
- 
- 	return 0;
- }
-@@ -2695,9 +2682,8 @@ int io_apic_set_pci_routing (int ioapic,
- 	if (!ioapic && (irq < 16))
- 		disable_8259A_irq(irq);
- 
-+	ioapic_write_entry(ioapic, pin, entry);
- 	spin_lock_irqsave(&ioapic_lock, flags);
--	io_apic_write(ioapic, 0x11+2*pin, *(((int *)&entry)+1));
--	io_apic_write(ioapic, 0x10+2*pin, *(((int *)&entry)+0));
- 	set_native_irq_info(use_pci_vector() ? entry.vector : irq, TARGET_CPUS);
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- 
+ 	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_id) {

@@ -1,74 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWHJTxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWHJTxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWHJTxH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWHJTvz
+	id S932233AbWHJTxe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWHJTxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:51:55 -0400
-Received: from mail.suse.de ([195.135.220.2]:24721 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932674AbWHJThU (ORCPT
+	Thu, 10 Aug 2006 15:53:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53163 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932243AbWHJTxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:20 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [120/145] i386/x86-64: Improve Kconfig description of CRASH_DUMP
-Message-Id: <20060810193719.52AE513B8E@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:19 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 15:53:22 -0400
+Date: Thu, 10 Aug 2006 12:53:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: zam@namesys.com, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH try #2] fuse: fix error case in fuse_readpages
+Message-Id: <20060810125306.61425f94.akpm@osdl.org>
+In-Reply-To: <E1GB6qO-0003qU-00@dorka.pomaz.szeredi.hu>
+References: <E1GB6qO-0003qU-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, 10 Aug 2006 11:28:48 +0200
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 
-Improve Kconfig description of CONFIG_CRASH_DUMP. Previously
-it was too brief to be useful.
+> From: Alexander Zarochentsev <zam@namesys.com>
+> 
+> Don't let fuse_readpages leave the @pages list not empty when exiting
+> on error.
+> 
 
-Cc: vgoyal@in.ibm.com
-Cc: ebiederm@xmission.com
+Oh dear.  read_cache_pages_release_page() is not a readahead thing.  It is
+a dhowells fscache thing.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> Index: linux/fs/fuse/file.c
+> ===================================================================
+> --- linux.orig/fs/fuse/file.c	2006-08-10 09:41:12.000000000 +0200
+> +++ linux/fs/fuse/file.c	2006-08-10 11:13:35.000000000 +0200
+> @@ -395,14 +395,16 @@ static int fuse_readpages(struct file *f
+>  	struct fuse_readpages_data data;
+>  	int err;
+>  
+> +	err = -EIO;
+>  	if (is_bad_inode(inode))
+> -		return -EIO;
+> +		goto clean_pages_up;
+>  
+>  	data.file = file;
+>  	data.inode = inode;
+>  	data.req = fuse_get_req(fc);
+> +	err = PTR_ERR(data.req);
+>  	if (IS_ERR(data.req))
+> -		return PTR_ERR(data.req);
+> +		goto clean_pages_up;
+>  
+>  	err = read_cache_pages(mapping, pages, fuse_readpages_fill, &data);
+>  	if (!err) {
+> @@ -412,6 +414,10 @@ static int fuse_readpages(struct file *f
+>  			fuse_put_request(fc, data.req);
+>  	}
+>  	return err;
+> +
+> +clean_pages_up:
+> +	put_pages_list(pages);
+> +	return err;
+>  }
+>  
+>  static size_t fuse_send_write(struct fuse_req *req, struct file *file,
+> Index: linux/mm/readahead.c
+> ===================================================================
+> --- linux.orig/mm/readahead.c	2006-08-10 09:41:14.000000000 +0200
+> +++ linux/mm/readahead.c	2006-08-10 11:12:27.000000000 +0200
+> @@ -147,13 +147,7 @@ int read_cache_pages(struct address_spac
+>  		if (!pagevec_add(&lru_pvec, page))
+>  			__pagevec_lru_add(&lru_pvec);
+>  		if (ret) {
+> -			while (!list_empty(pages)) {
+> -				struct page *victim;
+> -
+> -				victim = list_to_page(pages);
+> -				list_del(&victim->lru);
+> -				page_cache_release(victim);
+> -			}
+> +			put_pages_list(pages);
+>  			break;
+>  		}
+>  	}
 
----
- arch/i386/Kconfig   |    7 +++++++
- arch/x86_64/Kconfig |    9 ++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+So I shall drop the above hunk for now.
 
-Index: linux/arch/i386/Kconfig
-===================================================================
---- linux.orig/arch/i386/Kconfig
-+++ linux/arch/i386/Kconfig
-@@ -759,6 +759,13 @@ config CRASH_DUMP
- 	depends on HIGHMEM
- 	help
- 	  Generate crash dump after being started by kexec.
-+          This should be normally only set in special crash dump kernels
-+	  which are loaded in the main kernel with kexec-tools into
-+	  a specially reserved region and then later executed after
-+	  a crash by kdump/kexec. The crash dump kernel must be compiled
-+          to a memory address not used by the main kernel or BIOS using
-+          PHYSICAL_START.
-+	  For more details see Documentation/kdump/kdump.txt
- 
- config PHYSICAL_START
- 	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
-Index: linux/arch/x86_64/Kconfig
-===================================================================
---- linux.orig/arch/x86_64/Kconfig
-+++ linux/arch/x86_64/Kconfig
-@@ -484,7 +484,14 @@ config CRASH_DUMP
- 	bool "kernel crash dumps (EXPERIMENTAL)"
- 	depends on EXPERIMENTAL
- 	help
--		Generate crash dump after being started by kexec.
-+          Generate crash dump after being started by kexec.
-+          This should be normally only set in special crash dump kernels
-+          which are loaded in the main kernel with kexec-tools into
-+          a specially reserved region and then later executed after
-+          a crash by kdump/kexec. The crash dump kernel must be compiled
-+	  to a memory address not used by the main kernel or BIOS using
-+	  PHYSICAL_START.
-+          For more details see Documentation/kdump/kdump.txt
- 
- config PHYSICAL_START
- 	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
+> Index: linux/include/linux/mm.h
+> ===================================================================
+> --- linux.orig/include/linux/mm.h	2006-08-10 11:06:05.000000000 +0200
+> +++ linux/include/linux/mm.h	2006-08-10 11:12:46.000000000 +0200
+> @@ -336,6 +336,7 @@ static inline void init_page_count(struc
+>  }
+>  
+>  void put_page(struct page *page);
+> +void put_pages_list(struct list_head *pages);
+>  
+>  void split_page(struct page *page, unsigned int order);
+>  
+> Index: linux/mm/swap.c
+> ===================================================================
+> --- linux.orig/mm/swap.c	2006-08-10 11:02:34.000000000 +0200
+> +++ linux/mm/swap.c	2006-08-10 11:18:59.000000000 +0200
+> @@ -54,6 +54,24 @@ void put_page(struct page *page)
+>  }
+>  EXPORT_SYMBOL(put_page);
+>  
+> +/**
+> + * Release page list.  Currently used by read_cache_pages() and related
+> + * cleanup code.
+> + *
+> + * @pages: list of pages threaded on page->lru
+> + */
+> +void put_pages_list(struct list_head *pages)
+> +{
+> +	while (!list_empty(pages)) {
+> +		struct page *victim;
+> +
+> +		victim = list_entry(pages->prev, struct page, lru);
+> +		list_del(&victim->lru);
+> +		page_cache_release(victim);
+> +	}
+> +}
+> +EXPORT_SYMBOL(put_pages_list);
+> +
+>  /*
+>   * Writeback is about to end against a page which has been marked for immediate
+>   * reclaim.  If it still appears to be reclaimable, move it to the tail of the
+

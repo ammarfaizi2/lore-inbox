@@ -1,80 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWHJTwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWHJTxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbWHJTwf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWHJTv5
+	id S932139AbWHJTxH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWHJTvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:51:57 -0400
-Received: from mail.suse.de ([195.135.220.2]:22417 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932673AbWHJThT (ORCPT
+	Thu, 10 Aug 2006 15:51:55 -0400
+Received: from mail.suse.de ([195.135.220.2]:24721 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932674AbWHJThU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:19 -0400
+	Thu, 10 Aug 2006 15:37:20 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [119/145] x86_64: X86_64 monotonic_clock goes backwards
-Message-Id: <20060810193718.4410713C16@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:18 +0200 (CEST)
+Subject: [PATCH for review] [120/145] i386/x86-64: Improve Kconfig description of CRASH_DUMP
+Message-Id: <20060810193719.52AE513B8E@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:19 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Dimitri Sivanich <sivanich@sgi.com>
-I've noticed some erratic behavior while testing the X86_64 version
-of monotonic_clock().
+Improve Kconfig description of CONFIG_CRASH_DUMP. Previously
+it was too brief to be useful.
 
-While spinning in a loop reading monotonic clock values (pinned to a
-single cpu) I noticed that the difference between subsequent values
-occasionally went negative (time going backwards).
+Cc: vgoyal@in.ibm.com
+Cc: ebiederm@xmission.com
 
-I found that in the following code:
-                this_offset = get_cycles_sync();
-                /* FIXME: 1000 or 1000000? */
--->             offset = (this_offset - last_offset)*1000 / cpu_khz;
-        }       
-        return base + offset;
-
-the offset sometimes turns out to be 0, even though
-this_offset > last_offset.
-
-Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/kernel/time.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ arch/i386/Kconfig   |    7 +++++++
+ arch/x86_64/Kconfig |    9 ++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-Index: linux/arch/x86_64/kernel/time.c
+Index: linux/arch/i386/Kconfig
 ===================================================================
---- linux.orig/arch/x86_64/kernel/time.c
-+++ linux/arch/x86_64/kernel/time.c
-@@ -276,6 +276,7 @@ static void set_rtc_mmss(unsigned long n
-  *		Note: This function is required to return accurate
-  *		time even in the absence of multiple timer ticks.
-  */
-+static inline unsigned long long cycles_2_ns(unsigned long long cyc);
- unsigned long long monotonic_clock(void)
- {
- 	unsigned long seq;
-@@ -300,8 +301,7 @@ unsigned long long monotonic_clock(void)
- 			base = monotonic_base;
- 		} while (read_seqretry(&xtime_lock, seq));
- 		this_offset = get_cycles_sync();
--		/* FIXME: 1000 or 1000000? */
--		offset = (this_offset - last_offset)*1000 / cpu_khz;
-+		offset = cycles_2_ns(this_offset - last_offset);
- 	}
- 	return base + offset;
- }
-@@ -405,8 +405,7 @@ void main_timer_handler(struct pt_regs *
- 			offset %= USEC_PER_TICK;
- 		}
+--- linux.orig/arch/i386/Kconfig
++++ linux/arch/i386/Kconfig
+@@ -759,6 +759,13 @@ config CRASH_DUMP
+ 	depends on HIGHMEM
+ 	help
+ 	  Generate crash dump after being started by kexec.
++          This should be normally only set in special crash dump kernels
++	  which are loaded in the main kernel with kexec-tools into
++	  a specially reserved region and then later executed after
++	  a crash by kdump/kexec. The crash dump kernel must be compiled
++          to a memory address not used by the main kernel or BIOS using
++          PHYSICAL_START.
++	  For more details see Documentation/kdump/kdump.txt
  
--		/* FIXME: 1000 or 1000000? */
--		monotonic_base += (tsc - vxtime.last_tsc) * 1000000 / cpu_khz;
-+		monotonic_base += cycles_2_ns(tsc - vxtime.last_tsc);
+ config PHYSICAL_START
+ 	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
+Index: linux/arch/x86_64/Kconfig
+===================================================================
+--- linux.orig/arch/x86_64/Kconfig
++++ linux/arch/x86_64/Kconfig
+@@ -484,7 +484,14 @@ config CRASH_DUMP
+ 	bool "kernel crash dumps (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+ 	help
+-		Generate crash dump after being started by kexec.
++          Generate crash dump after being started by kexec.
++          This should be normally only set in special crash dump kernels
++          which are loaded in the main kernel with kexec-tools into
++          a specially reserved region and then later executed after
++          a crash by kdump/kexec. The crash dump kernel must be compiled
++	  to a memory address not used by the main kernel or BIOS using
++	  PHYSICAL_START.
++          For more details see Documentation/kdump/kdump.txt
  
- 		vxtime.last_tsc = tsc - vxtime.quot * delay / vxtime.tsc_quot;
- 
+ config PHYSICAL_START
+ 	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)

@@ -1,191 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWHJAQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWHJARY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWHJAQF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 20:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWHJAPm
+	id S932378AbWHJARY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 20:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWHJARI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 20:15:42 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:14730 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932431AbWHJAPh (ORCPT
+	Wed, 9 Aug 2006 20:17:08 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:16522 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932378AbWHJAPj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 20:15:37 -0400
-Message-Id: <20060810001113.617857000@linux-m68k.org>
+	Wed, 9 Aug 2006 20:15:39 -0400
+Message-Id: <20060810001114.706731000@linux-m68k.org>
 References: <20060810000146.913645000@linux-m68k.org>
 User-Agent: quilt/0.45-1
-Date: Thu, 10 Aug 2006 02:01:47 +0200
+Date: Thu, 10 Aug 2006 02:01:51 +0200
 From: zippel@linux-m68k.org
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: [NTP 1/9] add ntp_update_frequency
-Content-Disposition: inline; filename=0001-NTP-add-ntp_update_frequency.txt
+Subject: [NTP 5/9] add time_adjust to tick length
+Content-Disposition: inline; filename=0005-NTP-add-time_adjust-to-tick-length.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This introduces ntp_update_frequency() and deinlines ntp_clear() (as
-it's not performance critical).
-ntp_update_frequency() calculates the base tick length using tick_usec
-and adds a base adjustment, in case the frequency doesn't divide evenly
-by HZ.
+This folds update_ntp_one_tick() into second_overflow() and adds
+time_adjust to the tick length, this makes time_next_adjust unnecessary.
+This slightly changes the adjtime() behaviour, instead of applying it to
+the next tick, it's applied to the next second.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 ---
- include/linux/timex.h |   14 ++------------
- kernel/time/ntp.c     |   50 ++++++++++++++++++++++++++++++++++++++++++++------
- kernel/timer.c        |   11 ++++-------
- 3 files changed, 50 insertions(+), 25 deletions(-)
+ include/linux/timex.h |    1 
+ kernel/time/ntp.c     |   71 ++++++++++++--------------------------------------
+ kernel/timer.c        |    2 -
+ 3 files changed, 18 insertions(+), 56 deletions(-)
 
 Index: linux-2.6-mm/include/linux/timex.h
 ===================================================================
 --- linux-2.6-mm.orig/include/linux/timex.h
 +++ linux-2.6-mm/include/linux/timex.h
-@@ -218,18 +218,8 @@ extern long time_reftime;	/* time at las
+@@ -216,7 +216,6 @@ extern long time_freq;		/* frequency off
+ extern long time_reftime;	/* time at last adjustment (s) */
+ 
  extern long time_adjust;	/* The amount of adjtime left */
- extern long time_next_adjust;	/* Value for time_adjust at next tick */
+-extern long time_next_adjust;	/* Value for time_adjust at next tick */
  
--/**
-- * ntp_clear - Clears the NTP state variables
-- *
-- * Must be called while holding a write on the xtime_lock
-- */
--static inline void ntp_clear(void)
--{
--	time_adjust = 0;		/* stop active adjtime() */
--	time_status |= STA_UNSYNC;
--	time_maxerror = NTP_PHASE_LIMIT;
--	time_esterror = NTP_PHASE_LIMIT;
--}
-+extern void ntp_clear(void);
-+extern void ntp_update_frequency(void);
- 
- /**
-  * ntp_synced - Returns 1 if the NTP status is not UNSYNC
+ extern void ntp_clear(void);
+ extern void ntp_update_frequency(void);
 Index: linux-2.6-mm/kernel/time/ntp.c
 ===================================================================
 --- linux-2.6-mm.orig/kernel/time/ntp.c
 +++ linux-2.6-mm/kernel/time/ntp.c
-@@ -21,6 +21,13 @@ void time_interpolator_update(long delta
- #define time_interpolator_update(x)
- #endif
+@@ -28,8 +28,9 @@ unsigned long tick_usec = TICK_USEC; 		/
+ unsigned long tick_nsec;			/* ACTHZ period (nsec) */
+ static u64 tick_length, tick_length_base;
  
-+/*
-+ * Timekeeping variables
-+ */
-+unsigned long tick_usec = TICK_USEC; 		/* USER_HZ period (usec) */
-+unsigned long tick_nsec;			/* ACTHZ period (nsec) */
-+static u64 tick_length, tick_length_base;
-+
- /* Don't completely fail for HZ > 500.  */
- int tickadj = 500/HZ ? : 1;		/* microsecs */
+-/* Don't completely fail for HZ > 500.  */
+-int tickadj = 500/HZ ? : 1;		/* microsecs */
++#define MAX_TICKADJ		500		/* microsecs */
++#define MAX_TICKADJ_SCALED	(((u64)(MAX_TICKADJ * NSEC_PER_USEC) << \
++				  TICK_LENGTH_SHIFT) / HZ)
  
-@@ -43,6 +50,36 @@ long time_reftime;			/* time at last adj
- long time_adjust;
- long time_next_adjust;
- 
-+/**
-+ * ntp_clear - Clears the NTP state variables
-+ *
-+ * Must be called while holding a write on the xtime_lock
-+ */
-+void ntp_clear(void)
-+{
-+	time_adjust = 0;		/* stop active adjtime() */
-+	time_status |= STA_UNSYNC;
-+	time_maxerror = NTP_PHASE_LIMIT;
-+	time_esterror = NTP_PHASE_LIMIT;
-+
-+	ntp_update_frequency();
-+
-+	tick_length = tick_length_base;
-+}
-+
-+#define CLOCK_TICK_OVERFLOW	(LATCH * HZ - CLOCK_TICK_RATE)
-+#define CLOCK_TICK_ADJUST	(((s64)CLOCK_TICK_OVERFLOW * NSEC_PER_SEC) / CLOCK_TICK_RATE)
-+
-+void ntp_update_frequency(void)
-+{
-+	tick_length_base = (u64)(tick_usec * NSEC_PER_USEC * USER_HZ) << TICK_LENGTH_SHIFT;
-+	tick_length_base += (s64)CLOCK_TICK_ADJUST << TICK_LENGTH_SHIFT;
-+
-+	do_div(tick_length_base, HZ);
-+
-+	tick_nsec = tick_length_base >> TICK_LENGTH_SHIFT;
-+}
-+
  /*
-  * this routine handles the overflow of the microsecond field
-  *
-@@ -157,6 +194,7 @@ void second_overflow(void)
- 	 */
- 	time_adj += shift_right(time_adj, 6) + shift_right(time_adj, 7);
- #endif
-+	tick_length = tick_length_base;
+  * phase-lock loop variables
+@@ -46,7 +47,6 @@ long time_esterror = NTP_PHASE_LIMIT;	/*
+ long time_freq;				/* frequency offset (scaled ppm)*/
+ long time_reftime;			/* time at last adjustment (s)	*/
+ long time_adjust;
+-long time_next_adjust;
+ 
+ /**
+  * ntp_clear - Clears the NTP state variables
+@@ -166,46 +166,19 @@ void second_overflow(void)
+ 	time_adj = max(time_adj, ((MAXPHASE / HZ) << SHIFT_UPDATE) / MINSEC);
+ 	time_offset -= time_adj;
+ 	tick_length += (s64)time_adj << (TICK_LENGTH_SHIFT - SHIFT_UPDATE);
+-}
+-
+-/*
+- * Returns how many microseconds we need to add to xtime this tick
+- * in doing an adjustment requested with adjtime.
+- */
+-static long adjtime_adjustment(void)
+-{
+-	long time_adjust_step;
+-
+-	time_adjust_step = time_adjust;
+-	if (time_adjust_step) {
+-		/*
+-		 * We are doing an adjtime thing.  Prepare time_adjust_step to
+-		 * be within bounds.  Note that a positive time_adjust means we
+-		 * want the clock to run faster.
+-		 *
+-		 * Limit the amount of the step to be in the range
+-		 * -tickadj .. +tickadj
+-		 */
+-		time_adjust_step = min(time_adjust_step, (long)tickadj);
+-		time_adjust_step = max(time_adjust_step, (long)-tickadj);
+-	}
+-	return time_adjust_step;
+-}
+-
+-/* in the NTP reference this is called "hardclock()" */
+-void update_ntp_one_tick(void)
+-{
+-	long time_adjust_step;
+ 
+-	time_adjust_step = adjtime_adjustment();
+-	if (time_adjust_step)
+-		/* Reduce by this step the amount of time left  */
+-		time_adjust -= time_adjust_step;
+-
+-	/* Changes by adjtime() do not take effect till next tick. */
+-	if (time_next_adjust != 0) {
+-		time_adjust = time_next_adjust;
+-		time_next_adjust = 0;
++	if (unlikely(time_adjust)) {
++		if (time_adjust > MAX_TICKADJ) {
++			time_adjust -= MAX_TICKADJ;
++			tick_length += MAX_TICKADJ_SCALED;
++		} else if (time_adjust < -MAX_TICKADJ) {
++			time_adjust += MAX_TICKADJ;
++			tick_length -= MAX_TICKADJ_SCALED;
++		} else {
++			time_adjust = 0;
++			tick_length += (s64)(time_adjust * NSEC_PER_USEC /
++					     HZ) << TICK_LENGTH_SHIFT;
++		}
+ 	}
  }
  
- /*
-@@ -210,14 +248,13 @@ void update_ntp_one_tick(void)
+@@ -219,14 +192,7 @@ void update_ntp_one_tick(void)
   */
  u64 current_tick_length(void)
  {
--	long delta_nsec;
- 	u64 ret;
+-	u64 ret;
+-
+-	/* calculate the finest interval NTP will allow.
+-	 */
+-	ret = tick_length;
+-	ret += (u64)(adjtime_adjustment() * 1000) << TICK_LENGTH_SHIFT;
+-
+-	return ret;
++	return tick_length;
+ }
  
- 	/* calculate the finest interval NTP will allow.
- 	 *    ie: nanosecond value shifted by (SHIFT_SCALE - 10)
- 	 */
--	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
--	ret = (u64)delta_nsec << TICK_LENGTH_SHIFT;
-+	ret = tick_length;
-+	ret += (u64)(adjtime_adjustment() * 1000) << TICK_LENGTH_SHIFT;
- 	ret += (s64)time_adj << (TICK_LENGTH_SHIFT - (SHIFT_SCALE - 10));
  
- 	return ret;
-@@ -357,10 +394,11 @@ int do_adjtimex(struct timex *txc)
- 		    time_freq = max(time_freq, -time_tolerance);
- 		} /* STA_PLL */
- 	    } /* txc->modes & ADJ_OFFSET */
--	    if (txc->modes & ADJ_TICK) {
-+	    if (txc->modes & ADJ_TICK)
- 		tick_usec = txc->tick;
--		tick_nsec = TICK_USEC_TO_NSEC(tick_usec);
--	    }
-+
-+	    if (txc->modes & ADJ_TICK)
-+		    ntp_update_frequency();
- 	} /* txc->modes */
- leave:	if ((time_status & (STA_UNSYNC|STA_CLOCKERR)) != 0)
- 		result = TIME_ERROR;
+@@ -269,7 +235,7 @@ int do_adjtimex(struct timex *txc)
+ 	result = time_state;	/* mostly `TIME_OK' */
+ 
+ 	/* Save for later - semantics of adjtime is to return old value */
+-	save_adjust = time_next_adjust ? time_next_adjust : time_adjust;
++	save_adjust = time_adjust;
+ 
+ #if 0	/* STA_CLOCKERR is never set yet */
+ 	time_status &= ~STA_CLOCKERR;		/* reset STA_CLOCKERR */
+@@ -316,8 +282,7 @@ int do_adjtimex(struct timex *txc)
+ 	    if (txc->modes & ADJ_OFFSET) {	/* values checked earlier */
+ 		if (txc->modes == ADJ_OFFSET_SINGLESHOT) {
+ 		    /* adjtime() is independent from ntp_adjtime() */
+-		    if ((time_next_adjust = txc->offset) == 0)
+-			 time_adjust = 0;
++		    time_adjust = txc->offset;
+ 		}
+ 		else if (time_status & STA_PLL) {
+ 		    ltemp = txc->offset;
 Index: linux-2.6-mm/kernel/timer.c
 ===================================================================
 --- linux-2.6-mm.orig/kernel/timer.c
 +++ linux-2.6-mm/kernel/timer.c
-@@ -568,12 +568,6 @@ found:
+@@ -943,8 +943,6 @@ static void update_wall_time(void)
+ 		/* interpolator bits */
+ 		time_interpolator_update(clock->xtime_interval
+ 						>> clock->shift);
+-		/* increment the NTP state machine */
+-		update_ntp_one_tick();
  
- /******************************************************************/
- 
--/*
-- * Timekeeping variables
-- */
--unsigned long tick_usec = TICK_USEC; 		/* USER_HZ period (usec) */
--unsigned long tick_nsec = TICK_NSEC;		/* ACTHZ period (nsec) */
--
- /* 
-  * The current time 
-  * wall_to_monotonic is what we need to add to xtime (or xtime corrected 
-@@ -763,10 +757,13 @@ void __init timekeeping_init(void)
- 	unsigned long flags;
- 
- 	write_seqlock_irqsave(&xtime_lock, flags);
-+
-+	ntp_clear();
-+
- 	clock = clocksource_get_next();
- 	clocksource_calculate_interval(clock, tick_nsec);
- 	clock->cycle_last = clocksource_read(clock);
--	ntp_clear();
-+
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- }
- 
+ 		/* accumulate error between NTP and clock interval */
+ 		clock->error += current_tick_length();
 
 --
 

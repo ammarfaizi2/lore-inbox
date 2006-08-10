@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWHJUBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWHJUBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWHJUBI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWHJT7i
+	id S932349AbWHJUBL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWHJT7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:59:38 -0400
-Received: from ns1.suse.de ([195.135.220.2]:1681 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932646AbWHJTgu (ORCPT
+	Thu, 10 Aug 2006 15:59:36 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:63467 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932648AbWHJTgw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:50 -0400
+	Thu, 10 Aug 2006 15:36:52 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [92/145] x86_64: Remove need for early lockdep init
-Message-Id: <20060810193649.9BE9C13C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:49 +0200 (CEST)
+Subject: [PATCH for review] [94/145] x86_64: Clean up acpi_numa variable
+Message-Id: <20060810193651.B948113C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:51 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-I think it was only needed for the printks and we can do them later.
+Move it into srat.c No need to clutter up setup.c for it
 
-I put in a single early_printk so that we know the kernel is alive
-(early_printk doesn't need any locks)
-
-This makes some things easier for initialization of unwind for
-lockdep, which is needed by later patches.
-
-Cc: mingo@elte.hu
+And remove use in setup.c completely - it only guarded a printk
+which can be done unconditionally.
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/kernel/head64.c |    8 +-------
- arch/x86_64/kernel/setup.c  |    2 ++
- 2 files changed, 3 insertions(+), 7 deletions(-)
+ arch/x86_64/kernel/setup.c |    5 +----
+ arch/x86_64/mm/srat.c      |    2 ++
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-Index: linux/arch/x86_64/kernel/head64.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/head64.c
-+++ linux/arch/x86_64/kernel/head64.c
-@@ -45,15 +45,12 @@ static void __init copy_bootdata(char *r
- 	new_data = *(int *) (x86_boot_params + NEW_CL_POINTER);
- 	if (!new_data) {
- 		if (OLD_CL_MAGIC != * (u16 *) OLD_CL_MAGIC_ADDR) {
--			printk("so old bootloader that it does not support commandline?!\n");
- 			return;
- 		}
- 		new_data = OLD_CL_BASE_ADDR + * (u16 *) OLD_CL_OFFSET;
--		printk("old bootloader convention, maybe loadlin?\n");
- 	}
- 	command_line = (char *) ((u64)(new_data));
- 	memcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
--	printk("Bootdata ok (command line is %s)\n", saved_command_line);	
- }
- 
- void __init x86_64_start_kernel(char * real_mode_data)
-@@ -65,10 +62,7 @@ void __init x86_64_start_kernel(char * r
- 	asm volatile("lidt %0" :: "m" (idt_descr));
- 	clear_bss();
- 
--	/*
--	 * This must be called really, really early:
--	 */
--	lockdep_init();
-+	early_printk("Kernel alive\n");
- 
- 	/*
- 	 * switch to init_level4_pgt from boot_level4_pgt
 Index: linux/arch/x86_64/kernel/setup.c
 ===================================================================
 --- linux.orig/arch/x86_64/kernel/setup.c
 +++ linux/arch/x86_64/kernel/setup.c
-@@ -355,6 +355,8 @@ void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long kernel_end;
+@@ -74,8 +74,6 @@ EXPORT_SYMBOL(boot_cpu_data);
  
-+	printk(KERN_INFO "Command line: %s\n", saved_command_line);
+ unsigned long mmu_cr4_features;
+ 
+-int acpi_numa __initdata;
+-
+ /* Boot loader ID as an integer, for the benefit of proc_dointvec */
+ int bootloader_type;
+ 
+@@ -814,8 +812,7 @@ static void srat_detect_node(void)
+ 		node = first_node(node_online_map);
+ 	numa_set_node(cpu, node);
+ 
+-	if (acpi_numa > 0)
+-		printk(KERN_INFO "CPU %d/%x -> Node %d\n", cpu, apicid, node);
++	printk(KERN_INFO "CPU %d/%x -> Node %d\n", cpu, apicid, node);
+ #endif
+ }
+ 
+Index: linux/arch/x86_64/mm/srat.c
+===================================================================
+--- linux.orig/arch/x86_64/mm/srat.c
++++ linux/arch/x86_64/mm/srat.c
+@@ -21,6 +21,8 @@
+ #include <asm/numa.h>
+ #include <asm/e820.h>
+ 
++int acpi_numa __initdata;
 +
-  	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-  	screen_info = SCREEN_INFO;
- 	edid_info = EDID_INFO;
+ #if (defined(CONFIG_ACPI_HOTPLUG_MEMORY) || \
+ 	defined(CONFIG_ACPI_HOTPLUG_MEMORY_MODULE)) \
+ 		&& !defined(CONFIG_MEMORY_HOTPLUG)

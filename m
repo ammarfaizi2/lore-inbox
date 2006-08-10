@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWHJNwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161277AbWHJNzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161281AbWHJNwo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161280AbWHJNwn
+	id S1161277AbWHJNzG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161285AbWHJNzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:52:43 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:33423 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161269AbWHJNwn (ORCPT
+	Thu, 10 Aug 2006 09:55:05 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:33762 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1161277AbWHJNzE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:52:43 -0400
-Date: Thu, 10 Aug 2006 15:52:34 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-In-Reply-To: <44DB34FF.4000303@garzik.org>
-Message-ID: <Pine.LNX.4.64.0608101547261.6761@scrub.home>
-References: <1155172843.3161.81.camel@localhost.localdomain>
- <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
- <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
- <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
- <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home>
- <44DB3151.8050904@garzik.org> <Pine.LNX.4.64.0608101519560.6762@scrub.home>
- <44DB34FF.4000303@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Aug 2006 09:55:04 -0400
+Subject: Re: Merging libata PATA support into the base kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20060810122056.GP11829@suse.de>
+References: <1155144599.5729.226.camel@localhost.localdomain>
+	 <p733bc5nm5g.fsf@verdi.suse.de>
+	 <1155213464.22922.6.camel@localhost.localdomain>
+	 <20060810122056.GP11829@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 10 Aug 2006 15:14:52 +0100
+Message-Id: <1155219292.22922.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Iau, 2006-08-10 am 14:20 +0200, ysgrifennodd Jens Axboe:
+> You make it sound much worse than it is. Apart for HPA, I'm not aware of
+> any setups that require extra treatment. And the amount of reported bugs
+> against it are pretty close to zero :-)
 
-On Thu, 10 Aug 2006, Jeff Garzik wrote:
+There are several variants where you get
+	- hangs on resume
+	- HPA mishandling
+	- CRC errors and usually eventually a hang
 
-> Roman Zippel wrote:
-> > If you force everyone to use 64bit sector numbers, I don't understand how
-> > you can claim "still working just fine on 32bit"?
-> 
-> 64bit sector numbers work just fine on 32-bit machines.
+HPA thankfully appears to bite only IBM thinkpad users
 
-Depends on the definition of "fine".
-
-> > At some point ext4 is probably going to be the de facto standard, which very
-> > many people want to use, because it has all the new features, which won't be
-> > ported to ext2/3. So I still don't understand, what's so wrong about a
-> > little tuning in both directions?
-> 
-> Just seems like wasted effort to me.
-
-I disagree.
-Many developer still brag about how Linux runs on about everything, but 
-it's little steps like this, which make it more and more a joke.
-
-bye, Roman

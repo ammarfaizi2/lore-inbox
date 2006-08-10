@@ -1,108 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161284AbWHJOm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161278AbWHJOqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161284AbWHJOm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 10:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161278AbWHJOm0
+	id S1161278AbWHJOqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 10:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161272AbWHJOqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 10:42:26 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:14097 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1161274AbWHJOmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 10:42:25 -0400
-Message-ID: <44DB4547.80007@shadowen.org>
-Date: Thu, 10 Aug 2006 15:40:07 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Thu, 10 Aug 2006 10:46:04 -0400
+Received: from web25812.mail.ukl.yahoo.com ([217.146.176.245]:52880 "HELO
+	web25812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1161278AbWHJOqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 10:46:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type;
+  b=n0xYoNQ0MqwPVWY18bfZpOUmz2Us4DpLU4BNuKf8Udy2D2ryycEbOaZbfa9pS2WWDHwEiAanlIV/8m9SrVWpui63ShG33qck1lS0fUO6s8cO6JcX6yPkuMwmbMtcwK3kaICXby2achnqO33LSj6LK7jaVKbX7bKhDjRetTm+R8Y=  ;
+Message-ID: <20060810144601.97257.qmail@web25812.mail.ukl.yahoo.com>
+Date: Thu, 10 Aug 2006 14:46:01 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : sparsemem usage
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: apw@shadowen.org, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: schwidefsky@de.ibm.com
-CC: Dave Hansen <haveblue@us.ibm.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] x86_64: Make NR_IRQS configurable in Kconfig
-References: <m1irl4ftya.fsf@ebiederm.dsl.xmission.com>	 <20060807194159.f7c741b5.akpm@osdl.org>	 <17624.7310.856480.704542@cargo.ozlabs.ibm.com>	 <200608080714.21151.ak@suse.de> <1155025073.26277.18.camel@localhost>	 <20060809175854.GA14382@intel.com>	 <1155147948.19249.171.camel@localhost.localdomain> <1155214538.14749.54.camel@localhost>
-In-Reply-To: <1155214538.14749.54.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
-> On Wed, 2006-08-09 at 11:25 -0700, Dave Hansen wrote: 
->> Instead of:
+KAMEZAWA Hiroyuki wrote:
+> On Thu, 10 Aug 2006 14:40:52 +0200 (CEST)
+> moreau francis <francis_moreau2000@yahoo.fr> wrote: 
+>>> BTW, ioresouce information (see kernel/resouce.c)
+>>>
+>>> [kamezawa@aworks Development]$ cat /proc/iomem | grep RAM
+>>> 00000000-0009fbff : System RAM
+>>> 000a0000-000bffff : Video RAM area
+>>> 00100000-2dfeffff : System RAM
+>>>
+>>> is not enough ?
+>>>
+>> well actually you show that to get a really simple information, ie does
+>> a page exist ?, we need to parse some kernel data structures like 
+>> ioresource (which is, IMHO, hackish) or duplicate in each architecture
+>> some data to keep track of existing pages.
 >>
->> #define pfn_to_section_nr(pfn) ((pfn) >> PFN_SECTION_SHIFT)
->>
->> We could do:
->>
->> static inline unsigned long pfn_to_section_nr(unsigned long pfn)
->> {
->> 	return some_hash(pfn) % NR_OF_SECTION_SLOTS;
->> }
->>
->> This would, of course, still have limits on how _many_ sections can be
->> populated.  But, it would remove the relationship on what the actual
->> physical address ranges can be from the number of populated sections.
->>
->> Of course, it isn't quite that simple.  You need to make sure that the
->> sparse code is clean from all connections between section number and
->> physical address, as well as handling things like hash collisions.  We'd
->> probably also need to store the _actual_ physical address somewhere
->> because we can't get it from the section number any more.
 > 
-> You have to deal with the hash collisions somehow, for example with a
-> list of pages that have the same hash. And you have to calculate the
-> hash value. Both hurts performance.
+> becasue memory map from e820(x86) or efi(ia64) are registered to iomem_resource,
+> we should avoid duplicates that information. kdump and memory hotplug uses
+> this information. (memory hotplug updates this iomem_resource.)
 > 
->> P.S. With sparsemem extreme, I think you can cover an entire 64-bits of
->> address space with a 4GB top-level table.  If one more level of tables
->> was added, we'd be down to (I think) an 8MB table.  So, that might be an
->> option, too.
-> 
-> On s390 we have to prepare for the situation of an address space that
-> has a chunk of memory at the low end and another chunk with bit 2^63
-> set. So the mem_map array needs to cover the whole 64 bit address range.
-> For sparsemem, we can choose on the size of the mem_map sections and on
-> how many indirections the lookup table should have. Some examples:
-> 
-> 1) flat mem_map array: 2^52 entries, 56 bytes each.
-> 2) mem_map sections with 256 entries / 14KB for each section,
->    1 indirection level, 2^44 indirection pointers, 128TB overhead
-> 3) mem_map sections with 256 entries / 14KB for each section,
->    2 indirection levels, 2^22 indirection pointers for each level,
->    32MB for each indirection array, minimum 64MB overhead
-> 4) mem_map sections with 256 entries / 14KB for each section,
->    3 indirection levels, 2^15/2^15/2^14 indirection pointers,
->    256K/256K/128K indirection arrays, minimum 640K overhead
-> 5) mem_map sections with 1024 entries / 56KB for each section,
->    3 indirection levels, 2^14/2^14/2^14 indirection pointers,
->    128K/128K/128K indirection arrays, minimum 384KB overhead
-> 
-> 2 levels of indirection results in large overhead in regard to memory.
-> For 3 levels of indirection the memory overhead is ok, but each lookup
-> has to walk 3 indirections. This adds cpu cycles to access the mem_map
-> array.
-> 
-> The alternative of a flat mem_map array in vmalloc space is much more
-> attractive. The size of the array is 2^52*56 Byte. 1,3% of the virtual
-> address space. The access doesn't change, an array gets accessed. The
-> access gets automatically cached by the hardware.
-> Simple, straightforward, no additional overhead. Only the setup of the
-> kernel page tables for the mem_map vmalloc area needs some thought.
-> 
+> Implementing "page_is_exist" function based on ioresouce is one of generic
+> and rubust way to go, I think.
+> (if performance of list walking is problem, enhancing ioresouce code is
+>  better.)
+>  
 
-Well you could do something more fun with the top of the address.  You 
-don't need to keep the bytes in the same order for instance.  If this is 
-really a fair size chunk at the bottom and one at the top then taking 
-the address and swapping the bytes like:
+Why not implementing page_exist() by simply using mem_map[] ? When
+allocating mem_map[], we can just fill it with a special value. And
+then when registering memory area, we clear this special value with
+the "reserved" value. Hence for flatmem model, we can have:
 
-	ABCDEFGH => BCDAEFGH
+#define page_exist(pfn)        (mem_map[pfn] != SPECIAL_VALUE)
 
-Would be a pretty trivial bit of register wibbling (ie very quick), but 
-would probabally mean a single flat, smaller sparsemem table would cover 
-all likely areas.
+and it should work for sparsemem too and other models that will use
+mem_map[].
 
--apw
+Another point, is page_exist() going to replace page_valid() ?
+I mean page_exist() is going to be something more accurate than
+page_valid(). All tests on page_valid() _only_ will be fine to test
+page_exist(). But all tests such:
+
+    if (page_valid(x) && page_is_ram(x))
+
+can be replaced by
+
+    if (page_exist(x))
+
+So, again, why not simply improving page_valid() definition rather
+than introduce a new service ?
+
+Francis
+
+
+
+

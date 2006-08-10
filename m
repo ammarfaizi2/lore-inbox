@@ -1,45 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWHJU0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbWHJUY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751569AbWHJU0H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWHJUZy
+	id S932607AbWHJUY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWHJUOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:25:54 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:13700 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932520AbWHJUZA (ORCPT
+	Thu, 10 Aug 2006 16:14:50 -0400
+Received: from mail.suse.de ([195.135.220.2]:35216 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932340AbWHJTgJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:25:00 -0400
-Message-ID: <44DB9613.1060609@garzik.org>
-Date: Thu, 10 Aug 2006 16:24:51 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-CC: Theodore Tso <tytso@mit.edu>, Erik Mouw <erik@harddisk-recovery.com>,
-       Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
-References: <1155172642.3161.74.camel@localhost.localdomain>	 <20060810092021.GB11361@harddisk-recovery.com>	 <20060810175920.GC19238@thunk.org>  <44DB8EBE.6060003@garzik.org> <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
-In-Reply-To: <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 10 Aug 2006 15:36:09 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [52/145] x86_64: Remove pirq overwrite support
+Message-Id: <20060810193607.096CE13C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:06 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp wrote:
-> IF it's decided to register the file system as ext3dev (Would ext4dev
-> make more sense?), I would prefer the config options and code continues
-> to simply use ext4.
+r
 
-Code, I strongly agree.
+This was an old workaround for broken MP-BIOS. The user could
+specify overwrites on the command line.
 
-But config options are a dime a dozen.  They change all the time, even 
-for the same driver.
+I've never seen it being used for anything on 64bit. So get
+rid of it for now.
 
-	Jeff
+Signed-off-by: Andi Kleen <ak@suse.de>
 
+---
+ arch/x86_64/kernel/io_apic.c |   55 -------------------------------------------
+ 1 files changed, 55 deletions(-)
 
+Index: linux/arch/x86_64/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/io_apic.c
++++ linux/arch/x86_64/kernel/io_apic.c
+@@ -225,14 +225,6 @@ static void clear_IO_APIC (void)
+ 			clear_IO_APIC_pin(apic, pin);
+ }
+ 
+-/*
+- * support for broken MP BIOSs, enables hand-redirection of PIRQ0-7 to
+- * specific CPU-side IRQs.
+- */
+-
+-#define MAX_PIRQS 8
+-static int pirq_entries [MAX_PIRQS];
+-static int pirqs_enabled;
+ int skip_ioapic_setup;
+ int ioapic_force;
+ 
+@@ -370,34 +362,6 @@ void __init check_ioapic(void) 
+ 	}
+ } 
+ 
+-static int __init ioapic_pirq_setup(char *str)
+-{
+-	int i, max;
+-	int ints[MAX_PIRQS+1];
+-
+-	get_options(str, ARRAY_SIZE(ints), ints);
+-
+-	for (i = 0; i < MAX_PIRQS; i++)
+-		pirq_entries[i] = -1;
+-
+-	pirqs_enabled = 1;
+-	apic_printk(APIC_VERBOSE, "PIRQ redirection, working around broken MP-BIOS.\n");
+-	max = MAX_PIRQS;
+-	if (ints[0] < MAX_PIRQS)
+-		max = ints[0];
+-
+-	for (i = 0; i < max; i++) {
+-		apic_printk(APIC_VERBOSE, "... PIRQ%d -> IRQ %d\n", i, ints[i+1]);
+-		/*
+-		 * PIRQs are mapped upside down, usually.
+-		 */
+-		pirq_entries[MAX_PIRQS-i-1] = ints[i+1];
+-	}
+-	return 1;
+-}
+-
+-__setup("pirq=", ioapic_pirq_setup);
+-
+ /*
+  * Find the IRQ entry number of a certain pin.
+  */
+@@ -793,22 +757,6 @@ static int pin_2_irq(int idx, int apic, 
+ 		}
+ 	}
+ 	BUG_ON(irq >= NR_IRQS);
+-
+-	/*
+-	 * PCI IRQ command line redirection. Yes, limits are hardcoded.
+-	 */
+-	if ((pin >= 16) && (pin <= 23)) {
+-		if (pirq_entries[pin-16] != -1) {
+-			if (!pirq_entries[pin-16]) {
+-				apic_printk(APIC_VERBOSE, "disabling PIRQ%d\n", pin-16);
+-			} else {
+-				irq = pirq_entries[pin-16];
+-				apic_printk(APIC_VERBOSE, "using PIRQ%d -> IRQ %d\n",
+-						pin-16, irq);
+-			}
+-		}
+-	}
+-	BUG_ON(irq >= NR_IRQS);
+ 	return irq;
+ }
+ 
+@@ -1281,9 +1229,6 @@ static void __init enable_IO_APIC(void)
+ 		irq_2_pin[i].pin = -1;
+ 		irq_2_pin[i].next = 0;
+ 	}
+-	if (!pirqs_enabled)
+-		for (i = 0; i < MAX_PIRQS; i++)
+-			pirq_entries[i] = -1;
+ 
+ 	/*
+ 	 * The number of IO-APIC IRQ registers (== #pins):

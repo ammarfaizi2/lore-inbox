@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWHJFyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWHJFyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161044AbWHJFyf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 01:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWHJFyf
+	id S1161045AbWHJFyr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 01:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWHJFyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 01:54:35 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:59994 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161043AbWHJFye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 01:54:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uusxFEyKuNYMYOCJw0LAFCKmVSbo/GNb66bew8Khv0Dsn1E1VpvcDYawzw7lTL5cgr1JLGidWcHO1w2YGhUlOsZk98IaThXJyaJIfpG3QomZFaVrxLoOBeBC9gh2MIU5zFPkxFqFWb26BKZAozVh++ngfQKI0Zusg7J828LXiI0=
-Message-ID: <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
-Date: Thu, 10 Aug 2006 01:54:33 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Neil Brown" <neilb@suse.de>
-Subject: Re: Urgent help needed on an NFS question, please help!!!
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <17626.49136.384370.284757@cse.unsw.edu.au>
+	Thu, 10 Aug 2006 01:54:46 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:37067 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1161045AbWHJFyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 01:54:46 -0400
+Message-ID: <44DACA22.6090701@comcast.net>
+Date: Thu, 10 Aug 2006 01:54:42 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: How does Linux do RTTM?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
-	 <17626.49136.384370.284757@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many thanks for your kind help!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Your answer is what I expected. But what frustrated me is that I
-cannot find the code that verifies the generation number in NFS V3
-codes. Do you know where it check the generation number?
+How does Linux do RFC 1323 style RTTM measurement?  Is there a
+pseudo-clock used i.e. number of jiffies since boot?  Or just a
+real-time timestamp?
 
-Thanks,
--x
+Sorry for the dumb questions but Google is being massively bad at "tell
+me about an obscure feature of the Linux kernel that nobody cares about"
+today :)
 
-On 8/10/06, Neil Brown <neilb@suse.de> wrote:
-> On Thursday August 10, uszhaoxin@gmail.com wrote:
-> > I just ran into a problem about NFS. It might be a fundmental problem
-> > of my current work. So please help!
-> >
-> > I am wondering how NFS guarantees a client didn't get wrong file
-> > attributes. Consider the following scenario:
-> >
-> > Suppose we have an NFS server S and two clients C1 and C2.
-> >
-> > Now C1 needs to access the file attributes of file X, it first does
-> > lookup() to get the file handle of file X.
-> >
-> > After C1 gets X's file handle and before C1 issues the getattr()
-> > request, C2 cuts in. Now C2 deletes file X and creates a new file X1,
-> > which has different name but the same inode number and device ID as
-> > the nonexistent file X.
-> >
-> > When C1 issues getattr() with the old file handle, it may get file
-> > attribute on wrong file X1. Is this true?
-> >
-> > If not, how NFS avoid this problem? Please direct me to the code that
-> > verifies this.
->
-> Generation numbers.
->
-> When the filesystem creates a new file it assigns a random number
-> as the 'generation' number and stores that in the inode.
-> This gets included in the filehandle, and checked when the filehandle
-> lookup is done.
->
-> Look for references to 'i_generation' in fs/ext3/*
->
-> Other files systems may approach this slightly differently, but the
-> filesystem is responsible for providing a unique-over-time filehandle,
-> and 'generation number' is the 'standard' way of doing this.
->
-> NeilBrown
->
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRNrKHws1xW0HCTEFAQL/kA//YKZ+lFWk1XUHTfQUCLClvBEsope7KYDg
+8POJjpJVRhOf5ckexPXvmBbxnXJBB4zki2JRiiEbaHtHkMncdk8Ts7r/2Au8YGEj
+Jo0ahOssvQKPm3WBeZgXrOXjdRYuF2fW03wrBAuKL3KqXV8U2v4gFcWzV6pysBBp
+4gYevF6DS4MXX6Loo9o/HowC4UFZgktELkDE6NX6gMh4aXNwhtsReOlfxY2to2yd
+A2R89iJjWvPr3UeG6gpej7GOCg9XuW0nwfMJ5V4T5OqSDVbB0feXBCTEC8JtxPwD
+Quc6UTv4Vqx3+lTS71YeTjE2/Oyi77eW46ycnsjPgeQ9mH67ZWA7GYgDxSqvfpbz
+9Dn4+elboMKwPXD7FmlC4CjrtsyeB7ebqfUOTRRd4M2IqFZ2y2t50m3TgAAoe3vR
+h62RN1o425QSRQlEje7De7ST2jG9UdaNceYt9TT0QZBRsN44TUT+6p1YoFVs6uU0
+IhGu+zsFmltE7DuVu9CxWJQ70LP9L/qCWllyPOdGobbDyYISw047sDrxPjF8N5ha
+j+I40ozs2JG5Jg3d0w5DDYPsSfeh/LLlLzyGEQzwzXr5PZJaJVeEtb/jroqhjvXc
+PAegzN0DUnWVoMX0/Uv6oLoWIYsgwcTLw6ieCeOt5ljTpJxeaJtrcl3RPipLbKrF
+HgPtUNRGjqk=
+=5z5t
+-----END PGP SIGNATURE-----

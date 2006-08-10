@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161189AbWHJLqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161185AbWHJLwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161189AbWHJLqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 07:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWHJLqu
+	id S1161185AbWHJLwT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 07:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161190AbWHJLwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 07:46:50 -0400
-Received: from tango.0pointer.de ([217.160.223.3]:8456 "EHLO tango.0pointer.de")
-	by vger.kernel.org with ESMTP id S1161089AbWHJLqt (ORCPT
+	Thu, 10 Aug 2006 07:52:19 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:51607 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161185AbWHJLwS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 07:46:49 -0400
-Date: Thu, 10 Aug 2006 13:46:47 +0200
-From: Lennart Poettering <mzxreary@0pointer.de>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 2/2] acpi,backlight: MSI S270 laptop support - driver
-Message-ID: <20060810114647.GA18242@tango.0pointer.de>
-References: <CFF307C98FEABE47A452B27C06B85BB60133D741@hdsmsx411.amr.corp.intel.com>
+	Thu, 10 Aug 2006 07:52:18 -0400
+From: Andi Kleen <ak@suse.de>
+To: Fernando Luis =?iso-8859-15?q?V=E1zquez_Cao?= 
+	<fernando@oss.ntt.co.jp>
+Subject: Re: [PATCH 1/2] i386: Disallow kprobes on NMI handlers - try #2
+Date: Thu, 10 Aug 2006 13:52:08 +0200
+User-Agent: KMail/1.9.3
+Cc: prasanna@in.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jbeulich@novell.com
+References: <1155209773.4141.10.camel@localhost.localdomain>
+In-Reply-To: <1155209773.4141.10.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB60133D741@hdsmsx411.amr.corp.intel.com>
-Organization: .phi.
-X-Campaign-1: ()  ASCII Ribbon Campaign
-X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
-X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
-X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
-X-Disclaimer-3: keiner Unterschrift.
-User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
+Message-Id: <200608101352.08828.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10.08.06 05:36, Brown, Len (len.brown@intel.com) wrote:
-
-> Lennart,
-
-Hi!
-
+On Thursday 10 August 2006 13:36, Fernando Luis Vázquez Cao wrote:
+> A kprobe executes IRET early and that could cause NMI recursion and stack
+> corruption.
 > 
-> Your s270 platform driver needs a different home in the source tree
-> outside of drivers/acpi/, and the patch that adds it must add an entry
-> to MAINTAINERS.
+> Note: This problem was originally spotted and solved by Andi Kleen in the
+> x86_64 architecture. This patch is an adaption of his patch for i386.
 
-If you look closely you'll see that the patch already adds a new
-entry to MAINTAINERS.
+Originally Jan Beulich discovered these classes of bugs actually
 
-I put the the driver in drivers/acpi/ because it relies heavily on the
-ACPI EC stuff. But OK, what is a better place for the driver? 
+I applied the two patches (after fixing lots of rejects because that
+code had already changed a lot). But I have my doubts it is complete.
 
-drivers/char/ 
-  It doesn't even register any character device.
+e.g. the NMI watchdog nmi code has lots of callees which you don't
+handle (notifier chains, spinlocks, printks which can call practically everything, ...) 
 
-drivers/video/backlight/
-  It doesn't just do backlight control.
+The printk in the NMI handler look pretty bogus so I just removed it.
 
-drivers/misc/
-  Seems to be the last resort for everything that doesn't fit it
-  otherwise.
+But all the other code would be tricky. but .e.g. marking up 
+spinlocks would be probably not a good idea. 
 
-Unless anyone has a better idea I will move it to drivers/misc/, then.
+When we oops (call die) perhaps we can force kprobes to be disabled? 
 
-> lcd brightness platform support should talk to the existing
-> backlight stuff under sysfs.
+Also everybody hooking into the die chain would need to be covered too.
 
-It already does exactly that, you can find the backlight class driver
-in /sys/class/backlight/s270/.
+Probably some followon work is needed.
 
-I cannot map the "automatic brightness control" feature to the
-backlight class driver, that's why I duplicated the brightness stuff
-in /proc/acpi/s270/.
-
-> wlan and bluetooth indicators/controls need to appear under
-> generic places under sysfs -- not under platform specific
-> files under /proc/acpi.
-
-What are those "generic" places? I cannot think of any besides a
-"platform" device.
-
-> Yes, the existing platform specific drivers such as asus, toshiba, and
-> ibm
-> are bad examples.
-
-Ok, I will move the /proc/acpi/s270/ stuff to a sysfs platform device,
-then. I will cook up another patch shortly.
-
-Any ideas on that ec_transaction() patch I sent earlier?
-
-Lennart
-
--- 
-Lennart Poettering; lennart [at] poettering [dot] net
-ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/
+-Andi

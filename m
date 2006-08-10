@@ -1,107 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161476AbWHJRTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161475AbWHJRZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161476AbWHJRTu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 13:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161478AbWHJRTu
+	id S1161475AbWHJRZS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 13:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161481AbWHJRZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 13:19:50 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:27544 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161476AbWHJRTs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 13:19:48 -0400
-Message-ID: <44DB6AB1.3010602@us.ibm.com>
-Date: Thu, 10 Aug 2006 10:19:45 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 10 Aug 2006 13:25:18 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:44944 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161475AbWHJRZQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 13:25:16 -0400
+Date: Thu, 10 Aug 2006 19:24:40 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 3/9] support >32 bit ext4 filesystem block type in kernel
-References: <1155172860.3161.82.camel@localhost.localdomain> <20060809234033.4681017b.akpm@osdl.org>
-In-Reply-To: <20060809234033.4681017b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: John Stoffel <john@stoffel.org>, Jeff Garzik <jeff@garzik.org>,
+       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+In-Reply-To: <20060810095413.3797b4a2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0608101907190.6761@scrub.home>
+References: <1155172843.3161.81.camel@localhost.localdomain>
+ <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
+ <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
+ <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
+ <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home>
+ <44DB3151.8050904@garzik.org> <Pine.LNX.4.64.0608101519560.6762@scrub.home>
+ <17627.23974.848640.278643@stoffel.org> <20060810095413.3797b4a2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 09 Aug 2006 18:21:00 -0700
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> 
-> 
->>Redefine ext4 in-kernel filesystem block type (ext4_fsblk_t) from unsigned
->>long to sector_t, to allow kernel to handle  >32 bit ext4 blocks.
->>
-> 
-> 
-> I don't get it.
+Hi,
 
-The intention is able to support 48bit ext4 on 64bit and 32bit arch 
-whenevern CONFIG_LBD is enabled (or when sector_t is actually 64 bit). 
-It just seems waste of memory to support 48bit in-kernel ext4 blks on 32 
-bit if CONFIG_LBD is disabled, since we won't support large device anyway.
+On Thu, 10 Aug 2006, Andrew Morton wrote:
 
-ext3_fsblk_t was a unsigned long type before, which is always 32bit on 
-32bit arch. Thus we convert the ext3_fsblk_t to sector_t and depend on 
-CONFIG_LBD to decide whether we need 48bit in-kernel variables.(on-disk 
-block numbers are always 48 bit).
+> For ext3 on x86:
+> 
+> CONFIG_LBD=y:
+> 
+> box:/usr/src/25> size fs/jbd/jbd.o fs/ext3/ext3.o
+>    text    data     bss     dec     hex filename
+>   51076       8      32   51116    c7ac fs/jbd/jbd.o
+>   87466    1020       4   88490   159aa fs/ext3/ext3.o
+> 
+> CONFIG_LBD=n:
+> 
+> box:/usr/src/25> size fs/jbd/jbd.o fs/ext3/ext3.o
+>    text    data     bss     dec     hex filename
+>   51133       8      32   51173    c7e5 fs/jbd/jbd.o
+>   87679    1020       4   88703   15a7f fs/ext3/ext3.o
+> 
+> That's a grand total of 270 bytes of text saved.  aka 0.19%.
+> 
+> We'll save four bytes in the inode (unlikely to save anything due to slab
+> packing).
 
-> 
-> Randomly-chosen snippet:
-> 
-> 
->>@@ -274,7 +274,8 @@ static int find_group_orlov(struct super
->> 	freei = percpu_counter_read_positive(&sbi->s_freeinodes_counter);
->> 	avefreei = freei / ngroups;
->> 	freeb = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
->>-	avefreeb = freeb / ngroups;
->>+	avefreeb = freeb;
->>+	sector_div(avefreeb, ngroups);
->> 	ndirs = percpu_counter_read_positive(&sbi->s_dirs_counter);
->> 
->> 	if ((parent == sb->s_root->d_inode) ||
-> 
-> 
-> Here, `avefreeb' is still a 32-bit type.  Why feed it into sector_div()?
-> 
-avefreeb is ext3_fsblk_t type(sector_t type), which is 64bit on 64bit 
-arch and 64bit on 32bit arch if CONFIG_LBD is enabled.
+sector_t is used in multiple structures (bio/request/buffer_head), which 
+quickly adds up.
+ext3 is also currently not a very heavy sector_t user, if you try this 
+with block/ you get a more than 3% difference.
 
-> 
->>@@ -303,13 +304,15 @@ static int find_group_orlov(struct super
->> 		goto fallback;
->> 	}
->> 
->>-	blocks_per_dir = (le32_to_cpu(es->s_blocks_count) - freeb) / ndirs;
->>+	blocks_per_dir = le32_to_cpu(es->s_blocks_count) - freeb;
->>+	sector_div(blocks_per_dir, ndirs);
-> 
-> 
-> And here le32_to_cpu() is very much a 32-bit type.  Why sector_div()?
-
-ah, sorry about the confusing, s_blocks_count (the number of blocks on 
-this fs, on-disk) should be always 48bit value, and should not use 
-le32_to_cpu() to read-in. That is being fixed in [patch 9/9] 64bit 
-metadata support,  where we convert 32 bit s_blocks_count to sector_t, 
-and also use mixro EXT4_BLOCKS_COUN(es) to read in the blocks count:
-
-@@ -304,7 +306,7 @@ static int find_group_orlov(struct super
-  		goto fallback;
-  	}
-
--	blocks_per_dir = le32_to_cpu(es->s_blocks_count) - freeb;
-+	blocks_per_dir = EXT4_BLOCKS_COUNT(es) - freeb;
-
-This patch[3/9] is just fix the in-kernel blocks type...We trying to do 
-this incrementally: first, support in-kernel blocks type >32bit, then 
-change the on-disk blocks type to >32bit.
-
-> 
-> And I agree with me: we want to get all the sector_t's out of this
-> filesystem.  unsigned long long, do_div()?
-> 
-
-Thanks,Mingming
-
+bye, Roman

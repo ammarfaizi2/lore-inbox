@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161216AbWHJMds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbWHJMgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161216AbWHJMds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 08:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWHJMds
+	id S1161228AbWHJMgq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 08:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161230AbWHJMgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 08:33:48 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:48862 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161216AbWHJMdr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 08:33:47 -0400
-Message-ID: <44DB27A3.1040606@garzik.org>
-Date: Thu, 10 Aug 2006 08:33:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 10 Aug 2006 08:36:46 -0400
+Received: from boogie.lpds.sztaki.hu ([193.224.70.237]:64904 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1161228AbWHJMgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 08:36:45 -0400
+Date: Thu, 10 Aug 2006 14:36:44 +0200
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: /dev/sd*
+Message-ID: <20060810123643.GC25187@boogie.lpds.sztaki.hu>
+References: <1155144599.5729.226.camel@localhost.localdomain> <20060809212124.GC3691@stusta.de> <1155160903.5729.263.camel@localhost.localdomain> <20060809221857.GG3691@stusta.de>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home> <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home> <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0608101429510.6762@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060809221857.GG3691@stusta.de>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 10 Aug 2006, Jeff Garzik wrote:
-> 
->> Roman Zippel wrote:
->>> Yes, it does, but I don't think it's that difficult - basically returning
->>> -EIO, it should be part of the basic error handling. Afterwards you don't
->>> have to waste cpu/memory on unused data anymore.
->> Or you could just not bother, and leave everything as u64.
-> 
-> Why?
+On Thu, Aug 10, 2006 at 12:18:57AM +0200, Adrian Bunk wrote:
 
-To eliminate needless complexity and keep things simple and obvious?
+> Real SCSI for a developer, for a user it's USB.
 
-	Jeff
+For a user it's a "disk" no matter what cable type (SCSI, SATA, USB,
+Firewire...) is used for connecting it to the computer. You can even
+connect the very same disk to the machine using either SATA/PATA, USB or
+Firewire cables depending on the enclosure, so making the naming of
+SATA/PATA/USB/etc. disks different is much more confusing.
 
+AFAIR long ago Linus said he'd like just one major number (and thus only
+one naming scheme) for every disk in the system; with /dev/sd* we're now
+getting there.
 
+Gabor
 
+-- 
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

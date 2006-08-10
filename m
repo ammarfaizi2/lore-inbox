@@ -1,122 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbWHJTg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWHJUKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932629AbWHJTg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWHJTg3
+	id S1751514AbWHJUKa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWHJUKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:36:29 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:49387 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932530AbWHJTg0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:26 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [69/145] x86_64: Disable DAC on VIA PCI bridges
-Message-Id: <20060810193625.3605D13C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:25 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:10:10 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:50613 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751154AbWHJUKF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 16:10:05 -0400
+Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Theodore Tso <tytso@mit.edu>, Erik Mouw <erik@harddisk-recovery.com>,
+       Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44DB8EBE.6060003@garzik.org>
+References: <1155172642.3161.74.camel@localhost.localdomain>
+	 <20060810092021.GB11361@harddisk-recovery.com>
+	 <20060810175920.GC19238@thunk.org>  <44DB8EBE.6060003@garzik.org>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 15:08:43 -0500
+Message-Id: <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, 2006-08-10 at 15:53 -0400, Jeff Garzik wrote:
+> Theodore Tso wrote:
+> > On Thu, Aug 10, 2006 at 11:20:22AM +0200, Erik Mouw wrote:
+> >> On Wed, Aug 09, 2006 at 06:17:22PM -0700, Mingming Cao wrote:
+> >>> Register ext4 filesystem as ext3dev filesystem in kernel.
+> >> Why confuse users with the name "ext3dev"? If a filesystem lives in
+> >> fs/blah/, it's registered as "blah" and can be mounted with "-t blah".
+> >> Just register the filesystem as "ext4" and mark it "EXPERIMENTAL" in
+> >> Kconfig.
+> > 
+> > We had this discussion on LKML.  There were those who were concerned
+> > that it would not be enough just to mark it be EXPERIMENTAL.
+> 
+> I _want_ to agree with Erik, but I must agree:  CONFIG_EXPERIMENTAL is 
+> pretty worthless in practice :(  It's not maintained rigorously, and 
+> distros _always_ enable it, because otherwise they would often omit key 
+> drivers that people actively use.
+> 
+> So, while my own personal preference would be to follow Erik's 
+> suggestion...  thinking realistically, an fstype change from "ext3dev" 
+> to "ext4" is a far more obvious-to-users method of creating a 
+> devel/production line of demarcation.
 
-Because of several reports that it doesn't work
+IF it's decided to register the file system as ext3dev (Would ext4dev
+make more sense?), I would prefer the config options and code continues
+to simply use ext4.
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-TBD needs a real confirmation this fixes the problem
-TBD needs more testing
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- Documentation/x86_64/boot-options.txt |    4 +++
- arch/x86_64/kernel/pci-dma.c          |   42 ++++++++++++++++++++++++++++++++++
- 2 files changed, 46 insertions(+)
-
-Index: linux/Documentation/x86_64/boot-options.txt
-===================================================================
---- linux.orig/Documentation/x86_64/boot-options.txt
-+++ linux/Documentation/x86_64/boot-options.txt
-@@ -199,6 +199,10 @@ IOMMU
-    allowed  overwrite iommu off workarounds for specific chipsets.
-    soft	 Use software bounce buffering (default for Intel machines)
-    noaperture Don't touch the aperture for AGP.
-+   allowdac Allow DMA >4GB - default selected based on chipset bugs
-+	    When off all DMA over >4GB is forced through an IOMMU or bounce
-+	    buffering.
-+   nodac    Forbid DMA >4GB
- 
-   swiotlb=pages[,force]
- 
-Index: linux/arch/x86_64/kernel/pci-dma.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/pci-dma.c
-+++ linux/arch/x86_64/kernel/pci-dma.c
-@@ -170,11 +170,47 @@ void dma_free_coherent(struct device *de
- }
- EXPORT_SYMBOL(dma_free_coherent);
- 
-+static int allow_dac;
-+
-+static int bridge_from_vendor(struct device *dev, u16 vendor)
-+{
-+#ifdef CONFIG_PCI
-+	struct pci_bus *bus;
-+	if (dev->bus != &pci_bus_type)
-+		return 0;
-+	bus = to_pci_dev(dev)->bus;
-+	/* RED-PEN
-+	   Assumes no locking is needed on these lists because someone
-+	   should hold a reference count on the target device.
-+	   Correct assumption? */
-+	while (bus != NULL) {
-+		if (bus->self && bus->self->vendor == vendor)
-+			return 1;
-+		bus = bus->parent;
-+	}
-+#endif
-+	return 0;
-+}
-+
- int dma_supported(struct device *dev, u64 mask)
- {
- 	if (dma_ops->dma_supported)
- 		return dma_ops->dma_supported(dev, mask);
- 
-+	if (mask > DMA_32BIT_MASK) {
-+		/* Some VIA bridges seem to have trouble with Double Address
-+		   Cycle.  Disable it behind them all for now. The driver
-+		   should fall back to non DAC. */
-+		if (bridge_from_vendor(dev, PCI_VENDOR_ID_VIA) && !allow_dac) {
-+			printk(KERN_INFO
-+			"PCI: %s disallowing DAC because of VIA bridge.\n",
-+				dev->bus_id);
-+			return 0;
-+		}
-+		if (allow_dac < 0)
-+			return 0;
-+	}
-+
- 	/* Copied from i386. Doesn't make much sense, because it will
- 	   only work for pci_alloc_coherent.
- 	   The caller just has to use GFP_DMA in this case. */
-@@ -231,6 +267,8 @@ EXPORT_SYMBOL(dma_set_mask);
-    allowed  overwrite iommu off workarounds for specific chipsets.
-    soft	 Use software bounce buffering (default for Intel machines)
-    noaperture Don't touch the aperture for AGP.
-+   allowdac Allow DMA >4GB - default selected based on chipset bugs
-+   nodac    Forbid DMA >4GB
- */
- __init int iommu_setup(char *p)
- {
-@@ -264,6 +302,10 @@ __init int iommu_setup(char *p)
- 		    iommu_merge = 0;
- 	    if (!strncmp(p, "forcesac",8))
- 		    iommu_sac_force = 1;
-+	    if (!strncmp(p, "allowdac", 8))
-+		    allow_dac = 1;
-+	    if (!strncmp(p, "nodac", 5))
-+		    allow_dac = -1;
- 
- #ifdef CONFIG_SWIOTLB
- 	    if (!strncmp(p, "soft",4))

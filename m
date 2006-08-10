@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWHJTqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWHJTrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWHJTqo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWHJTqn
+	id S932174AbWHJTrj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWHJThY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:46:43 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:47677 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1751013AbWHJTqQ (ORCPT
+	Thu, 10 Aug 2006 15:37:24 -0400
+Received: from ns.suse.de ([195.135.220.2]:8337 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932652AbWHJThB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:46:16 -0400
-Date: Thu, 10 Aug 2006 21:47:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jason Lunz <lunz@falooley.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Merging libata PATA support into the base kernel
-Message-ID: <20060810194734.GE11829@suse.de>
-References: <1155144599.5729.226.camel@localhost.localdomain> <p733bc5nm5g.fsf@verdi.suse.de> <1155213464.22922.6.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060810190222.GA12818@knob.reflex>
+	Thu, 10 Aug 2006 15:37:01 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [101/145] x86_64: Replace local_save_flags+local_irq_disable with
+Message-Id: <20060810193659.26C3613C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:59 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10 2006, Jason Lunz wrote:
-> In gmane.linux.kernel, you wrote:
-> > You make it sound much worse than it is. Apart for HPA, I'm not aware of
-> > any setups that require extra treatment. And the amount of reported bugs
-> > against it are pretty close to zero :-)
-> 
-> *ahem*.
-> 
-> I needed to do this to cure IDE hangs on resume:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
-> 
-> Are you watching the suspend mailing lists? There's no shortage of them:
-> 
-> suspend-devel:	http://dir.gmane.org/gmane.linux.kernel.suspend.devel
-> linux-pm:	http://dir.gmane.org/gmane.linux.power-management.general
-> suspend2-devel:	http://dir.gmane.org/gmane.linux.swsusp.devel
-> suspend2-users:	http://dir.gmane.org/gmane.linux.swsusp.general
-> 
-> I'm currently trying to help out one Sheer El-Showk, whose piix ide
-> requires 30 seconds of floundering followed by a bus reset to resume:
-> 
-> http://thread.gmane.org/gmane.linux.kernel.suspend.devel/276/focus=347
-> 
-> But I know next-to-nothing about ATA.
-> 
-> It's not surprising you're not getting many bug reports. It's common for
-> several things to go wrong during s2ram, and the user often ends up
-> looking at a hung system with a dead screen. It takes some quality time
-> with netconsole to even begin to narrow down that it's IDE hanging the
-> system, after which you can *begin* solving the no-video-on-resume
-> issue.
+r
 
-I'm not on any of the suspend lists, I was merely comparing the
-suspend-others or suspend-libata ration to suspend-ide on linux-kernel,
-and the latter is clearly in the minority. I've used ide suspend quite a
-bit myself, and never had issues with it (or whichever ones I saw
-initially, I fixed). Of course it depends very much on the hardware. I'd
-still say that ide suspend probably supports a much wider range of
-hardware, than does libata suspend.
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <fernando@oss.ntt.co.jp>
 
--- 
-Jens Axboe
+The combination of "local_save_flags" and "local_irq_disable" seems to be
+equivalent to "local_irq_save" (see code snips below). Consequently, replace
+occurrences of local_save_flags+local_irq_disable with local_irq_save.
 
+* local_irq_save
+#define raw_local_irq_save(flags) \
+                do { (flags) = __raw_local_irq_save(); } while (0)
+
+static inline unsigned long __raw_local_irq_save(void)
+{
+        unsigned long flags = __raw_local_save_flags();
+
+        raw_local_irq_disable();
+
+        return flags;
+}
+
+* local_save_flags
+#define raw_local_save_flags(flags) \
+                do { (flags) = __raw_local_save_flags(); } while (0)
+
+Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+
+---
+ arch/x86_64/kernel/apic.c         |    3 +--
+ arch/x86_64/kernel/genapic_flat.c |    3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+Index: linux/arch/x86_64/kernel/apic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/apic.c
++++ linux/arch/x86_64/kernel/apic.c
+@@ -468,8 +468,7 @@ static int lapic_suspend(struct sys_devi
+ 	apic_pm_state.apic_tmict = apic_read(APIC_TMICT);
+ 	apic_pm_state.apic_tdcr = apic_read(APIC_TDCR);
+ 	apic_pm_state.apic_thmr = apic_read(APIC_LVTTHMR);
+-	local_save_flags(flags);
+-	local_irq_disable();
++	local_irq_save(flags);
+ 	disable_local_APIC();
+ 	local_irq_restore(flags);
+ 	return 0;
+Index: linux/arch/x86_64/kernel/genapic_flat.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/genapic_flat.c
++++ linux/arch/x86_64/kernel/genapic_flat.c
+@@ -49,8 +49,7 @@ static void flat_send_IPI_mask(cpumask_t
+ 	unsigned long cfg;
+ 	unsigned long flags;
+ 
+-	local_save_flags(flags);
+-	local_irq_disable();
++	local_irq_save(flags);
+ 
+ 	/*
+ 	 * Wait for idle.

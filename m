@@ -1,96 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161426AbWHJQXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161438AbWHJQYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161426AbWHJQXK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161425AbWHJQXK
+	id S1161438AbWHJQYP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161435AbWHJQYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:23:10 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:11269 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1161424AbWHJQXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:23:08 -0400
-Subject: Re: [PATCH] memory ordering in __kfifo primitives
-From: Stelian Pop <stelian@popies.net>
-To: paulmck@us.ibm.com
-Cc: Mike Christie <michaelc@cs.wisc.edu>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, paulus@au1.ibm.com, anton@au1.ibm.com,
-       open-iscsi@googlegroups.com, pradeep@us.ibm.com, mashirle@us.ibm.com
-In-Reply-To: <20060810161129.GF1298@us.ibm.com>
-References: <20060810001823.GA3026@us.ibm.com>
-	 <20060810003310.GA3071@us.ibm.com> <44DAC892.7000100@cs.wisc.edu>
-	 <20060810134135.GB1298@us.ibm.com>
-	 <1155220013.1108.4.camel@localhost.localdomain>
-	 <20060810153915.GE1298@us.ibm.com>
-	 <1155224842.5393.13.camel@localhost.localdomain>
-	 <20060810161129.GF1298@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 10 Aug 2006 18:23:04 +0200
-Message-Id: <1155226984.5393.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Aug 2006 12:24:14 -0400
+Received: from mxsf38.cluster1.charter.net ([209.225.28.165]:30898 "EHLO
+	mxsf38.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1161429AbWHJQYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 12:24:11 -0400
+X-IronPort-AV: i="4.08,111,1154923200"; 
+   d="scan'208"; a="2046197113:sNHT49841400"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17627.23974.848640.278643@stoffel.org>
+Date: Thu, 10 Aug 2006 12:24:06 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+In-Reply-To: <Pine.LNX.4.64.0608101519560.6762@scrub.home>
+References: <1155172843.3161.81.camel@localhost.localdomain>
+	<20060809234019.c8a730e3.akpm@osdl.org>
+	<Pine.LNX.4.64.0608101302270.6762@scrub.home>
+	<44DB203A.6050901@garzik.org>
+	<Pine.LNX.4.64.0608101409350.6762@scrub.home>
+	<44DB25C1.1020807@garzik.org>
+	<Pine.LNX.4.64.0608101429510.6762@scrub.home>
+	<44DB27A3.1040606@garzik.org>
+	<Pine.LNX.4.64.0608101459260.6761@scrub.home>
+	<44DB3151.8050904@garzik.org>
+	<Pine.LNX.4.64.0608101519560.6762@scrub.home>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 10 août 2006 à 09:11 -0700, Paul E. McKenney a écrit :
-> On Thu, Aug 10, 2006 at 05:47:22PM +0200, Stelian Pop wrote:
-> > Le jeudi 10 août 2006 à 08:39 -0700, Paul E. McKenney a écrit :
-> > > On Thu, Aug 10, 2006 at 04:26:53PM +0200, Stelian Pop wrote:
-> > > > Le jeudi 10 août 2006 à 06:41 -0700, Paul E. McKenney a écrit :
-> > > > 
-> > > > > I am happy to go either way -- the patch with the memory barriers
-> > > > > (which does have the side-effect of slowing down kfifo_get() and
-> > > > > kfifo_put(), by the way), or a patch removing the comments saying
-> > > > > that it is OK to invoke __kfifo_get() and __kfifo_put() without
-> > > > > locking.
-> > > > > 
-> > > > > Any other thoughts on which is better?  (1) the memory barriers or
-> > > > > (2) requiring the caller hold appropriate locks across calls to
-> > > > > __kfifo_get() and __kfifo_put()?
-> > > > 
-> > > > If someone wants to use explicit locking, he/she can go with kfifo_get()
-> > > > instead of the __ version.
-> > > 
-> > > However, the kfifo_get()/kfifo_put() interfaces use the internal lock,
-> > 
-> > ... and the internal lock can be supplied by the user at kfifo_alloc()
-> > time.
-> 
-> Would that really work for them?  Looks to me like it would result
-> in self-deadlock if they passed in session->lock.
+>>>>> "Roman" == Roman Zippel <zippel@linux-m68k.org> writes:
 
-Yeah, it will deadlock if the lock is already taken before calling
-__kfifo_get and __kfifo_put.
+Roman> If you force everyone to use 64bit sector numbers, I don't
+Roman> understand how you can claim "still working just fine on
+Roman> 32bit"?  At some point ext4 is probably going to be the de
+Roman> facto standard, which very many people want to use, because it
+Roman> has all the new features, which won't be ported to ext2/3. So I
+Roman> still don't understand, what's so wrong about a little tuning
+Roman> in both directions?
 
-> Or did you have something else in mind for them?
+The problem as I see it, is that you want extents, but you don't want
+the RAM/DISK/ROM penalty of 64bit blocks, since embedded devices won't
+ever go past the existing ext3 sizes, right?
 
-What I had in mind is to replace all occurences of:
-	kfifo_alloc(..., NULL);
-	...
-	spin_lock(&session->lock)
-	__kfifo_get()
-	spin_unlock()
+Is this a more clear statement of what you want?
 
-with the simpler:
-	kfifo_alloc(..., &session->lock)
-	...
-	kfifo_get()
+So the next question I have, and this is for the ext3/ext4 developers,
+is whether ext4 will have a feature flag to mark whether the
+filesystem has 64bit sector numbers or not.  If so, then I think Roman
+will be fine.  
 
-As for the occurences of:
-	...
-	spin_lock(&session->lock)
-	do_something();
-	__kifo_get();
+Me, I think going all 64bit is the way to go, since it moves the
+limits so high up, that we probably won't hit them in a serious way
+for another 20 years in terms of disk space addressing needs, sorta
+like how 64bit CPUs have really moved out the RAM constraints as
+well.  
 
-well, there is not much we can do about them...
+Now sure, there are people who will hit those limits, but they're in a
+very very small minority with the money to pay for a large large
+electric bill to just run a system that big.  For now.
 
-Let's take this problem differently: is a memory barrier cheaper than a
-spinlock ? 
-
-If the answer is yes as I suspect, why should the kfifo API force the
-user to take a spinlock ?
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+John

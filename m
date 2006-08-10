@@ -1,77 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWHJUEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbWHJTg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWHJUEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWHJUDx
+	id S932629AbWHJTg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWHJTg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:03:53 -0400
-Received: from ns.suse.de ([195.135.220.2]:63888 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932643AbWHJTgr (ORCPT
+	Thu, 10 Aug 2006 15:36:29 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:49387 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932530AbWHJTg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:47 -0400
+	Thu, 10 Aug 2006 15:36:26 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [89/145] x86_64: Allow early_param and identical __setup to exist
-Message-Id: <20060810193646.7174C13C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:46 +0200 (CEST)
+Subject: [PATCH for review] [69/145] x86_64: Disable DAC on VIA PCI bridges
+Message-Id: <20060810193625.3605D13C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:25 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-We currently assume that boot parameters which are handled by
-early_param() will not overlap boot parameters handled by __setup: if
-they do, behaviour is dependent on link order, usually meaning __setup
-will not get called.
+Because of several reports that it doesn't work
 
-ACPI wants to use early_param("pci"), and pci uses __setup("pci="), so
-we modify the core to let them coexist: "pci=noacpi" will now get
-passed to both.
+TBD needs a real confirmation this fixes the problem
+TBD needs more testing
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- init/main.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+ Documentation/x86_64/boot-options.txt |    4 +++
+ arch/x86_64/kernel/pci-dma.c          |   42 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
 
-Index: linux/init/main.c
+Index: linux/Documentation/x86_64/boot-options.txt
 ===================================================================
---- linux.orig/init/main.c
-+++ linux/init/main.c
-@@ -162,16 +162,19 @@ extern struct obs_kernel_param __setup_s
- static int __init obsolete_checksetup(char *line)
- {
- 	struct obs_kernel_param *p;
-+	int had_early_param = 0;
+--- linux.orig/Documentation/x86_64/boot-options.txt
++++ linux/Documentation/x86_64/boot-options.txt
+@@ -199,6 +199,10 @@ IOMMU
+    allowed  overwrite iommu off workarounds for specific chipsets.
+    soft	 Use software bounce buffering (default for Intel machines)
+    noaperture Don't touch the aperture for AGP.
++   allowdac Allow DMA >4GB - default selected based on chipset bugs
++	    When off all DMA over >4GB is forced through an IOMMU or bounce
++	    buffering.
++   nodac    Forbid DMA >4GB
  
- 	p = __setup_start;
- 	do {
- 		int n = strlen(p->str);
- 		if (!strncmp(line, p->str, n)) {
- 			if (p->early) {
--				/* Already done in parse_early_param?  (Needs
--				 * exact match on param part) */
-+				/* Already done in parse_early_param?
-+				 * (Needs exact match on param part).
-+				 * Keep iterating, as we can have early
-+				 * params and __setups of same names 8( */
- 				if (line[n] == '\0' || line[n] == '=')
--					return 1;
-+					had_early_param = 1;
- 			} else if (!p->setup_func) {
- 				printk(KERN_WARNING "Parameter %s is obsolete,"
- 				       " ignored\n", p->str);
-@@ -181,7 +184,8 @@ static int __init obsolete_checksetup(ch
- 		}
- 		p++;
- 	} while (p < __setup_end);
--	return 0;
-+
-+	return had_early_param;
+   swiotlb=pages[,force]
+ 
+Index: linux/arch/x86_64/kernel/pci-dma.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/pci-dma.c
++++ linux/arch/x86_64/kernel/pci-dma.c
+@@ -170,11 +170,47 @@ void dma_free_coherent(struct device *de
  }
+ EXPORT_SYMBOL(dma_free_coherent);
  
- /*
++static int allow_dac;
++
++static int bridge_from_vendor(struct device *dev, u16 vendor)
++{
++#ifdef CONFIG_PCI
++	struct pci_bus *bus;
++	if (dev->bus != &pci_bus_type)
++		return 0;
++	bus = to_pci_dev(dev)->bus;
++	/* RED-PEN
++	   Assumes no locking is needed on these lists because someone
++	   should hold a reference count on the target device.
++	   Correct assumption? */
++	while (bus != NULL) {
++		if (bus->self && bus->self->vendor == vendor)
++			return 1;
++		bus = bus->parent;
++	}
++#endif
++	return 0;
++}
++
+ int dma_supported(struct device *dev, u64 mask)
+ {
+ 	if (dma_ops->dma_supported)
+ 		return dma_ops->dma_supported(dev, mask);
+ 
++	if (mask > DMA_32BIT_MASK) {
++		/* Some VIA bridges seem to have trouble with Double Address
++		   Cycle.  Disable it behind them all for now. The driver
++		   should fall back to non DAC. */
++		if (bridge_from_vendor(dev, PCI_VENDOR_ID_VIA) && !allow_dac) {
++			printk(KERN_INFO
++			"PCI: %s disallowing DAC because of VIA bridge.\n",
++				dev->bus_id);
++			return 0;
++		}
++		if (allow_dac < 0)
++			return 0;
++	}
++
+ 	/* Copied from i386. Doesn't make much sense, because it will
+ 	   only work for pci_alloc_coherent.
+ 	   The caller just has to use GFP_DMA in this case. */
+@@ -231,6 +267,8 @@ EXPORT_SYMBOL(dma_set_mask);
+    allowed  overwrite iommu off workarounds for specific chipsets.
+    soft	 Use software bounce buffering (default for Intel machines)
+    noaperture Don't touch the aperture for AGP.
++   allowdac Allow DMA >4GB - default selected based on chipset bugs
++   nodac    Forbid DMA >4GB
+ */
+ __init int iommu_setup(char *p)
+ {
+@@ -264,6 +302,10 @@ __init int iommu_setup(char *p)
+ 		    iommu_merge = 0;
+ 	    if (!strncmp(p, "forcesac",8))
+ 		    iommu_sac_force = 1;
++	    if (!strncmp(p, "allowdac", 8))
++		    allow_dac = 1;
++	    if (!strncmp(p, "nodac", 5))
++		    allow_dac = -1;
+ 
+ #ifdef CONFIG_SWIOTLB
+ 	    if (!strncmp(p, "soft",4))

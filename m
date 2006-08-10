@@ -1,281 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161431AbWHJQYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161345AbWHJQdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161431AbWHJQYF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161429AbWHJQYC
+	id S1161345AbWHJQdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161443AbWHJQdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:24:02 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:23498 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1161435AbWHJQYA (ORCPT
+	Thu, 10 Aug 2006 12:33:12 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:15337 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161345AbWHJQdL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:24:00 -0400
-Date: Thu, 10 Aug 2006 20:22:30 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
-       netdev <netdev@vger.kernel.org>, Daniel Phillips <phillips@google.com>,
-       David Miller <davem@davemloft.net>, Thomas Graf <tgraf@suug.ch>,
-       Indan Zupancic <indan@nul.nu>
-Subject: Re: [RFC][PATCH] VM deadlock prevention core -v3
-Message-ID: <20060810162229.GA27364@2ka.mipt.ru>
-References: <1155216769.5696.23.camel@twins> <20060810140240.GA28989@2ka.mipt.ru> <1155221191.5696.43.camel@twins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1155221191.5696.43.camel@twins>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 10 Aug 2006 20:22:32 +0400 (MSD)
+	Thu, 10 Aug 2006 12:33:11 -0400
+Message-ID: <44DB5FC0.5070405@us.ibm.com>
+Date: Thu, 10 Aug 2006 09:33:04 -0700
+From: Mingming Cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
+References: <1155172597.3161.72.camel@localhost.localdomain> <44DACB21.9080002@garzik.org>
+In-Reply-To: <44DACB21.9080002@garzik.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 04:46:31PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> On Thu, 2006-08-10 at 18:02 +0400, Evgeniy Polyakov wrote:
-> > On Thu, Aug 10, 2006 at 03:32:49PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> > > Hi,
-> > 
-> > Hello, Peter.
-> > 
-> > > So I try again, please tell me if I'm still on crack and should go detox.
-> > > However if you do so, I kindly request some words on the how and why of it.
-> > 
-> > I think you should talk with doctor in that case, but not with kernel
-> > hackers :)
-> > 
-> > I have some comments about implementation, not overall design, since we
-> > have slightly diametral points of view there.
-> > 
-> > ....
-> > 
-> > > --- linux-2.6.orig/net/core/skbuff.c
-> > > +++ linux-2.6/net/core/skbuff.c
-> > > @@ -43,6 +43,7 @@
-> > >  #include <linux/kernel.h>
-> > >  #include <linux/sched.h>
-> > >  #include <linux/mm.h>
-> > > +#include <linux/pagemap.h>
-> > >  #include <linux/interrupt.h>
-> > >  #include <linux/in.h>
-> > >  #include <linux/inet.h>
-> > > @@ -125,6 +126,8 @@ EXPORT_SYMBOL(skb_truesize_bug);
-> > >   *
-> > >   */
-> > >  
-> > > +#define ceiling_log2(x)	fls((x) - 1)
-> > > +
-> > >  /**
-> > >   *	__alloc_skb	-	allocate a network buffer
-> > >   *	@size: size to allocate
-> > > @@ -147,6 +150,59 @@ struct sk_buff *__alloc_skb(unsigned int
-> > >  	struct sk_buff *skb;
-> > >  	u8 *data;
-> > >  
-> > > +	size = SKB_DATA_ALIGN(size);
+Jeff Garzik wrote:
+> Mingming Cao wrote:
 > 
-> I moved it here.
-
-Yep.
-
-> > > +
-> > > +	if (gfp_mask & __GFP_MEMALLOC) {
-> > > +		/*
-> > > +		 * Fallback allocation for memalloc reserves.
-> > > +
+>> This series of patch forkes a new filesystem, ext4, from the current
+>> ext3 filesystem, as the code base to work on, for the big features such
+>> as extents and larger fs(48 bit blk number) support, per our discussion
+>> on lkml a few weeks ago. 
 > 
-> 		 * This allocator is build on alloc_pages() so that freed
-> 		 * skbuffs return to the memalloc reserve imediately. SLAB
-> 		 * memory might not ever be returned.
-> 
-> This was missing,... 
-> 
-> > > +		 * the page is populated like so:
-> > > +		 *
-> > > +		 *   struct sk_buff
-> > > +		 *   [ struct sk_buff ]
-> > > +		 *   [ atomic_t ]
-> > > +		 *   unsigned int
-> > > +		 *   struct skb_shared_info
-> > > +		 *   char []
-> > > +		 *
-> > > +		 * We have to do higher order allocations for icky jumbo
-> > > +		 * frame drivers :-(. They really should be migrated to
-> > > +		 * scather/gather DMA and use skb fragments.
-> > > +		 */
-> > > +		unsigned int data_offset =
-> > > +			sizeof(struct sk_buff) + sizeof(unsigned int);
-> > > +		unsigned long length = size + data_offset +
-> > > +			sizeof(struct skb_shared_info);
-> > > +		unsigned int pages;
-> > > +		unsigned int order;
-> > > +		struct page *page;
-> > > +		void *kaddr;
-> > > +
-> > > +		/*
-> > > +		 * Force fclone alloc in order to fudge a lacking in skb_clone().
-> > > +		 */
-> > > +		fclone = 1;
-> > > +		if (fclone) {
-> > > +			data_offset += sizeof(struct sk_buff) + sizeof(atomic_t);
-> > > +			length += sizeof(struct sk_buff) + sizeof(atomic_t);
-> > > +		}
-> > > +		pages = (length + PAGE_SIZE - 1) >> PAGE_SHIFT;
-> > > +		order = ceiling_log2(pages);
-> > > +		skb = NULL;
-> > > +		if (!(page = alloc_pages(gfp_mask & ~__GFP_HIGHMEM, order)))
-> > > +			goto out;
-> > > +
-> > > +		kaddr = pfn_to_kaddr(page_to_pfn(page));
-> > > +		skb = (struct sk_buff *)kaddr;
-> > > +
-> > > +		*((unsigned int *)(kaddr + data_offset -
-> > > +					sizeof(unsigned int))) = order;
-> > > +		data = (u8 *)(kaddr + data_offset);
-> > > +
-> > 
-> > Tricky, but since you are using own allocator here, you could change it to
-> > be not so aggressive - i.e. do not round size to number of pages.
-> 
-> I'm not sure I follow you, I'm explicitly using
-> alloc_pages()/free_page(), if
-> I were to go smart here, I'd loose the whole reason for doing so.
 
-You can use page to put there several skbs for example or at least add
-there a fclone (fast clone).
-
-> > 
-> > > +		goto allocated;
-> > > +	}
-> > > +
-> > >  	cache = fclone ? skbuff_fclone_cache : skbuff_head_cache;
-> > >  
-> > >  	/* Get the HEAD */
-> > > @@ -155,12 +211,13 @@ struct sk_buff *__alloc_skb(unsigned int
-> > >  		goto out;
-> > >  
-> > >  	/* Get the DATA. Size must match skb_add_mtu(). */
-> > > -	size = SKB_DATA_ALIGN(size);
-> > 
-> > Bad sign.
+> [...]
 > 
-> See above.
-
-Yep, I've found.
-
-> > >  	data = ____kmalloc(size + sizeof(struct skb_shared_info), gfp_mask);
-> > >  	if (!data)
-> > >  		goto nodata;
-> > >  
-> > > +struct sk_buff *__netdev_alloc_skb(struct net_device *dev,
-> > > +		unsigned length, gfp_t gfp_mask)
-> > > +{
-> > > +	struct sk_buff *skb;
-> > > +
-> > > +	WARN_ON(gfp_mask & (__GFP_NOMEMALLOC | __GFP_MEMALLOC));
-> > > +	gfp_mask &= ~(__GFP_NOMEMALLOC | __GFP_MEMALLOC);
-> > > +
-> > > +	skb = ___netdev_alloc_skb(dev, length, gfp_mask | __GFP_NOMEMALLOC);
-> > > +	if (skb)
-> > > +		goto done;
-> > > +
-> > > +	if (atomic_read(&dev->rx_reserve_used) >=
-> > > +			dev->rx_reserve * dev->memalloc_socks)
-> > > +		goto out;
-> > > +
-> > > +	/*
-> > > +	 * pre-inc guards against a race with netdev_wait_memalloc()
-> > > +	 */
-> > > +	atomic_inc(&dev->rx_reserve_used);
-> > > +	skb = ___netdev_alloc_skb(dev, length, gfp_mask | __GFP_MEMALLOC);
-> > > +	if (unlikely(!skb)) {
-> > > +		atomic_dec(&dev->rx_reserve_used);
-> > > +		goto out;
-> > > +	}
-> > 
-> > Since you have added atomic operation in that path, you can use device's
-> > reference counter instead and do not care that it can dissapear.
+>> Any comments? Could we add ext4/jbd2 to mm tree for a wider testing?
 > 
-> Is that the sole reason taking a reference on the device is bad?
-
-Taking a reference is bad due to performance reasons, since atomic
-increment is not that cheap. If you do it for one variable for the
-purpose of reference counting you can use device's refcnt istead, which
-will solve some races.
-
-> > > @@ -434,6 +567,12 @@ struct sk_buff *skb_clone(struct sk_buff
-> > >  		n->fclone = SKB_FCLONE_CLONE;
-> > >  		atomic_inc(fclone_ref);
-> > >  	} else {
-> > > +		/*
-> > > +		 * should we special-case skb->memalloc cloning?
-> > > +		 * for now fudge it by forcing fast-clone alloc.
-> > > +		 */
-> > > +		BUG_ON(skb->memalloc);
-> > > +
-> > >  		n = kmem_cache_alloc(skbuff_head_cache, gfp_mask);
-> > >  		if (!n)
-> > >  			return NULL;
-> > 
-> > Ugh... cloning is a one of the shoulders of giant where Linux network
-> > stack is staying...
 > 
-> Yes, I'm aware of that, I have a plan to fix this, however I haven't had
-> time
-> to implement it. My immediate concern is the point wrt. the net_device
-> mapping.
+> ext4 developers should create a git tree with the consensus-accepted 
+> patches.
 > 
-> My idea was: instead of the order, store the size, and allocate clone 
-> skbuffs in the available room at the end of the page(s), allocating
-> extra pages
-> if needed.
+> That way Linus can pull as soon as the merge window opens, Andrew is 
+> guaranteed to have the latest in his -mm tree, and users and other 
+> kernel hackers can easily follow the development without having to 
+> gather scattered patches from lkml.
+>
 
-You can check if requested skb with fclone fits allocated pages, and if
-so use fclone magic, otherwise postpone clone allocation until it is
-required.
+We do maintain a quilt(akpm) style patches on http://ext2.sf.net, the 
+latest patches are always at 
+http://ext2.sourceforge.net/48bitext3/patches/latest/
 
-> > > @@ -686,6 +825,8 @@ int pskb_expand_head(struct sk_buff *skb
-> > >  	if (skb_shared(skb))
-> > >  		BUG();
-> > >  
-> > > +	BUG_ON(skb->memalloc);
-> > > +
-> > >  	size = SKB_DATA_ALIGN(size);
-> > >  
-> > >  	data = kmalloc(size + sizeof(struct skb_shared_info), gfp_mask);
-> > 
-> > And that is a bug.
-> > That operation can happen even with usual receiving processing.
-> 
-> Yes, more allocator work..
-> 
-> > > Index: linux-2.6/net/ipv4/af_inet.c
-> > > ===================================================================
-> > > --- linux-2.6.orig/net/ipv4/af_inet.c
-> > > +++ linux-2.6/net/ipv4/af_inet.c
-> > > @@ -132,6 +132,14 @@ void inet_sock_destruct(struct sock *sk)
-> > >  {
-> > >  	struct inet_sock *inet = inet_sk(sk);
-> > >  
-> > > +	if (sk_is_memalloc(sk)) {
-> > > +		struct net_device *dev = ip_dev_find(inet->rcv_saddr);
-> > > +		if (dev) {
-> > > +			dev_adjust_memalloc(dev, -1);
-> > > +			dev_put(dev);
-> > > +		}
-> > > +	}
-> > > +
-> > 
-> > This looks very strange - you decrement reference counter both in socket
-> > destruction code and in netdevice destruction code.
-> 
-> This is the right place; however I was not sure net_device destruction
-> implied
-> destruction of all related sockets; in case that is not so, you will
-> have to
-> clean up there, because this destructor will not find the device any
-> longer.
+We thought about doing git initially, still open for that doing do, if 
+it's more preferable by Linus or Andrew. Just thought  it's a lot 
+easiler for non git user to pull the patches from a project website.
 
-Sockets can live without network devices at all, I expect it is enough
-to clean up in socket destructor, since packets can come from
-different devices into the same socket.
+Thanks, Mingming
 
--- 
-	Evgeniy Polyakov
+

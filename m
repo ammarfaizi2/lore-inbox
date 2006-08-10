@@ -1,169 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWHJUOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWHJUO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWHJUOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWHJTgQ
+	id S932281AbWHJUO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWHJTfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:36:16 -0400
-Received: from ns2.suse.de ([195.135.220.15]:4843 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932271AbWHJTf2 (ORCPT
+	Thu, 10 Aug 2006 15:35:54 -0400
+Received: from ns1.suse.de ([195.135.220.2]:22672 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932121AbWHJTfp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:28 -0400
+	Thu, 10 Aug 2006 15:35:45 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [14/145] x86_64: Add abilty to enable/disable nmi watchdog from procfs (update)
-Message-Id: <20060810193526.C3ACC13B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:26 +0200 (CEST)
+Subject: [PATCH for review] [30/145] x86_64: x86-64 TIF flags for debug regs and io bitmap in ctxsw
+Message-Id: <20060810193543.B7AB713B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:43 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Don Zickus <dzickus@redhat.com>
+From: Stephane Eranian <eranian@hpl.hp.com>
+Hello,
 
-Adds a new /proc/sys/kernel/nmi_watchdog call that will enable/disable the
-nmi watchdog.
+Following my discussion with Andi. Here is a patch that introduces
+two new TIF flags to simplify the context switch code in __switch_to().
+The idea is to minimize the number of cache lines accessed in the common
+case, i.e., when neither the debug registers nor the I/O bitmap are used.
 
-By entering a non-zero value here, a user can enable the nmi watchdog to
-monitor the online cpus in the system.  By entering a zero value here, a
-user can disable the nmi watchdog and free up a performance counter which
-could then be utilized by the oprofile subsystem, otherwise oprofile may be
-short a counter when in use.
+This patch covers the x86-64 modifications. A patch for i386 follows.
 
-Signed-off-by: Don Zickus <dzickus@redhat.com>
+Changelog:
+	- add TIF_DEBUG to track when debug registers are active
+	- add TIF_IO_BITMAP to track when I/O bitmap is used
+	- modify __switch_to() to use the new TIF flags
+
+<signed-off-by>: eranian@hpl.hp.com
+
 Signed-off-by: Andi Kleen <ak@suse.de>
-Cc: Andi Kleen <ak@muc.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+
 ---
+ arch/x86_64/ia32/ptrace32.c      |    4 ++
+ arch/x86_64/kernel/ioport.c      |    1 
+ arch/x86_64/kernel/process.c     |   73 ++++++++++++++++++++++-----------------
+ arch/x86_64/kernel/ptrace.c      |    8 +++-
+ include/asm-x86_64/thread_info.h |    7 +++
+ 5 files changed, 60 insertions(+), 33 deletions(-)
 
- Documentation/filesystems/proc.txt |   14 +++++++++-----
- arch/i386/kernel/nmi.c             |   21 ++++-----------------
- arch/x86_64/kernel/nmi.c           |   21 ++++-----------------
- 3 files changed, 17 insertions(+), 39 deletions(-)
-
-Index: linux/arch/i386/kernel/nmi.c
+Index: linux/arch/x86_64/ia32/ptrace32.c
 ===================================================================
---- linux.orig/arch/i386/kernel/nmi.c
-+++ linux/arch/i386/kernel/nmi.c
-@@ -847,7 +847,7 @@ static int unknown_nmi_panic_callback(st
+--- linux.orig/arch/x86_64/ia32/ptrace32.c
++++ linux/arch/x86_64/ia32/ptrace32.c
+@@ -117,6 +117,10 @@ static int putreg32(struct task_struct *
+ 			if ((0x5454 >> ((val >> (16 + 4*i)) & 0xf)) & 1)
+ 			       return -EIO;
+ 		child->thread.debugreg7 = val; 
++		if (val)
++			set_tsk_thread_flag(child, TIF_DEBUG);
++		else
++			clear_tsk_thread_flag(child, TIF_DEBUG);
+ 		break; 
+ 		    
+ 	default:
+Index: linux/arch/x86_64/kernel/ioport.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/ioport.c
++++ linux/arch/x86_64/kernel/ioport.c
+@@ -56,6 +56,7 @@ asmlinkage long sys_ioperm(unsigned long
+ 
+ 		memset(bitmap, 0xff, IO_BITMAP_BYTES);
+ 		t->io_bitmap_ptr = bitmap;
++		set_thread_flag(TIF_IO_BITMAP);
+ 	}
+ 
+ 	/*
+Index: linux/arch/x86_64/kernel/process.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/process.c
++++ linux/arch/x86_64/kernel/process.c
+@@ -350,6 +350,7 @@ void exit_thread(void)
+ 
+ 		kfree(t->io_bitmap_ptr);
+ 		t->io_bitmap_ptr = NULL;
++		clear_thread_flag(TIF_IO_BITMAP);
+ 		/*
+ 		 * Careful, clear this in the TSS too:
+ 		 */
+@@ -369,6 +370,7 @@ void flush_thread(void)
+ 		if (t->flags & _TIF_IA32)
+ 			current_thread_info()->status |= TS_COMPAT;
+ 	}
++	t->flags &= ~_TIF_DEBUG;
+ 
+ 	tsk->thread.debugreg0 = 0;
+ 	tsk->thread.debugreg1 = 0;
+@@ -461,7 +463,7 @@ int copy_thread(int nr, unsigned long cl
+ 	asm("mov %%es,%0" : "=m" (p->thread.es));
+ 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
+ 
+-	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
++	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
+ 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+ 		if (!p->thread.io_bitmap_ptr) {
+ 			p->thread.io_bitmap_max = 0;
+@@ -469,6 +471,7 @@ int copy_thread(int nr, unsigned long cl
+ 		}
+ 		memcpy(p->thread.io_bitmap_ptr, me->thread.io_bitmap_ptr,
+ 				IO_BITMAP_BYTES);
++		set_tsk_thread_flag(p, TIF_IO_BITMAP);
+ 	} 
+ 
+ 	/*
+@@ -498,6 +501,40 @@ out:
+  */
+ #define loaddebug(thread,r) set_debugreg(thread->debugreg ## r, r)
+ 
++static inline void __switch_to_xtra(struct task_struct *prev_p,
++			     	    struct task_struct *next_p,
++			     	    struct tss_struct *tss)
++{
++	struct thread_struct *prev, *next;
++
++	prev = &prev_p->thread,
++	next = &next_p->thread;
++
++	if (test_tsk_thread_flag(next_p, TIF_DEBUG)) {
++		loaddebug(next, 0);
++		loaddebug(next, 1);
++		loaddebug(next, 2);
++		loaddebug(next, 3);
++		/* no 4 and 5 */
++		loaddebug(next, 6);
++		loaddebug(next, 7);
++	}
++
++	if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
++		/*
++		 * Copy the relevant range of the IO bitmap.
++		 * Normally this is 128 bytes or less:
++		 */
++		memcpy(tss->io_bitmap, next->io_bitmap_ptr,
++		       max(prev->io_bitmap_max, next->io_bitmap_max));
++	} else if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
++		/*
++		 * Clear any possible leftover bits:
++		 */
++		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
++	}
++}
++
+ /*
+  *	switch_to(x,y) should switch tasks from x to y.
+  *
+@@ -586,37 +623,11 @@ __switch_to(struct task_struct *prev_p, 
+ 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+ 
+ 	/*
+-	 * Now maybe reload the debug registers
++	 * Now maybe reload the debug registers and handle I/O bitmaps
+ 	 */
+-	if (unlikely(next->debugreg7)) {
+-		loaddebug(next, 0);
+-		loaddebug(next, 1);
+-		loaddebug(next, 2);
+-		loaddebug(next, 3);
+-		/* no 4 and 5 */
+-		loaddebug(next, 6);
+-		loaddebug(next, 7);
+-	}
+-
+-
+-	/* 
+-	 * Handle the IO bitmap 
+-	 */ 
+-	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr)) {
+-		if (next->io_bitmap_ptr)
+-			/*
+-			 * Copy the relevant range of the IO bitmap.
+-			 * Normally this is 128 bytes or less:
+- 			 */
+-			memcpy(tss->io_bitmap, next->io_bitmap_ptr,
+-				max(prev->io_bitmap_max, next->io_bitmap_max));
+-		else {
+-			/*
+-			 * Clear any possible leftover bits:
+-			 */
+-			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
+-		}
+-	}
++	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
++	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
++		__switch_to_xtra(prev_p, next_p, tss);
+ 
+ 	return prev_p;
  }
+Index: linux/arch/x86_64/kernel/ptrace.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/ptrace.c
++++ linux/arch/x86_64/kernel/ptrace.c
+@@ -420,9 +420,13 @@ long arch_ptrace(struct task_struct *chi
+ 				if ((0x5554 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
+ 					break;
+ 			if (i == 4) {
+-				child->thread.debugreg7 = data;
++			  child->thread.debugreg7 = data;
++			  if (data)
++			  	set_tsk_thread_flag(child, TIF_DEBUG);
++			  else
++			  	clear_tsk_thread_flag(child, TIF_DEBUG);
+ 			  ret = 0;
+-		  }
++		  	}
+ 		  break;
+ 		}
+ 		break;
+Index: linux/include/asm-x86_64/thread_info.h
+===================================================================
+--- linux.orig/include/asm-x86_64/thread_info.h
++++ linux/include/asm-x86_64/thread_info.h
+@@ -120,6 +120,8 @@ static inline struct thread_info *stack_
+ #define TIF_FORK		18	/* ret_from_fork */
+ #define TIF_ABI_PENDING		19
+ #define TIF_MEMDIE		20
++#define TIF_DEBUG		21	/* uses debug registers */
++#define TIF_IO_BITMAP		22	/* uses I/O bitmap */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+@@ -133,6 +135,8 @@ static inline struct thread_info *stack_
+ #define _TIF_IA32		(1<<TIF_IA32)
+ #define _TIF_FORK		(1<<TIF_FORK)
+ #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
++#define _TIF_DEBUG		(1<<TIF_DEBUG)
++#define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
+ 
+ /* work to do on interrupt/exception return */
+ #define _TIF_WORK_MASK \
+@@ -140,6 +144,9 @@ static inline struct thread_info *stack_
+ /* work to do on any return to user space */
+ #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
+ 
++/* flags to check in __switch_to() */
++#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
++
+ #define PREEMPT_ACTIVE     0x10000000
  
  /*
-- * proc handler for /proc/sys/kernel/nmi_watchdog
-+ * proc handler for /proc/sys/kernel/nmi
-  */
- int proc_nmi_enabled(struct ctl_table *table, int write, struct file *file,
- 			void __user *buffer, size_t *length, loff_t *ppos)
-@@ -861,8 +861,8 @@ int proc_nmi_enabled(struct ctl_table *t
- 		return 0;
- 
- 	if (atomic_read(&nmi_active) < 0) {
--		printk(KERN_WARNING "NMI watchdog is permanently disabled\n");
--		return -EINVAL;
-+		printk( KERN_WARNING "NMI watchdog is permanently disabled\n");
-+		return -EIO;
- 	}
- 
- 	if (nmi_watchdog == NMI_DEFAULT) {
-@@ -872,24 +872,11 @@ int proc_nmi_enabled(struct ctl_table *t
- 			nmi_watchdog = NMI_IO_APIC;
- 	}
- 
--	if (nmi_watchdog == NMI_LOCAL_APIC)
--	{
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
- 		if (nmi_watchdog_enabled)
- 			enable_lapic_nmi_watchdog();
- 		else
- 			disable_lapic_nmi_watchdog();
--	} else if (nmi_watchdog == NMI_IO_APIC) {
--		/* FIXME
--		 * for some reason these functions don't work
--		 */
--		printk("Can not enable/disable NMI on IO APIC\n");
--		return -EINVAL;
--#if 0
--		if (nmi_watchdog_enabled)
--			enable_timer_nmi_watchdog();
--		else
--			disable_timer_nmi_watchdog();
--#endif
- 	} else {
- 		printk( KERN_WARNING
- 			"NMI watchdog doesn't know what hardware to touch\n");
-Index: linux/arch/x86_64/kernel/nmi.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/nmi.c
-+++ linux/arch/x86_64/kernel/nmi.c
-@@ -167,7 +167,7 @@ static __cpuinit inline int nmi_known_cp
- }
- 
- /* Run after command line and cpu_init init, but before all other checks */
--void __cpuinit nmi_watchdog_default(void)
-+void nmi_watchdog_default(void)
- {
- 	if (nmi_watchdog != NMI_DEFAULT)
- 		return;
-@@ -766,32 +766,19 @@ int proc_nmi_enabled(struct ctl_table *t
- 
- 	if (atomic_read(&nmi_active) < 0) {
- 		printk( KERN_WARNING "NMI watchdog is permanently disabled\n");
--		return -EINVAL;
-+		return -EIO;
- 	}
- 
- 	/* if nmi_watchdog is not set yet, then set it */
- 	nmi_watchdog_default();
- 
--	if (nmi_watchdog == NMI_LOCAL_APIC)
--	{
-+	if (nmi_watchdog == NMI_LOCAL_APIC) {
- 		if (nmi_watchdog_enabled)
- 			enable_lapic_nmi_watchdog();
- 		else
- 			disable_lapic_nmi_watchdog();
--	} else if (nmi_watchdog == NMI_IO_APIC) {
--		/* FIXME
--		 * for some reason these functions don't work
--		 */
--		printk("Can not enable/disable NMI on IO APIC\n");
--		return -EIO;
--#if 0
--		if (nmi_watchdog_enabled)
--			enable_timer_nmi_watchdog();
--		else
--			disable_timer_nmi_watchdog();
--#endif
- 	} else {
--		printk(KERN_WARNING
-+		printk( KERN_WARNING
- 			"NMI watchdog doesn't know what hardware to touch\n");
- 		return -EIO;
- 	}
-Index: linux/Documentation/filesystems/proc.txt
-===================================================================
---- linux.orig/Documentation/filesystems/proc.txt
-+++ linux/Documentation/filesystems/proc.txt
-@@ -1124,11 +1124,15 @@ debugging information is displayed on co
- NMI switch that most IA32 servers have fires unknown NMI up, for example.
- If a system hangs up, try pressing the NMI switch.
- 
--[NOTE]
--   This function and oprofile share a NMI callback. Therefore this function
--   cannot be enabled when oprofile is activated.
--   And NMI watchdog will be disabled when the value in this file is set to
--   non-zero.
-+nmi_watchdog
-+------------
-+
-+Enables/Disables the NMI watchdog on x86 systems.  When the value is non-zero
-+the NMI watchdog is enabled and will continuously test all online cpus to
-+determine whether or not they are still functioning properly.
-+
-+Because the NMI watchdog shares registers with oprofile, by disabling the NMI
-+watchdog, oprofile may have more registers to utilize.
- 
- 
- 2.4 /proc/sys/vm - The virtual memory subsystem

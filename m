@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWHJPGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161322AbWHJPGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161040AbWHJPGS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 11:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161322AbWHJPGS
+	id S1161322AbWHJPGz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 11:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161320AbWHJPGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 11:06:18 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:59847 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161040AbWHJPGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 11:06:17 -0400
-Date: Fri, 11 Aug 2006 00:05:32 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: apw@shadowen.org, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Re : sparsemem usage
-Message-Id: <20060811000532.b9fe3b72.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060810144601.97257.qmail@web25812.mail.ukl.yahoo.com>
-References: <20060810144601.97257.qmail@web25812.mail.ukl.yahoo.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 11:06:54 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:36307 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161322AbWHJPGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 11:06:53 -0400
+Message-ID: <44DB4B8A.60006@de.ibm.com>
+Date: Thu, 10 Aug 2006 17:06:50 +0200
+From: Thomas Klein <osstklei@de.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
+       Thomas Klein <osstklei@de.ibm.com>
+Subject: Re: [PATCH 5/6] ehea: makefile
+References: <44D99F74.1000704@de.ibm.com> <20060809095047.GA11555@mars.ravnborg.org>
+In-Reply-To: <20060809095047.GA11555@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 14:46:01 +0000 (GMT)
-moreau francis <francis_moreau2000@yahoo.fr> wrote:
-> 
-> Why not implementing page_exist() by simply using mem_map[] ? When
-> allocating mem_map[], we can just fill it with a special value. And
-> then when registering memory area, we clear this special value with
-> the "reserved" value. Hence for flatmem model, we can have:
-> 
-> #define page_exist(pfn)        (mem_map[pfn] != SPECIAL_VALUE)
->  
-putting a special value to a page struct at mem_map + pfn ?
-
-> and it should work for sparsemem too and other models that will use
-> mem_map[].
-> 
-> Another point, is page_exist() going to replace page_valid() ?
-what is page_valid() here ? pfn_valid() (in current kernel) ?
-
-> I mean page_exist() is going to be something more accurate than
-> page_valid(). All tests on page_valid() _only_ will be fine to test
-> page_exist(). But all tests such:
-> 
->     if (page_valid(x) && page_is_ram(x))
-> 
-> can be replaced by
-> 
->     if (page_exist(x))
-> 
-> So, again, why not simply improving page_valid() definition rather
-> than introduce a new service ?
-> 
-I welcome to do that if implementation is sane.
-pfn_valid() --- check there is a page struct
-page_exist() --- check there is a physical memory.
-
-but discussing without patch is not very good. please post your patch.
-Then we can discuss more concrete things.
-
--Kame
+Sam Ravnborg wrote:
+> On Wed, Aug 09, 2006 at 10:40:20AM +0200, Jan-Bernd Themann wrote:
+>   
+>> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+>>
+>>
+>>  drivers/net/ehea/Makefile |    7 +++++++
+>>  1 file changed, 7 insertions(+)
+>>
+>>
+>>
+>> --- linux-2.6.18-rc4-orig/drivers/net/ehea/Makefile	1969-12-31 
+>> 16:00:00.000000000 -0800
+>> +++ kernel/drivers/net/ehea/Makefile	2006-08-08 23:59:38.083467216 -0700
+>> @@ -0,0 +1,7 @@
+>> +#
+>> +# Makefile for the eHEA ethernet device driver for IBM eServer System p
+>> +#
+>> +
+>> +ehea_mod-objs = ehea_main.o ehea_phyp.o ehea_qmr.o ehea_ethtool.o 
+>> ehea_phyp.o
+>> +obj-$(CONFIG_EHEA) += ehea_mod.o
+>> +
+>>     
+>
+> Using -objs is deprecated, please use ehea_mod-y.
+> This needs to be documented and later warned upon which I will do soon.
+>
+> 	Sam
+>   
+Done. Will be included in next patch.
 

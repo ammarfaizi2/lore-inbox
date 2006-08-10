@@ -1,157 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWHJUOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWHJUOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751558AbWHJUOY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWHJTgJ
+	id S1751543AbWHJUOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWHJUNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:36:09 -0400
-Received: from cantor.suse.de ([195.135.220.2]:12688 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932329AbWHJTfc (ORCPT
+	Thu, 10 Aug 2006 16:13:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:27267 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751538AbWHJUMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:32 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [18/145] x86_64: x86 nmi fix 2
-Message-Id: <20060810193531.090D013B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:30 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:12:41 -0400
+Message-ID: <44DB9335.9060304@garzik.org>
+Date: Thu, 10 Aug 2006 16:12:37 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Badari Pulavarty <pbadari@us.ibm.com>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5] Forking ext4 filesystem from ext3 filesystem
+References: <1155172622.3161.73.camel@localhost.localdomain>	<20060809233914.35ab8792.akpm@osdl.org>	<44DB8036.5020706@us.ibm.com> <20060810122340.185b8d8f.akpm@osdl.org>
+In-Reply-To: <20060810122340.185b8d8f.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+Andrew Morton wrote:
+> On Thu, 10 Aug 2006 11:51:34 -0700
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> 
+>> Andrew Morton wrote:
+>>> Also, JBD is presently feeding into submit_bh() buffer_heads which span two
+>>> machine pages, and some device drivers spit the dummy.  It'd be better to
+>>> fix that once, rather than twice..  
+>>>   
+>> Andrew,
+>>
+>> I looked at this few days ago. I am not sure how we end up having 
+>> multiple pages (especially,
+>> why we end up having buffers with bh_size > pagesize) ? Do you know why ?
+>>
+> 
+> It's one or both of the jbd_kmalloc(bh->b_size) calls in
+> fs/jbd/transaction.c.  Here we're allocating data to attach to a bh which
+> later gets fed into submit_bh().
+[...]
 
-From: Don Zickus <dzickus@redhat.com>
+I respectfully submit that this sort of urge to clean up all the 
+narstiness (a local term) in ext3 is _precisely_ the reason why we need 
+ext4 in the tree ASAP.
 
-Makes the start/stop paths of nmi watchdog more robust to handle the
-suspend/resume cases more gracefully.
+Once people start pushing a large volume of changes into ext[34], the 
+"obvious cleanups" start popping up.  Look at the ratholes we are 
+_already_ diving down, in this thread, trying to clean up ext3 before 
+the copy.
 
-Signed-off-by: Don Zickus <dzickus@redhat.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-Cc: Shaohua Li <shaohua.li@intel.com>
-Cc: Andi Kleen <ak@muc.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+ext4 will exist precisely to enable these sort of rapid cleanups.  If 
+obvious stuff starts popping up, the cleanups can go in immediately 
+without worry of destabilization.
 
- arch/i386/kernel/nmi.c   |   19 +++++++++++++++++--
- arch/x86_64/kernel/nmi.c |   19 +++++++++++++++++--
- 2 files changed, 34 insertions(+), 4 deletions(-)
+Just let ext3 sit.  Other filesystems use submit_bh(), brelse(), etc. 
+If ext3 is to stop using those, let it be when others stop using them as 
+well.
 
-Index: linux/arch/i386/kernel/nmi.c
-===================================================================
---- linux.orig/arch/i386/kernel/nmi.c
-+++ linux/arch/i386/kernel/nmi.c
-@@ -630,11 +630,21 @@ static void stop_p4_watchdog(void)
- 
- void setup_apic_nmi_watchdog (void *unused)
- {
-+	struct nmi_watchdog_ctlblk *wd = &__get_cpu_var(nmi_watchdog_ctlblk);
-+
- 	/* only support LOCAL and IO APICs for now */
- 	if ((nmi_watchdog != NMI_LOCAL_APIC) &&
- 	    (nmi_watchdog != NMI_IO_APIC))
- 	    	return;
- 
-+	if (wd->enabled == 1)
-+		return;
-+
-+	/* cheap hack to support suspend/resume */
-+	/* if cpu0 is not active neither should the other cpus */
-+	if ((smp_processor_id() != 0) && (atomic_read(&nmi_active) <= 0))
-+		return;
-+
- 	if (nmi_watchdog == NMI_LOCAL_APIC) {
- 		switch (boot_cpu_data.x86_vendor) {
- 		case X86_VENDOR_AMD:
-@@ -667,17 +677,22 @@ void setup_apic_nmi_watchdog (void *unus
- 			return;
- 		}
- 	}
--	__get_cpu_var(nmi_watchdog_ctlblk.enabled) = 1;
-+	wd->enabled = 1;
- 	atomic_inc(&nmi_active);
- }
- 
- void stop_apic_nmi_watchdog(void *unused)
- {
-+	struct nmi_watchdog_ctlblk *wd = &__get_cpu_var(nmi_watchdog_ctlblk);
-+
- 	/* only support LOCAL and IO APICs for now */
- 	if ((nmi_watchdog != NMI_LOCAL_APIC) &&
- 	    (nmi_watchdog != NMI_IO_APIC))
- 	    	return;
- 
-+	if (wd->enabled == 0)
-+		return;
-+
- 	if (nmi_watchdog == NMI_LOCAL_APIC) {
- 		switch (boot_cpu_data.x86_vendor) {
- 		case X86_VENDOR_AMD:
-@@ -701,7 +716,7 @@ void stop_apic_nmi_watchdog(void *unused
- 			return;
- 		}
- 	}
--	__get_cpu_var(nmi_watchdog_ctlblk.enabled) = 0;
-+	wd->enabled = 0;
- 	atomic_dec(&nmi_active);
- }
- 
-Index: linux/arch/x86_64/kernel/nmi.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/nmi.c
-+++ linux/arch/x86_64/kernel/nmi.c
-@@ -565,11 +565,21 @@ static void stop_p4_watchdog(void)
- 
- void setup_apic_nmi_watchdog(void *unused)
- {
-+	struct nmi_watchdog_ctlblk *wd = &__get_cpu_var(nmi_watchdog_ctlblk);
-+
- 	/* only support LOCAL and IO APICs for now */
- 	if ((nmi_watchdog != NMI_LOCAL_APIC) &&
- 	    (nmi_watchdog != NMI_IO_APIC))
- 	    	return;
- 
-+	if (wd->enabled == 1)
-+		return;
-+
-+	/* cheap hack to support suspend/resume */
-+	/* if cpu0 is not active neither should the other cpus */
-+	if ((smp_processor_id() != 0) && (atomic_read(&nmi_active) <= 0))
-+		return;
-+
- 	if (nmi_watchdog == NMI_LOCAL_APIC) {
- 		switch (boot_cpu_data.x86_vendor) {
- 		case X86_VENDOR_AMD:
-@@ -586,17 +596,22 @@ void setup_apic_nmi_watchdog(void *unuse
- 			return;
- 		}
- 	}
--	__get_cpu_var(nmi_watchdog_ctlblk.enabled) = 1;
-+	wd->enabled = 1;
- 	atomic_inc(&nmi_active);
- }
- 
- void stop_apic_nmi_watchdog(void *unused)
- {
-+	struct nmi_watchdog_ctlblk *wd = &__get_cpu_var(nmi_watchdog_ctlblk);
-+
- 	/* only support LOCAL and IO APICs for now */
- 	if ((nmi_watchdog != NMI_LOCAL_APIC) &&
- 	    (nmi_watchdog != NMI_IO_APIC))
- 	    	return;
- 
-+	if (wd->enabled == 0)
-+		return;
-+
- 	if (nmi_watchdog == NMI_LOCAL_APIC) {
- 		switch (boot_cpu_data.x86_vendor) {
- 		case X86_VENDOR_AMD:
-@@ -611,7 +626,7 @@ void stop_apic_nmi_watchdog(void *unused
- 			return;
- 		}
- 	}
--	__get_cpu_var(nmi_watchdog_ctlblk.enabled) = 0;
-+	wd->enabled = 0;
- 	atomic_dec(&nmi_active);
- }
- 
+ext4 is the devel tree.  ext3 is the stable tree.  Just go ahead and "cp 
+fs/ext3 fs/ext4" immediately, otherwise the cleanups will pile up, and 
+the branch will take place a year from now.
+
+	Jeff, still waiting for submit_bio() to be used in fs's :)
+
+
+

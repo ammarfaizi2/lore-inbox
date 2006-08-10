@@ -1,45 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWHJGD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWHJGEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161055AbWHJGD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 02:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWHJGD3
+	id S1161052AbWHJGEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 02:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWHJGEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 02:03:29 -0400
-Received: from mx1.suse.de ([195.135.220.2]:49885 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161048AbWHJGD2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 02:03:28 -0400
-From: Neil Brown <neilb@suse.de>
-To: "Xin Zhao" <uszhaoxin@gmail.com>
-Date: Thu, 10 Aug 2006 16:03:25 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17626.52269.828274.831029@cse.unsw.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+	Thu, 10 Aug 2006 02:04:31 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:29050 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161052AbWHJGEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 02:04:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NPVuRjfSlhIs6d1VnX2lb3WV3i8f+Bqlf3ImORD5kHYyBvyVSW/nj7msGP5xjNnC5q3jOq0AB7SN+sCASqwN5jgr/T0lpmXR720zwGkmK3miEreXExK5cqg7sZ6v7HpLw1tfMk/xMjJleyq+t+eiZRos9C9EaTRKnts8wShNo/g=
+Message-ID: <4ae3c140608092304p5d3b0a83r186ebe5466369189@mail.gmail.com>
+Date: Thu, 10 Aug 2006 02:04:29 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: "Neil Brown" <neilb@suse.de>
 Subject: Re: Urgent help needed on an NFS question, please help!!!
-In-Reply-To: message from Xin Zhao on Thursday August 10
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <17626.49136.384370.284757@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
-	<17626.49136.384370.284757@cse.unsw.edu.au>
-	<4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	 <17626.49136.384370.284757@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday August 10, uszhaoxin@gmail.com wrote:
-> Many thanks for your kind help!
-> 
-> Your answer is what I expected. But what frustrated me is that I
-> cannot find the code that verifies the generation number in NFS V3
-> codes. Do you know where it check the generation number?
+I think nfs_compare_fh() might do the file handle verification task.
+However, it is still possible that AFTER C1 gets a valid file handle,
+BUT BEFORE C1 sends out the getattr() request, C2 deletes file X and
+creates a different file X1 which has the same inode number. Looks
+like the server side must verify the generation number carried in the
+file handle. Unfortunately, I didn't find this code at the server
+side. Any further insight on this?
 
-NFSD doesn't.  The individual filesystem does.  You need to look in
-the filesystem code.
+Thanks,
+Xin
 
-Some filesystems use common code from fs/exportfs/expfs.c
-See "export_iget".
-
-NeilBrown.
+On 8/10/06, Neil Brown <neilb@suse.de> wrote:
+> On Thursday August 10, uszhaoxin@gmail.com wrote:
+> > I just ran into a problem about NFS. It might be a fundmental problem
+> > of my current work. So please help!
+> >
+> > I am wondering how NFS guarantees a client didn't get wrong file
+> > attributes. Consider the following scenario:
+> >
+> > Suppose we have an NFS server S and two clients C1 and C2.
+> >
+> > Now C1 needs to access the file attributes of file X, it first does
+> > lookup() to get the file handle of file X.
+> >
+> > After C1 gets X's file handle and before C1 issues the getattr()
+> > request, C2 cuts in. Now C2 deletes file X and creates a new file X1,
+> > which has different name but the same inode number and device ID as
+> > the nonexistent file X.
+> >
+> > When C1 issues getattr() with the old file handle, it may get file
+> > attribute on wrong file X1. Is this true?
+> >
+> > If not, how NFS avoid this problem? Please direct me to the code that
+> > verifies this.
+>
+> Generation numbers.
+>
+> When the filesystem creates a new file it assigns a random number
+> as the 'generation' number and stores that in the inode.
+> This gets included in the filehandle, and checked when the filehandle
+> lookup is done.
+>
+> Look for references to 'i_generation' in fs/ext3/*
+>
+> Other files systems may approach this slightly differently, but the
+> filesystem is responsible for providing a unique-over-time filehandle,
+> and 'generation number' is the 'standard' way of doing this.
+>
+> NeilBrown
+>

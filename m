@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWHJQmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161116AbWHJQos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWHJQmF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161434AbWHJQmF
+	id S1161116AbWHJQos (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161407AbWHJQos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:42:05 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:22660 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751363AbWHJQmD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:42:03 -0400
-Message-ID: <44DB61D7.1000109@us.ibm.com>
-Date: Thu, 10 Aug 2006 09:41:59 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
+	Thu, 10 Aug 2006 12:44:48 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:235 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1161116AbWHJQos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 12:44:48 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Thu, 10 Aug 2006 18:43:57 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.16.27] Fix broken suspend/resume in ohci1394
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44DB1F19.8000504@s5r6.in-berlin.de>
+Message-ID: <tkrat.9c03382e3448b2ab@s5r6.in-berlin.de>
+References: <200608091749_MC3-1-C796-5E8D@compuserve.com>
+ <20060809220048.GE3691@stusta.de> <44DB1F19.8000504@s5r6.in-berlin.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Forking ext4 filesystem from ext3 filesystem
-References: <1155172622.3161.73.camel@localhost.localdomain> <20060809233914.35ab8792.akpm@osdl.org>
-In-Reply-To: <20060809233914.35ab8792.akpm@osdl.org>
-Content-Type: text/plain; charset=gb18030; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Date: Mon, 22 May 2006 16:57:16 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Fix broken suspend/resume in ohci1394 (Was: ACPI suspend problems revisited)
 
-> On Wed, 09 Aug 2006 18:17:02 -0700
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> 
-> 
->>Fork(copy) ext4 filesystem from ext3 filesystem. Rename all functions in ext4 from ext3_xxx() to ext4_xxx().
-> 
-> 
-> It would have been nice to spend a few hours cleaning up ext3 and JBD
-> before doing this.  The code isn't toooo bad, but there are number of
-> coding style problems, whitespace screwups, incorrect comments, missing
-> comments, poorly-chosen variable names and all of that sort of thing.
->
-> One the fs has been copied-and-pasted, it's much harder to address these
-> things: either need to do it twice, or allow the filesystems to diverge, or
-> not do it.
->
-Andrew, thanks for taking a close look this series of changes.
+I've been experimenting to track down the cause of suspend/resume problems
+on my Compaq Presario X1050 laptop:
 
-I agree with you that the timing is right, to do the clean up now rather 
-than later. I would give it a try. If I could get more help from more 
-code reviewer, it probably makes the effort a lot easier. For those 
-issues you pointed out : coding style problem£¬incorrect comments, 
-poorly-named variables  -- do you have any specific examples in your mind?
+http://bugzilla.kernel.org/show_bug.cgi?id=6075
 
-> Also, -mm presently has two patches pending against fs/jbd/ and nine pending
-> against fs/ext3/.  We should get all those things merged before taking the
-> copy.
-> 
-So probably the right thing to do is keep the ext4 patches against mm 
-tree instead of rc three?
+Essentially the ACPI Embedded Controller and keyboard controller would
+get into a bizarre, confused state after resume.
 
-> Also, JBD is presently feeding into submit_bh() buffer_heads which span two
-> machine pages, and some device drivers spit the dummy.  It'd be better to
-> fix that once, rather than twice..  
+I found that unloading the ohci1394 module before suspend and reloading it
+after resume made the problem go away.  Diffing the dmesg output from
+resume, with and without the module loaded, I found that with the module
+loaded I was missing these:
 
-Okay, I will look at it.
+PM: Writing back config space on device 0000:02:00.0 at offset 1. (Was 2100080, writing 2100007)
+PM: Writing back config space on device 0000:02:00.0 at offset 3. (Was 0, writing 8008)
+PM: Writing back config space on device 0000:02:00.0 at offset 4. (Was 0, writing 90200000)
+PM: Writing back config space on device 0000:02:00.0 at offset 5. (Was 1, writing 2401)
+PM: Writing back config space on device 0000:02:00.0 at offset f. (Was 20000100, writing 2000010a)
 
+The default PCI driver performs the pci_restore_state when no driver is
+loaded for the device.  When the ohci1394 driver is loaded, it is supposed
+to do this, however it appears not to do so.
 
-Thanks,
-Mingming
+I created the patch below and tested it, and it appears to resolve the
+suspend problems I was having with the module loaded.  I only added in the
+pci_save_state and pci_restore_state - however, though I know little of
+this hardware, surely the driver should really be doing more than this when
+suspending and resuming?  Currently it does almost nothing, what if there
+are commands in progress, etc?
+
+Signed-off-by: Robert Hancock <hancockr@shaw.ca>
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+This patch also appeared in 2.6.17.2 and 2.6.18.  There is still some
+functionality missing for full resume capability in ohci1394.
+
+Index: linux-2.6.16.27/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux-2.6.16.27.orig/drivers/ieee1394/ohci1394.c	2006-08-10 18:10:13.000000000 +0200
++++ linux-2.6.16.27/drivers/ieee1394/ohci1394.c	2006-08-10 18:11:45.000000000 +0200
+@@ -3536,6 +3536,7 @@ static int ohci1394_pci_resume (struct p
+ 	}
+ #endif /* CONFIG_PPC_PMAC */
+ 
++	pci_restore_state(pdev);
+ 	pci_enable_device(pdev);
+ 
+ 	return 0;
+@@ -3555,6 +3556,8 @@ static int ohci1394_pci_suspend (struct 
+ 	}
+ #endif
+ 
++	pci_save_state(pdev);
++
+ 	return 0;
+ }
+ 
+
 

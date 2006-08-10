@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbWHJTld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWHJTmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbWHJTld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWHJTiM
+	id S1750808AbWHJTmE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWHJTlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:38:12 -0400
-Received: from ns2.suse.de ([195.135.220.15]:27116 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932694AbWHJThp (ORCPT
+	Thu, 10 Aug 2006 15:41:50 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:59117 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750829AbWHJTli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:45 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [139/145] x86_64: mark init_amd() as __cpuinit
-Message-Id: <20060810193739.82CC713C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:39 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 15:41:38 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jason Lunz <lunz@falooley.org>
+Subject: Re: Merging libata PATA support into the base kernel
+Date: Thu, 10 Aug 2006 21:40:36 +0200
+User-Agent: KMail/1.9.3
+Cc: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Stefan Seyfried <seife@suse.de>
+References: <1155144599.5729.226.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
+In-Reply-To: <20060810190222.GA12818@knob.reflex>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608102140.36733.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thursday 10 August 2006 21:02, Jason Lunz wrote:
+> In gmane.linux.kernel, you wrote:
+> > You make it sound much worse than it is. Apart for HPA, I'm not aware of
+> > any setups that require extra treatment. And the amount of reported bugs
+> > against it are pretty close to zero :-)
 
-From: Magnus Damm <magnus@valinux.co.jp>
+No, it's not.
 
-The init_amd() function is only called from identify_cpu() which is already
-marked as __cpuinit. So let's mark it as __cpuinit.
+> *ahem*.
+> 
+> I needed to do this to cure IDE hangs on resume:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
+> 
+> Are you watching the suspend mailing lists? There's no shortage of them:
+> 
+> suspend-devel:	http://dir.gmane.org/gmane.linux.kernel.suspend.devel
+> linux-pm:	http://dir.gmane.org/gmane.linux.power-management.general
+> suspend2-devel:	http://dir.gmane.org/gmane.linux.swsusp.devel
+> suspend2-users:	http://dir.gmane.org/gmane.linux.swsusp.general
+> 
+> I'm currently trying to help out one Sheer El-Showk, whose piix ide
+> requires 30 seconds of floundering followed by a bus reset to resume:
+> 
+> http://thread.gmane.org/gmane.linux.kernel.suspend.devel/276/focus=347
+> 
+> But I know next-to-nothing about ATA.
+> 
+> It's not surprising you're not getting many bug reports. It's common for
+> several things to go wrong during s2ram, and the user often ends up
+> looking at a hung system with a dead screen. It takes some quality time
+> with netconsole to even begin to narrow down that it's IDE hanging the
+> system, after which you can *begin* solving the no-video-on-resume
+> issue.
 
-Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
-Signed-off-by: Andi Kleen <ak@suse.de>
+I agree.  Moreover, the disk-related resume-from-ram problems are the hardest
+ones (the graphics may be handled from the user land to a reasonable extent).
 
----
+Actually, I'm looking for someone who'd agree to be Cced on bug reports where
+we suspect the problem may be related to IDE/PATA/SATA . ;-)
 
- arch/x86_64/kernel/setup.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux/arch/x86_64/kernel/setup.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/setup.c
-+++ linux/arch/x86_64/kernel/setup.c
-@@ -674,7 +674,7 @@ static void __init amd_detect_cmp(struct
- #endif
- }
- 
--static void __init init_amd(struct cpuinfo_x86 *c)
-+static void __cpuinit init_amd(struct cpuinfo_x86 *c)
- {
- 	unsigned level;
- 
+Greetings,
+Rafael

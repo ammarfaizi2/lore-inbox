@@ -1,87 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWHJToZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWHJTnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWHJToZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWHJTnL
+	id S1751458AbWHJTnA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWHJThc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:43:11 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:15852 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932661AbWHJTha (ORCPT
+	Thu, 10 Aug 2006 15:37:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:4076 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932666AbWHJThJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:30 -0400
+	Thu, 10 Aug 2006 15:37:09 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [129/145] x86_64: Auto size the per cpu area.
-Message-Id: <20060810193728.DE4BC13B8E@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:28 +0200 (CEST)
+Subject: [PATCH for review] [109/145] x86_64: Convert modlist_lock to be a raw spinlock
+Message-Id: <20060810193707.9DE2013C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:07 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: ebiederm@xmission.com (Eric W. Biederman)
+This is a preparationary patch for converting stacktrace over to the
+new dwarf2 unwinder. lockdep uses stacktrace and the new unwinder
+takes the modlist_lock so using a normal spinlock would cause a deadlock.
+Use a raw lock instead.
 
-Now for a completely different but trivial approach.
-I just boot tested it with 255 CPUS and everything worked.
+Cc: mingo@elte.hu
 
-Currently everything (except module data) we place in
-the per cpu area we know about at compile time.  So
-instead of allocating a fixed size for the per_cpu area
-allocate the number of bytes we need plus a fixed constant
-for to be used for modules.
-
-It isn't perfect but it is much less of a pain to
-work with than what we are doing now.
-
-AK: fixed warning
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/kernel/setup64.c |    7 ++-----
- include/asm-x86_64/percpu.h  |   10 ++++++++++
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ kernel/module.c |   42 ++++++++++++++++++++++++++----------------
+ 1 files changed, 26 insertions(+), 16 deletions(-)
 
-Index: linux/arch/x86_64/kernel/setup64.c
+Index: linux/kernel/module.c
 ===================================================================
---- linux.orig/arch/x86_64/kernel/setup64.c
-+++ linux/arch/x86_64/kernel/setup64.c
-@@ -95,12 +95,9 @@ void __init setup_per_cpu_areas(void)
- #endif
+--- linux.orig/kernel/module.c
++++ linux/kernel/module.c
+@@ -59,7 +59,7 @@
+ #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
  
- 	/* Copy section for each CPU (we discard the original) */
--	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
--#ifdef CONFIG_MODULES
--	if (size < PERCPU_ENOUGH_ROOM)
--		size = PERCPU_ENOUGH_ROOM;
--#endif
-+	size = PERCPU_ENOUGH_ROOM;
+ /* Protects module list */
+-static DEFINE_SPINLOCK(modlist_lock);
++static raw_spinlock_t modlist_lock = __RAW_SPIN_LOCK_UNLOCKED;
  
-+	printk(KERN_INFO "PERCPU: Allocating %lu bytes of per cpu data\n", size);
- 	for_each_cpu_mask (i, cpu_possible_map) {
- 		char *ptr;
+ /* List of modules, protected by module_mutex AND modlist_lock */
+ static DEFINE_MUTEX(module_mutex);
+@@ -751,11 +751,13 @@ void __symbol_put(const char *symbol)
+ 	unsigned long flags;
+ 	const unsigned long *crc;
  
-Index: linux/include/asm-x86_64/percpu.h
-===================================================================
---- linux.orig/include/asm-x86_64/percpu.h
-+++ linux/include/asm-x86_64/percpu.h
-@@ -11,6 +11,16 @@
+-	spin_lock_irqsave(&modlist_lock, flags);
++	raw_local_save_flags(flags);
++	__raw_spin_lock(&modlist_lock);
+ 	if (!__find_symbol(symbol, &owner, &crc, 1))
+ 		BUG();
+ 	module_put(owner);
+-	spin_unlock_irqrestore(&modlist_lock, flags);
++	__raw_spin_unlock(&modlist_lock);
++	raw_local_irq_restore(flags);
+ }
+ EXPORT_SYMBOL(__symbol_put);
  
- #include <asm/pda.h>
+@@ -1134,11 +1136,13 @@ void *__symbol_get(const char *symbol)
+ 	unsigned long value, flags;
+ 	const unsigned long *crc;
  
-+#ifdef CONFIG_MODULES
-+# define PERCPU_MODULE_RESERVE 8192
-+#else
-+# define PERCPU_MODULE_RESERVE 0
-+#endif
-+
-+#define PERCPU_ENOUGH_ROOM \
-+	(ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES) + \
-+	 PERCPU_MODULE_RESERVE)
-+
- #define __per_cpu_offset(cpu) (cpu_pda(cpu)->data_offset)
- #define __my_cpu_offset() read_pda(data_offset)
+-	spin_lock_irqsave(&modlist_lock, flags);
++	raw_local_save_flags(flags);
++	__raw_spin_lock(&modlist_lock);
+ 	value = __find_symbol(symbol, &owner, &crc, 1);
+ 	if (value && !strong_try_module_get(owner))
+ 		value = 0;
+-	spin_unlock_irqrestore(&modlist_lock, flags);
++	__raw_spin_unlock(&modlist_lock);
++	raw_local_irq_restore(flags);
  
+ 	return (void *)value;
+ }
+@@ -2141,7 +2145,8 @@ const struct exception_table_entry *sear
+ 	const struct exception_table_entry *e = NULL;
+ 	struct module *mod;
+ 
+-	spin_lock_irqsave(&modlist_lock, flags);
++	raw_local_save_flags(flags);
++	__raw_spin_lock(&modlist_lock);
+ 	list_for_each_entry(mod, &modules, list) {
+ 		if (mod->num_exentries == 0)
+ 			continue;
+@@ -2152,7 +2157,8 @@ const struct exception_table_entry *sear
+ 		if (e)
+ 			break;
+ 	}
+-	spin_unlock_irqrestore(&modlist_lock, flags);
++	__raw_spin_unlock(&modlist_lock);
++	raw_local_irq_restore(flags);
+ 
+ 	/* Now, if we found one, we are running inside it now, hence
+            we cannot unload the module, hence no refcnt needed. */
+@@ -2166,19 +2172,20 @@ int is_module_address(unsigned long addr
+ {
+ 	unsigned long flags;
+ 	struct module *mod;
++	int ret = 0;
+ 
+-	spin_lock_irqsave(&modlist_lock, flags);
+-
++	raw_local_save_flags(flags);
++	__raw_spin_lock(&modlist_lock);
+ 	list_for_each_entry(mod, &modules, list) {
+ 		if (within(addr, mod->module_core, mod->core_size)) {
+-			spin_unlock_irqrestore(&modlist_lock, flags);
+-			return 1;
++			ret = 1;
++			break;
+ 		}
+ 	}
++	__raw_spin_unlock(&modlist_lock);
++	raw_local_irq_restore(flags);
+ 
+-	spin_unlock_irqrestore(&modlist_lock, flags);
+-
+-	return 0;
++	return ret;
+ }
+ 
+ 
+@@ -2199,9 +2206,12 @@ struct module *module_text_address(unsig
+ 	struct module *mod;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&modlist_lock, flags);
++	/* This is called from lockdep */
++	raw_local_save_flags(flags);
++	__raw_spin_lock(&modlist_lock);
+ 	mod = __module_text_address(addr);
+-	spin_unlock_irqrestore(&modlist_lock, flags);
++	__raw_spin_unlock(&modlist_lock);
++	raw_local_irq_restore(flags);
+ 
+ 	return mod;
+ }

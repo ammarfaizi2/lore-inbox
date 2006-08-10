@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWHJSvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161158AbWHJSw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161161AbWHJSvl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 14:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161158AbWHJSvl
+	id S1161158AbWHJSw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 14:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWHJSw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 14:51:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:36038 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161155AbWHJSvk (ORCPT
+	Thu, 10 Aug 2006 14:52:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24473 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161158AbWHJSw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 14:51:40 -0400
-Message-ID: <44DB8036.5020706@us.ibm.com>
-Date: Thu, 10 Aug 2006 11:51:34 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Forking ext4 filesystem from ext3 filesystem
-References: <1155172622.3161.73.camel@localhost.localdomain> <20060809233914.35ab8792.akpm@osdl.org>
-In-Reply-To: <20060809233914.35ab8792.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 10 Aug 2006 14:52:27 -0400
+Date: Thu, 10 Aug 2006 11:51:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?Q? "H=E5vard?= Skinnemoen" <hskinnemoen@gmail.com>
+Cc: "Haavard Skinnemoen" <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, "Andi Kleen" <ak@suse.de>,
+       "Richard Henderson" <rth@twiddle.net>,
+       "Mikael Starvik" <starvik@axis.com>,
+       "Russell King" <rmk@arm.linux.org.uk>,
+       "Paul Mundt" <lethal@linux-sh.org>,
+       "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
+       "Kyle McMartin" <kyle@parisc-linux.org>,
+       "Ralf Baechle" <ralf@linux-mips.org>
+Subject: Re: [PATCH 0/14] Generic ioremap_page_range: introduction
+Message-Id: <20060810115138.854c94ad.akpm@osdl.org>
+In-Reply-To: <1defaf580608101142u7f5122b5le06a968b793d552d@mail.gmail.com>
+References: <1155225826761-git-send-email-hskinnemoen@atmel.com>
+	<1defaf580608101142u7f5122b5le06a968b793d552d@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Also, JBD is presently feeding into submit_bh() buffer_heads which span two
-> machine pages, and some device drivers spit the dummy.  It'd be better to
-> fix that once, rather than twice..  
->   
-Andrew,
+On Thu, 10 Aug 2006 20:42:19 +0200
+"H__vard Skinnemoen" <hskinnemoen@gmail.com> wrote:
 
-I looked at this few days ago. I am not sure how we end up having 
-multiple pages (especially,
-why we end up having buffers with bh_size > pagesize) ? Do you know why ?
+> I'll submit a patch to the git mailing list tomorrow, and then I'll
+> resend the bad patches manually.
 
-Easiest fix would be to fix submit_bh() to deal with multiple vecs - 
-which is vetoed by
-Jens and I agree with him :(
-
-Thanks,
-Badari
-
+Is OK, I'll fix them up.  I assume they're all really From:yourself?

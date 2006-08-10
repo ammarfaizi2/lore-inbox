@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWHJT6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWHJUAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWHJT6G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbWHJThL
+	id S932306AbWHJUAI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbWHJUAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:37:11 -0400
-Received: from mail.suse.de ([195.135.220.2]:12177 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932659AbWHJThF (ORCPT
+	Thu, 10 Aug 2006 16:00:02 -0400
+Received: from pat.uio.no ([129.240.10.4]:30386 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932707AbWHJT76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:05 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [106/145] x86_64: remove tce_cache_blast_stress()
-Message-Id: <20060810193704.7164713C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:04 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 15:59:58 -0400
+Subject: Re: Urgent help needed on an NFS question, please help!!!
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Neil Brown <neilb@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <4ae3c140608101102j3ec28dccob94d407b9879aa86@mail.gmail.com>
+References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
+	 <17626.49136.384370.284757@cse.unsw.edu.au>
+	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
+	 <17626.52269.828274.831029@cse.unsw.edu.au>
+	 <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
+	 <20060810161107.GC4379@parisc-linux.org>
+	 <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
+	 <1155230922.10547.61.camel@localhost>
+	 <4ae3c140608101102j3ec28dccob94d407b9879aa86@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 15:59:42 -0400
+Message-Id: <1155239982.5826.24.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-0.769, required 12,
+	autolearn=disabled, AWL -0.48, NIGERIAN_SUBJECT2 1.76,
+	PLING_PLING 0.43, RCVD_IN_XBL 2.51, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, 2006-08-10 at 14:02 -0400, Xin Zhao wrote:
+> Thanks. Trond.
+> 
+> The device is subject to change when server reboot? I don't quite
+> understand. If the backing device at the server side is not changed,
+> how come server reboot will cause device ID change?
 
-From: Muli Ben-Yehuda <muli@il.ibm.com>
+Things like USB, firewire, and fibre channel allocate their device ids
+on the fly. There is no such thing as a fixed device id in those cases.
 
-tce_cache_blast_stress was useful during bringup to stress the IOMMU's
-cache flushing. Now that we quiesce DMAs on every cache flush, using
-_stress() brings the machine down to its knees once you put it under
-load. Remove this debug / bringup code that isn't useful anymore
-completely.
+> About your comment on the second conclusion, I already explained in
+> one of my previous email. We assume that both server and clients are
+> under our control. That is, we don't consider too much about
+> interoperability.  The file handle format will be static even the NFS
+> server is changed. Actually, in our inter-VM inode sharing scheme, we
+> don't even care about the normal file handle contents. Instead, we
+> only check our extended fields, which include: server-side inode
+> address, ino, dev info, i_generation and server_generation. An NFS
+> client first uses the server-side inode address to locate the inode
+> object in the server inode cache (we dynamically remapped the inode
+> cache into the client, in order to expedite metadata retrieval and
+> bypass inter-VM communication). After getting the inode object, the
+> NFS client has to validate this inode object corresponds to the file
+> handle so that it can read the right file attributes stored in the
+> inode. There are many possibilities that can cause a located inode
+> stores false information: the inode has been released because someone
+> on the server remove the file, the inode was filled by another file's
+> inode (other possibilities?).  So we must validate the inode before
+> using the file attributes retrieved from the mapped inode.
+> 
+> That's why we bring up this question.
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
+Why do this, when people are working on standards and implementations
+for doing precisely the above within the NFSv4 protocol?
 
----
- arch/x86_64/kernel/pci-calgary.c |   11 -----------
- 1 files changed, 11 deletions(-)
+> Also, does someone compare NFS v4's delegation mechanism with the
+> speculative execution mechanism proposed in SOSP 2005
+> http://www.cs.cmu.edu/~dga/15-849/papers/speculator-sosp2005.pdf?
+> 
+> What are the pros and cons of these two mechanisms?
 
-Index: linux/arch/x86_64/kernel/pci-calgary.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/pci-calgary.c
-+++ linux/arch/x86_64/kernel/pci-calgary.c
-@@ -129,11 +129,6 @@ static void tce_cache_blast(struct iommu
- #ifdef CONFIG_IOMMU_DEBUG
- int debugging __read_mostly = 1;
- 
--static inline void tce_cache_blast_stress(struct iommu_table *tbl)
--{
--	tce_cache_blast(tbl);
--}
--
- static inline unsigned long verify_bit_range(unsigned long* bitmap,
- 	int expected, unsigned long start, unsigned long end)
- {
-@@ -153,10 +148,6 @@ static inline unsigned long verify_bit_r
- #else /* debugging is disabled */
- int debugging __read_mostly = 0;
- 
--static inline void tce_cache_blast_stress(struct iommu_table *tbl)
--{
--}
--
- static inline unsigned long verify_bit_range(unsigned long* bitmap,
- 	int expected, unsigned long start, unsigned long end)
- {
-@@ -289,8 +280,6 @@ static void __iommu_free(struct iommu_ta
- 	}
- 
- 	__clear_bit_string(tbl->it_map, entry, npages);
--
--	tce_cache_blast_stress(tbl);
- }
- 
- static void iommu_free(struct iommu_table *tbl, dma_addr_t dma_addr,
+Delegations are all about caching. This paper appears to be about
+getting round the bottlenecks due to synchronous operations. How are the
+two issues related?
+
+Cheers,
+  Trond
+

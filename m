@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWHJLbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWHJLeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161145AbWHJLbl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 07:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWHJLbl
+	id S1161179AbWHJLeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 07:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161178AbWHJLeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 07:31:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:58786 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161145AbWHJLbl (ORCPT
+	Thu, 10 Aug 2006 07:34:25 -0400
+Received: from msr36.hinet.net ([168.95.4.136]:15856 "EHLO msr36.hinet.net")
+	by vger.kernel.org with ESMTP id S1161176AbWHJLeY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 07:31:41 -0400
-From: Andi Kleen <ak@muc.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [PATCH] paravirt.h
-Date: Thu, 10 Aug 2006 13:31:19 +0200
-User-Agent: KMail/1.9.3
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-References: <1155202505.18420.5.camel@localhost.localdomain> <20060810103012.GA2356@muc.de> <1155207946.18420.18.camel@localhost.localdomain>
-In-Reply-To: <1155207946.18420.18.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608101331.19954.ak@muc.de>
+	Thu, 10 Aug 2006 07:34:24 -0400
+Message-ID: <023201c6bc70$57413c90$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Francois Romieu" <romieu@fr.zoreil.com>, <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw> <20060727190707.GA24157@electric-eye.fr.zoreil.com> <002701c6bc24$2a9f10f0$4964a8c0@icplus.com.tw> <44DB1727.2000502@pobox.com>
+Subject: Re: Hello, We had some patch need to submit for sundance.c
+Date: Thu, 10 Aug 2006 19:30:10 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 August 2006 13:05, Rusty Russell wrote:
-> On Thu, 2006-08-10 at 12:30 +0200, Andi Kleen wrote:
-> > On Thu, Aug 10, 2006 at 08:10:03PM +1000, Rusty Russell wrote:
-> > > On Thu, 2006-08-10 at 19:35 +1000, Rusty Russell wrote:
-> > > > This version over last version:
-> > > > (1) Gets rid of the no_paravirt.h header and leaves native ops in place
-> > > > (with some reshuffling to keep then under one #ifdef).
-> > > > (2) Fixes the "X crashes with CONFIG_PARAVIRT=y" bug.
-> > > > (3) Puts __ex_table entry in paravirt iret.
-> > > 
-> > > Gurp... that was old version.  This version removes the explicit "save
-> > > flags and disable irqs" op (the binary patching patches it as one, but
-> > > there's little point having a short-cut through the slow path).
-> > 
-> > Can you please do at least a s/__asm__/asm/g s/__volatile__/volatile/g ?
-> > 
-> > And you seem to have added some __volatiles too, that should be also 
-> > volatile.
-> 
-> OK, here's with the __removal__
+Hi Jeff:
 
-Hmm, i still see a lot of them (and __volatile too) 
+    I will use sundance.c in this tree to generate patch files.
 
-Also maybe it's my mail client, but the resulting patch seems to be also full of
-MIME damage:
+Thanks for this information.
 
- EXTRA_AFLAGS   :=3D -traditional
+Jesse
 
-Can you send it at least without that please? The __s I can fix
-up myself in the worst case if you don't want to.
+----- Original Message ----- 
+From: "Jeff Garzik" <jgarzik@pobox.com>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: "Francois Romieu" <romieu@fr.zoreil.com>;
+<linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>; "Andrew Morton"
+<akpm@osdl.org>
+Sent: Thursday, August 10, 2006 7:23 PM
+Subject: Re: Hello, We had some patch need to submit for sundance.c
 
--Andi
+
+Jesse Huang wrote:
+> Dear All:
+>
+> We had some patch need to submit. Would you tell me where to get current
+> sundance.c for myself to generate those patch files.
+>
+> Sorry, I only got this link:
+>
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=f13b2a195c708fe32d8c53d05988875a51bd52e1;hb=1668b19f75cb949f930814a23b74201ad6f76a53;f=drivers/net/sundance.c
+
+You need to install the "git" software package, and then check out the
+"upstream" branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+
+Then provide patches against the drivers/net/sundance.c driver found there.
+
+git software download: http://www.kernel.org/pub/software/scm/git/
+git overview: http://git.or.cz/
+git tutorial: http://www.kernel.org/pub/software/scm/git/docs/tutorial.html
+git man pages: http://www.kernel.org/pub/software/scm/git/docs
+
+Thanks,
+
+Jeff
+
+

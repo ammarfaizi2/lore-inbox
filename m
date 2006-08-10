@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWHJUKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbWHJUEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWHJUKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWHJUKK
+	id S932675AbWHJUEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWHJUD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:10:10 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:50613 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751154AbWHJUKF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:10:05 -0400
-Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Theodore Tso <tytso@mit.edu>, Erik Mouw <erik@harddisk-recovery.com>,
-       Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44DB8EBE.6060003@garzik.org>
-References: <1155172642.3161.74.camel@localhost.localdomain>
-	 <20060810092021.GB11361@harddisk-recovery.com>
-	 <20060810175920.GC19238@thunk.org>  <44DB8EBE.6060003@garzik.org>
-Content-Type: text/plain
-Date: Thu, 10 Aug 2006 15:08:43 -0500
-Message-Id: <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 16:03:57 -0400
+Received: from ns2.suse.de ([195.135.220.15]:60651 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932639AbWHJTgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:36:45 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [87/145] x86_64: remove lock prefix from is_at_popf() tests
+Message-Id: <20060810193644.54A7A13C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:44 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 15:53 -0400, Jeff Garzik wrote:
-> Theodore Tso wrote:
-> > On Thu, Aug 10, 2006 at 11:20:22AM +0200, Erik Mouw wrote:
-> >> On Wed, Aug 09, 2006 at 06:17:22PM -0700, Mingming Cao wrote:
-> >>> Register ext4 filesystem as ext3dev filesystem in kernel.
-> >> Why confuse users with the name "ext3dev"? If a filesystem lives in
-> >> fs/blah/, it's registered as "blah" and can be mounted with "-t blah".
-> >> Just register the filesystem as "ext4" and mark it "EXPERIMENTAL" in
-> >> Kconfig.
-> > 
-> > We had this discussion on LKML.  There were those who were concerned
-> > that it would not be enough just to mark it be EXPERIMENTAL.
-> 
-> I _want_ to agree with Erik, but I must agree:  CONFIG_EXPERIMENTAL is 
-> pretty worthless in practice :(  It's not maintained rigorously, and 
-> distros _always_ enable it, because otherwise they would often omit key 
-> drivers that people actively use.
-> 
-> So, while my own personal preference would be to follow Erik's 
-> suggestion...  thinking realistically, an fstype change from "ext3dev" 
-> to "ext4" is a far more obvious-to-users method of creating a 
-> devel/production line of demarcation.
+r
 
-IF it's decided to register the file system as ext3dev (Would ext4dev
-make more sense?), I would prefer the config options and code continues
-to simply use ext4.
--- 
-David Kleikamp
-IBM Linux Technology Center
+From: Chuck Ebbert <76306.1226@compuserve.com>
+The lock prefix will cause an exception when used with the
+popf instruction, so no need to continue searching after it's
+found.
 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+ arch/x86_64/kernel/ptrace.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux/arch/x86_64/kernel/ptrace.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/ptrace.c
++++ linux/arch/x86_64/kernel/ptrace.c
+@@ -138,7 +138,7 @@ static int is_at_popf(struct task_struct
+ 		case 0x26: case 0x2e:
+ 		case 0x36: case 0x3e:
+ 		case 0x64: case 0x65:
+-		case 0xf0: case 0xf2: case 0xf3:
++		case 0xf2: case 0xf3:
+ 			continue;
+ 
+ 		case 0x40 ... 0x4f:
+@@ -148,7 +148,7 @@ static int is_at_popf(struct task_struct
+ 			/* 64-bit mode: REX prefix */
+ 			continue;
+ 
+-			/* CHECKME: f0, f2, f3 */
++			/* CHECKME: f2, f3 */
+ 
+ 		/*
+ 		 * pushf: NOTE! We should probably not let

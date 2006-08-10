@@ -1,88 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWHJTrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbWHJTsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWHJTrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWHJTq4
+	id S932626AbWHJTsK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbWHJTrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:46:56 -0400
-Received: from mail.suse.de ([195.135.220.2]:31377 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932682AbWHJTh0 (ORCPT
+	Thu, 10 Aug 2006 15:47:45 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:11500 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932675AbWHJThX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:26 -0400
+	Thu, 10 Aug 2006 15:37:23 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [126/145] i386: Make enable_local_apic static
-Message-Id: <20060810193725.B178813B8E@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:25 +0200 (CEST)
+Subject: [PATCH for review] [115/145] x86_64: fix dubious segment register clear in cpu_init()
+Message-Id: <20060810193714.0590013C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:13 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Adrian Bunk <bunk@stusta.de>
-enable_local_apic can now become static.
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 
-Cc: len.brown@intel.com
+Fix a very dubious piece of code in
+arch/i386/kernel/cpu/common.c:cpu_init().  This clears out %fs and
+%gs, but clobbers %eax in the process without telling gcc.  It turns
+out that gcc happens to be not using %eax at that point anyway so it
+doesn't matter much, but it looks like a bomb waiting to go off.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This does end up saving an instruction, because gcc wants %eax==0 for
+the set_debugreg()s below.
+
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
-
-
 ---
+ arch/i386/kernel/cpu/common.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
- arch/i386/kernel/apic.c |   13 ++++++++++++-
- include/asm-i386/apic.h |   12 ------------
- 2 files changed, 12 insertions(+), 13 deletions(-)
-
-Index: linux/include/asm-i386/apic.h
+Index: linux/arch/i386/kernel/cpu/common.c
 ===================================================================
---- linux.orig/include/asm-i386/apic.h
-+++ linux/include/asm-i386/apic.h
-@@ -16,20 +16,8 @@
- #define APIC_VERBOSE 1
- #define APIC_DEBUG   2
+--- linux.orig/arch/i386/kernel/cpu/common.c
++++ linux/arch/i386/kernel/cpu/common.c
+@@ -675,7 +675,7 @@ old_gdt:
+ #endif
  
--extern int enable_local_apic;
- extern int apic_verbosity;
+ 	/* Clear %fs and %gs. */
+-	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
++	asm volatile ("movl %0, %%fs; movl %0, %%gs" : : "r" (0));
  
--static inline void lapic_disable(void)
--{
--	enable_local_apic = -1;
--	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
--}
--
--static inline void lapic_enable(void)
--{
--	enable_local_apic = 1;
--}
--
- /*
-  * Define the default level of output to be very little
-  * This can be turned up by using apic=verbose for more
-Index: linux/arch/i386/kernel/apic.c
-===================================================================
---- linux.orig/arch/i386/kernel/apic.c
-+++ linux/arch/i386/kernel/apic.c
-@@ -52,7 +52,18 @@ static cpumask_t timer_bcast_ipi;
- /*
-  * Knob to control our willingness to enable the local APIC.
-  */
--int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
-+static int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
-+
-+static inline void lapic_disable(void)
-+{
-+	enable_local_apic = -1;
-+	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-+}
-+
-+static inline void lapic_enable(void)
-+{
-+	enable_local_apic = 1;
-+}
- 
- /*
-  * Debug level
+ 	/* Clear all 6 debug registers: */
+ 	set_debugreg(0, 0);

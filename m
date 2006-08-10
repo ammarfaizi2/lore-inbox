@@ -1,356 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWHJTfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWHJTfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWHJTfS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWHJTfS
+	id S932130AbWHJTfR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWHJTfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:35:18 -0400
-Received: from mail.suse.de ([195.135.220.2]:656 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932132AbWHJTfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Aug 2006 15:35:16 -0400
+Received: from mx1.suse.de ([195.135.220.2]:144 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932130AbWHJTfP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:35:15 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [3/145] i386: Allow to use GENERICARCH for UP kernels
-Message-Id: <20060810193515.0E65213B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:15 +0200 (CEST)
+Subject: [PATCH for review] [1/145] x86_64: Update defconfig
+Message-Id: <20060810193512.E2B2B13B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:12 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-There are some machines around (large xSeries or Unisys ES7000) that
-need physical IO-APIC destination mode to access all of their IO 
-devices. This currently doesn't work in UP kernels as used in
-distribution installers. 
-
-This patch allows to compile even UP kernels as GENERICARCH which
-allows to use physical or clustered APIC mode.
+Enable cpufrequency debugging
+Disable soft watchdog
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/Kconfig                        |    7 +--
- arch/i386/kernel/io_apic.c               |    1 
- arch/i386/kernel/mpparse.c               |    1 
- arch/i386/mach-generic/bigsmp.c          |    1 
- arch/i386/mach-generic/es7000.c          |    1 
- arch/i386/mach-generic/probe.c           |    2 
- arch/i386/mach-generic/summit.c          |    1 
- include/asm-i386/genapic.h               |   69 ++++++++++++++++++-------------
- include/asm-i386/mach-es7000/mach_apic.h |    4 +
- include/asm-i386/mach-summit/mach_apic.h |   11 ++++
- include/asm-i386/smp.h                   |   19 +++++---
- 11 files changed, 76 insertions(+), 41 deletions(-)
+ arch/x86_64/defconfig |   56 ++++++++------------------------------------------
+ 1 files changed, 10 insertions(+), 46 deletions(-)
 
-Index: linux/arch/i386/mach-generic/probe.c
+Index: linux/arch/x86_64/defconfig
 ===================================================================
---- linux.orig/arch/i386/mach-generic/probe.c
-+++ linux/arch/i386/mach-generic/probe.c
-@@ -119,7 +119,9 @@ int __init acpi_madt_oem_check(char *oem
- 	return 0;	
- }
+--- linux.orig/arch/x86_64/defconfig
++++ linux/arch/x86_64/defconfig
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.18-rc2
+-# Tue Jul 18 17:13:20 2006
++# Linux kernel version: 2.6.18-rc3-git6
++# Sat Aug  5 02:32:50 2006
+ #
+ CONFIG_X86_64=y
+ CONFIG_64BIT=y
+@@ -201,7 +201,7 @@ CONFIG_ACPI_THERMAL=y
+ CONFIG_ACPI_NUMA=y
+ # CONFIG_ACPI_ASUS is not set
+ # CONFIG_ACPI_IBM is not set
+-CONFIG_ACPI_TOSHIBA=y
++# CONFIG_ACPI_TOSHIBA is not set
+ CONFIG_ACPI_BLACKLIST_YEAR=0
+ # CONFIG_ACPI_DEBUG is not set
+ CONFIG_ACPI_EC=y
+@@ -216,7 +216,7 @@ CONFIG_ACPI_CONTAINER=y
+ #
+ CONFIG_CPU_FREQ=y
+ CONFIG_CPU_FREQ_TABLE=y
+-# CONFIG_CPU_FREQ_DEBUG is not set
++CONFIG_CPU_FREQ_DEBUG=y
+ CONFIG_CPU_FREQ_STAT=y
+ # CONFIG_CPU_FREQ_STAT_DETAILS is not set
+ CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+@@ -512,7 +512,7 @@ CONFIG_SCSI_CONSTANTS=y
+ CONFIG_SCSI_SPI_ATTRS=y
+ CONFIG_SCSI_FC_ATTRS=y
+ # CONFIG_SCSI_ISCSI_ATTRS is not set
+-# CONFIG_SCSI_SAS_ATTRS is not set
++CONFIG_SCSI_SAS_ATTRS=y
  
-+#ifdef CONFIG_SMP
- int hard_smp_processor_id(void)
- {
- 	return genapic->get_apic_id(*(unsigned long *)(APIC_BASE+APIC_ID));
- }
-+#endif
-Index: linux/arch/i386/Kconfig
-===================================================================
---- linux.orig/arch/i386/Kconfig
-+++ linux/arch/i386/Kconfig
-@@ -165,7 +165,6 @@ config X86_VISWS
+ #
+ # SCSI low-level drivers
+@@ -538,7 +538,7 @@ CONFIG_MEGARAID_MAILBOX=y
+ CONFIG_MEGARAID_SAS=y
+ CONFIG_SCSI_SATA=y
+ CONFIG_SCSI_SATA_AHCI=y
+-# CONFIG_SCSI_SATA_SVW is not set
++CONFIG_SCSI_SATA_SVW=y
+ CONFIG_SCSI_ATA_PIIX=y
+ # CONFIG_SCSI_SATA_MV is not set
+ CONFIG_SCSI_SATA_NV=y
+@@ -589,7 +589,7 @@ CONFIG_BLK_DEV_DM=y
+ CONFIG_FUSION=y
+ CONFIG_FUSION_SPI=y
+ # CONFIG_FUSION_FC is not set
+-# CONFIG_FUSION_SAS is not set
++CONFIG_FUSION_SAS=y
+ CONFIG_FUSION_MAX_SGE=128
+ # CONFIG_FUSION_CTL is not set
  
- config X86_GENERICARCH
-        bool "Generic architecture (Summit, bigsmp, ES7000, default)"
--       depends on SMP
-        help
-           This option compiles in the Summit, bigsmp, ES7000, default subarchitectures.
- 	  It is intended for a generic binary kernel.
-@@ -261,7 +260,7 @@ source "kernel/Kconfig.preempt"
- 
- config X86_UP_APIC
- 	bool "Local APIC support on uniprocessors"
--	depends on !SMP && !(X86_VISWS || X86_VOYAGER)
-+	depends on !SMP && !(X86_VISWS || X86_VOYAGER || X86_GENERICARCH)
- 	help
- 	  A local APIC (Advanced Programmable Interrupt Controller) is an
- 	  integrated interrupt controller in the CPU. If you have a single-CPU
-@@ -286,12 +285,12 @@ config X86_UP_IOAPIC
- 
- config X86_LOCAL_APIC
- 	bool
--	depends on X86_UP_APIC || ((X86_VISWS || SMP) && !X86_VOYAGER)
-+	depends on X86_UP_APIC || ((X86_VISWS || SMP) && !X86_VOYAGER) || X86_GENERICARCH
- 	default y
- 
- config X86_IO_APIC
- 	bool
--	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER))
-+	depends on X86_UP_IOAPIC || (SMP && !(X86_VISWS || X86_VOYAGER)) || X86_GENERICARCH
- 	default y
- 
- config X86_VISWS_APIC
-Index: linux/arch/i386/mach-generic/bigsmp.c
-===================================================================
---- linux.orig/arch/i386/mach-generic/bigsmp.c
-+++ linux/arch/i386/mach-generic/bigsmp.c
-@@ -5,6 +5,7 @@
- #define APIC_DEFINITION 1
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/smp.h>
- #include <asm/mpspec.h>
- #include <asm/genapic.h>
- #include <asm/fixmap.h>
-Index: linux/arch/i386/mach-generic/es7000.c
-===================================================================
---- linux.orig/arch/i386/mach-generic/es7000.c
-+++ linux/arch/i386/mach-generic/es7000.c
-@@ -4,6 +4,7 @@
- #define APIC_DEFINITION 1
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/smp.h>
- #include <asm/mpspec.h>
- #include <asm/genapic.h>
- #include <asm/fixmap.h>
-Index: linux/arch/i386/mach-generic/summit.c
-===================================================================
---- linux.orig/arch/i386/mach-generic/summit.c
-+++ linux/arch/i386/mach-generic/summit.c
-@@ -4,6 +4,7 @@
- #define APIC_DEFINITION 1
- #include <linux/threads.h>
- #include <linux/cpumask.h>
-+#include <asm/smp.h>
- #include <asm/mpspec.h>
- #include <asm/genapic.h>
- #include <asm/fixmap.h>
-Index: linux/include/asm-i386/genapic.h
-===================================================================
---- linux.orig/include/asm-i386/genapic.h
-+++ linux/include/asm-i386/genapic.h
-@@ -1,6 +1,8 @@
- #ifndef _ASM_GENAPIC_H
- #define _ASM_GENAPIC_H 1
- 
-+#include <asm/mpspec.h>
-+
- /*
-  * Generic APIC driver interface.
-  *
-@@ -63,14 +65,25 @@ struct genapic { 
- 	unsigned (*get_apic_id)(unsigned long x);
- 	unsigned long apic_id_mask;
- 	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
--	
-+
-+#ifdef CONFIG_SMP
- 	/* ipi */
- 	void (*send_IPI_mask)(cpumask_t mask, int vector);
- 	void (*send_IPI_allbutself)(int vector);
- 	void (*send_IPI_all)(int vector);
-+#endif
- }; 
- 
--#define APICFUNC(x) .x = x
-+#define APICFUNC(x) .x = x,
-+
-+/* More functions could be probably marked IPIFUNC and save some space
-+   in UP GENERICARCH kernels, but I don't have the nerve right now
-+   to untangle this mess. -AK  */
-+#ifdef CONFIG_SMP
-+#define IPIFUNC(x) APICFUNC(x)
-+#else
-+#define IPIFUNC(x)
-+#endif
- 
- #define APIC_INIT(aname, aprobe) { \
- 	.name = aname, \
-@@ -80,33 +93,33 @@ struct genapic { 
- 	.no_balance_irq = NO_BALANCE_IRQ, \
- 	.ESR_DISABLE = esr_disable, \
- 	.apic_destination_logical = APIC_DEST_LOGICAL, \
--	APICFUNC(apic_id_registered), \
--	APICFUNC(target_cpus), \
--	APICFUNC(check_apicid_used), \
--	APICFUNC(check_apicid_present), \
--	APICFUNC(init_apic_ldr), \
--	APICFUNC(ioapic_phys_id_map), \
--	APICFUNC(clustered_apic_check), \
--	APICFUNC(multi_timer_check), \
--	APICFUNC(apicid_to_node), \
--	APICFUNC(cpu_to_logical_apicid), \
--	APICFUNC(cpu_present_to_apicid), \
--	APICFUNC(apicid_to_cpu_present), \
--	APICFUNC(mpc_apic_id), \
--	APICFUNC(setup_portio_remap), \
--	APICFUNC(check_phys_apicid_present), \
--	APICFUNC(mpc_oem_bus_info), \
--	APICFUNC(mpc_oem_pci_bus), \
--	APICFUNC(mps_oem_check), \
--	APICFUNC(get_apic_id), \
-+	APICFUNC(apic_id_registered) \
-+	APICFUNC(target_cpus) \
-+	APICFUNC(check_apicid_used) \
-+	APICFUNC(check_apicid_present) \
-+	APICFUNC(init_apic_ldr) \
-+	APICFUNC(ioapic_phys_id_map) \
-+	APICFUNC(clustered_apic_check) \
-+	APICFUNC(multi_timer_check) \
-+	APICFUNC(apicid_to_node) \
-+	APICFUNC(cpu_to_logical_apicid) \
-+	APICFUNC(cpu_present_to_apicid) \
-+	APICFUNC(apicid_to_cpu_present) \
-+	APICFUNC(mpc_apic_id) \
-+	APICFUNC(setup_portio_remap) \
-+	APICFUNC(check_phys_apicid_present) \
-+	APICFUNC(mpc_oem_bus_info) \
-+	APICFUNC(mpc_oem_pci_bus) \
-+	APICFUNC(mps_oem_check) \
-+	APICFUNC(get_apic_id) \
- 	.apic_id_mask = APIC_ID_MASK, \
--	APICFUNC(cpu_mask_to_apicid), \
--	APICFUNC(acpi_madt_oem_check), \
--	APICFUNC(send_IPI_mask), \
--	APICFUNC(send_IPI_allbutself), \
--	APICFUNC(send_IPI_all), \
--	APICFUNC(enable_apic_mode), \
--	APICFUNC(phys_pkg_id), \
-+	APICFUNC(cpu_mask_to_apicid) \
-+	APICFUNC(acpi_madt_oem_check) \
-+	IPIFUNC(send_IPI_mask) \
-+	IPIFUNC(send_IPI_allbutself) \
-+	IPIFUNC(send_IPI_all) \
-+	APICFUNC(enable_apic_mode) \
-+	APICFUNC(phys_pkg_id) \
- 	}
- 
- extern struct genapic *genapic;
-Index: linux/include/asm-i386/mach-summit/mach_apic.h
-===================================================================
---- linux.orig/include/asm-i386/mach-summit/mach_apic.h
-+++ linux/include/asm-i386/mach-summit/mach_apic.h
-@@ -46,10 +46,12 @@ extern u8 cpu_2_logical_apicid[];
- static inline void init_apic_ldr(void)
- {
- 	unsigned long val, id;
--	int i, count;
--	u8 lid;
-+	int count = 0;
- 	u8 my_id = (u8)hard_smp_processor_id();
- 	u8 my_cluster = (u8)apicid_cluster(my_id);
-+#ifdef CONFIG_SMP
-+	u8 lid;
-+	int i;
- 
- 	/* Create logical APIC IDs by counting CPUs already in cluster. */
- 	for (count = 0, i = NR_CPUS; --i >= 0; ) {
-@@ -57,6 +59,7 @@ static inline void init_apic_ldr(void)
- 		if (lid != BAD_APICID && apicid_cluster(lid) == my_cluster)
- 			++count;
- 	}
-+#endif
- 	/* We only have a 4 wide bitmap in cluster mode.  If a deranged
- 	 * BIOS puts 5 CPUs in one APIC cluster, we're hosed. */
- 	BUG_ON(count >= XAPIC_DEST_CPUS_SHIFT);
-@@ -91,9 +94,13 @@ static inline int apicid_to_node(int log
- /* Mapping from cpu number to logical apicid */
- static inline int cpu_to_logical_apicid(int cpu)
- {
-+#ifdef CONFIG_SMP
-        if (cpu >= NR_CPUS)
- 	       return BAD_APICID;
- 	return (int)cpu_2_logical_apicid[cpu];
-+#else
-+	return logical_smp_processor_id();
-+#endif
- }
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
-Index: linux/include/asm-i386/mach-es7000/mach_apic.h
-===================================================================
---- linux.orig/include/asm-i386/mach-es7000/mach_apic.h
-+++ linux/include/asm-i386/mach-es7000/mach_apic.h
-@@ -123,9 +123,13 @@ extern u8 cpu_2_logical_apicid[];
- /* Mapping from cpu number to logical apicid */
- static inline int cpu_to_logical_apicid(int cpu)
- {
-+#ifdef CONFIG_SMP
-        if (cpu >= NR_CPUS)
- 	       return BAD_APICID;
-        return (int)cpu_2_logical_apicid[cpu];
-+#else
-+	return logical_smp_processor_id();
-+#endif
- }
- 
- static inline int mpc_apic_id(struct mpc_config_processor *m, struct mpc_config_translation *unused)
-Index: linux/arch/i386/kernel/io_apic.c
-===================================================================
---- linux.orig/arch/i386/kernel/io_apic.c
-+++ linux/arch/i386/kernel/io_apic.c
-@@ -40,6 +40,7 @@
- #include <asm/nmi.h>
- 
- #include <mach_apic.h>
-+#include <mach_apicdef.h>
- 
- #include "io_ports.h"
- 
-Index: linux/arch/i386/kernel/mpparse.c
-===================================================================
---- linux.orig/arch/i386/kernel/mpparse.c
-+++ linux/arch/i386/kernel/mpparse.c
-@@ -30,6 +30,7 @@
- #include <asm/io_apic.h>
- 
- #include <mach_apic.h>
-+#include <mach_apicdef.h>
- #include <mach_mpparse.h>
- #include <bios_ebda.h>
- 
-Index: linux/include/asm-i386/smp.h
-===================================================================
---- linux.orig/include/asm-i386/smp.h
-+++ linux/include/asm-i386/smp.h
-@@ -80,17 +80,11 @@ static inline int hard_smp_processor_id(
- 	return GET_APIC_ID(*(unsigned long *)(APIC_BASE+APIC_ID));
- }
- #endif
+@@ -675,7 +675,7 @@ CONFIG_NET_PCI=y
+ # CONFIG_PCNET32 is not set
+ # CONFIG_AMD8111_ETH is not set
+ # CONFIG_ADAPTEC_STARFIRE is not set
+-# CONFIG_B44 is not set
++CONFIG_B44=y
+ CONFIG_FORCEDETH=y
+ # CONFIG_DGRS is not set
+ # CONFIG_EEPRO100 is not set
+@@ -842,44 +842,7 @@ CONFIG_LEGACY_PTY_COUNT=256
+ #
+ # Watchdog Cards
+ #
+-CONFIG_WATCHDOG=y
+-# CONFIG_WATCHDOG_NOWAYOUT is not set
 -
--static __inline int logical_smp_processor_id(void)
--{
--	/* we don't want to mark this access volatile - bad code generation */
--	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
--}
+-#
+-# Watchdog Device Drivers
+-#
+-CONFIG_SOFT_WATCHDOG=y
+-# CONFIG_ACQUIRE_WDT is not set
+-# CONFIG_ADVANTECH_WDT is not set
+-# CONFIG_ALIM1535_WDT is not set
+-# CONFIG_ALIM7101_WDT is not set
+-# CONFIG_SC520_WDT is not set
+-# CONFIG_EUROTECH_WDT is not set
+-# CONFIG_IB700_WDT is not set
+-# CONFIG_IBMASR is not set
+-# CONFIG_WAFER_WDT is not set
+-# CONFIG_I6300ESB_WDT is not set
+-# CONFIG_I8XX_TCO is not set
+-# CONFIG_SC1200_WDT is not set
+-# CONFIG_60XX_WDT is not set
+-# CONFIG_SBC8360_WDT is not set
+-# CONFIG_CPU5_WDT is not set
+-# CONFIG_W83627HF_WDT is not set
+-# CONFIG_W83877F_WDT is not set
+-# CONFIG_W83977F_WDT is not set
+-# CONFIG_MACHZ_WDT is not set
+-# CONFIG_SBC_EPX_C3_WATCHDOG is not set
 -
- #endif
+-#
+-# PCI-based Watchdog Cards
+-#
+-# CONFIG_PCIPCWATCHDOG is not set
+-# CONFIG_WDTPCI is not set
+-
+-#
+-# USB-based Watchdog Cards
+-#
+-# CONFIG_USBPCWATCHDOG is not set
++# CONFIG_WATCHDOG is not set
+ CONFIG_HW_RANDOM=y
+ CONFIG_HW_RANDOM_INTEL=y
+ CONFIG_HW_RANDOM_AMD=y
+@@ -1056,6 +1019,7 @@ CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_VGACON_SOFT_SCROLLBACK_SIZE=256
+ CONFIG_VIDEO_SELECT=y
+ CONFIG_DUMMY_CONSOLE=y
++# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
  
- extern int __cpu_disable(void);
- extern void __cpu_die(unsigned int cpu);
-+
- #endif /* !__ASSEMBLY__ */
- 
- #else /* CONFIG_SMP */
-@@ -100,4 +94,15 @@ extern void __cpu_die(unsigned int cpu);
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
- 
- #endif
-+
-+#ifndef __ASSEMBLY__
-+#ifdef CONFIG_X86_LOCAL_APIC
-+static __inline int logical_smp_processor_id(void)
-+{
-+	/* we don't want to mark this access volatile - bad code generation */
-+	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
-+}
-+#endif
-+#endif
-+
- #endif
+ #
+ # Sound

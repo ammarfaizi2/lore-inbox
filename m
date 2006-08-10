@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161186AbWHJS4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWHJTCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161186AbWHJS4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 14:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161194AbWHJS4p
+	id S932301AbWHJTCl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWHJTCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 14:56:45 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:49057 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1161186AbWHJS4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 14:56:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b7s2WkGQ19RM/E8i1LRi6T/yCKDyeCmE+KN9X4sw7OWU0csfTq80irTEu+gSv+KLB2ki8mI+n4vogb9REYHYyZwev2/fKD+VAuGaAqSuQxAIIw37MsmIclg4I9hq3ucZZBkYcBLWo/sRfNqmbzRGBaMgblf5W871Wfc+NMG5hOI=
-Message-ID: <1defaf580608101156r63e07abakc2a51dba4fdd1581@mail.gmail.com>
-Date: Thu, 10 Aug 2006 20:56:42 +0200
-From: "Haavard Skinnemoen" <hskinnemoen@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH 0/14] Generic ioremap_page_range: introduction
-Cc: "Haavard Skinnemoen" <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, "Andi Kleen" <ak@suse.de>,
-       "Richard Henderson" <rth@twiddle.net>,
-       "Mikael Starvik" <starvik@axis.com>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Paul Mundt" <lethal@linux-sh.org>,
-       "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
-       "Kyle McMartin" <kyle@parisc-linux.org>,
-       "Ralf Baechle" <ralf@linux-mips.org>
-In-Reply-To: <20060810115138.854c94ad.akpm@osdl.org>
+	Thu, 10 Aug 2006 15:02:41 -0400
+Received: from smtp.reflexsecurity.com ([72.54.64.74]:23714 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id S932301AbWHJTCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:02:40 -0400
+Date: Thu, 10 Aug 2006 15:02:22 -0400
+From: Jason Lunz <lunz@falooley.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Merging libata PATA support into the base kernel
+Message-ID: <20060810190222.GA12818@knob.reflex>
+References: <1155144599.5729.226.camel@localhost.localdomain> <p733bc5nm5g.fsf@verdi.suse.de> <1155213464.22922.6.camel@localhost.localdomain> <20060810122056.GP11829@suse.de>
+In-Reply-To: <20060810122056.GP11829@suse.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1155225826761-git-send-email-hskinnemoen@atmel.com>
-	 <1defaf580608101142u7f5122b5le06a968b793d552d@mail.gmail.com>
-	 <20060810115138.854c94ad.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/10/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Thu, 10 Aug 2006 20:42:19 +0200
-> "H__vard Skinnemoen" <hskinnemoen@gmail.com> wrote:
+In gmane.linux.kernel, you wrote:
+> You make it sound much worse than it is. Apart for HPA, I'm not aware of
+> any setups that require extra treatment. And the amount of reported bugs
+> against it are pretty close to zero :-)
 
-(wonder why gmail keeps resetting my name all the time...this is the
-third time I'm changing it to "Haavard Skinnemoen")
+*ahem*.
 
-> > I'll submit a patch to the git mailing list tomorrow, and then I'll
-> > resend the bad patches manually.
->
-> Is OK, I'll fix them up.  I assume they're all really From:yourself?
+I needed to do this to cure IDE hangs on resume:
 
-Thanks. They're all from me, yes.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/broken-out/ide-reprogram-disk-pio-timings-on-resume.patch
 
-Haavard
+Are you watching the suspend mailing lists? There's no shortage of them:
+
+suspend-devel:	http://dir.gmane.org/gmane.linux.kernel.suspend.devel
+linux-pm:	http://dir.gmane.org/gmane.linux.power-management.general
+suspend2-devel:	http://dir.gmane.org/gmane.linux.swsusp.devel
+suspend2-users:	http://dir.gmane.org/gmane.linux.swsusp.general
+
+I'm currently trying to help out one Sheer El-Showk, whose piix ide
+requires 30 seconds of floundering followed by a bus reset to resume:
+
+http://thread.gmane.org/gmane.linux.kernel.suspend.devel/276/focus=347
+
+But I know next-to-nothing about ATA.
+
+It's not surprising you're not getting many bug reports. It's common for
+several things to go wrong during s2ram, and the user often ends up
+looking at a hung system with a dead screen. It takes some quality time
+with netconsole to even begin to narrow down that it's IDE hanging the
+system, after which you can *begin* solving the no-video-on-resume
+issue.
+
+Jason

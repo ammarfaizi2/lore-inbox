@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWHJV1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWHJVnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWHJV1D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 17:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWHJV1C
+	id S1751134AbWHJVnf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 17:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHJVnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 17:27:02 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:25911 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1750836AbWHJV07 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 17:26:59 -0400
-X-IronPort-AV: i="4.08,112,1154934000"; 
-   d="scan'208"; a="440083004:sNHT51564561424"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: kernel panic:BUG in cascade at kernel/timer.c
-Date: Thu, 10 Aug 2006 14:26:15 -0700
-Message-ID: <F795765B112E7344AF36AA9112796415019ED349@xmb-sjc-212.amer.cisco.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel panic:BUG in cascade at kernel/timer.c
-Thread-Index: Aca8w5xrngF/Wl7ETa+MrY8QUMKpNA==
-From: "Bizhan Gholikhamseh \(bgholikh\)" <bgholikh@cisco.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Aug 2006 21:26:15.0755 (UTC) FILETIME=[9C89A9B0:01C6BCC3]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=bgholikh@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Thu, 10 Aug 2006 17:43:35 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:32741 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751134AbWHJVne
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 17:43:34 -0400
+Date: Thu, 10 Aug 2006 23:43:22 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Eric Anholt <eric@anholt.net>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org,
+       Alan Hourihane <alanh@tungstengraphics.com>
+Subject: Re: [PATCH] Add support for Intel i965G/Q GARTs.
+Message-ID: <20060810214322.GA16105@mail.muni.cz>
+References: <11551502672606-git-send-email-eric@anholt.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <11551502672606-git-send-email-eric@anholt.net>
+User-Agent: Mutt/1.4.1i
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xhejtman@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-We have developed our own custom board based on MPC8541 board running
-linux 2.6.11 During stress testing the system we get following kernel
-panic which related to timer cascase.
-Any hints greatly apprieciated. Many thanks in advance:
- 
-kernel BUG in cascade at kernel/timer.c:416!
-Oops: Exception in kernel mode, sig: 5 [#1] PREEMPT
-NIP: C0023AB4 LR: C0023CC8 SP: C02DDDF0 REGS: c02ddd40 TRAP: 0700
-Tainted: P    
-MSR: 00021200 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 00 TASK = c02bb730[0]
-'swapper' THREAD: c02dc000 Last syscall: 120 
+Hello,
 
-File timer.c line 416 :
-    401 static int cascade(tvec_base_t *base, tvec_t *tv, int index)
-    402 {
-    403         /* cascade all the timers from tv up one level */
-    404         struct list_head *head, *curr;
-    405 
-    406         head = tv->vec + index;
-    407         curr = head->next;
-    408         /*
-    409          * We are removing _all_ timers from the list, so we
-don't  have
-         to
-    410          * detach them individually, just clear the list
-afterwards.
-    411          */ 
-    412         while (curr != head) {
-    413                 struct timer_list *tmp;
-    414         
-    415                 tmp = list_entry(curr, struct timer_list,
-entry);
-    416                 BUG_ON(tmp->base != base);
-    417                 curr = curr->next;
-    418                 internal_add_timer(base, tmp);
-    419         }
-    420         INIT_LIST_HEAD(head);
-    421 
-    422         return index;
+tried patch on P965 chipset containing 8086:29a0 memory controller.
+I got in dmesg:
+agpgart: Detected an Intel 965G Chipset.
+agpgart: AGP aperture is 256M @ 0x0
 
- 
-Regards,
-Bizhan
+is this supposed to be correct?
+
+This warning can be related (0000:01:00.0 is Nvidia NX7600GS graphic).
+PCI: Failed to allocate mem resource #6:20000@30000000 for 0000:01:00.0
+
+-- 
+Luká¹ Hejtmánek

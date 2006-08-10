@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWHJJ4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWHJKHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbWHJJ4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 05:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbWHJJyi
+	id S1161144AbWHJKHL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 06:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWHJKHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 05:54:38 -0400
-Received: from mx-outbound.sourceforge.net ([66.35.250.223]:3740 "EHLO
-	sc8-sf-sshgate.sourceforge.net") by vger.kernel.org with ESMTP
-	id S1161138AbWHJJyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 05:54:36 -0400
-From: Shem Multinymous <multinymous@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Robert Love <rlove@rlove.org>, Pavel Machek <pavel@suse.cz>,
-       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, hdaps-devel@lists.sourceforge.net
-Subject: [PATCH 07/12] hdaps: delay calibration to first hardware query
-Reply-To: Shem Multinymous <multinymous@gmail.com>
-Date: Thu, 10 Aug 2006 12:48:45 +0300
-Message-Id: <11552033783354-git-send-email-multinymous@gmail.com>
-X-Mailer: git-send-email 1.4.1
-In-Reply-To: <1155203330179-git-send-email-multinymous@gmail.com>
-References: <1155203330179-git-send-email-multinymous@gmail.com>
+	Thu, 10 Aug 2006 06:07:10 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:50882 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1161137AbWHJKHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 06:07:09 -0400
+X-Comment-To: Andrew Morton
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alex Tomas <alex@clusterfs.com>, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
+References: <1155172827.3161.80.camel@localhost.localdomain>
+	<20060809233940.50162afb.akpm@osdl.org> <m37j1hlyzv.fsf@bzzz.home.net>
+	<20060810024816.9d83c944.akpm@osdl.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Thu, 10 Aug 2006 14:08:49 +0400
+In-Reply-To: <20060810024816.9d83c944.akpm@osdl.org> (Andrew Morton's message of "Thu, 10 Aug 2006 02:48:16 -0700")
+Message-ID: <m3u04klx72.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The hdaps driver currently calibrates its rest position upon
-initialization, which can take several seconds on first module load
-(and delays the boot process accordingly). This patch delays 
-calibration to the first successful hardware query, when the
-information is available anyway. Writes to the "calibrate" sysfs
-attribute are handled likewise.
 
-Signed-off-by: Shem Multinymous <multinymous@gmail.com>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
----
- drivers/hwmon/hdaps.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+just to make things clear ... I thought the code isn't that bad commented. I may be wrong, of course. but could you have a look at few routines
+(ext3_ext_create_new_leaf() or ext3_ext_get_blocks() fo example)
+and tell me what's wrong with existing comments (besides monkey english)
+and how it should look like?
 
---- a/drivers/hwmon/hdaps.c
-+++ b/drivers/hwmon/hdaps.c
-@@ -66,6 +66,7 @@ static struct timer_list hdaps_timer;
- static struct platform_device *pdev;
- static struct input_dev *hdaps_idev;
- static unsigned int hdaps_invert;
-+static int needs_calibration;
- 
- /* Latest state readout: */
- static int pos_x, pos_y;      /* position */
-@@ -137,6 +138,12 @@ static int __hdaps_update(int fast)
- 	temperature = data.val[EC_ACCEL_IDX_TEMP1];
- 
- 	stale_readout = 0;
-+	if (needs_calibration) {
-+		rest_x = pos_x;
-+		rest_y = pos_y;
-+		needs_calibration = 0;
-+	}
-+
- 	return 0;
- }
- 
-@@ -288,9 +295,9 @@ static struct platform_driver hdaps_driv
-  */
- static void hdaps_calibrate(void)
- {
-+	needs_calibration = 1;
- 	hdaps_update();
--	rest_x = pos_x;
--	rest_y = pos_y;
-+	/* If that fails, the mousedev poll will take care of things later. */
- }
- 
- /* Timer handler for updating the input device. Runs in softirq context,
-@@ -520,8 +527,8 @@ static int __init hdaps_init(void)
- 		goto out_group;
- 	}
- 
--	/* initial calibrate for the input device */
--	hdaps_calibrate();
-+	/* calibration for the input device (deferred to avoid delay) */
-+	needs_calibration = 1;
- 
- 	/* initialize the input class */
- 	hdaps_idev->name = "hdaps";
+thanks, Alex
+
+>>>>> Andrew Morton (AM) writes:
+
+ AM> On Thu, 10 Aug 2006 13:29:56 +0400
+ AM> Alex Tomas <alex@clusterfs.com> wrote:
+
+ AM> - The code is very poorly commented.  I'd want to spend a lot of time
+ AM> reviewing this implementation, but not in its present state.  
+ >> 
+ >> what sort of comments are you expecting?
+
+ AM> Ones which tell me what the code is attempting to do.  Ones which tell me
+ AM> the things which I need to know and which I cannot determine from the
+ AM> implementation within a reasonable period of time.  Ones which tell me
+ AM> about the hidden design decisions, the known shortcomings, the
+ AM> things-still-to-do.
+
+ AM> It's a bit of an artform, really.  I guess one needs to put oneself in the
+ AM> position of the reader, then work out what the reader wants to know.
+
+ AM> Good examples don't immediately leap to mind, I'm afraid.  Maybe some of
+ AM> fs/buffer.c?  That's important and pretty tricky code in there, so it goes
+ AM> to some lengths.

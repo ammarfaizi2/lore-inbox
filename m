@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWHJUmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWHJUit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWHJUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHJUmY
+	id S1751538AbWHJUit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWHJUO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:42:24 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:19343 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932116AbWHJUlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:41:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=fcr2bx3zNVfxr0v3Jbv2hnAg8XmzFmVs944Y+tK8E6xyO7J7N/f7Xjv1jH0Ei2aaQPQ1ao2XpKvkjXvuqPh5X+uhkZerr3TjWBkPjXGRcScZMWOjCxOol5rCaHtLN1AiEhYvDGGB4OGB9+pCBIIBgcXKPyGwQbilrQGM87bMe3w=
-Date: Fri, 11 Aug 2006 00:41:31 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-Message-ID: <20060810204131.GB6845@martell.zuzino.mipt.ru>
-References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <20060810191747.GL20581@ca-server1.us.oracle.com> <20060810194440.GA6845@martell.zuzino.mipt.ru> <20060810125747.87f7b1dc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060810125747.87f7b1dc.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Thu, 10 Aug 2006 16:14:26 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:45547 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932613AbWHJTgU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 15:36:20 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [63/145] x86_64: Remove some unneeded ACPI externs in mpparse.c
+Message-Id: <20060810193618.CCA2D13B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:18 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 12:57:47PM -0700, Andrew Morton wrote:
-> On Thu, 10 Aug 2006 23:44:40 +0400
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> > On Thu, Aug 10, 2006 at 12:17:47PM -0700, Joel Becker wrote:
-> > > On Wed, Aug 09, 2006 at 11:40:19PM -0700, Andrew Morton wrote:
-> > > > On Wed, 09 Aug 2006 18:20:43 -0700
-> > > > Mingming Cao <cmm@us.ibm.com> wrote:
-> > > >
-> > > > > Define SECTOR_FMT to print sector_t in proper format
-> > > >
-> > > > We've thus-far avoided doing this.  In fact a similar construct in
-> > > > device-mapper was recently removed.
-> > >
-> > > 	Yeah, OCFS2 had similar formats, and we were asked to change
-> > > them to naked casts before inclusion.  Seems quite consistent with the
-> > > rest of the kernel.
-> >
-> > Will
-> >
-> > 	printk("%S", sector_t);
-> >
-> > kill at least one kitten?
->
-> It would be really nice to be able to define local enhancements like this
-> to printf.  It would solve lots of these problems quite nicely.
->
-> Bus alas, there's no way (afaik) to teach __attribute__((format)) about
-> them, so gcc will warn.
+r
 
-Arrrgh!
+They are not used in this file so remove them. i386 didn't have them either.
 
-from gcc-local(1)
-  -   gcc recognizes a new format attribute, kprintf, to deal with the ex-
-      tra format arguments `%b', `%r', and `%z' used in the OpenBSD kernel.
+Cc: len.brown@intel.com
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-One word: bastards.
+---
+ arch/x86_64/kernel/mpparse.c |    9 ---------
+ 1 files changed, 9 deletions(-)
 
+Index: linux/arch/x86_64/kernel/mpparse.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/mpparse.c
++++ linux/arch/x86_64/kernel/mpparse.c
+@@ -70,15 +70,6 @@ unsigned disabled_cpus __initdata;
+ /* Bitmask of physically existing CPUs */
+ physid_mask_t phys_cpu_present_map = PHYSID_MASK_NONE;
+ 
+-/* ACPI MADT entry parsing functions */
+-#ifdef CONFIG_ACPI
+-extern struct acpi_boot_flags acpi_boot;
+-extern int acpi_parse_lapic (acpi_table_entry_header *header);
+-extern int acpi_parse_lapic_addr_ovr (acpi_table_entry_header *header);
+-extern int acpi_parse_lapic_nmi (acpi_table_entry_header *header);
+-extern int acpi_parse_ioapic (acpi_table_entry_header *header);
+-#endif /*CONFIG_ACPI*/
+-
+ u8 bios_cpu_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+ 
+ 

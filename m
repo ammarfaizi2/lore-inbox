@@ -1,27 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWHJIrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWHJI6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWHJIrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 04:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWHJIrf
+	id S1161079AbWHJI6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 04:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWHJI6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 04:47:35 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:46827 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751451AbWHJIrf (ORCPT
+	Thu, 10 Aug 2006 04:58:19 -0400
+Received: from ns1.suse.de ([195.135.220.2]:5513 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751472AbWHJI6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 04:47:35 -0400
-Date: Thu, 10 Aug 2006 10:47:24 +0200
-Message-ID: <s5hmzadx9ib.wl%tiwai@suse.de>
+	Thu, 10 Aug 2006 04:58:18 -0400
+Date: Thu, 10 Aug 2006 10:58:17 +0200
+Message-ID: <s5hlkpxx906.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, Gene Heskett <gene.heskett@verizon.net>,
-       linux-kernel@vger.kernel.org, Andrew Benton <b3nt@ukonline.co.uk>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Subject: Re: ALSA problems with 2.6.18-rc3
-In-Reply-To: <200608092328.47039.s0348365@sms.ed.ac.uk>
-References: <44D8F3E5.5020508@ukonline.co.uk>
-	<200608092307.27615.s0348365@sms.ed.ac.uk>
-	<1155161498.26338.216.camel@mindpipe>
-	<200608092328.47039.s0348365@sms.ed.ac.uk>
+To: "Bartlomiej Celary" <bartlomiej.celary@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: alsa driver problem (snd_via82xx)
+In-Reply-To: <97c31bd80608091159h40db8bc2l891cab8ddf7165ef@mail.gmail.com>
+References: <97c31bd80608091159h40db8bc2l891cab8ddf7165ef@mail.gmail.com>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (+CVS-20060326) (i386-suse-linux)
@@ -30,18 +25,35 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Wed, 9 Aug 2006 23:28:47 +0100,
-Alistair John Strachan wrote:
+At Wed, 9 Aug 2006 20:59:28 +0200,
+Bartlomiej Celary wrote:
 > 
-> > Also, analog output on my emu10k1 works perfectly with "External
-> > Amplifier" disabled.
+> Hello,
 > 
-> Interesting, evidence in your favour. It does not work here. It also did not 
-> work on the AC'97 in my HP NC6000, which also has External something-or-other 
-> and which also defaulted to "off".
+> I am having a problem with alsa driver. It is not a big issue, but a
+> significant drawback...
+> Ive used the form, so here it is.
+> 
+> [1.] One line summary of the problem:
+> While using snd_via82xx the PCM volume is not responding to changing
+> Master Volume.
+> 
+> [2.] Full description of the problem/report:
+> The issue is quite simple, but I am suspecting the driver to be the
+> cause (?). The
+> sound for my chip works perfectly fine, but somehow the PCM volume
+> works only for
+> DSP. The Master Volume works only for the remaining sources (Line in,
+> CD in). Ive tried
+> everything including looking in source code, but Im afraid I failed to
+> find a simple
+> fix... (posting on forum, googling... etc.).
 
-The external amplifier is on as default in the driver level.
-There must be something else that took off.
+It's no bug.  The ac97 codec chip on your board has really no volume
+control.
+
+The PCM volume is an alternative volume control using DXS control in
+the via823x control chip.
 
 
 Takashi

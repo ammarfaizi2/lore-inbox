@@ -1,46 +1,32 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161096AbWHJOtk (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 10 Aug 2006 10:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161289AbWHJOtk
+	id S932207AbWHJWEt (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 10 Aug 2006 18:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWHJWEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 10:49:40 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:34792 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1161096AbWHJOtj (ORCPT
+	Thu, 10 Aug 2006 18:04:49 -0400
+Received: from 196.Red-80-33-104.staticIP.rima-tde.net ([80.33.104.196]:13064
+	"EHLO 446") by vger.kernel.org with ESMTP id S932202AbWHJWEr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 10:49:39 -0400
-Message-Id: <9.5.1.3.8.14576354992515.048a8473@204.152.191.4>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.9
-Date: Thu, 10 Aug 2006 10:49:25 -0600
+	Thu, 10 Aug 2006 18:04:47 -0400
+Message-ID: <27895813017325.89DB292B7D@A91LY8>
+From: "Lenny" <bathrobeathenian@pediatrician.com>
+To: <linux-laptop@vger.kernel.org>
+Subject: Delight Just imagine how wonderful your life would become with a bigger size and increased duration.
+Date: Fri, 11 Aug 2006 00:08:23 +0200
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: Efci5iY9qrL1VeR3qBp5CFo0j2nAmebU9tEW
 Content-Type: text/plain;
-	charset="us-ascii"
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-From: "Cust. Service" <Munoz_secure@lngs.infn.it>
-Subject: Attempt to contact -- Lgb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1161096AbWHJOtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932207AbWHJWEt@vger.kernel.org>
 
+Just out
+ Unlike other products, this one gives you permanent gains in size - and loads of pleasure! Not only extra inches, but also a cool muscular look, better girth, and a lot more!
+ Give her an opportunity to spread rumors about your enormous size. Just imagine your new happy life with more size, more adoration from females and more self-assurance. Take a look: http://www.retilfo.com/gal/ms/ 
+There's a super-product waiting to turn you into Superman in bed, showers and locker rooms.
 
-
-This is our final attempt to reach you
- 
-You can receive up to $297,999 for as low as $719,
-and save 35% off your current payment.
- 
-Don't wait...this will not last long
- 
-Please complete our secure online application:
-http://secure237.itsnowforaloan.com
-
-Thank You
- 
-Jane Rankin,
-Cust. Service
-
-
-a good deal and had felt that I was a  But its natural and inglorious that
-and looking round upon us generally   
-or in coming backand looking round upon us generally   
-
+ Keep your eyes on the stars, and your feet on the ground  As is the gardener, so is the garden  The best doctors are Dr Diet, Dr Quiet and Dr Merryman A Man of Words and Not of Deeds is Like a Garden Full of Weeds. The righteous man leads a blameless life; blessed are his children after him Its too late to shut the stable door after the horse has bolted
 

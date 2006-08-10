@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWHJUTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWHJUXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWHJUTe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWHJUT1
+	id S1751568AbWHJUXe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWHJUWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:19:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52660 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932098AbWHJUSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:18:49 -0400
-Date: Thu, 10 Aug 2006 13:18:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Robert Love" <rlove@rlove.org>
-Cc: "Shem Multinymous" <multinymous@gmail.com>, linux-kernel@vger.kernel.org,
-       "Pavel Machek" <pavel@suse.cz>, "Jean Delvare" <khali@linux-fr.org>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers
- (version 2)
-Message-Id: <20060810131820.23f00680.akpm@osdl.org>
-In-Reply-To: <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
-References: <1155203330179-git-send-email-multinymous@gmail.com>
-	<acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Aug 2006 16:22:42 -0400
+Received: from mxsf29.cluster1.charter.net ([209.225.28.229]:32964 "EHLO
+	mxsf29.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1750969AbWHJUWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 16:22:34 -0400
+X-IronPort-AV: i="4.08,112,1154923200"; 
+   d="scan'208"; a="2047546568:sNHT2609248676"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17627.38258.546907.120948@stoffel.org>
+Date: Thu, 10 Aug 2006 16:22:10 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       Erik Mouw <erik@harddisk-recovery.com>, Mingming Cao <cmm@us.ibm.com>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
+In-Reply-To: <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
+References: <1155172642.3161.74.camel@localhost.localdomain>
+	<20060810092021.GB11361@harddisk-recovery.com>
+	<20060810175920.GC19238@thunk.org>
+	<44DB8EBE.6060003@garzik.org>
+	<1155240524.12082.14.camel@kleikamp.austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 09:46:47 -0400
-"Robert Love" <rlove@rlove.org> wrote:
+>>>>> "Dave" == Dave Kleikamp <shaggy@austin.ibm.com> writes:
 
-> Patches look great and I am glad someone has apparently better access
-> to hardware specs than I did.
+Dave> IF it's decided to register the file system as ext3dev (Would
+Dave> ext4dev make more sense?)
 
-This situation is still a concern.  From where did this additional register
-information come?
-
-Was it reverse-engineered?  If so, by whom and how can we satisfy ourselves
-of this?
-
-Was it from published documents?
-
-Was it improperly obtained from NDA'ed documentation?
-
-Presumably the answer to the third question will be "no", but if
-challenged, how can we defend this assertion?
-
-So hm.  We're setting precedent here and we need Linus around to resolve
-this.  Perhaps we can ask "Shem" to reveal his true identity to Linus (and
-maybe me) privately and then we proceed on that basis.  The rule could be
-"each of the Signed-off-by:ers should know the identity of the others".
+Hear hear!  I think ext4dev would be a better name too.  It's the
+devel version of ext4, not ext3 after all...

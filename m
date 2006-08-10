@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161401AbWHJNIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161490AbWHJNJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161401AbWHJNIF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161396AbWHJNIF
+	id S1161490AbWHJNJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 09:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161484AbWHJNJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:08:05 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:14701 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161390AbWHJNIE (ORCPT
+	Thu, 10 Aug 2006 09:09:10 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:44942 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161292AbWHJNJI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:08:04 -0400
-Date: Thu, 10 Aug 2006 15:09:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: mm snapshot broken-out-2006-08-08-00-59.tar.gz uploaded
-Message-ID: <20060810130922.GU11829@suse.de>
-References: <200608080800.k7880noU028915@shell0.pdx.osdl.net> <6bffcb0e0608090720g2ac739desd25a77e3c98ef268@mail.gmail.com> <6bffcb0e0608091544l376c37c6j5c766b38426c318b@mail.gmail.com> <20060810063532.GF11829@suse.de> <6bffcb0e0608100606i7deb9006ie7064f4d18a4f237@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bffcb0e0608100606i7deb9006ie7064f4d18a4f237@mail.gmail.com>
+	Thu, 10 Aug 2006 09:09:08 -0400
+Date: Thu, 10 Aug 2006 15:08:54 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Jeff Garzik <jeff@garzik.org>
+cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+In-Reply-To: <44DB27A3.1040606@garzik.org>
+Message-ID: <Pine.LNX.4.64.0608101459260.6761@scrub.home>
+References: <1155172843.3161.81.camel@localhost.localdomain>
+ <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
+ <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
+ <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
+ <44DB27A3.1040606@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10 2006, Michal Piotrowski wrote:
-> On 10/08/06, Jens Axboe <axboe@suse.de> wrote:
-> >On Thu, Aug 10 2006, Michal Piotrowski wrote:
-> >> Hi,
-> >>
-> >> On 09/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >> >On 08/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
-> >> >> The mm snapshot broken-out-2006-08-08-00-59.tar.gz has been uploaded 
-> >to
-> >> >>
-> >> >>
-> >> 
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-08-00-59.tar.gz
-> >> >>
-> >> >
-> >> >When I want to halt system I type "init 0", but it stops on
-> >> >
-> >> >Halting system...
-> >> >Synchronizing SCSI cache for disk sda
-> >> >Shutdown: hda
-> >> >
-> >> >Problem appears on 2.6.18-rc3-mm*. I guess that this is an IDE or ACPI 
-> >bug.
-> >> >I'll revert IDE and ACPI patches. If it won't help, I'll do binary 
-> >search.
-> >>
-> >> It's a git-block.patch
-> >>
-> >> Jens, can you look at this?
-> >>
-> >> Here is a config file
-> >> http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm1/mm-config2
-> >
-> >It's the already solved bug, I believe. The version referenced above
-> >still has the fixed REQ_TYPE_ATA_TASKFILE and ->end_io_data for suspend
-> >problem.
-> >
-> >Let me know if it works or not with this applied.
-> >
+Hi,
+
+On Thu, 10 Aug 2006, Jeff Garzik wrote:
+
+> > > Or you could just not bother, and leave everything as u64.
+> > 
+> > Why?
 > 
-> It works. Thanks!
-> 
-> Andrew, please add this patch to -mm.
+> To eliminate needless complexity and keep things simple and obvious?
 
-It should just work, when andrew pulls for 'for-akpm' branch for the
-next -mm. At least the included fixes are already there.
+Considering the amount of complexity we add for the high end, why is it 
+suddenly a bad thing to add even a _little_ complexity for the other end?
 
--- 
-Jens Axboe
-
+bye, Roman

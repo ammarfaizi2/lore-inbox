@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161452AbWHJQrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161446AbWHJQrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161452AbWHJQrk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161453AbWHJQrj
+	id S1161446AbWHJQrI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161441AbWHJQrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:47:39 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:27536 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161449AbWHJQrh (ORCPT
+	Thu, 10 Aug 2006 12:47:08 -0400
+Received: from waste.org ([66.93.16.53]:56987 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1161423AbWHJQrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:47:37 -0400
-Date: Thu, 10 Aug 2006 18:43:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: John Stoffel <john@stoffel.org>
-cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/9] sector_t format string
-In-Reply-To: <17627.23974.848640.278643@stoffel.org>
-Message-ID: <Pine.LNX.4.64.0608101838050.6762@scrub.home>
-References: <1155172843.3161.81.camel@localhost.localdomain>
- <20060809234019.c8a730e3.akpm@osdl.org> <Pine.LNX.4.64.0608101302270.6762@scrub.home>
- <44DB203A.6050901@garzik.org> <Pine.LNX.4.64.0608101409350.6762@scrub.home>
- <44DB25C1.1020807@garzik.org> <Pine.LNX.4.64.0608101429510.6762@scrub.home>
- <44DB27A3.1040606@garzik.org> <Pine.LNX.4.64.0608101459260.6761@scrub.home>
- <44DB3151.8050904@garzik.org> <Pine.LNX.4.64.0608101519560.6762@scrub.home>
- <17627.23974.848640.278643@stoffel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Aug 2006 12:47:06 -0400
+Date: Thu, 10 Aug 2006 11:45:48 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Joern Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH] UML - support checkstack
+Message-ID: <20060810164548.GS6908@waste.org>
+References: <200608091815.k79IFQVB005310@ccure.user-mode-linux.org> <20060810020922.GO6908@waste.org> <20060810042216.GA7754@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060810042216.GA7754@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 10 Aug 2006, John Stoffel wrote:
-
-> The problem as I see it, is that you want extents, but you don't want
-> the RAM/DISK/ROM penalty of 64bit blocks, since embedded devices won't
-> ever go past the existing ext3 sizes, right?
+On Thu, Aug 10, 2006 at 12:22:16AM -0400, Jeff Dike wrote:
+> On Wed, Aug 09, 2006 at 09:09:22PM -0500, Matt Mackall wrote:
+> > On Wed, Aug 09, 2006 at 02:15:24PM -0400, Jeff Dike wrote:
+> > > Make checkstack work for UML.  We need to pass the underlying architecture
+> > > name, rather than "um" to checkstack.pl.
+> > 
+> > Does this do the right thing with something like Voyager?
 > 
-> Is this a more clear statement of what you want?
+> SUBARCH has a different meaning here.  For UML, it's the underlying,
+> host, architecture, not a variant architecture like Voyager.
 
-This is only about the runtime penalty. I'm less concerned about the disk 
-structures, as soon as you use extents it's often more efficient than the 
-current structure anyway.
+Right, so it sounds like this breaks Voyager. Which I think means we
+ought to pass ARCH and SUBARCH and do the right thing inside
+checkstack.
 
-bye, Roman
+-- 
+Mathematics is the supreme nostalgia of our time.

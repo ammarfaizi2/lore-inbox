@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161332AbWHJPP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161329AbWHJPQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161332AbWHJPP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 11:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161329AbWHJPP4
+	id S1161329AbWHJPQB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 11:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWHJPQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 11:15:56 -0400
+	Thu, 10 Aug 2006 11:16:00 -0400
 Received: from py-out-1112.google.com ([64.233.166.183]:6538 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751382AbWHJPPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 11:15:55 -0400
+	id S1751440AbWHJPP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 11:15:59 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g394rnQVEk2CrE0dCWQYsIUaiCU646JrC+0i1ZwRpGHHgeuLksHUsYcGpVgH6rANlL2pKMGjRamxv5HpZQWe+q8brS/a1Q7unGFlkRNDrqhId+tMqaGSOtr5H5fNb3Temw02eVEBjWHgY1xYlH3zTZRUvlXJvRl3rIyduvQArkk=
-Message-ID: <6bffcb0e0608100815q4b0b35b6mc2799181abd5786e@mail.gmail.com>
-Date: Thu, 10 Aug 2006 17:15:55 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: cmm@us.ibm.com
-Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
-       "John McCutchan" <ttb@tentacle.dhs.org>, "Robert Love" <rml@novell.com>
-In-Reply-To: <6bffcb0e0608100702m1ad3925bw3e5f0e4804210fc9@mail.gmail.com>
+        b=L/lWS+Qcv0uZ/l3HPXPrrnyRa+mOblOAYGQtn7mj7jb/tuK3RdlUsQ/5eSO9w/GDHD1+xr55q5cif7epFx1qxuEBmF1paQjljbXbB/99dtT4MS2b+RzF7Hw5VuryBzFrtzmrffoaAH3fO8dGaz3OZPh/n43EpbSdCW83NY5juuE=
+Message-ID: <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
+Date: Thu, 10 Aug 2006 11:15:57 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: "Neil Brown" <neilb@suse.de>
+Subject: Re: Urgent help needed on an NFS question, please help!!!
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <17626.52269.828274.831029@cse.unsw.edu.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1155172597.3161.72.camel@localhost.localdomain>
-	 <6bffcb0e0608100702m1ad3925bw3e5f0e4804210fc9@mail.gmail.com>
+References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
+	 <17626.49136.384370.284757@cse.unsw.edu.au>
+	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
+	 <17626.52269.828274.831029@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Hi,
->
-> On 10/08/06, Mingming Cao <cmm@us.ibm.com> wrote:
-> > This series of patch forkes a new filesystem, ext4, from the current
-> > ext3 filesystem, as the code base to work on, for the big features such
-> > as extents and larger fs(48 bit blk number) support, per our discussion
-> > on lkml a few weeks ago.
->
-> It appears after a few minutes of running
->
-> #! /bin/bash
-> while true
-> do
-> sudo mount -o loop -t ext3dev /home/fs-farm/ext4.img /mnt/fs-farm/ext4/
-> sudo umount /mnt/fs-farm/ext4/
-> done
->
-> BUG: warning at /usr/src/linux-work2/fs/inotify.c:171/set_dentry_child_flags()
->  [<c0104006>] show_trace_log_lvl+0x58/0x152
->  [<c01046ad>] show_trace+0xd/0x10
->  [<c0104775>] dump_stack+0x19/0x1b
->  [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
->  [<c018ab94>] remove_watch_no_event+0x56/0x64
->  [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
->  [<c018af1b>] inotify_rm_wd+0x75/0x93
->  [<c018b468>] sys_inotify_rm_watch+0x40/0x58
->  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
-> Leftover inexact backtrace:
->  [<c01046ad>] show_trace+0xd/0x10
->  [<c0104775>] dump_stack+0x19/0x1b
->  [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
->  [<c018ab94>] remove_watch_no_event+0x56/0x64
->  [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
->  [<c018af1b>] inotify_rm_wd+0x75/0x93
->  [<c018b468>] sys_inotify_rm_watch+0x40/0x58
->  [<c0102f15>] sysenter_past_esp+0x56/0x8d
-> kjournald2 starting.  Commit interval 5 seconds
+Hi,
 
-Definitely it's an inotify bug. I have checked this with other file systems.
+I am considering another possibility: suppose client C1 does lookup()
+on file X and gets a file handle, which include inode number,
+generation number and parent's inode number. Before C1 issues
+getattr(), C2 move the parent directory to a different place, which
+will not change the parent's inode number, neither the file X's inode,
+i_generation. So when C1 issues a getattr() request with this file
+handle, the server seems to have no way to detect that file X is not
+existent at the original path. Instead, the server will returns the
+moved X's attributes, which are correct, but semantically wrong. Is
+there any way that server deal with this problem?
 
-Regards,
-Michal
+Thanks a lot!
+-x
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+On 8/10/06, Neil Brown <neilb@suse.de> wrote:
+> On Thursday August 10, uszhaoxin@gmail.com wrote:
+> > Many thanks for your kind help!
+> >
+> > Your answer is what I expected. But what frustrated me is that I
+> > cannot find the code that verifies the generation number in NFS V3
+> > codes. Do you know where it check the generation number?
+>
+> NFSD doesn't.  The individual filesystem does.  You need to look in
+> the filesystem code.
+>
+> Some filesystems use common code from fs/exportfs/expfs.c
+> See "export_iget".
+>
+> NeilBrown.
+>

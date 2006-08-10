@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWHJTvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWHJTvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWHJTvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWHJTuc
+	id S932099AbWHJTvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWHJTvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:50:32 -0400
-Received: from ns.suse.de ([195.135.220.2]:48278 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932078AbWHJTu0 (ORCPT
+	Thu, 10 Aug 2006 15:51:54 -0400
+Received: from mx1.suse.de ([195.135.220.2]:26257 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932663AbWHJThV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:50:26 -0400
+	Thu, 10 Aug 2006 15:37:21 -0400
 From: Andi Kleen <ak@suse.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH for review] [3/145] i386: Allow to use GENERICARCH for UP kernels
-Date: Thu, 10 Aug 2006 21:50:15 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Keith Mannthey <kmannth@us.ibm.com>
-References: <20060810 935.775038000@suse.de> <20060810193515.0E65213B90@wotan.suse.de> <1155239251.19249.268.camel@localhost.localdomain>
-In-Reply-To: <1155239251.19249.268.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608102150.15237.ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [121/145] x86_64: Make boot_param_data pure BSS
+Message-Id: <20060810193720.5F08A13B8E@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:20 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+r
 
-> Why does this particular loop have to go?  I'm sure it's OK, but I also
-> wonder if there is a nice way to do it without the #ifdef.
+Since it's all zero.
 
-My memory is fuzzy because that is actually an quite old patch. But I think
-it was to avoid some dependency issue with needing something that wasn't
-available on the UP kernel.
+Actually I think gcc 4+ will do that automatically, but earlier compilers won't
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-If you know of a nicer way to do this please submit a patch.
+---
+ arch/x86_64/kernel/setup64.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
--Andi
+Index: linux/arch/x86_64/kernel/setup64.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/setup64.c
++++ linux/arch/x86_64/kernel/setup64.c
+@@ -24,7 +24,7 @@
+ #include <asm/proto.h>
+ #include <asm/sections.h>
+ 
+-char x86_boot_params[BOOT_PARAM_SIZE] __initdata = {0,};
++char x86_boot_params[BOOT_PARAM_SIZE] __initdata;
+ 
+ cpumask_t cpu_initialized __cpuinitdata = CPU_MASK_NONE;
+ 

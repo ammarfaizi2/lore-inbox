@@ -1,68 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWHJUir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWHJUOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWHJUir (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751592AbWHJUiJ
+	id S1751506AbWHJUOV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWHJTgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:38:09 -0400
-Received: from ns2.suse.de ([195.135.220.15]:42118 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751615AbWHJUiB (ORCPT
+	Thu, 10 Aug 2006 15:36:07 -0400
+Received: from ns.suse.de ([195.135.220.2]:13200 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932340AbWHJTfd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:38:01 -0400
-Date: Thu, 10 Aug 2006 13:37:36 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Robert Love <rlove@rlove.org>, Shem Multinymous <multinymous@gmail.com>,
-       linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
-       Jean Delvare <khali@linux-fr.org>, hdaps-devel@lists.sourceforge.net
-Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers (version 2)
-Message-ID: <20060810203736.GA15208@suse.de>
-References: <1155203330179-git-send-email-multinymous@gmail.com> <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com> <20060810131820.23f00680.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060810131820.23f00680.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 10 Aug 2006 15:35:33 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [19/145] x86_64: Fix up panic messages for different NMI panics
+Message-Id: <20060810193532.1748713B90@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:32 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 01:18:20PM -0700, Andrew Morton wrote:
-> On Thu, 10 Aug 2006 09:46:47 -0400
-> "Robert Love" <rlove@rlove.org> wrote:
-> 
-> > Patches look great and I am glad someone has apparently better access
-> > to hardware specs than I did.
-> 
-> This situation is still a concern.  From where did this additional register
-> information come?
-> 
-> Was it reverse-engineered?  If so, by whom and how can we satisfy ourselves
-> of this?
-> 
-> Was it from published documents?
-> 
-> Was it improperly obtained from NDA'ed documentation?
-> 
-> Presumably the answer to the third question will be "no", but if
-> challenged, how can we defend this assertion?
-> 
-> So hm.  We're setting precedent here and we need Linus around to resolve
-> this.  Perhaps we can ask "Shem" to reveal his true identity to Linus (and
-> maybe me) privately and then we proceed on that basis.  The rule could be
-> "each of the Signed-off-by:ers should know the identity of the others".
+r
 
-For what it's worth, I'm not going to be handling these patches at all
-(normally the hwmon patches go to Linus through Jean and then through
-me.)
+When a unknown NMI happened the panic would claim a NMI watchdog timeout.
+Also it would check the variable set by nmi_watchdog=panic and panic then.
 
-If the original developer does not want to work in the open like the
-rest of us, I can respect that, but unfortunatly I can't accept the risk
-of accepting their code.
+Fix up the panic message to be generic
+Unconditionally panic on unknown NMI when panic on unknown nmi is enabled.
 
-And no, this is not "been beaten over the head by IP lawyers for three
-years about risks like this" portion of me talking, although that side
-does have a lot he could say about this situation...
+Noticed by Jan Beulich
 
-thanks,
+Cc: jbeulich@novell.com
 
-greg k-h
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+---
+ arch/x86_64/kernel/nmi.c   |    5 +++--
+ arch/x86_64/kernel/traps.c |    7 +++----
+ include/asm-x86_64/nmi.h   |    2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+Index: linux/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/nmi.c
++++ linux/arch/x86_64/kernel/nmi.c
+@@ -695,7 +695,8 @@ int __kprobes nmi_watchdog_tick(struct p
+ 		 */
+ 		local_inc(&__get_cpu_var(alert_counter));
+ 		if (local_read(&__get_cpu_var(alert_counter)) == 5*nmi_hz)
+-			die_nmi("NMI Watchdog detected LOCKUP on CPU %d\n", regs);
++			die_nmi("NMI Watchdog detected LOCKUP on CPU %d\n", regs,
++				panic_on_timeout);
+ 	} else {
+ 		__get_cpu_var(last_irq_sum) = sum;
+ 		local_set(&__get_cpu_var(alert_counter), 0);
+@@ -765,7 +766,7 @@ static int unknown_nmi_panic_callback(st
+ 	char buf[64];
+ 
+ 	sprintf(buf, "NMI received for unknown reason %02x\n", reason);
+-	die_nmi(buf,regs);
++	die_nmi(buf, regs, 1);	/* Always panic here */
+ 	return 0;
+ }
+ 
+Index: linux/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/traps.c
++++ linux/arch/x86_64/kernel/traps.c
+@@ -566,7 +566,7 @@ void die(const char * str, struct pt_reg
+ 	do_exit(SIGSEGV); 
+ }
+ 
+-void __kprobes die_nmi(char *str, struct pt_regs *regs)
++void __kprobes die_nmi(char *str, struct pt_regs *regs, int do_panic)
+ {
+ 	unsigned long flags = oops_begin();
+ 
+@@ -578,9 +578,8 @@ void __kprobes die_nmi(char *str, struct
+ 	show_registers(regs);
+ 	if (kexec_should_crash(current))
+ 		crash_kexec(regs);
+-	if (panic_on_timeout || panic_on_oops)
+-		panic("nmi watchdog");
+-	printk("console shuts up ...\n");
++	if (do_panic || panic_on_oops)
++		panic("Non maskable interrupt");
+ 	oops_end(flags);
+ 	nmi_exit();
+ 	local_irq_enable();
+Index: linux/include/asm-x86_64/nmi.h
+===================================================================
+--- linux.orig/include/asm-x86_64/nmi.h
++++ linux/include/asm-x86_64/nmi.h
+@@ -37,7 +37,7 @@ static inline void unset_nmi_pm_callback
+ #endif /* CONFIG_PM */
+  
+ extern void default_do_nmi(struct pt_regs *);
+-extern void die_nmi(char *str, struct pt_regs *regs);
++extern void die_nmi(char *str, struct pt_regs *regs, int do_panic);
+ 
+ #define get_nmi_reason() inb(0x61)
+ 

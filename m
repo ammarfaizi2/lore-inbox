@@ -1,167 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161384AbWHJQJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161404AbWHJQLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161384AbWHJQJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 12:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161403AbWHJQIc
+	id S1161404AbWHJQLL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 12:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161419AbWHJQLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 12:08:32 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:39922 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1161384AbWHJQFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 12:05:19 -0400
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>,
-       linux-m32r@ml.linux-m32r.org
-Subject: [PATCH 8/14] Generic ioremap_page_range: m32r conversion
-Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Thu, 10 Aug 2006 18:03:40 +0200
-Message-Id: <11552258273246-git-send-email-hskinnemoen@atmel.com>
-X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11552258271169-git-send-email-hskinnemoen@atmel.com>
-References: <1155225826761-git-send-email-hskinnemoen@atmel.com> <1155225827754-git-send-email-hskinnemoen@atmel.com> <11552258271630-git-send-email-hskinnemoen@atmel.com> <115522582724-git-send-email-hskinnemoen@atmel.com> <11552258272417-git-send-email-hskinnemoen@atmel.com> <11552258273292-git-send-email-hskinnemoen@atmel.com> <11552258272265-git-send-email-hskinnemoen@atmel.com> <11552258271169-git-send-email-hskinnemoen@atmel.com>
+	Thu, 10 Aug 2006 12:11:10 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:41957 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1161415AbWHJQLI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 12:11:08 -0400
+Date: Thu, 10 Aug 2006 10:11:07 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: Neil Brown <neilb@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Urgent help needed on an NFS question, please help!!!
+Message-ID: <20060810161107.GC4379@parisc-linux.org>
+References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com> <17626.49136.384370.284757@cse.unsw.edu.au> <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com> <17626.52269.828274.831029@cse.unsw.edu.au> <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linux-m32r@ml.linux-m32r.org
+On Thu, Aug 10, 2006 at 11:15:57AM -0400, Xin Zhao wrote:
+> I am considering another possibility: suppose client C1 does lookup()
+> on file X and gets a file handle, which include inode number,
+> generation number and parent's inode number. Before C1 issues
+> getattr(), C2 move the parent directory to a different place, which
+> will not change the parent's inode number, neither the file X's inode,
+> i_generation. So when C1 issues a getattr() request with this file
+> handle, the server seems to have no way to detect that file X is not
+> existent at the original path. Instead, the server will returns the
+> moved X's attributes, which are correct, but semantically wrong. Is
+> there any way that server deal with this problem?
 
-Convert m32r to use generic ioremap_page_range()
+It isn't semantically wrong.  There is no way for the application to
+distinguish between the events:
 
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
----
+open()
+stat()
+	mv
 
-m32r doesn't have a MAINTAINERS entry, so I'm Cc'ing the list.
+and
 
- arch/m32r/mm/ioremap.c |   93 ++++--------------------------------------------
- 1 files changed, 7 insertions(+), 86 deletions(-)
+open()
+	mv
+stat()
 
-diff --git a/arch/m32r/mm/ioremap.c b/arch/m32r/mm/ioremap.c
-index a151849..5152c4e 100644
---- a/arch/m32r/mm/ioremap.c
-+++ b/arch/m32r/mm/ioremap.c
-@@ -20,92 +20,8 @@ #include <asm/addrspace.h>
- #include <asm/byteorder.h>
- 
- #include <linux/vmalloc.h>
--#include <asm/io.h>
-+#include <linux/io.h>
- #include <asm/pgalloc.h>
--#include <asm/cacheflush.h>
--#include <asm/tlbflush.h>
--
--static inline void
--remap_area_pte(pte_t * pte, unsigned long address, unsigned long size,
--	       unsigned long phys_addr, unsigned long flags)
--{
--	unsigned long end;
--	unsigned long pfn;
--	pgprot_t pgprot = __pgprot(_PAGE_GLOBAL | _PAGE_PRESENT | _PAGE_READ
--	                           | _PAGE_WRITE | flags);
--
--	address &= ~PMD_MASK;
--	end = address + size;
--	if (end > PMD_SIZE)
--		end = PMD_SIZE;
--	if (address >= end)
--		BUG();
--	pfn = phys_addr >> PAGE_SHIFT;
--	do {
--		if (!pte_none(*pte)) {
--			printk("remap_area_pte: page already exists\n");
--			BUG();
--		}
--		set_pte(pte, pfn_pte(pfn, pgprot));
--		address += PAGE_SIZE;
--		pfn++;
--		pte++;
--	} while (address && (address < end));
--}
--
--static inline int
--remap_area_pmd(pmd_t * pmd, unsigned long address, unsigned long size,
--	       unsigned long phys_addr, unsigned long flags)
--{
--	unsigned long end;
--
--	address &= ~PGDIR_MASK;
--	end = address + size;
--	if (end > PGDIR_SIZE)
--		end = PGDIR_SIZE;
--	phys_addr -= address;
--	if (address >= end)
--		BUG();
--	do {
--		pte_t * pte = pte_alloc_kernel(pmd, address);
--		if (!pte)
--			return -ENOMEM;
--		remap_area_pte(pte, address, end - address, address + phys_addr, flags);
--		address = (address + PMD_SIZE) & PMD_MASK;
--		pmd++;
--	} while (address && (address < end));
--	return 0;
--}
--
--static int
--remap_area_pages(unsigned long address, unsigned long phys_addr,
--		 unsigned long size, unsigned long flags)
--{
--	int error;
--	pgd_t * dir;
--	unsigned long end = address + size;
--
--	phys_addr -= address;
--	dir = pgd_offset(&init_mm, address);
--	flush_cache_all();
--	if (address >= end)
--		BUG();
--	do {
--		pmd_t *pmd;
--		pmd = pmd_alloc(&init_mm, dir, address);
--		error = -ENOMEM;
--		if (!pmd)
--			break;
--		if (remap_area_pmd(pmd, address, end - address,
--					 phys_addr + address, flags))
--			break;
--		error = 0;
--		address = (address + PGDIR_SIZE) & PGDIR_MASK;
--		dir++;
--	} while (address && (address < end));
--	flush_tlb_all();
--	return error;
--}
- 
- /*
-  * Generic mapping function (not visible outside):
-@@ -129,6 +45,7 @@ __ioremap(unsigned long phys_addr, unsig
- 	void __iomem * addr;
- 	struct vm_struct * area;
- 	unsigned long offset, last_addr;
-+	pgprot_t pgprot;
- 
- 	/* Don't allow wraparound or zero size */
- 	last_addr = phys_addr + size - 1;
-@@ -157,6 +74,9 @@ __ioremap(unsigned long phys_addr, unsig
- 				return NULL;
- 	}
- 
-+	pgprot = __pgprot(_PAGE_GLOBAL | _PAGE_PRESENT | _PAGE_READ
-+			  | _PAGE_WRITE | flags);
-+
- 	/*
- 	 * Mappings have to be page-aligned
- 	 */
-@@ -172,7 +92,8 @@ __ioremap(unsigned long phys_addr, unsig
- 		return NULL;
- 	area->phys_addr = phys_addr;
- 	addr = (void __iomem *) area->addr;
--	if (remap_area_pages((unsigned long)addr, phys_addr, size, flags)) {
-+	if (ioremap_page_range((unsigned long)addr, (unsigned long)addr + size,
-+			       phys_addr, pgprot)) {
- 		vunmap((void __force *) addr);
- 		return NULL;
- 	}
--- 
-1.4.0
-
+As long as the results are consistent with the former case, it doesn't
+matter if the latter case actually happened.

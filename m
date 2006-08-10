@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161070AbWHJH4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161102AbWHJH5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161070AbWHJH4E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 03:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161102AbWHJH4E
+	id S1161102AbWHJH5T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 03:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWHJH5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 03:56:04 -0400
-Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:9477 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1161070AbWHJH4B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 03:56:01 -0400
-Date: Thu, 10 Aug 2006 09:56:03 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Komal Shah" <komal_shah802003@yahoo.com>
-Cc: tony@atomide.com, David Brownell <david-b@pacbell.net>, r-woodruff2@ti.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>, i2c@lm-sensors.org
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #4
-Message-Id: <20060810095603.b63b7aa1.khali@linux-fr.org>
-In-Reply-To: <1155119476.12635.267974079@webmail.messagingengine.com>
-References: <1155119476.12635.267974079@webmail.messagingengine.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Thu, 10 Aug 2006 03:57:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41638 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161102AbWHJH5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 03:57:18 -0400
+Subject: Re: [PATCH 5/6] clean up OCFS2 nlink handling
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <1155150926.19249.175.camel@localhost.localdomain>
+References: <20060809165729.FE36B262@localhost.localdomain>
+	 <20060809165733.704AD0F5@localhost.localdomain>
+	 <20060809171253.GE7324@infradead.org>
+	 <1155150926.19249.175.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Thu, 10 Aug 2006 09:07:32 +0100
+Message-Id: <1155197252.3384.418.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Komal,
+Hi,
 
-This one ended up in my spam box once again, although with a lower
-score (using the proper type for the attachement seems to have helped.)
-Maybe try with a shorter list of recipients next time, and add the name
-of people before their address.
-
-> Attached the updated patch as per the review comments on #3 patch.
+On Wed, 2006-08-09 at 12:15 -0700, Dave Hansen wrote:
+> On Wed, 2006-08-09 at 18:12 +0100, Christoph Hellwig wrote:
+[snip]
+> > did you look whether gfs2 in -mm needs something similar?
 > 
-> Please consider it for the inclusion.
+> It doesn't appear to.  It doesn't manipulate i_nlink in the same, direct
+> manner.
+> 
+> -- Dave
 
-Looks good, I'll take it. One remaining objection:
+I think it will need something similar. I suspect the required changes
+will all be confined to routines in inode.c. If the link count is
+changed by (a) remote node(s), then gfs2_inode_attr_in() might change
+the link count. Also gfs2_change_nlink() is the other place to look. I
+think everywhere else is ok,
 
-> +static int omap_i2c_get_clocks(struct omap_i2c_dev *dev)
-> +{
-> +	if (cpu_is_omap16xx() || cpu_is_omap24xx()) {
-> +		dev->iclk = clk_get(dev->dev, "i2c_ick");
-> +		if (IS_ERR(dev->iclk)) {
-> +			dev->iclk = NULL;
-> +			return -ENODEV;
-> +		}
-> +	}
-> +
-> +	dev->fclk = clk_get(dev->dev, "i2c_fck");
-> +	if (IS_ERR(dev->fclk)) {
-> +		if (dev->iclk != NULL) {
-> +			clk_put(dev->iclk);
-> +			dev->iclk = NULL;
-> +			return -ENODEV;
+Steve.
 
-I think this return shouldn't be there.
 
-> +		}
-> +		dev->fclk = NULL;
-> +		return -ENODEV;
-> +	}
-> +
-> +	return 0;
-> +}
-
-I'll fix it myself if you agree, so that you don't have to resend a
-patch. Thanks for the good work! I'll send the patch upstream at the
-end of the week, so it should show in -mm soon.
-
--- 
-Jean Delvare

@@ -1,92 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932623AbWHJTgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbWHJUEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932623AbWHJTgf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWHJTgd
+	id S932670AbWHJUEP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWHJUDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:36:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:50411 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932623AbWHJTg2 (ORCPT
+	Thu, 10 Aug 2006 16:03:55 -0400
+Received: from ns.suse.de ([195.135.220.2]:63120 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932641AbWHJTgq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:28 -0400
+	Thu, 10 Aug 2006 15:36:46 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [71/145] x86_64: remove int_delivery_dest
-Message-Id: <20060810193627.52C5513C0B@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:27 +0200 (CEST)
+Subject: [PATCH for review] [88/145] x86_64: Use early CPU identify before early command line parsing
+Message-Id: <20060810193645.646AF13C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:36:45 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: "Jan Beulich" <jbeulich@novell.com>
-The genapic field and the accessor macro weren't used anywhere.
+This makes it possible to modify CPU flags in command line 
+options without hacks. 
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+And remove another copy in head64.c
+
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/kernel/genapic_cluster.c |    1 -
- arch/x86_64/kernel/genapic_flat.c    |    2 --
- include/asm-x86_64/genapic.h         |    1 -
- include/asm-x86_64/mach_apic.h       |    1 -
- 4 files changed, 5 deletions(-)
+ arch/x86_64/kernel/head64.c |   19 -------------------
+ arch/x86_64/kernel/setup.c  |    4 ++--
+ 2 files changed, 2 insertions(+), 21 deletions(-)
 
-Index: linux/arch/x86_64/kernel/genapic_cluster.c
+Index: linux/arch/x86_64/kernel/head64.c
 ===================================================================
---- linux.orig/arch/x86_64/kernel/genapic_cluster.c
-+++ linux/arch/x86_64/kernel/genapic_cluster.c
-@@ -118,7 +118,6 @@ struct genapic apic_cluster = {
- 	.name = "clustered",
- 	.int_delivery_mode = dest_Fixed,
- 	.int_dest_mode = (APIC_DEST_PHYSICAL != 0),
--	.int_delivery_dest = APIC_DEST_PHYSICAL | APIC_DM_FIXED,
- 	.target_cpus = cluster_target_cpus,
- 	.apic_id_registered = cluster_apic_id_registered,
- 	.init_apic_ldr = cluster_init_apic_ldr,
-Index: linux/arch/x86_64/kernel/genapic_flat.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/genapic_flat.c
-+++ linux/arch/x86_64/kernel/genapic_flat.c
-@@ -121,7 +121,6 @@ struct genapic apic_flat =  {
- 	.name = "flat",
- 	.int_delivery_mode = dest_LowestPrio,
- 	.int_dest_mode = (APIC_DEST_LOGICAL != 0),
--	.int_delivery_dest = APIC_DEST_LOGICAL | APIC_DM_LOWEST,
- 	.target_cpus = flat_target_cpus,
- 	.apic_id_registered = flat_apic_id_registered,
- 	.init_apic_ldr = flat_init_apic_ldr,
-@@ -180,7 +179,6 @@ struct genapic apic_physflat =  {
- 	.name = "physical flat",
- 	.int_delivery_mode = dest_Fixed,
- 	.int_dest_mode = (APIC_DEST_PHYSICAL != 0),
--	.int_delivery_dest = APIC_DEST_PHYSICAL | APIC_DM_FIXED,
- 	.target_cpus = physflat_target_cpus,
- 	.apic_id_registered = flat_apic_id_registered,
- 	.init_apic_ldr = flat_init_apic_ldr,/*not needed, but shouldn't hurt*/
-Index: linux/include/asm-x86_64/genapic.h
-===================================================================
---- linux.orig/include/asm-x86_64/genapic.h
-+++ linux/include/asm-x86_64/genapic.h
-@@ -16,7 +16,6 @@ struct genapic {
- 	char *name;
- 	u32 int_delivery_mode;
- 	u32 int_dest_mode;
--	u32 int_delivery_dest;	/* for quick IPIs */
- 	int (*apic_id_registered)(void);
- 	cpumask_t (*target_cpus)(void);
- 	void (*init_apic_ldr)(void);
-Index: linux/include/asm-x86_64/mach_apic.h
-===================================================================
---- linux.orig/include/asm-x86_64/mach_apic.h
-+++ linux/include/asm-x86_64/mach_apic.h
-@@ -16,7 +16,6 @@
+--- linux.orig/arch/x86_64/kernel/head64.c
++++ linux/arch/x86_64/kernel/head64.c
+@@ -56,24 +56,6 @@ static void __init copy_bootdata(char *r
+ 	printk("Bootdata ok (command line is %s)\n", saved_command_line);	
+ }
  
- #define INT_DELIVERY_MODE (genapic->int_delivery_mode)
- #define INT_DEST_MODE (genapic->int_dest_mode)
--#define INT_DELIVERY_DEST (genapic->int_delivery_dest)
- #define TARGET_CPUS	  (genapic->target_cpus())
- #define apic_id_registered (genapic->apic_id_registered)
- #define init_apic_ldr (genapic->init_apic_ldr)
+-static void __init setup_boot_cpu_data(void)
+-{
+-	unsigned int dummy, eax;
+-
+-	/* get vendor info */
+-	cpuid(0, (unsigned int *)&boot_cpu_data.cpuid_level,
+-	      (unsigned int *)&boot_cpu_data.x86_vendor_id[0],
+-	      (unsigned int *)&boot_cpu_data.x86_vendor_id[8],
+-	      (unsigned int *)&boot_cpu_data.x86_vendor_id[4]);
+-
+-	/* get cpu type */
+-	cpuid(1, &eax, &dummy, &dummy,
+-		(unsigned int *) &boot_cpu_data.x86_capability);
+-	boot_cpu_data.x86 = (eax >> 8) & 0xf;
+-	boot_cpu_data.x86_model = (eax >> 4) & 0xf;
+-	boot_cpu_data.x86_mask = eax & 0xf;
+-}
+-
+ void __init x86_64_start_kernel(char * real_mode_data)
+ {
+ 	char *s;
+@@ -117,6 +99,5 @@ void __init x86_64_start_kernel(char * r
+ 	if (__pa_symbol(&_end) >= KERNEL_TEXT_SIZE)
+ 		panic("Kernel too big for kernel mapping\n");
+ 
+-	setup_boot_cpu_data();
+ 	start_kernel();
+ }
+Index: linux/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/setup.c
++++ linux/arch/x86_64/kernel/setup.c
+@@ -547,10 +547,10 @@ void __init setup_arch(char **cmdline_p)
+ 	data_resource.start = virt_to_phys(&_etext);
+ 	data_resource.end = virt_to_phys(&_edata)-1;
+ 
+-	parse_cmdline_early(cmdline_p);
+-
+ 	early_identify_cpu(&boot_cpu_data);
+ 
++	parse_cmdline_early(cmdline_p);
++
+ 	/*
+ 	 * partially used pages are not usable - thus
+ 	 * we are rounding upwards:

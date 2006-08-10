@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWHJIWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWHJIXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbWHJIWq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 04:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWHJIWq
+	id S1751473AbWHJIXN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 04:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWHJIXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 04:22:46 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:20949 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1751468AbWHJIWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 04:22:45 -0400
-Message-Id: <44DB0927.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 10 Aug 2006 10:23:35 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Chuck Ebbert" <76306.1226@compuserve.com>
-Cc: <stsp@aknet.ru>, "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386: annotate the rest of entry.s::nmi
-References: <200608100101_MC3-1-C796-F8CA@compuserve.com>
-In-Reply-To: <200608100101_MC3-1-C796-F8CA@compuserve.com>
+	Thu, 10 Aug 2006 04:23:12 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:47299 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751469AbWHJIXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 04:23:10 -0400
+Date: Thu, 10 Aug 2006 12:22:35 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take6 1/3] kevent: Core files.
+Message-ID: <20060810082235.GA21025@2ka.mipt.ru>
+References: <11551105592821@2ka.mipt.ru> <11551105602734@2ka.mipt.ru> <20060809152127.481fb346.akpm@osdl.org> <20060810061433.GA4689@2ka.mipt.ru> <20060810001844.ff5e7429.akpm@osdl.org> <20060810075047.GB24370@2ka.mipt.ru> <20060810010254.3b52682f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
+In-Reply-To: <20060810010254.3b52682f.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 10 Aug 2006 12:22:37 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Chuck Ebbert <76306.1226@compuserve.com> 10.08.06 06:59 >>>
->Part of the NMI handler is missing annotations.  Just moving
->the RING0_INT_FRAME macro fixes it.  And additional comments
->should warn anyone changing this to recheck the annotations.
+On Thu, Aug 10, 2006 at 01:02:54AM -0700, Andrew Morton (akpm@osdl.org) wrote:
+> > > Afaict this mmap function gives a user a free way of getting pinned memory. 
+> > > What is the upper bound on the amount of memory which a user can thus
+> > > obtain?
+> > 
+> > it is limited by maximum queue length which is 4k entries right now, so
+> > maximum number of paged here is 4k*40/page_size, i.e. about 40 pages on
+> > x86.
+> 
+> Is that per user or per fd?  If the latter that is, with the usual
+> RLIMIT_NOFILE, 160MBytes.  2GB with 64k pagesize.  Problem ;)
 
-I have to admit that I can't see the value of this movement; the
-code sequence in question was left un-annotated intentionally.
-The point is that the push-es in FIX_STACK() aren't annotated, so
-things won't be correct at those points anyway. Furthermore,
-getting interrupted in any way while in this code path is going to
-kill the system (and is just impossible AFAICT), so annotations
-there also seem worthless. (I am actually surprised that I
-annotated the code after nmi_16bit_stack, as that's similarly
-constrained; even more, as I'm now looking at it, this code seems
-outright wrong in using iret since that unmasks NMIs - Stas, is
-your pending adjustment to the 16-bit stack handling going to
-overcome this?)
+Per kevent fd.
+I have some ideas about better mmap ring implementation, which would
+dinamically grow it's buffer when events are added and reuse the same
+place for next events, but there are some nitpics unresolved yet.
+Let's not see there in next releases (no merge of course), until better 
+solution is ready. I will change that area when other things are ready.
 
-The added comments certainly might be helpful, though there are
-more places where frame state gets "inherited" across labels.
-
-Jan
+-- 
+	Evgeniy Polyakov

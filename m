@@ -1,154 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWHJTfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWHJTfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWHJTfR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWHJTfQ
+	id S932472AbWHJTfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWHJTfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:35:16 -0400
-Received: from mx1.suse.de ([195.135.220.2]:144 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932130AbWHJTfP (ORCPT
+	Thu, 10 Aug 2006 15:35:45 -0400
+Received: from mx2.suse.de ([195.135.220.15]:19691 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932472AbWHJTfn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:15 -0400
+	Thu, 10 Aug 2006 15:35:43 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [1/145] x86_64: Update defconfig
-Message-Id: <20060810193512.E2B2B13B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:12 +0200 (CEST)
+Subject: [PATCH for review] [29/145] x86_64: Clean up asm/smp.h includes
+Message-Id: <20060810193542.AC54213C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:35:42 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-Enable cpufrequency debugging
-Disable soft watchdog
+No need to include it from entry.S
+Drop all the #ifdef __ASSEMBLY__
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/defconfig |   56 ++++++++------------------------------------------
- 1 files changed, 10 insertions(+), 46 deletions(-)
+ arch/x86_64/kernel/entry.S |    2 --
+ include/asm-x86_64/smp.h   |   12 ------------
+ 2 files changed, 14 deletions(-)
 
-Index: linux/arch/x86_64/defconfig
+Index: linux/arch/x86_64/kernel/entry.S
 ===================================================================
---- linux.orig/arch/x86_64/defconfig
-+++ linux/arch/x86_64/defconfig
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.18-rc2
--# Tue Jul 18 17:13:20 2006
-+# Linux kernel version: 2.6.18-rc3-git6
-+# Sat Aug  5 02:32:50 2006
- #
- CONFIG_X86_64=y
- CONFIG_64BIT=y
-@@ -201,7 +201,7 @@ CONFIG_ACPI_THERMAL=y
- CONFIG_ACPI_NUMA=y
- # CONFIG_ACPI_ASUS is not set
- # CONFIG_ACPI_IBM is not set
--CONFIG_ACPI_TOSHIBA=y
-+# CONFIG_ACPI_TOSHIBA is not set
- CONFIG_ACPI_BLACKLIST_YEAR=0
- # CONFIG_ACPI_DEBUG is not set
- CONFIG_ACPI_EC=y
-@@ -216,7 +216,7 @@ CONFIG_ACPI_CONTAINER=y
- #
- CONFIG_CPU_FREQ=y
- CONFIG_CPU_FREQ_TABLE=y
--# CONFIG_CPU_FREQ_DEBUG is not set
-+CONFIG_CPU_FREQ_DEBUG=y
- CONFIG_CPU_FREQ_STAT=y
- # CONFIG_CPU_FREQ_STAT_DETAILS is not set
- CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-@@ -512,7 +512,7 @@ CONFIG_SCSI_CONSTANTS=y
- CONFIG_SCSI_SPI_ATTRS=y
- CONFIG_SCSI_FC_ATTRS=y
- # CONFIG_SCSI_ISCSI_ATTRS is not set
--# CONFIG_SCSI_SAS_ATTRS is not set
-+CONFIG_SCSI_SAS_ATTRS=y
+--- linux.orig/arch/x86_64/kernel/entry.S
++++ linux/arch/x86_64/kernel/entry.S
+@@ -27,10 +27,8 @@
+  * - schedule it carefully for the final hardware.
+  */
  
- #
- # SCSI low-level drivers
-@@ -538,7 +538,7 @@ CONFIG_MEGARAID_MAILBOX=y
- CONFIG_MEGARAID_SAS=y
- CONFIG_SCSI_SATA=y
- CONFIG_SCSI_SATA_AHCI=y
--# CONFIG_SCSI_SATA_SVW is not set
-+CONFIG_SCSI_SATA_SVW=y
- CONFIG_SCSI_ATA_PIIX=y
- # CONFIG_SCSI_SATA_MV is not set
- CONFIG_SCSI_SATA_NV=y
-@@ -589,7 +589,7 @@ CONFIG_BLK_DEV_DM=y
- CONFIG_FUSION=y
- CONFIG_FUSION_SPI=y
- # CONFIG_FUSION_FC is not set
--# CONFIG_FUSION_SAS is not set
-+CONFIG_FUSION_SAS=y
- CONFIG_FUSION_MAX_SGE=128
- # CONFIG_FUSION_CTL is not set
+-#define ASSEMBLY 1
+ #include <linux/linkage.h>
+ #include <asm/segment.h>
+-#include <asm/smp.h>
+ #include <asm/cache.h>
+ #include <asm/errno.h>
+ #include <asm/dwarf2.h>
+Index: linux/include/asm-x86_64/smp.h
+===================================================================
+--- linux.orig/include/asm-x86_64/smp.h
++++ linux/include/asm-x86_64/smp.h
+@@ -4,15 +4,12 @@
+ /*
+  * We need the APIC definitions automatically as part of 'smp.h'
+  */
+-#ifndef __ASSEMBLY__
+ #include <linux/threads.h>
+ #include <linux/cpumask.h>
+ #include <linux/bitops.h>
+ extern int disable_apic;
+-#endif
  
-@@ -675,7 +675,7 @@ CONFIG_NET_PCI=y
- # CONFIG_PCNET32 is not set
- # CONFIG_AMD8111_ETH is not set
- # CONFIG_ADAPTEC_STARFIRE is not set
--# CONFIG_B44 is not set
-+CONFIG_B44=y
- CONFIG_FORCEDETH=y
- # CONFIG_DGRS is not set
- # CONFIG_EEPRO100 is not set
-@@ -842,44 +842,7 @@ CONFIG_LEGACY_PTY_COUNT=256
- #
- # Watchdog Cards
- #
--CONFIG_WATCHDOG=y
--# CONFIG_WATCHDOG_NOWAYOUT is not set
--
--#
--# Watchdog Device Drivers
--#
--CONFIG_SOFT_WATCHDOG=y
--# CONFIG_ACQUIRE_WDT is not set
--# CONFIG_ADVANTECH_WDT is not set
--# CONFIG_ALIM1535_WDT is not set
--# CONFIG_ALIM7101_WDT is not set
--# CONFIG_SC520_WDT is not set
--# CONFIG_EUROTECH_WDT is not set
--# CONFIG_IB700_WDT is not set
--# CONFIG_IBMASR is not set
--# CONFIG_WAFER_WDT is not set
--# CONFIG_I6300ESB_WDT is not set
--# CONFIG_I8XX_TCO is not set
--# CONFIG_SC1200_WDT is not set
--# CONFIG_60XX_WDT is not set
--# CONFIG_SBC8360_WDT is not set
--# CONFIG_CPU5_WDT is not set
--# CONFIG_W83627HF_WDT is not set
--# CONFIG_W83877F_WDT is not set
--# CONFIG_W83977F_WDT is not set
--# CONFIG_MACHZ_WDT is not set
--# CONFIG_SBC_EPX_C3_WATCHDOG is not set
--
--#
--# PCI-based Watchdog Cards
--#
--# CONFIG_PCIPCWATCHDOG is not set
--# CONFIG_WDTPCI is not set
--
--#
--# USB-based Watchdog Cards
--#
--# CONFIG_USBPCWATCHDOG is not set
-+# CONFIG_WATCHDOG is not set
- CONFIG_HW_RANDOM=y
- CONFIG_HW_RANDOM_INTEL=y
- CONFIG_HW_RANDOM_AMD=y
-@@ -1056,6 +1019,7 @@ CONFIG_VGACON_SOFT_SCROLLBACK=y
- CONFIG_VGACON_SOFT_SCROLLBACK_SIZE=256
- CONFIG_VIDEO_SELECT=y
- CONFIG_DUMMY_CONSOLE=y
-+# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
+ #ifdef CONFIG_X86_LOCAL_APIC
+-#ifndef __ASSEMBLY__
+ #include <asm/fixmap.h>
+ #include <asm/mpspec.h>
+ #ifdef CONFIG_X86_IO_APIC
+@@ -21,10 +18,8 @@ extern int disable_apic;
+ #include <asm/apic.h>
+ #include <asm/thread_info.h>
+ #endif
+-#endif
  
- #
- # Sound
+ #ifdef CONFIG_SMP
+-#ifndef ASSEMBLY
+ 
+ #include <asm/pda.h>
+ 
+@@ -83,13 +78,10 @@ extern void prefill_possible_map(void);
+ extern unsigned num_processors;
+ extern unsigned disabled_cpus;
+ 
+-#endif /* !ASSEMBLY */
+-
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+ 
+ #endif
+ 
+-#ifndef ASSEMBLY
+ /*
+  * Some lowlevel functions might want to know about
+  * the real APIC ID <-> CPU # mapping.
+@@ -111,8 +103,6 @@ static inline int cpu_present_to_apicid(
+ 		return BAD_APICID;
+ }
+ 
+-#endif /* !ASSEMBLY */
+-
+ #ifndef CONFIG_SMP
+ #define stack_smp_processor_id() 0
+ #define safe_smp_processor_id() 0
+@@ -127,7 +117,6 @@ static inline int cpu_present_to_apicid(
+ })
+ #endif
+ 
+-#ifndef __ASSEMBLY__
+ static __inline int logical_smp_processor_id(void)
+ {
+ 	/* we don't want to mark this access volatile - bad code generation */
+@@ -146,6 +135,5 @@ static inline int smp_call_function_sing
+ 	return 0;
+ }
+ #endif /* !CONFIG_SMP */
+-#endif /* !__ASSEMBLY */
+ #endif
+ 

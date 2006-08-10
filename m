@@ -1,60 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWHJXRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWHJXS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWHJXRY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 19:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWHJXRY
+	id S932310AbWHJXS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 19:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWHJXS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 19:17:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58778 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932213AbWHJXRX (ORCPT
+	Thu, 10 Aug 2006 19:18:58 -0400
+Received: from smtp6-g19.free.fr ([212.27.42.36]:2255 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932310AbWHJXSz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 19:17:23 -0400
-Date: Fri, 11 Aug 2006 09:16:59 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: xfs-masters@oss.sgi.com, xfs@oss.sgi.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc4+ext4 oops while mounting xfs
-Message-ID: <20060811091659.E2596458@wobbly.melbourne.sgi.com>
-References: <6bffcb0e0608100805k42357f5bxa73189c38fb926df@mail.gmail.com> <6bffcb0e0608101608j4fc41945of65173793703a065@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <6bffcb0e0608101608j4fc41945of65173793703a065@mail.gmail.com>; from michal.k.k.piotrowski@gmail.com on Fri, Aug 11, 2006 at 01:08:44AM +0200
+	Thu, 10 Aug 2006 19:18:55 -0400
+Message-ID: <44DBBF2B.2050605@free.fr>
+Date: Fri, 11 Aug 2006 01:20:11 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.4) Gecko/20060405 SeaMonkey/1.0.2
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc3-mm2 - OOM storm
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>	<44DAF6A4.9000004@free.fr> <20060810021957.38c82311.akpm@osdl.org>
+In-Reply-To: <20060810021957.38c82311.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 01:08:44AM +0200, Michal Piotrowski wrote:
-> On 10/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > ...
-> > Aug 10 16:50:53 ltg01-fedora kernel: EFLAGS: 00010002   (2.6.18-rc4 #119)
-> > Aug 10 16:50:53 ltg01-fedora kernel: EIP is at __lock_acquire+0x2ca/0x9b6
-> > Aug 10 16:50:53 ltg01-fedora kernel: Call Trace:
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c0135ccb>]
-> > lock_release_non_nested+0xc5/0x11d
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c0136026>] lock_release+0x12f/0x159
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d579e>]
-> > __mutex_unlock_slowpath+0x99/0xff
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c02d580c>] mutex_unlock+0x8/0xa
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d3b2>]
-> > generic_shutdown_super+0xbb/0x113
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d42a>] kill_block_super+0x20/0x32
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c016d4ea>] deactivate_super+0x5d/0x6f
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c0180336>] mntput_no_expire+0x42/0x72
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c0173147>]
-> > path_release_on_umount+0x15/0x18
-> > Aug 10 16:50:53 ltg01-fedora kernel:  [<c018147c>] sys_umount+0x1e7/0x21b
-> ...
-> It's fixed in latest 2.6.18-rc4-git*.
 
-We've not changed anything mount related in current git* kernels,
-are you sure its fixed (did it happen every time)?  I'm not sure
-how its XFS related too ... looks possibly lockdep related (from
-*non_nested back there?) and perhaps an issue with sb->s_lock in
-the kill_block_super unlock_super call?
 
-cheers.
+Le 10.08.2006 11:19, Andrew Morton a écrit :
+> On Thu, 10 Aug 2006 11:04:36 +0200
+> Laurent Riffard <laurent.riffard@free.fr> wrote:
+> 
+>> Le 06.08.2006 12:08, Andrew Morton a écrit :
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/26.18-rc3-mm2/
+>> Hello,
+>>
+>> On my system, a cron runs every day to check the integrity of
+>> installed RPMS, it runs "rpm -v" on each package, which computes
+>> MD5 hash for each installed file and compares this result, the file 
+>> size and modification time with values stored in RPM database.
+>>
+>> This is the workload. Since 2.6.18-rc3-mm2, this processus eats 
+>> all the memory and triggers OOM.
+>>
+>> On my system, "free -t" output normally looks like this ("cached" value 
+>> is about half of RAM):
+>> # free -t 
+>>              total       used       free     shared    buffers     cached
+>> Mem:        515032     508512       6520          0      22992     256032
+>> -/+ buffers/cache:     229488     285544
+>> Swap:      1116428        324    1116104
+>> Total:     1631460     508836    1122624
+>>
+>> After the rpm database check, "free -t" says:
+>>              total       used       free     shared    buffers     cached
+>> Mem:        515032     507124       7908          0       8132     398296
+>> -/+ buffers/cache:     100696     414336
+>> Swap:      1116428      34896    1081532
+>> Total:     1631460     542020    1089440
+>>
+>> And the value of "cached" won't decrease.
+>>
+> 
+> Yes, I was just trying to reproduce this.  No luck so far.  Will try your
+> .config tomorrow.
+> 
+> It would be interesting to try disabling CONFIG_ADAPTIVE_READAHEAD -
+> perhaps that got broken.
 
+I just try it: when CONFIG_ADAPTIVE_READAHEAD is disabled, 
+/proc/meminfo:Cached is stable and never exceeded 230.000, the system 
+didn't even try to swap.
+
+$ cat /proc/meminfo   # taken a few minutes after the end of rpm -V
+MemTotal:       515032 kB
+MemFree:          6612 kB
+Buffers:         42212 kB
+Cached:         182236 kB
+SwapCached:          0 kB
+Active:         376256 kB
+Inactive:        75468 kB
+SwapTotal:     1116428 kB
+SwapFree:      1116428 kB
+Dirty:             272 kB
+Writeback:           0 kB
+AnonPages:      227260 kB
+Mapped:          62812 kB
+Slab:            44968 kB
+PageTables:       2152 kB
+NFS Unstable:        0 kB
+Bounce:              0 kB
+CommitLimit:   1373944 kB
+Committed_AS:   637400 kB
+VmallocTotal:   515796 kB
+VmallocUsed:      6916 kB
+VmallocChunk:   508760 kB
+
+> Also, are you able to determine whether the problem is specific to `rpm
+> -V'?  Are you able to make the leak trigger using other filesystem
+> workloads?
+
+Will try...
+ 
+> If it's specific to `rpm -V' then perhaps direct-io is somehow causing
+> pagecache leakage.  That would be a bit odd.
+> 
+> 
+> 
+> btw, it's not necessary to go all the way to oom to work out if the
+> pagecache leak is happening.  After booting, do
+> 
+> 	echo 3 > /proc/sys/vm/drop_pagecache
+> 
+> and record the `Cached' figure in /proc/meminfo.  After running some test,
+> run `echo 3 > /proc/sys/vm/drop_pagecache' again and check
+> /proc/meminfo:Cached.  If it dodn't do gown to a similarly low figure,
+> we're leaking pagecache.
+
+I played with these values and as far I can remember, I get some poor  
+improvement. Will try to gather some data.
+ 
+> btw2: please use /proc/meminfo output rather than free(1).  Because free(1)
+> shows less info, and it does mysterious mangling of the info which it does
+> read in ways which confuse me.
+
+Ok
+ 
 -- 
-Nathan
+laurent

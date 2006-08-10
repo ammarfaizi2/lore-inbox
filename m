@@ -1,51 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161273AbWHJN63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161290AbWHJOCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161273AbWHJN63 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 09:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161342AbWHJN63
+	id S1161290AbWHJOCt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 10:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161291AbWHJOCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 09:58:29 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:11785 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1161273AbWHJN62 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 09:58:28 -0400
-Date: Thu, 10 Aug 2006 15:59:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Merging libata PATA support into the base kernel
-Message-ID: <20060810135945.GV11829@suse.de>
-References: <1155144599.5729.226.camel@localhost.localdomain> <p733bc5nm5g.fsf@verdi.suse.de> <1155213464.22922.6.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <1155219292.22922.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Aug 2006 10:02:49 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:9373 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161288AbWHJOCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 10:02:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DcPU3Monbr9x4mKorz9hbmfmvVDFzZtvg2EdjKNO0oGzWnpaWfZoaq2BWc/8RlEz7TejleXCqC4yleRv8w+sYLjiNeEgKjkfhGzGKJL92VCGJsaw3dNQxDlKIWTPMG78+4fc1jPUg3x9mwX2x+T7p5Emh2+NoHkapIAXA4F4zCY=
+Message-ID: <6bffcb0e0608100702m1ad3925bw3e5f0e4804210fc9@mail.gmail.com>
+Date: Thu, 10 Aug 2006 16:02:47 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: cmm@us.ibm.com
+Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+       "John McCutchan" <ttb@tentacle.dhs.org>, "Robert Love" <rml@novell.com>
+In-Reply-To: <1155172597.3161.72.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155219292.22922.13.camel@localhost.localdomain>
+References: <1155172597.3161.72.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10 2006, Alan Cox wrote:
-> Ar Iau, 2006-08-10 am 14:20 +0200, ysgrifennodd Jens Axboe:
-> > You make it sound much worse than it is. Apart for HPA, I'm not aware of
-> > any setups that require extra treatment. And the amount of reported bugs
-> > against it are pretty close to zero :-)
-> 
-> There are several variants where you get
+Hi,
 
-Not very vocal users then, or I missed them.
+On 10/08/06, Mingming Cao <cmm@us.ibm.com> wrote:
+> This series of patch forkes a new filesystem, ext4, from the current
+> ext3 filesystem, as the code base to work on, for the big features such
+> as extents and larger fs(48 bit blk number) support, per our discussion
+> on lkml a few weeks ago.
 
-> 	- hangs on resume
-> 	- HPA mishandling
-> 	- CRC errors and usually eventually a hang
+It appears after a few minutes of running
 
-HPA mishandling is a given, I agree that is a nasty problem and really
-should be fixed. hangs on resume - the hardware, or the kernel talking
-to it? crc errors sounds like bad transfer tuning after resume, but that
-should be pretty identical to the on-boot one.
+#! /bin/bash
+while true
+do
+sudo mount -o loop -t ext3dev /home/fs-farm/ext4.img /mnt/fs-farm/ext4/
+sudo umount /mnt/fs-farm/ext4/
+done
 
-The low level drivers/ide drivers aren't well geared for suspend/resume,
-perhaps that is what is causing most of these issues (apart from hpa).
+BUG: warning at /usr/src/linux-work2/fs/inotify.c:171/set_dentry_child_flags()
+ [<c0104006>] show_trace_log_lvl+0x58/0x152
+ [<c01046ad>] show_trace+0xd/0x10
+ [<c0104775>] dump_stack+0x19/0x1b
+ [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
+ [<c018ab94>] remove_watch_no_event+0x56/0x64
+ [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
+ [<c018af1b>] inotify_rm_wd+0x75/0x93
+ [<c018b468>] sys_inotify_rm_watch+0x40/0x58
+ [<c0102f15>] sysenter_past_esp+0x56/0x8d
+DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Leftover inexact backtrace:
+ [<c01046ad>] show_trace+0xd/0x10
+ [<c0104775>] dump_stack+0x19/0x1b
+ [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
+ [<c018ab94>] remove_watch_no_event+0x56/0x64
+ [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
+ [<c018af1b>] inotify_rm_wd+0x75/0x93
+ [<c018b468>] sys_inotify_rm_watch+0x40/0x58
+ [<c0102f15>] sysenter_past_esp+0x56/0x8d
+kjournald2 starting.  Commit interval 5 seconds
+
+>
+> Thanks,
+> Mingming
+
+Regards,
+Michal
 
 -- 
-Jens Axboe
-
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

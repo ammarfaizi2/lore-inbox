@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWHJFyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWHJFyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161045AbWHJFyr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 01:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWHJFyq
+	id S1161033AbWHJFyD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 01:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWHJFyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 01:54:46 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:37067 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1161045AbWHJFyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 01:54:46 -0400
-Message-ID: <44DACA22.6090701@comcast.net>
-Date: Thu, 10 Aug 2006 01:54:42 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: How does Linux do RTTM?
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+	Thu, 10 Aug 2006 01:54:02 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:24788 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161033AbWHJFyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 01:54:00 -0400
+Date: Thu, 10 Aug 2006 14:56:28 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: mpm@selenic.com, npiggin@suse.de, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta
+ information
+Message-Id: <20060810145628.3d060c5f.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0608092243410.5928@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0608091744290.4966@schroedinger.engr.sgi.com>
+	<20060810140153.e5932e76.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0608092211320.5806@schroedinger.engr.sgi.com>
+	<20060810144451.13591e4b.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0608092243410.5928@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 9 Aug 2006 22:44:59 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-How does Linux do RFC 1323 style RTTM measurement?  Is there a
-pseudo-clock used i.e. number of jiffies since boot?  Or just a
-real-time timestamp?
+> On Thu, 10 Aug 2006, KAMEZAWA Hiroyuki wrote:
+> 
+> > Because of inode_init_once, many codes which uses inode uses initilization code.
+> > And inode is one of heavy users of slab.
+> 
+> Probably just code copied from the same location. It has the same name.
+> 
+for example, ext3's copy of init_once() is
+--
+static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+{
+        struct ext3_inode_info *ei = (struct ext3_inode_info *) foo;
 
-Sorry for the dumb questions but Google is being massively bad at "tell
-me about an obscure feature of the Linux kernel that nobody cares about"
-today :)
+        if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+            SLAB_CTOR_CONSTRUCTOR) {
+                INIT_LIST_HEAD(&ei->i_orphan);               ---------------(A)
+#ifdef CONFIG_EXT3_FS_XATTR
+                init_rwsem(&ei->xattr_sem);                  ---------------(B)
+#endif
+                mutex_init(&ei->truncate_mutex);             ---------------(C)
+                inode_init_once(&ei->vfs_inode);
+        }
+}
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+--
+(A) and (B) and (C) is only for ext3.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+NFS's
+--
+static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+{
+        struct nfs_inode *nfsi = (struct nfs_inode *) foo;
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+        if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+            SLAB_CTOR_CONSTRUCTOR) {
+                inode_init_once(&nfsi->vfs_inode);
+                spin_lock_init(&nfsi->req_lock);
+                INIT_LIST_HEAD(&nfsi->dirty);
+                INIT_LIST_HEAD(&nfsi->commit);
+                INIT_LIST_HEAD(&nfsi->open_files);
+                INIT_RADIX_TREE(&nfsi->nfs_page_tree, GFP_ATOMIC);
+                atomic_set(&nfsi->data_updates, 0);
+                nfsi->ndirty = 0;
+                nfsi->ncommit = 0;
+                nfsi->npages = 0;
+                nfs4_init_once(nfsi);
+        }
+}
+--
 
-iQIVAwUBRNrKHws1xW0HCTEFAQL/kA//YKZ+lFWk1XUHTfQUCLClvBEsope7KYDg
-8POJjpJVRhOf5ckexPXvmBbxnXJBB4zki2JRiiEbaHtHkMncdk8Ts7r/2Au8YGEj
-Jo0ahOssvQKPm3WBeZgXrOXjdRYuF2fW03wrBAuKL3KqXV8U2v4gFcWzV6pysBBp
-4gYevF6DS4MXX6Loo9o/HowC4UFZgktELkDE6NX6gMh4aXNwhtsReOlfxY2to2yd
-A2R89iJjWvPr3UeG6gpej7GOCg9XuW0nwfMJ5V4T5OqSDVbB0feXBCTEC8JtxPwD
-Quc6UTv4Vqx3+lTS71YeTjE2/Oyi77eW46ycnsjPgeQ9mH67ZWA7GYgDxSqvfpbz
-9Dn4+elboMKwPXD7FmlC4CjrtsyeB7ebqfUOTRRd4M2IqFZ2y2t50m3TgAAoe3vR
-h62RN1o425QSRQlEje7De7ST2jG9UdaNceYt9TT0QZBRsN44TUT+6p1YoFVs6uU0
-IhGu+zsFmltE7DuVu9CxWJQ70LP9L/qCWllyPOdGobbDyYISw047sDrxPjF8N5ha
-j+I40ozs2JG5Jg3d0w5DDYPsSfeh/LLlLzyGEQzwzXr5PZJaJVeEtb/jroqhjvXc
-PAegzN0DUnWVoMX0/Uv6oLoWIYsgwcTLw6ieCeOt5ljTpJxeaJtrcl3RPipLbKrF
-HgPtUNRGjqk=
-=5z5t
------END PGP SIGNATURE-----
+
+Of cource, many of init_once() just call inode_init_once(). But some fs does
+something special.
+
+Thanks,
+-Kame
+

@@ -1,136 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932686AbWHJTjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932708AbWHJTji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932686AbWHJTjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932708AbWHJTi1
+	id S932708AbWHJTji (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWHJTiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:38:27 -0400
-Received: from mx1.suse.de ([195.135.220.2]:40849 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932686AbWHJThl (ORCPT
+	Thu, 10 Aug 2006 15:38:25 -0400
+Received: from mx2.suse.de ([195.135.220.15]:24300 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932690AbWHJThm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:41 -0400
+	Thu, 10 Aug 2006 15:37:42 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [136/145] x86_64: x86_64 kernel mapping fix
-Message-Id: <20060810193736.5240413B8E@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:36 +0200 (CEST)
+Subject: [PATCH for review] [140/145] i386: mark cpu_dev structures as __cpuinitdata
+Message-Id: <20060810193740.9133413C0B@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:40 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Keith Mannthey <kmannth@us.ibm.com>
+From: Magnus Damm <magnus@valinux.co.jp>
 
-Fix for the x86_64 kernel mapping code.  Without this patch the update path
-only inits one pmd_page worth of memory and tramples any entries on it.  now
-the calling convention to phys_pmd_init and phys_init is to always pass a
-[pmd/pud] page not an offset within a page.
+The different cpu_dev structures are all used from __cpuinit callers what
+I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
+little bit unsure about arch/i386/common.c:default_cpu, especially when it
+comes to the purpose of this_cpu.
 
-Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
+Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
 Signed-off-by: Andi Kleen <ak@suse.de>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-
 
 ---
- arch/x86_64/mm/init.c |   51 +++++++++++++++++++++++++-------------------------
- 1 files changed, 26 insertions(+), 25 deletions(-)
 
-Index: linux/arch/x86_64/mm/init.c
+ arch/i386/kernel/cpu/amd.c       |    2 +-
+ arch/i386/kernel/cpu/centaur.c   |    2 +-
+ arch/i386/kernel/cpu/common.c    |    2 +-
+ arch/i386/kernel/cpu/cyrix.c     |    4 ++--
+ arch/i386/kernel/cpu/nexgen.c    |    2 +-
+ arch/i386/kernel/cpu/rise.c      |    2 +-
+ arch/i386/kernel/cpu/transmeta.c |    2 +-
+ arch/i386/kernel/cpu/umc.c       |    2 +-
+ 8 files changed, 9 insertions(+), 9 deletions(-)
+
+Index: linux/arch/i386/kernel/cpu/amd.c
 ===================================================================
---- linux.orig/arch/x86_64/mm/init.c
-+++ linux/arch/x86_64/mm/init.c
-@@ -250,12 +250,13 @@ __init void early_iounmap(void *addr, un
+--- linux.orig/arch/i386/kernel/cpu/amd.c
++++ linux/arch/i386/kernel/cpu/amd.c
+@@ -259,7 +259,7 @@ static unsigned int amd_size_cache(struc
+ 	return size;
  }
  
- static void __meminit
--phys_pmd_init(pmd_t *pmd, unsigned long address, unsigned long end)
-+phys_pmd_init(pmd_t *pmd_page, unsigned long address, unsigned long end)
- {
--	int i;
-+	int i = pmd_index(address);
- 
--	for (i = 0; i < PTRS_PER_PMD; pmd++, i++, address += PMD_SIZE) {
-+	for (; i < PTRS_PER_PMD; i++, address += PMD_SIZE) {
- 		unsigned long entry;
-+		pmd_t *pmd = pmd_page + pmd_index(address);
- 
- 		if (address >= end) {
- 			if (!after_bootmem)
-@@ -263,6 +264,10 @@ phys_pmd_init(pmd_t *pmd, unsigned long 
- 					set_pmd(pmd, __pmd(0));
- 			break;
- 		}
-+
-+		if (pmd_val(*pmd))
-+			continue;
-+
- 		entry = _PAGE_NX|_PAGE_PSE|_KERNPG_TABLE|_PAGE_GLOBAL|address;
- 		entry &= __supported_pte_mask;
- 		set_pmd(pmd, __pmd(entry));
-@@ -272,45 +277,41 @@ phys_pmd_init(pmd_t *pmd, unsigned long 
- static void __meminit
- phys_pmd_update(pud_t *pud, unsigned long address, unsigned long end)
- {
--	pmd_t *pmd = pmd_offset(pud, (unsigned long)__va(address));
--
--	if (pmd_none(*pmd)) {
--		spin_lock(&init_mm.page_table_lock);
--		phys_pmd_init(pmd, address, end);
--		spin_unlock(&init_mm.page_table_lock);
--		__flush_tlb_all();
--	}
-+	pmd_t *pmd = pmd_offset(pud,0);
-+	spin_lock(&init_mm.page_table_lock);
-+	phys_pmd_init(pmd, address, end);
-+	spin_unlock(&init_mm.page_table_lock);
-+	__flush_tlb_all();
+-static struct cpu_dev amd_cpu_dev __initdata = {
++static struct cpu_dev amd_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "AMD",
+ 	.c_ident 	= { "AuthenticAMD" },
+ 	.c_models = {
+Index: linux/arch/i386/kernel/cpu/centaur.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/centaur.c
++++ linux/arch/i386/kernel/cpu/centaur.c
+@@ -457,7 +457,7 @@ static unsigned int centaur_size_cache(s
+ 	return size;
  }
  
--static void __meminit phys_pud_init(pud_t *pud, unsigned long address, unsigned long end)
-+static void __meminit phys_pud_init(pud_t *pud_page, unsigned long addr, unsigned long end)
- { 
--	long i = pud_index(address);
--
--	pud = pud + i;
-+	int i = pud_index(addr);
- 
--	if (after_bootmem && pud_val(*pud)) {
--		phys_pmd_update(pud, address, end);
--		return;
--	}
- 
--	for (; i < PTRS_PER_PUD; pud++, i++) {
-+	for (; i < PTRS_PER_PUD; i++, addr = (addr & PUD_MASK) + PUD_SIZE ) {
- 		int map; 
--		unsigned long paddr, pmd_phys;
-+		unsigned long pmd_phys;
-+		pud_t *pud = pud_page + pud_index(addr);
- 		pmd_t *pmd;
- 
--		paddr = (address & PGDIR_MASK) + i*PUD_SIZE;
--		if (paddr >= end)
-+		if (addr >= end)
- 			break;
- 
--		if (!after_bootmem && !e820_any_mapped(paddr, paddr+PUD_SIZE, 0)) {
-+		if (!after_bootmem && !e820_any_mapped(addr,addr+PUD_SIZE,0)) {
- 			set_pud(pud, __pud(0)); 
- 			continue;
- 		} 
- 
-+		if (pud_val(*pud)) {
-+			phys_pmd_update(pud, addr, end);
-+			continue;
-+		}
-+
- 		pmd = alloc_low_page(&map, &pmd_phys);
- 		spin_lock(&init_mm.page_table_lock);
- 		set_pud(pud, __pud(pmd_phys | _KERNPG_TABLE));
--		phys_pmd_init(pmd, paddr, end);
-+		phys_pmd_init(pmd, addr, end);
- 		spin_unlock(&init_mm.page_table_lock);
- 		unmap_low_page(map);
+-static struct cpu_dev centaur_cpu_dev __initdata = {
++static struct cpu_dev centaur_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "Centaur",
+ 	.c_ident	= { "CentaurHauls" },
+ 	.c_init		= init_centaur,
+Index: linux/arch/i386/kernel/cpu/common.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/common.c
++++ linux/arch/i386/kernel/cpu/common.c
+@@ -49,7 +49,7 @@ static void default_init(struct cpuinfo_
  	}
+ }
+ 
+-static struct cpu_dev default_cpu = {
++static struct cpu_dev __cpuinitdata default_cpu = {
+ 	.c_init	= default_init,
+ 	.c_vendor = "Unknown",
+ };
+Index: linux/arch/i386/kernel/cpu/cyrix.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/cyrix.c
++++ linux/arch/i386/kernel/cpu/cyrix.c
+@@ -429,7 +429,7 @@ static void __init cyrix_identify(struct
+ 	}
+ }
+ 
+-static struct cpu_dev cyrix_cpu_dev __initdata = {
++static struct cpu_dev cyrix_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "Cyrix",
+ 	.c_ident 	= { "CyrixInstead" },
+ 	.c_init		= init_cyrix,
+@@ -452,7 +452,7 @@ static int __init cyrix_exit_cpu(void)
+ 
+ late_initcall(cyrix_exit_cpu);
+ 
+-static struct cpu_dev nsc_cpu_dev __initdata = {
++static struct cpu_dev nsc_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "NSC",
+ 	.c_ident 	= { "Geode by NSC" },
+ 	.c_init		= init_nsc,
+Index: linux/arch/i386/kernel/cpu/nexgen.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/nexgen.c
++++ linux/arch/i386/kernel/cpu/nexgen.c
+@@ -40,7 +40,7 @@ static void __init nexgen_identify(struc
+ 	}
+ }
+ 
+-static struct cpu_dev nexgen_cpu_dev __initdata = {
++static struct cpu_dev nexgen_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "Nexgen",
+ 	.c_ident	= { "NexGenDriven" },
+ 	.c_models = {
+Index: linux/arch/i386/kernel/cpu/rise.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/rise.c
++++ linux/arch/i386/kernel/cpu/rise.c
+@@ -28,7 +28,7 @@ static void __init init_rise(struct cpui
+ 	set_bit(X86_FEATURE_CX8, c->x86_capability);
+ }
+ 
+-static struct cpu_dev rise_cpu_dev __initdata = {
++static struct cpu_dev rise_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "Rise",
+ 	.c_ident	= { "RiseRiseRise" },
+ 	.c_models = {
+Index: linux/arch/i386/kernel/cpu/transmeta.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/transmeta.c
++++ linux/arch/i386/kernel/cpu/transmeta.c
+@@ -97,7 +97,7 @@ static void __init transmeta_identify(st
+ 	}
+ }
+ 
+-static struct cpu_dev transmeta_cpu_dev __initdata = {
++static struct cpu_dev transmeta_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "Transmeta",
+ 	.c_ident	= { "GenuineTMx86", "TransmetaCPU" },
+ 	.c_init		= init_transmeta,
+Index: linux/arch/i386/kernel/cpu/umc.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/umc.c
++++ linux/arch/i386/kernel/cpu/umc.c
+@@ -10,7 +10,7 @@ static void __init init_umc(struct cpuin
+ 
+ }
+ 
+-static struct cpu_dev umc_cpu_dev __initdata = {
++static struct cpu_dev umc_cpu_dev __cpuinitdata = {
+ 	.c_vendor	= "UMC",
+ 	.c_ident 	= { "UMC UMC UMC" },
+ 	.c_models = {

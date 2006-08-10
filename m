@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWHJVAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWHJU7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWHJVAX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 17:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWHJVAW
+	id S932304AbWHJU7x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWHJU7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 17:00:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50889 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932254AbWHJVAT (ORCPT
+	Thu, 10 Aug 2006 16:59:52 -0400
+Received: from scyld.com ([64.240.166.233]:63686 "EHLO bluewest.scyld.com")
+	by vger.kernel.org with ESMTP id S932196AbWHJU7v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 17:00:19 -0400
-Message-ID: <44DB9E5E.3000207@redhat.com>
-Date: Thu, 10 Aug 2006 17:00:14 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060726)
+	Thu, 10 Aug 2006 16:59:51 -0400
+Date: Thu, 10 Aug 2006 13:59:06 -0700 (PDT)
+From: Donald Becker <becker@scyld.com>
+To: Alan Shieh <ashieh@cs.cornell.edu>
+cc: Daniel Rodrick <daniel.rodrick@gmail.com>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Linux Newbie <linux-newbie@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>, <linux-net@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Univeral Protocol Driver (using UNDI) in Linux
+In-Reply-To: <44D8A80F.1020202@cs.cornell.edu>
+Message-ID: <Pine.LNX.4.44.0608101156490.20933-100000@bluewest.scyld.com>
 MIME-Version: 1.0
-To: Xin Zhao <uszhaoxin@gmail.com>
-CC: Matthew Wilcox <matthew@wil.cx>, Neil Brown <neilb@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Urgent help needed on an NFS question, please help!!!
-References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>	 <17626.49136.384370.284757@cse.unsw.edu.au>	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>	 <17626.52269.828274.831029@cse.unsw.edu.au>	 <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>	 <20060810161107.GC4379@parisc-linux.org> <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
-In-Reply-To: <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xin Zhao wrote:
-> That makes sense.
->
-> Can we make the following two conclusions?
-> 1. In a single machine, inode+dev ID+i_generation can uniquely 
-> identify a file
-> 2. Given a stored file handle and an inode object received from the
-> server,  an NFS client can safely determine whether this inode
-> corresponds to the file handle by checking the inode+dev+i_generation.
->
+On Tue, 8 Aug 2006, Alan Shieh wrote:
 
-#1 seems to safe enough to assume.
+> With help from the Etherboot Project, I've recently implemented such a 
+> driver for Etherboot 5.4. It currently supports PIO NICs (e.g. cards 
+> that use in*/out* to interface with CPU). It's currently available in a 
+> branch, and will be merged into the trunk by the Etherboot project. It 
+> works reliably with QEMU + PXELINUX, with the virtual ne2k-pci NIC.
+> 
+> Barring unforseen issues, I should get MMIO to work soon; target 
+> platform would be pcnet32 or e1000 on VMware, booted with PXELINUX.
 
-#2 either doesn't make sense to me or is assuming things about the file 
-handle
-that the client is not allowed to assume.  A file handle is an opaque string
-of bytes to the client.  The only entity allowed to interpret the contents
-is the entity which generated the file handle.
+Addressing a very narrow terminology issue:
 
----
+I think that there a misuse of terms here.  PIO, or Programmed I/O, is 
+data transfer mode where the CPU explicitly passes data to and from a 
+device through a single register location.
 
-Is this situation any different than an application opens file, "A".  
-Another
-process then renames "A" to "B".  Now, the original application is 
-reading and
-writing from and to a file called "B" and has no knowledge of this.
+The term is unrelated to the device being addressed in I/O or memory 
+space.  On the x86, hardware devices were usually in the I/O address space 
+and there are special "string" I/O instructions, so PIO and I/O space were 
+usually paired.  But processors without I/O instructions could still do 
+PIO transfers.
 
----
+Memory Mapped I/O, MMIO, is putting the device registers in memory space.  
+In the past it specifically meant sharing memory on the device e.g. when 
+the packet buffer memory on a WD8013 NIC was jumpered into the ISA address 
+space below 1MB.  The CPU still controls the data transfer, generating a 
+write for each word transfered.  But the address changed with each write, 
+just like a memcpy.
 
-The bottom line is that the file handle uniquely identifies a particular
-entity on a file system on the server.  The name of the entity does not
-matter.
+Today "MMIO" is sometimes misused to mean simply using a PCI memory 
+mapping rather than a PCI I/O space mapping.  PCI actually has three 
+address spaces: memory, I/O and config spaces.  Many devices allow 
+accessing the operational registers either through I/O or memory spaces.
 
-    Thanx...
+Both PIO and MMIO are obsolescent.  You'll still find it in legacy 
+interfaces, such as IDE disk controllers where it is only used during boot 
+or when running DOS. Instead bulk data is moved using bus master 
+transfers, where the device itself generates read or write 
+bus transactions.
 
-       ps
+Specifically, you won't find PIO or MMIO on any current NIC.  They only 
+existed on a few early PCI NICs, circa 1995,  where an ISA design was 
+reworked.  
+
+So what does all of this have to with UNDI (and, not coincidentally,
+virtualization)?  There are a bunch of problems with using UNDI drivers,
+but we only need one unsolvable one to make it a doomed effort.  It's a
+big challenge to limit, control and remap how the UNDI driver code talks
+to the hardware.  That seems to be focus above -- just dealing with how to
+control access to the device registers.  But even if we do that correctly
+, the driver is still setting up the NIC to be a bus master.  The device
+hardware will be reading and writing directly to memory, and the driver
+has to make a bunch of assumptions when calculating those addresses.
+ 
+> ( An even easier way would be to axe the manufacturer's stack and use 
+> Etherboot instead )
+
+People are hoping to magically get driver support for all hardware 
+without writing drivers.  If it were as easy as writing a Linux-to-UNDI 
+shim, that shim would have been written long ago.  UNDI doesn't come 
+close to being an OS-independent driver interface, even if you are willing 
+to accept the big performance hit.
+
+
+-- 
+Donald Becker				becker@scyld.com
+Scyld Software	 			Scyld Beowulf cluster systems
+914 Bay Ridge Road, Suite 220		www.scyld.com
+Annapolis MD 21403			410-990-9993
+

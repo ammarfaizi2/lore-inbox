@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWHJUYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbWHJUYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWHJUYX (ORCPT <rfc822;willy@w.ods.org>);
+	id S932599AbWHJUYX (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 10 Aug 2006 16:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWHJUPN
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWHJUPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:15:13 -0400
-Received: from mx1.suse.de ([195.135.220.2]:32656 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932571AbWHJTgD (ORCPT
+	Thu, 10 Aug 2006 16:15:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7338 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932621AbWHJUOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:03 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [47/145] x86_64: Remove apic mismatch counter
-Message-Id: <20060810193601.B97CB13B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:01 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:14:05 -0400
+Date: Thu, 10 Aug 2006 16:13:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: ak@suse.de
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: remove config.h includes from asm-i386 & asm-x86_64
+Message-ID: <20060810201348.GA15387@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, ak@suse.de,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+This is now automatically included by kbuild.
 
-Nobody has been setting the mismatch counter and the ifdef was never 
-set so remove it.
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Dave Jones <davej@redhat.com>
 
----
- arch/x86_64/kernel/irq.c |    6 ------
- 1 files changed, 6 deletions(-)
-
-Index: linux/arch/x86_64/kernel/irq.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/irq.c
-+++ linux/arch/x86_64/kernel/irq.c
-@@ -20,9 +20,6 @@
- #include <asm/idle.h>
+--- linux-2.6.17.noarch/include/asm-i386/tsc.h~	2006-08-10 16:10:24.000000000 -0400
++++ linux-2.6.17.noarch/include/asm-i386/tsc.h	2006-08-10 16:10:28.000000000 -0400
+@@ -6,7 +6,6 @@
+ #ifndef _ASM_i386_TSC_H
+ #define _ASM_i386_TSC_H
  
- atomic_t irq_err_count;
--#ifdef APIC_MISMATCH_DEBUG
--atomic_t irq_mis_count;
--#endif
+-#include <linux/config.h>
+ #include <asm/processor.h>
  
- #ifdef CONFIG_DEBUG_STACKOVERFLOW
  /*
-@@ -95,9 +92,6 @@ skip:
- 			seq_printf(p, "%10u ", cpu_pda(j)->apic_timer_irqs);
- 		seq_putc(p, '\n');
- 		seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));
--#ifdef APIC_MISMATCH_DEBUG
--		seq_printf(p, "MIS: %10u\n", atomic_read(&irq_mis_count));
--#endif
- 	}
- 	return 0;
- }
+--- linux-2.6.17.noarch/include/asm-i386/dwarf2.h~	2006-08-10 16:10:52.000000000 -0400
++++ linux-2.6.17.noarch/include/asm-i386/dwarf2.h	2006-08-10 16:10:56.000000000 -0400
+@@ -1,8 +1,6 @@
+ #ifndef _DWARF2_H
+ #define _DWARF2_H
+ 
+-#include <linux/config.h>
+-
+ #ifndef __ASSEMBLY__
+ #warning "asm/dwarf2.h should be only included in pure assembly files"
+ #endif
+--- linux-2.6.17.noarch/include/asm-x86_64/calgary.h~	2006-08-10 16:11:27.000000000 -0400
++++ linux-2.6.17.noarch/include/asm-x86_64/calgary.h	2006-08-10 16:11:31.000000000 -0400
+@@ -24,7 +24,6 @@
+ #ifndef _ASM_X86_64_CALGARY_H
+ #define _ASM_X86_64_CALGARY_H
+ 
+-#include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/device.h>
+ #include <linux/dma-mapping.h>
+
+-- 
+http://www.codemonkey.org.uk

@@ -1,57 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWHJTy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932658AbWHJTy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWHJTy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWHJTxt
+	id S932658AbWHJTy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWHJTxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:53:49 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:23682 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932243AbWHJTxq (ORCPT
+	Thu, 10 Aug 2006 15:53:51 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8940 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932657AbWHJThR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:53:46 -0400
-Message-ID: <44DB8EBE.6060003@garzik.org>
-Date: Thu, 10 Aug 2006 15:53:34 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Erik Mouw <erik@harddisk-recovery.com>,
-       Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
-References: <1155172642.3161.74.camel@localhost.localdomain> <20060810092021.GB11361@harddisk-recovery.com> <20060810175920.GC19238@thunk.org>
-In-Reply-To: <20060810175920.GC19238@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 10 Aug 2006 15:37:17 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20060810 935.775038000@suse.de>
+In-Reply-To: <20060810 935.775038000@suse.de>
+Subject: [PATCH for review] [117/145] i386: error_code is not safe for kprobes
+Message-Id: <20060810193716.235DC13C16@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:16 +0200 (CEST)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> On Thu, Aug 10, 2006 at 11:20:22AM +0200, Erik Mouw wrote:
->> On Wed, Aug 09, 2006 at 06:17:22PM -0700, Mingming Cao wrote:
->>> Register ext4 filesystem as ext3dev filesystem in kernel.
->> Why confuse users with the name "ext3dev"? If a filesystem lives in
->> fs/blah/, it's registered as "blah" and can be mounted with "-t blah".
->> Just register the filesystem as "ext4" and mark it "EXPERIMENTAL" in
->> Kconfig.
-> 
-> We had this discussion on LKML.  There were those who were concerned
-> that it would not be enough just to mark it be EXPERIMENTAL.
+r
 
-I _want_ to agree with Erik, but I must agree:  CONFIG_EXPERIMENTAL is 
-pretty worthless in practice :(  It's not maintained rigorously, and 
-distros _always_ enable it, because otherwise they would often omit key 
-drivers that people actively use.
+From: Chuck Ebbert <76306.1226@compuserve.com>
 
-So, while my own personal preference would be to follow Erik's 
-suggestion...  thinking realistically, an fstype change from "ext3dev" 
-to "ext4" is a far more obvious-to-users method of creating a 
-devel/production line of demarcation.
+Because code marked unsafe for kprobes jumps directly to
+entry.S::error_code, that must be marked unsafe as well.
+The easiest way to do that is to move the page fault entry
+point to just before error_code and let it inherit the same
+section.
 
-	Jeff
+Also moved all the ".previous" asm directives for kprobes
+sections to column 1 and removed ".text" from them.
 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
 
+---
+ arch/i386/kernel/entry.S |   25 +++++++++++++------------
+ 1 files changed, 13 insertions(+), 12 deletions(-)
 
+Index: linux/arch/i386/kernel/entry.S
+===================================================================
+--- linux.orig/arch/i386/kernel/entry.S
++++ linux/arch/i386/kernel/entry.S
+@@ -587,11 +587,9 @@ ENTRY(name)				\
+ /* The include is where all of the SMP etc. interrupts come from */
+ #include "entry_arch.h"
+ 
+-ENTRY(divide_error)
+-	RING0_INT_FRAME
+-	pushl $0			# no error code
+-	CFI_ADJUST_CFA_OFFSET 4
+-	pushl $do_divide_error
++KPROBE_ENTRY(page_fault)
++	RING0_EC_FRAME
++	pushl $do_page_fault
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	ALIGN
+ error_code:
+@@ -641,6 +639,7 @@ error_code:
+ 	call *%edi
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
++.previous
+ 
+ ENTRY(coprocessor_error)
+ 	RING0_INT_FRAME
+@@ -716,7 +715,8 @@ debug_stack_correct:
+ 	call do_debug
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-	.previous .text
++.previous
++
+ /*
+  * NMI is doubly nasty. It can happen _while_ we're handling
+  * a debug fault, and the debug fault hasn't yet been able to
+@@ -812,7 +812,7 @@ KPROBE_ENTRY(int3)
+ 	call do_int3
+ 	jmp ret_from_exception
+ 	CFI_ENDPROC
+-	.previous .text
++.previous
+ 
+ ENTRY(overflow)
+ 	RING0_INT_FRAME
+@@ -877,7 +877,7 @@ KPROBE_ENTRY(general_protection)
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	jmp error_code
+ 	CFI_ENDPROC
+-	.previous .text
++.previous
+ 
+ ENTRY(alignment_check)
+ 	RING0_EC_FRAME
+@@ -886,13 +886,14 @@ ENTRY(alignment_check)
+ 	jmp error_code
+ 	CFI_ENDPROC
+ 
+-KPROBE_ENTRY(page_fault)
+-	RING0_EC_FRAME
+-	pushl $do_page_fault
++ENTRY(divide_error)
++	RING0_INT_FRAME
++	pushl $0			# no error code
++	CFI_ADJUST_CFA_OFFSET 4
++	pushl $do_divide_error
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	jmp error_code
+ 	CFI_ENDPROC
+-	.previous .text
+ 
+ #ifdef CONFIG_X86_MCE
+ ENTRY(machine_check)

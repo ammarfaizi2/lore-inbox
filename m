@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWHJUXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWHJUOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751568AbWHJUXe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWHJUWm
+	id S932135AbWHJUOf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWHJUOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:22:42 -0400
-Received: from mxsf29.cluster1.charter.net ([209.225.28.229]:32964 "EHLO
-	mxsf29.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750969AbWHJUWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 16:22:34 -0400
-X-IronPort-AV: i="4.08,112,1154923200"; 
-   d="scan'208"; a="2047546568:sNHT2609248676"
+	Thu, 10 Aug 2006 16:14:21 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:42627 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750922AbWHJUNh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 16:13:37 -0400
+Message-ID: <44DB936D.2080909@garzik.org>
+Date: Thu, 10 Aug 2006 16:13:33 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5] Forking ext4 filesystem from ext3 filesystem
+References: <1155172622.3161.73.camel@localhost.localdomain> <20060809233914.35ab8792.akpm@osdl.org> <44DB8036.5020706@us.ibm.com>
+In-Reply-To: <44DB8036.5020706@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17627.38258.546907.120948@stoffel.org>
-Date: Thu, 10 Aug 2006 16:22:10 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       Erik Mouw <erik@harddisk-recovery.com>, Mingming Cao <cmm@us.ibm.com>,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
-In-Reply-To: <1155240524.12082.14.camel@kleikamp.austin.ibm.com>
-References: <1155172642.3161.74.camel@localhost.localdomain>
-	<20060810092021.GB11361@harddisk-recovery.com>
-	<20060810175920.GC19238@thunk.org>
-	<44DB8EBE.6060003@garzik.org>
-	<1155240524.12082.14.camel@kleikamp.austin.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Dave" == Dave Kleikamp <shaggy@austin.ibm.com> writes:
+Badari Pulavarty wrote:
+> Andrew Morton wrote:
+>> Also, JBD is presently feeding into submit_bh() buffer_heads which 
+>> span two
+>> machine pages, and some device drivers spit the dummy.  It'd be better to
+>> fix that once, rather than twice..    
+> Andrew,
+> 
+> I looked at this few days ago. I am not sure how we end up having 
+> multiple pages (especially,
+> why we end up having buffers with bh_size > pagesize) ? Do you know why ?
+> 
+> Easiest fix would be to fix submit_bh() to deal with multiple vecs - 
+> which is vetoed by
+> Jens and I agree with him :(
 
-Dave> IF it's decided to register the file system as ext3dev (Would
-Dave> ext4dev make more sense?)
+Yep.  The sooner we kill buffer heads and use submit_bio(), the better :)
 
-Hear hear!  I think ext4dev would be a better name too.  It's the
-devel version of ext4, not ext3 after all...
+	Jeff
+
+
+

@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWHIX64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWHJABY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWHIX64 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 19:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWHIX64
+	id S1751332AbWHJABY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 20:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWHJABY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 19:58:56 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:56964
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932065AbWHIX6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 19:58:55 -0400
-Date: Wed, 09 Aug 2006 16:58:46 -0700 (PDT)
-Message-Id: <20060809.165846.107940575.davem@davemloft.net>
-To: a.p.zijlstra@chello.nl
-Cc: tgraf@suug.ch, phillips@google.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1155132440.12225.70.camel@twins>
-References: <44D976E6.5010106@google.com>
-	<20060809131942.GY14627@postel.suug.ch>
-	<1155132440.12225.70.camel@twins>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Aug 2006 20:01:24 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:39322 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751332AbWHJABX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 20:01:23 -0400
+Date: Wed, 9 Aug 2006 20:00:51 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Esben Nielsen <nielsen.esben@gogglemail.com>
+cc: Bill Huey <billh@gnuppy.monkey.org>, Robert Crocombe <rcrocomb@gmail.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re:
+ Problems with 2.6.17-rt8
+In-Reply-To: <Pine.LNX.4.64.0608090050500.23474@frodo.shire>
+Message-ID: <Pine.LNX.4.58.0608091958540.16850@gandalf.stny.rr.com>
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
+ <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
+ <1154541079.25723.8.camel@localhost.localdomain>
+ <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com>
+ <1154615261.32264.6.camel@localhost.localdomain> <20060808025615.GA20364@gnuppy.monkey.org>
+ <20060808030524.GA20530@gnuppy.monkey.org> <Pine.LNX.4.64.0608090050500.23474@frodo.shire>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Date: Wed, 09 Aug 2006 16:07:20 +0200
 
-> Hmm, what does sk_buff::input_dev do? That seems to store the initial
-> device?
+On Thu, 10 Aug 2006, Esben Nielsen wrote:
 
-You can run grep on the tree just as easily as I can which is what I
-did to answer this question.  It only takes a few seconds of your
-time to grep the source tree for things like "skb->input_dev", so
-would you please do that before asking more questions like this?
+>
+> I had a long discussion with Paul McKenney about this. I opposed the patch
+> from a latency point of view: Suddenly a high-priority RT task could be
+> made into releasing a task_struct. It would be better for latencies to
+> defer it to a low priority task.
+>
+> The conclusion we ended up with was that it is not a job for the RCU
+> system, but it ought to be deferred to some other low priority task to
+> free the task_struct.
+>
 
-It does store the initial device, but as Thomas tried so hard to
-explain to you guys these device pointers in the skb are transient and
-you cannot refer to them outside of packet receive processing.
+Fair enough.  But by removing the rcu code to do the dirty work, we ended
+up breaking the code completely.  So although the rcu work is not the
+right method, it needs to be there until we have a better solution.
+This solution is better than what is there right now in -rt8, and that is,
+-rt8 is broken without it!
 
-The reason is that there is no refcounting performed on these devices
-when they are attached to the skb, for performance reasons, and thus
-the device can be downed, the module for it removed, etc. long before
-the skb is freed up.
+-- Steve
+

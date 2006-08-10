@@ -1,106 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWHJTwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWHJTwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWHJTwe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 15:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWHJTv7
+	id S1751464AbWHJTwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 15:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWHJTv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 15:51:59 -0400
-Received: from ns.suse.de ([195.135.220.2]:20625 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932139AbWHJThS (ORCPT
+	Thu, 10 Aug 2006 15:51:57 -0400
+Received: from mail.suse.de ([195.135.220.2]:22417 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932673AbWHJThT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:37:18 -0400
+	Thu, 10 Aug 2006 15:37:19 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060810 935.775038000@suse.de>
 In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [118/145] x86_64: Mark error_entry as forbidden to kprobes
-Message-Id: <20060810193717.357B613C16@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:37:17 +0200 (CEST)
+Subject: [PATCH for review] [119/145] x86_64: X86_64 monotonic_clock goes backwards
+Message-Id: <20060810193718.4410713C16@wotan.suse.de>
+Date: Thu, 10 Aug 2006 21:37:18 +0200 (CEST)
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 r
 
-From: Prasanna S.P. <prasanna@in.ibm.com>
+From: Dimitri Sivanich <sivanich@sgi.com>
+I've noticed some erratic behavior while testing the X86_64 version
+of monotonic_clock().
 
-This patch moves the entry.S:error_entry to .kprobes.text section,
-since code marked unsafe for kprobes jumps directly to entry.S::error_entry,
-that must be marked unsafe as well.
-This patch also moves all the ".previous.text" asm directives to ".previous"
-for kprobes section.
+While spinning in a loop reading monotonic clock values (pinned to a
+single cpu) I noticed that the difference between subsequent values
+occasionally went negative (time going backwards).
 
-AK: Following a similar i386 patch from Chuck Ebbert 
+I found that in the following code:
+                this_offset = get_cycles_sync();
+                /* FIXME: 1000 or 1000000? */
+-->             offset = (this_offset - last_offset)*1000 / cpu_khz;
+        }       
+        return base + offset;
 
-Signed-off-by: Prasanna S.P. <prasanna@in.ibm.com>
+the offset sometimes turns out to be 0, even though
+this_offset > last_offset.
+
+Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
+---
+ arch/x86_64/kernel/time.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
- arch/x86_64/kernel/entry.S |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
-Index: linux/arch/x86_64/kernel/entry.S
+Index: linux/arch/x86_64/kernel/time.c
 ===================================================================
---- linux.orig/arch/x86_64/kernel/entry.S
-+++ linux/arch/x86_64/kernel/entry.S
-@@ -819,7 +819,7 @@ paranoid_schedule\trace:
-  * Exception entry point. This expects an error code/orig_rax on the stack
-  * and the exception handler in %rax.	
-  */ 		  				
--ENTRY(error_entry)
-+KPROBE_ENTRY(error_entry)
- 	_frame RDI
- 	/* rdi slot contains rax, oldrax contains error code */
- 	cld	
-@@ -904,6 +904,7 @@ error_kernelspace:
-         je   error_swapgs
- 	jmp  error_sti
- END(error_entry)
-+	.previous
- 	
-        /* Reload gs selector with exception handling */
-        /* edi:  new selector */ 
-@@ -1023,7 +1024,7 @@ ENDPROC(execve)
- KPROBE_ENTRY(page_fault)
- 	errorentry do_page_fault
- END(page_fault)
--	.previous .text
-+	.previous
+--- linux.orig/arch/x86_64/kernel/time.c
++++ linux/arch/x86_64/kernel/time.c
+@@ -276,6 +276,7 @@ static void set_rtc_mmss(unsigned long n
+  *		Note: This function is required to return accurate
+  *		time even in the absence of multiple timer ticks.
+  */
++static inline unsigned long long cycles_2_ns(unsigned long long cyc);
+ unsigned long long monotonic_clock(void)
+ {
+ 	unsigned long seq;
+@@ -300,8 +301,7 @@ unsigned long long monotonic_clock(void)
+ 			base = monotonic_base;
+ 		} while (read_seqretry(&xtime_lock, seq));
+ 		this_offset = get_cycles_sync();
+-		/* FIXME: 1000 or 1000000? */
+-		offset = (this_offset - last_offset)*1000 / cpu_khz;
++		offset = cycles_2_ns(this_offset - last_offset);
+ 	}
+ 	return base + offset;
+ }
+@@ -405,8 +405,7 @@ void main_timer_handler(struct pt_regs *
+ 			offset %= USEC_PER_TICK;
+ 		}
  
- ENTRY(coprocessor_error)
- 	zeroentry do_coprocessor_error
-@@ -1045,7 +1046,7 @@ KPROBE_ENTRY(debug)
- 	paranoidentry do_debug, DEBUG_STACK
- 	paranoidexit
- END(debug)
--	.previous .text
-+	.previous
+-		/* FIXME: 1000 or 1000000? */
+-		monotonic_base += (tsc - vxtime.last_tsc) * 1000000 / cpu_khz;
++		monotonic_base += cycles_2_ns(tsc - vxtime.last_tsc);
  
- 	/* runs on exception stack */	
- KPROBE_ENTRY(nmi)
-@@ -1060,7 +1061,7 @@ KPROBE_ENTRY(nmi)
-  	CFI_ENDPROC
- #endif
- END(nmi)
--	.previous .text
-+	.previous
+ 		vxtime.last_tsc = tsc - vxtime.quot * delay / vxtime.tsc_quot;
  
- KPROBE_ENTRY(int3)
-  	INTR_FRAME
-@@ -1070,7 +1071,7 @@ KPROBE_ENTRY(int3)
-  	jmp paranoid_exit1
-  	CFI_ENDPROC
- END(int3)
--	.previous .text
-+	.previous
- 
- ENTRY(overflow)
- 	zeroentry do_overflow
-@@ -1119,7 +1120,7 @@ END(stack_segment)
- KPROBE_ENTRY(general_protection)
- 	errorentry do_general_protection
- END(general_protection)
--	.previous .text
-+	.previous
- 
- ENTRY(alignment_check)
- 	errorentry do_alignment_check

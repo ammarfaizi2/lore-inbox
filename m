@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWHJPr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161367AbWHJPzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161361AbWHJPr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 11:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161362AbWHJPr1
+	id S1161367AbWHJPzf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 11:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161359AbWHJPzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 11:47:27 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:20230 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1161361AbWHJPr0 (ORCPT
+	Thu, 10 Aug 2006 11:55:35 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:148 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1161358AbWHJPze (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 11:47:26 -0400
-Subject: Re: [PATCH] memory ordering in __kfifo primitives
-From: Stelian Pop <stelian@popies.net>
-To: paulmck@us.ibm.com
-Cc: Mike Christie <michaelc@cs.wisc.edu>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, paulus@au1.ibm.com, anton@au1.ibm.com,
-       open-iscsi@googlegroups.com, pradeep@us.ibm.com, mashirle@us.ibm.com
-In-Reply-To: <20060810153915.GE1298@us.ibm.com>
-References: <20060810001823.GA3026@us.ibm.com>
-	 <20060810003310.GA3071@us.ibm.com> <44DAC892.7000100@cs.wisc.edu>
-	 <20060810134135.GB1298@us.ibm.com>
-	 <1155220013.1108.4.camel@localhost.localdomain>
-	 <20060810153915.GE1298@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 10 Aug 2006 17:47:22 +0200
-Message-Id: <1155224842.5393.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Aug 2006 11:55:34 -0400
+Message-ID: <44DB56F4.6090908@oracle.com>
+Date: Thu, 10 Aug 2006 08:55:32 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Alex Tomas <alex@clusterfs.com>, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
+References: <1155172827.3161.80.camel@localhost.localdomain>	<20060809233940.50162afb.akpm@osdl.org>	<m37j1hlyzv.fsf@bzzz.home.net> <20060810024816.9d83c944.akpm@osdl.org>
+In-Reply-To: <20060810024816.9d83c944.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 10 août 2006 à 08:39 -0700, Paul E. McKenney a écrit :
-> On Thu, Aug 10, 2006 at 04:26:53PM +0200, Stelian Pop wrote:
-> > Le jeudi 10 août 2006 à 06:41 -0700, Paul E. McKenney a écrit :
-> > 
-> > > I am happy to go either way -- the patch with the memory barriers
-> > > (which does have the side-effect of slowing down kfifo_get() and
-> > > kfifo_put(), by the way), or a patch removing the comments saying
-> > > that it is OK to invoke __kfifo_get() and __kfifo_put() without
-> > > locking.
-> > > 
-> > > Any other thoughts on which is better?  (1) the memory barriers or
-> > > (2) requiring the caller hold appropriate locks across calls to
-> > > __kfifo_get() and __kfifo_put()?
-> > 
-> > If someone wants to use explicit locking, he/she can go with kfifo_get()
-> > instead of the __ version.
-> 
-> However, the kfifo_get()/kfifo_put() interfaces use the internal lock,
 
-... and the internal lock can be supplied by the user at kfifo_alloc()
-time.
+> Good examples don't immediately leap to mind, I'm afraid.  Maybe some of
+> fs/buffer.c?  That's important and pretty tricky code in there, so it goes
+> to some lengths.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+fs/direct-io.c?  It has some fantastic commentary.  (Just please don't
+also take inspiration from its bug/line ratio :)).
 
+- z

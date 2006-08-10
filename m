@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWHJSOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbWHJSSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422677AbWHJSOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 14:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422686AbWHJSOh
+	id S1161139AbWHJSSy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 14:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWHJSSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 14:14:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7821 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422684AbWHJSOh (ORCPT
+	Thu, 10 Aug 2006 14:18:54 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:48549 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161139AbWHJSSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 14:14:37 -0400
-Date: Thu, 10 Aug 2006 11:14:33 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Network compatibility and performance
-Message-ID: <20060810111433.476a74d6@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.61.0608101339310.4577@chaos.analogic.com>
-References: <Pine.LNX.4.61.0608101131530.4239@chaos.analogic.com>
-	<20060810102841.55efa78a@localhost.localdomain>
-	<Pine.LNX.4.61.0608101339310.4577@chaos.analogic.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Thu, 10 Aug 2006 14:18:53 -0400
+Date: Thu, 10 Aug 2006 14:18:25 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060810181825.GD14732@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060804234327.GF16231@redhat.com> <m1hd0rmaje.fsf@ebiederm.dsl.xmission.com> <20060807174439.GJ16231@redhat.com> <m17j1kctb8.fsf@ebiederm.dsl.xmission.com> <20060807235727.GM16231@redhat.com> <m1ejvrakhq.fsf@ebiederm.dsl.xmission.com> <20060809200642.GD7861@redhat.com> <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com> <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m18xlw34j1.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 14:09:34 -0400
-"linux-os \(Dick Johnson\)" <linux-os@analogic.com> wrote:
-
+On Thu, Aug 10, 2006 at 11:05:22AM -0600, Eric W. Biederman wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
 > 
-> On Thu, 10 Aug 2006, Stephen Hemminger wrote:
-> 
-> > On Thu, 10 Aug 2006 11:34:23 -0400
-> > "linux-os \(Dick Johnson\)" <linux-os@analogic.com> wrote:
+> > Apart from this I think something is still off on x86_64. I have not
+> > been able to make kdump work on x86_64. Second kernel simply hangs.
+> > Two different machines are showing different results.
 > >
-> >>
-> >> Hello,
-> >>
-> >> Network throughput is seriously defective with linux-2.6.16.24
-> >> if the length given to 'write()' is a large number.
-> >>
-> >> Given this code on a connected socket........
+> > - On one machine, it seems to be stuck somewhere in decompress_kernel().
+> >   Serial console is not behaving properly even with earlyprintk(). Somehow
+> >   I feel it is some bss corruption even after my changes.
 > >
-> > What protocol (TCP?) and what Ethernet hardware (does it support TSO)?
-> > Did you set non-blocking?
+> > - Other machines seems to be going till start_kernel() and even after
+> >   that (No messages on the console, all serial debugging) and then
+> >   either it hangs or jumps back to BIOS.
+> >
+> > Will look more into it.
 > 
-> A connected TCP socket. The Ethernet hardware was also
-> described (Intel using e1000 as shown) It's on PCI-X 133MHz, two
-> devices on the motherboard, not really relevent because it worked
-> previously as described. TSO? 
+> Thanks.
+> 
+> I'm a little disappointed but at this point it isn't a great surprise,
+> the code is early yet and hasn't had much testing or attention.
+> I wonder if I have missed something else silly.
+> 
+> As for testing, can you use plain kexec to load the kernel at a
+> different address?  I'm curious to know if it is something related
+> to the kexec on panic path or if it is just running at a different
+> location that is the problem.
 
-TSO = TCP segmentation Offload, if you are using e1000 it gets enabled.
-Only slightly relevant to this, because it would change the timing.
+Yes. This seems to be minor stuff. Parameter segment seems to be
+getting stomped while I am doing decompression. Most probably should
+be coming from extra space calculations (32K etc) being done at run
+time to find out where should we shift the compressed image.
 
-> They went away in 1972. The socket was set to non-blocking because the
-> same socket is used for reading (not at the same time), using poll()
-> to find when data are supposed to be available. BTW, read() code
-> used to use poll() to find out when data were available, but if
-> poll returned POLLIN, sometimes data would NOT be available and
-> the code would hang <forever>. Therefore a work-around was to set
-> the socket non-blocking. Under the conditions where poll() would
-> return POLLIN and a read of a non-blocking socket returned no data,
+Kexec works because parameter segment is being loaded below the
+compressed image and doest not get stomped over. :-) 
 
-Basic unix programming, errno only has meaning if system call returns -1.
+I just reserved memory at non 2MB aligned location 65MB@15MB so that
+kernel is loaded at 16MB and other smaller segments below the compressed
+image, then I can successfully booted into the kdump kernel.
 
-Basic network programming. If read returns 0 it means other side
-has disconnected.
+So basically kexec on panic path seems to be clean except stomping issue.
+May be bzImage program header should reflect right "MemSize" which
+takes into account extra memory space calculations.
+
+Thanks
+Vivek

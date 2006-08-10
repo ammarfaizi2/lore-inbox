@@ -1,160 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbWHJB3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWHJBrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030558AbWHJB3e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Aug 2006 21:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030572AbWHJB3e
+	id S1751295AbWHJBrP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Aug 2006 21:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWHJBrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Aug 2006 21:29:34 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:1417 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S1030558AbWHJB3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Aug 2006 21:29:33 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: What's in git.git, and announcing GIT 1.4.2-rc4
-cc: linux-kernel@vger.kernel.org
-X-maint-at: a0764cb838c2f1885fb58ca794c21523fb05c825
-X-master-at: 943d5b73e2adf3cd0d3f72c9a06c75681a4ea3ca
-Date: Wed, 09 Aug 2006 18:29:30 -0700
-Message-ID: <7vy7txxts5.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Aug 2006 21:47:15 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:8435 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751295AbWHJBrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Aug 2006 21:47:14 -0400
+Date: Wed, 09 Aug 2006 21:47:11 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: ALSA problems with 2.6.18-rc3
+In-reply-to: <1155157036.26338.200.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Benton <b3nt@ukonline.co.uk>,
+       Takashi Iwai <tiwai@suse.de>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Message-id: <200608092147.11457.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <44D8F3E5.5020508@ukonline.co.uk>
+ <200608091651.28077.gene.heskett@verizon.net>
+ <1155157036.26338.200.camel@mindpipe>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 1.4.2-rc4
+On Wednesday 09 August 2006 16:57, Lee Revell wrote:
+>On Wed, 2006-08-09 at 16:51 -0400, Gene Heskett wrote:
+>> On Wednesday 09 August 2006 16:41, Lee Revell wrote:
+>> [...]
+>>
+>> >> >Takashi-san,
+>> >> >
+>> >> >Does this help at all?  Many users are reporting that sound broke
+>> >> > with 2.6.18-rc*.
+>> >> >
+>> >> >Lee
+>> >>
+>> >> Takashi-san's suggestion earlier today of running an "alsactl -F
+>> >> restore" seems to have fixed all those diffs right up, I now have
+>> >> good sound with an emu10k1 using an audigy 2 as card-0, running
+>> >> kernel-2.6.18-rc4.
+>> >
+>> >Distros should probably be using this as a default.  Otherwise, simply
+>> >adding a new mixer control will cause restoring mixer settings to
+>> > fail.
+>> >
+>> >Lee
+>>
+>> I already have the 'alsactl restore' in my rc.local.  Would there be
+>> any harm in just adding the -F to that invocation, or will that just
+>> restore it to a 'default' condition always.  Seems like it would,
+>> canceling anything you have done & then did an 'alsactl store' to
+>> save..
+>
+>That's what I was suggesting - just add -F to the alsactl restore in
+>your init script.  It won't restore it to a default state - the only
+>difference is that it will do a better job restoring your mixer state if
+>new controls are added by a driver update.
+>
+>alsactl --help:
+>
+>  -F,--force      try to restore the matching controls as much as
+>possible
+>
+>Lee
 
-It's been a week since -rc3, so here it is.  The changes are
-really small fixes and nothing else.  Let's hope I can tag the
-real 1.4.2 this weekend.
-
-* The 'master' branch has these since the last announcement;
-  these are all in 1.4.2-rc4:
-
-   Jeff King:
-      git-push: allow pushing from subdirectories
-
-   Johannes Schindelin:
-      Fix crash when GIT_DIR is invalid
-
-   Jonas Fonseca:
-      Update git-init-db(1) and documentation of core.sharedRepository
-
-   Junio C Hamano:
-      Cygwin needs NO_C99_FORMAT???
-      Makefile: Cygwin does not seem to need NO_STRLCPY
-      Fix "grep -w"
-      debugging: XMALLOC_POISON
-      builtin-mv: fix use of uninitialized memory.
-      GIT-VERSION-GEN: adjust for ancient git
-      Documentation: git-status takes the same options as git-commit
-      Fix tutorial-2.html
-      check return value from diff_setup_done()
-      find_unique_abbrev() with len=0 should not abbreviate
-      make --find-copies-harder imply -C
-      allow diff.renamelimit to be set regardless of -M/-C
-
-   Michael Krelin:
-      handle https:// protocol in git-clone
-
-   Ramsay Jones:
-      Allow config file to specify Signed-off-by identity in format-patch.
-      commit walkers: setup_ident() to record correct committer in ref-log.
-
-   Ryan Anderson:
-      log-tree: show_log() should respect the setting of diffopt->line_termination
-      annotate: Fix bug when parsing merges with differing real and logical parents.
-
-
-* The 'next' branch, in addition, has these.
-
-  = To graduate immediately after 1.4.2 happens:
-
-  - Jakub Narebski's autoconf stuff acquired a bit more
-    clean-ups and new detections since the last announcement.
-
-  - A new merge strategy, merge-recur, which is a rewrite of
-    merge-recursive in C, by Johannes and Alex.
-
-  - More commands are made built-in by Matthias Kestenholz, and
-    I cleaned up the build procedure for built-ins a bit.
-
-  - Matthias Lederhofer introduced $GIT_PAGER environment
-    variable that can specify a different pager from $PAGER.
-
-  - Ramsay Jones has one header fix to add _GNU_SOURCE, which
-    helps things to compile in his environment.  This was
-    confirmed to fix a similar problem on an ancient version of
-    one distribution.
-
-  - Timo Hirvonen made the parameter parsing of diff family
-    saner some time ago.  Remaining two minor changes will
-    graduate to "master" after 1.4.2:
-
-    * --name-only, --name-status, --check and -s are mutually exclusive
-
-    * Remove awkward compatibility warts "-s".  Now -s means "do
-      not output diff" everywhere, including git-diff-files.
-
-  - Johannes made http-push avoid fork() by calling
-    merge_bases() directly.
-
-  - MAX_NEEDS and MAX_HAS limitation in upload-pack has been
-    lifted.
-
-  - pack-objects can copy a non-delta representation of a object
-    with the new style header straight into packs.
-
-  - Paul Mackerras has a few gitk updates.
+Great, Lee, thanks.  That also gave me a good excuse to expand the 
+operating $PATH for rc.local, recent heyu changes seem to have killed my 
+restoration of the config that existed after cron made the last change in 
+config.
 
 
-  * Hopefully not too long after 1.4.2:
-
-  - A big gitweb clean-up series by Jakub Narebski, with help
-    from Jeff King, Matthias Lederhofer and Martin Waitz to make
-    run-time and build-time configuration easier.
-
-    Quite a lot of clean-ups and enhancements by Jakub and Luben
-    Tuikov are queued, and with the proposed function renames,
-    it may be stable enough to start seriously testing soon
-    after 1.4.2 happens.
-
-  - New style loose objects, which use the same header format as
-    in-pack objects, can be copied straight into packs when not
-    deltified.  I am hoping that we can make the new-style loose
-    objects the default in 10 to 12 weeks to give everybody time
-    to update to 1.4 series.
-
-  = Graduation schedule unknown:
-
-  - Not-universally-liked Git.pm by Pasky with help from Dennis
-    Stosberg, Johannes, Pavel Roskin and others.  One drawback
-    is this pretty much makes Perl scripts that use Git.pm
-    unusable with ActiveState right now.  No changes since the
-    last announcement.
-
-  - Linus worries that Racy-git avoidance code leaves racily-clean
-    index entries forever and hurts performance, and I did some
-    tweaks.  First we need to verify performance is actually
-    harmed and by how much to see if this is needed.
-
-
-* The 'pu' branch, in addition, has these.
-
-  - An update to upload-pack to prevent it from going all the
-    way back when the downloader has more roots than it.  Needs
-    testing and comments.
-
-  - Johannes has a new diff option --color-words to use color to
-    squash word differences into single line output.
-
-    I do not feel much need for this stuff, and the change is
-    rather intrusive, so I am tempted to drop it.
-
-  - A new merge strategy, merge-rename, which is still a
-    work-in-progress to handle renames in read-tree 3-way
-    merge.  Judging from the way Johannes's merge-recur is
-    making progress, I may want to drop this.
-
-
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

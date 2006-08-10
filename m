@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWHJLeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWHJLew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161179AbWHJLeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 07:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161178AbWHJLeZ
+	id S1161180AbWHJLew (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 07:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWHJLew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 07:34:25 -0400
-Received: from msr36.hinet.net ([168.95.4.136]:15856 "EHLO msr36.hinet.net")
-	by vger.kernel.org with ESMTP id S1161176AbWHJLeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 07:34:24 -0400
-Message-ID: <023201c6bc70$57413c90$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: "Francois Romieu" <romieu@fr.zoreil.com>, <linux-kernel@vger.kernel.org>,
-       <netdev@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw> <20060727190707.GA24157@electric-eye.fr.zoreil.com> <002701c6bc24$2a9f10f0$4964a8c0@icplus.com.tw> <44DB1727.2000502@pobox.com>
-Subject: Re: Hello, We had some patch need to submit for sundance.c
-Date: Thu, 10 Aug 2006 19:30:10 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Thu, 10 Aug 2006 07:34:52 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:50828 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1161177AbWHJLeu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 07:34:50 -0400
+Date: Thu, 10 Aug 2006 13:34:49 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: =?iso-8859-15?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Valerie Henson <val_henson@linux.intel.com>,
+       Matthew Wilcox <matthew@wil.cx>, dean gaudet <dean@arctic.org>,
+       David Lang <dlang@digitalinsight.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>, Chris Wedgwood <cw@f00f.org>,
+       Arjan van de Ven <arjan@linux.intel.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Akkana Peck <akkana@shallowsky.com>,
+       Jesse Barnes <jesse.barnes@intel.com>, jsipek@cs.sunysb.edu,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [RFC] [PATCH] Relative lazy atime
+Message-ID: <20060810113449.GA7627@janus>
+References: <20060805122537.GA23239@lst.de> <1154797123.12108.6.camel@kleikamp.austin.ibm.com> <1154797475.3054.79.camel@laptopd505.fenrus.org> <20060805183609.GA7564@tuatara.stupidest.org> <20060805222247.GQ29686@ca-server1.us.oracle.com> <Pine.LNX.4.63.0608051604420.20114@qynat.qvtvafvgr.pbz> <Pine.LNX.4.64.0608051612330.20926@twinlark.arctic.org> <20060806030147.GG4379@parisc-linux.org> <20060809063947.GA13474@goober> <20060809122134.GF27863@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060809122134.GF27863@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff:
+On Wed, Aug 09, 2006 at 02:21:34PM +0200, Jörn Engel wrote:
+> At the risk of stating the obvious, let me try to explain what each
+> method does:
+> 
+> 1. standard
+> Every read access to a file/directory causes an atime update.
+> 
+> 2. nodiratime
+> Every read access to a non-directory causes an atime update.
+> 
+> 3. lazy atime
+> The first read access to a file/directory causes an atime update.
+> 
+> 4. noatime
+> No read access to a file/directory causes an atime update.
 
-    I will use sundance.c in this tree to generate patch files.
+5. lazy atime writeout
 
-Thanks for this information.
+To reduce the pain of a fully functional atime only flush "atime-dirty"
+inodes when the on-disk/in-core atime difference becomes big enough
+(e.g. by maintaining an "atime dirtyness" level for the in-core inode).
 
-Jesse
+I haven't seen anyone mentioning it but properly written cleanup programs
+for /tmp et.al. do depend on atimes. When a system crashes after a long
+time then (3) and (4) will probably cause /tmp to be wiped out because
+at the next boot all atimes will be really old.
 
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: "Francois Romieu" <romieu@fr.zoreil.com>;
-<linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>; "Andrew Morton"
-<akpm@osdl.org>
-Sent: Thursday, August 10, 2006 7:23 PM
-Subject: Re: Hello, We had some patch need to submit for sundance.c
-
-
-Jesse Huang wrote:
-> Dear All:
->
-> We had some patch need to submit. Would you tell me where to get current
-> sundance.c for myself to generate those patch files.
->
-> Sorry, I only got this link:
->
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=f13b2a195c708fe32d8c53d05988875a51bd52e1;hb=1668b19f75cb949f930814a23b74201ad6f76a53;f=drivers/net/sundance.c
-
-You need to install the "git" software package, and then check out the
-"upstream" branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-
-Then provide patches against the drivers/net/sundance.c driver found there.
-
-git software download: http://www.kernel.org/pub/software/scm/git/
-git overview: http://git.or.cz/
-git tutorial: http://www.kernel.org/pub/software/scm/git/docs/tutorial.html
-git man pages: http://www.kernel.org/pub/software/scm/git/docs
-
-Thanks,
-
-Jeff
-
-
+-- 
+Frank

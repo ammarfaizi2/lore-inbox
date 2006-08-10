@@ -1,313 +1,302 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbWHJJyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161131AbWHJJzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161147AbWHJJyi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 05:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWHJJyP
+	id S1161131AbWHJJzR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 05:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbWHJJys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 05:54:15 -0400
-Received: from mx-outbound.sourceforge.net ([66.35.250.223]:60827 "EHLO
+	Thu, 10 Aug 2006 05:54:48 -0400
+Received: from mx-outbound.sourceforge.net ([66.35.250.223]:6300 "EHLO
 	sc8-sf-sshgate.sourceforge.net") by vger.kernel.org with ESMTP
-	id S1161128AbWHJJyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 05:54:10 -0400
+	id S1161138AbWHJJyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 05:54:43 -0400
 From: Shem Multinymous <multinymous@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: Robert Love <rlove@rlove.org>, Pavel Machek <pavel@suse.cz>,
        Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>,
        Andrew Morton <akpm@osdl.org>, hdaps-devel@lists.sourceforge.net
-Subject: [PATCH 03/12] hdaps: Unify and cache hdaps readouts
+Subject: [PATCH 08/12] hdaps: Add explicit hardware configuration functions
 Reply-To: Shem Multinymous <multinymous@gmail.com>
-Date: Thu, 10 Aug 2006 12:48:41 +0300
-Message-Id: <11552033502195-git-send-email-multinymous@gmail.com>
+Date: Thu, 10 Aug 2006 12:48:46 +0300
+Message-Id: <1155203384964-git-send-email-multinymous@gmail.com>
 X-Mailer: git-send-email 1.4.1
 In-Reply-To: <1155203330179-git-send-email-multinymous@gmail.com>
 References: <1155203330179-git-send-email-multinymous@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current hdaps driver queries the hardware on (almost) any sysfs
-read, reading just the information it needs and discarding the rest
-This is inefficient, because every hardware query actually gives all
-information. It also means we're losing data, because readouts are
-offered by the hardware at a constant rate and each query "eats up"
-a readout. It also results in unnecessarily complex code.
+This adds functions for configuring accelerometer-related hardware 
+parameters in the hdaps driver, and changes the init function to
+use these functions instead of opaque magic numbers.
+The parameters are configured via variables instead of constants
+since a later patch will add sysfs attributes for changing them.
 
-This patch moves all hardware value reading+parsing to a single
-function, __hdaps_update(). All values are cached, and easily
-referenced afterwards. This function is still invoked on every sysfs
-read. This will be fixed in a later patch.
-
-There's a minor race condition here (and and also in the original code):
-the global int pos_x, rest_x etc. could be updated while an attribute's
-show_* function is reading them. This will be fixed in a future patch.
+A few of these functions aren't used yet, but will be used by later
+patches.
 
 Signed-off-by: Shem Multinymous <multinymous@gmail.com>
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 ---
- drivers/hwmon/hdaps.c |  173 ++++++++++++++++++++++++++------------------------
- 1 file changed, 90 insertions(+), 83 deletions(-)
+ drivers/hwmon/hdaps.c |  205 ++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 159 insertions(+), 46 deletions(-)
 
 --- a/drivers/hwmon/hdaps.c
 +++ b/drivers/hwmon/hdaps.c
-@@ -63,73 +63,89 @@ static struct timer_list hdaps_timer;
- static struct platform_device *pdev;
- static struct input_dev *hdaps_idev;
+@@ -57,7 +57,6 @@ static const struct thinkpad_ec_row ec_a
+ #define READ_TIMEOUT_MSECS	100	/* wait this long for device read */
+ #define RETRY_MSECS		3	/* retry delay */
+ 
+-#define HDAPS_POLL_PERIOD	(HZ/50)	/* poll for input every 1/50s */
+ #define HDAPS_INPUT_FUZZ	4	/* input event threshold */
+ #define HDAPS_INPUT_FLAT	4
+ #define KMACT_REMEMBER_PERIOD   (HZ/10) /* keyboard/mouse persistance */
+@@ -68,6 +67,13 @@ static struct input_dev *hdaps_idev;
  static unsigned int hdaps_invert;
-+
-+/* Latest state readout */
-+static int pos_x, pos_y;   /* position */
-+static int var_x, var_y;   /* variance (what is this?) */
-+static u8 temp1, temp2;    /* temperatures */
- static u8 km_activity;
--static int rest_x;
--static int rest_y;
-+static int rest_x, rest_y; /* calibrated rest position */
+ static int needs_calibration;
  
--/*
-- * hdaps_readb_one - reads a byte from a single I/O port, placing the value in
-- * the given pointer.  Returns zero on success or a negative error on failure.
-- * Can sleep.
-- */
--static int hdaps_readb_one(unsigned int port, u8 *val)
-+/* Some models require an axis transformation to the standard reprsentation */
-+void transform_axes(int *x, int *y)
- {
--	int ret;
--	struct thinkpad_ec_row data;
--
--	ret = thinkpad_ec_lock();
--	if (ret)
--		return ret;
--	data.mask = (1 << port);
--	ret = thinkpad_ec_read_row(&ec_accel_args, &data);
--	*val = data.val[port];
--	thinkpad_ec_unlock();
--	return ret;
-+	if (hdaps_invert) {
-+		*x = -*x;
-+		*y = -*y;
++/* Configuration: */
++static int sampling_rate = 50;       /* Sampling rate  */
++static int oversampling_ratio = 5;   /* Ratio between our sampling rate and
++                                      * EC accelerometer sampling rate      */
++static int running_avg_filter_order = 2; /* EC running average filter order */
++static int fake_data_mode;           /* Enable EC fake data mode? */
++
+ /* Latest state readout: */
+ static int pos_x, pos_y;      /* position */
+ static int temperature;       /* temperature */
+@@ -177,6 +183,143 @@ static int hdaps_update(void)
+ }
+ 
+ /**
++ * hdaps_set_power - enable or disable power to the accelerometer.
++ * Returns zero on success and negative error code on failure.  Can sleep.
++ */
++static int hdaps_set_power(int on)
++{
++	struct thinkpad_ec_row args =
++		{ .mask=0x0003, .val={0x14, on?0x01:0x00} };
++	struct thinkpad_ec_row data = { .mask = 0x8000 };
++	int ret = thinkpad_ec_read_row(&args, &data);
++	if (ret)
++		return ret;
++	if (data.val[0xF]!=0x00)
++		return -EIO;
++	return 0;
++}
++
++/**
++ * hdaps_set_fake_data_mode - enable or disable EC test mode
++ * EC test mode fakes accelerometer data using an incrementing counter.
++ * Returns zero on success and negative error code on failure.  Can sleep.
++ */
++static int hdaps_set_fake_data_mode(int on)
++{
++	struct thinkpad_ec_row args =
++		{ .mask=0x0007, .val={0x17, 0x83, on?0x01:0x00} };
++	struct thinkpad_ec_row data = { .mask = 0x8000 };
++	int ret = thinkpad_ec_read_row(&args, &data);
++	if (ret)
++		return ret;
++	if (data.val[0xF]!=0x00) {
++		printk(KERN_WARNING "failed setting hdaps fake data to %d\n",
++		       on);
++		return -EIO;
 +	}
- }
- 
--/* __hdaps_read_pair - internal lockless helper for hdaps_read_pair(). */
--static int __hdaps_read_pair(unsigned int port1, unsigned int port2,
--			     int *x, int *y)
++	printk(KERN_DEBUG "hdaps: fake_data_mode set to %d\n", on);
++	return 0;
++}
++
 +/**
-+ * __hdaps_update - query current state, with locks already acquired
-+ * @fast: if nonzero, do one quick attempt without retries.
-+ *
-+ * Query current accelerometer state and update global state variables.
-+ * Also prefetches the next query. Caller must hold controller lock.
++ * hdaps_set_ec_config - set accelerometer parameters.
++ * @ec_rate: embedded controller sampling rate
++ * @order: embedded controller running average filter order
++ * (Normally we have @ec_rate = sampling_rate * oversampling_ratio.)
++ * Returns zero on success and negative error code on failure.  Can sleep.
 + */
-+static int __hdaps_update(int fast)
- {
--	int ret;
-+	/* Read data: */
- 	struct thinkpad_ec_row data;
-+	int ret;
- 
--	data.mask = (3 << port1) | (3 << port2) | (1 << EC_ACCEL_IDX_KMACT);
--	ret = thinkpad_ec_read_row(&ec_accel_args, &data);
-+	data.mask = (1 << EC_ACCEL_IDX_KMACT)    |
-+	            (3 << EC_ACCEL_IDX_YPOS1)    | (3 << EC_ACCEL_IDX_XPOS1) |
-+	            (3 << EC_ACCEL_IDX_YPOS2)    | (3 << EC_ACCEL_IDX_XPOS2) |
-+	            (1 << EC_ACCEL_IDX_TEMP1)    | (1 << EC_ACCEL_IDX_TEMP2);
-+	if (fast)
-+		ret = thinkpad_ec_try_read_row(&ec_accel_args, &data);
-+	else
-+		ret = thinkpad_ec_read_row(&ec_accel_args, &data);
-+	thinkpad_ec_prefetch_row(&ec_accel_args); /* Prefetch even if error */
- 	if (ret)
- 		return ret;
- 
--	*x = *(s16*)(data.val+port1);
--	*y = *(s16*)(data.val+port2);
-+	/* Parse position data: */
-+	pos_x = *(s16*)(data.val+EC_ACCEL_IDX_XPOS1);
-+	pos_y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS1);
-+	transform_axes(&pos_x, &pos_y);
++static int hdaps_set_ec_config(int ec_rate, int order)
++{
++	struct thinkpad_ec_row args = { .mask=0x000F,
++		.val={0x10, (u8)ec_rate, (u8)(ec_rate>>8), order} };
++	struct thinkpad_ec_row data = { .mask = 0x8000 };
++	int ret = thinkpad_ec_read_row(&args, &data);
++	printk(KERN_DEBUG "hdaps: setting ec_rate=%d, filter_order=%d\n",
++	       ec_rate, order);
++	if (ret)
++		return ret;
++	if (data.val[0xF]==0x03) {
++		printk(KERN_WARNING "hdaps: config param out of range\n");
++		return -EINVAL;
++	}
++	if (data.val[0xF]==0x06) {
++		printk(KERN_WARNING "hdaps: config change already pending\n");
++		return -EBUSY;
++	}
++	if (data.val[0xF]!=0x00) {
++		printk(KERN_WARNING "hdaps: config change error, ret=%d\n",
++		      data.val[0xF]);
++		return -EIO;
++	}
++	return 0;
++}
 +
-+	/* Parse so-called "variance" data: */
-+	var_x = *(s16*)(data.val+EC_ACCEL_IDX_XPOS2);
-+	var_y = *(s16*)(data.val+EC_ACCEL_IDX_YPOS2);
-+	transform_axes(&var_x, &var_y);
++/**
++ * hdaps_get_ec_config - get accelerometer parameters.
++ * @ec_rate: embedded controller sampling rate
++ * @order: embedded controller running average filter order
++ * Returns zero on success and negative error code on failure.  Can sleep.
++ */
++static int hdaps_get_ec_config(int *ec_rate, int *order)
++{
++	const struct thinkpad_ec_row args =
++		{ .mask=0x0003, .val={0x17, 0x82} };
++	struct thinkpad_ec_row data = { .mask = 0x801F };
++	int ret = thinkpad_ec_read_row(&args, &data);
++	if (ret)
++		return ret;
++	if (data.val[0xF]!=0x00)
++		return -EIO;
++	if (!(data.val[0x1] & 0x01))
++		return -ENXIO; /* accelerometer polling not enabled */
++	if (data.val[0x1] & 0x02)
++		return -EBUSY; /* config change in progress, retry later */
++	*ec_rate = data.val[0x2] | ((int)(data.val[0x3]) << 8);
++	*order = data.val[0x4];
++	return 0;
++}
 +
- 	km_activity = data.val[EC_ACCEL_IDX_KMACT];
- 
--	/* if hdaps_invert is set, negate the two values */
--	if (hdaps_invert) {
--		*x = -*x;
--		*y = -*y;
--	}
-+	temp1 = data.val[EC_ACCEL_IDX_TEMP1];
-+	temp2 = data.val[EC_ACCEL_IDX_TEMP2];
- 
- 	return 0;
- }
- 
--/*
-- * hdaps_read_pair - reads the values from a pair of ports, placing the values
-- * in the given pointers.  Returns zero on success.  Can sleep.
 +/**
-+ * hdaps_update - acquire locks and query current state
-+ *
-+ * Query current accelerometer state and update global state variables.
-+ * Also prefetches the next query.
-+ * Does its own locking.
-  */
--static int hdaps_read_pair(unsigned int port1, unsigned int port2,
--			   int *val1, int *val2)
-+static int hdaps_update(void)
- {
- 	int ret = thinkpad_ec_lock();
- 	if (ret)
- 		return ret;
--	ret = __hdaps_read_pair(port1, port2, val1, val2);
-+	ret = __hdaps_update(0);
- 	thinkpad_ec_unlock();
- 	return ret;
- }
- 
--/*
-- * hdaps_device_init - initialize the accelerometer.  Returns zero on success
-- * and negative error code on failure.  Can sleep.
++ * hdaps_get_ec_mode - get EC accelerometer mode
++ * Returns zero on success and negative error code on failure.  Can sleep.
++ */
++static int hdaps_get_ec_mode(u8 *mode)
++{
++	const struct thinkpad_ec_row args = { .mask=0x0001, .val={0x13} };
++	struct thinkpad_ec_row data = { .mask = 0x8002 };
++	int ret = thinkpad_ec_read_row(&args, &data);
++	if (ret)
++		return ret;
++	if (data.val[0xF]!=0x00) {
++		printk(KERN_WARNING
++		       "accelerometer not implemented (0x%02x)\n",
++		       data.val[0xF]);
++		return -EIO;
++	}
++	*mode = data.val[0x1];
++	return 0;
++}
++
 +/**
-+ * hdaps_device_init - initialize the accelerometer.
-+ *
-+ * Call several embedded controller functions to test and initialize the
-+ * accelerometer.
-+ * Returns zero on success and negative error code on failure. Can sleep.
-  */
- #define ABORT_INIT(msg) printk(KERN_ERR "hdaps init failed at: %s\n", msg)
++ * hdaps_check_ec - checks something about the EC.
++ * Follows the clean-room spec for HDAPS; we don't know what it means.
++ * Returns zero on success and negative error code on failure.  Can sleep.
++ */
++static int __init hdaps_check_ec(u8 *mode)
++{
++	const struct thinkpad_ec_row args =
++		{ .mask=0x0003, .val={0x17, 0x81} };
++	struct thinkpad_ec_row data = { .mask = 0x800E };
++	int ret = thinkpad_ec_read_row(&args, &data);
++	if (ret)
++		return  ret;
++	if (data.val[0x1]!=0x00 || data.val[0x2]!=0x60 ||
++	    data.val[0x3]!=0x00 || data.val[0xF]!=0x00)
++		return -EIO;
++	return 0;
++}
++
++/**
+  * hdaps_device_init - initialize the accelerometer.
+  *
+  * Call several embedded controller functions to test and initialize the
+@@ -187,61 +330,31 @@ static int hdaps_update(void)
  static int hdaps_device_init(void)
-@@ -236,35 +252,43 @@ static struct platform_driver hdaps_driv
- 	},
- };
- 
--/*
-- * hdaps_calibrate - Set our "resting" values.  Callers must hold hdaps_sem.
-+/**
-+ * hdaps_calibrate - set our "resting" values.
-+ * Does its own locking.
-  */
- static void hdaps_calibrate(void)
  {
--	__hdaps_read_pair(EC_ACCEL_IDX_XPOS1, EC_ACCEL_IDX_YPOS1, &rest_x, &rest_y);
-+	hdaps_update();
-+	rest_x = pos_x;
-+	rest_y = pos_y;
- }
+ 	int ret;
+-	struct thinkpad_ec_row args, data;
+ 	u8 mode;
  
-+/* Timer handler for updating the input device. Runs in softirq context,
-+ * so avoid lenghty or blocking operations.
-+ */
- static void hdaps_mousedev_poll(unsigned long unused)
- {
--	int x, y;
-+	int ret;
+ 	ret = thinkpad_ec_lock();
+ 	if (ret)
+ 		return ret;
  
- 	/* Cannot sleep.  Try nonblockingly.  If we fail, try again later. */
--	if (thinkpad_ec_try_lock()) {
--		mod_timer(&hdaps_timer,jiffies + HDAPS_POLL_PERIOD);
-+	if (thinkpad_ec_try_lock())
-+		goto keep_active;
+-	args.val[0x0] = 0x13;
+-	args.val[0xF] = 0x01;
+-	args.mask=0x8001;
+-	data.mask=0x8002;
+-	if (thinkpad_ec_read_row(&args, &data))
+-		{ ABORT_INIT("read1"); goto bad; }
+-	if (data.val[0xF]!=0x00)
+-		{ ABORT_INIT("check1"); goto bad; }
+-	mode = data.val[0x1];
++	if (hdaps_get_ec_mode(&mode))
++		{ ABORT_INIT("hdaps_get_ec_mode failed"); goto bad; }
+ 
+ 	printk(KERN_DEBUG "hdaps: initial mode latch is 0x%02x\n", mode);
+ 	if (mode==0x00)
+ 		{ ABORT_INIT("accelerometer not available"); goto bad; }
+ 
+-	args.val[0x0] = 0x17;
+-	args.val[0x1] = 0x81;
+-	args.val[0xF] = 0x01;
+-	args.mask = 0x8003;
+-	data.mask = 0x800E;
+-	if (thinkpad_ec_read_row(&args, &data))
+-		{ ABORT_INIT("read2"); goto bad; }
+-	if (data.val[0x1]!=0x00 ||
+-	    data.val[0x2]!=0x60 ||
+-	    data.val[0x3]!=0x00 ||
+-	    data.val[0xF]!=0x00)
+-		{ ABORT_INIT("check2"); goto bad; }
+-
+-	args.val[0x0] = 0x14;
+-	args.val[0x1] = 0x01;
+-	args.val[0xF] = 0x01;
+-	args.mask = 0x8003;
+-	data.mask = 0x8000;
+-	if (thinkpad_ec_read_row(&args, &data))
+-		{ ABORT_INIT("read3"); goto bad; }
+-	if (data.val[0xF]!=0x00)
+-		{ ABORT_INIT("check3"); goto bad; }
++	if (hdaps_check_ec(&mode))
++		{ ABORT_INIT("hdaps_check_ec failed"); goto bad; }
+ 
+-	args.val[0x0] = 0x10;
+-	args.val[0x1] = 0xc8;
+-	args.val[0x2] = 0x00;
+-	args.val[0x3] = 0x02;
+-	args.val[0xF] = 0x01;
+-	args.mask = 0x800F;
+-	data.mask = 0x8000;
+-	if (thinkpad_ec_read_row(&args, &data))
+-		{ ABORT_INIT("read4"); goto bad; }
+-	if (data.val[0xF]!=0x00)
+-		{ ABORT_INIT("check4"); goto bad; }
++	if (hdaps_set_power(1))
++		{ ABORT_INIT("hdaps_set_power failed"); goto bad; }
 +
-+	ret = __hdaps_update(1); /* fast update, we're in softirq context */
-+	thinkpad_ec_unlock();
-+	/* Any of "successful", "not yet ready" and "not prefetched"? */
-+	if (ret!=0 && ret!=-EBUSY && ret!=-ENODATA) {
-+		printk(KERN_ERR
-+		       "hdaps: poll failed, disabling mousedev updates\n");
- 		return;
- 	}
++	if (hdaps_set_ec_config(sampling_rate*oversampling_ratio,
++	                        running_avg_filter_order))
++		{ ABORT_INIT("hdaps_set_ec_config failed"); goto bad; }
++
++	if (hdaps_set_fake_data_mode(fake_data_mode))
++		{ ABORT_INIT("hdaps_set_fake_data_mode failed"); goto bad; }
  
--	if (__hdaps_read_pair(EC_ACCEL_IDX_XPOS1, EC_ACCEL_IDX_YPOS1, &x, &y))
--		goto out;
--
--	input_report_abs(hdaps_idev, ABS_X, x - rest_x);
--	input_report_abs(hdaps_idev, ABS_Y, y - rest_y);
-+keep_active:
-+	/* Even if we failed now, pos_x,y may have been updated earlier: */
-+	input_report_abs(hdaps_idev, ABS_X, pos_x - rest_x);
-+	input_report_abs(hdaps_idev, ABS_Y, pos_y - rest_y);
+ 	thinkpad_ec_invalidate();
+ 	udelay(200);
+@@ -327,7 +440,7 @@ keep_active:
+ 	input_report_abs(hdaps_idev, ABS_X, pos_x - rest_x);
+ 	input_report_abs(hdaps_idev, ABS_Y, pos_y - rest_y);
  	input_sync(hdaps_idev);
--
- 	mod_timer(&hdaps_timer, jiffies + HDAPS_POLL_PERIOD);
--
--out:
--	thinkpad_ec_unlock();
+-	mod_timer(&hdaps_timer, jiffies + HDAPS_POLL_PERIOD);
++	mod_timer(&hdaps_timer, jiffies + HZ/sampling_rate);
  }
  
  
-@@ -273,51 +297,37 @@ out:
- static ssize_t hdaps_position_show(struct device *dev,
- 				   struct device_attribute *attr, char *buf)
- {
--	int ret, x, y;
--
--	ret = hdaps_read_pair(EC_ACCEL_IDX_XPOS1, EC_ACCEL_IDX_YPOS1, &x, &y);
-+	int ret = hdaps_update();
- 	if (ret)
- 		return ret;
--
--	return sprintf(buf, "(%d,%d)\n", x, y);
-+	return sprintf(buf, "(%d,%d)\n", pos_x, pos_y);
- }
+@@ -544,7 +657,7 @@ static int __init hdaps_init(void)
+ 	/* start up our timer for the input device */
+ 	init_timer(&hdaps_timer);
+ 	hdaps_timer.function = hdaps_mousedev_poll;
+-	hdaps_timer.expires = jiffies + HDAPS_POLL_PERIOD;
++	hdaps_timer.expires = jiffies + HZ/sampling_rate;
+ 	add_timer(&hdaps_timer);
  
- static ssize_t hdaps_variance_show(struct device *dev,
- 				   struct device_attribute *attr, char *buf)
- {
--	int ret, x, y;
--
--	ret = hdaps_read_pair(EC_ACCEL_IDX_XPOS2, EC_ACCEL_IDX_YPOS2, &x, &y);
-+	int ret = hdaps_update();
- 	if (ret)
- 		return ret;
--
--	return sprintf(buf, "(%d,%d)\n", x, y);
-+	return sprintf(buf, "(%d,%d)\n", var_x, var_y);
- }
- 
- static ssize_t hdaps_temp1_show(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
--	u8 temp;
--	int ret;
--
--	ret = hdaps_readb_one(EC_ACCEL_IDX_TEMP1, &temp);
--	if (ret < 0)
-+	int ret = hdaps_update();
-+	if (ret)
- 		return ret;
--
--	return sprintf(buf, "%u\n", temp);
-+	return sprintf(buf, "%u\n", temp1);
- }
- 
- static ssize_t hdaps_temp2_show(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
--	u8 temp;
--	int ret;
--
--	ret = hdaps_readb_one(EC_ACCEL_IDX_TEMP2, &temp);
--	if (ret < 0)
-+	int ret = hdaps_update();
-+	if (ret)
- 		return ret;
--
--	return sprintf(buf, "%u\n", temp);
-+	return sprintf(buf, "%u\n", temp2);
- }
- 
- static ssize_t hdaps_keyboard_activity_show(struct device *dev,
-@@ -344,10 +354,7 @@ static ssize_t hdaps_calibrate_store(str
- 				     struct device_attribute *attr,
- 				     const char *buf, size_t count)
- {
--	if (thinkpad_ec_lock())
--		return -EIO;
- 	hdaps_calibrate();
--	thinkpad_ec_unlock();
- 	return count;
- }
- 
+ 	printk(KERN_INFO "hdaps: driver successfully loaded.\n");

@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbWHJUVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWHJUXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbWHJUVT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWHJUPo
+	id S1751528AbWHJUXf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWHJUXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:15:44 -0400
-Received: from ns1.suse.de ([195.135.220.2]:26512 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932487AbWHJTfu (ORCPT
+	Thu, 10 Aug 2006 16:23:34 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:59504 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751528AbWHJUXK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:35:50 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [35/145] x86_64: Simplify profile_pc on x86-64
-Message-Id: <20060810193549.0C59D13B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:35:49 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:23:10 -0400
+Date: Thu, 10 Aug 2006 22:23:08 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Theodore Tso <tytso@mit.edu>, Mingming Cao <cmm@us.ibm.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 2/5] Register ext3dev filesystem
+Message-ID: <20060810202307.GB12766@harddisk-recovery.com>
+References: <1155172642.3161.74.camel@localhost.localdomain> <20060810092021.GB11361@harddisk-recovery.com> <20060810175920.GC19238@thunk.org> <44DB8EBE.6060003@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44DB8EBE.6060003@garzik.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, Aug 10, 2006 at 03:53:34PM -0400, Jeff Garzik wrote:
+> Theodore Tso wrote:
+> > On Thu, Aug 10, 2006 at 11:20:22AM +0200, Erik Mouw wrote:
+> >> On Wed, Aug 09, 2006 at 06:17:22PM -0700, Mingming Cao wrote:
+> >>> Register ext4 filesystem as ext3dev filesystem in kernel.
+> >> Why confuse users with the name "ext3dev"? If a filesystem lives in
+> >> fs/blah/, it's registered as "blah" and can be mounted with "-t blah".
+> >> Just register the filesystem as "ext4" and mark it "EXPERIMENTAL" in
+> >> Kconfig.
+> > 
+> > We had this discussion on LKML.  There were those who were concerned
+> > that it would not be enough just to mark it be EXPERIMENTAL.
+> 
+> I _want_ to agree with Erik, but I must agree:  CONFIG_EXPERIMENTAL is 
+> pretty worthless in practice :(  It's not maintained rigorously, and 
+> distros _always_ enable it, because otherwise they would often omit key 
+> drivers that people actively use.
+> 
+> So, while my own personal preference would be to follow Erik's 
+> suggestion...  thinking realistically, an fstype change from "ext3dev" 
+> to "ext4" is a far more obvious-to-users method of creating a 
+> devel/production line of demarcation.
 
-Use knowledge about EFLAGS layout (bits 22:63 are always 0) to distingush
-EFLAGS word and kernel address in the spin lock stack frame.
+So what about "ext4dev"? That shows that the filesystem is not ext3 and
+experimental.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
 
----
- arch/x86_64/kernel/time.c |   21 ++++++++-------------
- 1 files changed, 8 insertions(+), 13 deletions(-)
+Erik
 
-Index: linux/arch/x86_64/kernel/time.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/time.c
-+++ linux/arch/x86_64/kernel/time.c
-@@ -189,20 +189,15 @@ unsigned long profile_pc(struct pt_regs 
- {
- 	unsigned long pc = instruction_pointer(regs);
- 
--	/* Assume the lock function has either no stack frame or only a single 
--	   word.  This checks if the address on the stack looks like a kernel 
--	   text address.
--	   There is a small window for false hits, but in that case the tick
--	   is just accounted to the spinlock function.
--	   Better would be to write these functions in assembler again
--	   and check exactly. */
-+	/* Assume the lock function has either no stack frame or a copy
-+	   of eflags from PUSHF
-+	   Eflags always has bits 22 and up cleared unlike kernel addresses. */
- 	if (!user_mode(regs) && in_lock_functions(pc)) {
--		char *v = *(char **)regs->rsp;
--		if ((v >= _stext && v <= _etext) ||
--			(v >= _sinittext && v <= _einittext) ||
--			(v >= (char *)MODULES_VADDR  && v <= (char *)MODULES_END))
--			return (unsigned long)v;
--		return ((unsigned long *)regs->rsp)[1];
-+		unsigned long *sp = (unsigned long *)regs->rsp;
-+		if (sp[0] >> 22)
-+			return sp[0];
-+		if (sp[1] >> 22)
-+			return sp[1];
- 	}
- 	return pc;
- }
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

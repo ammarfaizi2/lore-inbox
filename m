@@ -1,128 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWHJUlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWHJUir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbWHJUlO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 16:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWHJUOY
+	id S1751588AbWHJUir (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 16:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751592AbWHJUiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 16:14:24 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45291 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932614AbWHJTgU (ORCPT
+	Thu, 10 Aug 2006 16:38:09 -0400
+Received: from ns2.suse.de ([195.135.220.15]:42118 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751615AbWHJUiB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 15:36:20 -0400
-From: Andi Kleen <ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-In-Reply-To: <20060810 935.775038000@suse.de>
-Subject: [PATCH for review] [59/145] x86_64: Remove MPS table APIC renumbering
-Message-Id: <20060810193614.71F7B13B90@wotan.suse.de>
-Date: Thu, 10 Aug 2006 21:36:14 +0200 (CEST)
-To: undisclosed-recipients:;
+	Thu, 10 Aug 2006 16:38:01 -0400
+Date: Thu, 10 Aug 2006 13:37:36 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Robert Love <rlove@rlove.org>, Shem Multinymous <multinymous@gmail.com>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Jean Delvare <khali@linux-fr.org>, hdaps-devel@lists.sourceforge.net
+Subject: Re: [PATCH 00/12] ThinkPad embedded controller and hdaps drivers (version 2)
+Message-ID: <20060810203736.GA15208@suse.de>
+References: <1155203330179-git-send-email-multinymous@gmail.com> <acdcfe7e0608100646s411f57ccse54db9fe3cfde3fb@mail.gmail.com> <20060810131820.23f00680.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060810131820.23f00680.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r
+On Thu, Aug 10, 2006 at 01:18:20PM -0700, Andrew Morton wrote:
+> On Thu, 10 Aug 2006 09:46:47 -0400
+> "Robert Love" <rlove@rlove.org> wrote:
+> 
+> > Patches look great and I am glad someone has apparently better access
+> > to hardware specs than I did.
+> 
+> This situation is still a concern.  From where did this additional register
+> information come?
+> 
+> Was it reverse-engineered?  If so, by whom and how can we satisfy ourselves
+> of this?
+> 
+> Was it from published documents?
+> 
+> Was it improperly obtained from NDA'ed documentation?
+> 
+> Presumably the answer to the third question will be "no", but if
+> challenged, how can we defend this assertion?
+> 
+> So hm.  We're setting precedent here and we need Linus around to resolve
+> this.  Perhaps we can ask "Shem" to reveal his true identity to Linus (and
+> maybe me) privately and then we proceed on that basis.  The rule could be
+> "each of the Signed-off-by:ers should know the identity of the others".
 
-The MPS table specification says that the operating system should
-renumber the IO-APICs following the table as needed.  However in 
-ACPI this is not allowed or neeeded and all x86-64 systems are ACPI 
-compliant.
+For what it's worth, I'm not going to be handling these patches at all
+(normally the hwmon patches go to Linus through Jean and then through
+me.)
 
-The code was already disabled on some systems because it caused
-problems there. Remove it completely now.
+If the original developer does not want to work in the open like the
+rest of us, I can respect that, but unfortunatly I can't accept the risk
+of accepting their code.
 
-CC: mdomsch@dell.com
+And no, this is not "been beaten over the head by IP lawyers for three
+years about risks like this" portion of me talking, although that side
+does have a lot he could say about this situation...
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+thanks,
 
----
- arch/x86_64/kernel/io_apic.c |   71 -------------------------------------------
- 1 files changed, 71 deletions(-)
-
-Index: linux/arch/x86_64/kernel/io_apic.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/io_apic.c
-+++ linux/arch/x86_64/kernel/io_apic.c
-@@ -1283,72 +1283,6 @@ void disable_IO_APIC(void)
- }
- 
- /*
-- * function to set the IO-APIC physical IDs based on the
-- * values stored in the MPC table.
-- *
-- * by Matt Domsch <Matt_Domsch@dell.com>  Tue Dec 21 12:25:05 CST 1999
-- */
--
--static void __init setup_ioapic_ids_from_mpc (void)
--{
--	union IO_APIC_reg_00 reg_00;
--	int apic;
--	int i;
--	unsigned char old_id;
--	unsigned long flags;
--
--	/*
--	 * Set the IOAPIC ID to the value stored in the MPC table.
--	 */
--	for (apic = 0; apic < nr_ioapics; apic++) {
--
--		/* Read the register 0 value */
--		spin_lock_irqsave(&ioapic_lock, flags);
--		reg_00.raw = io_apic_read(apic, 0);
--		spin_unlock_irqrestore(&ioapic_lock, flags);
--		
--		old_id = mp_ioapics[apic].mpc_apicid;
--
--
--		printk(KERN_INFO "Using IO-APIC %d\n", mp_ioapics[apic].mpc_apicid);
--
--
--		/*
--		 * We need to adjust the IRQ routing table
--		 * if the ID changed.
--		 */
--		if (old_id != mp_ioapics[apic].mpc_apicid)
--			for (i = 0; i < mp_irq_entries; i++)
--				if (mp_irqs[i].mpc_dstapic == old_id)
--					mp_irqs[i].mpc_dstapic
--						= mp_ioapics[apic].mpc_apicid;
--
--		/*
--		 * Read the right value from the MPC table and
--		 * write it into the ID register.
--	 	 */
--		apic_printk(APIC_VERBOSE,KERN_INFO "...changing IO-APIC physical APIC ID to %d ...",
--				mp_ioapics[apic].mpc_apicid);
--
--		reg_00.bits.ID = mp_ioapics[apic].mpc_apicid;
--		spin_lock_irqsave(&ioapic_lock, flags);
--		io_apic_write(apic, 0, reg_00.raw);
--		spin_unlock_irqrestore(&ioapic_lock, flags);
--
--		/*
--		 * Sanity check
--		 */
--		spin_lock_irqsave(&ioapic_lock, flags);
--		reg_00.raw = io_apic_read(apic, 0);
--		spin_unlock_irqrestore(&ioapic_lock, flags);
--		if (reg_00.bits.ID != mp_ioapics[apic].mpc_apicid)
--			printk("could not set ID!\n");
--		else
--			apic_printk(APIC_VERBOSE," ok.\n");
--	}
--}
--
--/*
-  * There is a nasty bug in some older SMP boards, their mptable lies
-  * about the timer IRQ. We do the following to work around the situation:
-  *
-@@ -1863,11 +1797,6 @@ void __init setup_IO_APIC(void)
- 
- 	apic_printk(APIC_VERBOSE, "ENABLING IO-APIC IRQs\n");
- 
--	/*
--	 * Set up the IO-APIC IRQ routing table.
--	 */
--	if (!acpi_ioapic)
--		setup_ioapic_ids_from_mpc();
- 	sync_Arb_IDs();
- 	setup_IO_APIC_irqs();
- 	init_IO_APIC_traps();
+greg k-h

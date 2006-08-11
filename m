@@ -1,56 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWHKXnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWHKXtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWHKXnL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 19:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWHKXnL
+	id S932111AbWHKXtt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 19:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWHKXtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 19:43:11 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:35718 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1751250AbWHKXnJ (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 19:43:09 -0400
-Date: Sat, 12 Aug 2006 01:42:46 +0200
-From: fork0@t-online.de (Alex Riesen)
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Jeff Garzik <jeff@garzik.org>, keith.packard@intel.com,
-       Linux-kernel@vger.kernel.org, Dirk Hohndel <dirk.hohndel@intel.com>,
-       Imad Sousou <imad.sousou@intel.com>
-Subject: Re: Announcing free software graphics drivers for Intel i965 chipset
-Message-ID: <20060811234246.GA16586@steel.home>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
-	Nicholas Miell <nmiell@comcast.net>, Jeff Garzik <jeff@garzik.org>,
-	keith.packard@intel.com, Linux-kernel@vger.kernel.org,
-	Dirk Hohndel <dirk.hohndel@intel.com>,
-	Imad Sousou <imad.sousou@intel.com>
-References: <1155151903.11104.112.camel@neko.keithp.com> <44DACD51.7080607@garzik.org> <1155190917.2349.4.camel@entropy> <81b0412b0608110705y75cd5307vf73dd0b6ee107f81@mail.gmail.com> <1155321063.2522.1.camel@entropy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Aug 2006 19:49:49 -0400
+Received: from mail02.hansenet.de ([213.191.73.62]:49574 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S932111AbWHKXtt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 19:49:49 -0400
+From: Thomas Koeller <thomas@koeller.dyndns.org>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
+Date: Sat, 12 Aug 2006 01:49:23 +0200
+User-Agent: KMail/1.9.3
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
+       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
+References: <200608102319.13679.thomas@koeller.dyndns.org> <20060811205639.GK26930@redhat.com>
+In-Reply-To: <20060811205639.GK26930@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155321063.2522.1.camel@entropy>
-User-Agent: Mutt/1.5.11
-X-ID: Gz21M2ZLweCh9RZvlr+jQG1lS1PbNAymYG0IhErfEFbWHX8GtFYh4K
-X-TOI-MSGID: b4408055-e469-41a7-8db4-4307a34c3485
+Message-Id: <200608120149.23380.thomas@koeller.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Miell, Fri, Aug 11, 2006 20:31:03 +0200:
-> > >
-> > > More importantly, where's the source to intel_hal.so?
-> > >
-> > 
-> > ...and what'd break if the call to intel_hal_set_content_protection is
-> > omited?
-> 
-> Where's that call at?
-> 
+On Friday 11 August 2006 22:56, Dave Jones wrote:
+> On Thu, Aug 10, 2006 at 11:19:13PM +0200, thomas@koeller.dyndns.org wrote:
+>  > This is a driver for the on-chip watchdog device found on some
+>  > MIPS RM9000 processors.
+>  >
+>  > Signed-off-by: Thomas Koeller <thomas.koeller@baslerweb.com>
+>
+> Mostly same nit-picking comments as your other driver..
 
-In XOrg parts, I believe. I don't have that tarbal handy, and there is no
-traces of that symbol anywhere on the driver's pages (not even in git repos)
-anymore.
+Which one?
 
-> All I saw were intel_hal_wm_pass and intel_hal_recalculate_urb_fence in
-> Mesa, both of which appear to be strictly optimizations.
+>
+>  > +++ b/drivers/char/watchdog/rm9k_wdt.c
+>  > ...
+>  > +
+>  > +#include <linux/config.h>
+>
+> not needed.
 
-still not very nice.
+It is, otherwise I do not get CONFIG_WATCHDOG_NOWAYOUT.
 
+>
+>  > +/* Function prototypes */
+>  > +static int __init wdt_gpi_probe(struct device *);
+>  > +static int __exit wdt_gpi_remove(struct device *);
+>  > +static void wdt_gpi_set_timeout(unsigned int);
+>  > +static int wdt_gpi_open(struct inode *, struct file *);
+>  > +static int wdt_gpi_release(struct inode *, struct file *);
+>  > +static ssize_t wdt_gpi_write(struct file *, const char __user *,
+>  > size_t, loff_t *);
+>  > +static long wdt_gpi_ioctl(struct file *, unsigned int, unsigned long);
+>  > +static const struct resource *wdt_gpi_get_resource(struct
+>  > platform_device *, const char *, unsigned int);
+>  > +static int wdt_gpi_notify(struct notifier_block *, unsigned long, void
+>  > *); +static irqreturn_t wdt_gpi_irqhdl(int, void *, struct pt_regs *);
+>
+> Can probably (mostly?) go away with some creative reordering.
+
+Probably, but should it? I always considered it good style to have
+prototypes for all functions.
+
+>
+>  > +static int locked = 0;
+>
+> unneeded initialisation.
+
+Not strictly needed, that's true, but does not do any harm either
+and expresses the intention clearly.
+
+>
+>  > +static int nowayout =
+>  > +#if defined(CONFIG_WATCHDOG_NOWAYOUT)
+>  > +	1;
+>  > +#else
+>  > +	0;
+>  > +#endif
+>
+> static int nowayout = CONFIG_WATCHDOG_NOWAYOUT;
+>
+> should work.
+
+Does not work. If the option is not selected, CONFIG_WATCHDOG_NOWAYOUT
+is undefined, not zero.
+
+>
+>  > +static void wdt_gpi_set_timeout(unsigned int to)
+>  > +{
+>  > +	u32 reg;
+>  > +	const u32 wdval = (to * CLOCK) & ~0x0000000f;
+>  > +
+>  > +	lock_titan_regs();
+>  > +	reg = titan_readl(CPCCR) & ~(0xf << (wd_ctr * 4));
+>  > +	titan_writel(reg, CPCCR);
+>  > +	wmb();
+>  > +	__raw_writel(wdval, wd_regs + 0x0000);
+>  > +	wmb();
+>  > +	titan_writel(reg | (0x2 << (wd_ctr * 4)), CPCCR);
+>  > +	wmb();
+>  > +	titan_writel(reg | (0x5 << (wd_ctr * 4)), CPCCR);
+>  > +	iob();
+>  > +	unlock_titan_regs();
+>  > +}
+>
+> As in the previous driver, are these barriers strong enough?
+> Or do they need explicit reads of the written addresses to flush the write?
+
+I think they are. Remember, the entire device is integrated in the
+processor. No external buses involved.
+
+>
+> 		Dave
+
+Thanks for your comments!
+
+Thomas
+
+-- 
+Thomas Koeller
+thomas@koeller.dyndns.org

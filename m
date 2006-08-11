@@ -1,63 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWHKWOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWHKWTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWHKWOu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 18:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWHKWOt
+	id S964802AbWHKWTF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 18:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWHKWTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 18:14:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:3509 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964801AbWHKWOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 18:14:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=lUqxJLp224PX/u6/1x67T7hEsdeVtLith4LOyWAEKuZ3/XPoRKBgdnfoCZPvjjdBFoNSzzQqNopDy5V8B0eQtYSCCCgYpiatCfOwZhjFSV+vRxEpBiFLO7zf5OBnAO7l1FjD23hzAxoVgcl6HuU2jeEfyxP9iGLNwQhxv05Exg4=
-Date: Sat, 12 Aug 2006 02:14:47 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] CONFIG_PM=n slim: drivers/parport/parport_serial.c
-Message-ID: <20060811221447.GG6847@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Fri, 11 Aug 2006 18:19:05 -0400
+Received: from mga02.intel.com ([134.134.136.20]:62991 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964802AbWHKWTD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 18:19:03 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,115,1154934000"; 
+   d="scan'208"; a="107173447:sNHT18020506"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: cpufreq stops working after a while
+Date: Fri, 11 Aug 2006 15:18:58 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A84546F8FE2@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cpufreq stops working after a while
+thread-index: Aca9kKiDinoyEVa6TFWKiVtj9EwfzgAAwU6g
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Mark Lord" <lkml@rtr.ca>
+Cc: "Dave Jones" <davej@redhat.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 11 Aug 2006 22:18:59.0961 (UTC) FILETIME=[24F6EE90:01C6BD94]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
-
- drivers/parport/parport_serial.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
---- a/drivers/parport/parport_serial.c
-+++ b/drivers/parport/parport_serial.c
-@@ -374,6 +374,7 @@ static void __devexit parport_serial_pci
- 	return;
- }
- 
-+#ifdef CONFIG_PM
- static int parport_serial_pci_suspend(struct pci_dev *dev, pm_message_t state)
- {
- 	struct parport_serial_private *priv = pci_get_drvdata(dev);
-@@ -407,14 +408,17 @@ static int parport_serial_pci_resume(str
- 
- 	return 0;
- }
-+#endif
- 
- static struct pci_driver parport_serial_pci_driver = {
- 	.name		= "parport_serial",
- 	.id_table	= parport_serial_pci_tbl,
- 	.probe		= parport_serial_pci_probe,
- 	.remove		= __devexit_p(parport_serial_pci_remove),
-+#ifdef CONFIG_PM
- 	.suspend	= parport_serial_pci_suspend,
- 	.resume		= parport_serial_pci_resume,
-+#endif
- };
- 
  
 
+>-----Original Message-----
+>From: Mark Lord [mailto:lkml@rtr.ca] 
+>Sent: Friday, August 11, 2006 2:54 PM
+>To: Pallipadi, Venkatesh
+>Cc: Dave Jones; Linux Kernel; Andrew Morton
+>Subject: Re: cpufreq stops working after a while
+>
+>Pallipadi, Venkatesh wrote:
+>>> Mark Lord wrote:
+>>> Yup, thermal.
+>>> Trips shortly after I see 66C in 
+>>> /proc/acpi/thermal_zone/THM/temperature
+>>>
+>>> If I stop number crunching for a bit, the temperature drops 
+>down to the
+>>> low 50's, and the max freq then gets set back to 1100.
+>>>
+>>> Mmmm.. is there a way to control the high/low thermostat 
+>values there?
+>..
+>> What is the "cooling mode" you have in
+>> /proc/acpi/thermal_zone/THM/cooling_mode.
+>> Output of all files in that directory will help.
+>
+>/proc/acpi/thermal_zone/THM/cooling_mode:
+>	<setting not supported>
+>	cooling mode:   critical
+>
+>/proc/acpi/thermal_zone/THM/polling_frequency:
+>	<polling disabled>
+>
+>/proc/acpi/thermal_zone/THM/state:
+>	state:                   ok
+>
+>/proc/acpi/thermal_zone/THM/temperature:
+>	temperature:             49 C
+>
+>/proc/acpi/thermal_zone/THM/trip_points:
+>	critical (S5):           95 C
+>
+>==========
+>
+>This is a passively cooled notebook, so there's no fan
+>to control.  They probably self-limit the CPU speed when
+>the temperature gets high to prevent meltdown of the drive.
+>
+>But I would like to raise the lower limit if possible,
+>allowing the speed to bump back up at, say 58C rather
+>than waiting for 52C as it currently does.
+>
+>??
+
+Passive cooling starting temperature is given by platform manufacturer
+through BIOS. You can check whether your BIOS has any option to change
+it. Changing it manually by custom DSDT etc may be risky :).
+One thing you can try from software is the polling_frequency above. For
+some reason it is set to zero above. Try setting it to 1 sec and see
+whether that makes any difference (echo 1 >
+/proc/acpi/thermal_zone/THM/polling_frequency).
+
+Venki

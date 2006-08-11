@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWHKUeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWHKUjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWHKUeE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 16:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWHKUeE
+	id S964785AbWHKUjX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 16:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWHKUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 16:34:04 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:23503 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S964787AbWHKUeB (ORCPT
+	Fri, 11 Aug 2006 16:39:23 -0400
+Received: from rtr.ca ([64.26.128.89]:47553 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964785AbWHKUjX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 16:34:01 -0400
-Message-ID: <44DCE994.4060102@colorfullife.com>
-Date: Fri, 11 Aug 2006 22:33:24 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Fri, 11 Aug 2006 16:39:23 -0400
+Message-ID: <44DCEAF7.5020005@rtr.ca>
+Date: Fri, 11 Aug 2006 16:39:19 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, mpm@selenic.com,
-       npiggin@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
-References: <Pine.LNX.4.64.0608091744290.4966@schroedinger.engr.sgi.com> <20060810140153.e5932e76.kamezawa.hiroyu@jp.fujitsu.com> <Pine.LNX.4.64.0608092211320.5806@schroedinger.engr.sgi.com> <20060810144451.13591e4b.kamezawa.hiroyu@jp.fujitsu.com> <20060810151305.bc4602e0.kamezawa.hiroyu@jp.fujitsu.com> <Pine.LNX.4.64.0608100823580.8368@schroedinger.engr.sgi.com> <44DB7F29.3060901@colorfullife.com> <Pine.LNX.4.64.0608111014470.17885@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608111014470.17885@schroedinger.engr.sgi.com>
+To: Dave Jones <davej@redhat.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: cpufreq stops working after a while
+References: <EB12A50964762B4D8111D55B764A84546F8EC3@scsmsx413.amr.corp.intel.com> <44DCE8BA.2070601@rtr.ca>
+In-Reply-To: <44DCE8BA.2070601@rtr.ca>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+Ahhh...
 
->I still do not get the role of the shared cache though.
->
-The shared cache is just for efficient object transfers:
-Think about two nics, both cpu bound, one does rx, the other does tx.
-Result: a few 100k kmalloc, kmem_cache_alloc(skb_head_cache) calls each 
-second on cpu1.
-the same number of kfree, kmem_cache_free(skb_head_cache) calls each 
-second on cpu 2.
+>From the trace, I see a bunch of "userspace" lines appearing.
+And sure enough, something called "powernowd" is running,
+and probably conflicting with the "ondemand" governor.
 
-What is needed is an efficient algorithm for transfering all objects 
-from cpu 2 to cpu 1.
-Initially, the slab allocator just had the cpu cache. Thus an object 
-transfer was a free_block call: add the freed object to the bufctl 
-linked list. Move the slab to the tail of the partial list. Probably the 
-list_del()/list_add() calls caused cache line trashing, but I don't 
-remember the details. IIRC Robert Olsson did the test. Pentium III Xeon 
-system?
-Anyway: The solution was the shared array. It allows to move objects 
-around with a simple memmove of the pointers, without the 
-list_del()/list_add() calls.
+I'm nuking powernowd, and that'll probably cure it for this box.
+I guess the distro (kubuntu) must have started "powernowd"
+even though I told it (the distro) to use "ondemand".
 
---
-    Manfred
+Does it make sense that this could change the upper limit, though?
+
+Thanks guys!

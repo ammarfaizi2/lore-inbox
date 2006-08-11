@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWHKJsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWHKKEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWHKJsM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 05:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWHKJsM
+	id S1751087AbWHKKEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 06:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932065AbWHKKEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 05:48:12 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:46572 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1750995AbWHKJsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 05:48:11 -0400
-Message-Id: <44DC6EAA.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Fri, 11 Aug 2006 11:48:58 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH for review] [127/145] i386: move
-	kernel_thread_helper into entry.S
-References: <20060810 935.775038000@suse.de>
- <20060810193726.C133F13B8E@wotan.suse.de>
- <44DC5CE8.76E4.0078.0@novell.com> <200608111038.17716.ak@suse.de>
-In-Reply-To: <200608111038.17716.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 11 Aug 2006 06:04:25 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:49379 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751087AbWHKKEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 06:04:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=D+roaGYXS5Thhlbb3gWm7UonCTZ6yxXrNQVkS4NlwNPMHfMNoSGy2rDY9AOqKf+fRXIHyiSaaSpF5ZVYdJcTTLq89VnxvSau6wT13Q1EKohjbOwGDY8//keHA4SB/c2rQXset4pH0F9l0xoDb6S+jzd9uuFcUqUjUj569l8kM78=
+Message-ID: <9a8748490608110304x2565358ah98f2328a86ee9ed7@mail.gmail.com>
+Date: Fri, 11 Aug 2006 12:04:18 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Marc Perkel" <marc@perkel.com>
+Subject: Re: Dumb Question
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44DBFF8A.4020604@perkel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <44DBFF8A.4020604@perkel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> And this too - the value now in %eax has no relation with the
->> value known by the caller of this routine (which doesn't expect
->> any return from here anyway).
->
->Ok, but somehow it needs to be annotiated so that the unwinder stops
->and doesn't fall back. Can you please send a replacement patch that 
->does this correctly? 
+On 11/08/06, Marc Perkel <marc@perkel.com> wrote:
+[...]
+> and how do I apply the patch?
 
-I would do it this way (untested):
+Please read Documentation/applying-patches.txt in the kernel source
+dir after extracting the tarball.
 
-ENTRY(kernel_thread_helper)
-	CFI_STARTPROC
-	movl %edx,%eax
-	pushl %edx
-	CFI_ADJUST_CFA_OFFSET 4
-	call *%ebx
-	pushl %eax
-	CFI_ADJUST_CFA_OFFSET 4
-	call do_exit
-	CFI_ENDPROC
-ENDPROC(kernel_thread_helper)
-
-(i.e. tracking the stack pointer movement, but not the register values
-other than the return address)
-
-Jan
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,109 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWHKLkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWHKM10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWHKLkk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 07:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWHKLkk
+	id S932211AbWHKM10 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 08:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWHKM10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 07:40:40 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:42329 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932143AbWHKLkj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 07:40:39 -0400
-Message-ID: <44DC63B4.9070405@de.ibm.com>
-Date: Fri, 11 Aug 2006 13:02:12 +0200
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Fri, 11 Aug 2006 08:27:26 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:21632 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932211AbWHKM1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 08:27:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IhZPz1UvEXLfayyHWaLx3aoMmR007x1SB0xmz6A9/UZ6B7+5dAF1W+OI74QPefrJpBCAthsAPMrKwOrNP1rwaHBs9mvO+zoL22ALVF+CiDfJQZnOLSrsxsu+s2e1XzSolj3ZiPHWQQnviSZTjxfYs2Kzq8nWYiFI6r0YR8vWjDk=
+Message-ID: <d120d5000608110527q142a727ex5c2223a9aed5aeaa@mail.gmail.com>
+Date: Fri, 11 Aug 2006 08:27:19 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Richard Purdie" <rpurdie@rpsys.net>
+Subject: Re: [patch 6/6] Move per-device data out of backlight_properties
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1155283327.6354.6.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Christian Borntraeger <borntrae@de.ibm.com>
-CC: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 1/6] ehea: interface to network stack
-References: <44D99EFC.3000105@de.ibm.com> <200608091108.51774.borntrae@de.ibm.com>
-In-Reply-To: <200608091108.51774.borntrae@de.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060811050310.958962036.dtor@insightbb.com>
+	 <20060811050611.655659401.dtor@insightbb.com>
+	 <1155283327.6354.6.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christian,
+On 8/11/06, Richard Purdie <rpurdie@rpsys.net> wrote:
+> On Fri, 2006-08-11 at 01:03 -0400, Dmitry Torokhov wrote:
+> > plain text document attachment (backlight-move-data.patch)
+> > Backlight: move per-device data out of backlight_properties
+> >
+> > Data such as current brightness belongs to a device and should not
+> > be part of a structure shared between several devices.
+>
+> I agree there's an issue to address here. Looking at this patch very
+> quickly, it breaks all the existing backlight drivers as they know about
+> the variables in struct backlight_properties and all their references
+> need to be updated e.g.: corgi_bl.c:
+>
+> if (bd->props->power != FB_BLANK_UNBLANK)
+> intensity = 0;
+> if (bd->props->fb_blank != FB_BLANK_UNBLANK)
+> intensity = 0;
+>
 
-thanks for your comments, we'll send an updated patch set soon.
+Oops, I had them all updated but apparently lost that change. I'll fix
+it and resend.
 
-Jan-Bernd
+> Thinking about this, ideally, struct backlight_properties would be left
+> containing the backlight properties in but become part of struct
+> backlight_device (and allocated with it).
 
-Christian Borntraeger wrote:
-> Hi Jan-Bernd,
-> 
-> I had some minutes, here are some finding after a quick look.
-> 
-> On Wednesday 09 August 2006 10:38, you wrote:
->> +static struct net_device_stats *ehea_get_stats(struct net_device *dev)
->> +{
->> +	int i;
->> +	u64 hret = H_HARDWARE;
->> +	u64 rx_packets = 0;
->> +	struct ehea_port *port = (struct ehea_port*)dev->priv;
-> 
-> dev->priv is a void pointer, this cast is unnecessary. When we are at it, have 
-> you considered the netdev_priv macro? This will require some prep in 
-> alloc_netdev and might not always pe possible. 
+Why would you want to separate properties into a structure? You don't
+normally pass a set of properties around so I am not sure why would we
+need this...
 
-good point, we'll use alloc_etherdev / netdev_priv
-
->> +
->> +	EDEB_DMP(7, (u8*)cb2,
->> +		 sizeof(struct hcp_query_ehea_port_cb_2), "After HCALL");
->> +
->> +	for (i = 0; i < port->num_def_qps; i++) {
->> +		rx_packets += port->port_res[i].rx_packets;
->> +	}
->> +
->> +	stats->tx_packets = cb2->txucp + cb2->txmcp + cb2->txbcp;
->> +	stats->multicast = cb2->rxmcp;
->> +	stats->rx_errors = cb2->rxuerr;
->> +	stats->rx_bytes = cb2->rxo;
->> +	stats->tx_bytes = cb2->txo;
->> +	stats->rx_packets = rx_packets;
->> +
->> +get_stat_exit:
->> +	EDEB_EX(7, "");
->> +	return stats;
->> +}
-> 
-> again, cb2 is not freed.
-> [...]
-
-yep, done
-
-> 
->> +static inline u64 get_swqe_addr(u64 tmp_addr, int addr_seg)
->> +{
->> +	u64 addr;
->> +	addr = tmp_addr;
->> +	return addr;
->> +}
-> 
-> This is suppsed to change in the future? If not you can get rid of it. 
-> 
->> +
->> +static inline u64 get_rwqe_addr(u64 tmp_addr)
->> +{
->> +	return tmp_addr;
->> +}
-> 
-> same here. 
-
-removed
-
-
->> + ehea_poll()
-> 
-> The poll function seems too long and therefore hard to review. Please consider 
-> splitting it. 
-> 
-> 
-
-done
-
+-- 
+Dmitry

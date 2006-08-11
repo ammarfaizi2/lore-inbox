@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWHKTnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWHKTqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWHKTnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 15:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWHKTnM
+	id S932453AbWHKTqy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWHKTqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 15:43:12 -0400
-Received: from mail.gmx.de ([213.165.64.20]:62420 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932332AbWHKTnL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 15:43:11 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.18-rc3-mm2 - OOM storm
-From: Mike Galbraith <efault@gmx.de>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <44DC78A3.5010605@free.fr>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-	 <44DAF6A4.9000004@free.fr> <20060810021957.38c82311.akpm@osdl.org>
-	 <44DBBF2B.2050605@free.fr>  <44DC78A3.5010605@free.fr>
-Content-Type: text/plain
-Date: Fri, 11 Aug 2006 21:50:41 +0000
-Message-Id: <1155333041.6013.20.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 11 Aug 2006 15:46:54 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:19902 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932370AbWHKTqx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 15:46:53 -0400
+Date: Fri, 11 Aug 2006 14:46:47 -0500
+To: Olof Johansson <olof@lixom.net>
+Cc: Arnd Bergmann <arnd@arndb.de>, Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>
+Subject: Re: [PATCH 4/4]: powerpc/cell spidernet ethtool -i version number info.
+Message-ID: <20060811194647.GO10638@austin.ibm.com>
+References: <20060811180013.GB6550@pb15.lixom.net> <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 14:31 +0200, Laurent Riffard wrote:
-> L
-> >> Also, are you able to determine whether the problem is specific to `rpm
-> >> -V'?  Are you able to make the leak trigger using other filesystem
-> >> workloads?
-> > 
-> > Will try...
+
+Hi Olof,
+
+Olof Johansson <olof@lixom.net> writes:
+> On Fri, Aug 11, 2006 at 12:11:17PM -0500, Linas Vepstas wrote:
 > 
-> No luck. For example, "find /usr -type f -print0 | xargs -0 cat > /dev/null" 
-> does not trigger the problem.
+> > This patch adds version information as reported by 
+> > ethtool -i to the Spidernet driver.
+> 
+> Why does a driver that's in the mainline kernel need to have a version
+> number besides the kernel version?
 
-I spent some time looking over what I thought was the obvious candidate,
-but alas, no cigar.  Not surprising since Andrew can't reproduce it. 
+I'll let Jim be the primary defender. From what I can tell, "that's the
+way its done".  For example:
 
-> # mount
-> /dev/mapper/vglinux1-lvroot on / type ext3 (rw)
-> /dev/mapper/vglinux1-lvusr on /usr type reiserfs (ro)
-> /dev/mapper/vglinux1-lvvar on /var type ext3 (rw)
+linux-2.6.18-rc3-mm2 $ grep MODULE_VERSION */*/*.c |wc
+     164     245    9081
 
-Mine is the plainest ext3 config imaginable.
+> I can understand it for drivers like e1000 that Intel maintain outside
+> of the kernel as well. But spidernet is a fully mainline maintained
+> driver, right?
 
-> >> If it's specific to `rpm -V' then perhaps direct-io is somehow causing
-> >> pagecache leakage.  That would be a bit odd.
+Yes, the spidernet is a Linux-kernel only driver.
 
-It seems odd at the moment.
+--linas
 
-	-Mike
+p.s. very strange, but I did not see your original email;  
+only saw Jim's reply.
+
 

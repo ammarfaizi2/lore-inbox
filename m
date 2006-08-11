@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWHKGQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWHKGR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbWHKGQS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 02:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWHKGQS
+	id S1751603AbWHKGR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 02:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWHKGR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 02:16:18 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:41350 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751595AbWHKGQR (ORCPT
+	Fri, 11 Aug 2006 02:17:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44495 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751572AbWHKGR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 02:16:17 -0400
-Date: Fri, 11 Aug 2006 10:15:35 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take6 1/3] kevent: Core files.
-Message-ID: <20060811061535.GA11230@2ka.mipt.ru>
-References: <11551105592821@2ka.mipt.ru> <11551105602734@2ka.mipt.ru> <20060809152127.481fb346.akpm@osdl.org> <20060810061433.GA4689@2ka.mipt.ru> <20060810001844.ff5e7429.akpm@osdl.org> <20060810075047.GB24370@2ka.mipt.ru> <20060810010254.3b52682f.akpm@osdl.org> <20060810082235.GA21025@2ka.mipt.ru> <20060810175639.b64faaa9.akpm@osdl.org>
+	Fri, 11 Aug 2006 02:17:27 -0400
+Date: Thu, 10 Aug 2006 23:17:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Mattia Dongili <malattia@linux.it>, Jiri Slaby <jirislaby@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
+Message-Id: <20060810231718.c2b3fe58.akpm@osdl.org>
+In-Reply-To: <200608101744.k7AHiXHF004896@turing-police.cc.vt.edu>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+	<200608091906.k79J6Zrc009211@turing-police.cc.vt.edu>
+	<20060809130151.f1ff09eb.akpm@osdl.org>
+	<200608092043.k79KhKdt012789@turing-police.cc.vt.edu>
+	<200608100332.k7A3Wvck009169@turing-police.cc.vt.edu>
+	<44DB1AF6.2020101@gmail.com>
+	<20060810082749.6b39a07b.akpm@osdl.org>
+	<20060810173312.GC21123@inferi.kami.home>
+	<200608101744.k7AHiXHF004896@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060810175639.b64faaa9.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 11 Aug 2006 10:15:38 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 05:56:39PM -0700, Andrew Morton (akpm@osdl.org) wrote:
-> > Per kevent fd.
-> > I have some ideas about better mmap ring implementation, which would
-> > dinamically grow it's buffer when events are added and reuse the same
-> > place for next events, but there are some nitpics unresolved yet.
-> > Let's not see there in next releases (no merge of course), until better 
-> > solution is ready. I will change that area when other things are ready.
+On Thu, 10 Aug 2006 13:44:33 -0400
+Valdis.Kletnieks@vt.edu wrote:
+
+> On Thu, 10 Aug 2006 19:33:13 +0200, Mattia Dongili said:
 > 
-> This is not a problem with the mmap interface per-se.  If the proposed
-> event code permits each user to pin 160MB of kernel memory then that would
-> be a serious problem.
+> > oooh, same setup and same trace here, but no yum, see some screenshots
+> > here:
+> > http://oioio.altervista.org/linux/dsc03448.jpg
+> > http://oioio.altervista.org/linux/dsc03449.jpg
+> 
+> Not quite the same trace - the first few lines are the same, but your call to
+> __lock_page() comes in via do_generic_mapping_read(), while Jiri and I are
+> seeing the call to __lock_page() coming from truncate_inode_pages_range()....
+> 
 
-The main disadvantage is that all memory is allocated on the start even
-if it will not be used later. I think dynamic grow is appropriate
-solution, since user will have that memory used anyway, since kevents
-are allocated, just part of them will be allocated from possibly 
-mmaped memory.
+The suspend+resume->hang bug is known and reputedly fixed.
 
--- 
-	Evgeniy Polyakov
+The stuck-in-lock_page-without-having-done-resume bug is not known. 
+Someone please try the deadline scheduler, or AS.
+

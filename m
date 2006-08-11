@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWHKVCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWHKVDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWHKVCh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 17:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWHKVCh
+	id S932148AbWHKVDV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 17:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWHKVDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 17:02:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:410 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750951AbWHKVCg (ORCPT
+	Fri, 11 Aug 2006 17:03:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18835 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751227AbWHKVDU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 17:02:36 -0400
-Date: Fri, 11 Aug 2006 17:01:04 -0400
-From: Dave Jones <davej@redhat.com>
-To: Mark Lord <lkml@rtr.ca>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: cpufreq stops working after a while
-Message-ID: <20060811210104.GL26930@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Mark Lord <lkml@rtr.ca>,
-	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <EB12A50964762B4D8111D55B764A84546F8EC3@scsmsx413.amr.corp.intel.com> <44DCE8BA.2070601@rtr.ca> <44DCEAF7.5020005@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44DCEAF7.5020005@rtr.ca>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 11 Aug 2006 17:03:20 -0400
+Date: Fri, 11 Aug 2006 14:02:54 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, mpm@selenic.com,
+       npiggin@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
+In-Reply-To: <44DCE994.4060102@colorfullife.com>
+Message-ID: <Pine.LNX.4.64.0608111355120.19072@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0608091744290.4966@schroedinger.engr.sgi.com>
+ <20060810140153.e5932e76.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0608092211320.5806@schroedinger.engr.sgi.com>
+ <20060810144451.13591e4b.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060810151305.bc4602e0.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0608100823580.8368@schroedinger.engr.sgi.com>
+ <44DB7F29.3060901@colorfullife.com> <Pine.LNX.4.64.0608111014470.17885@schroedinger.engr.sgi.com>
+ <44DCE994.4060102@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 04:39:19PM -0400, Mark Lord wrote:
- > Ahhh...
- > 
- > >From the trace, I see a bunch of "userspace" lines appearing.
- > And sure enough, something called "powernowd" is running,
- > and probably conflicting with the "ondemand" governor.
+On Fri, 11 Aug 2006, Manfred Spraul wrote:
 
-It'll override it, you can't run both at the same time.
-Well, unless you have a dual-core/multi-cpu system, where you
-could have a different governor per-core. But that would be loony,
-and we should probably disallow that possibility before someone
-gets any bright ideas.
+> Christoph Lameter wrote:
+> 
+> > I still do not get the role of the shared cache though.
+> > 
+> The shared cache is just for efficient object transfers:
+> Think about two nics, both cpu bound, one does rx, the other does tx.
+> Result: a few 100k kmalloc, kmem_cache_alloc(skb_head_cache) calls each second
+> on cpu1.
+> the same number of kfree, kmem_cache_free(skb_head_cache) calls each second on
+> cpu 2.
 
-Looking at your log however, you only have a single CPU, so it'll
-be using userspace exclusively.
+Hmmm. In that case a faster free/alloc would help since cachelines are not 
+shared.
 
- > I'm nuking powernowd, and that'll probably cure it for this box.
- > I guess the distro (kubuntu) must have started "powernowd"
- > even though I told it (the distro) to use "ondemand".
- > 
- > Does it make sense that this could change the upper limit, though?
+> Initially, the slab allocator just had the cpu cache. Thus an object transfer
+> was a free_block call: add the freed object to the bufctl linked list. Move
+> the slab to the tail of the partial list. Probably the list_del()/list_add()
+> calls caused cache line trashing, but I don't remember the details. IIRC
+> Robert Olsson did the test. Pentium III Xeon system?
+> Anyway: The solution was the shared array. It allows to move objects around
+> with a simple memmove of the pointers, without the list_del()/list_add()
+> calls.
 
-A userspace governor can pretty much invent its own rules. I'm not
-familiar with what constraints powernowd has.  It may even have
-limits defined in a config file someplace.
+But the shared array still needs the list_lock for access. So this is 
+avoiding the list operations?
 
-Is it behaving again with ondemand ?
+In the case of the simple slab we would have one task continually 
+allocating from its slab until its full. If the other task is freeing 
+objects in the same slab at the same time then there is lock contention on 
+the per cpu slab.
 
-		Dave
+If however there would be sufficient distance between the free and the 
+alloc then one task would complete a slab put it back to the full list and 
+get it back from the partial list.
+The other task would be removing objects from the full slab and move it 
+back to the partial list.
 
--- 
-http://www.codemonkey.org.uk
+In an ideal case we would have two slab continually trading roles with 
+separate slab locks. The list lock would only be taken if they switch 
+roles.If we can get that going then its the same effect as the shared 
+cache.
+
+Hmmm... Hmmm...
+
+Essentially if we discover that a process frees in the cpuslab of another 
+then the cpuslab must be detached and the other process must be forced to 
+pick another slab for allocation.

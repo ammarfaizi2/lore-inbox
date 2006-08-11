@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWHKTKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWHKTSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWHKTKW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 15:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWHKTKW
+	id S932113AbWHKTSN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWHKTSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 15:10:22 -0400
-Received: from rtr.ca ([64.26.128.89]:50106 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932090AbWHKTKW (ORCPT
+	Fri, 11 Aug 2006 15:18:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33726 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932113AbWHKTSM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 15:10:22 -0400
-Message-ID: <44DCD618.2040700@rtr.ca>
-Date: Fri, 11 Aug 2006 15:10:16 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 11 Aug 2006 15:18:12 -0400
+Date: Fri, 11 Aug 2006 12:18:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Lord <lkml@rtr.ca>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@www.linux.org.uk
 Subject: Re: cpufreq stops working after a while
-References: <44DCCB96.5080801@rtr.ca> <20060811114631.4a699667.akpm@osdl.org>
-In-Reply-To: <20060811114631.4a699667.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <20060811121806.51a73fe5.akpm@osdl.org>
+In-Reply-To: <44DCD618.2040700@rtr.ca>
+References: <44DCCB96.5080801@rtr.ca>
+	<20060811114631.4a699667.akpm@osdl.org>
+	<44DCD618.2040700@rtr.ca>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 11 Aug 2006 14:25:26 -0400
-> Mark Lord <lkml@rtr.ca> wrote:
-> 
->> One of my notebooks (Dell Latitude X1) has a 1.1GHz Pentium-M ULV processor.
->> This chip can change CPU speeds from 600 -> 800 -> 1100 Mhz.
->>
->> I use speedstep-centrino with it, and after boot all is usually okay.
->> But after a few hours of operation, it stops shifting to the highest frequency
->> even under continuous 100% load (or not).  Eventually it gets stuck at 600Mhz
->> and stays there until I reboot.
->>
->> Sometimes rebooting doesn't even restore it.
->>
->> /sys/devices/system/cpu/cpu0/cpufreq is all very normal looking,
->> showing the available frequencies and other info.  All of the attribs
->> there look fine, except for "scaling_max_freq", which is what seems
->> to gradually get set smaller.  For instance, right now it is set to 800000,
->> and it won't let me change it (echo 11000000 > scaling_max_freq has no effect.
->>
->> WHY?
-> 
-> cpufreq seems to have relatively frequent problems.
-> 
->>  And how can I fix it?
-> 
-> You could start by telling us which kernel versions are affected ;)
+On Fri, 11 Aug 2006 15:10:16 -0400
+Mark Lord <lkml@rtr.ca> wrote:
 
+> >> WHY?
+> > 
+> > cpufreq seems to have relatively frequent problems.
+> > 
+> >>  And how can I fix it?
+> > 
+> > You could start by telling us which kernel versions are affected ;)
+> 
+> 
+> Mmm.. since it appears to be related, kbuild dumps this out when building the kernel:
+> 
+> WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0xf29) and 'acpi_processor_cst_has_changed'
+> 
+> A possible source for the bug, or total red herring ?
 
-Mmm.. since it appears to be related, kbuild dumps this out when building the kernel:
+An RH.  acpi_processor_power_init() is actually non-buggy, due to its
+interesting games with `first_run'.
 
-WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0xf29) and 'acpi_processor_cst_has_changed'
-
-A possible source for the bug, or total red herring ?
+A section error would usually trigger a wild oops if you're affected by it.

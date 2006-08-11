@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWHKU6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWHKVCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWHKU6s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 16:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWHKU6r
+	id S1751009AbWHKVCh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 17:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWHKVCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 16:58:47 -0400
-Received: from ozlabs.org ([203.10.76.45]:53725 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932418AbWHKU6q (ORCPT
+	Fri, 11 Aug 2006 17:02:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:410 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750951AbWHKVCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 16:58:46 -0400
-Date: Sat, 12 Aug 2006 06:56:24 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 1/6] ehea: interface to network stack
-Message-ID: <20060811205624.GE479@krispykreme>
-References: <44D99EFC.3000105@de.ibm.com>
-MIME-Version: 1.0
+	Fri, 11 Aug 2006 17:02:36 -0400
+Date: Fri, 11 Aug 2006 17:01:04 -0400
+From: Dave Jones <davej@redhat.com>
+To: Mark Lord <lkml@rtr.ca>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: cpufreq stops working after a while
+Message-ID: <20060811210104.GL26930@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Mark Lord <lkml@rtr.ca>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <EB12A50964762B4D8111D55B764A84546F8EC3@scsmsx413.amr.corp.intel.com> <44DCE8BA.2070601@rtr.ca> <44DCEAF7.5020005@rtr.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44D99EFC.3000105@de.ibm.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <44DCEAF7.5020005@rtr.ca>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 11, 2006 at 04:39:19PM -0400, Mark Lord wrote:
+ > Ahhh...
+ > 
+ > >From the trace, I see a bunch of "userspace" lines appearing.
+ > And sure enough, something called "powernowd" is running,
+ > and probably conflicting with the "ondemand" governor.
 
-Hi,
+It'll override it, you can't run both at the same time.
+Well, unless you have a dual-core/multi-cpu system, where you
+could have a different governor per-core. But that would be loony,
+and we should probably disallow that possibility before someone
+gets any bright ideas.
 
-> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_main.c	1969-12-31 
+Looking at your log however, you only have a single CPU, so it'll
+be using userspace exclusively.
 
-> +#define DEB_PREFIX "main"
+ > I'm nuking powernowd, and that'll probably cure it for this box.
+ > I guess the distro (kubuntu) must have started "powernowd"
+ > even though I told it (the distro) to use "ondemand".
+ > 
+ > Does it make sense that this could change the upper limit, though?
 
-Doesnt appear to be used.
+A userspace governor can pretty much invent its own rules. I'm not
+familiar with what constraints powernowd has.  It may even have
+limits defined in a config file someplace.
 
-> +static struct net_device_stats *ehea_get_stats(struct net_device *dev)
-...
-> +	cb2 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
+Is it behaving again with ondemand ?
 
-I cant see where this gets freed.
+		Dave
 
-> +
-> +				skb_index = ((index - i
-> +					      + port_res->skb_arr_sq_len)
-> +					     % port_res->skb_arr_sq_len);
-
-This is going to force an expensive divide. Its much better to change
-this to the simpler and quicker:
-
-i++;
-if (i > max)
-	i = 0;
-
-There are a few places in the driver can be changed to do this.
-
-> +static int ehea_setup_single_port(struct ehea_adapter *adapter,A
-> +				  int portnum, struct device_node *dn)
-...
-> +	cb4 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
-
-I cant see where this is freed.
-
-Anton
+-- 
+http://www.codemonkey.org.uk

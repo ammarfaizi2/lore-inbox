@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWHKRpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHKR5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWHKRpN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 13:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWHKRpM
+	id S932283AbWHKR5l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 13:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWHKR5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 13:45:12 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:49286 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932399AbWHKRpK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 13:45:10 -0400
-Date: Fri, 11 Aug 2006 19:44:39 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, James K Lewis <jklewis@us.ibm.com>,
-       Utz Bacher <utz.bacher@de.ibm.com>,
-       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 0/4]:  powerpc/cell spidernet ethernet driver fixes
-Message-ID: <20060811174439.GA30191@mars.ravnborg.org>
-References: <20060811170337.GH10638@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060811170337.GH10638@austin.ibm.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Fri, 11 Aug 2006 13:57:41 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:34461 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932283AbWHKR5k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 13:57:40 -0400
+Subject: Re: [RFC PATCH 1/4] powerpc 2.6.16-rt17: to build on powerpc w/ RT
+From: john stultz <johnstul@us.ibm.com>
+To: Tsutomu OWA <tsutomu.owa@toshiba.co.jp>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, mingo@elte.hu, tglx@linutronix.de
+In-Reply-To: <yyiac6biz3c.wl@forest.swc.toshiba.co.jp>
+References: <yyiodushvxs.wl@forest.swc.toshiba.co.jp>
+	 <17628.4499.609213.401518@cargo.ozlabs.ibm.com>
+	 <yyiac6biz3c.wl@forest.swc.toshiba.co.jp>
+Content-Type: text/plain
+Date: Fri, 11 Aug 2006 10:56:23 -0700
+Message-Id: <1155318983.5337.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 12:03:37PM -0500, Linas Vepstas wrote:
+On Fri, 2006-08-11 at 15:08 +0900, Tsutomu OWA wrote:
+> > On Fri, 11 Aug 2006 15:11:47 +1000
+> > Paul Mackerras <paulus@samba.org> said:
 > 
-> The following series of patches implement some fixes and performance
-> improvements for the Spedernet ethernet device driver. The high point
-> of the patch series is some code to implement a low-watermark interrupt
-> on the transmit queue. The bundle of patches raises transmit performance 
-> from some embarassingly low value to a reasonable 730 Megabits per
-> second for 1500 byte packets.
+> > I would be very surprised if this is all that is required for
+> > CONFIG_GENERIC_TIME to work correctly on powerpc.  Have you verified
+> > that the CONFIG_GENERIC_TIME stuff works correctly on powerpc and
+> > provides all the features provided by the current implementation?
 > 
-> Please note that the spider is an ethernet controller that is 
-> integrated into the south bridge, and is thus available only on
-> Cell-based platforms.
+>   Well, probably no as you say so.
 > 
-> These have been well-tested over the last few weeks. Please apply. 
-Hi Linas.
-Just noticed a nit-pick detail.
-The general rule is to add your Signed-off-by: at the bottom of the
-patch, so the top-most Signed-of-by: is also the original author whereas
-the last Signed-of-by: is the one that added this patch to the kernel.
-Likewise you add Cc: before your Signed-off-by: line.
+>   What I did for CONFIG_GENERIC_TIME is just to fix a compile
+> error and to see if the kernel boots or not.  As I mentioned,
+> it's experimental and is posted to see whether I'm moving in the
+> right direction or not.
+> 
+>   I'm afraid I have not yet looked into any generic time related 
+> features/implementations.  Looks like generic time related things
+> should be on the ToDo list.
 
-See patches from for example Andrew Morton for examples.
+You might take a peek at the patch set here:
+http://sr71.net/~jstultz/tod/ for a somewhat rough powerpc conversion to
+CONFIG_GENERIC_TIME.
 
-	Sam
+thanks
+-john
+
+

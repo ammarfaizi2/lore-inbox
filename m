@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWHKGiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWHKGmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWHKGiS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 02:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWHKGiS
+	id S932294AbWHKGmT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 02:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWHKGmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 02:38:18 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16555
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932114AbWHKGiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 02:38:17 -0400
-Date: Thu, 10 Aug 2006 23:38:26 -0700 (PDT)
-Message-Id: <20060810.233826.24610567.davem@davemloft.net>
-To: johnpol@2ka.mipt.ru
-Cc: drepper@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, zach.brown@oracle.com
-Subject: Re: [take6 1/3] kevent: Core files.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060811063353.GC11230@2ka.mipt.ru>
-References: <20060811061535.GA11230@2ka.mipt.ru>
-	<44DC22C1.1060200@redhat.com>
-	<20060811063353.GC11230@2ka.mipt.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 11 Aug 2006 02:42:19 -0400
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:54454 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932294AbWHKGmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 02:42:18 -0400
+Date: Fri, 11 Aug 2006 02:37:30 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH for review] [9/145] x86_64: Cleanup NMI interrupt
+  path
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200608110240_MC3-1-C7C3-777B@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Date: Fri, 11 Aug 2006 10:33:53 +0400
+In-Reply-To: <20060810193521.6A8C513B90@wotan.suse.de>
 
-> That requires mmap hacks to substitute pages in run-time without user
-> notifications. I do not expect it is a good solution, since on x86 it
-> requires full TLB flush (at least when I did it there were no exported
-> methods to flush separate addresses).
+On Thu, 10 Aug 2006 21:35:21 +0200, Andi Kleen wrote:
 
-You just need to provide a do_no_page method, the VM layer will
-take care of the page level flushing or whatever else might be
-needed.
+> arch/i386/kernel/nmi.c     |   16 +++++++++++++---
+> arch/i386/kernel/traps.c   |   24 +++++++++++-------------
+> arch/x86_64/kernel/nmi.c   |   26 +++++++++++++++++++-------
+> arch/x86_64/kernel/traps.c |    8 ++++----
+> include/asm-i386/nmi.h     |    2 +-
+> include/asm-x86_64/nmi.h   |   10 +++++++++-
+
+Could you please change the title of this patch to "x86: whatever"
+instead of "x86_64: whatever" so someone scanning titles can see
+it affects i386?
+
+-- 
+Chuck
 

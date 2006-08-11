@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWHKBc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWHKBxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWHKBc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 21:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWHKBc1
+	id S1750966AbWHKBxT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 21:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWHKBxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 21:32:27 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:60557 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932383AbWHKBc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 21:32:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tDBFdYrh+t7665xHHM9M19m4g8ALaLS1R7B8wv0iZH5lemATyepOSGkKZGOGDgVoran5VCoLFSlaUIjmYA4Nc6iLyzIkPw28bHizHYZDfRwfQAr/P/jH5KHJN7Qq6cMw7hxL2hsg6iWuQBGL1hGvbmAoHLH1UE4bKhsYggZU+uM=
-Message-ID: <aec7e5c30608101832p42b30900iaf9738b7f394516e@mail.gmail.com>
-Date: Fri, 11 Aug 2006 10:32:22 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>
-Subject: Re: [PATCH for review] [130/145] i386: clean up topology.c
-Cc: "Andi Kleen" <ak@suse.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1155239403.19249.271.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 21:53:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35206 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750964AbWHKBxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 21:53:18 -0400
+Date: Thu, 10 Aug 2006 21:52:59 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, arjan@infradead.org
+Subject: fix up lockdep trace in fs/exec.c
+Message-ID: <20060811015259.GD16454@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, arjan@infradead.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060810193729.EC90B13C0B@wotan.suse.de>
-	 <1155239403.19249.271.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/06, Dave Hansen <haveblue@us.ibm.com> wrote:
-> On Thu, 2006-08-10 at 21:37 +0200, Andi Kleen wrote:
-> >  static int __init topology_init(void)
-> >  {
-> >         int i;
-> >
-> > +#ifdef CONFIG_NUMA
-> >         for_each_online_node(i)
-> >                 register_one_node(i);
-> > +#endif /* CONFIG_NUMA */
-> >
-> >         for_each_present_cpu(i)
-> >                 arch_register_cpu(i);
-> >         return 0;
-> >  }
->
-> Wouldn't it be more proper here to make register_one_node() have a
-> non-NUMA definition, instead of putting an #ifdef in a .c file like
-> this?
+=============================================
+[ INFO: possible recursive locking detected ]
+---------------------------------------------
+init/1 is trying to acquire lock:
+ (&sighand->siglock){....}, at: [<c047a78a>] flush_old_exec+0x3ae/0x859
 
-I thought about that too, and my reason for not doing it is that this
-simple fix would be less straight-forward and probably more subject to
-whining and arguing. So my plan was to do this as a first step and
-then encourage anyone else that wanted to fix up register_one_node()
-properly. =)
+but task is already holding lock:
+ (&sighand->siglock){....}, at: [<c047a77a>] flush_old_exec+0x39e/0x859
 
-Cheers,
+other info that might help us debug this:
+2 locks held by init/1:
+ #0:  (tasklist_lock){..--}, at: [<c047a76a>] flush_old_exec+0x38e/0x859
+ #1:  (&sighand->siglock){....}, at: [<c047a77a>] flush_old_exec+0x39e/0x859
 
-/ magnus
+stack backtrace:
+ [<c04051e1>] show_trace_log_lvl+0x54/0xfd
+ [<c040579d>] show_trace+0xd/0x10
+ [<c04058b6>] dump_stack+0x19/0x1b
+ [<c043b33a>] __lock_acquire+0x773/0x997
+ [<c043bacf>] lock_acquire+0x4b/0x6c
+ [<c060630b>] _spin_lock+0x19/0x28
+ [<c047a78a>] flush_old_exec+0x3ae/0x859
+ [<c0498053>] load_elf_binary+0x4aa/0x1628
+ [<c0479cab>] search_binary_handler+0xa7/0x24e
+ [<c047b577>] do_execve+0x15b/0x1f9
+ [<c04022b4>] sys_execve+0x29/0x4d
+ [<c0403faf>] syscall_call+0x7/0xb
+
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.17.noarch/fs/exec.c~	2006-08-10 21:49:38.000000000 -0400
++++ linux-2.6.17.noarch/fs/exec.c	2006-08-10 21:50:36.000000000 -0400
+@@ -753,7 +753,7 @@ no_thread_group:
+ 
+ 		write_lock_irq(&tasklist_lock);
+ 		spin_lock(&oldsighand->siglock);
+-		spin_lock(&newsighand->siglock);
++		spin_lock_nested(&newsighand->siglock, SINGLE_DEPTH_NESTING);
+ 
+ 		rcu_assign_pointer(current->sighand, newsighand);
+ 		recalc_sigpending();
+
+-- 
+http://www.codemonkey.org.uk

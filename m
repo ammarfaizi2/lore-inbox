@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWHKWKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWHKWLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbWHKWKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 18:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHKWKa
+	id S964771AbWHKWLT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 18:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWHKWLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 18:10:30 -0400
-Received: from ozlabs.org ([203.10.76.45]:62852 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932448AbWHKWK3 (ORCPT
+	Fri, 11 Aug 2006 18:11:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61661 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964786AbWHKWLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 18:10:29 -0400
-Date: Sat, 12 Aug 2006 08:07:28 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 4/6] ehea: header files
-Message-ID: <20060811220728.GI479@krispykreme>
-References: <44D99F56.7010201@de.ibm.com>
-MIME-Version: 1.0
+	Fri, 11 Aug 2006 18:11:18 -0400
+Date: Fri, 11 Aug 2006 18:11:00 -0400
+From: Dave Jones <davej@redhat.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_PM=n slim: drivers/char/agp/efficeon-agp.c
+Message-ID: <20060811221100.GO26930@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alexey Dobriyan <adobriyan@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060811215950.GA6847@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44D99F56.7010201@de.ibm.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060811215950.GA6847@martell.zuzino.mipt.ru>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 12, 2006 at 01:59:50AM +0400, Alexey Dobriyan wrote:
+ > Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+ > ---
+ > 
+ >  drivers/char/agp/efficeon-agp.c |   16 +++++++++-------
+ >  1 file changed, 9 insertions(+), 7 deletions(-)
 
-> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea.h	1969-12-31 
+Applied to agpgart-git, thanks.
 
-> +extern void exit(int);
+		Dave
 
-Should be able to remove that prototype :) 
-
-Anton
+-- 
+http://www.codemonkey.org.uk

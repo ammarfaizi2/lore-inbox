@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWHKVKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWHKVOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWHKVKA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 17:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWHKVJ7
+	id S932287AbWHKVOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 17:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWHKVOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 17:09:59 -0400
-Received: from rtr.ca ([64.26.128.89]:10732 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932277AbWHKVJ7 (ORCPT
+	Fri, 11 Aug 2006 17:14:10 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:33250 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932083AbWHKVOI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 17:09:59 -0400
-Message-ID: <44DCF222.60309@rtr.ca>
-Date: Fri, 11 Aug 2006 17:09:54 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Fri, 11 Aug 2006 17:14:08 -0400
+Date: Sat, 12 Aug 2006 07:13:14 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+Cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>
+Subject: Re: [PATCH 2/6] ehea: pHYP interface
+Message-ID: <20060811211314.GF479@krispykreme>
+References: <44D99F1A.4080905@de.ibm.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: cpufreq stops working after a while
-References: <EB12A50964762B4D8111D55B764A84546F8EC3@scsmsx413.amr.corp.intel.com> <44DCE8BA.2070601@rtr.ca> <44DCEAF7.5020005@rtr.ca> <20060811210104.GL26930@redhat.com>
-In-Reply-To: <20060811210104.GL26930@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44D99F1A.4080905@de.ibm.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
->
-> A userspace governor can pretty much invent its own rules. I'm not
-> familiar with what constraints powernowd has.  It may even have
-> limits defined in a config file someplace.
-> 
-> Is it behaving again with ondemand ?
 
-So far, so good, thanks.
+Hi,
 
-I seem to recall having killed off powernowd when I first installed
-the system here, but perhaps a subsequent update reenabled it again.
+> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_phyp.c	1969-12-31 16:00:00.000000000 -0800
 
-Bah!
+> +u64 ehea_h_alloc_resource_eq(const u64 hcp_adapter_handle,
+...
+> +u64 hipz_h_reregister_pmr(const u64 adapter_handle,
+...
+> +static inline int hcp_galpas_ctor(struct h_galpas *galpas,
 
-Cheers
+Be nice to have some consistent names, hipz_ and hcp_ is kind of
+cryptic.
+
+> +#define H_QP_CR_STATE_RESET	    0x0000010000000000	/*  Reset */
+
+Probably want ULL on here and the other 64bit constants.
+
+Anton

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWHKJSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWHKJTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWHKJSV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 05:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWHKJSV
+	id S1751004AbWHKJTf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 05:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWHKJTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 05:18:21 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:60845 "EHLO
+	Fri, 11 Aug 2006 05:19:34 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:2734 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750959AbWHKJSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 05:18:20 -0400
-Date: Fri, 11 Aug 2006 02:18:18 -0700
-Message-Id: <200608110918.k7B9IIcU023336@zach-dev.vmware.com>
-Subject: [PATCH 3/9] 00mm3 lazy mmu mode hooks.patch
+	id S1751001AbWHKJTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 05:19:33 -0400
+Date: Fri, 11 Aug 2006 02:19:32 -0700
+Message-Id: <200608110919.k7B9JWJh023348@zach-dev.vmware.com>
+Subject: [PATCH 5/9] 00mm6 kpte flush.patch
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
        Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@osdl.org>,
@@ -20,159 +20,97 @@ To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
        Virtualization Mailing List <virtualization@lists.osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linux MM <linux-mm@kvack.org>, Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 11 Aug 2006 09:18:18.0524 (UTC) FILETIME=[154ADDC0:01C6BD27]
+X-OriginalArrivalTime: 11 Aug 2006 09:19:32.0778 (UTC) FILETIME=[418D20A0:01C6BD27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement lazy MMU update hooks which are SMP safe for both direct and
-shadow page tables.  The idea is that PTE updates and page invalidations
-while in lazy mode can be batched into a single hypercall.  We use this
-in VMI for shadow page table synchronization, and it is a win.  It also
-can be used by PPC and for direct page tables on Xen.
-
-For SMP, the enter / leave must happen under protection of the page table
-locks for page tables which are being modified.  This is because otherwise,
-you end up with stale state in the batched hypercall, which other CPUs can
-race ahead of.  Doing this under the protection of the locks guarantees
-the synchronization is correct, and also means that spurious faults which
-are generated during this window by remote CPUs are properly handled, as
-the page fault handler must re-check the PTE under protection of the same
-lock.
+Create a new PTE function which combines clearing a kernel PTE with the
+subsequent flush.  This allows the two to be easily combined into a single
+hypercall or paravirt-op.  More subtly, reverse the order of the flush for
+kmap_atomic.  Instead of flushing on establishing a mapping, flush on
+clearing a mapping.  This eliminates the possibility of leaving stale
+kmap entries which may still have valid TLB mappings.  This is required
+for direct mode hypervisors, which need to reprotect all mappings of a
+given page when changing the page type from a normal page to a protected
+page (such as a page table or descriptor table page).  But it also provides
+some nicer semantics for real hardware, by providing extra debug-proofing
+against using stale mappings, as well as ensuring that no stale mappings
+exist when changing the cacheability attributes of a page, which could
+lead to cache conflicts when two different types of mappings exist for the
+same page.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: linux-mm@kvack.org
 
 ===================================================================
---- a/include/asm-generic/pgtable.h
-+++ b/include/asm-generic/pgtable.h
-@@ -171,6 +171,26 @@ static inline void ptep_set_wrprotect(st
+--- a/arch/i386/mm/highmem.c
++++ b/arch/i386/mm/highmem.c
+@@ -44,22 +44,19 @@ void *kmap_atomic(struct page *page, enu
+ 
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+-#ifdef CONFIG_DEBUG_HIGHMEM
+ 	if (!pte_none(*(kmap_pte-idx)))
+ 		BUG();
+-#endif
+ 	set_pte(kmap_pte-idx, mk_pte(page, kmap_prot));
+-	__flush_tlb_one(vaddr);
+ 
+ 	return (void*) vaddr;
+ }
+ 
+ void kunmap_atomic(void *kvaddr, enum km_type type)
+ {
+-#ifdef CONFIG_DEBUG_HIGHMEM
+ 	unsigned long vaddr = (unsigned long) kvaddr & PAGE_MASK;
+ 	enum fixed_addresses idx = type + KM_TYPE_NR*smp_processor_id();
+ 
++#ifdef CONFIG_DEBUG_HIGHMEM
+ 	if (vaddr >= PAGE_OFFSET && vaddr < (unsigned long)high_memory) {
+ 		dec_preempt_count();
+ 		preempt_check_resched();
+@@ -68,14 +65,14 @@ void kunmap_atomic(void *kvaddr, enum km
+ 
+ 	if (vaddr != __fix_to_virt(FIX_KMAP_BEGIN+idx))
+ 		BUG();
+-
++#endif
+ 	/*
+-	 * force other mappings to Oops if they'll try to access
+-	 * this pte without first remap it
++	 * Force other mappings to Oops if they'll try to access this pte
++	 * without first remap it.  Keeping stale mappings around is a bad idea
++	 * also, in case the page changes cacheability attributes or becomes
++	 * a protected page in a hypervisor.
+ 	 */
+-	pte_clear(&init_mm, vaddr, kmap_pte-idx);
+-	__flush_tlb_one(vaddr);
+-#endif
++	kpte_clear_flush(kmap_pte-idx, vaddr);
+ 
+ 	dec_preempt_count();
+ 	preempt_check_resched();
+@@ -94,7 +91,6 @@ void *kmap_atomic_pfn(unsigned long pfn,
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+ 	set_pte(kmap_pte-idx, pfn_pte(pfn, kmap_prot));
+-	__flush_tlb_one(vaddr);
+ 
+ 	return (void*) vaddr;
+ }
+===================================================================
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -441,6 +441,13 @@ extern pte_t *lookup_address(unsigned lo
+ #define pte_unmap_nested(pte) do { } while (0)
  #endif
  
- /*
-+ * A facility to provide lazy MMU batching.  This allows PTE updates and
-+ * page invalidations to be delayed until a call to leave lazy MMU mode
-+ * is issued.  Some architectures may benefit from doing this, and it is
-+ * beneficial for both shadow and direct mode hypervisors, which may batch
-+ * the PTE updates which happen during this window.  Note that using this
-+ * interface requires that read hazards be removed from the code.  A read
-+ * hazard could result in the direct mode hypervisor case, since the actual
-+ * write to the page tables may not yet have taken place, so reads though
-+ * a raw PTE pointer after it has been modified are not guaranteed to be
-+ * up to date.  This mode can only be entered and left under the protection of
-+ * the page table locks for all page tables which may be modified.  In the UP
-+ * case, this is required so that preemption is disabled, and in the SMP case,
-+ * it must synchronize the delayed page table writes properly on other CPUs.
-+ */
-+#ifndef __HAVE_ARCH_ENTER_LAZY_MMU_MODE
-+#define arch_enter_lazy_mmu_mode()	do {} while (0)
-+#define arch_leave_lazy_mmu_mode()	do {} while (0)
-+#endif
++/* Clear a kernel PTE and flush it from the TLB */
++#define kpte_clear_flush(ptep, vaddr)					\
++do {									\
++	pte_clear(&init_mm, vaddr, ptep);				\
++	__flush_tlb_one(vaddr);						\
++} while (0)
 +
-+/*
-  * When walking page tables, get the address of the next boundary,
-  * or the end address of the range if that comes earlier.  Although no
-  * vma end wraps to 0, rounded up __boundary may wrap to 0 throughout.
-===================================================================
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -506,6 +506,7 @@ again:
- 	src_pte = pte_offset_map_nested(src_pmd, addr);
- 	src_ptl = pte_lockptr(src_mm, src_pmd);
- 	spin_lock_nested(src_ptl, SINGLE_DEPTH_NESTING);
-+	arch_enter_lazy_mmu_mode();
- 
- 	do {
- 		/*
-@@ -527,6 +528,7 @@ again:
- 		progress += 8;
- 	} while (dst_pte++, src_pte++, addr += PAGE_SIZE, addr != end);
- 
-+	arch_leave_lazy_mmu_mode();
- 	spin_unlock(src_ptl);
- 	pte_unmap_nested(src_pte - 1);
- 	add_mm_rss(dst_mm, rss[0], rss[1]);
-@@ -628,6 +630,7 @@ static unsigned long zap_pte_range(struc
- 	int anon_rss = 0;
- 
- 	pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
-+	arch_enter_lazy_mmu_mode();
- 	do {
- 		pte_t ptent = *pte;
- 		if (pte_none(ptent)) {
-@@ -694,6 +697,7 @@ static unsigned long zap_pte_range(struc
- 	} while (pte++, addr += PAGE_SIZE, (addr != end && *zap_work > 0));
- 
- 	add_mm_rss(mm, file_rss, anon_rss);
-+	arch_leave_lazy_mmu_mode();
- 	pte_unmap_unlock(pte - 1, ptl);
- 
- 	return addr;
-@@ -1109,6 +1113,7 @@ static int zeromap_pte_range(struct mm_s
- 	pte = pte_alloc_map_lock(mm, pmd, addr, &ptl);
- 	if (!pte)
- 		return -ENOMEM;
-+	arch_enter_lazy_mmu_mode();
- 	do {
- 		struct page *page = ZERO_PAGE(addr);
- 		pte_t zero_pte = pte_wrprotect(mk_pte(page, prot));
-@@ -1118,6 +1123,7 @@ static int zeromap_pte_range(struct mm_s
- 		BUG_ON(!pte_none(*pte));
- 		set_pte_at(mm, addr, pte, zero_pte);
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	arch_leave_lazy_mmu_mode();
- 	pte_unmap_unlock(pte - 1, ptl);
- 	return 0;
- }
-@@ -1275,11 +1281,13 @@ static int remap_pte_range(struct mm_str
- 	pte = pte_alloc_map_lock(mm, pmd, addr, &ptl);
- 	if (!pte)
- 		return -ENOMEM;
-+	arch_enter_lazy_mmu_mode();
- 	do {
- 		BUG_ON(!pte_none(*pte));
- 		set_pte_at(mm, addr, pte, pfn_pte(pfn, prot));
- 		pfn++;
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	arch_leave_lazy_mmu_mode();
- 	pte_unmap_unlock(pte - 1, ptl);
- 	return 0;
- }
-===================================================================
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -34,6 +34,7 @@ static void change_pte_range(struct mm_s
- 	spinlock_t *ptl;
- 
- 	pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
-+	arch_enter_lazy_mmu_mode();
- 	do {
- 		oldpte = *pte;
- 		if (pte_present(oldpte)) {
-@@ -70,6 +71,7 @@ static void change_pte_range(struct mm_s
- 		}
- 
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	arch_leave_lazy_mmu_mode();
- 	pte_unmap_unlock(pte - 1, ptl);
- }
- 
-===================================================================
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -98,6 +98,7 @@ static void move_ptes(struct vm_area_str
- 	new_ptl = pte_lockptr(mm, new_pmd);
- 	if (new_ptl != old_ptl)
- 		spin_lock_nested(new_ptl, SINGLE_DEPTH_NESTING);
-+	arch_enter_lazy_mmu_mode();
- 
- 	for (; old_addr < old_end; old_pte++, old_addr += PAGE_SIZE,
- 				   new_pte++, new_addr += PAGE_SIZE) {
-@@ -109,6 +110,7 @@ static void move_ptes(struct vm_area_str
- 		set_pte_at(mm, new_addr, new_pte, pte);
- 	}
- 
-+	arch_leave_lazy_mmu_mode();
- 	if (new_ptl != old_ptl)
- 		spin_unlock(new_ptl);
- 	pte_unmap_nested(new_pte - 1);
+ /*
+  * The i386 doesn't have any external MMU info: the kernel page
+  * tables contain all the necessary information.

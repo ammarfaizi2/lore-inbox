@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWHKHrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWHKHuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWHKHrk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 03:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWHKHrk
+	id S1750706AbWHKHuv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 03:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWHKHuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 03:47:40 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:31173
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1750713AbWHKHrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 03:47:39 -0400
-Date: Fri, 11 Aug 2006 00:47:24 -0700
-To: Robert Crocombe <rcrocomb@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Darren Hart <dvhltc@us.ibm.com>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re: Problems with 2.6.17-rt8
-Message-ID: <20060811074724.GA26603@gnuppy.monkey.org>
-References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com> <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com> <1154541079.25723.8.camel@localhost.localdomain> <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com> <1154615261.32264.6.camel@localhost.localdomain> <20060808025615.GA20364@gnuppy.monkey.org> <20060808030524.GA20530@gnuppy.monkey.org> <e6babb600608081146k663e3ee4g4b93ba325bf9257e@mail.gmail.com>
+	Fri, 11 Aug 2006 03:50:51 -0400
+Received: from crystal.sipsolutions.net ([195.210.38.204]:15588 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1750706AbWHKHuv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 03:50:51 -0400
+Message-ID: <44DC36CA.4010908@sipsolutions.net>
+Date: Fri, 11 Aug 2006 09:50:34 +0200
+From: Johannes Berg <johannes@sipsolutions.net>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e6babb600608081146k663e3ee4g4b93ba325bf9257e@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+CC: rpurdie@rpsys.net
+Subject: [PATCH] make leds.h include relevant headers
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-sips-origin: submit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 08, 2006 at 11:46:40AM -0700, Robert Crocombe wrote:
-> Unfortunately, this makes no difference on my setup.  Patch applied,
-> made the obvious little change:
-> 
-> -#include <linux/dobject.h>
-> +#include <linux/kobject.h>
-> 
-> But:
+Here's something I noticed recently when writing a small led trigger...
+Richard, does this look OK to you? If so, can you send it on? I don't
+know through what path these things should go in.
+Hopefully thunderbird doesn't mangle it...
 
-[...stack trace deleted...]
+---
 
-I'm have a difficult time triggering your bug. Can you post your .config ?
+This patch makes it possible to include linux/leds.h without first
+including list.h and spinlock.h.
 
-bill
+
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
+
+--- wireless-dev.orig/include/linux/leds.h	2006-08-10 19:59:13.419652863 +0200
++++ wireless-dev/include/linux/leds.h	2006-08-10 20:02:14.979652863 +0200
+@@ -12,6 +12,9 @@
+ #ifndef __LINUX_LEDS_H_INCLUDED
+ #define __LINUX_LEDS_H_INCLUDED
+ 
++#include <linux/list.h>
++#include <linux/spinlock.h>
++
+ struct device;
+ struct class_device;
+ /*
+
 

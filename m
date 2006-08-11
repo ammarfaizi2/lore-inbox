@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWHKM7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWHKNJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWHKM7G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 08:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWHKM7G
+	id S1751112AbWHKNJo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 09:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWHKNJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 08:59:06 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:13580 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932221AbWHKM66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 08:58:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rjdtWTAAMh/z2jGOc5vN3/ZnnUJ34wbHwahSrPnv1AhYVgumBlGtvE+jVuPG08twkZlbvPK+cmsv+RH0PstIY9wgD4gMSnUnhm5zwsfnEK0HJCqpFA6q5DQoA/2dkPYNUGFmxYYfEPLFedYKTL/f3Rvjo8keiO3hsDJNqIKLmBU=
-Message-ID: <d120d5000608110558l3d3a5720i1781f4e90f40579b@mail.gmail.com>
-Date: Fri, 11 Aug 2006 08:58:53 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Richard Purdie" <rpurdie@rpsys.net>
-Subject: Re: [patch 5/6] Convert to use mutexes instead of semaphores
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Michael Hanselmann" <linux-kernel@hansmi.ch>,
-       "Antonino A. Daplas" <adaplas@pol.net>
-In-Reply-To: <20060811050611.530817371.dtor@insightbb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Aug 2006 09:09:44 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:12201 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751112AbWHKNJo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 09:09:44 -0400
+Date: Fri, 11 Aug 2006 18:41:28 +0530
+From: Rachita Kothiyal <rachita@in.ibm.com>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060811131128.GA32007@in.ibm.com>
+Reply-To: rachita@in.ibm.com
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <20060804225611.GG19244@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060811050310.958962036.dtor@insightbb.com>
-	 <20060811050611.530817371.dtor@insightbb.com>
+In-Reply-To: <20060804225611.GG19244@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> Backlight: convert to use mutexes instead of semaphores
->
+On Fri, Aug 04, 2006 at 06:56:11PM -0400, Vivek Goyal wrote:
+> 
+> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> ---
+> 
+>  arch/i386/boot/compressed/head.S |   32 ++++++++++++++++++++++++++++++--
+>  1 file changed, 30 insertions(+), 2 deletions(-)
+> 
+> diff -puN arch/i386/boot/compressed/head.S~debug1-patch arch/i386/boot/compressed/head.S
+> --- linux-2.6.18-rc3-1M/arch/i386/boot/compressed/head.S~debug1-patch	2006-08-04 18:03:02.000000000 -0400
+> +++ linux-2.6.18-rc3-1M-root/arch/i386/boot/compressed/head.S	2006-08-04 18:18:26.000000000 -0400
+> @@ -60,13 +60,32 @@ startup_32:
+>  	 * a relocatable kernel this is the delta to our load address otherwise
+>  	 * this is the delta to CONFIG_PHYSICAL start.
+>  	 */
+> +
+>  #ifdef CONFIG_RELOCTABLE
+              ^^^^^^^^^
+Vivek, did you mean CONFIG_RELOCATABLE ?
 
-Apparently I missed that several drivers also use bd->sem so they need
-to be converted too... But what is it with the drivers:
 
-static void aty128_bl_set_power(struct fb_info *info, int power)
-{
-        mutex_lock(&info->bl_mutex);
-        up(&info->bl_dev->sem);
-        info->bl_dev->props->power = power;
-        __aty128_bl_update_status(info->bl_dev);
-        down(&info->bl_dev->sem);
-        mutex_unlock(&info->bl_mutex);
-}
+Thanks
+Rachita
 
-Why we are doing up() before down()??? And it is in almost every
-driver that uses backlight... Do I need more coffee? [CC-ing bunch of
-people trying to get an answer...]
-
--- 
-Dmitry
+> +	/* If loaded by non kexec boot loader, then we will be loaded
+> +	 * at 1MB fixed address. But probably the intention is to run
+> +	 * from a address for which kernel has been compiled which can
+> +	 * be non 1MB.
+> +	 */
+> +	xorl %eax, %eax
+> +	movb 0x210(%esi), %al
+> +
+> +	/ * check boot loader type. Kexec bootloader id 9, version any */
+> +	shrl $4, %eax
+> +	subl $0x9, %eax
+> +	jnz  1f

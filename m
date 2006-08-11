@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWHKHaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWHKHjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161210AbWHKHaP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 03:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161198AbWHKHaO
+	id S1750711AbWHKHjt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 03:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWHKHjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 03:30:14 -0400
-Received: from mail.gmx.net ([213.165.64.20]:49851 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161214AbWHKHaM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 03:30:12 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.18-rc3-mm2 - OOM storm
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Laurent Riffard <laurent.riffard@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060810235526.84c9f601.akpm@osdl.org>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-	 <44DAF6A4.9000004@free.fr> <20060810021957.38c82311.akpm@osdl.org>
-	 <1155285231.5841.6.camel@Homer.simpson.net>
-	 <20060810235526.84c9f601.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 11 Aug 2006 09:37:34 +0000
-Message-Id: <1155289056.6455.7.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 11 Aug 2006 03:39:49 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:41144 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750711AbWHKHjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 03:39:48 -0400
+Date: Fri, 11 Aug 2006 09:39:41 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] make all archs use early_param
+Message-ID: <20060811073941.GA9590@osiris.boeblingen.de.ibm.com>
+References: <1155280728.27719.34.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155280728.27719.34.camel@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 23:55 -0700, Andrew Morton wrote:
-> On Fri, 11 Aug 2006 08:33:51 +0000
-> Mike Galbraith <efault@gmx.de> wrote:
-> 
-> > kernel BUG at mm/vmscan.c:383!
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc3/2.6.18-rc3-mm2/hot-fixes/ ;)
-> 
+On Fri, Aug 11, 2006 at 05:18:47PM +1000, Rusty Russell wrote:
+> Gold star to PowerPC and s390 for calling parse_early_param(), *and*
+> using it instead of open-coded early cmdline hacking.
 
-Duh, I should have thought to look there first.  Sorry.
+Thanks! :)
 
-Anyhoo, I can reproduce the problem.  I now have ~800MB of cache that
-echo 3 > drop_caches doesn't help with, and I just started swapping.
+> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/dontdiff --minimal linux-2.6.18-rc3-mm2/arch/s390/kernel/setup.c working-2.6.18-rc3-mm2-early_param-for-all/arch/s390/kernel/setup.c
+> --- linux-2.6.18-rc3-mm2/arch/s390/kernel/setup.c	2006-08-03 12:50:21.000000000 +1000
+> +++ working-2.6.18-rc3-mm2-early_param-for-all/arch/s390/kernel/setup.c	2006-08-11 17:14:03.000000000 +1000
+> @@ -600,6 +600,7 @@ setup_arch(char **cmdline_p)
+>  
+>  	/* Save unparsed command line copy for /proc/cmdline */
+>  	strlcpy(saved_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
+> +	parse_early_param();
+>  
+>  	*cmdline_p = COMMAND_LINE;
+>  	*(*cmdline_p + COMMAND_LINE_SIZE - 1) = '\0';
 
-MemTotal:      1032656 kB
-MemFree:         42704 kB
-Buffers:           648 kB
-Cached:         825468 kB
-SwapCached:      29312 kB
-Active:          31196 kB
-Inactive:       830144 kB
-HighTotal:      131008 kB
-HighFree:         3056 kB
-LowTotal:       901648 kB
-LowFree:         39648 kB
-SwapTotal:     1028152 kB
-SwapFree:       961356 kB
-Dirty:             156 kB
-Writeback:           0 kB
-AnonPages:       17240 kB
-Mapped:          10240 kB
-Slab:           118536 kB
-PageTables:       1876 kB
-NFS Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:   1544480 kB
-Committed_AS:   266884 kB
-VmallocTotal:   114680 kB
-VmallocUsed:      5372 kB
-VmallocChunk:   109216 kB
-
-
+This part of the patch should be removed.
+That would be s390's second call to parse_early_param(). It needs to be done
+a bit later _after_ the 'memory_end = memory_size' line, where it is already.
+Otherwise passing 'mem=' to the kernel will have no effect anymory.

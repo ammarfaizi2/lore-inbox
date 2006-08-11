@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWHKV7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWHKWCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWHKV7x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 17:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWHKV7x
+	id S932423AbWHKWCG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 18:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWHKWCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 17:59:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:40874 "EHLO
+	Fri, 11 Aug 2006 18:02:06 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:55476 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750831AbWHKV7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 17:59:52 -0400
+	id S932428AbWHKWCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 18:02:04 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=QR5tNzblqR5x6rhlW5sQrrfG5UEFXy+gp09nBzM6RYYn6Y569aMIrBsQu85mrjIISmzyFfPU/dMdvnR7JbTj+nXy62mDymJFzQqN6nysMOD9xeCMxdhrZ3JR6Qutr4jSQ4vEbekMcAqZaV1h25HpgLx6qtepKLBCB5U1cqn0Q8k=
-Date: Sat, 12 Aug 2006 01:59:50 +0400
+        b=tIie6F1adNIPZ2vi6xLp4gq0qiw9aBRO4+Xpw6pC8czIW9tBe5WZbR2PCTB8J92BDXK1RBUjekIrmXbp9l/djhrF68pXEsnYrae482q9GtQMrb0LinsgUtrOxePYeb2GB+7oG6Nq9KI6vl8MHaKrapwZN7YnfYeBEkuF276auqA=
+Date: Sat, 12 Aug 2006 02:02:02 +0400
 From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] CONFIG_PM=n slim: drivers/char/agp/efficeon-agp.c
-Message-ID: <20060811215950.GA6847@martell.zuzino.mipt.ru>
+Subject: [PATCH] CONFIG_PM=n slim: drivers/char/agp/intel-agp.c
+Message-ID: <20060811220202.GB6847@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -29,53 +29,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- drivers/char/agp/efficeon-agp.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/char/agp/intel-agp.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/char/agp/efficeon-agp.c
-+++ b/drivers/char/agp/efficeon-agp.c
-@@ -337,13 +337,6 @@ static struct agp_bridge_driver efficeon
- 	.agp_destroy_page	= agp_generic_destroy_page,
- };
- 
--
--static int agp_efficeon_resume(struct pci_dev *pdev)
--{
--	printk(KERN_DEBUG PFX "agp_efficeon_resume()\n");
--	return efficeon_configure();
--}
--
- static int __devinit agp_efficeon_probe(struct pci_dev *pdev,
- 				     const struct pci_device_id *ent)
- {
-@@ -414,11 +407,18 @@ static void __devexit agp_efficeon_remov
+--- a/drivers/char/agp/intel-agp.c
++++ b/drivers/char/agp/intel-agp.c
+@@ -1766,6 +1766,7 @@ static void __devexit agp_intel_remove(s
  	agp_put_bridge(bridge);
  }
  
 +#ifdef CONFIG_PM
- static int agp_efficeon_suspend(struct pci_dev *dev, pm_message_t state)
+ static int agp_intel_resume(struct pci_dev *pdev)
  {
+ 	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
+@@ -1789,6 +1790,7 @@ static int agp_intel_resume(struct pci_d
+ 
  	return 0;
  }
- 
-+static int agp_efficeon_resume(struct pci_dev *pdev)
-+{
-+	printk(KERN_DEBUG PFX "agp_efficeon_resume()\n");
-+	return efficeon_configure();
-+}
 +#endif
  
- static struct pci_device_id agp_efficeon_pci_table[] = {
- 	{
-@@ -439,8 +439,10 @@ static struct pci_driver agp_efficeon_pc
- 	.id_table	= agp_efficeon_pci_table,
- 	.probe		= agp_efficeon_probe,
- 	.remove		= agp_efficeon_remove,
+ static struct pci_device_id agp_intel_pci_table[] = {
+ #define ID(x)						\
+@@ -1835,7 +1837,9 @@ static struct pci_driver agp_intel_pci_d
+ 	.id_table	= agp_intel_pci_table,
+ 	.probe		= agp_intel_probe,
+ 	.remove		= __devexit_p(agp_intel_remove),
 +#ifdef CONFIG_PM
- 	.suspend	= agp_efficeon_suspend,
- 	.resume		= agp_efficeon_resume,
+ 	.resume		= agp_intel_resume,
 +#endif
  };
  
- static int __init agp_efficeon_init(void)
+ static int __init agp_intel_init(void)
 

@@ -1,51 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWHKLmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWHKLkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWHKLmF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 07:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWHKLmE
+	id S932143AbWHKLkk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 07:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWHKLkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 07:42:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11225 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932173AbWHKLmC
+	Fri, 11 Aug 2006 07:40:40 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:42329 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932143AbWHKLkj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 07:42:02 -0400
-Subject: Re: Serial driver 8250 hangs the kernel with the VIA Nehemiah...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Pringle <chris.pringle@miranda.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44DC6524.4000401@miranda.com>
-References: <44DC6524.4000401@miranda.com>
-Content-Type: text/plain
+	Fri, 11 Aug 2006 07:40:39 -0400
+Message-ID: <44DC63B4.9070405@de.ibm.com>
+Date: Fri, 11 Aug 2006 13:02:12 +0200
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Christian Borntraeger <borntrae@de.ibm.com>
+CC: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 1/6] ehea: interface to network stack
+References: <44D99EFC.3000105@de.ibm.com> <200608091108.51774.borntrae@de.ibm.com>
+In-Reply-To: <200608091108.51774.borntrae@de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 11 Aug 2006 13:02:08 +0100
-Message-Id: <1155297728.24077.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-11 am 12:08 +0100, ysgrifennodd Chris Pringle:
-> > Unlikely as it would affect both. More likely would be that the ISA bus
-> > clock is generated off the PCI bus clock and you have one of the
-> > multipliers wrong or too high for the board.
-> >   
-> Thats interesting, but wouldn't this produce strange side affects for 
-> the 2.4 kernel as well? 2.4 works fine on both VIAs and Celerons.
+Hi Christian,
 
-That I wonder about. The power management stuff and some other things
-that matter for timing are different however.
+thanks for your comments, we'll send an updated patch set soon.
 
-> I'll give the interrupt disabling a go...
+Jan-Bernd
 
-Its just a guess but if you have low latency stuff, you have pre-empt
-enabled and you actually depend upon the semantics of inb_p/outb_p
-giving delays reliably then I'm not convinced are guarantees are strong
-enough
+Christian Borntraeger wrote:
+> Hi Jan-Bernd,
+> 
+> I had some minutes, here are some finding after a quick look.
+> 
+> On Wednesday 09 August 2006 10:38, you wrote:
+>> +static struct net_device_stats *ehea_get_stats(struct net_device *dev)
+>> +{
+>> +	int i;
+>> +	u64 hret = H_HARDWARE;
+>> +	u64 rx_packets = 0;
+>> +	struct ehea_port *port = (struct ehea_port*)dev->priv;
+> 
+> dev->priv is a void pointer, this cast is unnecessary. When we are at it, have 
+> you considered the netdev_priv macro? This will require some prep in 
+> alloc_netdev and might not always pe possible. 
 
-Specifically we don't have any pre-empt protection between the I/O delay
-and the I/O so we could violate it as we don't have pre-empt disables in
-inb_p/outb_p and if your CPU context switch is quick enough it could
-trigger a problem.
+good point, we'll use alloc_etherdev / netdev_priv
 
-Alan
+>> +
+>> +	EDEB_DMP(7, (u8*)cb2,
+>> +		 sizeof(struct hcp_query_ehea_port_cb_2), "After HCALL");
+>> +
+>> +	for (i = 0; i < port->num_def_qps; i++) {
+>> +		rx_packets += port->port_res[i].rx_packets;
+>> +	}
+>> +
+>> +	stats->tx_packets = cb2->txucp + cb2->txmcp + cb2->txbcp;
+>> +	stats->multicast = cb2->rxmcp;
+>> +	stats->rx_errors = cb2->rxuerr;
+>> +	stats->rx_bytes = cb2->rxo;
+>> +	stats->tx_bytes = cb2->txo;
+>> +	stats->rx_packets = rx_packets;
+>> +
+>> +get_stat_exit:
+>> +	EDEB_EX(7, "");
+>> +	return stats;
+>> +}
+> 
+> again, cb2 is not freed.
+> [...]
+
+yep, done
+
+> 
+>> +static inline u64 get_swqe_addr(u64 tmp_addr, int addr_seg)
+>> +{
+>> +	u64 addr;
+>> +	addr = tmp_addr;
+>> +	return addr;
+>> +}
+> 
+> This is suppsed to change in the future? If not you can get rid of it. 
+> 
+>> +
+>> +static inline u64 get_rwqe_addr(u64 tmp_addr)
+>> +{
+>> +	return tmp_addr;
+>> +}
+> 
+> same here. 
+
+removed
+
+
+>> + ehea_poll()
+> 
+> The poll function seems too long and therefore hard to review. Please consider 
+> splitting it. 
+> 
+> 
+
+done
 

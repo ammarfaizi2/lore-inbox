@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWHKPX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWHKP3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWHKPX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 11:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWHKPX3
+	id S1751193AbWHKP3E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 11:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWHKP3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 11:23:29 -0400
-Received: from elvira.its.UU.SE ([130.238.164.5]:34731 "EHLO elvira.its.uu.se")
-	by vger.kernel.org with ESMTP id S1751187AbWHKPX2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 11:23:28 -0400
-Message-ID: <44DCA0E4.2000804@lanil.mine.nu>
-Date: Fri, 11 Aug 2006 17:23:16 +0200
-From: Christian Axelsson <smiler@lanil.mine.nu>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060804)
+	Fri, 11 Aug 2006 11:29:03 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:16572 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751193AbWHKP3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 11:29:02 -0400
+Date: Fri, 11 Aug 2006 11:24:03 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev
+  structures as __cpuinitdata
+To: Andi Kleen <ak@suse.de>
+Cc: Magnus Damm <magnus@valinux.co.jp>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200608111126_MC3-1-C7CA-65CE@compuserve.com>
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] USB x-pad problems
-References: <Pine.LNX.4.44L0.0608091341370.7248-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0608091341370.7248-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> On Wed, 9 Aug 2006, Christian Axelsson wrote:
-> 
->> Alan Stern wrote:
->>> From your log, it looks like the computer has trouble communicating with 
->>> the external hub.  What happens if you plug the X-box dancepad directly 
->>> into the computer, bypassing the hub?
->>  From what I know this is directly into my computer (directly into the 
->> motherboard atleast :P).
-> 
-> I guess the hub is built directly into the X-pad.
-> 
-> This may or may not help...  If you build a kernel with CONFIG_USB_DEBUG 
-> set, the dmesg log will then contain more detailed information about what 
-> happens when you plug in the X-pad.
+In-Reply-To: <20060810193740.9133413C0B@wotan.suse.de>
 
-Said and done. The result, snipped from my kern.log (dmesg buffer got 
-flooded) is attached... I dont really know what to make out of it except 
-that it seems to verify that it the pad has it's own hub.
+On Thu, 10 Aug 2006 21:37:40 +0200, Andi Kleen wrote:
+
+> From: Magnus Damm <magnus@valinux.co.jp>
+> 
+> The different cpu_dev structures are all used from __cpuinit callers what
+> I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
+> little bit unsure about arch/i386/common.c:default_cpu, especially when it
+> comes to the purpose of this_cpu.
+
+But none of these CPUs supports hotplug and only one (AMD) does SMP.
+So this is just wasting space in the kernel at runtime.
+
+If anything I would only do this for AMD.
+
+Same for the other patch that does more of this kind of change.
+
+(IIRC I tried to do this a while ago and was told not to.)
 
 -- 
-Christian
+Chuck

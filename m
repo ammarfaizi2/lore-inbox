@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWHKTqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWHKTrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWHKTqy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 15:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWHKTqy
+	id S932370AbWHKTrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWHKTrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 15:46:54 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:19902 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932370AbWHKTqx
+	Fri, 11 Aug 2006 15:47:11 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59028 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932370AbWHKTrJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 15:46:53 -0400
-Date: Fri, 11 Aug 2006 14:46:47 -0500
-To: Olof Johansson <olof@lixom.net>
-Cc: Arnd Bergmann <arnd@arndb.de>, Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>
-Subject: Re: [PATCH 4/4]: powerpc/cell spidernet ethtool -i version number info.
-Message-ID: <20060811194647.GO10638@austin.ibm.com>
-References: <20060811180013.GB6550@pb15.lixom.net> <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Fri, 11 Aug 2006 15:47:09 -0400
+Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: thomas@koeller.dyndns.org
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
+       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
+In-Reply-To: <200608102319.13679.thomas@koeller.dyndns.org>
+References: <200608102319.13679.thomas@koeller.dyndns.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 11 Aug 2006 21:07:14 +0100
+Message-Id: <1155326835.24077.116.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Iau, 2006-08-10 am 23:19 +0200, ysgrifennodd
+thomas@koeller.dyndns.org:
+> +	wd_regs = ioremap_nocache(rr->start, rr->end + 1 - rr->start);
 
-Hi Olof,
+If this fails ?
 
-Olof Johansson <olof@lixom.net> writes:
-> On Fri, Aug 11, 2006 at 12:11:17PM -0500, Linas Vepstas wrote:
-> 
-> > This patch adds version information as reported by 
-> > ethtool -i to the Spidernet driver.
-> 
-> Why does a driver that's in the mainline kernel need to have a version
-> number besides the kernel version?
+> +	res = misc_register(&miscdev);
+> +	if (res)
+> +		iounmap(wd_regs);
+> +	register_reboot_notifier(&wdt_gpi_shutdown);
+> +	return res;
 
-I'll let Jim be the primary defender. From what I can tell, "that's the
-way its done".  For example:
+Failure path appears incomplete, surely you don't want to register a
+reboot notifier then unload and error ?
 
-linux-2.6.18-rc3-mm2 $ grep MODULE_VERSION */*/*.c |wc
-     164     245    9081
+> +			copy_to_user((void __user *)arg, &wdinfo, size);
 
-> I can understand it for drivers like e1000 that Intel maintain outside
-> of the kernel as well. But spidernet is a fully mainline maintained
-> driver, right?
+This function returns an error and should be checked. (The tricks with
+IOC bits and verify_area aren't enough to be sure it won't error and
+actually probably aren't worth doing)
 
-Yes, the spidernet is a Linux-kernel only driver.
+> +	printk(KERN_WARNING "%s: watchdog expired - resetting system\n",
+> +	       wdt_gpi_name);
+> +
+> +	*(volatile char *) flagaddr |= 0x01;
+> +	*(volatile char *) resetaddr = powercycle ? 0x01 : 0x2;
+> +	iob();
+> +	while (1) continue;
 
---linas
+cpu_relax();
+> +
+> +	return IRQ_HANDLED;
 
-p.s. very strange, but I did not see your original email;  
-only saw Jim's reply.
+Unreachable code.
 
+Also if this is a software watchdog why is it better than using
+softdog ?
+
+Otherwise it looks pretty sound.
 

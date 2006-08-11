@@ -1,98 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161177AbWHKHFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbWHKHJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161177AbWHKHFV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 03:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWHKHFU
+	id S1161168AbWHKHJS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 03:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWHKHJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 03:05:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34010 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161155AbWHKHFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 03:05:19 -0400
-Date: Fri, 11 Aug 2006 00:04:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take6 1/3] kevent: Core files.
-Message-Id: <20060811000454.d0345288.akpm@osdl.org>
-In-Reply-To: <20060811063018.GB11230@2ka.mipt.ru>
-References: <11551105602734@2ka.mipt.ru>
-	<20060809152127.481fb346.akpm@osdl.org>
-	<20060810061433.GA4689@2ka.mipt.ru>
-	<20060810001844.ff5e7429.akpm@osdl.org>
-	<20060810075047.GB24370@2ka.mipt.ru>
-	<20060810010254.3b52682f.akpm@osdl.org>
-	<20060810082235.GA21025@2ka.mipt.ru>
-	<20060810175639.b64faaa9.akpm@osdl.org>
-	<20060811061535.GA11230@2ka.mipt.ru>
-	<20060810232340.ab326d3f.akpm@osdl.org>
-	<20060811063018.GB11230@2ka.mipt.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 11 Aug 2006 03:09:18 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:9865 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1161168AbWHKHJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 03:09:17 -0400
+Message-Id: <44DC496D.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Fri, 11 Aug 2006 09:10:05 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] i386: annotate the rest of entry.s::nmi
+References: <200608101343_MC3-1-C7B1-9E81@compuserve.com>
+In-Reply-To: <200608101343_MC3-1-C7B1-9E81@compuserve.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Aug 2006 10:30:21 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>> >> The point is that the push-es in FIX_STACK() aren't annotated, so
+>> >> things won't be correct at those points anyway.
+>> >
+>> >I have a patch here that adds that, but it won't compile
+>> >because that part of the NMI handler is un-annotated:
+>> 
+>> But you didn't clarify why you need this piece of code annotated...
+>
+>Uh, which one didn't I clarify?
+>
+>FIX_STACK() is already invoked from debug(), which is annotated, but
+>FIX_STACK() isn't.  And that messes with the stack, so for a few
+>instructions the annotations are all wrong.
+>
+>When I annotated FIX_STACK(), I found entry.S wouldn't compile
+because
+>nmi() included FIX_STACK() but was completely missing annotations
+>in that piece. So I added them so FIX_STACK()'s annotations would
+>compile...
 
-> On Thu, Aug 10, 2006 at 11:23:40PM -0700, Andrew Morton (akpm@osdl.org) wrote:
-> > On Fri, 11 Aug 2006 10:15:35 +0400
-> > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > 
-> > > On Thu, Aug 10, 2006 at 05:56:39PM -0700, Andrew Morton (akpm@osdl.org) wrote:
-> > > > > Per kevent fd.
-> > > > > I have some ideas about better mmap ring implementation, which would
-> > > > > dinamically grow it's buffer when events are added and reuse the same
-> > > > > place for next events, but there are some nitpics unresolved yet.
-> > > > > Let's not see there in next releases (no merge of course), until better 
-> > > > > solution is ready. I will change that area when other things are ready.
-> > > > 
-> > > > This is not a problem with the mmap interface per-se.  If the proposed
-> > > > event code permits each user to pin 160MB of kernel memory then that would
-> > > > be a serious problem.
-> > > 
-> > > The main disadvantage is that all memory is allocated on the start even
-> > > if it will not be used later. I think dynamic grow is appropriate
-> > > solution, since user will have that memory used anyway, since kevents
-> > > are allocated, just part of them will be allocated from possibly 
-> > > mmaped memory.
-> > 
-> > But the worst-case remains the same, doesn't it?  160MB of pinned kernel
-> > memory per user?
-> 
-> Yes. And now I think dynamic growing is not a good solution, since user
-> can not know when he must call mmap() again to get additional pages
-> (although I have some hacks to "dynamically" replace previously mmapped
-> pages with new ones).
-> 
-> This area can be decreased down to 70mb by reducing amount of
-> information placed into the buffer (only user's data and flags) without
-> additional hints.
-> 
+Ah, okay, this means the original sequence of additions was the reverse
+of
+how I got to see these patches. I understand now, but am still
+uncertain
+about the need to annotate FIX_STACK() - especially since you use
+.cfi_undefined, meaning the return point cannot be established anyway.
+If at all I'd annotate the initial pushes with either just the normal
+CFI_ADJUST_CFA_OFFSET, and the final one with one setting back the
+CFA base to the now adjusted frame. That way, until the pushes are
+complete the old frame will be used for determining the call origin,
+and
+once complete the (full) new state will be used.
+Or annotate them so that the new values take effect immediately with
+each push, but clearly without any CFI_UNDEFINED. That way, the
+frame will be slightly inconsistent in between, which could be of
+concern
+once we also properly annotate the segment register spills/restores.
 
-70MB is still very bad, naturally.
+>Should I send a combined patch, leave the two patches separate, or
+just
+>drop it?
 
-There are other ways in which users can do this sort of thing - passing
-fd's across sockets, allocating zillions of pagetables come to mind.  But
-we don't want to add more.
+Either way, but if you leave them separate you should always send them
+as pair, to make the intentions clear.
 
-Possible options:
-
-- Add a new rlimit for the number of kevent fd's
-
-- Add a new rlimit for the amount of kevent memory
-
-- Add a new rlimit for the total amount of pinned kernel memory.  First
-  user is kevent.
-
-- Account a kevent fd as being worth 100 regular fds, so the naughty user
-  hits EMFILE early (ug).
-
-A new rlimit is attractive, and they're easy to add.  Problem is, userspace
-support is hard (I think).  afaik a standard Linux system doesn't have
-global and per-user rlimit config files which are parsed and acted upon at
-login.  That would make rlimits more useful.
+Jan

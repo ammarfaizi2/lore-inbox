@@ -1,101 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWHKU51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWHKU6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWHKU51 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 16:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWHKU51
+	id S932429AbWHKU6s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 16:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWHKU6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 16:57:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4245 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932412AbWHKU50 (ORCPT
+	Fri, 11 Aug 2006 16:58:47 -0400
+Received: from ozlabs.org ([203.10.76.45]:53725 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932418AbWHKU6q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 16:57:26 -0400
-Date: Fri, 11 Aug 2006 16:56:39 -0400
-From: Dave Jones <davej@redhat.com>
-To: thomas@koeller.dyndns.org
-Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
-       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
-Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
-Message-ID: <20060811205639.GK26930@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, thomas@koeller.dyndns.org,
-	wim@iguana.be, linux-kernel@vger.kernel.org,
-	Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
-References: <200608102319.13679.thomas@koeller.dyndns.org>
-Mime-Version: 1.0
+	Fri, 11 Aug 2006 16:58:46 -0400
+Date: Sat, 12 Aug 2006 06:56:24 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+Cc: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 1/6] ehea: interface to network stack
+Message-ID: <20060811205624.GE479@krispykreme>
+References: <44D99EFC.3000105@de.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608102319.13679.thomas@koeller.dyndns.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <44D99EFC.3000105@de.ibm.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 11:19:13PM +0200, thomas@koeller.dyndns.org wrote:
- > This is a driver for the on-chip watchdog device found on some
- > MIPS RM9000 processors.
- > 
- > Signed-off-by: Thomas Koeller <thomas.koeller@baslerweb.com>
 
-Mostly same nit-picking comments as your other driver..
+Hi,
 
- > +++ b/drivers/char/watchdog/rm9k_wdt.c
- > ... 
- > + 
- > +#include <linux/config.h>
+> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_main.c	1969-12-31 
 
-not needed.
+> +#define DEB_PREFIX "main"
 
- > +/* Function prototypes */
- > +static int __init wdt_gpi_probe(struct device *);
- > +static int __exit wdt_gpi_remove(struct device *);
- > +static void wdt_gpi_set_timeout(unsigned int);
- > +static int wdt_gpi_open(struct inode *, struct file *);
- > +static int wdt_gpi_release(struct inode *, struct file *);
- > +static ssize_t wdt_gpi_write(struct file *, const char __user *, size_t, 
- > loff_t *);
- > +static long wdt_gpi_ioctl(struct file *, unsigned int, unsigned long);
- > +static const struct resource *wdt_gpi_get_resource(struct platform_device *, 
- > const char *, unsigned int);
- > +static int wdt_gpi_notify(struct notifier_block *, unsigned long, void *);
- > +static irqreturn_t wdt_gpi_irqhdl(int, void *, struct pt_regs *);
+Doesnt appear to be used.
 
-Can probably (mostly?) go away with some creative reordering.
+> +static struct net_device_stats *ehea_get_stats(struct net_device *dev)
+...
+> +	cb2 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
 
- > +static int locked = 0;
+I cant see where this gets freed.
 
-unneeded initialisation.
+> +
+> +				skb_index = ((index - i
+> +					      + port_res->skb_arr_sq_len)
+> +					     % port_res->skb_arr_sq_len);
 
- > +static int nowayout =
- > +#if defined(CONFIG_WATCHDOG_NOWAYOUT)
- > +	1;
- > +#else
- > +	0;
- > +#endif
+This is going to force an expensive divide. Its much better to change
+this to the simpler and quicker:
 
-static int nowayout = CONFIG_WATCHDOG_NOWAYOUT;
+i++;
+if (i > max)
+	i = 0;
 
-should work.
+There are a few places in the driver can be changed to do this.
 
- > +static void wdt_gpi_set_timeout(unsigned int to)
- > +{
- > +	u32 reg;
- > +	const u32 wdval = (to * CLOCK) & ~0x0000000f;
- > +
- > +	lock_titan_regs();
- > +	reg = titan_readl(CPCCR) & ~(0xf << (wd_ctr * 4));
- > +	titan_writel(reg, CPCCR);
- > +	wmb();
- > +	__raw_writel(wdval, wd_regs + 0x0000);
- > +	wmb();
- > +	titan_writel(reg | (0x2 << (wd_ctr * 4)), CPCCR);
- > +	wmb();
- > +	titan_writel(reg | (0x5 << (wd_ctr * 4)), CPCCR);
- > +	iob();
- > +	unlock_titan_regs();
- > +}
+> +static int ehea_setup_single_port(struct ehea_adapter *adapter,A
+> +				  int portnum, struct device_node *dn)
+...
+> +	cb4 = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
 
-As in the previous driver, are these barriers strong enough?
-Or do they need explicit reads of the written addresses to flush the write?
- 
-		Dave
+I cant see where this is freed.
 
--- 
-http://www.codemonkey.org.uk
+Anton

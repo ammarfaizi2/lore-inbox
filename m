@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWHKHzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWHKICU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWHKHzX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 03:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWHKHzX
+	id S1750762AbWHKICU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 04:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWHKICU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 03:55:23 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:22727 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750759AbWHKHzW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 03:55:22 -0400
-Message-ID: <44DC3726.1070303@aitel.hist.no>
-Date: Fri, 11 Aug 2006 09:52:06 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Edgar Toernig <froese@gmx.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org, viro@zeniv.linux.org.uk, tytso@mit.edu,
-       tigran@veritas.com
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>	<20060805122936.GC5417@ucw.cz>	<20060807101745.61f21826.froese@gmx.de>	<84144f020608070251j2e14e909v8a18f62db85ff3d4@mail.gmail.com>	<20060807224144.3bb64ac4.froese@gmx.de>	<Pine.LNX.4.64.0608071720510.29055@turbotaz.ourhouse>	<1155039338.5729.21.camel@localhost.localdomain>	<20060809104159.1f1737d3.froese@gmx.de>	<1155119999.5729.141.camel@localhost.localdomain> <20060809200010.2404895a.froese@gmx.de>
-In-Reply-To: <20060809200010.2404895a.froese@gmx.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Fri, 11 Aug 2006 04:02:20 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:30431 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750762AbWHKICT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 04:02:19 -0400
+Subject: Re: [patch 6/6] Move per-device data out of backlight_properties
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060811050611.655659401.dtor@insightbb.com>
+References: <20060811050310.958962036.dtor@insightbb.com>
+	 <20060811050611.655659401.dtor@insightbb.com>
+Content-Type: text/plain
+Date: Fri, 11 Aug 2006 09:02:07 +0100
+Message-Id: <1155283327.6354.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Toernig wrote:
-[...]
-> I wasn't aware of that (and I would definitely prefer a different behaviour).
->
-> But anyway, correct me if I'm wrong, revoke (V2) not simply removes the
-> pages from the mmaped area as truncating does (the vma stays);  revoke
-> seems to completely remove the vma which is clearly a security bug.
-> Future mappings may silently get mapped into the area of the revoked
-> file without the app noticing it.  It may then hand out data of the new
-> file still thinking it's sending the old one.
->   
-One could remap to /dev/null - the file would then be free to be
-umounted, but the app could get confused. Or map inaccessible
-pages, so the app segfault on the next access.
+On Fri, 2006-08-11 at 01:03 -0400, Dmitry Torokhov wrote:
+> plain text document attachment (backlight-move-data.patch)
+> Backlight: move per-device data out of backlight_properties
+> 
+> Data such as current brightness belongs to a device and should not
+> be part of a structure shared between several devices.
 
-Helge Hafting
+I agree there's an issue to address here. Looking at this patch very
+quickly, it breaks all the existing backlight drivers as they know about
+the variables in struct backlight_properties and all their references
+need to be updated e.g.: corgi_bl.c:
+
+if (bd->props->power != FB_BLANK_UNBLANK)
+intensity = 0;
+if (bd->props->fb_blank != FB_BLANK_UNBLANK)
+intensity = 0;
+
+Thinking about this, ideally, struct backlight_properties would be left
+containing the backlight properties in but become part of struct
+backlight_device (and allocated with it). The drivers would provide a
+new struct backlight_ops instead of the properties struct at present and
+the function pointers would move to that structure.
+
+Your other patches looked ok at a quick glance. I'll aim to test them
+against the corgi driver over the weekend and I look at reworking this
+one, unless you want beat me to it :)
+
+Cheers,
+
+Richard
+
+

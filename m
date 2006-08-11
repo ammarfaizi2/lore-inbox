@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWHKEHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWHKEIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWHKEHn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 00:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWHKEHn
+	id S1751078AbWHKEIj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 00:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWHKEIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 00:07:43 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:38617 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751071AbWHKEHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 00:07:42 -0400
-Date: Fri, 11 Aug 2006 00:07:02 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Marc Perkel <marc@perkel.com>
+	Fri, 11 Aug 2006 00:08:39 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:14782 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751078AbWHKEIi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 00:08:38 -0400
+From: Andi Kleen <ak@suse.de>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Subject: Re: [PATCH for review] [133/145] x86_64: Support physical cpu hotplug for x86_64
+Date: Fri, 11 Aug 2006 06:05:11 +0200
+User-Agent: KMail/1.9.3
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dumb Question
-Message-ID: <20060811040702.GB7125@filer.fsl.cs.sunysb.edu>
-References: <44DBFF8A.4020604@perkel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20060810935.775038000@suse.de> <20060810193733.28CA013B8E@wotan.suse.de> <20060810222056.GA24184@mail.muni.cz>
+In-Reply-To: <20060810222056.GA24184@mail.muni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44DBFF8A.4020604@perkel.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200608110605.11794.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 08:54:50PM -0700, Marc Perkel wrote:
-> OK - so if I want to download the latest kerkel and compile it - what 
-> files do I need to download and how do I apply the patch?
 
-I'd suggest starting over at kernelnewbies [1]. They have a lot of how to
-get started info.
+> Looks like subject or patch is misleading. X86_64 vs arch/i386
 
-Josef "Jeff" Sipek.
+No, actually the patch implements it for x86-64 -- the x86-64 code lives
+in arch/i386 in this case
 
-[1] kernelnewbies.org
-
--- 
-NT is to UNIX what a doughnut is to a particle accelerator.
+-Andi

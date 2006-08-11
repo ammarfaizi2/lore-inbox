@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWHKKJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWHKKQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWHKKJe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 06:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWHKKJe
+	id S1751105AbWHKKQP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 06:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWHKKQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 06:09:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:35333 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751101AbWHKKJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 06:09:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=efyum5VZrGdBVx+R80knpVkyddtdMVpEHowcO1gzRPo75dXT2yt6NxrhnfknRMZxKfuwFiS7FRxjtkcBCbz2KII9BaWM7+9Gd+B7fqmRtRSCAoToclAa2pFZGDLXh5ZI8X/++W+yLcMiSOdEVdbX0N5q3XBNC1VQbBHm3oWHJwo=
-Message-ID: <44DC5765.1070102@gmail.com>
-Date: Fri, 11 Aug 2006 12:09:18 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dumb Question
-References: <44DBFF8A.4020604@perkel.com> <44DC135A.5010407@perkel.com> <Pine.LNX.4.61.0608110802000.21588@yvahk01.tjqt.qr> <44DC1E21.1020805@perkel.com> <Pine.LNX.4.61.0608110916580.11836@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0608110916580.11836@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 11 Aug 2006 06:16:15 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16279 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751105AbWHKKQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 06:16:14 -0400
+Subject: Re: Serial driver 8250 hangs the kernel with the VIA Nehemiah...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Pringle <chris.pringle@miranda.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44DC4530.4040906@miranda.com>
+References: <44DC4530.4040906@miranda.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 11 Aug 2006 11:36:09 +0100
+Message-Id: <1155292569.24077.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>> I figured it out - however - the files to download to compile the
->>>> kernel should be accessible from the front page of the web site.
->>> They are - http://kernel.org/ right on the front. (Click either 2.6.17.8
->>> or "F", depending on what you need).
->>>
->> But that doesn't let me compile 2.6.18.
+Ar Gwe, 2006-08-11 am 09:52 +0100, ysgrifennodd Chris Pringle:
+> on it. However, when the port is receiving a lot of data, it has the
+> tendency to either get corrupted data, or to crash the kernel.
 
-Nothing on the world let you compile 2.6.18, it wasn't released yet ;).
+What do the crash traces look like
 
-> Get a compiler? (And the "F" file.)
-> 
->> And the patch can't be applied to the 2.6.17.8 kernel.
+> The "inb" as it is will sometimes return bad data - I'm guessing this
+> is due to ISA bus instability... Anyway I changed it to "inb_p" which
+> cured the corruption problem, but has introduced another issue - it
+> hangs the kernel.
 
-See
-Documentation/applying-patches.txt
-in linux source directory (and other userful docs there -- 00-INDEX and HOWTO as 
-a beginning)
+Maybe you need to have a chat with your hardware guys. Certainly if
+inb_p makes a difference you've got hardware not software side problems.
 
-regards.
--- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+> Interestingly, it only hangs on systems with a VIA Nehemiah CPU, the
+> Intel Celerons seem to work fine. Could this be a problem with writing
+> to that dreaded port 0x080 within inb_p?
+
+Unlikely as it would affect both. More likely would be that the ISA bus
+clock is generated off the PCI bus clock and you have one of the
+multipliers wrong or too high for the board.
+
+> it only occur on the VIA chip and not the Celeron? I don't think the
+> problem is there when the low latency patches are not applied - so I'm
+> thinking it's probably a timing problem of some sort.
+
+That bit is interesting. Something really off the wall to try - disable
+interrupts around the inb_p(), especially if you are using pre-emption
+and let me know what happens.
+
+Alan
+

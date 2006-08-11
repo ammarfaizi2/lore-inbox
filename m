@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWHKP3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWHKPcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWHKP3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 11:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWHKP3D
+	id S1751191AbWHKPcn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 11:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWHKPcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 11:29:03 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:16572 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751193AbWHKP3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 11:29:02 -0400
-Date: Fri, 11 Aug 2006 11:24:03 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev
-  structures as __cpuinitdata
-To: Andi Kleen <ak@suse.de>
-Cc: Magnus Damm <magnus@valinux.co.jp>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200608111126_MC3-1-C7CA-65CE@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Fri, 11 Aug 2006 11:32:43 -0400
+Received: from c3po.0xdef.net ([217.172.181.57]:19209 "EHLO c3po.0xdef.net")
+	by vger.kernel.org with ESMTP id S1751191AbWHKPcm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 11:32:42 -0400
+Date: Fri, 11 Aug 2006 17:32:39 +0200
+From: Hagen Paul Pfeifer <hagen@jauu.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Process Communication Mechanisms
+Message-ID: <20060811153239.GA20436@c3po.0xdef.net>
+Mail-Followup-To: Hagen Paul Pfeifer <hagen@jauu.net>,
+	linux-kernel@vger.kernel.org
+References: <75fdd94c0608110425w40493f48u2ef6d73ed3f6dec1@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+In-Reply-To: <75fdd94c0608110425w40493f48u2ef6d73ed3f6dec1@mail.gmail.com>
+X-Key-Id: 98350C22
+X-Key-Fingerprint: 490F 557B 6C48 6D7E 5706 2EA2 4A22 8D45 9835 0C22
+X-GPG-Key: gpg --recv-keys --keyserver wwwkeys.eu.pgp.net 98350C22
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060810193740.9133413C0B@wotan.suse.de>
+* Kamran Soomro | 2006-08-11 16:25:43 [+0500]:
 
-On Thu, 10 Aug 2006 21:37:40 +0200, Andi Kleen wrote:
+>Hi. I want to study how the 2.6 kernel handles process communication.
+>I am planning to study the source code for this purpose. Can someone
+>please guide me as to where to start? And how to proceed. Thanks.
 
-> From: Magnus Damm <magnus@valinux.co.jp>
-> 
-> The different cpu_dev structures are all used from __cpuinit callers what
-> I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
-> little bit unsure about arch/i386/common.c:default_cpu, especially when it
-> comes to the purpose of this_cpu.
+Process Communication in the sense of SYS V? Then the complete ipc directory
+[1] will be your friend.
 
-But none of these CPUs supports hotplug and only one (AMD) does SMP.
-So this is just wasting space in the kernel at runtime.
+For Unix sockets the implementation is a little bit more complicated - you must
+grasp more source-code. But this depends on how deep is your interesting.
 
-If anything I would only do this for AMD.
+Last but not least: there are many books out there who cover this topic.
 
-Same for the other patch that does more of this kind of change.
 
-(IIRC I tried to do this a while ago and was told not to.)
-
--- 
-Chuck
+[1] http://lxr.linux.no/source/ipc/

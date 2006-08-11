@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWHKApF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWHKAqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWHKApF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 20:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWHKApF
+	id S932396AbWHKAqH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 20:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWHKAqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 20:45:05 -0400
-Received: from pat.uio.no ([129.240.10.4]:47255 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932385AbWHKApD (ORCPT
+	Thu, 10 Aug 2006 20:46:06 -0400
+Received: from ozlabs.org ([203.10.76.45]:8836 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932396AbWHKAqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 20:45:03 -0400
-Subject: Re: Urgent help needed on an NFS question, please help!!!
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Neil Brown <neilb@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <4ae3c140608101525u7b6eeaebjca351ba850173544@mail.gmail.com>
-References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
-	 <17626.49136.384370.284757@cse.unsw.edu.au>
-	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
-	 <17626.52269.828274.831029@cse.unsw.edu.au>
-	 <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
-	 <20060810161107.GC4379@parisc-linux.org>
-	 <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
-	 <1155230922.10547.61.camel@localhost>
-	 <4ae3c140608101102j3ec28dccob94d407b9879aa86@mail.gmail.com>
-	 <1155239982.5826.24.camel@localhost>
-	 <4ae3c140608101525u7b6eeaebjca351ba850173544@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 10 Aug 2006 20:44:54 -0400
-Message-Id: <1155257094.5826.101.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-0.978, required 12,
-	autolearn=disabled, AWL -0.69, NIGERIAN_SUBJECT2 1.76,
-	PLING_PLING 0.43, RCVD_IN_XBL 2.51, UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 10 Aug 2006 20:46:03 -0400
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
+       Thomas Klein <tklein@de.ibm.com>, linuxppc-dev@ozlabs.org,
+       Christoph Raisch <raisch@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Marcus Eder <meder@de.ibm.com>
+From: Michael Neuling <mikey@neuling.org>
+Subject: Re: [PATCH 3/6] ehea: queue management 
+In-reply-to: <20060811003204.GA6935@martell.zuzino.mipt.ru> 
+References: <44D99F38.8010306@de.ibm.com> <20060811000540.200CE67B6B@ozlabs.org> <20060811003204.GA6935@martell.zuzino.mipt.ru>
+Comments: In-reply-to Alexey Dobriyan <adobriyan@gmail.com>
+   message dated "Fri, 11 Aug 2006 04:32:04 +0400."
+Reply-to: Michael Neuling <mikey@neuling.org>
+X-Mailer: MH-E 7.85; nmh 1.1; GNU Emacs 21.4.1
+Date: Fri, 11 Aug 2006 10:46:01 +1000
+Message-Id: <20060811004602.23EB467B64@ozlabs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 18:25 -0400, Xin Zhao wrote:
-> The inter-VM inode helps reduce communication cost used to retrieve
-> file attributes in a VM environment. In a network environment, it is
-> possible for a client to direct see the inode caches of the server.
-> But in the virtual server environment, where both client and server
-> running on the same physical host, this would be possible.
-> 
-> If clients have read-only access to server's inode cache, they can
-> directly retrieve file attributes without incurring expensive
-> getattr() rpc call. Of couse the delegation is able to allow a client
-> to trust local cached file attributes without worry about server
-> change. But this only works when file is not shared by multiple
-> clients. Right? Does NFS4 has some other mechanisms that can further
-> improve performance on metadata access?
+> > > +static inline u32 map_swqe_size(u8 swqe_enc_size)
+> > > +{
+> > > +	return 128 << swqe_enc_size;
+> > > +}		      ^
+> > > +		      |
+> > > +static inline u32|map_rwqe_size(u8 rwqe_enc_size)
+> > > +{		      |
+> > > +	return 128 << rwqe_enc_size;
+> 		      ^
+> > > +}		      |
+> >		      |
+> > Snap!  These are ide|tical...
+> 		      |
+> No, they aren't. -----+
 
-Not metadata access, no. That would require some seriously messy locking
-rules.
-It improves performance by allowing a client to access the block device
-directly for data reads and writes if it has the capability of doing so.
+Functionally identical.
 
-  Trond
-
+Mikey

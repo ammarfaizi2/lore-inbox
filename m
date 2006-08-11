@@ -1,140 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWHKPpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWHKPp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWHKPpx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 11:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHKPpw
+	id S932167AbWHKPp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 11:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHKPp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 11:45:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12782 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932071AbWHKPpv (ORCPT
+	Fri, 11 Aug 2006 11:45:59 -0400
+Received: from mail.oxtel.com ([195.219.3.158]:22280 "EHLO oxtel.com")
+	by vger.kernel.org with ESMTP id S932167AbWHKPp6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 11:45:51 -0400
-Date: Fri, 11 Aug 2006 08:45:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take8 2/2] kevent: poll/select() notifications. Timer
- notifications.
-Message-Id: <20060811084531.ac727a7b.akpm@osdl.org>
-In-Reply-To: <11552856102674@2ka.mipt.ru>
-References: <11552856103972@2ka.mipt.ru>
-	<11552856102674@2ka.mipt.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 11 Aug 2006 11:45:58 -0400
+Message-ID: <44DCA631.9040505@miranda.com>
+Date: Fri, 11 Aug 2006 16:45:53 +0100
+From: Chris Pringle <chris.pringle@miranda.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Serial driver 8250 hangs the kernel with the VIA Nehemiah...
+References: <44DC6524.4000401@miranda.com> <1155297728.24077.52.camel@localhost.localdomain>
+In-Reply-To: <1155297728.24077.52.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: chris.pringle
+X-Server: VPOP3 Enterprise V2.3.0e - Registered
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Aug 2006 12:40:10 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-
-> 
-> poll/select() notifications. Timer notifications.
-> 
-> This patch includes generic poll/select and timer notifications.
-> 
-> kevent_poll works simialr to epoll and has the same issues (callback
-> is invoked not from internal state machine of the caller, but through
-> process awake).
-> 
-> Timer notifications can be used for fine grained per-process time 
-> management, since interval timers are very inconvenient to use, 
-> and they are limited.
-> 
-> ...
+Alan Cox wrote:
+> Ar Gwe, 2006-08-11 am 12:08 +0100, ysgrifennodd Chris Pringle:
+>   
+>>> Unlikely as it would affect both. More likely would be that the ISA bus
+>>> clock is generated off the PCI bus clock and you have one of the
+>>> multipliers wrong or too high for the board.
+>>>   
+>>>       
+>> Thats interesting, but wouldn't this produce strange side affects for 
+>> the 2.4 kernel as well? 2.4 works fine on both VIAs and Celerons.
+>>     
 >
-> +static struct lock_class_key kevent_poll_key;
-> +
-> +void kevent_poll_reinit(struct file *file)
-> +{
-> +	lockdep_set_class(&file->st.lock, &kevent_poll_key);
-> +}
+> That I wonder about. The power management stuff and some other things
+> that matter for timing are different however.
+>   
+We don't use any kind of power management (not compiled in) as our 
+systems are always on... Is there any timing related options in the 
+kernel config you'd recommend I look at?
+>   
+>> I'll give the interrupt disabling a go...
+>>     
+>
+> Its just a guess but if you have low latency stuff, you have pre-empt
+> enabled and you actually depend upon the semantics of inb_p/outb_p
+> giving delays reliably then I'm not convinced are guarantees are strong
+> enough
+>
+> Specifically we don't have any pre-empt protection between the I/O delay
+> and the I/O so we could violate it as we don't have pre-empt disables in
+> inb_p/outb_p and if your CPU context switch is quick enough it could
+> trigger a problem.
+>
+> Alan
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>   
+Okay, I've tried disabling both preemption and interrupts (separately, 
+and together) and its still hanging...
 
-Why is this necessary?
+I've had the Celeron systems being thrashed for well over 4 days now, 
+and they are working fine... Why would the VIA system be any different? 
+They have a slightly different CPU speed (the VIAs are 1000MHz, whereas 
+the Celerons are 850MHz), but I would expect them to be fully compatible 
+otherwise... unless its a microcode bug?
 
-> +#include <linux/kernel.h>
-> +#include <linux/types.h>
-> +#include <linux/list.h>
-> +#include <linux/slab.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/timer.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/kevent.h>
-> +
-> +static void kevent_timer_func(unsigned long data)
-> +{
-> +	struct kevent *k = (struct kevent *)data;
-> +	struct timer_list *t = k->st->origin;
-> +
-> +	kevent_storage_ready(k->st, NULL, KEVENT_MASK_ALL);
-> +	mod_timer(t, jiffies + msecs_to_jiffies(k->event.id.raw[0]));
-> +}
-> +
-> +static struct lock_class_key kevent_timer_key;
-> +
-> +static int kevent_timer_enqueue(struct kevent *k)
-> +{
-> +	struct timer_list *t;
-> +	struct kevent_storage *st;
-> +	int err;
-> +
-> +	t = kmalloc(sizeof(struct timer_list) + sizeof(struct kevent_storage), 
-> +			GFP_KERNEL);
-> +	if (!t)
-> +		return -ENOMEM;
-> +
-> +	init_timer(t);
-> +	t->function = kevent_timer_func;
-> +	t->expires = jiffies + msecs_to_jiffies(k->event.id.raw[0]);
-> +	t->data = (unsigned long)k;
+Any more ideas? Do you think writing to port 0x80 could be causing issues?
 
-setup_timer().
+Thanks,
+Chris
 
-> +	st = (struct kevent_storage *)(t+1);
+-- 
 
-It would be cleaner to create
+______________________________
+Chris Pringle
+Software Engineer
 
-	struct <something> {
-		struct timer_list timer;
-		struct kevent_storage storage;
-	};
+Miranda Technologies Ltd.
+Hithercroft Road
+Wallingford
+Oxfordshire OX10 9DG
+UK
 
-> +	err = kevent_storage_init(t, st);
-> +	if (err)
-> +		goto err_out_free;
-> +	lockdep_set_class(&st->lock, &kevent_timer_key);
-
-Why is this necesary?
-
-> +	
-> +	kevent_storage_dequeue(st, k);
-> +	
-> +	kfree(t);
-> +
-> +	return 0;
-> +}
-> +
-> +static int kevent_timer_callback(struct kevent *k)
-> +{
-> +	struct kevent_storage *st = k->st;
-> +	struct timer_list *t = st->origin;
-> +
-> +	if (!t)
-> +		return -ENODEV;
-> +	
-> +	k->event.ret_data[0] = (__u32)jiffies;
-
-What does this do?
-
-Does it expose jiffies to userspace?
-
-It truncates jiffies on 64-bit machines.
-
-> +late_initcall(kevent_init_timer);
-
-module_init() would be more typical.  If there was a reason for using
-late_initcall(), that reason should be commented.
+Tel. +44 1491 820206
+Fax. +44 1491 820001
+www.miranda.com
 

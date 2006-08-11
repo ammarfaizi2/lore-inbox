@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWHKRnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWHKRne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWHKRnK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 13:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWHKRnK
+	id S932366AbWHKRne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 13:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWHKRnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 13:43:10 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:41089 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932336AbWHKRnH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 13:43:07 -0400
-Subject: Re: linux-2.4.33 released
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Marcelo Tosatti <marcelo@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608110418.k7B4IqDn017355@hera.kernel.org>
-References: <200608110418.k7B4IqDn017355@hera.kernel.org>
-Content-Type: text/plain
-Date: Fri, 11 Aug 2006 19:43:00 +0200
-Message-Id: <1155318180.23933.7.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Fri, 11 Aug 2006 13:43:33 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:37125 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S932366AbWHKRnd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 13:43:33 -0400
+Message-ID: <44DCC283.7030709@aknet.ru>
+Date: Fri, 11 Aug 2006 21:46:43 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] i386: annotate the rest of entry.s::nmi
+References: <200608100101_MC3-1-C796-F8CA@compuserve.com> <44DB0927.76E4.0078.0@novell.com>
+In-Reply-To: <44DB0927.76E4.0078.0@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 04:18 +0000, Marcelo Tosatti wrote:
-> final:
-> 
-> - 2.4.33-rc3 was released as 2.4.33 with no changes.
-I have one suggestion for the 2.4 tree, next time a few changes is
-introduced, they could be put as a bugfix release, as with the 2.6
-branch now, so that it doesent end up taking years for a new 2.4
-release, and instead a point release(if any such thing happens at all)
+Hello.
 
-<snip>
-> Yan Zheng:
->       IPv6: fix refcnt of struct ip6_flowlabel
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Jan Beulich wrote:
+> even more, as I'm now looking at it, this code seems
+> outright wrong in using iret since that unmasks NMIs - Stas, is
+> your pending adjustment to the 16-bit stack handling going to
+> overcome this?)
+No, it leaves the NMI path almost untouched.
+But what exactly problem do you see with this iret?
+If it unmasks NMI, then it does so for reason, which
+is a return from an NMI handler. What exactly is wrong
+with it?
 

@@ -1,102 +1,1002 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWHJW2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWHJWfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWHJW2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 18:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWHJW2e
+	id S1751044AbWHJWfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 18:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWHJWfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 18:28:34 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:4817 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751491AbWHJW2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 18:28:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UswGwin50wB3zzok/5t19Z5qC31517BYyfz/6wD+w2p4Y1419BnoJhNLR/bNOPbI5LcEhljJTqRYti7nd0jzpxuj2i85SMkPeGfGBT8J+0oCqfw+Qk9kOHJ0ojK+9iy7ia6c8dOI7cwwWuR7bW+qv+m8AgHuebDla6rbY+r53qs=
-Message-ID: <4ae3c140608101528s69c50e2do554e0b908c2a1cf1@mail.gmail.com>
-Date: Thu, 10 Aug 2006 18:28:31 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: Urgent help needed on an NFS question, please help!!!
-Cc: "Matthew Wilcox" <matthew@wil.cx>, "Neil Brown" <neilb@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1155239982.5826.24.camel@localhost>
+	Thu, 10 Aug 2006 18:35:20 -0400
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:43753 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751044AbWHJWfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 18:35:17 -0400
+Date: Fri, 11 Aug 2006 08:47:56 +0300
+From: Samuel Ortiz <samuel@sortiz.org>
+To: Komal Shah <komal_shah802003@yahoo.com>
+Cc: samuel@sortiz.org, irda-users@lists.sourceforge.net, tony@atomide.com,
+       akpm@osdl.org, r-woodruff2@ti.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] OMAP: Add support for IrDA driver
+Message-ID: <20060811054756.GA14621@sortiz.org>
+Reply-To: Samuel Ortiz <samuel@sortiz.org>
+References: <1154941953.26912.267785299@webmail.messagingengine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
-	 <17626.49136.384370.284757@cse.unsw.edu.au>
-	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
-	 <17626.52269.828274.831029@cse.unsw.edu.au>
-	 <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
-	 <20060810161107.GC4379@parisc-linux.org>
-	 <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
-	 <1155230922.10547.61.camel@localhost>
-	 <4ae3c140608101102j3ec28dccob94d407b9879aa86@mail.gmail.com>
-	 <1155239982.5826.24.camel@localhost>
+In-Reply-To: <1154941953.26912.267785299@webmail.messagingengine.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also, delegations are about caching. That's true. It improve NFS
-performance because a client with a lease does not need to worry about
-server change and can manipulate files using local cache.  But if
-speculative execution can achieve the same goal without incurring the
-cost of lease renewal and revoke, delegation becomes less useful.
+Hi Komal,
 
-So my question is essentially: if speculative execution is there, why
-do we still need delegation? Can delegation do anything better?
+On Mon, Aug 07, 2006 at 02:42:33PM +0530, Komal Shah wrote:
+> Samuel/Tony,
+> 
+> I have attached the OMAP IrDA patch for OMAP1610/1710 and OMAP242x
+> for review. See that for IrDA driver to work on H3 and H4, we need
+> gpio-expander functions to go in mainline, but it can work on H2.
+Overall the patch looks good, I have some comments though. See below:
 
-Xin
+> +++ b/drivers/net/irda/Kconfig
+> @@ -432,5 +432,15 @@ config MCS_FIR
+>  	  To compile it as a module, choose M here: the module will be called
+>  	  mcs7780.
+>  
+> +config OMAP_IR
+> +	tristate "OMAP IrDA(SIR/MIR/FIR)"
+> +	depends on IRDA && ARCH_OMAP
+> +	select GPIOEXPANDER_OMAP if (MACH_OMAP_H3 || MACH_OMAP_H4)
+> +        help
+> +	  Say Y here if you want to build support for the Teaxas Instruments
+s/Teaxas/Texas/ ;-)
 
-On 8/10/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Thu, 2006-08-10 at 14:02 -0400, Xin Zhao wrote:
-> > Thanks. Trond.
-> >
-> > The device is subject to change when server reboot? I don't quite
-> > understand. If the backing device at the server side is not changed,
-> > how come server reboot will cause device ID change?
->
-> Things like USB, firewire, and fibre channel allocate their device ids
-> on the fly. There is no such thing as a fixed device id in those cases.
->
-> > About your comment on the second conclusion, I already explained in
-> > one of my previous email. We assume that both server and clients are
-> > under our control. That is, we don't consider too much about
-> > interoperability.  The file handle format will be static even the NFS
-> > server is changed. Actually, in our inter-VM inode sharing scheme, we
-> > don't even care about the normal file handle contents. Instead, we
-> > only check our extended fields, which include: server-side inode
-> > address, ino, dev info, i_generation and server_generation. An NFS
-> > client first uses the server-side inode address to locate the inode
-> > object in the server inode cache (we dynamically remapped the inode
-> > cache into the client, in order to expedite metadata retrieval and
-> > bypass inter-VM communication). After getting the inode object, the
-> > NFS client has to validate this inode object corresponds to the file
-> > handle so that it can read the right file attributes stored in the
-> > inode. There are many possibilities that can cause a located inode
-> > stores false information: the inode has been released because someone
-> > on the server remove the file, the inode was filled by another file's
-> > inode (other possibilities?).  So we must validate the inode before
-> > using the file attributes retrieved from the mapped inode.
-> >
-> > That's why we bring up this question.
->
-> Why do this, when people are working on standards and implementations
-> for doing precisely the above within the NFSv4 protocol?
->
-> > Also, does someone compare NFS v4's delegation mechanism with the
-> > speculative execution mechanism proposed in SOSP 2005
-> > http://www.cs.cmu.edu/~dga/15-849/papers/speculator-sosp2005.pdf?
-> >
-> > What are the pros and cons of these two mechanisms?
->
-> Delegations are all about caching. This paper appears to be about
-> getting round the bottlenecks due to synchronous operations. How are the
-> two issues related?
->
-> Cheers,
->   Trond
->
->
+> diff --git a/drivers/net/irda/Makefile b/drivers/net/irda/Makefile
+> index 5be09f1..89c6389 100644
+> --- a/drivers/net/irda/Makefile
+> +++ b/drivers/net/irda/Makefile
+> @@ -20,6 +20,7 @@ obj-$(CONFIG_VLSI_FIR)		+= vlsi_ir.o
+>  obj-$(CONFIG_VIA_FIR)		+= via-ircc.o
+>  obj-$(CONFIG_PXA_FICP)	        += pxaficp_ir.o
+>  obj-$(CONFIG_MCS_FIR)	        += mcs7780.o
+> +obj-$(CONFIG_OMAP_IR)		+= omap-ir.o
+>  # Old dongle drivers for old SIR drivers
+>  obj-$(CONFIG_ESI_DONGLE_OLD)		+= esi.o
+>  obj-$(CONFIG_TEKRAM_DONGLE_OLD)	+= tekram.o
+> diff --git a/drivers/net/irda/omap-ir.c b/drivers/net/irda/omap-ir.c
+> new file mode 100644
+> index 0000000..c51fb48
+> --- /dev/null
+> +++ b/drivers/net/irda/omap-ir.c
+> @@ -0,0 +1,903 @@
+> +/*
+> + * BRIEF MODULE DESCRIPTION
+> + *
+> + *	Infra-red driver for the OMAP1610-H2 and OMAP1710-H3 and H4 Platforms
+> + *	  (SIR/MIR/FIR modes)
+> + *	  (based on omap-sir.c)
+> + *
+> + * Copyright 2003 MontaVista Software Inc.
+> + * Author: MontaVista Software, Inc.
+> + *	   source@mvista.com
+> + *
+> + * Copyright 2004 Texas Instruments.
+> + *
+> + *  This program is free software; you can redistribute	 it and/or modify it
+> + *  under  the terms of	 the GNU General  Public License as published by the
+> + *  Free Software Foundation;  either version 2 of the	License, or (at your
+> + *  option) any later version.
+> + *
+> + *  THIS  SOFTWARE  IS PROVIDED	  ``AS	IS'' AND   ANY	EXPRESS OR IMPLIED
+> + *  WARRANTIES,	  INCLUDING, BUT NOT  LIMITED  TO, THE IMPLIED WARRANTIES OF
+> + *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+> + *  NO	EVENT  SHALL   THE AUTHOR  BE	 LIABLE FOR ANY	  DIRECT, INDIRECT,
+> + *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+> + *  NOT LIMITED	  TO, PROCUREMENT OF  SUBSTITUTE GOODS	OR SERVICES; LOSS OF
+> + *  USE, DATA,	OR PROFITS; OR	BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+> + *  ANY THEORY OF LIABILITY, WHETHER IN	 CONTRACT, STRICT LIABILITY, OR TORT
+> + *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+> + *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+> + *
+> + *  You should have received a copy of the  GNU General Public License along
+> + *  with this program; if not, write  to the Free Software Foundation, Inc.,
+> + *  675 Mass Ave, Cambridge, MA 02139, USA.
+> + *
+> + Modifications:
+> + Feb 2004, Texas Instruments
+> + - Ported to 2.6 kernel (Feb 2004).
+> + *
+> + Apr 2004, Texas Instruments
+> + - Added support for H3 (Apr 2004).
+> + Nov 2004, Texas Instruments
+> + - Added support for Power Management.
+> + */
+> +
+> +#include <linux/config.h>
+> +#include <linux/module.h>
+> +#include <linux/types.h>
+> +#include <linux/init.h>
+> +#include <linux/errno.h>
+> +#include <linux/netdevice.h>
+> +#include <linux/slab.h>
+> +#include <linux/rtnetlink.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/delay.h>
+> +#include <linux/ioport.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/i2c.h>
+> +
+> +#include <net/irda/irda.h>
+> +#include <net/irda/irmod.h>
+> +#include <net/irda/wrapper.h>
+> +#include <net/irda/irda_device.h>
+> +
+> +#include <asm/irq.h>
+> +#include <asm/io.h>
+> +#include <asm/hardware.h>
+> +#include <asm/serial.h>
+> +#include <asm/mach-types.h>
+> +#include <asm/dma.h>
+> +#include <asm/arch/mux.h>
+> +#include <asm/arch/gpio.h>
+> +#include <asm/arch/irda.h>
+> +
+> +#define UART3_EFR_EN			(1 << 4)
+> +#define UART3_MCR_EN_TCR_TLR		(1 << 6)
+> +
+> +#define UART3_LCR_WL_8			(3 << 0)
+> +#define UART3_LCR_SP2			(1 << 2)
+> +#define UART3_LCR_DIVEN			(1 << 7)
+> +
+> +#define UART3_FCR_FIFO_EN		(1 << 0)
+> +#define UART3_FCR_FIFO_RX		(1 << 1)
+> +#define UART3_FCR_FIFO_TX		(1 << 2)
+> +#define UART3_FCR_FIFO_DMA1		(1 << 3)
+> +#define UART3_FCR_FIFO_TX_TRIG16	(1 << 4)
+> +#define UART3_FCR_FIFO_RX_TRIG16	(1 << 6)
+> +#define UART3_FCR_CONFIG	(\
+> +		UART3_FCR_FIFO_EN | UART3_FCR_FIFO_RX	|\
+> +		UART3_FCR_FIFO_TX | UART3_FCR_FIFO_DMA1 |\
+> +		UART3_FCR_FIFO_TX_TRIG16		|\
+> +		UART3_FCR_FIFO_RX_TRIG16)
+> +
+> +#define UART3_SCR_TX_TRIG1		(1 << 6)
+> +#define UART3_SCR_RX_TRIG1		(1 << 7)
+> +
+> +#define UART3_MDR1_RESET		(0x07)
+> +#define UART3_MDR1_SIR			(1 << 0)
+> +#define UART3_MDR1_MIR			(4 << 0)
+> +#define UART3_MDR1_FIR			(5 << 0)
+> +#define UART3_MDR1_SIP_AUTO		(1 << 6)
+> +
+> +#define UART3_MDR2_TRIG1		(0 << 1)
+> +#define UART3_MDR2_IRTX_UNDERRUN	(1 << 0)
+> +
+> +#define UART3_ACERG_TX_UNDERRUN_DIS	(1 << 4)
+> +#define UART3_ACERG_SD_MODE_LOW		(1 << 6)
+> +#define UART3_ACERG_DIS_IR_RX		(1 << 5)
+> +
+> +#define UART3_IER_EOF			(1 << 5)
+> +#define UART3_IER_CTS			(1 << 7)
+> +
+> +#define UART3_IIR_TX_STATUS		(1 << 5)
+> +#define UART3_IIR_EOF			(0x80)
+> +
+> +#define IS_FIR(si)		((si)->speed >= 4000000)
+> +#define IRDA_FRAME_SIZE_LIMIT	4096
+You should use IRDA_SKB_MAX_MTU and IRDA_SIR_MAX_FRAME for respectively your
+max Rx and Tx sizes.
+
+
+> +static int rx_state = 0;	/* RX state for IOCTL */
+rx_state could probably be part of omap_irda.
+
+
+> +struct omap_irda {
+> +	unsigned char open;
+> +	int speed;		/* Current IrDA speed */
+> +	int newspeed;
+> +
+> +	struct net_device_stats stats;
+> +	struct irlap_cb *irlap;
+> +	struct qos_info qos;
+> +
+> +	int rx_dma_channel;
+> +	int tx_dma_channel;
+> +
+> +	dma_addr_t rx_buf_dma_phys;	/* Physical address of RX DMA buffer */
+> +	dma_addr_t tx_buf_dma_phys;	/* Physical address of TX DMA buffer */
+> +
+> +	void *rx_buf_dma_virt;		/* Virtual address of RX DMA buffer */
+> +	void *tx_buf_dma_virt;		/* Virtual address of TX DMA buffer */
+> +
+> +	struct device *dev;
+> +	struct omap_irda_config *pdata;
+You forgot to define omap_irda_config.
+Same thing for IR_SEL, IR_SIRMODE, IR_FIRMODE and IR_MIRMODE.
+
+
+> +};
+> +
+> +static void inline uart_reg_out(int idx, u8 val)
+> +{
+> +	omap_writeb(val, idx);
+> +}
+> +
+> +static u8 inline uart_reg_in(int idx)
+> +{
+> +	u8 b = omap_readb(idx);
+> +	return b;
+> +}
+> +
+> +/* forward declarations */
+> +extern void irda_device_setup(struct net_device *dev);
+This is useless as you don't use this function anywhere in the code below.
+
+
+> +extern void omap_stop_dma(int lch);
+> +static int omap_irda_set_speed(struct net_device *dev, int speed);
+> +
+> +static void omap_irda_start_rx_dma(struct omap_irda *si)
+> +{
+> +	/* Configure DMA */
+> +	omap_set_dma_src_params(si->rx_dma_channel, 0x3, 0x0,
+> +				si->pdata->src_start,
+> +				0, 0);
+> +
+> +	omap_enable_dma_irq(si->rx_dma_channel, 0x01);
+> +
+> +	omap_set_dma_dest_params(si->rx_dma_channel, 0x0, 0x1,
+> +				si->rx_buf_dma_phys,
+> +				0, 0);
+> +
+> +	omap_set_dma_transfer_params(si->rx_dma_channel, 0x0,
+> +				IRDA_FRAME_SIZE_LIMIT, 0x1,
+> +				0x0, si->pdata->rx_trigger, 0);
+> +	omap_start_dma(si->rx_dma_channel);
+> +}
+> +
+> +static void omap_start_tx_dma(struct omap_irda *si, int size)
+> +{
+> +	/* Configure DMA */
+> +	omap_set_dma_dest_params(si->tx_dma_channel, 0x03, 0x0,
+> +				si->pdata->dest_start, 0, 0);
+> +
+> +	omap_enable_dma_irq(si->tx_dma_channel, 0x01);
+> +
+> +	omap_set_dma_src_params(si->tx_dma_channel, 0x0, 0x1,
+> +				si->tx_buf_dma_phys,
+> +				0, 0);
+> +
+> +	omap_set_dma_transfer_params(si->tx_dma_channel, 0x0, size, 0x1,
+> +				0x0, si->pdata->tx_trigger, 0);
+> +
+> +	/* Start DMA */
+> +	omap_start_dma(si->tx_dma_channel);
+> +}
+> +
+> +/* DMA RX callback - normally, we should not go here,
+> + * it calls only if something is going wrong
+> + */
+> +static void omap_irda_rx_dma_callback(int lch, u16 ch_status, void *data)
+> +{
+> +	struct net_device *dev = data;
+> +	struct omap_irda *si = dev->priv;
+A detail here, but I think that "si" for a variable name is a bit meaningless. 
+
+
+> +	printk(KERN_ERR "RX Transfer error or very big frame\n");
+> +
+> +	/* Clear interrupts */
+> +	uart_reg_in(UART3_IIR);
+> +
+> +	si->stats.rx_frame_errors++;
+> +
+> +	uart_reg_in(UART3_RESUME);
+> +
+> +	/* Re-init RX DMA */
+> +	omap_irda_start_rx_dma(si);
+> +}
+> +
+> +/* DMA TX callback - calling when frame transfer has been finished */
+> +static void omap_irda_tx_dma_callback(int lch, u16 ch_status, void *data)
+> +{
+> +	struct net_device *dev = data;
+> +	struct omap_irda *si = dev->priv;
+> +
+> +	/*Stop DMA controller */
+> +	omap_stop_dma(si->tx_dma_channel);
+> +}
+> +
+> +/*
+> + * Set the IrDA communications speed.
+> + * Interrupt have to be disabled here.
+> + */
+> +static int omap_irda_startup(struct net_device *dev)
+> +{
+> +	struct omap_irda *si = dev->priv;
+> +
+> +
+> +	/* FIXME: use clk_* apis for UART3 clock*/
+> +	/* Enable UART3 clock and set UART3 to IrDA mode */
+> +	if (machine_is_omap_h2() || machine_is_omap_h3())
+> +		omap_writel(omap_readl(MOD_CONF_CTRL_0) | (1 << 31) | (1 << 15),
+> +				MOD_CONF_CTRL_0);
+> +
+> +	/* Only for H2?
+> +	 */
+> +	if (si->pdata->transceiver_mode && machine_is_omap_h2()) {
+> +		/* Is it select_irda on H2 ? */
+> +		omap_writel(omap_readl(FUNC_MUX_CTRL_A) | 7,
+> +					FUNC_MUX_CTRL_A);
+> +		si->pdata->transceiver_mode(si->dev, IR_SIRMODE);
+> +	}
+> +
+> +	uart_reg_out(UART3_MDR1, UART3_MDR1_RESET);	/* Reset mode */
+> +
+> +	/* Clear DLH and DLL */
+> +	uart_reg_out(UART3_LCR, UART3_LCR_DIVEN);
+> +
+> +	uart_reg_out(UART3_DLL, 0);
+> +	uart_reg_out(UART3_DLH, 0);
+> +	uart_reg_out(UART3_LCR, 0xbf);	/* FIXME: Add #define */
+> +
+> +	uart_reg_out(UART3_EFR, UART3_EFR_EN);
+> +	uart_reg_out(UART3_LCR, UART3_LCR_DIVEN);
+> +
+> +	/* Enable access to UART3_TLR and UART3_TCR registers */
+> +	uart_reg_out(UART3_MCR, UART3_MCR_EN_TCR_TLR);
+> +
+> +	uart_reg_out(UART3_SCR, 0);
+> +	/* Set Rx trigger to 1 and Tx trigger to 1 */
+> +	uart_reg_out(UART3_TLR, 0);
+> +
+> +	/* Set LCR to 8 bits and 1 stop bit */
+> +	uart_reg_out(UART3_LCR, 0x03);
+> +
+> +	/* Clear RX and TX FIFO and enable FIFO */
+> +	/* Use DMA Req for transfers */
+> +	uart_reg_out(UART3_FCR, UART3_FCR_CONFIG);
+> +
+> +	uart_reg_out(UART3_MCR, 0);
+> +
+> +	uart_reg_out(UART3_SCR, UART3_SCR_TX_TRIG1 |
+> +			UART3_SCR_RX_TRIG1);
+> +
+> +	/* Enable UART3 SIR Mode,(Frame-length method to end frames) */
+> +	uart_reg_out(UART3_MDR1, UART3_MDR1_SIR);
+> +
+> +	/* Set Status FIFO trig to 1 */
+> +	uart_reg_out(UART3_MDR2, 0);
+> +
+> +	/* Enables RXIR input */
+> +	/* and disable TX underrun */
+> +	/* SEND_SIP pulse */
+> +	uart_reg_out(UART3_ACREG, UART3_ACERG_SD_MODE_LOW |
+> +			UART3_ACERG_TX_UNDERRUN_DIS);
+> +
+> +	/* Enable EOF Interrupt only */
+> +	uart_reg_out(UART3_IER, UART3_IER_CTS | UART3_IER_EOF);
+> +
+> +	/* Set Maximum Received Frame size to 2048 bytes */
+> +	uart_reg_out(UART3_RXFLL, 0x00);
+> +	uart_reg_out(UART3_RXFLH, 0x08);
+> +
+> +	uart_reg_in(UART3_RESUME);
+> +
+> +	return 0;
+> +}
+> +
+> +static int omap_irda_shutdown(struct omap_irda *si)
+> +{
+> +	unsigned long flags;
+> +
+> +	local_irq_save(flags);
+> +
+> +	/* Disable all UART3 Interrupts */
+> +	uart_reg_out(UART3_IER, 0);
+> +
+> +	/* Disable UART3 and disable baud rate generator */
+> +	uart_reg_out(UART3_MDR1, UART3_MDR1_RESET);
+> +
+> +	/* set SD_MODE pin to high and Disable RX IR */
+> +	uart_reg_out(UART3_ACREG, (UART3_ACERG_DIS_IR_RX |
+> +			~(UART3_ACERG_SD_MODE_LOW)));
+> +
+> +	/* Clear DLH and DLL */
+> +	uart_reg_out(UART3_LCR, UART3_LCR_DIVEN);
+> +	uart_reg_out(UART3_DLL, 0);
+> +	uart_reg_out(UART3_DLH, 0);
+> +
+> +	local_irq_restore(flags);
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t
+> +omap_irda_irq(int irq, void *dev_id, struct pt_regs *hw_regs)
+> +{
+> +	struct net_device *dev = dev_id;
+> +	struct omap_irda *si = dev->priv;
+> +	struct sk_buff *skb;
+> +
+> +	u8 status;
+> +	int w = 0;
+> +
+> +	/* Clear EOF interrupt */
+> +	status = uart_reg_in(UART3_IIR);
+> +
+> +	if (status & UART3_IIR_TX_STATUS) {
+> +		u8 mdr2 = uart_reg_in(UART3_MDR2);
+> +		if (mdr2 & UART3_MDR2_IRTX_UNDERRUN)
+> +			printk(KERN_ERR "IrDA Buffer underrun error\n");
+> +
+> +		si->stats.tx_packets++;
+> +
+> +		if (si->newspeed) {
+> +			omap_irda_set_speed(dev, si->newspeed);
+> +			si->newspeed = 0;
+> +		}
+> +
+> +		netif_wake_queue(dev);
+> +		if (!(status & UART3_IIR_EOF))
+> +			return IRQ_HANDLED;
+> +	}
+> +
+> +	/* Stop DMA and if there are no errors, send frame to upper layer */
+> +	omap_stop_dma(si->rx_dma_channel);
+> +
+> +	status = uart_reg_in(UART3_SFLSR);	/* Take a frame status */
+> +
+> +	if (status != 0) {	/* Bad frame? */
+> +		si->stats.rx_frame_errors++;
+> +		uart_reg_in(UART3_RESUME);
+> +	} else {
+> +		/* We got a frame! */
+> +		skb = alloc_skb(IRDA_FRAME_SIZE_LIMIT, GFP_ATOMIC);
+Use dev_alloc_skb() for allocating RX packets.
+
+
+> +
+> +		if (!skb) {
+> +			printk(KERN_ERR "omap_sir: out of memory for RX SKB\n");
+> +			return IRQ_HANDLED;
+> +		}
+> +		/*
+> +		 * Align any IP headers that may be contained
+> +		 * within the frame.
+> +		 */
+> +
+> +		skb_reserve(skb, 1);
+> +
+> +		w = OMAP_DMA_CDAC_REG(si->rx_dma_channel);
+> +
+> +		if (cpu_is_omap16xx())
+> +			w -= OMAP1_DMA_CDSA_L_REG(si->rx_dma_channel);
+> +		if (cpu_is_omap24xx())
+> +			w -= OMAP2_DMA_CDSA_REG(si->rx_dma_channel);
+> +
+> +		if (!IS_FIR(si)) {
+> +			/* Copy DMA buffer to skb */
+> +			memcpy(skb_put(skb, w - 2), si->rx_buf_dma_virt, w - 2);
+> +		} else {
+> +			/* Copy DMA buffer to skb */
+> +			memcpy(skb_put(skb, w - 4), si->rx_buf_dma_virt, w - 4);
+> +		}
+> +
+> +		skb->dev = dev;
+> +		skb->mac.raw = skb->data;
+> +		skb->protocol = htons(ETH_P_IRDA);
+> +		si->stats.rx_packets++;
+> +		si->stats.rx_bytes += skb->len;
+> +		netif_receive_skb(skb);	/* Send data to upper level */
+> +	}
+> +
+> +	/* Re-init RX DMA */
+> +	omap_irda_start_rx_dma(si);
+> +
+> +	dev->last_rx = jiffies;
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int omap_irda_hard_xmit(struct sk_buff *skb, struct net_device *dev)
+> +{
+> +	struct omap_irda *si = dev->priv;
+> +	int speed = irda_get_next_speed(skb);
+> +	int mtt = irda_get_mtt(skb);
+> +	int xbofs = irda_get_next_xbofs(skb);
+> +
+> +
+> +	/*
+> +	 * Does this packet contain a request to change the interface
+> +	 * speed?  If so, remember it until we complete the transmission
+> +	 * of this frame.
+> +	 */
+> +	if (speed != si->speed && speed != -1)
+> +		si->newspeed = speed;
+> +
+> +	if (xbofs) /* Set number of addtional BOFS */
+> +		uart_reg_out(UART3_EBLR, xbofs + 1);
+> +
+> +	/*
+> +	 * If this is an empty frame, we can bypass a lot.
+> +	 */
+> +	if (skb->len == 0) {
+> +		if (si->newspeed) {
+> +			si->newspeed = 0;
+> +			omap_irda_set_speed(dev, speed);
+> +		}
+> +		dev_kfree_skb(skb);
+> +		return 0;
+> +	}
+> +
+> +	netif_stop_queue(dev);
+> +
+> +	/* Copy skb data to DMA buffer */
+> +	memcpy(si->tx_buf_dma_virt, skb->data, skb->len);
+> +
+> +	/* Copy skb data to DMA buffer */
+> +	si->stats.tx_bytes += skb->len;
+> +
+> +	/* Set frame length */
+> +	uart_reg_out(UART3_TXFLL, (skb->len & 0xff));
+> +	uart_reg_out(UART3_TXFLH, (skb->len >> 8));
+> +
+> +	if (mtt > 1000)
+> +		mdelay(mtt / 1000);
+> +	else
+> +		udelay(mtt);
+> +
+> +	/* Start TX DMA transfer */
+> +	omap_start_tx_dma(si, skb->len);
+> +
+> +	/* We can free skb now because it's already in DMA buffer */
+> +	dev_kfree_skb(skb);
+> +
+> +	dev->trans_start = jiffies;
+> +
+> +	return 0;
+> +}
+> +
+> +static int
+> +omap_irda_ioctl(struct net_device *dev, struct ifreq *ifreq, int cmd)
+> +{
+> +	struct if_irda_req *rq = (struct if_irda_req *)ifreq;
+> +	struct omap_irda *si = dev->priv;
+> +	int ret = -EOPNOTSUPP;
+> +
+> +
+> +	switch (cmd) {
+> +	case SIOCSBANDWIDTH:
+> +		if (capable(CAP_NET_ADMIN)) {
+> +			/*
+> +			 * We are unable to set the speed if the
+> +			 * device is not running.
+> +			 */
+> +			if (si->open)
+> +				ret = omap_irda_set_speed(dev,
+> +						rq->ifr_baudrate);
+> +			else {
+> +				printk(KERN_ERR "omap_irda_ioctl: SIOCSBANDWIDTH: !netif_running\n");
+> +				ret = 0;
+> +			}
+> +		}
+> +		break;
+> +
+> +	case SIOCSMEDIABUSY:
+> +		ret = -EPERM;
+> +		if (capable(CAP_NET_ADMIN)) {
+> +			irda_device_set_media_busy(dev, TRUE);
+> +			ret = 0;
+> +		}
+> +		break;
+> +
+> +	case SIOCGRECEIVING:
+> +		rq->ifr_receiving = rx_state;
+> +		break;
+rx_state is always set to 0, so this looks a bit useless.
+
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static struct net_device_stats *omap_irda_stats(struct net_device *dev)
+> +{
+> +	struct omap_irda *si = dev->priv;
+> +	return &si->stats;
+> +}
+> +
+> +static int omap_irda_start(struct net_device *dev)
+> +{
+> +	struct omap_irda *si = dev->priv;
+> +	int err;
+> +
+> +	si->speed = 9600;
+> +
+> +	err = request_irq(dev->irq, omap_irda_irq, 0, dev->name, dev);
+> +	if (err)
+> +		goto err_irq;
+> +
+> +	/*
+> +	 * The interrupt must remain disabled for now.
+> +	 */
+> +	disable_irq(dev->irq);
+> +
+> +	/*  Request DMA channels for IrDA hardware */
+> +	if (omap_request_dma(si->pdata->rx_channel, "IrDA Rx DMA",
+> +			(void *)omap_irda_rx_dma_callback,
+> +			dev, &(si->rx_dma_channel))) {
+> +		printk(KERN_ERR "Failed to request IrDA Rx DMA\n");
+> +		goto err_irq;
+> +	}
+> +
+> +	if (omap_request_dma(si->pdata->tx_channel, "IrDA Tx DMA",
+> +			(void *)omap_irda_tx_dma_callback,
+> +			dev, &(si->tx_dma_channel))) {
+> +		printk(KERN_ERR "Failed to request IrDA Tx DMA\n");
+> +		goto err_irq;
+> +	}
+> +
+> +	/* Allocate TX and RX buffers for DMA channels */
+> +	si->rx_buf_dma_virt =
+> +		dma_alloc_coherent(NULL, IRDA_FRAME_SIZE_LIMIT,
+> +				&(si->rx_buf_dma_phys),
+> +				GFP_KERNEL);
+> +
+> +	if (!si->rx_buf_dma_virt) {
+> +		printk(KERN_ERR "Unable to allocate memory for rx_buf_dma\n");
+> +		goto err_irq;
+> +	}
+> +
+> +	si->tx_buf_dma_virt =
+> +		dma_alloc_coherent(NULL, IRDA_FRAME_SIZE_LIMIT,
+> +				&(si->tx_buf_dma_phys),
+> +				GFP_KERNEL);
+> +
+> +	if (!si->tx_buf_dma_virt) {
+> +		printk(KERN_ERR "Unable to allocate memory for tx_buf_dma\n");
+> +		goto err_mem1;
+> +	}
+> +
+> +	/*
+> +	 * Setup the serial port for the specified config.
+> +	 */
+> +	if (si->pdata->select_irda)
+> +		si->pdata->select_irda(si->dev, IR_SEL);
+> +
+> +	err = omap_irda_startup(dev);
+> +
+> +	if (err)
+> +		goto err_startup;
+> +
+> +	omap_irda_set_speed(dev, si->speed = 9600);
+> +
+> +	/*
+> +	 * Open a new IrLAP layer instance.
+> +	 */
+> +	si->irlap = irlap_open(dev, &si->qos, "omap_sir");
+> +
+> +	err = -ENOMEM;
+> +	if (!si->irlap)
+> +		goto err_irlap;
+> +
+> +	/* Now enable the interrupt and start the queue  */
+> +	si->open = 1;
+> +
+> +	/* Start RX DMA */
+> +	omap_irda_start_rx_dma(si);
+> +
+> +	enable_irq(dev->irq);
+> +	netif_start_queue(dev);
+> +
+> +	return 0;
+> +
+> +err_irlap:
+> +	si->open = 0;
+> +	omap_irda_shutdown(si);
+> +err_startup:
+> +	dma_free_coherent(NULL, IRDA_FRAME_SIZE_LIMIT,
+> +			si->tx_buf_dma_virt, si->tx_buf_dma_phys);
+> +err_mem1:
+> +	dma_free_coherent(NULL, IRDA_FRAME_SIZE_LIMIT,
+> +			si->rx_buf_dma_virt, si->rx_buf_dma_phys);
+> +err_irq:
+> +	free_irq(dev->irq, dev);
+> +	return err;
+> +}
+> +
+> +static int omap_irda_stop(struct net_device *dev)
+> +{
+> +	struct omap_irda *si = dev->priv;
+> +
+> +	disable_irq(dev->irq);
+> +
+> +	netif_stop_queue(dev);
+> +
+> +	omap_free_dma(si->rx_dma_channel);
+> +	omap_free_dma(si->tx_dma_channel);
+> +
+> +	if (si->rx_buf_dma_virt)
+> +		dma_free_coherent(NULL, IRDA_FRAME_SIZE_LIMIT,
+> +				si->rx_buf_dma_virt, si->rx_buf_dma_phys);
+> +	if (si->tx_buf_dma_virt)
+> +		dma_free_coherent(NULL, IRDA_FRAME_SIZE_LIMIT,
+> +				si->tx_buf_dma_virt, si->tx_buf_dma_phys);
+> +
+> +	omap_irda_shutdown(si);
+> +
+> +	/* Stop IrLAP */
+> +	if (si->irlap) {
+> +		irlap_close(si->irlap);
+> +		si->irlap = NULL;
+> +	}
+> +
+> +	si->open = 0;
+> +
+> +	/*
+> +	 * Free resources
+> +	 */
+> +	free_irq(dev->irq, dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static int omap_irda_set_speed(struct net_device *dev, int speed)
+> +{
+> +	struct omap_irda *si = dev->priv;
+> +	int divisor;
+> +	unsigned long flags;
+> +
+> +	/* Set IrDA speed */
+> +	if (speed <= 115200) {
+> +
+> +		local_irq_save(flags);
+> +
+> +		/* SIR mode */
+> +		if (si->pdata->transceiver_mode)
+> +			si->pdata->transceiver_mode(si->dev, IR_SIRMODE);
+> +
+> +		/* Set SIR mode */
+> +		uart_reg_out(UART3_MDR1, 1);
+> +		uart_reg_out(UART3_EBLR, 1);
+> +
+> +		divisor = 48000000 / (16 * speed);	/* Base clock 48 MHz */
+> +
+> +		uart_reg_out(UART3_LCR, UART3_LCR_DIVEN);
+> +		uart_reg_out(UART3_DLL, (divisor & 0xff));
+> +		uart_reg_out(UART3_DLH, (divisor >> 8));
+> +		uart_reg_out(UART3_LCR, 0x03);
+> +
+> +		uart_reg_out(UART3_MCR, 0);
+> +
+> +		local_irq_restore(flags);
+> +	} else if (speed <= 1152000) {
+> +
+> +		local_irq_save(flags);
+> +
+> +		/* Set MIR mode, auto SIP */
+> +		uart_reg_out(UART3_MDR1, UART3_MDR1_MIR |
+> +				UART3_MDR1_SIP_AUTO);
+> +
+> +		uart_reg_out(UART3_EBLR, 2);
+> +
+> +		divisor = 48000000 / (41 * speed);	/* Base clock 48 MHz */
+> +
+> +		uart_reg_out(UART3_LCR, UART3_LCR_DIVEN);
+> +		uart_reg_out(UART3_DLL, (divisor & 0xff));
+> +		uart_reg_out(UART3_DLH, (divisor >> 8));
+> +		uart_reg_out(UART3_LCR, 0x03);
+> +
+> +		if (si->pdata->transceiver_mode)
+> +			si->pdata->transceiver_mode(si->dev, IR_MIRMODE);
+> +
+> +		local_irq_restore(flags);
+> +	} else {
+> +		local_irq_save(flags);
+> +
+> +		/* FIR mode */
+> +		uart_reg_out(UART3_MDR1, UART3_MDR1_FIR |
+> +				UART3_MDR1_SIP_AUTO);
+> +
+> +		if (si->pdata->transceiver_mode)
+> +			si->pdata->transceiver_mode(si->dev, IR_FIRMODE);
+> +
+> +		local_irq_restore(flags);
+> +	}
+> +
+> +	si->speed = speed;
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +/*
+> + * Suspend the IrDA interface.
+> + */
+> +static int omap_irda_suspend(struct platform_device *pdev, pm_message_t state)
+> +{
+> +	struct net_device *dev = platform_get_drvdata(pdev);
+> +	struct omap_irda *si = dev->priv;
+> +
+> +	if (!dev)
+> +		return 0;
+> +
+> +	if (si->open) {
+> +		/*
+> +		 * Stop the transmit queue
+> +		 */
+> +		netif_device_detach(dev);
+> +		disable_irq(dev->irq);
+> +		omap_irda_shutdown(si);
+> +	}
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Resume the IrDA interface.
+> + */
+> +static int omap_irda_resume(struct platform_device *pdev)
+> +{
+> +	struct net_device *dev = platform_get_drvdata(pdev);
+> +	struct omap_irda *si= dev->priv;
+> +
+> +	if (!dev)
+> +		return 0;
+> +
+> +	if (si->open) {
+> +		/*
+> +		 * If we missed a speed change, initialise at the new speed
+> +		 * directly.  It is debatable whether this is actually
+> +		 * required, but in the interests of continuing from where
+> +		 * we left off it is desireable.  The converse argument is
+> +		 * that we should re-negotiate at 9600 baud again.
+> +		 */
+> +		if (si->newspeed) {
+> +			si->speed = si->newspeed;
+> +			si->newspeed = 0;
+> +		}
+> +
+> +		omap_irda_startup(dev);
+> +		omap_irda_set_speed(dev, si->speed);
+> +		enable_irq(dev->irq);
+> +
+> +		/*
+> +		 * This automatically wakes up the queue
+> +		 */
+> +		netif_device_attach(dev);
+> +	}
+> +
+> +	return 0;
+> +}
+> +#else
+> +#define omap_irda_suspend	NULL
+> +#define omap_irda_resume	NULL
+> +#endif
+> +
+> +static int omap_irda_probe(struct platform_device *pdev)
+> +{
+> +	struct net_device *dev;
+> +	struct omap_irda *si;
+> +	struct omap_irda_config *pdata = pdev->dev.platform_data;
+> +	unsigned int baudrate_mask;
+> +	int err = 0;
+> +	int irq = NO_IRQ;
+> +
+> +	if (!pdata) {
+> +		printk(KERN_ERR "IrDA Platform data not supplied\n");
+> +		return -ENOENT;
+> +	}
+> +
+> +	if (!pdata->rx_channel || !pdata->tx_channel) {
+> +		printk(KERN_ERR "IrDA invalid rx/tx channel value\n");
+> +		return -ENOENT;
+> +	}
+I see that rx_channel and tx_channel are part of your omap_irda_config, which
+seems to be a platform specific structure. However, DMA channels are
+architecture specific and could be removed from this structure, isn't it ?
+
+
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq <= 0) {
+> +		printk(KERN_WARNING "no irq for IrDA\n");
+> +		return -ENOENT;
+> +	}
+> +
+> +	dev = alloc_irdadev(sizeof(struct omap_irda));
+> +	if (!dev)
+> +		goto err_mem_1;
+> +
+> +
+> +	si = dev->priv;
+> +	si->dev = &pdev->dev;
+> +	si->pdata = pdata;
+> +
+> +	dev->hard_start_xmit	= omap_irda_hard_xmit;
+> +	dev->open		= omap_irda_start;
+> +	dev->stop		= omap_irda_stop;
+> +	dev->do_ioctl		= omap_irda_ioctl;
+> +	dev->get_stats		= omap_irda_stats;
+> +	dev->irq		= irq;
+> +
+> +	irda_init_max_qos_capabilies(&si->qos);
+> +
+> +	baudrate_mask = 0;
+> +	if (si->pdata->transceiver_cap & IR_SIRMODE)
+> +		baudrate_mask |= IR_9600|IR_19200|IR_38400|IR_57600|IR_115200;
+> +	if (si->pdata->transceiver_cap & IR_MIRMODE)
+> +		baudrate_mask |= IR_57600 | IR_1152000;
+> +	if (si->pdata->transceiver_cap & IR_FIRMODE)
+> +		baudrate_mask |= IR_4000000 << 8;
+> +
+> +	si->qos.baud_rate.bits &= baudrate_mask;
+> +	si->qos.min_turn_time.bits = 7;
+> +
+> +	irda_qos_bits_to_value(&si->qos);
+> +
+> +	/* Any better way to avoid this? No. */
+> +	if (machine_is_omap_h3() || machine_is_omap_h4())
+> +		INIT_WORK(&si->pdata->gpio_expa, NULL, NULL);
+What is this for ?
+
+
+
+> +	err = register_netdev(dev);
+> +	if (!err)
+> +		platform_set_drvdata(pdev, dev);
+> +	else
+> +		free_netdev(dev);
+> +
+> +err_mem_1:
+> +	return err;
+> +}
+> +
+> +static int omap_irda_remove(struct platform_device *pdev)
+> +{
+> +	struct net_device *dev = platform_get_drvdata(pdev);
+> +
+> +	if (pdev) {
+> +		unregister_netdev(dev);
+> +		free_netdev(dev);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver omapir_driver = {
+> +	.probe		= omap_irda_probe,
+> +	.remove		= omap_irda_remove,
+> +	.suspend	= omap_irda_suspend,
+> +	.resume		= omap_irda_resume,
+> +	.driver		= {
+> +		.name	= "omapirda",
+> +	},
+> +};
+> +
+> +static char __initdata banner[] = KERN_INFO "OMAP IrDA driver initializing\n";
+> +
+> +static int __init omap_irda_init(void)
+> +{
+> +	printk(banner);
+> +	return platform_driver_register(&omapir_driver);
+> +}
+> +
+> +static void __exit omap_irda_exit(void)
+> +{
+> +	platform_driver_unregister(&omapir_driver);
+> +}
+> +
+> +module_init(omap_irda_init);
+> +module_exit(omap_irda_exit);
+> +
+> +MODULE_AUTHOR("MontaVista");
+> +MODULE_DESCRIPTION("OMAP IrDA Driver");
+> +MODULE_LICENSE("GPL");
+> +
+> -- 
+> 1.3.3
+
+Cheers,
+Samuel.

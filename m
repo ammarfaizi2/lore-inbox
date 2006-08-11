@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWHKNev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWHKNh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWHKNev (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 09:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWHKNev
+	id S1750906AbWHKNh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 09:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWHKNh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 09:34:51 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:49320 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750841AbWHKNeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 09:34:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IIBdYZF6CgW9UWTPMqdQzPfqNm4j36nrLmRr9pZ6PUedSavwfUhXuERtD2uBYLcCLpvVroBE4g3cMFBl4yViWIYfMrQUzeOIkyksuwuiAYxJamlgKjf95tvzhafxR5DnEcvTBSDGWyJ+4ImlevfUp56BVB3NshvK4W+eLrEvsPQ=
-Message-ID: <d120d5000608110634n501d33b0yb7702a24cbf064e3@mail.gmail.com>
-Date: Fri, 11 Aug 2006 09:34:44 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Richard Purdie" <rpurdie@rpsys.net>
-Subject: Re: [patch 5/6] Convert to use mutexes instead of semaphores
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Michael Hanselmann" <linux-kernel@hansmi.ch>,
-       "Antonino A. Daplas" <adaplas@pol.net>
-In-Reply-To: <1155302169.19959.16.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Aug 2006 09:37:28 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:64992 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750906AbWHKNh1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 09:37:27 -0400
+Date: Fri, 11 Aug 2006 09:36:52 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Rachita Kothiyal <rachita@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060811133652.GA13310@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <20060804225611.GG19244@in.ibm.com> <20060811131128.GA32007@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060811050310.958962036.dtor@insightbb.com>
-	 <20060811050611.530817371.dtor@insightbb.com>
-	 <d120d5000608110558l3d3a5720i1781f4e90f40579b@mail.gmail.com>
-	 <1155302169.19959.16.camel@localhost.localdomain>
+In-Reply-To: <20060811131128.GA32007@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/11/06, Richard Purdie <rpurdie@rpsys.net> wrote:
-> On Fri, 2006-08-11 at 08:58 -0400, Dmitry Torokhov wrote:
-> > On 8/11/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> > > Backlight: convert to use mutexes instead of semaphores
-> > >
-> >
-> > Apparently I missed that several drivers also use bd->sem so they need
-> > to be converted too... But what is it with the drivers:
-> >
-> > static void aty128_bl_set_power(struct fb_info *info, int power)
-> > {
-> >         mutex_lock(&info->bl_mutex);
-> >         up(&info->bl_dev->sem);
-> >         info->bl_dev->props->power = power;
-> >         __aty128_bl_update_status(info->bl_dev);
-> >         down(&info->bl_dev->sem);
-> >         mutex_unlock(&info->bl_mutex);
-> > }
-> >
-> > Why we are doing up() before down()??? And it is in almost every
-> > driver that uses backlight... Do I need more coffee? [CC-ing bunch of
-> > people trying to get an answer...]
->
-> It looks totally wrong.
->
+On Fri, Aug 11, 2006 at 06:41:28PM +0530, Rachita Kothiyal wrote:
+> On Fri, Aug 04, 2006 at 06:56:11PM -0400, Vivek Goyal wrote:
+> > 
+> > Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> > ---
+> > 
+> >  arch/i386/boot/compressed/head.S |   32 ++++++++++++++++++++++++++++++--
+> >  1 file changed, 30 insertions(+), 2 deletions(-)
+> > 
+> > diff -puN arch/i386/boot/compressed/head.S~debug1-patch arch/i386/boot/compressed/head.S
+> > --- linux-2.6.18-rc3-1M/arch/i386/boot/compressed/head.S~debug1-patch	2006-08-04 18:03:02.000000000 -0400
+> > +++ linux-2.6.18-rc3-1M-root/arch/i386/boot/compressed/head.S	2006-08-04 18:18:26.000000000 -0400
+> > @@ -60,13 +60,32 @@ startup_32:
+> >  	 * a relocatable kernel this is the delta to our load address otherwise
+> >  	 * this is the delta to CONFIG_PHYSICAL start.
+> >  	 */
+> > +
+> >  #ifdef CONFIG_RELOCTABLE
+>               ^^^^^^^^^
+> Vivek, did you mean CONFIG_RELOCATABLE ?
+> 
+Hi Rachita,
 
-Ok, so that is not only me seeing things ;)
+Thanks for catching this. Yes I meant CONFIG_RELOCATABLE.
 
-> In the archives, there are a number of comments from me questioning
-> whether that driver needs to touch bl_dev->sem anyway (esp. given the
-> mutex as well). I never did find out what it was trying to protect
-> against...
+Thanks
+Vivek
 
-I think it is prudent to protect assess to these data structures. For
-example, it could possibly race with setting power through sysfs
-attribute. Now for this particular driver the race window is
-non-existent for all practical purposes, but it looks like atyfb_base
-might be needig it (of course currentimplementation not only have
-up/down mixed but also has AB-BA deadlock).
-
-How about we add backlight_set_power(&bd, power) to the backlight core
-to take care of proper locking for drivers?
-
--- 
-Dmitry

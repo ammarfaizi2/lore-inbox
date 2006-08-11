@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWHKNSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWHKN0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbWHKNSK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 09:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWHKNSK
+	id S1750958AbWHKN0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 09:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWHKN0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 09:18:10 -0400
-Received: from smtp0.libero.it ([193.70.192.33]:47554 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S1750839AbWHKNSI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 09:18:08 -0400
-From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
-To: <linux-atm-general@lists.sourceforge.net>, <usbatm@lists.infradead.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: [ATM CLIP][USBATM] Linux 2.6.16(13) to 2.6.17(4) migration problem
-Date: Fri, 11 Aug 2006 15:17:37 +0200
-Message-ID: <NBBBIHMOBLOHKCGIMJMDMEOJFLAA.g.tomassoni@libero.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Importance: Normal
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Fri, 11 Aug 2006 09:26:25 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:12765 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1750838AbWHKN0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 09:26:24 -0400
+Message-Id: <200608111326.k7BDQ7fp004102@laptop13.inf.utfsm.cl>
+To: "John Stoffel" <john@stoffel.org>
+Cc: "Molle Bestefich" <molle.bestefich@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 corruption 
+In-Reply-To: Your message of "Thu, 10 Aug 2006 12:10:31 -0400."
+             <17627.23159.236724.190546@stoffel.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Fri, 11 Aug 2006 09:26:07 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 11 Aug 2006 09:26:09 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dears,
+John Stoffel <john@stoffel.org> wrote:
+> >>>>> "Molle" == Molle Bestefich <molle.bestefich@gmail.com> writes:
+> 
+> Molle> I guess the problem is that I don't know a single Linux
+> Molle> packaging system that actually works well enough to keep a
+> Molle> system up to date at all times, and I don't have any free time
+> Molle> to spend on reinstalling systems all the time.
+> 
+> Debian works the best in my experience.  Yum sucks rocks, it's a pain
+> to configured and when it does pull in stuff, it pulls in *everything*
+> that you don't want.  
 
-I have a couple of ADSL lines to Internet, connected to two linux boxes through a couple of SpeedTouch 330. One box adopts the Classical IP protocol, while the other the PPPoA one.
+Right. Its called "dependencies", and if you don't get those, chances are
+it won't work. No Debian magic around that, I'm afraid. Sure, if all that
+ever changes is minor tweaks...
 
-Both the internet connections worked fine for month up to the 2.6.16.13 kernel. Now, upgrading to 2.6.17.4, things work fine for few seconds (a minute at most, but timing varies), then the box stops receiving packets. No event is logged, but I didn't manage to turn debugging log on.
+> Not that apt-get is perfect, but it works well.  My main machine at
+> home is an old Debian Stable install upgraded pretty much daily.
+> Rarely do things break.  And rarely do you want packages updated
+> without you thinking about it.  
 
-When things break, I can see that outgoing packets increse the tx field in /proc/net/atm/speedtch:0, while the rx field gets stuck.
+My machine here runs Fedora rawhide (can't get more bleeding edge). Rarely
+things break due to updating. The machines in the Lab here are Fedora,
+almost never anything breaks. Servers are CentOS, I can't remember anything
+ever breaking due to updates.
 
-I can't set up a testbed for this, since I need to keep the two boxes running, nor I have handy a further SpeedTouch 330. Actually, I just stepped back the boxes to 2.6.16.13.
+[...]
 
-However, before looking for another modem and managing to set up a third machine as a testbed, I would like to know if any of you has any experience to share about SpeedTouch or USBATM or ATM troubles with 2.6.17.x.
+> I tried gentoo a bunch of years ago and didn't like it, and it
+> certainly didn't give me the speedup it claimed it would have.
 
-Regards,
+Gentoo folks deceive themselves into "at least twice as fast because I
+compiled it myself"...
 
------------------------------------
-Giampaolo Tomassoni - IT Consultant
-Piazza VIII Aprile 1948, 4
-I-53044 Chiusi (SI) - Italy
-Ph: +39-0578-21100
+>                                                                 I've
+> been happy with Debian.  Thinking about Ubuntu more...
 
+[...]
+
+> Molle> And voila, that difficult task of assessing in which order to
+> Molle> do things is out of the hands of distros like Red Hat, and into
+> Molle> the hands of those people who actually make the binaries.
+> 
+> *bwah hah hah!*  And you think they'll get it right?  So what happens
+> when two packages, call them A and B, have a circular dependency on
+> each other?  Who wins then?
+
+The kernel people are certainly not infallible either. And there are cases
+where the right order is A B C, and others in which it is C B A, and still
+others where it doesn't matter. No way to get it right always.
+
+> It's not as simple an issue as you think.  
+
+Shoving it into the kernel certainly won't simplify it, quite the contrary
+by making it less amenable to hand-tweaking.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

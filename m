@@ -1,322 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWHKFJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWHKFJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWHKFJa (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751508AbWHKFJa (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 11 Aug 2006 01:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWHKFJI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWHKFJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 01:09:08 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:17844 "EHLO
+	Fri, 11 Aug 2006 01:09:06 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:8722 "EHLO
 	asav08.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1751510AbWHKFJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751509AbWHKFJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 11 Aug 2006 01:09:03 -0400
 X-IronPort-Anti-Spam-Filtered: true
 X-IronPort-Anti-Spam-Result: AQAAAI+t20QN
-Message-Id: <20060811050611.278227073.dtor@insightbb.com>
+Message-Id: <20060811050611.409915104.dtor@insightbb.com>
 References: <20060811050310.958962036.dtor@insightbb.com>
-Date: Fri, 11 Aug 2006 01:03:13 -0400
+Date: Fri, 11 Aug 2006 01:03:14 -0400
 From: Dmitry Torokhov <dtor@insightbb.com>
 To: Richard Purdie <rpurdie@rpsys.net>
 Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch 3/6] Get rid of excessive amount of likely()s
-Content-Disposition: inline; filename=backlight-cleanup.patch
+Subject: [patch 4/6] Remove "owner" from backlight_properties structure
+Content-Disposition: inline; filename=backlight-remove-owner.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Backlight: get rid of excessive amount of likely()s
+Backlight: remove "owner" from backlight_properties structure
 
-There are no hot paths in the backlight core; do not litter the
-code with likely()s and rely on compiler to do the right thing.
+Nothing uses it and it is unlikely that it will ever be used -
+backlight uses other means to ensure that nothing references
+unloaded code.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/video/backlight/backlight.c |   45 +++++++++++++++++-------------------
- drivers/video/backlight/lcd.c       |   37 ++++++++++++-----------------
- 2 files changed, 38 insertions(+), 44 deletions(-)
+ drivers/macintosh/via-pmu-backlight.c |    1 -
+ drivers/usb/misc/appledisplay.c       |    1 -
+ drivers/video/aty/aty128fb.c          |    1 -
+ drivers/video/aty/atyfb_base.c        |    1 -
+ drivers/video/aty/radeon_backlight.c  |    1 -
+ drivers/video/backlight/corgi_bl.c    |    1 -
+ drivers/video/backlight/hp680_bl.c    |    1 -
+ drivers/video/backlight/locomolcd.c   |    1 -
+ drivers/video/nvidia/nv_backlight.c   |    1 -
+ drivers/video/riva/fbdev.c            |    1 -
+ include/linux/backlight.h             |    3 ---
+ include/linux/lcd.h                   |    2 --
+ 12 files changed, 15 deletions(-)
 
-Index: work/drivers/video/backlight/backlight.c
+Index: work/drivers/macintosh/via-pmu-backlight.c
 ===================================================================
---- work.orig/drivers/video/backlight/backlight.c
-+++ work/drivers/video/backlight/backlight.c
-@@ -20,7 +20,7 @@ static ssize_t backlight_show_power(stru
- 	struct backlight_device *bd = to_backlight_device(cdev);
- 
- 	down(&bd->sem);
--	if (likely(bd->props))
-+	if (bd->props)
- 		rc = sprintf(buf, "%d\n", bd->props->power);
- 	up(&bd->sem);
- 
-@@ -41,10 +41,10 @@ static ssize_t backlight_store_power(str
- 		return -EINVAL;
- 
- 	down(&bd->sem);
--	if (likely(bd->props)) {
-+	if (bd->props) {
- 		pr_debug("backlight: set power to %d\n", power);
- 		bd->props->power = power;
--		if (likely(bd->props->update_status))
-+		if (bd->props->update_status)
- 			bd->props->update_status(bd);
- 		rc = count;
- 	}
-@@ -59,7 +59,7 @@ static ssize_t backlight_show_brightness
- 	struct backlight_device *bd = to_backlight_device(cdev);
- 
- 	down(&bd->sem);
--	if (likely(bd->props))
-+	if (bd->props)
- 		rc = sprintf(buf, "%d\n", bd->props->brightness);
- 	up(&bd->sem);
- 
-@@ -80,14 +80,14 @@ static ssize_t backlight_store_brightnes
- 		return -EINVAL;
- 
- 	down(&bd->sem);
--	if (likely(bd->props)) {
-+	if (bd->props) {
- 		if (brightness > bd->props->max_brightness)
- 			rc = -EINVAL;
- 		else {
- 			pr_debug("backlight: set brightness to %d\n",
- 				 brightness);
- 			bd->props->brightness = brightness;
--			if (likely(bd->props->update_status))
-+			if (bd->props->update_status)
- 				bd->props->update_status(bd);
- 			rc = count;
- 		}
-@@ -103,7 +103,7 @@ static ssize_t backlight_show_max_bright
- 	struct backlight_device *bd = to_backlight_device(cdev);
- 
- 	down(&bd->sem);
--	if (likely(bd->props))
-+	if (bd->props)
- 		rc = sprintf(buf, "%d\n", bd->props->max_brightness);
- 	up(&bd->sem);
- 
-@@ -117,7 +117,7 @@ static ssize_t backlight_show_actual_bri
- 	struct backlight_device *bd = to_backlight_device(cdev);
- 
- 	down(&bd->sem);
--	if (likely(bd->props && bd->props->get_brightness))
-+	if (bd->props && bd->props->get_brightness)
- 		rc = sprintf(buf, "%d\n", bd->props->get_brightness(bd));
- 	up(&bd->sem);
- 
-@@ -127,6 +127,7 @@ static ssize_t backlight_show_actual_bri
- static void backlight_class_release(struct class_device *dev)
- {
- 	struct backlight_device *bd = to_backlight_device(dev);
-+
- 	kfree(bd);
+--- work.orig/drivers/macintosh/via-pmu-backlight.c
++++ work/drivers/macintosh/via-pmu-backlight.c
+@@ -81,7 +81,6 @@ static int pmu_backlight_get_brightness(
  }
  
-@@ -153,7 +154,7 @@ static int fb_notifier_callback(struct n
- 				unsigned long event, void *data)
- {
- 	struct backlight_device *bd;
--	struct fb_event *evdata =(struct fb_event *)data;
-+	struct fb_event *evdata = data;
- 
- 	/* If we aren't interested in this event, skip it immediately ... */
- 	if (event != FB_EVENT_BLANK)
-@@ -161,13 +162,14 @@ static int fb_notifier_callback(struct n
- 
- 	bd = container_of(self, struct backlight_device, fb_notif);
- 	down(&bd->sem);
--	if (bd->props)
-+	if (bd->props) {
- 		if (!bd->props->check_fb ||
- 		    bd->props->check_fb(evdata->info)) {
- 			bd->props->fb_blank = *(int *)evdata->data;
- 			if (likely(bd->props && bd->props->update_status))
- 				bd->props->update_status(bd);
- 		}
-+	}
- 	up(&bd->sem);
- 	return 0;
- }
-@@ -187,35 +189,33 @@ static int fb_notifier_callback(struct n
- struct backlight_device *backlight_device_register(const char *name, void *devdata,
- 						   struct backlight_properties *bp)
- {
--	int rc;
-+	int err;
- 	struct backlight_device *new_bd;
- 
- 	pr_debug("backlight_device_alloc: name=%s\n", name);
- 
--	new_bd = kmalloc(sizeof(struct backlight_device), GFP_KERNEL);
--	if (unlikely(!new_bd))
-+	new_bd = kzalloc(sizeof(struct backlight_device), GFP_KERNEL);
-+	if (!new_bd)
- 		return ERR_PTR(-ENOMEM);
- 
- 	init_MUTEX(&new_bd->sem);
- 	new_bd->props = bp;
--	memset(&new_bd->class_dev, 0, sizeof(new_bd->class_dev));
- 	new_bd->class_dev.class = &backlight_class;
- 	strlcpy(new_bd->class_dev.class_id, name, KOBJ_NAME_LEN);
- 	class_set_devdata(&new_bd->class_dev, devdata);
- 
--	rc = class_device_register(&new_bd->class_dev);
--	if (unlikely(rc)) {
-+	err = class_device_register(&new_bd->class_dev);
-+	if (err) {
- 		kfree(new_bd);
--		return ERR_PTR(rc);
-+		return ERR_PTR(err);
- 	}
- 
--	memset(&new_bd->fb_notif, 0, sizeof(new_bd->fb_notif));
- 	new_bd->fb_notif.notifier_call = fb_notifier_callback;
- 
--	rc = fb_register_client(&new_bd->fb_notif);
--	if (unlikely(rc)) {
-+	err = fb_register_client(&new_bd->fb_notif);
-+	if (err) {
- 		class_device_unregister(&new_bd->class_dev);
--		return ERR_PTR(rc);
-+		return ERR_PTR(err);
- 	}
- 
- 	return new_bd;
-@@ -236,7 +236,7 @@ void backlight_device_unregister(struct 
- 	pr_debug("backlight_device_unregister: name=%s\n", bd->class_dev.class_id);
- 
- 	down(&bd->sem);
--	if (likely(bd->props && bd->props->update_status)) {
-+	if (bd->props && bd->props->update_status) {
- 		bd->props->brightness = 0;
- 		bd->props->power = 0;
- 		bd->props->update_status(bd);
-@@ -246,7 +246,6 @@ void backlight_device_unregister(struct 
- 	up(&bd->sem);
- 
- 	fb_unregister_client(&bd->fb_notif);
--
- 	class_device_unregister(&bd->class_dev);
- }
- EXPORT_SYMBOL(backlight_device_unregister);
-Index: work/drivers/video/backlight/lcd.c
+ static struct backlight_properties pmu_backlight_data = {
+-	.owner		= THIS_MODULE,
+ 	.get_brightness	= pmu_backlight_get_brightness,
+ 	.update_status	= pmu_backlight_update_status,
+ 	.max_brightness	= (FB_BACKLIGHT_LEVELS - 1),
+Index: work/drivers/usb/misc/appledisplay.c
 ===================================================================
---- work.orig/drivers/video/backlight/lcd.c
-+++ work/drivers/video/backlight/lcd.c
-@@ -16,14 +16,12 @@
- 
- static ssize_t lcd_show_power(struct class_device *cdev, char *buf)
- {
--	int rc;
-+	int rc = -ENXIO;
- 	struct lcd_device *ld = to_lcd_device(cdev);
- 
- 	down(&ld->sem);
--	if (likely(ld->props && ld->props->get_power))
-+	if (ld->props && ld->props->get_power)
- 		rc = sprintf(buf, "%d\n", ld->props->get_power(ld));
--	else
--		rc = -ENXIO;
- 	up(&ld->sem);
- 
- 	return rc;
-@@ -43,7 +41,7 @@ static ssize_t lcd_store_power(struct cl
- 		return -EINVAL;
- 
- 	down(&ld->sem);
--	if (likely(ld->props && ld->props->set_power)) {
-+	if (ld->props && ld->props->set_power) {
- 		pr_debug("lcd: set power to %d\n", power);
- 		ld->props->set_power(ld, power);
- 		rc = count;
-@@ -59,7 +57,7 @@ static ssize_t lcd_show_contrast(struct 
- 	struct lcd_device *ld = to_lcd_device(cdev);
- 
- 	down(&ld->sem);
--	if (likely(ld->props && ld->props->get_contrast))
-+	if (ld->props && ld->props->get_contrast)
- 		rc = sprintf(buf, "%d\n", ld->props->get_contrast(ld));
- 	up(&ld->sem);
- 
-@@ -80,7 +78,7 @@ static ssize_t lcd_store_contrast(struct
- 		return -EINVAL;
- 
- 	down(&ld->sem);
--	if (likely(ld->props && ld->props->set_contrast)) {
-+	if (ld->props && ld->props->set_contrast) {
- 		pr_debug("lcd: set contrast to %d\n", contrast);
- 		ld->props->set_contrast(ld, contrast);
- 		rc = count;
-@@ -96,7 +94,7 @@ static ssize_t lcd_show_max_contrast(str
- 	struct lcd_device *ld = to_lcd_device(cdev);
- 
- 	down(&ld->sem);
--	if (likely(ld->props))
-+	if (ld->props)
- 		rc = sprintf(buf, "%d\n", ld->props->max_contrast);
- 	up(&ld->sem);
- 
-@@ -130,7 +128,7 @@ static int fb_notifier_callback(struct n
- 				 unsigned long event, void *data)
- {
- 	struct lcd_device *ld;
--	struct fb_event *evdata =(struct fb_event *)data;
-+	struct fb_event *evdata = data;
- 
- 	/* If we aren't interested in this event, skip it immediately ... */
- 	if (event != FB_EVENT_BLANK)
-@@ -159,35 +157,33 @@ static int fb_notifier_callback(struct n
- struct lcd_device *lcd_device_register(const char *name, void *devdata,
- 				       struct lcd_properties *lp)
- {
--	int rc;
-+	int err;
- 	struct lcd_device *new_ld;
- 
- 	pr_debug("lcd_device_register: name=%s\n", name);
- 
--	new_ld = kmalloc(sizeof(struct lcd_device), GFP_KERNEL);
--	if (unlikely(!new_ld))
-+	new_ld = kzalloc(sizeof(struct lcd_device), GFP_KERNEL);
-+	if (!new_ld)
- 		return ERR_PTR(-ENOMEM);
- 
- 	init_MUTEX(&new_ld->sem);
- 	new_ld->props = lp;
--	memset(&new_ld->class_dev, 0, sizeof(new_ld->class_dev));
- 	new_ld->class_dev.class = &lcd_class;
- 	strlcpy(new_ld->class_dev.class_id, name, KOBJ_NAME_LEN);
- 	class_set_devdata(&new_ld->class_dev, devdata);
- 
--	rc = class_device_register(&new_ld->class_dev);
--	if (unlikely(rc)) {
-+	err = class_device_register(&new_ld->class_dev);
-+	if (unlikely(err)) {
- 		kfree(new_ld);
--		return ERR_PTR(rc);
-+		return ERR_PTR(err);
- 	}
- 
--	memset(&new_ld->fb_notif, 0, sizeof(new_ld->fb_notif));
- 	new_ld->fb_notif.notifier_call = fb_notifier_callback;
- 
--	rc = fb_register_client(&new_ld->fb_notif);
--	if (unlikely(rc)) {
-+	err = fb_register_client(&new_ld->fb_notif);
-+	if (err) {
- 		class_device_unregister(&new_ld->class_dev);
--		return ERR_PTR(rc);
-+		return ERR_PTR(err);
- 	}
- 
- 	return new_ld;
-@@ -212,7 +208,6 @@ void lcd_device_unregister(struct lcd_de
- 	up(&ld->sem);
- 
- 	fb_unregister_client(&ld->fb_notif);
--
- 	class_device_unregister(&ld->class_dev);
+--- work.orig/drivers/usb/misc/appledisplay.c
++++ work/drivers/usb/misc/appledisplay.c
+@@ -179,7 +179,6 @@ static int appledisplay_bl_get_brightnes
  }
- EXPORT_SYMBOL(lcd_device_unregister);
+ 
+ static struct backlight_properties appledisplay_bl_data = {
+-	.owner		= THIS_MODULE,
+ 	.get_brightness	= appledisplay_bl_get_brightness,
+ 	.update_status	= appledisplay_bl_update_status,
+ 	.max_brightness	= 0xFF
+Index: work/drivers/video/aty/aty128fb.c
+===================================================================
+--- work.orig/drivers/video/aty/aty128fb.c
++++ work/drivers/video/aty/aty128fb.c
+@@ -1792,7 +1792,6 @@ static int aty128_bl_get_brightness(stru
+ }
+ 
+ static struct backlight_properties aty128_bl_data = {
+-	.owner		= THIS_MODULE,
+ 	.get_brightness	= aty128_bl_get_brightness,
+ 	.update_status	= aty128_bl_update_status,
+ 	.max_brightness	= (FB_BACKLIGHT_LEVELS - 1),
+Index: work/drivers/video/aty/atyfb_base.c
+===================================================================
+--- work.orig/drivers/video/aty/atyfb_base.c
++++ work/drivers/video/aty/atyfb_base.c
+@@ -2191,7 +2191,6 @@ static int aty_bl_get_brightness(struct 
+ }
+ 
+ static struct backlight_properties aty_bl_data = {
+-	.owner	  = THIS_MODULE,
+ 	.get_brightness = aty_bl_get_brightness,
+ 	.update_status	= aty_bl_update_status,
+ 	.max_brightness = (FB_BACKLIGHT_LEVELS - 1),
+Index: work/drivers/video/aty/radeon_backlight.c
+===================================================================
+--- work.orig/drivers/video/aty/radeon_backlight.c
++++ work/drivers/video/aty/radeon_backlight.c
+@@ -134,7 +134,6 @@ static int radeon_bl_get_brightness(stru
+ }
+ 
+ static struct backlight_properties radeon_bl_data = {
+-	.owner		= THIS_MODULE,
+ 	.get_brightness = radeon_bl_get_brightness,
+ 	.update_status	= radeon_bl_update_status,
+ 	.max_brightness = (FB_BACKLIGHT_LEVELS - 1),
+Index: work/drivers/video/backlight/corgi_bl.c
+===================================================================
+--- work.orig/drivers/video/backlight/corgi_bl.c
++++ work/drivers/video/backlight/corgi_bl.c
+@@ -106,7 +106,6 @@ EXPORT_SYMBOL(corgibl_limit_intensity);
+ 
+ 
+ static struct backlight_properties corgibl_data = {
+-	.owner          = THIS_MODULE,
+ 	.get_brightness = corgibl_get_intensity,
+ 	.update_status  = corgibl_set_intensity,
+ };
+Index: work/drivers/video/backlight/hp680_bl.c
+===================================================================
+--- work.orig/drivers/video/backlight/hp680_bl.c
++++ work/drivers/video/backlight/hp680_bl.c
+@@ -96,7 +96,6 @@ static int hp680bl_get_intensity(struct 
+ }
+ 
+ static struct backlight_properties hp680bl_data = {
+-	.owner		= THIS_MODULE,
+ 	.max_brightness = HP680_MAX_INTENSITY,
+ 	.get_brightness = hp680bl_get_intensity,
+ 	.update_status  = hp680bl_set_intensity,
+Index: work/drivers/video/backlight/locomolcd.c
+===================================================================
+--- work.orig/drivers/video/backlight/locomolcd.c
++++ work/drivers/video/backlight/locomolcd.c
+@@ -142,7 +142,6 @@ static int locomolcd_get_intensity(struc
+ }
+ 
+ static struct backlight_properties locomobl_data = {
+-	.owner		= THIS_MODULE,
+ 	.get_brightness = locomolcd_get_intensity,
+ 	.update_status  = locomolcd_set_intensity,
+ 	.max_brightness = 4,
+Index: work/drivers/video/nvidia/nv_backlight.c
+===================================================================
+--- work.orig/drivers/video/nvidia/nv_backlight.c
++++ work/drivers/video/nvidia/nv_backlight.c
+@@ -104,7 +104,6 @@ static int nvidia_bl_get_brightness(stru
+ }
+ 
+ static struct backlight_properties nvidia_bl_data = {
+-	.owner		= THIS_MODULE,
+ 	.get_brightness = nvidia_bl_get_brightness,
+ 	.update_status	= nvidia_bl_update_status,
+ 	.max_brightness = (FB_BACKLIGHT_LEVELS - 1),
+Index: work/drivers/video/riva/fbdev.c
+===================================================================
+--- work.orig/drivers/video/riva/fbdev.c
++++ work/drivers/video/riva/fbdev.c
+@@ -346,7 +346,6 @@ static int riva_bl_get_brightness(struct
+ }
+ 
+ static struct backlight_properties riva_bl_data = {
+-	.owner    = THIS_MODULE,
+ 	.get_brightness = riva_bl_get_brightness,
+ 	.update_status	= riva_bl_update_status,
+ 	.max_brightness = (FB_BACKLIGHT_LEVELS - 1),
+Index: work/include/linux/backlight.h
+===================================================================
+--- work.orig/include/linux/backlight.h
++++ work/include/linux/backlight.h
+@@ -17,9 +17,6 @@ struct fb_info;
+ /* This structure defines all the properties of a backlight
+    (usually attached to a LCD). */
+ struct backlight_properties {
+-	/* Owner module */
+-	struct module *owner;
+-
+ 	/* Notify the backlight driver some property has changed */
+ 	int (*update_status)(struct backlight_device *);
+ 	/* Return the current backlight brightness (accounting for power,
+Index: work/include/linux/lcd.h
+===================================================================
+--- work.orig/include/linux/lcd.h
++++ work/include/linux/lcd.h
+@@ -16,8 +16,6 @@ struct fb_info;
+ 
+ /* This structure defines all the properties of a LCD flat panel. */
+ struct lcd_properties {
+-	/* Owner module */
+-	struct module *owner;
+ 	/* Get the LCD panel power status (0: full on, 1..3: controller
+ 	   power on, flat panel power off, 4: full off), see FB_BLANK_XXX */
+ 	int (*get_power)(struct lcd_device *);

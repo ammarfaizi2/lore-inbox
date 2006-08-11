@@ -1,38 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWHKIMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWHKIPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWHKIMD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 04:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWHKIMD
+	id S1750776AbWHKIPy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 04:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWHKIPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 04:12:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23774 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750767AbWHKIMA (ORCPT
+	Fri, 11 Aug 2006 04:15:54 -0400
+Received: from user-edvans3.msk.internet2.ru ([217.25.93.4]:59057 "EHLO
+	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S1750776AbWHKIPw convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 04:12:00 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060810125306.61425f94.akpm@osdl.org> 
-References: <20060810125306.61425f94.akpm@osdl.org>  <E1GB6qO-0003qU-00@dorka.pomaz.szeredi.hu> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, zam@namesys.com,
-       linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH try #2] fuse: fix error case in fuse_readpages 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 11 Aug 2006 09:11:47 +0100
-Message-ID: <18358.1155283907@warthog.cambridge.redhat.com>
+	Fri, 11 Aug 2006 04:15:52 -0400
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
+Subject: [take8 0/2] kevent: Generic event handling mechanism.
+In-Reply-To: <20060731103322.GA1898@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 11 Aug 2006 12:40:07 +0400
+Message-Id: <115528560728@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
 
-> > Don't let fuse_readpages leave the @pages list not empty when exiting
-> > on error.
-> > 
-> 
-> Oh dear.  read_cache_pages_release_page() is not a readahead thing.  It is
-> a dhowells fscache thing.
+Generic event handling mechanism.
 
-The pages passed to read_cache_pages() may already be marked with metadata
-information (such as to-be-cached marks from NFS or AFS calling FS-Cache), so
-we can't just ditch the pages on an error, we have to clean them up properly.
+Changes from 'take7' patchset:
+ * new mmap interface (not tested, waiting for other changes to be acked)
+	- use nopage() method to dynamically substitue pages
+	- allocate new page for events only when new added kevent requres it
+	- do not use ugly index dereferencing, use structure instead
+	- reduced amount of data in the ring (id and flags), 
+		maximum 12 pages on x86 per kevent fd
 
-David
+Changes from 'take6' patchset:
+ * a lot of comments!
+ * do not use list poisoning for detection of the fact, that entry is in the list
+ * return number of ready kevents even if copy*user() fails
+ * strict check for number of kevents in syscall
+ * use ARRAY_SIZE for array size calculation
+ * changed superblock magic number
+ * use SLAB_PANIC instead of direct panic() call
+ * changed -E* return values
+ * a lot of small cleanups and indent fixes
+
+Changes from 'take5' patchset:
+ * removed compilation warnings about unused wariables when lockdep is not turned on
+ * do not use internal socket structures, use appropriate (exported) wrappers instead
+ * removed default 1 second timeout
+ * removed AIO stuff from patchset
+
+Changes from 'take4' patchset:
+ * use miscdevice instead of chardevice
+ * comments fixes
+
+Changes from 'take3' patchset:
+ * removed serializing mutex from kevent_user_wait()
+ * moved storage list processing to RCU
+ * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
+	to differentiate between various cases
+ * remove kevent from storage if is marked as broken after callback
+ * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+
+Changes from 'take2' patchset:
+ * split kevent_finish_user() to locked and unlocked variants
+ * do not use KEVENT_STAT ifdefs, use inline functions instead
+ * use array of callbacks of each type instead of each kevent callback initialization
+ * changed name of ukevent guarding lock
+ * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
+ * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
+ * various indent cleanups
+ * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
+ * mapped buffer (initial) implementation (no userspace yet)
+
+Changes from 'take1' patchset:
+ - rebased against 2.6.18-git tree
+ - removed ioctl controlling
+ - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
+			unsigned int timeout, void __user *buf, unsigned flags)
+ - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
+	initialization
+ - use mutuxes instead of semaphores
+ - added file descriptor check and return error if provided descriptor does not match
+	kevent file operations
+ - various indent fixes
+ - removed aio_sendfile() declarations.
+
+Thank you.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+

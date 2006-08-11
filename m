@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWHKKQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWHKKVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWHKKQt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 06:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932065AbWHKKQt
+	id S932065AbWHKKVM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 06:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWHKKVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 06:16:49 -0400
-Received: from ns1.suse.de ([195.135.220.2]:54672 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932075AbWHKKQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 06:16:48 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [PATCH for review] [127/145] i386: move kernel_thread_helper into entry.S
-Date: Fri, 11 Aug 2006 12:16:07 +0200
-User-Agent: KMail/1.9.3
+	Fri, 11 Aug 2006 06:21:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9372 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932065AbWHKKVL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 06:21:11 -0400
+Subject: Re: Upcall implementation in Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hsung-Pin Chang <hpchang@cs.nchu.edu.tw>
 Cc: linux-kernel@vger.kernel.org
-References: <20060810 935.775038000@suse.de> <200608111038.17716.ak@suse.de> <44DC6EAA.76E4.0078.0@novell.com>
-In-Reply-To: <44DC6EAA.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <20060811041650.A0C2C3993@flute.cs.nchu.edu.tw>
+References: <20060811041650.A0C2C3993@flute.cs.nchu.edu.tw>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608111216.07602.ak@suse.de>
+Date: Fri, 11 Aug 2006 11:41:19 +0100
+Message-Id: <1155292879.24077.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> ENTRY(kernel_thread_helper)
-> 	CFI_STARTPROC
-> 	movl %edx,%eax
-> 	pushl %edx
-> 	CFI_ADJUST_CFA_OFFSET 4
-> 	call *%ebx
-> 	pushl %eax
-> 	CFI_ADJUST_CFA_OFFSET 4
-> 	call do_exit
-> 	CFI_ENDPROC
-> ENDPROC(kernel_thread_helper)
+Ar Gwe, 2006-08-11 am 12:13 +0800, ysgrifennodd Hsung-Pin Chang:
+>                 Dear all,
 > 
-> (i.e. tracking the stack pointer movement, but not the register values
-> other than the return address)
+>                 Recently, I need to use upcalls in Linux to actively and
+> promptly inform 
+>                 the user applications once an kernel event is occurred.
+>                 However, I have some questions about upcall implementation.
+>                 First, the user handler must be "pinned" into memory to
+> prevent paging out.
 
-Done thanks.
+Linux intentionally and deliberately does not support kernel calls into
+user space. It leads to very difficult locking problems amongst other
+things.
 
--Andi
+Instead we either send asynchronous events (signal/netlink/..) or we
+arrange that a system call returns when the event happens so the user
+process resumes.
+

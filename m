@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWHKNQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWHKNSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWHKNQn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 09:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWHKNQn
+	id S1750839AbWHKNSK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 09:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWHKNSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 09:16:43 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:35798 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750833AbWHKNQm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 09:16:42 -0400
-Subject: Re: [patch 5/6] Convert to use mutexes instead of semaphores
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       "Antonino A. Daplas" <adaplas@pol.net>
-In-Reply-To: <d120d5000608110558l3d3a5720i1781f4e90f40579b@mail.gmail.com>
-References: <20060811050310.958962036.dtor@insightbb.com>
-	 <20060811050611.530817371.dtor@insightbb.com>
-	 <d120d5000608110558l3d3a5720i1781f4e90f40579b@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 11 Aug 2006 14:16:09 +0100
-Message-Id: <1155302169.19959.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Aug 2006 09:18:10 -0400
+Received: from smtp0.libero.it ([193.70.192.33]:47554 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S1750839AbWHKNSI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 09:18:08 -0400
+From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
+To: <linux-atm-general@lists.sourceforge.net>, <usbatm@lists.infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: [ATM CLIP][USBATM] Linux 2.6.16(13) to 2.6.17(4) migration problem
+Date: Fri, 11 Aug 2006 15:17:37 +0200
+Message-ID: <NBBBIHMOBLOHKCGIMJMDMEOJFLAA.g.tomassoni@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Importance: Normal
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 08:58 -0400, Dmitry Torokhov wrote:
-> On 8/11/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> > Backlight: convert to use mutexes instead of semaphores
-> >
-> 
-> Apparently I missed that several drivers also use bd->sem so they need
-> to be converted too... But what is it with the drivers:
-> 
-> static void aty128_bl_set_power(struct fb_info *info, int power)
-> {
->         mutex_lock(&info->bl_mutex);
->         up(&info->bl_dev->sem);
->         info->bl_dev->props->power = power;
->         __aty128_bl_update_status(info->bl_dev);
->         down(&info->bl_dev->sem);
->         mutex_unlock(&info->bl_mutex);
-> }
-> 
-> Why we are doing up() before down()??? And it is in almost every
-> driver that uses backlight... Do I need more coffee? [CC-ing bunch of
-> people trying to get an answer...]
+Dears,
 
-It looks totally wrong.
+I have a couple of ADSL lines to Internet, connected to two linux boxes through a couple of SpeedTouch 330. One box adopts the Classical IP protocol, while the other the PPPoA one.
 
-In the archives, there are a number of comments from me questioning
-whether that driver needs to touch bl_dev->sem anyway (esp. given the
-mutex as well). I never did find out what it was trying to protect
-against...
+Both the internet connections worked fine for month up to the 2.6.16.13 kernel. Now, upgrading to 2.6.17.4, things work fine for few seconds (a minute at most, but timing varies), then the box stops receiving packets. No event is logged, but I didn't manage to turn debugging log on.
 
-Richard
+When things break, I can see that outgoing packets increse the tx field in /proc/net/atm/speedtch:0, while the rx field gets stuck.
+
+I can't set up a testbed for this, since I need to keep the two boxes running, nor I have handy a further SpeedTouch 330. Actually, I just stepped back the boxes to 2.6.16.13.
+
+However, before looking for another modem and managing to set up a third machine as a testbed, I would like to know if any of you has any experience to share about SpeedTouch or USBATM or ATM troubles with 2.6.17.x.
+
+Regards,
+
+-----------------------------------
+Giampaolo Tomassoni - IT Consultant
+Piazza VIII Aprile 1948, 4
+I-53044 Chiusi (SI) - Italy
+Ph: +39-0578-21100
 

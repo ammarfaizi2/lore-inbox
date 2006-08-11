@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWHKOgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWHKOoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWHKOgo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 10:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWHKOgo
+	id S1750970AbWHKOoq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 10:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWHKOoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 10:36:44 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:28339 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751150AbWHKOgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 10:36:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=W/wV6mYtd8IUNO6fHCccoebmMKL3QCnKqICXsoK8jNMCGiH7qSiedVkzbiKtYe1caRreYs76auVq7J9k+WaSzBcENnYq9JvDSS5wQg0RK2tdaan6x/dYOnvbBCFYHL+5pAXTtgzh2+c1/RGqVZZdUuBLFzUcHZxgh0WZ8hTVDx4=
-Message-ID: <15ce3ec0608110736y5ef185e8v6acd4f7556adcc49@mail.gmail.com>
-Date: Fri, 11 Aug 2006 10:36:38 -0400
-From: "Steve Barnhart" <stb52988@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: bootsplash integration
+	Fri, 11 Aug 2006 10:44:46 -0400
+Received: from cantor.suse.de ([195.135.220.2]:39097 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750910AbWHKOop (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 10:44:45 -0400
+Message-ID: <44DC98B5.4000602@suse.com>
+Date: Fri, 11 Aug 2006 10:48:21 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/9] sector_t format string
+References: <1155172843.3161.81.camel@localhost.localdomain> <20060809234019.c8a730e3.akpm@osdl.org> <20060810191747.GL20581@ca-server1.us.oracle.com> <20060810194440.GA6845@martell.zuzino.mipt.ru> <44DB945F.5080102@suse.com> <Pine.LNX.4.61.0608110757090.21588@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608110757090.21588@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking for an update on the reasons (or objections) to
-bootsplash (bootsplash.org) still not being integrated into the
-kernel. I believe its a very nice project, especially w/regard to
-looks for Linux and think it would be a good addition and save a lot
-of time for many people who have to go through patching their kernel
-if they want it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-There's also gensplash
-(http://dev.gentoo.org/~spock/projects/gensplash/) which is a little
-different and requires only an fbsplash patch to the kernel and only
-if you want a background picture on the consoles after bootup (a nice
-feature imo).
+Jan Engelhardt wrote:
+>>> Will
+>>>
+>>> 	printk("%S", sector_t);
+>>>
+>>> kill at least one kitten?
+>> I like the general idea. I think that having to cast every time you want
+>> to print a sector number is pretty gross. I had something more like %Su
+>> in mind, though.
+> 
+> What will happen if you run out of %[a-z] ?
 
-Both of these are nice packages that I would love to have officially
-included and was jus wondering what everyone's current objections to
-it are.
+Are we really expecting that many global structure members to be
+variable width? I only propose adding another option because whenever a
+sector is printed, it must be casted to avoid warnings.
 
--- 
-Steve
+Other replies commented on how gcc won't recognize the new option, so
+we'd receive warnings anyway. Cleaner code that causes warnings doesn't
+sound like a big win after all.
+
+- -Jeff
+
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+
+iD8DBQFE3Ji1LPWxlyuTD7IRApAEAJ9ApkoyKwmTReZindjJmkuU/0yhbACgk0Uu
+zG8eXN3RzU1wKFVrRlr3xO8=
+=e6D2
+-----END PGP SIGNATURE-----

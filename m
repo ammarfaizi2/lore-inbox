@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWHKTNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWHKTKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWHKTNO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 15:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWHKTNO
+	id S932090AbWHKTKW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWHKTKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 15:13:14 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:57250 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932190AbWHKTNO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 15:13:14 -0400
-Date: Fri, 11 Aug 2006 22:13:11 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for review] [69/145] x86_64: Disable DAC on VIA PCI bridges
-Message-ID: <20060811191311.GI4745@rhun.haifa.ibm.com>
-References: <20060810935.775038000@suse.de> <20060810193625.3605D13C0B@wotan.suse.de> <20060810205554.GE4745@rhun.haifa.ibm.com> <200608110851.53038.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608110851.53038.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Fri, 11 Aug 2006 15:10:22 -0400
+Received: from rtr.ca ([64.26.128.89]:50106 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932090AbWHKTKW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 15:10:22 -0400
+Message-ID: <44DCD618.2040700@rtr.ca>
+Date: Fri, 11 Aug 2006 15:10:16 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@www.linux.org.uk
+Subject: Re: cpufreq stops working after a while
+References: <44DCCB96.5080801@rtr.ca> <20060811114631.4a699667.akpm@osdl.org>
+In-Reply-To: <20060811114631.4a699667.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 08:51:53AM +0200, Andi Kleen wrote:
-
-> I've haven't decided yet. I put it out for review for now at least.
+Andrew Morton wrote:
+> On Fri, 11 Aug 2006 14:25:26 -0400
+> Mark Lord <lkml@rtr.ca> wrote:
 > 
-> I got various reports of the VIA bridges having trouble with DAC over the
-> years, but usually when I asked for confirmation the reporters disappeared.
-> I finally did the patch now because with cheap 2GB DIMMs VIA systems
-> with 4GB (which gives some memory over 4GB) are becomming more common.
+>> One of my notebooks (Dell Latitude X1) has a 1.1GHz Pentium-M ULV processor.
+>> This chip can change CPU speeds from 600 -> 800 -> 1100 Mhz.
+>>
+>> I use speedstep-centrino with it, and after boot all is usually okay.
+>> But after a few hours of operation, it stops shifting to the highest frequency
+>> even under continuous 100% load (or not).  Eventually it gets stuck at 600Mhz
+>> and stays there until I reboot.
+>>
+>> Sometimes rebooting doesn't even restore it.
+>>
+>> /sys/devices/system/cpu/cpu0/cpufreq is all very normal looking,
+>> showing the available frequencies and other info.  All of the attribs
+>> there look fine, except for "scaling_max_freq", which is what seems
+>> to gradually get set smaller.  For instance, right now it is set to 800000,
+>> and it won't let me change it (echo 11000000 > scaling_max_freq has no effect.
+>>
+>> WHY?
 > 
-> But again the last reporters disappeared this time.
+> cpufreq seems to have relatively frequent problems.
 > 
-> I will probably not sent it off before final confirmation again.
-
-Ok. I'll give it and the rest of the patches a spin on my systems with
-and without Calgary on Sunday.
-
-> > >  int dma_supported(struct device *dev, u64 mask)
-> > >  {
-> > >  	if (dma_ops->dma_supported)
-> > >  		return dma_ops->dma_supported(dev, mask);
-> > 
-> > I just checked, no ops has a dma_supported method... should we remove
-> > it?
+>>  And how can I fix it?
 > 
-> The if()? Possible.
+> You could start by telling us which kernel versions are affected ;)
 
-the .dma_supported member of dma_ops. If no one is using it, I don't
-see a point in keeping it there - we can always reintroduce it when an
-IOMMU implementation that needs it comes along.
 
-> > > +	    if (!strncmp(p, "nodac", 5))
-> > > +		    allow_dac = -1;
-> > 
-> > Why <0? we usually set 1 for enabled and 0 for disabled.
-> 
-> For hardware workarounds it is usually best to have three values:
-> 
-> - Force disabled
-> - Default based on black/white list 
->   The black/white list is not active when != 0
-> - Force enabled
-> 
-> I tend to use -1/0/1 for this. 
+Mmm.. since it appears to be related, kbuild dumps this out when building the kernel:
 
-I understand, makes sense. Thanks.
+WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0xf29) and 'acpi_processor_cst_has_changed'
 
-Cheers,
-Muli
+A possible source for the bug, or total red herring ?

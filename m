@@ -1,113 +1,289 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWHKA7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWHKBG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWHKA7J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 20:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWHKA7I
+	id S932078AbWHKBG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 21:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWHKBG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 20:59:08 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:24205 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932415AbWHKA7F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 20:59:05 -0400
-Subject: Re: [PATCH 2/9] sector_t format string
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060809234019.c8a730e3.akpm@osdl.org>
-References: <1155172843.3161.81.camel@localhost.localdomain>
-	 <20060809234019.c8a730e3.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Thu, 10 Aug 2006 17:59:01 -0700
-Message-Id: <1155257941.4505.32.camel@dyn9047017069.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Aug 2006 21:06:56 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:64972
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S932078AbWHKBGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Aug 2006 21:06:55 -0400
+Date: Thu, 10 Aug 2006 18:06:46 -0700
+To: Esben Nielsen <nielsen.esben@gogglemail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Robert Crocombe <rcrocomb@gmail.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Darren Hart <dvhltc@us.ibm.com>
+Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re: Problems with 2.6.17-rt8
+Message-ID: <20060811010646.GA24434@gnuppy.monkey.org>
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com> <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com> <1154541079.25723.8.camel@localhost.localdomain> <e6babb600608030448y7bb0cd34i74f5f632e4caf1b1@mail.gmail.com> <1154615261.32264.6.camel@localhost.localdomain> <20060808025615.GA20364@gnuppy.monkey.org> <20060808030524.GA20530@gnuppy.monkey.org> <Pine.LNX.4.64.0608090050500.23474@frodo.shire> <20060810021835.GB12769@gnuppy.monkey.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <20060810021835.GB12769@gnuppy.monkey.org>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-09 at 23:40 -0700, Andrew Morton wrote:
-> On Wed, 09 Aug 2006 18:20:43 -0700
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> 
+
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Aug 09, 2006 at 07:18:35PM -0700, Bill Huey wrote:
+> On Thu, Aug 10, 2006 at 12:05:57AM +0200, Esben Nielsen wrote:
+> > I had a long discussion with Paul McKenney about this. I opposed the patch 
+> > from a latency point of view: Suddenly a high-priority RT task could be 
+> > made into releasing a task_struct. It would be better for latencies to 
+> > defer it to a low priority task.
 > > 
-> > Define SECTOR_FMT to print sector_t in proper format
-> > 
-> > ...
-> >
-> >  #define HAVE_SECTOR_T
-> >  typedef u64 sector_t;
-> > +#define SECTOR_FMT "%llu"
+> > The conclusion we ended up with was that it is not a job for the RCU 
+> > system, but it ought to be deferred to some other low priority task to 
+> > free the task_struct.
 > 
-> We've thus-far avoided doing this.  In fact a similar construct in
-> device-mapper was recently removed.
-> 
-> Unlike many other attempts, this one appears to be correct (people usually
-> get powerpc wrong, due to its u64=unsigned long).
-> 
-> That being said, I'm not really sure we want to add this.  It produces
-> rather nasty-looking source code and thus far we've just used %llu and we've
-> typecasted the sector_t to `unsigned long long'.  That happens in a lot of
-> places in the kernel and perhaps we don't want to start innovating in ext4
-> ;)
-> 
-> That also being said...  does a 32-bit sector_t make any sense on a
-> 48-bit-blocknumber filesystem?  I'd have thought that we'd just make ext4
-> depend on 64-bit sector_t and be done with it.
-> 
-> Consequently, sector_t should largely vanish from ext4 and JBD2, except for
-> those places where it interfaces with the VFS and the block layer. 
-> Internally it should just use 64-bit quantities.  That could be u64, but
-> I'd suggest that the fs simply open-code `unsigned long long' so that we
-> don't need to play any gams at all when passing these things into printk.
-> 
+> I agree. It's just hack to get it not to crash at this time. It really
+> should be done in another facility or utilizing another threading context.
 
-I am fine with unsigned long long -- it does makes the printk a lot
-simplier--- I think we had a debate about whether to use sector_t or
-just unsigned long long on ext2-devel before, the argument at that time
-is to avoid unnecssary memory for in-kernel block variables on 32 bit
-machine ..I think that's the concern about using unsigned long long. 
+Esben and company,
 
-I intend to agree with you that the benefit is not so obvious. And since
-the on-disk data block number and some metadata are 48bit all the time,
-we do have to check the bits of the sector_t to make sure the in-kernel
-block variable have enough room to store the blocks when read it from
-disk. Not very pretty.
+This is the second round of getting rid of the locking problems with free_task()
+
+This extends the mmdrop logic with desched_thread() to also handle free_task()
+requests as well. I believe this address your concerns and I'm open to review
+of this patch.
+
+Patch included:
+
+bill
 
 
-> Finally, perhaps the code is printing block numbers too much ;)
-> 
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="t2.diff"
 
+--- include/linux/init_task.h	938a1587ab9e35bb8d24cf843d4e7424e3030a4c
++++ include/linux/init_task.h	f9469678db8c3609c2f07ddb885ec4f6afa7812c
+@@ -126,7 +126,8 @@
+ 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
+ 	.fs_excl	= ATOMIC_INIT(0),				\
+ 	.posix_timer_list = NULL,					\
+-	INIT_RT_MUTEXES(tsk)						\
++	INIT_RT_MUTEXES(tsk),						\
++	.delayed_drop	= LIST_HEAD_INIT(tsk.children)			\
+ }
+ 
+ 
+============================================================
+--- include/linux/sched.h	0ed8993484be9c13728f4ebdaa51fc0f0c229018
++++ include/linux/sched.h	c65ebaa452498f611280baafd8ee6282ea0746f2
+@@ -1082,6 +1091,9 @@
+ 	 * cache last used pipe for splice
+ 	 */
+ 	struct pipe_inode_info *splice_pipe;
++
++	/* --billh */
++	struct list_head	delayed_drop; // should investigate how do_fork() handles this as well
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+============================================================
+--- kernel/exit.c	f4cc2f8e48a262bd26b6fc5d1253a8482c8c2d04
++++ kernel/exit.c	9af3ab7b1d0174e3b8fa7aacec97c8e85c559e68
+@@ -177,7 +177,7 @@
+ 	spin_unlock(&p->proc_lock);
+ 	proc_pid_flush(proc_dentry);
+ 	release_thread(p);
+-	call_rcu(&p->rcu, delayed_put_task_struct);
++	put_task_struct(p);
+ 
+ 	p = leader;
+ 	if (unlikely(zap_leader))
+============================================================
+--- kernel/fork.c	506dabd42d242f78e0321594c7723481e0cd87dc
++++ kernel/fork.c	ee8452887ab91be38ffd366bb57be2cf46b2f08b
+@@ -75,7 +75,10 @@
+  */
+ static DEFINE_PER_CPU(struct task_struct *, desched_task);
+ 
+-static DEFINE_PER_CPU(struct list_head, delayed_drop_list);
++static DEFINE_PER_CPU(struct list_head, delayed_mmdrop_list);
++#ifdef CONFIG_PREEMPT_RT
++static DEFINE_PER_CPU(struct list_head, delayed_free_task_list); //--bilh
++#endif
+ 
+ int nr_processes(void)
+ {
+@@ -120,6 +123,8 @@
+ }
+ EXPORT_SYMBOL(free_task);
+ 
++void fastcall free_task_delayed(struct task_struct *task);
++
+ void __put_task_struct(struct task_struct *tsk)
+ {
+ 	WARN_ON(!(tsk->exit_state & (EXIT_DEAD | EXIT_ZOMBIE)));
+@@ -132,9 +137,13 @@
+ 	put_group_info(tsk->group_info);
+ 
+ 	if (!profile_handoff_task(tsk))
+-		free_task(tsk);
++#ifdef CONFIG_PREEMPT_RT
++		free_task_delayed(tsk);
++#else
++		free_task(tsk); // --billh
++#endif
+ }
+-
++ 
+ void __init fork_init(unsigned long mempages)
+ {
+ 	int i;
+@@ -167,8 +176,12 @@
+ 	init_task.signal->rlim[RLIMIT_SIGPENDING] =
+ 		init_task.signal->rlim[RLIMIT_NPROC];
+ 
+-	for (i = 0; i < NR_CPUS; i++)
+-		INIT_LIST_HEAD(&per_cpu(delayed_drop_list, i));
++	for (i = 0; i < NR_CPUS; i++) {
++		INIT_LIST_HEAD(&per_cpu(delayed_mmdrop_list, i));
++#ifdef CONFIG_PREEMPT_RT
++		INIT_LIST_HEAD(&per_cpu(delayed_free_task_list, i)); //--billh
++#endif
++	}
+ }
+ 
+ static struct task_struct *dup_task_struct(struct task_struct *orig)
+@@ -1067,6 +1080,9 @@
+ #endif
+ 
+ 	rt_mutex_init_task(p);
++#ifdef CONFIG_PREEMPT_RT
++	INIT_LIST_HEAD(&p->delayed_drop); //--billh
++#endif
+ 
+ #ifdef CONFIG_DEBUG_MUTEXES
+ 	p->blocked_on = NULL; /* not blocked yet */
+@@ -1693,24 +1709,73 @@
+ 	return err;
+ }
+ 
++static void wake_cpu_desched_task(void)
++{
++	struct task_struct *desched_task;
++
++	desched_task = __get_cpu_var(desched_task);
++	if (desched_task)
++		wake_up_process(desched_task);
++}
++
++#ifdef CONFIG_PREEMPT_RT
++static int free_task_complete(void)
++{
++	struct list_head *head;
++	int ret = 0;
++
++	head = &get_cpu_var(delayed_free_task_list);
++	while (!list_empty(head)) {
++		struct task_struct *task = list_entry(head->next,
++					struct task_struct, delayed_drop);
++		list_del(&task->delayed_drop);
++		put_cpu_var(delayed_free_task_list);
++
++		free_task(task);
++		ret = 1;
++
++		head = &get_cpu_var(delayed_free_task_list);
++	}
++	put_cpu_var(delayed_free_task_list);
++
++	return ret;
++}
++
++/*
++ * We dont want to do complex work from the scheduler, thus
++ * we delay the work to a per-CPU worker thread:
++ */
++void fastcall free_task_delayed(struct task_struct *task)
++{
++	struct list_head *head;
++
++	head = &get_cpu_var(delayed_free_task_list);
++	list_add_tail(&task->delayed_drop, head);
++
++	wake_cpu_desched_task();
++
++	put_cpu_var(delayed_mmdrop_list);
++}
++#endif
++
+ static int mmdrop_complete(void)
+ {
+ 	struct list_head *head;
+ 	int ret = 0;
+ 
+-	head = &get_cpu_var(delayed_drop_list);
++	head = &get_cpu_var(delayed_mmdrop_list);
+ 	while (!list_empty(head)) {
+ 		struct mm_struct *mm = list_entry(head->next,
+ 					struct mm_struct, delayed_drop);
+ 		list_del(&mm->delayed_drop);
+-		put_cpu_var(delayed_drop_list);
++		put_cpu_var(delayed_mmdrop_list);
+ 
+ 		__mmdrop(mm);
+ 		ret = 1;
+ 
+-		head = &get_cpu_var(delayed_drop_list);
++		head = &get_cpu_var(delayed_mmdrop_list);
+ 	}
+-	put_cpu_var(delayed_drop_list);
++	put_cpu_var(delayed_mmdrop_list);
+ 
+ 	return ret;
+ }
+@@ -1721,15 +1786,14 @@
+  */
+ void fastcall __mmdrop_delayed(struct mm_struct *mm)
+ {
+-	struct task_struct *desched_task;
+ 	struct list_head *head;
+ 
+-	head = &get_cpu_var(delayed_drop_list);
++	head = &get_cpu_var(delayed_mmdrop_list);
+ 	list_add_tail(&mm->delayed_drop, head);
+-	desched_task = __get_cpu_var(desched_task);
+-	if (desched_task)
+-		wake_up_process(desched_task);
+-	put_cpu_var(delayed_drop_list);
++
++	wake_cpu_desched_task();
++
++	put_cpu_var(delayed_mmdrop_list);
+ }
+ 
+ static int desched_thread(void * __bind_cpu)
+@@ -1743,6 +1807,9 @@
+ 
+ 		if (mmdrop_complete())
+ 			continue;
++		if (free_task_complete())
++			continue;
++
+ 		schedule();
+ 
+ 		/* This must be called from time to time on ia64, and is a no-op on other archs.
+@@ -1767,7 +1834,10 @@
+ 	case CPU_UP_PREPARE:
+ 
+ 		BUG_ON(per_cpu(desched_task, hotcpu));
+-		INIT_LIST_HEAD(&per_cpu(delayed_drop_list, hotcpu));
++		INIT_LIST_HEAD(&per_cpu(delayed_mmdrop_list, hotcpu));
++#ifdef CONFIG_PREEMPT_RT
++		INIT_LIST_HEAD(&per_cpu(delayed_free_task_list, hotcpu)); // --billh
++#endif
+ 		p = kthread_create(desched_thread, hcpu, "desched/%d", hotcpu);
+ 		if (IS_ERR(p)) {
+ 			printk("desched_thread for %i failed\n", hotcpu);
 
-> <Notices E3FSBLK, wonders how that snuck through>
-> 
-When we cleanup ext3 code to fix some "int" type block numbers to
-"unsigned long" type to able to truely support 2^32 bit ext3 (otherwise
-ext3 is limited to 2^31 blocks (8TB)), we had to go through a lot of
-printk to modify the format string from %d to %lu. It's a pain.
-
-At that time we are planning to have 48 bit ext3 (now ext4) too, so we
-need to go through the same pain again: replace all %lu to %llu in all
-the places where the blocks are being print out. Another huge chunk of
-patch.
-
-So the decision at that time is to do it once: identify all the printk
-cases and use a micro to replace the format string.  That is the reason
-behind the E3FSBLK
-
-I agree with you that this makes the code hard to read -- I'm fine to
-remove it. Fortunately with the previous work, removing it is not so
-hard, just simplely search/replace.
-
-The only thing is that we need to type cast every block numbers to be
-printed, if the block type is sector_t -- that's a pain. For this reason
-I do like to use unsigned long long instead of sector_t.
-
-> I'd suggest that "[patch] ext3: remove E3FSBLK" be written and merged
-> before we clone ext4, too...
-> 
-
-Mingming
-
+--EeQfGwPcQSOJBaQU--

@@ -1,141 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWHKWib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWHKWiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWHKWib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 18:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWHKWib
+	id S1751223AbWHKWiX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 18:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWHKWiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 18:38:31 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:2651 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751227AbWHKWia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 18:38:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=nD57yI2HOxUCGVCk3uNSughfylNhYowks+GM1FLu22c4OoB36TrvwqR0wnZ5mwCfhqohxrKsLEIrOm7/0I/5Hx7yOeAD679Pq3c+VGuHfeK0GIRA7k3uDrgKhJkmHa50mqeT5xjdn+TFUmiA412jjicMX4y+E+NZaY3TnRCIk7w=
-Date: Sat, 12 Aug 2006 02:38:29 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] CONFIG_PM=n slim: sound/oss/cs46xx.c
-Message-ID: <20060811223829.GJ6847@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Fri, 11 Aug 2006 18:38:23 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:64664 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751223AbWHKWiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 18:38:23 -0400
+Message-ID: <44DD072C.2040402@free.fr>
+Date: Sat, 12 Aug 2006 00:39:40 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.4) Gecko/20060405 SeaMonkey/1.0.2
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
+References: <20060806030809.2cfb0b1e.akpm@osdl.org> <200608091906.k79J6Zrc009211@turing-police.cc.vt.edu> <20060809130151.f1ff09eb.akpm@osdl.org>            <200608092043.k79KhKdt012789@turing-police.cc.vt.edu> <200608100332.k7A3Wvck009169@turing-police.cc.vt.edu> <44DB1AF6.2020101@gmail.com>
+In-Reply-To: <44DB1AF6.2020101@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Make suspend/resume registration look like the rest of drivers:
-  #ifdef CONFIG_PM in struct pci_driver, prototypes, actual hooks.
-* Drop CS46XX_ACPI_SUPPORT. It logically duplicated CONFIG_PM. It was
-  hardcoded to 1 approx forever (ALSA merge just moved driver to
-  sound/oss/).
-* After previous point, sound/oss/cs46xxpm-24.h removed as being useless.
-* As side effect selling (unused) static inline functions as suspend/resume
-  hooks funkiness removed too.
+Le 10.08.2006 13:40, Jiri Slaby a écrit :
+> Valdis.Kletnieks@vt.edu wrote:
+>> On Wed, 09 Aug 2006 16:43:20 EDT, Valdis.Kletnieks@vt.edu said:
+>>
+>>>> Usually this means that there's an IO request in flight and it got lost
+>>>> somewhere.  Device driver bug, IO scheduler bug, etc.  Conceivably a
+>>>> lost interrupt (hardware bug, PCI setup bug, etc).
+>>
+>>> Aug  9 14:30:24 turing-police kernel: [ 3535.720000] end_request: I/O
+>>> error, dev fd0, sector 0
+>>
+>> Red herring.  yum just wedged again, this time with no reference to
+>> floppy drive.
+>> Same traceback.  Anybody have anything to suggest before I start playing
+>> hunt-the-wumpus with a -mm bisection?
+> 
+> Hmm, I have the accurately same problem...
+> yum + CFQ + BLK_DEV_PIIX + nothing odd in dmesg
+> 
+> [ 3438.574864] yum           D 00000000     0 21659   3838 (NOTLB)
+> [ 3438.575098]        e5c09d24 00000001 c180f5a8 00000000 e5c09ce0
+> c01683e8 fe37c0bc 000002c4
+> [ 3438.575388]        00001000 00000001 c18fbbd0 0023001f 00000007
+> f26cc560 c1913560 fe4166d5
+> [ 3438.575713]        000002c4 0009a619 00000001 f26cc66c c180ec40
+> c04ff140 e5c09d14 c01fad44
+> [ 3438.576039] Call Trace:
+> [ 3438.576113]  [<c0373d3b>] io_schedule+0x26/0x30
+> [ 3438.576187]  [<c014653c>] sync_page+0x39/0x45
+> [ 3438.576260]  [<c0374401>] __wait_on_bit_lock+0x41/0x64
+> [ 3438.576333]  [<c01464ef>] __lock_page+0x57/0x5f
+> [ 3438.576405]  [<c014f5f2>] truncate_inode_pages_range+0x1b6/0x304
+> [ 3438.576480]  [<c014f76f>] truncate_inode_pages+0x2f/0x40
+> [ 3438.576553]  [<c01a7bc4>] ext3_delete_inode+0x29/0xf7
+> [ 3438.576627]  [<c017f26b>] generic_delete_inode+0x65/0xe7
+> [ 3438.576701]  [<c017f3aa>] generic_drop_inode+0xbd/0x173
+> [ 3438.576774]  [<c017ed25>] iput+0x6b/0x7b
+> [ 3438.576846]  [<c017cc57>] dentry_iput+0x68/0xb3
+> [ 3438.576919]  [<c017d99e>] dput+0x4f/0x19f
+> [ 3438.576990]  [<c0176164>] sys_renameat+0x1e0/0x212
+> [ 3438.577063]  [<c01761be>] sys_rename+0x28/0x2a
+> [ 3438.577135]  [<c01030fb>] syscall_call+0x7/0xb
+> 
+> regards,
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Same problem here, with urpmi: 
 
- sound/oss/cs46xx.c      |   12 ++++++++----
- sound/oss/cs46xxpm-24.h |   48 ------------------------------------------------
- 2 files changed, 8 insertions(+), 52 deletions(-)
+urpmi         D CAC9EAA0  6112 29146  30655                     (NOTLB)
+       c813dda0 c0291e70 00000001 cac9eaa0 fe7d7800 000008ad 00000000 cac9ebac 
+       c813ddd4 c1404e00 07efea00 00000005 c813ddd4 c813ddd4 c1404e00 c813dda8 
+       c028fb6b c813ddb0 c01390ed c813ddc8 c02902ea c01390b7 c813ddd4 00000000 
+Call Trace:
+ [<c028fb6b>] io_schedule+0xe/0x16
+ [<c01390ed>] sync_page+0x36/0x3a
+ [<c02902ea>] __wait_on_bit_lock+0x30/0x58
+ [<c01390a3>] __lock_page+0x51/0x59
+ [<c01403f4>] truncate_inode_pages_range+0x1f8/0x24a
+ [<c0140452>] truncate_inode_pages+0xc/0x12
+ [<c018a22a>] ext3_delete_inode+0x16/0xc0
+ [<c0168e93>] generic_delete_inode+0x61/0xcf
+ [<c0168f13>] generic_drop_inode+0x12/0x13e
+ [<c0168994>] iput+0x67/0x6a
+ [<c0166bab>] dentry_iput+0x7c/0x97
+ [<c016792d>] dput+0x152/0x16b
+ [<c0160fe5>] sys_renameat+0x17a/0x1dd
+ [<c016105a>] sys_rename+0x12/0x14
+ [<c0102c39>] sysenter_past_esp+0x56/0x8d
 
---- a/sound/oss/cs46xx.c
-+++ b/sound/oss/cs46xx.c
-@@ -96,7 +96,7 @@ #include <asm/io.h>
- #include <asm/dma.h>
- #include <asm/uaccess.h>
- 
--#include "cs46xxpm-24.h"
-+#include "cs46xxpm.h"
- #include "cs46xx_wrapper-24.h"
- #include "cs461x.h"
- 
-@@ -389,8 +389,10 @@ static int cs_hardware_init(struct cs_ca
- static int cs46xx_powerup(struct cs_card *card, unsigned int type);
- static int cs461x_powerdown(struct cs_card *card, unsigned int type, int suspendflag);
- static void cs461x_clear_serial_FIFOs(struct cs_card *card, int type);
-+#ifdef CONFIG_PM
- static int cs46xx_suspend_tbl(struct pci_dev *pcidev, pm_message_t state);
- static int cs46xx_resume_tbl(struct pci_dev *pcidev);
-+#endif
- 
- #if CSDEBUG
- 
-@@ -5389,8 +5391,10 @@ static struct pci_driver cs46xx_pci_driv
- 	.id_table = cs46xx_pci_tbl,
- 	.probe	  = cs46xx_probe,
- 	.remove	  = __devexit_p(cs46xx_remove),
--	.suspend  = CS46XX_SUSPEND_TBL,
--	.resume	  = CS46XX_RESUME_TBL,
-+#ifdef CONFIG_PM
-+	.suspend  = cs46xx_suspend_tbl,
-+	.resume	  = cs46xx_resume_tbl,
-+#endif
- };
- 
- static int __init cs46xx_init_module(void)
-@@ -5420,7 +5424,7 @@ static void __exit cs46xx_cleanup_module
- module_init(cs46xx_init_module);
- module_exit(cs46xx_cleanup_module);
- 
--#if CS46XX_ACPI_SUPPORT
-+#ifdef CONFIG_PM
- static int cs46xx_suspend_tbl(struct pci_dev *pcidev, pm_message_t state)
- {
- 	struct cs_card *s = PCI_GET_DRIVER_DATA(pcidev);
-deleted file mode 100644
---- a/sound/oss/cs46xxpm-24.h
-+++ /dev/null
-@@ -1,48 +0,0 @@
--/*******************************************************************************
--*
--*      "cs46xxpm-24.h" --  Cirrus Logic-Crystal CS46XX linux audio driver.
--*
--*      Copyright (C) 2000,2001  Cirrus Logic Corp.  
--*            -- tom woller (twoller@crystal.cirrus.com) or
--*               (pcaudio@crystal.cirrus.com).
--*
--*      This program is free software; you can redistribute it and/or modify
--*      it under the terms of the GNU General Public License as published by
--*      the Free Software Foundation; either version 2 of the License, or
--*      (at your option) any later version.
--*
--*      This program is distributed in the hope that it will be useful,
--*      but WITHOUT ANY WARRANTY; without even the implied warranty of
--*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--*      GNU General Public License for more details.
--*
--*      You should have received a copy of the GNU General Public License
--*      along with this program; if not, write to the Free Software
--*      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
--*
--* 12/22/00 trw - new file. 
--*
--*******************************************************************************/
--#ifndef __CS46XXPM24_H
--#define __CS46XXPM24_H
--
--#include <linux/pm.h>
--#include "cs46xxpm.h"
--
--
--#define CS46XX_ACPI_SUPPORT 1
--#ifdef CS46XX_ACPI_SUPPORT
--/* 
--* for now (12/22/00) only enable the pm_register PM support.
--* allow these table entries to be null.
--*/
--static int cs46xx_suspend_tbl(struct pci_dev *pcidev, pm_message_t state);
--static int cs46xx_resume_tbl(struct pci_dev *pcidev);
--#define CS46XX_SUSPEND_TBL cs46xx_suspend_tbl
--#define CS46XX_RESUME_TBL cs46xx_resume_tbl
--#else
--#define CS46XX_SUSPEND_TBL cs46xx_null
--#define CS46XX_RESUME_TBL cs46xx_null
--#endif
--
--#endif
+This is 2.6.18-rc3-mm2 + 6 hot-fixes. CFQ scheduler. The RPM DB is located on /var which is an ext3 FS. 
 
+I think I broke my RPM db :-(.
+~~
+laurent

@@ -1,108 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWHKJWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWHKJVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750979AbWHKJWF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 05:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWHKJWE
+	id S1751042AbWHKJVq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 05:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWHKJVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 05:22:04 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:41350 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750979AbWHKJWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 05:22:02 -0400
-Date: Fri, 11 Aug 2006 02:22:01 -0700
-Message-Id: <200608110922.k7B9M1Zt023372@zach-dev.vmware.com>
-Subject: [PATCH 9/9] 00mme update pte hook.patch
-From: Zachary Amsden <zach@vmware.com>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux MM <linux-mm@kvack.org>, Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 11 Aug 2006 09:22:01.0567 (UTC) FILETIME=[9A3C86F0:01C6BD27]
+	Fri, 11 Aug 2006 05:21:46 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32474 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751019AbWHKJVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 05:21:45 -0400
+Date: Fri, 11 Aug 2006 11:21:32 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Thomas Klein <osstklei@de.ibm.com>
+Cc: Michael Neuling <mikey@neuling.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
+       Thomas Klein <tklein@de.ibm.com>, linuxppc-dev@ozlabs.org,
+       Christoph Raisch <raisch@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Marcus Eder <meder@de.ibm.com>
+Subject: Re: [PATCH 3/6] ehea: queue management
+Message-ID: <20060811092132.GA4137@wohnheim.fh-wedel.de>
+References: <44D99F38.8010306@de.ibm.com> <20060811000540.200CE67B6B@ozlabs.org> <20060811003204.GA6935@martell.zuzino.mipt.ru> <20060811004602.23EB467B64@ozlabs.org> <44DC319A.10802@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44DC319A.10802@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a pte_update_hook which notifies about pte changes that have been made
-without using the set_pte / clear_pte interfaces.  This allows shadow mode
-hypervisors which do not trap on page table access to maintain synchronized
-shadows.
+On Fri, 11 August 2006 09:28:26 +0200, Thomas Klein wrote:
+> Michael Neuling wrote:
+> >>>>+static inline u32 map_swqe_size(u8 swqe_enc_size)
+> >>>>+static inline u32|map_rwqe_size(u8 rwqe_enc_size)
+> >  
+> Agreed. Functions were replaced by a single map_wqe_size() function.
 
-It also turns out, there was one pte update in PAE mode that wasn't using
-any accessor interface at all for setting NX protection.  Considering it
-is PAE specific, and the accessor is i386 specific, I didn't want to add
-a generic encapsulation of this behavior yet.
+Just a general thing, try to avoid having two identifiers that are
+near-100% identical.  As seen in this thread, they are _very_ easy to
+confuse.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+Ime, there are two methods to avoid this.  One is to make the
+identifiers longer, something like "map_seek_wqe_size" and
+"map_read_wqe_size".  The other is to make them shorter, just "s" and
+"r" is less confusing than the above.
 
-===================================================================
---- a/arch/i386/mm/init.c
-+++ b/arch/i386/mm/init.c
-@@ -493,6 +493,7 @@ int __init set_kernel_exec(unsigned long
- 		pte->pte_high &= ~(1 << (_PAGE_BIT_NX - 32));
- 	else
- 		pte->pte_high |= 1 << (_PAGE_BIT_NX - 32);
-+	pte_update_defer(&init_mm, vaddr, pte);
- 	__flush_tlb_all();
- out:
- 	return ret;
-===================================================================
---- a/include/asm-i386/pgtable.h
-+++ b/include/asm-i386/pgtable.h
-@@ -247,6 +247,23 @@ static inline pte_t pte_mkhuge(pte_t pte
- #endif
- 
- /*
-+ * Rules for using pte_update - it must be called after any PTE update which
-+ * has not been done using the set_pte / clear_pte interfaces.  It is used by
-+ * shadow mode hypervisors to resynchronize the shadow page tables.  Kernel PTE
-+ * updates should either be sets, clears, or set_pte_atomic for P->P
-+ * transitions, which means this hook should only be called for user PTEs.
-+ * This hook implies a P->P protection or access change has taken place, which
-+ * requires a subsequent TLB flush.  The notification can optionally be delayed
-+ * until the TLB flush event by using the pte_update_defer form of the
-+ * interface, but care must be taken to assure that the flush happens while
-+ * still holding the same page table lock so that the shadow and primary pages
-+ * do not become out of sync on SMP.
-+ */
-+#define pte_update(mm, addr, ptep)		do { } while (0)
-+#define pte_update_defer(mm, addr, ptep)	do { } while (0)
-+
-+
-+/*
-  * We only update the dirty/accessed state if we set
-  * the dirty bit by hand in the kernel, since the hardware
-  * will do the accessed bit for us, and we don't want to
-@@ -258,6 +275,7 @@ do {									\
- do {									\
- 	if (dirty) {							\
- 		(ptep)->pte_low = (entry).pte_low;			\
-+		pte_update_defer((vma)->vm_mm, (addr), (ptep));		\
- 		flush_tlb_page(vma, address);				\
- 	}								\
- } while (0)
-@@ -287,6 +305,7 @@ do {									\
- 	__dirty = pte_dirty(*(ptep));					\
- 	if (__dirty) {							\
- 		clear_bit(_PAGE_BIT_DIRTY, &(ptep)->pte_low);		\
-+		pte_update_defer((vma)->vm_mm, (addr), (ptep));		\
- 		flush_tlb_page(vma, address);				\
- 	}								\
- 	__dirty;							\
-@@ -299,6 +318,7 @@ do {									\
- 	__young = pte_young(*(ptep));					\
- 	if (__young) {							\
- 		clear_bit(_PAGE_BIT_ACCESSED, &(ptep)->pte_low);	\
-+		pte_update_defer((vma)->vm_mm, (addr), (ptep));		\
- 		flush_tlb_page(vma, address);				\
- 	}								\
- 	__young;							\
-@@ -321,6 +341,7 @@ static inline void ptep_set_wrprotect(st
- static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
- {
- 	clear_bit(_PAGE_BIT_RW, &ptep->pte_low);
-+	pte_update(mm, addr, ptep);
- }
- 
- /*
+Which method works best depends on many things, including personal
+taste.
+
+Jörn
+
+-- 
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

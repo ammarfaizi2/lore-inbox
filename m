@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWHKSAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWHKSEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWHKSAd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 14:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWHKSAc
+	id S1750964AbWHKSEN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 14:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWHKSEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 14:00:32 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:53150 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750910AbWHKSAc (ORCPT
+	Fri, 11 Aug 2006 14:04:13 -0400
+Received: from lixom.net ([66.141.50.11]:64455 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S1750910AbWHKSEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 14:00:32 -0400
-Date: Fri, 11 Aug 2006 20:00:08 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: xfs@oss.sgi.com
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Directory corruption
-Message-ID: <Pine.LNX.4.61.0608111955530.23379@yvahk01.tjqt.qr>
+	Fri, 11 Aug 2006 14:04:11 -0400
+Date: Fri, 11 Aug 2006 13:00:13 -0500
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       James K Lewis <jklewis@us.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 4/4]: powerpc/cell spidernet ethtool -i version number info.
+Message-ID: <20060811180013.GB6550@pb15.lixom.net>
+References: <20060811170337.GH10638@austin.ibm.com> <20060811171117.GL10638@austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060811171117.GL10638@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Aug 11, 2006 at 12:11:17PM -0500, Linas Vepstas wrote:
+
+> This patch adds version information as reported by 
+> ethtool -i to the Spidernet driver.
+
+Why does a driver that's in the mainline kernel need to have a version
+number besides the kernel version?
+
+I can understand it for drivers like e1000 that Intel maintain outside
+of the kernel as well. But spidernet is a fully mainline maintained
+driver, right?
 
 
-I was about to (finally!) fix my on-disk corruptions using a new xfsprogs, 
-and this is what I got:
-
-# xfs_check /dev/hda2
-bad free block nused 1 should be 40 for dir ino 17332222 block 16777216
-bad nblocks 907 for inode 109663513, counted 922
-bad nblocks 849 for inode 109663521, counted 859
-sb_ifree 26084, counted 26080
-sb_fdblocks 1712799, counted 1712761
-user quota id 0, have/exp bc 796381/796369
-group quota id 0, have/exp bc 794376/794364 ic 88214/88212
-group quota id 5, have/exp ic 651/653
-
-But before I wanted to fix that, I checked which objects were affected
-
-# find /mnt/hda2ro -inum 109663513 -o -inum 109663521
-/mnt/hda2ro/var/log/kernel
-/mnt/hda2ro/var/log/messages
-Ok so far, but
-
-# find /mnt/hda2ro -inum 17332222
-
-Did not turn up anything. Is it an object that is invisible?
-
-Jan Engelhardt
--- 
+-Olof

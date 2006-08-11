@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWHKTdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWHKTha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWHKTdt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 15:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHKTds
+	id S932291AbWHKTha (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWHKTh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 15:33:48 -0400
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:54908 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932280AbWHKTdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 15:33:47 -0400
-From: Daniel Drake <dsd@gentoo.org>
-To: akpm@osdl.org
-Cc: linux-ide@vger.kernel.org
+	Fri, 11 Aug 2006 15:37:29 -0400
+Received: from mail.suse.de ([195.135.220.2]:2796 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932291AbWHKTh3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 15:37:29 -0400
+From: Andi Kleen <ak@suse.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: Re: [PATCH for review] [69/145] x86_64: Disable DAC on VIA PCI bridges
+Date: Fri, 11 Aug 2006 21:36:12 +0200
+User-Agent: KMail/1.9.3
 Cc: linux-kernel@vger.kernel.org
-Cc: jeff@garzik.org
-Cc: bzolnier@gmail.com
-Subject: [PATCH resend] via82cxxx: Add VIA VT8237A southbridge ID
-Message-Id: <20060811193346.E2D0C8E75CD@zog.reactivated.net>
-Date: Fri, 11 Aug 2006 20:33:46 +0100 (BST)
+References: <20060810935.775038000@suse.de> <200608110851.53038.ak@suse.de> <20060811191311.GI4745@rhun.haifa.ibm.com>
+In-Reply-To: <20060811191311.GI4745@rhun.haifa.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608112136.12378.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some motherboards based on the KT890 chipset include this southbridge. Adding
-it allows the via82cxxx IDE driver to be used on these systems.
+On Friday 11 August 2006 21:13, Muli Ben-Yehuda wrote:
+> On Fri, Aug 11, 2006 at 08:51:53AM +0200, Andi Kleen wrote:
+> 
+> > I've haven't decided yet. I put it out for review for now at least.
+> > 
+> > I got various reports of the VIA bridges having trouble with DAC over the
+> > years, but usually when I asked for confirmation the reporters disappeared.
+> > I finally did the patch now because with cheap 2GB DIMMs VIA systems
+> > with 4GB (which gives some memory over 4GB) are becomming more common.
+> > 
+> > But again the last reporters disappeared this time.
+> > 
+> > I will probably not sent it off before final confirmation again.
+> 
+> Ok. I'll give it and the rest of the patches a spin on my systems with
+> and without Calgary on Sunday.
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+At least for this patch it would only make sense if you had a VIA box 
+with memory >4GB (and most likely it wouldn't have booted before) 
 
----
+-Andi
 
-No respose from Bart on this one, and the ide git tree seems rather dead.
-Can this go direct to Linus from here?
-
-Index: linux/drivers/ide/pci/via82cxxx.c
-===================================================================
---- linux.orig/drivers/ide/pci/via82cxxx.c
-+++ linux/drivers/ide/pci/via82cxxx.c
-@@ -81,6 +81,7 @@ static struct via_isa_bridge {
- 	{ "vt6410",	PCI_DEVICE_ID_VIA_6410,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8251",	PCI_DEVICE_ID_VIA_8251,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
-+	{ "vt8237a",	PCI_DEVICE_ID_VIA_8237A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8233c",	PCI_DEVICE_ID_VIA_8233C_0,  0x00, 0x2f, VIA_UDMA_100 },

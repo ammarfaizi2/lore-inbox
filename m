@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWHKLlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWHKLmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWHKLlE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 07:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHKLlE
+	id S932183AbWHKLmF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 07:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWHKLmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 07:41:04 -0400
-Received: from smtprelay05.ispgateway.de ([80.67.18.43]:55977 "EHLO
-	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932159AbWHKLlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 07:41:02 -0400
-From: Matthias Dahl <mlkernel@mortal-soul.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: sluggish system responsiveness under higher IO load
-Date: Fri, 11 Aug 2006 13:40:41 +0200
-User-Agent: KMail/1.9.4
+	Fri, 11 Aug 2006 07:42:04 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11225 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932173AbWHKLmC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 07:42:02 -0400
+Subject: Re: Serial driver 8250 hangs the kernel with the VIA Nehemiah...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Pringle <chris.pringle@miranda.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200608061200.37701.mlkernel@mortal-soul.de> <20060808190241.GB11829@suse.de> <20060810122853.GS11829@suse.de>
-In-Reply-To: <20060810122853.GS11829@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <44DC6524.4000401@miranda.com>
+References: <44DC6524.4000401@miranda.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608111340.41247.mlkernel@mortal-soul.de>
+Date: Fri, 11 Aug 2006 13:02:08 +0100
+Message-Id: <1155297728.24077.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 August 2006 14:28, Jens Axboe wrote:
+Ar Gwe, 2006-08-11 am 12:08 +0100, ysgrifennodd Chris Pringle:
+> > Unlikely as it would affect both. More likely would be that the ISA bus
+> > clock is generated off the PCI bus clock and you have one of the
+> > multipliers wrong or too high for the board.
+> >   
+> Thats interesting, but wouldn't this produce strange side affects for 
+> the 2.4 kernel as well? 2.4 works fine on both VIAs and Celerons.
 
-> - Did 2.6.16 work well for you?
+That I wonder about. The power management stuff and some other things
+that matter for timing are different however.
 
-AFAICT 2.6.17 behaved more sluggish but this is my subjective observation. The 
-problem itself exists for quite some time now. (prior to 2.6.16) I cannot 
-even tell if it ever worked fine. :-(
+> I'll give the interrupt disabling a go...
 
-> - Does disabling preemtion (CONFIG_PREEMPT_NONE=y) help?
+Its just a guess but if you have low latency stuff, you have pre-empt
+enabled and you actually depend upon the semantics of inb_p/outb_p
+giving delays reliably then I'm not convinced are guarantees are strong
+enough
 
-Sorry for my late response btw. I will do the necessary tests (including the 
-blktrace you asked for) this weekend and report back as soon as possible.
+Specifically we don't have any pre-empt protection between the I/O delay
+and the I/O so we could violate it as we don't have pre-empt disables in
+inb_p/outb_p and if your CPU context switch is quick enough it could
+trigger a problem.
+
+Alan
+

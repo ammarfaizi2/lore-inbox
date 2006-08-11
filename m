@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWHKOMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWHKOO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWHKOMk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 10:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWHKOMk
+	id S1751138AbWHKOO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 10:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWHKOO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 10:12:40 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:43475 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751141AbWHKOMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 10:12:39 -0400
-Subject: Re: mingo@elte.hu, tglx@linutronix.de, linuxppc-dev@ozlabs.org,
-	tsutomu.owa@toshiba.co.jp
-From: Daniel Walker <dwalker@mvista.com>
-To: Tsutomu OWA <tsutomu.owa@toshiba.co.jp>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <yyilkpwhvwh.wl@forest.swc.toshiba.co.jp>
-References: <yyilkpwhvwh.wl@forest.swc.toshiba.co.jp>
-Content-Type: text/plain
-Date: Fri, 11 Aug 2006 07:12:35 -0700
-Message-Id: <1155305556.16579.49.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	Fri, 11 Aug 2006 10:14:26 -0400
+Received: from xenotime.net ([66.160.160.81]:2775 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751138AbWHKOOZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 10:14:25 -0400
+Date: Fri, 11 Aug 2006 07:17:03 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Marc Perkel" <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dumb Question
+Message-Id: <20060811071703.f6cd242b.rdunlap@xenotime.net>
+In-Reply-To: <9a8748490608110304x2565358ah98f2328a86ee9ed7@mail.gmail.com>
+References: <44DBFF8A.4020604@perkel.com>
+	<9a8748490608110304x2565358ah98f2328a86ee9ed7@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 11:02 +0900, Tsutomu OWA wrote:
+On Fri, 11 Aug 2006 12:04:18 +0200 Jesper Juhl wrote:
 
-> +
-> +#if defined(CONFIG_PREEMPT_TRACE) || defined(CONFIG_LATENCY_TRACE)
-> +        print_traces(current);
-> +#endif /* CONFIG_PREEMPT_TRACE || CONFIG_LATENCY_TRACE */
+> On 11/08/06, Marc Perkel <marc@perkel.com> wrote:
+> [...]
+> > and how do I apply the patch?
+> 
+> Please read Documentation/applying-patches.txt in the kernel source
+> dir after extracting the tarball.
 
-You shouldn't need the ifdef's here.
+For a non-web interface, you can use 'ketchup'.
+See http://www.selenic.com/ketchup/wiki/
 
-> +#ifdef CONFIG_DEBUG_MUTEXES
-> +	show_held_locks(current);
-> +#endif /* CONFIG_DEBUG_MUTEXES */
-> +
->  }
->  EXPORT_SYMBOL(dump_stack);
->  
-> diff -rup -x CVS 2.6.16-rt17/arch/powerpc/kernel/prom.c rt-powerpc/arch/powerpc/kernel/prom.c
-
-Your on an ancient version of the -rt patch. I see that your using CVS
-which explains that. If you want to keep better pace you should consider
-not using CVS. 
-
-
-> diff -rup -x CVS 2.6.16-rt17/lib/string.c rt-powerpc/lib/string.c
-> --- 2.6.16-rt17/lib/string.c	2006-03-20 14:53:29.000000000 +0900
-> +++ rt-powerpc/lib/string.c	2006-06-16 13:08:07.000000000 +0900
-> @@ -67,7 +67,7 @@ EXPORT_SYMBOL(strnicmp);
->   * @src: Where to copy the string from
->   */
->  #undef strcpy
-> -char *strcpy(char *dest, const char *src)
-> +char * notrace strcpy(char *dest, const char *src)
->  {
->  	char *tmp = dest;
-
-Why are these notrace ?
-
-
-Daniel
-
-
+---
+~Randy
+PS: clearly for Mark (not Jesper)

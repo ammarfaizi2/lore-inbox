@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWHKSzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWHKTBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWHKSzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 14:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWHKSzr
+	id S932072AbWHKTBm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWHKTBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 14:55:47 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:18837 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1750827AbWHKSzq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 14:55:46 -0400
-Message-ID: <44DCC49C.3020304@namesys.com>
-Date: Fri, 11 Aug 2006 11:55:40 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Fri, 11 Aug 2006 15:01:42 -0400
+Received: from rtr.ca ([64.26.128.89]:42404 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750831AbWHKTBl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 15:01:41 -0400
+Message-ID: <44DCD411.1020403@rtr.ca>
+Date: Fri, 11 Aug 2006 15:01:37 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: Nate Diller <nate.diller@gmail.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Alexander Zarochentsev <zam@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: partial reiser4 review comments
-References: <20060803001741.4ee9ff72.akpm@osdl.org>	 <20060803142644.GC20405@infradead.org>	 <200608061838.35004.zam@namesys.com>	 <20060809085946.GA6177@infradead.org> <44D9A86F.3010304@namesys.com> <5c49b0ed0608101131h55f1505eo44b78603e2e8d3c2@mail.gmail.com>
-In-Reply-To: <5c49b0ed0608101131h55f1505eo44b78603e2e8d3c2@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@www.linux.org.uk,
+       davej@redhat.com
+Subject: Re: cpufreq stops working after a while
+References: <44DCCB96.5080801@rtr.ca> <20060811114631.4a699667.akpm@osdl.org>
+In-Reply-To: <20060811114631.4a699667.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Diller wrote:
+Andrew Morton wrote:
+> Mark Lord <lkml@rtr.ca> wrote:
+..
+>> I use speedstep-centrino with it, and after boot all is usually okay.
+>> But after a few hours of operation, it stops shifting to the highest frequency
+>> even under continuous 100% load (or not).  Eventually it gets stuck at 600Mhz
+>> and stays there until I reboot.
+..
+>> WHY?
+> 
+> cpufreq seems to have relatively frequent problems.
+> 
+>>  And how can I fix it?
+> 
+> You could start by telling us which kernel versions are affected ;)
 
-> On 8/9/06, Hans Reiser <reiser@namesys.com> wrote:
->
->> Christoph Hellwig wrote:
->>
->> > I must admit that standalone code snipplet doesn't really tell me a
->> lot.
->> >
->> >Do you mean the possibility to pass around a filesystem-defined
->> structure
->> >to multiple allocator calls?  I'm pretty sure can add that, I though it
->> >would be useful multiple times in the past but always found ways around
->> >it.
->> >
->> >
->> >
->> Assuming I understand your discussion, I see two ways to go, one is to
->> pass around fs specific state and continue to call into the FS many
->> times, and the other is to instead provide the fs with helper functions
->> that accomplish readahead calculation, page allocation, etc., and let
->> the FS keep its state naturally without having to preserve it in some fs
->> defined structure.  The second approach would be cleaner code design,
->> that would also ease cross-os porting of filesystems, in my view.
->
->
-> the second approach is the one i was heading towards with my
-> unfinished a_ops patches.  *please* won't someone pay me to do that
-> work...
->
-> NATE
->
->
-You might describe it in a paragraph or so instead of just mentioning
-it.....;-)
+Heh.  2.6.17.6 and 2.6.18-rc3-git4 are the two kernels I have for it,
+and both exhibit the problem.
+
+Dave Jones wrote:
+>boot with cpufreq.debug=7, and capture dmesg output after it fails
+
+I'll reboot with the debug options and see..
+
+Cheers

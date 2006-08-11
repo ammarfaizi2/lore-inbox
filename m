@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161195AbWHKH20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWHKH2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161195AbWHKH20 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 03:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWHKH20
+	id S1161194AbWHKH2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 03:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161198AbWHKH2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 03:28:26 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:50894 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1161190AbWHKH2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 03:28:25 -0400
-Date: Fri, 11 Aug 2006 11:27:49 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take6 1/3] kevent: Core files.
-Message-ID: <20060811072748.GA14398@2ka.mipt.ru>
-References: <20060810061433.GA4689@2ka.mipt.ru> <20060810001844.ff5e7429.akpm@osdl.org> <20060810075047.GB24370@2ka.mipt.ru> <20060810010254.3b52682f.akpm@osdl.org> <20060810082235.GA21025@2ka.mipt.ru> <20060810175639.b64faaa9.akpm@osdl.org> <20060811061535.GA11230@2ka.mipt.ru> <20060810232340.ab326d3f.akpm@osdl.org> <20060811063018.GB11230@2ka.mipt.ru> <20060811000454.d0345288.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060811000454.d0345288.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 11 Aug 2006 11:27:53 +0400 (MSD)
+	Fri, 11 Aug 2006 03:28:30 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:12614 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161173AbWHKH22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 03:28:28 -0400
+Message-ID: <44DC319A.10802@de.ibm.com>
+Date: Fri, 11 Aug 2006 09:28:26 +0200
+From: Thomas Klein <osstklei@de.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Michael Neuling <mikey@neuling.org>
+CC: Alexey Dobriyan <adobriyan@gmail.com>,
+       Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
+       Thomas Klein <tklein@de.ibm.com>, linuxppc-dev@ozlabs.org,
+       Christoph Raisch <raisch@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Marcus Eder <meder@de.ibm.com>
+Subject: Re: [PATCH 3/6] ehea: queue management
+References: <44D99F38.8010306@de.ibm.com> <20060811000540.200CE67B6B@ozlabs.org> <20060811003204.GA6935@martell.zuzino.mipt.ru> <20060811004602.23EB467B64@ozlabs.org>
+In-Reply-To: <20060811004602.23EB467B64@ozlabs.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 12:04:54AM -0700, Andrew Morton (akpm@osdl.org) wrote:
-> > This area can be decreased down to 70mb by reducing amount of
-> > information placed into the buffer (only user's data and flags) without
-> > additional hints.
-> > 
-> 
-> 70MB is still very bad, naturally.
+Michael Neuling wrote:
+>>>> +static inline u32 map_swqe_size(u8 swqe_enc_size)
+>>>> +{
+>>>> +	return 128 << swqe_enc_size;
+>>>> +}		      ^
+>>>> +		      |
+>>>> +static inline u32|map_rwqe_size(u8 rwqe_enc_size)
+>>>> +{		      |
+>>>> +	return 128 << rwqe_enc_size;
+>>>>         
+>> 		      ^
+>>     
+>>>> +}		      |
+>>>>         
+>>> 		      |
+>>> Snap!  These are ide|tical...
+>>>       
+>> 		      |
+>> No, they aren't. -----+
+>>     
+>
+> Functionally identical.
+>
+> Mikey
+>
+>   
+Agreed. Functions were replaced by a single map_wqe_size() function.
 
-Actually I do not think that 4k events is a good choice - I expect people
-will scale it to tens of thousands at least, so we definitely want not to
-allow user to create way too many kevent fds.
+Thomas
 
-> There are other ways in which users can do this sort of thing - passing
-> fd's across sockets, allocating zillions of pagetables come to mind.  But
-> we don't want to add more.
-> 
-> Possible options:
-> 
-> - Add a new rlimit for the number of kevent fd's
-> 
-> - Add a new rlimit for the amount of kevent memory
-> 
-> - Add a new rlimit for the total amount of pinned kernel memory.  First
->   user is kevent.
-
-I think this rlimit and first one are the best choises.
-
-> - Account a kevent fd as being worth 100 regular fds, so the naughty user
->   hits EMFILE early (ug).
-> 
-> A new rlimit is attractive, and they're easy to add.  Problem is, userspace
-> support is hard (I think).  afaik a standard Linux system doesn't have
-> global and per-user rlimit config files which are parsed and acted upon at
-> login.  That would make rlimits more useful.
-
-As for now it is possible to use stack size rlimit for example.
-
--- 
-	Evgeniy Polyakov

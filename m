@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWHKTli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWHKTnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWHKTli (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 15:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWHKTli
+	id S932332AbWHKTnM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 15:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWHKTnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 15:41:38 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:28836 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932369AbWHKTlg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 15:41:36 -0400
-Date: Fri, 11 Aug 2006 22:41:34 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for review] [69/145] x86_64: Disable DAC on VIA PCI bridges
-Message-ID: <20060811194134.GK4745@rhun.haifa.ibm.com>
-References: <20060810935.775038000@suse.de> <200608110851.53038.ak@suse.de> <20060811191311.GI4745@rhun.haifa.ibm.com> <200608112136.12378.ak@suse.de>
+	Fri, 11 Aug 2006 15:43:12 -0400
+Received: from mail.gmx.de ([213.165.64.20]:62420 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932332AbWHKTnL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 15:43:11 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.18-rc3-mm2 - OOM storm
+From: Mike Galbraith <efault@gmx.de>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <44DC78A3.5010605@free.fr>
+References: <20060806030809.2cfb0b1e.akpm@osdl.org>
+	 <44DAF6A4.9000004@free.fr> <20060810021957.38c82311.akpm@osdl.org>
+	 <44DBBF2B.2050605@free.fr>  <44DC78A3.5010605@free.fr>
+Content-Type: text/plain
+Date: Fri, 11 Aug 2006 21:50:41 +0000
+Message-Id: <1155333041.6013.20.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608112136.12378.ak@suse.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 09:36:12PM +0200, Andi Kleen wrote:
+On Fri, 2006-08-11 at 14:31 +0200, Laurent Riffard wrote:
+> L
+> >> Also, are you able to determine whether the problem is specific to `rpm
+> >> -V'?  Are you able to make the leak trigger using other filesystem
+> >> workloads?
+> > 
+> > Will try...
+> 
+> No luck. For example, "find /usr -type f -print0 | xargs -0 cat > /dev/null" 
+> does not trigger the problem.
 
-> At least for this patch it would only make sense if you had a VIA box 
-> with memory >4GB (and most likely it wouldn't have booted before) 
+I spent some time looking over what I thought was the obvious candidate,
+but alas, no cigar.  Not surprising since Andrew can't reproduce it. 
 
-I don't think I have a VIA box with >4GB memory, sorry. I'm also
-interested however in making sure it doesn't introduce any
-regressions on my other boxes...
+> # mount
+> /dev/mapper/vglinux1-lvroot on / type ext3 (rw)
+> /dev/mapper/vglinux1-lvusr on /usr type reiserfs (ro)
+> /dev/mapper/vglinux1-lvvar on /var type ext3 (rw)
 
-Cheers,
-Muli
+Mine is the plainest ext3 config imaginable.
+
+> >> If it's specific to `rpm -V' then perhaps direct-io is somehow causing
+> >> pagecache leakage.  That would be a bit odd.
+
+It seems odd at the moment.
+
+	-Mike
+

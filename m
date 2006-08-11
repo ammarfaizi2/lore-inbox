@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWHKJV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWHKJWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWHKJV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 05:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWHKJV0
+	id S1750979AbWHKJWF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 05:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWHKJWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 05:21:26 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:37254 "EHLO
+	Fri, 11 Aug 2006 05:22:04 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:41350 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751019AbWHKJVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 05:21:25 -0400
-Date: Fri, 11 Aug 2006 02:21:24 -0700
-Message-Id: <200608110921.k7B9LO7Z023366@zach-dev.vmware.com>
-Subject: [PATCH 8/9] 00mmd pae compile fix
+	id S1750979AbWHKJWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 05:22:02 -0400
+Date: Fri, 11 Aug 2006 02:22:01 -0700
+Message-Id: <200608110922.k7B9M1Zt023372@zach-dev.vmware.com>
+Subject: [PATCH 9/9] 00mme update pte hook.patch
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
        Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@osdl.org>,
@@ -20,92 +20,89 @@ To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
        Virtualization Mailing List <virtualization@lists.osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linux MM <linux-mm@kvack.org>, Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 11 Aug 2006 09:21:24.0432 (UTC) FILETIME=[841A2D00:01C6BD27]
+X-OriginalArrivalTime: 11 Aug 2006 09:22:01.0567 (UTC) FILETIME=[9A3C86F0:01C6BD27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During tracking down a PAE compile failure, I found that config.h was
-being included in a bunch of places in i386 code.  It is no longer
-necessary, so drop it.
+Add a pte_update_hook which notifies about pte changes that have been made
+without using the set_pte / clear_pte interfaces.  This allows shadow mode
+hypervisors which do not trap on page table access to maintain synchronized
+shadows.
+
+It also turns out, there was one pte update in PAE mode that wasn't using
+any accessor interface at all for setting NX protection.  Considering it
+is PAE specific, and the accessor is i386 specific, I didn't want to add
+a generic encapsulation of this behavior yet.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 
 ===================================================================
---- a/arch/i386/boot/video.S
-+++ b/arch/i386/boot/video.S
-@@ -10,8 +10,6 @@
-  *	For further information, look at Documentation/svga.txt.
-  *
-  */
--
--#include <linux/config.h> /* for CONFIG_VIDEO_* */
- 
- /* Enable autodetection of SVGA adapters and modes. */
- #undef CONFIG_VIDEO_SVGA
+--- a/arch/i386/mm/init.c
++++ b/arch/i386/mm/init.c
+@@ -493,6 +493,7 @@ int __init set_kernel_exec(unsigned long
+ 		pte->pte_high &= ~(1 << (_PAGE_BIT_NX - 32));
+ 	else
+ 		pte->pte_high |= 1 << (_PAGE_BIT_NX - 32);
++	pte_update_defer(&init_mm, vaddr, pte);
+ 	__flush_tlb_all();
+ out:
+ 	return ret;
 ===================================================================
---- a/arch/i386/kernel/nmi.c
-+++ b/arch/i386/kernel/nmi.c
-@@ -13,7 +13,6 @@
-  *  Mikael Pettersson	: PM converted to driver model. Disable/enable API.
-  */
- 
--#include <linux/config.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-===================================================================
---- a/arch/i386/lib/delay.c
-+++ b/arch/i386/lib/delay.c
-@@ -11,7 +11,6 @@
-  */
- 
- #include <linux/module.h>
--#include <linux/config.h>
- #include <linux/sched.h>
- #include <linux/delay.h>
- 
-===================================================================
---- a/include/asm-i386/dwarf2.h
-+++ b/include/asm-i386/dwarf2.h
-@@ -1,7 +1,5 @@
- #ifndef _DWARF2_H
- #define _DWARF2_H
--
--#include <linux/config.h>
- 
- #ifndef __ASSEMBLY__
- #warning "asm/dwarf2.h should be only included in pure assembly files"
-===================================================================
---- a/include/asm-i386/tsc.h
-+++ b/include/asm-i386/tsc.h
-@@ -6,7 +6,6 @@
- #ifndef _ASM_i386_TSC_H
- #define _ASM_i386_TSC_H
- 
--#include <linux/config.h>
- #include <asm/processor.h>
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -247,6 +247,23 @@ static inline pte_t pte_mkhuge(pte_t pte
+ #endif
  
  /*
-===================================================================
---- a/include/linux/unwind.h
-+++ b/include/linux/unwind.h
-@@ -11,8 +11,6 @@
-  * full-blown stack unwinding with all the bells and whistles, so there
-  * is not much point in implementing the full Dwarf2 unwind API.
-  */
--
--#include <linux/config.h>
++ * Rules for using pte_update - it must be called after any PTE update which
++ * has not been done using the set_pte / clear_pte interfaces.  It is used by
++ * shadow mode hypervisors to resynchronize the shadow page tables.  Kernel PTE
++ * updates should either be sets, clears, or set_pte_atomic for P->P
++ * transitions, which means this hook should only be called for user PTEs.
++ * This hook implies a P->P protection or access change has taken place, which
++ * requires a subsequent TLB flush.  The notification can optionally be delayed
++ * until the TLB flush event by using the pte_update_defer form of the
++ * interface, but care must be taken to assure that the flush happens while
++ * still holding the same page table lock so that the shadow and primary pages
++ * do not become out of sync on SMP.
++ */
++#define pte_update(mm, addr, ptep)		do { } while (0)
++#define pte_update_defer(mm, addr, ptep)	do { } while (0)
++
++
++/*
+  * We only update the dirty/accessed state if we set
+  * the dirty bit by hand in the kernel, since the hardware
+  * will do the accessed bit for us, and we don't want to
+@@ -258,6 +275,7 @@ do {									\
+ do {									\
+ 	if (dirty) {							\
+ 		(ptep)->pte_low = (entry).pte_low;			\
++		pte_update_defer((vma)->vm_mm, (addr), (ptep));		\
+ 		flush_tlb_page(vma, address);				\
+ 	}								\
+ } while (0)
+@@ -287,6 +305,7 @@ do {									\
+ 	__dirty = pte_dirty(*(ptep));					\
+ 	if (__dirty) {							\
+ 		clear_bit(_PAGE_BIT_DIRTY, &(ptep)->pte_low);		\
++		pte_update_defer((vma)->vm_mm, (addr), (ptep));		\
+ 		flush_tlb_page(vma, address);				\
+ 	}								\
+ 	__dirty;							\
+@@ -299,6 +318,7 @@ do {									\
+ 	__young = pte_young(*(ptep));					\
+ 	if (__young) {							\
+ 		clear_bit(_PAGE_BIT_ACCESSED, &(ptep)->pte_low);	\
++		pte_update_defer((vma)->vm_mm, (addr), (ptep));		\
+ 		flush_tlb_page(vma, address);				\
+ 	}								\
+ 	__young;							\
+@@ -321,6 +341,7 @@ static inline void ptep_set_wrprotect(st
+ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ {
+ 	clear_bit(_PAGE_BIT_RW, &ptep->pte_low);
++	pte_update(mm, addr, ptep);
+ }
  
- struct module;
- 
-===================================================================
---- a/include/linux/vmstat.h
-+++ b/include/linux/vmstat.h
-@@ -3,7 +3,6 @@
- 
- #include <linux/types.h>
- #include <linux/percpu.h>
--#include <linux/config.h>
- #include <linux/mmzone.h>
- #include <asm/atomic.h>
- 
+ /*

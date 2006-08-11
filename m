@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWHKAdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWHKAjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWHKAdj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Aug 2006 20:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWHKAdj
+	id S932386AbWHKAjH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Aug 2006 20:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWHKAjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Aug 2006 20:33:39 -0400
-Received: from mx1.suse.de ([195.135.220.2]:52682 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932336AbWHKAdi (ORCPT
+	Thu, 10 Aug 2006 20:39:06 -0400
+Received: from pat.uio.no ([129.240.10.4]:2451 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932382AbWHKAjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Aug 2006 20:33:38 -0400
-From: Neil Brown <neilb@suse.de>
-To: Willy Tarreau <w@1wt.eu>
-Date: Fri, 11 Aug 2006 10:33:32 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17627.53340.43470.60811@cse.unsw.edu.au>
-Cc: Xin Zhao <uszhaoxin@gmail.com>,
+	Thu, 10 Aug 2006 20:39:04 -0400
+Subject: Re: Urgent help needed on an NFS question, please help!!!
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Neil Brown <neilb@suse.de>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        linux-fsdevel@vger.kernel.org
-Subject: Re: What's the NFS OOM problem?
-In-Reply-To: message from Willy Tarreau on Thursday August 10
-References: <4ae3c140608081524u4666fb7x741734908c35cfe6@mail.gmail.com>
-	<20060810045711.GI8776@1wt.eu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+In-Reply-To: <4ae3c140608101528s69c50e2do554e0b908c2a1cf1@mail.gmail.com>
+References: <4ae3c140608092204n1c07152k52010a10e209bb77@mail.gmail.com>
+	 <17626.49136.384370.284757@cse.unsw.edu.au>
+	 <4ae3c140608092254k62dce9at2e8cdcc9ae7a6d9f@mail.gmail.com>
+	 <17626.52269.828274.831029@cse.unsw.edu.au>
+	 <4ae3c140608100815p57c0378kfd316a482738ee83@mail.gmail.com>
+	 <20060810161107.GC4379@parisc-linux.org>
+	 <4ae3c140608100923j1ffb5bb5qa776bff79365874c@mail.gmail.com>
+	 <1155230922.10547.61.camel@localhost>
+	 <4ae3c140608101102j3ec28dccob94d407b9879aa86@mail.gmail.com>
+	 <1155239982.5826.24.camel@localhost>
+	 <4ae3c140608101528s69c50e2do554e0b908c2a1cf1@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 10 Aug 2006 20:38:54 -0400
+Message-Id: <1155256734.5826.94.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-0.869, required 12,
+	autolearn=disabled, AWL -0.58, NIGERIAN_SUBJECT2 1.76,
+	PLING_PLING 0.43, RCVD_IN_XBL 2.51, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday August 10, w@1wt.eu wrote:
-> 
-> > Can someone help me and give me a brief description on OOM issue?
-> 
-> I don't know about any OOM issue related to NFS. At most it might happen
-> on the client (eg: stating firefox from an NFS root) which might not have
-> enough memory for new network buffers, but I don't even know if it's
-> possible at all.
+On Thu, 2006-08-10 at 18:28 -0400, Xin Zhao wrote:
+> Also, delegations are about caching. That's true. It improve NFS
+> performance because a client with a lease does not need to worry about
+> server change and can manipulate files using local cache.  But if
+> speculative execution can achieve the same goal without incurring the
+> cost of lease renewal and revoke, delegation becomes less useful.
 
-We've had reports of OOM problems with NFS at SuSE.
-The common factors seem to be lots of memory (6G+) and very large
-files. 
-Tuning down  /proc/sys/vm/dirty_*ratio seems to avoid the problem,
-but I'm not very close to understanding what the real problem is.
+What am I missing? AFAICS the main purpose of speculative execution
+would appear to be to reduce the latency of syscall execution on
+clients. That doesn't suffice to replace caching even by a long shot.
 
-NeilBrown
+Delegations are all about _not_ sending commands to the server when you
+don't need to. They make NFS scale to larger numbers of clients.
+
+> So my question is essentially: if speculative execution is there, why
+> do we still need delegation? Can delegation do anything better?
+
+Speculative execution is where? I see one academic paper detailing a
+couple of lab experiments, but no published code. Do you know of anyone
+who has reproduced these results in real life environments?
+
+I'm particularly curious to see how they resolved the requirement that
+"...speculative state should never be visible to the user or any
+external device.". The fact that they need to discuss having to roll
+back operations like "mkdir", which create (very) user-visible state on
+the server, is rather telling...
+
+   Trond
+

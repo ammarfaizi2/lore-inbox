@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWHLM7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWHLNOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWHLM7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 08:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWHLM7b
+	id S932104AbWHLNOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 09:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWHLNOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 08:59:31 -0400
-Received: from mail.gmx.net ([213.165.64.20]:32738 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964832AbWHLM7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 08:59:30 -0400
-X-Authenticated: #14349625
-Subject: [patch] Re: 2.6.18-rc3-mm2 - OOM storm
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Laurent Riffard <laurent.riffard@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060810021957.38c82311.akpm@osdl.org>
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-	 <44DAF6A4.9000004@free.fr>  <20060810021957.38c82311.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 12 Aug 2006 15:07:12 +0000
-Message-Id: <1155395232.5948.21.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sat, 12 Aug 2006 09:14:02 -0400
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:15260 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932505AbWHLNN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 09:13:56 -0400
+X-Sasl-enc: PVfwppdPU2hFlpBtOBCgrXQXAlUYI91kNh0+eealL5R/ 1155388434
+Message-ID: <44DDD432.8030302@imap.cc>
+Date: Sat, 12 Aug 2006 15:14:26 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.18-rc1: printk delays
+References: <6vtF8-99-7@gated-at.bofh.it>  <44AD9605.6000601@imap.cc>	 <1152229599.24656.175.camel@cog.beaverton.ibm.com>	 <44ADA84A.9000603@imap.cc> <1152233897.24656.179.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1152233897.24656.179.camel@cog.beaverton.ibm.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1D15D68CADEEEAAC7754B0B8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 02:19 -0700, Andrew Morton wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1D15D68CADEEEAAC7754B0B8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> It would be interesting to try disabling CONFIG_ADAPTIVE_READAHEAD -
-> perhaps that got broken.
+On Fri, 07 Jul 2006 17:06:09 +0200, john stultz wrote:
+> Hmmm. Just to make sure I understand the situation: If you log in via
+> ssh, and run dmesg, you do see your driver's output, but that output
+> just doesn't get to syslog until you press a key on your keyboard?
 
-A typo was pinning pagecache.  Fixes leak encountered with rpm -qaV.
+Exactly. And it's only the system keyboard which does it - neither mouse
+movements nor network traffic (like hitting keys in the ssh session) or
+other system activity (like compiling the kernel of the day) will do.
 
-Signed-off-by: Mike Galbraith <efault@gmx.de>
+FYI, the issue is still present in 2.6.18-rc4 and 2.6.18-rc3-mm2.
 
---- linux-2.6.18-rc3-mm2/mm/filemap.c.org	2006-08-12 14:04:14.000000000 +0000
-+++ linux-2.6.18-rc3-mm2/mm/filemap.c	2006-08-12 14:07:53.000000000 +0000
-@@ -1498,7 +1498,7 @@ retry_find:
- 			page_cache_readahead_adaptive(mapping, ra,
- 						file, NULL, NULL,
- 						pgoff, pgoff, pgoff + 1);
--			page = find_lock_page(mapping, pgoff);
-+			page = find_get_page(mapping, pgoff);
- 		} else if (PageReadahead(page)) {
- 			page_cache_readahead_adaptive(mapping, ra,
- 						file, NULL, page,
+Please let me know if you need more information or if you want me to
+test something.
+
+Thanks,
+Tilman
+
+--
+Tilman Schmidt                    E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
 
 
+--------------enig1D15D68CADEEEAAC7754B0B8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFE3dQ6MdB4Whm86/kRAmT2AJ9HTOrVosfAU+jvGR5L9xaaKcXUnQCcCPU/
+q+NaMhgpulc3CAwrvniv0IE=
+=e/yE
+-----END PGP SIGNATURE-----
+
+--------------enig1D15D68CADEEEAAC7754B0B8--

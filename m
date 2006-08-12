@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWHLKVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWHLKbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWHLKVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 06:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWHLKVG
+	id S932118AbWHLKbf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 06:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWHLKbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 06:21:06 -0400
-Received: from mail.gmx.net ([213.165.64.20]:7374 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932491AbWHLKVF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 06:21:05 -0400
-X-Authenticated: #14349625
-Subject: 2.6.18-rc3-mm2:  oops in device_bind_driver()
-From: Mike Galbraith <efault@gmx.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sat, 12 Aug 2006 12:28:46 +0000
-Message-Id: <1155385726.6151.6.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Sat, 12 Aug 2006 06:31:35 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:17284 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932118AbWHLKbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 06:31:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dQyTjDdqK+SKUjVSRTuirh4cosC4d6cs8yrCUwwLhT0auktdS4hPk3z0g5DEeiRuzjv1X2qBCUjKe9S4I+LkUMyH1aSU0VEvykAsKaGdEhsyUxIGNRx44grQmqObgrTxelDEJQZyLRhYhGB2jmBi3johxxI04UJRwhoNE5llruQ=
+Message-ID: <62b0912f0608120331k5f4131d1kce351db3de223aaf@mail.gmail.com>
+Date: Sat, 12 Aug 2006 12:31:33 +0200
+From: "Molle Bestefich" <molle.bestefich@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 corruption
+In-Reply-To: <62b0912f0608120154s1b158732y5da52b17583fdfa0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+References: <17627.23159.236724.190546@stoffel.org>
+	 <200608111326.k7BDQ7fp004102@laptop13.inf.utfsm.cl>
+	 <62b0912f0608120154s1b158732y5da52b17583fdfa0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Molle Bestefich wrote:
+> A solution to your example is to fix two of the three broken pieces of
+> software by splitting B into B1 and B2, and either A or C into their
+> components likewise:
+>
+> A1 --> B1 --> C --> B2 --> A2
+>
+>  -or-
+>
+> C1 --> B1 --> A --> B2 --> C2
 
-I'm hitting the oops below, though not on every boot.
-
-DEV: registering device: ID = 'dvb0'
-PM: Adding info for bttv-sub:dvb0
-saa7130/34: v4l2 driver version 0.2.14 loaded
-bus bttv-sub: add device dvb0
-bttv0: add subdevice "dvb0"
-BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c126e43f
-*pde = 00000000
-Oops: 0000 [#1]
-4K_STACKS PREEMPT SMP 
-last sysfs file: /class/input/input2/name
-Modules linked in: saa7134 bt878 ir_kbd_i2c bttv video_buf ir_common sd_mod i2c_i801 btcx_risc snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm tveeprom ohci1394 snd_timer snd_page_alloc prism54 snd_mpu401 ieee1394 snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore
-CPU:    1
-EIP:    0060:[<c126e43f>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.18-rc3-mm2-smp #169) 
-EIP is at device_bind_driver+0x49/0xd0
-eax: 00000000   ebx: c1fdb048   ecx: f8b4e268   edx: 00000000
-esi: c1fdb084   edi: f8b46db8   ebp: dfccef98   esp: dfccef80
-ds: 007b   es: 007b   ss: 0068
-Process probe-0000:02:0 (pid: 3623, ti=dfcce000 task=dff57030 task.ti=dfcce000)
-Stack: f8b46d80 dfccef98 c11de322 c1fdb048 00000000 f8b46db8 dfccefc4 c126e56d 
-       c146e438 c145210e f8b3c243 c1fdb114 c1fdb114 c1fa3740 fffffffc dfccbe8c 
-       c1fa3740 dfccefe4 c10361d6 c126e4c6 ffffffff ffffffff c10360f2 00000000 
-Call Trace:
- [<c126e56d>] really_probe+0xa7/0x10c
- [<c10361d6>] kthread+0xe4/0xe8
- [<c1001005>] kernel_thread_helper+0x5/0xb
-DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
-Leftover inexact backtrace:
- [<c1003f83>] show_stack_log_lvl+0xa6/0xcb
- [<c1004180>] show_registers+0x1d8/0x286
- [<c100437f>] die+0x151/0x333
- [<c10197f9>] do_page_fault+0x26b/0x51f
- [<c13e02c9>] error_code+0x39/0x40
- [<c126e56d>] really_probe+0xa7/0x10c
- [<c10361d6>] kthread+0xe4/0xe8
- [<c1001005>] kernel_thread_helper+0x5/0xb
-Code: 00 89 44 24 08 c7 44 24 04 ac 53 40 c1 c7 04 24 f0 e3 46 c1 e8 38 4b db ff 31 f6 89 f0 83 c4 0c 5b 5e 5f 5d c3 8b 83 14 01 00 00 <8b> 00 89 44 24 08 8d 83 cc 00 00 00 89 44 24 04 c7 04 24 10 e4 
-EIP: [<c126e43f>] device_bind_driver+0x49/0xd0 SS:ESP 0068:dfccef80
-
-
+To clarify, by the above I didn't necessarily mean "split one process
+into two processes".  A kernel API where you can wait for a named
+object or a subsystem to complete it's startup / shutdown would be
+just as well.  Or simply waiting on (dis-)appearance of named files in
+a dedicated directory named "boot_sequence" in sysfs, would be another
+equally fine way to accomplish above scheme.

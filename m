@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWHLSJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWHLSQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWHLSJa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 14:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWHLSJa
+	id S932466AbWHLSQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 14:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWHLSQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 14:09:30 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:5779 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030230AbWHLSJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 14:09:29 -0400
-Subject: Re: [RFC][PATCH 3/4] deadlock prevention core
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Indan Zupancic <indan@nul.nu>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <40048.81.207.0.53.1155405282.squirrel@81.207.0.53>
-References: <20060812141415.30842.78695.sendpatchset@lappy>
-	 <20060812141445.30842.47336.sendpatchset@lappy>
-	 <44640.81.207.0.53.1155403862.squirrel@81.207.0.53>
-	 <1155404697.13508.81.camel@lappy>
-	 <40048.81.207.0.53.1155405282.squirrel@81.207.0.53>
-Content-Type: text/plain
-Date: Sat, 12 Aug 2006 20:08:40 +0200
-Message-Id: <1155406120.13508.87.camel@lappy>
+	Sat, 12 Aug 2006 14:16:07 -0400
+Received: from miranda.se.axis.com ([193.13.178.8]:42701 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S932198AbWHLSQF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 14:16:05 -0400
+Date: Sat, 12 Aug 2006 20:16:03 +0200
+From: "Edgar E. Iglesias" <edgar.iglesias@axis.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc3-mm2 (+ hotfixes): GPF related to skge on suspend
+Message-ID: <20060812181603.GA31106@edgar.underground.se.axis.com>
+References: <200608121207.42268.rjw@sisk.pl> <200608121631.18603.rjw@sisk.pl> <20060812161253.GA30691@edgar.underground.se.axis.com> <200608121913.01139.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608121913.01139.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 19:54 +0200, Indan Zupancic wrote:
-> On Sat, August 12, 2006 19:44, Peter Zijlstra said:
-> > Euhm, right :-) long comes naturaly when I think about quantities op
-> > pages. The adjust_memalloc_reserve() argument is an increment, a delta;
-> > perhaps I should change that to long.
-> 
-> Maybe, but having 16 TB of reserved memory seems plenty for a while.
+On Sat, Aug 12, 2006 at 07:13:01PM +0200, Rafael J. Wysocki wrote:
+> Apparently it doesn't.
 
-Oh, for sure, but since it doesn't really matter all that much, I'd
-rather go for proper.
+Hi, could you try and see if this helps?
 
-> > Having them separate would allow ajust_memalloc_reserve() to be used by
-> > other callers too (would need some extra locking).
-> 
-> True, but currently memalloc_reserve isn't used in a sensible way,
-> or I'm missing something.
+Best regards
+-- 
+        Programmer
+        Edgar E. Iglesias <edgar.iglesias@axis.com> 46.46.272.1946
 
-Well, I'm somewhat reluctant to stick network related code into mm/, it
-seems well separated now.
+Signed-off-by: Edgar E. Iglesias <edgar.iglesias@axis.com>
 
+diff --git a/drivers/net/skge.c b/drivers/net/skge.c
+index 7de9a07..accefab 100644
+--- a/drivers/net/skge.c
++++ b/drivers/net/skge.c
+@@ -2211,6 +2211,7 @@ static int skge_up(struct net_device *de
+ 	skge_write8(hw, Q_ADDR(rxqaddr[port], Q_CSR), CSR_START | CSR_IRQ_CL_F);
+ 	skge_led(skge, LED_MODE_ON);
+ 
++	netif_poll_enable(dev);
+ 	return 0;
+ 
+  free_rx_ring:
+@@ -2279,6 +2280,7 @@ static int skge_down(struct net_device *
+ 
+ 	skge_led(skge, LED_MODE_OFF);
+ 
++	netif_poll_disable(dev);	
+ 	skge_tx_clean(skge);
+ 	skge_rx_clean(skge);
+ 
 

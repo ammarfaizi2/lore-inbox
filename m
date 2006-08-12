@@ -1,105 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWHLUCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWHLUGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932591AbWHLUCr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 16:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWHLUCr
+	id S964952AbWHLUGG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 16:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWHLUGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 16:02:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64421 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932591AbWHLUCq (ORCPT
+	Sat, 12 Aug 2006 16:06:06 -0400
+Received: from helium.samage.net ([83.149.67.129]:5025 "EHLO helium.samage.net")
+	by vger.kernel.org with ESMTP id S964949AbWHLUGE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 16:02:46 -0400
-Date: Sat, 12 Aug 2006 13:02:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Kobras <kobras@linux.de>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dm: Fix deadlock under high i/o load in raid1 setup.
-Message-Id: <20060812130228.f7954b5f.akpm@osdl.org>
-In-Reply-To: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de>
-References: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Sat, 12 Aug 2006 16:06:04 -0400
+Message-ID: <46805.81.207.0.53.1155413148.squirrel@81.207.0.53>
+In-Reply-To: <1155408846.13508.115.camel@lappy>
+References: <20060812141415.30842.78695.sendpatchset@lappy> 
+    <33471.81.207.0.53.1155401489.squirrel@81.207.0.53> 
+    <1155404014.13508.72.camel@lappy> 
+    <47227.81.207.0.53.1155406611.squirrel@81.207.0.53>
+    <1155408846.13508.115.camel@lappy>
+Date: Sat, 12 Aug 2006 22:05:48 +0200 (CEST)
+Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
+From: "Indan Zupancic" <indan@nul.nu>
+To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       "Daniel Phillips" <phillips@google.com>,
+       "Rik van Riel" <riel@redhat.com>, "David Miller" <davem@davemloft.net>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Aug 2006 18:44:21 +0200
-Daniel Kobras <kobras@linux.de> wrote:
+On Sat, August 12, 2006 20:54, Peter Zijlstra said:
+>  - single allocation group per packet - that is, when I free a packet
+> and all its associated object I get my memory back.
 
-> Implement private fallback if immediate allocation from mempool fails.
-> Standard mempool_alloc() fallback can yield a deadlock when only the
-> calling process is able to refill the pool. In out-of-memory situations,
-> instead of waiting for itself, kmirrord now waits for someone else to
-> free some space, using a standard blocking allocation.
-> 
-> Signed-off-by: Daniel Kobras <kobras@linux.de>
-> ---
-> [Resending with Cc to l-k. First attempt apparently hasn't made it through to 
-> dm-devel.]
-> 
-> Hi!
-> 
-> On an nForce4-equipped machine with two SATA disk in raid1 setup using
-> dmraid, we experienced frequent deadlock of the system under high i/o
-> load. 'cat /dev/zero > ~/zero' was the most reliable way to reproduce
-> them: Randomly after a few GB, 'cp' would be left in 'D' state along
-> with kjournald and kmirrord. The functions cp and kjournald were blocked
-> in did vary, but kmirrord's wchan always pointed to 'mempool_alloc()'.
-> We've seen this pattern on 2.6.15 and 2.6.17 kernels.
-> http://lkml.org/lkml/2005/4/20/142 indicates that this problem has been
-> around even before.
-> 
-> So much for the facts, here's my interpretation: mempool_alloc() first
-> tries to atomically allocate the requested memory, or falls back to hand
-> out preallocated chunks from the mempool. If both fail, it puts the
-> calling process (kmirrord in this case) on a private waitqueue until
-> somebody refills the pool. Where the only 'somebody' is kmirrord itself,
-> so we have a deadlock.
+This is easy.
 
-Right.  That's a design error in DM.  mempools are only supposed to be used
-in situations where we *know* that if we wait for a bit, some elements will
-be returned to the pool.  Obviously, if the only thread in the machine
-which can release elements is the one which is waiting for thse elements,
-we die.
+>  - not waste too much space managing the various objects
 
-> I worked around this problem by falling back to a (blocking) kmalloc
-> when before kmirrord would have ended up on the waitqueue. This defeats
-> part of the benefits of using the mempool, but at least keeps the system
-> running. And it could be done with a two-line change. Note that
-> mempool_alloc() clears the GFP_NOIO flag internally, and only uses it to
-> decide whether to wait or return an error if immediate allocation fails,
-> so the attached patch doesn't change behaviour in the non-deadlocking case.
-> Path is against current git (2.6.18-rc4), but should apply to earlier
-> versions as well. I've tested on 2.6.15, where this patch makes the
-> difference between random lockup and a stable system.
-> 
-> Regards,
-> 
-> Daniel.
-> 
-> diff -r dcc321d1340a -r d52bb3a14d60 drivers/md/dm-raid1.c
-> --- a/drivers/md/dm-raid1.c	Sun Aug 06 19:00:05 2006 +0000
-> +++ b/drivers/md/dm-raid1.c	Mon Aug 07 23:16:44 2006 +0200
-> @@ -255,7 +255,9 @@ static struct region *__rh_alloc(struct 
->  	struct region *reg, *nreg;
->  
->  	read_unlock(&rh->hash_lock);
-> -	nreg = mempool_alloc(rh->region_pool, GFP_NOIO);
-> +	nreg = mempool_alloc(rh->region_pool, GFP_ATOMIC);
-> +	if (unlikely(!nreg))
-> +		nreg = kmalloc(sizeof(struct region), GFP_NOIO);
->  	nreg->state = rh->log->type->in_sync(rh->log, region, 1) ?
->  		RH_CLEAN : RH_NOSYNC;
->  	nreg->rh = rh;
+This too, when ignoring clones and COW.
 
-Yes, that'll fix it.  It's rather nasty to be allocating elements with
-kmalloc and then sending them back with mempool_free().  But it'll work.
+> skb operations want to allocate various sk_buffs for the same data
+> clones. Also, it wants to be able to break the COW or realloc the data.
 
-Alasdair, I'd say that this is a 2.6.18 fix and a 2.6.17.x backport.
+So this seems to be what adds all the complexity.
 
-A longer-term fix might be to stop using mempools in there, just use
-kmalloc.  Or move the mempool_free()ing out of kmorrord context and into
-IO-completion context, perhaps.
+> So I tried manual packing (parts of that you have seen in previous
+> attempts). This gets hard when you want to do unlimited clones and COW
+> breaks. To do either you need to go link several pages.
+
+It gets messy quite quickly, yes.
+
+> So needing a list of pages and wanting packing gave me SROG. The biggest
+> wart is having to deal with higher order pages. Explicitly coding in
+> knowledge of the object you're packing just makes the code bigger - such
+> is the power of abstraction.
+
+I assume you meant "Not explicitly coding in", or else I'm tempted to disagree.
+Abstraction that has only one user which uses it in one way only adds bloat.
+But looking at the code a bit more I'm afraid you're right.
+
+Greetings,
+
+Indan
 
 

@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWHLUPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWHLUX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422652AbWHLUPF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 16:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWHLUPF
+	id S1422656AbWHLUX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 16:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbWHLUX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 16:15:05 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:3343 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932593AbWHLUPE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 16:15:04 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Daniel <damage@rooties.de>
-Subject: Re: debug prism wlan
-Date: Sat, 12 Aug 2006 21:15:08 +0100
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <200608122140.44365.damage@rooties.de>
-In-Reply-To: <200608122140.44365.damage@rooties.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 12 Aug 2006 16:23:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57478 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422656AbWHLUX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 16:23:26 -0400
+Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thomas Koeller <thomas.koeller@baslerweb.com>
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
+       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
+In-Reply-To: <200608121945.52202.thomas.koeller@baslerweb.com>
+References: <200608102319.13679.thomas@koeller.dyndns.org>
+	 <1155326835.24077.116.camel@localhost.localdomain>
+	 <200608121945.52202.thomas.koeller@baslerweb.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608122115.08419.s0348365@sms.ed.ac.uk>
+Date: Sat, 12 Aug 2006 21:43:41 +0100
+Message-Id: <1155415422.24077.131.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 August 2006 22:40, Daniel wrote:
-> Hi,
-> my wlan gives up working somewhere between upgrading to gcc-4.1, changing
-> some kernel options and upgrading to linux-2.8.16-r4.
+Ar Sad, 2006-08-12 am 19:45 +0200, ysgrifennodd Thomas Koeller:
+> On Friday 11 August 2006 22:07, Alan Cox wrote:
+> > Also if this is a software watchdog why is it better than using
+> > softdog ?
+> >
+> 
+> This is _not_ a software watchdog. If the timer expires, an interrupt
+> is generated, and the timer is reset to count through another cycle.
+> If it expires again, it resets the CPU.
 
-Hi Daniel,
+Ok thanks, then it does make sense for it to be in kernel.
 
-Which driver does this card use? There's a couple Prism 1/2/2.5 802.11b 
-drivers and a Prism54 driver for 802.11g cards. Any ideas?
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

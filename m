@@ -1,80 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWHLPf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWHLPmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbWHLPf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 11:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWHLPf0
+	id S932551AbWHLPmU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 11:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbWHLPmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 11:35:26 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:49703 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932510AbWHLPfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 11:35:25 -0400
-Subject: Re: rename *MEMALLOC flags (was: Re: [RFC][PATCH 3/4] deadlock 
-	prevention core)
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Indan Zupancic <indan@nul.nu>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <33037.81.207.0.53.1155396500.squirrel@81.207.0.53>
-References: <20060812141415.30842.78695.sendpatchset@lappy>
-	 <20060812141445.30842.47336.sendpatchset@lappy>
-	 <44DDE8B6.8000900@garzik.org> <1155395201.13508.44.camel@lappy>
-	 <33037.81.207.0.53.1155396500.squirrel@81.207.0.53>
-Content-Type: text/plain
-Date: Sat, 12 Aug 2006 17:34:36 +0200
-Message-Id: <1155396877.13508.58.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Aug 2006 11:42:20 -0400
+Received: from smtp8.libero.it ([193.70.192.92]:913 "EHLO smtp8.libero.it")
+	by vger.kernel.org with ESMTP id S932551AbWHLPmT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 11:42:19 -0400
+From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
+To: "LKML" <linux-kernel@vger.kernel.org>
+Subject: R: remapping IP addresses for inbound and outbound traffic
+Date: Sat, 12 Aug 2006 17:42:20 +0200
+Message-ID: <NBBBIHMOBLOHKCGIMJMDOEBFFMAA.g.tomassoni@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-reply-to: <LKML-nat-0.qq@inCTV.ru>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Importance: Normal
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 17:28 +0200, Indan Zupancic wrote:
-> On Sat, August 12, 2006 17:06, Peter Zijlstra said:
-> > On Sat, 2006-08-12 at 10:41 -0400, Jeff Garzik wrote:
-> >> Peter Zijlstra wrote:
-> >> > Index: linux-2.6/include/linux/gfp.h
-> >> > ===================================================================
-> >> > --- linux-2.6.orig/include/linux/gfp.h	2006-08-12 12:56:06.000000000 +0200
-> >> > +++ linux-2.6/include/linux/gfp.h	2006-08-12 12:56:09.000000000 +0200
-> >> > @@ -46,6 +46,7 @@ struct vm_area_struct;
-> >> >  #define __GFP_ZERO	((__force gfp_t)0x8000u)/* Return zeroed page on success */
-> >> >  #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
-> >> >  #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs
-> >> */
-> >> > +#define __GFP_MEMALLOC  ((__force gfp_t)0x40000u) /* Use emergency reserves */
-> >>
-> >> This symbol name has nothing to do with its purpose.  The entire area of
-> >> code you are modifying could be described as having something to do with
-> >> 'memalloc'.
-> >>
-> >> GFP_EMERGENCY or GFP_USE_RESERVES or somesuch would be a far better
-> >> symbol name.
-> >>
-> >> I recognize that is matches with GFP_NOMEMALLOC, but that doesn't change
-> >> the situation anyway.  In fact, a cleanup patch to rename GFP_NOMEMALLOC
-> >> would be nice.
-> >
-> > I'm rather bad at picking names, but here goes:
-> >
-> > PF_MEMALLOC      -> PF_EMERGALLOC
-> > __GFP_NOMEMALLOC -> __GFP_NOEMERGALLOC
-> > __GFP_MEMALLOC   -> __GFP_EMERGALLOC
-    SOCK_MEMALLOC    -> SOCK_EMERGALLOC
-> >
-> > Is that suitable and shall I prepare patches? Or do we want more ppl to
-> > chime in and have a few more rounds?
+I guess you can't do this, since a believe there is a single linux arp table. It is not per-interface.
+
+If you had hosts with unique IPs on both nets, that would be another story: you could use some sort of VPN or Bridge functionality. You could also be able to avoid packets passing through the bridged/VPNed interfaces thanks to iptables.
+
+Cheers,
+
+Giampaolo
+
+> -----Messaggio originale-----
+> Da: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]Per conto di Innocenti
+> Maresin
+> Inviato: sabato 12 agosto 2006 17.09
+> A: LKML
+> Oggetto: Q: remapping IP addresses for inbound and outbound traffic
 > 
-> Pardon my ignorance, but if we're doing cleanup anyway, why not use only one flag instead of two?
-> Why is __GFP_NOMEMALLOC needed when not setting __GFP_MEMALLOC could mean the same? Or else what
-> is the expected behaviour if both flags are set?
-
-__GFP_NOMEMALLOC is most authorative; its use is (afaik) to negate
-PF_MEMALLOC.
-
-I agree that having both seems odd, but I haven't spend any significant
-time on trying to find a 'nicer' solution.
+> 
+> Hello! 
+> 
+> Let one Linux box have two interfaces to IPv4 networks, 
+> and for some IP both networks have the host with this IP address, 
+> e.g. from RFC1918. 
+> Or even both use the same IPv4 address block. 
+> We can say that one IP from the first network 
+> and numerically the same IP from the second "means" different hosts. 
+> 
+> The software of this box needs to connect all hosts in both networks, 
+> and also to receive inbound TCP connections. 
+> The evident way is to "remap" overlapping IPv4 area of one network 
+> to some "place" not used neither in it nor in other. 
+> This means that, when we receive a packet from remapped area, 
+> the kernel should replace the source IP to an "internal representaion". 
+> Versa, sending something to "internally represented" IP 
+> the kernel should replace such IP by its external value. 
+> I clarify these terms so carefully because in 
+> news:comp.os.linux.networking 
+> some people state that I "use terms in strange ways" :) 
+> 
+> The question is: how to do it? 
+> Please, don't say quicky "iproute2" and "RTFM". 
+> Iproute2 can do such things when *forwarding* packets. 
+> I need no forwarding at all, no *connection* between 2 networks. 
+> I need only to *serve* both networks, 
+> such that some "external" IPs need to be replaced by internally 
+> used IP and versa. 
+> All this at one Linux box.
+> No forwarding traffic. Only inbound and outbound. 
+> 
+> So, suppose that I try to use FastNAT/iproute2 on Linux 2.4, 
+> a "dummy NAT address" is an "internally represented" in my terms, 
+> and "via" address (in iproute2 terms) is my "external". 
+> Then, by iproute2 idiots' design, I can't locally send packet 
+> to so named "dummy NAT address". 
+> I even can't use connect() on it, the kernel says "Invalid argument". 
+> So, I really can't use my "internal addresses". 
+> 
+> Ipfilter also cannot solve this problem. 
+> There is no means to translate inbound packets' source address 
+> (there is no INPUT chain in -t nat and PREROUTING can't do SNAT), 
+> but services need to see packets as coming from internally 
+> represented IP. 
+> 
+> 
+> There is some more or less trivial ideas:
+> 
+> * Use IPv6 (IMHO it's possible, but I seek yet for simpler solution);
+> 
+> * Use extra hardware - I am not willing to do so for many reasons;
+> 
+> * Read docs more carefully ;) - I read relevant ip-cref sections, 
+>  but FastNAT feature is poorly documented in this Kuznetsov's paper, 
+>  many anothers docs cite Kuznetsov and generally give even less details;
+> 
+> * Modify the kernel sources - Of course, I will, 
+>  but it's not evident for me that the trouble caused by some few errors, 
+>  I'm not sure that kernel may use a "dummy NAT address" 
+>  as destination of locally generated packets without major changes.
+> 
+> 
+> Maybe, somebody knows about "non-official" kernel patches?
+> 
+> P.S. please send me Cc when replying to this message.
+> 
+> 
+> -- 
+> 
+> qq~~~~\
+> / /\   \
+> \  /_/ /
+>  \____/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

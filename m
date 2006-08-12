@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWHLWPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWHLWRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWHLWPo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 18:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWHLWPo
+	id S964960AbWHLWRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 18:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWHLWRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 18:15:44 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:57489 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964913AbWHLWPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 18:15:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=qhsmzidQOaOlncm23hsk/pg1FAQ2muIB3uW2ElgKxwPQB/UgckuTjL52opsnKxCoRbMnJWE1dZo4wWEe+Rev6g3GhAAeGplHn3+0zKbl/VN7PdKjxYd2JFVESFd3Xx/5AxTBN3yi34G3B9V/sah1gO1mQrG+0h8Hizv5Msqu0tE=
-From: Jesper Juhl <jesper.juhl@gmail.com>
+	Sat, 12 Aug 2006 18:17:16 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:59406 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964956AbWHLWRP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 18:17:15 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] XFS: remove pointless conditional testing 'nmp' vs NULL in fs/xfs/xfs_rtalloc.c::xfs_growfs_rt()
-Date: Sun, 13 Aug 2006 00:16:50 +0200
-User-Agent: KMail/1.9.4
-Cc: xfs-masters@oss.sgi.com, xfs@oss.sgi.com, nathans@sgi.com,
-       Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Neil Brown <neilb@suse.de>, netdev@vger.kernel.org
+Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
+References: <87zme9fy94.fsf@hades.wkstn.nix>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: freely redistributable; void where prohibited by law.
+Date: Sat, 12 Aug 2006 23:17:11 +0100
+In-Reply-To: <87zme9fy94.fsf@hades.wkstn.nix> (nix@esperi.org.uk's message of "12 Aug 2006 22:21:26 +0100")
+Message-ID: <87d5b5vbtk.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608130016.51136.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In fs/xfs/xfs_rtalloc.c::xfs_growfs_rt() there's a completely useless
-conditional at the error_exit label.
-The 'if (nmp)' check is pointless and might as well be removed for two 
-reasons.
-1) if 'nmp' is NULL then kmem_free() will end up calling kfree() with a NULL
-   argument - which in turn will just cause a return from kfree(). No harm 
-   done.
-2) At the beginning of the function there's an assignment; '*nmp = *mp;' so
-   if 'nmp' was NULL we'd already have blown up due to dereferencing a NULL 
-   pointer.
+On 12 Aug 2006, nix@esperi.org.uk mused:
+> Then the build froze. I couldn't very well ignore *that*. Perhaps I
+> couldn't blame XEmacs after all.
 
-This patch gets rid of the pointless check.
+It just happened again. It's reproducibly triggered, at least on this
+system, by the ocaml-3.09.02 configure script running over NFS (probably
+NFS over UDP is necessary as well).
 
+In theory I could now use this to minimise the problem, but the sheer
+number of reboots this is likely to need is dissuading me: I'll put it
+off until someone actually wants such a minimal crash case :)
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- fs/xfs/xfs_rtalloc.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
---- linux-2.6.18-rc4-orig/fs/xfs/xfs_rtalloc.c	2006-08-11 00:11:13.000000000 +0200
-+++ linux-2.6.18-rc4/fs/xfs/xfs_rtalloc.c	2006-08-13 00:07:43.000000000 +0200
-@@ -2107,8 +2107,7 @@ xfs_growfs_rt(
- 	 * Error paths come here.
- 	 */
- error_exit:
--	if (nmp)
--		kmem_free(nmp, sizeof(*nmp));
-+	kmem_free(nmp, sizeof(*nmp));
- 	xfs_trans_cancel(tp, cancelflags);
- 	return error;
- }
-
-
+-- 
+`We're sysadmins. We deal with the inconceivable so often I can clearly 
+ see the need to define levels of inconceivability.' --- Rik Steenwinkel

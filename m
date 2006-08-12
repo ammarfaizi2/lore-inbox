@@ -1,53 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWHLAHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWHLARc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWHLAHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 20:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWHLAHP
+	id S932436AbWHLARc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 20:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWHLARc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 20:07:15 -0400
-Received: from main.gmane.org ([80.91.229.2]:59858 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964788AbWHLAHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 20:07:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
-Date: Sat, 12 Aug 2006 00:06:53 +0200
-Organization: Palacky University in Olomouc
-Message-ID: <44DCFF7D.8020307@flower.upol.cz>
-References: <200608102319.13679.thomas@koeller.dyndns.org> <20060811205639.GK26930@redhat.com> <200608120149.23380.thomas@koeller.dyndns.org>
+	Fri, 11 Aug 2006 20:17:32 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:40164 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932436AbWHLARb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Aug 2006 20:17:31 -0400
+Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <20060811162124.66895682.akpm@osdl.org>
+References: <1155334308.7574.50.camel@localhost.localdomain>
+	 <1155335237.3552.48.camel@mulgrave.il.steeleye.com>
+	 <1155335506.7574.54.camel@localhost.localdomain>
+	 <1155336653.3552.54.camel@mulgrave.il.steeleye.com>
+	 <1155337603.7574.61.camel@localhost.localdomain>
+	 <20060811162124.66895682.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 11 Aug 2006 17:17:15 -0700
+Message-Id: <1155341835.7574.76.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: linux-mips@oss.sgi.com
-X-Gmane-NNTP-Posting-Host: 158.194.192.40
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <200608120149.23380.thomas@koeller.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Koeller wrote:
-> On Friday 11 August 2006 22:56, Dave Jones wrote:
-> 
->>On Thu, Aug 10, 2006 at 11:19:13PM +0200, thomas@koeller.dyndns.org wrote:
->> > This is a driver for the on-chip watchdog device found on some
->> > MIPS RM9000 processors.
->> >
->> > Signed-off-by: Thomas Koeller <thomas.koeller@baslerweb.com>
->>
->>Mostly same nit-picking comments as your other driver..
-> 
-> 
-> Which one?
->
-<http://permalink.gmane.org/gmane.linux.ports.mips.general/13500>
+Well, I have a new culprit of the hour:
 
---
--o--=O`C
-  #oo'L O
-<___=E M
+	gregkh-pci-pci-use-pci_bios-as-last-fallback
+
+There was a previous patch that messed up a few of my machines and this
+same driver a few months ago, which accounts for my sense of deja vu:
+
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/broken-out/gregkh-pci-pci-give-pci-config-access-initialization-a-defined-ordering.patch
+
+There was an off-list thread called 
+
+	"PCI device issue in 2.6.16-rc3-mm1 through 2.6.16-rc6-mm1"
+
+Anyway, here's the information from the syslog at boot in a working
+system (without the patch applied):
+
+PCI: PCI BIOS revision 2.10 entry at 0xfd32c, last bus=8
+Setting up standard PCI resources
+SCSI subsystem initialized
+PCI: Probing PCI hardware
+PCI: Discovered peer bus 02
+PCI: Firmware left 0000:02:05.0 e100 interrupts enabled, disabling
+PCI: Discovered peer bus 05
+PCI->APIC IRQ transform: 0000:00:05.0[A] -> IRQ 16
+PCI->APIC IRQ transform: 0000:00:0f.2[A] -> IRQ 19
+PCI->APIC IRQ transform: 0000:02:01.0[A] -> IRQ 17
+PCI->APIC IRQ transform: 0000:02:01.1[B] -> IRQ 18
+PCI->APIC IRQ transform: 0000:02:05.0[A] -> IRQ 24
+PCI->APIC IRQ transform: 0000:05:02.0[A] -> IRQ 21
+PCI->APIC IRQ transform: 0000:05:02.1[B] -> IRQ 26
+PCI->APIC IRQ transform: 0000:06:04.0[A] -> IRQ 22
+PCI->APIC IRQ transform: 0000:06:05.0[A] -> IRQ 27
+PCI->APIC IRQ transform: 0000:06:06.0[A] -> IRQ 28
+PCI->APIC IRQ transform: 0000:06:07.0[A] -> IRQ 29
+PCI: Bridge: 0000:05:03.0
+  IO window: 7000-7fff
+  MEM window: eb000000-ec1fffff
+  PREFETCH window: ea300000-ea3fffff
+
+And the same thing in a system where it can't find my SCSI card (with
+the patch applied):
+
+PCI: Using configuration type 1
+Setting up standard PCI resources
+SCSI subsystem initialized
+PCI: Probing PCI hardware
+PCI->APIC IRQ transform: 0000:00:05.0[A] -> IRQ 16
+PCI->APIC IRQ transform: 0000:00:0f.2[A] -> IRQ 19
+
+
+-- Dave
 

@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWHLUGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWHLUPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbWHLUGG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 16:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWHLUGG
+	id S1422652AbWHLUPF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 16:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWHLUPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 16:06:06 -0400
-Received: from helium.samage.net ([83.149.67.129]:5025 "EHLO helium.samage.net")
-	by vger.kernel.org with ESMTP id S964949AbWHLUGE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 16:06:04 -0400
-Message-ID: <46805.81.207.0.53.1155413148.squirrel@81.207.0.53>
-In-Reply-To: <1155408846.13508.115.camel@lappy>
-References: <20060812141415.30842.78695.sendpatchset@lappy> 
-    <33471.81.207.0.53.1155401489.squirrel@81.207.0.53> 
-    <1155404014.13508.72.camel@lappy> 
-    <47227.81.207.0.53.1155406611.squirrel@81.207.0.53>
-    <1155408846.13508.115.camel@lappy>
-Date: Sat, 12 Aug 2006 22:05:48 +0200 (CEST)
-Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
-From: "Indan Zupancic" <indan@nul.nu>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
-       "Daniel Phillips" <phillips@google.com>,
-       "Rik van Riel" <riel@redhat.com>, "David Miller" <davem@davemloft.net>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Sat, 12 Aug 2006 16:15:05 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:3343 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932593AbWHLUPE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 16:15:04 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Daniel <damage@rooties.de>
+Subject: Re: debug prism wlan
+Date: Sat, 12 Aug 2006 21:15:08 +0100
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <200608122140.44365.damage@rooties.de>
+In-Reply-To: <200608122140.44365.damage@rooties.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608122115.08419.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, August 12, 2006 20:54, Peter Zijlstra said:
->  - single allocation group per packet - that is, when I free a packet
-> and all its associated object I get my memory back.
+On Saturday 12 August 2006 22:40, Daniel wrote:
+> Hi,
+> my wlan gives up working somewhere between upgrading to gcc-4.1, changing
+> some kernel options and upgrading to linux-2.8.16-r4.
 
-This is easy.
+Hi Daniel,
 
->  - not waste too much space managing the various objects
+Which driver does this card use? There's a couple Prism 1/2/2.5 802.11b 
+drivers and a Prism54 driver for 802.11g cards. Any ideas?
 
-This too, when ignoring clones and COW.
+-- 
+Cheers,
+Alistair.
 
-> skb operations want to allocate various sk_buffs for the same data
-> clones. Also, it wants to be able to break the COW or realloc the data.
-
-So this seems to be what adds all the complexity.
-
-> So I tried manual packing (parts of that you have seen in previous
-> attempts). This gets hard when you want to do unlimited clones and COW
-> breaks. To do either you need to go link several pages.
-
-It gets messy quite quickly, yes.
-
-> So needing a list of pages and wanting packing gave me SROG. The biggest
-> wart is having to deal with higher order pages. Explicitly coding in
-> knowledge of the object you're packing just makes the code bigger - such
-> is the power of abstraction.
-
-I assume you meant "Not explicitly coding in", or else I'm tempted to disagree.
-Abstraction that has only one user which uses it in one way only adds bloat.
-But looking at the code a bit more I'm afraid you're right.
-
-Greetings,
-
-Indan
-
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

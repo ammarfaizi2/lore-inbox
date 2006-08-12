@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWHLRqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWHLRp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWHLRqI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 13:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWHLRqI
+	id S1030216AbWHLRp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 13:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWHLRp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 13:46:08 -0400
-Received: from mail04.hansenet.de ([213.191.73.12]:32152 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP
-	id S1030240AbWHLRqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 13:46:06 -0400
-From: Thomas Koeller <thomas.koeller@baslerweb.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
-Date: Sat, 12 Aug 2006 19:45:52 +0200
-User-Agent: KMail/1.9.3
-Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
-       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
-References: <200608102319.13679.thomas@koeller.dyndns.org> <1155326835.24077.116.camel@localhost.localdomain>
-In-Reply-To: <1155326835.24077.116.camel@localhost.localdomain>
-Organization: Basler AG
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sat, 12 Aug 2006 13:45:58 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:46502 "EHLO
+	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
+	id S964919AbWHLRp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 13:45:57 -0400
+Subject: Re: [RFC][PATCH 3/4] deadlock prevention core
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Indan Zupancic <indan@nul.nu>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
+       David Miller <davem@davemloft.net>
+In-Reply-To: <44640.81.207.0.53.1155403862.squirrel@81.207.0.53>
+References: <20060812141415.30842.78695.sendpatchset@lappy>
+	 <20060812141445.30842.47336.sendpatchset@lappy>
+	 <44640.81.207.0.53.1155403862.squirrel@81.207.0.53>
+Content-Type: text/plain
+Date: Sat, 12 Aug 2006 19:44:56 +0200
+Message-Id: <1155404697.13508.81.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608121945.52202.thomas.koeller@baslerweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 August 2006 22:07, Alan Cox wrote:
-> Also if this is a software watchdog why is it better than using
-> softdog ?
->
+On Sat, 2006-08-12 at 19:31 +0200, Indan Zupancic wrote:
+> On Sat, August 12, 2006 16:14, Peter Zijlstra said:
+> > +struct sk_buff *__alloc_skb(unsigned int size, gfp_t gfp_mask, int fclone)
+> > +{
+> > +	struct sk_buff *skb;
+> > +
+> > +	skb = ___alloc_skb(size, gfp_mask & ~__GFP_MEMALLOC, fclone);
+> > +
+> > +	if (!skb && (gfp_mask & __GFP_MEMALLOC) && memalloc_skbs_available())
+> > +		skb = ___alloc_skb(size, gfp_mask, fclone);
+> > +
+> > +	return skb;
+> > +}
+> > +
+> 
+> I'd drop the memalloc_skbs_available() check, as that's already done by
+> ___alloc_skb.
 
-This is _not_ a software watchdog. If the timer expires, an interrupt
-is generated, and the timer is reset to count through another cycle.
-If it expires again, it resets the CPU.
+Right, thanks. Hmm, its the last occurence of that function, even
+better.
 
-Thomas
+> > +static DEFINE_SPINLOCK(memalloc_lock);
+> > +static int memalloc_socks;
+> > +static unsigned long memalloc_reserve;
+> 
+> Why is this a long? adjust_memalloc_reserve() takes an int.
 
--- 
-Thomas Koeller, Software Development
+Euhm, right :-) long comes naturaly when I think about quantities op
+pages. The adjust_memalloc_reserve() argument is an increment, a delta;
+perhaps I should change that to long.
 
-Basler Vision Technologies
-An der Strusbek 60-62
-22926 Ahrensburg
-Germany
+> Is it needed at all, considering var_free_kbytes already exists?
 
-Tel +49 (4102) 463-390
-Fax +49 (4102) 463-46390
+Having them separate would allow ajust_memalloc_reserve() to be used by
+other callers too (would need some extra locking).
 
-mailto:thomas.koeller@baslerweb.com
-http://www.baslerweb.com

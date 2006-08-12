@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWHLUrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422685AbWHLUtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422664AbWHLUrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 16:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422670AbWHLUrQ
+	id S1422685AbWHLUtf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 16:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422686AbWHLUtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 16:47:16 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:38245 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422664AbWHLUrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 16:47:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=pYjbPqNhYQejinsB6kdenMm7NaYwMzlRzTpMEvG87n7CW+5K1AFbm3VIm1ZP46qUyzTXDIevH2DV46dd/z7wa7ZwsGOXEMEN2OsPYGyjxtXBmm2ZGZftjFfDupAfXyZ7wagUvCnbWNJ9K8qkxMHKCP4T4L+fJ2eqsMbjIHKO2x8=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ISDN: fix double free bug in isdn_net
-Date: Sat, 12 Aug 2006 22:48:22 +0200
-User-Agent: KMail/1.9.4
-Cc: Karsten Keil <kkeil@suse.de>, Kai Germaschewski <kai.germaschewski@gmx.de>,
-       isdn4linux@listserv.isdn4linux.de, Jesper Juhl <jesper.juhl@gmail.com>
+	Sat, 12 Aug 2006 16:49:35 -0400
+Received: from rooties.de ([83.246.114.58]:58576 "EHLO rooties.de")
+	by vger.kernel.org with ESMTP id S1422685AbWHLUtf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 16:49:35 -0400
+From: Daniel <damage@rooties.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: debug prism wlan
+Date: Sat, 12 Aug 2006 22:49:33 +0000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200608122140.44365.damage@rooties.de> <200608122115.08419.s0348365@sms.ed.ac.uk> <200608122226.26516.damage@rooties.de>
+In-Reply-To: <200608122226.26516.damage@rooties.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608122248.22639.jesper.juhl@gmail.com>
+Message-Id: <200608122249.33329.damage@rooties.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's double-free bug in 
-drivers/isdn/i4l/isdn_net.c::isdn_net_writebuf_skb().
+*grrrr* it is too late on evening (I'm living in germany ;) )...
 
-If isdn_writebuf_skb_stub() doesn't handle the entire skb, then it will 
-have freed the skb that was passed to it and when the code then jumps 
-to the error label it'll result in a double free of the skb.
+I also fogot to tell following:
 
-The easy way to fix this is to insert an assignment of skb = NULL in the
-'if' following the call to isdn_writebuf_skb_stub() so that when the code
-at the error label calls dev_kfree_skb(skb); the skb will be NULL and 
-nothing will happen since dev_kfree_skb() just does a return if passed a
-NULL.
+Error for wireless request "Set Frequency" (8B04) :
+    SET failed on device eth2 ; Input/output error.
 
+I got this message if I try to start the net device with the init.d script.
+If I try to set the channel per hand I got no error but the channel gets not 
+set (it still is 0). But I am able to set the mode and the essid.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+Any ideas?
 
- drivers/isdn/i4l/isdn_net.c |    1 +
- 1 files changed, 1 insertion(+)
-
---- linux-2.6.18-rc4-orig/drivers/isdn/i4l/isdn_net.c	2006-08-11 00:10:55.000000000 +0200
-+++ linux-2.6.18-rc4/drivers/isdn/i4l/isdn_net.c	2006-08-12 22:39:56.000000000 +0200
-@@ -1023,6 +1023,7 @@ void isdn_net_writebuf_skb(isdn_net_loca
- 	if (ret != len) {
- 		/* we should never get here */
- 		printk(KERN_WARNING "%s: HL driver queue full\n", lp->name);
-+		skb = NULL;
- 		goto error;
- 	}
- 	
+Daniel
 
 
+Am Samstag, 12. August 2006 22:26 schrieb Daniel:
+> Oh, sorry I have forgotten to tell:
+>
+> drunken init # lspci |grep Prism
+> 00:08.0 Network controller: Intersil Corporation ISL3890 [Prism GT/Prism
+> Duette]/ISL3886 [Prism Javelin/Prism Xbow] (rev 01)
+>
+> So I'm using the prism54 driver (CONFIG_PRISM54). My version of
+> wireless-tools is 29_pre10 and the version of the used firmware is 1.0.4.3.
+>
+> BTW: I tried
+> # modprobe prism54 pc_debug=1
+>
+> and
+>
+> # modprobe prism54 pc_debug=9999999
+>
+> But it doesn't increased the verbose level.
+>
+> The firmware upload was successfull (according to dmesg).
+>
+> Am Samstag, 12. August 2006 20:15 schrieben Sie:
+> > On Saturday 12 August 2006 22:40, Daniel wrote:
+> > > Hi,
+> > > my wlan gives up working somewhere between upgrading to gcc-4.1,
+> > > changing some kernel options and upgrading to linux-2.8.16-r4.
+> >
+> > Hi Daniel,
+> >
+> > Which driver does this card use? There's a couple Prism 1/2/2.5 802.11b
+> > drivers and a Prism54 driver for 802.11g cards. Any ideas?
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

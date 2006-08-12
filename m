@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWHLAFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWHLAFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWHLAFR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 20:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWHLAFR
+	id S932359AbWHLAFX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 20:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWHLAFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 20:05:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:22715 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932432AbWHLAFM
+	Fri, 11 Aug 2006 20:05:23 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:50642 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932359AbWHLAFM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 11 Aug 2006 20:05:12 -0400
-Subject: [PATCH 2/2] ext3 and jbd cleanup: replace brelse() to put_bh
+Subject: [PATCH 1/2] ext3 and jbd cleanup: remove whitespace
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
 To: Andrew Morton <akpm@osdl.org>
@@ -22,1189 +22,2287 @@ References: <1155172827.3161.80.camel@localhost.localdomain>
 	 <20060811161655.0ad11259.akpm@osdl.org>
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Fri, 11 Aug 2006 17:05:08 -0700
-Message-Id: <1155341108.20600.8.camel@dyn9047017069.beaverton.ibm.com>
+Date: Fri, 11 Aug 2006 17:05:03 -0700
+Message-Id: <1155341104.20600.7.camel@dyn9047017069.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > On Wed, Aug 09, 2006 at 11:39:40PM -0700, Andrew Morton wrote:
-> > > - replace all brelse() calls with put_bh().  Because brelse() is
-> > >   old-fashioned, has a weird name and neelessly permits a NULL
-arg.
-> > > 
-> > >   In fact it would be beter to convert JBD and ext3 to put_bh
-before
-> > >   copying it all over.
-
-
-Here is the patch.
+Remove whitespace from ext3 and jbd, before we clone ext4.
 
 Signed-Off-By: Mingming Cao<cmm@us.ibm.com>
----
 
- linux-2.6.18-rc4-ming/fs/ext3/balloc.c     |   18 +++++-----
- linux-2.6.18-rc4-ming/fs/ext3/ialloc.c     |   14 ++++----
- linux-2.6.18-rc4-ming/fs/ext3/inode.c      |   24 +++++++-------
- linux-2.6.18-rc4-ming/fs/ext3/namei.c      |   48 ++++++++++++++---------------
- linux-2.6.18-rc4-ming/fs/ext3/resize.c     |   34 ++++++++++----------
- linux-2.6.18-rc4-ming/fs/ext3/super.c      |   20 ++++++------
- linux-2.6.18-rc4-ming/fs/ext3/xattr.c      |   18 +++++-----
- linux-2.6.18-rc4-ming/fs/jbd/checkpoint.c  |   12 +++----
- linux-2.6.18-rc4-ming/fs/jbd/commit.c      |   10 +++---
- linux-2.6.18-rc4-ming/fs/jbd/journal.c     |   14 ++++----
- linux-2.6.18-rc4-ming/fs/jbd/recovery.c    |   30 +++++++++---------
- linux-2.6.18-rc4-ming/fs/jbd/revoke.c      |    6 +--
- linux-2.6.18-rc4-ming/fs/jbd/transaction.c |   14 ++++----
- 13 files changed, 131 insertions(+), 131 deletions(-)
-
-diff -puN fs/ext3/balloc.c~ext3_replace_brelse_to_put_bh fs/ext3/balloc.c
---- linux-2.6.18-rc4/fs/ext3/balloc.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:19.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/balloc.c	2006-08-11 16:01:06.549638409 -0700
-@@ -351,7 +351,7 @@ do_more:
- 		overflow = bit + count - EXT3_BLOCKS_PER_GROUP(sb);
- 		count -= overflow;
- 	}
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	bitmap_bh = read_block_bitmap(sb, block_group);
- 	if (!bitmap_bh)
- 		goto error_return;
-@@ -407,7 +407,7 @@ do_more:
- 					BUFFER_TRACE(debug_bh,
- 						"No commited data in bitmap");
- 				BUFFER_TRACE2(debug_bh, bitmap_bh, "bitmap");
--				__brelse(debug_bh);
-+				put_bh(debug_bh);
- 			}
- 		}
- 		jbd_lock_bh_state(bitmap_bh);
-@@ -485,7 +485,7 @@ do_more:
- 	}
- 	sb->s_dirt = 1;
- error_return:
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	ext3_std_error(sb, err);
- 	return;
- }
-@@ -1324,7 +1324,7 @@ retry:
- 		if (free_blocks <= (windowsz/2))
- 			continue;
- 
--		brelse(bitmap_bh);
-+		put_bh(bitmap_bh);
- 		bitmap_bh = read_block_bitmap(sb, group_no);
- 		if (!bitmap_bh)
- 			goto io_error;
-@@ -1389,7 +1389,7 @@ allocated:
- 		if (debug_bh) {
- 			BUFFER_TRACE(debug_bh, "state when allocated");
- 			BUFFER_TRACE2(debug_bh, bitmap_bh, "bitmap state");
--			brelse(debug_bh);
-+			put_bh(debug_bh);
- 		}
- 	}
- 	jbd_lock_bh_state(bitmap_bh);
-@@ -1442,7 +1442,7 @@ allocated:
- 		goto out;
- 
- 	*errp = 0;
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	DQUOT_FREE_BLOCK(inode, *count-num);
- 	*count = num;
- 	return ret_block;
-@@ -1459,7 +1459,7 @@ out:
- 	 */
- 	if (!performed_allocation)
- 		DQUOT_FREE_BLOCK(inode, *count);
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	return 0;
- }
- 
-@@ -1494,7 +1494,7 @@ ext3_fsblk_t ext3_count_free_blocks(stru
- 		if (!gdp)
- 			continue;
- 		desc_count += le16_to_cpu(gdp->bg_free_blocks_count);
--		brelse(bitmap_bh);
-+		put_bh(bitmap_bh);
- 		bitmap_bh = read_block_bitmap(sb, i);
- 		if (bitmap_bh == NULL)
- 			continue;
-@@ -1504,7 +1504,7 @@ ext3_fsblk_t ext3_count_free_blocks(stru
- 			i, le16_to_cpu(gdp->bg_free_blocks_count), x);
- 		bitmap_count += x;
- 	}
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	printk("ext3_count_free_blocks: stored = "E3FSBLK
- 		", computed = "E3FSBLK", "E3FSBLK"\n",
- 	       le32_to_cpu(es->s_free_blocks_count),
-diff -puN fs/ext3/ialloc.c~ext3_replace_brelse_to_put_bh fs/ext3/ialloc.c
---- linux-2.6.18-rc4/fs/ext3/ialloc.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:19.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/ialloc.c	2006-08-11 16:01:06.655626188 -0700
-@@ -185,7 +185,7 @@ void ext3_free_inode (handle_t *handle, 
- 		fatal = err;
- 	sb->s_dirt = 1;
- error_return:
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	ext3_std_error(sb, fatal);
- }
- 
-@@ -468,7 +468,7 @@ struct inode *ext3_new_inode(handle_t *h
- 		if (!gdp)
- 			goto fail;
- 
--		brelse(bitmap_bh);
-+		put_bh(bitmap_bh);
- 		bitmap_bh = read_inode_bitmap(sb, group);
- 		if (!bitmap_bh)
- 			goto fail;
-@@ -625,7 +625,7 @@ out:
- 	iput(inode);
- 	ret = ERR_PTR(err);
- really_out:
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	return ret;
- 
- fail_free_drop:
-@@ -636,7 +636,7 @@ fail_drop:
- 	inode->i_flags |= S_NOQUOTA;
- 	inode->i_nlink = 0;
- 	iput(inode);
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	return ERR_PTR(err);
- }
- 
-@@ -692,7 +692,7 @@ struct inode *ext3_orphan_get(struct sup
- 		inode = NULL;
- 	}
- out:
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	return inode;
- }
- 
-@@ -715,7 +715,7 @@ unsigned long ext3_count_free_inodes (st
- 		if (!gdp)
- 			continue;
- 		desc_count += le16_to_cpu(gdp->bg_free_inodes_count);
--		brelse(bitmap_bh);
-+		put_bh(bitmap_bh);
- 		bitmap_bh = read_inode_bitmap(sb, i);
- 		if (!bitmap_bh)
- 			continue;
-@@ -725,7 +725,7 @@ unsigned long ext3_count_free_inodes (st
- 			i, le16_to_cpu(gdp->bg_free_inodes_count), x);
- 		bitmap_count += x;
- 	}
--	brelse(bitmap_bh);
-+	put_bh(bitmap_bh);
- 	printk("ext3_count_free_inodes: stored = %u, computed = %lu, %lu\n",
- 		le32_to_cpu(es->s_free_inodes_count), desc_count, bitmap_count);
- 	return desc_count;
-diff -puN fs/ext3/inode.c~ext3_replace_brelse_to_put_bh fs/ext3/inode.c
---- linux-2.6.18-rc4/fs/ext3/inode.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:19.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/inode.c	2006-08-11 16:01:06.748615465 -0700
-@@ -378,7 +378,7 @@ static Indirect *ext3_get_branch(struct 
- 	return NULL;
- 
- changed:
--	brelse(bh);
-+	put_bh(bh);
- 	*err = -EAGAIN;
- 	goto no_block;
- failure:
-@@ -624,7 +624,7 @@ static int ext3_alloc_branch(handle_t *h
- 		err = ext3_journal_get_create_access(handle, bh);
- 		if (err) {
- 			unlock_buffer(bh);
--			brelse(bh);
-+			put_bh(bh);
- 			goto failed;
- 		}
- 
-@@ -863,7 +863,7 @@ int ext3_get_blocks_handle(handle_t *han
- 	 */
- 	if (err == -EAGAIN || !verify_chain(chain, partial)) {
- 		while (partial > chain) {
--			brelse(partial->bh);
-+			put_bh(partial->bh);
- 			partial--;
- 		}
- 		partial = ext3_get_branch(inode, depth, offsets, chain, &err);
-@@ -933,7 +933,7 @@ got_it:
- cleanup:
- 	while (partial > chain) {
- 		BUFFER_TRACE(partial->bh, "call brelse");
--		brelse(partial->bh);
-+		put_bh(partial->bh);
- 		partial--;
- 	}
- 	BUFFER_TRACE(bh_result, "returned");
-@@ -1051,7 +1051,7 @@ struct buffer_head *ext3_getblk(handle_t
- 		}
- 		if (fatal) {
- 			*errp = fatal;
--			brelse(bh);
-+			put_bh(bh);
- 			bh = NULL;
- 		}
- 		return bh;
-@@ -1943,7 +1943,7 @@ static Indirect *ext3_find_shared(struct
- 	/* Writer: end */
- 
- 	while(partial > p) {
--		brelse(partial->bh);
-+		put_bh(partial->bh);
- 		partial--;
- 	}
- no_top:
-@@ -2133,7 +2133,7 @@ static void ext3_free_branches(handle_t 
- 			 * That's easy if it's exclusively part of this
- 			 * transaction.  But if it's part of the committing
- 			 * transaction then journal_forget() will simply
--			 * brelse() it.  That means that if the underlying
-+			 * put_bh() it.  That means that if the underlying
- 			 * block is reallocated in ext3_get_block(),
- 			 * unmap_underlying_metadata() will find this block
- 			 * and will try to get rid of it.  damn, damn.
-@@ -2510,7 +2510,7 @@ static int __ext3_get_inode_loc(struct i
- 			 * of one, so skip it.
- 			 */
- 			if (!buffer_uptodate(bitmap_bh)) {
--				brelse(bitmap_bh);
-+				put_bh(bitmap_bh);
- 				goto make_io;
- 			}
- 			for (i = start; i < start + inodes_per_buffer; i++) {
-@@ -2519,7 +2519,7 @@ static int __ext3_get_inode_loc(struct i
- 				if (ext3_test_bit(i, bitmap_bh->b_data))
- 					break;
- 			}
--			brelse(bitmap_bh);
-+			put_bh(bitmap_bh);
- 			if (i == start + inodes_per_buffer) {
- 				/* all other inodes are free, so skip I/O */
- 				memset(bh->b_data, 0, bh->b_size);
-@@ -2544,7 +2544,7 @@ make_io:
- 					"unable to read inode block - "
- 					"inode=%lu, block="E3FSBLK,
- 					inode->i_ino, block);
--			brelse(bh);
-+			put_bh(bh);
- 			return -EIO;
- 		}
- 	}
-@@ -3056,7 +3056,7 @@ ext3_reserve_inode_write(handle_t *handl
- 			BUFFER_TRACE(iloc->bh, "get_write_access");
- 			err = ext3_journal_get_write_access(handle, iloc->bh);
- 			if (err) {
--				brelse(iloc->bh);
-+				put_bh(iloc->bh);
- 				iloc->bh = NULL;
- 			}
- 		}
-@@ -3156,7 +3156,7 @@ static int ext3_pin_inode(handle_t *hand
- 			if (!err)
- 				err = ext3_journal_dirty_metadata(handle,
- 								  iloc.bh);
--			brelse(iloc.bh);
-+			put_bh(iloc.bh);
- 		}
- 	}
- 	ext3_std_error(inode->i_sb, err);
-diff -puN fs/ext3/namei.c~ext3_replace_brelse_to_put_bh fs/ext3/namei.c
---- linux-2.6.18-rc4/fs/ext3/namei.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:19.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/namei.c	2006-08-11 16:01:06.838605088 -0700
-@@ -349,7 +349,7 @@ dx_probe(struct dentry *dentry, struct i
- 		ext3_warning(dir->i_sb, __FUNCTION__,
- 			     "Unrecognised inode hash code %d",
- 			     root->info.hash_version);
--		brelse(bh);
-+		put_bh(bh);
- 		*err = ERR_BAD_DX_DIR;
- 		goto fail;
- 	}
-@@ -363,7 +363,7 @@ dx_probe(struct dentry *dentry, struct i
- 		ext3_warning(dir->i_sb, __FUNCTION__,
- 			     "Unimplemented inode hash flags: %#06x",
- 			     root->info.unused_flags);
--		brelse(bh);
-+		put_bh(bh);
- 		*err = ERR_BAD_DX_DIR;
- 		goto fail;
- 	}
-@@ -372,7 +372,7 @@ dx_probe(struct dentry *dentry, struct i
- 		ext3_warning(dir->i_sb, __FUNCTION__,
- 			     "Unimplemented inode hash depth: %#06x",
- 			     root->info.indirect_levels);
--		brelse(bh);
-+		put_bh(bh);
- 		*err = ERR_BAD_DX_DIR;
- 		goto fail;
- 	}
-@@ -428,7 +428,7 @@ dx_probe(struct dentry *dentry, struct i
- 	}
- fail2:
- 	while (frame >= frame_in) {
--		brelse(frame->bh);
-+		put_bh(frame->bh);
- 		frame--;
- 	}
- fail:
-@@ -441,8 +441,8 @@ static void dx_release (struct dx_frame 
- 		return;
- 
- 	if (((struct dx_root *) frames[0].bh->b_data)->info.indirect_levels)
--		brelse(frames[1].bh);
--	brelse(frames[0].bh);
-+		put_bh(frames[1].bh);
-+	put_bh(frames[0].bh);
+diff -urN linux-2.6.18-rc4/fs/ext3/balloc.c linux-2.6.18-rc4-ws/fs/ext3/balloc.c
+--- linux-2.6.18-rc4/fs/ext3/balloc.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/balloc.c	2006-08-10 22:50:58.565737801 -0700
+@@ -74,7 +74,7 @@
  }
  
  /*
-@@ -560,12 +560,12 @@ static int htree_dirblock_to_tree(struct
- 			continue;
- 		if ((err = ext3_htree_store_dirent(dir_file,
- 				   hinfo->hash, hinfo->minor_hash, de)) != 0) {
--			brelse(bh);
-+			put_bh(bh);
- 			return err;
- 		}
- 		count++;
- 	}
--	brelse(bh);
-+	put_bh(bh);
- 	return count;
- }
- 
-@@ -802,7 +802,7 @@ static inline int search_dirblock(struct
-  * entry - you'll have to do that yourself if you want to.
+- * Read the bitmap for a given block_group, reading into the specified 
++ * Read the bitmap for a given block_group, reading into the specified
+  * slot in the superblock's bitmap cache.
   *
-  * The returned buffer_head has ->b_count elevated.  The caller is expected
-- * to brelse() it when appropriate.
-+ * to put_bh() it when appropriate.
-  */
- static struct buffer_head * ext3_find_entry (struct dentry *dentry,
- 					struct ext3_dir_entry_2 ** res_dir)
-@@ -880,7 +880,7 @@ restart:
- 			/* read error, skip block & hope for the best */
- 			ext3_error(sb, __FUNCTION__, "reading directory #%lu "
- 				   "offset %lu", dir->i_ino, block);
--			brelse(bh);
-+			put_bh(bh);
- 			goto next;
+  * Return buffer_head on success or NULL in case of failure.
+@@ -419,8 +419,8 @@
  		}
- 		i = search_dirblock(bh, dir, dentry,
-@@ -890,7 +890,7 @@ restart:
- 			ret = bh;
- 			goto cleanup_and_exit;
- 		} else {
--			brelse(bh);
-+			put_bh(bh);
- 			if (i < 0)
- 				goto cleanup_and_exit;
- 		}
-@@ -1032,7 +1032,7 @@ struct dentry *ext3_get_parent(struct de
- 	if (!bh)
- 		return ERR_PTR(-ENOENT);
- 	ino = le32_to_cpu(de->inode);
--	brelse(bh);
-+	put_bh(bh);
+ 		/* @@@ This prevents newly-allocated data from being
+ 		 * freed and then reallocated within the same
+-		 * transaction. 
+-		 * 
++		 * transaction.
++		 *
+ 		 * Ideally we would want to allow that to happen, but to
+ 		 * do so requires making journal_forget() capable of
+ 		 * revoking the queued write of a data block, which
+@@ -433,7 +433,7 @@
+ 		 * safe not to set the allocation bit in the committed
+ 		 * bitmap, because we know that there is no outstanding
+ 		 * activity on the buffer any more and so it is safe to
+-		 * reallocate it.  
++		 * reallocate it.
+ 		 */
+ 		BUFFER_TRACE(bitmap_bh, "set in b_committed_data");
+ 		J_ASSERT_BH(bitmap_bh,
+@@ -518,7 +518,7 @@
+  * data would allow the old block to be overwritten before the
+  * transaction committed (because we force data to disk before commit).
+  * This would lead to corruption if we crashed between overwriting the
+- * data and committing the delete. 
++ * data and committing the delete.
+  *
+  * @@@ We may want to make this allocation behaviour conditional on
+  * data-writes at some point, and disable it for metadata allocations or
+@@ -584,7 +584,7 @@
  
- 	if (!ext3_valid_inum(child->d_inode->i_sb, ino)) {
- 		ext3_error(child->d_inode->i_sb, "ext3_get_parent",
-@@ -1128,7 +1128,7 @@ static struct ext3_dir_entry_2 *do_split
- 
- 	bh2 = ext3_append (handle, dir, &newblock, error);
- 	if (!(bh2)) {
--		brelse(*bh);
-+		put_bh(*bh);
- 		*bh = NULL;
- 		goto errout;
- 	}
-@@ -1137,8 +1137,8 @@ static struct ext3_dir_entry_2 *do_split
- 	err = ext3_journal_get_write_access(handle, *bh);
- 	if (err) {
- 	journal_error:
--		brelse(*bh);
--		brelse(bh2);
-+		put_bh(*bh);
-+		put_bh(bh2);
- 		*bh = NULL;
- 		ext3_std_error(dir->i_sb, err);
- 		goto errout;
-@@ -1242,7 +1242,7 @@ static int add_dirent_to_buf(handle_t *h
- 	err = ext3_journal_get_write_access(handle, bh);
- 	if (err) {
- 		ext3_std_error(dir->i_sb, err);
--		brelse(bh);
-+		put_bh(bh);
- 		return err;
- 	}
- 
-@@ -1282,7 +1282,7 @@ static int add_dirent_to_buf(handle_t *h
- 	err = ext3_journal_dirty_metadata(handle, bh);
- 	if (err)
- 		ext3_std_error(dir->i_sb, err);
--	brelse(bh);
-+	put_bh(bh);
- 	return 0;
- }
- 
-@@ -1315,14 +1315,14 @@ static int make_indexed_dir(handle_t *ha
- 	retval = ext3_journal_get_write_access(handle, bh);
- 	if (retval) {
- 		ext3_std_error(dir->i_sb, retval);
--		brelse(bh);
-+		put_bh(bh);
- 		return retval;
- 	}
- 	root = (struct dx_root *) bh->b_data;
- 
- 	bh2 = ext3_append (handle, dir, &block, &retval);
- 	if (!(bh2)) {
--		brelse(bh);
-+		put_bh(bh);
- 		return retval;
- 	}
- 	EXT3_I(dir)->i_flags |= EXT3_INDEX_FL;
-@@ -1420,7 +1420,7 @@ static int ext3_add_entry (handle_t *han
- 		    EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_DIR_INDEX))
- 			return make_indexed_dir(handle, dentry, inode, bh);
- #endif
--		brelse(bh);
-+		put_bh(bh);
- 	}
- 	bh = ext3_append(handle, dir, &block, &retval);
- 	if (!bh)
-@@ -1562,7 +1562,7 @@ journal_error:
- 	ext3_std_error(dir->i_sb, err);
- cleanup:
- 	if (bh)
--		brelse(bh);
-+		put_bh(bh);
- 	dx_release(frames);
- 	return err;
- }
-@@ -1999,7 +1999,7 @@ out:
- 	return err;
- 
- out_brelse:
--	brelse(iloc.bh);
-+	put_bh(iloc.bh);
- 	goto out_err;
- }
- 
-@@ -2285,7 +2285,7 @@ static int ext3_rename (struct inode * o
- 		new_dir->i_version++;
- 		BUFFER_TRACE(new_bh, "call ext3_journal_dirty_metadata");
- 		ext3_journal_dirty_metadata(handle, new_bh);
--		brelse(new_bh);
-+		put_bh(new_bh);
- 		new_bh = NULL;
- 	}
- 
-@@ -2315,7 +2315,7 @@ static int ext3_rename (struct inode * o
- 		if (old_bh2) {
- 			retval = ext3_delete_entry(handle, old_dir,
- 						   old_de2, old_bh2);
--			brelse(old_bh2);
-+			put_bh(old_bh2);
- 		}
- 	}
- 	if (retval) {
-diff -puN fs/ext3/resize.c~ext3_replace_brelse_to_put_bh fs/ext3/resize.c
---- linux-2.6.18-rc4/fs/ext3/resize.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:19.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/resize.c	2006-08-11 16:01:06.877600591 -0700
-@@ -109,7 +109,7 @@ static int verify_group_input(struct sup
- 			     input->inode_table, itend - 1, start, metaend - 1);
- 	else
- 		err = 0;
--	brelse(bh);
-+	put_bh(bh);
- 
- 	return err;
- }
-@@ -124,7 +124,7 @@ static struct buffer_head *bclean(handle
- 	if (!bh)
- 		return ERR_PTR(-EIO);
- 	if ((err = ext3_journal_get_write_access(handle, bh))) {
--		brelse(bh);
-+		put_bh(bh);
- 		bh = ERR_PTR(err);
- 	} else {
- 		lock_buffer(bh);
-@@ -211,7 +211,7 @@ static int setup_new_group_blocks(struct
- 			goto exit_bh;
- 		}
- 		if ((err = ext3_journal_get_write_access(handle, gdb))) {
--			brelse(gdb);
-+			put_bh(gdb);
- 			goto exit_bh;
- 		}
- 		lock_buffer(bh);
-@@ -220,7 +220,7 @@ static int setup_new_group_blocks(struct
- 		unlock_buffer(bh);
- 		ext3_journal_dirty_metadata(handle, gdb);
- 		ext3_set_bit(bit, bh->b_data);
--		brelse(gdb);
-+		put_bh(gdb);
- 	}
- 
- 	/* Zero out all of the reserved backup group descriptor table blocks */
-@@ -236,7 +236,7 @@ static int setup_new_group_blocks(struct
- 		}
- 		ext3_journal_dirty_metadata(handle, gdb);
- 		ext3_set_bit(bit, bh->b_data);
--		brelse(gdb);
-+		put_bh(gdb);
- 	}
- 	ext3_debug("mark block bitmap %#04x (+%ld)\n", input->block_bitmap,
- 		   input->block_bitmap - start);
-@@ -256,13 +256,13 @@ static int setup_new_group_blocks(struct
- 			goto exit_bh;
- 		}
- 		ext3_journal_dirty_metadata(handle, it);
--		brelse(it);
-+		put_bh(it);
- 		ext3_set_bit(bit, bh->b_data);
- 	}
- 	mark_bitmap_end(input->blocks_count, EXT3_BLOCKS_PER_GROUP(sb),
- 			bh->b_data);
- 	ext3_journal_dirty_metadata(handle, bh);
--	brelse(bh);
-+	put_bh(bh);
- 
- 	/* Mark unused entries in inode bitmap used */
- 	ext3_debug("clear inode bitmap %#04x (+%ld)\n",
-@@ -276,7 +276,7 @@ static int setup_new_group_blocks(struct
- 			bh->b_data);
- 	ext3_journal_dirty_metadata(handle, bh);
- exit_bh:
--	brelse(bh);
-+	put_bh(bh);
- 
- exit_journal:
- 	unlock_super(sb);
-@@ -459,7 +459,7 @@ static int add_new_gdb(handle_t *handle,
- 	 */
- 	data[gdb_num % EXT3_ADDR_PER_BLOCK(sb)] = 0;
- 	ext3_journal_dirty_metadata(handle, dind);
--	brelse(dind);
-+	put_bh(dind);
- 	inode->i_blocks -= (gdbackups + 1) * sb->s_blocksize >> 9;
- 	ext3_mark_iloc_dirty(handle, inode, &iloc);
- 	memset((*primary)->b_data, 0, sb->s_blocksize);
-@@ -481,7 +481,7 @@ static int add_new_gdb(handle_t *handle,
- 
- exit_inode:
- 	//ext3_journal_release_buffer(handle, iloc.bh);
--	brelse(iloc.bh);
-+	put_bh(iloc.bh);
- exit_dindj:
- 	//ext3_journal_release_buffer(handle, dind);
- exit_primary:
-@@ -489,9 +489,9 @@ exit_primary:
- exit_sbh:
- 	//ext3_journal_release_buffer(handle, *primary);
- exit_dind:
--	brelse(dind);
-+	put_bh(dind);
- exit_bh:
--	brelse(*primary);
-+	put_bh(*primary);
- 
- 	ext3_debug("leaving with error %d\n", err);
- 	return err;
-@@ -555,7 +555,7 @@ static int reserve_backup_gdb(handle_t *
- 			goto exit_bh;
- 		}
- 		if ((gdbackups = verify_reserved_gdb(sb, primary[res])) < 0) {
--			brelse(primary[res]);
-+			put_bh(primary[res]);
- 			err = gdbackups;
- 			goto exit_bh;
- 		}
-@@ -598,8 +598,8 @@ static int reserve_backup_gdb(handle_t *
- 
- exit_bh:
- 	while (--res >= 0)
--		brelse(primary[res]);
--	brelse(dind);
-+		put_bh(primary[res]);
-+	put_bh(dind);
- 
- exit_free:
- 	kfree(primary);
-@@ -668,7 +668,7 @@ static void update_backups(struct super_
- 		set_buffer_uptodate(bh);
- 		unlock_buffer(bh);
- 		ext3_journal_dirty_metadata(handle, bh);
--		brelse(bh);
-+		put_bh(bh);
- 	}
- 	if ((err2 = ext3_journal_stop(handle)) && !err)
- 		err = err2;
-@@ -974,7 +974,7 @@ int ext3_group_extend(struct super_block
- 			     "can't read last block, resize aborted");
- 		return -ENOSPC;
- 	}
--	brelse(bh);
-+	put_bh(bh);
- 
- 	/* We will update the superblock, one block bitmap, and
- 	 * one group descriptor via ext3_free_blocks().
-diff -puN fs/ext3/super.c~ext3_replace_brelse_to_put_bh fs/ext3/super.c
---- linux-2.6.18-rc4/fs/ext3/super.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:20.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/super.c	2006-08-11 16:01:06.953591829 -0700
-@@ -400,12 +400,12 @@ static void ext3_put_super (struct super
- 	}
- 
- 	for (i = 0; i < sbi->s_gdb_count; i++)
--		brelse(sbi->s_group_desc[i]);
-+		put_bh(sbi->s_group_desc[i]);
- 	kfree(sbi->s_group_desc);
- 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
--	brelse(sbi->s_sbh);
-+	put_bh(sbi->s_sbh);
- #ifdef CONFIG_QUOTA
- 	for (i = 0; i < MAXQUOTAS; i++)
- 		kfree(sbi->s_qf_names[i]);
-@@ -1759,7 +1759,7 @@ failed_mount3:
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
- failed_mount2:
- 	for (i = 0; i < db_count; i++)
--		brelse(sbi->s_group_desc[i]);
-+		put_bh(sbi->s_group_desc[i]);
- 	kfree(sbi->s_group_desc);
- failed_mount:
- #ifdef CONFIG_QUOTA
-@@ -1767,7 +1767,7 @@ failed_mount:
- 		kfree(sbi->s_qf_names[i]);
- #endif
- 	ext3_blkdev_remove(sbi);
--	brelse(bh);
-+	put_bh(bh);
- out_fail:
- 	sb->s_fs_info = NULL;
- 	kfree(sbi);
-@@ -1885,19 +1885,19 @@ static journal_t *ext3_get_dev_journal(s
- 	      EXT3_FEATURE_INCOMPAT_JOURNAL_DEV)) {
- 		printk(KERN_ERR "EXT3-fs: external journal has "
- 					"bad superblock\n");
--		brelse(bh);
-+		put_bh(bh);
- 		goto out_bdev;
- 	}
- 
- 	if (memcmp(EXT3_SB(sb)->s_es->s_journal_uuid, es->s_uuid, 16)) {
- 		printk(KERN_ERR "EXT3-fs: journal UUID does not match\n");
--		brelse(bh);
-+		put_bh(bh);
- 		goto out_bdev;
- 	}
- 
- 	len = le32_to_cpu(es->s_blocks_count);
- 	start = sb_block + 1;
--	brelse(bh);	/* we're done with the superblock */
-+	put_bh(bh);	/* we're done with the superblock */
- 
- 	journal = journal_init_dev(bdev, sb->s_bdev,
- 					start, len, blocksize);
-@@ -2590,7 +2590,7 @@ static ssize_t ext3_quota_read(struct su
- 			memset(data, 0, tocopy);
- 		else
- 			memcpy(data, bh->b_data+offset, tocopy);
--		brelse(bh);
-+		put_bh(bh);
- 		offset = 0;
- 		toread -= tocopy;
- 		data += tocopy;
-@@ -2624,7 +2624,7 @@ static ssize_t ext3_quota_write(struct s
- 		if (journal_quota) {
- 			err = ext3_journal_get_write_access(handle, bh);
- 			if (err) {
--				brelse(bh);
-+				put_bh(bh);
- 				goto out;
- 			}
- 		}
-@@ -2639,7 +2639,7 @@ static ssize_t ext3_quota_write(struct s
- 			err = ext3_journal_dirty_data(handle, bh);
- 			mark_buffer_dirty(bh);
- 		}
--		brelse(bh);
-+		put_bh(bh);
- 		if (err)
- 			goto out;
- 		offset = 0;
-diff -puN fs/ext3/xattr.c~ext3_replace_brelse_to_put_bh fs/ext3/xattr.c
---- linux-2.6.18-rc4/fs/ext3/xattr.c~ext3_replace_brelse_to_put_bh	2006-08-10 23:04:20.000000000 -0700
-+++ linux-2.6.18-rc4-ming/fs/ext3/xattr.c	2006-08-11 16:01:07.007585602 -0700
-@@ -256,7 +256,7 @@ bad_block:	ext3_error(inode->i_sb, __FUN
- 	error = size;
- 
- cleanup:
--	brelse(bh);
-+	put_bh(bh);
- 	return error;
- }
- 
-@@ -299,7 +299,7 @@ ext3_xattr_ibody_get(struct inode *inode
- 	error = size;
- 
- cleanup:
--	brelse(iloc.bh);
-+	put_bh(iloc.bh);
- 	return error;
- }
- 
-@@ -384,7 +384,7 @@ ext3_xattr_block_list(struct inode *inod
- 	error = ext3_xattr_list_entries(inode, BFIRST(bh), buffer, buffer_size);
- 
- cleanup:
--	brelse(bh);
-+	put_bh(bh);
- 
- 	return error;
- }
-@@ -413,7 +413,7 @@ ext3_xattr_ibody_list(struct inode *inod
- 					buffer, buffer_size);
- 
- cleanup:
--	brelse(iloc.bh);
-+	put_bh(iloc.bh);
- 	return error;
- }
- 
-@@ -836,7 +836,7 @@ getblk_failed:
- cleanup:
- 	if (ce)
- 		mb_cache_entry_release(ce);
--	brelse(new_bh);
-+	put_bh(new_bh);
- 	if (!(bs->bh && s->base == bs->bh->b_data))
- 		kfree(s->base);
- 
-@@ -1019,8 +1019,8 @@ ext3_xattr_set_handle(handle_t *handle, 
- 	}
- 
- cleanup:
--	brelse(is.iloc.bh);
--	brelse(bs.bh);
-+	put_bh(is.iloc.bh);
-+	put_bh(bs.bh);
- 	up_write(&EXT3_I(inode)->xattr_sem);
- 	return error;
- }
-@@ -1092,7 +1092,7 @@ ext3_xattr_delete_inode(handle_t *handle
- 	EXT3_I(inode)->i_file_acl = 0;
- 
- cleanup:
--	brelse(bh);
-+	put_bh(bh);
- }
- 
+ 	if (start > 0) {
+ 		/*
+-		 * The goal was occupied; search forward for a free 
++		 * The goal was occupied; search forward for a free
+ 		 * block within the next XX blocks.
+ 		 *
+ 		 * end_goal is more or less random, but it has to be
+@@ -1194,7 +1194,7 @@
  /*
-@@ -1223,7 +1223,7 @@ again:
- 			*pce = ce;
- 			return bh;
+  * ext3_new_block uses a goal block to assist allocation.  If the goal is
+  * free, or there is a free block within 32 blocks of the goal, that block
+- * is allocated.  Otherwise a forward search is made for a free block; within 
++ * is allocated.  Otherwise a forward search is made for a free block; within
+  * each block group the search first looks for an entire free byte in the block
+  * bitmap, and then for any free bit if that fails.
+  * This function also updates quota and i_blocks field.
+@@ -1303,7 +1303,7 @@
+ 	smp_rmb();
+ 
+ 	/*
+-	 * Now search the rest of the groups.  We assume that 
++	 * Now search the rest of the groups.  We assume that
+ 	 * i and gdp correctly point to the last group visited.
+ 	 */
+ 	for (bgi = 0; bgi < ngroups; bgi++) {
+diff -urN linux-2.6.18-rc4/fs/ext3/bitmap.c linux-2.6.18-rc4-ws/fs/ext3/bitmap.c
+--- linux-2.6.18-rc4/fs/ext3/bitmap.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/bitmap.c	2006-08-10 22:50:58.566737693 -0700
+@@ -20,7 +20,7 @@
+ 	unsigned int i;
+ 	unsigned long sum = 0;
+ 
+-	if (!map) 
++	if (!map)
+ 		return (0);
+ 	for (i = 0; i < numchars; i++)
+ 		sum += nibblemap[map->b_data[i] & 0xf] +
+diff -urN linux-2.6.18-rc4/fs/ext3/dir.c linux-2.6.18-rc4-ws/fs/ext3/dir.c
+--- linux-2.6.18-rc4/fs/ext3/dir.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/dir.c	2006-08-10 22:50:58.605733477 -0700
+@@ -59,7 +59,7 @@
+ 
+ 	return (ext3_filetype_table[filetype]);
+ }
+-			       
++
+ 
+ int ext3_check_dir_entry (const char * function, struct inode * dir,
+ 			  struct ext3_dir_entry_2 * de,
+@@ -162,7 +162,7 @@
+ 		 * to make sure. */
+ 		if (filp->f_version != inode->i_version) {
+ 			for (i = 0; i < sb->s_blocksize && i < offset; ) {
+-				de = (struct ext3_dir_entry_2 *) 
++				de = (struct ext3_dir_entry_2 *)
+ 					(bh->b_data + i);
+ 				/* It's too expensive to do a full
+ 				 * dirent test each time round this
+@@ -181,7 +181,7 @@
+ 			filp->f_version = inode->i_version;
  		}
--		brelse(bh);
-+		put_bh(bh);
- 		ce = mb_cache_entry_find_next(ce, 0, inode->i_sb->s_bdev, hash);
- 	}
- 	return NULL;
-diff -puN fs/jbd/checkpoint.c~ext3_replace_brelse_to_put_bh fs/jbd/checkpoint.c
---- linux-2.6.18-rc4/fs/jbd/checkpoint.c~ext3_replace_brelse_to_put_bh	2006-08-11 16:00:02.637008493 -0700
-+++ linux-2.6.18-rc4-ming/fs/jbd/checkpoint.c	2006-08-11 16:01:07.150569115 -0700
-@@ -99,7 +99,7 @@ static int __try_to_free_cp_buf(struct j
- 		jbd_unlock_bh_state(bh);
- 		journal_remove_journal_head(bh);
- 		BUFFER_TRACE(bh, "release");
--		__brelse(bh);
-+		put_bh(bh);
- 	} else {
- 		jbd_unlock_bh_state(bh);
- 	}
-@@ -189,7 +189,7 @@ restart:
- 			wait_on_buffer(bh);
- 			/* the journal_head may have gone by now */
- 			BUFFER_TRACE(bh, "brelse");
--			__brelse(bh);
-+			put_bh(bh);
- 			spin_lock(&journal->j_list_lock);
- 			goto restart;
- 		}
-@@ -200,7 +200,7 @@ restart:
- 		released = __journal_remove_checkpoint(jh);
- 		jbd_unlock_bh_state(bh);
- 		journal_remove_journal_head(bh);
--		__brelse(bh);
-+		put_bh(bh);
- 	}
+ 
+-		while (!error && filp->f_pos < inode->i_size 
++		while (!error && filp->f_pos < inode->i_size
+ 		       && offset < sb->s_blocksize) {
+ 			de = (struct ext3_dir_entry_2 *) (bh->b_data + offset);
+ 			if (!ext3_check_dir_entry ("ext3_readdir", inode, de,
+@@ -229,7 +229,7 @@
+ /*
+  * These functions convert from the major/minor hash to an f_pos
+  * value.
+- * 
++ *
+  * Currently we only use major hash numer.  This is unfortunate, but
+  * on 32-bit machines, the same VFS interface is used for lseek and
+  * llseek, so if we use the 64 bit offset, then the 32-bit versions of
+@@ -250,7 +250,7 @@
+ struct fname {
+ 	__u32		hash;
+ 	__u32		minor_hash;
+-	struct rb_node	rb_hash; 
++	struct rb_node	rb_hash;
+ 	struct fname	*next;
+ 	__u32		inode;
+ 	__u8		name_len;
+@@ -410,7 +410,7 @@
+ 	curr_pos = hash2pos(fname->hash, fname->minor_hash);
+ 	while (fname) {
+ 		error = filldir(dirent, fname->name,
+-				fname->name_len, curr_pos, 
++				fname->name_len, curr_pos,
+ 				fname->inode,
+ 				get_dtype(sb, fname->file_type));
+ 		if (error) {
+@@ -465,7 +465,7 @@
+ 		/*
+ 		 * Fill the rbtree if we have no more entries,
+ 		 * or the inode has changed since we last read in the
+-		 * cached entries. 
++		 * cached entries.
+ 		 */
+ 		if ((!info->curr_node) ||
+ 		    (filp->f_version != inode->i_version)) {
+diff -urN linux-2.6.18-rc4/fs/ext3/file.c linux-2.6.18-rc4-ws/fs/ext3/file.c
+--- linux-2.6.18-rc4/fs/ext3/file.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/file.c	2006-08-10 22:50:58.606733368 -0700
+@@ -100,7 +100,7 @@
+ 
+ force_commit:
+ 	err = ext3_force_commit(inode->i_sb);
+-	if (err) 
++	if (err)
+ 		return err;
+ 	return ret;
+ }
+diff -urN linux-2.6.18-rc4/fs/ext3/fsync.c linux-2.6.18-rc4-ws/fs/ext3/fsync.c
+--- linux-2.6.18-rc4/fs/ext3/fsync.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/fsync.c	2006-08-10 22:50:58.607733260 -0700
+@@ -8,14 +8,14 @@
+  *                      Universite Pierre et Marie Curie (Paris VI)
+  *  from
+  *  linux/fs/minix/truncate.c   Copyright (C) 1991, 1992  Linus Torvalds
+- * 
++ *
+  *  ext3fs fsync primitive
+  *
+  *  Big-endian to little-endian byte-swapping/bitmaps by
+  *        David S. Miller (davem@caip.rutgers.edu), 1995
+- * 
++ *
+  *  Removed unnecessary code duplication for little endian machines
+- *  and excessive __inline__s. 
++ *  and excessive __inline__s.
+  *        Andi Kleen, 1997
+  *
+  * Major simplications and cleanup - we only need to do the metadata, because
+diff -urN linux-2.6.18-rc4/fs/ext3/hash.c linux-2.6.18-rc4-ws/fs/ext3/hash.c
+--- linux-2.6.18-rc4/fs/ext3/hash.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/hash.c	2006-08-10 22:50:58.630730774 -0700
+@@ -4,7 +4,7 @@
+  * Copyright (C) 2002 by Theodore Ts'o
+  *
+  * This file is released under the GPL v2.
+- * 
++ *
+  * This file may be redistributed under the terms of the GNU Public
+  * License.
+  */
+@@ -80,11 +80,11 @@
+  * Returns the hash of a filename.  If len is 0 and name is NULL, then
+  * this function can be used to test whether or not a hash version is
+  * supported.
+- * 
++ *
+  * The seed is an 4 longword (32 bits) "secret" which can be used to
+  * uniquify a hash.  If the seed is all zero's, then some default seed
+  * may be used.
+- * 
++ *
+  * A particular hash version specifies whether or not the seed is
+  * represented, and whether or not the returned hash is 32 bits or 64
+  * bits.  32 bit hashes will return 0 for the minor hash.
+diff -urN linux-2.6.18-rc4/fs/ext3/ialloc.c linux-2.6.18-rc4-ws/fs/ext3/ialloc.c
+--- linux-2.6.18-rc4/fs/ext3/ialloc.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/ialloc.c	2006-08-10 22:50:58.632730558 -0700
+@@ -216,7 +216,7 @@
+ 			continue;
+ 		if (le16_to_cpu(desc->bg_free_inodes_count) < avefreei)
+ 			continue;
+-		if (!best_desc || 
++		if (!best_desc ||
+ 		    (le16_to_cpu(desc->bg_free_blocks_count) >
+ 		     le16_to_cpu(best_desc->bg_free_blocks_count))) {
+ 			best_group = group;
+@@ -226,30 +226,30 @@
+ 	return best_group;
  }
  
-@@ -216,7 +216,7 @@ __flush_batch(journal_t *journal, struct
- 		struct buffer_head *bh = bhs[i];
- 		clear_buffer_jwrite(bh);
- 		BUFFER_TRACE(bh, "brelse");
--		__brelse(bh);
-+		put_bh(bh);
- 	}
- 	*batch_count = 0;
+-/* 
+- * Orlov's allocator for directories. 
+- * 
++/*
++ * Orlov's allocator for directories.
++ *
+  * We always try to spread first-level directories.
+  *
+- * If there are blockgroups with both free inodes and free blocks counts 
+- * not worse than average we return one with smallest directory count. 
+- * Otherwise we simply return a random group. 
+- * 
+- * For the rest rules look so: 
+- * 
+- * It's OK to put directory into a group unless 
+- * it has too many directories already (max_dirs) or 
+- * it has too few free inodes left (min_inodes) or 
+- * it has too few free blocks left (min_blocks) or 
+- * it's already running too large debt (max_debt). 
+- * Parent's group is prefered, if it doesn't satisfy these 
+- * conditions we search cyclically through the rest. If none 
+- * of the groups look good we just look for a group with more 
+- * free inodes than average (starting at parent's group). 
+- * 
+- * Debt is incremented each time we allocate a directory and decremented 
+- * when we allocate an inode, within 0--255. 
+- */ 
++ * If there are blockgroups with both free inodes and free blocks counts
++ * not worse than average we return one with smallest directory count.
++ * Otherwise we simply return a random group.
++ *
++ * For the rest rules look so:
++ *
++ * It's OK to put directory into a group unless
++ * it has too many directories already (max_dirs) or
++ * it has too few free inodes left (min_inodes) or
++ * it has too few free blocks left (min_blocks) or
++ * it's already running too large debt (max_debt).
++ * Parent's group is prefered, if it doesn't satisfy these
++ * conditions we search cyclically through the rest. If none
++ * of the groups look good we just look for a group with more
++ * free inodes than average (starting at parent's group).
++ *
++ * Debt is incremented each time we allocate a directory and decremented
++ * when we allocate an inode, within 0--255.
++ */
+ 
+ #define INODE_COST 64
+ #define BLOCK_COST 256
+@@ -454,7 +454,7 @@
+ 			group = find_group_dir(sb, dir);
+ 		else
+ 			group = find_group_orlov(sb, dir);
+-	} else 
++	} else
+ 		group = find_group_other(sb, dir);
+ 
+ 	err = -ENOSPC;
+diff -urN linux-2.6.18-rc4/fs/ext3/inode.c linux-2.6.18-rc4-ws/fs/ext3/inode.c
+--- linux-2.6.18-rc4/fs/ext3/inode.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/inode.c	2006-08-10 22:50:58.684724936 -0700
+@@ -55,7 +55,7 @@
+ /*
+  * The ext3 forget function must perform a revoke if we are freeing data
+  * which has been journaled.  Metadata (eg. indirect blocks) must be
+- * revoked in all cases. 
++ * revoked in all cases.
+  *
+  * "bh" may be NULL: a metadata block may have been freed from memory
+  * but there may still be a record of it in the journal, and that record
+@@ -105,7 +105,7 @@
+  * Work out how many blocks we need to proceed with the next chunk of a
+  * truncate transaction.
+  */
+-static unsigned long blocks_for_truncate(struct inode *inode) 
++static unsigned long blocks_for_truncate(struct inode *inode)
+ {
+ 	unsigned long needed;
+ 
+@@ -122,13 +122,13 @@
+ 
+ 	/* But we need to bound the transaction so we don't overflow the
+ 	 * journal. */
+-	if (needed > EXT3_MAX_TRANS_DATA) 
++	if (needed > EXT3_MAX_TRANS_DATA)
+ 		needed = EXT3_MAX_TRANS_DATA;
+ 
+ 	return EXT3_DATA_TRANS_BLOCKS(inode->i_sb) + needed;
  }
-@@ -243,7 +243,7 @@ static int __process_buffer(journal_t *j
- 		wait_on_buffer(bh);
- 		/* the journal_head may have gone by now */
- 		BUFFER_TRACE(bh, "brelse");
--		__brelse(bh);
-+		put_bh(bh);
- 		ret = 1;
- 	} else if (jh->b_transaction != NULL) {
- 		transaction_t *t = jh->b_transaction;
-@@ -261,7 +261,7 @@ static int __process_buffer(journal_t *j
- 		spin_unlock(&journal->j_list_lock);
- 		jbd_unlock_bh_state(bh);
- 		journal_remove_journal_head(bh);
--		__brelse(bh);
-+		put_bh(bh);
- 		ret = 1;
+ 
+-/* 
++/*
+  * Truncate transactions can be complex and absolutely huge.  So we need to
+  * be able to restart the transaction at a conventient checkpoint to make
+  * sure we don't overflow the journal.
+@@ -136,9 +136,9 @@
+  * start_transaction gets us a new handle for a truncate transaction,
+  * and extend_transaction tries to extend the existing one a bit.  If
+  * extend fails, we need to propagate the failure up and restart the
+- * transaction in the top-level truncate loop. --sct 
++ * transaction in the top-level truncate loop. --sct
+  */
+-static handle_t *start_transaction(struct inode *inode) 
++static handle_t *start_transaction(struct inode *inode)
+ {
+ 	handle_t *result;
+ 
+@@ -215,12 +215,12 @@
+ 	ext3_orphan_del(handle, inode);
+ 	EXT3_I(inode)->i_dtime	= get_seconds();
+ 
+-	/* 
++	/*
+ 	 * One subtle ordering requirement: if anything has gone wrong
+ 	 * (transaction abort, IO errors, whatever), then we can still
+ 	 * do these next steps (the fs will already have been marked as
+ 	 * having errors), but we can't free the inode if the mark_dirty
+-	 * fails.  
++	 * fails.
+ 	 */
+ 	if (ext3_mark_inode_dirty(handle, inode))
+ 		/* If that failed, just do the required in-core inode clear. */
+@@ -398,7 +398,7 @@
+  *	  + if there is a block to the left of our position - allocate near it.
+  *	  + if pointer will live in indirect block - allocate near that block.
+  *	  + if pointer will live in inode - allocate in the same
+- *	    cylinder group. 
++ *	    cylinder group.
+  *
+  * In the latter case we colour the starting block by the callers PID to
+  * prevent it from clashing with concurrent allocations for a different inode
+@@ -744,7 +744,7 @@
+ 		jbd_debug(5, "splicing indirect only\n");
+ 		BUFFER_TRACE(where->bh, "call ext3_journal_dirty_metadata");
+ 		err = ext3_journal_dirty_metadata(handle, where->bh);
+-		if (err) 
++		if (err)
+ 			goto err_out;
  	} else {
  		/*
-diff -puN fs/jbd/commit.c~ext3_replace_brelse_to_put_bh fs/jbd/commit.c
---- linux-2.6.18-rc4/fs/jbd/commit.c~ext3_replace_brelse_to_put_bh	2006-08-11 16:00:02.701001113 -0700
-+++ linux-2.6.18-rc4-ming/fs/jbd/commit.c	2006-08-11 16:01:07.183565310 -0700
-@@ -68,14 +68,14 @@ static void release_buffer_page(struct b
- 		goto nope;
- 
- 	page_cache_get(page);
--	__brelse(bh);
-+	put_bh(bh);
- 	try_to_free_buffers(page);
- 	unlock_page(page);
- 	page_cache_release(page);
- 	return;
- 
- nope:
--	__brelse(bh);
-+	put_bh(bh);
+@@ -1134,7 +1134,7 @@
+  * So what we do is to rely on the fact that journal_stop/journal_start
+  * will _not_ run commit under these circumstances because handle->h_ref
+  * is elevated.  We'll still have enough credits for the tiny quotafile
+- * write.  
++ * write.
+  */
+ static int do_journal_get_write_access(handle_t *handle,
+ 					struct buffer_head *bh)
+@@ -1279,7 +1279,7 @@
+ 	if (inode->i_size > EXT3_I(inode)->i_disksize) {
+ 		EXT3_I(inode)->i_disksize = inode->i_size;
+ 		ret2 = ext3_mark_inode_dirty(handle, inode);
+-		if (!ret) 
++		if (!ret)
+ 			ret = ret2;
+ 	}
+ 	ret2 = ext3_journal_stop(handle);
+@@ -1288,7 +1288,7 @@
+ 	return ret;
  }
+ 
+-/* 
++/*
+  * bmap() is special.  It gets used by applications such as lilo and by
+  * the swapper to find the on-disk block of a specific piece of data.
+  *
+@@ -1297,10 +1297,10 @@
+  * filesystem and enables swap, then they may get a nasty shock when the
+  * data getting swapped to that swapfile suddenly gets overwritten by
+  * the original zero's written out previously to the journal and
+- * awaiting writeback in the kernel's buffer cache. 
++ * awaiting writeback in the kernel's buffer cache.
+  *
+  * So, if we see any bmap calls here on a modified, data-journaled file,
+- * take extra steps to flush any blocks which might be in the cache. 
++ * take extra steps to flush any blocks which might be in the cache.
+  */
+ static sector_t ext3_bmap(struct address_space *mapping, sector_t block)
+ {
+@@ -1309,16 +1309,16 @@
+ 	int err;
+ 
+ 	if (EXT3_I(inode)->i_state & EXT3_STATE_JDATA) {
+-		/* 
++		/*
+ 		 * This is a REALLY heavyweight approach, but the use of
+ 		 * bmap on dirty files is expected to be extremely rare:
+ 		 * only if we run lilo or swapon on a freshly made file
+-		 * do we expect this to happen. 
++		 * do we expect this to happen.
+ 		 *
+ 		 * (bmap requires CAP_SYS_RAWIO so this does not
+ 		 * represent an unprivileged user DOS attack --- we'd be
+ 		 * in trouble if mortal users could trigger this path at
+-		 * will.) 
++		 * will.)
+ 		 *
+ 		 * NB. EXT3_STATE_JDATA is not set on files other than
+ 		 * regular files.  If somebody wants to bmap a directory
+@@ -1454,7 +1454,7 @@
+ 	 */
+ 
+ 	/*
+-	 * And attach them to the current transaction.  But only if 
++	 * And attach them to the current transaction.  But only if
+ 	 * block_write_full_page() succeeded.  Otherwise they are unmapped,
+ 	 * and generally junk.
+ 	 */
+@@ -1641,7 +1641,7 @@
+ 		}
+ 	}
+ 
+-	ret = blockdev_direct_IO(rw, iocb, inode, inode->i_sb->s_bdev, iov, 
++	ret = blockdev_direct_IO(rw, iocb, inode, inode->i_sb->s_bdev, iov,
+ 				 offset, nr_segs,
+ 				 ext3_get_block, NULL);
+ 
+@@ -2022,7 +2022,7 @@
+ 			   __le32 *first, __le32 *last)
+ {
+ 	ext3_fsblk_t block_to_free = 0;    /* Starting block # of a run */
+-	unsigned long count = 0;	    /* Number of blocks in the run */ 
++	unsigned long count = 0;	    /* Number of blocks in the run */
+ 	__le32 *block_to_free_p = NULL;	    /* Pointer into inode/ind
+ 					       corresponding to
+ 					       block_to_free */
+@@ -2051,7 +2051,7 @@
+ 			} else if (nr == block_to_free + count) {
+ 				count++;
+ 			} else {
+-				ext3_clear_blocks(handle, inode, this_bh, 
++				ext3_clear_blocks(handle, inode, this_bh,
+ 						  block_to_free,
+ 						  count, block_to_free_p, p);
+ 				block_to_free = nr;
+@@ -2181,7 +2181,7 @@
+ 					*p = 0;
+ 					BUFFER_TRACE(parent_bh,
+ 					"call ext3_journal_dirty_metadata");
+-					ext3_journal_dirty_metadata(handle, 
++					ext3_journal_dirty_metadata(handle,
+ 								    parent_bh);
+ 				}
+ 			}
+@@ -2631,7 +2631,7 @@
+ 	}
+ 	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size
+ 					 * (for stat), not the fs block
+-					 * size */  
++					 * size */
+ 	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
+ 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
+ #ifdef EXT3_FRAGMENTS
+@@ -2701,7 +2701,7 @@
+ 		if (raw_inode->i_block[0])
+ 			init_special_inode(inode, inode->i_mode,
+ 			   old_decode_dev(le32_to_cpu(raw_inode->i_block[0])));
+-		else 
++		else
+ 			init_special_inode(inode, inode->i_mode,
+ 			   new_decode_dev(le32_to_cpu(raw_inode->i_block[1])));
+ 	}
+@@ -2721,8 +2721,8 @@
+  *
+  * The caller must have write access to iloc->bh.
+  */
+-static int ext3_do_update_inode(handle_t *handle, 
+-				struct inode *inode, 
++static int ext3_do_update_inode(handle_t *handle,
++				struct inode *inode,
+ 				struct ext3_iloc *iloc)
+ {
+ 	struct ext3_inode *raw_inode = ext3_raw_inode(iloc);
+@@ -2897,7 +2897,7 @@
+  * commit will leave the blocks being flushed in an unused state on
+  * disk.  (On recovery, the inode will get truncated and the blocks will
+  * be freed, so we have a strong guarantee that no future commit will
+- * leave these blocks visible to the user.)  
++ * leave these blocks visible to the user.)
+  *
+  * Called with inode->sem down.
+  */
+@@ -3040,13 +3040,13 @@
+ 	return err;
+ }
+ 
+-/* 
++/*
+  * On success, We end up with an outstanding reference count against
+- * iloc->bh.  This _must_ be cleaned up later. 
++ * iloc->bh.  This _must_ be cleaned up later.
+  */
+ 
+ int
+-ext3_reserve_inode_write(handle_t *handle, struct inode *inode, 
++ext3_reserve_inode_write(handle_t *handle, struct inode *inode,
+ 			 struct ext3_iloc *iloc)
+ {
+ 	int err = 0;
+@@ -3136,7 +3136,7 @@
+ }
+ 
+ #if 0
+-/* 
++/*
+  * Bind an inode's backing buffer_head into this transaction, to prevent
+  * it from being flushed to disk early.  Unlike
+  * ext3_reserve_inode_write, this leaves behind no bh reference and
+@@ -3154,7 +3154,7 @@
+ 			BUFFER_TRACE(iloc.bh, "get_write_access");
+ 			err = journal_get_write_access(handle, iloc.bh);
+ 			if (!err)
+-				err = ext3_journal_dirty_metadata(handle, 
++				err = ext3_journal_dirty_metadata(handle,
+ 								  iloc.bh);
+ 			brelse(iloc.bh);
+ 		}
+diff -urN linux-2.6.18-rc4/fs/ext3/namei.c linux-2.6.18-rc4-ws/fs/ext3/namei.c
+--- linux-2.6.18-rc4/fs/ext3/namei.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/namei.c	2006-08-10 22:50:58.710722125 -0700
+@@ -76,7 +76,7 @@
+ #ifdef DX_DEBUG
+ #define dxtrace(command) command
+ #else
+-#define dxtrace(command) 
++#define dxtrace(command)
+ #endif
+ 
+ struct fake_dirent
+@@ -169,7 +169,7 @@
+ static void dx_insert_block (struct dx_frame *frame, u32 hash, u32 block);
+ static int ext3_htree_next_block(struct inode *dir, __u32 hash,
+ 				 struct dx_frame *frame,
+-				 struct dx_frame *frames, 
++				 struct dx_frame *frames,
+ 				 __u32 *start_hash);
+ static struct buffer_head * ext3_dx_find_entry(struct dentry *dentry,
+ 		       struct ext3_dir_entry_2 **res_dir, int *err);
+@@ -250,7 +250,7 @@
+ }
+ 
+ struct stats
+-{ 
++{
+ 	unsigned names;
+ 	unsigned space;
+ 	unsigned bcount;
+@@ -464,7 +464,7 @@
+  */
+ static int ext3_htree_next_block(struct inode *dir, __u32 hash,
+ 				 struct dx_frame *frame,
+-				 struct dx_frame *frames, 
++				 struct dx_frame *frames,
+ 				 __u32 *start_hash)
+ {
+ 	struct dx_frame *p;
+@@ -632,7 +632,7 @@
+ 		}
+ 		count += ret;
+ 		hashval = ~0;
+-		ret = ext3_htree_next_block(dir, HASH_NB_ALWAYS, 
++		ret = ext3_htree_next_block(dir, HASH_NB_ALWAYS,
+ 					    frame, frames, &hashval);
+ 		*next_hash = hashval;
+ 		if (ret < 0) {
+@@ -649,7 +649,7 @@
+ 			break;
+ 	}
+ 	dx_release(frames);
+-	dxtrace(printk("Fill tree: returned %d entries, next hash: %x\n", 
++	dxtrace(printk("Fill tree: returned %d entries, next hash: %x\n",
+ 		       count, *next_hash));
+ 	return count;
+ errout:
+@@ -1050,7 +1050,7 @@
+ 		parent = ERR_PTR(-ENOMEM);
+ 	}
+ 	return parent;
+-} 
++}
+ 
+ #define S_SHIFT 12
+ static unsigned char ext3_type_by_mode[S_IFMT >> S_SHIFT] = {
+@@ -1198,7 +1198,7 @@
+  * add_dirent_to_buf will attempt search the directory block for
+  * space.  It will return -ENOSPC if no space is available, and -EIO
+  * and -EEXIST if directory entry already exists.
+- * 
++ *
+  * NOTE!  bh is NOT released in the case where ENOSPC is returned.  In
+  * all other cases bh is released.
+  */
+@@ -1572,7 +1572,7 @@
+  * ext3_delete_entry deletes a directory entry by merging it with the
+  * previous entry
+  */
+-static int ext3_delete_entry (handle_t *handle, 
++static int ext3_delete_entry (handle_t *handle,
+ 			      struct inode * dir,
+ 			      struct ext3_dir_entry_2 * de_del,
+ 			      struct buffer_head * bh)
+@@ -1643,12 +1643,12 @@
+  * is so far negative - it has no inode.
+  *
+  * If the create succeeds, we fill in the inode information
+- * with d_instantiate(). 
++ * with d_instantiate().
+  */
+ static int ext3_create (struct inode * dir, struct dentry * dentry, int mode,
+ 		struct nameidata *nd)
+ {
+-	handle_t *handle; 
++	handle_t *handle;
+ 	struct inode * inode;
+ 	int err, retries = 0;
+ 
+@@ -1813,7 +1813,7 @@
+ 	de1 = (struct ext3_dir_entry_2 *)
+ 			((char *) de + le16_to_cpu(de->rec_len));
+ 	if (le32_to_cpu(de->inode) != inode->i_ino ||
+-			!le32_to_cpu(de1->inode) || 
++			!le32_to_cpu(de1->inode) ||
+ 			strcmp (".", de->name) ||
+ 			strcmp ("..", de1->name)) {
+ 	    	ext3_warning (inode->i_sb, "empty_dir",
+@@ -1883,7 +1883,7 @@
+ 	 * being truncated, or files being unlinked. */
+ 
+ 	/* @@@ FIXME: Observation from aviro:
+-	 * I think I can trigger J_ASSERT in ext3_orphan_add().  We block 
++	 * I think I can trigger J_ASSERT in ext3_orphan_add().  We block
+ 	 * here (on lock_super()), so race with ext3_link() which might bump
+ 	 * ->i_nlink. For, say it, character device. Not a regular file,
+ 	 * not a directory, not a symlink and ->i_nlink > 0.
+@@ -2393,4 +2393,4 @@
+ 	.removexattr	= generic_removexattr,
+ #endif
+ 	.permission	= ext3_permission,
+-}; 
++};
+diff -urN linux-2.6.18-rc4/fs/ext3/super.c linux-2.6.18-rc4-ws/fs/ext3/super.c
+--- linux-2.6.18-rc4/fs/ext3/super.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/ext3/super.c	2006-08-10 22:50:58.736719315 -0700
+@@ -62,13 +62,13 @@
+ static void ext3_write_super (struct super_block * sb);
+ static void ext3_write_super_lockfs(struct super_block *sb);
+ 
+-/* 
++/*
+  * Wrappers for journal_start/end.
+  *
+  * The only special thing we need to do here is to make sure that all
+  * journal_end calls result in the superblock being marked dirty, so
+  * that sync() will call the filesystem's write_super callback if
+- * appropriate. 
++ * appropriate.
+  */
+ handle_t *ext3_journal_start_sb(struct super_block *sb, int nblocks)
+ {
+@@ -90,11 +90,11 @@
+ 	return journal_start(journal, nblocks);
+ }
+ 
+-/* 
++/*
+  * The only special thing we need to do here is to make sure that all
+  * journal_stop calls result in the superblock being marked dirty, so
+  * that sync() will call the filesystem's write_super callback if
+- * appropriate. 
++ * appropriate.
+  */
+ int __ext3_journal_stop(const char *where, handle_t *handle)
+ {
+@@ -369,7 +369,7 @@
+ {
+ 	struct list_head *l;
+ 
+-	printk(KERN_ERR "sb orphan head is %d\n", 
++	printk(KERN_ERR "sb orphan head is %d\n",
+ 	       le32_to_cpu(sbi->s_es->s_last_orphan));
+ 
+ 	printk(KERN_ERR "sb_info orphan list:\n");
+@@ -378,7 +378,7 @@
+ 		printk(KERN_ERR "  "
+ 		       "inode %s:%ld at %p: mode %o, nlink %d, next %d\n",
+ 		       inode->i_sb->s_id, inode->i_ino, inode,
+-		       inode->i_mode, inode->i_nlink, 
++		       inode->i_mode, inode->i_nlink,
+ 		       NEXT_ORPHAN(inode));
+ 	}
+ }
+@@ -475,7 +475,7 @@
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
+ }
+- 
++
+ static int init_inodecache(void)
+ {
+ 	ext3_inode_cachep = kmem_cache_create("ext3_inode_cache",
+@@ -1441,7 +1441,7 @@
+ 	    (EXT3_HAS_COMPAT_FEATURE(sb, ~0U) ||
+ 	     EXT3_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
+ 	     EXT3_HAS_INCOMPAT_FEATURE(sb, ~0U)))
+-		printk(KERN_WARNING 
++		printk(KERN_WARNING
+ 		       "EXT3-fs warning: feature flags set on rev 0 fs, "
+ 		       "running e2fsck is recommended\n");
+ 	/*
+@@ -1467,7 +1467,7 @@
+ 
+ 	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
+ 	    blocksize > EXT3_MAX_BLOCK_SIZE) {
+-		printk(KERN_ERR 
++		printk(KERN_ERR
+ 		       "EXT3-fs: Unsupported filesystem blocksize %d on %s.\n",
+ 		       blocksize, sb->s_id);
+ 		goto failed_mount;
+@@ -1491,14 +1491,14 @@
+ 		offset = (sb_block * EXT3_MIN_BLOCK_SIZE) % blocksize;
+ 		bh = sb_bread(sb, logic_sb_block);
+ 		if (!bh) {
+-			printk(KERN_ERR 
++			printk(KERN_ERR
+ 			       "EXT3-fs: Can't read superblock on 2nd try.\n");
+ 			goto failed_mount;
+ 		}
+ 		es = (struct ext3_super_block *)(((char *)bh->b_data) + offset);
+ 		sbi->s_es = es;
+ 		if (es->s_magic != cpu_to_le16(EXT3_SUPER_MAGIC)) {
+-			printk (KERN_ERR 
++			printk (KERN_ERR
+ 				"EXT3-fs: Magic mismatch, very weird !\n");
+ 			goto failed_mount;
+ 		}
+@@ -1778,7 +1778,7 @@
+ /*
+  * Setup any per-fs journal parameters now.  We'll do this both on
+  * initial mount, once the journal has been initialised but before we've
+- * done any recovery; and again on any subsequent remount. 
++ * done any recovery; and again on any subsequent remount.
+  */
+ static void ext3_init_journal_params(struct super_block *sb, journal_t *journal)
+ {
+diff -urN linux-2.6.18-rc4/fs/jbd/checkpoint.c linux-2.6.18-rc4-ws/fs/jbd/checkpoint.c
+--- linux-2.6.18-rc4/fs/jbd/checkpoint.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/jbd/checkpoint.c	2006-08-10 22:50:12.168761094 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * linux/fs/checkpoint.c
+- * 
++ *
+  * Written by Stephen C. Tweedie <sct@redhat.com>, 1999
+  *
+  * Copyright 1999 Red Hat Software --- All Rights Reserved
+@@ -9,8 +9,8 @@
+  * the terms of the GNU General Public License, version 2, or at your
+  * option, any later version, incorporated herein by reference.
+  *
+- * Checkpoint routines for the generic filesystem journaling code.  
+- * Part of the ext2fs journaling system.  
++ * Checkpoint routines for the generic filesystem journaling code.
++ * Part of the ext2fs journaling system.
+  *
+  * Checkpointing is the process of ensuring that a section of the log is
+  * committed fully to disk, so that that portion of the log can be
+@@ -225,7 +225,7 @@
+  * Try to flush one buffer from the checkpoint list to disk.
+  *
+  * Return 1 if something happened which requires us to abort the current
+- * scan of the checkpoint list.  
++ * scan of the checkpoint list.
+  *
+  * Called with j_list_lock held and drops it if 1 is returned
+  * Called under jbd_lock_bh_state(jh2bh(jh)), and drops it
+@@ -269,7 +269,7 @@
+ 		 * possibly block, while still holding the journal lock.
+ 		 * We cannot afford to let the transaction logic start
+ 		 * messing around with this buffer before we write it to
+-		 * disk, as that would break recoverability.  
++		 * disk, as that would break recoverability.
+ 		 */
+ 		BUFFER_TRACE(bh, "queue");
+ 		get_bh(bh);
+@@ -292,7 +292,7 @@
+  * Perform an actual checkpoint. We take the first transaction on the
+  * list of transactions to be checkpointed and send all its buffers
+  * to disk. We submit larger chunks of data at once.
+- * 
++ *
+  * The journal should be locked before calling this function.
+  */
+ int log_do_checkpoint(journal_t *journal)
+@@ -303,10 +303,10 @@
+ 
+ 	jbd_debug(1, "Start checkpoint\n");
+ 
+-	/* 
++	/*
+ 	 * First thing: if there are any transactions in the log which
+ 	 * don't need checkpointing, just eliminate them from the
+-	 * journal straight away.  
++	 * journal straight away.
+ 	 */
+ 	result = cleanup_journal_tail(journal);
+ 	jbd_debug(1, "cleanup_journal_tail returned %d\n", result);
+@@ -384,9 +384,9 @@
+  * we have already got rid of any since the last update of the log tail
+  * in the journal superblock.  If so, we can instantly roll the
+  * superblock forward to remove those transactions from the log.
+- * 
++ *
+  * Return <0 on error, 0 on success, 1 if there was nothing to clean up.
+- * 
++ *
+  * Called with the journal lock held.
+  *
+  * This is the only part of the journaling code which really needs to be
+@@ -403,8 +403,8 @@
+ 	unsigned long	blocknr, freed;
+ 
+ 	/* OK, work out the oldest transaction remaining in the log, and
+-	 * the log block it starts at. 
+-	 * 
++	 * the log block it starts at.
++	 *
+ 	 * If the log is now empty, we need to work out which is the
+ 	 * next transaction ID we will write, and where it will
+ 	 * start. */
+@@ -557,7 +557,7 @@
+ 	return ret;
+ }
+ 
+-/* 
++/*
+  * journal_remove_checkpoint: called after a buffer has been committed
+  * to disk (either by being write-back flushed to disk, or being
+  * committed to the log).
+@@ -635,7 +635,7 @@
+  * Called with the journal locked.
+  * Called with j_list_lock held.
+  */
+-void __journal_insert_checkpoint(struct journal_head *jh, 
++void __journal_insert_checkpoint(struct journal_head *jh,
+ 			       transaction_t *transaction)
+ {
+ 	JBUFFER_TRACE(jh, "entry");
+@@ -657,7 +657,7 @@
  
  /*
-@@ -642,7 +642,7 @@ wait_for_iobuf:
- 		 */
- 		BUFFER_TRACE(bh, "dumping temporary bh");
- 		journal_put_journal_head(jh);
--		__brelse(bh);
-+		put_bh(bh);
- 		J_ASSERT_BH(bh, atomic_read(&bh->b_count) == 0);
- 		free_buffer_head(bh);
+  * We've finished with this transaction structure: adios...
+- * 
++ *
+  * The transaction must have no links except for the checkpoint by this
+  * point.
+  *
+diff -urN linux-2.6.18-rc4/fs/jbd/journal.c linux-2.6.18-rc4-ws/fs/jbd/journal.c
+--- linux-2.6.18-rc4/fs/jbd/journal.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/jbd/journal.c	2006-08-10 22:50:12.227754698 -0700
+@@ -577,7 +577,7 @@
+  * this is a no-op.  If needed, we can use j_blk_offset - everything is
+  * ready.
+  */
+-int journal_bmap(journal_t *journal, unsigned long blocknr, 
++int journal_bmap(journal_t *journal, unsigned long blocknr,
+ 		 unsigned long *retp)
+ {
+ 	int err = 0;
+@@ -698,10 +698,10 @@
+  *  @len:  Lenght of the journal in blocks.
+  *  @blocksize: blocksize of journalling device
+  *  @returns: a newly created journal_t *
+- *  
++ *
+  *  journal_init_dev creates a journal which maps a fixed contiguous
+  *  range of blocks on an arbitrary block device.
+- * 
++ *
+  */
+ journal_t * journal_init_dev(struct block_device *bdev,
+ 			struct block_device *fs_dev,
+@@ -738,11 +738,11 @@
  
-@@ -663,7 +663,7 @@ wait_for_iobuf:
- 		   IO to complete */
- 		wake_up_bit(&bh->b_state, BH_Unshadow);
- 		JBUFFER_TRACE(jh, "brelse shadowed buffer");
--		__brelse(bh);
-+		put_bh(bh);
- 	}
+ 	return journal;
+ }
+- 
+-/** 
++
++/**
+  *  journal_t * journal_init_inode () - creates a journal which maps to a inode.
+  *  @inode: An inode to create the journal in
+- *  
++ *
+  * journal_init_inode creates a journal which maps an on-disk inode as
+  * the journal.  The inode must exist already, must support bmap() and
+  * must have all data blocks preallocated.
+@@ -762,7 +762,7 @@
+ 	journal->j_inode = inode;
+ 	jbd_debug(1,
+ 		  "journal %p: inode %s/%ld, size %Ld, bits %d, blksize %ld\n",
+-		  journal, inode->i_sb->s_id, inode->i_ino, 
++		  journal, inode->i_sb->s_id, inode->i_ino,
+ 		  (long long) inode->i_size,
+ 		  inode->i_sb->s_blocksize_bits, inode->i_sb->s_blocksize);
  
- 	J_ASSERT (commit_transaction->t_shadow_list == NULL);
-@@ -691,7 +691,7 @@ wait_for_iobuf:
- 		clear_buffer_jwrite(bh);
- 		journal_unfile_buffer(journal, jh);
- 		journal_put_journal_head(jh);
--		__brelse(bh);		/* One for getblk */
-+		put_bh(bh);		/* One for getblk */
- 		/* AKPM: bforget here */
- 	}
+@@ -797,10 +797,10 @@
+ 	return journal;
+ }
  
-diff -puN fs/jbd/journal.c~ext3_replace_brelse_to_put_bh fs/jbd/journal.c
---- linux-2.6.18-rc4/fs/jbd/journal.c~ext3_replace_brelse_to_put_bh	2006-08-11 16:00:02.763993849 -0700
-+++ linux-2.6.18-rc4-ming/fs/jbd/journal.c	2006-08-11 16:01:07.241558622 -0700
-@@ -805,7 +805,7 @@ journal_t * journal_init_inode (struct i
+-/* 
++/*
+  * If the journal init or create aborts, we need to mark the journal
+  * superblock as being NULL to prevent the journal destroy from writing
+- * back a bogus superblock. 
++ * back a bogus superblock.
+  */
  static void journal_fail_superblock (journal_t *journal)
  {
- 	struct buffer_head *bh = journal->j_sb_buffer;
--	brelse(bh);
-+	put_bh(bh);
- 	journal->j_sb_buffer = NULL;
+@@ -843,13 +843,13 @@
+ 	return 0;
  }
  
-@@ -890,7 +890,7 @@ int journal_create(journal_t *journal)
- 		BUFFER_TRACE(bh, "marking uptodate");
- 		set_buffer_uptodate(bh);
- 		unlock_buffer(bh);
--		__brelse(bh);
-+		put_bh(bh);
- 	}
+-/** 
++/**
+  * int journal_create() - Initialise the new journal file
+  * @journal: Journal to create. This structure must have been initialised
+- * 
++ *
+  * Given a journal_t structure which tells us which disk blocks we can
+  * use, create a new journal superblock and initialise all of the
+- * journal fields from scratch.  
++ * journal fields from scratch.
+  **/
+ int journal_create(journal_t *journal)
+ {
+@@ -914,7 +914,7 @@
+ 	return journal_reset(journal);
+ }
  
- 	sync_blockdev(journal->j_dev);
-@@ -1146,7 +1146,7 @@ void journal_destroy(journal_t *journal)
- 	journal->j_tail_sequence = ++journal->j_transaction_sequence;
- 	if (journal->j_sb_buffer) {
- 		journal_update_superblock(journal, 1);
--		brelse(journal->j_sb_buffer);
-+		put_bh(journal->j_sb_buffer);
+-/** 
++/**
+  * void journal_update_superblock() - Update journal sb on disk.
+  * @journal: The journal to update.
+  * @wait: Set to '0' if you don't want to wait for IO completion.
+@@ -938,7 +938,7 @@
+ 				journal->j_transaction_sequence) {
+ 		jbd_debug(1,"JBD: Skipping superblock update on recovered sb "
+ 			"(start %ld, seq %d, errno %d)\n",
+-			journal->j_tail, journal->j_tail_sequence, 
++			journal->j_tail, journal->j_tail_sequence,
+ 			journal->j_errno);
+ 		goto out;
  	}
+@@ -1061,7 +1061,7 @@
+ /**
+  * int journal_load() - Read journal from disk.
+  * @journal: Journal to act on.
+- * 
++ *
+  * Given a journal_t structure which tells us which disk blocks contain
+  * a journal, read the journal from disk to initialise the in-memory
+  * structures.
+@@ -1164,9 +1164,9 @@
+  * @compat: bitmask of compatible features
+  * @ro: bitmask of features that force read-only mount
+  * @incompat: bitmask of incompatible features
+- * 
++ *
+  * Check whether the journal uses all of a given set of
+- * features.  Return true (non-zero) if it does. 
++ * features.  Return true (non-zero) if it does.
+  **/
  
- 	if (journal->j_inode)
-@@ -1810,7 +1810,7 @@ static void __journal_remove_journal_hea
- 			bh->b_private = NULL;
- 			jh->b_bh = NULL;	/* debug, really */
- 			clear_buffer_jbd(bh);
--			__brelse(bh);
-+			put_bh(bh);
- 			journal_free_journal_head(jh);
- 		} else {
- 			BUFFER_TRACE(bh, "journal_head was locked");
-@@ -1827,8 +1827,8 @@ static void __journal_remove_journal_hea
-  * We in fact take an additional increment on ->b_count as a convenience,
-  * because the caller usually wants to do additional things with the bh
-  * after calling here.
-- * The caller of journal_remove_journal_head() *must* run __brelse(bh) at some
-- * time.  Once the caller has run __brelse(), the buffer is eligible for
-+ * The caller of journal_remove_journal_head() *must* run put_bh(bh) at some
-+ * time.  Once the caller has run put_bh(), the buffer is eligible for
-  * reaping by try_to_free_buffers().
+ int journal_check_used_features (journal_t *journal, unsigned long compat,
+@@ -1195,7 +1195,7 @@
+  * @compat: bitmask of compatible features
+  * @ro: bitmask of features that force read-only mount
+  * @incompat: bitmask of incompatible features
+- * 
++ *
+  * Check whether the journaling code supports the use of
+  * all of a given set of features on this journal.  Return true
+  * (non-zero) if it can. */
+@@ -1233,7 +1233,7 @@
+  * @incompat: bitmask of incompatible features
+  *
+  * Mark a given journal feature as present on the
+- * superblock.  Returns true if the requested features could be set. 
++ * superblock.  Returns true if the requested features could be set.
+  *
   */
- void journal_remove_journal_head(struct buffer_head *bh)
-@@ -1851,7 +1851,7 @@ void journal_put_journal_head(struct jou
- 	--jh->b_jcount;
- 	if (!jh->b_jcount && !jh->b_transaction) {
- 		__journal_remove_journal_head(bh);
--		__brelse(bh);
-+		put_bh(bh);
- 	}
- 	jbd_unlock_bh_journal_head(bh);
+ 
+@@ -1319,7 +1319,7 @@
+ /**
+  * int journal_flush () - Flush journal
+  * @journal: Journal to act on.
+- * 
++ *
+  * Flush all data for a given journal to disk and empty the journal.
+  * Filesystems can use this when remounting readonly to ensure that
+  * recovery does not need to happen on remount.
+@@ -1386,7 +1386,7 @@
+  * int journal_wipe() - Wipe journal contents
+  * @journal: Journal to act on.
+  * @write: flag (see below)
+- * 
++ *
+  * Wipe out all of the contents of a journal, safely.  This will produce
+  * a warning if the journal contains any valid recovery information.
+  * Must be called between journal_init_*() and journal_load().
+@@ -1441,7 +1441,7 @@
+ 
+ /*
+  * Journal abort has very specific semantics, which we describe
+- * for journal abort. 
++ * for journal abort.
+  *
+  * Two internal function, which provide abort to te jbd layer
+  * itself are here.
+@@ -1496,7 +1496,7 @@
+  * Perform a complete, immediate shutdown of the ENTIRE
+  * journal (not of a single transaction).  This operation cannot be
+  * undone without closing and reopening the journal.
+- *           
++ *
+  * The journal_abort function is intended to support higher level error
+  * recovery mechanisms such as the ext2/ext3 remount-readonly error
+  * mode.
+@@ -1530,7 +1530,7 @@
+  * supply an errno; a null errno implies that absolutely no further
+  * writes are done to the journal (unless there are any already in
+  * progress).
+- * 
++ *
+  */
+ 
+ void journal_abort(journal_t *journal, int errno)
+@@ -1538,7 +1538,7 @@
+ 	__journal_abort_soft(journal, errno);
  }
-diff -puN fs/jbd/recovery.c~ext3_replace_brelse_to_put_bh fs/jbd/recovery.c
---- linux-2.6.18-rc4/fs/jbd/recovery.c~ext3_replace_brelse_to_put_bh	2006-08-11 16:00:02.823986931 -0700
-+++ linux-2.6.18-rc4-ming/fs/jbd/recovery.c	2006-08-11 16:01:07.266555740 -0700
-@@ -108,7 +108,7 @@ static int do_readahead(journal_t *journ
- 				nbufs = 0;
- 			}
- 		} else
--			brelse(bh);
-+			put_bh(bh);
- 	}
  
- 	if (nbufs)
-@@ -165,7 +165,7 @@ static int jread(struct buffer_head **bh
- 	if (!buffer_uptodate(bh)) {
- 		printk (KERN_ERR "JBD: Failed to read block at offset %u\n",
- 			offset);
--		brelse(bh);
-+		put_bh(bh);
- 		return -EIO;
- 	}
+-/** 
++/**
+  * int journal_errno () - returns the journal's error state.
+  * @journal: journal to examine.
+  *
+@@ -1562,7 +1562,7 @@
+ 	return err;
+ }
  
-@@ -388,7 +388,7 @@ static int do_one_pass(journal_t *journa
- 		tmp = (journal_header_t *)bh->b_data;
+-/** 
++/**
+  * int journal_clear_err () - clears the journal's error state
+  * @journal: journal to act on.
+  *
+@@ -1582,7 +1582,7 @@
+ 	return err;
+ }
  
- 		if (tmp->h_magic != cpu_to_be32(JFS_MAGIC_NUMBER)) {
--			brelse(bh);
-+			put_bh(bh);
- 			break;
- 		}
+-/** 
++/**
+  * void journal_ack_err() - Ack journal err.
+  * @journal: journal to act on.
+  *
+@@ -1604,7 +1604,7 @@
  
-@@ -398,7 +398,7 @@ static int do_one_pass(journal_t *journa
+ /*
+  * Simple support for retrying memory allocations.  Introduced to help to
+- * debug different VM deadlock avoidance strategies. 
++ * debug different VM deadlock avoidance strategies.
+  */
+ void * __jbd_kmalloc (const char *where, size_t size, gfp_t flags, int retry)
+ {
+diff -urN linux-2.6.18-rc4/fs/jbd/recovery.c linux-2.6.18-rc4-ws/fs/jbd/recovery.c
+--- linux-2.6.18-rc4/fs/jbd/recovery.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/jbd/recovery.c	2006-08-10 22:50:12.252751988 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * linux/fs/recovery.c
+- * 
++ *
+  * Written by Stephen C. Tweedie <sct@redhat.com>, 1999
+  *
+  * Copyright 1999-2000 Red Hat Software --- All Rights Reserved
+@@ -10,7 +10,7 @@
+  * option, any later version, incorporated herein by reference.
+  *
+  * Journal recovery routines for the generic filesystem journaling code;
+- * part of the ext2fs journaling system.  
++ * part of the ext2fs journaling system.
+  */
+ 
+ #ifndef __KERNEL__
+@@ -25,9 +25,9 @@
+ 
+ /*
+  * Maintain information about the progress of the recovery job, so that
+- * the different passes can carry information between them. 
++ * the different passes can carry information between them.
+  */
+-struct recovery_info 
++struct recovery_info
+ {
+ 	tid_t		start_transaction;
+ 	tid_t		end_transaction;
+@@ -116,7 +116,7 @@
+ 	err = 0;
+ 
+ failed:
+-	if (nbufs) 
++	if (nbufs)
+ 		journal_brelse_array(bufs, nbufs);
+ 	return err;
+ }
+@@ -128,7 +128,7 @@
+  * Read a block from the journal
+  */
+ 
+-static int jread(struct buffer_head **bhp, journal_t *journal, 
++static int jread(struct buffer_head **bhp, journal_t *journal,
+ 		 unsigned int offset)
+ {
+ 	int err;
+@@ -212,14 +212,14 @@
+ /**
+  * journal_recover - recovers a on-disk journal
+  * @journal: the journal to recover
+- * 
++ *
+  * The primary function for recovering the log contents when mounting a
+- * journaled device.  
++ * journaled device.
+  *
+  * Recovery is done in three passes.  In the first pass, we look for the
+  * end of the log.  In the second, we assemble the list of revoke
+  * blocks.  In the third and final pass, we replay any un-revoked blocks
+- * in the log.  
++ * in the log.
+  */
+ int journal_recover(journal_t *journal)
+ {
+@@ -231,10 +231,10 @@
+ 	memset(&info, 0, sizeof(info));
+ 	sb = journal->j_superblock;
+ 
+-	/* 
++	/*
+ 	 * The journal superblock's s_start field (the current log head)
+ 	 * is always zero if, and only if, the journal was cleanly
+-	 * unmounted.  
++	 * unmounted.
+ 	 */
+ 
+ 	if (!sb->s_start) {
+@@ -253,7 +253,7 @@
+ 	jbd_debug(0, "JBD: recovery, exit status %d, "
+ 		  "recovered transactions %u to %u\n",
+ 		  err, info.start_transaction, info.end_transaction);
+-	jbd_debug(0, "JBD: Replayed %d and revoked %d/%d blocks\n", 
++	jbd_debug(0, "JBD: Replayed %d and revoked %d/%d blocks\n",
+ 		  info.nr_replays, info.nr_revoke_hits, info.nr_revokes);
+ 
+ 	/* Restart the log at the next transaction ID, thus invalidating
+@@ -268,15 +268,15 @@
+ /**
+  * journal_skip_recovery - Start journal and wipe exiting records
+  * @journal: journal to startup
+- * 
++ *
+  * Locate any valid recovery information from the journal and set up the
+  * journal structures in memory to ignore it (presumably because the
+- * caller has evidence that it is out of date).  
++ * caller has evidence that it is out of date).
+  * This function does'nt appear to be exorted..
+  *
+  * We perform one pass over the journal to allow us to tell the user how
+  * much recovery information is being erased, and to let us initialise
+- * the journal transaction sequence numbers to the next unused ID. 
++ * the journal transaction sequence numbers to the next unused ID.
+  */
+ int journal_skip_recovery(journal_t *journal)
+ {
+@@ -297,7 +297,7 @@
+ #ifdef CONFIG_JBD_DEBUG
+ 		int dropped = info.end_transaction - be32_to_cpu(sb->s_sequence);
+ #endif
+-		jbd_debug(0, 
++		jbd_debug(0,
+ 			  "JBD: ignoring %d transaction%s from the journal.\n",
+ 			  dropped, (dropped == 1) ? "" : "s");
+ 		journal->j_transaction_sequence = ++info.end_transaction;
+@@ -324,10 +324,10 @@
+ 	MAX_BLOCKS_PER_DESC = ((journal->j_blocksize-sizeof(journal_header_t))
+ 			       / sizeof(journal_block_tag_t));
+ 
+-	/* 
++	/*
+ 	 * First thing is to establish what we expect to find in the log
+ 	 * (in terms of transaction IDs), and where (in terms of log
+-	 * block offsets): query the superblock.  
++	 * block offsets): query the superblock.
+ 	 */
+ 
+ 	sb = journal->j_superblock;
+@@ -344,7 +344,7 @@
+ 	 * Now we walk through the log, transaction by transaction,
+ 	 * making sure that each transaction has a commit block in the
+ 	 * expected place.  Each complete transaction gets replayed back
+-	 * into the main filesystem. 
++	 * into the main filesystem.
+ 	 */
+ 
+ 	while (1) {
+@@ -379,8 +379,8 @@
+ 		next_log_block++;
+ 		wrap(journal, next_log_block);
+ 
+-		/* What kind of buffer is it? 
+-		 * 
++		/* What kind of buffer is it?
++		 *
+ 		 * If it is a descriptor block, check that it has the
+ 		 * expected sequence number.  Otherwise, we're all done
+ 		 * here. */
+@@ -394,7 +394,7 @@
+ 
+ 		blocktype = be32_to_cpu(tmp->h_blocktype);
+ 		sequence = be32_to_cpu(tmp->h_sequence);
+-		jbd_debug(3, "Found magic %d, sequence %d\n", 
++		jbd_debug(3, "Found magic %d, sequence %d\n",
  			  blocktype, sequence);
  
  		if (sequence != next_commit_ID) {
--			brelse(bh);
-+			put_bh(bh);
- 			break;
- 		}
- 
-@@ -415,7 +415,7 @@ static int do_one_pass(journal_t *journa
- 				next_log_block +=
- 					count_tags(bh, journal->j_blocksize);
- 				wrap(journal, next_log_block);
--				brelse(bh);
-+				put_bh(bh);
- 				continue;
- 			}
- 
-@@ -454,7 +454,7 @@ static int do_one_pass(journal_t *journa
+@@ -438,7 +438,7 @@
+ 					/* Recover what we can, but
+ 					 * report failure at the end. */
+ 					success = err;
+-					printk (KERN_ERR 
++					printk (KERN_ERR
+ 						"JBD: IO error %d recovering "
+ 						"block %ld in log\n",
+ 						err, io_block);
+@@ -452,7 +452,7 @@
+ 					 * revoked, then we're all done
+ 					 * here. */
  					if (journal_test_revoke
- 					    (journal, blocknr,
+-					    (journal, blocknr, 
++					    (journal, blocknr,
  					     next_commit_ID)) {
--						brelse(obh);
-+						put_bh(obh);
+ 						brelse(obh);
  						++info->nr_revoke_hits;
- 						goto skip_write;
- 					}
-@@ -469,8 +469,8 @@ static int do_one_pass(journal_t *journa
+@@ -465,7 +465,7 @@
+ 							blocknr,
+ 							journal->j_blocksize);
+ 					if (nbh == NULL) {
+-						printk(KERN_ERR 
++						printk(KERN_ERR
  						       "JBD: Out of memory "
  						       "during recovery.\n");
  						err = -ENOMEM;
--						brelse(bh);
--						brelse(obh);
-+						put_bh(bh);
-+						put_bh(obh);
- 						goto failed;
- 					}
+@@ -537,7 +537,7 @@
+ 	}
  
-@@ -489,8 +489,8 @@ static int do_one_pass(journal_t *journa
- 					++info->nr_replays;
- 					/* ll_rw_block(WRITE, 1, &nbh); */
- 					unlock_buffer(nbh);
--					brelse(obh);
--					brelse(nbh);
-+					put_bh(obh);
-+					put_bh(nbh);
- 				}
+  done:
+-	/* 
++	/*
+ 	 * We broke out of the log scan loop: either we came to the
+ 	 * known end of the log or we found an unexpected block in the
+ 	 * log.  If the latter happened, then we know that the "current"
+@@ -567,7 +567,7 @@
  
- 			skip_write:
-@@ -502,14 +502,14 @@ static int do_one_pass(journal_t *journa
- 					break;
+ /* Scan a revoke record, marking all blocks mentioned as revoked. */
+ 
+-static int scan_revoke_records(journal_t *journal, struct buffer_head *bh, 
++static int scan_revoke_records(journal_t *journal, struct buffer_head *bh,
+ 			       tid_t sequence, struct recovery_info *info)
+ {
+ 	journal_revoke_header_t *header;
+diff -urN linux-2.6.18-rc4/fs/jbd/revoke.c linux-2.6.18-rc4-ws/fs/jbd/revoke.c
+--- linux-2.6.18-rc4/fs/jbd/revoke.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/jbd/revoke.c	2006-08-10 22:50:12.278749169 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * linux/fs/revoke.c
+- * 
++ *
+  * Written by Stephen C. Tweedie <sct@redhat.com>, 2000
+  *
+  * Copyright 2000 Red Hat corp --- All Rights Reserved
+@@ -15,10 +15,10 @@
+  * Revoke is the mechanism used to prevent old log records for deleted
+  * metadata from being replayed on top of newer data using the same
+  * blocks.  The revoke mechanism is used in two separate places:
+- * 
++ *
+  * + Commit: during commit we write the entire list of the current
+  *   transaction's revoked blocks to the journal
+- * 
++ *
+  * + Recovery: during recovery we record the transaction ID of all
+  *   revoked blocks.  If there are multiple revoke records in the log
+  *   for a single block, only the last one counts, and if there is a log
+@@ -29,7 +29,7 @@
+  * single transaction:
+  *
+  * Block is revoked and then journaled:
+- *   The desired end result is the journaling of the new block, so we 
++ *   The desired end result is the journaling of the new block, so we
+  *   cancel the revoke before the transaction commits.
+  *
+  * Block is journaled and then revoked:
+@@ -41,7 +41,7 @@
+  *   transaction must have happened after the block was journaled and so
+  *   the revoke must take precedence.
+  *
+- * Block is revoked and then written as data: 
++ * Block is revoked and then written as data:
+  *   The data write is allowed to succeed, but the revoke is _not_
+  *   cancelled.  We still need to prevent old log records from
+  *   overwriting the new data.  We don't even need to clear the revoke
+@@ -54,7 +54,7 @@
+  *			buffer has not been revoked, and cancel_revoke
+  *			need do nothing.
+  * RevokeValid set, Revoked set:
+- *			buffer has been revoked.  
++ *			buffer has been revoked.
+  */
+ 
+ #ifndef __KERNEL__
+@@ -77,7 +77,7 @@
+    journal replay, this involves recording the transaction ID of the
+    last transaction to revoke this block. */
+ 
+-struct jbd_revoke_record_s 
++struct jbd_revoke_record_s
+ {
+ 	struct list_head  hash;
+ 	tid_t		  sequence;	/* Used for recovery only */
+@@ -90,8 +90,8 @@
+ {
+ 	/* It is conceivable that we might want a larger hash table
+ 	 * for recovery.  Must be a power of two. */
+-	int		  hash_size; 
+-	int		  hash_shift; 
++	int		  hash_size;
++	int		  hash_shift;
+ 	struct list_head *hash_table;
+ };
+ 
+@@ -301,22 +301,22 @@
+ 
+ #ifdef __KERNEL__
+ 
+-/* 
++/*
+  * journal_revoke: revoke a given buffer_head from the journal.  This
+  * prevents the block from being replayed during recovery if we take a
+  * crash after this current transaction commits.  Any subsequent
+  * metadata writes of the buffer in this transaction cancel the
+- * revoke.  
++ * revoke.
+  *
+  * Note that this call may block --- it is up to the caller to make
+  * sure that there are no further calls to journal_write_metadata
+  * before the revoke is complete.  In ext3, this implies calling the
+  * revoke before clearing the block bitmap when we are deleting
+- * metadata. 
++ * metadata.
+  *
+  * Revoke performs a journal_forget on any buffer_head passed in as a
+  * parameter, but does _not_ forget the buffer_head if the bh was only
+- * found implicitly. 
++ * found implicitly.
+  *
+  * bh_in may not be a journalled buffer - it may have come off
+  * the hash tables without an attached journal_head.
+@@ -325,7 +325,7 @@
+  * by one.
+  */
+ 
+-int journal_revoke(handle_t *handle, unsigned long blocknr, 
++int journal_revoke(handle_t *handle, unsigned long blocknr,
+ 		   struct buffer_head *bh_in)
+ {
+ 	struct buffer_head *bh = NULL;
+@@ -487,7 +487,7 @@
+ 	else
+ 		journal->j_revoke = journal->j_revoke_table[0];
+ 
+-	for (i = 0; i < journal->j_revoke->hash_size; i++) 
++	for (i = 0; i < journal->j_revoke->hash_size; i++)
+ 		INIT_LIST_HEAD(&journal->j_revoke->hash_table[i]);
+ }
+ 
+@@ -498,7 +498,7 @@
+  * Called with the journal lock held.
+  */
+ 
+-void journal_write_revoke_records(journal_t *journal, 
++void journal_write_revoke_records(journal_t *journal,
+ 				  transaction_t *transaction)
+ {
+ 	struct journal_head *descriptor;
+@@ -507,7 +507,7 @@
+ 	struct list_head *hash_list;
+ 	int i, offset, count;
+ 
+-	descriptor = NULL; 
++	descriptor = NULL;
+ 	offset = 0;
+ 	count = 0;
+ 
+@@ -519,10 +519,10 @@
+ 		hash_list = &revoke->hash_table[i];
+ 
+ 		while (!list_empty(hash_list)) {
+-			record = (struct jbd_revoke_record_s *) 
++			record = (struct jbd_revoke_record_s *)
+ 				hash_list->next;
+ 			write_one_revoke_record(journal, transaction,
+-						&descriptor, &offset, 
++						&descriptor, &offset,
+ 						record);
+ 			count++;
+ 			list_del(&record->hash);
+@@ -534,14 +534,14 @@
+ 	jbd_debug(1, "Wrote %d revoke records\n", count);
+ }
+ 
+-/* 
++/*
+  * Write out one revoke record.  We need to create a new descriptor
+- * block if the old one is full or if we have not already created one.  
++ * block if the old one is full or if we have not already created one.
+  */
+ 
+-static void write_one_revoke_record(journal_t *journal, 
++static void write_one_revoke_record(journal_t *journal,
+ 				    transaction_t *transaction,
+-				    struct journal_head **descriptorp, 
++				    struct journal_head **descriptorp,
+ 				    int *offsetp,
+ 				    struct jbd_revoke_record_s *record)
+ {
+@@ -584,21 +584,21 @@
+ 		*descriptorp = descriptor;
+ 	}
+ 
+-	* ((__be32 *)(&jh2bh(descriptor)->b_data[offset])) = 
++	* ((__be32 *)(&jh2bh(descriptor)->b_data[offset])) =
+ 		cpu_to_be32(record->blocknr);
+ 	offset += 4;
+ 	*offsetp = offset;
+ }
+ 
+-/* 
++/*
+  * Flush a revoke descriptor out to the journal.  If we are aborting,
+  * this is a noop; otherwise we are generating a buffer which needs to
+  * be waited for during commit, so it has to go onto the appropriate
+  * journal buffer list.
+  */
+ 
+-static void flush_descriptor(journal_t *journal, 
+-			     struct journal_head *descriptor, 
++static void flush_descriptor(journal_t *journal,
++			     struct journal_head *descriptor,
+ 			     int offset)
+ {
+ 	journal_revoke_header_t *header;
+@@ -618,7 +618,7 @@
+ }
+ #endif
+ 
+-/* 
++/*
+  * Revoke support for recovery.
+  *
+  * Recovery needs to be able to:
+@@ -629,7 +629,7 @@
+  *  check whether a given block in a given transaction should be replayed
+  *  (ie. has not been revoked by a revoke record in that or a subsequent
+  *  transaction)
+- * 
++ *
+  *  empty the revoke table after recovery.
+  */
+ 
+@@ -637,11 +637,11 @@
+  * First, setting revoke records.  We create a new revoke record for
+  * every block ever revoked in the log as we scan it for recovery, and
+  * we update the existing records if we find multiple revokes for a
+- * single block. 
++ * single block.
+  */
+ 
+-int journal_set_revoke(journal_t *journal, 
+-		       unsigned long blocknr, 
++int journal_set_revoke(journal_t *journal,
++		       unsigned long blocknr,
+ 		       tid_t sequence)
+ {
+ 	struct jbd_revoke_record_s *record;
+@@ -653,18 +653,18 @@
+ 		if (tid_gt(sequence, record->sequence))
+ 			record->sequence = sequence;
+ 		return 0;
+-	} 
++	}
+ 	return insert_revoke_hash(journal, blocknr, sequence);
+ }
+ 
+-/* 
++/*
+  * Test revoke records.  For a given block referenced in the log, has
+  * that block been revoked?  A revoke record with a given transaction
+  * sequence number revokes all blocks in that transaction and earlier
+  * ones, but later transactions still need replayed.
+  */
+ 
+-int journal_test_revoke(journal_t *journal, 
++int journal_test_revoke(journal_t *journal,
+ 			unsigned long blocknr,
+ 			tid_t sequence)
+ {
+diff -urN linux-2.6.18-rc4/fs/jbd/transaction.c linux-2.6.18-rc4-ws/fs/jbd/transaction.c
+--- linux-2.6.18-rc4/fs/jbd/transaction.c	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/fs/jbd/transaction.c	2006-08-10 22:50:12.309745809 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * linux/fs/transaction.c
+- * 
++ *
+  * Written by Stephen C. Tweedie <sct@redhat.com>, 1998
+  *
+  * Copyright 1998 Red Hat corp --- All Rights Reserved
+@@ -10,7 +10,7 @@
+  * option, any later version, incorporated herein by reference.
+  *
+  * Generic filesystem transaction handling code; part of the ext2fs
+- * journaling system.  
++ * journaling system.
+  *
+  * This file manages transactions (compound commits managed by the
+  * journaling code) and handles (individual atomic operations by the
+@@ -74,7 +74,7 @@
+  * start_this_handle: Given a handle, deal with any locking or stalling
+  * needed to make sure that there is enough journal space for the handle
+  * to begin.  Attach the handle to a transaction and set up the
+- * transaction's buffer credits.  
++ * transaction's buffer credits.
+  */
+ 
+ static int start_this_handle(journal_t *journal, handle_t *handle)
+@@ -117,7 +117,7 @@
+ 	if (is_journal_aborted(journal) ||
+ 	    (journal->j_errno != 0 && !(journal->j_flags & JFS_ACK_ERR))) {
+ 		spin_unlock(&journal->j_state_lock);
+-		ret = -EROFS; 
++		ret = -EROFS;
+ 		goto out;
+ 	}
+ 
+@@ -182,7 +182,7 @@
+ 		goto repeat;
+ 	}
+ 
+-	/* 
++	/*
+ 	 * The commit code assumes that it can get enough log space
+ 	 * without forcing a checkpoint.  This is *critical* for
+ 	 * correctness: a checkpoint of a buffer which is also
+@@ -191,7 +191,7 @@
+ 	 *
+ 	 * We must therefore ensure the necessary space in the journal
+ 	 * *before* starting to dirty potentially checkpointed buffers
+-	 * in the new transaction. 
++	 * in the new transaction.
+ 	 *
+ 	 * The worst part is, any transaction currently committing can
+ 	 * reduce the free space arbitrarily.  Be careful to account for
+@@ -246,13 +246,13 @@
+ }
+ 
+ /**
+- * handle_t *journal_start() - Obtain a new handle.  
++ * handle_t *journal_start() - Obtain a new handle.
+  * @journal: Journal to start transaction on.
+  * @nblocks: number of block buffer we might modify
+  *
+  * We make sure that the transaction can guarantee at least nblocks of
+  * modified buffers in the log.  We block until the log can guarantee
+- * that much space.  
++ * that much space.
+  *
+  * This function is visible to journal users (like ext3fs), so is not
+  * called with the journal already locked.
+@@ -292,11 +292,11 @@
+  * int journal_extend() - extend buffer credits.
+  * @handle:  handle to 'extend'
+  * @nblocks: nr blocks to try to extend by.
+- * 
++ *
+  * Some transactions, such as large extends and truncates, can be done
+  * atomically all at once or in several stages.  The operation requests
+  * a credit for a number of buffer modications in advance, but can
+- * extend its credit if it needs more.  
++ * extend its credit if it needs more.
+  *
+  * journal_extend tries to give the running handle more buffer credits.
+  * It does not guarantee that allocation - this is a best-effort only.
+@@ -363,7 +363,7 @@
+  * int journal_restart() - restart a handle .
+  * @handle:  handle to restart
+  * @nblocks: nr credits requested
+- * 
++ *
+  * Restart a handle for a multi-transaction filesystem
+  * operation.
+  *
+@@ -462,7 +462,7 @@
+ /**
+  * void journal_unlock_updates (journal_t* journal) - release barrier
+  * @journal:  Journal to release the barrier on.
+- * 
++ *
+  * Release a transaction barrier obtained with journal_lock_updates().
+  *
+  * Should be called without the journal lock held.
+@@ -547,8 +547,8 @@
+ 	jbd_lock_bh_state(bh);
+ 
+ 	/* We now hold the buffer lock so it is safe to query the buffer
+-	 * state.  Is the buffer dirty? 
+-	 * 
++	 * state.  Is the buffer dirty?
++	 *
+ 	 * If so, there are two possibilities.  The buffer may be
+ 	 * non-journaled, and undergoing a quite legitimate writeback.
+ 	 * Otherwise, it is journaled, and we don't expect dirty buffers
+@@ -566,7 +566,7 @@
+ 		 */
+ 		if (jh->b_transaction) {
+ 			J_ASSERT_JH(jh,
+-				jh->b_transaction == transaction || 
++				jh->b_transaction == transaction ||
+ 				jh->b_transaction ==
+ 					journal->j_committing_transaction);
+ 			if (jh->b_next_transaction)
+@@ -653,7 +653,7 @@
+ 		 * buffer had better remain locked during the kmalloc,
+ 		 * but that should be true --- we hold the journal lock
+ 		 * still and the buffer is already on the BUF_JOURNAL
+-		 * list so won't be flushed. 
++		 * list so won't be flushed.
+ 		 *
+ 		 * Subtle point, though: if this is a get_undo_access,
+ 		 * then we will be relying on the frozen_data to contain
+@@ -764,8 +764,8 @@
+  * manually rather than reading off disk), then we need to keep the
+  * buffer_head locked until it has been completely filled with new
+  * data.  In this case, we should be able to make the assertion that
+- * the bh is not already part of an existing transaction.  
+- * 
++ * the bh is not already part of an existing transaction.
++ *
+  * The buffer should already be locked by the caller by this point.
+  * There is no lock ranking violation: it was a newly created,
+  * unlocked buffer beforehand. */
+@@ -777,7 +777,7 @@
+  *
+  * Call this if you create a new bh.
+  */
+-int journal_get_create_access(handle_t *handle, struct buffer_head *bh) 
++int journal_get_create_access(handle_t *handle, struct buffer_head *bh)
+ {
+ 	transaction_t *transaction = handle->h_transaction;
+ 	journal_t *journal = transaction->t_journal;
+@@ -846,13 +846,13 @@
+  * do not reuse freed space until the deallocation has been committed,
+  * since if we overwrote that space we would make the delete
+  * un-rewindable in case of a crash.
+- * 
++ *
+  * To deal with that, journal_get_undo_access requests write access to a
+  * buffer for parts of non-rewindable operations such as delete
+  * operations on the bitmaps.  The journaling code must keep a copy of
+  * the buffer's contents prior to the undo_access call until such time
+  * as we know that the buffer has definitely been committed to disk.
+- * 
++ *
+  * We never need to know which transaction the committed data is part
+  * of, buffers touched here are guaranteed to be dirtied later and so
+  * will be committed to a new transaction in due course, at which point
+@@ -910,13 +910,13 @@
+ 	return err;
+ }
+ 
+-/** 
++/**
+  * int journal_dirty_data() -  mark a buffer as containing dirty data which
+  *                             needs to be flushed before we can commit the
+- *                             current transaction.  
++ *                             current transaction.
+  * @handle: transaction
+  * @bh: bufferhead to mark
+- * 
++ *
+  * The buffer is placed on the transaction's data list and is marked as
+  * belonging to the transaction.
+  *
+@@ -945,15 +945,15 @@
+ 
+ 	/*
+ 	 * What if the buffer is already part of a running transaction?
+-	 * 
++	 *
+ 	 * There are two cases:
+ 	 * 1) It is part of the current running transaction.  Refile it,
+ 	 *    just in case we have allocated it as metadata, deallocated
+-	 *    it, then reallocated it as data. 
++	 *    it, then reallocated it as data.
+ 	 * 2) It is part of the previous, still-committing transaction.
+ 	 *    If all we want to do is to guarantee that the buffer will be
+ 	 *    written to disk before this new transaction commits, then
+-	 *    being sure that the *previous* transaction has this same 
++	 *    being sure that the *previous* transaction has this same
+ 	 *    property is sufficient for us!  Just leave it on its old
+ 	 *    transaction.
+ 	 *
+@@ -1075,18 +1075,18 @@
+ 	return 0;
+ }
+ 
+-/** 
++/**
+  * int journal_dirty_metadata() -  mark a buffer as containing dirty metadata
+  * @handle: transaction to add buffer to.
+- * @bh: buffer to mark 
+- * 
++ * @bh: buffer to mark
++ *
+  * mark dirty metadata which needs to be journaled as part of the current
+  * transaction.
+  *
+  * The buffer is placed on the transaction's metadata list and is marked
+- * as belonging to the transaction.  
++ * as belonging to the transaction.
+  *
+- * Returns error number or 0 on success.  
++ * Returns error number or 0 on success.
+  *
+  * Special care needs to be taken if the buffer already belongs to the
+  * current committing transaction (in which case we should have frozen
+@@ -1134,11 +1134,11 @@
+ 
+ 	set_buffer_jbddirty(bh);
+ 
+-	/* 
++	/*
+ 	 * Metadata already on the current transaction list doesn't
+ 	 * need to be filed.  Metadata on another transaction's list must
+ 	 * be committing, and will be refiled once the commit completes:
+-	 * leave it alone for now. 
++	 * leave it alone for now.
+ 	 */
+ 	if (jh->b_transaction != transaction) {
+ 		JBUFFER_TRACE(jh, "already on other transaction");
+@@ -1164,7 +1164,7 @@
+ 	return 0;
+ }
+ 
+-/* 
++/*
+  * journal_release_buffer: undo a get_write_access without any buffer
+  * updates, if the update decided in the end that it didn't need access.
+  *
+@@ -1175,20 +1175,20 @@
+ 	BUFFER_TRACE(bh, "entry");
+ }
+ 
+-/** 
++/**
+  * void journal_forget() - bforget() for potentially-journaled buffers.
+  * @handle: transaction handle
+  * @bh:     bh to 'forget'
+  *
+  * We can only do the bforget if there are no commits pending against the
+  * buffer.  If the buffer is dirty in the current running transaction we
+- * can safely unlink it. 
++ * can safely unlink it.
+  *
+  * bh may not be a journalled buffer at all - it may be a non-JBD
+  * buffer which came off the hashtable.  Check for this.
+  *
+  * Decrements bh->b_count by one.
+- * 
++ *
+  * Allow this call even if the handle has aborted --- it may be part of
+  * the caller's cleanup after an abort.
+  */
+@@ -1236,7 +1236,7 @@
+ 
+ 		drop_reserve = 1;
+ 
+-		/* 
++		/*
+ 		 * We are no longer going to journal this buffer.
+ 		 * However, the commit of this transaction is still
+ 		 * important to the buffer: the delete that we are now
+@@ -1245,7 +1245,7 @@
+ 		 *
+ 		 * So, if we have a checkpoint on the buffer, we should
+ 		 * now refile the buffer on our BJ_Forget list so that
+-		 * we know to remove the checkpoint after we commit. 
++		 * we know to remove the checkpoint after we commit.
+ 		 */
+ 
+ 		if (jh->b_cp_transaction) {
+@@ -1263,7 +1263,7 @@
  			}
+ 		}
+ 	} else if (jh->b_transaction) {
+-		J_ASSERT_JH(jh, (jh->b_transaction == 
++		J_ASSERT_JH(jh, (jh->b_transaction ==
+ 				 journal->j_committing_transaction));
+ 		/* However, if the buffer is still owned by a prior
+ 		 * (committing) transaction, we can't drop it yet... */
+@@ -1293,7 +1293,7 @@
+ /**
+  * int journal_stop() - complete a transaction
+  * @handle: tranaction to complete.
+- * 
++ *
+  * All done for a particular handle.
+  *
+  * There is not much action needed here.  We just return any remaining
+@@ -1302,7 +1302,7 @@
+  * filesystem is marked for synchronous update.
+  *
+  * journal_stop itself will not usually return an error, but it may
+- * do so in unusual circumstances.  In particular, expect it to 
++ * do so in unusual circumstances.  In particular, expect it to
+  * return -EIO if a journal_abort has been executed since the
+  * transaction began.
+  */
+@@ -1387,7 +1387,7 @@
  
--			brelse(bh);
-+			put_bh(bh);
- 			continue;
+ 		/*
+ 		 * Special case: JFS_SYNC synchronous updates require us
+-		 * to wait for the commit to complete.  
++		 * to wait for the commit to complete.
+ 		 */
+ 		if (handle->h_sync && !(current->flags & PF_MEMALLOC))
+ 			err = log_wait_commit(journal, tid);
+@@ -1438,7 +1438,7 @@
+  * jbd_lock_bh_state(jh2bh(jh)) is held.
+  */
  
- 		case JFS_COMMIT_BLOCK:
- 			/* Found an expected commit block: not much to
- 			 * do other than move on to the next sequence
- 			 * number. */
--			brelse(bh);
-+			put_bh(bh);
- 			next_commit_ID++;
- 			continue;
+-static inline void 
++static inline void
+ __blist_add_buffer(struct journal_head **list, struct journal_head *jh)
+ {
+ 	if (!*list) {
+@@ -1453,7 +1453,7 @@
+ 	}
+ }
  
-@@ -517,13 +517,13 @@ static int do_one_pass(journal_t *journa
- 			/* If we aren't in the REVOKE pass, then we can
- 			 * just skip over this block. */
- 			if (pass != PASS_REVOKE) {
--				brelse(bh);
-+				put_bh(bh);
- 				continue;
- 			}
+-/* 
++/*
+  * Remove a buffer from a transaction list, given the transaction's list
+  * head pointer.
+  *
+@@ -1474,7 +1474,7 @@
+ 	jh->b_tnext->b_tprev = jh->b_tprev;
+ }
  
- 			err = scan_revoke_records(journal, bh,
- 						  next_commit_ID, info);
--			brelse(bh);
-+			put_bh(bh);
- 			if (err)
- 				goto failed;
- 			continue;
-@@ -531,7 +531,7 @@ static int do_one_pass(journal_t *journa
- 		default:
- 			jbd_debug(3, "Unrecognised magic %d, end of scan.\n",
- 				  blocktype);
--			brelse(bh);
-+			put_bh(bh);
- 			goto done;
- 		}
- 	}
-diff -puN fs/jbd/revoke.c~ext3_replace_brelse_to_put_bh fs/jbd/revoke.c
---- linux-2.6.18-rc4/fs/jbd/revoke.c~ext3_replace_brelse_to_put_bh	2006-08-11 16:00:02.883980012 -0700
-+++ linux-2.6.18-rc4-ming/fs/jbd/revoke.c	2006-08-11 16:01:07.292552742 -0700
-@@ -380,7 +380,7 @@ int journal_revoke(handle_t *handle, uns
- 		if (!J_EXPECT_BH(bh, !buffer_revoked(bh),
- 				 "inconsistent data on disk")) {
- 			if (!bh_in)
--				brelse(bh);
-+				put_bh(bh);
- 			return -EIO;
- 		}
- 		set_buffer_revoked(bh);
-@@ -390,7 +390,7 @@ int journal_revoke(handle_t *handle, uns
- 			journal_forget(handle, bh_in);
- 		} else {
- 			BUFFER_TRACE(bh, "call brelse");
--			__brelse(bh);
-+			put_bh(bh);
- 		}
- 	}
+-/* 
++/*
+  * Remove a buffer from the appropriate transaction list.
+  *
+  * Note that this function can *change* the value of
+@@ -1594,17 +1594,17 @@
+ }
  
-@@ -468,7 +468,7 @@ int journal_cancel_revoke(handle_t *hand
- 		if (bh2) {
- 			if (bh2 != bh)
- 				clear_buffer_revoked(bh2);
--			__brelse(bh2);
-+			put_bh(bh2);
- 		}
- 	}
- 	return did_revoke;
-diff -puN fs/jbd/transaction.c~ext3_replace_brelse_to_put_bh fs/jbd/transaction.c
---- linux-2.6.18-rc4/fs/jbd/transaction.c~ext3_replace_brelse_to_put_bh	2006-08-11 16:00:02.948972518 -0700
-+++ linux-2.6.18-rc4-ming/fs/jbd/transaction.c	2006-08-11 16:01:07.356545363 -0700
-@@ -1068,7 +1068,7 @@ no_journal:
- 	jbd_unlock_bh_state(bh);
- 	if (need_brelse) {
- 		BUFFER_TRACE(bh, "brelse");
--		__brelse(bh);
-+		put_bh(bh);
- 	}
- 	JBUFFER_TRACE(jh, "exit");
- 	journal_put_journal_head(jh);
-@@ -1254,7 +1254,7 @@ int journal_forget (handle_t *handle, st
- 		} else {
- 			__journal_unfile_buffer(jh);
- 			journal_remove_journal_head(bh);
--			__brelse(bh);
-+			put_bh(bh);
- 			if (!buffer_jbd(bh)) {
- 				spin_unlock(&journal->j_list_lock);
- 				jbd_unlock_bh_state(bh);
-@@ -1281,7 +1281,7 @@ int journal_forget (handle_t *handle, st
- not_jbd:
- 	spin_unlock(&journal->j_list_lock);
- 	jbd_unlock_bh_state(bh);
--	__brelse(bh);
-+	put_bh(bh);
- drop:
- 	if (drop_reserve) {
- 		/* no need to reserve log space for this block -bzzz */
-@@ -1577,7 +1577,7 @@ __journal_try_to_free_buffer(journal_t *
- 			JBUFFER_TRACE(jh, "release data");
- 			__journal_unfile_buffer(jh);
- 			journal_remove_journal_head(bh);
--			__brelse(bh);
-+			put_bh(bh);
- 		}
- 	} else if (jh->b_cp_transaction != 0 && jh->b_transaction == 0) {
- 		/* written-back checkpointed metadata buffer */
-@@ -1585,7 +1585,7 @@ __journal_try_to_free_buffer(journal_t *
- 			JBUFFER_TRACE(jh, "remove from checkpoint list");
- 			__journal_remove_checkpoint(jh);
- 			journal_remove_journal_head(bh);
--			__brelse(bh);
-+			put_bh(bh);
- 		}
- 	}
- 	spin_unlock(&journal->j_list_lock);
-@@ -1690,7 +1690,7 @@ static int __dispose_buffer(struct journ
- 	} else {
- 		JBUFFER_TRACE(jh, "on running transaction");
- 		journal_remove_journal_head(bh);
--		__brelse(bh);
-+		put_bh(bh);
- 	}
+ 
+-/** 
++/**
+  * int journal_try_to_free_buffers() - try to free page buffers.
+  * @journal: journal for operation
+  * @page: to try and free
+  * @unused_gfp_mask: unused
+  *
+- * 
++ *
+  * For all the buffers on this page,
+  * if they are fully written out ordered data, move them onto BUF_CLEAN
+  * so try_to_free_buffers() can reap them.
+- * 
++ *
+  * This function returns non-zero if we wish try_to_free_buffers()
+  * to be called. We do this if the page is releasable by try_to_free_buffers().
+  * We also do it if the page has locked or dirty buffers and the caller wants
+@@ -1628,7 +1628,7 @@
+  * cannot happen because we never reallocate freed data as metadata
+  * while the data is part of a transaction.  Yes?
+  */
+-int journal_try_to_free_buffers(journal_t *journal, 
++int journal_try_to_free_buffers(journal_t *journal,
+ 				struct page *page, gfp_t unused_gfp_mask)
+ {
+ 	struct buffer_head *head;
+@@ -1696,7 +1696,7 @@
+ }
+ 
+ /*
+- * journal_invalidatepage 
++ * journal_invalidatepage
+  *
+  * This code is tricky.  It has a number of cases to deal with.
+  *
+@@ -1704,15 +1704,15 @@
+  *
+  * i_size must be updated on disk before we start calling invalidatepage on the
+  * data.
+- * 
++ *
+  *  This is done in ext3 by defining an ext3_setattr method which
+  *  updates i_size before truncate gets going.  By maintaining this
+  *  invariant, we can be sure that it is safe to throw away any buffers
+  *  attached to the current transaction: once the transaction commits,
+  *  we know that the data will not be needed.
+- * 
++ *
+  *  Note however that we can *not* throw away data belonging to the
+- *  previous, committing transaction!  
++ *  previous, committing transaction!
+  *
+  * Any disk blocks which *are* part of the previous, committing
+  * transaction (and which therefore cannot be discarded immediately) are
+@@ -1731,7 +1731,7 @@
+  * don't make guarantees about the order in which data hits disk --- in
+  * particular we don't guarantee that new dirty data is flushed before
+  * transaction commit --- so it is always safe just to discard data
+- * immediately in that mode.  --sct 
++ * immediately in that mode.  --sct
+  */
+ 
+ /*
+@@ -1875,9 +1875,9 @@
  	return may_free;
  }
-@@ -2075,5 +2075,5 @@ void journal_refile_buffer(journal_t *jo
- 	journal_remove_journal_head(bh);
  
- 	spin_unlock(&journal->j_list_lock);
--	__brelse(bh);
-+	put_bh(bh);
+-/** 
++/**
+  * void journal_invalidatepage()
+- * @journal: journal to use for flush... 
++ * @journal: journal to use for flush...
+  * @page:    page to flush
+  * @offset:  length of page to invalidate.
+  *
+@@ -1885,7 +1885,7 @@
+  *
+  */
+ void journal_invalidatepage(journal_t *journal,
+-		      struct page *page, 
++		      struct page *page,
+ 		      unsigned long offset)
+ {
+ 	struct buffer_head *head, *bh, *next;
+@@ -1923,8 +1923,8 @@
+ 	}
  }
-
-_
+ 
+-/* 
+- * File a buffer on the given transaction list. 
++/*
++ * File a buffer on the given transaction list.
+  */
+ void __journal_file_buffer(struct journal_head *jh,
+ 			transaction_t *transaction, int jlist)
+@@ -1947,7 +1947,7 @@
+ 	 * with __jbd_unexpected_dirty_buffer()'s handling of dirty
+ 	 * state. */
+ 
+-	if (jlist == BJ_Metadata || jlist == BJ_Reserved || 
++	if (jlist == BJ_Metadata || jlist == BJ_Reserved ||
+ 	    jlist == BJ_Shadow || jlist == BJ_Forget) {
+ 		if (test_clear_buffer_dirty(bh) ||
+ 		    test_clear_buffer_jbddirty(bh))
+@@ -2007,7 +2007,7 @@
+ 	jbd_unlock_bh_state(jh2bh(jh));
+ }
+ 
+-/* 
++/*
+  * Remove a buffer from its current buffer list in preparation for
+  * dropping it from its current transaction entirely.  If the buffer has
+  * already started to be used by a subsequent transaction, refile the
+@@ -2059,7 +2059,7 @@
+  * to the caller to remove the journal_head if necessary.  For the
+  * unlocked journal_refile_buffer call, the caller isn't going to be
+  * doing anything else to the buffer so we need to do the cleanup
+- * ourselves to avoid a jh leak. 
++ * ourselves to avoid a jh leak.
+  *
+  * *** The journal_head may be freed by this call! ***
+  */
+diff -urN linux-2.6.18-rc4/include/linux/ext3_jbd.h linux-2.6.18-rc4-ws/include/linux/ext3_jbd.h
+--- linux-2.6.18-rc4/include/linux/ext3_jbd.h	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/include/linux/ext3_jbd.h	2006-08-10 22:50:58.738719098 -0700
+@@ -23,7 +23,7 @@
+ 
+ /* Define the number of blocks we need to account to a transaction to
+  * modify one block of data.
+- * 
++ *
+  * We may have to touch one inode, one bitmap buffer, up to three
+  * indirection blocks, the group and superblock summaries, and the data
+  * block to complete the transaction.  */
+@@ -88,16 +88,16 @@
+ #endif
+ 
+ int
+-ext3_mark_iloc_dirty(handle_t *handle, 
++ext3_mark_iloc_dirty(handle_t *handle,
+ 		     struct inode *inode,
+ 		     struct ext3_iloc *iloc);
+ 
+-/* 
++/*
+  * On success, We end up with an outstanding reference count against
+- * iloc->bh.  This _must_ be cleaned up later. 
++ * iloc->bh.  This _must_ be cleaned up later.
+  */
+ 
+-int ext3_reserve_inode_write(handle_t *handle, struct inode *inode, 
++int ext3_reserve_inode_write(handle_t *handle, struct inode *inode,
+ 			struct ext3_iloc *iloc);
+ 
+ int ext3_mark_inode_dirty(handle_t *handle, struct inode *inode);
+diff -urN linux-2.6.18-rc4/include/linux/jbd.h linux-2.6.18-rc4-ws/include/linux/jbd.h
+--- linux-2.6.18-rc4/include/linux/jbd.h	2006-08-06 11:20:11.000000000 -0700
++++ linux-2.6.18-rc4-ws/include/linux/jbd.h	2006-08-10 22:50:12.336742882 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * linux/include/linux/jbd.h
+- * 
++ *
+  * Written by Stephen C. Tweedie <sct@redhat.com>
+  *
+  * Copyright 1998-2000 Red Hat, Inc --- All Rights Reserved
+@@ -94,8 +94,8 @@
+  * number of outstanding buffers possible at any time.  When the
+  * operation completes, any buffer credits not used are credited back to
+  * the transaction, so that at all times we know how many buffers the
+- * outstanding updates on a transaction might possibly touch. 
+- * 
++ * outstanding updates on a transaction might possibly touch.
++ *
+  * This is an opaque datatype.
+  **/
+ typedef struct handle_s		handle_t;	/* Atomic operation type */
+@@ -105,7 +105,7 @@
+  * typedef journal_t - The journal_t maintains all of the journaling state information for a single filesystem.
+  *
+  * journal_t is linked to from the fs superblock structure.
+- * 
++ *
+  * We use the journal_t to keep track of all outstanding transaction
+  * activity on the filesystem, and to manage the state of the log
+  * writing process.
+@@ -125,7 +125,7 @@
+  * On-disk structures
+  */
+ 
+-/* 
++/*
+  * Descriptor block types:
+  */
+ 
+@@ -146,8 +146,8 @@
+ } journal_header_t;
+ 
+ 
+-/* 
+- * The block tag: used to describe a single buffer in the journal 
++/*
++ * The block tag: used to describe a single buffer in the journal
+  */
+ typedef struct journal_block_tag_s
+ {
+@@ -155,9 +155,9 @@
+ 	__be32		t_flags;	/* See below */
+ } journal_block_tag_t;
+ 
+-/* 
++/*
+  * The revoke descriptor: used on disk to describe a series of blocks to
+- * be revoked from the log 
++ * be revoked from the log
+  */
+ typedef struct journal_revoke_header_s
+ {
+@@ -371,10 +371,10 @@
+  **/
+ 
+ /* Docbook can't yet cope with the bit fields, but will leave the documentation
+- * in so it can be fixed later. 
++ * in so it can be fixed later.
+  */
+ 
+-struct handle_s 
++struct handle_s
+ {
+ 	/* Which compound transaction is this update a part of? */
+ 	transaction_t		*h_transaction;
+@@ -432,7 +432,7 @@
+  *
+  */
+ 
+-struct transaction_s 
++struct transaction_s
+ {
+ 	/* Pointer to the journal for this transaction. [no locking] */
+ 	journal_t		*t_journal;
+@@ -452,7 +452,7 @@
+ 		T_RUNDOWN,
+ 		T_FLUSH,
+ 		T_COMMIT,
+-		T_FINISHED 
++		T_FINISHED
+ 	}			t_state;
+ 
+ 	/*
+@@ -566,7 +566,7 @@
+  *     journal_t.
+  * @j_flags:  General journaling state flags
+  * @j_errno:  Is there an outstanding uncleared error on the journal (from a
+- *     prior abort)? 
++ *     prior abort)?
+  * @j_sb_buffer: First part of superblock buffer
+  * @j_superblock: Second part of superblock buffer
+  * @j_format_version: Version of the superblock format
+@@ -580,7 +580,7 @@
+  * @j_wait_transaction_locked: Wait queue for waiting for a locked transaction
+  *  to start committing, or for a barrier lock to be released
+  * @j_wait_logspace: Wait queue for waiting for checkpointing to complete
+- * @j_wait_done_commit: Wait queue for waiting for commit to complete 
++ * @j_wait_done_commit: Wait queue for waiting for commit to complete
+  * @j_wait_checkpoint:  Wait queue to trigger checkpointing
+  * @j_wait_commit: Wait queue to trigger commit
+  * @j_wait_updates: Wait queue to wait for updates to complete
+@@ -589,7 +589,7 @@
+  * @j_tail: Journal tail - identifies the oldest still-used block in the
+  *  journal.
+  * @j_free: Journal free - how many free blocks are there in the journal?
+- * @j_first: The block number of the first usable block 
++ * @j_first: The block number of the first usable block
+  * @j_last: The block number one beyond the last usable block
+  * @j_dev: Device where we store the journal
+  * @j_blocksize: blocksize for the location where we store the journal.
+@@ -601,12 +601,12 @@
+  * @j_list_lock: Protects the buffer lists and internal buffer state.
+  * @j_inode: Optional inode where we store the journal.  If present, all journal
+  *     block numbers are mapped into this inode via bmap().
+- * @j_tail_sequence:  Sequence number of the oldest transaction in the log 
++ * @j_tail_sequence:  Sequence number of the oldest transaction in the log
+  * @j_transaction_sequence: Sequence number of the next transaction to grant
+  * @j_commit_sequence: Sequence number of the most recently committed
+  *  transaction
+  * @j_commit_request: Sequence number of the most recent transaction wanting
+- *     commit 
++ *     commit
+  * @j_uuid: Uuid of client object.
+  * @j_task: Pointer to the current commit thread for this journal
+  * @j_max_transaction_buffers:  Maximum number of metadata buffers to allow in a
+@@ -820,8 +820,8 @@
+ 	void *j_private;
+ };
+ 
+-/* 
+- * Journal flag definitions 
++/*
++ * Journal flag definitions
+  */
+ #define JFS_UNMOUNT	0x001	/* Journal thread is being destroyed */
+ #define JFS_ABORT	0x002	/* Journaling has been aborted for errors. */
+@@ -830,7 +830,7 @@
+ #define JFS_LOADED	0x010	/* The journal superblock has been loaded */
+ #define JFS_BARRIER	0x020	/* Use IDE barriers */
+ 
+-/* 
++/*
+  * Function declarations for the journaling transaction and buffer
+  * management
+  */
+@@ -859,7 +859,7 @@
+ void __journal_insert_checkpoint(struct journal_head *, transaction_t *);
+ 
+ /* Buffer IO */
+-extern int 
++extern int
+ journal_write_metadata_buffer(transaction_t	  *transaction,
+ 			      struct journal_head  *jh_in,
+ 			      struct journal_head **jh_out,
+@@ -887,7 +887,7 @@
+ /* The journaling code user interface:
+  *
+  * Create and destroy handles
+- * Register buffer modifications against the current transaction. 
++ * Register buffer modifications against the current transaction.
+  */
+ 
+ extern handle_t *journal_start(journal_t *, int nblocks);
+@@ -914,11 +914,11 @@
+ 				int start, int len, int bsize);
+ extern journal_t * journal_init_inode (struct inode *);
+ extern int	   journal_update_format (journal_t *);
+-extern int	   journal_check_used_features 
++extern int	   journal_check_used_features
+ 		   (journal_t *, unsigned long, unsigned long, unsigned long);
+-extern int	   journal_check_available_features 
++extern int	   journal_check_available_features
+ 		   (journal_t *, unsigned long, unsigned long, unsigned long);
+-extern int	   journal_set_features 
++extern int	   journal_set_features
+ 		   (journal_t *, unsigned long, unsigned long, unsigned long);
+ extern int	   journal_create     (journal_t *);
+ extern int	   journal_load       (journal_t *journal);
+@@ -1012,7 +1012,7 @@
+  * bit, when set, indicates that we have had a fatal error somewhere,
+  * either inside the journaling layer or indicated to us by the client
+  * (eg. ext3), and that we and should not commit any further
+- * transactions.  
++ * transactions.
+  */
+ 
+ static inline int is_journal_aborted(journal_t *journal)
+@@ -1079,7 +1079,7 @@
+ #define BJ_Reserved	7	/* Buffer is reserved for access by journal */
+ #define BJ_Locked	8	/* Locked for I/O during commit */
+ #define BJ_Types	9
+- 
++
+ extern int jbd_blocks_per_page(struct inode *inode);
+ 
+ #ifdef __KERNEL__
 
 

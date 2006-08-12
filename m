@@ -1,78 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWHLJNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWHLJUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWHLJNN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 05:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWHLJNN
+	id S964816AbWHLJUk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 05:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWHLJUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 05:13:13 -0400
-Received: from lucidpixels.com ([66.45.37.187]:52906 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751136AbWHLJNM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 05:13:12 -0400
-Date: Sat, 12 Aug 2006 05:13:11 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-raid <linux-raid@vger.kernel.org>, Neil Brown <neilb@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [bug?] raid1 integrity checking is broken on 2.6.18-rc4
-In-Reply-To: <200608120252_MC3-1-C7DD-BA91@compuserve.com>
-Message-ID: <Pine.LNX.4.64.0608120512440.21701@p34.internal.lan>
-References: <200608120252_MC3-1-C7DD-BA91@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 12 Aug 2006 05:20:39 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:49649 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751410AbWHLJUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 05:20:39 -0400
+Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Rik van Riel <riel@redhat.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Daniel Phillips <phillips@google.com>
+In-Reply-To: <20060812084713.GA29523@2ka.mipt.ru>
+References: <20060808193325.1396.58813.sendpatchset@lappy>
+	 <20060809054648.GD17446@2ka.mipt.ru> <1155127040.12225.25.camel@twins>
+	 <20060809130752.GA17953@2ka.mipt.ru> <1155130353.12225.53.camel@twins>
+	 <44DD4E3A.4040000@redhat.com>  <20060812084713.GA29523@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Sat, 12 Aug 2006 11:19:49 +0200
+Message-Id: <1155374390.13508.15.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2006-08-12 at 12:47 +0400, Evgeniy Polyakov wrote:
+> On Fri, Aug 11, 2006 at 11:42:50PM -0400, Rik van Riel (riel@redhat.com) wrote:
+> > >Dropping these non-essential packets makes sure the reserve memory 
+> > >doesn't get stuck in some random blocked user-space process, hence
+> > >you can make progress.
+> > 
+> > In short:
+> >  - every incoming packet needs to be received at the packet level
+> >  - when memory is low, we only deliver data to memory critical sockets
+> >  - packets to other sockets get dropped, so the memory can be reused
+> >    for receiving other packets, including the packets needed for the
+> >    memory critical sockets to make progress
+> > 
+> > Forwarding packets while in low memory mode should not be a problem
+> > at all, since forwarded packets get freed quickly.
+> > 
+> > The memory pool for receiving packets does not need much accounting
+> > of any kind, since every packet will end up coming from that pool
+> > when normal allocations start failing.   Maybe Evgeniy's allocator
+> > can do something smarter internally, and mark skbuffs as MEMALLOC
+> > when the number of available skbuffs is getting low?
+> 
+> As you described above, memory for each packet must be allocated (either
+> from SLAB or from reserve), so network needs special allocator in OOM
+> condition, and that allocator should be separated from SLAB's one which 
+> got OOM, so my purpose is just to use that different allocator (with
+> additional features) for netroking always. Since every piece of
+> networking is limited (socket queues, socket numbers, hardware queues,
+> hardware wire speeds an so on) there is always a maximum amount of
+> memory it can consume and can never exceed, so if network allocator will 
+> get that amount of memory at the begining, it will never meet OOM, 
+> so it will _always_ work and thus can allow to make slow progress for 
+> OOM-capable things like block devices and swap issues. 
+> There are no special reserve and no need to switch to/from it and 
+> no possibility to have OOM by design.
 
+I'm not sure if the network stack is bounded as you say; for instance
+imagine you taking a lot of packets for blocked user-space processes,
+these will just accumulate in the network stack and go nowhere. In that
+case memory usage is very much unbounded.
 
-On Sat, 12 Aug 2006, Chuck Ebbert wrote:
+Even if blocked sockets would only accept a limited amount of packets,
+it would then become a function of the amount of open sockets, which is
+again unbounded.
 
-> Doing this on a raid1 array:
->        echo "check" >/sys/block/md0/md/sync_action
->
-> On 2.6.16.27:
->        Activity lights on both mirrors show activity for a while,
->        then the array status prints on the console.
->
-> On 2.6.18-rc4 + the below patch:
->        Drive activity light blinks once on one drive, then the
->        array status prints (obviously no checking takes place.)
->
->
-> Applied hotfix on 2.6.18-rc4:
->
-> --- .prev/drivers/md/md.c       2006-08-08 09:00:44.000000000 +1000
-> +++ ./drivers/md/md.c   2006-08-08 09:04:04.000000000 +1000
-> @@ -1597,6 +1597,19 @@ void md_update_sb(mddev_t * mddev)
->
-> repeat:
->        spin_lock_irq(&mddev->write_lock);
-> +
-> +       if (mddev->degraded && mddev->sb_dirty == 3)
-> +               /* If the array is degraded, then skipping spares is both
-> +                * dangerous and fairly pointless.
-> +                * Dangerous because a device that was removed from the array
-> +                * might have a event_count that still looks up-to-date,
-> +                * so it can be re-added without a resync.
-> +                * Pointless because if there are any spares to skip,
-> +                * then a recovery will happen and soon that array won't
-> +                * be degraded any more and the spare can go back to sleep then.
-> +                */
-> +               mddev->sb_dirty = 1;
-> +
->        sync_req = mddev->in_sync;
->        mddev->utime = get_seconds();
->        if (mddev->sb_dirty == 3)
-> -- 
-> Chuck
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+In any scheme you need to bound the amount of memory, and in low memory
+situations it is very usefull to return memory as soon as possible.
 
-Is there a doc for all of the options you can echo into the sync_action? 
-I'm assuming mdadm does these as well and echo is just another way to run 
-work with the array?
+Hence this approach, it uses the global memory reserve, and a page based
+allocator that does indeed return memory instantly (yes the one I have
+show so far is ghastly, I've since written a nice one).
+

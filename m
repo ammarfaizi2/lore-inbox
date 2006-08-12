@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWHLWCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWHLWCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbWHLWCB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 18:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWHLWAo
+	id S932618AbWHLWCp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 18:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbWHLWAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 18:00:44 -0400
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:59551 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751198AbWHLWAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 18:00:24 -0400
+	Sat, 12 Aug 2006 18:00:42 -0400
+Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:43736 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932618AbWHLWAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 18:00:38 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.18-rc4 04/10] Modules support for kmemleak
-Date: Sat, 12 Aug 2006 23:00:20 +0100
+Subject: [PATCH 2.6.18-rc4 06/10] Add kmemleak support for ARM
+Date: Sat, 12 Aug 2006 23:00:34 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060812220020.17709.16347.stgit@localhost.localdomain>
+Message-Id: <20060812220034.17709.46636.stgit@localhost.localdomain>
 In-Reply-To: <20060812215857.17709.79502.stgit@localhost.localdomain>
 References: <20060812215857.17709.79502.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,92 +24,68 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch handles the kmemleak operations needed for modules loading so
-that memory allocations from inside a module are properly tracked.
+This patch modifies the vmlinux.lds.S script and adds the backtrace support
+for ARM to be used with kmemleak.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- kernel/module.c |   41 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 41 insertions(+), 0 deletions(-)
+ arch/arm/kernel/vmlinux.lds.S |    7 +++++++
+ include/asm-arm/processor.h   |   12 ++++++++++++
+ 2 files changed, 19 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 2a19cd4..a7f8c6d 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1481,6 +1481,11 @@ static struct module *load_module(void _
- 	unsigned int unusedcrcindex;
- 	unsigned int unusedgplindex;
- 	unsigned int unusedgplcrcindex;
+diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
+index 3ca574e..59976b8 100644
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -67,6 +67,11 @@ #endif
+ 		__per_cpu_start = .;
+ 			*(.data.percpu)
+ 		__per_cpu_end = .;
 +#ifdef CONFIG_DEBUG_MEMLEAK
-+	unsigned int dataindex;
-+	unsigned int bssindex;
-+	unsigned int mloffindex;
++		__memleak_offsets_start = .;
++			*(.init.memleak_offsets)
++		__memleak_offsets_end = .;
 +#endif
- 	struct module *mod;
- 	long err = 0;
- 	void *percpu = NULL, *ptr = NULL; /* Stops spurious gcc warning */
-@@ -1577,6 +1582,11 @@ #endif
- #ifdef ARCH_UNWIND_SECTION_NAME
- 	unwindex = find_sec(hdr, sechdrs, secstrings, ARCH_UNWIND_SECTION_NAME);
+ #ifndef CONFIG_XIP_KERNEL
+ 		__init_begin = _stext;
+ 		*(.init.data)
+@@ -115,6 +120,7 @@ #endif
+ 
+ 	.data : AT(__data_loc) {
+ 		__data_start = .;	/* address in memory */
++		_sdata = .;
+ 
+ 		/*
+ 		 * first, the init task union, aligned
+@@ -165,6 +171,7 @@ #endif
+ 		__bss_start = .;	/* BSS				*/
+ 		*(.bss)
+ 		*(COMMON)
++		__bss_stop = .;
+ 		_end = .;
+ 	}
+ 					/* Stabs debugging sections.	*/
+diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
+index 04f4d34..34a3bb3 100644
+--- a/include/asm-arm/processor.h
++++ b/include/asm-arm/processor.h
+@@ -121,6 +121,18 @@ #define spin_lock_prefetch(x) do { } whi
+ 
  #endif
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+	dataindex = find_sec(hdr, sechdrs, secstrings, ".data");
-+	bssindex = find_sec(hdr, sechdrs, secstrings, ".bss");
-+	mloffindex = find_sec(hdr, sechdrs, secstrings, ".init.memleak_offsets");
-+#endif
  
- 	/* Don't keep modinfo section */
- 	sechdrs[infoindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
-@@ -1646,6 +1656,10 @@ #endif
- 
- 	/* Do the allocs. */
- 	ptr = module_alloc(mod->core_size);
-+	/* the pointer to this block is stored in the module structure
-+	 * which is inside the block. Just mark it as not being a
-+	 * leak */
-+	memleak_not_leak(ptr);
- 	if (!ptr) {
- 		err = -ENOMEM;
- 		goto free_percpu;
-@@ -1654,6 +1668,11 @@ #endif
- 	mod->module_core = ptr;
- 
- 	ptr = module_alloc(mod->init_size);
-+	/* the pointer to this block is stored in the module structure
-+	 * which is inside the block. This block doesn't need to be
-+	 * scanned as it contains data and code that will be freed
-+	 * after the module is initialized */
-+	memleak_ignore(ptr);
- 	if (!ptr && mod->init_size) {
- 		err = -ENOMEM;
- 		goto free_core;
-@@ -1685,6 +1704,28 @@ #endif
- 	/* Module has been moved. */
- 	mod = (void *)sechdrs[modindex].sh_addr;
- 
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+	if (mloffindex)
-+		memleak_insert_aliases((void *)sechdrs[mloffindex].sh_addr,
-+				       (void *)sechdrs[mloffindex].sh_addr
-+				         + sechdrs[mloffindex].sh_size);
++#ifdef CONFIG_FRAME_POINTER
++static inline unsigned long arch_call_address(void *frame)
++{
++	return *(unsigned long *)(frame - 4) - 4;
++}
 +
-+	/* only scan the sections containing data */
-+	memleak_scan_area(mod->module_core,
-+			  (unsigned long)mod - (unsigned long)mod->module_core,
-+			  sizeof(struct module));
-+	if (dataindex)
-+		memleak_scan_area(mod->module_core,
-+				  sechdrs[dataindex].sh_addr
-+				    - (unsigned long)mod->module_core,
-+				  sechdrs[dataindex].sh_size);
-+	if (bssindex)
-+		memleak_scan_area(mod->module_core,
-+				  sechdrs[bssindex].sh_addr
-+				    - (unsigned long)mod->module_core,
-+				  sechdrs[bssindex].sh_size);
++static inline void *arch_prev_frame(void *frame)
++{
++	return *(void **)(frame - 12);
++}
 +#endif
 +
- 	/* Now we've moved module, initialize linked lists, etc. */
- 	module_unload_init(mod);
+ #endif
  
+ #endif /* __ASM_ARM_PROCESSOR_H */

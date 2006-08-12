@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWHLPXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWHLPYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbWHLPXb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 11:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWHLPXa
+	id S964893AbWHLPYU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 11:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbWHLPYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 11:23:30 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:23187 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964868AbWHLPX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 11:23:29 -0400
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Rik van Riel <riel@redhat.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-In-Reply-To: <20060812150842.GA5638@2ka.mipt.ru>
-References: <1155127040.12225.25.camel@twins>
-	 <20060809130752.GA17953@2ka.mipt.ru> <1155130353.12225.53.camel@twins>
-	 <44DD4E3A.4040000@redhat.com> <20060812084713.GA29523@2ka.mipt.ru>
-	 <1155374390.13508.15.camel@lappy> <20060812093706.GA13554@2ka.mipt.ru>
-	 <44DDE857.3080703@redhat.com> <20060812144921.GA25058@2ka.mipt.ru>
-	 <44DDEC1F.6010603@redhat.com>  <20060812150842.GA5638@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Sat, 12 Aug 2006 17:22:40 +0200
-Message-Id: <1155396161.13508.55.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 12 Aug 2006 11:24:20 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:16339 "EHLO
+	kingpin.cenara.com") by vger.kernel.org with ESMTP id S964892AbWHLPYT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 11:24:19 -0400
+From: Magnus =?iso-8859-15?q?Vigerl=F6f?= <wigge@bigfoot.com>
+To: linux-input@atrey.karlin.mff.cuni.cz
+Subject: input: evdev.c EVIOCGRAB semantics question
+Date: Sat, 12 Aug 2006 17:24:16 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200608121724.16119.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 19:08 +0400, Evgeniy Polyakov wrote:
+Hi,
 
-> One must receive a packet to determine if that packet must be dropped
-> until tricky hardware with header split capabilities or MMIO copying is
-> used. 
+What is the purpose of the EVIOCGRAB ioctl in evdev.c? Is it to prevent the 
+device driver from sending events to other event handlers? Is it to prevent 
+other applications from receiving events that has the device handler open? 
+First, last, or both?
 
-True, that is done, but we then discard this packet at the very first
-moment we know it's not for a special socket. This way we know this
-piece of memory will not get stuck waiting on some unimportant blocked
-process. So even though we allocate the packet we do not loose the
-memory.
+I discovered the following behavior when I fired up a second X-server on my 
+machine with my Wacom tablet connected: The second X-server opened the tablet 
+as well and everything worked as it should. However when I switched back to 
+the first X-server the tablet didn't work at all. Only when I stopped the 
+second X-server did the tablet start working in the first X-server again. If 
+I changed the code in evdev to ignore the EVIOCGRAB-ioctl the tablet works in 
+both X-servers, but that caused other problems.
 
-> Peter uses special pool to get data from when system is in OOM (at
-> least in his latest patchset), so allocations are separated and thus
-> network code is not affected by OOM condition, which allows to make
-> forward progress.
+Now, having two X-servers might not be the most common thing to have, but 
+having other applications that depends on the movement from the tablet might 
+be more common.
 
-I've done that throughout the patches, in various forms of brokenness.
-Only with this full allocator could I implement all the semantics needed
-for all skb operations though.
+As is it now, it's useless (more or less) to run wacdump to display the tablet 
+specific events in a understandable manner. An application that generates 
+events through uinput based on tablet events and some other qualifiers 
+(mouseemu, simulating mouse scroll wheel) will not work either.
 
-Previous attempts had some horrors build on alloc_pages() in there.
+And yes, the X-server must grab the tablet. Otherwise events will go 
+through /dev/input/mice as well and mess up applications that depend on the 
+tablet-specific absolute events.
 
-> Critical flag can be setup through setsockopt() and checked in
-> tcp_v4_rcv().
-
-I have looked at setsockopt(), but since I'm not sure I want to expose
-this to userspace I chose to not do that.
-
-
+Thanks
+ Magnus

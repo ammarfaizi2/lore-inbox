@@ -1,85 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWHLARc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWHLAWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWHLARc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 20:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWHLARc
+	id S964797AbWHLAWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 20:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWHLAWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 20:17:32 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:40164 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932436AbWHLARb
+	Fri, 11 Aug 2006 20:22:25 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:61899 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932451AbWHLAWY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 20:17:31 -0400
-Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux scsi <linux-scsi@vger.kernel.org>
-In-Reply-To: <20060811162124.66895682.akpm@osdl.org>
-References: <1155334308.7574.50.camel@localhost.localdomain>
-	 <1155335237.3552.48.camel@mulgrave.il.steeleye.com>
-	 <1155335506.7574.54.camel@localhost.localdomain>
-	 <1155336653.3552.54.camel@mulgrave.il.steeleye.com>
-	 <1155337603.7574.61.camel@localhost.localdomain>
-	 <20060811162124.66895682.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 11 Aug 2006 17:17:15 -0700
-Message-Id: <1155341835.7574.76.camel@localhost.localdomain>
+	Fri, 11 Aug 2006 20:22:24 -0400
+Date: Sat, 12 Aug 2006 01:22:11 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Dave Jones <davej@redhat.com>, Thomas Koeller <thomas@koeller.dyndns.org>,
+       wim@iguana.be, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
+Message-ID: <20060812002211.GA8279@linux-mips.org>
+References: <200608102319.13679.thomas@koeller.dyndns.org> <20060811205639.GK26930@redhat.com> <200608120149.23380.thomas@koeller.dyndns.org> <20060812000636.GB28540@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060812000636.GB28540@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I have a new culprit of the hour:
+On Fri, Aug 11, 2006 at 08:06:36PM -0400, Dave Jones wrote:
 
-	gregkh-pci-pci-use-pci_bios-as-last-fallback
+>  > I think they are. Remember, the entire device is integrated in the
+>  > processor. No external buses involved.
+> 
+> Ok.
 
-There was a previous patch that messed up a few of my machines and this
-same driver a few months ago, which accounts for my sense of deja vu:
+I think it's ok in this case, we're unlikely to see these peripherals
+on other chips than PMC-Sierra's - but that's of course just a guess.
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/broken-out/gregkh-pci-pci-give-pci-config-access-initialization-a-defined-ordering.patch
+With a broader perspective the embedded world is increasingly converging
+to using standardized components (so called "IP") and on-chip
+interconnects such as OCP for new designs and portable drivers should
+reflect this.
 
-There was an off-list thread called 
-
-	"PCI device issue in 2.6.16-rc3-mm1 through 2.6.16-rc6-mm1"
-
-Anyway, here's the information from the syslog at boot in a working
-system (without the patch applied):
-
-PCI: PCI BIOS revision 2.10 entry at 0xfd32c, last bus=8
-Setting up standard PCI resources
-SCSI subsystem initialized
-PCI: Probing PCI hardware
-PCI: Discovered peer bus 02
-PCI: Firmware left 0000:02:05.0 e100 interrupts enabled, disabling
-PCI: Discovered peer bus 05
-PCI->APIC IRQ transform: 0000:00:05.0[A] -> IRQ 16
-PCI->APIC IRQ transform: 0000:00:0f.2[A] -> IRQ 19
-PCI->APIC IRQ transform: 0000:02:01.0[A] -> IRQ 17
-PCI->APIC IRQ transform: 0000:02:01.1[B] -> IRQ 18
-PCI->APIC IRQ transform: 0000:02:05.0[A] -> IRQ 24
-PCI->APIC IRQ transform: 0000:05:02.0[A] -> IRQ 21
-PCI->APIC IRQ transform: 0000:05:02.1[B] -> IRQ 26
-PCI->APIC IRQ transform: 0000:06:04.0[A] -> IRQ 22
-PCI->APIC IRQ transform: 0000:06:05.0[A] -> IRQ 27
-PCI->APIC IRQ transform: 0000:06:06.0[A] -> IRQ 28
-PCI->APIC IRQ transform: 0000:06:07.0[A] -> IRQ 29
-PCI: Bridge: 0000:05:03.0
-  IO window: 7000-7fff
-  MEM window: eb000000-ec1fffff
-  PREFETCH window: ea300000-ea3fffff
-
-And the same thing in a system where it can't find my SCSI card (with
-the patch applied):
-
-PCI: Using configuration type 1
-Setting up standard PCI resources
-SCSI subsystem initialized
-PCI: Probing PCI hardware
-PCI->APIC IRQ transform: 0000:00:05.0[A] -> IRQ 16
-PCI->APIC IRQ transform: 0000:00:0f.2[A] -> IRQ 19
-
-
--- Dave
-
+  Ralf

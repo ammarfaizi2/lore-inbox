@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWHLQkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbWHLQvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbWHLQkS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 12:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWHLQkR
+	id S932562AbWHLQvh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 12:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWHLQvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 12:40:17 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:60761 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964887AbWHLQkQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 12:40:16 -0400
-Message-ID: <44DE046D.2050304@de.ibm.com>
-Date: Sat, 12 Aug 2006 18:40:13 +0200
-From: Thomas Klein <osstklei@de.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Sat, 12 Aug 2006 12:51:36 -0400
+Received: from helium.samage.net ([83.149.67.129]:2208 "EHLO helium.samage.net")
+	by vger.kernel.org with ESMTP id S932526AbWHLQvf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 12:51:35 -0400
+Message-ID: <33471.81.207.0.53.1155401489.squirrel@81.207.0.53>
+In-Reply-To: <20060812141415.30842.78695.sendpatchset@lappy>
+References: <20060812141415.30842.78695.sendpatchset@lappy>
+Date: Sat, 12 Aug 2006 18:51:29 +0200 (CEST)
+Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
+From: "Indan Zupancic" <indan@nul.nu>
+To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       "Daniel Phillips" <phillips@google.com>,
+       "Rik van Riel" <riel@redhat.com>, "David Miller" <davem@davemloft.net>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>, Jan-Bernd Themann <themann@de.ibm.com>
-CC: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 4/6] ehea: header files
-References: <44D99F56.7010201@de.ibm.com> <20060811220728.GI479@krispykreme>
-In-Reply-To: <20060811220728.GI479@krispykreme>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
->> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea.h	1969-12-31 
->>     
+On Sat, August 12, 2006 16:14, Peter Zijlstra said:
+> Hi,
 >
->   
->> +extern void exit(int);
->>     
+> here the latest effort, it includes a whole new trivial allocator with a
+> horrid name and an almost full rewrite of the deadlock prevention core.
+> This version does not do anything per device and hence does not depend
+> on the new netdev_alloc_skb() API.
 >
-> Should be able to remove that prototype :) 
+> The reason to add a second allocator to the receive side is twofold:
+> 1) it allows easy detection of the memory pressure / OOM situation;
+> 2) it allows the receive path to be unbounded and go at full speed when
+>    resources permit.
 >
-> Anton
->   
-Indeed :-) It's gone.
+> The choice of using the global memalloc reserve as a mempool makes that
+> the new allocator has to release pages as soon as possible; if we were
+> to hoard pages in the allocator the memalloc reserve would not get
+> replenished readily.
 
-Thomas
+Version 2 had about 250 new lines of code, while v3 has close to 600, when
+including the SROG code. And that while things should have become simpler.
+So why use SROG instead of the old alloc_pages() based code? And why couldn't
+you use a slightly modified SLOB instead of writing a new allocator?
+It looks like overkill to me.
+
+Greetings,
+
+Indan
+
 

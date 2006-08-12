@@ -1,82 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWHLDnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWHLEYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWHLDnI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 23:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWHLDnI
+	id S1750908AbWHLEYf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 00:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWHLEYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 23:43:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56748 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751288AbWHLDnG (ORCPT
+	Sat, 12 Aug 2006 00:24:35 -0400
+Received: from 1wt.eu ([62.212.114.60]:55309 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750908AbWHLEYe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 23:43:06 -0400
-Message-ID: <44DD4E3A.4040000@redhat.com>
-Date: Fri, 11 Aug 2006 23:42:50 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-References: <20060808193325.1396.58813.sendpatchset@lappy>	 <20060809054648.GD17446@2ka.mipt.ru> <1155127040.12225.25.camel@twins>	 <20060809130752.GA17953@2ka.mipt.ru> <1155130353.12225.53.camel@twins>
-In-Reply-To: <1155130353.12225.53.camel@twins>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Aug 2006 00:24:34 -0400
+Date: Sat, 12 Aug 2006 06:04:41 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Kasper Sandberg <lkml@metanurb.dk>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.33 released
+Message-ID: <20060812040441.GC6666@1wt.eu>
+References: <200608110418.k7B4IqDn017355@hera.kernel.org> <1155318180.23933.7.camel@localhost> <20060811190923.GJ8776@1wt.eu> <e8eqd2ho9a92hiqohjfmkhsbohl5beabvf@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8eqd2ho9a92hiqohjfmkhsbohl5beabvf@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
+On Sat, Aug 12, 2006 at 12:18:23PM +1000, Grant Coady wrote:
+> On Fri, 11 Aug 2006 21:09:23 +0200, Willy Tarreau <w@1wt.eu> wrote:
+> 
+> >Hello,
+> >
+> >On Fri, Aug 11, 2006 at 07:43:00PM +0200, Kasper Sandberg wrote:
+> >> On Fri, 2006-08-11 at 04:18 +0000, Marcelo Tosatti wrote:
+> >> > final:
+> >> > 
+> >> > - 2.4.33-rc3 was released as 2.4.33 with no changes.
+> >> I have one suggestion for the 2.4 tree, next time a few changes is
+> >> introduced, they could be put as a bugfix release, as with the 2.6
+> >> branch now, so that it doesent end up taking years for a new 2.4
+> >> release, and instead a point release(if any such thing happens at all)
+> >
+> >This has already the case with the hotfix tree since 18 months or so. A
+> >hotfix release is issued when there are important fixes. Anyway, I was
+> >thinking about releasing pre-releases more often. Also, you might have
+> >noticed that the slowdown is more important during -rc for obvious reasons.
+> 
+> >To solve this problem, I intend to maintain a 'next' branch in the tree
+> >which will contain the fixes that can wait for next version. It should
+> >help us batch the fixes and reduce the latency between important fixes
+> >and the associated release.
+> 
+> Perhaps time to follow the 2.6.nn-stable naming scheme?  Since you're in 
+> the driver's seat now?  This may be less confusing to 2.4 series users.
 
->> You say "critical resource isolation", but it is not the case - consider
->> NFS over UDP - remote side will not stop sending just because receiving 
->> socket code drops data due to OOM, or IPsec or compression, which can
->> requires reallocation. There is no "critical resource isolation", since
->> reserved pool _must_ be used by everyone in the kernel network stack.
+The difference is that I provide hotfixes for older versions too, and if
+you remember, initially all versions got a different suffix, which was
+really confusing. Now at least they all get the same one. Or perhaps I
+should use the 4 digit for the last version and something derived from
+it for older versions, I'll have to think about it.
 
-> The idea is to drop all !NFS packets (or even more specific only keep
->  those NFS packets that belong to the critical mount), and everybody
-> doing critical IO over layered networks like IPSec or other tunnel
-> constructs asks for trouble - Just DON'T do that.
+> You'd have an idea how popular your hotfix project has been from your 
+> server download stats?  I've mostly run hotfix-latest on firewall 24/7 
+> since you started the project.
 
-The only problem with things like IPSec is renegotiation, which
-can take up memory right at the time you don't have any extra
-memory available.
+It varies depending on the fixes. For instance, on hf32.6, I got 737
+downloads: 69% for the latest version (2.4.32), 10% for 2.4.29, 8% for
+2.4.30, 7% for 2.4.31, and 6% for 2.4.28. But it's hard to tell how
+many systems run those patches, because some people might download
+them just for curiosity, and others download them once an apply them
+on a hundred of machines. From the feedback I got, people often use
+the latest hotfix as the first patch for their own kernels (and I do
+the same) so that they know they're up to date, and can add the
+features they need.
 
-Decrypting individual IPSec packets during normal operation and
-then dropping the ones for non-critical sockets should work just
-fine.
+Also, many people know that 2.4 is stable enough that most often,
+any pre-release can be used as a hotfix.
 
-The problem is layered networks over TCP, where you have to
-process the packets in-order and may have no choice but to hold
-onto data for non-critical sockets, at least for a while.
+> Cheers,
+> Grant.
 
-> Dropping these non-essential packets makes sure the reserve memory 
-> doesn't get stuck in some random blocked user-space process, hence
-> you can make progress.
+Cheers,
+Willy
 
-In short:
-  - every incoming packet needs to be received at the packet level
-  - when memory is low, we only deliver data to memory critical sockets
-  - packets to other sockets get dropped, so the memory can be reused
-    for receiving other packets, including the packets needed for the
-    memory critical sockets to make progress
-
-Forwarding packets while in low memory mode should not be a problem
-at all, since forwarded packets get freed quickly.
-
-The memory pool for receiving packets does not need much accounting
-of any kind, since every packet will end up coming from that pool
-when normal allocations start failing.   Maybe Evgeniy's allocator
-can do something smarter internally, and mark skbuffs as MEMALLOC
-when the number of available skbuffs is getting low?
-
-Part (most?) of the problem space is explained here:
-
-http://linux-mm.org/NetworkStorageDeadlock
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbWHLU03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWHLU3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932595AbWHLU03 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 16:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWHLU03
+	id S964944AbWHLU3n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 16:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWHLU3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 16:26:29 -0400
-Received: from rooties.de ([83.246.114.58]:51151 "EHLO rooties.de")
-	by vger.kernel.org with ESMTP id S932595AbWHLU02 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 16:26:28 -0400
-From: Daniel <damage@rooties.de>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: debug prism wlan
-Date: Sat, 12 Aug 2006 22:26:26 +0000
-User-Agent: KMail/1.9.1
-References: <200608122140.44365.damage@rooties.de> <200608122115.08419.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200608122115.08419.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 12 Aug 2006 16:29:43 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17088 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964944AbWHLU3m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 16:29:42 -0400
+Subject: Re: [PATCH] MIPS RM9K watchdog driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: thomas@koeller.dyndns.org
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org,
+       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
+In-Reply-To: <200608121805.52358.thomas@koeller.dyndns.org>
+References: <200608121805.52358.thomas@koeller.dyndns.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608122226.26516.damage@rooties.de>
+Date: Sat, 12 Aug 2006 21:49:59 +0100
+Message-Id: <1155415799.24077.133.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, sorry I have forgotten to tell:
+Ar Sad, 2006-08-12 am 18:05 +0200, ysgrifennodd
+thomas@koeller.dyndns.org:
+> This is a driver for the on-chip watchdog device found on some
+> MIPS RM9000 processors.
+> 
+> Signed-off-by: Thomas Koeller <thomas.koeller@baslerweb.com>
 
-drunken init # lspci |grep Prism
-00:08.0 Network controller: Intersil Corporation ISL3890 [Prism GT/Prism 
-Duette]/ISL3886 [Prism Javelin/Prism Xbow] (rev 01)
+Looks good now
 
-So I'm using the prism54 driver (CONFIG_PRISM54). My version of wireless-tools 
-is 29_pre10 and the version of the used firmware is 1.0.4.3.
+Acked-by: Alan Cox <alan@redhat.com>
 
-BTW: I tried
-# modprobe prism54 pc_debug=1
-
-and 
-
-# modprobe prism54 pc_debug=9999999
-
-But it doesn't increased the verbose level.
-
-The firmware upload was successfull (according to dmesg).
-
-Am Samstag, 12. August 2006 20:15 schrieben Sie:
-> On Saturday 12 August 2006 22:40, Daniel wrote:
-> > Hi,
-> > my wlan gives up working somewhere between upgrading to gcc-4.1, changing
-> > some kernel options and upgrading to linux-2.8.16-r4.
->
-> Hi Daniel,
->
-> Which driver does this card use? There's a couple Prism 1/2/2.5 802.11b
-> drivers and a Prism54 driver for 802.11g cards. Any ideas?

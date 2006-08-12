@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWHLKTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWHLKVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWHLKTD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 06:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHLKS4
+	id S932491AbWHLKVG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 06:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWHLKVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 06:18:56 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:32801 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932313AbWHLKSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 06:18:55 -0400
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Rik van Riel <riel@redhat.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-In-Reply-To: <20060812093706.GA13554@2ka.mipt.ru>
-References: <20060808193325.1396.58813.sendpatchset@lappy>
-	 <20060809054648.GD17446@2ka.mipt.ru> <1155127040.12225.25.camel@twins>
-	 <20060809130752.GA17953@2ka.mipt.ru> <1155130353.12225.53.camel@twins>
-	 <44DD4E3A.4040000@redhat.com> <20060812084713.GA29523@2ka.mipt.ru>
-	 <1155374390.13508.15.camel@lappy>  <20060812093706.GA13554@2ka.mipt.ru>
+	Sat, 12 Aug 2006 06:21:06 -0400
+Received: from mail.gmx.net ([213.165.64.20]:7374 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932491AbWHLKVF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 06:21:05 -0400
+X-Authenticated: #14349625
+Subject: 2.6.18-rc3-mm2:  oops in device_bind_driver()
+From: Mike Galbraith <efault@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Sat, 12 Aug 2006 12:18:07 +0200
-Message-Id: <1155377887.13508.27.camel@lappy>
+Date: Sat, 12 Aug 2006 12:28:46 +0000
+Message-Id: <1155385726.6151.6.camel@Homer.simpson.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 13:37 +0400, Evgeniy Polyakov wrote:
-> On Sat, Aug 12, 2006 at 11:19:49AM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> > > As you described above, memory for each packet must be allocated (either
-> > > from SLAB or from reserve), so network needs special allocator in OOM
-> > > condition, and that allocator should be separated from SLAB's one which 
-> > > got OOM, so my purpose is just to use that different allocator (with
-> > > additional features) for netroking always. Since every piece of
-> > > networking is limited (socket queues, socket numbers, hardware queues,
-> > > hardware wire speeds an so on) there is always a maximum amount of
-> > > memory it can consume and can never exceed, so if network allocator will 
-> > > get that amount of memory at the begining, it will never meet OOM, 
-> > > so it will _always_ work and thus can allow to make slow progress for 
-> > > OOM-capable things like block devices and swap issues. 
-> > > There are no special reserve and no need to switch to/from it and 
-> > > no possibility to have OOM by design.
-> > 
-> > I'm not sure if the network stack is bounded as you say; for instance
-> > imagine you taking a lot of packets for blocked user-space processes,
-> > these will just accumulate in the network stack and go nowhere. In that
-> > case memory usage is very much unbounded.
-> 
-> No it is not. There are socket queues and they are limited. Things like
-> TCP behave even better.
-> 
-> > Even if blocked sockets would only accept a limited amount of packets,
-> > it would then become a function of the amount of open sockets, which is
-> > again unbounded.
-> 
-> Does it? I though it is possible to only have 64k of working sockets per
-> device in TCP.
+Greetings,
 
-65535 sockets * 128 packets * 16384 bytes/packet = 
-1^16 * 1^7 * 1^14 = 1^(16+7+14) = 1^37 = 128G of memory per IP
+I'm hitting the oops below, though not on every boot.
 
-And systems with a lot of IP numbers are not unthinkable.
+DEV: registering device: ID = 'dvb0'
+PM: Adding info for bttv-sub:dvb0
+saa7130/34: v4l2 driver version 0.2.14 loaded
+bus bttv-sub: add device dvb0
+bttv0: add subdevice "dvb0"
+BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c126e43f
+*pde = 00000000
+Oops: 0000 [#1]
+4K_STACKS PREEMPT SMP 
+last sysfs file: /class/input/input2/name
+Modules linked in: saa7134 bt878 ir_kbd_i2c bttv video_buf ir_common sd_mod i2c_i801 btcx_risc snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm tveeprom ohci1394 snd_timer snd_page_alloc prism54 snd_mpu401 ieee1394 snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore
+CPU:    1
+EIP:    0060:[<c126e43f>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.18-rc3-mm2-smp #169) 
+EIP is at device_bind_driver+0x49/0xd0
+eax: 00000000   ebx: c1fdb048   ecx: f8b4e268   edx: 00000000
+esi: c1fdb084   edi: f8b46db8   ebp: dfccef98   esp: dfccef80
+ds: 007b   es: 007b   ss: 0068
+Process probe-0000:02:0 (pid: 3623, ti=dfcce000 task=dff57030 task.ti=dfcce000)
+Stack: f8b46d80 dfccef98 c11de322 c1fdb048 00000000 f8b46db8 dfccefc4 c126e56d 
+       c146e438 c145210e f8b3c243 c1fdb114 c1fdb114 c1fa3740 fffffffc dfccbe8c 
+       c1fa3740 dfccefe4 c10361d6 c126e4c6 ffffffff ffffffff c10360f2 00000000 
+Call Trace:
+ [<c126e56d>] really_probe+0xa7/0x10c
+ [<c10361d6>] kthread+0xe4/0xe8
+ [<c1001005>] kernel_thread_helper+0x5/0xb
+DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
+Leftover inexact backtrace:
+ [<c1003f83>] show_stack_log_lvl+0xa6/0xcb
+ [<c1004180>] show_registers+0x1d8/0x286
+ [<c100437f>] die+0x151/0x333
+ [<c10197f9>] do_page_fault+0x26b/0x51f
+ [<c13e02c9>] error_code+0x39/0x40
+ [<c126e56d>] really_probe+0xa7/0x10c
+ [<c10361d6>] kthread+0xe4/0xe8
+ [<c1001005>] kernel_thread_helper+0x5/0xb
+Code: 00 89 44 24 08 c7 44 24 04 ac 53 40 c1 c7 04 24 f0 e3 46 c1 e8 38 4b db ff 31 f6 89 f0 83 c4 0c 5b 5e 5f 5d c3 8b 83 14 01 00 00 <8b> 00 89 44 24 08 8d 83 cc 00 00 00 89 44 24 04 c7 04 24 10 e4 
+EIP: [<c126e43f>] device_bind_driver+0x49/0xd0 SS:ESP 0068:dfccef80
 
-I wonder what kind of system you have to feel that that is not a
-problem. (I'm not sure on the 128 packets per socket, and the 16k per
-packet is considering jumbo frames without scather gather receive)
-
-> If system is limited enough to provide enough memory for network tree
-> allocator, it is possible to create it's own drop condition inside NTA,
-> but it must be saparated from the weakest chain element in that
-> conditions - SLAB OOM.
-
-Hence the alternative allocator to use on tight memory conditions.
 

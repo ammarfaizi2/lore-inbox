@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWHLVBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWHLVBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422670AbWHLVBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 17:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422687AbWHLVBQ
+	id S1422687AbWHLVBW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 17:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWHLVBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 17:01:16 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:17043 "EHLO
+	Sat, 12 Aug 2006 17:01:22 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:28050 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422686AbWHLVBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 17:01:15 -0400
+	id S1422687AbWHLVBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 17:01:20 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=HaD/fZXrxt9eVwhKM9sM7+YUhFpTKk5xXIKW0+TdQ8ck2ZXF91L3h8MgY8r3+Z/jh7pbTBCX8PbdETyiAEWpitOUKvWtRi373ebCQr4AK3/PwIkaEjaBt7YodNApdRmEMTZb6bDLeinVOJFDXNuJbPK9gj91HGIcqb9XgxOcCcQ=
-Message-ID: <44DE41BD.4010203@gmail.com>
-Date: Sat, 12 Aug 2006 23:01:49 +0200
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=X38tkcxMP/nhz//7uRBE43XGaG9FOwIYDWCVyV6KYzp+2j555wvIebRBD1crryz/XG7Ol54RXkBlWrjlRWjCWmjOCLCOkRHlB4CVbn/2yWh5BovCDECln5m/ZXSC3Re2y6cVmusL4voROPNxVd7xwbTgtPA9yrVPFI4YgXbUjY4=
+Message-ID: <44DE41C3.2050308@gmail.com>
+Date: Sat, 12 Aug 2006 23:01:55 +0200
 From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>,
        James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-       Achim Leubner <achim_leubner@adaptec.com>, ipslinux@adaptec.com,
-       GOTO Masanori <gotom@debian.or.jp>
-Subject: [RFC] [PATCH 0/9] Removal of old scsi code
+       linux-scsi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH 1/9] drivers/scsi/dpt/dpti_i2o.h Removal of old
+ scsi code
+References: <44DE3E5E.3020605@gmail.com>
+In-Reply-To: <44DE3E5E.3020605@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch series removes old scsi code.
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-The patches are against latest -mm snapshot.
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/scsi/dpt/dpti_i2o.h linux-work/drivers/scsi/dpt/dpti_i2o.h
+--- linux-work-clean/drivers/scsi/dpt/dpti_i2o.h	2006-08-12 01:51:16.000000000 +0200
++++ linux-work/drivers/scsi/dpt/dpti_i2o.h	2006-08-12 20:54:40.000000000 +0200
+@@ -47,21 +47,11 @@
+  *	I2O Interface Objects
+  */
 
-dpt/dpti_i2o.h  |   10 ----
-gdth.c          |  118 --------------------------------------------------------
-gdth.h          |   10 ----
-gdth_proc.c     |   27 ------------
-ips.c           |  104 -------------------------------------------------
-ips.h           |   28 -------------
-nsp32.c         |   75 +----------------------------------
-nsp32.h         |   42 -------------------
-pcmcia/nsp_cs.h |   66 -------------------------------
-9 files changed, 5 insertions(+), 475 deletions(-)
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
+-
+-#define DECLARE_MUTEX(name) struct semaphore name=MUTEX
+-
+-typedef struct wait_queue *adpt_wait_queue_head_t;
+-#define ADPT_DECLARE_WAIT_QUEUE_HEAD(wait) adpt_wait_queue_head_t wait = NULL
+-typedef struct wait_queue adpt_wait_queue_t;
+-#else
+-
+ #include <linux/wait.h>
+ typedef wait_queue_head_t adpt_wait_queue_head_t;
+ #define ADPT_DECLARE_WAIT_QUEUE_HEAD(wait) DECLARE_WAIT_QUEUE_HEAD(wait)
+ typedef wait_queue_t adpt_wait_queue_t;
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
-
-
+-#endif
+ /*
+  * message structures
+  */
 
 

@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWHLBAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWHLBDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWHLBAE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Aug 2006 21:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWHLBAE
+	id S964813AbWHLBDd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Aug 2006 21:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHLBDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Aug 2006 21:00:04 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:9887 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964810AbWHLBAD (ORCPT
+	Fri, 11 Aug 2006 21:03:33 -0400
+Received: from ns1.suse.de ([195.135.220.2]:9394 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932408AbWHLBDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Aug 2006 21:00:03 -0400
-Date: Fri, 11 Aug 2006 17:59:59 -0700
+	Fri, 11 Aug 2006 21:03:32 -0400
+Date: Fri, 11 Aug 2006 18:03:17 -0700
 From: Greg KH <greg@kroah.com>
-To: Louis Garcia II <louisg00@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Status of driver core struct device changes?
-Message-ID: <20060812005959.GA25689@kroah.com>
-References: <1155332969.2652.8.camel@soncomputer>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux scsi <linux-scsi@vger.kernel.org>, ak@suse.de
+Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
+Message-ID: <20060812010317.GB25689@kroah.com>
+References: <1155334308.7574.50.camel@localhost.localdomain> <1155335237.3552.48.camel@mulgrave.il.steeleye.com> <1155335506.7574.54.camel@localhost.localdomain> <1155336653.3552.54.camel@mulgrave.il.steeleye.com> <1155337603.7574.61.camel@localhost.localdomain> <20060811162124.66895682.akpm@osdl.org> <1155341835.7574.76.camel@localhost.localdomain> <20060811173624.b60d8c47.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1155332969.2652.8.camel@soncomputer>
+In-Reply-To: <20060811173624.b60d8c47.akpm@osdl.org>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 05:49:29PM -0400, Louis Garcia II wrote:
-> A couple of months ago greg kh started work toward allowing everything
-> to be a struct device in the sysfs device tree. How is this progressing?
+On Fri, Aug 11, 2006 at 05:36:24PM -0700, Andrew Morton wrote:
+> On Fri, 11 Aug 2006 17:17:15 -0700
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> 
+> > Well, I have a new culprit of the hour:
+> > 
+> > 	gregkh-pci-pci-use-pci_bios-as-last-fallback
+> 
+> Thanks, I'll drop it.
+> 
+> > There was a previous patch that messed up a few of my machines and this
+> > same driver a few months ago, which accounts for my sense of deja vu:
+> > 
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/broken-out/gregkh-pci-pci-give-pci-config-access-initialization-a-defined-ordering.patch
 
-Quite well.  But next time you might want to CC: me as I almost missed
-this message.
+Ugh, this is a mess.  Daniel, why does your machine need this patch, yet
+as per Dave's comments, it's wrong?
 
-> Any time frame when we will have a simplified driver core api?
-
-It's getting there.  If you look in -mm there are a lot of subsystems
-already converted over, along with a lot of patches from andrew that
-revert these changes due to udev issues.
-
-I'm working on fixing up the udev issues so that the kernel work is not
-held up.  That's a bit slower going as it requires me to install a lot
-of different distros...
+I think it might come down to the fact that the ordering before used to
+not always happen in the same order (it depended on config options and
+linker luck.)  Now it's "fixed" to be the same way all the time.
+Daniel, can't you solve this with the proper pci boot option?
 
 thanks,
 

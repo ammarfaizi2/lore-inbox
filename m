@@ -1,198 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWHLSRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWHLS3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030258AbWHLSRb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 14:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWHLSRa
+	id S1030241AbWHLS3D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 14:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWHLS3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 14:17:30 -0400
-Received: from xenotime.net ([66.160.160.81]:7064 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030258AbWHLSR3 (ORCPT
+	Sat, 12 Aug 2006 14:29:03 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:25324 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030241AbWHLS3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 14:17:29 -0400
-Date: Sat, 12 Aug 2006 11:20:14 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       cmm@us.ibm.com, ext2-devel@lists.sourceforge.net,
-       Alex Tomas <alex@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
-Message-Id: <20060812112014.d1b4691a.rdunlap@xenotime.net>
-In-Reply-To: <44DE1328.5080101@us.ibm.com>
-References: <1155172827.3161.80.camel@localhost.localdomain>
-	<20060809233940.50162afb.akpm@osdl.org>
-	<m37j1hlyzv.fsf@bzzz.home.net>
-	<20060811135737.1abfa0f6.rdunlap@xenotime.net>
-	<20060811160002.b2afbec3.akpm@osdl.org>
-	<20060811230239.c89394b0.rdunlap@xenotime.net>
-	<44DE1328.5080101@us.ibm.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sat, 12 Aug 2006 14:29:00 -0400
+Date: Sat, 12 Aug 2006 23:59:28 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: =?iso-8859-1?Q?S=E9bastien_Dugu=E9_=3Csebastien=2Edugue=40bull=2Enet?=.=?iso-8859-1?Q?=3E?=@qubit.in.ibm.com,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       netdev <netdev@vger.kernel.org>, linux-aio@kvack.org
+Subject: Kernel patches enabling better POSIX AIO (Was Re: [3/4] kevent: AIO, aio_sendfile)
+Message-ID: <20060812182928.GA1989@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <44C77C23.7000803@redhat.com> <44C796C3.9030404@us.ibm.com> <1153982954.3887.9.camel@frecb000686> <44C8DB80.6030007@us.ibm.com> <44C9029A.4090705@oracle.com> <1154024943.29920.3.camel@dyn9047017100.beaverton.ibm.com> <44C90987.1040200@redhat.com> <1154034164.29920.22.camel@dyn9047017100.beaverton.ibm.com> <1154091500.13577.14.camel@frecb000686> <44DCDE73.9030901@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44DCDE73.9030901@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Aug 2006 10:43:04 -0700 Darrick J. Wong wrote:
 
-> Randy.Dunlap wrote:
-> 
-> > Uh, yes.  Well, I don't really care for the "ext3dev" name, but
-> > I tried to ignore that "feature" and fix it up anyway.
-> > Feel free to ignore any parts that you don't want.
-> 
-> Three nits to pick:
-> 
-> > +	  renamed ext4 fs later, once ext3dev is mature and
-> > stabled.
-> 
-> I think you want "stabilized", not "stabled".
-> 
-> (Until someone writes horsefs, that is. ;))
-> 
-> > +	  Other than extent maps and 48-bit block number,
-> > ext3dev also is
-> 
-> "...48-bit block numbers..."
-> 
-> > +	  By default the debugging output will be turned off.
-> 
-> "By default, the..."
+BTW, if anyone would like to be dropped off this growing cc list, please
+let us know.
 
-Thanks, all fixed, although I think that the comma on the last
-one is optional.  New patch is below, although what I would
-really prefer to see is this:
+On Fri, Aug 11, 2006 at 12:45:55PM -0700, Ulrich Drepper wrote:
+> Sébastien Dugué wrote:
+> > 		     aio completion notification
+> 
+> I looked over this now but I don't think I understand everything.  Or I
+> don't see how it all is integrated.  And no, I'm not looking at the
+> proposed glibc code since would mean being tainted.
 
-- Drop the "ext3dev" name.  Use "ext4dev" temporarily, then
-  switch to "ext4".
+Oh, I didn't realise that. 
+I'll make an attempt to clarify parts that I understand based on what I
+have gleaned from my reading of the code and intent, but hopefully Sebastien,
+Ben, Zach et al will be able to pitch in for a more accurate and complete
+picture.
 
----
-From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> 
+> > Details:
+> > -------
+> > 
+> >   A struct sigevent *aio_sigeventp is added to struct iocb in
+> > include/linux/aio_abi.h
+> > 
+> >   An enum {IO_NOTIFY_SIGNAL = 0, IO_NOTIFY_THREAD_ID = 1} is added in
+> > include/linux/aio.h:
+> > 
+> > 	- IO_NOTIFY_SIGNAL means that the signal is to be sent to the
+> > 	  requesting thread 
+> > 
+> > 	- IO_NOTIFY_THREAD_ID means that the signal is to be sent to a
+> > 	  specifi thread.
+> 
+> This has been proved to be sufficient in the timer code which basically
+> has the same problem.  But why do you need separate constants?  We have
+> the various SIGEV_* constants, among them SIGEV_THREAD_ID.  Just use
+> these constants for the values of ki_notify.
+> 
 
-Clean up help text and module names in ext4 & jbd2 Kconfig entries.
-Add "depends on EXPERIMENTAL".
+I am wondering about that too. IIRC, the IO_NOTIFY_* constants are not
+part of the ABI, but only internal to the kernel implementation. I think
+Zach had suggested inferring THREAD_ID notification if the pid specified
+is not zero. But, I don't see why ->sigev_notify couldn't used directly
+(just like the POSIX timers code does) thus doing away with the 
+new constants altogether. Sebestian/Laurent, do you recall?
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- fs/Kconfig |   59 ++++++++++++++++++++++++++++++-----------------------------
- 1 files changed, 30 insertions(+), 29 deletions(-)
+> 
+> >   The following fields are added to struct kiocb in include/linux/aio.h:
+> > 
+> > 	- pid_t ki_pid: target of the signal
+> > 
+> > 	- __u16 ki_signo: signal number
+> > 
+> > 	- __u16 ki_notify: kind of notification, IO_NOTIFY_SIGNAL or
+> > 			   IO_NOTIFY_THREAD_ID
+> > 
+> > 	- uid_t ki_uid, ki_euid: filled with the submitter credentials
+> 
+> These two fields aren't needed for the POSIX interfaces.  Where does the
+> requirement come from?  I don't say they should be removed, they might
+> be useful, but if the costs are non-negligible then they could go away.
 
---- linux-2618-rc4-ext4.orig/fs/Kconfig
-+++ linux-2618-rc4-ext4/fs/Kconfig
-@@ -139,28 +139,29 @@ config EXT3_FS_SECURITY
- 	  extended attributes for file security labels, say N.
- 
- config EXT3DEV_FS
--	tristate "Developmenting extended fs support"
-+	tristate "Ext3dev/ext4 extended fs support development (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	select JBD2
- 	help
--	  Ext3dev is a precede filesystem toward next generation
--	  of extended fs, based on ext3 filesystem code. It will be
--	  renamed ext4 fs later once this ext3dev is mature and stabled.
-+	  Ext3dev is a predecessor filesystem of the next generation
-+	  extended fs ext4, based on ext3 filesystem code. It will be
-+	  renamed ext4 fs later, once ext3dev is mature and stabilized.
- 
- 	  Unlike the change from ext2 filesystem to ext3 filesystem,
- 	  the on-disk format of ext3dev is not the same as ext3 any more:
--	  it is based on extent maps and it support 48 bit physical block
-+	  it is based on extent maps and it supports 48-bit physical block
- 	  numbers. These combined on-disk format changes will allow
--	  ext3dev/ext4 to handle more than 16TB filesystem volume --
--	  a hard limit that ext3 can not overcome without changing
-+	  ext3dev/ext4 to handle more than 16 TB filesystem volumes --
-+	  a hard limit that ext3 cannot overcome without changing the
- 	  on-disk format.
- 
--	  Other than extent maps and 48 bit block number, ext3dev also is
-+	  Other than extent maps and 48-bit block numbers, ext3dev also is
- 	  likely to have other new features such as persistent preallocation,
--	  high resolution time stamps and larger file support etc.  These
-+	  high resolution time stamps, and larger file support etc.  These
- 	  features will be added to ext3dev gradually.
- 
--	  To compile this file system support as a module, choose M here: the
--	  module will be called ext2.  Be aware however that the file system
-+	  To compile this file system support as a module, choose M here. The
-+	  module will be called ext3dev.  Be aware, however, that the filesystem
- 	  of your root partition (the one containing the directory /) cannot
- 	  be compiled as a module, and so this could be dangerous.
- 
-@@ -177,17 +178,17 @@ config EXT3DEV_FS_XATTR
- 
- 	  If unsure, say N.
- 
--	  You need this for POSIX ACL support on ext3.
-+	  You need this for POSIX ACL support on ext3dev/ext4.
- 
- config EXT3DEV_FS_POSIX_ACL
- 	bool "Ext3dev POSIX Access Control Lists"
- 	depends on EXT3DEV_FS_XATTR
- 	select FS_POSIX_ACL
- 	help
--	  Posix Access Control Lists (ACLs) support permissions for users and
-+	  POSIX Access Control Lists (ACLs) support permissions for users and
- 	  groups beyond the owner/group/world scheme.
- 
--	  To learn more about Access Control Lists, visit the Posix ACLs for
-+	  To learn more about Access Control Lists, visit the POSIX ACLs for
- 	  Linux website <http://acl.bestbits.at/>.
- 
- 	  If you don't know what Access Control Lists are, say N
-@@ -199,7 +200,7 @@ config EXT3DEV_FS_SECURITY
- 	  Security labels support alternative access control models
- 	  implemented by security modules like SELinux.  This option
- 	  enables an extended attribute handler for file security
--	  labels in the ext3 filesystem.
-+	  labels in the ext3dev/ext4 filesystem.
- 
- 	  If you are not using a security module that requires using
- 	  extended attributes for file security labels, say N.
-@@ -240,31 +241,31 @@ config JBD2
- 	tristate
- 	help
- 	  This is a generic journaling layer for block devices that support
--	  both 32 bit and 64 bit block numbers.  It is currently used by
--	  the ext3dev/ext4 file system, but it could also be used to add
-+	  both 32-bit and 64-bit block numbers.  It is currently used by
-+	  the ext3dev/ext4 filesystem, but it could also be used to add
- 	  journal support to other file systems or block devices such
--	   as RAID or LVM.
-+	  as RAID or LVM.
- 
--	  If you are using the ext4, you need to say Y here. If you are not
--	  using ext4 then you will probably want to say N.
-+	  If you are using ext3dev/ext4, you need to say Y here. If you are not
-+	  using ext3dev/ext4 then you will probably want to say N.
- 
--	  To compile this device as a module, choose M here: the module will be
--	  called jbd.  If you are compiling ext4 into the kernel,
-+	  To compile this device as a module, choose M here. The module will be
-+	  called jbd2.  If you are compiling ext3dev/ext4 into the kernel,
- 	  you cannot compile this code as a module.
- 
- config JBD2_DEBUG
--	bool "JBD2 (ext4) debugging support"
-+	bool "JBD2 (ext3dev/ext4) debugging support"
- 	depends on JBD2
- 	help
--	  If you are using the ext4 journaled file system (or potentially any
--	  other file system/device using JBD2), this option allows you to
--	  enable debugging output while the system is running, in order to
--	  help track down any problems you are having.  By default the
--	  debugging output will be turned off.
-+	  If you are using the ext3dev/ext4 journaled file system (or
-+	  potentially any other filesystem/device using JBD2), this option
-+	  allows you to enable debugging output while the system is running,
-+	  in order to help track down any problems you are having.
-+	  By default, the debugging output will be turned off.
- 
- 	  If you select Y here, then you will be able to turn on debugging
- 	  with "echo N > /proc/sys/fs/jbd2-debug", where N is a number between
--	  1 and 5, the higher the number, the more debugging output is
-+	  1 and 5. The higher the number, the more debugging output is
- 	  generated.  To turn debugging off again, do
- 	  "echo 0 > /proc/sys/fs/jbd2-debug".
- 
+I'm guessing they are being used for validation of permissions at the time
+of sending the signal, but maybe saving the task pointer in the iocb instead
+of the pid would suffice ?
+
+> 
+> 
+> > 	- check whether the submitting thread wants to be notified directly
+> > 	  (sigevent->sigev_notify_thread_id is 0) or wants the signal to be sent
+> > 	  to another thread.
+> > 	  In the latter case a check is made to assert that the target thread
+> > 	  is in the same thread group
+> 
+> Is this really how it's implemented?  This is not how it should be.
+> Either a signal is sent to a specific thread in the same process (this
+> is what SIGEV_THREAD_ID is for) or the signal is sent to a calling
+> process.  Sending a signal to the process means that from the kernel's
+> POV any thread which doesn't have the signal blocked can receive it.
+> The final decision is made by the kernel.  There is no mechanism to send
+> the signal to another process.
+
+The code seems to be set up to call specific_send_sig_info() in the case
+of *_THREAD_ID , and __group_send_sig_info() otherwise. So I think the
+intended behaviour is as you describe it should be (__group_send_sig_info
+does the equivalent of sending a signal to the process and so any thread
+which doesn't have signals blocked can receive it, while specific_send_sig_info
+sends it to a particular thread). 
+
+But, I should really leave it to Sebestian to confirm that.
+
+> 
+> So, for the purpose of the POSIX AIO code the ki_pid value is only
+> needed when the SIGEV_THREAD_ID bit is set.
+> 
+> It could be an extension and I don't mind it being introduced.  But
+> again, it's not necessary and if it adds costs then it could be left
+> out.  It is something which could easily be introduced later if the need
+> arises.
+> 
+> 
+> > 			    listio support
+> > 
+> 
+> I really don't understand the kernel interface for this feature.
+
+I'm sorry this is confusing. This probably means that we need to
+separate the external interface description more clearly and completely
+from the internals.
+
+> 
+> 
+> > Details:
+> > -------
+> > 
+> >   An IOCB_CMD_GROUP is added to the IOCB_CMD enum in include/linux/aio_abi.h
+> > 
+> >   A struct lio_event is added in include/linux/aio.h
+> > 
+> >   A struct lio_event *ki_lio is added to struct iocb in include/linux/aio.h
+> 
+> So you have a pointer in the structure for the individual requests.  I
+> assume you use the atomic counter to trigger the final delivery.  I
+> further assume that if lio_wait is set the calling thread is suspended
+> until all requests are handled and that the final notification in this
+> case means that thread gets woken.
+> 
+> This is all fine.
+> 
+> But how do you pass the requests to the kernel?  If you have a new
+> lio_listio-like syscall it'll be easy.  But I haven't seen anything like
+> this mentioned.
+> 
+> The alternative is to pass the requests one-by-one in which case I don't
+> see how you create the reference to the lio_listio control block.  This
+> approach seems to be slower.
+
+The way it works (and better ideas are welcome) is that, since the io_submit()
+syscall already accepts an array of iocbs[], no new syscall was introduced.
+To implement lio_listio, one has to set up such an array, with the first iocb
+in the array having the special (new) grouping opcode of IOCB_CMD_GROUP which
+specifies the sigev notification to be associated with group completion
+(a NULL value of the sigev notification pointer would imply equivalent of
+LIO_WAIT). The following iocbs in the array should correspond to the set of
+listio aiocbs. Whenever it encounters an IOCB_CMD_GROUP iocb opcode, the
+kernel would interpret all subsequent iocbs[] submitted in the same
+io_submit() call to be associated with the same lio control block. 
+
+Does that clarify ?
+
+Would an example help ?
+
+> 
+> If all requests are passed at once, do you have the equivalent of
+> LIO_NOP entries?
+> 
+
+Good question - we do have an IOCB_CMD_NOOP defined, and I seem to even
+recall a patch that implemented it, but am wondering if it ever got merged.
+Ben/Zach ?
+
+> 
+> How can we support the extension where we wait for a number of requests
+> which need not be all of them.  I.e., I submit N requests and want to be
+> notified when at least M (M <= N) notified.  I am not yet clear about
+> the actual semantics we should implement (e.g., do we send another
+> notification after the first one?) but it's something which IMO should
+> be taken into account in the design.
+> 
+
+My thought here was that it should be possible to include M as a parameter
+to the IOCB_CMD_GROUP opcode iocb, and thus incorporated in the lio control
+block ... then whatever semantics are agreed upon can be implemented.
+
+> 
+> Finally, and this is very important, does you code send out the
+> individual requests notification and then in the end the lio_listio
+> completion?  I think Suparna wrote this is the case but I want to make sure.
+
+Sebestian, could you confirm ?
+
+> 
+> 
+> Overall, this looks much better than the old code.  If the answers to my
+> questions show that the behavior is compatible with the POSIX AIO code
+> I'm certainly very much in favor of adding the kernel code.
+
+Thanks a lot for looking through this !
+Let us know what you think about the listio interface ... hopefully the
+other issues are mostly simple to resolve.
+
+Regards
+Suparna
+
+> 
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+> 
+
+
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

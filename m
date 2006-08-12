@@ -1,87 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422700AbWHLVEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWHLVF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422700AbWHLVEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 17:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422694AbWHLVD4
+	id S1422703AbWHLVF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 17:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422699AbWHLVF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 17:03:56 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:17043 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422699AbWHLVCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 17:02:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=LF2g4qODmOkBD/LBdCFUx0/9mzE3wO3vuaZIOCY/AHvdNUwLdcCx3exN1GORUjD10FNgLpPTQFuodtm9p6VkbHA5mjEM1LGRRQ/Xm5IueyB6PGofPW4KI9L24xHAjFmvtOUB50dqZbgy1ru4FDJ7cfpX/bn0kUR1gbKyy3WSXK8=
-Message-ID: <44DE4211.2000802@gmail.com>
-Date: Sat, 12 Aug 2006 23:03:13 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Sat, 12 Aug 2006 17:05:56 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:41484 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1422694AbWHLVFz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 17:05:55 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Daniel <damage@rooties.de>
+Subject: Re: debug prism wlan
+Date: Sat, 12 Aug 2006 22:06:00 +0100
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <200608122140.44365.damage@rooties.de> <200608122226.26516.damage@rooties.de> <200608122249.33329.damage@rooties.de>
+In-Reply-To: <200608122249.33329.damage@rooties.de>
 MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-       GOTO Masanori <gotom@debian.or.jp>
-Subject: Re: [RFC] [PATCH 8/9] drivers/scsi/nsp32.h Removal of old scsi code
-References: <44DE3E5E.3020605@gmail.com>
-In-Reply-To: <44DE3E5E.3020605@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608122206.00267.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+On Saturday 12 August 2006 23:49, Daniel wrote:
+> *grrrr* it is too late on evening (I'm living in germany ;) )...
+>
+> I also fogot to tell following:
+>
+> Error for wireless request "Set Frequency" (8B04) :
+>     SET failed on device eth2 ; Input/output error.
+>
+> I got this message if I try to start the net device with the init.d script.
+> If I try to set the channel per hand I got no error but the channel gets
+> not set (it still is 0). But I am able to set the mode and the essid.
 
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/scsi/nsp32.h linux-work/drivers/scsi/nsp32.h
---- linux-work-clean/drivers/scsi/nsp32.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux-work/drivers/scsi/nsp32.h	2006-08-12 20:40:00.000000000 +0200
-@@ -619,47 +619,5 @@ typedef struct _nsp32_hw_data {
- #define REQSACK_TIMEOUT_TIME	10000	/* max wait time for REQ/SACK assertion
- 					   or negation, 10000us == 10ms */
+Enabling debug would be good. It seems that the driver has protection around 
+most of the really low level debugging with:
 
--/**************************************************************************
-- * Compatibility functions
-- */
--
--/* for Kernel 2.4 */
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
--# define scsi_register_host(template) 	scsi_register_module(MODULE_SCSI_HA, template)
--# define scsi_unregister_host(template) scsi_unregister_module(MODULE_SCSI_HA, template)
--# define scsi_host_put(host)            scsi_unregister(host)
--# define pci_name(pci_dev)              ((pci_dev)->slot_name)
--
--typedef void irqreturn_t;
--# define IRQ_NONE      /* */
--# define IRQ_HANDLED   /* */
--# define IRQ_RETVAL(x) /* */
--
--/* This is ad-hoc version of scsi_host_get_next() */
--static inline struct Scsi_Host *scsi_host_get_next(struct Scsi_Host *host)
--{
--	if (host == NULL) {
--		return scsi_hostlist;
--	} else {
--		return host->next;
--	}
--}
--
--/* This is ad-hoc version of scsi_host_hn_get() */
--static inline struct Scsi_Host *scsi_host_hn_get(unsigned short hostno)
--{
--	struct Scsi_Host *host;
--
--	for (host = scsi_host_get_next(NULL); host != NULL;
--	     host = scsi_host_get_next(host)) {
--		if (host->host_no == hostno) {
--			break;
--		}
--	}
--
--	return host;
--}
--#endif
--
- #endif /* _NSP32_H */
- /* end */
+#if VERBOSE > SHOW_ERROR_MESSAGES
+...
 
+If this test passes, a silly DEBUG() wrapper is used to determine whether the 
+message should be printed:
+
+
+islpci_mgt.h:#define DEBUG(f, args...) K_DEBUG(f, pc_debug, args)
+islpci_mgt.h:#define K_DEBUG(f, m, args...) \
+	do { \
+		if(f & m) printk(KERN_DEBUG args); \
+	} while(0)
+
+Currently the driver has:
+
+islpci_mgt.h:#define VERBOSE                                 0x01
+islpci_mgt.h:#define SHOW_ERROR_MESSAGES                     0x01
+
+So I think you'll need to:
+
+a) Hack islpci_mgt.h and change VERBOSE to 0x02 (or any number higher).
+b) Insert the module with pc_debug=1
+
+Then you should get debugging messages, since (0x01 & 0x01) will trigger the 
+debugging.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

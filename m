@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWHLWAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWHLWBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932627AbWHLWAy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 18:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWHLWAq
+	id S964866AbWHLWBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 18:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWHLWAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 18:00:46 -0400
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:32216 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751135AbWHLWAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 18:00:13 -0400
+	Sat, 12 Aug 2006 18:00:55 -0400
+Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:49973 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932624AbWHLWAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 18:00:47 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.18-rc4 03/10] Add the memory allocation/freeing hooks for kmemleak
-Date: Sat, 12 Aug 2006 23:00:08 +0100
+Subject: [PATCH 2.6.18-rc4 07/10] Remove some of the kmemleak false positives
+Date: Sat, 12 Aug 2006 23:00:42 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060812220008.17709.85586.stgit@localhost.localdomain>
+Message-Id: <20060812220041.17709.72008.stgit@localhost.localdomain>
 In-Reply-To: <20060812215857.17709.79502.stgit@localhost.localdomain>
 References: <20060812215857.17709.79502.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,205 +24,209 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch adds the callbacks to memleak_(alloc|free) functions from
-kmalloc/kfree, kmem_cache_(alloc|free), vmalloc/vfree etc.
+There are allocations for which the main pointer cannot be found but they
+are not memory leaks. This patch fixes some of them.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- include/linux/slab.h |    6 ++++++
- mm/page_alloc.c      |    2 ++
- mm/slab.c            |   21 +++++++++++++++++++--
- mm/vmalloc.c         |   22 ++++++++++++++++++++--
- 4 files changed, 47 insertions(+), 4 deletions(-)
+ drivers/base/platform.c                |    3 +++
+ drivers/hwmon/w83627hf.c               |    4 ++++
+ drivers/scsi/hosts.c                   |    3 +++
+ fs/ext3/dir.c                          |    3 +++
+ ipc/util.c                             |    6 ++++++
+ kernel/params.c                        |    8 +++++++-
+ mm/slab.c                              |    4 ++++
+ net/core/dev.c                         |    6 ++++++
+ net/core/skbuff.c                      |    3 +++
+ net/ipv4/netfilter/ip_conntrack_core.c |    5 +++++
+ net/sched/sch_generic.c                |    6 ++++++
+ 11 files changed, 50 insertions(+), 1 deletions(-)
 
-diff --git a/include/linux/slab.h b/include/linux/slab.h
-index 45ad55b..e3f5945 100644
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -133,6 +133,8 @@ #endif
-  */
- static inline void *kmalloc(size_t size, gfp_t flags)
- {
-+#ifndef CONFIG_DEBUG_MEMLEAK
-+	/* this block removes the size information needed by kmemleak */
- 	if (__builtin_constant_p(size)) {
- 		int i = 0;
- #define CACHE(x) \
-@@ -151,6 +153,7 @@ found:
- 			malloc_sizes[i].cs_dmacachep :
- 			malloc_sizes[i].cs_cachep, flags);
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 2b8755d..1521fe4 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -166,6 +166,9 @@ struct platform_device *platform_device_
+ 	struct platform_object *pa;
+ 
+ 	pa = kzalloc(sizeof(struct platform_object) + strlen(name), GFP_KERNEL);
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size */
++	memleak_typeid(pa, struct platform_object);
+ 	if (pa) {
+ 		strcpy(pa->name, name);
+ 		pa->pdev.name = pa->name;
+diff --git a/drivers/hwmon/w83627hf.c b/drivers/hwmon/w83627hf.c
+index 79368d5..f952f02 100644
+--- a/drivers/hwmon/w83627hf.c
++++ b/drivers/hwmon/w83627hf.c
+@@ -1065,6 +1065,10 @@ static int w83627hf_detect(struct i2c_ad
+ 		err = -ENOMEM;
+ 		goto ERROR1;
  	}
-+#endif
- 	return __kmalloc(size, flags);
- }
++	/* the pointer to member is stored but the code doesn't use
++	 * container_of for access and the alias need to be
++	 * explicitely declared here */
++	memleak_container(struct w83627hf_data, client);
  
-@@ -163,6 +166,8 @@ extern void *__kzalloc(size_t, gfp_t);
-  */
- static inline void *kzalloc(size_t size, gfp_t flags)
+ 	new_client = &data->client;
+ 	i2c_set_clientdata(new_client, data);
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index dfcb96f..9516d37 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -297,6 +297,9 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	shost = kzalloc(sizeof(struct Scsi_Host) + privsize, gfp_mask);
+ 	if (!shost)
+ 		return NULL;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size */
++	memleak_typeid(shost, struct Scsi_Host);
+ 
+ 	spin_lock_init(&shost->default_lock);
+ 	scsi_assign_lock(shost, &shost->default_lock);
+diff --git a/fs/ext3/dir.c b/fs/ext3/dir.c
+index fbb0d4e..a34814d 100644
+--- a/fs/ext3/dir.c
++++ b/fs/ext3/dir.c
+@@ -346,6 +346,9 @@ int ext3_htree_store_dirent(struct file 
+ 	new_fn = kmalloc(len, GFP_KERNEL);
+ 	if (!new_fn)
+ 		return -ENOMEM;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size */
++	memleak_typeid(new_fn, struct fname);
+ 	memset(new_fn, 0, len);
+ 	new_fn->hash = hash;
+ 	new_fn->minor_hash = minor_hash;
+diff --git a/ipc/util.c b/ipc/util.c
+index 67b6d17..17cc294 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -388,6 +388,9 @@ void* ipc_rcu_alloc(int size)
+ 	 */
+ 	if (rcu_use_vmalloc(size)) {
+ 		out = vmalloc(HDRLEN_VMALLOC + size);
++		/* the stored pointer is different from the address of
++		 * the allocated block because of padding */
++		memleak_padding(out, HDRLEN_VMALLOC, size);
+ 		if (out) {
+ 			out += HDRLEN_VMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 1;
+@@ -395,6 +398,9 @@ void* ipc_rcu_alloc(int size)
+ 		}
+ 	} else {
+ 		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL);
++		/* the stored pointer is different from the address of
++		 * the allocated block because of padding */
++		memleak_padding(out, HDRLEN_KMALLOC, size);
+ 		if (out) {
+ 			out += HDRLEN_KMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 0;
+diff --git a/kernel/params.c b/kernel/params.c
+index 91aea7a..b957b86 100644
+--- a/kernel/params.c
++++ b/kernel/params.c
+@@ -547,6 +547,7 @@ static void __init kernel_param_sysfs_se
+ 					    unsigned int name_skip)
  {
-+#ifndef CONFIG_DEBUG_MEMLEAK
-+	/* this block removes the size information needed by kmemleak */
- 	if (__builtin_constant_p(size)) {
- 		int i = 0;
- #define CACHE(x) \
-@@ -181,6 +186,7 @@ found:
- 			malloc_sizes[i].cs_dmacachep :
- 			malloc_sizes[i].cs_cachep, flags);
+ 	struct module_kobject *mk;
++	struct module_param_attrs *mp;
+ 
+ 	mk = kzalloc(sizeof(struct module_kobject), GFP_KERNEL);
+ 	BUG_ON(!mk);
+@@ -556,8 +557,13 @@ static void __init kernel_param_sysfs_se
+ 	kobject_set_name(&mk->kobj, name);
+ 	kobject_register(&mk->kobj);
+ 
++	mp = param_sysfs_setup(mk, kparam, num_params, name_skip);
++	/* this structure is not freed but the pointer is
++	 * lost. However, there are other pointers to its members and
++	 * the object has to be kept */
++	memleak_not_leak(mp);
+ 	/* no need to keep the kobject if no parameter is exported */
+-	if (!param_sysfs_setup(mk, kparam, num_params, name_skip)) {
++	if (!mp) {
+ 		kobject_unregister(&mk->kobj);
+ 		kfree(mk);
  	}
-+#endif
- 	return __kzalloc(size, flags);
- }
- 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 54a4f53..bdf6445 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -2450,6 +2450,8 @@ void *__init alloc_large_system_hash(con
- 	if (_hash_mask)
- 		*_hash_mask = (1 << log2qty) - 1;
- 
-+	memleak_alloc(table, size, 1);
-+
- 	return table;
- }
- 
 diff --git a/mm/slab.c b/mm/slab.c
-index 21ba060..42c90aa 100644
+index 42c90aa..b29662e 100644
 --- a/mm/slab.c
 +++ b/mm/slab.c
-@@ -2446,6 +2446,9 @@ static struct slab *alloc_slabmgmt(struc
- 		/* Slab management obj is off-slab. */
- 		slabp = kmem_cache_alloc_node(cachep->slabp_cache,
- 					      local_flags, nodeid);
-+		/* only scan the list member to avoid false negatives */
-+		memleak_scan_area(slabp, offsetof(struct slab, list),
-+				  sizeof(struct list_head));
- 		if (!slabp)
- 			return NULL;
- 	} else {
-@@ -2986,6 +2989,8 @@ #endif
- 		STATS_INC_ALLOCMISS(cachep);
- 		objp = cache_alloc_refill(cachep, flags);
+@@ -3421,6 +3421,10 @@ void *__alloc_percpu(size_t size)
+ 		memset(pdata->ptrs[i], 0, size);
  	}
-+	/* avoid false negatives */
-+	memleak_erase(&ac->entry[ac->avail]);
- 	return objp;
- }
  
-@@ -3002,6 +3007,7 @@ static __always_inline void *__cache_all
- 	local_irq_restore(save_flags);
- 	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
- 					    caller);
-+	memleak_alloc(objp, obj_size(cachep), 1);
- 	prefetchw(objp);
- 	return objp;
- }
-@@ -3193,6 +3199,7 @@ static inline void __cache_free(struct k
- 	struct array_cache *ac = cpu_cache_get(cachep);
++	/* the code below changes the value of the returned pointer
++	 * and kmemleak cannot find the original value during
++	 * scanning. It is marked as not being a leak */
++	memleak_not_leak(pdata);
+ 	/* Catch derefs w/o wrappers */
+ 	return (void *)(~(unsigned long)pdata);
  
- 	check_irq_off();
-+	memleak_free(objp);
- 	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
+diff --git a/net/core/dev.c b/net/core/dev.c
+index d95e262..3c1bcac 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3211,6 +3211,12 @@ struct net_device *alloc_netdev(int size
+ 	dev = (struct net_device *)
+ 		(((long)p + NETDEV_ALIGN_CONST) & ~NETDEV_ALIGN_CONST);
+ 	dev->padded = (char *)dev - (char *)p;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size. The stored pointer
++	 * is also different from the address of the allocated block
++	 * because of padding */
++	memleak_padding(p, dev->padded, alloc_size - dev->padded);
++	memleak_typeid(p, struct net_device);
  
- 	if (cache_free_alien(cachep, objp))
-@@ -3312,6 +3319,7 @@ void *kmem_cache_alloc_node(struct kmem_
+ 	if (sizeof_priv)
+ 		dev->priv = netdev_priv(dev);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 022d889..7b511e6 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -151,6 +151,9 @@ struct sk_buff *__alloc_skb(unsigned int
  
- 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr,
- 					   __builtin_return_address(0));
-+	memleak_alloc(ptr, obj_size(cachep), 1);
+ 	/* Get the HEAD */
+ 	skb = kmem_cache_alloc(cache, gfp_mask & ~__GFP_DMA);
++	/* the skbuff_fclone_cache contains objects larger than
++	 * "struct sk_buff" and kmemleak cannot guess the type */
++	memleak_typeid(skb, struct sk_buff);
+ 	if (!skb)
+ 		goto out;
  
- 	return ptr;
- }
-@@ -3320,11 +3328,15 @@ EXPORT_SYMBOL(kmem_cache_alloc_node);
- void *kmalloc_node(size_t size, gfp_t flags, int node)
- {
- 	struct kmem_cache *cachep;
-+	void *ptr;
+diff --git a/net/ipv4/netfilter/ip_conntrack_core.c b/net/ipv4/netfilter/ip_conntrack_core.c
+index aa45917..7e64fe0 100644
+--- a/net/ipv4/netfilter/ip_conntrack_core.c
++++ b/net/ipv4/netfilter/ip_conntrack_core.c
+@@ -654,6 +654,11 @@ struct ip_conntrack *ip_conntrack_alloc(
+ 	}
  
- 	cachep = kmem_find_general_cachep(size, flags);
- 	if (unlikely(cachep == NULL))
- 		return NULL;
--	return kmem_cache_alloc_node(cachep, flags, node);
-+	ptr = kmem_cache_alloc_node(cachep, flags, node);
-+	memleak_padding(ptr, 0, size);
-+	memleak_typeid_raw(ptr, ml_guess_typeid(size));
-+	return ptr;
- }
- EXPORT_SYMBOL(kmalloc_node);
- #endif
-@@ -3339,6 +3351,7 @@ static __always_inline void *__do_kmallo
- 					  void *caller)
- {
- 	struct kmem_cache *cachep;
-+	void *ptr;
+ 	conntrack = kmem_cache_alloc(ip_conntrack_cachep, GFP_ATOMIC);
++	/* tuplehash_to_ctrack doesn't pass a constant argument to
++	 * container_of and therefore the conntrack->tuplehash[].list
++	 * aliases are ignored */
++	memleak_container(struct ip_conntrack, tuplehash[IP_CT_DIR_ORIGINAL]);
++	memleak_container(struct ip_conntrack, tuplehash[IP_CT_DIR_REPLY]);
+ 	if (!conntrack) {
+ 		DEBUGP("Can't allocate conntrack.\n");
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 0834c2e..7fa6aab 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -437,6 +437,12 @@ struct Qdisc *qdisc_alloc(struct net_dev
+ 		goto errout;
+ 	sch = (struct Qdisc *) QDISC_ALIGN((unsigned long) p);
+ 	sch->padded = (char *) sch - (char *) p;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size. The stored pointer
++	 * is also different from the address of the allocated block
++	 * because of padding */
++	memleak_padding(p, sch->padded, sizeof(struct Qdisc));
++	memleak_typeid(p, struct Qdisc);
  
- 	/* If you want to save a few bytes .text space: replace
- 	 * __ with kmem_.
-@@ -3348,7 +3361,11 @@ static __always_inline void *__do_kmallo
- 	cachep = __find_general_cachep(size, flags);
- 	if (unlikely(cachep == NULL))
- 		return NULL;
--	return __cache_alloc(cachep, flags, caller);
-+	ptr = __cache_alloc(cachep, flags, caller);
-+	memleak_padding(ptr, 0, size);
-+	memleak_typeid_raw(ptr, ml_guess_typeid(size));
-+
-+	return ptr;
- }
- 
- 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 266162d..a4d319f 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -364,6 +364,9 @@ void __vunmap(void *addr, int deallocate
- void vfree(void *addr)
- {
- 	BUG_ON(in_interrupt());
-+
-+	memleak_free(addr);
-+
- 	__vunmap(addr, 1);
- }
- EXPORT_SYMBOL(vfree);
-@@ -463,7 +466,14 @@ fail:
- 
- void *__vmalloc_area(struct vm_struct *area, gfp_t gfp_mask, pgprot_t prot)
- {
--	return __vmalloc_area_node(area, gfp_mask, prot, -1);
-+	void *addr = __vmalloc_area_node(area, gfp_mask, prot, -1);
-+
-+	/* this needs ref_count = 2 since vm_struct also contains a
-+	 * pointer to this address. The guard page is also subtracted
-+	 * from the size */
-+	memleak_alloc(addr, area->size - PAGE_SIZE, 2);
-+
-+	return addr;
- }
- 
- /**
-@@ -482,6 +492,8 @@ void *__vmalloc_node(unsigned long size,
- 			int node)
- {
- 	struct vm_struct *area;
-+	void *addr;
-+	unsigned long real_size = size;
- 
- 	size = PAGE_ALIGN(size);
- 	if (!size || (size >> PAGE_SHIFT) > num_physpages)
-@@ -491,7 +503,13 @@ void *__vmalloc_node(unsigned long size,
- 	if (!area)
- 		return NULL;
- 
--	return __vmalloc_area_node(area, gfp_mask, prot, node);
-+	addr = __vmalloc_area_node(area, gfp_mask, prot, node);
-+
-+	/* this needs ref_count = 2 since the vm_struct also contains
-+	   a pointer to this address */
-+	memleak_alloc(addr, real_size, 2);
-+
-+	return addr;
- }
- EXPORT_SYMBOL(__vmalloc_node);
- 
+ 	INIT_LIST_HEAD(&sch->list);
+ 	skb_queue_head_init(&sch->q);

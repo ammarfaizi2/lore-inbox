@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWHLQM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWHLQOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWHLQM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 12:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWHLQM4
+	id S932559AbWHLQOX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 12:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWHLQOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 12:12:56 -0400
-Received: from miranda.se.axis.com ([193.13.178.8]:44458 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S964877AbWHLQM4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 12:12:56 -0400
-Date: Sat, 12 Aug 2006 18:12:53 +0200
-From: "Edgar E. Iglesias" <edgar.iglesias@axis.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 (+ hotfixes): GPF related to skge on suspend
-Message-ID: <20060812161253.GA30691@edgar.underground.se.axis.com>
-References: <200608121207.42268.rjw@sisk.pl> <20060812052853.f9e5d648.akpm@osdl.org> <200608121631.18603.rjw@sisk.pl>
-Mime-Version: 1.0
+	Sat, 12 Aug 2006 12:14:23 -0400
+Received: from mail.suse.de ([195.135.220.2]:19888 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932559AbWHLQOX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 12:14:23 -0400
+Date: Sat, 12 Aug 2006 09:14:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Louis Garcia II <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of driver core struct device changes?
+Message-ID: <20060812161414.GA14182@kroah.com>
+References: <1155332969.2652.8.camel@soncomputer> <20060812005959.GA25689@kroah.com> <1155357283.19292.3.camel@soncomputer>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608121631.18603.rjw@sisk.pl>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1155357283.19292.3.camel@soncomputer>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 12, 2006 at 04:31:18PM +0200, Rafael J. Wysocki wrote:
-> On Saturday 12 August 2006 14:28, Andrew Morton wrote:
-> > On Sat, 12 Aug 2006 12:07:42 +0200
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+On Sat, Aug 12, 2006 at 12:34:43AM -0400, Louis Garcia II wrote:
+> On Fri, 2006-08-11 at 17:59 -0700, Greg KH wrote:
+> > On Fri, Aug 11, 2006 at 05:49:29PM -0400, Louis Garcia II wrote:
+> > > A couple of months ago greg kh started work toward allowing everything
+> > > to be a struct device in the sysfs device tree. How is this progressing?
 > > 
-> > > Hi,
-> > > 
-> > > On 2.6.18-rc3-mm2 with hotfixes I get things like the appended one on attempts
-> > > to suspend to disk.  It occurs while devices are being suspended and is fairly
-> > > reproducible.
-> > > 
-> > > Greetings,
-> > > Rafael
-> > > 
-> > > 
-> > > Suspending device 0000:01:00.0
-> > > Suspending device 0000:02:02.0
-> > > Suspending device 0000:02:01.4
-> > > Suspending device 0000:02:01.3
-> > > Suspending device 0000:02:01.2
-> > > Suspending device 0000:02:01.1
-> > > Suspending device 0000:02:01.0
-> > > Suspending device 0000:02:00.0
-> > > skge Ram read data parity error
-> > > skge Ram write data parity error
-> > > skge eth0: receive queue parity error
-> > > skge <NULL>: receive queue parity error
+> > Quite well.  But next time you might want to CC: me as I almost missed
+> > this message.
+> > 
+> > > Any time frame when we will have a simplified driver core api?
+> > 
+> > It's getting there.  If you look in -mm there are a lot of subsystems
+> > already converted over, along with a lot of patches from andrew that
+> > revert these changes due to udev issues.
+> > 
+> > I'm working on fixing up the udev issues so that the kernel work is not
+> > held up.  That's a bit slower going as it requires me to install a lot
+> > of different distros...
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> This stuff comes from the interrupt handler which apparently races with
-> something.
+> How about block devices? Will it be moved to /sys/class or is that abi
+> set in stone?
 
-Maybe the skge driver is not doing netif_poll_disable before clearing the rx 
-ring at suspend/down?
+Yes, those will also move, but that's a bit lower on my list of things
+to do.  Patches to help this out are always welcome.
 
-Best regards
--- 
-        Programmer
-        Edgar E. Iglesias <edgar.iglesias@axis.com> 46.46.272.1946
+thanks,
+
+greg k-h

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWHLPJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWHLPXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbWHLPJL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 11:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWHLPJL
+	id S964862AbWHLPXd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 11:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWHLPXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 11:09:11 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:26301 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932541AbWHLPJJ (ORCPT
+	Sat, 12 Aug 2006 11:23:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13955 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964862AbWHLPXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 11:09:09 -0400
-Date: Sat, 12 Aug 2006 19:08:42 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Rik van Riel <riel@redhat.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Daniel Phillips <phillips@google.com>
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-Message-ID: <20060812150842.GA5638@2ka.mipt.ru>
-References: <1155127040.12225.25.camel@twins> <20060809130752.GA17953@2ka.mipt.ru> <1155130353.12225.53.camel@twins> <44DD4E3A.4040000@redhat.com> <20060812084713.GA29523@2ka.mipt.ru> <1155374390.13508.15.camel@lappy> <20060812093706.GA13554@2ka.mipt.ru> <44DDE857.3080703@redhat.com> <20060812144921.GA25058@2ka.mipt.ru> <44DDEC1F.6010603@redhat.com>
+	Sat, 12 Aug 2006 11:23:30 -0400
+Date: Sat, 12 Aug 2006 11:25:55 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: vgoyal@in.ibm.com, fastboot@osdl.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060812152555.GB16068@redhat.com>
+References: <20060807235727.GM16231@redhat.com> <m1ejvrakhq.fsf@ebiederm.dsl.xmission.com> <20060809200642.GD7861@redhat.com> <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com> <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060811212522.GF18865@redhat.com> <m1d5b6zagy.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44DDEC1F.6010603@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 12 Aug 2006 19:08:44 +0400 (MSD)
+In-Reply-To: <m1d5b6zagy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 12, 2006 at 10:56:31AM -0400, Rik van Riel (riel@redhat.com) wrote:
-> >Yep. Socket allocations end up with alloc_skb() which is essentialy the
-> >same as what is being done for receiving path skbs.
-> >If you really want to separate critical from non-critical sockets, it is
-> >much better not to play with alloc_skb() but directly forbid it in
-> >appropriate socket allocation function like sock_alloc_send_skb().
+On Sat, Aug 12, 2006 at 01:20:29AM -0600, Eric W. Biederman wrote:
+> Don Zickus <dzickus@redhat.com> writes:
 > 
-> The problem is the RECEIVE side.
->
-> >What I suggested in previous e-mail is to separate networking
-> >allocations from other system allocations, so problem in main allocator
-> >and it's OOM would never affect network path.
+> >> >> 
+> >> >> I'm a little disappointed but at this point it isn't a great surprise,
+> >> >> the code is early yet and hasn't had much testing or attention.
+> >> >> I wonder if I have missed something else silly.
+> >> >> 
+> >> >> As for testing, can you use plain kexec to load the kernel at a
+> >> >> different address?  I'm curious to know if it is something related
+> >> >> to the kexec on panic path or if it is just running at a different
+> >> >> location that is the problem.
+> >> >
+> >
+> > I think I have found the 'something silly'.  Here is a patch that allows
+> > our Dell em64t boxes to boot.  This change matches the original code.  The
+> > main difference that caused the problems was the setting of _PAGE_NX bit.
+> > This caused issues in early_io_remap().  
+> >
+> > Thanks to Larry Woodman for debugging this.  
 > 
-> That solves half of the problem.  We still need to make sure we
-> do not allocate memory to non-critical sockets when the system
-> is almost out of memory.
+> This looks like a different one but looks fairly sane.  
+> 
+> Do you know what code had problems having _PAGE_NX set.
+> What are we doing with early_ioremap the requires execute
+> permissions.  It doesn't sound right that we would need
+> this.
 
-One must receive a packet to determine if that packet must be dropped
-until tricky hardware with header split capabilities or MMIO copying is
-used. Peter uses special pool to get data from when system is in OOM (at
-least in his latest patchset), so allocations are separated and thus
-network code is not affected by OOM condition, which allows to make
-forward progress.
-Critical flag can be setup through setsockopt() and checked in
-tcp_v4_rcv().
+This fix is only needed for a subset of our em64t boxes, so it could be
+just a chipset problem.  Supposedly, if I remember the conversation
+correctly, when the kernel first boots it reserves about 40MB and about 20
+pmds automatically.  After decompression, early_io_remap tries to setup
+all the memory.  The conflict arose when early_io_remap tried to reuse one
+of those pmds.  This caused the system to crash and reboot.  
 
--- 
-	Evgeniy Polyakov
+I'll try to get more info Monday on the specifics.  
+
+Cheers,
+Don
+
+> 
+> Eric

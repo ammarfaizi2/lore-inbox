@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422697AbWHLVCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWHLVDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422697AbWHLVCi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 17:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422703AbWHLVCh
+	id S932598AbWHLVDC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 17:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422701AbWHLVCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 17:02:37 -0400
+	Sat, 12 Aug 2006 17:02:42 -0400
 Received: from nf-out-0910.google.com ([64.233.182.188]:17043 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422698AbWHLVCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 17:02:31 -0400
+	id S1422696AbWHLVCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 17:02:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=RwxS887C4pGnG06A53LuftPOxElhUrqlLo/IVcSkpqLXk+VNW9w3h0UOeT0K67VMyxQmmgMPSQ1o1Xt/57go4CI7l6geNXoc8qbzybqFwWvZHQwvEGpTN9xtexMHOxHIjOymLwiVyT4brzq1XCgzaBZ5YpLuQjNP9GczJrS18/s=
-Message-ID: <44DE420A.4050008@gmail.com>
-Date: Sat, 12 Aug 2006 23:03:06 +0200
+        b=ar1IjAyGGNZnaLBom2YW/CaucH11VIFqDUoaSuZfHv/dt5ohLEwyZ9PcJFVcnkAc2uij5IBosQabdf8JmZRYg2AVwWQjQXC+oZWHUEL8Gisc9O1aq75r4FS1kbmyt9j/ZtsMDqScoZNqZesVBXwL7ifl66+gKoRe5M6f4FjA50M=
+Message-ID: <44DE41FA.7010405@gmail.com>
+Date: Sat, 12 Aug 2006 23:02:50 +0200
 From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
@@ -22,8 +22,8 @@ To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 CC: Andrew Morton <akpm@osdl.org>,
        James Bottomley <James.Bottomley@steeleye.com>,
        linux-scsi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-       GOTO Masanori <gotom@debian.or.jp>
-Subject: Re: [RFC] [PATCH 7/9] drivers/scsi/nsp32.c Removal of old scsi code
+       ipslinux@adaptec.com
+Subject: Re: [RFC] [PATCH 5/9] drivers/scsi/ips.c Removal of old scsi code
 References: <44DE3E5E.3020605@gmail.com>
 In-Reply-To: <44DE3E5E.3020605@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-2
@@ -33,214 +33,183 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/scsi/nsp32.c linux-work/drivers/scsi/nsp32.c
---- linux-work-clean/drivers/scsi/nsp32.c	2006-08-12 02:15:32.000000000 +0200
-+++ linux-work/drivers/scsi/nsp32.c	2006-08-12 20:43:46.000000000 +0200
-@@ -50,10 +50,6 @@
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/scsi/ips.c linux-work/drivers/scsi/ips.c
+--- linux-work-clean/drivers/scsi/ips.c	2006-08-12 01:51:16.000000000 +0200
++++ linux-work/drivers/scsi/ips.c	2006-08-12 21:52:02.000000000 +0200
+@@ -185,11 +185,7 @@
+
+ #include "scsi.h"
+
+-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
+-#include "hosts.h"
+-#else
  #include <scsi/scsi_host.h>
- #include <scsi/scsi_ioctl.h>
-
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
--# include <linux/blk.h>
 -#endif
--
- #include "nsp32.h"
 
+ #include "ips.h"
 
-@@ -200,17 +196,9 @@ static int  __init    init_nsp32  (void)
- static void __exit    exit_nsp32  (void);
+@@ -217,18 +213,8 @@ module_param(ips, charp, 0);
+ #warning "This driver has only been tested on the x86/ia64/x86_64 platforms"
+ #endif
 
- /* struct struct scsi_host_template */
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- static int         nsp32_proc_info   (struct Scsi_Host *, char *, char **, off_t, int, int);
+-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
+-#include <linux/blk.h>
+-#include "sd.h"
+-#define IPS_LOCK_SAVE(lock,flags) spin_lock_irqsave(&io_request_lock,flags)
+-#define IPS_UNLOCK_RESTORE(lock,flags) spin_unlock_irqrestore(&io_request_lock,flags)
+-#ifndef __devexit_p
+-#define __devexit_p(x) x
+-#endif
 -#else
--static int         nsp32_proc_info   (char *, char **, off_t, int, int, int);
+ #define IPS_LOCK_SAVE(lock,flags) do{spin_lock(lock);(void)flags;}while(0)
+ #define IPS_UNLOCK_RESTORE(lock,flags) do{spin_unlock(lock);(void)flags;}while(0)
 -#endif
 
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- static int         nsp32_detect      (struct pci_dev *pdev);
+ #define IPS_DMA_DIR(scb) ((!scb->scsi_cmd || ips_is_passthru(scb->scsi_cmd) || \
+                          DMA_NONE == scb->scsi_cmd->sc_data_direction) ? \
+@@ -385,24 +371,13 @@ static struct scsi_host_template ips_dri
+ 	.eh_abort_handler	= ips_eh_abort,
+ 	.eh_host_reset_handler	= ips_eh_reset,
+ 	.proc_name		= "ips",
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+ 	.proc_info		= ips_proc_info,
+ 	.slave_configure	= ips_slave_configure,
 -#else
--static int         nsp32_detect      (struct scsi_host_template *);
+-	.proc_info		= ips_proc24_info,
+-	.select_queue_depths	= ips_select_queue_depth,
 -#endif
- static int         nsp32_queuecommand(struct scsi_cmnd *,
- 		void (*done)(struct scsi_cmnd *));
- static const char *nsp32_info        (struct Scsi_Host *);
-@@ -297,15 +285,7 @@ static struct scsi_host_template nsp32_t
- 	.eh_abort_handler       	= nsp32_eh_abort,
- 	.eh_bus_reset_handler		= nsp32_eh_bus_reset,
- 	.eh_host_reset_handler		= nsp32_eh_host_reset,
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,74))
--	.detect				= nsp32_detect,
--	.release			= nsp32_release,
+ 	.bios_param		= ips_biosparam,
+ 	.this_id		= -1,
+ 	.sg_tablesize		= IPS_MAX_SG,
+ 	.cmd_per_lun		= 3,
+ 	.use_clustering		= ENABLE_CLUSTERING,
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+-	.use_new_eh_code	= 1,
 -#endif
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,2))
--	.use_new_eh_code        	= 1,
--#else
- /*	.highmem_io			= 1, */
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20)  &&  LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+-    .highmem_io          = 1,
 -#endif
  };
 
- #include "nsp32_io.h"
-@@ -1212,12 +1192,8 @@ static irqreturn_t do_nsp32_isr(int irq,
- 	int ret;
- 	int handled = 0;
 
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0))
- 	struct Scsi_Host *host = data->Host;
- 	spin_lock_irqsave(host->host_lock, flags);
+@@ -1185,17 +1160,10 @@ ips_queue(Scsi_Cmnd * SC, void (*done) (
+ /*                                                                          */
+ /****************************************************************************/
+ static int
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+-ips_biosparam(Disk * disk, kdev_t dev, int geom[])
+-{
+-	ips_ha_t *ha = (ips_ha_t *) disk->device->host->hostdata;
+-	unsigned long capacity = disk->capacity;
 -#else
--	spin_lock_irqsave(&io_request_lock, flags);
--#endif
-
- 	/*
- 	 * IRQ check, then enable IRQ mask
-@@ -1481,11 +1457,7 @@ static irqreturn_t do_nsp32_isr(int irq,
- 	nsp32_write2(base, IRQ_CONTROL, 0);
-
-  out2:
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0))
- 	spin_unlock_irqrestore(host->host_lock, flags);
--#else
--	spin_unlock_irqrestore(&io_request_lock, flags);
--#endif
-
- 	nsp32_dbg(NSP32_DEBUG_INTR, "exit");
-
-@@ -1501,27 +1473,18 @@ static irqreturn_t do_nsp32_isr(int irq,
- 		} \
- 	} while(0)
- static int nsp32_proc_info(
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	struct Scsi_Host *host,
--#endif
- 	char             *buffer,
- 	char            **start,
- 	off_t             offset,
- 	int               length,
--#if !(LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
--	int               hostno,
--#endif
- 	int               inout)
+ ips_biosparam(struct scsi_device *sdev, struct block_device *bdev,
+ 	      sector_t capacity, int geom[])
  {
- 	char             *pos = buffer;
- 	int               thislength;
- 	unsigned long     flags;
- 	nsp32_hw_data    *data;
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	int               hostno;
--#else
--	struct Scsi_Host *host;
+ 	ips_ha_t *ha = (ips_ha_t *) sdev->host->hostdata;
 -#endif
- 	unsigned int      base;
- 	unsigned char     mode_reg;
- 	int               id, speed;
-@@ -1532,15 +1495,7 @@ static int nsp32_proc_info(
- 		return -EINVAL;
- 	}
-
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	hostno = host->host_no;
--#else
--	/* search this HBA host */
--	host = scsi_host_hn_get(hostno);
--	if (host == NULL) {
--		return -ESRCH;
--	}
--#endif
- 	data = (nsp32_hw_data *)host->hostdata;
- 	base = host->io_port;
-
-@@ -2675,17 +2630,11 @@ static void nsp32_sack_negate(nsp32_hw_d
-  *	0x900-0xbff: (map same 0x800-0x8ff I/O port image repeatedly)
-  *	0xc00-0xfff: CardBus status registers
-  */
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
-+
- #define DETECT_OK 0
- #define DETECT_NG 1
- #define PCIDEV    pdev
- static int nsp32_detect(struct pci_dev *pdev)
--#else
--#define DETECT_OK 1
--#define DETECT_NG 0
--#define PCIDEV    (data->Pci)
--static int nsp32_detect(struct scsi_host_template *sht)
--#endif
- {
- 	struct Scsi_Host *host;	/* registered host structure */
- 	struct resource  *res;
-@@ -2698,11 +2647,8 @@ static int nsp32_detect(struct scsi_host
- 	/*
- 	 * register this HBA as SCSI device
- 	 */
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	host = scsi_host_alloc(&nsp32_template, sizeof(nsp32_hw_data));
--#else
--	host = scsi_register(sht, sizeof(nsp32_hw_data));
--#endif
-+
- 	if (host == NULL) {
- 		nsp32_msg (KERN_ERR, "failed to scsi register");
- 		goto err;
-@@ -2720,9 +2666,6 @@ static int nsp32_detect(struct scsi_host
- 	host->unique_id = data->BaseAddress;
- 	host->n_io_port	= data->NumAddress;
- 	host->base      = (unsigned long)data->MmioAddress;
--#if (LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,63))
--	scsi_set_pci_device(host, PCIDEV);
--#endif
-
- 	data->Host      = host;
- 	spin_lock_init(&(data->Lock));
-@@ -2884,14 +2827,13 @@ static int nsp32_detect(struct scsi_host
- 		goto free_irq;
-         }
-
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	ret = scsi_add_host(host, &PCIDEV->dev);
- 	if (ret) {
- 		nsp32_msg(KERN_ERR, "failed to add scsi host");
- 		goto free_region;
- 	}
- 	scsi_scan_host(host);
--#endif
-+
- 	pci_set_drvdata(PCIDEV, host);
- 	return DETECT_OK;
-
-@@ -3525,12 +3467,7 @@ static int __devinit nsp32_probe(struct
- 	data->MmioLength  = pci_resource_len  (pdev, 1);
-
- 	pci_set_master(pdev);
--
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	ret = nsp32_detect(pdev);
--#else
--	ret = scsi_register_host(&nsp32_template);
--#endif
-
- 	nsp32_msg(KERN_INFO, "irq: %i mmio: %p+0x%lx slot: %s model: %s",
- 		  pdev->irq,
-@@ -3545,21 +3482,15 @@ static int __devinit nsp32_probe(struct
-
- static void __devexit nsp32_remove(struct pci_dev *pdev)
- {
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
- 	struct Scsi_Host *host = pci_get_drvdata(pdev);
--#endif
-
- 	nsp32_dbg(NSP32_DEBUG_REGISTER, "enter");
-
--#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,73))
-         scsi_remove_host(host);
-
- 	nsp32_release(host);
-
- 	scsi_host_put(host);
--#else
--	scsi_unregister_host(&nsp32_template);	
--#endif
+ 	int heads;
+ 	int sectors;
+ 	int cylinders;
+@@ -1233,70 +1201,6 @@ ips_biosparam(struct scsi_device *sdev,
+ 	return (0);
  }
 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+-
+-/* ips_proc24_info is a wrapper around ips_proc_info *
+- * for compatibility with the 2.4 scsi parameters    */
+-static int
+-ips_proc24_info(char *buffer, char **start, off_t offset, int length,
+-		              int hostno, int func)
+-{
+-	int i;
+-
+-	for (i = 0; i < ips_next_controller; i++) {
+-		if (ips_sh[i] && ips_sh[i]->host_no == hostno) {
+-			return ips_proc_info(ips_sh[i], buffer, start,
+-					     offset, length, func);
+-		}
+-	}
+-	return -EINVAL;	
+-}
+-
+-/****************************************************************************/
+-/*                                                                          */
+-/* Routine Name: ips_select_queue_depth                                     */
+-/*                                                                          */
+-/* Routine Description:                                                     */
+-/*                                                                          */
+-/*   Select queue depths for the devices on the contoller                   */
+-/*                                                                          */
+-/****************************************************************************/
+-static void
+-ips_select_queue_depth(struct Scsi_Host *host, struct scsi_device * scsi_devs)
+-{
+-	struct scsi_device *device;
+-	ips_ha_t *ha;
+-	int count = 0;
+-	int min;
+-
+-	ha = IPS_HA(host);
+-	min = ha->max_cmds / 4;
+-
+-	for (device = scsi_devs; device; device = device->next) {
+-		if (device->host == host) {
+-			if ((device->channel == 0) && (device->type == 0))
+-				count++;
+-		}
+-	}
+-
+-	for (device = scsi_devs; device; device = device->next) {
+-		if (device->host == host) {
+-			if ((device->channel == 0) && (device->type == 0)) {
+-				device->queue_depth =
+-				    (ha->max_cmds - 1) / count;
+-				if (device->queue_depth < min)
+-					device->queue_depth = min;
+-			} else {
+-				device->queue_depth = 2;
+-			}
+-
+-			if (device->queue_depth < 2)
+-				device->queue_depth = 2;
+-		}
+-	}
+-}
+-
+-#else
+ /****************************************************************************/
+ /*                                                                          */
+ /* Routine Name: ips_slave_configure                                        */
+@@ -1324,7 +1228,6 @@ ips_slave_configure(struct scsi_device *
+ 	SDptr->skip_ms_page_3f = 1;
+ 	return 0;
+ }
+-#endif
 
+ /****************************************************************************/
+ /*                                                                          */
+@@ -7029,11 +6932,7 @@ ips_register_scsi(int index)
+ 	sh->cmd_per_lun = sh->hostt->cmd_per_lun;
+ 	sh->unchecked_isa_dma = sh->hostt->unchecked_isa_dma;
+ 	sh->use_clustering = sh->hostt->use_clustering;
+-
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,7)
+ 	sh->max_sectors = 128;
+-#endif
+-
+ 	sh->max_id = ha->ntargets;
+ 	sh->max_lun = ha->nlun;
+ 	sh->max_channel = ha->nbus - 1;
+@@ -7456,10 +7355,7 @@ ips_init_phase2(int index)
+ 	return SUCCESS;
+ }
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,9)
+ MODULE_LICENSE("GPL");
+-#endif
+-
+ MODULE_DESCRIPTION("IBM ServeRAID Adapter Driver " IPS_VER_STRING);
+
+ #ifdef MODULE_VERSION
 

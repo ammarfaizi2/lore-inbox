@@ -1,130 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWHLTpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWHLUCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWHLTpM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 15:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWHLTpL
+	id S932591AbWHLUCr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 16:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWHLUCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 15:45:11 -0400
-Received: from helium.samage.net ([83.149.67.129]:38380 "EHLO
-	helium.samage.net") by vger.kernel.org with ESMTP id S964949AbWHLTpJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 15:45:09 -0400
-Message-ID: <44410.81.207.0.53.1155411901.squirrel@81.207.0.53>
-In-Reply-To: <1155408431.13508.110.camel@lappy>
-References: <20060812141415.30842.78695.sendpatchset@lappy> 
-    <20060812141445.30842.47336.sendpatchset@lappy> 
-    <44640.81.207.0.53.1155403862.squirrel@81.207.0.53> 
-    <1155404697.13508.81.camel@lappy> 
-    <40048.81.207.0.53.1155405282.squirrel@81.207.0.53> 
-    <1155406120.13508.87.camel@lappy> 
-    <57504.81.207.0.53.1155407532.squirrel@81.207.0.53>
-    <1155408431.13508.110.camel@lappy>
-Date: Sat, 12 Aug 2006 21:45:01 +0200 (CEST)
-Subject: Re: [RFC][PATCH 3/4] deadlock prevention core
-From: "Indan Zupancic" <indan@nul.nu>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
-       "Daniel Phillips" <phillips@google.com>,
-       "Rik van Riel" <riel@redhat.com>, "David Miller" <davem@davemloft.net>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
+	Sat, 12 Aug 2006 16:02:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64421 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932591AbWHLUCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 16:02:46 -0400
+Date: Sat, 12 Aug 2006 13:02:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Kobras <kobras@linux.de>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dm: Fix deadlock under high i/o load in raid1 setup.
+Message-Id: <20060812130228.f7954b5f.akpm@osdl.org>
+In-Reply-To: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de>
+References: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, August 12, 2006 20:47, Peter Zijlstra said:
-> Ah right, I did that in v3, with a similar comment, but I realised that
-> the inbound reserve need not be per socket, and that the comment was
-> ambiguous enough to allow this reading.
+On Wed, 9 Aug 2006 18:44:21 +0200
+Daniel Kobras <kobras@linux.de> wrote:
 
-True, but better to change the comment than to confuse people.
-Lots of it is outdated because reservations aren't per device anymore.
+> Implement private fallback if immediate allocation from mempool fails.
+> Standard mempool_alloc() fallback can yield a deadlock when only the
+> calling process is able to refill the pool. In out-of-memory situations,
+> instead of waiting for itself, kmirrord now waits for someone else to
+> free some space, using a standard blocking allocation.
+> 
+> Signed-off-by: Daniel Kobras <kobras@linux.de>
+> ---
+> [Resending with Cc to l-k. First attempt apparently hasn't made it through to 
+> dm-devel.]
+> 
+> Hi!
+> 
+> On an nForce4-equipped machine with two SATA disk in raid1 setup using
+> dmraid, we experienced frequent deadlock of the system under high i/o
+> load. 'cat /dev/zero > ~/zero' was the most reliable way to reproduce
+> them: Randomly after a few GB, 'cp' would be left in 'D' state along
+> with kjournald and kmirrord. The functions cp and kjournald were blocked
+> in did vary, but kmirrord's wchan always pointed to 'mempool_alloc()'.
+> We've seen this pattern on 2.6.15 and 2.6.17 kernels.
+> http://lkml.org/lkml/2005/4/20/142 indicates that this problem has been
+> around even before.
+> 
+> So much for the facts, here's my interpretation: mempool_alloc() first
+> tries to atomically allocate the requested memory, or falls back to hand
+> out preallocated chunks from the mempool. If both fail, it puts the
+> calling process (kmirrord in this case) on a private waitqueue until
+> somebody refills the pool. Where the only 'somebody' is kmirrord itself,
+> so we have a deadlock.
 
-Changes to your version:
-- Got rid of memalloc_socks.
-- Don't include inetdevice.h (it isn't needed anymore, right?)
-- Updated comment.
+Right.  That's a design error in DM.  mempools are only supposed to be used
+in situations where we *know* that if we wait for a bit, some elements will
+be returned to the pool.  Obviously, if the only thread in the machine
+which can release elements is the one which is waiting for thse elements,
+we die.
 
-(I'm editing the diff, so this won't apply)
+> I worked around this problem by falling back to a (blocking) kmalloc
+> when before kmirrord would have ended up on the waitqueue. This defeats
+> part of the benefits of using the mempool, but at least keeps the system
+> running. And it could be done with a two-line change. Note that
+> mempool_alloc() clears the GFP_NOIO flag internally, and only uses it to
+> decide whether to wait or return an error if immediate allocation fails,
+> so the attached patch doesn't change behaviour in the non-deadlocking case.
+> Path is against current git (2.6.18-rc4), but should apply to earlier
+> versions as well. I've tested on 2.6.15, where this patch makes the
+> difference between random lockup and a stable system.
+> 
+> Regards,
+> 
+> Daniel.
+> 
+> diff -r dcc321d1340a -r d52bb3a14d60 drivers/md/dm-raid1.c
+> --- a/drivers/md/dm-raid1.c	Sun Aug 06 19:00:05 2006 +0000
+> +++ b/drivers/md/dm-raid1.c	Mon Aug 07 23:16:44 2006 +0200
+> @@ -255,7 +255,9 @@ static struct region *__rh_alloc(struct 
+>  	struct region *reg, *nreg;
+>  
+>  	read_unlock(&rh->hash_lock);
+> -	nreg = mempool_alloc(rh->region_pool, GFP_NOIO);
+> +	nreg = mempool_alloc(rh->region_pool, GFP_ATOMIC);
+> +	if (unlikely(!nreg))
+> +		nreg = kmalloc(sizeof(struct region), GFP_NOIO);
+>  	nreg->state = rh->log->type->in_sync(rh->log, region, 1) ?
+>  		RH_CLEAN : RH_NOSYNC;
+>  	nreg->rh = rh;
 
-Index: linux-2.6/net/core/sock.c
-===================================================================
---- linux-2.6.orig/net/core/sock.c	2006-08-12 12:56:06.000000000 +0200
-+++ linux-2.6/net/core/sock.c	2006-08-12 13:02:59.000000000 +0200
-@@ -111,6 +111,8 @@
- #include <linux/poll.h>
- #include <linux/tcp.h>
- #include <linux/init.h>
-+#include <linux/blkdev.h>
+Yes, that'll fix it.  It's rather nasty to be allocating elements with
+kmalloc and then sending them back with mempool_free().  But it'll work.
 
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -195,6 +197,78 @@ __u32 sysctl_rmem_default = SK_RMEM_MAX;
- /* Maximal space eaten by iovec or ancilliary data plus some space */
- int sysctl_optmem_max = sizeof(unsigned long)*(2*UIO_MAXIOV + 512);
+Alasdair, I'd say that this is a 2.6.18 fix and a 2.6.17.x backport.
 
-+static DEFINE_SPINLOCK(memalloc_lock);
-+static int memalloc_socks;
-+static unsigned long memalloc_reserve;
-+
-+atomic_t memalloc_skbs_used;
-+EXPORT_SYMBOL_GPL(memalloc_skbs_used);
-+
-+/**
-+ *        sk_adjust_memalloc - adjust the global memalloc reserve
-+ *        @nr_socks: number of new %SOCK_MEMALLOC sockets
-+ *
-+ *        This function adjusts the memalloc reserve based on system demand.
-+ *        For each %SOCK_MEMALLOC socket 2 * %MAX_PHYS_SEGMENTS pages are
-+ *        reserved for outbound traffic (assumption: each %SOCK_MEMALLOC
-+ *        socket will have a %request_queue associated).
-+ *
-+ *        Pages for inbound traffic are already reserved.
-+ *
-+ *        2 * %MAX_PHYS_SEGMENTS - the request queue can hold up to 150%,
-+ *                the remaining 50% goes to being sure we can write packets
-+ *                for the outgoing pages.
-+ */
-+static DEFINE_SPINLOCK(memalloc_lock);
-+static int memalloc_socks;
-+
-+atomic_t memalloc_skbs_used;
-+EXPORT_SYMBOL_GPL(memalloc_skbs_used);
-+
-+int sk_adjust_memalloc(int nr_socks)
-+{
-+	unsigned long flags;
-+	unsigned int reserve;
-+	int err;
-+
-+	spin_lock_irqsave(&memalloc_lock, flags);
-+
-+	memalloc_socks += nr_socks;
-+	BUG_ON(memalloc_socks < 0);
-+
-+	reserve = nr_socks * 2 * MAX_PHYS_SEGMENTS;	/* outbound */
-+
-+	err = adjust_memalloc_reserve(reserve);
-+	spin_unlock_irqrestore(&memalloc_lock, flags);
-+	if (err) {
-+		printk(KERN_WARNING
-+			"Unable to adjust RX reserve by %lu, error: %d\n",
-+			reserve, err);
-+	}
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(sk_adjust_memalloc);
-
-What's missing now is an adjust_memalloc_reserve(5 * MAX_CONCURRENT_SKBS)
-call in some init code.
-
-Greetings,
-
-Indan
+A longer-term fix might be to stop using mempools in there, just use
+kmalloc.  Or move the mempool_free()ing out of kmorrord context and into
+IO-completion context, perhaps.
 
 

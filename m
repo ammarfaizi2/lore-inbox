@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWHLJDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWHLJNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWHLJDK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 05:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWHLJDK
+	id S932195AbWHLJNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 05:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWHLJNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 05:03:10 -0400
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:14736 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932134AbWHLJDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 05:03:09 -0400
-Date: Sat, 12 Aug 2006 04:58:49 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.17.8 - do_vfs_lock: VFS is out of sync with lock
-  manager!
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: "Grant Coady" <gcoady.lk@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Message-ID: <200608120502_MC3-1-C7DD-FF7F@compuserve.com>
+	Sat, 12 Aug 2006 05:13:13 -0400
+Received: from lucidpixels.com ([66.45.37.187]:52906 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751136AbWHLJNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 05:13:12 -0400
+Date: Sat, 12 Aug 2006 05:13:11 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-raid <linux-raid@vger.kernel.org>, Neil Brown <neilb@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [bug?] raid1 integrity checking is broken on 2.6.18-rc4
+In-Reply-To: <200608120252_MC3-1-C7DD-BA91@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0608120512440.21701@p34.internal.lan>
+References: <200608120252_MC3-1-C7DD-BA91@compuserve.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <9a8748490608101537y4c377fb3xcd8babbdbc29cee2@mail.gmail.com>
 
-On Fri, 11 Aug 2006 00:37:35 +0200, Jesper Juhl wrote:
 
-> > > >I have some webservers that have recently started reporting the
-> > > >following message in their logs :
-> > > >
-> > > >  do_vfs_lock: VFS is out of sync with lock manager!
+On Sat, 12 Aug 2006, Chuck Ebbert wrote:
 
-What does this (not even compile tested) patch print?
+> Doing this on a raid1 array:
+>        echo "check" >/sys/block/md0/md/sync_action
+>
+> On 2.6.16.27:
+>        Activity lights on both mirrors show activity for a while,
+>        then the array status prints on the console.
+>
+> On 2.6.18-rc4 + the below patch:
+>        Drive activity light blinks once on one drive, then the
+>        array status prints (obviously no checking takes place.)
+>
+>
+> Applied hotfix on 2.6.18-rc4:
+>
+> --- .prev/drivers/md/md.c       2006-08-08 09:00:44.000000000 +1000
+> +++ ./drivers/md/md.c   2006-08-08 09:04:04.000000000 +1000
+> @@ -1597,6 +1597,19 @@ void md_update_sb(mddev_t * mddev)
+>
+> repeat:
+>        spin_lock_irq(&mddev->write_lock);
+> +
+> +       if (mddev->degraded && mddev->sb_dirty == 3)
+> +               /* If the array is degraded, then skipping spares is both
+> +                * dangerous and fairly pointless.
+> +                * Dangerous because a device that was removed from the array
+> +                * might have a event_count that still looks up-to-date,
+> +                * so it can be re-added without a resync.
+> +                * Pointless because if there are any spares to skip,
+> +                * then a recovery will happen and soon that array won't
+> +                * be degraded any more and the spare can go back to sleep then.
+> +                */
+> +               mddev->sb_dirty = 1;
+> +
+>        sync_req = mddev->in_sync;
+>        mddev->utime = get_seconds();
+>        if (mddev->sb_dirty == 3)
+> -- 
+> Chuck
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
---- 2.6.17.8-nb/fs/lockd/clntproc.c	2006-06-10 17:39:21.000000000 -0400
-+++ 2.6.17.8-nb/fs/lockd/clntproc.c.new	2006-08-12 04:43:45.000000000 -0400
-@@ -458,7 +458,9 @@ static void nlmclnt_locks_init_private(s
- static void do_vfs_lock(struct file_lock *fl)
- {
- 	int res = 0;
--	switch (fl->fl_flags & (FL_POSIX|FL_FLOCK)) {
-+	unsigned char flags = fl->fl_flags & (FL_POSIX|FL_FLOCK);
-+
-+	switch (flags) {
- 		case FL_POSIX:
- 			res = posix_lock_file_wait(fl->fl_file, fl);
- 			break;
-@@ -469,8 +471,8 @@ static void do_vfs_lock(struct file_lock
- 			BUG();
- 	}
- 	if (res < 0)
--		printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n",
--				__FUNCTION__);
-+		printk(KERN_WARNING "%s: VFS is out of sync with lock manager! -- %s: %d\n",
-+				__FUNCTION__, flags == FL_POSIX ? "POSIX" : "FLOCK", res);
- }
- 
- /*
--- 
-Chuck
+Is there a doc for all of the options you can echo into the sync_action? 
+I'm assuming mdadm does these as well and echo is just another way to run 
+work with the array?

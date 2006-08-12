@@ -1,146 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422707AbWHLVrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWHLV5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422707AbWHLVrc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 17:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422709AbWHLVrb
+	id S932102AbWHLV5U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 17:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWHLV5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 17:47:31 -0400
-Received: from thunk.org ([69.25.196.29]:3012 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1422707AbWHLVrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 17:47:31 -0400
-Date: Sat, 12 Aug 2006 17:47:20 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Molle Bestefich <molle.bestefich@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Duane Griffin <duaneg@dghda.com>
-Subject: Re: ext3 corruption
-Message-ID: <20060812214719.GA19156@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Molle Bestefich <molle.bestefich@gmail.com>,
-	linux-kernel@vger.kernel.org, Duane Griffin <duaneg@dghda.com>
-References: <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com> <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com> <e9e943910608091317p37bdbd66t91bc1e16c3d9986a@mail.gmail.com> <62b0912f0608091347u8b86d40q3679991e9e16526f@mail.gmail.com> <e9e943910608091527t3b88da7eo837f6adc1e1e6f98@mail.gmail.com> <62b0912f0608091609q6b3c6c4ev2d287060fa209@mail.gmail.com> <e9e943910608091708p4914930ct1ee031a1201bfd2f@mail.gmail.com> <62b0912f0608101400t607cf9b7t5c2324f39cc2eed@mail.gmail.com> <20060812163834.GA11497@thunk.org> <62b0912f0608121024y1dde66aavcbf4df04631772c4@mail.gmail.com>
+	Sat, 12 Aug 2006 17:57:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:32597 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932102AbWHLV5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 17:57:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Pluo9qu1Us62iXvKi1EpzWEtSQXl3Szoq8c3iw0kEdurkiB/MOqIzPKMepobnC68gDM1F8yz2heABPYQkbFviybBGNaKDFRbB6Vi219deWaMs65+CIH/HTVktRvzqh5Uc1uFtwKkDaEY7q0n0wPgu+Sej04InUODDDPXLVbzjvA=
+Message-ID: <44DE4EC8.8090404@gmail.com>
+Date: Sat, 12 Aug 2006 23:57:05 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <62b0912f0608121024y1dde66aavcbf4df04631772c4@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Jani Aho <jani.aho@bonetmail.com>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org, i2c@lm-sensors.org
+Subject: Re: Sensors broke between 2.6.16.16 and 2.6.16.17
+References: <44DE0DCE.4090305@bonetmail.com>
+In-Reply-To: <44DE0DCE.4090305@bonetmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 12, 2006 at 07:24:06PM +0200, Molle Bestefich wrote:
+Jani Aho wrote:
+> Hi
 > 
-> Good to have backups.  It would be very useful to know whether e2fsck
-> contemplates writing those back as primary BGDs when it's done, but I
-> couldn't find that in the documentation.  Will it?
-
-Yes, it will.
-
-> (Would be good to have the above information in the docs.  Perhaps in
-> a "what does this message mean?" section.)
-
-Well, if someone would like to volunteer to be a technical writer,
-that would be great......
-
-> (Such a section would also help a lot when confronted with the first
-> message: "Entry blah is a link to directory bluh. Clear? y/n".
-> Obviously I don't want to "clear" my data.  But why is e2fsck
-> confronting me with that question?  Is something wrong with it that it
-> should be cleared?)
-
-Basically, there are two modes that e2fsck can run in.  What the boot
-scripts use is called "preen" mode, which will automatically fix
-"safe" things, and stop if there are anything where the user
-administrator might need to need to exercise discretion, or where the
-system administrator should know that there might be something that he
-or she needs to clean up (like orphaned inodes getting linked into the
-lost+found directory, for example).
-
-In the normal mode, e2fsck asks permission before it does anything.
-In general, the default answer is "safe", but there are times when a=
-filesystem expert can do better by declining to fix a problem and then
-using debugfs afterwards to try to recover data before running e2fsck
-a second time to completely clear out all of the problems.
-
-If you don't like that, you can always run with e2fsck -y, which wil
-clause e2fsck to never ask permission before going ahead and trying
-its best to fix the problem.
-
-> >The summary information in the backup block group
-> >descriptors is not backed up, for speed/performance reasons.  This is
-> >not a problem, since that information can always be regenerated
-> >trivially from the pass 5 information.
+> The sensors on my motherboard stopped working between 2.6.16.16 and
+> 2.6.16.17. The latest kernel version I have tried is 2.6.17.8 and it
+> still has the same problem.
 > 
-> Thanks for the information!
-> (Would be very helpful to have a copy/paste of the above in the docs too...)
-
-Well, the e2fsck man page isn't intended to be a tutorial.  If someone
-wants to volunteer to write an extended introduction to how e2fsck
-works and what all of the messages mean, I'd certainly be willing to
-work with that person...  So if you're willing to volunteer or willing
-to chip in to pay for a technical writer, let me know....
-
-> I'm wondering why it even tries to use the corrupt information, instead of 
-> just:
-> * reconstructing it from scratch
-> * not asking the user?
-
-It did reconstruct it from scratch; that's what pass 5 is all about.
-It just didn't store it in the block group descriptors, because of the
--n option.  
-
-> >I can imagine accepting a patch which sets a flag if any discrepancies
-> >found in pass 5 are not fixed, and then if the summary information is
-> >requested,
+> The motherboard is an ASUS P4PE and it uses the asb100 and i2c-i801
+> modules to get sensor information.
 > 
-> Huh?  The user didn't request anything, it always prints.
+> A diff in /sys between a bad (2.6.17.8) and a good (2.6.16.16) kernel gives:
 
-The summary information is only printed when the -v option is given,
-and that's about all the -v option does.  The summary information is
-not the primary raison d'etre for e2fsck, so I'm not going to waste a
-lot of time trying to keep two copies of the information so that the
-information can be correct in the -nv case.  That's just soooooo
-unimportant, and most users don't use the -v option anyway.
+And is there any diff in dmesgs of those 2 kernels?
 
-> >with the filesystem.  Is it 100% accurate?  No, but that was never the
-> >goal of e2fsck -n.  If you want that, then use a dm-snapshot, and run
-> >e2fsck on the snapshot....
+> --- i2c.bad     2006-08-12 18:42:57.000000000 +0200
+> +++ i2c.good    2006-08-12 18:50:44.000000000 +0200
+> @@ -37,9 +37,15 @@
+>  /sys/module/i2c_core/sections/.text
+>  /sys/module/i2c_core/refcnt
+>  /sys/class/i2c-adapter
+> +/sys/class/i2c-adapter/i2c-0
+> +/sys/class/i2c-adapter/i2c-0/device
+> +/sys/class/i2c-adapter/i2c-0/uevent
+>  /sys/bus/i2c
+>  /sys/bus/i2c/drivers
+>  /sys/bus/i2c/drivers/asb100
+> +/sys/bus/i2c/drivers/asb100/0-0048
+> +/sys/bus/i2c/drivers/asb100/0-0049
+> +/sys/bus/i2c/drivers/asb100/0-002d
+>  /sys/bus/i2c/drivers/asb100/bind
+>  /sys/bus/i2c/drivers/asb100/unbind
+>  /sys/bus/i2c/drivers/asb100/module
+> @@ -48,3 +54,85 @@
+>  /sys/bus/i2c/drivers/i2c_adapter/unbind
+>  /sys/bus/i2c/drivers/i2c_adapter/module
+>  /sys/bus/i2c/devices
+> +/sys/bus/i2c/devices/0-0048
+> +/sys/bus/i2c/devices/0-0049
+> +/sys/bus/i2c/devices/0-002d
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/name
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/bus
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/driver
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/power
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/power/wakeup
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/power/state
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/uevent
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/name
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/bus
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/driver
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/power
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/power/wakeup
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/power/state
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/uevent
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/pwm1_enable
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/pwm1
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/alarms
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/vrm
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/cpu0_vid
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp4_max_hyst
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp4_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp4_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp3_max_hyst
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp3_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp3_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp2_max_hyst
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp2_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp2_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp1_max_hyst
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp1_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp1_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan3_div
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan3_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan3_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan2_div
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan2_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan2_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan1_div
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan1_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan1_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in6_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in6_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in6_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in5_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in5_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in5_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in4_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in4_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in4_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in3_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in3_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in3_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in2_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in2_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in2_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in1_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in1_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in1_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in0_max
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in0_min
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in0_input
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/hwmon:hwmon0
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/name
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/bus
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/driver
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/power
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/power/wakeup
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/power/state
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/uevent
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/i2c-adapter:i2c-0
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/name
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/power
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/power/wakeup
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/power/state
+> +/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/uevent
 > 
-> Agreed.  Running a r/w e2fsck on some kind of overlay would be the way
-> to implement a more useful (for me anyway) version of -n.
-> 
-> But I think dm-snapshot is useless in this case because....
+> I run an updated Debian Sid distro.
 
-Well, I have the following project listed in the TODO file for
-e2fsprogs:
-
-   4) Create a new I/O manager (i.e., test_io.c, unix_io.c, et.al.) which
-   layers on top of an existing I/O manager which provides copy-on-write
-   functionality.  This COW I/O manager takes will take two open I/O
-   managers, call them "base" and "changed".  The "base" I/O manager is
-   opened read/only, so any changes are written instead to the "changed"
-   I/O manager, in a compact, non-sparse format containing the intended
-   modification to the "base" filesystem.
-
-   This will allow resize2fs to figure out what changes need to made to
-   extend a filesystem, or expand the size of inodes in the inode table,
-   and the changes can be pushed the filesystem in one fell swoop.  (If
-   the system crashes; the program which runs the "changed" file can be
-   re-run, much like a journal replay.  My assumption is that the COW
-   file will contain the filesystem UUID in a the COW superblock, and the
-   COW file will be stored in some place such as /var/state/e2fsprogs,
-   with an init.d file to automate the replay so we can recover cleanly
-   from a crash during the resize2fs process.)
-
-           Difficulty: Medium      Priority: Medium
-
-Patches to implement this would be gratefully accepted....
-
-(This is open source, which means if people who have the bad manners
-to kvetch that volunteers have done all of this free work for them
-haven't done $FOO will be gently reminded that patches to implement
-$FOO are always welcome.  :-)
-
-						- Ted
+regards,
+-- 
+<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

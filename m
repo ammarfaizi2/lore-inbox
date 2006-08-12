@@ -1,144 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWHLRUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWHLRW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWHLRUT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 13:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWHLRUT
+	id S964930AbWHLRW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 13:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWHLRW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 13:20:19 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:49093 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S964860AbWHLRUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 13:20:17 -0400
-Message-ID: <44DE0DCE.4090305@bonetmail.com>
-Date: Sat, 12 Aug 2006 19:20:14 +0200
-From: Jani Aho <jani.aho@bonetmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Sat, 12 Aug 2006 13:22:27 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:49109 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964930AbWHLRW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 13:22:26 -0400
+Date: Sat, 12 Aug 2006 19:22:02 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Innocenti Maresin <qq@inCTV.ru>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Q: remapping IP addresses for inbound and outbound traffic
+In-Reply-To: <LKML-nat-0.qq@inCTV.ru>
+Message-ID: <Pine.LNX.4.61.0608121916300.2346@yvahk01.tjqt.qr>
+References: <LKML-nat-0.qq@inCTV.ru>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Sensors broke between 2.6.16.16 and 2.6.16.17
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-The sensors on my motherboard stopped working between 2.6.16.16 and
-2.6.16.17. The latest kernel version I have tried is 2.6.17.8 and it
-still has the same problem.
+>Let one Linux box have two interfaces to IPv4 networks, 
+>and for some IP both networks have the host with this IP address, e.g. from RFC1918. 
+>Or even both use the same IPv4 address block. 
+>We can say that one IP from the first network 
+>and numerically the same IP from the second "means" different hosts. 
+>
+>I clarify these terms so carefully because in news:comp.os.linux.networking 
+>some people state that I "use terms in strange ways" :) 
 
-The motherboard is an ASUS P4PE and it uses the asb100 and i2c-i801
-modules to get sensor information.
+But we are not in comp.os.linux.networking here, and getting a concrete 
+example like "my eth0 has 134.76.13.21/24 and my eth1 has 10.foo.bar/xyz" 
+is a little easier to understand.
 
-A diff in /sys between a bad (2.6.17.8) and a good (2.6.16.16) kernel gives:
+>The software of this box needs to connect all hosts in both networks, 
+>and also to receive inbound TCP connections. 
+>The evident way is to "remap" overlapping IPv4 area of one network 
+>to some "place" not used neither in it nor in other. 
 
---- i2c.bad     2006-08-12 18:42:57.000000000 +0200
-+++ i2c.good    2006-08-12 18:50:44.000000000 +0200
-@@ -37,9 +37,15 @@
- /sys/module/i2c_core/sections/.text
- /sys/module/i2c_core/refcnt
- /sys/class/i2c-adapter
-+/sys/class/i2c-adapter/i2c-0
-+/sys/class/i2c-adapter/i2c-0/device
-+/sys/class/i2c-adapter/i2c-0/uevent
- /sys/bus/i2c
- /sys/bus/i2c/drivers
- /sys/bus/i2c/drivers/asb100
-+/sys/bus/i2c/drivers/asb100/0-0048
-+/sys/bus/i2c/drivers/asb100/0-0049
-+/sys/bus/i2c/drivers/asb100/0-002d
- /sys/bus/i2c/drivers/asb100/bind
- /sys/bus/i2c/drivers/asb100/unbind
- /sys/bus/i2c/drivers/asb100/module
-@@ -48,3 +54,85 @@
- /sys/bus/i2c/drivers/i2c_adapter/unbind
- /sys/bus/i2c/drivers/i2c_adapter/module
- /sys/bus/i2c/devices
-+/sys/bus/i2c/devices/0-0048
-+/sys/bus/i2c/devices/0-0049
-+/sys/bus/i2c/devices/0-002d
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/name
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/bus
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/driver
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/power
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/power/wakeup
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/power/state
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0048/uevent
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/name
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/bus
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/driver
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/power
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/power/wakeup
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/power/state
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-0049/uevent
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/pwm1_enable
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/pwm1
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/alarms
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/vrm
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/cpu0_vid
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp4_max_hyst
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp4_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp4_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp3_max_hyst
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp3_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp3_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp2_max_hyst
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp2_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp2_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp1_max_hyst
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp1_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/temp1_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan3_div
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan3_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan3_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan2_div
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan2_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan2_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan1_div
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan1_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/fan1_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in6_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in6_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in6_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in5_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in5_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in5_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in4_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in4_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in4_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in3_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in3_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in3_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in2_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in2_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in2_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in1_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in1_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in1_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in0_max
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in0_min
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/in0_input
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/hwmon:hwmon0
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/name
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/bus
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/driver
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/power
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/power/wakeup
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/power/state
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/uevent
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/i2c-adapter:i2c-0
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/name
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/power
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/power/wakeup
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/power/state
-+/sys/devices/pci0000:00/0000:00:1f.3/i2c-0/uevent
+If they do not use the same address block, they don't overlap and there is 
+no need to remap them.
 
-I run an updated Debian Sid distro.
+>This means that, when we receive a packet from remapped area, 
+>the kernel should replace the source IP to an "internal representaion". 
+>Versa, sending something to "internally represented" IP 
+>the kernel should replace such IP by its external value. 
 
-Thanks,
-Jani
+
+Jan Engelhardt
+-- 

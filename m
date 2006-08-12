@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422635AbWHLSy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWHLTIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422635AbWHLSy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 14:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWHLSy5
+	id S1030270AbWHLTIj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 15:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWHLTIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 14:54:57 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:34186 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030261AbWHLSy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 14:54:56 -0400
-Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Indan Zupancic <indan@nul.nu>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Daniel Phillips <phillips@google.com>, Rik van Riel <riel@redhat.com>,
-       David Miller <davem@davemloft.net>
-In-Reply-To: <47227.81.207.0.53.1155406611.squirrel@81.207.0.53>
-References: <20060812141415.30842.78695.sendpatchset@lappy>
-	 <33471.81.207.0.53.1155401489.squirrel@81.207.0.53>
-	 <1155404014.13508.72.camel@lappy>
-	 <47227.81.207.0.53.1155406611.squirrel@81.207.0.53>
-Content-Type: text/plain
-Date: Sat, 12 Aug 2006 20:54:06 +0200
-Message-Id: <1155408846.13508.115.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 12 Aug 2006 15:08:38 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:21008 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030270AbWHLTIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 15:08:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=X/wRiFUd0fviHzjmZp5ucfQvwzbqRbBjYx/ztCxgWxhgjl8c7aw+A4kWwLnKUdbpRuujAIO6mTbwLpjrexEeNtCF4MzVQUkhtsOaNbh8N3JYiiZY0h5j9ra5v5nfvDNq7fuP/rkm2vf9tviFI09MoSKGPqXw7hVMwMGBYahpt88=
+Message-ID: <4807377b0608121208g1bf4eebasc51f99fe00889bd7@mail.gmail.com>
+Date: Sat, 12 Aug 2006 12:08:35 -0700
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
+Cc: "Pavel Machek" <pavel@suse.cz>, "Andrew Morton" <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Linux ACPI" <linux-acpi@vger.kernel.org>
+In-Reply-To: <200608102251.20707.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200608091426.31762.rjw@sisk.pl> <20060810001232.GB4249@ucw.cz>
+	 <200608101415.21505.rjw@sisk.pl> <200608102251.20707.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 20:16 +0200, Indan Zupancic wrote:
-> On Sat, August 12, 2006 19:33, Peter Zijlstra said:
-> > Simpler yes, but also more complete; the old patches had serious issues
-> > with the alternative allocation scheme.
-> 
-> It sure is more complete, and looks nicer, but the price is IMHO too high.
-> I'm curious what those serious issues are, and if they can't be fixed.
-> 
-> > As for why SROG, because trying to stick all the semantics needed for
-> > all skb operations into the old approach was nasty, I had it almost
-> > complete but it was horror (and more code than the SROG approach).
-> 
-> What was missing or wrong in the old approach? Can't you use the new
-> approach, but use alloc_pages() instead of SROG?
-> 
-> Sorry if I bug you so, but I'm also trying to increase my knowledge here. ;-)
+On 8/10/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> > > > > CONFIG_PM_TRACE=y will scrog your CMOS clock each time you suspend.
+> > > >
+> > > > Oh dear.  Of course it's set in my .config.  Thanks a lot for this hint. :-)
+> > > >
+> > > > BTW, it's a dangerous setting, because some drivers get mad if the time after
+> > > > the resume appears to be earlier than the time before the suspend.  Also the
+> > > > timer .suspend/.resume routines aren't prepared for that.
+> > >
+> > > Its config option should just go away. People comfortable using *that*
+> > > should just edit some header file. Rafael, could you do patch doing
+> > > something like that?
 
-I'm almost sorry I threw that code out, you'd understand instantly..
-
-Lemme see what I can do to explain; what I need/want is:
- - single allocation group per packet - that is, when I free a packet
-and all its associated object I get my memory back.
- - not waste too much space managing the various objects
-
-skb operations want to allocate various sk_buffs for the same data
-clones. Also, it wants to be able to break the COW or realloc the data.
-
-The trivial approach would be one page (or higher alloc page) per
-object, and that will work quite well, except that it'll waste a _lot_
-of memory. 
-
-So I tried manual packing (parts of that you have seen in previous
-attempts). This gets hard when you want to do unlimited clones and COW
-breaks. To do either you need to go link several pages.
-
-So needing a list of pages and wanting packing gave me SROG. The biggest
-wart is having to deal with higher order pages. Explicitly coding in
-knowledge of the object you're packing just makes the code bigger - such
-is the power of abstraction.
-
+I've seen this problem too, thought it was only mm.
+Should the problem go away if I disable CONFIG_PM_TRACE?

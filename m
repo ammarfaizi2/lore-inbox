@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWHMMoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWHMM6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWHMMoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 08:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHMMoo
+	id S1751163AbWHMM6L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 08:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWHMM6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 08:44:44 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:6036 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751153AbWHMMoo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 08:44:44 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Sun, 13 Aug 2006 08:58:11 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:35459 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751163AbWHMM6K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 08:58:10 -0400
+Date: Sun, 13 Aug 2006 21:21:54 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc4-mm1
-Date: Sun, 13 Aug 2006 14:43:14 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060813012454.f1d52189.akpm@osdl.org>
-In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] do_sched_setscheduler: don't take tasklist_lock
+Message-ID: <20060813172154.GA1918@oleg>
+References: <20060813170340.GA1913@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608131443.14461.rjw@sisk.pl>
+In-Reply-To: <20060813170340.GA1913@oleg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 August 2006 10:24, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> 
-> - Warning: all the Serial ATA Kconfig options have been renamed.  If you
->   blindly run `make oldconfig' you won't have any disks.
+On 08/13, Oleg Nesterov wrote:
+>
+> We don't need to take tasklist_lock or disable irqs for
+> find_task_by_pid() + get_task_struct(). Use RCU locks
+> instead.
 
-Something like the appended patch is needed for the SATA/PATA options to show
-up in the menu.
+On the other hand, I think sched_setscheduler() does need tasklist_lock!
 
-Greetings,
-Rafael
+It is unsafe do dereference ->signal unless tasklist_lock or ->siglock
+is held (or p == current). Yes, we pin the task structure, but this can't
+prevent from release_task()->__exit_signal() which sets ->signal = NULL.
 
+So, I think this patch
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- drivers/ata/Kconfig |    8 ++++++++
- 1 files changed, 8 insertions(+)
+	[PATCH] Drop tasklist lock in do_sched_setscheduler
+	commit e74c69f46d93d29eea0ad8647863d1c6488f0f55
 
-Index: linux-2.6.18-rc4-mm1/drivers/ata/Kconfig
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/drivers/ata/Kconfig
-+++ linux-2.6.18-rc4-mm1/drivers/ata/Kconfig
-@@ -1,3 +1,9 @@
-+#
-+# SATA/PATA driver configuration
-+#
-+
-+menu "Serial and Parallel ATA (SATA/PATA) drivers"
-+	depends on SCSI
- 
- config ATA
- 	tristate "ATA device support"
-@@ -481,3 +487,5 @@ config PATA_WINBOND
- 
- 	  If unsure, say N.
- 
-+endmenu
-+
+is not correct.
+
+Am I missed something?
+
+Oleg.
+

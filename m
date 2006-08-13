@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWHMTRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWHMTRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWHMTRP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 15:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWHMTRP
+	id S1751362AbWHMTRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 15:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWHMTRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 15:17:15 -0400
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:62729 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S1751366AbWHMTRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 15:17:14 -0400
-Date: Sun, 13 Aug 2006 14:19:34 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IO errors after some uptime on 2.6.17.7
-Message-ID: <20060813191934.GJ9185@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200608060300_MC3-1-C736-6A0E@compuserve.com> <20060806153508.GB5157@digitasaru.net>
+	Sun, 13 Aug 2006 15:17:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7315 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751362AbWHMTRI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 15:17:08 -0400
+Date: Sun, 13 Aug 2006 12:17:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, okuji@enbug.org
+Subject: Re: [PATCH] failslab - failmalloc for slab allocator
+Message-Id: <20060813121702.78e72c1a.akpm@osdl.org>
+In-Reply-To: <20060813102219.GA8784@miraclelinux.com>
+References: <20060813102219.GA8784@miraclelinux.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060806153508.GB5157@digitasaru.net>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Joseph Pingenot on Sunday, 06 August, 2006:
->From Chuck Ebbert on Sunday, 06 August, 2006:
->>In-Reply-To: <20060806041700.GA5157@digitasaru.net>
->>On Sat, 5 Aug 2006 23:17:01 -0500, Joseph Pingenot wrote:
->>> I've now seen two boxes with 2.6.17.7 go down with IO errors after some
->>>   time running.  There doesn't seem to necessarily be a fixed amount of
->>>   time, nor can I precisely figure out what's causing it.
->>How do you know they were IO errors?
+On Sun, 13 Aug 2006 18:22:19 +0800
+Akinobu Mita <mita@miraclelinux.com> wrote:
 
-Well, as an update, I'm becoming convinced that at least one is actually
-  the disk dying.  The other might be too.  But the timing sure was
-  crazy.
+> This patch is not intended for inclusion. But I could find
+> several interesting crashes.
+> 
+> The idea behind failslab is to demonstrate what really happens if
+> slab allocation fails. The idea of failslab is completely taken
+> from failmalloc (http://www.nongnu.org/failmalloc/).
+> 
+> boot option:
+> 
+> failslab=<probability>,<interval>,<times>,<space>
+> 
+> <probability>
+> 	specifies how often it should fail in percent.
+> <interval>
+> 	specifies the interval of failures.
+> <times>
+> 	specifies how many times failures may happen at most.
+> <space>
+> 	specifies the size of free space where memory can be allocated
+> 	safely in bytes.
+> 
+> examples:
+> 
+> failslab=100,10,-1,0
+> 
+> slab allocation (kmalloc, kmem_cache_alloc,..) fails once per 10 times.
 
-Thanks for the help, and sorry to waste your time.
+We would benefit from having some faul-injection capabilities in the
+mainline kernel.
 
--Joseph
+- kmalloc failures
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+- alloc_pages() failures
+
+- disk IO errors (there are rumours of a DM module for this, but I
+  haven't seen it).
+
+They would need to be lightweight, clean and enabled/configured at runtime,
+not at boot time.
+
+This would end up being a fairly complex project.

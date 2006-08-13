@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWHMAuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbWHMAyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbWHMAuP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 20:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWHMAuO
+	id S932643AbWHMAyW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 20:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWHMAyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 20:50:14 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:18558 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932635AbWHMAuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 20:50:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=S1kTtT/GClKi10Jnai8T8wfTbCiROCX9X/KfTo5R5TNMcv3Xlkzsf/q1/+YojQLiAJEwuzdFVvA3+BAVN6JyBkPqEY8IvzKP2HsxsOk8o5Ci+yUmUrPbWQ/CJsNoFm1iWD+Yb9KnXEEB5k7EZWjvh92UDjBG3tUSebjyTDw/5gE=
-Message-ID: <44DE779D.8060609@gmail.com>
-Date: Sat, 12 Aug 2006 17:51:41 -0700
-From: Jeff Carr <basilarchia@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060619)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take8 1/2] kevent: Core files.
-References: <11552856103972@2ka.mipt.ru>
-In-Reply-To: <11552856103972@2ka.mipt.ru>
-X-Enigmail-Version: 0.94.0.0
+	Sat, 12 Aug 2006 20:54:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54175 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932638AbWHMAyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 20:54:20 -0400
+Subject: Re: Neverending module_param() bugs
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Len Brown <len.brown@intel.com>, "Ian E. Morgan" <imorgan@webcon.ca>
+In-Reply-To: <20060812214709.GC6252@martell.zuzino.mipt.ru>
+References: <20060812214709.GC6252@martell.zuzino.mipt.ru>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Sat, 12 Aug 2006 21:54:01 -0300
+Message-Id: <1155430441.3941.35.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/11/06 01:40, Evgeniy Polyakov wrote:
+Alexey,
 
-> +/*
-> + * Inode events.
-> + */
-> +#define	KEVENT_INODE_CREATE	0x1
-> +#define	KEVENT_INODE_REMOVE	0x2
+Em Dom, 2006-08-13 às 01:47 +0400, Alexey Dobriyan escreveu:
+> P.S.: drivers/media/video/tuner-simple.c:13:module_param(offset, int,
+> 0666);
 
-It would be useful to have gnome/kde notification when hard drives start
-failing. There was some talk in the past about how to implement that
-with kobjects. Perhaps you could add for this purpose:
+Good catch. We should change it to 0x664. I'll prepare such patch.
 
-#define	KEVENT_BLOCK_CREATE	0x1
-#define	KEVENT_BLOCK_REMOVE	0x2
-#define	KEVENT_BLOCK_ERROR	0x4
+Anyway, this is not dangerous, since it just allows an offset adjustment
+at tuning frequency of a TV capture board.
 
-AFAICT:
-The conversation concluded this is the best way to handle ioerrors:
-
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -108,6 +108,8 @@ static void buffer_io_error(struct buffe
- 	printk(KERN_ERR "Buffer I/O error on device %s, logical block %Lu\n",
- 			bdevname(bh->b_bdev, b),
- 			(unsigned long long)bh->b_blocknr);
-+
-+	kevent_block_error(&bh->b_bdev->bd_disk->kobj);
- }
-
- /*
---- a/fs/direct-io.c
-+++ b/fs/direct-io.c
-@@ -252,8 +252,11 @@ static void finished_one_bio(struct dio
- 				transferred = dio->i_size - offset;
-
- 			/* check for error in completion path */
--			if (dio->io_error)
-+			if (dio->io_error) {
- 				transferred = dio->io_error;
-+				kevent_block_error(
-+				&dio->bio->bi_bdev->bd_disk->kobj);
-+			}
-
- 			dio_complete(dio, offset, transferred);
+Cheers, 
+Mauro.
 

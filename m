@@ -1,761 +1,868 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWHMIZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWHMIbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWHMIZF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 04:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWHMIZF
+	id S1750745AbWHMIbu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 04:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWHMIbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 04:25:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4802 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750751AbWHMIZD (ORCPT
+	Sun, 13 Aug 2006 04:31:50 -0400
+Received: from halon.profiwh.com ([85.93.165.2]:59591 "EHLO orfeus.profiwh.com")
+	by vger.kernel.org with ESMTP id S1750745AbWHMIbu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 04:25:03 -0400
-Date: Sun, 13 Aug 2006 01:24:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc4-mm1
-Message-Id: <20060813012454.f1d52189.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Aug 2006 04:31:50 -0400
+Message-id: <third_time_the_dame@hehe.blahblah>
+Subject: [PATCH 1/1] Char: mxser, upgrade to 1.9.1
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: <support@moxa.com.tw>, <julioarr@fisica.uh.cu>
+X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+Date: Sun, 13 Aug 2006 04:31:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-
-- Warning: all the Serial ATA Kconfig options have been renamed.  If you
-  blindly run `make oldconfig' you won't have any disks.
-
-
-
-Boilerplate:
-
-- See the `hot-fixes' directory for any important updates to this patchset.
-
-- To fetch an -mm tree using git, use (for example)
-
-  git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
-
-- -mm kernel commit activity can be reviewed by subscribing to the
-  mm-commits mailing list.
-
-        echo "subscribe mm-commits" | mail majordomo@vger.kernel.org
-
-- If you hit a bug in -mm and it is not obvious which patch caused it, it is
-  most valuable if you can perform a bisection search to identify which patch
-  introduced the bug.  Instructions for this process are at
-
-        http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
-
-  But beware that this process takes some time (around ten rebuilds and
-  reboots), so consider reporting the bug first and if we cannot immediately
-  identify the faulty patch, then perform the bisection search.
-
-- When reporting bugs, please try to Cc: the relevant maintainer and mailing
-  list on any email.
-
-- Semi-daily snapshots of the -mm lineup are uploaded to
-  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/ and are announced on
-  the mm-commits list.
-
-
-
-
-Changes since 2.6.18-rc3-mm2:
-
- git-alsa.patch
- git-agpgart.patch
- git-arm.patch
- git-block.patch
- git-cifs.patch
- git-cpufreq.patch
- git-drm.patch
- git-dvb.patch
- git-geode.patch
- git-gfs2.patch
- git-ia64.patch
- git-ieee1394.patch
- git-infiniband.patch
- git-input.patch
- git-intelfb.patch
- git-jfs.patch
- git-kbuild.patch
- git-libata-all.patch
- git-lxdialog.patch
- git-mmc.patch
- git-mtd.patch
- git-netdev-all.patch
- git-net.patch
- git-nfs.patch
- git-ocfs2.patch
- git-parisc.patch
- git-pcmcia.patch
- git-powerpc.patch
- git-r8169.patch
- git-sas.patch
- git-s390.patch
- git-scsi-misc.patch
- git-scsi-rc-fixes.patch
- git-scsi-target.patch
- git-supertrak.patch
- git-watchdog.patch
- git-xfs.patch
- git-cryptodev.patch
-
- git trees
-
--make-suspend-possible-with-a-traced-process-at-a-breakpoint.patch
--drivers-edac-edac_mch-must-include-linux-platform_deviceh.patch
--disable-debugging-version-of-write_lock.patch
--bug-in-futex-unqueue_me.patch
--ufs-ufs_get_locked_patch-race-fix.patch
--ufs-handle-truncated-pages.patch
--crash-in-aty128_set_lcd_enable-on-powerbook.patch
--i_mutex-does-not-need-to-be-locked-in-reiserfs_delete_inode.patch
--omap-rng-build-fix.patch
--md-fix-a-bug-that-recently-crept-into-md-linear.patch
--ptrace-make-pid-of-child-process-available-for.patch
--fix-vmstat-per-cpu-usage.patch
--vt-printk-fix-framebuffer-console-triggering-might_sleep.patch
--au1100fb-info-varrotate-fix.patch
--au1100fb-fix-startup-sequence.patch
--fadvise-make-posix_fadv_noreuse-a-no-op.patch
--debug_locksh-add-struct-task_struct.patch
--knfsd-fix-race-related-problem-when-adding-items-to-and-svcrpc-auth-cache.patch
--doc-update-panic_on_oops-documentation.patch
--x86_64-fix-more-per-cpu-typos.patch
--pseries-hvsi-char-driver-null-pointer-deref.patch
--pseries-hvsi-char-driver-janitorial-cleanup.patch
--eicon-fix-define-conflict-with-ptrace.patch
--sh-fix-proc-file-removal-for-superh-store-queue-module.patch
--ieee1394-sbp2-enable-auto-spin-up-for.patch
--fix-befs-slab-corruption.patch
--memory-hotadd-fixes-not-aligned-memory-hotadd.patch
--memory-hotadd-fixes-change-find_next_system_rams.patch
--memory-hotadd-fixes-find_next_system_ram-catch-range.patch
--memory-hotadd-fixes-avoid-check-in-acpi.patch
--memory-hotadd-fixes-avoid-registering-res-twice.patch
--memory-hotadd-fixes-enhance-collistion-check.patch
--fix-reiserfs-lock-inversion-of-bkl-vs-inode-semaphore.patch
--reiserfs_write_full_page-should-not-get_block-past-eof.patch
--pnpacpi-reject-acpi_producer-resources.patch
--futex-apply-recent-futex-fixes-to-futex_compat.patch
--udf-initialize-parts-of-inode-earlier-in-create.patch
--scx200_acbeliminate-spurious-timeout-errors.patch
--ia64-kprobe-invalidate-icache-of-jump-buffer-s390-fix.patch
--git-block-dasd-fix.patch
--git-block-dasd-fix-2.patch
--sysfs_remove_bin_file-no-return-value-dump_stack-on.patch
--kobject-must_check-fixes.patch
--drivers-base-check-errors-fix-2.patch
--remove-null-chars-from-dvb-names.patch
--logips2pp-fix-mx300-button-layout.patch
--remove-polling-timer-from-i8042-v2.patch
--remove-rpm_build_root-from-asm-offsetsh.patch
--rework-legacy-handling-to-remove-much-of-the-cruft.patch
--rework-legacy-handling-to-remove-much-of-the-cruft-fix.patch
--rework-legacy-handling-to-remove-much-of-the-cruft-powerpc-fix.patch
--rework-legacy-handling-to-remove-much-of-the-cruft-fix-2.patch
--add-full-compact-flash-support-to-libata.patch
--forcedeth-move-mac-address-setup-teardown.patch
--forcedeth-mac-address-corrected.patch
--forcdeth-revised-napi-support.patch
--git-net-fib_rules-linkage-fix.patch
--fix-memory-leak-in-net-ipv4-tcp_probectcpprobe_read.patch
--pktgen-oops-when-used-with-balance-tlb-bonding.patch
--gregkh-pci-msi-03-use_root_chipset_dev_no_msi_instead_of_pci_bus_flags.patch
--gregkh-pci-msi-04-rename_pci_cap_id_ht_irqconf.patch
--gregkh-pci-msi-05-check_hypertransport_msi_capabilities.patch
--gregkh-pci-msi-06-drop_pci_msi_quirk.patch
--gregkh-pci-msi-07-drop_pci_bus_flags.patch
--fix-gregkh-pci-pci-express-aer-implemetation-pcie_portdrv-error-handler.patch
--pcie-check-and-return-bus_register-errors.patch
--areca-sysfs-fix.patch
--add-all-wacom-device-to-hid-corec-blacklist.patch
--net1080-inherent-pad-length.patch
--properly-unregister-reboot-notifier-in-case-of-failure-in-ehci-hcd.patch
--quickcam_messenger-compilation-fix.patch
--x86_64-mm-early-param-fix.patch
--fix-x86_64-mm-via-force-dma-mask-config_pcin-fix.patch
--fix-x86_64-mm-allow-users-to-force-a-panic-on-nmi.patch
--x86_64-fix-bus-numbering-format-in-mmconfig-warning.patch
--support-physical-cpu-hotplug-for-x86_64.patch
--sleazy-fpu-feature-x86_64-support.patch
--add-force-of-use-mmconfig.patch
--add-force-of-use-mmconfig-fix.patch
--add-force-of-use-mmconfig-fix-2.patch
--add-efi-e820-memory-mapping-on-x86.patch
--add-efi-e820-memory-mapping-on-x86-tidy.patch
--add-efi-e820-memory-mapping-on-x86-fix.patch
--add-efi-e820-memory-mapping-on-x86-fix-2.patch
--kernel-doc-fixes-for-debugfs.patch
--usb-build-fixes-ohci-omap.patch
--add-imacfb-documentation-and-detection.patch
-
- Merged into mainline or a subsystem tree
-
-+add-force-of-use-mmconfig.patch
-+add-efi-e820-memory-mapping-on-x86.patch
-+add-imacfb-documentation-and-detection.patch
-+adfs-error-message-fix.patch
-+initialize-parts-of-udf-inode-earlier-in-create.patch
-+fix-hrtimer-percpu-usage-typo.patch
-+fix-x86_64-mm-allow-users-to-force-a-panic-on-nmi.patch
-+dm-bug-oops-fix.patch
-+change-panic_on_oops-message-to-fatal-exception.patch
-+fcntlf_setsig-fix.patch
-+sys_getppid-oopses-on-debug-kernel-v2.patch
-+sys_getppid-oopses-on-debug-kernel-v2-simplify.patch
-+futex_handle_fault-always-fails.patch
-+fbdev-include-backlighth-only-when-__kernel__-is-defined.patch
-+workqueue-remove-lock_cpu_hotplug.patch
-+fuse-fix-error-case-in-fuse_readpages.patch
-+fuse-fix-error-case-in-fuse_readpages-kernel-doc-fix.patch
-+dm-fix-deadlock-under-high-i-o-load-in-raid1-setup.patch
-
- 2.6.18 queue.
-
-+trigger-a-syntax-error-if-percpu-macros-are-incorrectly-used.patch
-
- Build-time check.
-
-+acpi-change-gfp_atomic-to-gfp_kernel-for-non-atomic.patch
-+acpi-clear-gpe-before-disabling-it.patch
-+acpi-correctly-recover-from-a-failed-s3-attempt.patch
-+acpi-memory-hotplug-remove-useless-message-at-boot-time.patch
-
- ACPi updates
-
-+sound-pci-fm801-use-array_size-macro.patch
-
- ALSA driver cleanup
-
-+kthread-switch-arch-arm-kernel-apmc.patch
-
- ARM kthread conversion
-
-+gregkh-driver-class_device_create-make-fmt-argument-const-char.patch
-+gregkh-driver-device_create-make-fmt-argument-const-char.patch
-+gregkh-driver-sysfs-make-poll-behaviour-consistent.patch
-+gregkh-driver-debugfs-kernel-doc-fixes-for-debugfs.patch
-+gregkh-driver-make-suspend-quieter.patch
-+gregkh-driver-device-virtual.patch
-+gregkh-driver-kobject-must_check-fixes.patch
-+gregkh-driver-sysfs_remove_bin_file-no-return-value-dump_stack-on-error.patch
-+gregkh-driver-driver-core-fix-comments-in-drivers-base-power-resume.c.patch
-+gregkh-driver-driver-core-fixed-add_bind_files-definition.patch
-+gregkh-driver-sound-device.patch
-
- driver tree updates
-
-+drm-build-fix.patch
-+drm-build-fixes-2.patch
-+git-drm-build-fix.patch
-
- Fix git-drm.patch
-
-+config_pm=n-slim-drivers-media-video.patch
-
- Fix git-dvb.patch
-
-+video1394-add-poll-file-operation-support.patch
-+ieee1394-safer-definition-of-empty-macros.patch
-+ieee1394-sbp2-workaround-for-write-protect-bit-of.patch
-+ieee1394-sbp2-enable-auto-spin-up-for-all-sbp-2-devices.patch
-+config_pm=n-slim-drivers-ieee1394-ohci1394c.patch
-
- 1394 updates
-
-+stowaway-keyboard-support.patch
-+stowaway-keyboard-support-update.patch
-+i8042-get-rid-of-polling-timer-v4.patch
-
- Input updates
-
-+asus-mv-device-ids.patch
-
- SATA device IDs
-
-+1-of-2-jmicron-driver-hard_port_no-fix.patch
-
- Fix 1-of-2-jmicron-driver.patch for libata changes
-
-+piix_host_stop-leak-fix.patch
-
- Fix git-libata-all leak
-
--sata-is-bust-on-s390.patch
-
- Dropped
-
-+config_pm=n-slim-drivers-scsi-sata_sil.patch
-
- SATA cleanup
-
-+kthread-update-arch-mips-kernel-apmc.patch
-
- MIPS kthread conversion
-
-+mtd-printk-format-warning.patch
-+mtd-nand-fix-ams-delta-after-core-conversion.patch
-
- MTD fixes
-
-+add-ethtool-g-support-to-spidernet-network-driver.patch
-+ehea-interface-to-network-stack.patch
-+ehea-phyp-interface.patch
-+ehea-queue-management.patch
-+ehea-header-files.patch
-+ehea-makefile.patch
-+ehea-kernel-build-kconfig--makefile.patch
-+skge-remember-to-run-netif_poll_disable.patch
-+pal-support-of-the-fixed-phy.patch
-+pal-support-of-the-fixed-phy-fix.patch
-+pal-support-of-the-fixed-phy-export.patch
-+fs_enet-use-pal-for-mii-management.patch
-+ppc32-board-specific-part-of-fs_enet-update.patch
-
- netdev updates
-
-+netfilter-make-unused-signal-code-go-away-so-nobody-copies-its-broken-ness.patch
-+net-add-the-udpsndbuferrors-and-udprcvbuferrors-mibs.patch
-+fix-potential-stack-overflow-in-net-core-utilsc.patch
-+constify-tigon3-ether-firmware-structs.patch
-
- net updates
-
-+config_pm=n-slim-drivers-pcmcia.patch
-
- pcmcia tweak
-
-+libsas-externs-not-needed.patch
-
- Cleanup for git-sas.patch
-
-+config_pm=n-slim-drivers-serial-8250_pcic.patch
-+omap1510-serial-fix-for-115200-baud.patch
-
- Serial updates
-
-+gregkh-pci-pciehp-make-pciehp-build-for-powerpc.patch
-+gregkh-pci-pci-remove-dead-hotplug_pci_shpc_phprm_legacy-option.patch
-+gregkh-pci-msi-03-add_pci_device_exp_type.patch
-+gregkh-pci-msi-04-use_root_chipset_dev_no_msi_instead_of_pci_bus_flags.patch
-+gregkh-pci-msi-05-add_no_msi_to_sysfs.patch
-+gregkh-pci-msi-06-rename_pci_cap_id_ht_irqconf.patch
-+gregkh-pci-msi-07-check_hypertransport_msi_capabilities.patch
-+gregkh-pci-msi-08-drop_pci_msi_quirk.patch
-+gregkh-pci-msi-09-drop_pci_bus_flags.patch
-+gregkh-pci-pcie-check-and-return-bus_register-errors.patch
-
- PCI tree updates
-
-+revert-gregkh-pci-pci-use-pci_bios-as-last-fallback.patch
-+fix-gregkh-pci-pci-express-aer-implemetation-aer-core-and-aerdriver-on-powerpc.patch
-
- Fix it.
-
-+megaraid-use-the-proper-type-to-hold-the-irq-number.patch
-+scsi-limit-recursion-when-flushing-shost-starved_list.patch
-+scsi-target-printk-format-warnings.patch
-+git-scsi-target-ibmvscsi-build-fix.patch
-
- scsi updates
-
-+gregkh-usb-usb-unusual_devs-entry-for-a-vox-wsx-300er-mp3-player.patch
-+gregkh-usb-usb-removed-a-unbalanced-endif-from-ohci-au1xxx.c.patch
-+gregkh-usb-usb-appletouch-fix-atp_disconnect.patch
-+gregkh-usb-usb-additional-pid-for-sharp-w-zero3.patch
-+gregkh-usb-usb-ftdi_sio-driver-new-pids.patch
-+gregkh-usb-usb-usbtest.c-unsigned-retval-makes-ctrl_out-return-0-in-case-of-error.patch
-+gregkh-usb-usbnet-printk-format-warning.patch
-+gregkh-usb-usb-ipaq-minor-ipaq_open-cleanup.patch
-+gregkh-usb-usb-usbcore-get-rid-of-the-timer-in-usb_start_wait_urb.patch
-+gregkh-usb-usb-wacom-tablet-driver-reorganization.patch
-+gregkh-usb-usb-add-all-wacom-device-to-hid-core.c-blacklist.patch
-+gregkh-usb-usb-garmin_gps-support-for-new-generation-of-gps-receivers.patch
-+gregkh-usb-usb-build-fixes-ohci-omap.patch
-+gregkh-usb-usb-onetouch-handle-errors-from-input_register_device.patch
-+gregkh-usb-usb-correct-locking-in-gadgetfs_disconnect.patch
-+gregkh-usb-usb-fix-ep_config-to-return-correct-value.patch
-+gregkh-usb-usb-gadgetfs-protect-ep_release-with-lock.patch
-+gregkh-usb-usb-gmidi-new-usb-midi-gadget-class-driver.patch
-+gregkh-usb-usb-make-file-operations-structs-in-drivers-usb-const.patch
-+gregkh-usb-usb-making-the-kernel-wshadow-clean-usb-completion.patch
-+gregkh-usb-usb-new-functions-to-check-endpoints-info.patch
-+gregkh-usb-usb-usblp-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-hub-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-appletouch-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-acecad-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-ati_remote-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-keyspan_remote-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-powermate-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-usb-serial-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-usblcd-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-ldusb-use-usb_endpoint_-functions.patch
-+gregkh-usb-usb-net1080-inherent-pad-length.patch
-+gregkh-usb-usb-add-poll-to-gadgetfs-s-endpoint-zero.patch
-+gregkh-usb-usb-gadget-gadgetfs-dont-try-to-lock-before-free.patch
-+gregkh-usb-usb-properly-unregister-reboot-notifier-in-case-of-failure-in-ehci-hcd.patch
-+gregkh-usb-add-aircable-usb-bluetooth-dongle-driver.patch
-+gregkh-usb-usb-adutux-driver.patch
-+gregkh-usb-usb-multithread.patch
-+gregkh-usb-usb-serial-serqt_usb.patch
-
- USB tree updates
-
-+stex-adjust-command-timeout-in-slave_config-routine.patch
-+stex-use-more-efficient-method-for-unload-shutdown-flush.patch
-
- Update git-supertrak.patch
-
-+x86_64-mm-remove-early-lockdep.patch
-+x86_64-mm-stacktrace-cleanup.patch
-+x86_64-mm-module-locks-raw-spinlock.patch
-+x86_64-mm-early-safe-smp-processor-id.patch
-+x86_64-mm-early-unwind-init.patch
-+x86_64-mm-stacktrace-unwinder.patch
-+x86_64-mm-i386-stacktrace-unwinder.patch
-+x86_64-mm-lockdep-dont-force-framepointer.patch
-+x86_64-mm-improve-crash-dump-description.patch
-+x86_64-mm-boot-param-bss.patch
-+x86_64-mm-i386-fix-mpparse-warning.patch
-+x86_64-mm-fault-notifier-export.patch
-+x86_64-mm-i386-fault-notifier-export.patch
-+x86_64-mm-i386-acpi_force-static.patch
-+x86_64-mm-i386-enable_local_apic-static.patch
-+x86_64-mm-i386-kernel-thread.patch
-+x86_64-mm-i386-desc-cleanup.patch
-+x86_64-mm-per-cpu-area-size.patch
-+x86_64-mm-i386-topology-cleanup.patch
-+x86_64-mm-i386-more-init.patch
-+x86_64-mm-fix-bus-numbering-format-in-mmconfig-warning.patch
-+x86_64-mm-support-physical-cpu-hotplug-for-x86_64.patch
-+x86_64-mm-less-lazy-fpu.patch
-+x86_64-mm-wire-up-oops_enter-oops_exit.patch
-+x86_64-mm-add-mem-fix.patch
-+x86_64-mm-kprobe_entry-ends-up-putting-code-into-.fixup.patch
-+x86_64-mm-remove-redundant-generic_identify-calls-when-identifying-cpus.patch
-+x86_64-mm-mark-init_amd-as-__cpuinit.patch
-+x86_64-mm-mark-cpu_dev-structures-as-__cpuinitdata.patch
-+x86_64-mm-mark-cpu-init-functions-as-__cpuinit,-data-as-__cpuinitdata.patch
-+x86_64-mm-mark-cpu-identify-functions-as-__cpuinit.patch
-+x86_64-mm-mark-cpu-cache-functions-as-__cpuinit.patch
-+x86_64-mm-i386-kprobes-mca.patch
-+x86_64-mm-i386-kprobes-nmi.patch
-+x86_64-mm-remove-config.h-includes-from-asm-i386-asm-x86_64.patch
-
- x86_64 tree updates
-
-+revert-x86_64-mm-i386-semaphore-to-asm.patch
-+revert-x86_64-mm-detect-cfi.patch
-+x86_64-mm-module-locks-raw-spinlock-hack-hack-hack.patch
-+fix-x86_64-mm-stacktrace-cleanup-for-s390.patch
-
- Fix it.
-
-+x86_64-make-numa_emulation-__init.patch
-
- section tweaks
-
--hot-add-mem-x86_64-x86_64-kernel-mapping-fix.patch
-+hot-add-mem-x86_64-memory_add_physaddr_to_nid-node-fixup-fix-2.patch
--hot-add-mem-x86_64-valid-add-range-check.patch
-+hot-add-mem-x86_64-use-config_memory_hotplug_reserve-fix.patch
-
- Update memory hotadd patches
-
-+git-cryptodev-s390-fixes.patch
-
- Fix git-cryptodev.patch
-
-+page-migration-replace-radix_tree_lookup_slot-with-radix_tree_lockup.patch
-
- mm hack for an unknown bug.
-
-+apply-type-enum-zone_type-fix.patch
-
- Fix apply-type-enum-zone_type.patch
-
-+mm-remove_mapping-safeness-fix.patch
-
- Fix mm-remove_mapping-safeness.patch
-
-+slab-extract-__kmem_cache_destroy-from-kmem_cache_destroy.patch
-+slab-do-not-panic-when-alloc_kmemlist-fails-and-slab-is-up.patch
-+slab-fix-lockdep-warnings.patch
-+slab-fix-lockdep-warnings-fix.patch
-+slab-fix-lockdep-warnings-fix-2.patch
-+add-__gfp_thisnode-to-avoid-fallback-to-other-nodes-and-ignore.patch
-+add-__gfp_thisnode-to-avoid-fallback-to-other-nodes-and-ignore-fix.patch
-+sys_move_pages-do-not-fall-back-to-other-nodes.patch
-+guarantee-that-the-uncached-allocator-gets-pages-on-the-correct.patch
-+cleanup-add-zone-pointer-to-get_page_from_freelist.patch
-+profiling-require-buffer-allocation-on-the-correct-node.patch
-+define-easier-to-handle-gfp_thisnode.patch
-+fix-potential-stack-overflow-in-mm-slabc.patch
-+standardize-pxx_page-macros.patch
-
- Memory management updates
-
-+tiacx-sparse-cleanups.patch
-
- wireless driver cleanups
-
-+selinux-enable-configuration-of-max-policy-version.patch
-+selinux-add-support-for-range-transitions-on-object.patch
-
- SELinux updates
-
-+avr32-switch-to-generic-timekeeping-framework.patch
-
- avr32 update
-
-+sh-fix-fpn_start-typo.patch
-
- SUperH fix
-
-+split-i386-and-x86_64-ptraceh.patch
-+uml-use-ptrace-abih-instead-of-ptraceh.patch
-+x86-allow-a-kernel-to-not-be-in-ring-0-tidy.patch
-+voyager-tty-locking.patch
-+i386-kill-references-to-xtime.patch
-
- x86 updates
-
-+clean-up-suspend-header.patch
-+change-the-name-of-pagedir_nosave.patch
-+swsusp-introduce-some-helpful-constants.patch
-+swsusp-introduce-memory-bitmaps.patch
-+swsusp-use-memory-bitmaps-during-resume.patch
-
- swsusp updates
-
-+uml-move-signal-handlers-to-arch-code-fix.patch
-
- Fix uml-move-signal-handlers-to-arch-code.patch
-
-+uml-clean-our-set_ether_mac.patch
-+uml-stack-usage-reduction.patch
-+uml-use-mcmodel=kernel-for-x86_64.patch
-+uml-fix-proc-vs-interrupt-context-spinlock-deadlock.patch
-
- UML updates
-
-+fix-kerneldoc-comments-in-kernel-timerc-fix.patch
-
- Fix fix-kerneldoc-comments-in-kernel-timerc.patch
-
-+apple-motion-sensor-driver-kconfig-fix.patch
-
- Fix apple-motion-sensor-driver-2.patch some more
-
--fix-bounds-check-bug-in-__register_chrdev_region.patch
-
- Dropped
-
-+unwind-fix-unused-variable-warning-when.patch
-+reiserfs-ifdef-xattr_sem.patch
-+reiserfs-ifdef-acl-stuff-from-inode.patch
-+fsh-ifdef-security-fields.patch
-+oprofile-ppro-need-to-enable-disable-all-the-counters.patch
-+add-o-flush-for-fat.patch
-+tty-locking-on-resize.patch
-+kthread-convert-arch-i386-kernel-apmc.patch
-+fix-unserialized-task-files-changing.patch
-+fix-unserialized-task-files-changing-fix.patch
-+pidspace-is_init.patch
-+simplify-update_times-avoid-jiffies-jiffies_64-aliasing-problem.patch
-+chardev-checking-of-overlapping-ranges.patch
-+ahci-ati-sb600-sata-support-for-various-modes.patch
-+atiixp-ati-sb600-ide-support-for-various-modes.patch
-+lockdep-print-kernel-version.patch
-+memory-ordering-in-__kfifo-primitives.patch
-+small-update-to-credits.patch
-+fix-wrong-error-code-on-interrupted-close-syscalls.patch
-+remove-another-configh.patch
-+fix-up-lockdep-trace-in-fs-execc.patch
-+make-ledsh-include-relevant-headers.patch
-+config_pm=n-slim-drivers-parport-parport_serialc.patch
-+config_pm=n-slim-sound-oss-tridentc.patch
-+config_pm=n-slim-sound-oss-cs46xxc.patch
-+ext3-and-jbd-cleanup-remove-whitespace.patch
-+posix-timers-fix-clock_nanosleep-doesnt-return-the-remaining-time-in-compatibility-mode.patch
-+posix-timers-fix-the-flags-handling-in-posix_cpu_nsleep.patch
-
- Misc patches
-
-+ntp-move-all-the-ntp-related-code-to-ntpc.patch
-+ntp-move-all-the-ntp-related-code-to-ntpc-fix.patch
-+ntp-add-ntp_update_frequency.patch
-+ntp-add-time_adj-to-tick-length.patch
-+ntp-add-time_freq-to-tick-length.patch
-+ntp-prescale-time_offset.patch
-+ntp-add-time_adjust-to-tick-length.patch
-+ntp-remove-time_tolerance.patch
-+ntp-convert-time_freq-to-nsec-value.patch
-+ntp-convert-to-the-ntp4-reference-model.patch
-+ntp-cleanup-defines-and-comments.patch
-
- NTP updates
-
-+csa-basic-accounting-over-taskstats-fix.patch
-
- Fix csa-basic-accounting-over-taskstats.patch
-
-+csa-accounting-taskstats-update.patch
-
- Update CSA patches
-
-+reiserfs-make-sure-all-dentries-refs-are-released-before-calling-kill_block_super-try-2.patch
-
- Fix reiserfs for the fs-cache patches
-
-+fs-cache-make-kafs-use-fs-cache-fix.patch
-
- Fix fs-cache-make-kafs-use-fs-cache.patch
-
-+fs-cache-cachefiles-a-cache-that-backs-onto-a-mounted-filesystem-cachefiles-printk-format-warning.patch
-
- Fix fs-cache-cachefiles-a-cache-that-backs-onto-a-mounted-filesystem.patch
-
-+r-o-bind-mount-prepare-for-write-access-checks-collapse-if.patch
-+r-o-bind-mount-prepwork-move-open_nameis-vfs_create.patch
-+r-o-bind-mount-unlink-monitor-i_nlink.patch
-+r-o-bind-mount-prepwork-inc_nlink-helper.patch
-+r-o-bind-mount-clean-up-ocfs2-nlink-handling.patch
-+r-o-bind-mount-monitor-zeroing-of-i_nlink.patch
-
- read-only bind mounts
-
-+thinkpad_ec-new-driver-for-thinkpad-embedded-controller-access.patch
-+hdaps-use-thinkpad_ec-instead-of-direct-port-access.patch
-+hdaps-unify-and-cache-hdaps-readouts.patch
-+hdaps-correct-readout-and-remove-nonsensical-attributes.patch
-+hdaps-remember-keyboard-and-mouse-activity.patch
-+hdaps-limit-hardware-query-rate.patch
-+hdaps-delay-calibration-to-first-hardware-query.patch
-+hdaps-add-explicit-hardware-configuration-functions.patch
-+hdaps-add-new-sysfs-attributes.patch
-+hdaps-power-off-accelerometer-on-suspend-and-unload.patch
-+hdaps-stop-polling-timer-when-suspended.patch
-+hdaps-simplify-whitelist.patch
-
- HDAPS driver updates
-
-+generic-ioremap_page_range-implementation.patch
-+generic-ioremap_page_range-flush_cache_vmap.patch
-+generic-ioremap_page_range-alpha-conversion.patch
-+generic-ioremap_page_range-arm-conversion.patch
-+generic-ioremap_page_range-avr32-conversion.patch
-+generic-ioremap_page_range-cris-conversion.patch
-+generic-ioremap_page_range-i386-conversion.patch
-+generic-ioremap_page_range-m32r-conversion.patch
-+generic-ioremap_page_range-mips-conversion.patch
-+generic-ioremap_page_range-parisc-conversion.patch
-+generic-ioremap_page_range-s390-conversion.patch
-+generic-ioremap_page_range-sh-conversion.patch
-+generic-ioremap_page_range-sh64-conversion.patch
-+generic-ioremap_page_range-x86_64-conversion.patch
-
- Code consolidation
-
-+paravirt-remove-read-hazard-from-cow.patch
-+paravirt-pte-clear-not-present.patch
-+paravirt-lazy-mmu-mode-hooks.patch
-+paravirt-combine-flush-accessed-dirty.patch
-+paravirt-kpte-flush.patch
-+paravirt-optimize-ptep-establish-for-pae.patch
-+paravirt-remove-set-pte-atomic.patch
-+paravirt-pae-compile-fix.patch
-+paravirt-update-pte-hook.patch
-
- Virtualisation preparatory stuff
-
-+isdn-work-around-excessive-udelay.patch
-
- ISDN is doing gross things.
-
-+knfsd-make-rpc-threads-pools-numa-aware-fix.patch
-
- Fix knfsd-make-rpc-threads-pools-numa-aware.patch
-
--revert-knfsd-make-rpc-threads-pools-numa-aware.patch
-
- Unneeded
-
-+lower-migration-thread-stop-machine-prio.patch
-
- sched tweak
-
-+ecryptfs-fs-makefile-and-fs-kconfig-kconfig-help-update.patch
-+ecryptfs-graceful-handling-of-mount-error.patch
-+ecryptfs-associate-vfsmount-with-dentry-rather-than-superblock.patch
-
- ecryptfs updates
-
-+namespaces-utsname-use-init_utsname-when-appropriate-gmidi.patch
-+namespaces-utsname-use-init_utsname-when-appropriate-print_kernel_version.patch
-
- People keep on using system_utsname.
-
-+readahead-call-scheme-fix.patch
-
- Fix readahead-call-scheme.patch
-
-+reiser4-rename-generic_sounding_globalspatch.patch
-+reiser4-rename-generic_sounding_globalspatch-fix.patch
-
- reiser4 update
-
-+add-full-compact-flash-support-to-libata.patch
-+config_pm=n-slim-drivers-ide-pci-sc1200c.patch
-
- IDE things
-
- fbcon-use-persistent-allocation-for-cursor-blinking.patch
-+fbcon-remove-cursor-timer-if-unused.patch
-+vt-honor-the-return-value-of-device_create_file.patch
-+fbdev-honor-the-return-value-of-device_create_file.patch
-+fbcon-honor-the-return-value-of-device_create_file.patch
-+atyfb-honor-the-return-value-of-pci_register_driver.patch
-+matroxfb-honor-the-return-value-of-pci_register_driver.patch
-+nvidiafb-honor-the-return-value-of-pci_enable_device.patch
-+i810fb-honor-the-return-value-of-pci_enable_device.patch
-+drivers-video-sis-init301h-removal-of-old.patch
-+drivers-video-sis-initextlfbc-removal-of.patch
-+drivers-video-sis-inith-removal-of-old-code.patch
-+drivers-video-sis-osdefh-removal-of-old-code.patch
-+drivers-video-sis-sis_accelc-removal-of-old.patch
-+drivers-video-sis-sis_accelh-removal-of-old.patch
-+drivers-video-sis-sis_mainc-removal-of-old.patch
-+drivers-video-sis-sis_mainh-removal-of-old.patch
-+drivers-video-sis-vgatypesh-removal-of-old.patch
-
- fbdev updates
-
-+fs-jffs2-jffs2_fs_ih-removal-of-old-code.patch
-
- jffs2 cleanup
-
-+add-srcu-based-notifier-chains-cleanup.patch
-
- Tidy add-srcu-based-notifier-chains.patch
-
-+kill-include-linux-configh.patch
-
- Remove config.h inclusions
-
-+input_register_device-debug.patch
-+put_bh-debug.patch
-
- debugging patches.
-
-
-
-
-All 1382 patches:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/patch-list
-
+julioarr@fisica.uh.cu wrote:
+> > On 8/11/06, julioarr@fisica.uh.cu <julioarr@fisica.uh.cu> wrote:
+>> >> Forget that. The patch worked correctly. But I have a doubt. In debian
+>> >> when I run lsmod.  Why 0 instead of 8 in "Used by" field? In Fedora is 8
+>> >> (8 ports?), but in debian it is 0 ??.
+> >
+> > It means there are 8 references to the module, not how many ports are
+> > there. Don't bother with that.
+> >
+>> >> after making all the steps of the previous mail, mxser appears in
+>> >> /proc/devices with 174, after reboot, ttyM appears with 174.
+> >
+> > Well, when mxser was in /proc/devices (=patched version was loaded),
+> > did the driver work?
+> yes, thank you man, the driver works well.
+
+Ok, the patch is OK and hopefully works. 
+
+BTW. don't you want to become a proposed tester -- in kernel there would be a
+"TESTING" file with drivers and tester's names to know who was and is willing
+to test these concrete drivers.
+
+Here it comes:
+
+mxser, upgrade to 1.9.1
+
+Change driver according to original 1.9.1 moxa driver. Some int->ulong
+conversions, outb ~UART_IER_THRI constant. Remove commented stuff.
+
+I also added printk line with info, if somebody wants to test it, he should
+contact me as I can potentially debug the driver with him or just to confirm
+it works properly.
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+
+---
+commit 817ebea29606c3cd98c4075aee126ea42d30dcba
+tree 45e6382f7b9727e8b0c130fd10cd01cf5b96f63d
+parent 5e05396307295bf0948908c1e0b12eed92b62814
+author Jiri Slaby <ku@bellona.localdomain> Sat, 05 Aug 2006 11:38:28 +0159
+committer Jiri Slaby <ku@bellona.localdomain> Sat, 05 Aug 2006 11:38:28 +0159
+
+ drivers/char/mxser.c    |  396 +++++++++++++++++++++++------------------------
+ include/linux/pci_ids.h |    3 
+ 2 files changed, 195 insertions(+), 204 deletions(-)
+
+diff --git a/drivers/char/mxser.c b/drivers/char/mxser.c
+index 556abd3..cd5b0d2 100644
+--- a/drivers/char/mxser.c
++++ b/drivers/char/mxser.c
+@@ -1,7 +1,7 @@
+ /*
+  *          mxser.c  -- MOXA Smartio/Industio family multiport serial driver.
+  *
+- *      Copyright (C) 1999-2001  Moxa Technologies (support@moxa.com.tw).
++ *      Copyright (C) 1999-2006  Moxa Technologies (support@moxa.com.tw).
+  *
+  *      This code is loosely based on the Linux serial driver, written by
+  *      Linus Torvalds, Theodore T'so and others.
+@@ -20,15 +20,6 @@
+  *      along with this program; if not, write to the Free Software
+  *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *	Original release	10/26/00
+- *
+- *	02/06/01	Support MOXA Industio family boards.
+- *	02/06/01	Support TIOCGICOUNT.
+- *	02/06/01	Fix the problem for connecting to serial mouse.
+- *	02/06/01	Fix the problem for H/W flow control.
+- *	02/06/01	Fix the compling warning when CONFIG_PCI
+- *			don't be defined.
+- *
+  *	Fed through a cleanup, indent and remove of non 2.6 code by Alan Cox
+  *	<alan@redhat.com>. The original 1.8 code is available on www.moxa.com.
+  *	- Fixed x86_64 cleanness
+@@ -66,7 +57,7 @@ #include <asm/uaccess.h>
+ 
+ #include "mxser.h"
+ 
+-#define	MXSER_VERSION	"1.8"
++#define	MXSER_VERSION	"1.9.1"
+ #define	MXSERMAJOR	 174
+ #define	MXSERCUMAJOR	 175
+ 
+@@ -76,7 +67,7 @@ #define	MXSER_EVENT_HANGUP	2
+ #define MXSER_BOARDS		4	/* Max. boards */
+ #define MXSER_PORTS		32	/* Max. ports */
+ #define MXSER_PORTS_PER_BOARD	8	/* Max. ports per board */
+-#define MXSER_ISR_PASS_LIMIT	256
++#define MXSER_ISR_PASS_LIMIT	99999L
+ 
+ #define	MXSER_ERR_IOADDR	-1
+ #define	MXSER_ERR_IRQ		-2
+@@ -125,6 +116,9 @@ enum {
+ 	MXSER_BOARD_CP118U,
+ 	MXSER_BOARD_CP102UL,
+ 	MXSER_BOARD_CP102U,
++	MXSER_BOARD_CP118EL,
++	MXSER_BOARD_CP168EL,
++	MXSER_BOARD_CP104EL
+ };
+ 
+ static char *mxser_brdname[] = {
+@@ -149,6 +143,9 @@ static char *mxser_brdname[] = {
+ 	"CP-118U series",
+ 	"CP-102UL series",
+ 	"CP-102U series",
++	"CP-118EL series",
++	"CP-168EL series",
++	"CP-104EL series"
+ };
+ 
+ static int mxser_numports[] = {
+@@ -173,6 +170,9 @@ static int mxser_numports[] = {
+ 	8,			/* CP118U */
+ 	2,			/* CP102UL */
+ 	2,			/* CP102U */
++	8,			/* CP118EL */
++	8,			/* CP168EL */
++	4			/* CP104EL */
+ };
+ 
+ #define UART_TYPE_NUM	2
+@@ -205,22 +205,43 @@ static const struct mxpciuart_info Gpci_
+ #ifdef CONFIG_PCI
+ 
+ static struct pci_device_id mxser_pcibrds[] = {
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_C168, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_C168_PCI},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_C104, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_C104_PCI},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP132, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP132},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP114, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP114},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CT114, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CT114},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP102, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP102},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP104U, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP104U},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP168U, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP168U},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP132U, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP132U},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP134U, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP134U},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP104JU, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP104JU},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_RC7000, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_RC7000},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP118U, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP118U},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP102UL, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP102UL},
+-	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP102U, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MXSER_BOARD_CP102U},
+-	{0}
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_C168),
++		.driver_data = MXSER_BOARD_C168_PCI },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_C104),
++		.driver_data = MXSER_BOARD_C104_PCI },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP132),
++		.driver_data = MXSER_BOARD_CP132 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP114),
++		.driver_data = MXSER_BOARD_CP114 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CT114),
++		.driver_data = MXSER_BOARD_CT114 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP102),
++		.driver_data = MXSER_BOARD_CP102 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP104U),
++		.driver_data = MXSER_BOARD_CP104U },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP168U),
++		.driver_data = MXSER_BOARD_CP168U },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP132U),
++		.driver_data = MXSER_BOARD_CP132U },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP134U),
++		.driver_data = MXSER_BOARD_CP134U },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP104JU),
++		.driver_data = MXSER_BOARD_CP104JU },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_RC7000),
++		.driver_data = MXSER_BOARD_RC7000 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP118U),
++		.driver_data = MXSER_BOARD_CP118U },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP102UL),
++		.driver_data = MXSER_BOARD_CP102UL },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP102U),
++		.driver_data = MXSER_BOARD_CP102U },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP118EL),
++		.driver_data = MXSER_BOARD_CP118EL },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP168EL),
++		.driver_data = MXSER_BOARD_CP168EL },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_MOXA_CP104EL),
++		.driver_data = MXSER_BOARD_CP104EL },
++	{ }
+ };
+ 
+ MODULE_DEVICE_TABLE(pci, mxser_pcibrds);
+@@ -245,7 +266,6 @@ MODULE_AUTHOR("Casper Yang");
+ MODULE_DESCRIPTION("MOXA Smartio/Industio Family Multiport Board Device Driver");
+ module_param_array(ioaddr, int, NULL, 0);
+ module_param(ttymajor, int, 0);
+-module_param(calloutmajor, int, 0);
+ module_param(verbose, bool, 0);
+ MODULE_LICENSE("GPL");
+ 
+@@ -285,23 +305,23 @@ struct mxser_hwconf {
+ 	int board_type;
+ 	int ports;
+ 	int irq;
+-	int vector;
+-	int vector_mask;
++	unsigned long vector;
++	unsigned long vector_mask;
+ 	int uart_type;
+-	int ioaddr[MXSER_PORTS_PER_BOARD];
++	unsigned long ioaddr[MXSER_PORTS_PER_BOARD];
+ 	int baud_base[MXSER_PORTS_PER_BOARD];
+ 	moxa_pci_info pciInfo;
+ 	int IsMoxaMustChipFlag;	/* add by Victor Yu. 08-30-2002 */
+ 	int MaxCanSetBaudRate[MXSER_PORTS_PER_BOARD];	/* add by Victor Yu. 09-04-2002 */
+-	int opmode_ioaddr[MXSER_PORTS_PER_BOARD];	/* add by Victor Yu. 01-05-2004 */
++	unsigned long opmode_ioaddr[MXSER_PORTS_PER_BOARD];	/* add by Victor Yu. 01-05-2004 */
+ };
+ 
+ struct mxser_struct {
+ 	int port;
+-	int base;		/* port base address */
++	unsigned long base;	/* port base address */
+ 	int irq;		/* port using irq no. */
+-	int vector;		/* port irq vector */
+-	int vectormask;		/* port vector mask */
++	unsigned long vector;	/* port irq vector */
++	unsigned long vectormask;	/* port vector mask */
+ 	int rx_high_water;
+ 	int rx_trigger;		/* Rx fifo trigger level */
+ 	int rx_low_water;
+@@ -337,7 +357,7 @@ struct mxser_struct {
+ 	int timeout;
+ 	int IsMoxaMustChipFlag;	/* add by Victor Yu. 08-30-2002 */
+ 	int MaxCanSetBaudRate;	/* add by Victor Yu. 09-04-2002 */
+-	int opmode_ioaddr;	/* add by Victor Yu. 01-05-2004 */
++	unsigned long opmode_ioaddr;	/* add by Victor Yu. 01-05-2004 */
+ 	unsigned char stop_rx;
+ 	unsigned char ldisc_stop_rx;
+ 	long realbaud;
+@@ -485,6 +505,9 @@ static int __init mxser_module_init(void
+ 
+ 	if (verbose)
+ 		printk(KERN_DEBUG "Loading module mxser ...\n");
++	printk(KERN_INFO "This is mxser driver version 1.9.1 and needs TESTING."
++		"If your are willing to test this driver, please report to "
++		"jirislaby@gmail.com. Thanks.\n");
+ 	ret = mxser_init();
+ 	if (verbose)
+ 		printk(KERN_DEBUG "Done.\n");
+@@ -635,7 +658,7 @@ static int mxser_get_PCI_conf(int busnum
+ {
+ 	int i, j;
+ 	/* unsigned int val; */
+-	unsigned int ioaddress;
++	unsigned long ioaddress;
+ 	struct pci_dev *pdev = hwconf->pciInfo.pdev;
+ 
+ 	/* io address */
+@@ -789,7 +812,7 @@ static int mxser_init(void)
+ 
+ 	/* Start finding ISA boards from module arg */
+ 	for (b = 0; b < MXSER_BOARDS && m < MXSER_BOARDS; b++) {
+-		int cap;
++		unsigned long cap;
+ 
+ 		if (!(cap = ioaddr[b]))
+ 			continue;
+@@ -924,12 +947,10 @@ static void mxser_do_softint(void *priva
+ 
+ 	tty = info->tty;
+ 
+-	if (tty) {
+-		if (test_and_clear_bit(MXSER_EVENT_TXLOW, &info->event))
+-			tty_wakeup(tty);
+-		if (test_and_clear_bit(MXSER_EVENT_HANGUP, &info->event))
+-			tty_hangup(tty);
+-	}
++	if (test_and_clear_bit(MXSER_EVENT_TXLOW, &info->event))
++		tty_wakeup(tty);
++	if (test_and_clear_bit(MXSER_EVENT_HANGUP, &info->event))
++		tty_hangup(tty);
+ }
+ 
+ static unsigned char mxser_get_msr(int baseaddr, int mode, int port, struct mxser_struct *info)
+@@ -975,6 +996,7 @@ static int mxser_open(struct tty_struct 
+ 	/*
+ 	 * Start up serial port
+ 	 */
++	info->count++;
+ 	retval = mxser_startup(info);
+ 	if (retval)
+ 		return retval;
+@@ -983,8 +1005,6 @@ static int mxser_open(struct tty_struct 
+ 	if (retval)
+ 		return retval;
+ 
+-	info->count++;
+-
+ 	if ((info->count == 1) && (info->flags & ASYNC_SPLIT_TERMIOS)) {
+ 		if (tty->driver->subtype == SERIAL_TYPE_NORMAL)
+ 			*tty->termios = info->normal_termios;
+@@ -1146,11 +1166,13 @@ static int mxser_write(struct tty_struct
+ 		total += c;
+ 	}
+ 
+-	if (info->xmit_cnt && !tty->stopped && !(info->IER & UART_IER_THRI)) {
++	if (info->xmit_cnt && !tty->stopped
++			/*&& !(info->IER & UART_IER_THRI)*/) {
+ 		if (!tty->hw_stopped ||
+ 				(info->type == PORT_16550A) ||
+ 				(info->IsMoxaMustChipFlag)) {
+ 			spin_lock_irqsave(&info->slock, flags);
++			outb(info->IER & ~UART_IER_THRI, info->base + UART_IER);
+ 			info->IER |= UART_IER_THRI;
+ 			outb(info->IER, info->base + UART_IER);
+ 			spin_unlock_irqrestore(&info->slock, flags);
+@@ -1175,11 +1197,12 @@ static void mxser_put_char(struct tty_st
+ 	info->xmit_head &= SERIAL_XMIT_SIZE - 1;
+ 	info->xmit_cnt++;
+ 	spin_unlock_irqrestore(&info->slock, flags);
+-	if (!tty->stopped && !(info->IER & UART_IER_THRI)) {
++	if (!tty->stopped /*&& !(info->IER & UART_IER_THRI)*/) {
+ 		if (!tty->hw_stopped ||
+ 				(info->type == PORT_16550A) ||
+ 				info->IsMoxaMustChipFlag) {
+ 			spin_lock_irqsave(&info->slock, flags);
++			outb(info->IER & ~UART_IER_THRI, info->base + UART_IER);
+ 			info->IER |= UART_IER_THRI;
+ 			outb(info->IER, info->base + UART_IER);
+ 			spin_unlock_irqrestore(&info->slock, flags);
+@@ -1204,6 +1227,7 @@ static void mxser_flush_chars(struct tty
+ 
+ 	spin_lock_irqsave(&info->slock, flags);
+ 
++	outb(info->IER & ~UART_IER_THRI, info->base + UART_IER);
+ 	info->IER |= UART_IER_THRI;
+ 	outb(info->IER, info->base + UART_IER);
+ 
+@@ -1224,7 +1248,12 @@ static int mxser_write_room(struct tty_s
+ static int mxser_chars_in_buffer(struct tty_struct *tty)
+ {
+ 	struct mxser_struct *info = tty->driver_data;
+-	return info->xmit_cnt;
++	int len = info->xmit_cnt;
++
++	if (!(inb(info->base + UART_LSR) & UART_LSR_THRE))
++		len++;
++
++	return len;
+ }
+ 
+ static void mxser_flush_buffer(struct tty_struct *tty)
+@@ -1266,7 +1295,8 @@ static int mxser_ioctl(struct tty_struct
+ 
+ 	/* following add by Victor Yu. 01-05-2004 */
+ 	if (cmd == MOXA_SET_OP_MODE || cmd == MOXA_GET_OP_MODE) {
+-		int opmode, p;
++		int p;
++		unsigned long opmode;
+ 		static unsigned char ModeMask[] = { 0xfc, 0xf3, 0xcf, 0x3f };
+ 		int shiftbit;
+ 		unsigned char val, mask;
+@@ -1568,9 +1598,8 @@ static int mxser_ioctl_special(unsigned 
+ 			return -EFAULT;
+ 		return 0;
+ 	case MOXA_ASPP_MON_EXT: {
+-			int status;
+-			int opmode, p;
+-			int shiftbit;
++			int status, p, shiftbit;
++			unsigned long opmode;
+ 			unsigned cflag, iflag;
+ 
+ 			for (i = 0; i < MXSER_PORTS; i++) {
+@@ -1650,73 +1679,52 @@ static int mxser_ioctl_special(unsigned 
+ static void mxser_stoprx(struct tty_struct *tty)
+ {
+ 	struct mxser_struct *info = tty->driver_data;
+-	/* unsigned long flags; */
+ 
+ 	info->ldisc_stop_rx = 1;
+ 	if (I_IXOFF(tty)) {
+-		/* MX_LOCK(&info->slock); */
+ 		/* following add by Victor Yu. 09-02-2002 */
+ 		if (info->IsMoxaMustChipFlag) {
+ 			info->IER &= ~MOXA_MUST_RECV_ISR;
+ 			outb(info->IER, info->base + UART_IER);
+-		} else {
+-			/* above add by Victor Yu. 09-02-2002 */
++		} else if (!(info->flags & ASYNC_CLOSING)) {
+ 			info->x_char = STOP_CHAR(tty);
+-			/* mask by Victor Yu. 09-02-2002 */
+-			/* outb(info->IER, 0); */
+ 			outb(0, info->base + UART_IER);
+ 			info->IER |= UART_IER_THRI;
+-			/* force Tx interrupt */
+ 			outb(info->IER, info->base + UART_IER);
+-		}		/* add by Victor Yu. 09-02-2002 */
+-		/* MX_UNLOCK(&info->slock); */
++		}
+ 	}
+ 
+ 	if (info->tty->termios->c_cflag & CRTSCTS) {
+-		/* MX_LOCK(&info->slock); */
+ 		info->MCR &= ~UART_MCR_RTS;
+ 		outb(info->MCR, info->base + UART_MCR);
+-		/* MX_UNLOCK(&info->slock); */
+ 	}
+ }
+ 
+ static void mxser_startrx(struct tty_struct *tty)
+ {
+ 	struct mxser_struct *info = tty->driver_data;
+-	/* unsigned long flags; */
+ 
+ 	info->ldisc_stop_rx = 0;
+ 	if (I_IXOFF(tty)) {
+ 		if (info->x_char)
+ 			info->x_char = 0;
+ 		else {
+-			/* MX_LOCK(&info->slock); */
+-
+ 			/* following add by Victor Yu. 09-02-2002 */
+ 			if (info->IsMoxaMustChipFlag) {
+ 				info->IER |= MOXA_MUST_RECV_ISR;
+ 				outb(info->IER, info->base + UART_IER);
+-			} else {
+-				/* above add by Victor Yu. 09-02-2002 */
+-
++			} else if (!(info->flags & ASYNC_CLOSING)) {
+ 				info->x_char = START_CHAR(tty);
+-				/* mask by Victor Yu. 09-02-2002 */
+-				/* outb(info->IER, 0); */
+-				/* add by Victor Yu. 09-02-2002 */
+ 				outb(0, info->base + UART_IER);
+-				/* force Tx interrupt */
+ 				info->IER |= UART_IER_THRI;
+ 				outb(info->IER, info->base + UART_IER);
+-			}	/* add by Victor Yu. 09-02-2002 */
+-			/* MX_UNLOCK(&info->slock); */
++			}
+ 		}
+ 	}
+ 
+ 	if (info->tty->termios->c_cflag & CRTSCTS) {
+-		/* MX_LOCK(&info->slock); */
+ 		info->MCR |= UART_MCR_RTS;
+ 		outb(info->MCR, info->base + UART_MCR);
+-		/* MX_UNLOCK(&info->slock); */
+ 	}
+ }
+ 
+@@ -1726,22 +1734,22 @@ static void mxser_startrx(struct tty_str
+  */
+ static void mxser_throttle(struct tty_struct *tty)
+ {
+-	/* struct mxser_struct *info = tty->driver_data; */
+-	/* unsigned long flags; */
++	struct mxser_struct *info = tty->driver_data;
++	unsigned long flags;
+ 
+-	/* MX_LOCK(&info->slock); */
++	spin_lock_irqsave(&info->slock, flags);
+ 	mxser_stoprx(tty);
+-	/* MX_UNLOCK(&info->slock); */
++	spin_unlock_irqrestore(&info->slock, flags);
+ }
+ 
+ static void mxser_unthrottle(struct tty_struct *tty)
+ {
+-	/* struct mxser_struct *info = tty->driver_data; */
+-	/* unsigned long flags; */
++	struct mxser_struct *info = tty->driver_data;
++	unsigned long flags;
+ 
+-	/* MX_LOCK(&info->slock); */
++	spin_lock_irqsave(&info->slock, flags);
+ 	mxser_startrx(tty);
+-	/* MX_UNLOCK(&info->slock); */
++	spin_unlock_irqrestore(&info->slock, flags);
+ }
+ 
+ static void mxser_set_termios(struct tty_struct *tty, struct termios *old_termios)
+@@ -1803,7 +1811,9 @@ static void mxser_start(struct tty_struc
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->slock, flags);
+-	if (info->xmit_cnt && info->xmit_buf && !(info->IER & UART_IER_THRI)) {
++	if (info->xmit_cnt && info->xmit_buf
++			/* && !(info->IER & UART_IER_THRI) */) {
++		outb(info->IER & ~UART_IER_THRI, info->base + UART_IER);
+ 		info->IER |= UART_IER_THRI;
+ 		outb(info->IER, info->base + UART_IER);
+ 	}
+@@ -1923,6 +1933,7 @@ static irqreturn_t mxser_interrupt(int i
+ 	struct mxser_struct *port;
+ 	int max, irqbits, bits, msr;
+ 	int pass_counter = 0;
++	unsigned int int_cnt;
+ 	int handled = IRQ_NONE;
+ 
+ 	port = NULL;
+@@ -1953,90 +1964,77 @@ static irqreturn_t mxser_interrupt(int i
+ 				continue;
+ 			info = port + i;
+ 
+-			/* following add by Victor Yu. 09-13-2002 */
+-			iir = inb(info->base + UART_IIR);
+-			if (iir & UART_IIR_NO_INT)
+-				continue;
+-			iir &= MOXA_MUST_IIR_MASK;
+-			if (!info->tty) {
+-				status = inb(info->base + UART_LSR);
+-				outb(0x27, info->base + UART_FCR);
+-				inb(info->base + UART_MSR);
+-				continue;
+-			}
+-			/* above add by Victor Yu. 09-13-2002 */
+-			/*
+-			   if (info->tty->flip.count < TTY_FLIPBUF_SIZE / 4) {
+-			   info->IER |= MOXA_MUST_RECV_ISR;
+-			   outb(info->IER, info->base + UART_IER);
+-			   }
+-			 */
+-
+-
+-			/* mask by Victor Yu. 09-13-2002
+-			   if ( !info->tty ||
+-			   (inb(info->base + UART_IIR) & UART_IIR_NO_INT) )
+-			   continue;
+-			 */
+-			/* mask by Victor Yu. 09-02-2002
+-			   status = inb(info->base + UART_LSR) & info->read_status_mask;
+-			 */
+-
+-			/* following add by Victor Yu. 09-02-2002 */
+-			status = inb(info->base + UART_LSR);
++			int_cnt = 0;
++			do {
++				/* following add by Victor Yu. 09-13-2002 */
++				iir = inb(info->base + UART_IIR);
++				if (iir & UART_IIR_NO_INT)
++					break;
++				iir &= MOXA_MUST_IIR_MASK;
++				if (!info->tty) {
++					status = inb(info->base + UART_LSR);
++					outb(0x27, info->base + UART_FCR);
++					inb(info->base + UART_MSR);
++					break;
++				}
++				/* above add by Victor Yu. 09-13-2002 */
+ 
+-			if (status & UART_LSR_PE)
+-				info->err_shadow |= NPPI_NOTIFY_PARITY;
+-			if (status & UART_LSR_FE)
+-				info->err_shadow |= NPPI_NOTIFY_FRAMING;
+-			if (status & UART_LSR_OE)
+-				info->err_shadow |= NPPI_NOTIFY_HW_OVERRUN;
+-			if (status & UART_LSR_BI)
+-				info->err_shadow |= NPPI_NOTIFY_BREAK;
++				spin_lock(&info->slock);
++				/* following add by Victor Yu. 09-02-2002 */
++				status = inb(info->base + UART_LSR);
+ 
+-			if (info->IsMoxaMustChipFlag) {
+-				/*
+-				   if ( (status & 0x02) && !(status & 0x01) ) {
+-				   outb(info->base+UART_FCR,  0x23);
+-				   continue;
+-				   }
+-				 */
+-				if (iir == MOXA_MUST_IIR_GDA ||
+-						iir == MOXA_MUST_IIR_RDA ||
+-						iir == MOXA_MUST_IIR_RTO ||
+-						iir == MOXA_MUST_IIR_LSR)
+-					mxser_receive_chars(info, &status);
++				if (status & UART_LSR_PE)
++					info->err_shadow |= NPPI_NOTIFY_PARITY;
++				if (status & UART_LSR_FE)
++					info->err_shadow |= NPPI_NOTIFY_FRAMING;
++				if (status & UART_LSR_OE)
++					info->err_shadow |=
++						NPPI_NOTIFY_HW_OVERRUN;
++				if (status & UART_LSR_BI)
++					info->err_shadow |= NPPI_NOTIFY_BREAK;
++
++				if (info->IsMoxaMustChipFlag) {
++					/*
++					   if ( (status & 0x02) && !(status & 0x01) ) {
++					   outb(info->base+UART_FCR,  0x23);
++					   continue;
++					   }
++					 */
++					if (iir == MOXA_MUST_IIR_GDA ||
++					    iir == MOXA_MUST_IIR_RDA ||
++					    iir == MOXA_MUST_IIR_RTO ||
++					    iir == MOXA_MUST_IIR_LSR)
++						mxser_receive_chars(info,
++								&status);
+ 
+-			} else {
+-				/* above add by Victor Yu. 09-02-2002 */
++				} else {
++					/* above add by Victor Yu. 09-02-2002 */
+ 
+-				status &= info->read_status_mask;
+-				if (status & UART_LSR_DR)
+-					mxser_receive_chars(info, &status);
+-			}
+-			msr = inb(info->base + UART_MSR);
+-			if (msr & UART_MSR_ANY_DELTA) {
+-				mxser_check_modem_status(info, msr);
+-			}
+-			/* following add by Victor Yu. 09-13-2002 */
+-			if (info->IsMoxaMustChipFlag) {
+-				if ((iir == 0x02) && (status & UART_LSR_THRE)) {
+-					mxser_transmit_chars(info);
++					status &= info->read_status_mask;
++					if (status & UART_LSR_DR)
++						mxser_receive_chars(info,
++								&status);
+ 				}
+-			} else {
+-				/* above add by Victor Yu. 09-13-2002 */
++				msr = inb(info->base + UART_MSR);
++				if (msr & UART_MSR_ANY_DELTA)
++					mxser_check_modem_status(info, msr);
++
++				/* following add by Victor Yu. 09-13-2002 */
++				if (info->IsMoxaMustChipFlag) {
++					if (iir == 0x02 && (status &
++								UART_LSR_THRE))
++						mxser_transmit_chars(info);
++				} else {
++					/* above add by Victor Yu. 09-13-2002 */
+ 
+-				if (status & UART_LSR_THRE) {
+-/* 8-2-99 by William
+-			    if ( info->x_char || (info->xmit_cnt > 0) )
+-*/
+-					mxser_transmit_chars(info);
++					if (status & UART_LSR_THRE)
++						mxser_transmit_chars(info);
+ 				}
+-			}
++				spin_unlock(&info->slock);
++			} while (int_cnt++ < MXSER_ISR_PASS_LIMIT);
+ 		}
+-		if (pass_counter++ > MXSER_ISR_PASS_LIMIT) {
++		if (pass_counter++ > MXSER_ISR_PASS_LIMIT)
+ 			break;	/* Prevent infinite loops */
+-		}
+ 	}
+ 
+       irq_stop:
+@@ -2066,9 +2064,8 @@ static void mxser_receive_chars(struct m
+ 	/* following add by Victor Yu. 09-02-2002 */
+ 	if (info->IsMoxaMustChipFlag != MOXA_OTHER_UART) {
+ 
+-		if (*status & UART_LSR_SPECIAL) {
++		if (*status & UART_LSR_SPECIAL)
+ 			goto intr_old;
+-		}
+ 		/* following add by Victor Yu. 02-11-2004 */
+ 		if (info->IsMoxaMustChipFlag == MOXA_MUST_MU860_HWID &&
+ 				(*status & MOXA_MUST_LSR_RERR))
+@@ -2093,12 +2090,6 @@ static void mxser_receive_chars(struct m
+ 			ch = inb(info->base + UART_RX);
+ 			tty_insert_flip_char(tty, ch, 0);
+ 			cnt++;
+-			/*
+-			   if ((cnt >= HI_WATER) && (info->stop_rx == 0)) {
+-			   mxser_stoprx(tty);
+-			   info->stop_rx = 1;
+-			   break;
+-			   } */
+ 		}
+ 		goto end_intr;
+ 	}
+@@ -2108,17 +2099,11 @@ static void mxser_receive_chars(struct m
+ 	do {
+ 		if (max-- < 0)
+ 			break;
+-		/*
+-		   if ((cnt >= HI_WATER) && (info->stop_rx == 0)) {
+-		   mxser_stoprx(tty);
+-		   info->stop_rx=1;
+-		   break;
+-		   }
+-		 */
+ 
+ 		ch = inb(info->base + UART_RX);
+ 		/* following add by Victor Yu. 09-02-2002 */
+-		if (info->IsMoxaMustChipFlag && (*status & UART_LSR_OE) /*&& !(*status&UART_LSR_DR) */ )
++		if (info->IsMoxaMustChipFlag && (*status & UART_LSR_OE)
++				/*&& !(*status&UART_LSR_DR) */)
+ 			outb(0x23, info->base + UART_FCR);
+ 		*status &= info->read_status_mask;
+ 		/* above add by Victor Yu. 09-02-2002 */
+@@ -2132,26 +2117,25 @@ static void mxser_receive_chars(struct m
+ 					flag = TTY_BREAK;
+ /* added by casper 1/11/2000 */
+ 					info->icount.brk++;
+-/* */
++
+ 					if (info->flags & ASYNC_SAK)
+ 						do_SAK(tty);
+ 				} else if (*status & UART_LSR_PE) {
+ 					flag = TTY_PARITY;
+ /* added by casper 1/11/2000 */
+ 					info->icount.parity++;
+-/* */
+ 				} else if (*status & UART_LSR_FE) {
+ 					flag = TTY_FRAME;
+ /* added by casper 1/11/2000 */
+ 					info->icount.frame++;
+-/* */
+ 				} else if (*status & UART_LSR_OE) {
+ 					flag = TTY_OVERRUN;
+ /* added by casper 1/11/2000 */
+ 					info->icount.overrun++;
+-/* */
+-				}
+-			}
++				} else
++					flags = TTY_BREAK;
++			} else
++				flags = 0;
+ 			tty_insert_flip_char(tty, ch, flag);
+ 			cnt++;
+ 			if (cnt >= recv_room) {
+@@ -2167,7 +2151,6 @@ static void mxser_receive_chars(struct m
+ 		/* following add by Victor Yu. 09-02-2002 */
+ 		if (info->IsMoxaMustChipFlag)
+ 			break;
+-		/* above add by Victor Yu. 09-02-2002 */
+ 
+ 		/* mask by Victor Yu. 09-02-2002
+ 		 *status = inb(info->base + UART_LSR) & info->read_status_mask;
+@@ -2202,24 +2185,25 @@ static void mxser_transmit_chars(struct 
+ 
+ /* added by casper 1/11/2000 */
+ 		info->icount.tx++;
+-/* */
+-		spin_unlock_irqrestore(&info->slock, flags);
+-		return;
++		goto unlock;
+ 	}
+ 
+-	if (info->xmit_buf == 0) {
+-		spin_unlock_irqrestore(&info->slock, flags);
+-		return;
+-	}
++	if (info->xmit_buf == 0)
++		goto unlock;
+ 
+-	if ((info->xmit_cnt <= 0) || info->tty->stopped ||
+-			(info->tty->hw_stopped &&
++	if (info->xmit_cnt == 0) {
++		if (info->xmit_cnt < WAKEUP_CHARS) { /* XXX what's this for?? */
++			set_bit(MXSER_EVENT_TXLOW, &info->event);
++			schedule_work(&info->tqueue);
++		}
++		goto unlock;
++	}
++	if (info->tty->stopped || (info->tty->hw_stopped &&
+ 			(info->type != PORT_16550A) &&
+ 			(!info->IsMoxaMustChipFlag))) {
+ 		info->IER &= ~UART_IER_THRI;
+ 		outb(info->IER, info->base + UART_IER);
+-		spin_unlock_irqrestore(&info->slock, flags);
+-		return;
++		goto unlock;
+ 	}
+ 
+ 	cnt = info->xmit_cnt;
+@@ -2236,11 +2220,9 @@ static void mxser_transmit_chars(struct 
+ /* added by James 03-12-2004. */
+ 	info->mon_data.txcnt += (cnt - info->xmit_cnt);
+ 	info->mon_data.up_txcnt += (cnt - info->xmit_cnt);
+-/* (above) added by James. */
+ 
+ /* added by casper 1/11/2000 */
+ 	info->icount.tx += (cnt - info->xmit_cnt);
+-/* */
+ 
+ 	if (info->xmit_cnt < WAKEUP_CHARS) {
+ 		set_bit(MXSER_EVENT_TXLOW, &info->event);
+@@ -2250,6 +2232,7 @@ static void mxser_transmit_chars(struct 
+ 		info->IER &= ~UART_IER_THRI;
+ 		outb(info->IER, info->base + UART_IER);
+ 	}
++unlock:
+ 	spin_unlock_irqrestore(&info->slock, flags);
+ }
+ 
+@@ -2280,16 +2263,19 @@ static void mxser_check_modem_status(str
+ 
+ 				if ((info->type != PORT_16550A) &&
+ 						(!info->IsMoxaMustChipFlag)) {
++					outb(info->IER & ~UART_IER_THRI,
++							info->base + UART_IER);
+ 					info->IER |= UART_IER_THRI;
+ 					outb(info->IER, info->base + UART_IER);
+ 				}
+ 				set_bit(MXSER_EVENT_TXLOW, &info->event);
+-				schedule_work(&info->tqueue);			}
++				schedule_work(&info->tqueue);
++			}
+ 		} else {
+ 			if (!(status & UART_MSR_CTS)) {
+ 				info->tty->hw_stopped = 1;
+-				if ((info->type != PORT_16550A) &&
+-						(!info->IsMoxaMustChipFlag)) {
++				if (info->type != PORT_16550A &&
++						!info->IsMoxaMustChipFlag) {
+ 					info->IER &= ~UART_IER_THRI;
+ 					outb(info->IER, info->base + UART_IER);
+ 				}
+@@ -2705,8 +2691,10 @@ #endif
+ 			if (info->tty->hw_stopped) {
+ 				if (status & UART_MSR_CTS) {
+ 					info->tty->hw_stopped = 0;
+-					if ((info->type != PORT_16550A) &&
+-							(!info->IsMoxaMustChipFlag)) {
++					if (info->type != PORT_16550A &&
++							!info->IsMoxaMustChipFlag) {
++						outb(info->IER & ~UART_IER_THRI,
++							info->base + UART_IER);
+ 						info->IER |= UART_IER_THRI;
+ 						outb(info->IER, info->base + UART_IER);
+ 					}
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 90bcd65..cc82399 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -1777,14 +1777,17 @@ #define PCI_DEVICE_ID_MOXA_CP102U	0x1022
+ #define PCI_DEVICE_ID_MOXA_C104		0x1040
+ #define PCI_DEVICE_ID_MOXA_CP104U	0x1041
+ #define PCI_DEVICE_ID_MOXA_CP104JU	0x1042
++#define PCI_DEVICE_ID_MOXA_CP104EL	0x1043
+ #define PCI_DEVICE_ID_MOXA_CT114	0x1140
+ #define PCI_DEVICE_ID_MOXA_CP114	0x1141
+ #define PCI_DEVICE_ID_MOXA_CP118U	0x1180
++#define PCI_DEVICE_ID_MOXA_CP118EL	0x1181
+ #define PCI_DEVICE_ID_MOXA_CP132	0x1320
+ #define PCI_DEVICE_ID_MOXA_CP132U	0x1321
+ #define PCI_DEVICE_ID_MOXA_CP134U	0x1340
+ #define PCI_DEVICE_ID_MOXA_C168		0x1680
+ #define PCI_DEVICE_ID_MOXA_CP168U	0x1681
++#define PCI_DEVICE_ID_MOXA_CP168EL	0x1682
+ 
+ #define PCI_VENDOR_ID_CCD		0x1397
+ #define PCI_DEVICE_ID_CCD_2BD0		0x2bd0

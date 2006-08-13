@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbWHMXuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751730AbWHMXtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751735AbWHMXuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 19:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751737AbWHMXuc
+	id S1751730AbWHMXtO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 19:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWHMXtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 19:50:32 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:18751 "EHLO
-	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1751735AbWHMXub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 19:50:31 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AT0KAIhX30SBUQ
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Florin Malita <fmalita@gmail.com>
-Subject: Re: [PATCH] atkbd.c: overrun in atkbd_set_repeat_rate()
-Date: Sun, 13 Aug 2006 19:50:28 -0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <44DF953B.6010707@gmail.com>
-In-Reply-To: <44DF953B.6010707@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 13 Aug 2006 19:49:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64447
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751730AbWHMXtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 19:49:12 -0400
+Date: Sun, 13 Aug 2006 16:49:34 -0700 (PDT)
+Message-Id: <20060813.164934.00081381.davem@davemloft.net>
+To: phillips@google.com
+Cc: a.p.zijlstra@chello.nl, tgraf@suug.ch, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44DF9817.8070509@google.com>
+References: <1155132440.12225.70.camel@twins>
+	<20060809.165846.107940575.davem@davemloft.net>
+	<44DF9817.8070509@google.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608131950.28720.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 August 2006 17:10, Florin Malita wrote:
-> This was introduced in commit 3d0f0fa0cb554541e10cb8cb84104e4b10828468:
-> bounds checking is performed against period[32] while indexing delay[4].
-> 
-> Spotted by Coverity, CID 1376.
-> 
+From: Daniel Phillips <phillips@google.com>
+Date: Sun, 13 Aug 2006 14:22:31 -0700
 
-Will apply, thank you.
+> David Miller wrote:
+> > The reason is that there is no refcounting performed on these devices
+> > when they are attached to the skb, for performance reasons, and thus
+> > the device can be downed, the module for it removed, etc. long before
+> > the skb is freed up.
+> 
+> The virtual block device can refcount the network device on virtual
+> device create and un-refcount on virtual device delete.
 
-> Signed-off-by: Florin Malita <fmalita@gmail.com>
-> ---
-> 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> index 6bfa0cf..a86afd0 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -498,7 +498,7 @@ static int atkbd_set_repeat_rate(struct 
->  		i++;
->  	dev->rep[REP_PERIOD] = period[i];
->  
-> -	while (j < ARRAY_SIZE(period) - 1 && delay[j] < dev->rep[REP_DELAY])
-> +	while (j < ARRAY_SIZE(delay) - 1 && delay[j] < dev->rep[REP_DELAY])
->  		j++;
->  	dev->rep[REP_DELAY] = delay[j];
->  
-> 
-> 
+What if the packet is originally received on the device in question,
+and then gets redirected to another device by a packet scheduler
+traffic classifier action or a netfilter rule?
 
--- 
-Dmitry
+It is necessary to handle the case where the device changes on the
+skb, and the skb gets freed up in a context and assosciation different
+from when the skb was allocated (for example, different from the
+device attached to the virtual block device).

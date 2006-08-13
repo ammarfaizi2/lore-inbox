@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932634AbWHMAxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWHMBDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932634AbWHMAxz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 20:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWHMAxz
+	id S932636AbWHMBDG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 21:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWHMBDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 20:53:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29663 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932634AbWHMAxy (ORCPT
+	Sat, 12 Aug 2006 21:03:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21217 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932636AbWHMBDF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 20:53:54 -0400
-Date: Sat, 12 Aug 2006 17:53:48 -0700
+	Sat, 12 Aug 2006 21:03:05 -0400
+Date: Sat, 12 Aug 2006 18:02:56 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
-Subject: Re: [PATCH for review] [43/145] i386: Redo semaphore and rwlock
- assembly helpers
-Message-Id: <20060812175348.79175355.akpm@osdl.org>
-In-Reply-To: <20060810193557.7E1F313B90@wotan.suse.de>
-References: <20060810 935.775038000@suse.de>
-	<20060810193557.7E1F313B90@wotan.suse.de>
+To: Mike Galbraith <efault@gmx.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: 2.6.18-rc3-mm2:  oops in device_bind_driver()
+Message-Id: <20060812180256.445caea9.akpm@osdl.org>
+In-Reply-To: <1155385726.6151.6.camel@Homer.simpson.net>
+References: <1155385726.6151.6.camel@Homer.simpson.net>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,62 +25,54 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 21:35:57 +0200 (CEST)
-Andi Kleen <ak@suse.de> wrote:
+On Sat, 12 Aug 2006 12:28:46 +0000
+Mike Galbraith <efault@gmx.de> wrote:
 
-> - Move them to a pure assembly file. Previously they were in 
-> a C file that only consisted of inline assembly. Doing it in pure
-> assembler is much nicer.
-> - Add a frame.i include with FRAME/ENDFRAME macros to easily
-> add frame pointers to assembly functions 
-> - Add dwarf2 annotation to them so that the new dwarf2 unwinder
-> doesn't get stuck on them
-> [TBD: needs review from someone who knows more about CFA than me, e.g. Jan]
-> - Random cleanups
+> Greetings,
+> 
+> I'm hitting the oops below, though not on every boot.
+> 
+> DEV: registering device: ID = 'dvb0'
+> PM: Adding info for bttv-sub:dvb0
+> saa7130/34: v4l2 driver version 0.2.14 loaded
+> bus bttv-sub: add device dvb0
+> bttv0: add subdevice "dvb0"
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
+> c126e43f
+> *pde = 00000000
+> Oops: 0000 [#1]
+> 4K_STACKS PREEMPT SMP 
+> last sysfs file: /class/input/input2/name
+> Modules linked in: saa7134 bt878 ir_kbd_i2c bttv video_buf ir_common sd_mod i2c_i801 btcx_risc snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm tveeprom ohci1394 snd_timer snd_page_alloc prism54 snd_mpu401 ieee1394 snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore
+> CPU:    1
+> EIP:    0060:[<c126e43f>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.18-rc3-mm2-smp #169) 
+> EIP is at device_bind_driver+0x49/0xd0
+> eax: 00000000   ebx: c1fdb048   ecx: f8b4e268   edx: 00000000
+> esi: c1fdb084   edi: f8b46db8   ebp: dfccef98   esp: dfccef80
+> ds: 007b   es: 007b   ss: 0068
+> Process probe-0000:02:0 (pid: 3623, ti=dfcce000 task=dff57030 task.ti=dfcce000)
+> Stack: f8b46d80 dfccef98 c11de322 c1fdb048 00000000 f8b46db8 dfccefc4 c126e56d 
+>        c146e438 c145210e f8b3c243 c1fdb114 c1fdb114 c1fa3740 fffffffc dfccbe8c 
+>        c1fa3740 dfccefe4 c10361d6 c126e4c6 ffffffff ffffffff c10360f2 00000000 
+> Call Trace:
+>  [<c126e56d>] really_probe+0xa7/0x10c
+>  [<c10361d6>] kthread+0xe4/0xe8
+>  [<c1001005>] kernel_thread_helper+0x5/0xb
+> DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
+> Leftover inexact backtrace:
+>  [<c1003f83>] show_stack_log_lvl+0xa6/0xcb
+>  [<c1004180>] show_registers+0x1d8/0x286
+>  [<c100437f>] die+0x151/0x333
+>  [<c10197f9>] do_page_fault+0x26b/0x51f
+>  [<c13e02c9>] error_code+0x39/0x40
+>  [<c126e56d>] really_probe+0xa7/0x10c
+>  [<c10361d6>] kthread+0xe4/0xe8
+>  [<c1001005>] kernel_thread_helper+0x5/0xb
+> Code: 00 89 44 24 08 c7 44 24 04 ac 53 40 c1 c7 04 24 f0 e3 46 c1 e8 38 4b db ff 31 f6 89 f0 83 c4 0c 5b 5e 5f 5d c3 8b 83 14 01 00 00 <8b> 00 89 44 24 08 8d 83 cc 00 00 00 89 44 24 04 c7 04 24 10 e4 
+> EIP: [<c126e43f>] device_bind_driver+0x49/0xd0 SS:ESP 0068:dfccef80
 
-This patch causes the below crash after some seconds of disk stresstesting.
-
-
-BUG: unable to handle kernel paging request at virtual address 4bf2e411
- printing eip:
-e4111d00
-*pde = 00000000
-Oops: 0002 [#1]
-SMP 
-last sysfs file: 
-Modules linked in:
-CPU:    1
-EIP:    0060:[<e4111d00>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.18-rc4 #28) 
-EIP is at 0xe4111d00
-eax: e6ff89e4   ebx: e6ff89e4   ecx: 00000000   edx: e4110000
-esi: e6ff89d4   edi: e6ff88fc   ebp: e4111cf4   esp: e4111cf8
-ds: 007b   es: 007b   ss: 0068
-Process pdflush (pid: 2341, ti=e4110000 task=c1d40aa0 task.ti=e4110000)
-Stack: c0271d0f 00000282 e4111d10 c03a4bf2 e6ff89e4 c129a900 e4111d38 c015543c 
-       e6ff89e4 00000000 e4111d48 e6ff89e4 e6ff89d8 c129a900 00000000 e6ff88fc 
-       e4111d48 c014e939 c129a900 d0a8a734 e4111d84 c01752d1 c129a900 c01c588e 
-Call Trace:
- [<c01040d9>] show_stack_log_lvl+0xa9/0xd0
- [<c010430d>] show_registers+0x1bd/0x240
- [<c01044cc>] die+0x13c/0x300
- [<c0114ff2>] do_page_fault+0x2a2/0x5dc
- [<c0103bf9>] error_code+0x39/0x40
- [<c0271d0f>] _raw_write_lock+0x3f/0x80
-Code: 88 ff e6 f4 1c 11 e4 e4 89 ff e6 7b 00 1c c0 7b 00 00 00 ff ff ff ff 00 1d 11 e4 60 00 00 00 46 00 01 00 0f 1d 27 c0 82 02 00 00 <10> 1d 11 e4 f2 4b 3a c0 e4 89 ff e6 00 a9 29 c1 38 1d 11 e4 3c 
-EIP: [<e4111d00>] 0xe4111d00 SS:ESP 0068:e4111cf8
- <3>BUG: sleeping function called from invalid context at kernel/rwsem.c:20
-in_atomic():0, irqs_disabled():1
- [<c010414b>] show_trace+0x1b/0x20
- [<c01048e4>] dump_stack+0x24/0x30
- [<c0116fe6>] __might_sleep+0xa6/0xb0
- [<c0137e3f>] down_read+0x1f/0x2c
- [<c012db27>] blocking_notifier_call_chain+0x17/0x40
- [<c01203ef>] profile_task_exit+0x1f/0x30
- [<c0121efd>] do_exit+0x1d/0x940
- [<c0104685>] die+0x2f5/0x300
- [<c0114ff2>] do_page_fault+0x2a2/0x5dc
- [<c0103bf9>] error_code+0x39/0x40
- [<c0271d0f>] _raw_write_lock+0x3f/0x80
-BUG: NMI Watchdog detected LOCKUP on CPU0, eip c03a47e6, registers:
-Modules linked in:
+I'd assume that you have CONFIG_PCI_MULTITHREAD_PROBE set, and
+gregkh-driver-driver-multithread.patch and
+gregkh-driver-pci-multithreaded-probe.patch have found a DVB race.

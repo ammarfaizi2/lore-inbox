@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWHMRoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWHMRqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWHMRoR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 13:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWHMRoR
+	id S1751353AbWHMRqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 13:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWHMRqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 13:44:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35046 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751352AbWHMRoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 13:44:16 -0400
-Date: Sun, 13 Aug 2006 10:44:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] fix use after free in netlink_kernel_create()
-Message-Id: <20060813104405.a5c8db00.akpm@osdl.org>
-In-Reply-To: <44DF129A.6060607@trash.net>
-References: <20060813101535.GA8703@miraclelinux.com>
-	<44DF129A.6060607@trash.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 13 Aug 2006 13:46:31 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51079 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751353AbWHMRqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 13:46:30 -0400
+Subject: Re: [PATCH for review] [123/145] i386: make fault notifier
+	unconditional and export it
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060813170831.GG3543@stusta.de>
+References: <20060810935.775038000@suse.de>
+	 <20060810193722.8082B13B8E@wotan.suse.de> <20060813152859.GB3543@stusta.de>
+	 <1155489105.24077.154.camel@localhost.localdomain>
+	 <20060813170831.GG3543@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 13 Aug 2006 19:04:51 +0100
+Message-Id: <1155492291.24077.161.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 13:52:58 +0200
-Patrick McHardy <kaber@trash.net> wrote:
-
-> Akinobu Mita wrote:
-> > This patch invalidates nl_table by setting NULL when netlink
-> > initialization failed. Otherwise netlink_kernel_create() would
-> > access nl_table which has already been freed.
+Ar Sul, 2006-08-13 am 19:08 +0200, ysgrifennodd Adrian Bunk:
+> > Wrong pronoun. I think you meant to type "You".
 > 
+> "You are currently trying to remove exports..."?
+> Wouldn't this sound as if Andi was doing this?
 > 
-> Quite a few users of netlink_kernel_create will panic when creating
-> the socket fails (rtnetlink for example, which is always present),
-> so you might as well call panic here directly.
+> I thought the "We" was correct since it's at least Arjan and me.
+> 
+> If this was wrong all I can say is that I'm not a native English 
+> speaker.
 
-That's a bit lame.  Panicing at do_initcalls() time is OK (something is
-seriously screwed anyway) but we usually try to handle the ENOMEM nicely if
-it happens at modprobe-time.
+"We" tends to imply 'I speak for all of us'. I was pointing out that you
+don't speak for everyone. The humour in making that point didn't
+translate and apparently I ended up confusing you as well which wasn't
+the intent.
 
-(It's all pretty theoretical anyway - reasonable-sized GFP_KERNEL
-allocations don't fail).
+The joys of language.
 
+To put it more clearly "Not everyone agrees with the remove exports"
+approach, at least not the "all unused" part.
+
+Alan

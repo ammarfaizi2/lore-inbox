@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbWHMFVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWHMFsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbWHMFVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 01:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWHMFVF
+	id S1750700AbWHMFsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 01:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWHMFsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 01:21:05 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:47082 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932677AbWHMFVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 01:21:04 -0400
-Message-Id: <6.1.1.1.2.20060813071741.02ae87e0@192.168.6.12>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
-Date: Sun, 13 Aug 2006 07:20:46 +0200
-To: linux-kernel@vger.kernel.org
-From: Roger While <simrw@sim-basis.de>
-Subject: Re: debug prism wlan
+	Sun, 13 Aug 2006 01:48:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15526 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750700AbWHMFsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 01:48:42 -0400
+Date: Sat, 12 Aug 2006 22:48:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH for review] [109/145] x86_64: Convert modlist_lock to be
+ a raw spinlock
+Message-Id: <20060812224825.1da23a1a.akpm@osdl.org>
+In-Reply-To: <20060810193707.9DE2013C0B@wotan.suse.de>
+References: <20060810 935.775038000@suse.de>
+	<20060810193707.9DE2013C0B@wotan.suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-SIMBasis-MailScanner-Information: Please contact the ISP for more information
-X-SIMBasis-MailScanner: Found to be clean
-X-SIMBasis-MailScanner-From: simrw@sim-basis.de
-X-ID: VmHfgkZpreCq5vgEa-5u-KguIE+3mEs7E3--6cSn9irW5d-oBHZxwt@t-dialin.net
-X-TOI-MSGID: 9497c9cf-4105-4c47-b36c-605feef5ba2f
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John wrote:
- > Daniel wrote:
- >> Hey, that did it! But now I am a liddle confused. It worked fine before.
- >> Why does it not work while interface is not up?
+On Thu, 10 Aug 2006 21:37:07 +0200 (CEST)
+Andi Kleen <ak@suse.de> wrote:
 
- > I'm not sure, but I think you've just been lucky.
- > I've had this problem even before prism54 was merged.
- > Some in-tree drivers won't upload the firmware until you ifconfig
- > up them, which obviously means they won't respond adequately
- > to the wireless extension requests. Maybe a bug?
+> This is a preparationary patch for converting stacktrace over to the
+> new dwarf2 unwinder. lockdep uses stacktrace and the new unwinder
+> takes the modlist_lock so using a normal spinlock would cause a deadlock.
+> Use a raw lock instead.
+> 
 
-Nope, no bug. It allows the driver to be built non-modular.
-When non-modular, the resources are not available,
-at boot time, to load the firmware.
+It breaks the build on most architectures.
 
-Roger While
+> ---
+>  kernel/module.c |   42 ++++++++++++++++++++++++++----------------
+>  1 files changed, 26 insertions(+), 16 deletions(-)
+> 
+> Index: linux/kernel/module.c
+> ===================================================================
+> --- linux.orig/kernel/module.c
+> +++ linux/kernel/module.c
+> @@ -59,7 +59,7 @@
+>  #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
+>  
+>  /* Protects module list */
+> -static DEFINE_SPINLOCK(modlist_lock);
+> +static raw_spinlock_t modlist_lock = __RAW_SPIN_LOCK_UNLOCKED;
+>  
+>  /* List of modules, protected by module_mutex AND modlist_lock */
+>  static DEFINE_MUTEX(module_mutex);
+> @@ -751,11 +751,13 @@ void __symbol_put(const char *symbol)
+>  	unsigned long flags;
+>  	const unsigned long *crc;
+>  
+> -	spin_lock_irqsave(&modlist_lock, flags);
+> +	raw_local_save_flags(flags);
+> +	__raw_spin_lock(&modlist_lock);
+>  	if (!__find_symbol(symbol, &owner, &crc, 1))
+>  		BUG();
+>  	module_put(owner);
+> -	spin_unlock_irqrestore(&modlist_lock, flags);
+> +	__raw_spin_unlock(&modlist_lock);
+> +	raw_local_irq_restore(flags);
 
-
+That looks fairly hacky.  Wouldn't it be better to implement
+raw_spin_lock_irqsave()?

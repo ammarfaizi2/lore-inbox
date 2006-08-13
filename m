@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWHMM0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWHMMaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWHMM0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 08:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWHMM0U
+	id S1751148AbWHMMaU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 08:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWHMMaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 08:26:20 -0400
-Received: from razorback.tcsn.co.za ([196.41.199.53]:52997 "EHLO tcsn.co.za")
-	by vger.kernel.org with ESMTP id S1751145AbWHMM0U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 08:26:20 -0400
-Date: Sun, 13 Aug 2006 14:27:11 +0200
-From: Henti Smith <henti@geekware.co.za>
+	Sun, 13 Aug 2006 08:30:19 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:48146 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751148AbWHMMaR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 08:30:17 -0400
 To: linux-kernel@vger.kernel.org
-Subject: upgrading pentavalue drivers from 2.4 to 2.6
-Message-ID: <20060813142711.2cccf6c3@yoda.foad.za.net>
-Organization: Geek Ware
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Cc: Neil Brown <neilb@suse.de>, netdev@vger.kernel.org
+Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
+References: <87zme9fy94.fsf@hades.wkstn.nix> <87d5b5vbtk.fsf@hades.wkstn.nix>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: because editing your files should be a traumatic experience.
+Date: Sun, 13 Aug 2006 13:29:55 +0100
+In-Reply-To: <87d5b5vbtk.fsf@hades.wkstn.nix> (nix@esperi.org.uk's message of "12 Aug 2006 23:17:42 +0100")
+Message-ID: <87psf4zum4.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys, 
+On 12 Aug 2006, nix@esperi.org.uk wrote:
+> On 12 Aug 2006, nix@esperi.org.uk mused:
+>> Then the build froze. I couldn't very well ignore *that*. Perhaps I
+>> couldn't blame XEmacs after all.
+> 
+> It just happened again. It's reproducibly triggered, at least on this
+> system, by the ocaml-3.09.02 configure script running over NFS (probably
+> NFS over UDP is necessary as well).
 
-I have a client that uses pentavalue DVB-S cards pretty much all over
-their business, however the drivers has not been updated since 2002
-(2.4 kernel only) I've spoken to the dev's at the company and they are
-not interested in doing drivers for 2.6
+... also triggered by running a CVS update on a large tree, and pretty
+much by doing anything heavy-duty with NFS on UDP at all.
 
-The 2.4 drivers they released is source code format, however I could
-not find any clear indication of licence agreements to use the code for
-further development. 
-
-I'm hoping that it's GPL'ed since MODULE_LICENSE("GPL"); appears in the
-pentadrv.c and scanval.c files
-
-I'm going to contact them again to confirm we can use the code for
-2.4 to upgrade to 2.6 and possible include in the kernel source (if it
-will be allowed :P) 
-
-Lastly .. and the reason I'm mailing is .. I'm looking for somebody
-that is keen on  doing the port .. I'll happily supply hardware (we
-have lots of these cards) 
-
-beer or other incentives can be negotiated ;P 
-
-Thanks :) 
+NFS on TCP is, as expected, unaffected by this bug.
 
 -- 
-Henti Smith
-henti@geekware.co.za
-+27 82 958 2525
-http://www.geekware.co.za
-
-DISCLAIMER : 
-
-Unauthorised use of characters, images, sounds, odors, severed limbs,
-noodles, wierd dreams, strange looking fruit, oxygen, and certain parts
-of Jupiter are strictly forbidden.  If I find you violating, or
-molesting my property in any way, I will employ a pair of burly
-convicts to find you, kidnap you, and perform god-awful sexual
-experiments on you until you lose the ability to sound out vowels.  I
-don't know why you are still reading this, but by doing so you have
-proven that you have far too much time on your hands, and you should go
-plant a tree, or read a book or something.
-	- http://www.ctrlaltdel-online.com/
+`We're sysadmins. We deal with the inconceivable so often I can clearly 
+ see the need to define levels of inconceivability.' --- Rik Steenwinkel

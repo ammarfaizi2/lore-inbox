@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWHMVDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWHMVJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWHMVDf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWHMVDf
+	id S1751434AbWHMVJL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWHMVJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:03:35 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3854 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751448AbWHMVAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:00:18 -0400
-Date: Sun, 13 Aug 2006 23:00:17 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, v4l-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] drivers/media/dvb/frontends/: make 4 functions static
-Message-ID: <20060813210017.GL3543@stusta.de>
-References: <20060813012454.f1d52189.akpm@osdl.org>
+	Sun, 13 Aug 2006 17:09:11 -0400
+Received: from wx-out-0506.google.com ([66.249.82.234]:32119 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751434AbWHMVJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 17:09:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=URVwNUtEgCGWKJQluysQpyvMWKVB0c4I8MGULz7ifPG8FEtTSxUcP8z+bIj62ZqzDo6N8whUhharEdc6m0whNraXlB8JfzM9rGAX516adjZDojY7ic721ICZ+xrqSK1y8aUuZd+gEYg+7tMnBgLgsigTVphXU7oi+EHiccOZCW0=
+Message-ID: <44DF953B.6010707@gmail.com>
+Date: Sun, 13 Aug 2006 17:10:19 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: dmitry.torokhov@gmail.com
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] atkbd.c: overrun in atkbd_set_repeat_rate()
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc3-mm2:
->...
->  git-dvb.patch
->...
->  git trees
->...
+This was introduced in commit 3d0f0fa0cb554541e10cb8cb84104e4b10828468:
+bounds checking is performed against period[32] while indexing delay[4].
 
-This patch makes four needlessly global functions static.
+Spotted by Coverity, CID 1376.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
+Signed-off-by: Florin Malita <fmalita@gmail.com>
 ---
 
- drivers/media/dvb/frontends/stv0299.c  |    2 +-
- drivers/media/dvb/frontends/tda10021.c |    2 +-
- drivers/media/dvb/frontends/tda1004x.c |    2 +-
- drivers/media/dvb/frontends/zl10353.c  |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 6bfa0cf..a86afd0 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -498,7 +498,7 @@ static int atkbd_set_repeat_rate(struct 
+ 		i++;
+ 	dev->rep[REP_PERIOD] = period[i];
+ 
+-	while (j < ARRAY_SIZE(period) - 1 && delay[j] < dev->rep[REP_DELAY])
++	while (j < ARRAY_SIZE(delay) - 1 && delay[j] < dev->rep[REP_DELAY])
+ 		j++;
+ 	dev->rep[REP_DELAY] = delay[j];
+ 
 
---- linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/stv0299.c.old	2006-08-13 17:56:46.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/stv0299.c	2006-08-13 17:56:56.000000000 +0200
-@@ -92,7 +92,7 @@
- 	return (ret != 1) ? -EREMOTEIO : 0;
- }
- 
--int stv0299_write(struct dvb_frontend* fe, u8 *buf, int len)
-+static int stv0299_write(struct dvb_frontend* fe, u8 *buf, int len)
- {
- 	struct stv0299_state* state = fe->demodulator_priv;
- 
---- linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/tda10021.c.old	2006-08-13 17:57:25.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/tda10021.c	2006-08-13 17:57:44.000000000 +0200
-@@ -201,7 +201,7 @@
- 	return 0;
- }
- 
--int tda10021_write(struct dvb_frontend* fe, u8 *buf, int len)
-+static int tda10021_write(struct dvb_frontend* fe, u8 *buf, int len)
- {
- 	struct tda10021_state* state = fe->demodulator_priv;
- 
---- linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/tda1004x.c.old	2006-08-13 17:58:23.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/tda1004x.c	2006-08-13 17:58:51.000000000 +0200
-@@ -579,7 +579,7 @@
- 	return -1;
- }
- 
--int tda1004x_write(struct dvb_frontend* fe, u8 *buf, int len)
-+static int tda1004x_write(struct dvb_frontend* fe, u8 *buf, int len)
- {
- 	struct tda1004x_state* state = fe->demodulator_priv;
- 
---- linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/zl10353.c.old	2006-08-13 17:59:09.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/drivers/media/dvb/frontends/zl10353.c	2006-08-13 17:59:35.000000000 +0200
-@@ -54,7 +54,7 @@
- 	return 0;
- }
- 
--int zl10353_write(struct dvb_frontend *fe, u8 *ibuf, int ilen)
-+static int zl10353_write(struct dvb_frontend *fe, u8 *ibuf, int ilen)
- {
- 	int err, i;
- 	for (i = 0; i < ilen - 1; i++)
 

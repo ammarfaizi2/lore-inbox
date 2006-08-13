@@ -1,148 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWHMJ4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHMKEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWHMJ4b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 05:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWHMJ4b
+	id S1750894AbWHMKEl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 06:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWHMKEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 05:56:31 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:62854 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP
-	id S1750880AbWHMJ4b convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 05:56:31 -0400
-From: Gerhard =?iso-8859-1?q?Gau=DFling?= <ggrubbish@web.de>
-Reply-To: ggrubbish@web.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17.8-rt8: Compile Error in misdn/avm_fritz.c - error: syntax error before string constant
-Date: Sun, 13 Aug 2006 12:00:07 +0200
-User-Agent: KMail/1.9.1
-References: <200608130439.42751.ggrubbish@web.de>
-In-Reply-To: <200608130439.42751.ggrubbish@web.de>
+	Sun, 13 Aug 2006 06:04:41 -0400
+Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:41104 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750874AbWHMKEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 06:04:40 -0400
+Message-ID: <44DEFBA1.6060500@reactivated.net>
+Date: Sun, 13 Aug 2006 11:14:57 +0100
+From: Daniel Drake <dan@reactivated.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060811)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608131200.09660.ggrubbish@web.de>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+CC: Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: 2GB MMC/SD cards
+References: <447AFE7A.3070401@drzeus.cx> <20060603141548.GA31182@flint.arm.linux.org.uk> <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com> <4481FB80.40709@drzeus.cx> <4484B5AE.8060404@drzeus.cx> <44869794.9080906@drzeus.cx> <20060607165837.GE13165@flint.arm.linux.org.uk> <448738CD.8030907@drzeus.cx> <4488AC57.7050201@drzeus.cx>
+In-Reply-To: <4488AC57.7050201@drzeus.cx>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 13. August 2006 04:39 schrieb Gerhard Gauﬂling:
-> I followed mainly this howto
-> http://ubuntustudio.com/wiki/index.php/Dapper:Vanilla_Kernel_With_Rea
->ltime_Preemption
->
-> But I ran into problems with the needed rt patch of Ingo Molnar:
-> http://people.redhat.com/mingo/realtime-preempt/patch-2.6.17-rt8
->
-> It failed on the 2.6.17.8 in 1 chunk on the Makefile and 1 chunk of
-> kernel/sched.c .
->[...]
-> make[4]: Entering directory `/usr/src/linux-2.6.17-rt8'
->   CC [M]  /usr/src/modules/realtime-lsm/realcap.o
-> /usr/src/modules/realtime-lsm/realcap.c:1: warning:
-> -ffunction-sections disabled; it makes profiling impossible
-> /usr/src/modules/realtime-lsm/realcap.c:36: error: syntax error
-> before string constant
-> /usr/src/modules/realtime-lsm/realcap.c:36: warning: type defaults
-> to 'int' in declaration of 'MODULE_PARM'
-> /usr/src/modules/realtime-lsm/realcap.c:36: warning: function
-> declaration isn't a prototype
-> /usr/src/modules/realtime-lsm/realcap.c:36: warning: data definition
-> has no type or storage class
-> /usr/src/modules/realtime-lsm/realcap.c:40: error: syntax error
-> before string constant
->[...]
-> make[1]: *** [kdist_build] Error 2
-> make[1]: Leaving directory `/usr/src/modules/realtime-lsm'
-> Module /usr/src/modules/realtime-lsm failed.
-> Hit return to Continue
-> [...]
-> make[1]: Entering directory `/usr/src/modules/misdn'
-> /usr/bin/make -w -f debian/rules  binary-modules
-> make[2]: Entering directory `/usr/src/modules/misdn'
-> sed -e 's/@@Kernel\-Version@@/2.6.17.8-rt8.8-rt8/' \
->             debian/control.in > debian/control
-> dh_testdir
-> dh_testroot
-> dh_clean -k
-> dh_clean: Compatibility levels before 4 are deprecated.
-> echo "kpkg:Kernel-Version=2.6.17.8-rt8.8-rt8" > \
->             debian/misdn-kernel-modules-2.6.17.8-rt8.8-rt8.substvars
-> /usr/bin/make -C /usr/src/linux M=/usr/src/modules/misdn   modules
-> make[3]: Entering directory `/usr/src/linux-2.6.17-rt8'
->   CC [M]  /usr/src/modules/misdn/avm_fritz.o
-> /usr/src/modules/misdn/avm_fritz.c:1: warning: -ffunction-sections
-> disabled; it makes profiling impossible
-> In file included from /usr/src/modules/misdn/avm_fritz.c:24:
-> /usr/src/modules/misdn/helper.h: In function 'alloc_stack_skb':
-> /usr/src/modules/misdn/helper.h:60: warning: format '%d' expects
-> type 'int', but argument 3 has type 'size_t'
-> /usr/src/modules/misdn/helper.h:60: warning: format '%d' expects
-> type 'int', but argument 4 has type 'size_t'
-> /usr/src/modules/misdn/avm_fritz.c: At top level:
-> /usr/src/modules/misdn/avm_fritz.c:1013: error: syntax error before
-> string constant
-> /usr/src/modules/misdn/avm_fritz.c:1013: warning: type defaults to
-> 'int' in declaration of 'MODULE_PARM'
-> /usr/src/modules/misdn/avm_fritz.c:1013: warning: function
-> declaration isn't a prototype
-> /usr/src/modules/misdn/avm_fritz.c:1013: warning: data definition has
-> no type or storage class
-> /usr/src/modules/misdn/avm_fritz.c:1014: error: syntax error before
-> string constant
-> /usr/src/modules/misdn/avm_fritz.c:1014: warning: type defaults to
-> 'int' in declaration of 'MODULE_PARM'
-> /usr/src/modules/misdn/avm_fritz.c:1014: warning: function
-> declaration isn't a prototype
-> /usr/src/modules/misdn/avm_fritz.c:1014: warning: data definition has
-> no type or storage class
-> /usr/src/modules/misdn/avm_fritz.c:1015: error: syntax error before
-> string constant
-> /usr/src/modules/misdn/avm_fritz.c:1015: warning: type defaults to
-> 'int' in declaration of 'MODULE_PARM'
-> /usr/src/modules/misdn/avm_fritz.c:1015: warning: function
-> declaration isn't a prototype
-> /usr/src/modules/misdn/avm_fritz.c:1015: warning: data definition has
-> no type or storage class
-> make[4]: *** [/usr/src/modules/misdn/avm_fritz.o] Error 1
-> make[3]: *** [_module_/usr/src/modules/misdn] Error 2
-> make[3]: Leaving directory `/usr/src/linux-2.6.17-rt8'
-> make[2]: *** [binary-modules] Error 2
-> make[2]: Leaving directory `/usr/src/modules/misdn'
-> make[1]: *** [kdist_image] Error 2
-> make[1]: Leaving directory `/usr/src/modules/misdn'
-> Module /usr/src/modules/misdn failed.
-> Hit return to Continue
->
-> =================
-> =================
->
-> I got in almost every line this warning:
-> warning: -ffunction-sections disabled; it makes profiling impossible
->
-> I think that does not affect the kernel ?
->
-> Can someone help me to get the realtime-lsm compiled on the new
-> 2.6.17.8 kernel, please?
+Hi Pierre,
 
-I'm Sorry for answering to myself, but I want to add this:
+Pierre Ossman wrote:
+> Suggested patch included.
 
-I'm running on 
-Linux ubuntu 2.6.15-26-amd64-generic #1 SMP PREEMPT Thu Aug 3 02:52:35 
-UTC 2006 x86_64 GNU/Linux
+What's the status on this patch? A Gentoo user at 
+http://bugs.gentoo.org/142172 reports that it is required for him to be 
+able to access his card, so it definitely works in some form.
 
-and I figured out, that the realtime-lsm is deprecated now:
-"If you want to use the *deprecated* Realtime LSM, then you can prepare 
-to make a deb package for it during this process as well"
-http://ubuntustudio.com/wiki/index.php/Breezy:Enabling_Preemption
-http://ubuntustudio.com/wiki/index.php/Breezy:Realtime_LSM
+> 
+> [MMC] Always use a sector size of 512 bytes
+> 
+> Both MMC and SD specifications specify (although a bit unclearly in the MMC
+> case) that a sector size of 512 bytes must always be supported by the card.
+> 
+> Cards can report larger "native" size than this, and cards >= 2 GB even
+> must do so. Most other readers use 512 bytes even for these cards. We should
+> do the same to be compatible.
+> 
+> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+> ---
+> 
+>  drivers/mmc/mmc_block.c |   49 ++++-------------------------------------------
+>  1 files changed, 4 insertions(+), 45 deletions(-)
+> 
+> diff --git a/drivers/mmc/mmc_block.c b/drivers/mmc/mmc_block.c
+> index 587458b..96049e2 100644
+> --- a/drivers/mmc/mmc_block.c
+> +++ b/drivers/mmc/mmc_block.c
+> @@ -325,52 +325,11 @@ static struct mmc_blk_data *mmc_blk_allo
+>  	md->read_only = mmc_blk_readonly(card);
+>  
+>  	/*
+> -	 * Figure out a workable block size.  MMC cards have:
+> -	 *  - two block sizes, one for read and one for write.
+> -	 *  - may support partial reads and/or writes
+> -	 *    (allows block sizes smaller than specified)
+> +	 * Both SD and MMC specifications state (although a bit
+> +	 * unclearly in the MMC case) that a block size of 512
+> +	 * bytes must always be supported by the card.
+>  	 */
+> -	md->block_bits = card->csd.read_blkbits;
+> -	if (card->csd.write_blkbits != card->csd.read_blkbits) {
+> -		if (card->csd.write_blkbits < card->csd.read_blkbits &&
+> -		    card->csd.read_partial) {
+> -			/*
+> -			 * write block size is smaller than read block
+> -			 * size, but we support partial reads, so choose
+> -			 * the smaller write block size.
+> -			 */
+> -			md->block_bits = card->csd.write_blkbits;
+> -		} else if (card->csd.write_blkbits > card->csd.read_blkbits &&
+> -			   card->csd.write_partial) {
+> -			/*
+> -			 * read block size is smaller than write block
+> -			 * size, but we support partial writes.  Use read
+> -			 * block size.
+> -			 */
+> -		} else {
+> -			/*
+> -			 * We don't support this configuration for writes.
+> -			 */
+> -			printk(KERN_ERR "%s: unable to select block size for "
+> -				"writing (rb%u wb%u rp%u wp%u)\n",
+> -				mmc_card_id(card),
+> -				1 << card->csd.read_blkbits,
+> -				1 << card->csd.write_blkbits,
+> -				card->csd.read_partial,
+> -				card->csd.write_partial);
+> -			md->read_only = 1;
+> -		}
+> -	}
+> -
+> -	/*
+> -	 * Refuse to allow block sizes smaller than 512 bytes.
+> -	 */
+> -	if (md->block_bits < 9) {
+> -		printk(KERN_ERR "%s: unable to support block size %u\n",
+> -			mmc_card_id(card), 1 << md->block_bits);
+> -		ret = -EINVAL;
+> -		goto err_kfree;
+> -	}
+> +	md->block_bits = 9;
+>  
+>  	md->disk = alloc_disk(1 << MMC_SHIFT);
+>  	if (md->disk == NULL) {
 
-Therefore only the avm_fritz.c is of any interest I think.
-
-I'm Sorry for the noise, I hope this is the appropriate ML for that 
-error ??
-
-Kind regards
-
-Gerhard Gauﬂling

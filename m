@@ -1,178 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWHML7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWHMMY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbWHML7r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 07:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWHML7r
+	id S1751142AbWHMMY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 08:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWHMMY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 07:59:47 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:53995 "EHLO
+	Sun, 13 Aug 2006 08:24:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:8243 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751021AbWHML7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 07:59:47 -0400
+	id S1751142AbWHMMYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 08:24:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LemOlFJARE0IQtTuKJzX1+1GSbbnSiC1Y2a9+04j3kCfcnP0vP+KyACNIgqSg1Rmw+YCZpEO5ib+sNXgvTHkNZtewT5ykZ8j+Mhp386x2BU1EQQvSsRVOzk8D6on0lrCk73dIHF8ntoOz4qppyw1U3bWC51KRhyknCS6jDfhtjk=
-Message-ID: <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
-Date: Sun, 13 Aug 2006 13:59:46 +0200
+        b=BU+6myTt5ySikn5EqTETtYLhMNLeAormZukwtybUkTe8jn4Tj4Rlx6cN2rK2AOm26Lfs+g1b+wFxVzrA2rMpmTNYw9PD/DL9LizkbNFqYICA6AB9wDzVRzFzhdfdTp+4AKLYRkjoZfrVHNQNAJKHIk0ALzpuPCb1J4XajtfWhLE=
+Message-ID: <6bffcb0e0608130524j81944bag14c65957c2781e7f@mail.gmail.com>
+Date: Sun, 13 Aug 2006 14:24:24 +0200
 From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060812215857.17709.79502.stgit@localhost.localdomain>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc4-mm1
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Arjan van de Ven" <arjan@linux.intel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+References: <20060813012454.f1d52189.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin,
-
-On 12/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> This is a new version (0.9) of the kernel memory leak detector. See
-> the Documentation/kmemleak.txt file for a more detailed
-> description. The patches are downloadable from (the whole patch or the
-> broken-out series):
+On 13/08/06, Andrew Morton <akpm@osdl.org> wrote:
 >
-> http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.18-rc4-kmemleak-0.9.bz2
-> http://homepage.ntlworld.com/cmarinas/kmemleak/broken-out/patches-kmemleak-0.9.tar.bz2
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+>
+> - Warning: all the Serial ATA Kconfig options have been renamed.  If you
+>   blindly run `make oldconfig' you won't have any disks.
+>
 
-Can you look at this?
+MAX_STACK_TRACE_ENTRIES too low!
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
--------------------------------------------------------
-events/0/8 is trying to acquire lock:
- (old_style_spin_init){++..}, at: [<c017674f>] memleak_free+0x95/0x157
+What does it mean?
 
-but task is already holding lock:
- (&parent->list_lock){++..}, at: [<c0174f29>] drain_array+0x49/0xad
+BUG: MAX_STACK_TRACE_ENTRIES too low!
+turning off the locking correctness validator.
+ [<c0103e41>] dump_trace+0x70/0x176
+ [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+ [<c0103fde>] show_trace+0xd/0xf
+ [<c01040b0>] dump_stack+0x17/0x19
+ [<c0138f30>] save_trace+0xce/0xd7
+ [<c0139370>] add_lock_to_list+0x22/0x39
+ [<c0139b3c>] check_prev_add+0x139/0x1b4
+ [<c0139c04>] check_prevs_add+0x4d/0xaf
+ [<c013b646>] __lock_acquire+0x8a1/0x93c
+ [<c013bd4c>] lock_acquire+0x6f/0x8f
+ [<c03033e8>] _spin_lock_irq+0x29/0x35
+ [<c01ed022>] __make_request+0x68/0x413
+ [<c01ed6a7>] generic_make_request+0x273/0x2a4
+ [<c01ed802>] submit_bio+0x12a/0x132
+ [<c017b6f6>] submit_bh+0x10e/0x12e
+ [<c0179fd3>] __block_write_full_page+0x231/0x326
+ [<c017b567>] block_write_full_page+0xd7/0xdf
+ [<c017e17a>] blkdev_writepage+0xf/0x11
+ [<c0199d92>] mpage_writepages+0x1b6/0x324
+ [<c017f3ee>] generic_writepages+0xa/0xc
+ [<c015b6b5>] do_writepages+0x23/0x36
+ [<c019871c>] __sync_single_inode+0x7b/0x199
+ [<c01989ac>] __writeback_single_inode+0x172/0x17a
+ [<c0198b50>] generic_sync_sb_inodes+0x19c/0x242
+ [<c0198c13>] sync_sb_inodes+0x1d/0x20
+ [<c0198c8e>] writeback_inodes+0x78/0xae
+ [<c015b52b>] wb_kupdate+0x7c/0xdd
+ [<c015bf14>] __pdflush+0xcc/0x163
+ [<c015bfdd>] pdflush+0x32/0x34
+ [<c01347a9>] kthread+0x82/0xaa
+ [<c0303dfd>] kernel_thread_helper+0x5/0xb
+ [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+ [<c0103fde>] show_trace+0xd/0xf
+ [<c01040b0>] dump_stack+0x17/0x19
+ [<c0138f30>] save_trace+0xce/0xd7
+ [<c0139370>] add_lock_to_list+0x22/0x39
+ [<c0139b3c>] check_prev_add+0x139/0x1b4
+ [<c0139c04>] check_prevs_add+0x4d/0xaf
+ [<c013b646>] __lock_acquire+0x8a1/0x93c
+ [<c013bd4c>] lock_acquire+0x6f/0x8f
+ [<c03033e8>] _spin_lock_irq+0x29/0x35
+ [<c01ed022>] __make_request+0x68/0x413
+ [<c01ed6a7>] generic_make_request+0x273/0x2a4
+ [<c01ed802>] submit_bio+0x12a/0x132
+ [<c017b6f6>] submit_bh+0x10e/0x12e
+ [<c0179fd3>] __block_write_full_page+0x231/0x326
+ [<c017b567>] block_write_full_page+0xd7/0xdf
+ [<c017e17a>] blkdev_writepage+0xf/0x11
+ [<c0199d92>] mpage_writepages+0x1b6/0x324
+ [<c017f3ee>] generic_writepages+0xa/0xc
+ [<c015b6b5>] do_writepages+0x23/0x36
+ [<c019871c>] __sync_single_inode+0x7b/0x199
+ [<c01989ac>] __writeback_single_inode+0x172/0x17a
+ [<c0198b50>] generic_sync_sb_inodes+0x19c/0x242
+ [<c0198c13>] sync_sb_inodes+0x1d/0x20
+ [<c0198c8e>] writeback_inodes+0x78/0xae
+ [<c015b52b>] wb_kupdate+0x7c/0xdd
+ [<c015bf14>] __pdflush+0xcc/0x163
+ [<c015bfdd>] pdflush+0x32/0x34
+ [<c01347a9>] kthread+0x82/0xaa
+ [<c0303dfd>] kernel_thread_helper+0x5/0xb
+ =======================
 
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (&parent->list_lock){++..}:
-       [<c0140cc7>] check_prevs_add+0x4d/0xaf
-       [<c01423c1>] __lock_acquire+0x7b1/0x814
-       [<c01429bc>] lock_acquire+0x5e/0x7e
-       [<c02f9f7a>] _spin_lock+0x23/0x2f
-       [<c0174058>] cache_alloc_refill+0x76/0x1d2
-       [<c0174559>] kmem_cache_alloc+0x73/0xce
-       [<c01f0c8a>] radix_tree_node_alloc+0x1a/0x51
-       [<c01f0e3f>] radix_tree_insert+0x51/0xfb
-       [<c01761f6>] insert_alias+0x85/0xe8
-       [<c01762a4>] memleak_insert_aliases+0x4b/0xa6
-       [<c01773f7>] memleak_init+0x44/0xf5
-       [<c0100ab0>] start_kernel+0x17e/0x1f9
-       [<c0100210>] 0xc0100210
--> #0 (old_style_spin_init){++..}:
-       [<c0140cc7>] check_prevs_add+0x4d/0xaf
-       [<c01423c1>] __lock_acquire+0x7b1/0x814
-       [<c01429bc>] lock_acquire+0x5e/0x7e
-       [<c02f9f7a>] _spin_lock+0x23/0x2f
-       [<c017674f>] memleak_free+0x95/0x157
-       [<c0174a74>] kmem_cache_free+0x62/0xbc
-       [<c0172fc8>] slab_destroy+0x48/0x4d
-       [<c01743b8>] free_block+0xc9/0x101
-       [<c0174f65>] drain_array+0x85/0xad
-       [<c017500d>] cache_reap+0x80/0xfe
-       [<c01394dd>] run_workqueue+0x88/0xc4
-       [<c0139617>] worker_thread+0xfe/0x131
-       [<c013c6e1>] kthread+0x82/0xaa
-       [<c01044c9>] kernel_thread_helper+0x5/0xb
-
-other info that might help us debug this:
-
-2 locks held by events/0/8:
- #0:  (cache_chain_mutex){--..}, at: [<c0174f9d>] cache_reap+0x10/0xfe
- #1:  (&parent->list_lock){++..}, at: [<c0174f29>] drain_array+0x49/0xad
-stack backtrace:
- [<c0106e59>] show_trace_log_lvl+0x58/0x14c
- [<c0106f5a>] show_trace+0xd/0xf
- [<c010702c>] dump_stack+0x17/0x19
- [<c01405c0>] print_circular_bug_tail+0x59/0x62
- [<c0140af1>] check_prev_add+0x2b/0x1b4
- [<c0140cc7>] check_prevs_add+0x4d/0xaf
- [<c01423c1>] __lock_acquire+0x7b1/0x814
- [<c01429bc>] lock_acquire+0x5e/0x7e
- [<c02f9f7a>] _spin_lock+0x23/0x2f
- [<c017674f>] memleak_free+0x95/0x157
- [<c0174a74>] kmem_cache_free+0x62/0xbc
- [<c0172fc8>] slab_destroy+0x48/0x4d
- [<c01743b8>] free_block+0xc9/0x101
- [<c0174f65>] drain_array+0x85/0xad
- [<c017500d>] cache_reap+0x80/0xfe
- [<c01394dd>] run_workqueue+0x88/0xc4
- [<c0139617>] worker_thread+0xfe/0x131
-  [<c013c6e1>] kthread+0x82/0xaa
- [<c01044c9>] kernel_thread_helper+0x5/0xb
-DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
-Leftover inexact backtrace:
- [<c0106f5a>] show_trace+0xd/0xf
- [<c010702c>] dump_stack+0x17/0x19
- [<c01405c0>] print_circular_bug_tail+0x59/0x62
- [<c0140af1>] check_prev_add+0x2b/0x1b4
- [<c0140cc7>] check_prevs_add+0x4d/0xaf
- [<c01423c1>] __lock_acquire+0x7b1/0x814
- [<c01429bc>] lock_acquire+0x5e/0x7e
- [<c02f9f7a>] _spin_lock+0x23/0x2f
- [<c017674f>] memleak_free+0x95/0x157
- [<c0174a74>] kmem_cache_free+0x62/0xbc
- [<c0172fc8>] slab_destroy+0x48/0x4d
- [<c01743b8>] free_block+0xc9/0x101
- [<c0174f65>] drain_array+0x85/0xad
- [<c017500d>] cache_reap+0x80/0xfe
- [<c01394dd>] run_workqueue+0x88/0xc4
- [<c0139617>] worker_thread+0xfe/0x131
-  [<c013c6e1>] kthread+0x82/0xaa
- [<c01044c9>] kernel_thread_helper+0x5/0xb
-
-0xc017674f is in memleak_free (/usr/src/linux-work3/mm/memleak.c:479).
-474     /* Remove a pointer and its aliases from the pointer radix tree */
-475     static inline void delete_pointer(unsigned long ptr)
-476     {
-477             struct memleak_pointer *pointer;
-478
-479             pointer = radix_tree_delete(&pointer_tree, ptr);
-480             if (!pointer) {
-481                     dump_stack();
-482                     printk(KERN_WARNING "kmemleak: freeing unknown
-pointer value 0x%08lx\n", ptr);
-483                     return;
-
-0xc0174f29 is in drain_array (/usr/src/linux-work3/mm/slab.c:3739).
-3734                    return;
-3735            if (ac->touched && !force) {
-3736                    ac->touched = 0;
-3737            } else {
-3738                    spin_lock_irq(&l3->list_lock);
-3739                    if (ac->avail) {
-3740                            tofree = force ? ac->avail :
-(ac->limit + 4) / 5;
-3741                            if (tofree > ac->avail)
-3742                                    tofree = (ac->avail + 1) / 2;
-3743                            free_block(cachep, ac->entry, tofree, node);
-
-0xc0174f9d is in cache_reap (/usr/src/linux-work3/mm/slab.c:3770).
-3765    {
-3766            struct kmem_cache *searchp;
-3767            struct kmem_list3 *l3;
-3768            int node = numa_node_id();
-3769
-3770            if (!mutex_trylock(&cache_chain_mutex)) {
-3771                    /* Give up. Setup the next iteration. */
-3772                    schedule_delayed_work(&__get_cpu_var(reap_work),
-3773                                          REAPTIMEOUT_CPUC);
-3774                    return;
-
-config file and dmesg http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.9/
-
-> --
-> Catalin
+config & dmesg http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm1/frontline/
 
 Regards,
 Michal

@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWHMKy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWHMLbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWHMKy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 06:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWHMKy3
+	id S1750987AbWHMLbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 07:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWHMLbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 06:54:29 -0400
-Received: from poesci.dolphinics.no ([193.71.152.8]:38350 "EHLO
-	poesci.dolphinics.no") by vger.kernel.org with ESMTP
-	id S1750956AbWHMKy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 06:54:28 -0400
-Message-ID: <44DF04E4.1090809@dolphinics.no>
-Date: Sun, 13 Aug 2006 12:54:28 +0200
-From: Simen Thoresen <simentt@dolphinics.no>
-Organization: Dolphin ICS
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: gmu 2k6 <gmu2006@gmail.com>
-Cc: Joel Jaeggli <joelja@uoregon.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Only 3.2G ram out of 4G seen in an i386 box
-References: <20060808101504.GJ2152@stingr.net>	 <MDEHLPKNGKAHNMBLJOLKKEDCNKAB.davids@webmaster.com>	 <f96157c40608082351j301efa57n412284f8d28124ef@mail.gmail.com>	 <20060809074815.bec7f32c.joelja@uoregon.edu>	 <f96157c40608090754m1f10e0f2h5fbf3b256d2e55e1@mail.gmail.com>	 <44DBA06E.40104@dolphinics.no> <f96157c40608110408u65a4cedege5477c60100d2a3f@mail.gmail.com>
-In-Reply-To: <f96157c40608110408u65a4cedege5477c60100d2a3f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Aug 2006 07:31:37 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:10734 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1750845AbWHMLbg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 07:31:36 -0400
+Date: Sun, 13 Aug 2006 19:55:21 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rtmutex-clean-up-and-remove-some-extra-spinlocks-more
+Message-ID: <20060813155521.GA1311@oleg>
+References: <1154439588.25445.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154439588.25445.31.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gmu 2k6 wrote:
-> On 8/10/06, Simen Thoresen <simentt@dolphinics.no> wrote:
->> gmu 2k6 wrote:
->> ...
->> > so what does it mean that one of Xeons here shows me the full 4GiB as
->> > total physical memory via `free`?
->> >
->> Just out of interest - what chipset does your Xeon system use?
-> 
-> lspci of the P4 32bit desktop with 3GiB
-> 00:00.0 Host bridge: Intel Corporation 82875P/E7210 Memory Controller
-> Hub (rev 02)
-> 00:01.0 PCI bridge: Intel Corporation 82875P Processor to AGP
-> Controller (rev 02)
-> 00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-> UHCI Controller #1 (rev 02)
-> 
-> lspci of the Xeon 32bit HP Proliant Server with 4GiB:
-> 00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
-> 00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express
-> Port A (rev 0c)
-> 00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c)
-> 00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-> UHCI Controller #1 (rev 02)
+On top of Steven's rtmutex-clean-up-and-remove-some-extra-spinlocks.patch
 
-We know the E7520 is able to do the remapping, provided the BIOS does not 
-mess it up. I have no idea about the E7210 (or the 875P - I was not aware 
-that they were this closely related), but without checking any docs I'm 
-assuming a 4G memory ceiling and no remapping capability.
+There are still 2 get_task_struct()s under ->pi_lock. Imho, this is
+confusing. Move them outside of ->pi_lock protected section. The task
+can't go away, otherwise it was unsafe to take task->pi_lock.
 
-Thank you.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-> lspci of the new box with 975X and Core 2 Duo not available yet for
-> obvious reasons (I don't have the the box yet).
+--- 2.6.18-rc3/kernel/rtmutex.c~	2006-08-13 18:49:28.000000000 +0400
++++ 2.6.18-rc3/kernel/rtmutex.c	2006-08-13 19:07:45.000000000 +0400
+@@ -249,6 +249,7 @@ static int rt_mutex_adjust_prio_chain(st
+ 
+ 	/* Grab the next task */
+ 	task = rt_mutex_owner(lock);
++	get_task_struct(task);
+ 	spin_lock_irqsave(&task->pi_lock, flags);
+ 
+ 	if (waiter == rt_mutex_top_waiter(lock)) {
+@@ -267,7 +268,6 @@ static int rt_mutex_adjust_prio_chain(st
+ 		__rt_mutex_adjust_prio(task);
+ 	}
+ 
+-	get_task_struct(task);
+ 	spin_unlock_irqrestore(&task->pi_lock, flags);
+ 
+ 	top_waiter = rt_mutex_top_waiter(lock);
+@@ -589,10 +589,10 @@ void rt_mutex_adjust_pi(struct task_stru
+ 		return;
+ 	}
+ 
+-	/* gets dropped in rt_mutex_adjust_prio_chain()! */
+-	get_task_struct(task);
+ 	spin_unlock_irqrestore(&task->pi_lock, flags);
+ 
++	/* gets dropped in rt_mutex_adjust_prio_chain()! */
++	get_task_struct(task);
+ 	rt_mutex_adjust_prio_chain(task, 0, NULL, NULL, task);
+ }
+ 
 
-I'd appreciate if you could send me both lspci and /proc/iomem output when 
-you get one of these with 4G or more ram installed. Off list, please.
-
-Yours,
--S
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-Simen Thoresen, Dolphin ICS

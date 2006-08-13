@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWHME7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbWHMFVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWHME7P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 00:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWHME7O
+	id S932677AbWHMFVG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 01:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWHMFVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 00:59:14 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:42798 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1030229AbWHME7O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 00:59:14 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Andi Kleen <ak@suse.de>
-cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: module compiler version check still needed? 
-In-reply-to: Your message of "Sun, 13 Aug 2006 06:48:36 +0200."
-             <200608130648.36178.ak@suse.de> 
+	Sun, 13 Aug 2006 01:21:05 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:47082 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932677AbWHMFVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 01:21:04 -0400
+Message-Id: <6.1.1.1.2.20060813071741.02ae87e0@192.168.6.12>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Sun, 13 Aug 2006 07:20:46 +0200
+To: linux-kernel@vger.kernel.org
+From: Roger While <simrw@sim-basis.de>
+Subject: Re: debug prism wlan
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 13 Aug 2006 14:59:19 +1000
-Message-ID: <31645.1155445159@ocs10w.ocs.com.au>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-SIMBasis-MailScanner-Information: Please contact the ISP for more information
+X-SIMBasis-MailScanner: Found to be clean
+X-SIMBasis-MailScanner-From: simrw@sim-basis.de
+X-ID: VmHfgkZpreCq5vgEa-5u-KguIE+3mEs7E3--6cSn9irW5d-oBHZxwt@t-dialin.net
+X-TOI-MSGID: 9497c9cf-4105-4c47-b36c-605feef5ba2f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen (on Sun, 13 Aug 2006 06:48:36 +0200) wrote:
->
->Does anybody know of any reason why we would still need the compiler version
->check during module loading? AFAIK on i386 it was only needed to handle
->2.95 (which got dropped) and on x86-64 it was never needed. Is there
->a need on any other architecture for it?
+Alistair John wrote:
+ > Daniel wrote:
+ >> Hey, that did it! But now I am a liddle confused. It worked fine before.
+ >> Why does it not work while interface is not up?
 
-IA64 still needs the check.  include/asm-ia64/spinlock.h generates
-different calls to the out of line spinlock handler, depending on the
-version of gcc.
+ > I'm not sure, but I think you've just been lucky.
+ > I've had this problem even before prism54 was merged.
+ > Some in-tree drivers won't upload the firmware until you ifconfig
+ > up them, which obviously means they won't respond adequately
+ > to the wireless extension requests. Maybe a bug?
+
+Nope, no bug. It allows the driver to be built non-modular.
+When non-modular, the resources are not available,
+at boot time, to load the firmware.
+
+Roger While
+
 

@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWHMVJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWHMVLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWHMVJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWHMVJQ
+	id S1751475AbWHMVLb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWHMVLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:09:16 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:47051 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751449AbWHMVJO (ORCPT
+	Sun, 13 Aug 2006 17:11:07 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:35222 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751475AbWHMVLD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:09:14 -0400
-Date: Sun, 13 Aug 2006 23:09:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: What's in kbuild.git for 2.6.19
-Message-ID: <20060813210907.GA22409@mars.ravnborg.org>
-References: <20060813194503.GA21736@mars.ravnborg.org> <20060813135426.8211204c.rdunlap@xenotime.net> <20060813135754.3c4a83a6.rdunlap@xenotime.net>
+	Sun, 13 Aug 2006 17:11:03 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH -mm 2/2] x86_64: Detect clock skew during suspend
+Date: Sun, 13 Aug 2006 23:07:40 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Andi Kleen <ak@suse.de>
+References: <200608132303.00012.rjw@sisk.pl>
+In-Reply-To: <200608132303.00012.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060813135754.3c4a83a6.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608132307.40741.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 01:57:54PM -0700, Randy.Dunlap wrote:
-> On Sun, 13 Aug 2006 13:54:26 -0700 Randy.Dunlap wrote:
-> 
-> > On Sun, 13 Aug 2006 21:45:03 +0200 Sam Ravnborg wrote:
-> > 
-> > > Just a quick intro to what is pending in kbuild.git/lxdialog.git
-> > > for 2.6.19. And a short status too.
-> > > 
-> > > o try the new "make V=2" thing. It tells why a target got
-> > > 	  rebuild. It is good to catch those "why the heck did
-> > > kbuild rebuild that much after changing just a tine CONFIG_
-> > > option".
-> > 
-> > Thanks, will use it.
-> > 
-> > > Jan Engelhardt:
-> > >       kconfig: linguistic fixes for
-> > > Documentation/kbuild/kconfig-language.txt kbuild: linguistic fixes
-> > > for Documentation/kbuild/modules.txt kbuild: linguistic fixes for
-> > > Documentation/kbuild/makefiles.txt
-> > 
-> > Were any of these used?
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115410865910922&w=2
+Detect the situations in which the time after a resume from disk would
+be earlier than the time before the suspend and prevent them from
+happening on x86_64.
 
-No. I have your original mail queued but never got around to it.
-A resubmit would be appreciated - with proper Signed-of-by:...
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ arch/x86_64/kernel/time.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletion(-)
 
-	Sam
+Index: linux-2.6.18-rc4-mm1/arch/x86_64/kernel/time.c
+===================================================================
+--- linux-2.6.18-rc4-mm1.orig/arch/x86_64/kernel/time.c
++++ linux-2.6.18-rc4-mm1/arch/x86_64/kernel/time.c
+@@ -1039,8 +1039,16 @@ static int timer_resume(struct sys_devic
+ 	unsigned long flags;
+ 	unsigned long sec;
+ 	unsigned long ctime = get_cmos_time();
+-	unsigned long sleep_length = (ctime - sleep_start) * HZ;
++	long sleep_length = (ctime - sleep_start) * HZ;
+ 
++	if (sleep_length < 0) {
++		printk(KERN_WARNING "Time skew detected in timer resume!\n");
++		/* The time after the resume must not be earlier than the time
++		 * before the suspend or some nasty things will happen
++		 */
++		sleep_length = 0;
++		ctime = sleep_start;
++	}
+ 	if (vxtime.hpet_address)
+ 		hpet_reenable();
+ 	else
+

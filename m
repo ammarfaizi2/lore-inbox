@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWHMF46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWHMGBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWHMF46 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 01:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWHMF46
+	id S1750704AbWHMGBa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 02:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWHMGBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 01:56:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26791 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750702AbWHMF45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 01:56:57 -0400
-Date: Sat, 12 Aug 2006 22:56:46 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "Edgar E. Iglesias" <edgar.iglesias@axis.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 (+ hotfixes): GPF related to skge on suspend
-Message-ID: <20060812225646.73b1ac2b@localhost.localdomain>
-In-Reply-To: <20060812181603.GA31106@edgar.underground.se.axis.com>
-References: <200608121207.42268.rjw@sisk.pl>
-	<200608121631.18603.rjw@sisk.pl>
-	<20060812161253.GA30691@edgar.underground.se.axis.com>
-	<200608121913.01139.rjw@sisk.pl>
-	<20060812181603.GA31106@edgar.underground.se.axis.com>
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Sun, 13 Aug 2006 02:01:30 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:16329 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750704AbWHMGB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 02:01:29 -0400
+Subject: Re: Neverending module_param() bugs
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
+       "Ian E. Morgan" <imorgan@webcon.ca>
+In-Reply-To: <20060813021938.GN2323@lug-owl.de>
+References: <20060812214709.GC6252@martell.zuzino.mipt.ru>
+	 <1155430441.3941.35.camel@praia>  <20060813021938.GN2323@lug-owl.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 13 Aug 2006 03:01:05 -0300
+Message-Id: <1155448865.3941.37.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Aug 2006 20:16:03 +0200
-"Edgar E. Iglesias" <edgar.iglesias@axis.com> wrote:
-
-> On Sat, Aug 12, 2006 at 07:13:01PM +0200, Rafael J. Wysocki wrote:
-> > Apparently it doesn't.
+Em Dom, 2006-08-13 às 04:19 +0200, Jan-Benedict Glaw escreveu:
+> On Sat, 2006-08-12 21:54:01 -0300, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
+> > Em Dom, 2006-08-13 às 01:47 +0400, Alexey Dobriyan escreveu:
+> > > P.S.: drivers/media/video/tuner-simple.c:13:module_param(offset, int,
+> > > 0666);
+> > 
+> > Good catch. We should change it to 0x664. I'll prepare such patch.
 > 
-> Hi, could you try and see if this helps?
+> But keep in mind it's really octal, not hex.
+Ah, sorry for the bad representation :)
 > 
-> Best regards
+> MfG, JBG
+> 
+Cheers, 
+Mauro.
 
-That looks good, but needs a few more changes for full safety.
-Kind of like the sky2 changes needed to get Mac Mini to work.
-
-The machine I have with skge boards don't suspend right but that is because
-of other problems.

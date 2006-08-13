@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932649AbWHMBLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWHMBWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932649AbWHMBLh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 21:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbWHMBLh
+	id S1030190AbWHMBWm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 21:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWHMBWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 21:11:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44522 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932644AbWHMBLg (ORCPT
+	Sat, 12 Aug 2006 21:22:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64996 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030190AbWHMBWl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 21:11:36 -0400
-Message-ID: <44DE7C34.4080909@redhat.com>
-Date: Sat, 12 Aug 2006 21:11:16 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
+	Sat, 12 Aug 2006 21:22:41 -0400
+Date: Sat, 12 Aug 2006 18:22:34 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: David Miller <davem@davemloft.net>
-CC: a.p.zijlstra@chello.nl, johnpol@2ka.mipt.ru, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       phillips@google.com
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-References: <1155374390.13508.15.camel@lappy>	<20060812093706.GA13554@2ka.mipt.ru>	<1155377887.13508.27.camel@lappy> <20060812.174651.113732891.davem@davemloft.net>
-In-Reply-To: <20060812.174651.113732891.davem@davemloft.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: softirq considered harmful
+Message-Id: <20060812182234.605b4fb4.akpm@osdl.org>
+In-Reply-To: <20060812.180944.51301787.davem@davemloft.net>
+References: <20060812162857.d85632b9.akpm@osdl.org>
+	<20060812.174324.77324010.davem@davemloft.net>
+	<20060812174549.9a8f8aeb.akpm@osdl.org>
+	<20060812.180944.51301787.davem@davemloft.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> Date: Sat, 12 Aug 2006 12:18:07 +0200
-> 
->> 65535 sockets * 128 packets * 16384 bytes/packet = 
->> 1^16 * 1^7 * 1^14 = 1^(16+7+14) = 1^37 = 128G of memory per IP
->>
->> And systems with a lot of IP numbers are not unthinkable.
-> 
-> TCP restricts the amount of global memory that may be consumed
-> by all TCP sockets via the tcp_mem[] sysctl.
+On Sat, 12 Aug 2006 18:09:44 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
 
-This is exactly why we need to be careful which sockets
-we allocate memory for, when the system is about to run
-out of memory.
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Sat, 12 Aug 2006 17:45:49 -0700
+> 
+> > Is that also adding 150 usecs to each IO operation?
+> 
+> I have no idea, Jens hasn't done enough to narrow down the true cause
+> of the latencies he is seeing.  So pinpointing it on anything specific
+> is highly premature at this stage.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Determining whether pre-conversion scsi was impacted in the same manner
+would be part of that pinpointing process.
+
+Deferring to softirq _has_ to add latency and any latency addition in
+synchronous disk IO is very bad.  That being said, 150 usecs per request is
+so bad that I'd be suspecting that it's not affecting most people, else
+we'd have heard.
+
+> My point was merely to encourage you to find out the facts before
+> tossing accusations around. :-)
+
+No, your point was that slotting this change into mainline without telling
+anyone was OK because SCSI has been doing something similar.
+

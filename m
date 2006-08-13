@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWHMT1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWHMTjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWHMT1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 15:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWHMT1Z
+	id S1751372AbWHMTjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 15:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWHMTjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 15:27:25 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:1742 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751371AbWHMT1Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 15:27:24 -0400
-Date: Sun, 13 Aug 2006 21:27:23 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_NETDEVICES does not do anything
-Message-ID: <20060813192723.GC21487@mars.ravnborg.org>
-References: <Pine.LNX.4.61.0608100831580.10926@yvahk01.tjqt.qr>
+	Sun, 13 Aug 2006 15:39:41 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:64845 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751372AbWHMTjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 15:39:40 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=cL5WEpMvbC8gRGs85ShdbbVcGVfdl7eMq3MjCEka1HHmMNInnMZ533qHinqrn6DqJ
+	LDSho5FMJCzzG8EyyIVqA==
+Message-ID: <44DF7FB9.8020003@google.com>
+Date: Sun, 13 Aug 2006 12:38:33 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608100831580.10926@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: David Miller <davem@davemloft.net>
+CC: jeff@garzik.org, a.p.zijlstra@chello.nl, netdev@vger.kernel.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 8/9] 3c59x driver conversion
+References: <20060808193447.1396.59301.sendpatchset@lappy>	<44D9191E.7080203@garzik.org>	<44D977D8.5070306@google.com> <20060808.225537.112622421.davem@davemloft.net>
+In-Reply-To: <20060808.225537.112622421.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 08:34:30AM +0200, Jan Engelhardt wrote:
-> Hello,
-> 
-> 
-> when deselecting CONFIG_NETDEVICES, many selectable items (PHY device 
-> support, Ethernet 10/100/1000/10000) stay in place. Is there a reason they 
-> are lacking 'depends on NETDEVICES' or did I found a bug^W glitch?
-It was changed by appended commit.
-I do not see why the if/endif was removed - Paolo?
+David Miller wrote:
+> I think he's saying that he doesn't think your code is yet a
+> reasonable way to solve the problem, and therefore doesn't belong
+> upstream.
 
-	Sam
+That is why it has not yet been submitted upstream.  Respectfully, I
+do not think that jgarzik has yet put in the work to know if this anti
+deadlock technique is reasonable or not, and he was only commenting
+on some superficial blemish.  I still don't get his point, if there
+was one.  He seems to be arguing in favor of a jump-off-the-cliff
+approach to driver conversion.  If he wants to do the work and take
+the blame when some driver inevitably breaks because of being edited
+in a hurry then he is welcome to submit the necessary additional
+patches.  Until then, there are about 3 nics that actually matter to
+network storage at the moment, all of them GigE.
 
+The layer 2 blemishes can be fixed easily, including avoiding the
+atomic op stall and the ->dev volatility .  Thankyou for pointing
+those out.
 
-commit 6967bd81d883ed325fd58840ee02a8da60458e6b
-Author: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Date:   Fri Feb 3 01:45:21 2006 -0800
+Regards,
 
-    [PATCH] Kbuild menu - hide empty NETDEVICES menu when NET is disabled
-    
-    Make the whole netdevices menu depend on NET, rather than having an empty
-    submenu when networking is disabled.
-    
-    Indeed, almost the whole body of the menu was surrounded by if NETDEVICES,
-    and what was outside depended on NETCONSOLE which is inside the menu.
-    
-    Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
-
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 6a6a084..47c72a6 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -4,9 +4,9 @@ # Network device configuration
- #
- 
- menu "Network device support"
-+	depends on NET
- 
- config NETDEVICES
--	depends on NET
- 	default y if UML
- 	bool "Network device support"
- 	---help---
-@@ -24,9 +24,6 @@ config NETDEVICES
- 
- 	  If unsure, say Y.
- 
--# All the following symbols are dependent on NETDEVICES - do not repeat
--# that for each of the symbols.
--if NETDEVICES
- 
- config IFB
- 	tristate "Intermediate Functional Block support"
-@@ -2718,8 +2715,6 @@ config NETCONSOLE
- 	If you want to log kernel messages over the network, enable this.
- 	See <file:Documentation/networking/netconsole.txt> for details.
- 
--endif #NETDEVICES
--
- config NETPOLL
- 	def_bool NETCONSOLE
- 
-
+Daniel

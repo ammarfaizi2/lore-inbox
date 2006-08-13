@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWHMOpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWHMP3C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWHMOpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 10:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWHMOpF
+	id S1751283AbWHMP3C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 11:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWHMP3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 10:45:05 -0400
-Received: from ozlabs.org ([203.10.76.45]:27857 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751264AbWHMOpD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 10:45:03 -0400
-Date: Mon, 14 Aug 2006 00:44:00 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Thomas Klein <osstklei@de.ibm.com>
-Cc: Jan-Bernd Themann <themann@de.ibm.com>,
-       Jan-Bernd Themann <ossthema@de.ibm.com>,
-       netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>, roland@topspin.com
-Subject: Re: [PATCH 3/6] ehea: queue management
-Message-ID: <20060813144400.GJ479@krispykreme>
-References: <44D99F38.8010306@de.ibm.com> <20060811215225.GH479@krispykreme> <44DE03B0.1060607@de.ibm.com>
+	Sun, 13 Aug 2006 11:29:02 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21260 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751283AbWHMP3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 11:29:00 -0400
+Date: Sun, 13 Aug 2006 17:28:59 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH for review] [123/145] i386: make fault notifier unconditional and export it
+Message-ID: <20060813152859.GB3543@stusta.de>
+References: <20060810935.775038000@suse.de> <20060810193722.8082B13B8E@wotan.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44DE03B0.1060607@de.ibm.com>
+In-Reply-To: <20060810193722.8082B13B8E@wotan.suse.de>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It's needed for external debuggers and overhead is very small.
+>...
 
-Hi,
+We are currently trying to remove exports not used by any in-kernel 
+code.
 
-> I agree, stubbs were removed.
+The patch description also lacks the name of what you call "external 
+debuggers" (I assume the exports are not for a theoretical usage but for 
+an already existing debugger?). There is no reason for keeping a patch 
+description small.
 
-Thanks.
+Especially nowadays where people demand deprecation periods for removing 
+exports without any in-kernel users there must be a _very_ good 
+justification when adding such exports.
 
-What is going to be done about the debug infrastructure in the ehea
-driver? The entry and exit traces really need to go, and any other debug
-you think is important to users needs to go into debugfs or something
-similar.
+This is true for both the i386 and the x86_64 patches.
 
-I see a similar issue in the ehca driver that I am in the middle of
-reviewing.
+cu
+Adrian
 
-Anton
+BTW1: The subject of this email is wrong (it's the x86_64 patch).
+BTW2: Please use a valid To: header.
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
+

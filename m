@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWHMVJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWHMVJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751434AbWHMVJL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWHMVJL
+	id S1751449AbWHMVJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWHMVJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:09:11 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:32119 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751434AbWHMVJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:09:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=URVwNUtEgCGWKJQluysQpyvMWKVB0c4I8MGULz7ifPG8FEtTSxUcP8z+bIj62ZqzDo6N8whUhharEdc6m0whNraXlB8JfzM9rGAX516adjZDojY7ic721ICZ+xrqSK1y8aUuZd+gEYg+7tMnBgLgsigTVphXU7oi+EHiccOZCW0=
-Message-ID: <44DF953B.6010707@gmail.com>
-Date: Sun, 13 Aug 2006 17:10:19 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 13 Aug 2006 17:09:16 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:47051 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751449AbWHMVJO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 17:09:14 -0400
+Date: Sun, 13 Aug 2006 23:09:07 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: What's in kbuild.git for 2.6.19
+Message-ID: <20060813210907.GA22409@mars.ravnborg.org>
+References: <20060813194503.GA21736@mars.ravnborg.org> <20060813135426.8211204c.rdunlap@xenotime.net> <20060813135754.3c4a83a6.rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: dmitry.torokhov@gmail.com
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] atkbd.c: overrun in atkbd_set_repeat_rate()
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060813135754.3c4a83a6.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was introduced in commit 3d0f0fa0cb554541e10cb8cb84104e4b10828468:
-bounds checking is performed against period[32] while indexing delay[4].
+On Sun, Aug 13, 2006 at 01:57:54PM -0700, Randy.Dunlap wrote:
+> On Sun, 13 Aug 2006 13:54:26 -0700 Randy.Dunlap wrote:
+> 
+> > On Sun, 13 Aug 2006 21:45:03 +0200 Sam Ravnborg wrote:
+> > 
+> > > Just a quick intro to what is pending in kbuild.git/lxdialog.git
+> > > for 2.6.19. And a short status too.
+> > > 
+> > > o try the new "make V=2" thing. It tells why a target got
+> > > 	  rebuild. It is good to catch those "why the heck did
+> > > kbuild rebuild that much after changing just a tine CONFIG_
+> > > option".
+> > 
+> > Thanks, will use it.
+> > 
+> > > Jan Engelhardt:
+> > >       kconfig: linguistic fixes for
+> > > Documentation/kbuild/kconfig-language.txt kbuild: linguistic fixes
+> > > for Documentation/kbuild/modules.txt kbuild: linguistic fixes for
+> > > Documentation/kbuild/makefiles.txt
+> > 
+> > Were any of these used?
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115410865910922&w=2
 
-Spotted by Coverity, CID 1376.
+No. I have your original mail queued but never got around to it.
+A resubmit would be appreciated - with proper Signed-of-by:...
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 6bfa0cf..a86afd0 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -498,7 +498,7 @@ static int atkbd_set_repeat_rate(struct 
- 		i++;
- 	dev->rep[REP_PERIOD] = period[i];
- 
--	while (j < ARRAY_SIZE(period) - 1 && delay[j] < dev->rep[REP_DELAY])
-+	while (j < ARRAY_SIZE(delay) - 1 && delay[j] < dev->rep[REP_DELAY])
- 		j++;
- 	dev->rep[REP_DELAY] = delay[j];
- 
-
-
+	Sam

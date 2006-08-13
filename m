@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWHMGrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWHMGuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWHMGrT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 02:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWHMGrT
+	id S1750720AbWHMGuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 02:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWHMGuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 02:47:19 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:16339 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S1750715AbWHMGrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 02:47:18 -0400
-Message-ID: <44DECAF1.8020902@bonetmail.com>
-Date: Sun, 13 Aug 2006 08:47:13 +0200
-From: Jani Aho <jani.aho@bonetmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Sun, 13 Aug 2006 02:50:09 -0400
+Received: from ns.suse.de ([195.135.220.2]:19116 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750720AbWHMGuI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 02:50:08 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH for review] [43/145] i386: Redo semaphore and rwlock assembly helpers
+Date: Sun, 13 Aug 2006 08:50:01 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
+References: <20060810 935.775038000@suse.de> <20060810193557.7E1F313B90@wotan.suse.de> <20060812175348.79175355.akpm@osdl.org>
+In-Reply-To: <20060812175348.79175355.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org, i2c@lm-sensors.org
-Subject: Re: Sensors broke between 2.6.16.16 and 2.6.16.17 - SOLVED
-References: <44DE0DCE.4090305@bonetmail.com> <44DE4EC8.8090404@gmail.com>
-In-Reply-To: <44DE4EC8.8090404@gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608130850.01592.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Jani Aho wrote:
->> Hi
->>
->> The sensors on my motherboard stopped working between 2.6.16.16 and
->> 2.6.16.17. The latest kernel version I have tried is 2.6.17.8 and it
->> still has the same problem.
->>
->> The motherboard is an ASUS P4PE and it uses the asb100 and i2c-i801
->> modules to get sensor information.
->>
->> A diff in /sys between a bad (2.6.17.8) and a good (2.6.16.16) kernel
->> gives:
->
-> And is there any diff in dmesgs of those 2 kernels?
->
-Problem solved.
+On Sunday 13 August 2006 02:53, Andrew Morton wrote:
+> On Thu, 10 Aug 2006 21:35:57 +0200 (CEST)
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > - Move them to a pure assembly file. Previously they were in 
+> > a C file that only consisted of inline assembly. Doing it in pure
+> > assembler is much nicer.
+> > - Add a frame.i include with FRAME/ENDFRAME macros to easily
+> > add frame pointers to assembly functions 
+> > - Add dwarf2 annotation to them so that the new dwarf2 unwinder
+> > doesn't get stuck on them
+> > [TBD: needs review from someone who knows more about CFA than me, e.g. Jan]
+> > - Random cleanups
+> 
+> This patch causes the below crash after some seconds of disk stresstesting.
 
-The only related message in the dmesg diff was:
+I can't reproduce this with either LTP nor OraSim.
+Also I looked over the patch and i can't see any mistakes.
 
---- dmesg.bad   2006-08-13 08:21:21.000000000 +0200
-+++ dmesg.good  2006-08-13 08:17:53.000000000 +0200
-+PCI: Enabled i801 SMBus device
+Can you double check please?
 
-Looking at the changelog for 2.6.16.17, I found this patch:
-
-commit a9cacd682ed7c031fa05b1d1367a3b3221813932
-Author: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-Date:   Mon May 15 09:44:33 2006 -0700
-
-    [PATCH] smbus unhiding kills thermal management
-    
-    Do not enable the SMBus device on Asus boards if suspend is used.  We do
-    not reenable the device on resume, leading to all sorts of undesirable
-    effects, the worst being a total fan failure after resume on Samsung P35
-    laptop.
-    
-    This fixes bug #6449 at bugzilla.kernel.org.
+-Andi
 
 
-For some strange reason I had ACPI Sleep States enabled, so I disabled
-it, recompiled the kernel and hey presto, the sensors are back.
-
-Thanks for taking your time on this none problem
-
-Jani
+> 

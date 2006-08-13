@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWHMHCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWHMHDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWHMHCq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 03:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWHMHCq
+	id S1750726AbWHMHDn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 03:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWHMHDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 03:02:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47280 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750724AbWHMHCp (ORCPT
+	Sun, 13 Aug 2006 03:03:43 -0400
+Received: from vmail.comtv.ru ([217.10.32.17]:7832 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id S1750726AbWHMHDm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 03:02:45 -0400
-Date: Sun, 13 Aug 2006 00:02:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH for review] [109/145] x86_64: Convert modlist_lock to be
- a raw spinlock
-Message-Id: <20060813000231.1ef1e21e.akpm@osdl.org>
-In-Reply-To: <200608130852.46300.ak@suse.de>
-References: <20060810 935.775038000@suse.de>
-	<20060810193707.9DE2013C0B@wotan.suse.de>
-	<20060812224825.1da23a1a.akpm@osdl.org>
-	<200608130852.46300.ak@suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 13 Aug 2006 03:03:42 -0400
+X-UCL: actv
+Message-ID: <44DEC069.85C6D3E3@inCTV.ru>
+Date: Sun, 13 Aug 2006 06:02:17 +0000
+From: Innocenti Maresin <qq@inCTV.ru>
+Organization: [ =?KOI8-R?Q?=DA=C1_IP_=C2=C5=DA_=C3=C5=CE=DA=D5=D2=D9?= ] 
+ http://internet.comtv.ru/
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.6.13-rc6 i686)
+X-Accept-Language: ru, fr, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: remapping IP addresses for inbound and outbound traffic
+References: <LKML-nat-0.qq@inCTV.ru> <NBBBIHMOBLOHKCGIMJMDOEBFFMAA.g.tomassoni@libero.it>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 08:52:46 +0200
-Andi Kleen <ak@suse.de> wrote:
+Giampaolo Tomassoni:
+ 
+> I guess you can't do this, since a believe there is a single linux arp table.
+> It is not per-interface.
 
-> On Sunday 13 August 2006 07:48, Andrew Morton wrote:
-> > On Thu, 10 Aug 2006 21:37:07 +0200 (CEST)
-> > Andi Kleen <ak@suse.de> wrote:
-> > 
-> > > This is a preparationary patch for converting stacktrace over to the
-> > > new dwarf2 unwinder. lockdep uses stacktrace and the new unwinder
-> > > takes the modlist_lock so using a normal spinlock would cause a deadlock.
-> > > Use a raw lock instead.
-> > > 
-> > 
-> > It breaks the build on most architectures.
-> 
-> Hmm, I grepped and most architectures seem to have both __raw_spin_lock
-> and local_save_flags.
+It is a problem generally, but happily not in my case 
+because at least one of my networks has this overlapping IP area behind a router. 
+More precisely, one network almost entirely stands behind a router. 
+I do not need any ARP for IPs those I want to remap. 
 
-box:/usr/src/25> grep -l raw_local_save_flags include/asm-*/*.h  
-include/asm-avr32/irqflags.h
-include/asm-i386/irqflags.h
-include/asm-mips/irqflags.h
-include/asm-powerpc/irqflags.h
-include/asm-s390/irqflags.h
-include/asm-x86_64/irqflags.h
+ 
+> If you had hosts with unique IPs on both nets, that would be another story:
+> you could use some sort of VPN or Bridge functionality.
+> You could also be able to avoid packets passing through the bridged/VPNed interfaces
+> thanks to iptables.
 
-> I didn't actually compile them because crosstool
-> doesn't love me anymore since I use gcc 4.0.
+May be I do not understand what means "some sort of VPN or Bridge functionality", 
+but any solution requiring an extra soft on the client side would be inadequate 
+and I will not take such proposals into account. 
+My server must accept pure IP from both sides. 
+I am not willing to set up packet forwarding, GRE, nor any another "advanced technique". 
+Only one simple thing is required: to shift a block of IPs at one interface. 
 
-crosstool is a bit of a bitch.
 
-> What is the official portable interface to do a raw spinlock
-> if this one doesn't work?
 
-I don't see a way, really.  Apart from going in and implementing it on the
-various architectures.
 
-Perhaps x86_64-mm-module-locks-raw-spinlock-hack-hack-hack.patch could be
-hoisted up to include/linux/spinlock.h and then at least only
-lockdep-enabled architectures need to implement these things.
-
+-- 
+qq~~~~\	
+/ /\   \
+\  /_/ /
+ \____/

@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWHMPgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWHMPrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWHMPgh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 11:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHMPgg
+	id S1751290AbWHMPrb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 11:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWHMPrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 11:36:36 -0400
-Received: from qb-out-0506.google.com ([72.14.204.236]:59868 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751281AbWHMPgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 11:36:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=BHwkDJ+zNJ9fRmWGhErwtmY4+OdI5Ij49I8Gsa6M5blbVXkUeByimvIEBjMqxgwICKAS+Ua1ERKbjufeKzwH1HFmqNYAEEZ4Yyz2OwkLP/OWVXgNCZpz/4sKz4x7IeLXFQbXlvzr4nhPDvz1HkFF5D6JMNRVCFcN001BZErS9Ls=
-Message-ID: <6b4360c80608130836t1169daf2vd5bc6a0a373989e8@mail.gmail.com>
-Date: Sun, 13 Aug 2006 10:36:35 -0500
-From: "Nick Manley" <darkhack@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: IRQ Issues with 2.6.17.8
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Aug 2006 11:47:31 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:6540 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751290AbWHMPrb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 11:47:31 -0400
+Date: Mon, 14 Aug 2006 00:11:18 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH] elf_fdpic_core_dump: don't take tasklist_lock
+Message-ID: <20060813201118.GA159@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried all sorts of kernels and distributions with similar
-results. I decided to try Arch Linux and compile my own 2.6.17.8
-kernel and see if it fixes any of the issues. It doesn't. The system
-boots, but I have some odd errors that pevent certain things (like
-ndiswrapper for example) from working correctly. In fact, ndiswrapper
-causes a kernel panic. And no this isn't an ndiswrapper issue because
-the kernel reports errors even without it installed. Ndiswrapper is
-just an example of an application that is affected by it. I'll paste
-my system files so you can see what errors are being reported.  I've
-already attempted acpi=off, irqpoll, noapic, and other similar
-commands in different combinations with no luck. The following logs
-are from Kernel 2.6.17.8 with NO additional boot parameters attached.
-The kernel was compiled on Arch Linux 0.72 with GCC 4.0.3.  Thank you
-for your time...
+do_each_thread() is rcu-safe, and all tasks which use this ->mm must
+sleep in wait_for_completion(&mm->core_done) at this point, so we can
+use RCU locks.
 
-dmesg - http://pastebin.ca/129538
-errors.log - http://pastebin.ca/129542
-everything.log - http://pastebin.ca/129545
-lspci - http://pastebin.ca/129546
-messages.log - http://pastebin.ca/129550
+Also, remove unneeded INIT_LIST_HEAD(new) before list_add(new, head).
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.18-rc3/fs/binfmt_elf_fdpic.c~fdpic	2006-07-16 01:53:08.000000000 +0400
++++ 2.6.18-rc3/fs/binfmt_elf_fdpic.c	2006-08-14 00:05:27.000000000 +0400
+@@ -1597,20 +1597,19 @@ static int elf_fdpic_core_dump(long sign
+ 
+ 	if (signr) {
+ 		struct elf_thread_status *tmp;
+-		read_lock(&tasklist_lock);
++		rcu_read_lock();
+ 		do_each_thread(g,p)
+ 			if (current->mm == p->mm && current != p) {
+ 				tmp = kzalloc(sizeof(*tmp), GFP_ATOMIC);
+ 				if (!tmp) {
+-					read_unlock(&tasklist_lock);
++					rcu_read_unlock();
+ 					goto cleanup;
+ 				}
+-				INIT_LIST_HEAD(&tmp->list);
+ 				tmp->thread = p;
+ 				list_add(&tmp->list, &thread_list);
+ 			}
+ 		while_each_thread(g,p);
+-		read_unlock(&tasklist_lock);
++		rcu_read_unlock();
+ 		list_for_each(t, &thread_list) {
+ 			struct elf_thread_status *tmp;
+ 			int sz;
+

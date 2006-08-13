@@ -1,127 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWHMRTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWHMRXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWHMRTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 13:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWHMRTy
+	id S1751342AbWHMRXh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 13:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHMRXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 13:19:54 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:41295 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751336AbWHMRTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 13:19:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Qk2PXCH6Gy9f1TXw5zoVldo7qOpyz0FzUhgsCJpvyzvYMCcbhYH8aEAl2QCUkxRv8/aEd7yAZXzt9lEkmV7lfllnK3Tkhd/MZichKOa7fWfH/R/pve1pnQH+AJ+LaXXTDtOiEOyH9FEo7psYhz3doaUzfvpP5VfZkP+1RG/Mo0M=
-Message-ID: <44DF5F59.4000100@gmail.com>
-Date: Sun, 13 Aug 2006 19:20:25 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Thomas Winischhofer <thomas@winischhofer.net>
-Subject: Re: 2.6.18-rc4-mm1: drivers/video/sis/ compile error
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060813153034.GD3543@stusta.de> <6bffcb0e0608130929k28ea4974sbced3374067d6794@mail.gmail.com> <20060813164056.GF3543@stusta.de>
-In-Reply-To: <20060813164056.GF3543@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 13 Aug 2006 13:23:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21472 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751342AbWHMRXg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 13:23:36 -0400
+Date: Sun, 13 Aug 2006 10:23:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: linux-kernel@vger.kernel.org, toyoa@mvista.com
+Subject: Re: [patch] fix posix timer errors
+Message-Id: <20060813102327.b02cfffe.akpm@osdl.org>
+In-Reply-To: <20060813143200.GA2779@slug>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	<20060813143200.GA2779@slug>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, Aug 13, 2006 at 06:29:46PM +0200, Michal Piotrowski wrote:
->> On 13/08/06, Adrian Bunk <bunk@stusta.de> wrote:
->>> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
->>>> ...
->>>> Changes since 2.6.18-rc3-mm2:
->>>> ...
->>>> +drivers-video-sis-sis_mainh-removal-of-old.patch
->>>> ...
->>>>  fbdev updates
->>>> ...
->>> This patch removes too much:
->>> ...
->> I'll take a closer look at this. I have tested this with allyesconfig
->> on 2006-08-08-00-59 mm snapshot,
+On Sun, 13 Aug 2006 16:32:00 +0200
+Frederik Deweerdt <deweerdt@free.fr> wrote:
 
-Not as well as I should.
-
->> but now it doesn't build when
->> CONFIG_FB_SIS=y (CONFIG_FB_SIS=m builds fine for me).
->>
->> Thanks for pointing that out.
+> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> > 
+> Hi,
 > 
-> The problem is here:
+> posix-timers-fix-clock_nanosleep-doesnt-return-the-remaining-time-in-compatibility-mode.patch
+> declares two functions with the wrong return type.
 > 
-> <--  snip  -->
+> Also, posix-timers-fix-the-flags-handling-in-posix_cpu_nsleep.patch uses
+> '=' instead of '=='.
 > 
-> ...
->  #ifdef MODULE
-> -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-> -static int sisfb_mode_idx = -1;
-> -#else
-> -static int sisfb_mode_idx = MODE_INDEX_NONE;  /* Don't use a mode by default if we are a module */
-> -#endif
-> -#else
->  static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
->  #endif
-> ...
-> 
-> <--  snip  -->
-> 
-> It's easy to see that you removed too much (or too few, since the
-> #ifdef MODULE can be removed - there's also a similar no longer 
-> required #ifdef MODULE in sis_main.c).
-
-Thanks for your help.
-
-This patch should fix this problem. Tested with CONFIG_FB_SIS=y and CONFIG_FB_SIS=m.
-
-> 
-> cu
-> Adrian
+> The attached patch fix both issues.
 > 
 
-Regards,
-Michal
+Thanks.
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+> 
+> diff --git a/kernel/posix-cpu-timers.c b/kernel/posix-cpu-timers.c
+> index 1fc1ea2..479b16b 100644
+> --- a/kernel/posix-cpu-timers.c
+> +++ b/kernel/posix-cpu-timers.c
+> @@ -1477,7 +1477,7 @@ int posix_cpu_nsleep(const clockid_t whi
+>  
+>  	error = do_cpu_nanosleep(which_clock, flags, rqtp, &it);
+>  
+> -	if (error = -ERESTART_RESTARTBLOCK) {
+> +	if (error == -ERESTART_RESTARTBLOCK) {
+>  
+>  	       	if (flags & TIMER_ABSTIME)
+>  			return -ERESTARTNOHAND;
+> @@ -1511,7 +1511,7 @@ long posix_cpu_nsleep_restart(struct res
+>  	restart_block->fn = do_no_restart_syscall;
+>  	error = do_cpu_nanosleep(which_clock, TIMER_ABSTIME, &t, &it);
+>  
+> -	if (error = -ERESTART_RESTARTBLOCK) {
+> +	if (error == -ERESTART_RESTARTBLOCK) {
 
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+This is the sort of thing which should have been caught in testing, but it
+wasn't, which raises questions about how well-tested the rest of it is?
 
-diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/drivers/video/sis/sis_main.c linux-mm/drivers/video/sis/sis_main.c
---- linux-mm-clean/drivers/video/sis/sis_main.c	2006-08-13 19:12:46.000000000 +0200
-+++ linux-mm/drivers/video/sis/sis_main.c	2006-08-13 18:58:49.000000000 +0200
-@@ -83,13 +83,7 @@ sisfb_setdefaultparms(void)
- 	sisfb_max		= -1;
- 	sisfb_userom		= -1;
- 	sisfb_useoem		= -1;
--#ifdef MODULE
--	/* Module: "None" for 2.4, default mode for 2.5+ */
--	sisfb_mode_idx		= -1;
--#else
--	/* Static: Default mode */
- 	sisfb_mode_idx		= -1;
--#endif
- 	sisfb_parm_rate		= -1;
- 	sisfb_crt1off		= 0;
- 	sisfb_forcecrt1		= -1;
-diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/drivers/video/sis/sis_main.h linux-mm/drivers/video/sis/sis_main.h
---- linux-mm-clean/drivers/video/sis/sis_main.h	2006-08-13 19:12:46.000000000 +0200
-+++ linux-mm/drivers/video/sis/sis_main.h	2006-08-13 19:06:43.000000000 +0200
-@@ -67,9 +67,7 @@ static int sisfb_ypan = -1;
- static int sisfb_max = -1;
- static int sisfb_userom = 1;
- static int sisfb_useoem = -1;
--#ifdef MODULE
- static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
--#endif
- static int sisfb_parm_rate = -1;
- static int sisfb_crt1off = 0;
- static int sisfb_forcecrt1 = -1;
-
+Plus it will have generated compiler warnings.

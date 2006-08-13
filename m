@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWHMTjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWHMTpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWHMTjl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 15:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWHMTjl
+	id S1751384AbWHMTpG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 15:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWHMTpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 15:39:41 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:64845 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751372AbWHMTjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 15:39:40 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=cL5WEpMvbC8gRGs85ShdbbVcGVfdl7eMq3MjCEka1HHmMNInnMZ533qHinqrn6DqJ
-	LDSho5FMJCzzG8EyyIVqA==
-Message-ID: <44DF7FB9.8020003@google.com>
-Date: Sun, 13 Aug 2006 12:38:33 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Sun, 13 Aug 2006 15:45:06 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:36797 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751384AbWHMTpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 15:45:04 -0400
+Date: Sun, 13 Aug 2006 21:45:03 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: What's in kbuild.git for 2.6.19
+Message-ID: <20060813194503.GA21736@mars.ravnborg.org>
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: jeff@garzik.org, a.p.zijlstra@chello.nl, netdev@vger.kernel.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 8/9] 3c59x driver conversion
-References: <20060808193447.1396.59301.sendpatchset@lappy>	<44D9191E.7080203@garzik.org>	<44D977D8.5070306@google.com> <20060808.225537.112622421.davem@davemloft.net>
-In-Reply-To: <20060808.225537.112622421.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> I think he's saying that he doesn't think your code is yet a
-> reasonable way to solve the problem, and therefore doesn't belong
-> upstream.
+Just a quick intro to what is pending in kbuild.git/lxdialog.git for 2.6.19.
+And a short status too.
 
-That is why it has not yet been submitted upstream.  Respectfully, I
-do not think that jgarzik has yet put in the work to know if this anti
-deadlock technique is reasonable or not, and he was only commenting
-on some superficial blemish.  I still don't get his point, if there
-was one.  He seems to be arguing in favor of a jump-off-the-cliff
-approach to driver conversion.  If he wants to do the work and take
-the blame when some driver inevitably breaks because of being edited
-in a hurry then he is welcome to submit the necessary additional
-patches.  Until then, there are about 3 nics that actually matter to
-network storage at the moment, all of them GigE.
+Highlights:
+	o unifdef is now included in the kernel source (used by
+	  headers_* targets).
+	o lxdialog is now built-in (this did not remove all flickering
+	  but thats much easier to fix now).
+	o Added color theme support to lxdialog (see help in menuconfig)
+	o modpost is run twice on vmlinux in normal (modules included)
+	  builds - which may result in duplicated warnings.
+	  It is run twice to make sure we run modpost in non-modules
+	  build. modpost does the section mismatch chcks in all cases
+	o try the new "make V=2" thing. It tells why a target got
+	  rebuild. It is good to catch those "why the heck did kbuild
+	  rebuild that much after changing just a tine CONFIG_ option".
 
-The layer 2 blemishes can be fixed easily, including avoiding the
-atomic op stall and the ->dev volatility .  Thankyou for pointing
-those out.
+All of this is in latest -mm, and git trees at kernel.org.
 
-Regards,
+Outstanding kbuild issues (I should fix a few of these for 2.6.18):
+o make -j N is not as parallel as expected (latest report from Keith
+  Ownens but others has complained as well). I assume it is a kbuild
+  thing but has no clue how to fix it or debug it further.
+o symlinked output directory is no good (Andi Kleen)
+o dependency errors in scripts/ (Olaf Hering)
+o fix -Wshadow in scripts/ (Jesper Juhl)
+  I add quite a few warnings in lxdialog patch serie :-(
+o Add a few more color themses from Jan Engelhardt
+o bugzilla has a few more issues that needs some love & care
 
-Daniel
+	Sam
+
+
+Jan Engelhardt:
+      kconfig: linguistic fixes for Documentation/kbuild/kconfig-language.txt
+      kbuild: linguistic fixes for Documentation/kbuild/modules.txt
+      kbuild: linguistic fixes for Documentation/kbuild/makefiles.txt
+
+Magnus Damm:
+      kbuild: ignore references from ".pci_fixup" to ".init.text"
+
+Matthew Wilcox:
+      kconfig: support DOS line endings
+
+Olaf Hering:
+      remove RPM_BUILD_ROOT from asm-offsets.h
+
+Sam Ravnborg:
+      kbuild: consistently decide when to rebuild a target
+      kbuild: add unifdef
+      kbuild: replace use of strlcpy with a dedicated implmentation in unifdef
+      kbuild: use in-kernel unifdef
+      kbuild: create output directory for hostprogs with O=.. build
+      kbuild: remove debug left-over from Makefile.host
+      kbuild: modpost on vmlinux regardless of CONFIG_MODULES
+      kbuild: make V=2 tell why a target is rebuild
+      kbuild: make -rR is now default
+      kbuild: preperly align SYSMAP output
+      kbuild: add missing return statement in modpost.c:secref_whitelist()
+
+Sam Ravnborg:
+      kconfig/lxdialog: refactor color support
+      kconfig/lxdialog: add support for color themes and add blackbg theme
+      kconfig/lxdialog: add a new theme bluetitle which is now default
+      kconfig/menuconfig: lxdialog is now built-in
+      kconfig/lxdialog: let <ESC><ESC> behave as expected
+      kconfig/lxdialog: support resize
+      kconfig/lxdialog: fix make mrproper
+

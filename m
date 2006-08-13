@@ -1,102 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWHMQgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWHMQk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWHMQgG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 12:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWHMQgG
+	id S1751313AbWHMQk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 12:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWHMQk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 12:36:06 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41996 "HELO
+	Sun, 13 Aug 2006 12:40:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49164 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751308AbWHMQgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 12:36:05 -0400
-Date: Sun, 13 Aug 2006 18:36:03 +0200
+	id S1751313AbWHMQk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 12:40:58 -0400
+Date: Sun, 13 Aug 2006 18:40:56 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: v4l-dvb-maintainer@linuxtv.org
-Cc: Trent Piepho <xyzzy@speakeasy.org>, Zachary Amsden <zach@vmware.com>,
-       Andrew Morton <akpm@osdl.org>, Jack Lo <jlo@vmware.com>,
-       Greg KH <greg@kroah.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-acpi@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [v4l-dvb-maintainer] Options depending on STANDALONE
-Message-ID: <20060813163603.GE3543@stusta.de>
-References: <44D1CC7D.4010600@vmware.com> <Pine.LNX.4.58.0608031610110.9178@shell2.speakeasy.net> <20060805105122.GT25692@stusta.de> <200608061319.00085@orion.escape-edv.de>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       Thomas Winischhofer <thomas@winischhofer.net>
+Subject: Re: 2.6.18-rc4-mm1: drivers/video/sis/ compile error
+Message-ID: <20060813164056.GF3543@stusta.de>
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060813153034.GD3543@stusta.de> <6bffcb0e0608130929k28ea4974sbced3374067d6794@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608061319.00085@orion.escape-edv.de>
+In-Reply-To: <6bffcb0e0608130929k28ea4974sbced3374067d6794@mail.gmail.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 06, 2006 at 01:18:59PM +0200, Oliver Endriss wrote:
-> Adrian Bunk wrote:
-> > On Thu, Aug 03, 2006 at 04:40:25PM -0700, Trent Piepho wrote:
-> > > On Thu, 3 Aug 2006, Adrian Bunk wrote:
-> > > > On Thu, Aug 03, 2006 at 03:56:17PM -0400, Dave Jones wrote:
-> > > > > You're describing PREVENT_FIRMWARE_BUILD.  The text Zach quoted is from
-> > > > > STANDALONE, which is something else completely.  That allows us to not
-> > > > > build drivers that pull in things from /etc and the like during compile.
-> > > > > (Whoever thought that was a good idea?)
-> > > >
-> > > > Is DVB_AV7110_FIRMWARE really still required?
-> > > > ALL other drivers work without such an option.
-> > > 
-> > > The other DVB drivers that need firmware load it when the device is opened
-> > > or used (ie.  a channel is tuned).  At least for the ones I'm familiar
-> > > with.  If they are compiled directly into the kernel, they can still use
-> > > FW_LOADER since the loading won't happen until utill well after booting is
-> > > done.
-> > > 
-> > > For AV7110, it looks like the firmware loading is done when the driver is
-> > > first initialized.  If AV7110 is compiled into the kernel, FW_LOADER can
-> > > not be used.  The filesystem with the firmware won't be mounted yet.
-> > > 
-> > > So AV7110 has an option to compile a firmware file into the driver.
-> > 
-> > But is there a technical reason why this has to be done this way?
-> > 
-> > This is the onle (non-OSS) driver doing it this way, and Zach has a 
-> > point that this is legally questionable.
+On Sun, Aug 13, 2006 at 06:29:46PM +0200, Michal Piotrowski wrote:
+> On 13/08/06, Adrian Bunk <bunk@stusta.de> wrote:
+> >On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+> >>...
+> >> Changes since 2.6.18-rc3-mm2:
+> >>...
+> >> +drivers-video-sis-sis_mainh-removal-of-old.patch
+> >>...
+> >>  fbdev updates
+> >>...
+> >
+> >This patch removes too much:
+> >...
 > 
-> This option _is_ useful because it allows allows a user to build an
-> av7110 driver without hotplug etc. I NAK any attempt to remove it.
-
-If you look at the dependencies of DVB_AV7110 and the code in av7110.c 
-you'll note that your statement "it allows allows a user to build an 
-av7110 driver without hotplug" is not true.
-
-> Sorry, a kernel option cannot cause a legal issue. Only the user does.
-> For non-distribution kernels there is no difference whether firmware is
-> loaded at run-time or compiled-in.
+> I'll take a closer look at this. I have tested this with allyesconfig
+> on 2006-08-08-00-59 mm snapshot, but now it doesn't build when
+> CONFIG_FB_SIS=y (CONFIG_FB_SIS=m builds fine for me).
 > 
-> Obviously, there might be a difference for distribution kernels if you
-> are not allowed to distribute the firmware (imho not a problem in this
-> case, but IANAL). Simple solution: Do not enable the option.
+> Thanks for pointing that out.
 
-The general direction in Linux kernel development is to load the 
-firmware at runtime.
+The problem is here:
 
-> I have no problem if you want to remove STANDALONE: Simply remove the
-> dependency to STANDALONE, but keep DVB_AV7110_FIRMWARE with default 'n'.
+<--  snip  -->
 
-The point of STANDALONE are working allmodconfig/allyesconfig compiles.
+...
+ #ifdef MODULE
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+-static int sisfb_mode_idx = -1;
+-#else
+-static int sisfb_mode_idx = MODE_INDEX_NONE;  /* Don't use a mode by default if we are a module */
+-#endif
+-#else
+ static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
+ #endif
+...
 
-Removing the dependency on STANDALONE therefore implies that it compiles.
+<--  snip  -->
 
-> CU
-> Oliver
+It's easy to see that you removed too much (or too few, since the
+#ifdef MODULE can be removed - there's also a similar no longer 
+required #ifdef MODULE in sis_main.c).
 
 cu
 Adrian
 
 -- 
 
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

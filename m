@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWHMTrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWHMTx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWHMTrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 15:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWHMTrJ
+	id S1751398AbWHMTx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 15:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWHMTx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 15:47:09 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:28296 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751386AbWHMTrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 15:47:08 -0400
-Message-ID: <44DF81D2.8010807@drzeus.cx>
-Date: Sun, 13 Aug 2006 21:47:30 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	Sun, 13 Aug 2006 15:53:58 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:29160 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751395AbWHMTx5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 15:53:57 -0400
+Message-ID: <44DF834E.4020302@garzik.org>
+Date: Sun, 13 Aug 2006 15:53:50 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
-       Shaohua Li <shaohua.li@intel.com>
-Subject: Problem reaching Intel's mail servers
-Content-Type: text/plain; charset=ISO-8859-1
+To: Daniel Phillips <phillips@google.com>
+CC: David Miller <davem@davemloft.net>, a.p.zijlstra@chello.nl,
+       netdev@vger.kernel.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 8/9] 3c59x driver conversion
+References: <20060808193447.1396.59301.sendpatchset@lappy>	<44D9191E.7080203@garzik.org>	<44D977D8.5070306@google.com> <20060808.225537.112622421.davem@davemloft.net> <44DF7FB9.8020003@google.com>
+In-Reply-To: <44DF7FB9.8020003@google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+Daniel Phillips wrote:
+> That is why it has not yet been submitted upstream.  Respectfully, I
+> do not think that jgarzik has yet put in the work to know if this anti
+> deadlock technique is reasonable or not, and he was only commenting
+> on some superficial blemish.  I still don't get his point, if there
+> was one.  He seems to be arguing in favor of a jump-off-the-cliff
+> approach to driver conversion.  If he wants to do the work and take
+> the blame when some driver inevitably breaks because of being edited
+> in a hurry then he is welcome to submit the necessary additional
+> patches.  Until then, there are about 3 nics that actually matter to
+> network storage at the moment, all of them GigE.
 
-I've been having trouble sending any mail to intel, and as there's a bit
-of catch-22 trying to inform them of this, I'll send a mail here and
-hope you'll see it.
+Quite whining and blaming the reviewer for a poor approach.
 
-All my mail sent to you fail because of a timeout connecting to your
-server. The problem seems to be mga11.intel.com, which happens to be the
-first choice when my outgoing mail server has finished sorting. As to
-why my MTA doesn't move on to the next one, I do not know. But having a
-MX entry to a machine that drops everything probably isn't a good idea
-in the long run anyway...
+A "this driver is sane, VM-wise" flag is just plain stupid, and clearly 
+fragments drivers.
 
-Rgds
-Pierre
+In Linux, "temporary flags"... aren't.
+
+	Jeff
+
+
+

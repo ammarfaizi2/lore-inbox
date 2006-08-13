@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWHMVgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWHMVpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWHMVgt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWHMVgt
+	id S1751594AbWHMVpM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWHMVpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:36:49 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:49928 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751517AbWHMVgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:36:49 -0400
-Message-ID: <44DF9B6C.8000902@superbug.co.uk>
-Date: Sun, 13 Aug 2006 22:36:44 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060730)
+	Sun, 13 Aug 2006 17:45:12 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3714 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751594AbWHMVpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 17:45:10 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: fastboot@osdl.org, Jan Kratochvil <lace@jankratochvil.net>,
+       Horms <horms@verge.net.au>, "H. Peter Anvin" <hpa@zytor.com>,
+       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org,
+       dzickus@redhat.com
+Subject: Re: [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <20060807174439.GJ16231@redhat.com>
+	<m17j1kctb8.fsf@ebiederm.dsl.xmission.com>
+	<20060807235727.GM16231@redhat.com>
+	<m1ejvrakhq.fsf@ebiederm.dsl.xmission.com>
+	<20060809200642.GD7861@redhat.com>
+	<m1u04l2kaz.fsf@ebiederm.dsl.xmission.com>
+	<20060810131323.GB9888@in.ibm.com>
+	<m18xlw34j1.fsf@ebiederm.dsl.xmission.com>
+	<20060810181825.GD14732@in.ibm.com>
+	<m1irl01hex.fsf@ebiederm.dsl.xmission.com>
+	<20060811212522.GF18865@redhat.com>
+	<m1d5b6zagy.fsf@ebiederm.dsl.xmission.com>
+	<p73psf49z9g.fsf@verdi.suse.de>
+Date: Sun, 13 Aug 2006 15:44:25 -0600
+In-Reply-To: <p73psf49z9g.fsf@verdi.suse.de> (Andi Kleen's message of "13 Aug
+	2006 22:06:19 +0200")
+Message-ID: <m1r6zkux8m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Henti Smith <henti@geekware.co.za>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: upgrading pentavalue drivers from 2.4 to 2.6
-References: <20060813142711.2cccf6c3@yoda.foad.za.net>
-In-Reply-To: <20060813142711.2cccf6c3@yoda.foad.za.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henti Smith wrote:
-> Hi guys, 
-> 
-> I have a client that uses pentavalue DVB-S cards pretty much all over
-> their business, however the drivers has not been updated since 2002
-> (2.4 kernel only) I've spoken to the dev's at the company and they are
-> not interested in doing drivers for 2.6
-> 
-> The 2.4 drivers they released is source code format, however I could
-> not find any clear indication of licence agreements to use the code for
-> further development. 
-> 
-> I'm hoping that it's GPL'ed since MODULE_LICENSE("GPL"); appears in the
-> pentadrv.c and scanval.c files
-> 
-> I'm going to contact them again to confirm we can use the code for
-> 2.4 to upgrade to 2.6 and possible include in the kernel source (if it
-> will be allowed :P) 
-> 
-> Lastly .. and the reason I'm mailing is .. I'm looking for somebody
-> that is keen on  doing the port .. I'll happily supply hardware (we
-> have lots of these cards) 
-> 
-> beer or other incentives can be negotiated ;P 
-> 
-> Thanks :) 
-> 
+Andi Kleen <ak@suse.de> writes:
 
-They are binary only drivers. I.e. A group of .o files with .c wrappers.
-So no way to port them to 2.6
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+>> 
+>> Do you know what code had problems having _PAGE_NX set.
+>> What are we doing with early_ioremap the requires execute
+>> permissions.  It doesn't sound right that we would need
+>> this.
+>
+> The early EM64T CPUs didn't support NX and would GPF when
+> they hit the bit. That is why you always need to mask 
+> with __supported_pte_mask when using _PAGE_NX.
 
-James
+Ok.  Thanks.  That explains that it.
 
+The NX bit itself causes the GPF not someone trying to execute
+data on a page.
+
+Eric

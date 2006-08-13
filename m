@@ -1,517 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWHMCrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbWHMCu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932638AbWHMCrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 22:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWHMCrZ
+	id S932665AbWHMCu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 22:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWHMCuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 22:47:25 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:53667 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S932638AbWHMCrX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 22:47:23 -0400
-From: Gerhard =?iso-8859-1?q?Gau=DFling?= <ggrubbish@web.de>
-Reply-To: ggrubbish@web.de
-To: Majordomo@vger.kernel.org
-Subject: 2.6.17.8-rt8: Compile Error in module realtime-lsm/realcap.c and misdn/avm_fritz.c - error: syntax error before string constant
-Date: Sun, 13 Aug 2006 04:39:39 +0200
-User-Agent: KMail/1.9.1
+	Sat, 12 Aug 2006 22:50:25 -0400
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:20408 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932665AbWHMCuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 22:50:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:From:Organization:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=ak23xCOzrckZupTBMYFduFPe+9st4P6FC3p2P2eYkxHlwEido4Rc/y2s1S0Xt7S5WtJ6t5nrveb/n50gLQQqmkC+19sF4yxgqoZZOj34OIsYfKhvseZF4duubK/VoC4XvalAik1Xif3gWy/KTngEMePBXPayiaREficGhL1to7U=  ;
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.18-rc4][ACPI] System with ACPI 1.0 deadlocks when adding Elsa Gloria XL PCI video card
+Date: Sat, 12 Aug 2006 22:50:10 -0400
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608130439.42751.ggrubbish@web.de>
+Message-Id: <200608122250.11358.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I managed to obtain a 'new' old PCI video card and decided to drop it into the old IBM 300PL machine which has ACPI version 1.0 only:
 
-I'm not a programmer at all, but I tried to compile a new kernel due to 
-needed realtime capabilities for JACK audio server, though.
+The moment I enable ACPI in the bios and boot the kernel with ACPI on, it attempts to load the ACPI interpreter, then hangs hard.
 
-I followed mainly this howto 
-http://ubuntustudio.com/wiki/index.php/Dapper:Vanilla_Kernel_With_Realtime_Preemption
+At first, the system was hanging in the BIOS, or during initial boot, my initial investigation  I figured I was somehow exceeding the systems power (the PCI Video card is rather huge and sucks a lot of juice) so I removed some ISA/PCI cards hoping to stop the hanging. 
+That worked, but ACPI was still causing the system to deadlock on boot. Turning off ACPI, I'm able to use the system fine, even when putting heavy load onto the machine voltage levels (says sensors) remain OK.  It still however
+hangs in BIOS when changing any settings (if i hard power off, the settings are still accepted, I think that's a BIOS bug).
 
-But I ran into problems with the needed rt patch of Ingo Molnar: 
-http://people.redhat.com/mingo/realtime-preempt/patch-2.6.17-rt8
+I know ACPI 1.0 is very old now, but what I am noticing is older hardware is starting to trip weird oddities in ACPI (at least with legacy versions).
 
-It failed on the 2.6.17.8 in 1 chunk on the Makefile and 1 chunk of 
-kernel/sched.c .
+Whilst ACPI was off the kernel threw a nasty IRQ handler mismatch
 
-Therefore I searched the mentioned first lines, and did it by 'hand' :-(
+[   72.940301] IRQ handler type mismatch for IRQ 14
+[   72.940911]  [<c0103d3e>] show_trace_log_lvl+0x15e/0x190
+[   72.941083]  [<c010448f>] show_trace+0xf/0x20
+[   72.941233]  [<c0104555>] dump_stack+0x15/0x20
+[   72.941385]  [<c0137cf7>] setup_irq+0xb7/0x1b0
+[   72.941868]  [<c0137e93>] request_irq+0xa3/0xc0
+[   72.942349]  [<c0221f99>] serial8250_startup+0x409/0x430
+[   72.944365]  [<c021d888>] uart_startup+0x48/0x140
+[   72.945862]  [<c021e6ae>] uart_open+0xbe/0x440
+[   72.947347]  [<c020a610>] tty_open+0x170/0x340
+[   72.948766]  [<c01609e9>] chrdev_open+0x89/0x170
+[   72.949438]  [<c0156533>] __dentry_open+0xb3/0x1f0
+[   72.950049]  [<c0156725>] nameidata_to_filp+0x35/0x40
+[   72.950653]  [<c015677b>] do_filp_open+0x4b/0x60
+[   72.951257]  [<c01567da>] do_sys_open+0x4a/0xe0
+[   72.951860]  [<c01568ac>] sys_open+0x1c/0x20
+[   72.952463]  [<c0102c91>] sysenter_past_esp+0x56/0x79
+[   72.952602]  [<b7f11410>] 0xb7f11410
+[   72.952706]  [<c0137cf7>] setup_irq+0xb7/0x1b0
+[   72.952815]  [<c0154b8a>] kmem_cache_alloc+0x5a/0xa0
+[   72.952926]  [<c0222040>] serial8250_interrupt+0x0/0x110
+[   72.953036]  [<c0137e93>] request_irq+0xa3/0xc0
+[   72.953146]  [<c0221f99>] serial8250_startup+0x409/0x430
+[   72.953258]  [<c021d888>] uart_startup+0x48/0x140
+[   72.953373]  [<c021e6ae>] uart_open+0xbe/0x440
+[   72.953483]  [<c0206867>] check_tty_count+0x47/0xb0
+[   72.953594]  [<c020a610>] tty_open+0x170/0x340
+[   72.953703]  [<c01609e9>] chrdev_open+0x89/0x170
+[   72.953812]  [<c0160960>] chrdev_open+0x0/0x170
+[   72.953920]  [<c0156533>] __dentry_open+0xb3/0x1f0
+[   72.954029]  [<c0156725>] nameidata_to_filp+0x35/0x40
+[   72.954138]  [<c015677b>] do_filp_open+0x4b/0x60
+[   72.954248]  [<c0149d50>] do_mmap_pgoff+0x500/0x6e0
+[   72.954387]  [<c0156466>] get_unused_fd+0xb6/0xd0
+[   72.954497]  [<c01567da>] do_sys_open+0x4a/0xe0
+[   72.954606]  [<c01568ac>] sys_open+0x1c/0x20
+[   72.954714]  [<c0102c91>] sysenter_past_esp+0x56/0x79
 
-=================
-This is what I changed in Makefile:
-=================
+Whats also interesting about that is I notice  ACPI/non-ACPI IRQ routing being inconsistent while having two e100 cards. Sometimes one is IRQ routed, while the other is not found, depending on if I do a hard reset or a soft reset. 
+(Old hardware makes for rather fun quirks doesn't it?)
 
-EXTRAVERSION = .8-rt8
+IRQs in use:
 
-=================
-This is what I did in kernel/sched.c:
-=================
+           CPU0
+  0:    7755786          XT-PIC  timer
+  1:         10          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:          0          XT-PIC  parport0
+  6:          3          XT-PIC  floppy
+  7:          0          XT-PIC  SoundBlaster
+  8:          1          XT-PIC  rtc
+  9:      85240          XT-PIC  eth1
+ 11:      38771          XT-PIC  uhci_hcd:usb1, eth0
+ 12:      10585          XT-PIC  i8042
+ 14:      11259          XT-PIC  ide0
+ 15:         11          XT-PIC  ide1
 
-   4763
-   4764 /*
-   4765  * cond_resched_lock() - if a reschedule is pending, drop the 
-given lock,
-   4766  * call schedule, and on return reacquire the lock.
-   4767  *
-   4768  * This works OK both with and without CONFIG_PREEMPT.  We do 
-strange low-level
-   4769  * operations here to prevent schedule() from being called twice 
-(once via
-   4770  *    * spin_unlock(), once by hand).
-   4771  *       */
-   4772  int __cond_resched_raw_spinlock(raw_spinlock_t *lock)
-   4773   {
-   4774         int ret = 0;
-   4775
-   4776         if (need_lockbreak_raw(lock)) {
-   4777                 spin_unlock(lock);
-   4778                 cpu_relax();
-   4779                 spin_lock(lock);
-   4780                 ret = 1;
-   4781         }
-   4782         if (need_resched()) {
-   4783                 spin_unlock_no_resched(lock);
-   4784                 __cond_resched();
-   4785                 spin_lock(lock);
-   4786                 ret = 1;
-   4787         }
-   4788         return ret;
-   4789   }
-   4790
-   4791  EXPORT_SYMBOL(__cond_resched_raw_spinlock);
-   4792
-   4793  #ifdef CONFIG_PREEMPT_RT
-   4794
-   4795  int __cond_resched_spinlock(spinlock_t *lock)
-   4796  {
-   4797  #if (defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)) || 
-defined(CONFIG_PREEMPT_RT)
-   4798         if (lock->break_lock) {
-   4799                 lock->break_lock = 0;
-   4800                 _spin_unlock(lock);
-   4801                 __cond_resched();
-   4802                 _spin_lock(lock);
-   4803                 return 1;
-   4804         }
-   4805 #endif
-   4806         return 0;
-   4807  }
-   4808
-   4809  EXPORT_SYMBOL(__cond_resched_spinlock);
-   4810
-   4811  #endif
-   4812
-   4813
-   4814  /*
-   4815   * Preempt a softirq context if necessary:
-   4816   */
-   4817   int __sched cond_resched_softirq(void)
-   4818   {
-   4819  #ifndef CONFIG_PREEMPT_RT
-   4820         BUG_ON(!in_softirq());
-   4821
-   4822         if (softirq_need_resched()) {
-   4823                 __local_bh_enable();
-   4824                 __cond_resched();
-   4825                 local_bh_disable();
-   4826                 return 1;
-   4827         }
-   4828  #endif
-   4829         return 0;
-   4830  }
-   4831
-   4832  EXPORT_SYMBOL(cond_resched_softirq);
-   4833
-   4834  /*
-   4835   * Preempt a hardirq context if necessary:
-   4836   */
-   4837  int cond_resched_hardirq(void)
-   4838  {
-   4839         BUG_ON(!in_irq());
-   4840
-   4841         if (hardirq_need_resched()) {
-   4842                 irq_exit();
-   4843                 __cond_resched();
-   4844                 irq_enter();
-   4845                 return 1;
-   4846         }
-   4847         return 0;
-   4848  }
-   4849
-   4850  EXPORT_SYMBOL(cond_resched_hardirq);
-   4851
-   4852  /*
-   4853   * Preempt any context:
-   4854   */
-   4855  int cond_resched_all(void)
-   4856  {
-   4857         if (hardirq_count())
-   4858                 return cond_resched_hardirq();
-   4859         if (softirq_count())
-   4860                 return cond_resched_softirq();
-   4861         return cond_resched();
-   4862  }
-   4863
-   4864  EXPORT_SYMBOL(cond_resched_all);
-   4865
-   4866  #ifdef CONFIG_PREEMPT_VOLUNTARY
-   4867
-   4868  int voluntary_preemption = 1;
-   4869
-   4870  EXPORT_SYMBOL(voluntary_preemption);
-   4871
-   4872  static int __init voluntary_preempt_setup (char *str)
-   4873  {
-   4874         if (!strncmp(str, "off", 3))
-   4875                 voluntary_preemption = 0;
-   4876         else
-   4877                 get_option(&str, &voluntary_preemption);
-   4878         if (!voluntary_preemption)
-   4879                 printk("turning off voluntary preemption!\n");
-   4880
-   4881         return 1;
-   4882  }
-   4883
-   4884  __setup("voluntary-preempt=", voluntary_preempt_setup);
-   4885
-   4886  #endif
-   4887
-   4888  /**
-   4889  *    * yield - yield the current processor to other threads.
-   4890  *
-   4891  *
-   4892  * this is a shortcut for kernel-space yielding - it marks the
-   4893  * thread runnable and calls sys_sched_yield().
-   4894  */
+lspci info on PCI card:
 
-====================
-diff -u format kernel/sched.c
-====================
+00:10.0 VGA compatible controller: Elsa AG Gloria XL (rev 16) (prog-if 00 [VGA])
+        Subsystem: IBM: Unknown device 00db
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f0000000 (32-bit, non-prefetchable) [size=64M]
+        Expansion ROM at 30300000 [disabled] [size=64K]
 
-root@ubuntu:/usr/src/linux # diff -u  ../../sched.c.old  kernel/sched.c
---- ../../sched.c.old   2006-08-12 19:01:20.000000000 +0200
-+++ kernel/sched.c      2006-08-12 19:21:09.000000000 +0200
-@@ -4767,45 +4767,127 @@
-  *
-  * This works OK both with and without CONFIG_PREEMPT.  We do strange 
-low-level
-  * operations here to prevent schedule() from being called twice (once 
-via
-- * spin_unlock(), once by hand).
-- */
--int cond_resched_lock(spinlock_t *lock)
--{
--       int ret = 0;
--
--       if (need_lockbreak(lock)) {
--               spin_unlock(lock);
--               cpu_relax();
-+ *    * spin_unlock(), once by hand).
-+ *       */
-+ int __cond_resched_raw_spinlock(raw_spinlock_t *lock)
-+  {
-+       int ret = 0;
-+
-+       if (need_lockbreak_raw(lock)) {
-+               spin_unlock(lock);
-+               cpu_relax();
-+               spin_lock(lock);
-                ret = 1;
--               spin_lock(lock);
-+       }
-+       if (need_resched()) {
-+               spin_unlock_no_resched(lock);
-+               __cond_resched();
-+               spin_lock(lock);
-+               ret = 1;
-+       }
-+       return ret;
-+  }
-+
-+ EXPORT_SYMBOL(__cond_resched_raw_spinlock);
-+
-+ #ifdef CONFIG_PREEMPT_RT
-+
-+ int __cond_resched_spinlock(spinlock_t *lock)
-+ {
-+ #if (defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)) || 
-defined(CONFIG_PREEMPT_RT)
-+       if (lock->break_lock) {
-+               lock->break_lock = 0;
-+               _spin_unlock(lock);
-+               __cond_resched();
-+               _spin_lock(lock);
-+               return 1;
-        }
--       if (need_resched() && __resched_legal(1)) {
--               _raw_spin_unlock(lock);
--               preempt_enable_no_resched();
--               __cond_resched();
--               ret = 1;
--               spin_lock(lock);
--       }
--       return ret;
--}
--EXPORT_SYMBOL(cond_resched_lock);
--
--int __sched cond_resched_softirq(void)
--{
--       BUG_ON(!in_softirq());
--
--       if (need_resched() && __resched_legal(0)) {
--               __local_bh_enable();
--               __cond_resched();
--               local_bh_disable();
-+#endif
-+       return 0;
-+ }
-+
-+ EXPORT_SYMBOL(__cond_resched_spinlock);
-+
-+ #endif
-+
-+
-+ /*
-+  * Preempt a softirq context if necessary:
-+  */
-+  int __sched cond_resched_softirq(void)
-+  {
-+ #ifndef CONFIG_PREEMPT_RT
-+       BUG_ON(!in_softirq());
-+
-+       if (softirq_need_resched()) {
-+               __local_bh_enable();
-+               __cond_resched();
-+               local_bh_disable();
-                return 1;
-        }
-+ #endif
-+       return 0;
-+ }
-+
-+ EXPORT_SYMBOL(cond_resched_softirq);
-+
-+ /*
-+  * Preempt a hardirq context if necessary:
-+  */
-+ int cond_resched_hardirq(void)
-+ {
-+       BUG_ON(!in_irq());
-+
-+       if (hardirq_need_resched()) {
-+               irq_exit();
-+               __cond_resched();
-+               irq_enter();
-+               return 1;
-+       }
-        return 0;
--}
--EXPORT_SYMBOL(cond_resched_softirq);
--
--/**
-- * yield - yield the current processor to other threads.
-+ }
-+
-+ EXPORT_SYMBOL(cond_resched_hardirq);
-+
-+ /*
-+  * Preempt any context:
-+  */
-+ int cond_resched_all(void)
-+ {
-+       if (hardirq_count())
-+               return cond_resched_hardirq();
-+       if (softirq_count())
-+               return cond_resched_softirq();
-+       return cond_resched();
-+ }
-+
-+ EXPORT_SYMBOL(cond_resched_all);
-+
-+ #ifdef CONFIG_PREEMPT_VOLUNTARY
-+
-+ int voluntary_preemption = 1;
-+
-+ EXPORT_SYMBOL(voluntary_preemption);
-+
-+ static int __init voluntary_preempt_setup (char *str)
-+ {
-+       if (!strncmp(str, "off", 3))
-+               voluntary_preemption = 0;
-+       else
-+               get_option(&str, &voluntary_preemption);
-+       if (!voluntary_preemption)
-+               printk("turning off voluntary preemption!\n");
-+
-+       return 1;
-+ }
-+
-+ __setup("voluntary-preempt=", voluntary_preempt_setup);
-+
-+ #endif
-+
-+ /**
-+ *    * yield - yield the current processor to other threads.
-+ *
-  *
-  * this is a shortcut for kernel-space yielding - it marks the
-  * thread runnable and calls sys_sched_yield().
+00:10.1 Co-processor: 3DLabs GLINT Delta (rev 01)
+        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at e9dc0000 (32-bit, non-prefetchable) [size=128K]
 
+00:10.2 Display controller: 3DLabs GLINT MX (rev 01)
+        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at e9de0000 (32-bit, non-prefetchable) [size=128K]
+        Region 1: Memory at ea000000 (32-bit, non-prefetchable) [size=32M]
+        Region 2: Memory at ec000000 (32-bit, non-prefetchable) [size=32M]
+        Region 3: Memory at ee000000 (32-bit, non-prefetchable) [size=32M]
+        Expansion ROM at fe000000 [disabled] [size=64K]
 
-==================
-Now I get this errors on compiling the modules:
-==================
+I'm not considering this to be a severe/serious problem since ACPI 1.0 is fading away..slowly. 
 
-make[1]: Entering directory `/usr/src/modules/realtime-lsm'
-/usr/bin/make -w -f debian/rules kdist_clean kdist_config binary-modules
-make[2]: Entering directory `/usr/src/modules/realtime-lsm'
-dh_clean
-make COMMONCAP=none clean
-make[3]: Entering directory `/usr/src/modules/realtime-lsm'
-rm -f *.ko *.o none
-rm -f *.mod.* .*.cmd
-make[3]: Leaving directory `/usr/src/modules/realtime-lsm'
-/usr/bin/gcc-4.0
-for templ 
-in /usr/src/modules/realtime-lsm/debian/realtime-lsm-module-_KVERS_.postinst /usr/src/modules/realtime-lsm/debian/realtime-lsm-module-_KVERS_.postinst.modules.in; 
-do \
-    cp $templ `echo $templ | sed -e 's/_KVERS_/2.6.17.8-rt8/g'` ; \
-  done
-for templ in `ls debian/*.modules.in` ; do \
-    test -e ${templ%.modules.in}.backup || cp ${templ%.modules.in} 
-${templ%.modules.in}.backup 2>/dev/null || true; \
-    sed -e 's/##KVERS##/2.6.17.8-rt8/g ;s/#KVERS#/2.6.17.8-rt8/g ; 
-s/_KVERS_/2.6.17.8-rt8/g ; s/##KDREV##/1/g ; s/#KDREV#/1/g ; 
-s/_KDREV_/1/g' < $templ > ${templ%.modules.in}; \
-  done
-dh_testdir
-dh_testroot
-dh_clean -k
-make KERNEL_DIR=/usr/src/linux MODVERSIONS=detect 
-KERNEL=linux-2.6.17.8-rt8 COMMONCAP=none
-make[3]: Entering directory `/usr/src/modules/realtime-lsm'
-CONFIG_SECURITY_CAPABILITIES=m
-make CC=gcc-4.0 modules -C /usr/src/linux 
-SUBDIRS=/usr/src/modules/realtime-lsm
-make[4]: Entering directory `/usr/src/linux-2.6.17-rt8'
-  CC [M]  /usr/src/modules/realtime-lsm/realcap.o
-/usr/src/modules/realtime-lsm/realcap.c:1: warning: -ffunction-sections 
-disabled; it makes profiling impossible
-/usr/src/modules/realtime-lsm/realcap.c:36: error: syntax error before 
-string constant
-/usr/src/modules/realtime-lsm/realcap.c:36: warning: type defaults 
-to 'int' in declaration of 'MODULE_PARM'
-/usr/src/modules/realtime-lsm/realcap.c:36: warning: function 
-declaration isn't a prototype
-/usr/src/modules/realtime-lsm/realcap.c:36: warning: data definition has 
-no type or storage class
-/usr/src/modules/realtime-lsm/realcap.c:40: error: syntax error before 
-string constant
-/usr/src/modules/realtime-lsm/realcap.c:40: warning: type defaults 
-to 'int' in declaration of 'MODULE_PARM'
-/usr/src/modules/realtime-lsm/realcap.c:40: warning: function 
-declaration isn't a prototype
-/usr/src/modules/realtime-lsm/realcap.c:40: warning: data definition has 
-no type or storage class
-/usr/src/modules/realtime-lsm/realcap.c:44: error: syntax error before 
-string constant
-/usr/src/modules/realtime-lsm/realcap.c:44: warning: type defaults 
-to 'int' in declaration of 'MODULE_PARM'
-/usr/src/modules/realtime-lsm/realcap.c:44: warning: function 
-declaration isn't a prototype
-/usr/src/modules/realtime-lsm/realcap.c:44: warning: data definition has 
-no type or storage class
-/usr/src/modules/realtime-lsm/realcap.c:48: error: syntax error before 
-string constant
-/usr/src/modules/realtime-lsm/realcap.c:48: warning: type defaults 
-to 'int' in declaration of 'MODULE_PARM'
-/usr/src/modules/realtime-lsm/realcap.c:48: warning: function 
-declaration isn't a prototype
-/usr/src/modules/realtime-lsm/realcap.c:48: warning: data definition has 
-no type or storage class
-make[5]: *** [/usr/src/modules/realtime-lsm/realcap.o] Error 1
-make[4]: *** [_module_/usr/src/modules/realtime-lsm] Error 2
-make[4]: Leaving directory `/usr/src/linux-2.6.17-rt8'
-make[3]: *** [all] Error 2
-make[3]: Leaving directory `/usr/src/modules/realtime-lsm'
-make[2]: *** [binary-modules] Error 2
-make[2]: Leaving directory `/usr/src/modules/realtime-lsm'
-make[1]: *** [kdist_build] Error 2
-make[1]: Leaving directory `/usr/src/modules/realtime-lsm'
-Module /usr/src/modules/realtime-lsm failed.
-Hit return to Continue
-[...]
-make[1]: Entering directory `/usr/src/modules/misdn'
-/usr/bin/make -w -f debian/rules  binary-modules
-make[2]: Entering directory `/usr/src/modules/misdn'
-sed -e 's/@@Kernel\-Version@@/2.6.17.8-rt8.8-rt8/' \
-            debian/control.in > debian/control
-dh_testdir
-dh_testroot
-dh_clean -k
-dh_clean: Compatibility levels before 4 are deprecated.
-echo "kpkg:Kernel-Version=2.6.17.8-rt8.8-rt8" > \
-            debian/misdn-kernel-modules-2.6.17.8-rt8.8-rt8.substvars
-/usr/bin/make -C /usr/src/linux M=/usr/src/modules/misdn   modules
-make[3]: Entering directory `/usr/src/linux-2.6.17-rt8'
-  CC [M]  /usr/src/modules/misdn/avm_fritz.o
-/usr/src/modules/misdn/avm_fritz.c:1: warning: -ffunction-sections 
-disabled; it makes profiling impossible
-In file included from /usr/src/modules/misdn/avm_fritz.c:24:
-/usr/src/modules/misdn/helper.h: In function 'alloc_stack_skb':
-/usr/src/modules/misdn/helper.h:60: warning: format '%d' expects 
-type 'int', but argument 3 has type 'size_t'
-/usr/src/modules/misdn/helper.h:60: warning: format '%d' expects 
-type 'int', but argument 4 has type 'size_t'
-/usr/src/modules/misdn/avm_fritz.c: At top level:
-/usr/src/modules/misdn/avm_fritz.c:1013: error: syntax error before 
-string constant
-/usr/src/modules/misdn/avm_fritz.c:1013: warning: type defaults to 'int' 
-in declaration of 'MODULE_PARM'
-/usr/src/modules/misdn/avm_fritz.c:1013: warning: function declaration 
-isn't a prototype
-/usr/src/modules/misdn/avm_fritz.c:1013: warning: data definition has no 
-type or storage class
-/usr/src/modules/misdn/avm_fritz.c:1014: error: syntax error before 
-string constant
-/usr/src/modules/misdn/avm_fritz.c:1014: warning: type defaults to 'int' 
-in declaration of 'MODULE_PARM'
-/usr/src/modules/misdn/avm_fritz.c:1014: warning: function declaration 
-isn't a prototype
-/usr/src/modules/misdn/avm_fritz.c:1014: warning: data definition has no 
-type or storage class
-/usr/src/modules/misdn/avm_fritz.c:1015: error: syntax error before 
-string constant
-/usr/src/modules/misdn/avm_fritz.c:1015: warning: type defaults to 'int' 
-in declaration of 'MODULE_PARM'
-/usr/src/modules/misdn/avm_fritz.c:1015: warning: function declaration 
-isn't a prototype
-/usr/src/modules/misdn/avm_fritz.c:1015: warning: data definition has no 
-type or storage class
-make[4]: *** [/usr/src/modules/misdn/avm_fritz.o] Error 1
-make[3]: *** [_module_/usr/src/modules/misdn] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.6.17-rt8'
-make[2]: *** [binary-modules] Error 2
-make[2]: Leaving directory `/usr/src/modules/misdn'
-make[1]: *** [kdist_image] Error 2
-make[1]: Leaving directory `/usr/src/modules/misdn'
-Module /usr/src/modules/misdn failed.
-Hit return to Continue
+Just wondering if its worth regression testing ACPI 1.0 systems still (at least, until the PSU dies, then this will become moot :-)
 
-=================
-=================
-
-I got in almost every line this warning:
-warning: -ffunction-sections disabled; it makes profiling impossible
-
-I think that does not affect the kernel ?
-
-Can someone help me to get the realtime-lsm compiled on the new 2.6.17.8 
-kernel, please?
-
-Kind regards
-
-Gerhard Gauﬂling
+Shawn.

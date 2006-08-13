@@ -1,107 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWHMMan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWHMMj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWHMMan (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 08:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWHMMan
+	id S1751024AbWHMMj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 08:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHMMj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 08:30:43 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:59985 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751158AbWHMMal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 08:30:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:mime-version:content-type:message-id;
-        b=Zu0lenlwg3rkbHLiAUfSFbaEI4LN374492bMtXPAkliKC6Q+gH/Y8xEOja+Gf6ISFpFGw3qDxSCfbDFtPkmC7iehgeK12SJT2ynQIGI18u15YQGzVcHZCeO+l5Q1/8lWA+adMpW2Li7KMgwlI6GDRNXbdjpYA15oM1+Xqowwqfs=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Rik Faith <faith@valinux.com>, Jeff Hartmann <jhartmann@valinux.com>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] i810_dma.c: fix pointer arithmetic for 64-bit target
-Date: Sun, 13 Aug 2006 14:30:32 +0200
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_otx3Emkmn81bGyz"
-Message-Id: <200608131430.32877.vda.linux@googlemail.com>
+	Sun, 13 Aug 2006 08:39:56 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:54146 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751024AbWHMMj4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 08:39:56 -0400
+Date: Sun, 13 Aug 2006 21:03:40 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] do_sched_setscheduler: don't take tasklist_lock
+Message-ID: <20060813170340.GA1913@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_otx3Emkmn81bGyz
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+We don't need to take tasklist_lock or disable irqs for
+find_task_by_pid() + get_task_struct(). Use RCU locks
+instead.
 
-CC [M]  drivers/char/drm/i810_dma.o
-drivers/char/drm/i810_dma.c: In function 'i810_map_buffer':
-drivers/char/drm/i810_dma.c:147: warning: cast from pointer to integer of different size
-drivers/char/drm/i810_dma.c: In function 'i810_dma_dispatch_vertex':
-drivers/char/drm/i810_dma.c:811: warning: cast from pointer to integer of different size
-drivers/char/drm/i810_dma.c:811: warning: cast to pointer from integer of different size
-drivers/char/drm/i810_dma.c: In function 'i810_dma_dispatch_mc':
-drivers/char/drm/i810_dma.c:1169: warning: cast from pointer to integer of different size
-drivers/char/drm/i810_dma.c:1169: warning: cast to pointer from integer of different size
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-First warning result from open-coded PTR_ERR,
-the rest is caused by code like this:
-
-*(u32 *) ((u32) buf_priv->kernel_virtual + used)
-
-Patch fixes this. Please apply.
---
-vda
-
---Boundary-00=_otx3Emkmn81bGyz
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="i810_dma.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="i810_dma.c.diff"
-
-CC [M]  drivers/char/drm/i810_dma.o
-drivers/char/drm/i810_dma.c: In function 'i810_map_buffer':
-drivers/char/drm/i810_dma.c:147: warning: cast from pointer to integer of different size
-drivers/char/drm/i810_dma.c: In function 'i810_dma_dispatch_vertex':
-drivers/char/drm/i810_dma.c:811: warning: cast from pointer to integer of different size
-drivers/char/drm/i810_dma.c:811: warning: cast to pointer from integer of different size
-drivers/char/drm/i810_dma.c: In function 'i810_dma_dispatch_mc':
-drivers/char/drm/i810_dma.c:1169: warning: cast from pointer to integer of different size
-drivers/char/drm/i810_dma.c:1169: warning: cast to pointer from integer of different size
-
---- linux-2.6.17.8.src/drivers/char/drm/i810_dma.c.org	2006-08-07 06:18:54.000000000 +0200
-+++ linux-2.6.17.8.src/drivers/char/drm/i810_dma.c	2006-08-12 20:56:10.000000000 +0200
-@@ -141,10 +141,10 @@ static int i810_map_buffer(drm_buf_t * b
- 					    MAP_SHARED, buf->bus_address);
- 	dev_priv->mmap_buffer = NULL;
- 	filp->f_op = old_fops;
--	if ((unsigned long)buf_priv->virtual > -1024UL) {
-+	if (IS_ERR(buf_priv->virtual)) {
- 		/* Real error */
- 		DRM_ERROR("mmap error\n");
--		retcode = (signed int)buf_priv->virtual;
-+		retcode = PTR_ERR(buf_priv->virtual);
- 		buf_priv->virtual = NULL;
- 	}
- 	up_write(&current->mm->mmap_sem);
-@@ -808,7 +808,7 @@ static void i810_dma_dispatch_vertex(drm
- 		    ((GFX_OP_PRIMITIVE | prim | ((used / 4) - 2)));
- 
- 		if (used & 4) {
--			*(u32 *) ((u32) buf_priv->kernel_virtual + used) = 0;
-+			*(u32 *) ((char *) buf_priv->kernel_virtual + used) = 0;
- 			used += 4;
- 		}
- 
-@@ -1166,7 +1166,7 @@ static void i810_dma_dispatch_mc(drm_dev
- 
- 	if (buf_priv->currently_mapped == I810_BUF_MAPPED) {
- 		if (used & 4) {
--			*(u32 *) ((u32) buf_priv->virtual + used) = 0;
-+			*(u32 *) ((char *) buf_priv->virtual + used) = 0;
- 			used += 4;
- 		}
+--- 2.6.18-rc3/kernel/sched.c~1_dss	2006-07-16 01:53:08.000000000 +0400
++++ 2.6.18-rc3/kernel/sched.c	2006-08-13 20:19:02.000000000 +0400
+@@ -4156,14 +4156,15 @@ do_sched_setscheduler(pid_t pid, int pol
+ 		return -EINVAL;
+ 	if (copy_from_user(&lparam, param, sizeof(struct sched_param)))
+ 		return -EFAULT;
+-	read_lock_irq(&tasklist_lock);
++
++	rcu_read_lock();
+ 	p = find_process_by_pid(pid);
+-	if (!p) {
+-		read_unlock_irq(&tasklist_lock);
++	if (p)
++		get_task_struct(p);
++	rcu_read_unlock();
++	if (!p)
+ 		return -ESRCH;
+-	}
+-	get_task_struct(p);
+-	read_unlock_irq(&tasklist_lock);
++
+ 	retval = sched_setscheduler(p, policy, &lparam);
+ 	put_task_struct(p);
  
 
---Boundary-00=_otx3Emkmn81bGyz--

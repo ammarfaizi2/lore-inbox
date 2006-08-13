@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWHMXzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWHMX6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWHMXzT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 19:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWHMXzT
+	id S1751742AbWHMX6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 19:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbWHMX6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 19:55:19 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17283
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751383AbWHMXzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 19:55:17 -0400
-Date: Sun, 13 Aug 2006 16:55:40 -0700 (PDT)
-Message-Id: <20060813.165540.56347790.davem@davemloft.net>
-To: phillips@google.com
-Cc: riel@redhat.com, tgraf@suug.ch, a.p.zijlstra@chello.nl, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <44DFA225.1020508@google.com>
-References: <20060808211731.GR14627@postel.suug.ch>
-	<44DBED4C.6040604@redhat.com>
-	<44DFA225.1020508@google.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Aug 2006 19:58:40 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:22129 "EHLO
+	asav09.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751742AbWHMX6j convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 19:58:39 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KACtZ30SBUQ
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Maciej Rutecki <maciej.rutecki@gmail.com>
+Subject: Re: 2.6.18-rc4-mm1
+Date: Sun, 13 Aug 2006 19:58:36 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com>
+In-Reply-To: <44DF10DF.5070307@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608131958.37140.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Phillips <phillips@google.com>
-Date: Sun, 13 Aug 2006 15:05:25 -0700
+On Sunday 13 August 2006 07:45, Maciej Rutecki wrote:
+> Andrew Morton napisał(a):
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> 
+> I have problem with my keyboard. I have no error in dmesg and syslog,
+> but it doesn't work. I read google and try "i8042.nomux", but it didn't
+> help.
+> 
+> I enclose dmesg with "i8042.debug=1" option and my config.
+> 
+> Maybe I forgot something in config?
+> 
 
-> By the way, another way to avoid impact on the normal case is an
-> experimental option such as CONFIG_PREVENT_NETWORK_BLOCKIO_DEADLOCK.
+You have keyboard configured as a module in your .config but I do not
+see it trying to attach to the keyboard serio port. Make sure the module
+is loaded.
 
-That would just make the solution look more like a hack, and "bolted
-on" rather than designed.
-
-I think there is more profitability from a solution that really does
-something about "network memory", and doesn't try to say "these
-devices are special" or "these sockets are special".  Special cases
-generally suck.
-
-We already limit and control TCP socket memory globally in the system.
-If we do this for all socket and anonymous network buffer allocations,
-which is sort of implicity in Evgeniy's network tree allocator design,
-we can solve this problem in a more reasonable way.
-
-And here's the kick, there are other unrelated highly positive
-consequences to using Evgeniy's network tree allocator.
-
-It doesn't just solve the _one_ problem it was built for, it solves
-several problems.  And that is the hallmark signature of good design.
+-- 
+Dmitry

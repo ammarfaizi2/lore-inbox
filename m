@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWHMJbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWHMJwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWHMJbm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 05:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWHMJbm
+	id S1750886AbWHMJwy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 05:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWHMJwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 05:31:42 -0400
-Received: from rooties.de ([83.246.114.58]:41144 "EHLO rooties.de")
-	by vger.kernel.org with ESMTP id S1750863AbWHMJbm (ORCPT
+	Sun, 13 Aug 2006 05:52:54 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:64420 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750877AbWHMJwx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 05:31:42 -0400
-From: Daniel <damage@rooties.de>
-Subject: Re: debug prism wlan
-Date: Sun, 13 Aug 2006 11:31:40 +0000
-User-Agent: KMail/1.9.1
-References: <6.1.1.1.2.20060813071741.02ae87e0@192.168.6.12>
-In-Reply-To: <6.1.1.1.2.20060813071741.02ae87e0@192.168.6.12>
-MIME-Version: 1.0
+	Sun, 13 Aug 2006 05:52:53 -0400
+Date: Sun, 13 Aug 2006 13:52:05 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>
+Cc: a.p.zijlstra@chello.nl, riel@redhat.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       phillips@google.com
+Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
+Message-ID: <20060813095205.GA5458@2ka.mipt.ru>
+References: <20060812084713.GA29523@2ka.mipt.ru> <1155374390.13508.15.camel@lappy> <20060812093706.GA13554@2ka.mipt.ru> <20060812.174607.44371641.davem@davemloft.net> <20060813090620.GB14960@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-Message-Id: <200608131131.40493.damage@rooties.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20060813090620.GB14960@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 13 Aug 2006 13:52:15 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 13. August 2006 05:20 schrieb Roger While:
-> Alistair John wrote:
->  > Daniel wrote:
->  >> Hey, that did it! But now I am a liddle confused. It worked fine
->  >> before. Why does it not work while interface is not up?
->  >
->  > I'm not sure, but I think you've just been lucky.
->  > I've had this problem even before prism54 was merged.
->  > Some in-tree drivers won't upload the firmware until you ifconfig
->  > up them, which obviously means they won't respond adequately
->  > to the wireless extension requests. Maybe a bug?
->
-> Nope, no bug. It allows the driver to be built non-modular.
-> When non-modular, the resources are not available,
-> at boot time, to load the firmware.
->
+On Sun, Aug 13, 2006 at 01:06:21PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> On Sat, Aug 12, 2006 at 05:46:07PM -0700, David Miller (davem@davemloft.net) wrote:
+> > From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> > Date: Sat, 12 Aug 2006 13:37:06 +0400
+> > 
+> > > Does it? I though it is possible to only have 64k of working sockets per
+> > > device in TCP.
+> > 
+> > Where does this limit come from?
+> > 
+> > You think there is something magic about 64K local ports,
+> > but if remote IP addresses in the TCP socket IDs are all
+> > different, number of possible TCP sockets is only limited
+> > by "number of client IPs * 64K" and ram :-)
+> 
+> I talked about working sockets, but not about how many of them system
+> can have at all :)
 
-Hi, I noticed that you can't set the channel _before_ setting an essid. Is 
-this behavior correct?
+working -> bound.
 
-Daniel
+-- 
+	Evgeniy Polyakov

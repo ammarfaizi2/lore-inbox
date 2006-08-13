@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWHMNIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWHMNRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWHMNIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 09:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWHMNIX
+	id S1751245AbWHMNRR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 09:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWHMNRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 09:08:23 -0400
-Received: from smtp110.plus.mail.re2.yahoo.com ([206.190.53.35]:7082 "HELO
-	smtp110.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751251AbWHMNIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 09:08:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Received:Message-ID:Date:From:User-Agent:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pwpukKE3nXa1qXw6PoTWNTIZ3L+zHKJtKtsEl9lK0sFQkCLTTlZBbDKjZV1dch08dItuEgwUOoJ/PJD9x49wHagQNgGxgXnVcI+B/f6ZqO8lgH7iId/8fq8cnBT0drSFPIAcxxJ3X5cNzp1FQ/s5VQgjGZ8gJIcO9GRgAJPPb3g=  ;
-Message-ID: <44DF2442.6050509@yahoo.es>
-Date: Sun, 13 Aug 2006 15:08:18 +0200
-From: Aurelio Arroyo <listas_sk3@yahoo.es>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Sun, 13 Aug 2006 09:17:17 -0400
+Received: from europa.telenet-ops.be ([195.130.137.75]:41889 "EHLO
+	europa.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1751169AbWHMNRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 09:17:16 -0400
+From: Peter Korsgaard <jacmet@sunsite.dk>
+To: linux-serial@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
+Subject: [PATCH] fix serial/amba-pl011.c console Kconfig
+Date: Sun, 13 Aug 2006 15:17:06 +0200
+Message-ID: <87fyg0rd0t.fsf@slug.be.48ers.dk>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Giampaolo Tomassoni <g.tomassoni@libero.it>
-CC: linux-atm-general@lists.sourceforge.net, usbatm@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ATM-General] [ATM CLIP][USBATM] Linux 2.6.16(13) to	2.6.17(4)
- migration problem
-References: <NBBBIHMOBLOHKCGIMJMDMEOJFLAA.g.tomassoni@libero.it>
-In-Reply-To: <NBBBIHMOBLOHKCGIMJMDMEOJFLAA.g.tomassoni@libero.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giampaolo Tomassoni escribió:
-> Dears,
->
-> I have a couple of ADSL lines to Internet, connected to two linux boxes through a couple of SpeedTouch 330. One box adopts the Classical IP protocol, while the other the PPPoA one.
->
-> Both the internet connections worked fine for month up to the 2.6.16.13 kernel. Now, upgrading to 2.6.17.4, things work fine for few seconds (a minute at most, but timing varies), then the box stops receiving packets. No event is logged, but I didn't manage to turn debugging log on.
->
-> When things break, I can see that outgoing packets increse the tx field in /proc/net/atm/speedtch:0, while the rx field gets stuck.
->
-> I can't set up a testbed for this, since I need to keep the two boxes running, nor I have handy a further SpeedTouch 330. Actually, I just stepped back the boxes to 2.6.16.13.
->
-> However, before looking for another modem and managing to set up a third machine as a testbed, I would like to know if any of you has any experience to share about SpeedTouch or USBATM or ATM troubles with 2.6.17.x.
->
->   
+Hi,
 
-Yes,
-    http://bugzilla.kernel.org/show_bug.cgi?id=6752
+The following little trivial patch fixes the Kconfig entry for console
+on AMBA PL011 to match the code.
 
+Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
 
+diff -urpN linux-2.6.18-rc4.orig/drivers/serial/Kconfig linux-2.6.18-rc4/drivers/serial/Kconfig
+--- linux-2.6.18-rc4.orig/drivers/serial/Kconfig	2006-08-13 15:08:01.000000000 +0200
++++ linux-2.6.18-rc4/drivers/serial/Kconfig	2006-08-13 15:09:37.000000000 +0200
+@@ -295,7 +295,7 @@ config SERIAL_AMBA_PL011_CONSOLE
+ 	  Even if you say Y here, the currently visible framebuffer console
+ 	  (/dev/tty0) will still be used as the system console by default, but
+ 	  you can alter that using a kernel command line option such as
+-	  "console=ttyAM0". (Try "man bootparam" or see the documentation of
++	  "console=ttyAMA0". (Try "man bootparam" or see the documentation of
+ 	  your boot loader (lilo or loadlin) about how to pass options to the
+ 	  kernel at boot time.)
+ 
 
-		
-______________________________________________ 
-LLama Gratis a cualquier PC del Mundo. 
-Llamadas a fijos y móviles desde 1 céntimo por minuto. 
-http://es.voice.yahoo.com
+-- 
+Bye, Peter Korsgaard

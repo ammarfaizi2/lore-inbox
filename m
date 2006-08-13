@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751654AbWHMW4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWHMXBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751654AbWHMW4c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 18:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWHMW4c
+	id S1751707AbWHMXBn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 19:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751711AbWHMXBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 18:56:32 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:9405 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751645AbWHMW4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 18:56:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NI2fAIp5Yj35UBPPNwtSoBHzrPx4S7nCVx7bBYmop/Rqg3WOJWdBBclGkpGb609nZjQBMEJyDTcNQ5mWo6w6jh7UnGkmWKj1l9T7CiG9uMVL2usBCPJO6RL9vFqeQWKruMtpKrUYC+bHKOAhkMnwLOIgBNoDQFU4fjhqsArZoxg=
-Message-ID: <41840b750608131556t48c38ed8p3b59930b4b9f5a51@mail.gmail.com>
-Date: Mon, 14 Aug 2006 01:56:30 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [-mm patch] make drivers/hwmon/hdaps.c:transform_axes() static
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       khali@linux-fr.org, lm-sensors@lm-sensors.org
-In-Reply-To: <20060813210012.GK3543@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 13 Aug 2006 19:01:43 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49678 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751707AbWHMXBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 19:01:43 -0400
+Date: Mon, 14 Aug 2006 01:01:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Anatoli Antonovitch <antonovi@ati.com>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
+       rusty@rustcorp.com.au, sam@ravnborg.org
+Subject: 2.6.18-rc4-mm1: ATI SB600 SATA drivers: modpost errors
+Message-ID: <20060813230141.GT3543@stusta.de>
 References: <20060813012454.f1d52189.akpm@osdl.org>
-	 <20060813210012.GK3543@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Adrian Bunk <bunk@stusta.de> wrote:
-> transform_axes() isn't a good name for a global function.
->
-> Thankfully, it can simply made static.
+On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc3-mm2:
+>...
+> +ahci-ati-sb600-sata-support-for-various-modes.patch
+> +atiixp-ati-sb600-ide-support-for-various-modes.patch
+>...
+>  Misc patches
+>...
 
-Definitely, my mistake.
+<--  snip  -->
 
-Acked-by: Shem Multinymous <multinymous@gmail.com>
+...
+  MODPOST 1955 modules
+WARNING: Can't handle masks in drivers/ata/ahci:FFFF05
+WARNING: Can't handle masks in drivers/ide/pci/atiixp:FFFF05
+...
 
+<--  snip  -->
 
-  Shem
+cu
+Adrian
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
+

@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751523AbWHMVCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWHMVBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751523AbWHMVCF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbWHMVBV
+	id S1751482AbWHMVBT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWHMVBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:01:21 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9486 "HELO
+	Sun, 13 Aug 2006 17:01:16 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7950 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751503AbWHMVBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:01:17 -0400
-Date: Sun, 13 Aug 2006 23:01:16 +0200
+	id S1751503AbWHMVBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 17:01:13 -0400
+Date: Sun, 13 Aug 2006 23:01:12 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [-mm patch] net/ipv6/ip6_fib.c: make code static
-Message-ID: <20060813210116.GQ3543@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       patrick@tykepenguin.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-decnet-user@lists.sourceforge.net
+Subject: [-mm patch] net/decnet/: cleanups
+Message-ID: <20060813210112.GP3543@stusta.de>
 References: <20060813012454.f1d52189.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,131 +35,85 @@ On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
 >  git trees
 >...
 
-This patch makes the following needlessly global code static:
-- fib6_walker_lock
-- struct fib6_walker_list
-- fib6_walk_continue()
-- fib6_walk()
+This patch contains the following cleanups:
+- make the following needlessly global functions static:
+  - dn_fib.c: dn_fib_sync_down()
+  - dn_fib.c: dn_fib_sync_up()
+  - dn_rules.c: dn_fib_rule_action()
+- remove the following unneeded prototype:
+  - dn_fib.c: dn_cache_dump()
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- include/net/ip6_fib.h |   25 -------------------------
- net/ipv6/ip6_fib.c    |   29 ++++++++++++++++++++++++-----
- 2 files changed, 24 insertions(+), 30 deletions(-)
+ include/net/dn_fib.h  |    3 ---
+ net/decnet/dn_fib.c   |    9 +++++----
+ net/decnet/dn_rules.c |    4 ++--
+ 3 files changed, 7 insertions(+), 9 deletions(-)
 
---- linux-2.6.18-rc4-mm1/include/net/ip6_fib.h.old	2006-08-13 20:25:29.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/include/net/ip6_fib.h	2006-08-13 20:29:34.000000000 +0200
-@@ -92,28 +92,6 @@
- 	void *args;
- };
- 
--extern struct fib6_walker_t fib6_walker_list;
--extern rwlock_t fib6_walker_lock;
--
--static inline void fib6_walker_link(struct fib6_walker_t *w)
--{
--	write_lock_bh(&fib6_walker_lock);
--	w->next = fib6_walker_list.next;
--	w->prev = &fib6_walker_list;
--	w->next->prev = w;
--	w->prev->next = w;
--	write_unlock_bh(&fib6_walker_lock);
--}
--
--static inline void fib6_walker_unlink(struct fib6_walker_t *w)
--{
--	write_lock_bh(&fib6_walker_lock);
--	w->next->prev = w->prev;
--	w->prev->next = w->next;
--	w->prev = w->next = w;
--	write_unlock_bh(&fib6_walker_lock);
--}
--
- struct rt6_statistics {
- 	__u32		fib_nodes;
- 	__u32		fib_route_nodes;
-@@ -195,9 +173,6 @@
- extern void			fib6_clean_all(int (*func)(struct rt6_info *, void *arg),
- 					       int prune, void *arg);
- 
--extern int			fib6_walk(struct fib6_walker_t *w);
--extern int			fib6_walk_continue(struct fib6_walker_t *w);
--
- extern int			fib6_add(struct fib6_node *root,
- 					 struct rt6_info *rt,
- 					 struct nlmsghdr *nlh,
---- linux-2.6.18-rc4-mm1/net/ipv6/ip6_fib.c.old	2006-08-13 20:26:04.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/net/ipv6/ip6_fib.c	2006-08-13 20:29:35.000000000 +0200
-@@ -69,8 +69,7 @@
- 	void *arg;
- };
- 
--DEFINE_RWLOCK(fib6_walker_lock);
--
-+static DEFINE_RWLOCK(fib6_walker_lock);
- 
- #ifdef CONFIG_IPV6_SUBTREES
- #define FWS_INIT FWS_S
-@@ -82,6 +81,8 @@
- 
- static void fib6_prune_clones(struct fib6_node *fn, struct rt6_info *rt);
- static struct fib6_node * fib6_repair_tree(struct fib6_node *fn);
-+static int fib6_walk(struct fib6_walker_t *w);
-+static int fib6_walk_continue(struct fib6_walker_t *w);
+--- linux-2.6.18-rc4-mm1/include/net/dn_fib.h.old	2006-08-13 20:18:58.000000000 +0200
++++ linux-2.6.18-rc4-mm1/include/net/dn_fib.h	2006-08-13 20:19:08.000000000 +0200
+@@ -131,9 +131,6 @@
+ extern void dn_fib_flush(void);
+ extern void dn_fib_select_multipath(const struct flowi *fl,
+ 					struct dn_fib_res *res);
+-extern int dn_fib_sync_down(__le16 local, struct net_device *dev,
+-				int force);
+-extern int dn_fib_sync_up(struct net_device *dev);
  
  /*
-  *	A routing update causes an increase of the serial number on the
-@@ -94,13 +95,31 @@
+  * dn_tables.c
+--- linux-2.6.18-rc4-mm1/net/decnet/dn_fib.c.old	2006-08-13 20:20:05.000000000 +0200
++++ linux-2.6.18-rc4-mm1/net/decnet/dn_fib.c	2006-08-13 20:22:40.000000000 +0200
+@@ -55,8 +55,6 @@
  
- static DEFINE_TIMER(ip6_fib_timer, fib6_run_gc, 0, 0);
+ #define endfor_nexthops(fi) }
  
--struct fib6_walker_t fib6_walker_list = {
-+static struct fib6_walker_t fib6_walker_list = {
- 	.prev	= &fib6_walker_list,
- 	.next	= &fib6_walker_list, 
+-extern int dn_cache_dump(struct sk_buff *skb, struct netlink_callback *cb);
+-
+ static DEFINE_SPINLOCK(dn_fib_multipath_lock);
+ static struct dn_fib_info *dn_fib_info_list;
+ static DEFINE_SPINLOCK(dn_fib_info_lock);
+@@ -80,6 +78,9 @@
+ 	[RTN_XRESOLVE] =    { .error = -EINVAL, .scope = RT_SCOPE_NOWHERE },
  };
  
- #define FOR_WALKERS(w) for ((w)=fib6_walker_list.next; (w) != &fib6_walker_list; (w)=(w)->next)
- 
-+static inline void fib6_walker_link(struct fib6_walker_t *w)
-+{
-+	write_lock_bh(&fib6_walker_lock);
-+	w->next = fib6_walker_list.next;
-+	w->prev = &fib6_walker_list;
-+	w->next->prev = w;
-+	w->prev->next = w;
-+	write_unlock_bh(&fib6_walker_lock);
-+}
++static int dn_fib_sync_down(__le16 local, struct net_device *dev, int force);
++static int dn_fib_sync_up(struct net_device *dev);
 +
-+static inline void fib6_walker_unlink(struct fib6_walker_t *w)
-+{
-+	write_lock_bh(&fib6_walker_lock);
-+	w->next->prev = w->prev;
-+	w->prev->next = w->next;
-+	w->prev = w->next = w;
-+	write_unlock_bh(&fib6_walker_lock);
-+}
- static __inline__ u32 fib6_new_sernum(void)
+ void dn_fib_free_info(struct dn_fib_info *fi)
  {
- 	u32 n = ++rt_sernum;
-@@ -1173,7 +1192,7 @@
-  *	<0  -> walk is terminated by an error.
-  */
- 
--int fib6_walk_continue(struct fib6_walker_t *w)
-+static int fib6_walk_continue(struct fib6_walker_t *w)
- {
- 	struct fib6_node *fn, *pn;
- 
-@@ -1247,7 +1266,7 @@
- 	}
+ 	if (fi->fib_dead == 0) {
+@@ -651,7 +652,7 @@
+ 	return NOTIFY_DONE;
  }
  
--int fib6_walk(struct fib6_walker_t *w)
-+static int fib6_walk(struct fib6_walker_t *w)
+-int dn_fib_sync_down(__le16 local, struct net_device *dev, int force)
++static int dn_fib_sync_down(__le16 local, struct net_device *dev, int force)
  {
- 	int res;
+         int ret = 0;
+         int scope = RT_SCOPE_NOWHERE;
+@@ -695,7 +696,7 @@
+ }
  
+ 
+-int dn_fib_sync_up(struct net_device *dev)
++static int dn_fib_sync_up(struct net_device *dev)
+ {
+         int ret = 0;
+ 
+--- linux-2.6.18-rc4-mm1/net/decnet/dn_rules.c.old	2006-08-13 20:22:45.000000000 +0200
++++ linux-2.6.18-rc4-mm1/net/decnet/dn_rules.c	2006-08-13 20:23:02.000000000 +0200
+@@ -75,8 +75,8 @@
+ 	return err;
+ }
+ 
+-int dn_fib_rule_action(struct fib_rule *rule, struct flowi *flp, int flags,
+-		       struct fib_lookup_arg *arg)
++static int dn_fib_rule_action(struct fib_rule *rule, struct flowi *flp,
++			      int flags, struct fib_lookup_arg *arg)
+ {
+ 	int err = -EAGAIN;
+ 	struct dn_fib_table *tbl;
 

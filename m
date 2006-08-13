@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWHMBWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbWHMCTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWHMBWm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 21:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWHMBWm
+	id S932650AbWHMCTk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 22:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWHMCTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 21:22:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64996 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030190AbWHMBWl (ORCPT
+	Sat, 12 Aug 2006 22:19:40 -0400
+Received: from lug-owl.de ([195.71.106.12]:34487 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S932650AbWHMCTk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 21:22:41 -0400
-Date: Sat, 12 Aug 2006 18:22:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: softirq considered harmful
-Message-Id: <20060812182234.605b4fb4.akpm@osdl.org>
-In-Reply-To: <20060812.180944.51301787.davem@davemloft.net>
-References: <20060812162857.d85632b9.akpm@osdl.org>
-	<20060812.174324.77324010.davem@davemloft.net>
-	<20060812174549.9a8f8aeb.akpm@osdl.org>
-	<20060812.180944.51301787.davem@davemloft.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 12 Aug 2006 22:19:40 -0400
+Date: Sun, 13 Aug 2006 04:19:38 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
+       "Ian E. Morgan" <imorgan@webcon.ca>
+Subject: Re: Neverending module_param() bugs
+Message-ID: <20060813021938.GN2323@lug-owl.de>
+Mail-Followup-To: Mauro Carvalho Chehab <mchehab@infradead.org>,
+	Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
+	"Ian E. Morgan" <imorgan@webcon.ca>
+References: <20060812214709.GC6252@martell.zuzino.mipt.ru> <1155430441.3941.35.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eGLW8NzjjVmDHwQh"
+Content-Disposition: inline
+In-Reply-To: <1155430441.3941.35.camel@praia>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Aug 2006 18:09:44 -0700 (PDT)
-David Miller <davem@davemloft.net> wrote:
 
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Sat, 12 Aug 2006 17:45:49 -0700
-> 
-> > Is that also adding 150 usecs to each IO operation?
-> 
-> I have no idea, Jens hasn't done enough to narrow down the true cause
-> of the latencies he is seeing.  So pinpointing it on anything specific
-> is highly premature at this stage.
+--eGLW8NzjjVmDHwQh
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Determining whether pre-conversion scsi was impacted in the same manner
-would be part of that pinpointing process.
+On Sat, 2006-08-12 21:54:01 -0300, Mauro Carvalho Chehab <mchehab@infradead=
+=2Eorg> wrote:
+> Em Dom, 2006-08-13 =C3=A0s 01:47 +0400, Alexey Dobriyan escreveu:
+> > P.S.: drivers/media/video/tuner-simple.c:13:module_param(offset, int,
+> > 0666);
+>=20
+> Good catch. We should change it to 0x664. I'll prepare such patch.
 
-Deferring to softirq _has_ to add latency and any latency addition in
-synchronous disk IO is very bad.  That being said, 150 usecs per request is
-so bad that I'd be suspecting that it's not affecting most people, else
-we'd have heard.
+But keep in mind it's really octal, not hex.
 
-> My point was merely to encourage you to find out the facts before
-> tossing accusations around. :-)
+MfG, JBG
 
-No, your point was that slotting this change into mainline without telling
-anyone was OK because SCSI has been doing something similar.
+--=20
+      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+Signature of:                   ...und wenn Du denkst, es geht nicht mehr,
+the second  :                          kommt irgendwo ein Lichtlein her.
 
+--eGLW8NzjjVmDHwQh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFE3ow6Hb1edYOZ4bsRAk/XAJ4wcr7sv45Ytd/iRbRqPY4/KMC7rACfThEu
+VPjf0ypFkhA8ogTQ/7eDrF8=
+=yMVZ
+-----END PGP SIGNATURE-----
+
+--eGLW8NzjjVmDHwQh--

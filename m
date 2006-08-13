@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbWHMWfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWHMWkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751693AbWHMWfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 18:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWHMWfJ
+	id S1751703AbWHMWkd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 18:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWHMWkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 18:35:09 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51598 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751693AbWHMWfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 18:35:08 -0400
-Date: Mon, 14 Aug 2006 00:34:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
-       Linux PM <linux-pm@osdl.org>
-Subject: Re: [RFC][PATCH -mm 0/5] swsusp: Fix handling of highmem
-Message-ID: <20060813223449.GG6231@elf.ucw.cz>
-References: <200608091152.49094.rjw@sisk.pl> <200608092047.13493.ncunningham@linuxmail.org> <20060809113822.GQ3308@elf.ucw.cz> <200608092152.11122.ncunningham@linuxmail.org>
-MIME-Version: 1.0
+	Sun, 13 Aug 2006 18:40:33 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:48134 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751698AbWHMWkc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 18:40:32 -0400
+Date: Mon, 14 Aug 2006 08:40:06 +1000
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [-mm patch] Kconfig: move CRYPTO to the "Cryptographic options" menu
+Message-ID: <20060813224006.GA10592@gondor.apana.org.au>
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060813210149.GR3543@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608092152.11122.ncunningham@linuxmail.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060813210149.GR3543@stusta.de>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-08-09 21:52:10, Nigel Cunningham wrote:
-> On Wednesday 09 August 2006 21:38, Pavel Machek wrote:
-> > Hi!
-> >
-> > > > Comments welcome.
-> > >
-> > > Thanks for the reminder. I'd forgotten half the reason why I didn't want
-> > > to make Suspend2 into incremental patches! You're a brave man!
-> >
-> > Why does this serve as a reminder? No, it is not easy to merge big
-> > patches to mainline. But it is actually a feature.
+On Sun, Aug 13, 2006 at 11:01:49PM +0200, Adrian Bunk wrote:
 > 
-> It serves as a reminder because it shows (just the description, I mean), how 
-> inter-related all the changes that are needed are.
+> This patch moves the CRYPTO option to the "Cryptographic options" menu
+> (it was the only option directly in the toplevel menu).
 > 
-> I don't get the "it is actually a feature" bit.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Well, it is good that submitting patches is hard ... because kernel
-ends cleaner that way. 
-								Pavel
+Thanke you Adrian, patch applied.
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

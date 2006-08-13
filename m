@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWHMIrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWHMI6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWHMIrt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 04:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWHMIrt
+	id S1750764AbWHMI6p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 04:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWHMI6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 04:47:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:52390 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750755AbWHMIrs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 04:47:48 -0400
-Subject: Re: [RFC] [PATCH 10/10] fs/jffs2/jffs2_fs_i.h Removal of old code
-From: David Woodhouse <dwmw2@infradead.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <44DE09CA.6020808@gmail.com>
-References: <44DE05FC.2090001@gmail.com>  <44DE09CA.6020808@gmail.com>
-Content-Type: text/plain
-Date: Sun, 13 Aug 2006 09:47:42 +0100
-Message-Id: <1155458863.4975.267.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+	Sun, 13 Aug 2006 04:58:45 -0400
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:40936 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750766AbWHMI6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 04:58:44 -0400
+Date: Sun, 13 Aug 2006 04:53:07 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: oops in close when exiting fsx
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200608130455_MC3-1-C7EE-44C7@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 19:03 +0200, Michal Piotrowski wrote:
-> Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-> 
-> diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/fs/jffs2/jffs2_fs_i.h linux-work/fs/jffs2/jffs2_fs_i.h
-> --- linux-work-clean/fs/jffs2/jffs2_fs_i.h	2006-08-12 01:51:17.000000000 +0200
-> +++ linux-work/fs/jffs2/jffs2_fs_i.h	2006-08-12 17:53:04.000000000 +0200
-> @@ -42,10 +42,8 @@ struct jffs2_inode_info {
->  	uint16_t flags;
->  	uint8_t usercompr;
->  #if !defined (__ECOS)
-> -#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,2)
->  	struct inode vfs_inode;
->  #endif
-> -#endif
+In-Reply-To: <44DE2EA6.4060809@austin.rr.com>
 
-Ack. I just got back from three weeks away; when I'm vaguely awake I'll
-need to round up a bunch of patches to put into the git tree, and
-this'll be one of them unless it's upstream already by then.
+On Sat, 12 Aug 2006 14:40:22 -0500, Steve French wrote:
 
-Thanks.
+> ctl-c exiting fsx after a few hours with 2.6.18-rc4 got the following 
+> oops - anyone recognize it?
+> Although I didn't see cifs symbols on the call stack it is running on a 
+> cifs mount, but it is not
+> one I have seen before.
+
+> EIP is at __down+0x56/0xc5
+
+  1a:   8d 43 08                  lea    0x8(%ebx),%eax  <= addr of sema wait queue list_head
+  1d:   8b 48 04                  mov    0x4(%eax),%ecx  <= list->prev
+  20:   8d 54 24 2c               lea    0x2c(%esp),%edx
+  24:   89 50 04                  mov    %edx,0x4(%eax)
+  27:   89 44 24 2c               mov    %eax,0x2c(%esp)
+   0:   89 11                     mov    %edx,(%ecx)   <===== list->prev->next = new
+
+The semaphore's wait queue head is corrupted: 'prev' is 0.
+
+>  [<c1038908>] mempool_free+0x43/0x46
+>  [<c1013678>] default_wake_function+0x0/0xc
+>  [<c132ed37>] __down_failed+0x7/0xc
+>  [<fa2da685>] .text.lock.file+0x87/0x9a [cifs]      <=====
+>  [<c104e807>] __fput+0xab/0x148
+>  [<c104c453>] filp_close+0x4e/0x54
+>  [<c101773a>] put_files_struct+0x64/0xa6
+>  [<c1018581>] do_exit+0x1c7/0x675
+>  [<c10052b0>] do_syscall_trace+0x12b/0x172
+>  [<c1018a8b>] sys_exit_group+0x0/0xd
+>  [<c1002abf>] syscall_call+0x7/0xb
+
+It came from a lock section in the cifs code.  If you disassemble
+.text.lock.file in cifs.o, at offset 0x87 (or shortly after) you
+will see a jump back to the code that's trying to get the semaphore.
 
 -- 
-dwmw2
+Chuck
 

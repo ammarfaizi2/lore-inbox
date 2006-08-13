@@ -1,213 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWHMM7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWHMNAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWHMM7D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 08:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWHMM7D
+	id S1751172AbWHMNAF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 09:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWHMNAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 08:59:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:47787 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751171AbWHMM7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 08:59:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:message-id;
-        b=ULaD/iYuWmgnuiWCp5AKIq8iDfApN1wFwrzkuafLx7T2PlbLcS3+vsGsdDhvK5YBPoFV6tjF4v+oSsd4O+s61xXVEfU9dt3Ej8bHMotKXcasCYq/g2UR/G7N623p42hcFCP3ruocs+PXzoOAYMhnHjwdlWt3rOCOFwGF3awrOqQ=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: linux-scsi@vger.kernel.org
-Subject: [PATCH 1/4] aic7xxx: remove excessive inlining
-Date: Sun, 13 Aug 2006 14:58:52 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200608131457.21951.vda.linux@googlemail.com>
-In-Reply-To: <200608131457.21951.vda.linux@googlemail.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_MIy3EpaJbok6noW"
-Message-Id: <200608131458.52804.vda.linux@googlemail.com>
+	Sun, 13 Aug 2006 09:00:01 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:41738 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751172AbWHMNAA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 09:00:00 -0400
+Date: Sun, 13 Aug 2006 22:59:11 +1000
+To: "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
+       Nix <nix@esperi.org.uk>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@suse.de>,
+       netdev@vger.kernel.org
+Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
+Message-ID: <20060813125910.GA18463@gondor.apana.org.au>
+References: <87zme9fy94.fsf@hades.wkstn.nix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87zme9fy94.fsf@hades.wkstn.nix>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_MIy3EpaJbok6noW
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sat, Aug 12, 2006 at 09:19:19PM +0000, Nix wrote:
+> 
+> The kernel log showed a heap of BUGs from somewhere inside the skb
+> management layer, somewhere in UDP fragment processing while
+> handling NFS requests. It starts like this:
+> 
+> Aug 12 21:31:08 hades warning: kernel: BUG: warning at include/linux/skbuff.h:975/__skb_trim()
+> Aug 12 21:31:08 hades warning: kernel: <c030ed39> ip_append_data+0x5b3/0x951  <c030fc18> ip_generic_getfrag+0x0/0x96
 
-On Sunday 13 August 2006 14:57, Denis Vlasenko wrote:
-> Basically, patches deinline some functions, mainly those
-> which perform port I/O.
+Oops, I missed this code path when I disallowed skb_trim from operating
+on a paged skb.  This patch should fix the problem.
 
-Preparatory patch. s/__inline/inline.
+Greg, we need this for 2.6.17 stable as well if Dave is OK with it.
+
+[INET]: Use pskb_trim_unique when trimming paged unique skbs
+
+The IPv4/IPv6 datagram output path was using skb_trim to trim paged
+packets because they know that the packet has not been cloned yet
+(since the packet hasn't been given to anything else in the system).
+
+This broke because skb_trim no longer allows paged packets to be
+trimmed.  Paged packets must be given to one of the pskb_trim functions
+instead.
+
+This patch adds a new pskb_trim_unique function to cover the IPv4/IPv6
+datagram output path scenario and replaces the corresponding skb_trim
+calls with it.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 --
-vda
-
---Boundary-00=_MIy3EpaJbok6noW
-Content-Type: application/x-bzip2;
-  name="1.__inline.diff.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="1.__inline.diff.bz2"
-
-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
-si/3B+o333GIgEQgh/+LuSKcKEgRht4uAA==
-
---Boundary-00=_MIy3EpaJbok6noW--
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 19c96d4..7f99995 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1040,6 +1040,21 @@ static inline int pskb_trim(struct sk_bu
+ }
+ 
+ /**
++ *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
++ *	@skb: buffer to alter
++ *	@len: new length
++ *
++ *	This is identical to pskb_trim except that the caller knows that
++ *	the skb is not cloned so we should never get an error due to out-
++ *	of-memory.
++ */
++static inline void pskb_trim_unique(struct sk_buff *skb, unsigned int len)
++{
++	int err = pskb_trim(skb, len);
++	BUG_ON(err);
++}
++
++/**
+  *	skb_orphan - orphan a buffer
+  *	@skb: buffer to orphan
+  *
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index 9bf307a..4c20f55 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -947,7 +947,7 @@ alloc_new_skb:
+ 				skb_prev->csum = csum_sub(skb_prev->csum,
+ 							  skb->csum);
+ 				data += fraggap;
+-				skb_trim(skb_prev, maxfraglen);
++				pskb_trim_unique(skb_prev, maxfraglen);
+ 			}
+ 
+ 			copy = datalen - transhdrlen - fraggap;
+@@ -1142,7 +1142,7 @@ ssize_t	ip_append_page(struct sock *sk, 
+ 					data, fraggap, 0);
+ 				skb_prev->csum = csum_sub(skb_prev->csum,
+ 							  skb->csum);
+-				skb_trim(skb_prev, maxfraglen);
++				pskb_trim_unique(skb_prev, maxfraglen);
+ 			}
+ 
+ 			/*
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 69451af..4fb47a2 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1095,7 +1095,7 @@ alloc_new_skb:
+ 				skb_prev->csum = csum_sub(skb_prev->csum,
+ 							  skb->csum);
+ 				data += fraggap;
+-				skb_trim(skb_prev, maxfraglen);
++				pskb_trim_unique(skb_prev, maxfraglen);
+ 			}
+ 			copy = datalen - transhdrlen - fraggap;
+ 			if (copy < 0) {

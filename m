@@ -1,57 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWHMRId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWHMRTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbWHMRId (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 13:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWHMRId
+	id S1751336AbWHMRTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 13:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWHMRTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 13:08:33 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55820 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751327AbWHMRIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 13:08:32 -0400
-Date: Sun, 13 Aug 2006 19:08:31 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH for review] [123/145] i386: make fault notifier unconditional and export it
-Message-ID: <20060813170831.GG3543@stusta.de>
-References: <20060810935.775038000@suse.de> <20060810193722.8082B13B8E@wotan.suse.de> <20060813152859.GB3543@stusta.de> <1155489105.24077.154.camel@localhost.localdomain>
+	Sun, 13 Aug 2006 13:19:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:41295 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751336AbWHMRTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 13:19:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Qk2PXCH6Gy9f1TXw5zoVldo7qOpyz0FzUhgsCJpvyzvYMCcbhYH8aEAl2QCUkxRv8/aEd7yAZXzt9lEkmV7lfllnK3Tkhd/MZichKOa7fWfH/R/pve1pnQH+AJ+LaXXTDtOiEOyH9FEo7psYhz3doaUzfvpP5VfZkP+1RG/Mo0M=
+Message-ID: <44DF5F59.4000100@gmail.com>
+Date: Sun, 13 Aug 2006 19:20:25 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155489105.24077.154.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       Thomas Winischhofer <thomas@winischhofer.net>
+Subject: Re: 2.6.18-rc4-mm1: drivers/video/sis/ compile error
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060813153034.GD3543@stusta.de> <6bffcb0e0608130929k28ea4974sbced3374067d6794@mail.gmail.com> <20060813164056.GF3543@stusta.de>
+In-Reply-To: <20060813164056.GF3543@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 06:11:45PM +0100, Alan Cox wrote:
-> Ar Sul, 2006-08-13 am 17:28 +0200, ysgrifennodd Adrian Bunk:
-> > > It's needed for external debuggers and overhead is very small.
-> > >...
-> > 
-> > We are currently trying to remove exports not used by any in-kernel 
-> > code.
+Adrian Bunk wrote:
+> On Sun, Aug 13, 2006 at 06:29:46PM +0200, Michal Piotrowski wrote:
+>> On 13/08/06, Adrian Bunk <bunk@stusta.de> wrote:
+>>> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+>>>> ...
+>>>> Changes since 2.6.18-rc3-mm2:
+>>>> ...
+>>>> +drivers-video-sis-sis_mainh-removal-of-old.patch
+>>>> ...
+>>>>  fbdev updates
+>>>> ...
+>>> This patch removes too much:
+>>> ...
+>> I'll take a closer look at this. I have tested this with allyesconfig
+>> on 2006-08-08-00-59 mm snapshot,
+
+Not as well as I should.
+
+>> but now it doesn't build when
+>> CONFIG_FB_SIS=y (CONFIG_FB_SIS=m builds fine for me).
+>>
+>> Thanks for pointing that out.
 > 
-> Wrong pronoun. I think you meant to type "You".
+> The problem is here:
+> 
+> <--  snip  -->
+> 
+> ...
+>  #ifdef MODULE
+> -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+> -static int sisfb_mode_idx = -1;
+> -#else
+> -static int sisfb_mode_idx = MODE_INDEX_NONE;  /* Don't use a mode by default if we are a module */
+> -#endif
+> -#else
+>  static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
+>  #endif
+> ...
+> 
+> <--  snip  -->
+> 
+> It's easy to see that you removed too much (or too few, since the
+> #ifdef MODULE can be removed - there's also a similar no longer 
+> required #ifdef MODULE in sis_main.c).
 
-"You are currently trying to remove exports..."?
-Wouldn't this sound as if Andi was doing this?
+Thanks for your help.
 
-I thought the "We" was correct since it's at least Arjan and me.
+This patch should fix this problem. Tested with CONFIG_FB_SIS=y and CONFIG_FB_SIS=m.
 
-If this was wrong all I can say is that I'm not a native English 
-speaker.
+> 
+> cu
+> Adrian
+> 
 
-cu
-Adrian
+Regards,
+Michal
 
 -- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)
 
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/drivers/video/sis/sis_main.c linux-mm/drivers/video/sis/sis_main.c
+--- linux-mm-clean/drivers/video/sis/sis_main.c	2006-08-13 19:12:46.000000000 +0200
++++ linux-mm/drivers/video/sis/sis_main.c	2006-08-13 18:58:49.000000000 +0200
+@@ -83,13 +83,7 @@ sisfb_setdefaultparms(void)
+ 	sisfb_max		= -1;
+ 	sisfb_userom		= -1;
+ 	sisfb_useoem		= -1;
+-#ifdef MODULE
+-	/* Module: "None" for 2.4, default mode for 2.5+ */
+-	sisfb_mode_idx		= -1;
+-#else
+-	/* Static: Default mode */
+ 	sisfb_mode_idx		= -1;
+-#endif
+ 	sisfb_parm_rate		= -1;
+ 	sisfb_crt1off		= 0;
+ 	sisfb_forcecrt1		= -1;
+diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/drivers/video/sis/sis_main.h linux-mm/drivers/video/sis/sis_main.h
+--- linux-mm-clean/drivers/video/sis/sis_main.h	2006-08-13 19:12:46.000000000 +0200
++++ linux-mm/drivers/video/sis/sis_main.h	2006-08-13 19:06:43.000000000 +0200
+@@ -67,9 +67,7 @@ static int sisfb_ypan = -1;
+ static int sisfb_max = -1;
+ static int sisfb_userom = 1;
+ static int sisfb_useoem = -1;
+-#ifdef MODULE
+ static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
+-#endif
+ static int sisfb_parm_rate = -1;
+ static int sisfb_crt1off = 0;
+ static int sisfb_forcecrt1 = -1;
 

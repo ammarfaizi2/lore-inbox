@@ -1,229 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbWHMKWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWHMK2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbWHMKWY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 06:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbWHMKWY
+	id S1750940AbWHMK2a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 06:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWHMK2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 06:22:24 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:5730 "EHLO
+	Sun, 13 Aug 2006 06:28:30 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:62818 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750931AbWHMKWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 06:22:23 -0400
-Date: Sun, 13 Aug 2006 18:22:19 +0800
+	id S1750938AbWHMK2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 06:28:30 -0400
+Date: Sun, 13 Aug 2006 18:28:25 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: okuji@enbug.org
-Subject: [PATCH] failslab - failmalloc for slab allocator
-Message-ID: <20060813102219.GA8784@miraclelinux.com>
+Subject: Re: [PATCH] failslab - failmalloc for slab allocator
+Message-ID: <20060813102825.GA8826@miraclelinux.com>
+References: <20060813102219.GA8784@miraclelinux.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060813102219.GA8784@miraclelinux.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is not intended for inclusion. But I could find
-several interesting crashes.
+On Sun, Aug 13, 2006 at 06:22:19PM +0800, Akinobu Mita wrote:
+> The idea behind failslab is to demonstrate what really happens if
+> slab allocation fails. The idea of failslab is completely taken
+> from failmalloc (http://www.nongnu.org/failmalloc/).
 
-The idea behind failslab is to demonstrate what really happens if
-slab allocation fails. The idea of failslab is completely taken
-from failmalloc (http://www.nongnu.org/failmalloc/).
+I have similar versions for vmalloc() and page_alloc().
+But I couldn't find outstanding bugs.
 
-boot option:
+boot options:
 
-failslab=<probability>,<interval>,<times>,<space>
+failvmalloc=<probability>,<interval>,<times>,<space>
 
-<probability>
-	specifies how often it should fail in percent.
-<interval>
-	specifies the interval of failures.
-<times>
-	specifies how many times failures may happen at most.
-<space>
-	specifies the size of free space where memory can be allocated
-	safely in bytes.
+fail_page_alloc=<probability>,<interval>,<times>,<space>
 
-examples:
-
-failslab=100,10,-1,0
-
-slab allocation (kmalloc, kmem_cache_alloc,..) fails once per 10 times.
-
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
-
- include/linux/failmalloc.h |   39 ++++++++++++++++++++++++++++++++
- lib/Kconfig.debug          |    6 +++++
- mm/Makefile                |    1 
- mm/failmalloc.c            |   54 +++++++++++++++++++++++++++++++++++++++++++++
- mm/slab.c                  |   19 +++++++++++++++
- 5 files changed, 119 insertions(+)
-
-Index: work-failmalloc/mm/failmalloc.c
+Index: work-failmalloc/mm/vmalloc.c
 ===================================================================
---- /dev/null
-+++ work-failmalloc/mm/failmalloc.c
-@@ -0,0 +1,54 @@
-+/* failmalloc - force to fail in allocating memory sometimes */
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/random.h>
+--- work-failmalloc.orig/mm/vmalloc.c
++++ work-failmalloc/mm/vmalloc.c
+@@ -16,6 +16,7 @@
+ #include <linux/interrupt.h>
+ 
+ #include <linux/vmalloc.h>
 +#include <linux/failmalloc.h>
-+
-+int setup_failmalloc(struct failmalloc_data *failmalloc, char *str)
-+{
-+	struct failmalloc_data tmp;
-+
-+	/* "<probability>,<interval>,<times>,<space>" */
-+	if (sscanf(str, "%d,%lu,%ld,%u", &tmp.failure_probability,
-+		   &tmp.failure_interval, &tmp.max_failures,
-+		   &tmp.max_space) < 4)
-+		return 0;
-+
-+	*failmalloc = tmp;
-+	return 1;
-+}
-+
-+int should_fail(struct failmalloc_data *failmalloc, size_t size)
-+{
-+	if (failmalloc->max_failures == 0)
-+		return 0;
-+
-+	if (failmalloc->max_space) {
-+		if (failmalloc->current_space < failmalloc->max_space - size) {
-+			failmalloc->current_space += size;
-+			return 0;
-+		}
-+	}
-+
-+	if (failmalloc->failure_interval > 1) {
-+		failmalloc->count++;
-+		if (failmalloc->count < failmalloc->failure_interval)
-+			return 0;
-+
-+		failmalloc->count = 0;
-+	}
-+
-+	if (failmalloc->failure_probability == 100 ||
-+	    INT_MAX / 100 * failmalloc->failure_probability > get_random_int())
-+		goto fail;
-+
-+	return 0;
-+
-+fail:
-+
-+	if (failmalloc->max_failures > 0)
-+		failmalloc->max_failures--;
-+
-+	return 1;
-+}
-Index: work-failmalloc/lib/Kconfig.debug
-===================================================================
---- work-failmalloc.orig/lib/Kconfig.debug
-+++ work-failmalloc/lib/Kconfig.debug
-@@ -368,3 +368,9 @@ config RCU_TORTURE_TEST
- 	  at boot time (you probably don't).
- 	  Say M if you want the RCU torture tests to build as a module.
- 	  Say N if you are unsure.
-+
-+config FAILMALLOC
-+	bool "failmalloc"
-+	depends on DEBUG_KERNEL
-+	help
-+	  This option enables failmalloc.
-Index: work-failmalloc/mm/Makefile
-===================================================================
---- work-failmalloc.orig/mm/Makefile
-+++ work-failmalloc/mm/Makefile
-@@ -23,4 +23,5 @@ obj-$(CONFIG_SLAB) += slab.o
- obj-$(CONFIG_MEMORY_HOTPLUG) += memory_hotplug.o
- obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
-+obj-$(CONFIG_FAILMALLOC) += failmalloc.o
  
-Index: work-failmalloc/include/linux/failmalloc.h
-===================================================================
---- /dev/null
-+++ work-failmalloc/include/linux/failmalloc.h
-@@ -0,0 +1,39 @@
-+#ifndef _LINUX_FAILMALLOC_H
-+#define	_LINUX_FAILMALLOC_H
-+
-+#ifdef CONFIG_FAILMALLOC
-+
-+struct failmalloc_data {
-+
-+	/* how often it should fail, in percent. */
-+	int failure_probability;
-+
-+	/* the interval of failures. */
-+	unsigned long failure_interval;
-+
-+	/*
-+	 * how many times failures may happen at most.
-+	 * negative value means unlimited.
-+	 */
-+	long max_failures;
-+
-+	/*
-+	 * the size of free space where memory can be allocated safely in bytes.
-+	 * A value of '0' means infinity.
-+	 */
-+	size_t max_space;
-+
-+	unsigned long count;
-+	size_t current_space;
-+};
-+
-+int should_fail(struct failmalloc_data *failmalloc, size_t size);
-+int setup_failmalloc(struct failmalloc_data *data, char *str);
-+
-+#else
-+
-+#define should_fail(failmalloc, size)	(0)
-+
-+#endif /* CONFIG_FAILMALLOC */
-+
-+#endif /* _LINUX_FAILMALLOC_H */
-Index: work-failmalloc/mm/slab.c
-===================================================================
---- work-failmalloc.orig/mm/slab.c
-+++ work-failmalloc/mm/slab.c
-@@ -108,6 +108,7 @@
- #include	<linux/mempolicy.h>
- #include	<linux/mutex.h>
- #include	<linux/rtmutex.h>
-+#include	<linux/failmalloc.h>
- 
- #include	<asm/uaccess.h>
- #include	<asm/cacheflush.h>
-@@ -2963,11 +2964,29 @@ static void *cache_alloc_debugcheck_afte
- #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
- #endif
+ #include <asm/uaccess.h>
+ #include <asm/tlbflush.h>
+@@ -416,12 +417,28 @@ void *vmap(struct page **pages, unsigned
+ }
+ EXPORT_SYMBOL(vmap);
  
 +#ifdef CONFIG_FAILMALLOC
 +
-+struct failmalloc_data failslab;
++struct failmalloc_data failvmalloc;
 +
-+static int __init setup_failslab(char *str)
++static int __init setup_failvmalloc(char *str)
 +{
-+	return setup_failmalloc(&failslab, str);
++	return setup_failmalloc(&failvmalloc, str);
 +}
 +
-+__setup("failslab=", setup_failslab);
++__setup("failvmalloc=", setup_failvmalloc);
 +
 +#endif
 +
- static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
+ 				pgprot_t prot, int node)
  {
- 	void *objp;
- 	struct array_cache *ac;
+ 	struct page **pages;
+ 	unsigned int nr_pages, array_size, i;
  
-+	/* This is not SMP safe, but that's OK. */
-+	if (!(flags & __GFP_NOFAIL) && cachep != &cache_cache &&
-+			should_fail(&failslab, obj_size(cachep)))
++	if (!(gfp_mask & __GFP_NOFAIL) && should_fail(&failvmalloc, area->size))
++		goto fail;
++
+ 	nr_pages = (area->size - PAGE_SIZE) >> PAGE_SHIFT;
+ 	array_size = (nr_pages * sizeof(struct page *));
+ 
+Index: work-failmalloc/mm/page_alloc.c
+===================================================================
+--- work-failmalloc.orig/mm/page_alloc.c
++++ work-failmalloc/mm/page_alloc.c
+@@ -37,6 +37,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/mempolicy.h>
+ #include <linux/stop_machine.h>
++#include <linux/failmalloc.h>
+ 
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
+@@ -903,6 +904,19 @@ get_page_from_freelist(gfp_t gfp_mask, u
+ 	return page;
+ }
+ 
++#ifdef CONFIG_FAILMALLOC
++
++struct failmalloc_data fail_page_alloc;
++
++static int __init setup_fail_page_alloc(char *str)
++{
++	return setup_failmalloc(&fail_page_alloc, str);
++}
++
++__setup("fail_page_alloc=", setup_fail_page_alloc);
++
++#endif
++
+ /*
+  * This is the 'heart' of the zoned buddy allocator.
+  */
+@@ -921,6 +935,10 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
+ 
+ 	might_sleep_if(wait);
+ 
++	if (!(gfp_mask & __GFP_NOFAIL) &&
++			should_fail(&fail_page_alloc, PAGE_SIZE << order))
 +		return NULL;
 +
- #ifdef CONFIG_NUMA
- 	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
- 		objp = alternate_node_alloc(cachep, flags);
+ restart:
+ 	z = zonelist->zones;  /* the list of zones suitable for gfp_mask */
+ 

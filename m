@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWHMUAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWHMUGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbWHMUAe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 16:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWHMUAe
+	id S1751397AbWHMUGv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 16:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWHMUGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 16:00:34 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48653 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751389AbWHMUAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 16:00:34 -0400
-Date: Sun, 13 Aug 2006 22:00:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       dhowells@redhat.com, linux-audit@redhat.com
-Subject: Re: ELF: what should be part of the userspace headers?
-Message-ID: <20060813200032.GI3543@stusta.de>
-References: <20060805110559.GU25692@stusta.de> <1154776124.5181.57.camel@shinybook.infradead.org> <20060805112148.GH32572@devserv.devel.redhat.com>
+	Sun, 13 Aug 2006 16:06:51 -0400
+Received: from ns2.suse.de ([195.135.220.15]:27359 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751397AbWHMUGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 16:06:50 -0400
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: fastboot@osdl.org, Jan Kratochvil <lace@jankratochvil.net>,
+       Horms <horms@verge.net.au>, "H. Peter Anvin" <hpa@zytor.com>,
+       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org,
+       dzickus@redhat.com
+Subject: Re: [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <20060807174439.GJ16231@redhat.com>
+	<m17j1kctb8.fsf@ebiederm.dsl.xmission.com>
+	<20060807235727.GM16231@redhat.com>
+	<m1ejvrakhq.fsf@ebiederm.dsl.xmission.com>
+	<20060809200642.GD7861@redhat.com>
+	<m1u04l2kaz.fsf@ebiederm.dsl.xmission.com>
+	<20060810131323.GB9888@in.ibm.com>
+	<m18xlw34j1.fsf@ebiederm.dsl.xmission.com>
+	<20060810181825.GD14732@in.ibm.com>
+	<m1irl01hex.fsf@ebiederm.dsl.xmission.com>
+	<20060811212522.GF18865@redhat.com>
+	<m1d5b6zagy.fsf@ebiederm.dsl.xmission.com>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Aug 2006 22:06:19 +0200
+In-Reply-To: <m1d5b6zagy.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <p73psf49z9g.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060805112148.GH32572@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 05, 2006 at 07:21:48AM -0400, Jakub Jelinek wrote:
-> On Sat, Aug 05, 2006 at 07:08:43PM +0800, David Woodhouse wrote:
-> > On Sat, 2006-08-05 at 13:05 +0200, Adrian Bunk wrote:
-> > > include/linux/elf-em.h is used by include/linux/audit.h, but this usage 
-> > > doesn't seem to be part of the kernel <-> userspace interface?
-> > 
-> > The machine types _are_ part of the audit kernel<->userspace interface,
-> > I think. Exporting elf-em.h should be fairly harmless.
-> > 
-> > > And which part of the ELF headers is part of the kernel <-> userspace 
-> > > interface?
-> > 
-> > Almost none of them, I'd suggest. Nothing but auxvec.h
+ebiederm@xmission.com (Eric W. Biederman) writes:
 > 
-> Well, sys/procfs.h on several arches includes <asm/elf.h>:
-> 
-> find -type f -a -name \*.h | xargs grep '<\(asm\|linux\).*elf'
-> ./sysdeps/unix/sysv/linux/alpha/sys/procfs.h:#include <asm/elf.h>
-> ./sysdeps/unix/sysv/linux/sh/sys/procfs.h:#include <asm/elf.h>
-> ./sysdeps/unix/sysv/linux/sys/procfs.h:#include <asm/elf.h>
-> 
-> while most other arches don't need it:
-> for i in `find . -name procfs.h`; do grep -q '<\(asm\|linux\).*elf' $i || echo $i; done
-> ./sysdeps/unix/sysv/linux/s390/sys/procfs.h
-> ./sysdeps/unix/sysv/linux/powerpc/sys/procfs.h
-> ./sysdeps/unix/sysv/linux/sparc/sys/procfs.h
-> ./sysdeps/unix/sysv/linux/i386/sys/procfs.h
-> ./sysdeps/unix/sysv/linux/ia64/sys/procfs.h
-> ./sysdeps/unix/sysv/linux/x86_64/sys/procfs.h
-> 
-> Guess it shouldn't be hard to convert even alpha and sh (not sure then
-> if there are any arches that actually use the linux/sys/procfs.h header).
+> Do you know what code had problems having _PAGE_NX set.
+> What are we doing with early_ioremap the requires execute
+> permissions.  It doesn't sound right that we would need
+> this.
 
-Thanks for this, I grepped only on i386.
+The early EM64T CPUs didn't support NX and would GPF when
+they hit the bit. That is why you always need to mask 
+with __supported_pte_mask when using _PAGE_NX.
 
-Let me try to put it into two questions:
-- What should be exported to userspace as part of the
-  kernel<->userspace interface?
-- What has to be exported (at least for some time) for not breaking
-  existing userspace code?
-
-Your answer was for the second question.
-
-But even more important is the first question.
-
-> 	Jakub
-
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+-Andi

@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbWHMVCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbWHMVCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751563AbWHMVCE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWHMVCB
+	id S1751487AbWHMVCF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbWHMVCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:02:01 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10766 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751487AbWHMVBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:01:51 -0400
-Date: Sun, 13 Aug 2006 23:01:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, herbert@gondor.apana.org.au,
-       davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: [-mm patch] Kconfig: move CRYPTO to the "Cryptographic options" menu
-Message-ID: <20060813210149.GR3543@stusta.de>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-MIME-Version: 1.0
+	Sun, 13 Aug 2006 17:02:05 -0400
+Received: from mail.belizeweb.com ([206.27.238.23]:45581 "EHLO
+	web1.belizeweb.com") by vger.kernel.org with ESMTP id S1751435AbWHMVBn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 17:01:43 -0400
+Date: Sun, 13 Aug 2006 14:06:21 -0600
+Message-Id: <200608131406.AA58261698@web1.belizeweb.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+From: "Mr Richard Williams" <richardwilliams2001@web2mail.com>
+Reply-To: <richardwilliams2001@web2mail.com>
+To: <richardwilliams2001@web2mail.com>
+Subject: +From Portugal & Urgent Reply Needed +
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc3-mm2:
->...
->  git-cpufreq.patch
->...
->  git trees
->...
+>From . Mr. Richard Williams.
+13 - 8 - 2006.
 
-This patch moves the CRYPTO option to the "Cryptographic options" menu
-(it was the only option directly in the toplevel menu).
+Kindest Attention:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+My name is Mr. Richard Williams . I am from Portugal .  I have been diagnosed with Esophageal cancer. It has defiled all forms of medical treatment, and right now I have only about a few months to live, according to medical experts. I have not particularly lived my life so well, as I never really cared for anyone (not even myself)but my business.  Though I am very rich, I was never generous, I was always hostile to people and only focused on my business as that was the only thing I cared for. But now I regret all this as I now know that there is more to life than just wanting to have or make all the money in the world. I believe when God gives me a second chance to come to this world I would live my life a different way from how I have lived it.
 
----
+Now that God has called me, I have willed and given most of my property and assets to my immediate and extended family members as well as few close friends .I want God to be merciful to me and accept my soul so, I have decided to give alms to charity organizations and those in Need, as I want this to be one of the last good deeds I do on earth. So far, I have Distributed money to some charity organizations when I was well. Now that my health has deteriorated so badly, I cannot do this myself anymore. I once asked members of my family to close one of my accounts and distribute the money which I have there to charity organization in United States, Asia, Middle East & Europe, they refused and kept the money to themselves. 
 
- crypto/Kconfig |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Hence, I do not trust them anymore, as they seem not to be contended with what I have left for them. The last of my money which no one knows of is the huge cash deposit of Twenty Million United States Dollars ($20, 000, 000.00) that I have with an Asset Management / Vaulting Company Abroad. I will want you to help me collect this deposit and dispatch it to charity organizations and use it to help those in Need.
 
---- linux-2.6.18-rc4-mm1/crypto/Kconfig.old	2006-08-13 21:13:38.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/crypto/Kconfig	2006-08-13 21:14:24.000000000 +0200
-@@ -2,6 +2,8 @@
- # Cryptographic API Configuration
- #
- 
-+menu "Cryptographic options"
-+
- config CRYPTO
- 	bool "Cryptographic API"
- 	help
-@@ -9,8 +11,6 @@
- 
- if CRYPTO
- 
--menu "Cryptographic options"
--
- config CRYPTO_LOWAPI
- 	tristate
- 
-@@ -402,6 +402,6 @@
- 
- source "drivers/crypto/Kconfig"
- 
--endmenu
-+endif	# if CRYPTO
- 
--endif	# if CRYPTO
-+endmenu
+N/B:Kindly note that  40% of this funds must go to  victims of Tsunami, Hurricane Katrina , Hurricane Wilma and South Asia Earthquake , 55% to other Charity Organizations around the World and 5%  for your effort and time.
+
+I cannot talk with you on the phone due to my health situation, as I am using my Lap Top Computer to communicate with you. You should respond to this e-mail if you are interested in carrying out this assignment on my behalf.
+
+God be with you.
+
+Mr. Richard Williams.
 

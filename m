@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWHMSZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWHMS3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWHMSZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 14:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWHMSZQ
+	id S1750732AbWHMS3X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 14:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWHMS3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 14:25:16 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:48914 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750718AbWHMSZP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 14:25:15 -0400
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, Neil Brown <neilb@suse.de>,
-       netdev@vger.kernel.org
-Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB trimming
-References: <87zme9fy94.fsf@hades.wkstn.nix>
-	<20060813125910.GA18463@gondor.apana.org.au>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: (setq software-quality (/ 1 number-of-authors))
-Date: Sun, 13 Aug 2006 19:24:33 +0100
-In-Reply-To: <20060813125910.GA18463@gondor.apana.org.au> (Herbert Xu's message of "Sun, 13 Aug 2006 22:59:11 +1000")
-Message-ID: <87wt9cqyse.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Sun, 13 Aug 2006 14:29:23 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:17551 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750732AbWHMS3W convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 14:29:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mime-version:content-type:content-disposition:x-operating-system:user-agent:content-transfer-encoding:from;
+        b=rvJ9TIA59l92sFSHUXYfbG/PzsQB3v4NyA9vw2lmDf3yq5bvUaYfor/lXGurazezACPcOgJH7HN/GAIQwPDAHuGjqWrbF2u2GHKOetFxMQdrSAVwDQIL7QOwDO15S3N2Mwh4QYMyxHgVc+NXJ09jcfadpL0q1pqS5Xxc8SwUbuo=
+Date: Sun, 13 Aug 2006 21:26:44 +0200
+To: linux-kernel@vger.kernel.org
+Cc: vdr@linuxtv.org
+Subject: 2.6.18-rc4-mm1 plays video at speed 3x with xine
+Message-ID: <20060813192644.GA8207@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.18-rc3-mm2
+User-Agent: Mutt/1.5.12-2006-07-14
+Content-Transfer-Encoding: 8BIT
+From: Gregoire Favre <gregoire.favre@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006, Herbert Xu suggested tentatively:
-> Oops, I missed this code path when I disallowed skb_trim from operating
-> on a paged skb.  This patch should fix the problem.
-> 
-> Greg, we need this for 2.6.17 stable as well if Dave is OK with it.
-> 
-> [INET]: Use pskb_trim_unique when trimming paged unique skbs
-[...]
+Hello,
 
-Yes, that seems to have fixed it. Thank you!
+just tried 2.6.18-rc4-mm1 without any patch and every movies played with
+xine play really too fast (mplayer is fine).
 
+With http://marc.theaimsgroup.com/?l=linux-kernel&m=115547315918564&w=2
+and the one from Frederik Deweerdt about kernel/posix-cpu-timers.c but
+thats don't solve my issue...
 -- 
-`We're sysadmins. We deal with the inconceivable so often I can clearly 
- see the need to define levels of inconceivability.' --- Rik Steenwinkel
+Grégoire FAVRE  http://gregoire.favre.googlepages.com  http://www.gnupg.org

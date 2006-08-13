@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWHMM6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWHMM5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWHMM6L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 08:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWHMM6L
+	id S1751162AbWHMM5b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 08:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWHMM5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 08:58:11 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:35459 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1751163AbWHMM6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 08:58:10 -0400
-Date: Sun, 13 Aug 2006 21:21:54 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] do_sched_setscheduler: don't take tasklist_lock
-Message-ID: <20060813172154.GA1918@oleg>
-References: <20060813170340.GA1913@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Aug 2006 08:57:31 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:15014 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751144AbWHMM5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 08:57:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=FRsR8qLfDICx4/LpIFnoso+xgptvbgesH9XAyAOCqcKAmJz3js4U4K5HtDsUlSIEofixLP7sYmYl8SNnFBbJO2li/IT+srTY6YfTMER/WWGJhOgrdIHB5QotGfL9BYM2XflJrCrD70ucE6g63NDbe6ln9hgO1dIsx5Yw5R9zNE4=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/4] aic7xxx: remove excessive inlining
+Date: Sun, 13 Aug 2006 14:57:21 +0200
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060813170340.GA1913@oleg>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608131457.21951.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/13, Oleg Nesterov wrote:
->
-> We don't need to take tasklist_lock or disable irqs for
-> find_task_by_pid() + get_task_struct(). Use RCU locks
-> instead.
+Hello,
 
-On the other hand, I think sched_setscheduler() does need tasklist_lock!
+This is a resend. I had these patches run-tested
+at the time of first submission. Now I have no hardware
+to test them. I think that they are still fine, though.
 
-It is unsafe do dereference ->signal unless tasklist_lock or ->siglock
-is held (or p == current). Yes, we pin the task structure, but this can't
-prevent from release_task()->__exit_signal() which sets ->signal = NULL.
+Basically, patches deinline some functions, mainly those
+which perform port I/O. They shave off ~55k on AMD64:
 
-So, I think this patch
+# x86_64-pc-linux-gnu-size linux-2.6.17.8_64*/vmlinux
+   text    data     bss     dec     hex filename
+4632627 1222698  468392 6323717  607e05 linux-2.6.17.8_64/vmlinux
+4571327 1223274  468392 6262993  5f90d1 linux-2.6.17.8_64aic/vmlinux
 
-	[PATCH] Drop tasklist lock in do_sched_setscheduler
-	commit e74c69f46d93d29eea0ad8647863d1c6488f0f55
-
-is not correct.
-
-Am I missed something?
-
-Oleg.
-
+# x86_64-pc-linux-gnu-size linux-2.6.17.8_64*/drivers/scsi/aic7xxx/aic7*xx.o
+   text    data     bss     dec     hex filename
+ 135543   13521     628  149692   248bc linux-2.6.17.8_64/drivers/scsi/aic7xxx/aic79xx.o
+ 103291   22289     560  126140   1ecbc linux-2.6.17.8_64/drivers/scsi/aic7xxx/aic7xxx.o
+  90083   13521     628  104232   19728 linux-2.6.17.8_64aic/drivers/scsi/aic7xxx/aic79xx.o
+  87231   22289     560  110080   1ae00 linux-2.6.17.8_64aic/drivers/scsi/aic7xxx/aic7xxx.o
+--
+vda

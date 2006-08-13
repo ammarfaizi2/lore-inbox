@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWHMSsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWHMSvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWHMSsh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 14:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWHMSsg
+	id S1751356AbWHMSvM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 14:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWHMSvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 14:48:36 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38125 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751334AbWHMSsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 14:48:36 -0400
-Subject: Re: IRQ Issues with 2.6.17.8
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nick Manley <darkhack@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6b4360c80608131102g5fa30b21gfc9b2f83996a1f63@mail.gmail.com>
-References: <6b4360c80608130836t1169daf2vd5bc6a0a373989e8@mail.gmail.com>
-	 <1155489057.24077.152.camel@localhost.localdomain>
-	 <6b4360c80608131102g5fa30b21gfc9b2f83996a1f63@mail.gmail.com>
-Content-Type: text/plain
+	Sun, 13 Aug 2006 14:51:12 -0400
+Received: from stinky.trash.net ([213.144.137.162]:44240 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751340AbWHMSvL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 14:51:11 -0400
+Message-ID: <44DF7422.2090904@trash.net>
+Date: Sun, 13 Aug 2006 20:49:06 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] fix use after free in netlink_kernel_create()
+References: <20060813101535.GA8703@miraclelinux.com>	<44DF129A.6060607@trash.net> <20060813104405.a5c8db00.akpm@osdl.org>
+In-Reply-To: <20060813104405.a5c8db00.akpm@osdl.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Date: Sun, 13 Aug 2006 20:08:58 +0100
-Message-Id: <1155496139.24077.167.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-08-13 am 13:02 -0500, ysgrifennodd Nick Manley:
-> I'm not a master of kernel messages but a few of the messages such as
-> the "mp-bios bug" and "cannot allocate region 3 of device" which
-> appeared during the boot process of several distros made me worry.
+Andrew Morton wrote:
+> On Sun, 13 Aug 2006 13:52:58 +0200
+> Patrick McHardy <kaber@trash.net> wrote:
+> 
+>>Quite a few users of netlink_kernel_create will panic when creating
+>>the socket fails (rtnetlink for example, which is always present),
+>>so you might as well call panic here directly.
+> 
+> 
+> That's a bit lame.  Panicing at do_initcalls() time is OK (something is
+> seriously screwed anyway) but we usually try to handle the ENOMEM nicely if
+> it happens at modprobe-time.
 
-I can understand that.
 
-> I'll report this to the ndiswrapper developers.  I'm sorry if I took
-> up your time.  I really appreciate your efforts.  Thank you for all of
-> your help.
-
-Thanks for providing a detailed report which made it easy to
-investigate.
+The users I looked at can't be built as modules (rtnetlink, genetlink,
+audit subsystem), I'm not aware of any modules panicing on
+netlink_kernel_create failure. But all of netlink, genetlink and
+rtnetlink are always built-in when CONFIG_NET=y, so we might as well
+panic here.
 

@@ -1,23 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWHMRXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWHMRet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWHMRXh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 13:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHMRXh
+	id S1751346AbWHMRet (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 13:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWHMRet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 13:23:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21472 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751342AbWHMRXg (ORCPT
+	Sun, 13 Aug 2006 13:34:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25315 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751346AbWHMRet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 13:23:36 -0400
-Date: Sun, 13 Aug 2006 10:23:27 -0700
+	Sun, 13 Aug 2006 13:34:49 -0400
+Date: Sun, 13 Aug 2006 10:34:34 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: linux-kernel@vger.kernel.org, toyoa@mvista.com
-Subject: Re: [patch] fix posix timer errors
-Message-Id: <20060813102327.b02cfffe.akpm@osdl.org>
-In-Reply-To: <20060813143200.GA2779@slug>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-	<20060813143200.GA2779@slug>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, pj@sgi.com,
+       linux-kernel@vger.kernel.org, "Albert Cahalan" <acahalan@gmail.com>
+Subject: Re: [RFC] ps command race fix
+Message-Id: <20060813103434.17804d52.akpm@osdl.org>
+In-Reply-To: <m1mza8wqdc.fsf@ebiederm.dsl.xmission.com>
+References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724182000.2ab0364a.akpm@osdl.org>
+	<20060724184847.3ff6be7d.pj@sgi.com>
+	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724193318.d57983c1.akpm@osdl.org>
+	<20060725115004.a6c668ca.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060725121640.246a3720.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1mza8wqdc.fsf@ebiederm.dsl.xmission.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,48 +32,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 16:32:00 +0200
-Frederik Deweerdt <deweerdt@free.fr> wrote:
+On Sun, 13 Aug 2006 10:29:51 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> > 
-> Hi,
-> 
-> posix-timers-fix-clock_nanosleep-doesnt-return-the-remaining-time-in-compatibility-mode.patch
-> declares two functions with the wrong return type.
-> 
-> Also, posix-timers-fix-the-flags-handling-in-posix_cpu_nsleep.patch uses
-> '=' instead of '=='.
-> 
-> The attached patch fix both issues.
-> 
+> So for systems that are going to be using a larger number of pid
+> values I think we need a better data structure, and containers are
+> likely to push us in that area.  Which means either an extensible
+> hash table or radix tree look like the sane choices.
 
-Thanks.
+radix-trees are nice because you can efficiently traverse them in-order
+while the contents are changing (albeit potentially missing newly-added
+things, but that's inevitable).
 
-> 
-> diff --git a/kernel/posix-cpu-timers.c b/kernel/posix-cpu-timers.c
-> index 1fc1ea2..479b16b 100644
-> --- a/kernel/posix-cpu-timers.c
-> +++ b/kernel/posix-cpu-timers.c
-> @@ -1477,7 +1477,7 @@ int posix_cpu_nsleep(const clockid_t whi
->  
->  	error = do_cpu_nanosleep(which_clock, flags, rqtp, &it);
->  
-> -	if (error = -ERESTART_RESTARTBLOCK) {
-> +	if (error == -ERESTART_RESTARTBLOCK) {
->  
->  	       	if (flags & TIMER_ABSTIME)
->  			return -ERESTARTNOHAND;
-> @@ -1511,7 +1511,7 @@ long posix_cpu_nsleep_restart(struct res
->  	restart_block->fn = do_no_restart_syscall;
->  	error = do_cpu_nanosleep(which_clock, TIMER_ABSTIME, &t, &it);
->  
-> -	if (error = -ERESTART_RESTARTBLOCK) {
-> +	if (error == -ERESTART_RESTARTBLOCK) {
+radix-trees are not-nice because they allocate memory at insertion time. 
+If that's a problem then rbtrees could perhaps be used.
 
-This is the sort of thing which should have been caught in testing, but it
-wasn't, which raises questions about how well-tested the rest of it is?
+idr-trees have similar characteristics to the radix-trees, except a) the
+idr-tree find-next-above feature could perhaps be used for the core pid
+allocation and b) idr-trees don't presently have suitable search functions
+for performing the iteration.
 
-Plus it will have generated compiler warnings.
+At least we have plenty of choices ;)

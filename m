@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWHMX1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbWHMXuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbWHMX1e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 19:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWHMX1e
+	id S1751735AbWHMXuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 19:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751737AbWHMXuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 19:27:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14058 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751722AbWHMX1d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 19:27:33 -0400
-Date: Sun, 13 Aug 2006 19:25:50 -0400
-From: Dave Jones <davej@redhat.com>
-To: Ben Buxton <kernel@bb.cactii.net>
-Cc: Andrew Morton <akpm@osdl.org>, Maciej Rutecki <maciej.rutecki@gmail.com>,
-       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: 2.6.18-rc4-mm1
-Message-ID: <20060813232549.GG28540@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ben Buxton <kernel@bb.cactii.net>, Andrew Morton <akpm@osdl.org>,
-	Maciej Rutecki <maciej.rutecki@gmail.com>,
-	linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
-References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com> <20060813121126.b1dc22ee.akpm@osdl.org> <20060813224413.GA21959@cactii.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Aug 2006 19:50:32 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:18751 "EHLO
+	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751735AbWHMXub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 19:50:31 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KAIhX30SBUQ
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Florin Malita <fmalita@gmail.com>
+Subject: Re: [PATCH] atkbd.c: overrun in atkbd_set_repeat_rate()
+Date: Sun, 13 Aug 2006 19:50:28 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <44DF953B.6010707@gmail.com>
+In-Reply-To: <44DF953B.6010707@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060813224413.GA21959@cactii.net>
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200608131950.28720.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 12:44:13AM +0200, Ben Buxton wrote:
+On Sunday 13 August 2006 17:10, Florin Malita wrote:
+> This was introduced in commit 3d0f0fa0cb554541e10cb8cb84104e4b10828468:
+> bounds checking is performed against period[32] while indexing delay[4].
+> 
+> Spotted by Coverity, CID 1376.
+> 
 
- > Also, whenever I echo anything to "scaling_governor", I get the
- > following kernel message:
- > 
- > [  734.156000] BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
- > [  734.156000]  [<c013c3ec>] lock_cpu_hotplug+0x7c/0x90
- > [  734.156000]  [<c01327f4>] __create_workqueue+0x44/0x140
- > [  734.156000]  [<c02dcf7b>] mutex_lock+0xb/0x20
- > [  734.156000]  [<e01f2665>] cpufreq_governor_dbs+0x2b5/0x310 [cpufreq_ondemand]
+Will apply, thank you.
 
-This makes no sense at all, because in -mm __create_workqueue doesn't
-call lock_cpu_hotplug().
-
-Are you sure this was from a tree with -mm1 applied ?
-
-		Dave
+> Signed-off-by: Florin Malita <fmalita@gmail.com>
+> ---
+> 
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+> index 6bfa0cf..a86afd0 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -498,7 +498,7 @@ static int atkbd_set_repeat_rate(struct 
+>  		i++;
+>  	dev->rep[REP_PERIOD] = period[i];
+>  
+> -	while (j < ARRAY_SIZE(period) - 1 && delay[j] < dev->rep[REP_DELAY])
+> +	while (j < ARRAY_SIZE(delay) - 1 && delay[j] < dev->rep[REP_DELAY])
+>  		j++;
+>  	dev->rep[REP_DELAY] = delay[j];
+>  
+> 
+> 
 
 -- 
-http://www.codemonkey.org.uk
+Dmitry

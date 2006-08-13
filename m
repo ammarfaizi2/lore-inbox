@@ -1,38 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbWHMDmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWHMEsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932669AbWHMDmw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 23:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWHMDmw
+	id S1030235AbWHMEsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 00:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWHMEsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 23:42:52 -0400
-Received: from mail.gmx.de ([213.165.64.20]:2512 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932669AbWHMDmv (ORCPT
+	Sun, 13 Aug 2006 00:48:43 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:52711 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030194AbWHMEsm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 23:42:51 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.18-rc3-mm2:  oops in device_bind_driver()
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-In-Reply-To: <20060812180256.445caea9.akpm@osdl.org>
-References: <1155385726.6151.6.camel@Homer.simpson.net>
-	 <20060812180256.445caea9.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 13 Aug 2006 05:50:34 +0000
-Message-Id: <1155448234.7068.1.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Sun, 13 Aug 2006 00:48:42 -0400
+From: Andi Kleen <ak@suse.de>
+To: linux-arch@vger.kernel.org
+Subject: module compiler version check still needed?
+Date: Sun, 13 Aug 2006 06:48:36 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200608130648.36178.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-12 at 18:02 -0700, Andrew Morton wrote:
 
-> I'd assume that you have CONFIG_PCI_MULTITHREAD_PROBE set, and
+Does anybody know of any reason why we would still need the compiler version
+check during module loading? AFAIK on i386 it was only needed to handle
+2.95 (which got dropped) and on x86-64 it was never needed. Is there
+a need on any other architecture for it?
 
-Yes.
-
-	-Mike
-
+-Andi

@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWHMVd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWHMVgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbWHMVd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 17:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWHMVd3
+	id S1751531AbWHMVgt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 17:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWHMVgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 17:33:29 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27556 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751503AbWHMVd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 17:33:28 -0400
-Date: Sun, 13 Aug 2006 23:34:44 +0200
-From: Jan Kara <jack@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to lock current->signal->tty
-Message-ID: <20060813213444.GC11528@atrey.karlin.mff.cuni.cz>
-References: <1155050242.5729.88.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-In-Reply-To: <1155050242.5729.88.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+	Sun, 13 Aug 2006 17:36:49 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:49928 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751517AbWHMVgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 17:36:49 -0400
+Message-ID: <44DF9B6C.8000902@superbug.co.uk>
+Date: Sun, 13 Aug 2006 22:36:44 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060730)
+MIME-Version: 1.0
+To: Henti Smith <henti@geekware.co.za>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: upgrading pentavalue drivers from 2.4 to 2.6
+References: <20060813142711.2cccf6c3@yoda.foad.za.net>
+In-Reply-To: <20060813142711.2cccf6c3@yoda.foad.za.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-> The biggest crawly horror I've found so far in auditing the tty locking
-> is current->signal->tty. The tty layer currently and explicitly protects
-> this using tty_mutex. The core kernel likewise knows about this.
+Henti Smith wrote:
+> Hi guys, 
 > 
-> Unfortunately:
-> 	SELinux doesn't do any locking at all
-> 	Dquot passes the tty to tty_write_message without locking
-  Ok, is something like attached patch fine?
+> I have a client that uses pentavalue DVB-S cards pretty much all over
+> their business, however the drivers has not been updated since 2002
+> (2.4 kernel only) I've spoken to the dev's at the company and they are
+> not interested in doing drivers for 2.6
+> 
+> The 2.4 drivers they released is source code format, however I could
+> not find any clear indication of licence agreements to use the code for
+> further development. 
+> 
+> I'm hoping that it's GPL'ed since MODULE_LICENSE("GPL"); appears in the
+> pentadrv.c and scanval.c files
+> 
+> I'm going to contact them again to confirm we can use the code for
+> 2.4 to upgrade to 2.6 and possible include in the kernel source (if it
+> will be allowed :P) 
+> 
+> Lastly .. and the reason I'm mailing is .. I'm looking for somebody
+> that is keen on  doing the port .. I'll happily supply hardware (we
+> have lots of these cards) 
+> 
+> beer or other incentives can be negotiated ;P 
+> 
+> Thanks :) 
+> 
 
-								Honza
+They are binary only drivers. I.e. A group of .o files with .c wrappers.
+So no way to port them to 2.6
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.17-1-tty_fix.diff"
+James
 
-Add proper locking when using current->signal->tty.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.17/fs/dquot.c linux-2.6.17-1-quota_tty_fix/fs/dquot.c
---- linux-2.6.17/fs/dquot.c	2006-08-14 09:11:29.000000000 +0200
-+++ linux-2.6.17-1-quota_tty_fix/fs/dquot.c	2006-08-14 09:29:32.000000000 +0200
-@@ -834,6 +834,9 @@ static void print_warning(struct dquot *
- 	if (!need_print_warning(dquot) || (flag && test_and_set_bit(flag, &dquot->dq_flags)))
- 		return;
- 
-+	mutex_lock(&tty_mutex);
-+	if (!current->signal->tty)
-+		goto out_lock;
- 	tty_write_message(current->signal->tty, dquot->dq_sb->s_id);
- 	if (warntype == ISOFTWARN || warntype == BSOFTWARN)
- 		tty_write_message(current->signal->tty, ": warning, ");
-@@ -861,6 +864,8 @@ static void print_warning(struct dquot *
- 			break;
- 	}
- 	tty_write_message(current->signal->tty, msg);
-+out_lock:
-+	mutex_unlock(&tty_mutex);
- }
- 
- static inline void flush_warnings(struct dquot **dquots, char *warntype)
-
---tKW2IUtsqtDRztdT--

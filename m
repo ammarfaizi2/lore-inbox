@@ -1,80 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWHMQk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWHMQxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWHMQk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 12:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWHMQk6
+	id S1751315AbWHMQxx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 12:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWHMQxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 12:40:58 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:49164 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751313AbWHMQk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 12:40:58 -0400
-Date: Sun, 13 Aug 2006 18:40:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Thomas Winischhofer <thomas@winischhofer.net>
-Subject: Re: 2.6.18-rc4-mm1: drivers/video/sis/ compile error
-Message-ID: <20060813164056.GF3543@stusta.de>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060813153034.GD3543@stusta.de> <6bffcb0e0608130929k28ea4974sbced3374067d6794@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bffcb0e0608130929k28ea4974sbced3374067d6794@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Sun, 13 Aug 2006 12:53:53 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61155 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751315AbWHMQxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 12:53:51 -0400
+Subject: Re: [PATCH for review] [123/145] i386: make fault notifier
+	unconditional and export it
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060813152859.GB3543@stusta.de>
+References: <20060810935.775038000@suse.de>
+	 <20060810193722.8082B13B8E@wotan.suse.de> <20060813152859.GB3543@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 13 Aug 2006 18:11:45 +0100
+Message-Id: <1155489105.24077.154.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 06:29:46PM +0200, Michal Piotrowski wrote:
-> On 13/08/06, Adrian Bunk <bunk@stusta.de> wrote:
-> >On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
-> >>...
-> >> Changes since 2.6.18-rc3-mm2:
-> >>...
-> >> +drivers-video-sis-sis_mainh-removal-of-old.patch
-> >>...
-> >>  fbdev updates
-> >>...
-> >
-> >This patch removes too much:
+Ar Sul, 2006-08-13 am 17:28 +0200, ysgrifennodd Adrian Bunk:
+> > It's needed for external debuggers and overhead is very small.
 > >...
 > 
-> I'll take a closer look at this. I have tested this with allyesconfig
-> on 2006-08-08-00-59 mm snapshot, but now it doesn't build when
-> CONFIG_FB_SIS=y (CONFIG_FB_SIS=m builds fine for me).
-> 
-> Thanks for pointing that out.
+> We are currently trying to remove exports not used by any in-kernel 
+> code.
 
-The problem is here:
+Wrong pronoun. I think you meant to type "You".
 
-<--  snip  -->
-
-...
- #ifdef MODULE
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
--static int sisfb_mode_idx = -1;
--#else
--static int sisfb_mode_idx = MODE_INDEX_NONE;  /* Don't use a mode by default if we are a module */
--#endif
--#else
- static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
- #endif
-...
-
-<--  snip  -->
-
-It's easy to see that you removed too much (or too few, since the
-#ifdef MODULE can be removed - there's also a similar no longer 
-required #ifdef MODULE in sis_main.c).
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

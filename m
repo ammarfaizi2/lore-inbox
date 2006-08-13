@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWHMP3C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWHMPah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWHMP3C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 11:29:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWHMP3C
+	id S1751287AbWHMPah (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 11:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWHMPah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 11:29:02 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21260 "HELO
+	Sun, 13 Aug 2006 11:30:37 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23308 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751283AbWHMP3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 11:29:00 -0400
-Date: Sun, 13 Aug 2006 17:28:59 +0200
+	id S1751287AbWHMPag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 11:30:36 -0400
+Date: Sun, 13 Aug 2006 17:30:34 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH for review] [123/145] i386: make fault notifier unconditional and export it
-Message-ID: <20060813152859.GB3543@stusta.de>
-References: <20060810935.775038000@suse.de> <20060810193722.8082B13B8E@wotan.suse.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Antonino A. Daplas" <adaplas@pol.net>,
+       Thomas Winischhofer <thomas@winischhofer.net>
+Subject: 2.6.18-rc4-mm1: drivers/video/sis/ compile error
+Message-ID: <20060813153034.GD3543@stusta.de>
+References: <20060813012454.f1d52189.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060810193722.8082B13B8E@wotan.suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's needed for external debuggers and overhead is very small.
+On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc3-mm2:
+>...
+> +drivers-video-sis-sis_mainh-removal-of-old.patch
+>...
+>  fbdev updates
 >...
 
-We are currently trying to remove exports not used by any in-kernel 
-code.
+This patch removes too much:
 
-The patch description also lacks the name of what you call "external 
-debuggers" (I assume the exports are not for a theoretical usage but for 
-an already existing debugger?). There is no reason for keeping a patch 
-description small.
+<--  snip  -->
 
-Especially nowadays where people demand deprecation periods for removing 
-exports without any in-kernel users there must be a _very_ good 
-justification when adding such exports.
+...
+  CC      drivers/video/sis/sis_main.o
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c: 
+In function ‘sisfb_setdefaultparms’:
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c:91: 
+error: ‘sisfb_mode_idx’ undeclared (first use in this function)
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c:91: 
+error: (Each undeclared identifier is reported only once
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c:91: 
+error: for each function it appears in.)
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c: 
+In function ‘sisfb_search_vesamode’:
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c:129: 
+error: ‘sisfb_mode_idx’ undeclared (first use in this function)
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c: 
+In function ‘sisfb_search_mode’:
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c:172: 
+error: ‘sisfb_mode_idx’ undeclared (first use in this function)
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c: 
+In function ‘sisfb_probe’:
+/home/bunk/linux/kernel-2.6/linux-2.6.18-rc4-mm1/drivers/video/sis/sis_main.c:5813: 
+error: ‘sisfb_mode_idx’ undeclared (first use in this function)
+make[4]: *** [drivers/video/sis/sis_main.o] Error 1
 
-This is true for both the i386 and the x86_64 patches.
+<--  snip  -->
 
 cu
 Adrian
-
-BTW1: The subject of this email is wrong (it's the x86_64 patch).
-BTW2: Please use a valid To: header.
 
 -- 
 

@@ -1,471 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWHMDRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932667AbWHMD20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWHMDRo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Aug 2006 23:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWHMDRn
+	id S932667AbWHMD20 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Aug 2006 23:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWHMD20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Aug 2006 23:17:43 -0400
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:42746 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S932663AbWHMDRm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Aug 2006 23:17:42 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.4.2
-cc: linux-kernel@vger.kernel.org
-Date: Sat, 12 Aug 2006 20:17:40 -0700
-Message-ID: <7vk65dmii3.fsf@assigned-by-dhcp.cox.net>
+	Sat, 12 Aug 2006 23:28:26 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:44957 "EHLO
+	spock.bluecherry.net") by vger.kernel.org with ESMTP
+	id S932667AbWHMD2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Aug 2006 23:28:25 -0400
+Date: Sat, 12 Aug 2006 23:28:21 -0400
+From: "Zephaniah E. Hull" <warp@aehallh.com>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Magnus =?iso-8859-1?Q?Vigerl=F6f?= <wigge@bigfoot.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: input: evdev.c EVIOCGRAB semantics question
+Message-ID: <20060813032821.GB5251@aehallh.com>
+Mail-Followup-To: Dmitry Torokhov <dtor@insightbb.com>,
+	Magnus =?iso-8859-1?Q?Vigerl=F6f?= <wigge@bigfoot.com>,
+	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <200608121724.16119.wigge@bigfoot.com> <20060812165228.GA5255@aehallh.com> <200608122000.47904.dtor@insightbb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Fba/0zbH8Xs+Fj9o"
+Content-Disposition: inline
+In-Reply-To: <200608122000.47904.dtor@insightbb.com>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The latest feature release GIT 1.4.2 is available at the usual
-places:
+--Fba/0zbH8Xs+Fj9o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-  http://www.kernel.org/pub/software/scm/git/
+On Sat, Aug 12, 2006 at 08:00:47PM -0400, Dmitry Torokhov wrote:
+> On Saturday 12 August 2006 12:52, Zephaniah E. Hull wrote:
+> > I can dust off the masking patch sometime here if Dmitry thinks that
+> > he'd be willing to see a second method for this in addition to grabbing,
+> > adding support to xf86-input-evdev would be trivial, and the same could
+> > probably be said for the wacom driver that does grabbing at the moment.
+> > 
+> 
+> I would not mind if we get it working right ;) Do we need to turn off
+> "undesirable" handlers or do we want to limit output to one particular
+> handler? I'd prefer the former, if possible. Do we keep a counter or
+> set of counters so several processes can mask output, etc. Can we keep
+> event delivery somewhat fast? 
 
-  git-1.4.2.tar.{gz,bz2}			(tarball)
-  git-htmldocs-1.4.2.tar.{gz,bz2}		(preformatted docs)
-  git-manpages-1.4.2.tar.{gz,bz2}		(preformatted docs)
-  RPMS/$arch/git-*-1.4.2-1.$arch.rpm	(RPM)
+EVIOCGRAB provides for the latter, though it seems to go too far and
+mess with sysrq as well.
 
-I do not currently have access to i386 RH boxes, so there is
-only x86_64 RPM in the RPMS directory mentioned above.
+My old old EVIOCMASK patch just added a long (or was it an int?  It's
+been a while) to each device struct, and to each handler struct, and if
+they had bits set in common then they received the events, and if not
+they did not.
 
-----------------------------------------------------------------
+That was the cost of a quick & operation and a branch in the input event
+path, so not too expensive, though my memory seems to indicate that I
+tried to play some evil games to invert the bits first to allow things
+to be zero inited.
 
-Changes since v1.4.1.1 are as follows:
+I'd definitely want to just rewrite it these days, but that approach is
+fast, and if we define it something along the lines of 'bit 0 is the
+kernel console layer, bit 1 is any further handlers in the kernel like
+/dev/input/mice or the joystick interface, the rest belong to userspace'
+that gives userspace plenty of bits for odd policy decisions.
 
-A Large Angry SCM:
-      Additional merge-base tests (revised)
+One obvious catch is that programs would have to be careful to reset the
+mask when leaving, though having the sysrq handler always present and
+adding controls for 'reset input device masks' would be one escape
+route for X masking keyboard events from the kernel, then crashing
+messily.
 
-Alex Riesen:
-      Do not use perl in git-commit.sh
-      Trivial path optimization test
-
-Alexandre Julliard:
-      git.el: Run git-rerere on commits if the rr-cache directory exists.
-      git.el: Prepend a slash to the file name when adding to .gitignore.
-      git.el: Try to reuse an existing buffer when running git-status.
-      git.el: Put the git customize group in the 'tools' parent group.
-      show-branch: Fix another performance problem.
-
-Alp Toker:
-      Fix some doubled word typos
-      Fix some doubled word typos
-      Fix typos involving the word 'commit'
-      typofix (git-name-rev documentation)
-      git-send-email: Remove redundant Reply-To header
-      gitweb: Send XHTML as 'application/xhtml+xml' where possible
-      gitweb: Include a site name in page titles
-      gitweb: Make command invocations go through the git wrapper
-      documentation (urls.txt) typofix
-
-Daniel Drake:
-      gitweb: escape tag comments
-
-Dennis Stosberg:
-      gitweb: Declare global variables with "our"
-      gitweb: Declare global variables with "our"
-
-Eric Wong:
-      Add git-instaweb, instantly browse the working repo with gitweb
-      instaweb: fix unportable ';' usage in sed
-      t8001-annotate: fix a bash-ism in this test
-      git-svn: avoid fetching files outside of the URL we're tracking
-      git-svn: migrate out of contrib
-      builtin-log: respect diff configuration options
-      diff.c: respect diff.renames config option
-      templates/hooks--update: replace diffstat calls with git diff --stat
-      git-svn: fix --file/-F option in commit-diff
-      tests: Set EDITOR=: and VISUAL=: globally
-      git-fetch: fix a bashism (==)
-      git-svn: don't check for migrations/upgrades on commit-diff
-      typechange tests for git apply (currently failing)
-      git-svn: fix fetching new directories copies when using SVN:: libs
-      git-svn: correctly kill keyword expansion without munging EOLs
-      git-svn: bugfix: allow SVN:: lib users to track the root of the repository
-      git-svn: split the path from the url correctly with limited perms
-
-Gerrit Pape:
-      Build on Debian GNU/kFreeBSD
-
-Jakub Narebski:
-      Allow INSTALL, bindir, mandir to be set in main Makefile
-      Rename man1 and man7 variables to man1dir and man7dir
-      autoconf: Use autoconf to write installation directories to config.mak.autogen
-      send-email: format 2822 datestring ourselves.
-      Teach make clean about configure and autoconf
-      Copy description of build configuration variables to configure.ac
-      autoconf: Preparing the way for autodetection
-      autoconf: Checks for typedefs, structures, and compiler characteristics.
-      autoconf: Checks for some library functions.
-      autoconf: Checks for libraries
-      autoconf: Checks for some programs
-      configure.ac vertical whitespace usage cleanup
-      Wrap long lines in docstrings in contrib/emacs/git.el
-      Display help for Git mode after pressing `h' or `?' in *git-status*
-
-Jeff King:
-      pack-objects: check pack.window for default window size
-      Colorize 'commit' lines in log ui
-      git-push: allow -f as an alias for --force
-      git-push: remove obsolete git-push.sh
-      Documentation: convert uses of git-link macro to gitlink
-      git-annotate: remove extraneous debugging line
-      git-push: allow pushing from subdirectories
-
-Joachim B Haga:
-      Make zlib compression level configurable, and change default.
-
-Joachim Berdal Haga:
-      core.compression documentation formatting fix.
-
-Johannes Schindelin:
-      refactor merge_bases() as preparation to libify merge-base
-      move get_merge_bases() to core lib.
-      Makefile: replace ugly and unportable sed invocation
-      Make git-fmt-merge-msg a builtin
-      Makefile: export NO_SVN_TESTS
-      Close the index file between writing and committing
-      Fix linking for not-so-clever linkers.
-      Fix t4114 on cygwin
-      Always reset the color _before_ printing out the newline
-      cvsserver: suppress warnings
-      cvsserver: avoid warning about active db handles
-      Allow an alias to start with "-p"
-      git wrapper: add --git-dir=<path> and --bare options
-      git-instaweb: some Apache have mod_cgi builtin
-      git-instaweb: respect bindir from Makefile
-      gitweb: fix two warnings
-      t7001: add test for git-mv dir1 dir2/
-      git-cvsserver: support multiline commit messages
-      Extract helper bits from c-merge-recursive work
-      Make git-mv a builtin
-      builtin git-mv: support moving directories
-      instaweb: Be more clear if httpd or the browser fail
-      cvsserver: imitate git-update-ref when committing
-      Makefile: ssh-pull.o depends on ssh-fetch.c
-      Teach git-apply about '-R'
-      Fix http-fetch
-      tar-tree: illustrate an obscure feature better
-      Fix crash when GIT_DIR is invalid
-
-Jonas Fonseca:
-      Documentation/urls.txt: Use substitution to escape square brackets
-      Update git-init-db(1) and documentation of core.sharedRepository
-
-Josef Weidendorfer:
-      Extend testing git-mv for renaming of subdirectories
-
-Josh Triplett:
-      git-format-patch: Make the second and subsequent mails replies to the first
-      Add option to enable threading headers
-      Add option to set initial In-Reply-To/References
-
-Junio C Hamano:
-      Makefile: add framework to verify and bench sha1 implementations.
-      test-sha1: test hashing large buffer
-      t4013: add tests for diff/log family output options.
-      t4013: add more tests around -c and --cc
-      Fix some more diff options changes.
-      t4013 test updates for new output code.
-      combine-diff.c: type sanity.
-      format-patch: fix diff format option implementation
-      t4013: add format-patch tests.
-      t4013: note improvements brought by the new output code.
-      gitweb: optimize per-file history generation
-      gitweb: optimize per-file history generation
-      t4013: add "diff" UI program tests.
-      builtin-diff: turn recursive on when defaulting to --patch format.
-      commit.c: do not redefine UNINTERESTING bit.
-      get_merge_bases: clean up even when there is no common commit.
-      revert clear-commit-marks for now.
-      boolean: accept yes and no as well
-      send-email: do not barf when Term::ReadLine does not like your terminal
-      t6200: fmt-merge-msg test.
-      git-grep: fix parsing of pathspec separator '--'
-      git-grep: fix exit code when we use external grep.
-      git-grep: use a bit more specific error messages.
-      Re-fix clear_commit_marks().
-      git-grep: boolean expression on pattern matching.
-      git-reset: complain and exit upon seeing an unknown parameter.
-      mailinfo: assume input is latin-1 on the header as we do for the body
-      diffcore-rename: try matching up renames without populating filespec first.
-      builtin-rev-parse.c: constness tightening
-      show-branch: match documentation and usage
-      rev-parse documentation: talk about range notation.
-      git-svn: migrate out of contrib (follow-up)
-      diff.c: --no-color to defeat diff.color configuration.
-      Update diff-options and config documentation.
-      git log -p --merge [[--] paths...]
-      colored diff: diff.color = auto fix
-      diff: do not use configuration magic at the core-level
-      "git -p cmd" to page anywhere
-      merge-base: update the clean-up postprocessing
-      fmt-merge-msg fix
-      Fix grammatical error in git-revert
-      git-repack: avoid redirecting stderr into git-pack-objects
-      test-lib: unset GIT_TRACE
-      t4013 diff format tests update
-      Adjust t4013 tests to corrected format-patch.
-      Documentation: Fix ssh://[user@]host.xz URL
-      fetch/clone: check return status from ls-remote
-      builtin-prune.c: forgot TYPE => OBJ changes.
-      Documentation/Makefile: product depends on asciidoc.conf
-      builtin-log: typefix for recent format-patch changes.
-      show-branch: fix performance problem.
-      checkout -f failed to check out a file if an existing directory interfered.
-      apply: check D/F conflicts more carefully.
-      apply: split out removal and creation into different phases.
-      apply: handle type-changing patch correctly.
-      git-diff A...B to (usually) mean "git-diff `git-merge-base A B` B"
-      git-fetch: fix --keep vs --thin
-      unpack-objects: remove stale and confusing comment
-      t4112: simplify the test and remove unneeded working tree file.
-      lost-found: use fsck-objects --full
-      git-reset: detect update-ref error and report it.
-      log and diff family: honor config even from subdirectories
-      git-apply -R: binary patches are irreversible for now.
-      t4103: fix binary patch application test.
-      git-checkout: allow "checkout HEAD -- path"
-      Builtins: control the use of pager from the command table.
-      fetch/clone: mark messages from remote side stand out.
-      Cygwin needs NO_C99_FORMAT???
-      Fix "git diff blob1 blob2" showing the diff in reverse.
-      read-tree: shadowed variable fix.
-      Add a couple of subdirectory tests.
-      diff.c: do not use pathname comparison to tell renames
-      Show both blob names from "git diff blob1 blob2"
-      sideband: do not use color, just say "remote:"
-      Documentation/git.txt: link git-svn and git-instaweb from the main page.
-      GIT 1.4.2-rc3
-      Further clean-up: usage() vs die()
-      Makefile: Cygwin does not seem to need NO_STRLCPY
-      Fix "grep -w"
-      debugging: XMALLOC_POISON
-      builtin-mv: fix use of uninitialized memory.
-      GIT-VERSION-GEN: adjust for ancient git
-      Documentation: git-status takes the same options as git-commit
-      Fix tutorial-2.html
-      check return value from diff_setup_done()
-      find_unique_abbrev() with len=0 should not abbreviate
-      make --find-copies-harder imply -C
-      allow diff.renamelimit to be set regardless of -M/-C
-      git-apply: applying a patch to make a symlink shorter.
-      combine-diff: use color
-      Fix git-diff A...B
-      builtin-apply: remove unused increment
-      git-sh-setup: do not use repo-config to test the git directory
-      git-am: give better diagnostics when the patch does not apply during --3way
-      Better error message when we are unable to lock the index file
-      t/t4013: fix futzing with the version string.
-
-Linus Torvalds:
-      xdiff: generate "anti-diffs" aka what is common to two files
-      Prepare "git-merge-tree" for future work
-      Improved three-way blob merging code
-      Improve git-peek-remote
-      builtin "git prune"
-      Make the unpacked object header functions static to sha1_file.c
-      Remove TYPE_* constant macros and use object_type enums consistently.
-      sha1_file: add the ability to parse objects in "pack file format"
-      Call setup_git_directory() early
-      Call setup_git_directory() much earlier
-      Fix double "close()" in ce_compare_data
-      Fix up some fallout from "setup_git_directory()" cleanups
-
-Luben Tuikov:
-      gitweb: Enable tree (directory) history display
-      gitweb: Enable tree (directory) history display
-      Add "raw" output option to blobs in "tree" view format
-      gitweb.cgi: Create $git_temp if it doesn't exist
-      gitweb.cgi: Teach "a=blob" action to know the blob/file mime type
-      gitweb.css: Use monospace fonts for commits and tree-diff.
-      gitweb.cgi: Teach git_history() to read hash from $hash_base
-      gitweb.cgi: Include direct link to "raw" files from "history"
-      gitweb.cgi: git_blame2: an alternative simple working git blame
-      gitweb.cgi: git_blame2: Allow back-trekking through commits
-      gitweb.cgi: Show "raw" head of project link even when $hash is not defined
-      gitweb.cgi: git_blame2: Revision blocks now have alternating colors
-      gitweb.cgi: Centralize printing of the page path
-      gitweb.cgi: git_blame2: slight optimization reading the blame lines
-
-Lukas Sandström:
-      git-am: Don't accept an mbox on stdin of we already have a .dotest directory
-
-Martin Langhoff:
-      cvsexportcommit - add -a (add author line) flag, cleanup warnings
-
-Matthias Kestenholz:
-      Make git-prune-packed a builtin
-      Make git-repo-config a builtin
-      use declarations from builtin.h for builtin commands
-
-Matthias Lederhofer:
-      GIT_TRACE: show which built-in/external commands are executed
-      change ent to tree in git-diff documentation
-      git-rev-list: add documentation for --parents, --no-merges
-      daemon: use a custom die routine with syslog
-      daemon: if one of the standard fds is missing open it to /dev/null
-      upload-pack: ignore write errors to stderr
-      daemon: new option --pid-file=<path> to store the pid
-      daemon: new option --detach to run git-daemon in background
-      Documentation about exclude/ignore files
-      argv created by handle_alias should be NULL terminated
-      upload-pack: fix timeout in create_pack_file
-      daemon: documentation for --reuseaddr, --detach and --pid-file
-      setup_git_directory_gently: do not barf when GIT_DIR is given.
-      git.c: allow alias expansion without a git directory
-      pager: config variable pager.color
-      git-grep: document --and, --or, --not, ( and )
-
-Michael:
-      fixed variable declaration in gitk
-
-Michael Krelin:
-      handle https:// protocol in git-clone
-
-Michael S. Tsirkin:
-      mailinfo: accept >From in message header
-
-Michal Rokos:
-      sed -e '/RE/r rfile/' needs space in 'r rfile'
-      Using 'perl' in *.sh
-
-Paul Mackerras:
-      gitk: Allow the user to set some colors
-      gitk: Show the currently checked-out head in bold font
-
-Pavel Roskin:
-      Assorted typo fixes
-      Typofix in Makefile comment.
-      Typofix in configure.ac comment.
-      Fix more typos, primarily in the code
-      Avoid C99 comments, use old-style C comments instead.
-      Quote all calls to GIT_CONF_APPEND_LINE
-      Set datarootdir in config.mak.in
-
-Peter Baumann:
-      git-cvsexportcommit can't handle merge commits correctly
-
-Peter Eriksen:
-      Substitute xmalloc()+memset(0) with xcalloc().
-
-Petr Baudis:
-      Remove -d from *-fetch usage strings
-      Make pull() take some implicit data as explicit arguments
-      Make pull() support fetching multiple targets at once
-      Teach git-local-fetch the --stdin switch
-      Teach git-http-fetch the --stdin switch
-
-Ramsay Jones:
-      Ensure git-clone exits with error if perl script fails.
-      Fix annotate test script; notice when git-annotate fails.
-      Fix installation of templates on ancient systems.
-      New tests and en-passant modifications to mktag.
-      Add NO_C99_FORMAT to support older compilers.
-      Fix header breakage due to redefining PATH_MAX.
-      Remove cmd_usage() routine and re-organize the help/usage code.
-      Fix header breakage with _XOPEN_SOURCE.
-      Fixup command names in some usage strings.
-      Replace some calls to die(usage_str) with usage(usage_str).
-      Allow config file to specify Signed-off-by identity in format-patch.
-      commit walkers: setup_ident() to record correct committer in ref-log.
-
-Rene Scharfe:
-      Add get_merge_bases_clean()
-      Add '...' operator for revisions
-      Make clear_commit_marks() clean harder
-      Fold get_merge_bases_clean() into get_merge_bases()
-      rev-list: free commit_list in ... handler
-      git-tar-tree: fix minor memory leak
-      Add has_extension()
-      git-verify-pack: show usage when no pack was specified
-      git-verify-pack: more careful path handling
-      git-verify-pack: insist on .idx extension
-      git-verify-pack: get rid of while loop
-      git-verify-pack: free pack after use and a cleanup
-      git-verify-pack: buffer overrun paranoia
-      git-verify-pack: no need to count errors
-      drop length argument of has_extension
-
-Robert Shearman:
-      format-patch: Generate a newline between the subject header and the message body
-      rebase: Fix the detection of fast-forwarding of the current branch to upstream.
-      rebase: Make the fast-fowarding message more user-friendly by using branch names instead of SHA1 IDs.
-
-Rutger Nijlunsing:
-      http-push: Make WebDAV work with (broken?) default apache2 WebDAV module
-      Add Documentation/howto/setup-git-server-over-http.txt
-
-Ryan Anderson:
-      annotate: Support annotation of files on other revisions.
-      annotate: Correct most merge following to annotate correctly.
-      Disable color detection during format-patch
-      log-tree: show_log() should respect the setting of diffopt->line_termination
-      annotate: Fix bug when parsing merges with differing real and logical parents.
-
-Santi Béjar:
-      Teach rev-parse the ... syntax.
-      Defaulting fetch to origin when set in the repo-config
-
-Sergey Vlasov:
-      Fix "git-fetch --tags" exit status when nothing has been changed
-
-Shawn Pearce:
-      Avoid C99 initializers
-      Allow user.name and user.email to drive reflog entry.
-      Record the type of commit operation in the reflog.
-      Log ref changes made by git-fetch and git-pull.
-      Log ref changes made by git-merge and git-pull.
-      Log ref changes made by quiltimport.
-      Log ref changes made by resolve.
-      Make lazy mkdir more robust.
-      Record rebase changes as 'rebase' in the reflog.
-      Disable linking with Fink or DarwinPorts.
-      Display an error from update-ref if target ref name is invalid.
-
-Stephan Feder:
-      Do not drop data from '\0' until eol in patch output
-      Teach --text option to diff
-      Teach diff -a as shorthand for --text
-      Add -a and --text to common diff options help
-      diff-options: Explain --text and -a
-
-Timo Hirvonen:
-      Merge with_raw, with_stat and summary variables to output_format
-      Make --raw option available for all diff commands
-      Set default diff output format after parsing command line
-      DIFF_FORMAT_RAW is not default anymore
-      Add msg_sep to diff_options
-      Don't xcalloc() struct diffstat_t
-      whatchanged: Default to DIFF_FORMAT_RAW
-      Print empty line between raw, stat, summary and patch
-      diff-tree: Use ---\n as a message separator
-      log --raw: Don't descend into subdirectories by default
-      Fix diff-tree -s
-      GIT_TRACE: fix a mixed declarations and code warning
-      diff: Support both attributes and colors
-      diff: Support 256 colors
-
-Unknown:
-      A better-scheduled PPC SHA-1 implementation.
-
-Uwe Zeisberger:
-      Document rev-list's option --merge
-
-Ville SkyttÃ¤:
-      Fix print-log and diff compatibility with recent vc versions
-
-Willy Tarreau:
-      tar-tree: add the "tar.umask" config option
-
-Yakov Lerner:
-      Mention the [user@] part in documentation of ssh:// urls.
+We probably don't want to automaticly reset on close by a program that
+did the masking, as I can see some cases where someone might want to use
+a utility that adjusts the masks on input devices.
 
 
+On a side note, if we mess with sysrq for the masking, we should add a
+'ungrab all input devices' one as well.
+
+Zephaniah E. Hull.
+
+-- 
+	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+<aj> ``Who killed the server at the colo site?'' ``Weasel killed the
+     server at the colo site'' ``Not me'' ``Then who?'' ``m2 killed the
+     server at the colo site'' ...
+
+--Fba/0zbH8Xs+Fj9o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFE3pxVRFMAi+ZaeAERAqGnAKDxMTxC5n0QleJF3AqaE4KwrWXmLwCg1U12
+KLF9RzPPIFGxWEuKYp5yZgg=
+=2e3l
+-----END PGP SIGNATURE-----
+
+--Fba/0zbH8Xs+Fj9o--

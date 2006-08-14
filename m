@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751770AbWHNBRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWHNBZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751770AbWHNBRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 21:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWHNBRX
+	id S1751349AbWHNBZP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 21:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWHNBZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 21:17:23 -0400
-Received: from smtp19.orange.fr ([80.12.242.1]:28553 "EHLO
-	smtp-msa-out19.orange.fr") by vger.kernel.org with ESMTP
-	id S1751770AbWHNBRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 21:17:22 -0400
-X-ME-UUID: 20060814011721691.A8B731C00081@mwinf1919.orange.fr
-Message-ID: <44DFCF20.9030202@wanadoo.fr>
-Date: Mon, 14 Aug 2006 03:17:20 +0200
-From: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel panic - not syncing: VFS - unable to mount root fs on unknown-block
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 13 Aug 2006 21:25:15 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:26521 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751349AbWHNBZO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 21:25:14 -0400
+Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev structures as
+	__cpuinitdata
+From: Magnus Damm <magnus@valinux.co.jp>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200608111126_MC3-1-C7CA-65CE@compuserve.com>
+References: <200608111126_MC3-1-C7CA-65CE@compuserve.com>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 10:26:23 +0900
+Message-Id: <1155518783.5764.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
-I'm trying to compile my own kernel for drivers on two computers, but 
-that fails. A the boot, I have this error :
-kernel panic - not syncing: VFS Unable to mount root fs on unknow-block 
-(3.69)
+On Fri, 2006-08-11 at 11:24 -0400, Chuck Ebbert wrote:
+> In-Reply-To: <20060810193740.9133413C0B@wotan.suse.de>
+> 
+> On Thu, 10 Aug 2006 21:37:40 +0200, Andi Kleen wrote:
+> 
+> > From: Magnus Damm <magnus@valinux.co.jp>
+> > 
+> > The different cpu_dev structures are all used from __cpuinit callers what
+> > I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
+> > little bit unsure about arch/i386/common.c:default_cpu, especially when it
+> > comes to the purpose of this_cpu.
+> 
+> But none of these CPUs supports hotplug and only one (AMD) does SMP.
+> So this is just wasting space in the kernel at runtime.
 
-I'm using the kernel 2.6.19 with Ubuntu Dapper. I use the old boot 
-config and I type make oldconfig, so I don't understand why there are an 
-error with the near same configuration.
-I suppose that I must compile not in module but in hard support for my 
-IDE chipset, harddisk and file system. Probably, I don't understand how 
-do exactly. I do that :
-lspci |grep IDE
-0000:00:11.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-make xconfig
--Device Drivers
---* ATA/ATAPI/MFM/RLL support
---- * Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
---- * Include IDE/ATA-2 DISK support
---- * PCI IDE chipset support
----- * Generic PCI IDE Support
------ * VIA82CXXX chipset support
-- File systems
--- * Ext3 journalling file system support
---- * Ext3 extended attributes
----- * Ext3 POSIX Access Control Lists
----- * Ext3 Security Labels
+How could this be wasting space? If you compile with CONFIG_HOTPLUG_CPU
+disabled then __cpuinitdata will become __initdata - ie the same as
+before. Not a single byte wasted what I can tell.
 
-Have I forgot anything ?
+The first version of this patch simply added a missing __init to some
+function, but I was then corrected by akpm that __cpuinit should be used
+instead.
 
-Thanks very much,
-Thibaud.
+Thanks,
+
+/ magnus
+

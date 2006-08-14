@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWHNXIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWHNXKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965044AbWHNXIf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 19:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWHNXIe
+	id S965045AbWHNXKv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 19:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWHNXKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 19:08:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18582 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965044AbWHNXId (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 19:08:33 -0400
-Date: Mon, 14 Aug 2006 16:08:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH] check return value of kmalloc() in setup_cpu_cache()
-Message-Id: <20060814160824.c1a5ef53.akpm@osdl.org>
-In-Reply-To: <20060813101654.GB8703@miraclelinux.com>
-References: <20060813101654.GB8703@miraclelinux.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 19:10:50 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:57057 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S965045AbWHNXKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 19:10:50 -0400
+Date: Mon, 14 Aug 2006 17:09:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Getting 'sync' to flush disk cache?
+In-reply-to: <fa.PWNfC1odploxRBgLE1vdR69UF9s@ifi.uio.no>
+To: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Arjan van de Ven <arjan@infradead.org>
+Message-id: <44E10293.7000508@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.W0uMWcngieRXsM23OSdM5c2wdZI@ifi.uio.no>
+ <fa.qZ/OWlxPTq6xK9TZx+9e39itX9k@ifi.uio.no>
+ <fa.PWNfC1odploxRBgLE1vdR69UF9s@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 18:16:54 +0800
-Akinobu Mita <mita@miraclelinux.com> wrote:
+Jens Axboe wrote:
+> On Mon, Aug 14 2006, Arjan van de Ven wrote:
+>> On Mon, 2006-08-14 at 14:39 -0400, Jeff Garzik wrote:
+>>> So...  has anybody given any thought to enabling fsync(2), fdatasync(2), 
+>>> and sync_file_range(2) issuing a [FLUSH|SYNCHRONIZE] CACHE command?
+>>>
+>>> This has bugged me for _years_, that Linux does not do this.  Looking at 
+>>> forums on the web, it bugs a lot of other people too.
+>> eh afaik 2.6.17 and such do this if you have barriers enabled...
+> 
+> That is correct, but it only works on reiserfs and XFS and user space
+> really cannot tell whether it did the right thing or not. File system
+> developers really should take this more seriously...
+> 
 
-> This patch makes crash happen when allocation of cpucache data fails
-> in setup_cpu_cache(). It is a bit better than getting kernel NULL
-> pointer dereference later.
+I was under the impression that this just worked under recent kernels. 
+I'm disappointed to hear that it doesn't. It always annoys me that 
+issues like this sometimes just seem to stick around forever in the 
+kernel without getting the attention they should (and tend not to be 
+well documented either..)
 
-This code is called on the kmem_cache_create() path.  We should back out
-and return -ENOMEM from kmem_cache_create().
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

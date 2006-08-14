@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751792AbWHNBxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWHNBzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751792AbWHNBxl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 21:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWHNBxl
+	id S1751793AbWHNBzS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 21:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWHNBzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 21:53:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8578 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751786AbWHNBxk (ORCPT
+	Sun, 13 Aug 2006 21:55:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21199 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751793AbWHNBzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 21:53:40 -0400
-Date: Sun, 13 Aug 2006 18:53:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Phillips <phillips@google.com>
-Cc: David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       a.p.zijlstra@chello.nl, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-Message-Id: <20060813185309.928472f9.akpm@osdl.org>
-In-Reply-To: <44DFD262.5060106@google.com>
-References: <20060808211731.GR14627@postel.suug.ch>
-	<44DBED4C.6040604@redhat.com>
-	<44DFA225.1020508@google.com>
-	<20060813.165540.56347790.davem@davemloft.net>
-	<44DFD262.5060106@google.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 13 Aug 2006 21:55:16 -0400
+Date: Mon, 14 Aug 2006 11:54:38 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+Subject: Re: [PATCH] XFS: possibly uninitialized variable use in fs/xfs/xfs_da_btree.c::xfs_da_node_lookup_int()
+Message-ID: <20060814115438.D2698880@wobbly.melbourne.sgi.com>
+References: <200608122334.21901.jesper.juhl@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200608122334.21901.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Sat, Aug 12, 2006 at 11:34:21PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 18:31:14 -0700
-Daniel Phillips <phillips@google.com> wrote:
+On Sat, Aug 12, 2006 at 11:34:21PM +0200, Jesper Juhl wrote:
+> Ok, I'll honestly admit that I'm in over my head here. But, coverity found
+> a potential use of an uninitialized variable in 
+> fs/xfs/xfs_da_btree.c::xfs_da_node_lookup_int() and I think it might be 
+> correct (coverity bug #900).
 
-> But to solve the whole problem
+It looks like a false positive to me.
 
-What problem?  Has anyone come up with a testcase which others can
-reproduce?
+> Nothing initializes 'retval' before this bit of code, so if 'blk->magic' is 
+> neither == XFS_DIR2_LEAFN_MAGIC or XFS_ATTR_LEAF_MAGIC then it'll be in an 
+> uninitialized state when we get to the "if (((retval == ENOENT) ..." bit.
+
+blk->magic is guaranteed to be one of those two things by the first
+loop.
+
+> Since there is code above that check 'blk->magic' against 
+> being == XFS_DA_NODE_MAGIC and I don't see how we would be skipping the 
+
+Reading closely through the 1st loop we can see that there's no way
+to get to the second loop without having one of the LEAF variants in
+the magic#.  The NODE variant indicates its an internal btree node,
+and we move down the btree toward the leaves, at which point we jump
+out into the second loop.
+
+> I suspect I may be completely wrong, and if that's the case I'd sure like 
+> an explanation of where I went wrong along with the NACK for the patch.
+> In case my understanding is in fact correct and the patch below makes sense,
+> then kindly apply :-)
+
+Its not correct.  What I think we should do is add a third branch into
+that second loop which just ASSERTs (to trip up a debug build) and set
+retval to EFSCORRUPTED (to shut these tools up).
+
+cheers.
+
+-- 
+Nathan

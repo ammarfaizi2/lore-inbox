@@ -1,251 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752045AbWHNSYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752047AbWHNSY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752045AbWHNSYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 14:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752047AbWHNSYe
+	id S1752047AbWHNSY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 14:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWHNSY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 14:24:34 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:33374 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1752045AbWHNSYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 14:24:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type;
-        b=n6XUWF1e0PEYYa1qLUJx4R+XVbGLCD9qMUI2DXVk+rtJkfnXKgvuOf1BGZgTVd8RQGKS9LaQQZOr7YyxOg6YTho39v4OY8fS5GGTCLyoAvFuLfjZOTyJRG1dJn8/YEy/FOpm0Va28avG6h1HVKqj0c9KGl57Fbgqwe67WW6NEWQ=
-Message-ID: <44E0BFE0.9000206@gmail.com>
-Date: Mon, 14 Aug 2006 20:24:32 +0200
-From: Maciej Rutecki <maciej.rutecki@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: linux-kernel@vger.kernel.org
+	Mon, 14 Aug 2006 14:24:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23213 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752047AbWHNSY5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 14:24:57 -0400
+Date: Mon, 14 Aug 2006 11:24:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Ian Kent <raven@themaw.net>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
 Subject: Re: 2.6.18-rc4-mm1
-References: <20060813012454.f1d52189.akpm@osdl.org>	 <44DF10DF.5070307@gmail.com> <200608131958.37140.dtor@insightbb.com> <d120d5000608140643tddd9ce4o986560740ef5dbd7@mail.gmail.com>
-In-Reply-To: <d120d5000608140643tddd9ce4o986560740ef5dbd7@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/mixed;
- boundary="------------090108040805030103060809"
+Message-Id: <20060814112435.0c07b248.akpm@osdl.org>
+In-Reply-To: <1871.1155579143@warthog.cambridge.redhat.com>
+References: <20060814101657.8c5b796a.akpm@osdl.org>
+	<1155542805.3430.5.camel@raven.themaw.net>
+	<20060813012454.f1d52189.akpm@osdl.org>
+	<20060813133935.b0c728ec.akpm@osdl.org>
+	<15771.1155547930@warthog.cambridge.redhat.com>
+	<1871.1155579143@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090108040805030103060809
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+On Mon, 14 Aug 2006 19:12:23 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-Dmitry Torokhov napisa³(a):
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> I was wrong, it is trying to detect keyboard but failing and I think I
-> know why. Coud you please try sticking i8042_flush() in
-> i8042_check_aux() like this for me:
+> > ?---------  ? ?    ?             ?            ? /net/bix/mnt
+> > ?---------  ? ?    ?             ?            ? /net/bix/usr
 > 
->        if (wait_for_completion_timeout(&i8042_aux_irq_delivered,
->                                        msecs_to_jiffies(250)) == 0) {
-> /*
-> * AUX IRQ was never delivered so we need to flush the controller to
-> * get rid of the byte we put there; otherwise keyboard may not work.
-> */
->                i8042_flush();
->                retval = -1;
->        }
-> 
-> Thanks!
-> 
+> Do /mnt and /usr have other things mounted on them on bix?
 
-I changed this, and my keyboard works fine. Thanks
+nope.
 
--- 
-Maciej Rutecki <maciej.rutecki@gmail.com>
-http://www.unixy.pl
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+>  Can you dump fstab
+> on bix?
 
---------------090108040805030103060809
-Content-Type: application/x-gzip;
- name="dmesg.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="dmesg.gz"
+bix:/home/akpm> cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext3 rw,noatime,data=ordered 0 0
+/proc /proc proc rw 0 0
+none /dev/pts devpts rw 0 0
+/dev/sda1 /boot ext3 rw,data=ordered 0 0
+none /dev/shm tmpfs rw 0 0
+/dev/sdb1 /usr/src ext3 rw,noatime,data=ordered 0 0
+none /sys sysfs rw 0 0
+/dev/sdb2 /mnt/export ext3 rw,noatime,data=ordered 0 0
+nodev /dev/oprofile oprofilefs rw 0 0
 
-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
-9If/ASUlFimuiQAA
---------------090108040805030103060809--
+> If so, it's possible that the server-mountpoint-crossing automounter internal
+> to NFS doesn't like working with autofs.
+
+I'd say it's something like that.  Odd thing is, /mnt and /usr don't have
+anything mounted on them.  But they do have a local partition mounted on
+subdirectories within them: /mnt/export and /usr/src.
+

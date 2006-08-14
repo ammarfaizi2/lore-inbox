@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWHNQWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWHNQWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWHNQWF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 12:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWHNQWF
+	id S932147AbWHNQWT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 12:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWHNQWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 12:22:05 -0400
-Received: from wr-out-0506.google.com ([64.233.184.230]:37108 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751488AbWHNQWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 12:22:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ZtlFdhD2m/lik37KKT50tksiMrTWbde7HVZdYPP6tyJuAbFCk0ViI8CMZg0mKrAf4pPNhzCcYuBmBlqlg3UcN1VnM2TzIQL8h7J7w2GBeze30WG+lN1RTM+a9TzakhVuLhjXukIlsU7cVJnnwrwwR5bxIOO6Si+D76RJYkxFaNs=
-Message-ID: <d120d5000608140922y17e0cf07y41076c02f826850c@mail.gmail.com>
-Date: Mon, 14 Aug 2006 12:22:01 -0400
-From: "Dmitry Torokhov" <dtor@insightbb.com>
-To: "Dmitry Torokhov" <dtor@insightbb.com>,
-       "=?ISO-8859-1?Q?Magnus_Vigerl=F6f?=" <wigge@bigfoot.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: input: evdev.c EVIOCGRAB semantics question
-In-Reply-To: <20060814160927.GB5255@aehallh.com>
+	Mon, 14 Aug 2006 12:22:19 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:45416 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751490AbWHNQWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 12:22:17 -0400
+Message-ID: <44E09A19.9050205@de.ibm.com>
+Date: Mon, 14 Aug 2006 17:43:21 +0200
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
+To: Anton Blanchard <anton@samba.org>
+CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 1/6] ehea: interface to network stack
+References: <44D99EFC.3000105@de.ibm.com> <20060811205624.GE479@krispykreme> <20060814112656.GC10164@wohnheim.fh-wedel.de> <20060814143842.GM479@krispykreme>
+In-Reply-To: <20060814143842.GM479@krispykreme>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608121724.16119.wigge@bigfoot.com>
-	 <20060812165228.GA5255@aehallh.com>
-	 <200608122000.47904.dtor@insightbb.com>
-	 <20060813032821.GB5251@aehallh.com>
-	 <d120d5000608140720o4e8cc039u278fea6ccc0aae07@mail.gmail.com>
-	 <20060814142826.GD5251@aehallh.com>
-	 <d120d5000608140800u329b9e9t1984ba19b6464bf1@mail.gmail.com>
-	 <20060814160927.GB5255@aehallh.com>
-X-Google-Sender-Auth: 33d9223d445600b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> On Mon, Aug 14, 2006 at 11:00:55AM -0400, Dmitry Torokhov wrote:
-> > On 8/14/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
-> > >On Mon, Aug 14, 2006 at 10:20:09AM -0400, Dmitry Torokhov wrote:
-> > >>
-> > >> I've been thinking about all of this and all of it is very fragile and
-> > >> unwieldy and I am not sure that we really need another ioctl after
-> > >> all. The only issue we have right now is that mousedev delivers
-> > >> undesirable events through /dev/input/mice while there is better
-> > >> driver listening to /dev/input/eventX and they clash with each other.
-> > >> Still, /dev/input/mice is nice for dealing with hotplugging of simple
-> > >> USB mice. So can't we make mousedev only multiplex devices that are
-> > >> not opened directly (where directly is one of mouseX, jsX, tsX, or
-> > >> evdevX)? We could even control this behavior through a module
-> > >> parameter. Then noone (normally) would need to use EVIOCGRAB.
-> > >
-> > >Sadly, the case of using EVIOCGRAB for mice to stop the use of
-> > >/dev/input/mice is actually not the primary usage.
-> > >
-> > >xf86-input-evdev will more or less happily continue talking to a mouse
-> > >that it can't grab, however things become somewhat more problematic when
-> > >it comes to keyboards.
-> > >
-> > >X needs to keep the keyboard driver from receiving events while it has
-> > >it open
-> >
-> > Keyboard... can't X just ignore data from old keyboard driver while
-> > evdev-based keyboard driver is used?
->
-> The problem is that without xf86-input-keyboard X ignores the keyboard
-> entirely, which means that the console driver gets it, so ctrl-C sends
-> signals, alt-F<n> switches consoles on you, etc.
->
-> Additional code to open the console, put the keyboard in raw mode, and
-> throw everything away would be problematic for a few reasons, one of
-> which being that people have managed, with grab, to keep X from being
-> attached to an actual console. (Used for multiple X sessions running at
-> once for instance.)
->
-> It also would mean that xf86-input-evdev would have to touch stuff that
-> otherwise it wouldn't have to come anywhere near.
->
+Hi,
 
-I can see that. Unfortunately any form of "grabbing" just makes it all
-worse in the long run. The problem is that some programs rely on X to
-deliver events while others use device nodes (eventX, mouseX, or
-super-new blahX) for their data. When X server grabs the devices it
-interferes with other programs running on the same box making them
-dependent on X configuration. I have the feeling that best course
-would be for X to work out its own input handling and any
-filtering/asking that is necessary.
+Anton Blanchard wrote:
+>> Is a conditional cheaper than a divide?  In case of a misprediction I
+>> would assume it to be significantly slower and I don't know the ratio
+>> of mispredictions for this branch.
+> 
+> A quick scan of the web shows 40 cycles for athlon64 idiv, and its
+> similarly slow on many other cpus. Even assuming you mispredict every
+> branch its going to be a win.
+> 
+> Anton
 
--- 
-Dmitry
+as our queue size is always a power of 2, we simply use:
+i++;
+i &= (ringbufferlength - 1)
+
+So we can get along without the if.
+
+Jan-Bernd
+
+

@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751904AbWHNHA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWHNHC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751904AbWHNHA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 03:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751909AbWHNHA7
+	id S1751910AbWHNHC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 03:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWHNHC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 03:00:59 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:16697 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751904AbWHNHA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 03:00:58 -0400
-Date: Mon, 14 Aug 2006 09:00:54 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: [patch -mm] s390: remove HIGHMEM dependencies
-Message-ID: <20060814070054.GB9592@osiris.boeblingen.de.ibm.com>
-References: <20060813012454.f1d52189.akpm@osdl.org>
+	Mon, 14 Aug 2006 03:02:29 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:62890 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751910AbWHNHC2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 03:02:28 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH][BUILD] Fix "mkdir -p" usage in scripts/package/mkspec
+Date: Mon, 14 Aug 2006 08:16:47 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Message-Id: <200608140816.48030.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+"mkdir -p" does not only mean not to complain if the directory already
+exists, but also to create the parent directories if needed. This patch
+removes "lib" from the list of directories to create as we will also create
+"lib/modules".
 
-s390 doesn't support CONFIG_HIGHMEM. Anything that depends on it would be
-dead code.
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
-Cc: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
+commit 288a3f1fd00365669ed9ad725b15ff67004cee0a
+tree 5352b0426d399ac9f0a0f795c7dab1c487c63e82
+parent cc4a7b5dfee25083a6a5741b5b640ae2a1d3aa12
+author Rolf Eike Beer <eike-kernel@sf-tec.de> Mon, 14 Aug 2006 08:12:56 +0200
+committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Mon, 14 Aug 2006 08:12:56 +0200
 
-Probably should be merged with
-reduce-max_nr_zones-remove-display-of-counters-for-unconfigured-zones-s390-fix.patch
+ scripts/package/mkspec |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- arch/s390/appldata/appldata_mem.c |    3 ---
- 1 files changed, 3 deletions(-)
-
-Index: linux-2.6.18-rc4-mm1/arch/s390/appldata/appldata_mem.c
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/arch/s390/appldata/appldata_mem.c	2006-08-14 08:35:16.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/arch/s390/appldata/appldata_mem.c	2006-08-14 08:36:18.000000000 +0200
-@@ -118,9 +118,6 @@
- 	mem_data->pswpin     = ev[PSWPIN];
- 	mem_data->pswpout    = ev[PSWPOUT];
- 	mem_data->pgalloc    = ev[PGALLOC_NORMAL] + ev[PGALLOC_DMA];
--#ifdef CONFIG_HIGHMEM
--	mem_data->pgalloc    += ev[PGALLOC_HIGH];
--#endif
- 	mem_data->pgfault    = ev[PGFAULT];
- 	mem_data->pgmajfault = ev[PGMAJFAULT];
+diff --git a/scripts/package/mkspec b/scripts/package/mkspec
+index df89284..ffd61fe 100755
+--- a/scripts/package/mkspec
++++ b/scripts/package/mkspec
+@@ -63,9 +63,9 @@ fi
  
+ echo "%install"
+ echo "%ifarch ia64"
+-echo 'mkdir -p $RPM_BUILD_ROOT/boot/efi $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
++echo 'mkdir -p $RPM_BUILD_ROOT/boot/efi $RPM_BUILD_ROOT/lib/modules'
+ echo "%else"
+-echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
++echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib/modules'
+ echo "%endif"
+ 
+ echo 'INSTALL_MOD_PATH=$RPM_BUILD_ROOT make %{_smp_mflags} modules_install'

@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWHNVXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWHNV0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbWHNVXb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 17:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWHNVXb
+	id S964971AbWHNV0b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWHNV0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 17:23:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36063 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964953AbWHNVXa (ORCPT
+	Mon, 14 Aug 2006 17:26:31 -0400
+Received: from ns2.lanforge.com ([66.165.47.211]:47297 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S964971AbWHNV0a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 17:23:30 -0400
-Date: Mon, 14 Aug 2006 17:22:00 -0400
-From: Dave Jones <davej@redhat.com>
-To: Ben B <kernel@bb.cactii.net>
-Cc: Andrew Morton <akpm@osdl.org>, Maciej Rutecki <maciej.rutecki@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1
-Message-ID: <20060814212200.GC30814@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ben B <kernel@bb.cactii.net>, Andrew Morton <akpm@osdl.org>,
-	Maciej Rutecki <maciej.rutecki@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com> <20060813121126.b1dc22ee.akpm@osdl.org> <20060813224413.GA21959@cactii.net> <20060813232549.GG28540@redhat.com> <20060814115556.GA13159@cactii.net> <20060814202004.GE16280@redhat.com> <20060814211338.GA30680@cactii.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060814211338.GA30680@cactii.net>
-User-Agent: Mutt/1.4.2.2i
+	Mon, 14 Aug 2006 17:26:30 -0400
+Message-ID: <44E0EA5E.30306@candelatech.com>
+Date: Mon, 14 Aug 2006 14:25:50 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Network compatibility and performance
+References: <Pine.LNX.4.61.0608101131530.4239@chaos.analogic.com> <44DE2A44.5070006@candelatech.com> <Pine.LNX.4.61.0608140714170.20677@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0608140714170.20677@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 11:13:38PM +0200, Ben B wrote:
- > Dave Jones <davej@redhat.com> uttered the following thing:
- > >  > > > [  734.156000]  [<e01f2665>] cpufreq_governor_dbs+0x2b5/0x310 [cpufreq_ondemand]
- > >  > > 
- > >  > > This makes no sense at all, because in -mm __create_workqueue doesn't
- > >  > > call lock_cpu_hotplug().
- > >  > > 
- > >  > > Are you sure this was from a tree with -mm1 applied ?
- > >  > 
- > >  > Definitely 2.6.18-rc4-mm1, and I've done a clean rebuild + removal of
- > >  > all modules under /lib/modules beforehand.
- > > 
- > > It's a real mystery.  Andrew ?
- > 
- > This seems to be specific to the ondemand governor - I just tried with
- > conservative, and alternating it with performance, with no problems, but
- > as soon as I loaded ondemand, the message appeared. It seems to fire off
- > the message as soon as I either set the governor to ondemand, or revert
- > it from ondemand to something else. But going from, eg performance to
- > conservative, wont give the message, even with ondemand loaded.
+linux-os (Dick Johnson) wrote:
 
-on-demand is unique in the sense that its the only governor that
-creates a workqueue.
+> No it will return FAIL (-1) or an error and 0 (the bottom of the procedure)
+> if the whole things went. It is mandatory that the whole thing goes
+> so this procedure should handle any intermediate actions.
 
- > I wonder if this might also be related to my 1.83GHz cpu only being set
- > to a maximum of 1.33GHz via cpufreq? cpuinfo_max_freq is correct, but
- > scaling_max_freq is wrong. Though doing "cat cpuinfo_max_freq >
- > scaling_max_freq" has fixed it up, it should be correct already.
+I see..I missed that part.
 
-That's come up a lot lately. I'm still of the opinion that something
-changed in acpi that's the explanation for this.
+> Upon your advice, I may try to add select() although, on a write it
+> seems to be putting in user-space something that used to be handled
+> quite well in the kernel. I don't think the user should really care
+> about the kernel internals, whether or not the kernel happens to have
+> a buffer available.
 
-		Dave
+Since you put it in non-blocking mode, you need the select() to throttle
+unless you want to busy spin.  Whether you should have to actually put
+in in non-blocking mode or not is a different question.
 
--- 
-http://www.codemonkey.org.uk
+>>I have no idea why you need to add the MIN() logic..and that seems like
+>>something that should not be required.
+>>
+> 
+> It seems that some code 'thinks' that a large buffer of data is
+> an error and won't even try to send some anymore.
+
+I have seen a problem where I can repeatedly hang a TCP connection
+when running at high speed.  The tx queue is full or mostly full, and
+on the wire I only see 200kpps of duplicate acks.  Can't reproduce it
+with anything other than my big complicated proprietary app, so it
+remains unfixed.
+
+I am not sure if this is related to what you see or not..but could you
+check to see if there is lots of acks on the wire when this hang happens?
+
+>>Even 112kbps sucks on a decent network.  What is the speed of your
+>>network, what protocol are you using, if tcp, what is the latency
+>>of your network?
+>>
+> 
+> 
+> The network is a single wire about 8 feet long, connecting Intel gigibit
+> links on two identical computers (crossover cable). This link is TCP.
+> For high-speed data, I use UDP and I get a higher throughput because
+> there is no handshake. Thew latency is the latency of Linux. BTW, it's
+> only a gigaBIT link, you can divide that by 8 for gigabytes. I don't
+> know the actual bit-rate on the wires, if we assume 1GHz, the byte-rate
+> is only 125,000 bytes per second. Being able to use 89.6 percent of
+> that isn't bad at all.
+
+You must be meaning to add a few more zeros to that number.  If you
+are getting ~125,000,000 Bytes per second then you are doing OK.
+
+Ben
+

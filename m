@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752042AbWHNT5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWHNT6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752042AbWHNT5d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWHNT5d
+	id S932506AbWHNT6w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWHNT6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:57:33 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:58852 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752042AbWHNT5c (ORCPT
+	Mon, 14 Aug 2006 15:58:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:32955 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751681AbWHNT6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:57:32 -0400
-Date: Mon, 14 Aug 2006 15:57:01 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060814195701.GD2519@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060814165150.GA2519@in.ibm.com> <44E0AD1D.1040408@zytor.com> <20060814181118.GB2519@in.ibm.com> <44E0CFD0.3060506@zytor.com> <20060814194252.GC2519@in.ibm.com> <44E0D2DB.7030003@zytor.com>
+	Mon, 14 Aug 2006 15:58:51 -0400
+Subject: Re: [RFC][PATCH -mm 1/2] i386: Detect clock skew during suspend
+From: john stultz <johnstul@us.ibm.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200608132306.02079.rjw@sisk.pl>
+References: <200608132303.00012.rjw@sisk.pl>
+	 <200608132306.02079.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 12:58:47 -0700
+Message-Id: <1155585527.5413.56.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E0D2DB.7030003@zytor.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 12:45:31PM -0700, H. Peter Anvin wrote:
-> Vivek Goyal wrote:
-> >>>
-> >>What about once the kernel is booted?
-> >
-> >Sorry did not understand the question. Few more lines will help.
-> >
+On Sun, 2006-08-13 at 23:06 +0200, Rafael J. Wysocki wrote:
+> Detect the situations in which the time after a resume from disk would
+> be earlier than the time before the suspend and prevent them from
+> happening on i386.
 > 
-> Is this field intended to protect any kind of memory during the early 
-> boot phase of the kernel proper, or only the decompressor?
->
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-I think it should protect against any dynamic memory usage during early
-boot phase too till we reach a point where kernel is aware of BIOS provided
-memory maps and kernel memory area usage can be controlled with the help
-of BIOS provided/User defined memory maps.
+One minor comment, but otherwise looks good.
+ 
+> @@ -302,16 +305,25 @@ static int timer_resume(struct sys_devic
+>  {
+>  	unsigned long flags;
+>  	unsigned long sec;
+> -	unsigned long sleep_length;
+> +	unsigned long ctime = get_cmos_time();
+> +	long sleep_length = (ctime - sleep_start) * HZ;
+>  	struct timespec ts;
+> +
+> +	if (sleep_length < 0) {
+> +		printk(KERN_WARNING "Time skew detected in timer resume!\n");
 
-In i386 implementation Eric is alredy taking into account the memory
-used by bootmem bitmap and initial page tables. I have not looked into
-x86_64 kernel code whether do I need to make such adjustments. It worked
-for me so did not bother much. I will look into it.
+Please make sure the warning describes the CMOS clock going backwards,
+rather then just the vague "time skew detected" comment.
 
-Thanks
-Vivek
+> +		/* The time after the resume must not be earlier than the time
+
+s/time/CMOS clock/
+
+
+
+Acked-by: John Stultz <johnstul@us.ibm.com>
+
+thanks
+-john
+

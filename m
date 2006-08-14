@@ -1,158 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbWHNTkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWHNTmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbWHNTkF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWHNTkF
+	id S1751445AbWHNTmi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWHNTmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:40:05 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:55842 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932684AbWHNTkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:40:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=eHu5AkC1giwM1cjfz5Gz9tyCBMjMjh2Mxm3FbGuFxTZjMwyl4bad4AmsTK2aylZv6gH6F15Nl21kbPWUAy4IGQpnaDGO9wo7yI99MKwvh/6YV0txo8NUJSROY5I6dWZXgq8yl9sC3F7Wx/WhnDJilywK8JokdnrdGRBU1eedurw=
-Message-ID: <44E0D1B0.3060007@gmail.com>
-Date: Mon, 14 Aug 2006 21:40:32 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Thomas Winischhofer <thomas@winischhofer.net>,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH 8/10] drivers/video/sis/sis_main.h Removal of old
- code
-References: <44DE05FC.2090001@gmail.com> <44DE09BD.6050603@gmail.com>
-In-Reply-To: <44DE09BD.6050603@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 15:42:38 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:16304 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751134AbWHNTmh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 15:42:37 -0400
+Date: Mon, 14 Aug 2006 23:42:01 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Rick Jones <rick.jones2@hp.com>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+Message-ID: <20060814194201.GA10747@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru> <44E0B6E9.8050608@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <44E0B6E9.8050608@hp.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 14 Aug 2006 23:42:09 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a fixed version of previous patch "drivers/video/sis/sis_main.h Removal of old code".
+On Mon, Aug 14, 2006 at 10:46:17AM -0700, Rick Jones (rick.jones2@hp.com) wrote:
+> >Benchmarks with trivial epoll based web server showed noticeble (more
+> >than 40%) imrovements of the request rates (1600-1800 requests per
+> >second vs. more than 2300 ones). It can be described by more
+> >cache-friendly freeing algorithm, by tighter objects packing and thus
+> >reduced cache line ping-pongs, reduced lookups into higher-layer caches
+> >and so on.
+> 
+> Is that an hypothesis, or did you get a chance to gather cache stats 
+> with something like http://www.hp.com/go/Caliper or the like on the 
+> platform(s) you were testing?
 
-Tested with CONFIG_FB_SIS=y and CONFIG_FB_SIS=m.
+It is theory based on code observation, design comparison and logic.
 
-Regards,
-Michal
+> rick jones
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
-
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-
-diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/drivers/video/sis/sis_main.h linux-mm/drivers/video/sis/sis_main.h
---- linux-mm-clean/drivers/video/sis/sis_main.h	2006-08-14 21:08:26.000000000 +0200
-+++ linux-mm/drivers/video/sis/sis_main.h	2006-08-13 19:06:43.000000000 +0200
-@@ -67,15 +67,7 @@ static int sisfb_ypan = -1;
- static int sisfb_max = -1;
- static int sisfb_userom = 1;
- static int sisfb_useoem = -1;
--#ifdef MODULE
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
--static int sisfb_mode_idx = -1;
--#else
--static int sisfb_mode_idx = MODE_INDEX_NONE;  /* Don't use a mode by default if we are a module */
--#endif
--#else
- static int sisfb_mode_idx = -1;               /* Use a default mode if we are inside the kernel */
--#endif
- static int sisfb_parm_rate = -1;
- static int sisfb_crt1off = 0;
- static int sisfb_forcecrt1 = -1;
-@@ -93,10 +85,6 @@ static int sisfb_tvstd  = -1;
- static int sisfb_tvxposoffset = 0;
- static int sisfb_tvyposoffset = 0;
- static int sisfb_nocrt2rate = 0;
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--static int  sisfb_inverse = 0;
--static char sisfb_fontname[40];
--#endif
- #if !defined(__i386__) && !defined(__x86_64__)
- static int sisfb_resetcard = 0;
- static int sisfb_videoram = 0;
-@@ -687,54 +675,8 @@ SISINITSTATIC int sisfb_init(void);
- static int	sisfb_get_fix(struct fb_fix_screeninfo *fix, int con,
- 				struct fb_info *info);
-
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--static int	sisfb_get_fix(struct fb_fix_screeninfo *fix,
--				int con,
--				struct fb_info *info);
--static int	sisfb_get_var(struct fb_var_screeninfo *var,
--				int con,
--				struct fb_info *info);
--static int	sisfb_set_var(struct fb_var_screeninfo *var,
--				int con,
--				struct fb_info *info);
--static void	sisfb_crtc_to_var(struct sis_video_info *ivideo,
--				struct fb_var_screeninfo *var);
--static int	sisfb_get_cmap(struct fb_cmap *cmap,
--				int kspc,
--				int con,
--				struct fb_info *info);
--static int	sisfb_set_cmap(struct fb_cmap *cmap,
--				int kspc,
--				int con,
--				struct fb_info *info);
--static int	sisfb_update_var(int con,
--				struct fb_info *info);
--static int	sisfb_switch(int con,
--			     struct fb_info *info);
--static void	sisfb_blank(int blank,
--				struct fb_info *info);
--static void	sisfb_set_disp(int con,
--				struct fb_var_screeninfo *var,
--				struct fb_info *info);
--static int	sis_getcolreg(unsigned regno, unsigned *red, unsigned *green,
--				unsigned *blue, unsigned *transp,
--				struct fb_info *fb_info);
--static void	sisfb_do_install_cmap(int con,
--				struct fb_info *info);
--static int	sisfb_ioctl(struct inode *inode, struct file *file,
--				unsigned int cmd, unsigned long arg, int con,
--				struct fb_info *info);
--#endif
--
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
- static int	sisfb_ioctl(struct fb_info *info, unsigned int cmd,
- 			    unsigned long arg);
--#else
--static int	sisfb_ioctl(struct inode *inode, struct file *file,
--				unsigned int cmd, unsigned long arg,
--				struct fb_info *info);
--#endif
- static int	sisfb_set_par(struct fb_info *info);
- static int	sisfb_blank(int blank,
- 				struct fb_info *info);
-@@ -743,7 +685,6 @@ extern void	fbcon_sis_fillrect(struct fb
- extern void	fbcon_sis_copyarea(struct fb_info *info,
- 				const struct fb_copyarea *area);
- extern int	fbcon_sis_sync(struct fb_info *info);
--#endif
-
- /* Internal 2D accelerator functions */
- extern int	sisfb_initaccel(struct sis_video_info *ivideo);
-@@ -811,16 +752,10 @@ extern BOOLEAN		SiSDetermineROMLayout661
-
- extern BOOLEAN		sisfb_gettotalfrommode(struct SiS_Private *SiS_Pr, unsigned char modeno,
- 				int *htotal, int *vtotal, unsigned char rateindex);
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
- extern int		sisfb_mode_rate_to_dclock(struct SiS_Private *SiS_Pr,
- 				unsigned char modeno, unsigned char rateindex);
- extern int		sisfb_mode_rate_to_ddata(struct SiS_Private *SiS_Pr, unsigned char modeno,
- 				unsigned char rateindex, struct fb_var_screeninfo *var);
--#endif
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--extern void		SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata, int xres,
--				int yres, struct fb_var_screeninfo *var, BOOLEAN writeres);
--#endif
-
- /* Chrontel TV, DDC and DPMS functions */
- extern unsigned short	SiS_GetCH700x(struct SiS_Private *SiS_Pr, unsigned short reg);
+	Evgeniy Polyakov

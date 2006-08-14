@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752051AbWHNS2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752044AbWHNSca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752051AbWHNS2X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 14:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752052AbWHNS2X
+	id S1752044AbWHNSca (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 14:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752048AbWHNSca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 14:28:23 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:14750 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1752051AbWHNS2W (ORCPT
+	Mon, 14 Aug 2006 14:32:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61126 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752044AbWHNSc3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 14:28:22 -0400
-Message-ID: <44E0C0BC.7020509@pobox.com>
-Date: Mon, 14 Aug 2006 14:28:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [-mm patch] cleanup drivers/ata/Kconfig
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060813210106.GO3543@stusta.de>
-In-Reply-To: <20060813210106.GO3543@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Mon, 14 Aug 2006 14:32:29 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060813133935.b0c728ec.akpm@osdl.org> 
+References: <20060813133935.b0c728ec.akpm@osdl.org>  <20060813012454.f1d52189.akpm@osdl.org> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>
+Subject: Re: 2.6.18-rc4-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 14 Aug 2006 19:32:19 +0100
+Message-ID: <10791.1155580339@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
->> ...
->> Changes since 2.6.18-rc3-mm2:
->> ...
->>  git-libata-all.patch
->> ...
->>  git trees
->> ...
-> 
-> This patch contains the following cleanups:
-> - create a menu for ATA
-> - replace the dependencies on ATA with an "if ATA"
->   as a side effect, this fixes a menu breakage due to SATA_INTEL_COMBINED
-> - fix a typo in the PATA_OPTIDMA prompt
-> - let ATA selet SCSI instead of depending on SCSI
->   this should make it easier for users to enable ATA (similar to USB_STORAGE)
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Andrew Morton <akpm@osdl.org> wrote:
 
-There have been a bunch of more-important changes to this file.  Please 
-wait until Andrew pulls from me, and resend.
+> sony:/home/akpm> showmount -e bix
+> Export list for bix:
+> /           *
+> /usr/src    *
+> /mnt/export *
 
-Thanks,
+What's in your /etc/exports file?
 
-	Jeff
-
-
-
+David

@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752030AbWHNPF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbWHNPIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752030AbWHNPF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWHNPF0
+	id S1751806AbWHNPIl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWHNPIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:05:26 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:44996 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S1751995AbWHNPFZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:05:25 -0400
-Date: Mon, 14 Aug 2006 16:05:09 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Kobras <kobras@linux.de>, dm-devel@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [dm-devel] Re: [PATCH] dm: Fix deadlock under high i/o load in raid1 setup.
-Message-ID: <20060814150509.GO18633@agk.surrey.redhat.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Daniel Kobras <kobras@linux.de>, dm-devel@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <20060809164421.GC9984@antares.tat.physik.uni-tuebingen.de> <20060812130228.f7954b5f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060812130228.f7954b5f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Aug 2006 11:08:41 -0400
+Received: from ptb-relay02.plus.net ([212.159.14.213]:30905 "EHLO
+	ptb-relay02.plus.net") by vger.kernel.org with ESMTP
+	id S1751806AbWHNPIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:08:40 -0400
+Message-ID: <44E09190.1040505@mauve.plus.com>
+Date: Mon, 14 Aug 2006 16:06:56 +0100
+From: Ian Stirling <ian.stirling@mauve.plus.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Touchpad problems with latest kernels
+References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl> <200608141038.04746.gene.heskett@verizon.net>
+In-Reply-To: <200608141038.04746.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 12, 2006 at 01:02:28PM -0700, Andrew Morton wrote:
-> Alasdair, I'd say that this is a 2.6.18 fix and a 2.6.17.x backport.
- 
-Yes.
+Gene Heskett wrote:
+<snip>
+> I'm having similar problems with an HP Pavilian dv5220, and with a 
+> bluetooth mouse dongle plugged into the right side usb port it works just 
+> fine.  What I'd like to do is totally disable that synaptics pad as its 
+> way too sensitive, making it impossible to type more than a line or 2 
 
-> Or move the mempool_free()ing out of kmorrord context and into
-> IO-completion context, perhaps.
+Enable the proper USB options, point X/GPM to /dev/input/mouse1 - or 
+whatever.
 
-That's how some other dm targets handle this particular problem.
- 
-Alasdair
--- 
-agk@redhat.com
+It'd be nice if you could do this for keyboards too - but AIUI, you can't.

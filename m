@@ -1,107 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWHNQGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWHNQJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWHNQGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 12:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWHNQGP
+	id S932135AbWHNQJd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 12:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWHNQJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 12:06:15 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:28105 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751333AbWHNQGN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 12:06:13 -0400
-Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Cc: Greg KH <greg@kroah.com>, Marcus Better <marcus@better.se>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux scsi <linux-scsi@vger.kernel.org>, ak@suse.de
-In-Reply-To: <200608130002.40223.daniel.ritz-ml@swissonline.ch>
-References: <1155334308.7574.50.camel@localhost.localdomain>
-	 <20060812010317.GB25689@kroah.com>
-	 <200608122005.01929.daniel.ritz-ml@swissonline.ch>
-	 <200608130002.40223.daniel.ritz-ml@swissonline.ch>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 09:05:51 -0700
-Message-Id: <1155571551.7574.143.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 12:09:33 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:19177 "EHLO
+	spock.bluecherry.net") by vger.kernel.org with ESMTP
+	id S1751134AbWHNQJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 12:09:32 -0400
+Date: Mon, 14 Aug 2006 12:09:28 -0400
+From: "Zephaniah E. Hull" <warp@aehallh.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dmitry Torokhov <dtor@insightbb.com>,
+       Magnus =?iso-8859-1?Q?Vigerl=F6f?= <wigge@bigfoot.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: input: evdev.c EVIOCGRAB semantics question
+Message-ID: <20060814160927.GB5255@aehallh.com>
+Mail-Followup-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Dmitry Torokhov <dtor@insightbb.com>,
+	Magnus =?iso-8859-1?Q?Vigerl=F6f?= <wigge@bigfoot.com>,
+	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <200608121724.16119.wigge@bigfoot.com> <20060812165228.GA5255@aehallh.com> <200608122000.47904.dtor@insightbb.com> <20060813032821.GB5251@aehallh.com> <d120d5000608140720o4e8cc039u278fea6ccc0aae07@mail.gmail.com> <20060814142826.GD5251@aehallh.com> <d120d5000608140800u329b9e9t1984ba19b6464bf1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+Content-Disposition: inline
+In-Reply-To: <d120d5000608140800u329b9e9t1984ba19b6464bf1@mail.gmail.com>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-13 at 00:02 +0200, Daniel Ritz wrote:
-> On Saturday 12 August 2006 20.05, Daniel Ritz wrote:
-> > On Saturday 12 August 2006 03.03, Greg KH wrote:
-> > > On Fri, Aug 11, 2006 at 05:36:24PM -0700, Andrew Morton wrote:
-> > > > On Fri, 11 Aug 2006 17:17:15 -0700
-> > > > Dave Hansen <haveblue@us.ibm.com> wrote:
-> > > > 
-> > > > > Well, I have a new culprit of the hour:
-> > > > > 
-> > > > > 	gregkh-pci-pci-use-pci_bios-as-last-fallback
-> > > > 
-> > > > Thanks, I'll drop it.
-> > > > 
-> > > > > There was a previous patch that messed up a few of my machines and this
-> > > > > same driver a few months ago, which accounts for my sense of deja vu:
-> > > > > 
-> > > > > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/broken-out/gregkh-pci-pci-give-pci-config-access-initialization-a-defined-ordering.patch
-> > > 
-> > > Ugh, this is a mess.  Daniel, why does your machine need this patch, yet
-> > > as per Dave's comments, it's wrong?
-> > 
-> > it's not my machines. they work fine :) but there where bug reports on linux-pcmcia
-> > for this problem...only shows up with kernel >= 2.6.17. see also bug 6801.
-> > 
-> > 2.6.16 shows this:
-> > 	  PCI: PCI BIOS revision 2.10 entry at 0xfb9a0, last bus=0
-> > 	  PCI: Using configuration type 1
-> > while 2.6.17+ shows only
-> > 	  PCI: PCI BIOS revision 2.10 entry at 0xfb9a0, last bus=0
-> > 
-> > so accessing the cardbus cards is not possible with PCI BIOS but works
-> > just fine with direct access...
-> > 
-> > > 
-> > > I think it might come down to the fact that the ordering before used to
-> > > not always happen in the same order (it depended on config options and
-> > > linker luck.)  Now it's "fixed" to be the same way all the time.
-> > > Daniel, can't you solve this with the proper pci boot option?
-> > 
-> > sure, but the point is: it used to work on those boxes, but broke with 2.6.17
-> > 
-> > ok, i had a look. the problem is not the patch itself. look at arch/i386/pci/legacy.c
-> > it's where those messages come from:
-> > 	PCI: Probing PCI hardware
-> > 	PCI: Discovered peer bus 02
-> > 	PCI: Discovered peer bus 05
-> > 
-> > now if pcibios probing never runs pcibios_last_bus is -1 and pcibios_fixup_peer_bridges()
-> > exits immediatley, the other busses are never found...but why legacy probing anyway?
-> > 
-> anyway, this alternative patch should help. it should be more like the <= 2.6.16
-> behavior.
+
+--5/uDoXvLw7AC5HRs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Aug 14, 2006 at 11:00:55AM -0400, Dmitry Torokhov wrote:
+> On 8/14/06, Zephaniah E. Hull <warp@aehallh.com> wrote:
+> >On Mon, Aug 14, 2006 at 10:20:09AM -0400, Dmitry Torokhov wrote:
+> >>
+> >> I've been thinking about all of this and all of it is very fragile and
+> >> unwieldy and I am not sure that we really need another ioctl after
+> >> all. The only issue we have right now is that mousedev delivers
+> >> undesirable events through /dev/input/mice while there is better
+> >> driver listening to /dev/input/eventX and they clash with each other.
+> >> Still, /dev/input/mice is nice for dealing with hotplugging of simple
+> >> USB mice. So can't we make mousedev only multiplex devices that are
+> >> not opened directly (where directly is one of mouseX, jsX, tsX, or
+> >> evdevX)? We could even control this behavior through a module
+> >> parameter. Then noone (normally) would need to use EVIOCGRAB.
+> >
+> >Sadly, the case of using EVIOCGRAB for mice to stop the use of
+> >/dev/input/mice is actually not the primary usage.
+> >
+> >xf86-input-evdev will more or less happily continue talking to a mouse
+> >that it can't grab, however things become somewhat more problematic when
+> >it comes to keyboards.
+> >
+> >X needs to keep the keyboard driver from receiving events while it has
+> >it open
 > 
-> [ CC'ing Marcus Better as the tester of the original patch. ]
-> 
-> Marcus, could you test this patch instead of the original one and see how your
-> cardbus cards behave?
-> 
-> Dave, your SCSI card should work with this as well :)
+> Keyboard... can't X just ignore data from old keyboard driver while
+> evdev-based keyboard driver is used?
 
-Sorry, it has the same behavior as without the patch.  If it matters,
-here is the relevant portion of my .config:
+The problem is that without xf86-input-keyboard X ignores the keyboard
+entirely, which means that the console driver gets it, so ctrl-C sends
+signals, alt-F<n> switches consoles on you, etc.
 
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-# CONFIG_PCIEPORTBUS is not set
+Additional code to open the console, put the keyboard in raw mode, and
+throw everything away would be problematic for a few reasons, one of
+which being that people have managed, with grab, to keep X from being
+attached to an actual console. (Used for multiple X sessions running at
+once for instance.)
 
--- Dave
+It also would mean that xf86-input-evdev would have to touch stuff that
+otherwise it wouldn't have to come anywhere near.
 
+Zephaniah E. Hull.
+
+-- 
+	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+I've always taken the position that if you can't find anything bad  to
+say about a language or an operating system then you don't  understand
+it. I also agree with you about the advocacy. AHS. ASS.
+  -- Shmuel (Seymour J.) Metz in the Scary Devil Monastery.
+
+--5/uDoXvLw7AC5HRs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFE4KA3RFMAi+ZaeAERAhcoAKDejdfr8+10crvHPuhNOmTvUwzVOgCgxPla
+3UbY8TSJwb9W0UhUr19L7m4=
+=IMhB
+-----END PGP SIGNATURE-----
+
+--5/uDoXvLw7AC5HRs--

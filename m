@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751618AbWHNTpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWHNTqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751618AbWHNTpL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbWHNTpL
+	id S932388AbWHNTqH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbWHNTqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:45:11 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:15967 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751618AbWHNTpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:45:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=SNuIoniDoZJ1AcmbHUEOSp4zgc+MXvbO8OFepVxdLQVrY0xID2qvowqkS8xynZc8a1k9HH3yqDxIirVa5yF1d1tKHivJzJsT/GZJ7zZIUKULQqz/zX3G0Ul+UTIbdcqP6QSPqrMkShK4bXz49NE7KL7kJ4qs2jzhA2C8IgT9ClU=
-Message-ID: <44E0D2D5.80004@gmail.com>
-Date: Mon, 14 Aug 2006 21:45:02 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Mon, 14 Aug 2006 15:46:06 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:53434 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932506AbWHNTqF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 15:46:05 -0400
+Message-ID: <44E0D2DB.7030003@zytor.com>
+Date: Mon, 14 Aug 2006 12:45:31 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Reinaldo Carvalho <reinaldoc@gmail.com>
-CC: Hulin Thibaud <hulin.thibaud@wanadoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: kernel panic - not syncing: VFS - unable to mount root fs on
- unknown-block
-References: <44DFCF20.9030202@wanadoo.fr> <44E07B36.6070508@gmail.com>	 <44E08C50.5070904@wanadoo.fr> <4a5881460608140752t1e1f7157xaff450e2f16d7f9@mail.gmail.com>
-In-Reply-To: <4a5881460608140752t1e1f7157xaff450e2f16d7f9@mail.gmail.com>
+To: vgoyal@in.ibm.com
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <20060809200642.GD7861@redhat.com> <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com> <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060814165150.GA2519@in.ibm.com> <44E0AD1D.1040408@zytor.com> <20060814181118.GB2519@in.ibm.com> <44E0CFD0.3060506@zytor.com> <20060814194252.GC2519@in.ibm.com>
+In-Reply-To: <20060814194252.GC2519@in.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reinaldo Carvalho wrote:
-> Try build-in LVM driver.
+Vivek Goyal wrote:
+>>>
+>> What about once the kernel is booted?
 > 
-> Device Drivers  --->
-> Multi-device support (RAID and LVM)  --->
-> [*] Multiple devices driver support (RAID and LVM)
-> [*]   Device mapper support
+> Sorry did not understand the question. Few more lines will help.
+> 
 
-He might try, but this won't resolve his issue. He needs to activate LVM volume 
-in userspace (by rc.sysinit et. al.) before root contained on that volume can be 
-mounted. This has to be done by init ram disk.
+Is this field intended to protect any kind of memory during the early 
+boot phase of the kernel proper, or only the decompressor?
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+	-hpa
+

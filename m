@@ -1,246 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWHNVPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWHNVPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbWHNVPW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 17:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWHNVPW
+	id S964915AbWHNVPy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWHNVPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 17:15:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28377 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932709AbWHNVPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 17:15:19 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [RHEL5 PATCH 1/4] Provide fallback full 64-bit divide/modulus ops for gcc
-Date: Mon, 14 Aug 2006 22:15:07 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org#,
-       dhowells@redhat.com
-Message-Id: <20060814211507.27190.61876.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com>
-References: <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
+	Mon, 14 Aug 2006 17:15:54 -0400
+Received: from smtp19.orange.fr ([80.12.242.1]:59233 "EHLO
+	smtp-msa-out19.orange.fr") by vger.kernel.org with ESMTP
+	id S964915AbWHNVPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 17:15:48 -0400
+X-ME-UUID: 20060814211546476.7446B1C00082@mwinf1916.orange.fr
+Message-ID: <44E0E800.1050000@wanadoo.fr>
+Date: Mon, 14 Aug 2006 23:15:44 +0200
+From: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       darkhack@gmail.com, reinaldoc@gmail.com
+Subject: Re: kernel panic - not syncing: VFS - unable to mount root fs on
+ unknown-block
+References: <44DFCF20.9030202@wanadoo.fr> <44E07B36.6070508@gmail.com> <44E08C50.5070904@wanadoo.fr>
+In-Reply-To: <44E08C50.5070904@wanadoo.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provide simple, reasonably quick full 64-bit divide and modulus ops for gcc to
-call behind the scenes as:
+In progress ! I built-in LVM driver and compile the kernel with the 
+-initrd option. I have not more the kernel panic message, but I have a 
+lot of errors than this :
 
-	__udivmoddi4
-	__udivdi3
-	__umoddi3
+I/O error ; hda: cannot handle device with more than 16 heads - giving up
 
-The algorithm is a really simple binary long division that doesn't require
-usage of multiply and divide instructions.  It shortcuts the long division at
-the beginning by not bothering to consider any steps below the divisor
-threshold.
 
-The algorithm is placed in lib/ so that it can easily be replaced with an arch
-specific version.  It will be dragged in by stuff in the fs/ directory once the
-64-bit ino_t patch is applied unless an alternative is supplied, or unless the
-CPU provides full 64-bit native instructions that the compiler can use.
+I'm astonished, I believed that old .config was operational with a new 
+kernel (my old was a 2.6.16, the new, 2.6.17).
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Regards,
+Thibaud.
 
- include/linux/kernel.h |    4 ++
- lib/Makefile           |    2 -
- lib/__udivdi3.c        |   23 +++++++++++
- lib/__udivmoddi4.c     |   99 ++++++++++++++++++++++++++++++++++++++++++++++++
- lib/__umoddi3.c        |   25 ++++++++++++
- 5 files changed, 152 insertions(+), 1 deletions(-)
+Hulin Thibaud a écrit :
+> Sorry, new kernel is 2.6.17. to install suspend2.
+> I believe using LVM, but I'm not sure.
+> In effect, initrd is not present ! I rode this lines in my menu.lst :
+> title        Ubuntu, kernel 2.6.171915
+> root        (hd1,4)
+> kernel        /boot/vmlinuz-2.6.171915 root=/dev/hdb5 ro quiet splash
+> savedefault
+> boot
+> 
+> So, I suppose that's the center of the problem, but actually, I don't 
+> know how to solve it.
+> 
+> Nick Manley a écrit :
+>  > I think you meant 2.6.18?  Anyways, I'm not expert but I usually have
+>  > problems when using oldconfig.  It seems you have your kernel settings
+>  > configured properly and have included all the proper stuff (ext3, ide
+>  > drivers) to be built in.  I would try disabling SCSI if you aren't
+>  > using it.  Another thing to look at would be your settings in GRUB (or
+>  > lilo).  Your particular setup might vary but it should look something
+>  > like this...
+>  >
+>  > title Linux 2.6.18
+>  > root (hd0,2)
+>  > kernel /boot/bzImage-2.6.18 root=/dev/hda3 ro
+>  > # you might also have an "initrd" placed here
+>  >
+>  > If you search Google you can find other suggestions as well and also
+>  > posting to your distribution's forum might be a good idea too as the
+>  > kernel mailing list is usually a place for reporting bugs and
+>  > discussing kernel development.  Basically it is a last resort kind of
+>  > thing if you can't find the information anywhere else.
+>  >
+>  > On 8/13/06, Hulin Thibaud <hulin.thibaud@wanadoo.fr> wrote:
+>  >> Hello !
+>  >> I'm trying to compile my own kernel for drivers on two computers, but
+>  >> that fails. A the boot, I have this error :
+>  >> kernel panic - not syncing: VFS Unable to mount root fs on unknow-block
+>  >> (3.69)
+>  >>
+>  >> I'm using the kernel 2.6.19 with Ubuntu Dapper. I use the old boot
+>  >> config and I type make oldconfig, so I don't understand why there 
+> are an
+>  >> error with the near same configuration.
+>  >> I suppose that I must compile not in module but in hard support for my
+>  >> IDE chipset, harddisk and file system. Probably, I don't understand how
+>  >> do exactly. I do that :
+>  >> lspci |grep IDE
+>  >> 0000:00:11.1 IDE interface: VIA Technologies, Inc.
+>  >> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+>  >> make xconfig
+>  >> -Device Drivers
+>  >> --* ATA/ATAPI/MFM/RLL support
+>  >> --- * Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
+>  >> --- * Include IDE/ATA-2 DISK support
+>  >> --- * PCI IDE chipset support
+>  >> ---- * Generic PCI IDE Support
+>  >> ----- * VIA82CXXX chipset support
+>  >> - File systems
+>  >> -- * Ext3 journalling file system support
+>  >> --- * Ext3 extended attributes
+>  >> ---- * Ext3 POSIX Access Control Lists
+>  >> ---- * Ext3 Security Labels
+>  >>
+>  >> Have I forgot anything ?
+>  >>
+>  >> Thanks very much,
+>  >> Thibaud.
+>  >> -
+>  >> To unsubscribe from this list: send the line "unsubscribe
+>  >> linux-kernel" in
+>  >> the body of a message to majordomo@vger.kernel.org
+>  >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  >> Please read the FAQ at  http://www.tux.org/lkml/
+>  >>
+>  >
+>  >
+> 
+> 
+> 
+> 
+> Jiri Slaby a écrit :
+>> Hulin Thibaud wrote:
+>>> Hello !
+>>> I'm trying to compile my own kernel for drivers on two computers, but 
+>>> that fails. A the boot, I have this error :
+>>> kernel panic - not syncing: VFS Unable to mount root fs on 
+>>> unknow-block (3.69)
+>>>
+>>> I'm using the kernel 2.6.19 with Ubuntu Dapper. I use the old boot 
+>>
+>> Wow, 2.6.18 wasn't released yet and you have 2.6.19, cool.
+>>
+>>> config and I type make oldconfig, so I don't understand why there are 
+>>> an error with the near same configuration.
+>>> I suppose that I must compile not in module but in hard support for 
+>>> my IDE chipset, harddisk and file system. Probably, I don't 
+>>> understand how do exactly. I do that :
+>>> lspci |grep IDE
+>>> 0000:00:11.1 IDE interface: VIA Technologies, Inc. 
+>>> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+>>> make xconfig
+>>> -Device Drivers
+>>> --* ATA/ATAPI/MFM/RLL support
+>>> --- * Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
+>>> --- * Include IDE/ATA-2 DISK support
+>>> --- * PCI IDE chipset support
+>>> ---- * Generic PCI IDE Support
+>>> ----- * VIA82CXXX chipset support
+>>> - File systems
+>>> -- * Ext3 journalling file system support
+>>> --- * Ext3 extended attributes
+>>> ---- * Ext3 POSIX Access Control Lists
+>>> ---- * Ext3 Security Labels
+>>>
+>>> Have I forgot anything ?
+>>
+>> RAID or LVM? Try initrd.
+>>
+>> regards,
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 181c69c..ab69416 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -152,6 +152,10 @@ static inline int printk(const char *s, 
- static inline int printk(const char *s, ...) { return 0; }
- #endif
- 
-+extern u64 __udivmoddi4(u64 dividend, u64 divisor, u64 *_remainder);
-+extern u64 __udivdi3(u64 dividend, u64 divisor);
-+extern u64 __umoddi3(u64 dividend, u64 divisor);
-+
- unsigned long int_sqrt(unsigned long);
- 
- static inline int __attribute_pure__ long_log2(unsigned long x)
-diff --git a/lib/Makefile b/lib/Makefile
-index be9719a..41428d3 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -5,7 +5,7 @@ #
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
- 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
--	 sha1.o
-+	 sha1.o __udivdi3.o __umoddi3.o __udivmoddi4.o
- 
- lib-$(CONFIG_SMP) += cpumask.o
- 
-diff --git a/lib/__udivdi3.c b/lib/__udivdi3.c
-new file mode 100644
-index 0000000..6541aef
---- /dev/null
-+++ b/lib/__udivdi3.c
-@@ -0,0 +1,23 @@
-+/* __udivdi3.c: unsigned 64-bit by 64-bit division yielding 64-bit result
-+ *
-+ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+
-+/*
-+ * return a / b
-+ */
-+u64 __udivdi3(u64 a, u64 b)
-+{
-+	return __udivmoddi4(a, b, NULL);
-+}
-+
-+EXPORT_SYMBOL(__udivdi3);
-diff --git a/lib/__udivmoddi4.c b/lib/__udivmoddi4.c
-new file mode 100644
-index 0000000..b9a9f2a
---- /dev/null
-+++ b/lib/__udivmoddi4.c
-@@ -0,0 +1,99 @@
-+/* __udivmoddi4.c: unsigned 64-bit by 64-bit division yielding 64-bit results
-+ *
-+ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/bitops.h>
-+#include <asm/div64.h>
-+
-+#define log2(n) (fls(n) - 1)
-+
-+/*
-+ * calculate:
-+ *	Q = a / b
-+ *	R = a % b
-+ * by long division (repeated shift and conditional subtract)
-+ * - base2 long division does not require any usage of actual division or
-+ *   multiplication instructions
-+ */
-+u64 __udivmoddi4(u64 a, u64 b, u64 *_r)
-+{
-+	u64 acc, Q;
-+	u32 A;
-+	int M;
-+
-+	/* dispose of trivialities first */
-+	if (b >= a) {
-+		if (b == a) {
-+			if (_r)
-+				*_r = 0;
-+			return 1;
-+		}
-+		if (_r)
-+			*_r = a;
-+		return 0;
-+	}
-+
-+	/* divide by two until at least one argument is odd */
-+	while (!((a | b) & 1)) {
-+		a >>= 1;
-+		b >>= 1;
-+	}
-+
-+	/* handle it as 64-bit divide by 32-bit if we can */
-+	if (b <= 0xffffffffULL) {
-+		acc = do_div(a, b);
-+		if (_r)
-+			*_r = acc;
-+		return a;
-+	}
-+
-+	/* skip any steps that don't need to be done given the magnitude of the
-+	 * divisor:
-+	 * - the divisor is at least 33 bits in size (log2(b) >= 32)
-+	 * - load the accumulator with as many bits of the dividend as we can
-+	 * - decant the remainder into a 32-bit variable since we will have
-+	 *   fewer than 32-bits remaining
-+	 */
-+	M = log2(b >> 32) + 32;
-+	acc = a >> (63 - M);
-+	A = a;
-+	A <<= M - 31;
-+
-+	Q = 0;
-+
-+	for (;;) {
-+		if (acc >= b) {
-+			/* reduce the accumulator if we can */
-+			acc -= b;
-+			Q |= 1ULL;
-+		}
-+
-+		if (M >= 63)
-+			break;
-+
-+		/* shift next-MSB from dividend into LSB of accumulator */
-+		acc = acc << 1;
-+		if (A & 0x80000000U)
-+			acc |= 1ULL;
-+		A <<= 1;
-+		Q <<= 1;
-+		M++;
-+	}
-+
-+	/* the accumulator is left holding the remainder */
-+	if (_r)
-+		*_r = acc;
-+
-+	return Q;
-+}
-+
-+EXPORT_SYMBOL(__udivmoddi4);
-diff --git a/lib/__umoddi3.c b/lib/__umoddi3.c
-new file mode 100644
-index 0000000..7b99757
---- /dev/null
-+++ b/lib/__umoddi3.c
-@@ -0,0 +1,25 @@
-+/* __umoddi3.c: unsigned 64-bit by 64-bit modulus yielding 64-bit result
-+ *
-+ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+
-+/*
-+ * return a % b
-+ */
-+u64 __umoddi3(u64 a, u64 b)
-+{
-+	u64 r;
-+	__udivmoddi4(a, b, &r);
-+	return r;
-+}
-+
-+EXPORT_SYMBOL(__umoddi3);

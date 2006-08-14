@@ -1,54 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWHNP0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWHNPZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWHNP0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWHNP0K
+	id S1750935AbWHNPZs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWHNPZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:26:10 -0400
-Received: from aa004msr.fastwebnet.it ([85.18.95.67]:57472 "EHLO
-	aa004msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750911AbWHNP0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:26:08 -0400
-Date: Mon, 14 Aug 2006 17:25:23 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: Touchpad problems with latest kernels
-Message-ID: <20060814152523.GB4095@inferi.kami.home>
-Mail-Followup-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl> <200608141038.04746.gene.heskett@verizon.net> <d120d5000608140813i353b8efaia27d6213b08aff98@mail.gmail.com>
+	Mon, 14 Aug 2006 11:25:48 -0400
+Received: from mga09.intel.com ([134.134.136.24]:45368 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750803AbWHNPZr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:25:47 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,122,1154934000"; 
+   d="scan'208"; a="108067942:sNHT774783926"
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000608140813i353b8efaia27d6213b08aff98@mail.gmail.com>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.18-rc4-mm1-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 1/2] acpi,backlight: MSI S270 laptop support - ec_transaction()
+Date: Mon, 14 Aug 2006 23:25:00 +0800
+Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1120727@pdsmsx411.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/2] acpi,backlight: MSI S270 laptop support - ec_transaction()
+Thread-Index: Aca8GRdThf0gEVRrT8q5JL7hBu+cPwDloxwQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Lennart Poettering" <mzxreary@0pointer.de>,
+       "Brown, Len" <len.brown@intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 14 Aug 2006 15:25:10.0493 (UTC) FILETIME=[D4B008D0:01C6BFB5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 11:13:38AM -0400, Dmitry Torokhov wrote:
-> HI Gene,
-> 
-> On 8/14/06, Gene Heskett <gene.heskett@verizon.net> wrote:
-[...]
-> >making it impossible to type more than a line or 2
-> >without the cursor suddenly jumping to someplace else in the message,
-> >often highliteing several lines of text as it goes, and the next keystroke
-> >then deletes wholesale quantities of text, thoroughly destroying any
-> >chance of actually writing a cogent, understandable email response to
-> >anyone.
-> >
-> 
-> Have you tried synclient utility? It temporarily disables the touchpad
-> when you start typing and re-enables it when you done.
 
-oh, that should be the syndaemon ;)
+First of all, thanks for your patch.
+ 
+>+static int acpi_ec_transaction(union acpi_ec *ec, u8 command,
+>+                               const u8 *wdata, unsigned wdata_len,
+>+                               u8 *rdata, unsigned rdata_len)
 
--- 
-mattia
-:wq!
+I agree the name: transaction sounds better than read/write, and
+can reduce redundant code from separate read, write function.
+But, I guess using argument : u8 address will make the patch
+looks better.
+
+>+{
+>+        if (acpi_ec_poll_mode)
+>+                return acpi_ec_poll_transaction(ec, command, 
+>wdata, wdata_len, rdata, rdata_len);
+>+        else
+>+                return acpi_ec_intr_transaction(ec, command, 
+>wdata, wdata_len, rdata, rdata_len);
+>+}
+>+
+
+It would be better to use a function pointer instead of
+using if-lese statement which looks not so neat.
+
+> static int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
+> {
+>-	if (acpi_ec_poll_mode)
+>-		return acpi_ec_poll_read(ec, address, data);
+>-	else
+>-		return acpi_ec_intr_read(ec, address, data);
+>+        int result;
+>+        u8 d;
+>+        result = acpi_ec_transaction(ec, 
+>ACPI_EC_COMMAND_READ, &address, 1, &d, 1);
+>+        *data = d;
+>+        return result;
+> }
+
+Due to missing argument: address, you have to pass address in
+argument: wdata. This kind of code style is prone to error.
+
+
+> static int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
+> {
+>-	if (acpi_ec_poll_mode)
+>-		return acpi_ec_poll_write(ec, address, data);
+>-	else
+>-		return acpi_ec_intr_write(ec, address, data);
+>+        u8 wdata[2] = { address, data };
+>+        return acpi_ec_transaction(ec, ACPI_EC_COMMAND_WRITE, 
+>wdata, 2, NULL, 0);
+> }
+
+It would be more clear if there is argument : address.
+
+>-static int acpi_ec_poll_read(union acpi_ec *ec, u8 address, 
+>u32 * data)
+>+
+>+static int acpi_ec_poll_transaction(union acpi_ec *ec, u8 command,
+>+                                    const u8 *wdata, unsigned 
+>wdata_len,
+>+                                    u8 *rdata, unsigned rdata_len)
+> {
+> 	acpi_status status = AE_OK;
+> 	int result = 0;
+> 	unsigned long flags = 0;
+> 	u32 glk = 0;
+> 
+>-	ACPI_FUNCTION_TRACE("acpi_ec_read");
+>+	ACPI_FUNCTION_TRACE("acpi_ec_poll_transaction");
+> 
+>-	if (!ec || !data)
+>+	if (!ec || !wdata || !wdata_len || (rdata_len && !rdata))
+> 		return_VALUE(-EINVAL);
+
+
+why return -EINVAL if wdata_len == 0?
+
+Thanks
+Luming

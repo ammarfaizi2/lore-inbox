@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751827AbWHNDTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751838AbWHNDUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751827AbWHNDTM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 23:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWHNDTM
+	id S1751838AbWHNDUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 23:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWHNDUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 23:19:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60379
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751809AbWHNDTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 23:19:11 -0400
-Date: Sun, 13 Aug 2006 20:19:34 -0700 (PDT)
-Message-Id: <20060813.201934.32734362.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: greg@kroah.com, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
-       neilb@suse.de, netdev@vger.kernel.org
-Subject: Re: [2.6.17.8] NFS stall / BUG in UDP fragment processing / SKB
- trimming
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060813125910.GA18463@gondor.apana.org.au>
-References: <87zme9fy94.fsf@hades.wkstn.nix>
-	<20060813125910.GA18463@gondor.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sun, 13 Aug 2006 23:20:15 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:14470 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751828AbWHNDUN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 23:20:13 -0400
+Subject: Re: [PATCH 4/6] ehea: header files
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Anton Blanchard <anton@samba.org>
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>,
+       netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+In-Reply-To: <20060811214020.GG479@krispykreme>
+References: <44D99F56.7010201@de.ibm.com> <20060811214020.GG479@krispykreme>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3A6egLWVpu6081XYtX6J"
+Date: Mon, 14 Aug 2006 13:20:11 +1000
+Message-Id: <1155525611.7807.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sun, 13 Aug 2006 22:59:11 +1000
 
-> On Sat, Aug 12, 2006 at 09:19:19PM +0000, Nix wrote:
-> > 
-> > The kernel log showed a heap of BUGs from somewhere inside the skb
-> > management layer, somewhere in UDP fragment processing while
-> > handling NFS requests. It starts like this:
-> > 
-> > Aug 12 21:31:08 hades warning: kernel: BUG: warning at include/linux/skbuff.h:975/__skb_trim()
-> > Aug 12 21:31:08 hades warning: kernel: <c030ed39> ip_append_data+0x5b3/0x951  <c030fc18> ip_generic_getfrag+0x0/0x96
-> 
-> Oops, I missed this code path when I disallowed skb_trim from operating
-> on a paged skb.  This patch should fix the problem.
-> 
-> Greg, we need this for 2.6.17 stable as well if Dave is OK with it.
-> 
-> [INET]: Use pskb_trim_unique when trimming paged unique skbs
- ...
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+--=-3A6egLWVpu6081XYtX6J
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+On Sat, 2006-08-12 at 07:40 +1000, Anton Blanchard wrote:
+> Hi,
+>=20
+> >  drivers/net/ehea/ehea.h    |  452=20
+>=20
+> > +#define EHEA_DRIVER_NAME	"IBM eHEA"
+>=20
+> You are using this for ethtool get_drvinfo. Im not sure if it should
+> match the module name, and I worry about having a space in the name. Any
+> ideas on what we should be doing here?
 
-Looks good, Greg please push to -stable.  I'll push this into
-2.6.18 under seperate cover.
+I believe it must match the module name. It also might be nice to call
+it "DRV_NAME" like most other network drivers do.
+
+cheers
+
+--=20
+Michael Ellerman
+IBM OzLabs
+
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-3A6egLWVpu6081XYtX6J
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBE3+vrdSjSd0sB4dIRAleSAJ4pjJgmkcdfTSPqSNorBim1Yt/jOgCeJRI+
+ScHIOnwZsiu2/nB/yqIRH28=
+=osyf
+-----END PGP SIGNATURE-----
+
+--=-3A6egLWVpu6081XYtX6J--
 

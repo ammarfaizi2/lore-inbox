@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752012AbWHNLqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752011AbWHNLrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752012AbWHNLqg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 07:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752013AbWHNLqf
+	id S1752011AbWHNLrO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 07:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752016AbWHNLrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 07:46:35 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:23003 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750727AbWHNLqe (ORCPT
+	Mon, 14 Aug 2006 07:47:13 -0400
+Received: from mail.suse.de ([195.135.220.2]:54707 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1752011AbWHNLrL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 07:46:34 -0400
-Date: Mon, 14 Aug 2006 15:46:16 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-Message-ID: <20060814114615.GA18321@2ka.mipt.ru>
-References: <20060814110359.GA27704@2ka.mipt.ru> <p73k65ba6l6.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <p73k65ba6l6.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 14 Aug 2006 15:46:19 +0400 (MSD)
+	Mon, 14 Aug 2006 07:47:11 -0400
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
+References: <20060814011056.2381.qmail@science.horizon.com>
+From: Andi Kleen <ak@suse.de>
+In-Reply-To: <20060814011056.2381.qmail@science.horizon.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+Date: 14 Aug 2006 13:47:10 +0200
+Message-ID: <p73d5b3a69t.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 01:40:21PM +0200, Andi Kleen (ak@suse.de) wrote:
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> writes:
+linux@horizon.com writes:
+
+[this time without typo in cc, sorry if you get it twice]
+
+> Um, with all this discussion of keeping caches hot, people do remember
+> that FIFO handling of free blocks *greatly* reduces fragmentation, right?
 > 
-> > Design notes.
-> > Original idea was to store meta information used for allocation in an
-> > AVL tree [1], but since I found a way to use some "unused" fields in struct page,
-> > tree is unused in the allocator.
-> 
-> But there seems to be still an AVL tree in there?
+> That's an observation from malloc implementations that support merging
+> of any two adjacent blocks, but at least some of it should apply to slab
+> pages that require multple adjacent free objects to be returned to the
+> free-page pool.
 
-Yep.
-Tree structure can be used for simpler memory addon/removal from
-hotplug, but I have not that in mind.
-It will be removed soon.
- 
-> > Benchmarks with trivial epoll based web server showed noticeble (more
-> > than 40%) imrovements of the request rates (1600-1800 requests per
-> > second vs. more than 2300 ones). It can be described by more
-> > cache-friendly freeing algorithm, by tighter objects packing and thus
-> > reduced cache line ping-pongs, reduced lookups into higher-layer caches
-> > and so on.
-> 
-> So what are its drawbacks compared to slab/kmalloc? 
+Interesting observation.
 
-Hmm... Bigger per-page overhead (additional bitmask of free/used
-objects). More complex algorithm behind freeing.
+slab is a zone allocator and stores objects of the same type
+into zones. The theory behind that is that normally that objects of the same
+type have similar livetimes and that should in theory avoid
+many fragmentation problems.
 
-> Also if it really performs that much better it might be a good
-> idea to replace all of kmalloc() with it, but doing that
-> would require a lot more benchmarks with various workloads
-> and small and big machines first.
+However some caches like dcache/inode cache don't seem to follow
+that, and kmalloc which mixes all kinds of objects into the same
+caches especially doesn't.
 
-First user can be MMU-less systems which suffer noticebly from
-fragmentations and power-of-two overhead.
+> Especially in a memory-constrained embedded environment, I'd think
+> space-efficiency would be at least as important as time.
 
-> -Andi
+For memory-constrained environments there is already the optional 
+specialized "slob" allocator.
 
--- 
-	Evgeniy Polyakov
+That said even big systems have problems with fragmentation.
+
+It is good that the basic assumptions behind slabs are being
+revisited now. I suspect some of them might be obsolete.
+
+-Andi

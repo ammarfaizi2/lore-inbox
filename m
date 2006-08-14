@@ -1,67 +1,46 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWHMRIk (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 13 Aug 2006 13:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWHMRIj
+	id S932091AbWHNO6h (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 14 Aug 2006 10:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWHNO6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 13:08:39 -0400
-Received: from smtp.wp.pl ([212.77.101.1]:30363 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S1751328AbWHMRIi (ORCPT
+	Mon, 14 Aug 2006 10:58:37 -0400
+Received: from adsl-ull-130-248.47-151.net24.it ([151.47.248.130]:19723 "HELO
+	4FFF0CE8") by vger.kernel.org with SMTP id S932091AbWHNO6g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 13:08:38 -0400
-Date: Sun, 13 Aug 2006 19:08:36 +0200
-From: "Administrator t orrenty. org" <marcinek_torg@wp.pl>
-To: redhat-list@redhat.com, debian-users@lists.debian.org,
-	linux-net@vger.kernel.org
-Cc: ubuntu-users@lists.ubuntu.org, linux-kernel@vger.kernel.org
-Subject: 
-Message-ID: <44df5c94c0cd0@wp.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-Disposition: inline
-X-Mailer: Interfejs WWW nowej poczty Wirtualnej Polski
-X-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.2
-Organization: Nowa Poczta Wirtualnej Polski S.A. http://www.wp.pl/
-X-WP-IP: 217.160.111.190
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-SPAM: NO AS1=NO AS2=NO(0.500001) AS3=NO AS4=NO AS5=NO                                                             
+	Mon, 14 Aug 2006 10:58:36 -0400
+Message-Id: <8.2.2.2.2.41256205959182.421a9739@209.132.176.167>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.6
+Date: Mon, 14 Aug 2006 09:58:40 -0600
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+From: "Bill Cody" <aarhus343North@coulter.com>
+Subject: We Have Found 3 Companies..
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751328AbWHMRIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932091AbWHNO6h@vger.kernel.org>
 
-*** th.is mess.age is not a sp.am ***
-*** send an empty mes.sage to marcinek_torg@wp.pl to unsub.scribe ***
+Great News:
 
-The b.est bitto.rrent site:
-http://www.torrenty.org/
+We have found 3 companies willing to provide you with financing.
 
-m.ovies, g.ames, a.pps, m.usic, a.nime
+The only stipulation is that you still own, or have owned property.
+Poor credit will not stop you from closing this deal.
 
-Registration:
-http://www.torrenty.org/users/registration.php
+Please confirm your details on our private site and we will be in touch
+http://www.geocities.com/bright534962898
 
-Activation of acc.ount v.ery c.heap only 4 U.S.D.
-http://www.torrenty.org/getcode.php
-
-V.isit our p.artner sites:
-http://www.komputery.shop.pl/
-http://www.grg.com.pl/
-http://www.andegrand.pl/
-
---
-keyw0rds: linux kernel linux net redhat list debian users ubuntu users
-
-
-----------------------------------------------------
-Gapi=EA si=EA, bo lubi=EA!
-Co Tomasz Kammel my=B6li o faluj=B1cych biustach? Sprawd=BC:
-http://klik.wp.pl/?adr=3Dhttp%3A%2F%2Fadv.reklama.wp.pl%2Fas%2Fk708.htm=
-l&sid=3D845
+Bill Cody, Consultant
+-LENDER FOCUS-
 
 
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+days in Londonand when he is least like himself  
+ from the time when  The letter was reluctantly produced and as I handed it to the old lady  Ah amiable indeed
+for instance  and see that Ah amiable indeed Here she left off
+and had given the book keeper  In a word  if I can on total resignation
+
+
+
+

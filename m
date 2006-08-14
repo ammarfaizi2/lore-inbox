@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWHNT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752042AbWHNT5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWHNT5I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752052AbWHNT5I
+	id S1752042AbWHNT5d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWHNT5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:57:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:34229 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751768AbWHNT5G (ORCPT
+	Mon, 14 Aug 2006 15:57:33 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:58852 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752042AbWHNT5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:57:06 -0400
-Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Cc: Greg KH <greg@kroah.com>, Marcus Better <marcus@better.se>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux scsi <linux-scsi@vger.kernel.org>, ak@suse.de
-In-Reply-To: <200608142021.18551.daniel.ritz-ml@swissonline.ch>
-References: <1155334308.7574.50.camel@localhost.localdomain>
-	 <200608141858.37465.daniel.ritz-ml@swissonline.ch>
-	 <1155575804.7574.166.camel@localhost.localdomain>
-	 <200608142021.18551.daniel.ritz-ml@swissonline.ch>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 12:56:43 -0700
-Message-Id: <1155585403.12700.10.camel@localhost.localdomain>
+	Mon, 14 Aug 2006 15:57:32 -0400
+Date: Mon, 14 Aug 2006 15:57:01 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060814195701.GD2519@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060814165150.GA2519@in.ibm.com> <44E0AD1D.1040408@zytor.com> <20060814181118.GB2519@in.ibm.com> <44E0CFD0.3060506@zytor.com> <20060814194252.GC2519@in.ibm.com> <44E0D2DB.7030003@zytor.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E0D2DB.7030003@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 20:21 +0200, Daniel Ritz wrote:
-> errm...sorry, i didn't mean that patch but the alternative i sent later. attached.
-> it should use direct access while not breaking legacy PCI probing. in theory..
+On Mon, Aug 14, 2006 at 12:45:31PM -0700, H. Peter Anvin wrote:
+> Vivek Goyal wrote:
+> >>>
+> >>What about once the kernel is booted?
+> >
+> >Sorry did not understand the question. Few more lines will help.
+> >
 > 
-> thanks,
-> -daniel
-> 
-> diff --git a/arch/i386/pci/init.c b/arch/i386/pci/init.c
-> index c7650a7..51087a9 100644
-> --- a/arch/i386/pci/init.c
-> +++ b/arch/i386/pci/init.c
-> @@ -14,8 +14,12 @@ #endif
->  #ifdef CONFIG_PCI_BIOS
->  	pci_pcbios_init();
->  #endif
-> -	if (raw_pci_ops)
-> -		return 0;
-> +	/*
-> +	 * don't check for raw_pci_ops here because we want pcbios as last
-> +	 * fallback, yet it's needed to run first to set pcibios_last_bus
-> +	 * in case legacy PCI probing is used. otherwise detecting peer busses
-> +	 * fails.
-> +	 */
->  #ifdef CONFIG_PCI_DIRECT
->  	pci_direct_init();
->  #endif
+> Is this field intended to protect any kind of memory during the early 
+> boot phase of the kernel proper, or only the decompressor?
+>
 
-That one works on my box without any issues.  Thanks!
+I think it should protect against any dynamic memory usage during early
+boot phase too till we reach a point where kernel is aware of BIOS provided
+memory maps and kernel memory area usage can be controlled with the help
+of BIOS provided/User defined memory maps.
 
--- Dave
+In i386 implementation Eric is alredy taking into account the memory
+used by bootmem bitmap and initial page tables. I have not looked into
+x86_64 kernel code whether do I need to make such adjustments. It worked
+for me so did not bother much. I will look into it.
 
+Thanks
+Vivek

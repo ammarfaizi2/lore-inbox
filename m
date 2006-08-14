@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWHNXCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWHNXIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbWHNXCv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 19:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWHNXCu
+	id S965044AbWHNXIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 19:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWHNXIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 19:02:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10411 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965034AbWHNXCu (ORCPT
+	Mon, 14 Aug 2006 19:08:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18582 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965044AbWHNXId (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 19:02:50 -0400
-Message-ID: <44E1010D.7050704@redhat.com>
-Date: Mon, 14 Aug 2006 18:02:37 -0500
-From: Eric Sandeen <esandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH] fix ext3 mounts at 16T
-References: <44DD00FA.5060600@redhat.com> <20060814155801.fa087b24.akpm@osdl.org>
-In-Reply-To: <20060814155801.fa087b24.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 14 Aug 2006 19:08:33 -0400
+Date: Mon, 14 Aug 2006 16:08:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH] check return value of kmalloc() in setup_cpu_cache()
+Message-Id: <20060814160824.c1a5ef53.akpm@osdl.org>
+In-Reply-To: <20060813101654.GB8703@miraclelinux.com>
+References: <20060813101654.GB8703@miraclelinux.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 11 Aug 2006 17:13:14 -0500
-> Eric Sandeen <esandeen@redhat.com> wrote:
-> 
->> (a similar patch could be done for ext2; does anyone in their right mind use ext2 at 16T?
-> 
-> well, a bug's a bug.  People might want to ue 16TB ext2 for comparative
-> performance testing, or because they get their jollies from running fsck or
-> something.
+On Sun, 13 Aug 2006 18:16:54 +0800
+Akinobu Mita <mita@miraclelinux.com> wrote:
 
-ext2 and ext3 have seemingly already diverged a bit, but I suppose no reason to 
-let it go further.
+> This patch makes crash happen when allocation of cpucache data fails
+> in setup_cpu_cache(). It is a bit better than getting kernel NULL
+> pointer dereference later.
 
->> I'll send an ext2 patch doing the same thing if that's warranted)
-> 
-> please, when you have nothing better to do ;)
+This code is called on the kmem_cache_create() path.  We should back out
+and return -ENOMEM from kmem_cache_create().
 
-Will do :)
-
--Eric

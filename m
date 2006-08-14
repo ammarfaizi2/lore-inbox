@@ -1,260 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWHNUel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932685AbWHNUs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWHNUel (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 16:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWHNUel
+	id S932685AbWHNUs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 16:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932733AbWHNUs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 16:34:41 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:49558 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S964837AbWHNUek
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 16:34:40 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=VhAOPKhRtHpbiHFpSNI6KPzmLLUUertNjd3+/2z604suwuXpumFB5anxJNtWDyDYV
-	zAo714B/0C6Mzwfu1ywYw==
-Message-ID: <e561bacc0608141334i2a942ff5ua97b8c8db381fca1@mail.google.com>
-Date: Mon, 14 Aug 2006 16:34:15 -0400
-From: "Alex Polvi" <polvi@google.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCHv3] sunrpc/auth_gss: NULL pointer deref in gss_pipe_release()
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e561bacc0608141232h164f86e2ub2a53061b52d1120@mail.google.com>
+	Mon, 14 Aug 2006 16:48:27 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:6231 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932685AbWHNUs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 16:48:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=o/iRgiWf7qr1RKtkXSjZSgFusxDMLEth2ui7QOYR7oNsq5ts8a6kRTsi/xjhquKGA5jmifzedKsVNPhbxX+dEJCYu4krobJTumr308rIDeLf86NjAshHNgsH6BxzirDTk1q+VqyImH5uPxmyhbD+sG3XKdkIKh7E4HjPRBjb44g=
+Message-ID: <44E0E1BA.3000204@gmail.com>
+Date: Mon, 14 Aug 2006 22:48:58 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: john stultz <johnstul@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       Dinakar Guniguntala <dino@in.ibm.com>, Dave Jones <davej@redhat.com>
+Subject: Re: 2.6.18-rc4-mm1
+References: <20060813012454.f1d52189.akpm@osdl.org>	 <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com>	 <20060814111914.b50f9b30.akpm@osdl.org> <44E0C889.3020706@gmail.com>	 <1155583256.5413.42.camel@localhost.localdomain>	 <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com> <1155584697.5413.51.camel@localhost.localdomain>
+In-Reply-To: <1155584697.5413.51.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
-	 <1154378242.13744.14.camel@localhost>
-	 <e561bacc0608090827m45fc8f2fia02589be4efce178@mail.google.com>
-	 <1155137983.5731.95.camel@localhost>
-	 <e561bacc0608141232h164f86e2ub2a53061b52d1120@mail.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Alex Polvi <polvi@google.com> wrote:
-> On 8/9/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > On Wed, 2006-08-09 at 11:27 -0400, Alex Polvi wrote:
-> > > On 7/31/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > > > On Mon, 2006-07-31 at 10:50 -0400, Alex Polvi wrote:
-> > > > > Proposed (trivial) patch to fix a NULL pointer deref in
-> > > > > gss_pipe_release(). While this does seem to fix the problem, I'm not
-> > > > > entirely sure it is the correct place to handle the NULL pointer.
-> > > > >
-> > > > > Included below is the script I used to recreate the problem, the oops,
-> > > > > and the patch.
-> > > >
-> > > > Sorry, but that is not the correct fix. The problem here is rather that
-> > > > something is causing us to call rpc_close_pipes() on the file after the
-> > > > call to gss_destroy(). That is supposed to be illegal.
-> > >
-> > > Since rpc_rmdir can potentially call rpc_pipe_release, here is a patch
-> > > to make sure it is not called after rpcauth_destroy (which calls
-> > > gss_destroy)!
-> >
-> > No. The current order is correct. The auth layer owns the RPCSEC_GSS
-> > pipe, not the nfs_client.
-> >
-> > rpc_rmdir() should only be calling rpc_pipe_release() if the auth layer
-> > fails to clean up after itself.
->
-> Here is another fix. It is quite silly, but clnt->cl_auth is set to
-> NULL in rpc_destroy_client(), then eventually referenced in
-> gss_release_pipe() via rpc_rmdir(). Simply removing the clnt->cl_auth
-> = NULL from clnt.c fixes the issue. I'm still trying to understand the
-> subsystem, but it seems like rpc_rmdir is being correctly called to
-> clean up because of the weirdness with umount -l and the nfs server
-> being turned on and off. Does that seem correct? Or is this still just
-> covering up some other part of the code being sloppy cleaning up?
+john stultz wrote:
+> On Mon, 2006-08-14 at 21:27 +0200, Michal Piotrowski wrote:
+>> On 14/08/06, john stultz <johnstul@us.ibm.com> wrote:
+>>> On Mon, 2006-08-14 at 21:01 +0200, Michal Piotrowski wrote:
+>>>> Andrew Morton wrote:
+>>>>> On Mon, 14 Aug 2006 16:02:52 +0200
+>>>>> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>>>>>> On 13/08/06, Andrew Morton <akpm@osdl.org> wrote:
+>>>>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+>>>>>>>
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: BUG: unable to handle kernel
+>>>>>> paging request at virtual address fffeffbf
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel:  printing eip:
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: c013d539
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: *pde = 00004067
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: *pte = 00000000
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: Oops: 0000 [#1]
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: last sysfs file:
+>>>>>> /devices/platform/i2c-9191/9191-0290/temp2_input
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf
+>>>>>> hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
+>>>>>> _ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp
+>>>>>> iptable_filter ip_tables x_tables cpufreq_userspace p4_clockmod spe
+>>>>>> edstep_lib binfmt_misc thermal processor fan container evdev
+>>>>>> snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_
+>>>>>> oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
+>>>>>> snd_mixer_oss snd_pcm sk98lin snd_timer skge snd soundcore snd_pag
+>>>>>> e_alloc ide_cd intel_agp agpgart cdrom i2c_i801 rtc unix
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: CPU:    1
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: EIP:    0060:[<c013d539>]    Not
+>>>>>> tainted VLI
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: EFLAGS: 00210286   (2.6.18-rc4-mm1 #97)
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: EIP is at futex_wake+0x9c/0xcb
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: eax: 0808c000   ebx: c0670a60
+>>>>>> ecx: d3a1dfa2   edx: fffeffbf
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: esi: 00000000   edi: fffeffbf
+>>>>>> ebp: f4896f64   esp: f4896f40
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: Process firefox-bin (pid: 2210,
+>>>>>> ti=f4896000 task=f3d180f0 task.ti=f4896000)
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: Stack: c0670a80 00000001 0808c000
+>>>>>> f4302e74 00000044 ffffffe7 0808c044 bf8f35b0
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel:        00000000 f4896f7c c013ed39
+>>>>>> 00000001 0808c044 7fffffff bf8f35b0 f4896fb4
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel:        c013ee84 7fffffff bf8f35b0
+>>>>>> 00000000 bf8f3528 00000000 f4896fa8 00000000
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel: Call Trace:
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
+>>>>>> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<b7f1d410>] 0xb7f1d410
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104067>] show_stack_log_lvl+0x87/0x8f
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104203>] show_registers+0x151/0x1d8
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010444d>] die+0x120/0x1f0
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c01185cf>] do_page_fault+0x49d/0x580
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0303ba9>] error_code+0x39/0x40
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel:  =======================
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel: Code: 45 e8 39 41 04 75 22 8b 45
+>>>>>> ec 39 41 08 75 1a 83 7a 48 00 74 07 be ea ff ff ff eb
+>>>>>> 16 89 d0 46 e8 00 fd ff ff 3b 75 e0 7d 09 89 fa <8b> 3f 3b 55 dc eb c0
+>>>>>> 89 d8 e8 bd 60 1c 00 89 e0 25 00 f0 ff ff
+>>>>>> Aug 14 15:35:11 ltg01-fedora kernel: EIP: [<c013d539>]
+>>>>>> futex_wake+0x9c/0xcb SS:ESP 0068:f4896f40
+>>>>> This is worrisome.  Is it reproducible?
+>>>> I don't know how to reproduce it, but it happened second time today.
+>>>>
+>>>>>  If so, reverting
+>>>>> futex_handle_fault-always-fails.patch and retesting would be useful.
+>>>> I reverted this patch.
+>>> Just to be clear, the issue has shown itself without the patch?
+>> No, it hasn't.
+> 
+> Thanks for the clarification. 
+> 
+>>> Or is
+>>> that not the case?
+>> In current -mm only futex_handle_fault-always-fails.patch changes
+>> kernel/futex.c, so IMHO it's very probable that there is something
+>> wrong with this patch.
+> 
+> Yea, I'd believe that. I'm newish to the futex code, and as I said w/
+> the patch I'm not 100% sure its the right fix, but it does resolve an
+> issue we found.
+> 
+> I'll take another look to see if I futzed something up or if the fix is
+> just incomplete, although some more familiar eyes with the code would
+> probably help here.
+> 
 
-Also, I just want to make it clear that I do not think this is the
-proper fix. It is just pointing out that we intentionally set cl_auth
-to NULL, then reference it.
+Hmmm... It looks a bit different without futex_handle_fault-always-fails.patch
 
--Alex
+Aug 14 22:30:09 ltg01-fedora kernel: general protection fault: 0000 [#1]
+Aug 14 22:30:09 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+Aug 14 22:30:09 ltg01-fedora kernel: last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
+Aug 14 22:30:09 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
+_ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp iptable_filter ip_tables x_tables cpufreq_userspace p4_clockmod spe
+edstep_lib binfmt_misc thermal processor fan container evdev snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_
+oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm sk98lin skge snd_timer snd soundcore snd_pag
+e_alloc ide_cd i2c_i801 intel_agp agpgart cdrom rtc unix
+Aug 14 22:30:09 ltg01-fedora kernel: CPU:    0
+Aug 14 22:30:09 ltg01-fedora kernel: EIP:    0060:[<c0205249>]    Not tainted VLI
+Aug 14 22:30:09 ltg01-fedora kernel: EFLAGS: 00010246   (2.6.18-rc4-mm1 #101)
+Aug 14 22:30:09 ltg01-fedora kernel: EIP is at __list_add+0x3d/0x7a
+Aug 14 22:30:09 ltg01-fedora kernel: eax: 00000000   ebx: c0670a80   ecx: c038d4dc   edx: 00000000
+Aug 14 22:30:09 ltg01-fedora kernel: esi: ffffffff   edi: f50ebee8   ebp: f50ebed0   esp: f50ebec4
+Aug 14 22:30:09 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
+Aug 14 22:30:09 ltg01-fedora kernel: Process thunderbird-bin (pid: 2288, ti=f50eb000 task=c75b9260 task.ti=f50eb000)
+Aug 14 22:30:09 ltg01-fedora kernel: Stack: f50ebee8 080e7dc0 c0670a60 f50ebf64 c013de71 00000001 c75b9260 0000ea6b
+Aug 14 22:30:10 ltg01-fedora kernel:        00000001 f50ebf20 c013adf0 00000001 00000000 dead4ead ffffffff ffffffff
+Aug 14 22:30:10 ltg01-fedora kernel:        c75b9260 00000000 00000000 f50ebf10 f50ebf10 c0670a60 080e7000 f3e65c94
+Aug 14 22:30:10 ltg01-fedora kernel: Call Trace:
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c013de71>] futex_wait+0x15c/0x220
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c013ed17>] do_futex+0x33/0x92
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c013ee6b>] sys_futex+0xf5/0x101
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+Aug 14 22:30:10 ltg01-fedora kernel:  [<b7f12410>] 0xb7f12410
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0104067>] show_stack_log_lvl+0x87/0x8f
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0104203>] show_registers+0x151/0x1d8
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c010444d>] die+0x120/0x1f0
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0104c9f>] do_general_protection+0x1d1/0x1d9
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0303b89>] error_code+0x39/0x40
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c013de71>] futex_wait+0x15c/0x220
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c013ed17>] do_futex+0x33/0x92
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c013ee6b>] sys_futex+0xf5/0x101
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+Aug 14 22:30:10 ltg01-fedora kernel:  =======================
+Aug 14 22:30:10 ltg01-fedora kernel: Code: cb 39 71 04 0f 95 c2 e8 12 0f 00 00 85 c0 74 19 ff 73 04 56 68 a1 89 33 c0 e8 97
+ce f1 ff 0f 0b 1a 00 7e 89 33 c0 83 c4 0c 31 d2 <39> 1e b8 f8 d4 38 c0 0f 95 c2 e8 e4 0e 00 00 85 c0 74 18 ff 36
+Aug 14 22:30:10 ltg01-fedora kernel: EIP: [<c0205249>] __list_add+0x3d/0x7a SS:ESP 0068:f50ebec4
+Aug 14 22:30:10 ltg01-fedora kernel:  <6>note: thunderbird-bin[2288] exited with preempt_count 1
+Aug 14 22:30:10 ltg01-fedora kernel: BUG: sleeping function called from invalid context at /usr/src/linux-mm/mm/slab.c:2989
+Aug 14 22:30:10 ltg01-fedora kernel: in_atomic():1, irqs_disabled():0
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0103e41>] dump_trace+0x70/0x176
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c0103fde>] show_trace+0xd/0xf
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c01040b0>] dump_stack+0x17/0x19
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c011ec0c>] __might_sleep+0x92/0x9a
+Aug 14 22:30:10 ltg01-fedora kernel:  [<c017319e>] kmem_cache_zalloc+0x27/0xe7
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0154b57>] taskstats_exit_alloc+0x30/0x6e
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c012455e>] do_exit+0x1a3/0x5cd
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0104515>] die+0x1e8/0x1f0
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0104c9f>] do_general_protection+0x1d1/0x1d9
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0303b89>] error_code+0x39/0x40
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0205249>] __list_add+0x3d/0x7a
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c013de71>] futex_wait+0x15c/0x220
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c013ed17>] do_futex+0x33/0x92
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c013ee6b>] sys_futex+0xf5/0x101
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+Aug 14 22:30:11 ltg01-fedora kernel:  [<b7f12410>] 0xb7f12410
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0103fde>] show_trace+0xd/0xf
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c01040b0>] dump_stack+0x17/0x19
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c011ec0c>] __might_sleep+0x92/0x9a
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c017319e>] kmem_cache_zalloc+0x27/0xe7
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0154b57>] taskstats_exit_alloc+0x30/0x6e
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c012455e>] do_exit+0x1a3/0x5cd
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0104515>] die+0x1e8/0x1f0
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0104c9f>] do_general_protection+0x1d1/0x1d9
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c0303b89>] error_code+0x39/0x40
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c013de71>] futex_wait+0x15c/0x220
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c013ed17>] do_futex+0x33/0x92
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c013ee6b>] sys_futex+0xf5/0x101
+Aug 14 22:30:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+Aug 14 22:30:11 ltg01-fedora kernel:  =======================
 
-> Signed-off-by: Alex Polvi <polvi@google.com>
-> --
-> git diff net/sunrpc/clnt.c
-> diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-> index d6409e7..bbe2984 100644
-> --- a/net/sunrpc/clnt.c
-> +++ b/net/sunrpc/clnt.c
-> @@ -312,10 +312,8 @@ rpc_destroy_client(struct rpc_clnt *clnt
->
->         dprintk("RPC: destroying %s client for %s\n",
->                         clnt->cl_protname, clnt->cl_server);
-> -       if (clnt->cl_auth) {
-> +       if (clnt->cl_auth)
->                 rpcauth_destroy(clnt->cl_auth);
-> -               clnt->cl_auth = NULL;
-> -       }
->         if (clnt->cl_parent != clnt) {
->                 rpc_destroy_client(clnt->cl_parent);
->                 goto out_free;
->
->
->
-> > > Signed-off-by: Alex Polvi <polvi@google.com>
-> > > --
-> > > diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-> > > index d6409e7..d2ff886 100644
-> > > --- a/net/sunrpc/clnt.c
-> > > +++ b/net/sunrpc/clnt.c
-> > > @@ -312,16 +312,16 @@ rpc_destroy_client(struct rpc_clnt *clnt
-> > >
-> > >       dprintk("RPC: destroying %s client for %s\n",
-> > >                       clnt->cl_protname, clnt->cl_server);
-> > > -     if (clnt->cl_auth) {
-> > > -             rpcauth_destroy(clnt->cl_auth);
-> > > -             clnt->cl_auth = NULL;
-> > > -     }
-> > >       if (clnt->cl_parent != clnt) {
-> > >               rpc_destroy_client(clnt->cl_parent);
-> > >               goto out_free;
-> > >       }
-> > >       if (clnt->cl_pathname[0])
-> > >               rpc_rmdir(clnt->cl_pathname);
-> > > +     if (clnt->cl_auth) {
-> > > +             rpcauth_destroy(clnt->cl_auth);
-> > > +             clnt->cl_auth = NULL;
-> > > +     }
-> > >       if (clnt->cl_xprt) {
-> > >               xprt_destroy(clnt->cl_xprt);
-> > >               clnt->cl_xprt = NULL;
-> > >
-> > >
-> > >
-> > >
-> > >
-> > >
-> > > > > polvi@return:~/sysops/experimental/polvi$ cat oopsmynfs.sh
-> > > > > #!/bin/bash
-> > > > >
-> > > > > cd / # make sure we are not in the dir
-> > > > >
-> > > > > PROG=${0##*/}
-> > > > >
-> > > > > function usage {
-> > > > >   cat <<EOF
-> > > > > usage: $PROG /nfs/path/
-> > > > >
-> > > > > will oops sunrpc using the nfs host that serves /nfs/path/
-> > > > > EOF
-> > > > >   exit 1
-> > > > > }
-> > > > >
-> > > > > DIR=$1
-> > > > >
-> > > > > [ -d "$DIR" ] || usage
-> > > > >
-> > > > > sudo umount $DIR 2> /dev/null # just house-keeping...
-> > > > >
-> > > > > sudo mount -o sec=krb5 randomfiler:/vol/to/some/share $DIR # must use krb5
-> > > > >
-> > > > > # with out this ls the cd below will say permission denied and not
-> > > > > hang after the
-> > > > > # nfs server has been turned off. It has something to do with stat64
-> > > > > returning EACCES
-> > > > > ls $DIR > /dev/null
-> > > > >
-> > > > > echo "Make the nfs server unusable by the client (turn off nfs, iptables, etc)."
-> > > > > read -p "press enter when ready"
-> > > > >
-> > > > > # if the echo is hit, this script failed to oops sunrpc
-> > > > > (cd $DIR/. ;  echo "will not cause an oops") & # this should hang
-> > > > >
-> > > > > sudo umount -l $DIR
-> > > > >
-> > > > > echo "Turn the nfs server back on and watch for the oops.  Should not
-> > > > > take more then 10s"
-> > > > >
-> > > > >
-> > > > > [  204.385339] net/sunrpc/rpc_pipe.c: rpc_lookup_parent failed to find
-> > > > > path /nfs/clnt4/krb5
-> > > > > [  204.385427] BUG: unable to handle kernel NULL pointer dereference
-> > > > > at virtual address 0000006c
-> > > > > [  204.385554]  printing eip:
-> > > > > [  204.385595] c01d2322
-> > > > > [  204.385678] *pde = 00000000
-> > > > > [  204.385719] Oops: 0000 [#1]
-> > > > > [  204.385781] SMP
-> > > > > [  204.385875] Modules linked in: des binfmt_misc autofs4 video button
-> > > > > battery ac nfs lockd af_packet sg sr_mod pcspkr rtc psm
-> > > > >
-> > > > >
-> > > > >                                    ouse mousedev ide_disk ide_cd cdrom
-> > > > > rpcsec_gss_krb5 auth_rpcgss sunrpc ext3 jbd mbcache thermal processor
-> > > > > fan tg3 sd_mod ide_g
-> > > > >
-> > > > >
-> > > > > eneric ata_piix libata scsi_mod generic ide_core unix
-> > > > > [  204.387417] CPU:    0
-> > > > > [  204.387418] EIP:    0060:[<c01d2322>]    Not tainted VLI
-> > > > > [  204.387419] EFLAGS: 00010292   (2.6.18-rc2-git #1)
-> > > > > [  204.387538] EIP is at _raw_spin_lock+0x12/0x170
-> > > > > [  204.387578] eax: 00000068   ebx: 00000068   ecx: f7157d3c   edx: f7157d3c
-> > > > > [  204.387621] esi: 00000068   edi: 00000000   ebp: f7157d00   esp: f7157cdc
-> > > > > [  204.387664] ds: 007b   es: 007b   ss: 0068
-> > > > > [  204.387704] Process oopsmynfs.sh (pid: 6114, ti=f7156000
-> > > > > task=dffb5aa0 task.ti=f7156000)
-> > > > > [  204.387748] Stack: dffb5aa0 f7157d1c c029ee7d f7157cfc f7156000
-> > > > > f7156000 f73acd00 00000068
-> > > > > [  204.388040]        00000000 f7157d0c c029ff7e 00000068 f7157d24
-> > > > > f88d82cf f73acd00 f73acd00
-> > > > > [  204.388332]        f73acecc f88e1554 f7157d50 f8cbd6a9 f73acd00
-> > > > > f7288460 f73acd80 f73acd70
-> > > > > [  204.388625] Call Trace:
-> > > > > [  204.388868]  [<c029ff7e>] _spin_lock+0xe/0x10
-> > > > > [  204.388997]  [<f88d82cf>] gss_pipe_release+0x1f/0x70 [auth_rpcgss]
-> > > > > [  204.389075]  [<f8cbd6a9>] rpc_close_pipes+0xe9/0x130 [sunrpc]
-> > > > > [  204.389173]  [<f8cbd91f>] rpc_depopulate+0xff/0x140 [sunrpc]
-> > > > > [  204.389267]  [<f8cbda8d>] rpc_rmdir+0x6d/0xa0 [sunrpc]
-> > > > > [  204.389360]  [<f8cac95e>] rpc_destroy_client+0xde/0x110 [sunrpc]
-> > > > > [  204.389443]  [<f8cac8e1>] rpc_destroy_client+0x61/0x110 [sunrpc]
-> > > > > [  204.389524]  [<f8cacab7>] rpc_shutdown_client+0xb7/0x120 [sunrpc]
-> > > > > [  204.389605]  [<f8b2643b>] nfs_kill_super+0x3b/0x90 [nfs]
-> > > > > [  204.389692]  [<c016e2c1>] deactivate_super+0x81/0xa0
-> > > > > [  204.389858]  [<c0185522>] mntput_no_expire+0x52/0x90
-> > > > > [  204.390039]  [<c01770da>] path_release+0x2a/0x30
-> > > > > [  204.390211]  [<c01715cb>] vfs_stat_fd+0x4b/0x60
-> > > > > [  204.390378]  [<c0171600>] vfs_stat+0x20/0x30
-> > > > > [  204.390545]  [<c0171fc9>] sys_stat64+0x19/0x30
-> > > > > [  204.390712]  [<c0102fb1>] sysenter_past_esp+0x56/0x79
-> > > > > [  204.390787]  [<b7fff410>] 0xb7fff410
-> > > > > [  204.390854] Code: 2b c0 89 f8 e8 00 fe ff ff e9 14 ff ff ff 8d 74
-> > > > > 26 00 8d bc 27 00 00 00 00 55 89 e5 83 ec 24 89 5d f4 8b
-> > > > >
-> > > > >
-> > > > >                                      5d 08 89 75 f8 89 7d fc <81> 7b
-> > > > > 04 ad 4e ad de 75 4c 89 e0 25 00 e0 ff ff 8b 00 39 43 0c
-> > > > > [  204.392662] EIP: [<c01d2322>] _raw_spin_lock+0x12/0x170 SS:ESP 0068:f7157cdc
-> > > > >
-> > > > > Signed-off-by: Alex Polvi <polvi@google.com>
-> > > > > ---
-> > > > > diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-> > > > > index 4a9aa93..2db3bd1 100644
-> > > > > --- a/net/sunrpc/auth_gss/auth_gss.c
-> > > > > +++ b/net/sunrpc/auth_gss/auth_gss.c
-> > > > > @@ -607,6 +607,9 @@ gss_pipe_release(struct inode *inode)
-> > > > >        struct rpc_auth *auth;
-> > > > >        struct gss_auth *gss_auth;
-> > > > >
-> > > > > +       if (rpci->ops == NULL)
-> > > > > +               return;
-> > > > > +
-> > > > >        clnt = rpci->private;
-> > > > >        auth = clnt->cl_auth;
-> > > > >        gss_auth = container_of(auth, struct gss_auth, rpc_auth);
-> > > > > -
-> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > > the body of a message to majordomo@vger.kernel.org
-> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > >
-> > > >
-> >
-> >
->
+0xc0205249 is in __list_add (/usr/src/linux-mm/lib/list_debug.c:28).
+23              if (unlikely(next->prev != prev)) {
+24                      printk("list_add corruption. next->prev should be %p, but was %p\n",
+25                              prev, next->prev);
+26                      BUG();
+27              }
+28              if (unlikely(prev->next != next)) {
+29                      printk("list_add corruption. prev->next should be %p, but was %p\n",
+30                              next, prev->next);
+31                      BUG();
+32              }
+
+I'll revert debug-variants-of-linked-list-macros.patch
+
+> thanks
+> -john
+> 
+> 
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

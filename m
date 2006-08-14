@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWHNREz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWHNRJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWHNREz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 13:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWHNREz
+	id S932340AbWHNRJG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 13:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWHNRJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 13:04:55 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:28299 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932212AbWHNREy (ORCPT
+	Mon, 14 Aug 2006 13:09:06 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:61592 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932340AbWHNRJE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 13:04:54 -0400
-Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Cc: Greg KH <greg@kroah.com>, Marcus Better <marcus@better.se>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux scsi <linux-scsi@vger.kernel.org>, ak@suse.de
-In-Reply-To: <200608141858.37465.daniel.ritz-ml@swissonline.ch>
-References: <1155334308.7574.50.camel@localhost.localdomain>
-	 <200608130002.40223.daniel.ritz-ml@swissonline.ch>
-	 <1155571551.7574.143.camel@localhost.localdomain>
-	 <200608141858.37465.daniel.ritz-ml@swissonline.ch>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 10:04:32 -0700
-Message-Id: <1155575073.7574.162.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 13:09:04 -0400
+Date: Mon, 14 Aug 2006 10:07:18 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: mlord@pobox.com, axboe@suse.de, sam@ravnborg.org, zippel@linux-m68k.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: VMPLIT question
+Message-ID: <20060814170718.GJ4919@us.ibm.com>
+References: <20060812052744.GB4919@us.ibm.com> <1155393875.7574.88.camel@localhost.localdomain> <20060812191619.GE4919@us.ibm.com> <1155574746.7574.158.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155574746.7574.158.camel@localhost.localdomain>
+X-Operating-System: Linux 2.6.17.7 (x86_64)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 18:58 +0200, Daniel Ritz wrote:
-> On Monday 14 August 2006 18.05, Dave Hansen wrote:
-> > On Sun, 2006-08-13 at 00:02 +0200, Daniel Ritz wrote:
-> > > Dave, your SCSI card should work with this as well :)
+On 14.08.2006 [09:59:06 -0700], Dave Hansen wrote:
+> On Sat, 2006-08-12 at 12:16 -0700, Nishanth Aravamudan wrote:
+> > > You need to ask for help with the high-level option, not the actual
+> > > "choice":
 > > 
-> > Sorry, it has the same behavior as without the patch.  If it matters,
-> > here is the relevant portion of my .config:
+> > The "high-level option" being ...?
 > 
-> hmm..should be 2.6.16 behavior with this...
-> what kind of box is this?
+> In menuconfig, at least:
+> 
+> 	"Memory split (3G/1G user/kernel split)  --->"
+> 
+> Inside of "Processor type and features".
 
-IBM 4-way PIII Xeon.  5 years old or so.
+I think you missed the point. If you don't know that the "Memory Split"
+submenu is hidden unless you enable EMBEDDED && EXPERIMENTAL and are
+!X86_PAE (the latter was the problem here, until I applied your patch),
+then this is not helpful. You'll do what I did, and search for VMSPLIT
+in menuconfig and get the results I pasted in my first mail, which as I
+said then are less than helpful.
 
-> could you give me dmesg output of plain 2.6.18-rc4
-> and a 2.6.18-rc4 with the patch (not -mm if possible)?
+> > What did you search for in menuconfig to get the following? And, in
+> > any case, how is it useful to return a "(null)" symbol name? 
+> 
+> The trouble is that the help text is associated with the top-level
+> "choice" Kconfig entry, not the _individual_ choices.  There is no
+> symbol associated with the top-level one.  It might be useful to allow
+> help text to be associated with individual "choice" entries, to
+> display that text in the high-level option, and to replace the "null"
+> symbol with something that says "this choice can select any of these
+> symbols: FOO, BAR, etc..."
 
-The patch you just sent, or the original one that went into -mm?  (You
-could just attach whatever you want me to test to your reply, and that
-way I _can't_ screw it up ;)
+Right, I gathered as much...
 
--- Dave
+> I'm sure the Kconfig folks take patches. :P
 
+And that's what I had Roman and Sam on the Cc, as I wanted their input
+if this was a worthwhile change.
+
+Thanks,
+Nish
+
+-- 
+Nishanth Aravamudan <nacc@us.ibm.com>
+IBM Linux Technology Center

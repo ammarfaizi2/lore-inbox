@@ -1,103 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWHNN0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWHNNbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWHNN0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 09:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWHNN0G
+	id S1751312AbWHNNbP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 09:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWHNNbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 09:26:06 -0400
-Received: from erik-slagter.demon.nl ([83.160.41.216]:23693 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S1751291AbWHNN0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 09:26:05 -0400
-Subject: Re: md mirror / ext3 / dual core performance strange phenomenon?
-From: Erik Slagter <erik@slagter.name>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <10837.1155561722@ocs10w.ocs.com.au>
-References: <10837.1155561722@ocs10w.ocs.com.au>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-aQmYpfriDXLMtErifYBK"
-Date: Mon, 14 Aug 2006 15:26:03 +0200
-Message-Id: <1155561963.7809.30.camel@skylla.slagter.name>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 14 Aug 2006 09:31:15 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:63259 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751312AbWHNNbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 09:31:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=dyj+MGnRQEA5q00FUg9Ob86a3tkgXLmlvgTioiek8Vi1nFSjFF7EUZRVQ7WOar+KlSvfs4mxFYCfNz8/VMgXgEfyUmYTzIpj2e5RRsKTn20k0LFhv8oDUFWr0XXVFlc29iLlwqVnkzdNLFMG/arrdlWbf0Jmtb3pV08Kssl5uyQ=
+Message-ID: <44E07B36.6070508@gmail.com>
+Date: Mon, 14 Aug 2006 15:31:11 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel panic - not syncing: VFS - unable to mount root fs on
+ unknown-block
+References: <44DFCF20.9030202@wanadoo.fr>
+In-Reply-To: <44DFCF20.9030202@wanadoo.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hulin Thibaud wrote:
+> Hello !
+> I'm trying to compile my own kernel for drivers on two computers, but 
+> that fails. A the boot, I have this error :
+> kernel panic - not syncing: VFS Unable to mount root fs on unknow-block 
+> (3.69)
+> 
+> I'm using the kernel 2.6.19 with Ubuntu Dapper. I use the old boot 
 
---=-aQmYpfriDXLMtErifYBK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Wow, 2.6.18 wasn't released yet and you have 2.6.19, cool.
 
-On ma, 2006-08-14 at 23:22 +1000, Keith Owens wrote:
+> config and I type make oldconfig, so I don't understand why there are an 
+> error with the near same configuration.
+> I suppose that I must compile not in module but in hard support for my 
+> IDE chipset, harddisk and file system. Probably, I don't understand how 
+> do exactly. I do that :
+> lspci |grep IDE
+> 0000:00:11.1 IDE interface: VIA Technologies, Inc. 
+> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+> make xconfig
+> -Device Drivers
+> --* ATA/ATAPI/MFM/RLL support
+> --- * Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
+> --- * Include IDE/ATA-2 DISK support
+> --- * PCI IDE chipset support
+> ---- * Generic PCI IDE Support
+> ----- * VIA82CXXX chipset support
+> - File systems
+> -- * Ext3 journalling file system support
+> --- * Ext3 extended attributes
+> ---- * Ext3 POSIX Access Control Lists
+> ---- * Ext3 Security Labels
+> 
+> Have I forgot anything ?
 
-> >BUT... starting from -j4 (and upwards) the compile time suddenly goes to
-> >3.5 minutes!
->=20
-> Nothing to do with the disks, it is a design flaw in the kernel build
-> system.  If you want a useful parallel make using -j<n>, set <n> to 3,
-> 4 or 5 higher than the real number of parallel jobs that you want.  The
-> exact value to add depends on which kernel tree you are building.  See
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D115553906404695&w=3D2
+RAID or LVM? Try initrd.
 
-Okay, so it basically means I shouldn't worry here.
-
-Sorry for bothering, I couldn't come up with a proper search term...
-
---=-aQmYpfriDXLMtErifYBK
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIILzCCAnIw
-ggHboAMCAQICAw/xBDANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI5MTc0MTQ0WhcNMDYxMTI5MTc0MTQ0WjBqMRAwDgYDVQQE
-EwdTbGFndGVyMRUwEwYDVQQqEwxFcmlrIE1hcnRpam4xHTAbBgNVBAMTFEVyaWsgTWFydGlqbiBT
-bGFndGVyMSAwHgYJKoZIhvcNAQkBFhFlcmlrQHNsYWd0ZXIubmFtZTCBnzANBgkqhkiG9w0BAQEF
-AAOBjQAwgYkCgYEAtYqGuTSGbsTHZPiKQnNmvpVaxVuBZS6rV5xuKD47J9hz8Vq3Xh4PpuGYNW5L
-vevp80oj6sYAhNuU380UNRqALFaer8MtG6fXpvBgq+MCxVQzMyYxAnopqWlZQIUQNQX9wZmI0gVv
-gY6vwcXRBXkMyrzm41dy4oFwh+PTj3U+xwcCAwEAAaMuMCwwHAYDVR0RBBUwE4ERZXJpa0BzbGFn
-dGVyLm5hbWUwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQCf5+l4khcSjUOL8WcuJ7Q1
-eXhSPe0VJEsHSfVJCNFmfFZFiGZNwQRliOuGFxSy+uPb8ZVIZ3cBIen/K0k2hWS6pCiDm3xNdkFU
-mhWsibmyMoc91I0Re2ZWPmL6isxiyr56Qv7vNz2UHSinLJr/QtsvRv/RKFlcO1gm1wsCOPkyITCC
-AnIwggHboAMCAQICAw/xBDANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMc
-VGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZy
-ZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI5MTc0MTQ0WhcNMDYxMTI5MTc0MTQ0WjBqMRAwDgYD
-VQQEEwdTbGFndGVyMRUwEwYDVQQqEwxFcmlrIE1hcnRpam4xHTAbBgNVBAMTFEVyaWsgTWFydGlq
-biBTbGFndGVyMSAwHgYJKoZIhvcNAQkBFhFlcmlrQHNsYWd0ZXIubmFtZTCBnzANBgkqhkiG9w0B
-AQEFAAOBjQAwgYkCgYEAtYqGuTSGbsTHZPiKQnNmvpVaxVuBZS6rV5xuKD47J9hz8Vq3Xh4PpuGY
-NW5Lvevp80oj6sYAhNuU380UNRqALFaer8MtG6fXpvBgq+MCxVQzMyYxAnopqWlZQIUQNQX9wZmI
-0gVvgY6vwcXRBXkMyrzm41dy4oFwh+PTj3U+xwcCAwEAAaMuMCwwHAYDVR0RBBUwE4ERZXJpa0Bz
-bGFndGVyLm5hbWUwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQCf5+l4khcSjUOL8Wcu
-J7Q1eXhSPe0VJEsHSfVJCNFmfFZFiGZNwQRliOuGFxSy+uPb8ZVIZ3cBIen/K0k2hWS6pCiDm3xN
-dkFUmhWsibmyMoc91I0Re2ZWPmL6isxiyr56Qv7vNz2UHSinLJr/QtsvRv/RKFlcO1gm1wsCOPky
-ITCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
-EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1
-bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMT
-G1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJl
-ZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNV
-BAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNU
-aGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAw
-gYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNa
-LIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUq
-VIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCBkTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1Ud
-HwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWls
-Q0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVs
-Mi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYf
-qi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa
-9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx0x1G/11fZU8xggJmMIICYgIBATBpMGIxCzAJ
-BgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQD
-EyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDD/EEMAkGBSsOAwIaBQCgggFT
-MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA2MDgxNDEzMjYwM1ow
-IwYJKoZIhvcNAQkEMRYEFBlxuDovaiqmN71JZRwEZDnd3C8tMHgGCSsGAQQBgjcQBDFrMGkwYjEL
-MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNV
-BAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMP8QQwegYLKoZIhvcNAQkQ
-Agsxa6BpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
-dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDD/EEMA0G
-CSqGSIb3DQEBAQUABIGAhQteZLoxNkp+MYq4vyr6x88o7RIA46PmX8LE5zSeN6FQDzE3HFJ9Qjpy
-ObcDg7YLpqPMNmc6b9BpDId4Qxz0Did71Eh6UXDzH36/xAKdAd7O/nm+WIrTB/jQ3LVUQZuvhTKc
-I5siGEt/WWnQPNBXlTWRCthOq/m5LHqUnF7pk1wAAAAAAAA=
-
-
---=-aQmYpfriDXLMtErifYBK--
-
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

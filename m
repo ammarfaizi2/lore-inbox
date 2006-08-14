@@ -1,112 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWHNTVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbWHNT0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWHNTVI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWHNTVI
+	id S932609AbWHNT0k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWHNT0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:21:08 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:42906 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932331AbWHNTVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:21:06 -0400
-Subject: Re: 2.6.18-rc4-mm1
-From: john stultz <johnstul@us.ibm.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       Dinakar Guniguntala <dino@in.ibm.com>
-In-Reply-To: <44E0C889.3020706@gmail.com>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-	 <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com>
-	 <20060814111914.b50f9b30.akpm@osdl.org>  <44E0C889.3020706@gmail.com>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 12:20:55 -0700
-Message-Id: <1155583256.5413.42.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 15:26:40 -0400
+Received: from mail02.hansenet.de ([213.191.73.62]:4281 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S932609AbWHNT0j convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 15:26:39 -0400
+From: Thomas Koeller <thomas.koeller@baslerweb.com>
+To: =?utf-8?q?=C3=89ric_Piel?= <Eric.Piel@lifl.fr>
+Subject: Re: [PATCH] Image capturing driver for Basler eXcite smart camera
+Date: Mon, 14 Aug 2006 21:26:29 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-mips@linux-mips.org,
+       Thomas =?utf-8?q?K=C3=B6ller?= <thomas@koeller.dyndns.org>
+References: <200608102318.04512.thomas.koeller@baslerweb.com> <loom.20060812T191433-775@post.gmane.org> <44E09C7E.204@lifl.fr>
+In-Reply-To: <44E09C7E.204@lifl.fr>
+Organization: Basler AG
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200608142126.29171.thomas.koeller@baslerweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 21:01 +0200, Michal Piotrowski wrote:
-> Andrew Morton wrote:
-> > On Mon, 14 Aug 2006 16:02:52 +0200
-> > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-> >> On 13/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> >>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> >>>
-> >> Aug 14 15:35:10 ltg01-fedora kernel: BUG: unable to handle kernel
-> >> paging request at virtual address fffeffbf
-> >> Aug 14 15:35:10 ltg01-fedora kernel:  printing eip:
-> >> Aug 14 15:35:10 ltg01-fedora kernel: c013d539
-> >> Aug 14 15:35:10 ltg01-fedora kernel: *pde = 00004067
-> >> Aug 14 15:35:10 ltg01-fedora kernel: *pte = 00000000
-> >> Aug 14 15:35:10 ltg01-fedora kernel: Oops: 0000 [#1]
-> >> Aug 14 15:35:10 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
-> >> Aug 14 15:35:10 ltg01-fedora kernel: last sysfs file:
-> >> /devices/platform/i2c-9191/9191-0290/temp2_input
-> >> Aug 14 15:35:10 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf
-> >> hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
-> >> _ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp
-> >> iptable_filter ip_tables x_tables cpufreq_userspace p4_clockmod spe
-> >> edstep_lib binfmt_misc thermal processor fan container evdev
-> >> snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_
-> >> oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
-> >> snd_mixer_oss snd_pcm sk98lin snd_timer skge snd soundcore snd_pag
-> >> e_alloc ide_cd intel_agp agpgart cdrom i2c_i801 rtc unix
-> >> Aug 14 15:35:10 ltg01-fedora kernel: CPU:    1
-> >> Aug 14 15:35:10 ltg01-fedora kernel: EIP:    0060:[<c013d539>]    Not
-> >> tainted VLI
-> >> Aug 14 15:35:10 ltg01-fedora kernel: EFLAGS: 00210286   (2.6.18-rc4-mm1 #97)
-> >> Aug 14 15:35:10 ltg01-fedora kernel: EIP is at futex_wake+0x9c/0xcb
-> >> Aug 14 15:35:10 ltg01-fedora kernel: eax: 0808c000   ebx: c0670a60
-> >> ecx: d3a1dfa2   edx: fffeffbf
-> >> Aug 14 15:35:10 ltg01-fedora kernel: esi: 00000000   edi: fffeffbf
-> >> ebp: f4896f64   esp: f4896f40
-> >> Aug 14 15:35:10 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
-> >> Aug 14 15:35:10 ltg01-fedora kernel: Process firefox-bin (pid: 2210,
-> >> ti=f4896000 task=f3d180f0 task.ti=f4896000)
-> >> Aug 14 15:35:10 ltg01-fedora kernel: Stack: c0670a80 00000001 0808c000
-> >> f4302e74 00000044 ffffffe7 0808c044 bf8f35b0
-> >> Aug 14 15:35:10 ltg01-fedora kernel:        00000000 f4896f7c c013ed39
-> >> 00000001 0808c044 7fffffff bf8f35b0 f4896fb4
-> >> Aug 14 15:35:10 ltg01-fedora kernel:        c013ee84 7fffffff bf8f35b0
-> >> 00000000 bf8f3528 00000000 f4896fa8 00000000
-> >> Aug 14 15:35:10 ltg01-fedora kernel: Call Trace:
-> >> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
-> >> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<b7f1d410>] 0xb7f1d410
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104067>] show_stack_log_lvl+0x87/0x8f
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104203>] show_registers+0x151/0x1d8
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010444d>] die+0x120/0x1f0
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c01185cf>] do_page_fault+0x49d/0x580
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0303ba9>] error_code+0x39/0x40
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
-> >> Aug 14 15:35:11 ltg01-fedora kernel:  =======================
-> >> Aug 14 15:35:11 ltg01-fedora kernel: Code: 45 e8 39 41 04 75 22 8b 45
-> >> ec 39 41 08 75 1a 83 7a 48 00 74 07 be ea ff ff ff eb
-> >> 16 89 d0 46 e8 00 fd ff ff 3b 75 e0 7d 09 89 fa <8b> 3f 3b 55 dc eb c0
-> >> 89 d8 e8 bd 60 1c 00 89 e0 25 00 f0 ff ff
-> >> Aug 14 15:35:11 ltg01-fedora kernel: EIP: [<c013d539>]
-> >> futex_wake+0x9c/0xcb SS:ESP 0068:f4896f40
-> > 
-> > This is worrisome.  Is it reproducible?
-> 
-> I don't know how to reproduce it, but it happened second time today.
-> 
-> >  If so, reverting
-> > futex_handle_fault-always-fails.patch and retesting would be useful.
-> 
-> I reverted this patch.
+On Monday 14 August 2006 17:53, Éric Piel wrote:
+> 08/12/2006 07:27 PM, Thomas Koeller wrote/a écrit:
+> Hello,
+>
+> Maybe I just completely misunderstood you point, in which case I
+> apologize... However from what it seems, you are proposing a kernel
+> driver for the hardware which is inside the product described on the
+> webpage. This driver will run on a processor embedded into this camera.
+> It will allow some user-space programs which also run on this processor
+> to acquire pictures generated by the captor. Am I right so far?
 
-Just to be clear, the issue has shown itself without the patch? Or is
-that not the case?
+Exactly.
 
-thanks
--john
+>
+> If so then the Video4Linux2 API is still the best way to implement the
+> protocol to pass data between the user-space programs and the driver.
+> The V4L2 API doesn't says that the camera must be far away from the
+> processor, it can work for USB webcams, for Firewire video camera, PCI
+> TV tuners, and probably also for your device. Using the V4L2 not only
+> has the advantage of being a well tested API for communicating video
+> related information with the user-space but it also buys you the fact
+> that any program available on Linux for video should be able to directly
+> detect and use the captor!
 
+Sorry, but no. The camera has been designed to be used in industrial
+control applications, such as quality assurance. Think of an automated
+inspection of a certain product, where the inspection is integrated
+into the production process. Faulty products are sorted out. For this to
+work it is absolutely necessary to get the maximum speed (image frames
+per second) out of the hardware, so image acquisition and processing
+must be carried out in parallel. The way to achieve this is have the
+driver manage a queue of image buffers to fill, so it will continue
+grabbing images even if no read operation is currently pending. Also,
+the ability to attach user-specific context information to every buffer
+is essential.
 
+Another reason to choose this API was to ease customer migration from
+PC-based solutions involving IEEE-1394 and Gigabit Ethernet cameras
+(of which my employer is a major manufacturer) to the eXcite platform.
+These devices ship with driver software that implements a very similar
+API, and we provide user-space libraries that allow for writing generic
+software that will run on the eXcite platform as well as on a PC with
+a dumb camera attached via FireWire or GigE. There is an entire
+software framework, of which this driver is just a small component.
+
+Finally, the camera already ships with the software as is, so changing
+the API is out of the question, as it would break customer applications.
+
+>
+> That said, thank you already very much for submitting your driver to the
+> Linux kernel. Your code seems already good quality and conformant with
+> the coding style of the kernel. Still, some people will review your
+> code, and let you know what they think might be problematic. This is the
+> normal process for driver acceptance, for the good both of your driver
+> and of the kernel. When you have answered the different suggestion,
+> please resubmit your new version of the driver with the change. I
+> suggest also CCing video4linux-list@redhat.com :-)
+>
+> See you,
+> Eric
+>
+> > I am not subscribed to lkml, so please cc my address thomas at koeller
+> > dot dyndns dot org on all replies.
+>
+> Please, also keep the CC: in your answers.
+
+Thanks for taking the time to look at the code!
+
+Thomas
+
+-- 
+Thomas Koeller, Software Development
+
+Basler Vision Technologies
+An der Strusbek 60-62
+22926 Ahrensburg
+Germany
+
+Tel +49 (4102) 463-390
+Fax +49 (4102) 463-46390
+
+mailto:thomas.koeller@baslerweb.com
+http://www.baslerweb.com

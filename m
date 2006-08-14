@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751766AbWHNBPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751770AbWHNBRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751766AbWHNBPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 21:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWHNBPq
+	id S1751770AbWHNBRX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 21:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWHNBRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 21:15:46 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:2222 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751609AbWHNBPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 21:15:45 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=PArK8fZNiYSbIsdgchGaGn/Kg1ZAJUpIj+iJByTGRTswvyW3mCBM+DbFyEdutND3f
-	ZB/I6MJVgE3FV2mhdO2sw==
-Message-ID: <44DFCE9C.402@google.com>
-Date: Sun, 13 Aug 2006 18:15:08 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Sun, 13 Aug 2006 21:17:23 -0400
+Received: from smtp19.orange.fr ([80.12.242.1]:28553 "EHLO
+	smtp-msa-out19.orange.fr") by vger.kernel.org with ESMTP
+	id S1751770AbWHNBRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 21:17:22 -0400
+X-ME-UUID: 20060814011721691.A8B731C00081@mwinf1919.orange.fr
+Message-ID: <44DFCF20.9030202@wanadoo.fr>
+Date: Mon, 14 Aug 2006 03:17:20 +0200
+From: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: a.p.zijlstra@chello.nl, tgraf@suug.ch, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-References: <1155132440.12225.70.camel@twins>	<20060809.165846.107940575.davem@davemloft.net>	<44DF9817.8070509@google.com> <20060813.164934.00081381.davem@davemloft.net>
-In-Reply-To: <20060813.164934.00081381.davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Subject: kernel panic - not syncing: VFS - unable to mount root fs on unknown-block
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
->From: Daniel Phillips <phillips@google.com>
->>David Miller wrote:
->>
->>>The reason is that there is no refcounting performed on these devices
->>>when they are attached to the skb, for performance reasons, and thus
->>>the device can be downed, the module for it removed, etc. long before
->>>the skb is freed up.
->>
->>The virtual block device can refcount the network device on virtual
->>device create and un-refcount on virtual device delete.
-> 
-> What if the packet is originally received on the device in question,
-> and then gets redirected to another device by a packet scheduler
-> traffic classifier action or a netfilter rule?
-> 
-> It is necessary to handle the case where the device changes on the
-> skb, and the skb gets freed up in a context and assosciation different
-> from when the skb was allocated (for example, different from the
-> device attached to the virtual block device).
+Hello !
+I'm trying to compile my own kernel for drivers on two computers, but 
+that fails. A the boot, I have this error :
+kernel panic - not syncing: VFS Unable to mount root fs on unknow-block 
+(3.69)
 
-This aspect of the patch became moot because of the change to a single
-reserve for all layer 2 delivery in Peter's more recent revisions.
+I'm using the kernel 2.6.19 with Ubuntu Dapper. I use the old boot 
+config and I type make oldconfig, so I don't understand why there are an 
+error with the near same configuration.
+I suppose that I must compile not in module but in hard support for my 
+IDE chipset, harddisk and file system. Probably, I don't understand how 
+do exactly. I do that :
+lspci |grep IDE
+0000:00:11.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+make xconfig
+-Device Drivers
+--* ATA/ATAPI/MFM/RLL support
+--- * Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
+--- * Include IDE/ATA-2 DISK support
+--- * PCI IDE chipset support
+---- * Generic PCI IDE Support
+----- * VIA82CXXX chipset support
+- File systems
+-- * Ext3 journalling file system support
+--- * Ext3 extended attributes
+---- * Ext3 POSIX Access Control Lists
+---- * Ext3 Security Labels
 
-*However* maybe it is worth mentioning that I intended to provide a
-pointer from each sk_buff to a common accounting struct.  This pointer
-is set by the device driver.  If the driver knows nothing about memory
-accounting then the pointer is null, no accounting is done, and block
-IO over the interface will be dangerous.  Otherwise, if the system is
-in reclaim (which we currently detect crudely when a normal allocation
-fails) then atomic ops will be done on the accounting structure.
+Have I forgot anything ?
 
-I planned to use the (struct sock *)sk_buff->sk field for this, which
-is unused during layer 2 delivery as far as I can see.  The accounting
-struct can look somewhat like a struct sock if we like, size doesn't
-really matter, and it might make the code more robust.  Or the field
-could become a union.
-
-Anyway, this bit doesn't matter any more, the single global packet
-delivery reserve is better and simpler.
-
-Regards,
-
-Daniel
+Thanks very much,
+Thibaud.

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWHNNT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWHNNWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWHNNT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 09:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWHNNT3
+	id S1751266AbWHNNWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 09:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWHNNWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 09:19:29 -0400
-Received: from freeautobot.com ([205.244.47.245]:30403 "EHLO
-	www.freeautobot.com") by vger.kernel.org with ESMTP
-	id S1750993AbWHNNT3 convert rfc822-to-8bit (ORCPT
+	Mon, 14 Aug 2006 09:22:04 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:61647 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751266AbWHNNWD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 09:19:29 -0400
-Date: Mon, 14 Aug 2006 06:45:51 -0600
-Message-Id: <200608141245.k7ECjnc5011744@www.freeautobot.com>
-From: netfriend@pop3.ru
-Subject: INTERNET MONEY EARNING SECRETS!
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 14 Aug 2006 09:22:03 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Erik Slagter <erik@slagter.name>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: md mirror / ext3 / dual core performance strange phenomenon? 
+In-reply-to: Your message of "Mon, 14 Aug 2006 15:12:14 +0200."
+             <1155561134.7809.27.camel@skylla.slagter.name> 
 Mime-Version: 1.0
-X-Lead: 80037960
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 14 Aug 2006 23:22:02 +1000
+Message-ID: <10837.1155561722@ocs10w.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+Erik Slagter (on Mon, 14 Aug 2006 15:12:14 +0200) wrote:
+>Now, what puzzles me, is that compiling the kernel (2.6.17.7) using
+>either "make -j1 ..." or "make -j2 ..." or "make -j3 ..." makes the
+>building take about 6.5 minutes, which is really dissatisfying for this
+>cpu/harddisks combination. Also, top shows that most of the time both
+>core are between 10-40% idle.
+>
+>BUT... starting from -j4 (and upwards) the compile time suddenly goes to
+>3.5 minutes!
 
-Bon Jour! ...
-Would you like to know the SECRETS on
+Nothing to do with the disks, it is a design flaw in the kernel build
+system.  If you want a useful parallel make using -j<n>, set <n> to 3,
+4 or 5 higher than the real number of parallel jobs that you want.  The
+exact value to add depends on which kernel tree you are building.  See
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115553906404695&w=2
 
-	"HOW TO EARN MORE IN THE INTERNET?"
-
-If your answer is YES, please submit your 
-contact info below without any obligation
-to purchase on anything:
-
-mailto:  giveinfopleas@bluebottle.com
-Subject: "OK, MORE INFO Palihug!"
-Message: (You must include your info below)
-	
- 	First Name:
-	Last Name:
-	Tel. Nos.:
-	Country:
-
-BELIEVE ME, You can thank me later!.
-
-See you at the top!.
-
-
-Cheers,
-
-ONLINE PARTNER 
-giveinfopleas@bluebottle.com
-
-
-
-Note: If dont want to recieve info please click:
-            getmeout@mail15.com 

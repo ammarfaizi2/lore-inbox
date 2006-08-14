@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWHNHUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWHNHZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751769AbWHNHUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 03:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWHNHUF
+	id S1751582AbWHNHZz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 03:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWHNHZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 03:20:05 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:41482 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751769AbWHNHUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 03:20:02 -0400
-Date: Mon, 14 Aug 2006 08:19:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 4/14] Generic ioremap_page_range: arm conversion
-Message-ID: <20060814071955.GA26225@flint.arm.linux.org.uk>
-Mail-Followup-To: Haavard Skinnemoen <hskinnemoen@atmel.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org
-References: <1155225826761-git-send-email-hskinnemoen@atmel.com> <1155225827754-git-send-email-hskinnemoen@atmel.com> <11552258271630-git-send-email-hskinnemoen@atmel.com> <115522582724-git-send-email-hskinnemoen@atmel.com> <11552258272417-git-send-email-hskinnemoen@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Aug 2006 03:25:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:44964 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751582AbWHNHZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 03:25:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=as0DO8vyvsjkyPMWS0rPkCw7GZeLfuVr3oZpOh/9JEgaeFVZKPGm3jyoGvQBg0CAg/2MNh6pjV3ACzSldkf9NXmcJjg3/01qfnCALLcXSS7nShByvzeNiKSMjunEhyHham8hNcyZ4fXVVY6m01eKCHqz6tF6BevV1bKOUKIjClI=
+Message-ID: <9a8748490608140025w3257f315jcceccf05d200437f@mail.gmail.com>
+Date: Mon, 14 Aug 2006 09:25:53 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Nathan Scott" <nathans@sgi.com>
+Subject: Re: [PATCH] XFS: remove pointless conditional testing 'nmp' vs NULL in fs/xfs/xfs_rtalloc.c::xfs_growfs_rt()
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+In-Reply-To: <20060814110942.C2698880@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <11552258272417-git-send-email-hskinnemoen@atmel.com>
-User-Agent: Mutt/1.4.1i
+References: <200608130016.51136.jesper.juhl@gmail.com>
+	 <20060814110942.C2698880@wobbly.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2006 at 06:03:36PM +0200, Haavard Skinnemoen wrote:
-> From: Russell King <rmk@arm.linux.org.uk>
-> 
-> Convert ARM to use generic ioremap_page_range()
-
-NAK.  There are already issues with using the xxx_kernel variants of
-the page table functions for IO mappings on later architectures (caused
-by speculative loads hitting IO regions.)  This code needs to change
-slightly so that we have xxx_io versions of pte_alloc and friends.
-
-(It also means that we need an ioremap region and a separate vmalloc
-region on ARM...)
+On 14/08/06, Nathan Scott <nathans@sgi.com> wrote:
+> On Sun, Aug 13, 2006 at 12:16:50AM +0200, Jesper Juhl wrote:
+> > In fs/xfs/xfs_rtalloc.c::xfs_growfs_rt() there's a completely useless
+> > conditional at the error_exit label.
+> > The 'if (nmp)' check is pointless and might as well be removed for two
+> > reasons.
+> >
+> > 1) if 'nmp' is NULL then kmem_free() will end up calling kfree() with a NULL
+> >    argument - which in turn will just cause a return from kfree(). No harm
+> >    done.
+>
+> Thats valid.
+>
+> > 2) At the beginning of the function there's an assignment; '*nmp = *mp;' so
+>
+> Thats not.  Theres no assignment at the start of the function;
+> theres one inside the main body of the loop 20+ lines into it,
+> and right after a mem alloc with flags requiring no failure.
+> Later that local variable is freed then set to NULL inside the
+> loop, before continuing the next iteration...
+>
+> Really this code would be better if reworked slightly to just
+> allocate nmp once before entering the loop, and then free it
+> once at the end... we wouldn't need a goto, just a few breaks
+> in the loop and a conditional transaction cancel.
+>
+> > This patch gets rid of the pointless check.
+>
+> Hmm, seems like code churn that makes the code slightly less
+> obvious, but thats just me... I'd prefer a tested patch that
+> implements the above suggestion, to be honest. :)
+>
+Ok, I'll see what I can come up with.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

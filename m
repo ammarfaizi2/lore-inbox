@@ -1,96 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752063AbWHNU76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752073AbWHNVAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752063AbWHNU76 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 16:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWHNU74
+	id S1752073AbWHNVAs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWHNVAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 16:59:56 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:10894 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752063AbWHNU7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 16:59:54 -0400
-Date: Mon, 14 Aug 2006 16:59:21 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Don Zickus <dzickus@redhat.com>,
-       fastboot@osdl.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060814205921.GE2519@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060814165150.GA2519@in.ibm.com> <44E0AD1D.1040408@zytor.com> <20060814181118.GB2519@in.ibm.com> <44E0CFD0.3060506@zytor.com> <20060814194252.GC2519@in.ibm.com> <44E0D2DB.7030003@zytor.com> <m18xlrt6wk.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Aug 2006 17:00:48 -0400
+Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:3237 "EHLO
+	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1752073AbWHNVAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 17:00:47 -0400
+Date: Mon, 14 Aug 2006 16:56:46 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386: annotate FIX_STACK() and the rest of nmi()
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>
+Message-ID: <200608141658_MC3-1-C818-892D@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m18xlrt6wk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 02:10:51PM -0600, Eric W. Biederman wrote:
-> "H. Peter Anvin" <hpa@zytor.com> writes:
-> 
-> > Vivek Goyal wrote:
-> >>>>
-> >>> What about once the kernel is booted?
-> >> Sorry did not understand the question. Few more lines will help.
-> >>
-> >
-> > Is this field intended to protect any kind of memory during the early boot phase
-> > of the kernel proper, or only the decompressor?
-> 
-> Yes, the field should account for memory usage until the kernel starts
-> doing the accounting at run time.
-> 
-> I'm actually surprised that taking into account the .bss was not enough to
-> cover up anything the decompressor was doing.  Usually the kernel's .bss
-> is more than the extra 32K or so that the decompressor uses.
->
+In i386's entry.S, FIX_STACK() needs annotation because it
+replaces the stack pointer.  And the rest of nmi() needs
+annotation in order to compile with these new annotations.
 
-I think .bss section size will act as a buffer for decompressor only if
-.bss is not part of compressed data hence decompressor does not have to
-move beyond bss and it can run very well from kernel bss space. 
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+---
 
-But somehow on my machine, it looks like that bss is very much part
-of raw binary image hence part of compressed data (vmlinux.bin.gz).
-memsz exported in bzImage is same as size of raw output binary.
+ arch/i386/kernel/entry.S  |   18 +++++++++++++++---
+ include/asm-i386/dwarf2.h |    2 ++
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
-Probably that's the reason that we are stomping other segments in my
-case and if my understanding is right then it should happen irrespective
-of kernel bss size.
-
-Here I am pasting how kernel vmlinux file program headers look like.
-.bss is mapped by first program header along with .text.
-
-Program Headers:
-  Type           Offset             VirtAddr           PhysAddr
-                 FileSiz            MemSiz              Flags  Align
-  LOAD           0x0000000000200000 0xffffffff80000000 0x0000000000000000
-                 0x0000000000546bf8 0x00000000005dbc28  RWE    200000
-  LOAD           0x00000000007dc000 0xffffffff805dc000 0x00000000005dc000
-                 0x000000000000ede0 0x000000000000ede0  RW     200000
-  LOAD           0x0000000000800000 0xffffffffff600000 0x00000000005eb000
-                 0x0000000000000c08 0x0000000000000c08  RWE    200000
-  LOAD           0x00000000009ec000 0xffffffff805ec000 0x00000000005ec000
-                 0x0000000000044004 0x0000000000044004  RWE    200000
-  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
-                 0x0000000000000000 0x0000000000000000  RWE    8
-
- Section to Segment mapping:
-  Segment Sections...
-   00     .text __ex_table .rodata .pci_fixup __ksymtab __ksymtab_gpl
-__ksymtab_unused __ksymtab_gpl_future __ksymtab_strings __param
-.eh_frame .data .bss
-   01     .data.cacheline_aligned .data.read_mostly
-   02     .vsyscall_0 .xtime_lock .vxtime .wall_jiffies .sys_tz
-.sysctl_vsyscall .xtime .jiffies .vsyscall_1 .vsyscall_2 .vsyscall_3
-   03     .data.init_task .data.page_aligned .smp_altinstructions
-.smp_locks .smp_altinstr_replacement .init.text .init.data .init.setup
-.initcall.init .con_initcall.init .altinstructions .altinstr_replacement
-.exit.text .init.ramfs .data.percpu .data_nosave
-   04
+--- 2.6.18-rc4-nb.orig/arch/i386/kernel/entry.S
++++ 2.6.18-rc4-nb/arch/i386/kernel/entry.S
+@@ -698,9 +698,15 @@ device_not_available_emulate:
+ 	jne ok;					\
+ label:						\
+ 	movl TSS_sysenter_esp0+offset(%esp),%esp;	\
++	CFI_DEF_CFA esp, 0;			\
++	CFI_UNDEFINED eip;			\
+ 	pushfl;					\
++	CFI_ADJUST_CFA_OFFSET 4;		\
+ 	pushl $__KERNEL_CS;			\
+-	pushl $sysenter_past_esp
++	CFI_ADJUST_CFA_OFFSET 4;		\
++	pushl $sysenter_past_esp;		\
++	CFI_ADJUST_CFA_OFFSET 4;		\
++	CFI_REL_OFFSET eip, 0
  
-Thanks
-Vivek
+ KPROBE_ENTRY(debug)
+ 	RING0_INT_FRAME
+@@ -750,6 +756,7 @@ ENTRY(nmi)
+ 	cmpl $sysenter_entry,12(%esp)
+ 	je nmi_debug_stack_check
+ nmi_stack_correct:
++	/* We have a RING0_INT_FRAME here */
+ 	pushl %eax
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	SAVE_ALL
+@@ -760,9 +767,12 @@ nmi_stack_correct:
+ 	CFI_ENDPROC
  
+ nmi_stack_fixup:
++	RING0_INT_FRAME
+ 	FIX_STACK(12,nmi_stack_correct, 1)
+ 	jmp nmi_stack_correct
++
+ nmi_debug_stack_check:
++	/* We have a RING0_INT_FRAME here */
+ 	cmpw $__KERNEL_CS,16(%esp)
+ 	jne nmi_stack_correct
+ 	cmpl $debug,(%esp)
+@@ -773,8 +783,10 @@ nmi_debug_stack_check:
+ 	jmp nmi_stack_correct
+ 
+ nmi_16bit_stack:
+-	RING0_INT_FRAME
+-	/* create the pointer to lss back */
++	/* We have a RING0_INT_FRAME here.
++	 *
++	 * create the pointer to lss back
++	 */
+ 	pushl %ss
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	pushl %esp
+--- 2.6.18-rc4-nb.orig/include/asm-i386/dwarf2.h
++++ 2.6.18-rc4-nb/include/asm-i386/dwarf2.h
+@@ -28,6 +28,7 @@
+ #define CFI_RESTORE .cfi_restore
+ #define CFI_REMEMBER_STATE .cfi_remember_state
+ #define CFI_RESTORE_STATE .cfi_restore_state
++#define CFI_UNDEFINED .cfi_undefined
+ 
+ #else
+ 
+@@ -48,6 +49,7 @@
+ #define CFI_RESTORE	ignore
+ #define CFI_REMEMBER_STATE ignore
+ #define CFI_RESTORE_STATE ignore
++#define CFI_UNDEFINED ignore
+ 
+ #endif
+ 
+-- 
+Chuck

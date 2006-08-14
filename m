@@ -1,117 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWHNPZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWHNP24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWHNPZs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWHNPZs
+	id S1750808AbWHNP24 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWHNP24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:25:48 -0400
-Received: from mga09.intel.com ([134.134.136.24]:45368 "EHLO
-	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750803AbWHNPZr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:25:47 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,122,1154934000"; 
-   d="scan'208"; a="108067942:sNHT774783926"
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 14 Aug 2006 11:28:56 -0400
+Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:8969 "EHLO
+	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1750873AbWHNP2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:28:55 -0400
+Message-ID: <44E096B4.9090207@xs4all.nl>
+Date: Mon, 14 Aug 2006 17:28:52 +0200
+From: Udo van den Heuvel <udovdh@xs4all.nl>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 1/2] acpi,backlight: MSI S270 laptop support - ec_transaction()
-Date: Mon, 14 Aug 2006 23:25:00 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1120727@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/2] acpi,backlight: MSI S270 laptop support - ec_transaction()
-Thread-Index: Aca8GRdThf0gEVRrT8q5JL7hBu+cPwDloxwQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Lennart Poettering" <mzxreary@0pointer.de>,
-       "Brown, Len" <len.brown@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 14 Aug 2006 15:25:10.0493 (UTC) FILETIME=[D4B008D0:01C6BFB5]
+To: linux-kernel@vger.kernel.org
+CC: Folkert van Heusden <folkert@vanheusden.com>
+Subject: And another Oops / BUG? (2.6.17.7 on VIA Epia CL6000)
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=8300CC02
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-First of all, thanks for your patch.
- 
->+static int acpi_ec_transaction(union acpi_ec *ec, u8 command,
->+                               const u8 *wdata, unsigned wdata_len,
->+                               u8 *rdata, unsigned rdata_len)
-
-I agree the name: transaction sounds better than read/write, and
-can reduce redundant code from separate read, write function.
-But, I guess using argument : u8 address will make the patch
-looks better.
-
->+{
->+        if (acpi_ec_poll_mode)
->+                return acpi_ec_poll_transaction(ec, command, 
->wdata, wdata_len, rdata, rdata_len);
->+        else
->+                return acpi_ec_intr_transaction(ec, command, 
->wdata, wdata_len, rdata, rdata_len);
->+}
->+
-
-It would be better to use a function pointer instead of
-using if-lese statement which looks not so neat.
-
-> static int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
-> {
->-	if (acpi_ec_poll_mode)
->-		return acpi_ec_poll_read(ec, address, data);
->-	else
->-		return acpi_ec_intr_read(ec, address, data);
->+        int result;
->+        u8 d;
->+        result = acpi_ec_transaction(ec, 
->ACPI_EC_COMMAND_READ, &address, 1, &d, 1);
->+        *data = d;
->+        return result;
-> }
-
-Due to missing argument: address, you have to pass address in
-argument: wdata. This kind of code style is prone to error.
+Since 2.6.17.x my kernel Oopses every few days. Bewlo is the log.
+Every time my named is gone and needs killing and restarting.
+Also upsd looses sync and gets upset.
+ntpd readjusts after a while.
+Notice the entropyd message. That never really happens.
+I posted a few more of these in the previous weeks.
+Does anybody know how I can find the more exact cause?
+The kernel was compiled with
+CONFIG_FRAME_POINTER=y
+CONFIG_UNWIND_INFO=y.
 
 
-> static int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
-> {
->-	if (acpi_ec_poll_mode)
->-		return acpi_ec_poll_write(ec, address, data);
->-	else
->-		return acpi_ec_intr_write(ec, address, data);
->+        u8 wdata[2] = { address, data };
->+        return acpi_ec_transaction(ec, ACPI_EC_COMMAND_WRITE, 
->wdata, 2, NULL, 0);
-> }
+Udo
 
-It would be more clear if there is argument : address.
+Aug 14 04:25:04 epia upsd[1749]: Connection from 127.0.0.1
+Aug 14 04:25:04 epia upsd[1749]: Client on 127.0.0.1 logged out
+Aug 14 04:26:33 epia audio-entropyd: Lower treshold exceeded (998 bits)
+Aug 14 04:26:35 epia kernel: BUG: unable to handle kernel paging request
+at virtual address 553aed86
+Aug 14 04:26:35 epia kernel:  printing eip:
+Aug 14 04:26:35 epia kernel: 553aed86
+Aug 14 04:26:35 epia kernel: *pde = 00000000
+Aug 14 04:26:35 epia kernel: Oops: 0000 [#1]
+Aug 14 04:26:35 epia kernel: PREEMPT
+Aug 14 04:26:35 epia kernel: Modules linked in: nls_utf8 cifs sch_tbf
+xt_string xt_MARK xt_length xt_tcpmss xt_mac xt_mark vt1211 hwmon_vid
+i2c_isa ipv6 ipt_t
+tl ipt_owner ip_nat_irc ip_conntrack_irc ipt_REDIRECT ipt_tos ip_nat_ftp
+ip_conntrack_ftp ip_nat_h323 ip_conntrack_h323 ipt_MASQUERADE ipt_LOG
+ipt_TCPMSS ipt_
+REJECT xt_limit xt_state ipt_TARPIT iptable_filter ipt_TOS
+iptable_mangle xt_NOTRACK iptable_raw binfmt_misc lp parport_pc parport
+nvram ehci_hcd uhci_hcd snd
+_via82xx snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss
+snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss snd_pcm snd_timer
+snd_page_alloc snd_mpu40
+1_uart snd_rawmidi snd_seq_device snd i2c_viapro
+Aug 14 04:26:35 epia kernel: CPU:    0
+Aug 14 04:26:35 epia kernel: EIP:
+0060:[phys_startup_32+1428876678/-1073741824]    Not tainted VLI
+Aug 14 04:26:35 epia kernel: EIP:    0060:[<553aed86>]    Not tainted VLI
+Aug 14 04:26:35 epia kernel: EFLAGS: 00010296   (2.6.17.8 #12)
+Aug 14 04:26:35 epia kernel: EIP is at 0x553aed86
+Aug 14 04:26:35 epia kernel: eax: 00000000   ebx: 924eecff   ecx:
+0000000d   edx: 00000001
+Aug 14 04:26:35 epia kernel: esi: 7c9a0e80   edi: f9f925b8   ebp:
+c0aa6dd9   esp: dd75ff28
+Aug 14 04:26:35 epia kernel: ds: 007b   es: 007b   ss: 0068
+Aug 14 04:26:35 epia kernel: Process named (pid: 1607,
+threadinfo=dd75e000 task=dd6c7550)
+Aug 14 04:26:35 epia kernel: Stack: 3519a876 6a8528d0 76ebebdb 97091f21
+43561d76 4c991412 87b5d422 d474fa23
+Aug 14 04:26:35 epia kernel:        65bbd53a 1d7b680d 9e8b4630 bd751892
+ca43d47d 570bf949 88457507 7dca03e0
+Aug 14 04:26:35 epia kernel:        5f1447af 5069423b 77e75221 687a9f0c
+99c5e09f 7281fcf7 88ee8105 e31b1e8e
+Aug 14 04:26:35 epia kernel: Call Trace:
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563834 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia kernel:  <c0103675> show_stack_log_lvl+0x85/0x90
+<c010380b> show_registers+0x14b/0x1c0
+Aug 14 04:26:35 epia kernel:  <c01039e2> die+0x162/0x240  <c010f7d1>
+do_page_fault+0x441/0x524
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563835 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia kernel:  <c010308f> error_code+0x4f/0x60
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563836 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia kernel: Code:  Bad EIP value.
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563837 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia kernel: EIP:
+[phys_startup_32+1428876678/-1073741824] 0x553aed86 SS:ESP 0068:dd75ff28
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563838 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia kernel: EIP: [<553aed86>] 0x553aed86 SS:ESP
+0068:dd75ff28
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563839 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563840 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563841 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563842 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563843 (expecting 4563791, lost or reordered)
+Aug 14 04:26:35 epia pptp[1656]: anon log[decaps_gre:pptp_gre.c:407]:
+buffering packet 4563844 (expecting 4563791, lost or reordered)
+Aug 14 04:26:37 epia upsd[1749]: Data for UPS [myups] is stale - check
+driver
+Aug 14 04:26:39 epia upsd[1749]: UPS [myups] data is no longer stale
 
->-static int acpi_ec_poll_read(union acpi_ec *ec, u8 address, 
->u32 * data)
->+
->+static int acpi_ec_poll_transaction(union acpi_ec *ec, u8 command,
->+                                    const u8 *wdata, unsigned 
->wdata_len,
->+                                    u8 *rdata, unsigned rdata_len)
-> {
-> 	acpi_status status = AE_OK;
-> 	int result = 0;
-> 	unsigned long flags = 0;
-> 	u32 glk = 0;
-> 
->-	ACPI_FUNCTION_TRACE("acpi_ec_read");
->+	ACPI_FUNCTION_TRACE("acpi_ec_poll_transaction");
-> 
->-	if (!ec || !data)
->+	if (!ec || !wdata || !wdata_len || (rdata_len && !rdata))
-> 		return_VALUE(-EINVAL);
 
-
-why return -EINVAL if wdata_len == 0?
-
-Thanks
-Luming

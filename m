@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWHNVQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWHNVVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbWHNVQI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 17:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWHNVP7
+	id S964935AbWHNVVL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWHNVVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 17:15:59 -0400
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:51396 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S964864AbWHNVP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 17:15:27 -0400
-Date: Mon, 14 Aug 2006 14:15:26 -0700 (PDT)
-From: Trent Piepho <xyzzy@speakeasy.org>
-X-X-Sender: xyzzy@shell3.speakeasy.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: v4l-dvb-maintainer@linuxtv.org, Zachary Amsden <zach@vmware.com>,
-       Andrew Morton <akpm@osdl.org>, Jack Lo <jlo@vmware.com>,
-       Greg KH <greg@kroah.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-acpi@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [v4l-dvb-maintainer] Options depending on STANDALONE
-In-Reply-To: <20060813163603.GE3543@stusta.de>
-Message-ID: <Pine.LNX.4.58.0608141400450.11273@shell3.speakeasy.net>
-References: <44D1CC7D.4010600@vmware.com> <Pine.LNX.4.58.0608031610110.9178@shell2.speakeasy.net>
- <20060805105122.GT25692@stusta.de> <200608061319.00085@orion.escape-edv.de>
- <20060813163603.GE3543@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Aug 2006 17:21:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63197 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964935AbWHNVVI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 17:21:08 -0400
+Date: Mon, 14 Aug 2006 17:20:22 -0400
+From: Dave Jones <davej@redhat.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
+Subject: Re: 2.6.18-rc4-mm1
+Message-ID: <20060814212022.GB30814@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
+References: <20060813012454.f1d52189.akpm@osdl.org> <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com> <20060814111914.b50f9b30.akpm@osdl.org> <44E0C889.3020706@gmail.com> <1155583256.5413.42.camel@localhost.localdomain> <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com> <1155584697.5413.51.camel@localhost.localdomain> <44E0E1BA.3000204@gmail.com> <20060814205637.GA30814@redhat.com> <6bffcb0e0608141413u122c2a31scb3e170a776cec2b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0608141413u122c2a31scb3e170a776cec2b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006, Adrian Bunk wrote:
-> On Sun, Aug 06, 2006 at 01:18:59PM +0200, Oliver Endriss wrote:
-> > Adrian Bunk wrote:
-> > > On Thu, Aug 03, 2006 at 04:40:25PM -0700, Trent Piepho wrote:
-> > > > On Thu, 3 Aug 2006, Adrian Bunk wrote:
-> > > > > On Thu, Aug 03, 2006 at 03:56:17PM -0400, Dave Jones wrote:
-> > > > > > You're describing PREVENT_FIRMWARE_BUILD.  The text Zach quoted is from
-> > > > > > STANDALONE, which is something else completely.  That allows us to not
-> > > > > > build drivers that pull in things from /etc and the like during compile.
-> > > > > > (Whoever thought that was a good idea?)
-> > > > >
-> > > > > Is DVB_AV7110_FIRMWARE really still required?
-> > > > > ALL other drivers work without such an option.
-> > > >
-> > > > The other DVB drivers that need firmware load it when the device is opened
-> > > > or used (ie.  a channel is tuned).  At least for the ones I'm familiar
-> > > > with.  If they are compiled directly into the kernel, they can still use
-> > > > FW_LOADER since the loading won't happen until utill well after booting is
-> > > > done.
-> > > >
-> > > > For AV7110, it looks like the firmware loading is done when the driver is
-> > > > first initialized.  If AV7110 is compiled into the kernel, FW_LOADER can
-> > > > not be used.  The filesystem with the firmware won't be mounted yet.
-> > > >
-> > > > So AV7110 has an option to compile a firmware file into the driver.
-> > >
-> > > But is there a technical reason why this has to be done this way?
+On Mon, Aug 14, 2006 at 11:13:14PM +0200, Michal Piotrowski wrote:
+ > On 14/08/06, Dave Jones <davej@redhat.com> wrote:
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: general protection fault: 0000 [#1]
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: CPU:    0
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: EIP:    0060:[<c0205249>]    Not tainted VLI
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: EFLAGS: 00010246   (2.6.18-rc4-mm1 #101)
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: EIP is at __list_add+0x3d/0x7a
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: eax: 00000000   ebx: c0670a80   ecx: c038d4dc   edx: 00000000
+ > >  > Aug 14 22:30:09 ltg01-fedora kernel: esi: ffffffff   edi: f50ebee8   ebp: f50ebed0   esp: f50ebec4
+ > >
+ > > __list_add will still be dereferencing prev->next, so you should see exactly
+ > > the same gpf. Note that you're not triggering the BUG()'s here, you're hitting
+ > > some other fault just walking the list.
+ > 
+ > How can I debug this?
 
-Is there another way to load firmware in a driver compiled into the kernel?
+Not sure. I'm somewhat puzzled.
+Disassembling the Code: of your oops shows that we were trying to dereference esi,
+which was -1 for some bizarre reason.  (my objdump really hated disassembling that
+function, but I think thats my tools rather than breakage in the oops).
 
-> > > This is the onle (non-OSS) driver doing it this way, and Zach has a
-> > > point that this is legally questionable.
+Question is how did that list member get to be -1 ?
+One pie-in-the-sky possibility is that we've corrupted memory recently, and
+this link-list manipulation just stumbled across it.  Note that the last file
+opened before we blew up was reading i2c.  Can you try and reproduce this
+(if you can reproduce it at all) without the sensors stuff loaded ?
 
-I know there are other DVB drivers that can have firmware compiled in
-instead of using FW_LOADER.  They just don't show that ability in Kconfig,
-you have to edit the driver to enable compiled in firmware.
+It's a long-shot, but without further clues, I'm stabbing in the dark.
 
-> > This option _is_ useful because it allows allows a user to build an
-> > av7110 driver without hotplug etc. I NAK any attempt to remove it.
->
-> If you look at the dependencies of DVB_AV7110 and the code in av7110.c
-> you'll note that your statement "it allows allows a user to build an
-> av7110 driver without hotplug" is not true.
+		Dave
 
-Looks like a mistake in the Kconfig file:
--	select FW_LOADER
-+	select FW_LOADER if DVB_AV7110_FIRMWARE=n
+-- 
+http://www.codemonkey.org.uk

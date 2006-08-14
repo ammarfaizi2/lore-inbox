@@ -1,37 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752036AbWHNSPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751880AbWHNSR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752036AbWHNSPh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 14:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWHNSPh
+	id S1751880AbWHNSR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 14:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752037AbWHNSR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 14:15:37 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33713 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752036AbWHNSPg (ORCPT
+	Mon, 14 Aug 2006 14:17:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62909 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751880AbWHNSRz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 14:15:36 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC][PATCH -mm 2/2] x86_64: Detect clock skew during suspend
-Date: Mon, 14 Aug 2006 20:15:30 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200608132303.00012.rjw@sisk.pl> <200608132307.40741.rjw@sisk.pl>
-In-Reply-To: <200608132307.40741.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608142015.30745.ak@suse.de>
+	Mon, 14 Aug 2006 14:17:55 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1871.1155579143@warthog.cambridge.redhat.com> 
+References: <1871.1155579143@warthog.cambridge.redhat.com>  <20060814101657.8c5b796a.akpm@osdl.org> <1155542805.3430.5.camel@raven.themaw.net> <20060813012454.f1d52189.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> <15771.1155547930@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ian Kent <raven@themaw.net>,
+       linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: 2.6.18-rc4-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 14 Aug 2006 19:17:45 +0100
+Message-ID: <10243.1155579465@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 August 2006 23:07, Rafael J. Wysocki wrote:
-> Detect the situations in which the time after a resume from disk would
-> be earlier than the time before the suspend and prevent them from
-> happening on x86_64.
+David Howells <dhowells@redhat.com> wrote:
 
-Merged thanks
+> Do /mnt and /usr have other things mounted on them on bix?  Can you dump fstab
+> on bix?
 
--Andi
+I don't mean fstab, I mean /proc/mounts.
+
+David

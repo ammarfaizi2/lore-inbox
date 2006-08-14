@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWHNQOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWHNQTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWHNQOu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 12:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWHNQOu
+	id S1751489AbWHNQTD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 12:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWHNQTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 12:14:50 -0400
-Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:25064
-	"EHLO schlidder.svs.informatik.uni-oldenburg.de") by vger.kernel.org
-	with ESMTP id S1751086AbWHNQOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 12:14:49 -0400
-Message-ID: <44E0A176.8070907@svs.Informatik.Uni-Oldenburg.de>
-Date: Mon, 14 Aug 2006 18:14:46 +0200
-From: Philipp Matthias Hahn <pmhahn@svs.Informatik.Uni-Oldenburg.de>
-Organization: Carl von Ossietzky University Coldenburg
-User-Agent: Debian Thunderbird 1.0.2 (X11/20060724)
-X-Accept-Language: en-us, en
+	Mon, 14 Aug 2006 12:19:01 -0400
+Received: from wx-out-0506.google.com ([66.249.82.234]:62541 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751488AbWHNQTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 12:19:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Z33vBjGMFo/8NkPDdIMuqD2ieSaT3E9HSKNxpDBLpUspZag3yAG+KJ56iPfgV7yY3gtmCXWQTPU4R6VPUIhsVAe4PC4Xr7EZ+Ij0ScDr0/kQxaE0pPAkUv6Vt4kJihUkh7N2KtMoxJbkleC0c2zI6ZU1P06wq2/nAQQz6Gk1QjY=
+Message-ID: <1b270aae0608140918y71725d58h4e38174eac81191d@mail.gmail.com>
+Date: Mon, 14 Aug 2006 18:18:44 +0200
+From: "Metathronius Galabant" <m.galabant@googlemail.com>
+To: "Phil Oester" <kernel@linuxace.com>
+Subject: Re: Problems connecting to www.itu.int with Kernel > 2.6.15
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060814154945.GA25785@linuxace.com>
 MIME-Version: 1.0
-To: openipmi-developer@lists.sourceforge.net
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Soft lockup (and reboot): IPMI
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1b270aae0608140843s33918427vc1ab5771f26ae6bb@mail.gmail.com>
+	 <20060814154945.GA25785@linuxace.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> > I've got serious problems connecting to www.itu.int with Kernels > 2.6.15.
+> > 2.6.17.X seems to be especially bad and I also tested it with the
+> > latest 2.6.17.8 (no change).
+> > Receiving data is extremely slow, close to non-existing.
+>
+> Search the archives for 'window scaling'.
 
-While playing with "openipmigui", the server just rebooted with the
-following last message:
+Thanks a lot.
+That was the thing I oversaw. Disabling window scaling solved the issue.
+ITU admins have been informed.
 
-BUG: soft lockup detected on CPU#0!
-<c0103416> show_trace+0xd/0xf
-<c01034e5> dump_stack+0x15/0x17
-<c01382b0> softlockup_tick+0x9d/0xae
-<c012190a> run_local_timers+0x12/0x14
-<c0121748> update_process_times+0x3c/0x61
-<c010e1d9> smp_apic_timer_interrupt+0x57/0x5f
-<c010307c> apic_timer_interrupt+0x1c/0x24
-<f8aa8783> ipmi_thread+0x43/0x71 [ipmi_si]
-<c0129e62> kthread+0x78/0xa0
-<c0100e31> kernel_thread_helper+0x5/0xb
-
-Any idea on what went wrong?
-
-BYtE
-Philipp
--- 
-      Dipl.-Inform. Philipp.Hahn@informatik.uni-oldenburg.de
-      Abteilung Systemsoftware und verteilte Systeme, Fk. II
-Carl von Ossietzky Universitaet Oldenburg, 26111 Oldenburg, Germany
-    http://www.svs.informatik.uni-oldenburg.de/contact/pmhahn/
-      Telefon: +49 441 798-2866    Telefax: +49 441 798-2756
+Cheers,
+M.

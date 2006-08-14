@@ -1,57 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWHNRZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWHNR3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWHNRZw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 13:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWHNRZw
+	id S932407AbWHNR3p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 13:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWHNR3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 13:25:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:38584 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932478AbWHNRZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 13:25:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=osHDrNHRdbTa/GxaC7pgtnKj9/SSvxpGOQGLTC6tsLNI1Z88NSzR9qR/dJ6iVs+I4Et+6jsP4FrT6aNtwI2M2bWnNmMznz4ttWG0EE1j+cDWogvZHmhS9nTkdCy59qH0Bw2ZV8Tcbz8tUzAhuK7+cZZQtLrLUX0Boleq/CfsuZ4=
-Date: Mon, 14 Aug 2006 19:25:58 +0200
-From: Luca <kronos.it@gmail.com>
-To: thomas@koeller.dyndns.org
-Cc: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-       linux-mips@linux-mips.org
-Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
-Message-ID: <20060814172558.GA15951@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608102319.13679.thomas@koeller.dyndns.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 14 Aug 2006 13:29:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31385 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932407AbWHNR3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 13:29:44 -0400
+Date: Mon, 14 Aug 2006 10:29:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Pavel Mironchik" <tibor0@gmail.com>
+Cc: linux-kernel@vger.kernel.org, kobras@linux.de, dm-devel@redhat.com,
+       Alasdair G Kergon <agk@redhat.com>
+Subject: Re: Mempool_alloc, bio_alloc_bioset deadlocks
+Message-Id: <20060814102927.5d47301a.akpm@osdl.org>
+In-Reply-To: <401f4f10608140914x16ca8cfeif39039a72f143863@mail.gmail.com>
+References: <401f4f10608140914x16ca8cfeif39039a72f143863@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thomas@koeller.dyndns.org ha scritto:
-> diff --git a/drivers/char/watchdog/rm9k_wdt.c 
-> b/drivers/char/watchdog/rm9k_wdt.c
-> new file mode 100644
-> index 0000000..f6a9d17
-> --- /dev/null
-> +++ b/drivers/char/watchdog/rm9k_wdt.c
-> @@ -0,0 +1,435 @@
-[...]
-> +/* Module arguments */
-> +static int timeout = MAX_TIMEOUT_SECONDS;
-> +module_param(timeout, int, 444);
-> +static unsigned long resetaddr = 0xbffdc200;
-> +module_param(resetaddr, ulong, 444);
-> +static unsigned long flagaddr = 0xbffdc104;
-> +module_param(flagaddr, ulong, 444);
-> +static int powercycle = 0;
-> +module_param(powercycle, bool, 444);
 
-File permissions should be in octal ;)
+(cc's added)
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-"New processes are created by other processes, just like new
- humans. New humans are created by other humans, of course,
- not by processes." -- Unix System Administration Handbook
+On Mon, 14 Aug 2006 19:14:09 +0300
+"Pavel Mironchik" <tibor0@gmail.com> wrote:
+
+> Hi,
+> 
+> A few days ago device mapper raid1 deadlock was discovered.
+> Adrew Morton made patch for that bug in mm tree:
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/broken-out/dm-fix-deadlock-under-high-i-o-load-in-raid1-setup.patch
+> 
+> However I found that problem is more serious and depends on mempool.
+> I reproduced that very same situation on 2.6.17 with device-mapper
+> linear target.
+> Here my steps:
+>  - I used 2.6.17 kernel for xscale (arm), boot into initrd image
+> (initrd is SYSTEM_BOOTING state I assume) !!!!
+>  - with the help of evms.sf.net I made md raid1 with device mapper
+> volume on top of it.
+> -  create xfs volume ; mkfs.xfs /dev/evms/vol ; mount /dev/evms/vol /mnt
+> -  run: cat /dev/zero > /mnt/test &
+> - after some period cat, pdflush and raid1d threads went into deadlock
+> state, and I got the following (sysrq dump):
+> 
+> ....
+> pdflush       D C02B5C88     0  1523      6          1583  1498 (L-TLB)
+> [<c02b5740>] (schedule+0x0/0x620) from [<c02b665c>] (io_schedule+0x34/0x5c)
+> [<c02b6628>] (io_schedule+0x0/0x5c) from [<c005bca4>] (mempool_alloc+0xbc/0xd8)
+>  r5 = C05EC3A0  r4 = 00011210
+> [<c005bbe8>] (mempool_alloc+0x0/0xd8) from [<c007c9fc>]
+> (bio_alloc_bioset+0xd4/0x144)
+>  r8 = C05EC3E0  r7 = 00000010  r6 = C6D764A0  r5 = 00000000
+>  r4 = 0000000C
+> [<c007c928>] (bio_alloc_bioset+0x0/0x144) from [<c007ccb4>]
+> (bio_clone+0x24/0x48)
+>  r8 = C6D76500  r7 = C6D6C120  r6 = C6D6C120  r5 = 00000004
+>  r4 = C6D76500
+> [<c007cc90>] (bio_clone+0x0/0x48) from [<bf02f72c>]
+> (make_request+0x4b4/0x65c [raid1])
+>  r4 = 00000004
+> [<bf02f278>] (make_request+0x0/0x65c [raid1]) from [<c01a11bc>]
+> (generic_make_request+0x1e4/0x204)
+> [<c01a0fd8>] (generic_make_request+0x0/0x204) from [<c023c3d4>]
+> (__map_bio+0x78/0xb8)
+> [<c023c35c>] (__map_bio+0x0/0xb8) from [<c023c664>] (__split_bio+0x1dc/0x544)
+>  r6 = CFC27ADC  r5 = CFC27B0C  r4 = CFC27AFC
+> [<c023c488>] (__split_bio+0x0/0x544) from [<c023cadc>] (dm_request+0x110/0x120)
+> [<c023c9cc>] (dm_request+0x0/0x120) from [<c01a11bc>]
+> (generic_make_request+0x1e4/0x204)
+>  r6 = C6D76560  r5 = 00000000  r4 = 00000008
+> [<c01a0fd8>] (generic_make_request+0x0/0x204) from [<c01a12a8>]
+> (submit_bio+0xcc/0xf0)
+> [<c01a11dc>] (submit_bio+0x0/0xf0) from [<c0079fb0>] (submit_bh+0x178/0x1a8)
+>  r7 = C6D76560  r6 = 00000000  r5 = 0001568A  r4 = 00000000
+> [<c0079e38>] (submit_bh+0x0/0x1a8) from [<c01881bc>]
+> (xfs_submit_page+0xdc/0x124)
+> [<c01880e0>] (xfs_submit_page+0x0/0x124) from [<c0188470>]
+> (xfs_convert_page+0x26c/0x28c)
+> 
+> and this ...
+> 
+> md255_raid1   D C02B5C88     0  1490      6          1498  1482 (L-TLB)
+> [<c02b5740>] (schedule+0x0/0x620) from [<c02b665c>] (io_schedule+0x34/0x5c)
+> [<c02b6628>] (io_schedule+0x0/0x5c) from [<c005bca4>] (mempool_alloc+0xbc/0xd8)
+>  r5 = C05EC3A0  r4 = 00011210
+> [<c005bbe8>] (mempool_alloc+0x0/0xd8) from [<c007c9fc>]
+> (bio_alloc_bioset+0xd4/0x144)
+>  r8 = C05EC3E0  r7 = 00000010  r6 = C6D76440  r5 = 00000000
+>  r4 = 0000000C
+> [<c007c928>] (bio_alloc_bioset+0x0/0x144) from [<c007ccb4>]
+> (bio_clone+0x24/0x48)
+>  r8 = 00000000  r7 = 00000000  r6 = 0009F4D8  r5 = 00000000
+>  r4 = CC09F860
+> [<c007cc90>] (bio_clone+0x0/0x48) from [<c023c45c>] (clone_bio+0x28/0x54)
+>  r4 = 00000001
+> [<c023c434>] (clone_bio+0x0/0x54) from [<c023c654>] (__split_bio+0x1cc/0x544)
+>  r7 = 00000000  r6 = CECB5DD0  r5 = CECB5E00  r4 = CECB5DF0
+> [<c023c488>] (__split_bio+0x0/0x544) from [<c023cadc>] (dm_request+0x110/0x120)
+> [<c023c9cc>] (dm_request+0x0/0x120) from [<c01a11bc>]
+> (generic_make_request+0x1e4/0x204)
+>  r6 = CC09F860  r5 = 00000000  r4 = 00000008
+> [<c01a0fd8>] (generic_make_request+0x0/0x204) from [<bf02fff4>]
+> (raid1d+0xa4/0xf18 [raid1])
+> [<bf02ff50>] (raid1d+0x0/0xf18 [raid1]) from [<c0235a60>]
+> (md_thread+0x124/0x140)
+> 
+> 
+> you can see that those threads are locked inside of mempool_alloc.
+> but I prepared patch:
+> 
+> diff --git a/mm/mempool.c b/mm/mempool.c
+> index fe6e052..10a7b1e 100644
+> --- a/mm/mempool.c
+> +++ b/mm/mempool.c
+> @@ -239,7 +239,7 @@ repeat_alloc:
+>         prepare_to_wait(&pool->wait, &wait, TASK_UNINTERRUPTIBLE);
+>         smp_mb();
+>         if (!pool->curr_nr)
+> -               io_schedule();
+> +               io_schedule_timeout(5*HZ);
+>         finish_wait(&pool->wait, &wait);
+> 
+>         goto repeat_alloc;
+> 
+> 
+> probably, I suppose this could be another solution for  raid1
+> deadlock problem described here:
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/broken-out/dm-fix-deadlock-under-high-i-o-load-in-raid1-setup.patch
+> Of cource, that patch helped me with my device mapper issues.
+> 
+> Please dont be very rigorously about my patch, this is way of avoiding
+> problem but not solving.
+
+dm has a number of problems in this area - the developers are aware of them
+and are working on getting them fixed, but it's apparently fairly complex.
+
+The above patch is pretty harmless and I'd be OK with putting it into
+2.6.18 as a temporary make-dm-mostly-work-for-release thing.
+
+However I'd want to take it out again in 2.6.19-rc1, because the patch will
+convert a complete hang into extreme-suckiness-but-it-appears-to-work. 
+We'd prefer the hang, so the problem gets noticed and fixed for real.
+
+Alasdair, what do you think?

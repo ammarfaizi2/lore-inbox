@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752011AbWHNLrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752014AbWHNLyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752011AbWHNLrO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 07:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752016AbWHNLrN
+	id S1752014AbWHNLyy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 07:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752013AbWHNLyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 07:47:13 -0400
-Received: from mail.suse.de ([195.135.220.2]:54707 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752011AbWHNLrL (ORCPT
+	Mon, 14 Aug 2006 07:54:54 -0400
+Received: from smtp2-g19.free.fr ([212.27.42.28]:60122 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1752014AbWHNLyx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 07:47:11 -0400
-To: linux@horizon.com
-Cc: linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
-References: <20060814011056.2381.qmail@science.horizon.com>
-From: Andi Kleen <ak@suse.de>
-In-Reply-To: <20060814011056.2381.qmail@science.horizon.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-Date: 14 Aug 2006 13:47:10 +0200
-Message-ID: <p73d5b3a69t.fsf@verdi.suse.de>
+	Mon, 14 Aug 2006 07:54:53 -0400
+Message-ID: <1155556486.44e0648620ca4@imp5-g19.free.fr>
+Date: Mon, 14 Aug 2006 13:54:46 +0200
+From: "Mrs.Teressa Stevens." <sealed@kaixo.com>
+Reply-To: mrs_teressastevens@myway.com
+Subject: Mrs Teressa Stevens.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 193.220.178.225
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com writes:
+My Dear Friend in the Lord,
 
-[this time without typo in cc, sorry if you get it twice]
+In a brief, I am Mrs Teressa Stevens, Wife of late Mr Stevens James, a white
+farmer, murdered by unknown assailants 2003 in Zimbabwe.
 
-> Um, with all this discussion of keeping caches hot, people do remember
-> that FIFO handling of free blocks *greatly* reduces fragmentation, right?
-> 
-> That's an observation from malloc implementations that support merging
-> of any two adjacent blocks, but at least some of it should apply to slab
-> pages that require multple adjacent free objects to be returned to the
-> free-page pool.
+My husband was a white farmer in Zimbabwe who was brutally murdered in the land
+dispute in Zimbabwe by the agents of the ruling government of President ROBERT
+MUGABE for his alleged support and sympathy for the opposition MDC PARTY led by
+the minority white farmers. My husband was among the few white rich farmers
+murdered in cold blood by the war veterans backed by the government. Before the
+death of my husband, he deposit the sum of US$20.5M (Twenty Million Five hundred
+thousand United State Dollars) with one of the Financial Institution, as if he
+knew the looming danger in ZIMBABWE. We were married for twelve years and God
+blessed us with two children.
 
-Interesting observation.
+Presently this money is still with the Financial Institution. Recently, my
+Doctor told me that I might not last for the next Eight months due to an
+inflammation of my liver. This has led to my being on 24 hours intensive care,
+in a private clinic here in Cotonou Rep. of Benin. I am tired of living like
+this.
 
-slab is a zone allocator and stores objects of the same type
-into zones. The theory behind that is that normally that objects of the same
-type have similar livetimes and that should in theory avoid
-many fragmentation problems.
+I have decided to donate part of this fund to an individual, group or a charity
+organisation that will utilize this money the way I am going to instruct herein
+while half of the money shall be kept for the betterment of my children. I want
+an individual, or Charity Organisation that will use this fund for orphanages,
+widows, and helping land mine victims worldwide.
 
-However some caches like dcache/inode cache don't seem to follow
-that, and kmalloc which mixes all kinds of objects into the same
-caches especially doesn't.
+I took this decision because my husband's relatives are Trouble Makers and I
+don't want my husband's efforts to be used for trivialities I do not want a
+situation where my husband's sweat will be used in material pursuits. This is
+why I am taking this decision.
 
-> Especially in a memory-constrained embedded environment, I'd think
-> space-efficiency would be at least as important as time.
+As soon as I receive your reply I shall give you the contact name of my lawyer,
+telephone number and email address who will issue you a letter of authority
+that will prove you the present beneficiary of this fund.
 
-For memory-constrained environments there is already the optional 
-specialized "slob" allocator.
+Please ensure to contact me immediately to enable me direct you to my lawyer.
 
-That said even big systems have problems with fragmentation.
+Any delay in your reply will give me room in sourcing another person for this
+same purpose. Please assure me that you will act accordingly as I stated
+herein.
 
-It is good that the basic assumptions behind slabs are being
-revisited now. I suspect some of them might be obsolete.
+Hope to receive your reply.
 
--Andi
+Remain blessed.
+
+Yours Sister,
+Mrs Teressa Stevens.
+

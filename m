@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWHMX7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWHNAAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751748AbWHMX7m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 19:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWHMX7m
+	id S1751749AbWHNAAY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 20:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWHNAAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 19:59:42 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22464
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751747AbWHMX7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 19:59:41 -0400
-Date: Sun, 13 Aug 2006 17:00:03 -0700 (PDT)
-Message-Id: <20060813.170003.121224409.davem@davemloft.net>
-To: qq@inCTV.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 - net/ipv4/route.c/ip_route_output_slow()
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <44DF4275.8A68AAC@inCTV.ru>
-References: <LKML-nat-0.qq@inCTV.ru>
-	<44DF4275.8A68AAC@inCTV.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Aug 2006 20:00:24 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:39746 "EHLO
+	asav09.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751749AbWHNAAW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 20:00:22 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KACtZ30SBUQ
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Ben Buxton <kernel@bb.cactii.net>
+Subject: Re: 2.6.18-rc4-mm1
+Date: Sun, 13 Aug 2006 20:00:20 -0400
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Maciej Rutecki <maciej.rutecki@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060813121126.b1dc22ee.akpm@osdl.org> <20060813224413.GA21959@cactii.net>
+In-Reply-To: <20060813224413.GA21959@cactii.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608132000.21132.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Innocenti Maresin <qq@inCTV.ru>
-Date: Sun, 13 Aug 2006 15:17:09 +0000
+On Sunday 13 August 2006 18:44, Ben Buxton wrote:
+> > Could be i8042-get-rid-of-polling-timer-v4.patch.  Please try the below
+> > reversion patch, on top of rc4-mm1, thanks.
+> 
+> Acking the same issue. Applied the revert patch and my keyboard now
+> works. Also, it turns out that my keyboard is now the only thing that
+> failed to resume from S3 on my HP Nc6400, but adding "irqpoll" has fixed
+> that for now.
+> 
 
-> Ok, my dear kernel coding gurus.  You have almost nothing to say
-> about "internal IP addresses" and "connect() failures".
+Can I please have dmesg of booting unpatched -rc4-mm1 with i8042.debug=1?
 
-Probably because you are asking this question on the wrong
-list.  The kernel networking developers subscribe to
-netdev@vger.kernel.org rather than linux-kernel
+-- 
+Dmitry

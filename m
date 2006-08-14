@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWHNQ7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWHNQ76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWHNQ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 12:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWHNQ7l
+	id S932352AbWHNQ76 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 12:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWHNQ75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 12:59:41 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:53276 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932415AbWHNQ7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 12:59:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZWNDCXAraYRQhsVh3eWK9Q5ByJeSs8hbUcQBAa4rf9zPLHDMRqsw/Yd0vMiQ1M/5ZzKStnO1r/vl8mvQQogUwlVOfyMv12BBka4fTHcb0oYB6THBnFfICRiNu8flckVBtQbDXUqVw/lT/TvkYIwx0kVq9vGYgA2/ENK2LNXNzIc=
-Message-ID: <d120d5000608140959i5a4edd6byefe8259e688239e2@mail.gmail.com>
-Date: Mon, 14 Aug 2006 12:59:38 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Gene Heskett" <gene.heskett@verizon.net>
-Subject: Re: Touchpad problems with latest kernels
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608141233.41044.gene.heskett@verizon.net>
+	Mon, 14 Aug 2006 12:59:57 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:14545 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932438AbWHNQ7v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 12:59:51 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 1/6] ehea: interface to network stack
+Date: Mon, 14 Aug 2006 18:59:47 +0200
+User-Agent: KMail/1.9.1
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, Anton Blanchard <anton@samba.org>,
+       Thomas Klein <tklein@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>,
+       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+References: <44D99EFC.3000105@de.ibm.com> <20060814143842.GM479@krispykreme> <44E09A19.9050205@de.ibm.com>
+In-Reply-To: <44E09A19.9050205@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
-	 <200608141134.32714.gene.heskett@verizon.net>
-	 <d120d5000608140853t5a27b522ra7b29aeb0e318efa@mail.gmail.com>
-	 <200608141233.41044.gene.heskett@verizon.net>
+Message-Id: <200608141859.48868.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Gene Heskett <gene.heskett@verizon.net> wrote:
-> >
-> >serioX is the name of serio port your touchpad is connected to
-> >(serio0, serio1, etc) You will have to look which port is bound to
-> >psmouse driver.
->
-> What if there appear to be two functional mice running the same curser?
-> One being the M$ accessory mouse, the other the touchpad.  So I would have
-> a serio0 and a serio1.  How do I determine which to feed those commands
-> to?  Is the device identified in those info trees?
->
+On Monday 14 August 2006 17:43, Jan-Bernd Themann wrote:
+> as our queue size is always a power of 2, we simply use:
+> i++;
+> i &= (ringbufferlength - 1)
+> 
+> So we can get along without the if.
+> 
 
-It depends... One serio is your keyboard port, another one is aux
-(mouse). The external mouse - is it also PS/2 or is is USB? If it is
-USB then it won't be listed under serio bus but rather in USB bus...
-Look at /sys/bus/serio/devices/serioX/inputX/name attribute in sysfs -
-it should give you a clue what device is connjected to a serio port.
+The recommended (by Linus) way for dealing with ring buffers
+like that is to always read the counter through an accessor
+and don't care about the overflow when updating it.
 
+You can write small access functions for that:
 
--- 
-Dmitry
+struct my_struct {
+	...
+	unsigned rbuf_index;
+	unsigned rbuf_mask;
+	...
+};
+
+static inline unsigned int my_index(struct my_struct *p)
+{
+	return p->rb_index & p->rb_mask;
+}
+
+static inline unsigned int my_index_next(struct my_struct *p)
+{
+	return (++p->rb_index) & p->rb_mask;
+}
+
+	Arnd <><

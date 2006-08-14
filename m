@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751958AbWHNIuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751937AbWHNJCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751958AbWHNIuK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 04:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751962AbWHNIuK
+	id S1751937AbWHNJCg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 05:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751951AbWHNJCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 04:50:10 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:39978 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1751958AbWHNIuJ (ORCPT
+	Mon, 14 Aug 2006 05:02:36 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:6554 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751937AbWHNJCf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 04:50:09 -0400
-Date: Mon, 14 Aug 2006 10:51:47 +0200
-From: Jens Axboe <axboe@suse.de>
-To: David Miller <davem@davemloft.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: softirq considered harmful
-Message-ID: <20060814085147.GL4231@suse.de>
-References: <20060812.180944.51301787.davem@davemloft.net> <20060812182234.605b4fb4.akpm@osdl.org> <20060814073724.GJ4231@suse.de> <20060814.014448.30183193.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Aug 2006 05:02:35 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH -mm 5/5] swsusp: Use memory bitmaps during resume
+Date: Mon, 14 Aug 2006 11:00:38 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200608101510.40544.rjw@sisk.pl> <200608101523.41107.rjw@sisk.pl> <20060813150457.43ba5893.akpm@osdl.org>
+In-Reply-To: <20060813150457.43ba5893.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060814.014448.30183193.davem@davemloft.net>
+Message-Id: <200608141100.38695.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14 2006, David Miller wrote:
-> From: Jens Axboe <axboe@suse.de>
-> Date: Mon, 14 Aug 2006 09:37:25 +0200
+On Monday 14 August 2006 00:04, Andrew Morton wrote:
+> On Thu, 10 Aug 2006 15:23:41 +0200
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > 
-> > Hopefully you often end up doing > 1 request for a busy IO sub system,
-> > otherwise the softirq stuff is pointless. But it's still pretty bad for
-> > single requests.
+> > Make swsusp use memory bitmaps to store its internal information during the
+> > resume phase of the suspend-resume cycle.
 > 
-> Note that the per-cpu softirq completion of I/O events means
-> that the queue can be processed lockless.
+> This patch makes the resume-time disk IO go all slow again.
 > 
-> I'm not saying this justifies softirq I/O completion, I'm just
-> mentioning it as one benefit of the scheme.  This is also why
-> networking uses softirqs for the core irq events instead of
-> tasklets.
-
-As I wrote, the actual processing of the completion can often be done
-lockless in the first place, so there's little benefit to offloading
-those to softirq completion. We definitely have room for improvement.
-
-> It appears the scsi code uses hw IRQ locking for all of it's
-> locking so that should be fine.
-
-Yep
-
-> However there might be some scsi exception handling dependencies
-> on the completions being run in software irq context, but this is
-> just a guess.
+> Time to read 80k pages:
 > 
-> iSCSI would need to be checked out too.
+> 2.6.18-rc4:				24 seconds
+> 2.6.18-rc4+akpm-speedups:		10 seconds
+> 2.6.18-rc4+akpm-speedups+this-patch:	24 seconds
 
-It certainly isn't an easy job, lots of stuff needs to be eye balled.
+Well, I removed one line too many, sorry.
 
--- 
-Jens Axboe
+ kernel/power/snapshot.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
+Index: linux-2.6.18-rc4-mm1/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.18-rc4-mm1.orig/kernel/power/snapshot.c
++++ linux-2.6.18-rc4-mm1/kernel/power/snapshot.c
+@@ -1278,13 +1278,14 @@ int snapshot_write_next(struct snapshot_
+ 				chain_init(&ca, GFP_ATOMIC, PG_SAFE);
+ 				memory_bm_position_reset(&orig_bm);
+ 				restore_pblist = NULL;
+-				handle->sync_read = 0;
+ 				handle->buffer = get_buffer(&orig_bm, &ca);
++				handle->sync_read = 0;
+ 				if (!handle->buffer)
+ 					return -ENOMEM;
+ 			}
+ 		} else {
+ 			handle->buffer = get_buffer(&orig_bm, &ca);
++			handle->sync_read = 0;
+ 		}
+ 		handle->prev = handle->cur;
+ 	}

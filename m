@@ -1,88 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWHNOLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWHNONL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWHNOLt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 10:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWHNOLt
+	id S1751418AbWHNONL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 10:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWHNONL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 10:11:49 -0400
-Received: from ms-smtp-04.ohiordc.rr.com ([65.24.5.138]:3573 "EHLO
-	ms-smtp-04.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S1751337AbWHNOLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 10:11:48 -0400
-Date: Mon, 14 Aug 2006 10:14:45 -0400
-To: Thomas Koeller <thomas@koeller.dyndns.org>
-Cc: Dave Jones <davej@redhat.com>, wim@iguana.be, linux-kernel@vger.kernel.org,
-       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
-       sam@ravnborg.org
-Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
-Message-ID: <20060814141445.GA10763@nineveh.rivenstone.net>
-Mail-Followup-To: Thomas Koeller <thomas@koeller.dyndns.org>,
-	Dave Jones <davej@redhat.com>, wim@iguana.be,
-	linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-	linux-mips@linux-mips.org, sam@ravnborg.org
-References: <200608102319.13679.thomas@koeller.dyndns.org> <20060811205639.GK26930@redhat.com> <200608120149.23380.thomas@koeller.dyndns.org>
+	Mon, 14 Aug 2006 10:13:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51086 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751418AbWHNONJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 10:13:09 -0400
+Date: Mon, 14 Aug 2006 07:13:02 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm] s390: remove HIGHMEM dependencies
+In-Reply-To: <20060814070054.GB9592@osiris.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.64.0608140712340.2863@schroedinger.engr.sgi.com>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+ <20060814070054.GB9592@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608120149.23380.thomas@koeller.dyndns.org>
-User-Agent: Mutt/1.5.11
-From: jhf@columbus.rr.com (Joseph Fannin)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 12, 2006 at 01:49:23AM +0200, Thomas Koeller wrote:
-> On Friday 11 August 2006 22:56, Dave Jones wrote:
-> > On Thu, Aug 10, 2006 at 11:19:13PM +0200, thomas@koeller.dyndns.org wrote:
-> >  > +
-> >  > +#include <linux/config.h>
-> >
-> > not needed.
->
-> It is, otherwise I do not get CONFIG_WATCHDOG_NOWAYOUT.
+On Mon, 14 Aug 2006, Heiko Carstens wrote:
 
-    It shouldn't be necessary, so it's probably a bug.  I could not
-begin to tell you where.
+> s390 doesn't support CONFIG_HIGHMEM. Anything that depends on it would be
+> dead code.
 
-    I've CC'd the Kbuild maintainer -- apologies if I'm way off base
-here.
-
-    Still, if this #include is to stay, you'd probably better comment
-it, or it's likely someone will rip it out in a cleanup:
-
-http://www.gossamer-threads.com/lists/linux/kernel/663918
-
->
-> >
-> >  > +static int locked = 0;
-> >
-> > unneeded initialisation.
->
-> Not strictly needed, that's true, but does not do any harm either
-> and expresses the intention clearly.
-
-    My meager understanding is that it makes the kernel image bigger.
-
-> >
-> >  > +static int nowayout =
-> >  > +#if defined(CONFIG_WATCHDOG_NOWAYOUT)
-> >  > +	1;
-> >  > +#else
-> >  > +	0;
-> >  > +#endif
-> >
-> > static int nowayout = CONFIG_WATCHDOG_NOWAYOUT;
-> >
-> > should work.
->
-> Does not work. If the option is not selected, CONFIG_WATCHDOG_NOWAYOUT
-> is undefined, not zero.
-
-
-    Possibly related?
-
-
---
-Joseph Fannin
-jhf@columbus.rr.com || jfannin@gmail.com
-
-
+Acked-by: Christoph Lameter <clameter@sgi.com>

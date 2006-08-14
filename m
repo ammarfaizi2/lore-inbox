@@ -1,111 +1,246 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbWHNVO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWHNVPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932733AbWHNVO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 17:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbWHNVO0
+	id S964895AbWHNVPW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWHNVPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 17:14:26 -0400
-Received: from us.cactii.net ([66.160.141.151]:29706 "EHLO us.cactii.net")
-	by vger.kernel.org with ESMTP id S932693AbWHNVOW (ORCPT
+	Mon, 14 Aug 2006 17:15:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28377 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932709AbWHNVPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 17:14:22 -0400
-Date: Mon, 14 Aug 2006 23:13:38 +0200
-From: Ben B <kernel@bb.cactii.net>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Maciej Rutecki <maciej.rutecki@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1
-Message-ID: <20060814211338.GA30680@cactii.net>
-References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com> <20060813121126.b1dc22ee.akpm@osdl.org> <20060813224413.GA21959@cactii.net> <20060813232549.GG28540@redhat.com> <20060814115556.GA13159@cactii.net> <20060814202004.GE16280@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060814202004.GE16280@redhat.com>
-X-PGP-Key: 3CD061AD
-X-PGP-Fingerprint: E092 32CA 6196 7C11 0692  BE43 AEDA 4D47 3CD0 61AD
-Jabber-ID: bb@cactii.net
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 14 Aug 2006 17:15:19 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [RHEL5 PATCH 1/4] Provide fallback full 64-bit divide/modulus ops for gcc
+Date: Mon, 14 Aug 2006 22:15:07 +0100
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org#,
+       dhowells@redhat.com
+Message-Id: <20060814211507.27190.61876.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com>
+References: <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> uttered the following thing:
->  > > > [  734.156000]  [<e01f2665>] cpufreq_governor_dbs+0x2b5/0x310 [cpufreq_ondemand]
->  > > 
->  > > This makes no sense at all, because in -mm __create_workqueue doesn't
->  > > call lock_cpu_hotplug().
->  > > 
->  > > Are you sure this was from a tree with -mm1 applied ?
->  > 
->  > Definitely 2.6.18-rc4-mm1, and I've done a clean rebuild + removal of
->  > all modules under /lib/modules beforehand.
-> 
-> It's a real mystery.  Andrew ?
+Provide simple, reasonably quick full 64-bit divide and modulus ops for gcc to
+call behind the scenes as:
 
-This seems to be specific to the ondemand governor - I just tried with
-conservative, and alternating it with performance, with no problems, but
-as soon as I loaded ondemand, the message appeared. It seems to fire off
-the message as soon as I either set the governor to ondemand, or revert
-it from ondemand to something else. But going from, eg performance to
-conservative, wont give the message, even with ondemand loaded.
+	__udivmoddi4
+	__udivdi3
+	__umoddi3
 
-I wonder if this might also be related to my 1.83GHz cpu only being set
-to a maximum of 1.33GHz via cpufreq? cpuinfo_max_freq is correct, but
-scaling_max_freq is wrong. Though doing "cat cpuinfo_max_freq >
-scaling_max_freq" has fixed it up, it should be correct already.
+The algorithm is a really simple binary long division that doesn't require
+usage of multiply and divide instructions.  It shortcuts the long division at
+the beginning by not bothering to consider any steps below the divisor
+threshold.
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 14
-model name      : Genuine Intel(R) CPU           T2400  @ 1.83GHz
-stepping        : 8
-cpu MHz         : 1000.000
-cache size      : 2048 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 10
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov
-pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx constant_tsc pni
-monitor
-vmx est tm2 xtpr
-bogomips        : 3667.27
+The algorithm is placed in lib/ so that it can easily be replaced with an arch
+specific version.  It will be dragged in by stuff in the fs/ directory once the
+64-bit ino_t patch is applied unless an alternative is supplied, or unless the
+CPU provides full 64-bit native instructions that the compiler can use.
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 14
-model name      : Genuine Intel(R) CPU           T2400  @ 1.83GHz
-stepping        : 8
-cpu MHz         : 1333.000
-cache size      : 2048 KB
-physical id     : 0
-siblings        : 2
-core id         : 1
-cpu cores       : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 10
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov
-pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx constant_tsc pni
-monitor
-vmx est tm2 xtpr
-bogomips        : 3657.79
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
+ include/linux/kernel.h |    4 ++
+ lib/Makefile           |    2 -
+ lib/__udivdi3.c        |   23 +++++++++++
+ lib/__udivmoddi4.c     |   99 ++++++++++++++++++++++++++++++++++++++++++++++++
+ lib/__umoddi3.c        |   25 ++++++++++++
+ 5 files changed, 152 insertions(+), 1 deletions(-)
 
-Ben
-
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 181c69c..ab69416 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -152,6 +152,10 @@ static inline int printk(const char *s, 
+ static inline int printk(const char *s, ...) { return 0; }
+ #endif
+ 
++extern u64 __udivmoddi4(u64 dividend, u64 divisor, u64 *_remainder);
++extern u64 __udivdi3(u64 dividend, u64 divisor);
++extern u64 __umoddi3(u64 dividend, u64 divisor);
++
+ unsigned long int_sqrt(unsigned long);
+ 
+ static inline int __attribute_pure__ long_log2(unsigned long x)
+diff --git a/lib/Makefile b/lib/Makefile
+index be9719a..41428d3 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -5,7 +5,7 @@ #
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+ 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+-	 sha1.o
++	 sha1.o __udivdi3.o __umoddi3.o __udivmoddi4.o
+ 
+ lib-$(CONFIG_SMP) += cpumask.o
+ 
+diff --git a/lib/__udivdi3.c b/lib/__udivdi3.c
+new file mode 100644
+index 0000000..6541aef
+--- /dev/null
++++ b/lib/__udivdi3.c
+@@ -0,0 +1,23 @@
++/* __udivdi3.c: unsigned 64-bit by 64-bit division yielding 64-bit result
++ *
++ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++/*
++ * return a / b
++ */
++u64 __udivdi3(u64 a, u64 b)
++{
++	return __udivmoddi4(a, b, NULL);
++}
++
++EXPORT_SYMBOL(__udivdi3);
+diff --git a/lib/__udivmoddi4.c b/lib/__udivmoddi4.c
+new file mode 100644
+index 0000000..b9a9f2a
+--- /dev/null
++++ b/lib/__udivmoddi4.c
+@@ -0,0 +1,99 @@
++/* __udivmoddi4.c: unsigned 64-bit by 64-bit division yielding 64-bit results
++ *
++ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/bitops.h>
++#include <asm/div64.h>
++
++#define log2(n) (fls(n) - 1)
++
++/*
++ * calculate:
++ *	Q = a / b
++ *	R = a % b
++ * by long division (repeated shift and conditional subtract)
++ * - base2 long division does not require any usage of actual division or
++ *   multiplication instructions
++ */
++u64 __udivmoddi4(u64 a, u64 b, u64 *_r)
++{
++	u64 acc, Q;
++	u32 A;
++	int M;
++
++	/* dispose of trivialities first */
++	if (b >= a) {
++		if (b == a) {
++			if (_r)
++				*_r = 0;
++			return 1;
++		}
++		if (_r)
++			*_r = a;
++		return 0;
++	}
++
++	/* divide by two until at least one argument is odd */
++	while (!((a | b) & 1)) {
++		a >>= 1;
++		b >>= 1;
++	}
++
++	/* handle it as 64-bit divide by 32-bit if we can */
++	if (b <= 0xffffffffULL) {
++		acc = do_div(a, b);
++		if (_r)
++			*_r = acc;
++		return a;
++	}
++
++	/* skip any steps that don't need to be done given the magnitude of the
++	 * divisor:
++	 * - the divisor is at least 33 bits in size (log2(b) >= 32)
++	 * - load the accumulator with as many bits of the dividend as we can
++	 * - decant the remainder into a 32-bit variable since we will have
++	 *   fewer than 32-bits remaining
++	 */
++	M = log2(b >> 32) + 32;
++	acc = a >> (63 - M);
++	A = a;
++	A <<= M - 31;
++
++	Q = 0;
++
++	for (;;) {
++		if (acc >= b) {
++			/* reduce the accumulator if we can */
++			acc -= b;
++			Q |= 1ULL;
++		}
++
++		if (M >= 63)
++			break;
++
++		/* shift next-MSB from dividend into LSB of accumulator */
++		acc = acc << 1;
++		if (A & 0x80000000U)
++			acc |= 1ULL;
++		A <<= 1;
++		Q <<= 1;
++		M++;
++	}
++
++	/* the accumulator is left holding the remainder */
++	if (_r)
++		*_r = acc;
++
++	return Q;
++}
++
++EXPORT_SYMBOL(__udivmoddi4);
+diff --git a/lib/__umoddi3.c b/lib/__umoddi3.c
+new file mode 100644
+index 0000000..7b99757
+--- /dev/null
++++ b/lib/__umoddi3.c
+@@ -0,0 +1,25 @@
++/* __umoddi3.c: unsigned 64-bit by 64-bit modulus yielding 64-bit result
++ *
++ * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++/*
++ * return a % b
++ */
++u64 __umoddi3(u64 a, u64 b)
++{
++	u64 r;
++	__udivmoddi4(a, b, &r);
++	return r;
++}
++
++EXPORT_SYMBOL(__umoddi3);

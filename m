@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751961AbWHNInr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751938AbWHNIov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751961AbWHNInr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 04:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751959AbWHNInr
+	id S1751938AbWHNIov (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 04:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751959AbWHNIov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 04:43:47 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:62617 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751945AbWHNInq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 04:43:46 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6.18-rc4 (and earlier): CMOS clock corruption during suspend to disk on i386
-Date: Mon, 14 Aug 2006 10:41:59 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux ACPI <linux-acpi@vger.kernel.org>
-References: <200608091426.31762.rjw@sisk.pl> <200608102251.20707.rjw@sisk.pl> <20060813223354.GF6231@elf.ucw.cz>
-In-Reply-To: <20060813223354.GF6231@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 14 Aug 2006 04:44:51 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30665
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751938AbWHNIou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 04:44:50 -0400
+Date: Mon, 14 Aug 2006 01:44:48 -0700 (PDT)
+Message-Id: <20060814.014448.30183193.davem@davemloft.net>
+To: axboe@suse.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: softirq considered harmful
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060814073724.GJ4231@suse.de>
+References: <20060812.180944.51301787.davem@davemloft.net>
+	<20060812182234.605b4fb4.akpm@osdl.org>
+	<20060814073724.GJ4231@suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608141041.59410.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 August 2006 00:33, Pavel Machek wrote:
-> On Thu 2006-08-10 22:51:20, Rafael J. Wysocki wrote:
-]--snip--[
-> > > > > BTW, it's a dangerous setting, because some drivers get mad if the time after
-> > > > > the resume appears to be earlier than the time before the suspend.  Also the
-> > > > > timer .suspend/.resume routines aren't prepared for that.
-> > > > 
-> > > > Its config option should just go away. People comfortable using *that*
-> > > > should just edit some header file. Rafael, could you do patch doing
-> > > > something like that?
-> > > 
-> > > Just remove the option from Kconfig or the whole setting?
-> > > 
-> > > Shouldn't we also change the timer .resume() routines to check if the time
-> > > after the resume is later than (or at least the same as) the time before the
-> > > suspend and set the "sleep length" to 0 if not?
-> > 
-> > Hm, I'm thinking it may actually be useful to have in Kconfig and if we change
-> > the timer resume to detect the dangerous situation and prevent it from
-> > happening, that should be sufficient.
-> 
-> Well, it is still too easy to shoot yourself in the foot. Your time
-> will be wrong if you enable innocent-sounding option.
+From: Jens Axboe <axboe@suse.de>
+Date: Mon, 14 Aug 2006 09:37:25 +0200
 
-We can add DANGEROUS to it. :-)
+> Hopefully you often end up doing > 1 request for a busy IO sub system,
+> otherwise the softirq stuff is pointless. But it's still pretty bad for
+> single requests.
 
-Rafael
+Note that the per-cpu softirq completion of I/O events means
+that the queue can be processed lockless.
+
+I'm not saying this justifies softirq I/O completion, I'm just
+mentioning it as one benefit of the scheme.  This is also why
+networking uses softirqs for the core irq events instead of
+tasklets.
+
+It appears the scsi code uses hw IRQ locking for all of it's
+locking so that should be fine.
+
+However there might be some scsi exception handling dependencies
+on the completions being run in software irq context, but this is
+just a guess.
+
+iSCSI would need to be checked out too.
+

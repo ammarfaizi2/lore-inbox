@@ -1,76 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWHNTnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751579AbWHNTpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWHNTnt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWHNTnt
+	id S1751579AbWHNTpI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWHNTpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:43:49 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:33474 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751331AbWHNTns (ORCPT
+	Mon, 14 Aug 2006 15:45:08 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:31889 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751618AbWHNTpG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:43:48 -0400
-Date: Mon, 14 Aug 2006 15:42:53 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060814194252.GC2519@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060809200642.GD7861@redhat.com> <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com> <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060814165150.GA2519@in.ibm.com> <44E0AD1D.1040408@zytor.com> <20060814181118.GB2519@in.ibm.com> <44E0CFD0.3060506@zytor.com>
+	Mon, 14 Aug 2006 15:45:06 -0400
+Subject: Re: 2.6.18-rc4-mm1
+From: john stultz <johnstul@us.ibm.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       Dinakar Guniguntala <dino@in.ibm.com>
+In-Reply-To: <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	 <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com>
+	 <20060814111914.b50f9b30.akpm@osdl.org> <44E0C889.3020706@gmail.com>
+	 <1155583256.5413.42.camel@localhost.localdomain>
+	 <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 12:44:57 -0700
+Message-Id: <1155584697.5413.51.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E0CFD0.3060506@zytor.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 12:32:32PM -0700, H. Peter Anvin wrote:
-> Vivek Goyal wrote:
-> >On Mon, Aug 14, 2006 at 10:04:29AM -0700, H. Peter Anvin wrote:
-> >>Vivek Goyal wrote:
-> >>>On Thu, Aug 10, 2006 at 02:09:58PM -0600, Eric W. Biederman wrote:
-> >>>>>I just reserved memory at non 2MB aligned location 65MB@15MB so that
-> >>>>>kernel is loaded at 16MB and other smaller segments below the 
-> >>>>>compressed
-> >>>>>image, then I can successfully booted into the kdump kernel.
-> >>>>:)
-> >>>>
-> >>>>>So basically kexec on panic path seems to be clean except stomping 
-> >>>>>issue.
-> >>>>>May be bzImage program header should reflect right "MemSize" which
-> >>>>>takes into account extra memory space calculations.
-> >>>>Yes.  That sounds like the right thing to do.  
-> >>>>
-> >>>>I remember trying to compute a good memsize when I created the bzImage
-> >>>>header but it is completely possible I missed some part of the
-> >>>>calculation or assumed that the kernels .bss section would always be
-> >>>>larger than what I needed for decompression.
-> >>>>
-> >>Could someone please describe the intended semantics of this MemSize 
-> >>header, *and* its intended usage?
-> >>
+On Mon, 2006-08-14 at 21:27 +0200, Michal Piotrowski wrote:
+> On 14/08/06, john stultz <johnstul@us.ibm.com> wrote:
+> > On Mon, 2006-08-14 at 21:01 +0200, Michal Piotrowski wrote:
+> > > Andrew Morton wrote:
+> > > > On Mon, 14 Aug 2006 16:02:52 +0200
+> > > > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+> > > >> On 13/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > >>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> > > >>>
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: BUG: unable to handle kernel
+> > > >> paging request at virtual address fffeffbf
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel:  printing eip:
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: c013d539
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: *pde = 00004067
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: *pte = 00000000
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: Oops: 0000 [#1]
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: last sysfs file:
+> > > >> /devices/platform/i2c-9191/9191-0290/temp2_input
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf
+> > > >> hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
+> > > >> _ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp
+> > > >> iptable_filter ip_tables x_tables cpufreq_userspace p4_clockmod spe
+> > > >> edstep_lib binfmt_misc thermal processor fan container evdev
+> > > >> snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_
+> > > >> oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
+> > > >> snd_mixer_oss snd_pcm sk98lin snd_timer skge snd soundcore snd_pag
+> > > >> e_alloc ide_cd intel_agp agpgart cdrom i2c_i801 rtc unix
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: CPU:    1
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: EIP:    0060:[<c013d539>]    Not
+> > > >> tainted VLI
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: EFLAGS: 00210286   (2.6.18-rc4-mm1 #97)
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: EIP is at futex_wake+0x9c/0xcb
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: eax: 0808c000   ebx: c0670a60
+> > > >> ecx: d3a1dfa2   edx: fffeffbf
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: esi: 00000000   edi: fffeffbf
+> > > >> ebp: f4896f64   esp: f4896f40
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: Process firefox-bin (pid: 2210,
+> > > >> ti=f4896000 task=f3d180f0 task.ti=f4896000)
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: Stack: c0670a80 00000001 0808c000
+> > > >> f4302e74 00000044 ffffffe7 0808c044 bf8f35b0
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel:        00000000 f4896f7c c013ed39
+> > > >> 00000001 0808c044 7fffffff bf8f35b0 f4896fb4
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel:        c013ee84 7fffffff bf8f35b0
+> > > >> 00000000 bf8f3528 00000000 f4896fa8 00000000
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel: Call Trace:
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
+> > > >> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<b7f1d410>] 0xb7f1d410
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104067>] show_stack_log_lvl+0x87/0x8f
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104203>] show_registers+0x151/0x1d8
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010444d>] die+0x120/0x1f0
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c01185cf>] do_page_fault+0x49d/0x580
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0303ba9>] error_code+0x39/0x40
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel:  =======================
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel: Code: 45 e8 39 41 04 75 22 8b 45
+> > > >> ec 39 41 08 75 1a 83 7a 48 00 74 07 be ea ff ff ff eb
+> > > >> 16 89 d0 46 e8 00 fd ff ff 3b 75 e0 7d 09 89 fa <8b> 3f 3b 55 dc eb c0
+> > > >> 89 d8 e8 bd 60 1c 00 89 e0 25 00 f0 ff ff
+> > > >> Aug 14 15:35:11 ltg01-fedora kernel: EIP: [<c013d539>]
+> > > >> futex_wake+0x9c/0xcb SS:ESP 0068:f4896f40
+> > > >
+> > > > This is worrisome.  Is it reproducible?
+> > >
+> > > I don't know how to reproduce it, but it happened second time today.
+> > >
+> > > >  If so, reverting
+> > > > futex_handle_fault-always-fails.patch and retesting would be useful.
+> > >
+> > > I reverted this patch.
 > >
-> >Now and ELF header(attached to bzImage) is being used to describe
-> >the kernel executable. One program header of PT_LOAD type is being
-> >created. The "p_filesz" field of program header is basically 
-> >describing the vmlinux file size and "p_memsz" is giving how
-> >much memory will be consumed by kernel image at load time.
-> >
-> >Ideally "p_memsz" should be "p_memsz" summation of all the program
-> >headers of vmlinux file but I guess in this case we are stretching the
-> >ELF specification a little bit and also taking into the account the
-> >additional memory which will be used by decompressor and decompression
-> >logic by the time execution is transferred to the actual kernel.
-> >
+> > Just to be clear, the issue has shown itself without the patch?
 > 
-> What about once the kernel is booted?
+> No, it hasn't.
+
+Thanks for the clarification. 
+
+> > Or is
+> > that not the case?
 > 
+> In current -mm only futex_handle_fault-always-fails.patch changes
+> kernel/futex.c, so IMHO it's very probable that there is something
+> wrong with this patch.
 
-Sorry did not understand the question. Few more lines will help.
+Yea, I'd believe that. I'm newish to the futex code, and as I said w/
+the patch I'm not 100% sure its the right fix, but it does resolve an
+issue we found.
 
-Thanks
-Vivek 
+I'll take another look to see if I futzed something up or if the fix is
+just incomplete, although some more familiar eyes with the code would
+probably help here.
+
+thanks
+-john
+

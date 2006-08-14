@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWHNRVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWHNRZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbWHNRVU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 13:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWHNRVT
+	id S932478AbWHNRZw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 13:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWHNRZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 13:21:19 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:54674 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932532AbWHNRVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 13:21:19 -0400
+	Mon, 14 Aug 2006 13:25:52 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:38584 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932478AbWHNRZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 13:25:51 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WrBsZrVI68lJTDZVVhpEjnX+xFBnjYnOGe611un6go/CuPgSeEDUHnTTT72/xKC0I4/w1idjj2p3FaM1CeeXt/jSnzpdd/a8pBk3IVI08hVNAv+5vqTH8x+BhLEIbA20djOhR2B+lUG1J1PKwVIR2OVvL86pEmZaq+HEfCp+4YM=
-Message-ID: <62b0912f0608141021k29fe899bhf49a4f82cae2173@mail.gmail.com>
-Date: Mon, 14 Aug 2006 19:21:17 +0200
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-To: "Theodore Tso" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 corruption
-In-Reply-To: <20060814153459.GA12298@thunk.org>
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=osHDrNHRdbTa/GxaC7pgtnKj9/SSvxpGOQGLTC6tsLNI1Z88NSzR9qR/dJ6iVs+I4Et+6jsP4FrT6aNtwI2M2bWnNmMznz4ttWG0EE1j+cDWogvZHmhS9nTkdCy59qH0Bw2ZV8Tcbz8tUzAhuK7+cZZQtLrLUX0Boleq/CfsuZ4=
+Date: Mon, 14 Aug 2006 19:25:58 +0200
+From: Luca <kronos.it@gmail.com>
+To: thomas@koeller.dyndns.org
+Cc: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
+       linux-mips@linux-mips.org
+Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
+Message-ID: <20060814172558.GA15951@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <e9e943910608091317p37bdbd66t91bc1e16c3d9986a@mail.gmail.com>
-	 <e9e943910608091527t3b88da7eo837f6adc1e1e6f98@mail.gmail.com>
-	 <62b0912f0608091609q6b3c6c4ev2d287060fa209@mail.gmail.com>
-	 <e9e943910608091708p4914930ct1ee031a1201bfd2f@mail.gmail.com>
-	 <62b0912f0608101400t607cf9b7t5c2324f39cc2eed@mail.gmail.com>
-	 <20060812163834.GA11497@thunk.org>
-	 <62b0912f0608121024y1dde66aavcbf4df04631772c4@mail.gmail.com>
-	 <20060812214719.GA19156@thunk.org>
-	 <62b0912f0608131221n1657905p327b7ece6d06d20d@mail.gmail.com>
-	 <20060814153459.GA12298@thunk.org>
+In-Reply-To: <200608102319.13679.thomas@koeller.dyndns.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> To be fair, there are plenty of other dangerous things that you can do
-> with Windows that don't have warning messages pop-up.  And using the
-> loop driver is of a complexity which is higher than what you would
-> expect of a typical Windows user.  You might as well complain that
-> Linux doesn't give a warning message when you run some command like
-> "rm -rf /", or "dd if=/dev/null of=/dev/hda".  I'm sure there are
-> similar commands (probably involving regedit :-) that are just as
-> dangerous from the Windows cmd.exe window.....
+thomas@koeller.dyndns.org ha scritto:
+> diff --git a/drivers/char/watchdog/rm9k_wdt.c 
+> b/drivers/char/watchdog/rm9k_wdt.c
+> new file mode 100644
+> index 0000000..f6a9d17
+> --- /dev/null
+> +++ b/drivers/char/watchdog/rm9k_wdt.c
+> @@ -0,0 +1,435 @@
+[...]
+> +/* Module arguments */
+> +static int timeout = MAX_TIMEOUT_SECONDS;
+> +module_param(timeout, int, 444);
+> +static unsigned long resetaddr = 0xbffdc200;
+> +module_param(resetaddr, ulong, 444);
+> +static unsigned long flagaddr = 0xbffdc104;
+> +module_param(flagaddr, ulong, 444);
+> +static int powercycle = 0;
+> +module_param(powercycle, bool, 444);
 
-Hardly comparable..
+File permissions should be in octal ;)
 
-"rm", "dd if=/dev/null", "format c:" is meant to nuke your harddrive.
-The loop driver just does it as a nasty side effect of a stinky
-implementation.
+Luca
+-- 
+Home: http://kronoz.cjb.net
+"New processes are created by other processes, just like new
+ humans. New humans are created by other humans, of course,
+ not by processes." -- Unix System Administration Handbook

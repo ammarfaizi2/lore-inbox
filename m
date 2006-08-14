@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWHNHfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWHNHjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWHNHfr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 03:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWHNHfr
+	id S1751257AbWHNHjw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 03:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWHNHjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 03:35:47 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:47888 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1750743AbWHNHfq (ORCPT
+	Mon, 14 Aug 2006 03:39:51 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:43968 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750867AbWHNHjv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 03:35:46 -0400
-Date: Mon, 14 Aug 2006 09:37:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: softirq considered harmful
-Message-ID: <20060814073724.GJ4231@suse.de>
-References: <20060812162857.d85632b9.akpm@osdl.org> <20060812.174324.77324010.davem@davemloft.net> <20060812174549.9a8f8aeb.akpm@osdl.org> <20060812.180944.51301787.davem@davemloft.net> <20060812182234.605b4fb4.akpm@osdl.org>
+	Mon, 14 Aug 2006 03:39:51 -0400
+Date: Mon, 14 Aug 2006 11:31:54 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Neil Brown <neilb@suse.de>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
+       Daniel Phillips <phillips@google.com>,
+       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+Message-ID: <20060814073154.GB5161@2ka.mipt.ru>
+References: <44DFA225.1020508@google.com> <20060813.165540.56347790.davem@davemloft.net> <44DFD262.5060106@google.com> <20060813185309.928472f9.akpm@osdl.org> <1155530453.5696.98.camel@twins> <20060813215853.0ed0e973.akpm@osdl.org> <1155531835.5696.103.camel@twins> <20060813222208.7e8583ac.akpm@osdl.org> <1155537940.5696.117.camel@twins> <17632.9097.195772.410011@cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20060812182234.605b4fb4.akpm@osdl.org>
+In-Reply-To: <17632.9097.195772.410011@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 14 Aug 2006 11:32:01 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 12 2006, Andrew Morton wrote:
-> On Sat, 12 Aug 2006 18:09:44 -0700 (PDT)
-> David Miller <davem@davemloft.net> wrote:
+On Mon, Aug 14, 2006 at 05:17:29PM +1000, Neil Brown (neilb@suse.de) wrote:
+> Would it be too much waste to reserve one page for every idle socket? 
 > 
-> > From: Andrew Morton <akpm@osdl.org>
-> > Date: Sat, 12 Aug 2006 17:45:49 -0700
-> > 
-> > > Is that also adding 150 usecs to each IO operation?
-> > 
-> > I have no idea, Jens hasn't done enough to narrow down the true cause
-> > of the latencies he is seeing.  So pinpointing it on anything specific
-> > is highly premature at this stage.
-> 
-> Determining whether pre-conversion scsi was impacted in the same manner
-> would be part of that pinpointing process.
-> 
-> Deferring to softirq _has_ to add latency and any latency addition in
-> synchronous disk IO is very bad.  That being said, 150 usecs per request is
-> so bad that I'd be suspecting that it's not affecting most people, else
-> we'd have heard.
+> Does this have some fatal flaw?
 
-Hopefully you often end up doing > 1 request for a busy IO sub system,
-otherwise the softirq stuff is pointless. But it's still pretty bad for
-single requests.
+Yep, in some cases number of sockets is unlimited, but number of total
+memory they can eat is limited already as David mentioned by tcp_?mem[].
 
-> > My point was merely to encourage you to find out the facts before
-> > tossing accusations around. :-)
-> 
-> No, your point was that slotting this change into mainline without telling
-> anyone was OK because SCSI has been doing something similar.
-
-Not similar, identical. Andrew, there was _no_ real change there!
+> NeilBrown
 
 -- 
-Jens Axboe
-
+	Evgeniy Polyakov

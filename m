@@ -1,68 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWHNVVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWHNVWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWHNVVL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 17:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWHNVVK
+	id S964936AbWHNVWI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWHNVWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 17:21:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63197 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964935AbWHNVVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 17:21:08 -0400
-Date: Mon, 14 Aug 2006 17:20:22 -0400
-From: Dave Jones <davej@redhat.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
-Subject: Re: 2.6.18-rc4-mm1
-Message-ID: <20060814212022.GB30814@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
-References: <20060813012454.f1d52189.akpm@osdl.org> <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com> <20060814111914.b50f9b30.akpm@osdl.org> <44E0C889.3020706@gmail.com> <1155583256.5413.42.camel@localhost.localdomain> <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com> <1155584697.5413.51.camel@localhost.localdomain> <44E0E1BA.3000204@gmail.com> <20060814205637.GA30814@redhat.com> <6bffcb0e0608141413u122c2a31scb3e170a776cec2b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Aug 2006 17:22:08 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:30623 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964936AbWHNVWG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 17:22:06 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Subject: Re: 2.6.18-rc4-mm1: eth0: trigger_send() called with the transmitter busy
+Date: Mon, 14 Aug 2006 23:25:59 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+References: <20060813012454.f1d52189.akpm@osdl.org> <44E0B72C.6010503@free.fr> <44E0D7C1.7040509@free.fr>
+In-Reply-To: <44E0D7C1.7040509@free.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0608141413u122c2a31scb3e170a776cec2b@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200608142325.59054.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 11:13:14PM +0200, Michal Piotrowski wrote:
- > On 14/08/06, Dave Jones <davej@redhat.com> wrote:
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: general protection fault: 0000 [#1]
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: CPU:    0
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: EIP:    0060:[<c0205249>]    Not tainted VLI
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: EFLAGS: 00010246   (2.6.18-rc4-mm1 #101)
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: EIP is at __list_add+0x3d/0x7a
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: eax: 00000000   ebx: c0670a80   ecx: c038d4dc   edx: 00000000
- > >  > Aug 14 22:30:09 ltg01-fedora kernel: esi: ffffffff   edi: f50ebee8   ebp: f50ebed0   esp: f50ebec4
- > >
- > > __list_add will still be dereferencing prev->next, so you should see exactly
- > > the same gpf. Note that you're not triggering the BUG()'s here, you're hitting
- > > some other fault just walking the list.
- > 
- > How can I debug this?
+On Monday 14 August 2006 22:06, Laurent Riffard wrote:
+> Le 14.08.2006 19:47, Laurent Riffard a écrit :
+> > Le 14.08.2006 18:50, Andrew Morton a écrit :
+> >> On Mon, 14 Aug 2006 16:38:47 +0200
+> >> Laurent Riffard <laurent.riffard@free.fr> wrote:
+> >>
+> >>> Le 13.08.2006 10:24, Andrew Morton a __crit :
+> >>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> >>> Hello,
+> >>>
+> >>> This morning, while trying to suspend to disk, my box started to loop 
+> >>> displaying the following message:
+> >>> eth0: trigger_send() called with the transmitter busy.
+> >>>
+> >>> Here is the scenario. I booted 2.6.18-rc4-mm1 with this command line:
+> >>> root=/dev/vglinux1/lvroot video=vesafb:ywrap,mtrr splash=silent resume=/dev/hdb7 netconsole=@192.163.0.3/,@192.168.0.1/00:0E:9B:91:ED:72 init 1
+> >>>
+> >>> Then I issued:
+> >>> # echo 6 > /proc/sys/kernel/printk
+> >>> # echo disk > /sys/power/state
+> >> ne2k isn't <ahem> the most actively-maintained driver.
+> >>
+> >> But most (I think all) net drivers have problems during suspend when
+> >> netconsole is active.  Does disabling netconsole help?
+> > 
+> > Yes it does. 
+> >  
+> >> Did this operation work OK in earlier kernels, with netconsole enabled?
+> > 
+> > It's the first time I see such a message. I can't speak for 2.6.18-rc3-mm2 
+> > because it could not suspend at all (did hang right after 
+> > "echo disk > /sys/power/state"), but it worked in earlier kernels.
+> > 
+> > I'll try with plain 2.6.18-rc4.
+> 
+> Same problem with 2.6.18-rc4.
 
-Not sure. I'm somewhat puzzled.
-Disassembling the Code: of your oops shows that we were trying to dereference esi,
-which was -1 for some bizarre reason.  (my objdump really hated disassembling that
-function, but I think thats my tools rather than breakage in the oops).
+I think something like this will help (untested):
 
-Question is how did that list member get to be -1 ?
-One pie-in-the-sky possibility is that we've corrupted memory recently, and
-this link-list manipulation just stumbled across it.  Note that the last file
-opened before we blew up was reading i2c.  Can you try and reproduce this
-(if you can reproduce it at all) without the sensors stuff loaded ?
+ kernel/power/disk.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
-It's a long-shot, but without further clues, I'm stabbing in the dark.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+Index: linux-2.6.18-rc4-mm1/kernel/power/disk.c
+===================================================================
+--- linux-2.6.18-rc4-mm1.orig/kernel/power/disk.c
++++ linux-2.6.18-rc4-mm1/kernel/power/disk.c
+@@ -119,8 +119,10 @@ int pm_suspend_disk(void)
+ 	if (error)
+ 		return error;
+ 
++	suspend_console();
+ 	error = device_suspend(PMSG_FREEZE);
+ 	if (error) {
++		resume_console();
+ 		printk("Some devices failed to suspend\n");
+ 		unprepare_processes();
+ 		return error;
+@@ -133,6 +135,7 @@ int pm_suspend_disk(void)
+ 
+ 	if (in_suspend) {
+ 		device_resume();
++		resume_console();
+ 		pr_debug("PM: writing image.\n");
+ 		error = swsusp_write();
+ 		if (!error)
+@@ -148,6 +151,7 @@ int pm_suspend_disk(void)
+ 	swsusp_free();
+  Done:
+ 	device_resume();
++	resume_console();
+ 	unprepare_processes();
+ 	return error;
+ }
+@@ -212,7 +216,9 @@ static int software_resume(void)
+ 
+ 	pr_debug("PM: Preparing devices for restore.\n");
+ 
++	suspend_console();
+ 	if ((error = device_suspend(PMSG_PRETHAW))) {
++		resume_console();
+ 		printk("Some devices failed to suspend\n");
+ 		swsusp_free();
+ 		goto Thaw;
+@@ -224,6 +230,7 @@ static int software_resume(void)
+ 	swsusp_resume();
+ 	pr_debug("PM: Restore failed, recovering.n");
+ 	device_resume();
++	resume_console();
+  Thaw:
+ 	unprepare_processes();
+  Done:

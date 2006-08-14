@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWHNPUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWHNPUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWHNPUb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWHNPUb
+	id S1750729AbWHNPUD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:20:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWHNPUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:20:31 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:41883 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750836AbWHNPUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:20:11 -0400
-Date: Mon, 14 Aug 2006 11:19:05 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
+	Mon, 14 Aug 2006 11:20:02 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:30602 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750729AbWHNPUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:20:01 -0400
+Date: Mon, 14 Aug 2006 17:20:00 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Touchpad problems with latest kernels
-In-reply-to: <44E09190.1040505@mauve.plus.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200608141119.05558.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
- <200608141038.04746.gene.heskett@verizon.net> <44E09190.1040505@mauve.plus.com>
-User-Agent: KMail/1.7
+Message-ID: <20060814152000.GA19065@rhlx01.fht-esslingen.de>
+References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl> <200608141038.04746.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608141038.04746.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 August 2006 11:06, Ian Stirling wrote:
->Gene Heskett wrote:
-><snip>
->
->> I'm having similar problems with an HP Pavilian dv5220, and with a
->> bluetooth mouse dongle plugged into the right side usb port it works
->> just fine.  What I'd like to do is totally disable that synaptics pad
->> as its way too sensitive, making it impossible to type more than a line
->> or 2
->
->Enable the proper USB options, point X/GPM to /dev/input/mouse1 - or
->whatever.
+On Mon, Aug 14, 2006 at 10:38:04AM -0400, Gene Heskett wrote:
+> I don't *think* I'm a lunatic, but I'm equally sure that the synaptics is a 
+> pain in the ass and should be capable of being totally disabled somehow, 
+> hopefully short of opening the lappy up and unplugging or cutting every 
+> lead to it until such time as it can be made to behave instead of 
+> responding to every thumb waved 1/2 to 3/4" above it.  I've gotten hand 
+> cramps trying to hold my thumbs far enough away from that abomination to 
+> stop such goings on.
+> 
+> So count this as a vote FOR doing something about the synaptics touchpad 
+> situation.
 
-Please describe how to do this and it will be done forthwith.
+I'm seeing issues as well on my Dell Inspiron 8000 (yes, it has a Synaptics,
+NOT ALPS as usual on Inspiron):
 
->It'd be nice if you could do this for keyboards too - but AIUI, you
-> can't.
+(without a mouse plugged in) after random times the pointer exhibits
+clear signs of craziness, moving on its own (mild issue) or jumping
+uncontrollably (worse) or being completely off-screen most of the time
+(worst).
 
-That too.  I've had the feeling but cannot nail it to the wall, that some 
-of this IS keyboard related as it seems to happen much more frequently for 
-some keypress combo's.  Typing a 't' is particularly dangerous, like the 
-rollover protection is zip...
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+IIRC (I'm quite sure about this) the very first time that I've seen
+this phenomenon happen on my notebook was around 2.6.9,
+and I attributed this to broken/grown-old hardware on my notebook
+(thus from then on mostly running with external mouse attached),
+but since several people now report very similar issues
+one would think that it's a driver calibration or touchpad setup issue
+instead of actually broken touchpad hardware.
+
+Plus, I'm sometimes having issues with pointer movement (cursor won't advance
+any more unless I stop touching the touchpad for a few seconds to let it
+reset somehow - probably a bytestream hickup issue).
+
+Any clues?
+
+Andreas Mohr

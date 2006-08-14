@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWHNLPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWHNLWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751986AbWHNLPM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 07:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751992AbWHNLPL
+	id S932249AbWHNLWK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 07:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751992AbWHNLWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 07:15:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29413 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751986AbWHNLPK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 07:15:10 -0400
-Subject: Re: [PATCH] Fix potential deadlock in mthca
-From: Ingo Molnar <mingo@redhat.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Roland Dreier <rdreier@cisco.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44DCAD34.5040502@linux.intel.com>
-References: <adad5b7ntyh.fsf@cisco.com>  <44DCAD34.5040502@linux.intel.com>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 13:07:51 +0200
-Message-Id: <1155553671.22848.38.camel@earth>
+	Mon, 14 Aug 2006 07:22:10 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28363
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751987AbWHNLWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 07:22:09 -0400
+Date: Mon, 14 Aug 2006 04:22:06 -0700 (PDT)
+Message-Id: <20060814.042206.85411651.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060814110359.GA27704@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 09:15 -0700, Arjan van de Ven wrote:
-> Roland Dreier wrote:
-> > Here's a long-standing bug that lockdep found very nicely.
-> > 
-> > Ingo/Arjan, can you confirm that the fix looks OK and I am using
-> > spin_lock_nested() properly?  I couldn't find much documentation or
-> > many examples of it, so I'm not positive this is the right way to
-> > handle this fix.
-> > 
-> 
-> looks correct to me;
-> 
-> Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Mon, 14 Aug 2006 15:04:03 +0400
 
-looks good to me too.
+>  	/* These elements must be at the end, see alloc_skb() for details.  */
+> -	unsigned int		truesize;
+> +	unsigned int		truesize, __tsize;
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+There is no real need for new member.
 
-btw., we could introduce a new spin-lock op: 
+> -		kfree(skb->head);
+> +		avl_free(skb->head, skb->__tsize);
 
-	spin_lock_double(l1, l2);
-	...
-	spin_unlock_double(l1, l2);
+Just use "skb->end - skb->head + sizeof(struct skb_shared_info)"
+as the size argument.
 
-because some other code, like kernel/sched.c, fs/dcache.c and
-kernel/futex.c uses quite similar locking.
-
-	Ingo
-
+Then, there is no reason for skb->__tsize :-)

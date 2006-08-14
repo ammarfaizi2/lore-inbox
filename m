@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWHNNLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWHNNMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWHNNLL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 09:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWHNNLL
+	id S932081AbWHNNMS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 09:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWHNNMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 09:11:11 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:21377 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1750817AbWHNNLJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 09:11:09 -0400
-Message-ID: <44E07662.8070506@sipsolutions.net>
-Date: Mon, 14 Aug 2006 15:10:58 +0200
-From: Johannes Berg <johannes@sipsolutions.net>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: sysfs vs. d80211 configuration
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 14 Aug 2006 09:12:18 -0400
+Received: from erik-slagter.demon.nl ([83.160.41.216]:49053 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S932081AbWHNNMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 09:12:17 -0400
+Subject: md mirror / ext3 / dual core performance strange phenomenon?
+From: Erik Slagter <erik@slagter.name>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 15:12:14 +0200
+Message-Id: <1155561134.7809.27.camel@skylla.slagter.name>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-sips-origin: submit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+Hi,
 
-In my seemingly never-ending quest to actually use the d80211 stack for 
-something useful I just wanted to write a small setuid tool that:
- * creates and opens a new monitor interface
- * drops priviledges
- * ... does things with received frames ... (not interesting for this 
-discussion)
- * removes new monitor interface
+This may be a very stupid question or equally misplaced but I really
+don't know where to ask it elsewhere.
 
-So I figured I'd just keep an fd open to 
-/sys/class/net/mymonitorinterface/remove_iface to which I could write 
-the interfaces name after I was done with it. However, when writing to 
-that fd I got -EACCESS because it checks for CAP_NET_ADMIN.
+I have this configuration (imho significant parts): dual core P915, 2x
+sata harddisk configured as (root) md mirror on intel ICH7R (ahci mode),
+1G ram.
 
-That seems to make sense. However, it also means that I can simply not 
-write the tool that way, it can't drop priviledges. Of course it could 
-re-exec itself with a special parameter to tell it to remove the 
-interface, but that'd allow anyone to use it to remove any interface. 
-Not good either.
+The harddisks can sustain both around 55 Mb/s, according to hdparm -tT
+(okay, I now that's only straight reads). Also they can deliver this
+amount of data independent of each other, if both hdparms are run in
+parallel, the same performance is reported. I also did similar tests
+using ddrescue which shows the same.
 
-Hence, it seems that in order to properly solve this I should simply add 
-a new  sysfs "remove" property for each d80211 virtual interface that 
-triggers a removal whenever anything is written to it. And it should not 
-have a check for CAP_NET_ADMIN so I can use it after dropping 
-priviledges. Sounds great, right? So why isn't there a patch attached to 
-this mail?
+Now, what puzzles me, is that compiling the kernel (2.6.17.7) using
+either "make -j1 ..." or "make -j2 ..." or "make -j3 ..." makes the
+building take about 6.5 minutes, which is really dissatisfying for this
+cpu/harddisks combination. Also, top shows that most of the time both
+core are between 10-40% idle.
 
-Well, it isn't too great. See, if you think about it again, removing an 
-interface *should* require CAP_NET_ADMIN. But if I want to enable above 
-use-case, then I have to check for CAP_NET_ADMIN when *opening* the 
-sysfs attribute file, not writing to it. But that doesn't seem possible 
-to do. Hence, I lose capability granularity. But it seems that sysfs 
-doesn't allow me to do that. [Nor does a configuration system via 
-netlink. hmm]
+BUT... starting from -j4 (and upwards) the compile time suddenly goes to
+3.5 minutes!
 
-Do I lose? Or put from my kernel developer perspective: should we even 
-be enabling such a use?
+I am really blown away here. It looks like disk access is the bottleneck
+here, but I can't imagine my disks being so slow (at seeking, I guess)
+it should matter that much.
 
-johannes
+So, I tried changing the readahead value of all relevant devices and...
+there is no difference at all!
+
+I changed journalling parameters to data writeback and commit time =
+30s. Still no difference.
+
+I kicked one of the two disks out of the mirror. Still no joy.
+
+Then, I tried all i/o schedulers on all relevant devices (except md0 of
+course) and... still no difference at all!
+
+Is there anybody who can shed some light on this or give me a clue or
+pointer?
+

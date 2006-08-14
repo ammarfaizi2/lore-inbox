@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWHNSG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWHNSMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932651AbWHNSG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 14:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWHNSG2
+	id S1751591AbWHNSMf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 14:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWHNSMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 14:06:28 -0400
-Received: from iriserv.iradimed.com ([69.44.168.233]:53858 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932651AbWHNSG1 (ORCPT
+	Mon, 14 Aug 2006 14:12:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34489 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751499AbWHNSMe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 14:06:27 -0400
-Message-ID: <44E0BBAD.4080007@cfl.rr.com>
-Date: Mon, 14 Aug 2006 14:06:37 -0400
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
-CC: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
-       darkhack@gmail.com
-Subject: Re: kernel panic - not syncing: VFS - unable to mount root fs on
- unknown-block
-References: <44DFCF20.9030202@wanadoo.fr> <44E07B36.6070508@gmail.com> <44E08C50.5070904@wanadoo.fr>
-In-Reply-To: <44E08C50.5070904@wanadoo.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Aug 2006 18:06:39.0125 (UTC) FILETIME=[638FF450:01C6BFCC]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14628.003
-X-TM-AS-Result: No--3.700000-5.000000-4
+	Mon, 14 Aug 2006 14:12:34 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060814101657.8c5b796a.akpm@osdl.org> 
+References: <20060814101657.8c5b796a.akpm@osdl.org>  <1155542805.3430.5.camel@raven.themaw.net> <20060813012454.f1d52189.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> <15771.1155547930@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>,
+       linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: 2.6.18-rc4-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 14 Aug 2006 19:12:23 +0100
+Message-ID: <1871.1155579143@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to use the initrd.  See the man pages for update-initramfs and 
-maybe mkinitramfs.  The initrd is where all the drivers get loaded and 
-hardware is detected in an Ubuntu system.  It is required for root to be 
-on LVM.
+Andrew Morton <akpm@osdl.org> wrote:
 
-Hulin Thibaud wrote:
-> Sorry, new kernel is 2.6.17. to install suspend2.
-> I believe using LVM, but I'm not sure.
-> In effect, initrd is not present ! I rode this lines in my menu.lst :
-> title        Ubuntu, kernel 2.6.171915
-> root        (hd1,4)
-> kernel        /boot/vmlinuz-2.6.171915 root=/dev/hdb5 ro quiet splash
-> savedefault
-> boot
-> 
-> So, I suppose that's the center of the problem, but actually, I don't 
-> know how to solve it.
-> 
+> ?---------  ? ?    ?             ?            ? /net/bix/mnt
+> ?---------  ? ?    ?             ?            ? /net/bix/usr
 
+Do /mnt and /usr have other things mounted on them on bix?  Can you dump fstab
+on bix?
+
+If so, it's possible that the server-mountpoint-crossing automounter internal
+to NFS doesn't like working with autofs.
+
+David

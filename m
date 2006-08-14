@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752047AbWHNSY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752051AbWHNS2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752047AbWHNSY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 14:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWHNSY6
+	id S1752051AbWHNS2X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 14:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752052AbWHNS2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 14:24:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23213 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752047AbWHNSY5 (ORCPT
+	Mon, 14 Aug 2006 14:28:23 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:14750 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1752051AbWHNS2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 14:24:57 -0400
-Date: Mon, 14 Aug 2006 11:24:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Ian Kent <raven@themaw.net>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: 2.6.18-rc4-mm1
-Message-Id: <20060814112435.0c07b248.akpm@osdl.org>
-In-Reply-To: <1871.1155579143@warthog.cambridge.redhat.com>
-References: <20060814101657.8c5b796a.akpm@osdl.org>
-	<1155542805.3430.5.camel@raven.themaw.net>
-	<20060813012454.f1d52189.akpm@osdl.org>
-	<20060813133935.b0c728ec.akpm@osdl.org>
-	<15771.1155547930@warthog.cambridge.redhat.com>
-	<1871.1155579143@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 14 Aug 2006 14:28:22 -0400
+Message-ID: <44E0C0BC.7020509@pobox.com>
+Date: Mon, 14 Aug 2006 14:28:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [-mm patch] cleanup drivers/ata/Kconfig
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060813210106.GO3543@stusta.de>
+In-Reply-To: <20060813210106.GO3543@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Aug 2006 19:12:23 +0100
-David Howells <dhowells@redhat.com> wrote:
-
-> Andrew Morton <akpm@osdl.org> wrote:
+Adrian Bunk wrote:
+> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+>> ...
+>> Changes since 2.6.18-rc3-mm2:
+>> ...
+>>  git-libata-all.patch
+>> ...
+>>  git trees
+>> ...
 > 
-> > ?---------  ? ?    ?             ?            ? /net/bix/mnt
-> > ?---------  ? ?    ?             ?            ? /net/bix/usr
+> This patch contains the following cleanups:
+> - create a menu for ATA
+> - replace the dependencies on ATA with an "if ATA"
+>   as a side effect, this fixes a menu breakage due to SATA_INTEL_COMBINED
+> - fix a typo in the PATA_OPTIDMA prompt
+> - let ATA selet SCSI instead of depending on SCSI
+>   this should make it easier for users to enable ATA (similar to USB_STORAGE)
 > 
-> Do /mnt and /usr have other things mounted on them on bix?
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-nope.
+There have been a bunch of more-important changes to this file.  Please 
+wait until Andrew pulls from me, and resend.
 
->  Can you dump fstab
-> on bix?
+Thanks,
 
-bix:/home/akpm> cat /proc/mounts
-rootfs / rootfs rw 0 0
-/dev/root / ext3 rw,noatime,data=ordered 0 0
-/proc /proc proc rw 0 0
-none /dev/pts devpts rw 0 0
-/dev/sda1 /boot ext3 rw,data=ordered 0 0
-none /dev/shm tmpfs rw 0 0
-/dev/sdb1 /usr/src ext3 rw,noatime,data=ordered 0 0
-none /sys sysfs rw 0 0
-/dev/sdb2 /mnt/export ext3 rw,noatime,data=ordered 0 0
-nodev /dev/oprofile oprofilefs rw 0 0
+	Jeff
 
-> If so, it's possible that the server-mountpoint-crossing automounter internal
-> to NFS doesn't like working with autofs.
 
-I'd say it's something like that.  Odd thing is, /mnt and /usr don't have
-anything mounted on them.  But they do have a local partition mounted on
-subdirectories within them: /mnt/export and /usr/src.
 

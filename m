@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWHNRlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWHNRnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWHNRlz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 13:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWHNRlz
+	id S932396AbWHNRnF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 13:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWHNRnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 13:41:55 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:54709 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932309AbWHNRlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 13:41:55 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 14 Aug 2006 19:40:23 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.18-rc4-mm1 0/8] ieee1394: fixes and touch-ups for sbp2
-To: linux1394-devel@lists.sourceforge.net
-cc: Ben Collins <bcollins@ubuntu.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Message-ID: <tkrat.9b22090d7dd50b12@s5r6.in-berlin.de>
+	Mon, 14 Aug 2006 13:43:04 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:37089 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S932321AbWHNRnC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 13:43:02 -0400
+Message-ID: <44E0B61F.3000706@hp.com>
+Date: Mon, 14 Aug 2006 10:42:55 -0700
+From: Rick Jones <rick.jones2@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.7.13) Gecko/20060601
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Keith Owens <kaos@ocs.com.au>, David Miller <davem@davemloft.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+References: <20060814110359.GA27704@2ka.mipt.ru>	<9286.1155557268@ocs10w.ocs.com.au> <20060814122049.GC18321@2ka.mipt.ru>
+In-Reply-To: <20060814122049.GC18321@2ka.mipt.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are 5 bug fixes for sbp2, 2 code updates, 1 Kconfig improvement.
-If nothing gets in the way I will probably resend some of these fixes
-and one or two which are already in -mm for proposed inclusion into
-2.6.18-rcX circa next Monday.
+Evgeniy Polyakov wrote:
+> On Mon, Aug 14, 2006 at 10:07:48PM +1000, Keith Owens (kaos@ocs.com.au) wrote:
+> 
+>>Evgeniy Polyakov (on Mon, 14 Aug 2006 15:04:03 +0400) wrote:
+>>
+>>>Network tree allocator can be used to allocate memory for all network
+>>>operations from any context....
+>>>...
+>>>Design of allocator allows to map all node's pages into userspace thus
+>>>allows to have true zero-copy support for both sending and receiving
+>>>dataflows.
+>>
+>>Is that true for architectures with virtually indexed caches?  How do
+>>you avoid the cache aliasing problems?
+> 
+> 
+> Pages are preallocated and stolen from main memory allocator, what is
+> the problem with that caches? Userspace can provide enough offset so
+> that pages would not create aliases - it is usuall mmap.
 
-Adrian Bunk:
- [resend] the scheduled removal of drivers/ieee1394/sbp2.c:force_inquiry_hack
+That may depend heavily on the architecture.  PA-RISC has the concept of 
+spaceid's, and bits from the spaceid can be included in the hash along 
+with bits from the offset.  So, it is not possible to simply match the 
+offset, one has to make sure that hash bits from the spaceid hash the 
+same as well.
 
-Stefan Richter:
- [update] ieee1394: sbp2: handle "sbp2util_node_write_no_wait failed"
- [new   ] ieee1394: sbp2: safer agent reset in error handlers
- [new   ] ieee1394: sbp2: recheck node generation in sbp2_update
- [new   ] ieee1394: sbp2: better handling of transport errors
- [new   ] ieee1394: sbp2: select SCSI in Kconfig
- [new   ] ieee1394: sbp2: update includes
- [new   ] ieee1394: sbp2: prevent rare deadlock in shutdown
+Now, PA-RISC CPUs have the ability to disable spaceid hashing, and it is 
+entirely possible that the PA-RISC linux port does that, but I thought I 
+would mention it as an example.  I'm sure the "official" PA-RISC linux 
+folks can expand on that much much better than I can.
 
- Documentation/feature-removal-schedule.txt |    9 -
- drivers/ieee1394/Kconfig                   |   12 +
- drivers/ieee1394/sbp2.c                    |  166 ++++++++++++++-------
- drivers/ieee1394/sbp2.h                    |   16 +-
- 4 files changed, 137 insertions(+), 66 deletions(-)
-
--- 
-Stefan Richter
--=====-=-==- =--- -===-
-http://arcgraph.de/sr/
-
+rick jones

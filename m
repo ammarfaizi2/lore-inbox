@@ -1,76 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbWHNT1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWHNT1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbWHNT1z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWHNT1z
+	id S932661AbWHNT1r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWHNT1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:27:55 -0400
-Received: from wx-out-0506.google.com ([66.249.82.231]:14504 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932666AbWHNT1y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:27:54 -0400
+	Mon, 14 Aug 2006 15:27:47 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:54584 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932661AbWHNT1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 15:27:46 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bfQoGmVb3hGO/dkFAfN73TwQfytd0X7UPeFgXPUQgcPTXqqUU0jryGeYAYfa91WflbNZmQj0yPwpWyUS2YgJ6XvHnJqmE+lYqApi3ML3dLm1hmbr4rB8tgFqpGQRIWhPrcso1p/AuzT8CXCneZoYWQl6Ry+xTL3wwWzSN2U0G1U=
-Message-ID: <d120d5000608141227h7c707686i7db7eabba0e3a3ca@mail.gmail.com>
-Date: Mon, 14 Aug 2006 15:27:52 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: Voluspa <lista1@comhem.se>
-Subject: Re: Touchpad problems with latest kernels
-Cc: lukesharkey@hotmail.co.uk, linux-kernel@vger.kernel.org,
-       gene.heskett@verizon.net, ian.stirling@mauve.plus.com, davej@redhat.com,
-       andi@rhlx01.fht-esslingen.de, malattia@linux.it
-In-Reply-To: <20060814190959.df449d55.lista1@comhem.se>
+        b=X6z1pR5TGaI7E3/3bJ0zs6to6GdJkeM1vmPevApYhG4yVFhgEq7W2rnnhpIePHbdrr7Xmwzpoz63c5m4pV/FLIow17MAuXU/VvHB7//zoqjLVqRpyX37bERSFAfJ/1G+raoDSFxx91kXiKjUFpv3VcGBFNpcdhO6tMH7WrK77Ro=
+Message-ID: <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com>
+Date: Mon, 14 Aug 2006 21:27:45 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "john stultz" <johnstul@us.ibm.com>
+Subject: Re: 2.6.18-rc4-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@elte.hu>,
+       "Dinakar Guniguntala" <dino@in.ibm.com>
+In-Reply-To: <1155583256.5413.42.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060814190959.df449d55.lista1@comhem.se>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	 <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com>
+	 <20060814111914.b50f9b30.akpm@osdl.org> <44E0C889.3020706@gmail.com>
+	 <1155583256.5413.42.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Voluspa <lista1@comhem.se> wrote:
->
-> On 2006-08-14 13:58:09 Luke Sharkey wrote:
-> > While on 2054 it generally works fine, On the latest kernels (2154,
-> > 2174 etc.)  I have only to e.g. open a konqueror window for the
-> > onscreen pointer to start going funny, and jerking about (As happens on
-> > computers with v. low RAM).  I know its not a RAM problem, as a)
-> > everything else works fine, there is no slow down of any of the
-> > programs I run, only problems with the mouse and b) I have just
-> > upgraded from 512 MB of RAM to 1 GB.
+On 14/08/06, john stultz <johnstul@us.ibm.com> wrote:
+> On Mon, 2006-08-14 at 21:01 +0200, Michal Piotrowski wrote:
+> > Andrew Morton wrote:
+> > > On Mon, 14 Aug 2006 16:02:52 +0200
+> > > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+> > >> On 13/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> > >>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> > >>>
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: BUG: unable to handle kernel
+> > >> paging request at virtual address fffeffbf
+> > >> Aug 14 15:35:10 ltg01-fedora kernel:  printing eip:
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: c013d539
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: *pde = 00004067
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: *pte = 00000000
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: Oops: 0000 [#1]
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: last sysfs file:
+> > >> /devices/platform/i2c-9191/9191-0290/temp2_input
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf
+> > >> hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
+> > >> _ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp
+> > >> iptable_filter ip_tables x_tables cpufreq_userspace p4_clockmod spe
+> > >> edstep_lib binfmt_misc thermal processor fan container evdev
+> > >> snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_
+> > >> oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
+> > >> snd_mixer_oss snd_pcm sk98lin snd_timer skge snd soundcore snd_pag
+> > >> e_alloc ide_cd intel_agp agpgart cdrom i2c_i801 rtc unix
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: CPU:    1
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: EIP:    0060:[<c013d539>]    Not
+> > >> tainted VLI
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: EFLAGS: 00210286   (2.6.18-rc4-mm1 #97)
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: EIP is at futex_wake+0x9c/0xcb
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: eax: 0808c000   ebx: c0670a60
+> > >> ecx: d3a1dfa2   edx: fffeffbf
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: esi: 00000000   edi: fffeffbf
+> > >> ebp: f4896f64   esp: f4896f40
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: Process firefox-bin (pid: 2210,
+> > >> ti=f4896000 task=f3d180f0 task.ti=f4896000)
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: Stack: c0670a80 00000001 0808c000
+> > >> f4302e74 00000044 ffffffe7 0808c044 bf8f35b0
+> > >> Aug 14 15:35:10 ltg01-fedora kernel:        00000000 f4896f7c c013ed39
+> > >> 00000001 0808c044 7fffffff bf8f35b0 f4896fb4
+> > >> Aug 14 15:35:10 ltg01-fedora kernel:        c013ee84 7fffffff bf8f35b0
+> > >> 00000000 bf8f3528 00000000 f4896fa8 00000000
+> > >> Aug 14 15:35:10 ltg01-fedora kernel: Call Trace:
+> > >> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
+> > >> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<b7f1d410>] 0xb7f1d410
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104067>] show_stack_log_lvl+0x87/0x8f
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104203>] show_registers+0x151/0x1d8
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010444d>] die+0x120/0x1f0
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c01185cf>] do_page_fault+0x49d/0x580
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0303ba9>] error_code+0x39/0x40
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
+> > >> Aug 14 15:35:11 ltg01-fedora kernel:  =======================
+> > >> Aug 14 15:35:11 ltg01-fedora kernel: Code: 45 e8 39 41 04 75 22 8b 45
+> > >> ec 39 41 08 75 1a 83 7a 48 00 74 07 be ea ff ff ff eb
+> > >> 16 89 d0 46 e8 00 fd ff ff 3b 75 e0 7d 09 89 fa <8b> 3f 3b 55 dc eb c0
+> > >> 89 d8 e8 bd 60 1c 00 89 e0 25 00 f0 ff ff
+> > >> Aug 14 15:35:11 ltg01-fedora kernel: EIP: [<c013d539>]
+> > >> futex_wake+0x9c/0xcb SS:ESP 0068:f4896f40
+> > >
+> > > This is worrisome.  Is it reproducible?
 > >
-> > If I plug in a mouse, the pointer works fine.  Though I would happily
-> > use a mouse, this is often inconvenient on a laptop.
+> > I don't know how to reproduce it, but it happened second time today.
 > >
-> > Do you have any ideas what's wrong?
+> > >  If so, reverting
+> > > futex_handle_fault-always-fails.patch and retesting would be useful.
+> >
+> > I reverted this patch.
 >
-> This is a known problem (and fixed in Windows) with the synaptics touch
-> pad. About one year ago I did a web search amounting to something like
-> "synaptics rubber band" and found a fixed windows driver. But since
-> there is no OS of that kind on this machine, I contacted the developer
-> of the synaptics X driver.
->
-> We had a discussion (swedish only) in private mail, where I ran the
-> driver in debug mode - he no longer had a machine with that hardware.
-> Unfortunately I've lost the whole communication due to a voltage frying
-> of everything in the mail machine, so can not give any details.
->
-> If Peter Österlund still has the e-mails I hereby give full permission
-> to disclose a translated copy to anyone interested.
->
-> But I think it all came down to Peter not being able to do anything...
-> In earlier kernels the issue _seemed_ to lessen if booting with
-> i8042.nomux but nowadays that kernel option only gets rid of the 'lost
-> sync' messages from the pad that turn up in /var/log/messages
-> (Btw, excessive printing of that message Dmitry!)
->
+> Just to be clear, the issue has shown itself without the patch?
 
-Hmm, have you tried lowering report rate of the synaptics driver
-(psmouse.rate=40)? 80 ppsm is quite high and I know some Toshibas have
-trouble handling the full rate...
+No, it hasn't.
+
+> Or is
+> that not the case?
+
+In current -mm only futex_handle_fault-always-fails.patch changes
+kernel/futex.c, so IMHO it's very probable that there is something
+wrong with this patch.
+
+>
+> thanks
+> -john
+
+Regards,
+Michal
 
 -- 
-Dmitry
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

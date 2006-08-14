@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752060AbWHNTc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWHNTfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752060AbWHNTc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWHNTcz
+	id S1751568AbWHNTfF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752053AbWHNTfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:32:55 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:58091 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1752061AbWHNTcy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:32:54 -0400
-Message-ID: <44E0CFD0.3060506@zytor.com>
-Date: Mon, 14 Aug 2006 12:32:32 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Mon, 14 Aug 2006 15:35:04 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:46860 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751568AbWHNTfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 15:35:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=PMln3akK9e1fpmMqs3oB3Y8XdFZwQaQ/FxGjK81V69yzmBpVHelpTn/PlRk/ZFJVa+jnzQavyB5Wjg0xSx0DypEXGP+rME/SDx8Fsl7zbH80El6nH77qvgD2HVjz+gAkkOPd52D8HO3K5lhdL0lDkDejviPhobx1Oq9Kk0wd2sE=
+Message-ID: <44E0D085.8040507@gmail.com>
+Date: Mon, 14 Aug 2006 21:35:33 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Don Zickus <dzickus@redhat.com>, fastboot@osdl.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
-References: <20060807235727.GM16231@redhat.com> <m1ejvrakhq.fsf@ebiederm.dsl.xmission.com> <20060809200642.GD7861@redhat.com> <m1u04l2kaz.fsf@ebiederm.dsl.xmission.com> <20060810131323.GB9888@in.ibm.com> <m18xlw34j1.fsf@ebiederm.dsl.xmission.com> <20060810181825.GD14732@in.ibm.com> <m1irl01hex.fsf@ebiederm.dsl.xmission.com> <20060814165150.GA2519@in.ibm.com> <44E0AD1D.1040408@zytor.com> <20060814181118.GB2519@in.ibm.com>
-In-Reply-To: <20060814181118.GB2519@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Thomas Winischhofer <thomas@winischhofer.net>,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH 7/10] drivers/video/sis/sis_main.c Removal of old
+ code
+References: <44DE05FC.2090001@gmail.com> <44DE09A9.1030209@gmail.com>
+In-Reply-To: <44DE09A9.1030209@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal wrote:
-> On Mon, Aug 14, 2006 at 10:04:29AM -0700, H. Peter Anvin wrote:
->> Vivek Goyal wrote:
->>> On Thu, Aug 10, 2006 at 02:09:58PM -0600, Eric W. Biederman wrote:
->>>>> I just reserved memory at non 2MB aligned location 65MB@15MB so that
->>>>> kernel is loaded at 16MB and other smaller segments below the compressed
->>>>> image, then I can successfully booted into the kdump kernel.
->>>> :)
->>>>
->>>>> So basically kexec on panic path seems to be clean except stomping issue.
->>>>> May be bzImage program header should reflect right "MemSize" which
->>>>> takes into account extra memory space calculations.
->>>> Yes.  That sounds like the right thing to do.  
->>>>
->>>> I remember trying to compute a good memsize when I created the bzImage
->>>> header but it is completely possible I missed some part of the
->>>> calculation or assumed that the kernels .bss section would always be
->>>> larger than what I needed for decompression.
->>>>
->> Could someone please describe the intended semantics of this MemSize 
->> header, *and* its intended usage?
->>
-> 
-> Now and ELF header(attached to bzImage) is being used to describe
-> the kernel executable. One program header of PT_LOAD type is being
-> created. The "p_filesz" field of program header is basically 
-> describing the vmlinux file size and "p_memsz" is giving how
-> much memory will be consumed by kernel image at load time.
-> 
-> Ideally "p_memsz" should be "p_memsz" summation of all the program
-> headers of vmlinux file but I guess in this case we are stretching the
-> ELF specification a little bit and also taking into the account the
-> additional memory which will be used by decompressor and decompression
-> logic by the time execution is transferred to the actual kernel.
-> 
+This is an upgrade to the previous patch.
 
-What about once the kernel is booted?
+(drivers-video-sis-sis_mainc-removal-of-old.patch)
 
-	-hpa
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+
+diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/drivers/video/sis/sis_main.c linux-mm/drivers/video/sis/sis_main.c
+--- linux-mm-clean/drivers/video/sis/sis_main.c	2006-08-14 21:10:06.000000000 +0200
++++ linux-mm/drivers/video/sis/sis_main.c	2006-08-13 18:58:49.000000000 +0200
+@@ -83,13 +83,7 @@ sisfb_setdefaultparms(void)
+ 	sisfb_max		= -1;
+ 	sisfb_userom		= -1;
+ 	sisfb_useoem		= -1;
+-#ifdef MODULE
+-	/* Module: "None" for 2.4, default mode for 2.5+ */
+-	sisfb_mode_idx		= -1;
+-#else
+-	/* Static: Default mode */
+ 	sisfb_mode_idx		= -1;
+-#endif
+ 	sisfb_parm_rate		= -1;
+ 	sisfb_crt1off		= 0;
+ 	sisfb_forcecrt1		= -1;
+

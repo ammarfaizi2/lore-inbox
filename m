@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752013AbWHNMVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752024AbWHNMVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752013AbWHNMVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 08:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbWHNMVX
+	id S1752024AbWHNMVq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 08:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752023AbWHNMVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 08:21:23 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:44485 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1752013AbWHNMVW (ORCPT
+	Mon, 14 Aug 2006 08:21:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27302 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752024AbWHNMVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 08:21:22 -0400
-Date: Mon, 14 Aug 2006 16:20:50 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-Message-ID: <20060814122049.GC18321@2ka.mipt.ru>
-References: <20060814110359.GA27704@2ka.mipt.ru> <9286.1155557268@ocs10w.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <9286.1155557268@ocs10w.ocs.com.au>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 14 Aug 2006 16:20:51 +0400 (MSD)
+	Mon, 14 Aug 2006 08:21:45 -0400
+Message-ID: <44E06AC7.6090301@redhat.com>
+Date: Mon, 14 Aug 2006 08:21:27 -0400
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Daniel Phillips <phillips@google.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, Indan Zupancic <indan@nul.nu>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, David Miller <davem@davemloft.net>
+Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
+References: <20060812141415.30842.78695.sendpatchset@lappy> <33471.81.207.0.53.1155401489.squirrel@81.207.0.53> <1155404014.13508.72.camel@lappy> <47227.81.207.0.53.1155406611.squirrel@81.207.0.53> <1155408846.13508.115.camel@lappy> <44DFC707.7000404@google.com> <20060814052015.GB1335@2ka.mipt.ru>
+In-Reply-To: <20060814052015.GB1335@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 10:07:48PM +1000, Keith Owens (kaos@ocs.com.au) wrote:
-> Evgeniy Polyakov (on Mon, 14 Aug 2006 15:04:03 +0400) wrote:
-> >Network tree allocator can be used to allocate memory for all network
-> >operations from any context....
-> >...
-> >Design of allocator allows to map all node's pages into userspace thus
-> >allows to have true zero-copy support for both sending and receiving
-> >dataflows.
-> 
-> Is that true for architectures with virtually indexed caches?  How do
-> you avoid the cache aliasing problems?
+Evgeniy Polyakov wrote:
+> On Sun, Aug 13, 2006 at 05:42:47PM -0700, Daniel Phillips (phillips@google.com) wrote:
 
-Pages are preallocated and stolen from main memory allocator, what is
-the problem with that caches? Userspace can provide enough offset so
-that pages would not create aliases - it is usuall mmap.
+>> As for sk_buff cow break, we need to look at which network paths do it
+>> (netfilter obviously, probably others) and decide whether we just want
+>> to declare that the feature breaks network block IO, or fix the feature
+>> so it plays well with reserve accounting.
+> 
+> I would suggest to consider skb cow (cloning) as a must.
+
+That should not be any problem, since skb's (including cowed ones)
+are short lived anyway.  Allocating a little bit more memory is
+fine when we have a guarantee that the memory will be freed again
+shortly.
 
 -- 
-	Evgeniy Polyakov
+What is important?  What you want to be true, or what is true?

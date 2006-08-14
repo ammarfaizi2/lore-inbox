@@ -1,121 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWHNVWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWHNVXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWHNVWI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 17:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWHNVWI
+	id S964953AbWHNVXb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 17:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWHNVXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 17:22:08 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:30623 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964936AbWHNVWG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 17:22:06 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Subject: Re: 2.6.18-rc4-mm1: eth0: trigger_send() called with the transmitter busy
-Date: Mon, 14 Aug 2006 23:25:59 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-References: <20060813012454.f1d52189.akpm@osdl.org> <44E0B72C.6010503@free.fr> <44E0D7C1.7040509@free.fr>
-In-Reply-To: <44E0D7C1.7040509@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 14 Aug 2006 17:23:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36063 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964953AbWHNVXa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 17:23:30 -0400
+Date: Mon, 14 Aug 2006 17:22:00 -0400
+From: Dave Jones <davej@redhat.com>
+To: Ben B <kernel@bb.cactii.net>
+Cc: Andrew Morton <akpm@osdl.org>, Maciej Rutecki <maciej.rutecki@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1
+Message-ID: <20060814212200.GC30814@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ben B <kernel@bb.cactii.net>, Andrew Morton <akpm@osdl.org>,
+	Maciej Rutecki <maciej.rutecki@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com> <20060813121126.b1dc22ee.akpm@osdl.org> <20060813224413.GA21959@cactii.net> <20060813232549.GG28540@redhat.com> <20060814115556.GA13159@cactii.net> <20060814202004.GE16280@redhat.com> <20060814211338.GA30680@cactii.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608142325.59054.rjw@sisk.pl>
+In-Reply-To: <20060814211338.GA30680@cactii.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 August 2006 22:06, Laurent Riffard wrote:
-> Le 14.08.2006 19:47, Laurent Riffard a écrit :
-> > Le 14.08.2006 18:50, Andrew Morton a écrit :
-> >> On Mon, 14 Aug 2006 16:38:47 +0200
-> >> Laurent Riffard <laurent.riffard@free.fr> wrote:
-> >>
-> >>> Le 13.08.2006 10:24, Andrew Morton a __crit :
-> >>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> >>> Hello,
-> >>>
-> >>> This morning, while trying to suspend to disk, my box started to loop 
-> >>> displaying the following message:
-> >>> eth0: trigger_send() called with the transmitter busy.
-> >>>
-> >>> Here is the scenario. I booted 2.6.18-rc4-mm1 with this command line:
-> >>> root=/dev/vglinux1/lvroot video=vesafb:ywrap,mtrr splash=silent resume=/dev/hdb7 netconsole=@192.163.0.3/,@192.168.0.1/00:0E:9B:91:ED:72 init 1
-> >>>
-> >>> Then I issued:
-> >>> # echo 6 > /proc/sys/kernel/printk
-> >>> # echo disk > /sys/power/state
-> >> ne2k isn't <ahem> the most actively-maintained driver.
-> >>
-> >> But most (I think all) net drivers have problems during suspend when
-> >> netconsole is active.  Does disabling netconsole help?
-> > 
-> > Yes it does. 
-> >  
-> >> Did this operation work OK in earlier kernels, with netconsole enabled?
-> > 
-> > It's the first time I see such a message. I can't speak for 2.6.18-rc3-mm2 
-> > because it could not suspend at all (did hang right after 
-> > "echo disk > /sys/power/state"), but it worked in earlier kernels.
-> > 
-> > I'll try with plain 2.6.18-rc4.
-> 
-> Same problem with 2.6.18-rc4.
+On Mon, Aug 14, 2006 at 11:13:38PM +0200, Ben B wrote:
+ > Dave Jones <davej@redhat.com> uttered the following thing:
+ > >  > > > [  734.156000]  [<e01f2665>] cpufreq_governor_dbs+0x2b5/0x310 [cpufreq_ondemand]
+ > >  > > 
+ > >  > > This makes no sense at all, because in -mm __create_workqueue doesn't
+ > >  > > call lock_cpu_hotplug().
+ > >  > > 
+ > >  > > Are you sure this was from a tree with -mm1 applied ?
+ > >  > 
+ > >  > Definitely 2.6.18-rc4-mm1, and I've done a clean rebuild + removal of
+ > >  > all modules under /lib/modules beforehand.
+ > > 
+ > > It's a real mystery.  Andrew ?
+ > 
+ > This seems to be specific to the ondemand governor - I just tried with
+ > conservative, and alternating it with performance, with no problems, but
+ > as soon as I loaded ondemand, the message appeared. It seems to fire off
+ > the message as soon as I either set the governor to ondemand, or revert
+ > it from ondemand to something else. But going from, eg performance to
+ > conservative, wont give the message, even with ondemand loaded.
 
-I think something like this will help (untested):
+on-demand is unique in the sense that its the only governor that
+creates a workqueue.
 
- kernel/power/disk.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+ > I wonder if this might also be related to my 1.83GHz cpu only being set
+ > to a maximum of 1.33GHz via cpufreq? cpuinfo_max_freq is correct, but
+ > scaling_max_freq is wrong. Though doing "cat cpuinfo_max_freq >
+ > scaling_max_freq" has fixed it up, it should be correct already.
 
-Index: linux-2.6.18-rc4-mm1/kernel/power/disk.c
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/kernel/power/disk.c
-+++ linux-2.6.18-rc4-mm1/kernel/power/disk.c
-@@ -119,8 +119,10 @@ int pm_suspend_disk(void)
- 	if (error)
- 		return error;
- 
-+	suspend_console();
- 	error = device_suspend(PMSG_FREEZE);
- 	if (error) {
-+		resume_console();
- 		printk("Some devices failed to suspend\n");
- 		unprepare_processes();
- 		return error;
-@@ -133,6 +135,7 @@ int pm_suspend_disk(void)
- 
- 	if (in_suspend) {
- 		device_resume();
-+		resume_console();
- 		pr_debug("PM: writing image.\n");
- 		error = swsusp_write();
- 		if (!error)
-@@ -148,6 +151,7 @@ int pm_suspend_disk(void)
- 	swsusp_free();
-  Done:
- 	device_resume();
-+	resume_console();
- 	unprepare_processes();
- 	return error;
- }
-@@ -212,7 +216,9 @@ static int software_resume(void)
- 
- 	pr_debug("PM: Preparing devices for restore.\n");
- 
-+	suspend_console();
- 	if ((error = device_suspend(PMSG_PRETHAW))) {
-+		resume_console();
- 		printk("Some devices failed to suspend\n");
- 		swsusp_free();
- 		goto Thaw;
-@@ -224,6 +230,7 @@ static int software_resume(void)
- 	swsusp_resume();
- 	pr_debug("PM: Restore failed, recovering.n");
- 	device_resume();
-+	resume_console();
-  Thaw:
- 	unprepare_processes();
-  Done:
+That's come up a lot lately. I'm still of the opinion that something
+changed in acpi that's the explanation for this.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

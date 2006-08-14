@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWHNWtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932740AbWHNWuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWHNWtk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 18:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbWHNWtk
+	id S932740AbWHNWuF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 18:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbWHNWuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 18:49:40 -0400
-Received: from pat.uio.no ([129.240.10.4]:37008 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932740AbWHNWtj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 18:49:39 -0400
-Subject: Re: 2.6.18-rc4-mm1
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
-       Ian Kent <raven@themaw.net>
-In-Reply-To: <20060813133935.b0c728ec.akpm@osdl.org>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-	 <20060813133935.b0c728ec.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 18:49:27 -0400
-Message-Id: <1155595768.5656.26.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 14 Aug 2006 18:50:04 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:25994 "EHLO
+	kingpin.cenara.com") by vger.kernel.org with ESMTP id S932740AbWHNWuB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 18:50:01 -0400
+From: Magnus =?iso-8859-1?q?Vigerl=F6f?= <wigge@bigfoot.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Dmitry Torokhov" <dtor@insightbb.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Vojtech Pavlik" <vojtech@suse.cz>,
+       "Zephaniah E. Hull" <warp@aehallh.com>
+Subject: Re: input: evdev.c EVIOCGRAB semantics question
+Date: Tue, 15 Aug 2006 00:49:50 +0200
+User-Agent: KMail/1.9.1
+References: <200608121724.16119.wigge@bigfoot.com> <20060814145848.GA4095@inferi.kami.home> <d120d5000608140815g121a84a3o58919582d5797305@mail.gmail.com>
+In-Reply-To: <d120d5000608140815g121a84a3o58919582d5797305@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-1.793, required 12,
-	autolearn=disabled, AWL 0.70, RCVD_IN_XBL 2.51,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Disposition: inline
+Message-Id: <200608150049.50815.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-13 at 13:39 -0700, Andrew Morton wrote:
-> On Sun, 13 Aug 2006 01:24:54 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> 
-> This kernel breaks autofs /net handling.  Bisection shows that the bug is
-> introduced by git-nfs.patch.
+On Monday 14 August 2006 17:15, Dmitry Torokhov wrote:
+[...]
+> > So why not just make EVIOCGRAB mean "don't send events to
+> > mousedev but still report data to others opening the device"?
+>
+> That darn layering thing. We don't want evdev to know about all other
+> handlers there are.
 
-Could you try pulling afresh from the NFS git tree? I've fixed up a
-couple of issues in which rpc_pipefs was corrupting the dcache, as well
-as a few dentry leaks that were introduced by David's
-nfs_alloc_client().
+Nonono... I think the layers is a good thingy, even in this case..
 
-Cheers,
-  Trond
+What if you turn the whole thing around? Let the handler that should not get 
+the events in case someone grabs the device (/dev/input/mice, more devices?) 
+say it's so. And when the event is forwarded through the input-layer, check 
+if the device is grabbed and in that case skip those handlers that shouldn't 
+get any.
 
+It would require an additional field in the input_handle struct that should be 
+set to non-zero for mousedev and a change in the event-propagation code to 
+send events to all handlers except to those with a non-zero value if grabbed 
+(I'd estimate it to be less than 5-10 lines that has to be added/changed).
+
+However, this doesn't address the problem I initially described (I think)... 
+What if two application open the same device and one of the application do a 
+EVIOCGRAB. Should both applications still get events? With the above fix two 
+applications that opens /dev/input/mouse2 resp /dev/input/event4 for the same 
+hw and the latter grabs the device, both will get events. Using a counter for 
+grab (just like the open-counter) on the handler should make them behave the 
+same way in both cases I think. Gnnn... I'll make a patch tomorrow (ok today, 
+Tuesday) so you can see what I rambling about..
+
+Won't EVIOCGRAB be quite misnamed (not that I propose a change...) if we make 
+a change like this though?
+
+ /Magnus

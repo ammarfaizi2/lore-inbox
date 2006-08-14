@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWHNQTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWHNQSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWHNQTD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 12:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWHNQTB
+	id S1751485AbWHNQSl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 12:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWHNQSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 12:19:01 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:62541 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751488AbWHNQTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 12:19:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z33vBjGMFo/8NkPDdIMuqD2ieSaT3E9HSKNxpDBLpUspZag3yAG+KJ56iPfgV7yY3gtmCXWQTPU4R6VPUIhsVAe4PC4Xr7EZ+Ij0ScDr0/kQxaE0pPAkUv6Vt4kJihUkh7N2KtMoxJbkleC0c2zI6ZU1P06wq2/nAQQz6Gk1QjY=
-Message-ID: <1b270aae0608140918y71725d58h4e38174eac81191d@mail.gmail.com>
-Date: Mon, 14 Aug 2006 18:18:44 +0200
-From: "Metathronius Galabant" <m.galabant@googlemail.com>
-To: "Phil Oester" <kernel@linuxace.com>
-Subject: Re: Problems connecting to www.itu.int with Kernel > 2.6.15
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060814154945.GA25785@linuxace.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 14 Aug 2006 12:18:41 -0400
+Received: from xenotime.net ([66.160.160.81]:56208 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751485AbWHNQSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 12:18:40 -0400
+Date: Mon, 14 Aug 2006 09:21:24 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Thomas Koeller <thomas@koeller.dyndns.org>, Dave Jones <davej@redhat.com>,
+       wim@iguana.be, linux-kernel@vger.kernel.org,
+       Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org
+Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
+Message-Id: <20060814092124.84f7ff3e.rdunlap@xenotime.net>
+In-Reply-To: <20060814153033.GA25215@mars.ravnborg.org>
+References: <200608102319.13679.thomas@koeller.dyndns.org>
+	<20060811205639.GK26930@redhat.com>
+	<200608120149.23380.thomas@koeller.dyndns.org>
+	<20060814141445.GA10763@nineveh.rivenstone.net>
+	<20060814153033.GA25215@mars.ravnborg.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1b270aae0608140843s33918427vc1ab5771f26ae6bb@mail.gmail.com>
-	 <20060814154945.GA25785@linuxace.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've got serious problems connecting to www.itu.int with Kernels > 2.6.15.
-> > 2.6.17.X seems to be especially bad and I also tested it with the
-> > latest 2.6.17.8 (no change).
-> > Receiving data is extremely slow, close to non-existing.
->
-> Search the archives for 'window scaling'.
+On Mon, 14 Aug 2006 17:30:33 +0200 Sam Ravnborg wrote:
 
-Thanks a lot.
-That was the thing I oversaw. Disabling window scaling solved the issue.
-ITU admins have been informed.
+> On Mon, Aug 14, 2006 at 10:14:45AM -0400, Joseph Fannin wrote:
+> > On Sat, Aug 12, 2006 at 01:49:23AM +0200, Thomas Koeller wrote:
+> > > On Friday 11 August 2006 22:56, Dave Jones wrote:
+> > > > On Thu, Aug 10, 2006 at 11:19:13PM +0200,
+> > > > thomas@koeller.dyndns.org wrote:
+> > > >  > +
+> > > >  > +#include <linux/config.h>
+> > > >
+> > > > not needed.
+> > >
+> > > It is, otherwise I do not get CONFIG_WATCHDOG_NOWAYOUT.
+> Yes you do - try it.
+> make V=1 tells you that -include include/linux/autoconf.h pulls in
+> the CONFIG_ definitions.
 
-Cheers,
-M.
+Sure, autoconf.h is included, but I think his point is that
+CONFIG_WATCHDOG_NOWAYOUT may not be defined there at all,
+as in my 2.6.18-rc4 autoconf.h file, since my .config file says:
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+
+---
+~Randy

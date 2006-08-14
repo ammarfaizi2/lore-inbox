@@ -1,74 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWHNNbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWHNNc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWHNNbP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 09:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWHNNbP
+	id S1751348AbWHNNc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 09:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWHNNc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 09:31:15 -0400
-Received: from nz-out-0102.google.com ([64.233.162.207]:63259 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751312AbWHNNbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 09:31:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=dyj+MGnRQEA5q00FUg9Ob86a3tkgXLmlvgTioiek8Vi1nFSjFF7EUZRVQ7WOar+KlSvfs4mxFYCfNz8/VMgXgEfyUmYTzIpj2e5RRsKTn20k0LFhv8oDUFWr0XXVFlc29iLlwqVnkzdNLFMG/arrdlWbf0Jmtb3pV08Kssl5uyQ=
-Message-ID: <44E07B36.6070508@gmail.com>
-Date: Mon, 14 Aug 2006 15:31:11 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Mon, 14 Aug 2006 09:32:56 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:54960 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751316AbWHNNcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 09:32:55 -0400
+Message-ID: <44E07267.7070007@de.ibm.com>
+Date: Mon, 14 Aug 2006 14:53:59 +0200
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic - not syncing: VFS - unable to mount root fs on
- unknown-block
-References: <44DFCF20.9030202@wanadoo.fr>
-In-Reply-To: <44DFCF20.9030202@wanadoo.fr>
+To: michael@ellerman.id.au
+CC: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>
+Subject: Re: [PATCH 4/6] ehea: header files
+References: <44D99F56.7010201@de.ibm.com> <1155190921.9801.43.camel@localhost.localdomain>
+In-Reply-To: <1155190921.9801.43.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hulin Thibaud wrote:
-> Hello !
-> I'm trying to compile my own kernel for drivers on two computers, but 
-> that fails. A the boot, I have this error :
-> kernel panic - not syncing: VFS Unable to mount root fs on unknow-block 
-> (3.69)
+Michael Ellerman wrote:
+>> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea.h	1969-12-31 16:00:00.000000000 -0800
+>> +++ kernel/drivers/net/ehea/ehea.h	2006-08-08 23:59:39.927452928 -0700
+>> +
+>> +#define EHEA_PAGESHIFT  12
+>> +#define EHEA_PAGESIZE   4096UL
+>> +#define EHEA_CACHE_LINE 128
 > 
-> I'm using the kernel 2.6.19 with Ubuntu Dapper. I use the old boot 
-
-Wow, 2.6.18 wasn't released yet and you have 2.6.19, cool.
-
-> config and I type make oldconfig, so I don't understand why there are an 
-> error with the near same configuration.
-> I suppose that I must compile not in module but in hard support for my 
-> IDE chipset, harddisk and file system. Probably, I don't understand how 
-> do exactly. I do that :
-> lspci |grep IDE
-> 0000:00:11.1 IDE interface: VIA Technologies, Inc. 
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> make xconfig
-> -Device Drivers
-> --* ATA/ATAPI/MFM/RLL support
-> --- * Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
-> --- * Include IDE/ATA-2 DISK support
-> --- * PCI IDE chipset support
-> ---- * Generic PCI IDE Support
-> ----- * VIA82CXXX chipset support
-> - File systems
-> -- * Ext3 journalling file system support
-> --- * Ext3 extended attributes
-> ---- * Ext3 POSIX Access Control Lists
-> ---- * Ext3 Security Labels
+> This looks like a very bad idea, what happens if you're running on a
+> machine with 64K pages?
 > 
-> Have I forgot anything ?
 
-RAID or LVM? Try initrd.
+The EHEA_PAGESIZE define is needed for queue management to hardware side.
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+>> +
+>> +#define EHEA_ENABLE	1
+>> +#define EHEA_DISABLE	0
+> 
+> Do you really need hash defines for 0 and 1 ? They're fairly well
+> understood in C as meaning true and false.
+> 
+
+removed
+
+>> +
+>> +/*
+>> + *  h_galpa:
+>> + *  for pSeries this is a 64bit memory address where
+>> + *  I/O memory is mapped into CPU address space
+>> + */
+>> +
+>> +struct h_galpa {
+>> +	u64 fw_handle;
+>> +};
+> 
+> What is a h_galpa? And why does it need a struct if it's just a u64?
+> 
+
+The eHEA chip is not PCI attached but directly connected to a proprietary
+bus. Currently, we can access it by a simple 64 bit address, but this is not
+true in all cases. Having a struct here allows us to encapsulate the chip
+register access and to respond to changes to system hardware.
+
+We'll change the name to h_epa meaning "ehea physical address"
+
+>> +
+>> +struct h_galpas {
+>> +	struct h_galpa kernel;	/* kernel space accessible resource,
+>> +				   set to 0 if unused */
+>> +	struct h_galpa user;	/* user space accessible resource
+>> +				   set to 0 if unused */
+>> +	u32 pid;		/* PID of userspace galpa checking */
+>> +};
+>> +
+
+>> +struct port_res_cfg {
+>> +	int max_entries_rcq;
+>> +	int max_entries_scq;
+>> +	int max_entries_sq;
+>> +	int max_entries_rq1;
+>> +	int max_entries_rq2;
+>> +	int max_entries_rq3;
+>> +};
+> 
+> Enormous structs with no comments.
+> 
+
+changed
+
+Regards,
+Jan-Bernd

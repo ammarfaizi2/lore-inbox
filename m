@@ -1,108 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWHNPxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWHNPxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWHNPxI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWHNPxI
+	id S1751465AbWHNPxj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:53:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWHNPxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:53:08 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:38678 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751452AbWHNPxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:53:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VPC1Xqjwi/1iQNlUtVo7ipxMz13bKVyBJNcxiiLOtHqYMUMg3XzGissU3kCUmk7kIgt/T8dRmFgDj9qdj3zx+gWdvUIWYSXEkyMN1N8hORGOfdLMhOHpQHBVlEY0rElKRWUQKMRgb27XH8YrA3d44H7Y3L9ShDiVWgFhIIXRnAw=
-Message-ID: <d120d5000608140853t5a27b522ra7b29aeb0e318efa@mail.gmail.com>
-Date: Mon, 14 Aug 2006 11:53:04 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Gene Heskett" <gene.heskett@verizon.net>
-Subject: Re: Touchpad problems with latest kernels
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608141134.32714.gene.heskett@verizon.net>
+	Mon, 14 Aug 2006 11:53:39 -0400
+Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:6870 "EHLO
+	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
+	id S1751474AbWHNPxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:53:38 -0400
+Message-ID: <44E09C7E.204@lifl.fr>
+Date: Mon, 14 Aug 2006 17:53:34 +0200
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <Eric.Piel@lifl.fr>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060804)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
-	 <200608141038.04746.gene.heskett@verizon.net>
-	 <d120d5000608140813i353b8efaia27d6213b08aff98@mail.gmail.com>
-	 <200608141134.32714.gene.heskett@verizon.net>
+To: Thomas Koeller <thomas@koeller.dyndns.org>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-mips@linux-mips.org
+Subject: Re: [PATCH] Image capturing driver for Basler eXcite smart camera
+References: <200608102318.04512.thomas.koeller@baslerweb.com> <1155326983.24077.119.camel@localhost.localdomain> <loom.20060812T191433-775@post.gmane.org>
+In-Reply-To: <loom.20060812T191433-775@post.gmane.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Gene Heskett <gene.heskett@verizon.net> wrote:
-> On Monday 14 August 2006 11:13, Dmitry Torokhov wrote:
-> >HI Gene,
-> >
-> >On 8/14/06, Gene Heskett <gene.heskett@verizon.net> wrote:
-> >> I'm having similar problems with an HP Pavilian dv5220, and with a
-> >> bluetooth mouse dongle plugged into the right side usb port it works
-> >> just fine.  What I'd like to do is totally disable that synaptics pad
-> >> as its way too sensitive,
-> >
-> >Are you using synaptics X driver? It can be tweaked to adjust
-> >sensitivity and lots of other things.
->
-> No, I've tried to totally disable any references to it in the xorg.conf.
-> Unsuccessfully it would appear, even so far as to say no effect from doing
-> so.
+08/12/2006 07:27 PM, Thomas Koeller wrote/a écrit:
+> Alan Cox <alan <at> lxorguk.ukuu.org.uk> writes:
+> 
+>> Ar Iau, 2006-08-10 am 23:18 +0200, ysgrifennodd Thomas Koeller:
+>>> This is a driver used for image capturing by the Basler eXcite smart camera
+>>> platform.
+>> drivers/media/video and the Video4Linux2 API deal with image capture in
+>> Linux. It provides a common API for video and thus image capture. Any
+>> reason that interface is not suitable.
+>>
+>> Alan
+>>
+>>
+> 
+> This is not a driver for grabbing live video streams. The eXcite platform using 
+> it is a smart camera running linux, and the driver is for a very special piece 
+> of hardware designed into this camera. Its purpose is grabbing single image 
+> frames for processing within the camera itself, which is quite different from 
+> what the v4l2 API has been designed for.
+> 
+> For more information about the device, see 
+> http://www.baslerweb.com/beitraege/beitrag_en_18458.html.
+Hello,
 
-Ok, so you are most likely using mousedev emulation mode. Not the best
-choice with ALPS/Synaptics. I recommend usig specialized driver for X
-(see below).
+Maybe I just completely misunderstood you point, in which case I 
+apologize... However from what it seems, you are proposing a kernel 
+driver for the hardware which is inside the product described on the 
+webpage. This driver will run on a processor embedded into this camera. 
+It will allow some user-space programs which also run on this processor 
+to acquire pictures generated by the captor. Am I right so far?
 
->
-> >> making it impossible to type more than a line or 2
-> >> without the cursor suddenly jumping to someplace else in the message,
-> >> often highliteing several lines of text as it goes, and the next
-> >> keystroke then deletes wholesale quantities of text, thoroughly
-> >> destroying any chance of actually writing a cogent, understandable
-> >> email response to anyone.
-> >
-> >Have you tried synclient utility? It temporarily disables the touchpad
-> >when you start typing and re-enables it when you done.
-> >
-> Its not installed that I know of.  Availability?
->
+If so then the Video4Linux2 API is still the best way to implement the 
+protocol to pass data between the user-space programs and the driver. 
+The V4L2 API doesn't says that the camera must be far away from the 
+processor, it can work for USB webcams, for Firewire video camera, PCI 
+TV tuners, and probably also for your device. Using the V4L2 not only 
+has the advantage of being a well tested API for communicating video 
+related information with the user-space but it also buys you the fact 
+that any program available on Linux for video should be able to directly 
+detect and use the captor!
 
-http://web.telia.com/~u89404340/touchpad/
-It is a part of Synaptics X driver. And I apologize, it is called
-syndaemon, not synclient.
+That said, thank you already very much for submitting your driver to the 
+Linux kernel. Your code seems already good quality and conformant with 
+the coding style of the kernel. Still, some people will review your 
+code, and let you know what they think might be problematic. This is the 
+normal process for driver acceptance, for the good both of your driver 
+and of the kernel. When you have answered the different suggestion, 
+please resubmit your new version of the driver with the change. I 
+suggest also CCing video4linux-list@redhat.com :-)
 
-> >> Unforch, my questions along those lines have been treated as the
-> >> ravings of a lunatic and ignored.  The bios has no place to disable it,
-> >> dumbest bios I've seen in quite a while, and it has been updated in the
-> >> last 3 months.
-> >>
-> >> I don't *think* I'm a lunatic, but I'm equally sure that the synaptics
-> >> is a pain in the ass and should be capable of being totally disabled
-> >> somehow, hopefully short of opening the lappy up and unplugging or
-> >> cutting every lead to it until such time as it can be made to behave
-> >> instead of responding to every thumb waved 1/2 to 3/4" above it.  I've
-> >> gotten hand cramps trying to hold my thumbs far enough away from that
-> >> abomination to stop such goings on.
-> >>
-> >> So count this as a vote FOR doing something about the synaptics
-> >> touchpad situation.
-> >
-> >There are ways to disable it:
-> >
-> >echo -n "manual" > /sys/bus/serio/devices/serioX/bind_mode
-> bash: /sys/bus/serio/devices/serioX/bind_mode:  No such file or directory
-> >echo -n "none" > /sys/bus/serio/devices/serioXdrvctl
-> bash: /sys/bus/serio/devices/serioXdvrctl: Permission denied
->
-> The above is from a root bash shell while X is running the KDE desktop.
-> >
-> >This should disable it completely.
->
-> next step? :)
->
+See you,
+Eric
 
-serioX is the name of serio port your touchpad is connected to
-(serio0, serio1, etc) You will have to look which port is bound to
-psmouse driver.
 
--- 
-Dmitry
+> I am not subscribed to lkml, so please cc my address thomas at koeller dot 
+> dyndns dot org on all replies.
+Please, also keep the CC: in your answers.

@@ -1,140 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751934AbWHNIR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWHNITn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751934AbWHNIR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 04:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751925AbWHNIR2
+	id S1751931AbWHNITn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 04:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWHNITn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 04:17:28 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:22448 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751936AbWHNIR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 04:17:27 -0400
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+	Mon, 14 Aug 2006 04:19:43 -0400
+Received: from mail.dotsterhost.com ([72.5.54.21]:46464 "HELO
+	mail.dotsterhost.com") by vger.kernel.org with SMTP
+	id S1751931AbWHNITm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 04:19:42 -0400
+Subject: Re: 2.6.18-rc4-mm1
+From: Ian Kent <raven@themaw.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Phillips <phillips@google.com>, David Miller <davem@davemloft.net>,
-       riel@redhat.com, tgraf@suug.ch, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Mike Christie <michaelc@cs.wisc.edu>
-In-Reply-To: <20060814000736.80e652bb.akpm@osdl.org>
-References: <20060808211731.GR14627@postel.suug.ch>
-	 <44DBED4C.6040604@redhat.com> <44DFA225.1020508@google.com>
-	 <20060813.165540.56347790.davem@davemloft.net>
-	 <44DFD262.5060106@google.com> <20060813185309.928472f9.akpm@osdl.org>
-	 <1155530453.5696.98.camel@twins> <20060813215853.0ed0e973.akpm@osdl.org>
-	 <1155531835.5696.103.camel@twins> <20060813222208.7e8583ac.akpm@osdl.org>
-	 <1155537940.5696.117.camel@twins>  <20060814000736.80e652bb.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <20060813133935.b0c728ec.akpm@osdl.org>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	 <20060813133935.b0c728ec.akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 14 Aug 2006 10:15:52 +0200
-Message-Id: <1155543352.5696.137.camel@twins>
+Date: Mon, 14 Aug 2006 16:06:45 +0800
+Message-Id: <1155542805.3430.5.camel@raven.themaw.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.91 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 00:07 -0700, Andrew Morton wrote:
-> On Mon, 14 Aug 2006 08:45:40 +0200
-> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+
+Hi Andrew,
+
+I'm having trouble duplicating this.
+Is there any more info. about this I'm missing?
+
+[raven@raven ~]$ /usr/sbin/showmount -e budgie
+Export list for budgie:
+/        *
+/usr/src *
+[raven@raven ~]$
+
+[raven@raven ~]$ cd /net/budgie
+[raven@raven budgie]$ ls -l
+total 116
+drwxrwxrwx 10 root root  4096 Jul 15 13:23 autofs
+drwxr-xr-x  2 root root  4096 Oct 31  2004 bin
+drwxr-xr-x  2 root root  4096 Jan  5  2005 boot
+drwxr-xr-x  2 root root  4096 Oct 19  2003 cdrom
+drwxr-xr-x 11 root root 24576 Aug 14 08:48 dev
+drwxr-xr-x 65 root root  8192 Aug 14 08:49 etc
+drwxr-xr-x  2 root root  4096 Oct 19  2003 floppy
+drwxrwsr-x  5 root ftp   4096 Apr  3 19:42 home
+drwxr-xr-x  2 root root  4096 Oct 19  2003 initrd
+lrwxrwxrwx  1 root root    28 Oct 31  2004 initrd.img ->
+boot/initrd.img-2.4.27-1-386
+lrwxrwxrwx  1 root root    29 Oct 19  2003 initrd.img.old
+-> /boot/initrd.img-2.4.18-1-386
+drwxr-xr-x  7 root root  4096 Oct 30  2005 lib
+drwx------  2 root root 16384 Oct 19  2003 lost+found
+drwxr-xr-x  5 root root  4096 Dec 19  2004 mnt
+drwxr-xr-x  2 root root  4096 Oct 19  2003 opt
+drwxr-xr-x  2 root root  4096 Feb  8  2002 proc
+drwxr-xr-x  7 root root  4096 Oct 30  2005 root
+drwxr-xr-x  2 root root  4096 Oct 30  2005 sbin
+drwxr-xr-x  2 root root  4096 Oct 14  2004 sys
+drwxrwxrwt  4 root root  4096 Aug 14 12:49 tmp
+drwxr-xr-x 12 root root  4096 Oct 31  2004 usr
+drwxr-xr-x 15 root root  4096 Oct 31  2004 var
+lrwxrwxrwx  1 root root    25 Oct 31  2004 vmlinuz ->
+boot/vmlinuz-2.4.27-1-386
+lrwxrwxrwx  1 root root    25 Oct 19  2003 vmlinuz.old ->
+boot/vmlinuz-2.4.18-1-386
+[raven@raven budgie]$
+
+[raven@raven budgie]$ cd usr/src
+[raven@raven src]$ ls -l
+total 49660
+drwxr-xr-x  5 root root     4096 Dec 25  2004 kernel-headers-2.4.27-1
+drwxr-xr-x  3 root root     4096 Dec 26  2004
+kernel-headers-2.4.27-1-386
+-rw-r--r--  1 root root  4685364 Dec 25  2004
+kernel-headers-2.4.27-1-386_1_i386.deb
+-rw-r--r--  1 root root 11270432 Dec 26  2004
+kernel-image-2.4.27-1-386_1_i386.deb
+drwxr-xr-x  3 root root     4096 Dec 19  2004 kernel-patches
+drwxr-xr-x 16 root root     4096 Dec 26  2004 kernel-source-2.4.27
+-rw-r--r--  1 root root 30980829 Dec  1  2004
+kernel-source-2.4.27.tar.bz2
+drwx------  2 root root    16384 Dec 19  2004 lost+found
+-rw-r--r--  1 root root   145984 Dec 26  2004
+madwifi-module-2.4.27-1-386_20041216-1-onoe+1_i386.deb
+-rw-r--r--  1 root root  1692484 Dec 26  2004
+madwifi-source_20041216_all.deb
+-rw-r--r--  1 root root  1680344 Dec 16  2004 madwifi.tar.gz
+-rw-r--r--  1 root root    14828 Dec 26  2004
+madwifi-tools_20041216_i386.deb
+drwxr-xr-x  4 root root     4096 Dec 16  2004 modules
+-rw-r--r--  1 root root    55752 Dec 26  2004
+ndiswrapper-modules-2.4.27-1-386_0.11-1+1_i386.deb
+-rw-r--r--  1 root root    84130 Dec 26  2004
+ndiswrapper-source_0.11-1_i386.deb
+-rw-r--r--  1 root root    76469 Nov  8  2004 ndiswrapper-source.tar.bz2
+-rw-r--r--  1 root root    20086 Dec 26  2004
+ndiswrapper-utils_0.11-1_i386.deb
+
+
+On Sun, 2006-08-13 at 13:39 -0700, Andrew Morton wrote:
+> On Sun, 13 Aug 2006 01:24:54 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> > On Sun, 2006-08-13 at 22:22 -0700, Andrew Morton wrote:
-> > > On Mon, 14 Aug 2006 07:03:55 +0200
-> > > Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> > > 
-> > > > On Sun, 2006-08-13 at 21:58 -0700, Andrew Morton wrote:
-> > > > > On Mon, 14 Aug 2006 06:40:53 +0200
-> > > > > Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> > > > > 
-> > > > > > Testcase:
-> > > > > > 
-> > > > > > Mount an NBD device as sole swap device and mmap > physical RAM, then
-> > > > > > loop through touching pages only once.
-> > > > > 
-> > > > > Fix: don't try to swap over the network.  Yes, there may be some scenarios
-> > > > > where people have no local storage, but it's reasonable to expect anyone
-> > > > > who is using Linux as an "enterprise storage platform" to stick a local
-> > > > > disk on the thing for swap.
-> > > > 
-> > > > I wish you were right, however there seems to be a large demand to go
-> > > > diskless and swap over iSCSI because disks seem to be the nr. 1 failing
-> > > > piece of hardware in systems these days.
-> > > 
-> > > We could track dirty anonymous memory and throttle.
-> > > 
-> > > Also, there must be some value of /proc/sys/vm/min_free_kbytes at which a
-> > > machine is no longer deadlockable with any of these tricks.  Do we know
-> > > what level that is?
-> > 
-> > Not sure, the theoretical max amount of memory one can 'lose' in socket
-> > wait queues is well over the amount of physical memory we have in
-> > machines today (even for SGI); this combined with the fact that we limit
-> > the memory in some way to avoid DoS attacks, could make for all memory
-> > to be stuck in wait queues. Of course this becomes rather more unlikely
-> > for ever larger amounts of memory. But unlikely is never a guarantee.
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
 > 
-> What is a "socket wait queue" and how/why can it consume so much memory?
+> This kernel breaks autofs /net handling.  Bisection shows that the bug is
+> introduced by git-nfs.patch.
 > 
-> Can it be prevented from doing that?
 > 
-> If this refers to the socket buffers, they're mostly allocated with
-> at least __GFP_WAIT, aren't they?
-
-Wherever it is that packets go if the local end is tied up and cannot
-accept them instantly. The simple but prob wrong calculation I made for
-evgeniy is: suppose we have 64k sockets, each socket can buffer up to
-128 packets, and each packet can be up to 16k (roundup for jumboframes)
-large, that makes for 128G of memory. This calculation is wrong on
-several points (we can have >64k sockets, and I have no idea on the 128)
-but the order of things doesn't get better.
-
-> > > > > That leaves MAP_SHARED, but mm-tracking-shared-dirty-pages.patch will fix
-> > > > > that, will it not?
-> > > > 
-> > > > Will makes it less likely. One can still have memory pressure, the
-> > > > remaining bits of memory can still get stuck in socket queues for
-> > > > blocked processes.
-> > > 
-> > > But there's lots of reclaimable pagecache around and kswapd will free it
-> > > up?
-> > 
-> > Yes, however it is possible for kswapd and direct reclaim to block on
-> > get_request_wait() for the nbd/iscsi request queue by sheer misfortune.
+> sony:/home/akpm> showmount -e bix
+> Export list for bix:
+> /           *
+> /usr/src    *
+> /mnt/export *
+> sony:/home/akpm> ls -l /net/bix
+> total 1025280
+> drwxr-xr-x  3 root root       4096 Apr 10 03:19 bin
+> drwxr-xr-x  2 root root       4096 Mar 10  2004 boot
+> drwxr-xr-x 23 root root     118784 Jun 26 00:48 dev
+> drwxr-xr-x 98 root root       8192 Aug 13 04:03 etc
+> drwxr-xr-x  7 root root       4096 Apr  1  2004 home
+> drwxr-xr-x  2 root root       4096 Oct  7  2003 initrd
+> drwxr-xr-x 10 root root       4096 Apr 10 03:19 lib
+> drwx------  2 root root      16384 Mar 10  2004 lost+found
+> drwxr-xr-x  2 root root       4096 Sep  8  2003 misc
+> ?---------  ? ?    ?             ?            ? /net/bix/mnt
+> ?---------  ? ?    ?             ?            ? /net/bix/usr
+> drwxrwxrwx  8 root root       4096 Jul 10 02:50 opt
+> drwxr-xr-x  2 root root       4096 Mar 10  2004 proc
+> drwxr-xr-x 20 root root       4096 Aug  7 16:39 root
+> drwxr-xr-x  2 root root      57344 Apr 24  2004 rpms
+> drwxr-xr-x  2 root root       8192 Apr 10 03:19 sbin
+> -rw-r--r--  1 root root 1048576000 Mar 12  2004 swap
+> drwxr-xr-x  2 root root       4096 Mar 12  2004 sys
+> drwxr-xr-x  3 root root       4096 Mar 10  2004 tftpboot
+> drwxrwxrwt 14 root root      16384 Aug 13 13:29 tmp
+> drwxr-xr-x 27 root root       4096 Mar 10  2004 var
+> sony:/home/akpm> ls -l /net/bix/usr
+> ls: /net/bix/usr: No such file or directory
+> sony:/home/akpm> mount     
+> /dev/sda6 on / type ext3 (rw,noatime)
+> /dev/proc on /proc type proc (rw)
+> /dev/sys on /sys type sysfs (rw)
+> /dev/devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+> /dev/shm on /dev/shm type tmpfs (rw)
+> none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)
+> sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
+> automount(pid1757) on /net type autofs (rw,fd=5,pgrp=1757,minproto=2,maxproto=4)
+> bix:/ on /net/bix type nfs (rw,nosuid,nodev,hard,intr,tcp,addr=192.168.2.33)
 > 
-> Possibly there are some situations where kswapd will get stuck on request
-> queues.  But as long as the block layer is correctly calling
-> set_queue_congested(), these are easily avoidable via
-> bdi_write_congested().
-
-Right, and this might, regardless of what we're going to end up doing,
-be a good thing to do.
-
-> > In that case there will be no more reclaim; of course the more active
-> > processes we have the unlikelier this will be. Still with the sheer
-> > amount of cpu time invested in Linux its not a gamble we're likely to
-> > never lose.
 > 
-> I suspect that with mm-tracking-shared-dirty-pages.patch, a bit of tuning
-> and perhaps some bugfixing we can make this problem go away for all
-> practical purposes.  Particularly if we're prepared to require local
-> storage for swap (the paranoid can use RAID, no?).
-> 
-> Seem to me that more investigation of these options is needed before we can
-> justify adding lots of hard-to-test complexity to networking?
-
-Well, my aim here, as disgusting as you might think it is, is to get
-swap over network working. I sympathise with your stance of: don't do
-that; but I have been set this task and shall try to get something that
-does not offend people.
-
-As for hard to test, I can supply some patches that would make SROG
-(still find the name horrid) the default network allocator so one could
-more easily test the code paths. As for the dropping of packets, I could
-supply a debug control to switch it on/off regardless of memory
-pressure.
-
-As for overall complexity, A simple fallback allocator that kicks in
-when the normal allocation path fails, and some simple checks to drop
-packets allocated in this fashion when not bound for critical sockets
-doesn't seem like a lot of complexity to me.
-
+> distro is fairly-up-to-date FC5.
 

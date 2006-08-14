@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWHNQ16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWHNQ2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWHNQ16 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 12:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWHNQ16
+	id S1751502AbWHNQ2e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 12:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWHNQ2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 12:27:58 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:23679 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1751507AbWHNQ14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 12:27:56 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Thomas Koeller <thomas@koeller.dyndns.org>,
-       Dave Jones <davej@redhat.com>, wim@iguana.be,
-       linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-       linux-mips@linux-mips.org
-Subject: Re: [PATCH] Added MIPS RM9K watchdog driver
-X-Message-Flag: Warning: May contain useful information
-References: <200608102319.13679.thomas@koeller.dyndns.org>
-	<20060811205639.GK26930@redhat.com>
-	<200608120149.23380.thomas@koeller.dyndns.org>
-	<20060814141445.GA10763@nineveh.rivenstone.net>
-	<20060814153033.GA25215@mars.ravnborg.org>
-	<20060814092124.84f7ff3e.rdunlap@xenotime.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 14 Aug 2006 09:27:55 -0700
-In-Reply-To: <20060814092124.84f7ff3e.rdunlap@xenotime.net> (Randy Dunlap's message of "Mon, 14 Aug 2006 09:21:24 -0700")
-Message-ID: <adahd0fl1tg.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 14 Aug 2006 12:28:34 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:26827 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751514AbWHNQ2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 12:28:32 -0400
+Message-ID: <44E0A4AE.3080600@de.ibm.com>
+Date: Mon, 14 Aug 2006 18:28:30 +0200
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Aug 2006 16:27:55.0973 (UTC) FILETIME=[9916AF50:01C6BFBE]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: netdev <netdev@vger.kernel.org>
+CC: linux-ppc <linuxppc-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
+       Thomas Klein <osstklei@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: [PATCH 0/7] ehea: IBM eHEA Ethernet Device Driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Randy> Sure, autoconf.h is included, but I think his point is that
-    Randy> CONFIG_WATCHDOG_NOWAYOUT may not be defined there at all,
-    Randy> as in my 2.6.18-rc4 autoconf.h file, since my .config file
-    Randy> says: # CONFIG_WATCHDOG_NOWAYOUT is not set
+Hi,
 
-Huh?  How would including <linux/config.h> help with that?  And why
-would you want CONFIG_WATCHDOG_NOWAYOUT to be defined if
-WATCHDOG_NOWAYOUT is not set in your configuration?  That would
-utterly break code that does something like
+this is the latest version of the IBM eHEA Ethernet Device Driver.
+We got a lot of very helpful comments and modified our driver as we
+said in our replies.
 
-    #ifdef CONFIG_WATCHDOG_NOWAYOUT
+Thanks for your efforts so far!
 
- - R.
+Things we are still working on:
+- Debug output rework (EDEB, remove unimportant debug information,
+   using standard kernel mechanisms where possible)
+- performance improvements on SMP systems
+- error recovery
+
+Thanks,
+Jan-Bernd
+
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+Changelog-by:  Jan-Bernd Themann <themann@de.ibm.com>
+
+Differences to patch set http://www.spinics.net/lists/netdev/msg10997.html
+
+Changelog:
+
+- Proper use of alloc_etherdev() / netdev_priv()
+- Several memory leeks fixed
+- Split big functions
+- 64K page support
+- Code cleanup (removed unnecessary casts, unused defines,
+   ethtool stub functions removed, renaming prefixes, comments, ...)
+
+
+  drivers/net/Kconfig             |    6
+  drivers/net/Makefile            |    1
+  drivers/net/ehea/Makefile       |    7
+  drivers/net/ehea/ehea.h         |  470 +++++++
+  drivers/net/ehea/ehea_ethtool.c |  271 ++++
+  drivers/net/ehea/ehea_hcall.h   |   52
+  drivers/net/ehea/ehea_hw.h      |  315 ++++
+  drivers/net/ehea/ehea_main.c    | 2672 ++++++++++++++++++++++++++++++++++++++++
+  drivers/net/ehea/ehea_phyp.c    | 1087 ++++++++++++++++
+  drivers/net/ehea/ehea_phyp.h    |  562 ++++++++
+  drivers/net/ehea/ehea_qmr.c     |  757 +++++++++++
+  drivers/net/ehea/ehea_qmr.h     |  392 +++++
+  12 files changed, 6592 insertions(+)
+
+
+
+
+
+

@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWHNBZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751775AbWHNBbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbWHNBZP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 21:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWHNBZP
+	id S1751775AbWHNBbp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 21:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWHNBbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 21:25:15 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:26521 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751349AbWHNBZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 21:25:14 -0400
-Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev structures as
-	__cpuinitdata
-From: Magnus Damm <magnus@valinux.co.jp>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200608111126_MC3-1-C7CA-65CE@compuserve.com>
-References: <200608111126_MC3-1-C7CA-65CE@compuserve.com>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 10:26:23 +0900
-Message-Id: <1155518783.5764.10.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Sun, 13 Aug 2006 21:31:45 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:31923 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751775AbWHNBbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 21:31:44 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=xv6IQBJbnGQH5YOtvaTFbB9rQGnaK2AdKhp1exS/40OsIZPCXOR2NcoaNAOENEbiF
+	CFGZR8C42g3cvjwGJ4HlA==
+Message-ID: <44DFD262.5060106@google.com>
+Date: Sun, 13 Aug 2006 18:31:14 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: riel@redhat.com, tgraf@suug.ch, a.p.zijlstra@chello.nl, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+References: <20060808211731.GR14627@postel.suug.ch>	<44DBED4C.6040604@redhat.com>	<44DFA225.1020508@google.com> <20060813.165540.56347790.davem@davemloft.net>
+In-Reply-To: <20060813.165540.56347790.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 11:24 -0400, Chuck Ebbert wrote:
-> In-Reply-To: <20060810193740.9133413C0B@wotan.suse.de>
+David Miller wrote:
+> I think there is more profitability from a solution that really does
+> something about "network memory", and doesn't try to say "these
+> devices are special" or "these sockets are special".  Special cases
+> generally suck.
 > 
-> On Thu, 10 Aug 2006 21:37:40 +0200, Andi Kleen wrote:
-> 
-> > From: Magnus Damm <magnus@valinux.co.jp>
-> > 
-> > The different cpu_dev structures are all used from __cpuinit callers what
-> > I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
-> > little bit unsure about arch/i386/common.c:default_cpu, especially when it
-> > comes to the purpose of this_cpu.
-> 
-> But none of these CPUs supports hotplug and only one (AMD) does SMP.
-> So this is just wasting space in the kernel at runtime.
+> We already limit and control TCP socket memory globally in the system.
+> If we do this for all socket and anonymous network buffer allocations,
+> which is sort of implicity in Evgeniy's network tree allocator design,
+> we can solve this problem in a more reasonable way.
 
-How could this be wasting space? If you compile with CONFIG_HOTPLUG_CPU
-disabled then __cpuinitdata will become __initdata - ie the same as
-before. Not a single byte wasted what I can tell.
+This does sound promising, but...
 
-The first version of this patch simply added a missing __init to some
-function, but I was then corrected by akpm that __cpuinit should be used
-instead.
+It is not possible to solve this problem entirely in the network
+layer.  At minimum, throttling is needed in the nbd driver, or even
+better, in the submit_bio path as we have it now.  We also need a way
+of letting the virtual block device declare its resource needs, which
+we also have in some form.  We also need a mechanism to guarantee
+level 2 delivery so we can drop unrelated packets if necessary, which
+exists in the current patch set.
 
-Thanks,
+So Evgeniy's work might well be a part of the solution, but it is not
+the whole solution.
 
-/ magnus
+> And here's the kick, there are other unrelated highly positive
+> consequences to using Evgeniy's network tree allocator.
+
+Also good.  But is it ready to use today?  We need to actually fix
+the out of memory deadlock/performance bug right now so that remote
+storage works properly.
+
+> It doesn't just solve the _one_ problem it was built for, it solves
+> several problems.  And that is the hallmark signature of good design.
+
+Great.  But to solve the whole problem, the block IO system and the
+network layer absolutely must cooperate.
+
+Regards,
+
+Daniel
 

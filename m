@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWHOS7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWHOS6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030302AbWHOS7O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWHOS7N
+	id S965124AbWHOS6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965226AbWHOS6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:59:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13584 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965224AbWHOS6n
+	Tue, 15 Aug 2006 14:58:39 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12304 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965124AbWHOS6i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:58:43 -0400
-Date: Tue, 15 Aug 2006 15:25:14 +0000
+	Tue, 15 Aug 2006 14:58:38 -0400
+Date: Mon, 14 Aug 2006 20:13:00 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/5] Register ext3dev filesystem
-Message-ID: <20060815152513.GC4032@ucw.cz>
-References: <1155172642.3161.74.camel@localhost.localdomain>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andi Kleen <ak@muc.de>, Dmitry Torokhov <dtor@insightbb.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
+Message-ID: <20060814201300.GA4032@ucw.cz>
+References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1155172642.3161.74.camel@localhost.localdomain>
+In-Reply-To: <20060807124855.GB21003@suse.cz>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Register ext4 filesystem as ext3dev filesystem in kernel.
+> > > > > Would not preempt_disable fix that?
+> > > > 
+> > > > Partially, but you still have other problems. Please just get rid
+> > > > of it. Why do we have timer code in the kernel if you then chose
+> > > > not to use it?
+> > >  
+> > > The problem is that gettimeofday() is not always fast. 
+> > 
+> > When it is not fast that means it is not reliable and then you're
+> > also not well off using it anyways.
 > 
-> Signed-Off-By: Mingming Cao<cmm@us.ibm.com>
+> I assume you wanted to say "When gettimeofday() is slow, it means TSC is
+> not reliable", which I agree with. 
 > 
-> 
-> ---
-> 
->  linux-2.6.18-rc4-ming/fs/Kconfig                |   74 ++++++++++++++++++++++--
->  linux-2.6.18-rc4-ming/fs/Makefile               |    1 
->  linux-2.6.18-rc4-ming/fs/ext4/Makefile          |   10 +--
->  linux-2.6.18-rc4-ming/fs/ext4/acl.h             |    6 -
->  linux-2.6.18-rc4-ming/fs/ext4/file.c            |    2 
->  linux-2.6.18-rc4-ming/fs/ext4/inode.c           |    2 
->  linux-2.6.18-rc4-ming/fs/ext4/namei.c           |    6 -
->  linux-2.6.18-rc4-ming/fs/ext4/super.c           |   20 +++---
->  linux-2.6.18-rc4-ming/fs/ext4/symlink.c         |    4 -
->  linux-2.6.18-rc4-ming/fs/ext4/xattr.c           |    8 +-
->  linux-2.6.18-rc4-ming/fs/ext4/xattr.h           |    8 +-
->  linux-2.6.18-rc4-ming/include/linux/ext4_fs_i.h |    4 -
->  12 files changed, 106 insertions(+), 39 deletions(-)
-> 
-> diff -puN fs/ext4/super.c~register-ext3dev fs/ext4/super.c
-> --- linux-2.6.18-rc4/fs/ext4/super.c~register-ext3dev	2006-08-09 15:41:29.273105685 -0700
-> +++ linux-2.6.18-rc4-ming/fs/ext4/super.c	2006-08-09 15:41:29.317106042 -0700
-> @@ -447,7 +447,7 @@ static struct inode *ext4_alloc_inode(st
->  	ei = kmem_cache_alloc(ext4_inode_cachep, SLAB_NOFS);
->  	if (!ei)
->  		return NULL;
-> -#ifdef CONFIG_EXT4_FS_POSIX_ACL
-> +#ifdef CONFIG_EXT3DEV_FS_POSIX_ACL
+> But I need, in the driver, in the no-TSC case use i/o counting, not a
+> slow but reliable method. And I can't say, from outside the timing
+> subsystem, whether gettimeofday() is fast or slow.
 
-Is it really neccessary to rename *all* the config options?
+do gettimeofday(); gettimeofday(); gettimeofday();, then compare the
+result with gettimeofday(); inb(); gettimeofday(); ?
 
+						Pavel
 -- 
 Thanks for all the (sleeping) penguins.

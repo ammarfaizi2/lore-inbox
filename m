@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751764AbWHNBLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWHNBK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751764AbWHNBLA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 21:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWHNBLA
+	id S1751599AbWHNBK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 21:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWHNBK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 21:11:00 -0400
-Received: from science.horizon.com ([192.35.100.1]:6469 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1751770AbWHNBK7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 21:10:59 -0400
-Date: 13 Aug 2006 21:10:56 -0400
-Message-ID: <20060814011056.2381.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
+	Sun, 13 Aug 2006 21:10:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61388 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751599AbWHNBK0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 21:10:26 -0400
+Date: Mon, 14 Aug 2006 11:09:42 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+Subject: Re: [PATCH] XFS: remove pointless conditional testing 'nmp' vs NULL in fs/xfs/xfs_rtalloc.c::xfs_growfs_rt()
+Message-ID: <20060814110942.C2698880@wobbly.melbourne.sgi.com>
+References: <200608130016.51136.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200608130016.51136.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Sun, Aug 13, 2006 at 12:16:50AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um, with all this discussion of keeping caches hot, people do remember
-that FIFO handling of free blocks *greatly* reduces fragmentation, right?
+On Sun, Aug 13, 2006 at 12:16:50AM +0200, Jesper Juhl wrote:
+> In fs/xfs/xfs_rtalloc.c::xfs_growfs_rt() there's a completely useless
+> conditional at the error_exit label.
+> The 'if (nmp)' check is pointless and might as well be removed for two 
+> reasons.
+> 
+> 1) if 'nmp' is NULL then kmem_free() will end up calling kfree() with a NULL
+>    argument - which in turn will just cause a return from kfree(). No harm 
+>    done.
 
-That's an observation from malloc implementations that support merging
-of any two adjacent blocks, but at least some of it should apply to slab
-pages that require multple adjacent free objects to be returned to the
-free-page pool.
+Thats valid.
 
-With steady-state allocations and a LIFO free list, your "hot" end
-of the list is never free long enough to be combined, and the "cold"
-end, which shared pages with long-lived objects that have no hope of
-ever being freed, is rarely used and just wastes memory.
+> 2) At the beginning of the function there's an assignment; '*nmp = *mp;' so
 
-Managing the free list FIFO gives every chunk an equal opportunity to
-have its neighbor chunks freed.
+Thats not.  Theres no assignment at the start of the function;
+theres one inside the main body of the loop 20+ lines into it,
+and right after a mem alloc with flags requiring no failure.
+Later that local variable is freed then set to NULL inside the
+loop, before continuing the next iteration...
 
-The first idea that comes to mind for adapting this to a slab cache is
-to put the cache pages on a free list.  Whenever a chunk is freed on
-a page, that page is moved to the "recent" end.  Objects are allocated
-from the page at the "old" end until it is full, then the next-oldest
-page taken, and so on.
+Really this code would be better if reworked slightly to just
+allocate nmp once before entering the loop, and then free it
+once at the end... we wouldn't need a goto, just a few breaks
+in the loop and a conditional transaction cancel.
 
-Completely free pages are either returned to the system, or put on a
-lowest-priority list that is only used when the other pages are all
-full.
+> This patch gets rid of the pointless check.
 
-Especially in a memory-constrained embedded environment, I'd think
-space-efficiency would be at least as important as time.
+Hmm, seems like code churn that makes the code slightly less
+obvious, but thats just me... I'd prefer a tested patch that
+implements the above suggestion, to be honest. :)
+
+cheers.
+
+-- 
+Nathan

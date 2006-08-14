@@ -1,168 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWHNWID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWHNWHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbWHNWID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 18:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWHNWIB
+	id S965001AbWHNWHm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 18:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWHNWHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 18:08:01 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:2961 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965004AbWHNWH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 18:07:59 -0400
-Date: Mon, 14 Aug 2006 17:06:51 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org,
-       chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-Message-ID: <20060814220651.GA7726@sergelap.austin.ibm.com>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730011338.GA31695@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.11
+	Mon, 14 Aug 2006 18:07:42 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:1466 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965001AbWHNWHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 18:07:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=qCIlYK9XYXnRNZVcAyEP81Exq0ptmaM4ZaScvMQJX37QfILUjObWh5TriaEGHUtBc2vc5FiyjnVWC78DsbU3c6/wzGXWT3MTseo1wj5p+f2u573HgfxwKx9PtLVRi7xCTa8Li3rZe/0TBZTZ3pPjo9p2MCHZlqTKuLsFViUiBB8=
+Message-ID: <44E0F44E.4010905@gmail.com>
+Date: Tue, 15 Aug 2006 00:08:14 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
+Subject: Re: 2.6.18-rc4-mm1
+References: <20060813012454.f1d52189.akpm@osdl.org> <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com> <20060814111914.b50f9b30.akpm@osdl.org> <44E0C889.3020706@gmail.com> <1155583256.5413.42.camel@localhost.localdomain> <6bffcb0e0608141227i2c4c48b6w8e18165ac406862@mail.gmail.com> <1155584697.5413.51.camel@localhost.localdomain> <44E0E1BA.3000204@gmail.com> <20060814205637.GA30814@redhat.com> <6bffcb0e0608141413u122c2a31scb3e170a776cec2b@mail.gmail.com> <20060814212022.GB30814@redhat.com>
+In-Reply-To: <20060814212022.GB30814@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Serge E. Hallyn (serue@us.ibm.com):
-> This patch implements file (posix) capabilities.  This allows
-> a binary to gain a subset of root's capabilities without having
-> the file actually be setuid root.
+Dave Jones wrote:
+> On Mon, Aug 14, 2006 at 11:13:14PM +0200, Michal Piotrowski wrote:
+>  > On 14/08/06, Dave Jones <davej@redhat.com> wrote:
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: general protection fault: 0000 [#1]
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: CPU:    0
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: EIP:    0060:[<c0205249>]    Not tainted VLI
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: EFLAGS: 00010246   (2.6.18-rc4-mm1 #101)
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: EIP is at __list_add+0x3d/0x7a
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: eax: 00000000   ebx: c0670a80   ecx: c038d4dc   edx: 00000000
+>  > >  > Aug 14 22:30:09 ltg01-fedora kernel: esi: ffffffff   edi: f50ebee8   ebp: f50ebed0   esp: f50ebec4
+>  > >
+>  > > __list_add will still be dereferencing prev->next, so you should see exactly
+>  > > the same gpf. Note that you're not triggering the BUG()'s here, you're hitting
+>  > > some other fault just walking the list.
+>  > 
+>  > How can I debug this?
 > 
-> There are some other implementations out there taking various
-> approaches.  This patch keeps all the changes within the
-> capability LSM, and stores the file capabilities in xattrs
-> named "security.capability".  First question is, do we want
-> this in the kernel?  Second is, is this sort of implementation
-> we'd want?
+> Not sure. I'm somewhat puzzled.
+> Disassembling the Code: of your oops shows that we were trying to dereference esi,
+> which was -1 for some bizarre reason.  (my objdump really hated disassembling that
+> function, but I think thats my tools rather than breakage in the oops).
 > 
-> Some userspace tools to manipulate the fscaps are at
-> www.sr71.net/~hallyn/fscaps/.  For instance,
-> 
-> 	setcap writeroot "cap_dac_read_search,cap_dac_override+eip"
-> 
-> allows the 'writeroot' testcase to write to /root/ab when
-> run as a normal user.
-> 
-> This patch doesn't address the need to update
-> cap_bprm_secureexec().
-> 
-> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-> ---
->  include/linux/security.h |   10 +++-
->  security/Kconfig         |   11 ++++
->  security/capability.c    |    5 ++
->  security/commoncap.c     |  127 ++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 152 insertions(+), 1 deletions(-)
+> Question is how did that list member get to be -1 ?
+> One pie-in-the-sky possibility is that we've corrupted memory recently, and
+> this link-list manipulation just stumbled across it.  Note that the last file
+> opened before we blew up was reading i2c.
 
-Here is a different version which sticks closer to the original
-version by Simmonds, in that it simply calls getxattr at
-bprm_set_security.  Very inadequate perftesting showed no
-overhead, and this makes the patch much smaller and compatible
-with SELinux.  Note that this patch changes nothing if
-CONFIG_FS_CAPABILITIES is not enabled, which is the default, and
-should therefore be safe to include in -mm.
+Or cpufreq
 
-(Also CC:ing lsm list which I forgot to do last time)
+Aug 14 15:35:10 ltg01-fedora kernel: last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
----
- security/Kconfig     |   10 ++++++++++
- security/commoncap.c |   48 +++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 57 insertions(+), 1 deletions(-)
+Aug 14 15:39:12 ltg01-fedora kernel: last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_setspeed
 
-diff --git a/security/Kconfig b/security/Kconfig
-index 67785df..aa3558f 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -80,6 +80,16 @@ config SECURITY_CAPABILITIES
- 	  This enables the "default" Linux capabilities functionality.
- 	  If you are unsure how to answer this question, answer Y.
- 
-+config SECURITY_FS_CAPABILITIES
-+	bool "Filesystem Capabilities"
-+	depends on SECURITY_CAPABILITIES
-+	default n
-+	help
-+	  This enables filesystem capabilities, allowing you to give
-+	  binaries a subset of root's powers without using setuid 0.
-+
-+	  If in doubt, answer N.
-+
- config SECURITY_ROOTPLUG
- 	tristate "Root Plug Support"
- 	depends on USB && SECURITY
-diff --git a/security/commoncap.c b/security/commoncap.c
-index f50fc29..064fbb0 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -109,11 +109,17 @@ void cap_capset_set (struct task_struct 
- 	target->cap_permitted = *permitted;
- }
- 
-+#define XATTR_CAPS_SUFFIX "capability"
-+#define XATTR_NAME_CAPS XATTR_SECURITY_PREFIX XATTR_CAPS_SUFFIX
- int cap_bprm_set_security (struct linux_binprm *bprm)
- {
-+	ssize_t (*bprm_getxattr)(struct dentry *,const char *,void *,size_t);
-+	struct dentry *bprm_dentry;
-+	ssize_t rc;
-+	u32 fscaps[3];
-+
- 	/* Copied from fs/exec.c:prepare_binprm. */
- 
--	/* We don't have VFS support for capabilities yet */
- 	cap_clear (bprm->cap_inheritable);
- 	cap_clear (bprm->cap_permitted);
- 	cap_clear (bprm->cap_effective);
-@@ -134,6 +140,46 @@ int cap_bprm_set_security (struct linux_
- 		if (bprm->e_uid == 0)
- 			cap_set_full (bprm->cap_effective);
- 	}
-+
-+#ifdef CONFIG_SECURITY_FS_CAPABILITIES
-+	/* Locate any VFS capabilities: */
-+
-+	bprm_dentry = dget(bprm->file->f_dentry);
-+	if(!(bprm_dentry->d_inode->i_op &&
-+			bprm_dentry->d_inode->i_op->getxattr)) {
-+		dput(bprm_dentry);
-+		return 0;
-+	}
-+	bprm_getxattr = bprm_dentry->d_inode->i_op->getxattr;
-+
-+	rc = bprm_getxattr(bprm_dentry, XATTR_NAME_CAPS, &fscaps,
-+						sizeof(fscaps));
-+	dput(bprm_dentry);
-+
-+	/*
-+	 * serge: not sure about the return values...
-+	 * think about them some more, maybe some should
-+	 * return rc.
-+	 */
-+	if (rc < 0 && rc != -ENODATA) {
-+		printk(KERN_NOTICE "%s: Error (%d) getting xattr\n",
-+				__FUNCTION__, rc);
-+		return 0;
-+	}
-+	if (rc < 0)
-+		return 0;
-+
-+	if (rc != sizeof(fscaps)) {
-+		printk(KERN_NOTICE "%s: got wrong size for getxattr (%d)\n",
-+					__FUNCTION__, rc);
-+		return 0;
-+	}
-+
-+	bprm->cap_effective = fscaps[0];
-+	bprm->cap_inheritable = fscaps[1];
-+	bprm->cap_permitted = fscaps[2];
-+
-+#endif
- 	return 0;
- }
- 
+Aug 14 22:30:09 ltg01-fedora kernel: last sysfs file: /devices/platform/i2c-9191/9191-0290/temp2_input
+
+I haven't seen this bug on previous (2006-08-08) mm snapshot. Here are new i2c patches
+apple-motion-sensor-driver-kconfig-fix.patch
+kill-include-linux-configh.patch - it's my patch, I'm testing it for tree days.
+
+
+Aug 14 15:35:11 ltg01-fedora kernel:  <6>note: firefox-bin[2210] exited with preempt_count 1
+
+Aug 14 15:39:13 ltg01-fedora kernel:  <6>note: sendmail[1719] exited with preempt_count 1
+
+Aug 14 22:30:10 ltg01-fedora kernel:  <6>note: thunderbird-bin[2288] exited with preempt_count 1
+
+Is it possible that this is a problem with net stack?
+
+Binary search will take ages - I don't know how to reproduce this bug.
+
+>  Can you try and reproduce this
+> (if you can reproduce it at all) without the sensors stuff loaded ?
+> 
+> It's a long-shot, but without further clues, I'm stabbing in the dark.
+> 
+> 		Dave
+> 
+
+Regards,
+Michal
+
 -- 
-1.4.1.1
-
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

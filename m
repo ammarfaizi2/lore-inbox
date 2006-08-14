@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWHNBKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751764AbWHNBLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWHNBKP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Aug 2006 21:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWHNBKO
+	id S1751764AbWHNBLA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Aug 2006 21:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWHNBLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Aug 2006 21:10:14 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:30768 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751416AbWHNBKN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Aug 2006 21:10:13 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@osdl.org>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-netdev <netdev@vger.kernel.org>
-Subject: Re: 2.6.18-rc3-mm2 (+ hotfixes): GPF related to skge on suspend 
-In-reply-to: Your message of "Sun, 13 Aug 2006 18:06:02 MST."
-             <20060813180602.630e60e3.akpm@osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 14 Aug 2006 11:10:19 +1000
-Message-ID: <17997.1155517819@ocs10w.ocs.com.au>
+	Sun, 13 Aug 2006 21:11:00 -0400
+Received: from science.horizon.com ([192.35.100.1]:6469 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1751770AbWHNBK7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Aug 2006 21:10:59 -0400
+Date: 13 Aug 2006 21:10:56 -0400
+Message-ID: <20060814011056.2381.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Simple Slab: A slab allocator with minimal meta information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton (on Sun, 13 Aug 2006 18:06:02 -0700) wrote:
->On Mon, 14 Aug 2006 10:54:21 +1000
->Keith Owens <kaos@ocs.com.au> wrote:
->
->> >Code: 44 8b 28 c7 45 d0 00 00 00 00 45 85 ed 0f 89 29 fb ff ff e9
->> >Error (Oops_bfd_perror): /tmp/ksymoops.0lrVNY Invalid bfd target
->> >
->> >box:/home/akpm> rpm -qi ksymoops 
->> >Name        : ksymoops                     Relocations: (not relocatable)
->> >Version     : 2.4.11                            Vendor: (none)
->> >Release     : 1                             Build Date: Sat Jan  8 05:43:45 2005
->> >Install Date: Wed Jun 28 16:59:45 2006      Build Host: ocs3.ocs.com.au
->> >Group       : Utilities/System              Source RPM: ksymoops-2.4.11-1.src.rpm
->> 
->> Back in 2000 there were a lot of version problems between ksymoops and
->> libbfd and libiberty, so I statically link against these libraries when
->> I build the rpm.  You have an i386 version of ksymoops, which was built
->> against an i386 only version of libbfd, it does not support target
->> elf64-x86-64.  Grab the ksymoops src.rpm and rebuild on x86_64, or use
->> a binary rpm from an x86_64 distribution.
->
->But would such a binary be able to decode i386 oopses?
+Um, with all this discussion of keeping caches hot, people do remember
+that FIFO handling of free blocks *greatly* reduces fragmentation, right?
 
-It depends on your versions of bfdutils and binutils.  ksymoops does
-not decode the object itself, it uses bfd and objdump to do the work.
-FWIW, the version of ksymoops in suselinux 10.0 for x86_64 will handle
-both i386 and x86_64.
+That's an observation from malloc implementations that support merging
+of any two adjacent blocks, but at least some of it should apply to slab
+pages that require multple adjacent free objects to be returned to the
+free-page pool.
 
->ftp://ftp.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4/ksymoops-2.4.11-1.src.rpm
->fails to build, btw.  Had to do s/Copyright/License/ in the spec file.
+With steady-state allocations and a LIFO free list, your "hot" end
+of the list is never free long enough to be combined, and the "cold"
+end, which shared pages with long-lived objects that have no hope of
+ever being freed, is rarely used and just wastes memory.
 
-Ah, the joys of changing RPM standards.
+Managing the free list FIFO gives every chunk an equal opportunity to
+have its neighbor chunks freed.
 
+The first idea that comes to mind for adapting this to a slab cache is
+to put the cache pages on a free list.  Whenever a chunk is freed on
+a page, that page is moved to the "recent" end.  Objects are allocated
+from the page at the "old" end until it is full, then the next-oldest
+page taken, and so on.
+
+Completely free pages are either returned to the system, or put on a
+lowest-priority list that is only used when the other pages are all
+full.
+
+Especially in a memory-constrained embedded environment, I'd think
+space-efficiency would be at least as important as time.

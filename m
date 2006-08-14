@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWHNPNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWHNPP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWHNPNk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWHNPNk
+	id S932106AbWHNPP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWHNPPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:13:40 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:21968 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751267AbWHNPNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:13:40 -0400
+	Mon, 14 Aug 2006 11:15:25 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:61284 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932106AbWHNPPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:15:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MUbcpycjvX/VrY5rzL/yFVAeXoO9rLdp0SG+Tajo/KWkdvkGVxwsOOa0gknSt1qgf9J32TX3ARzCz11Z1ZGT/qkaZcotw/nDMWrFeS5QiCK68N16KrS/KxEinCLuaGbh7ajr+ev5Q5BPB1CzsYdhyzPhGp5Z60k8q55KalFzEEU=
-Message-ID: <d120d5000608140813i353b8efaia27d6213b08aff98@mail.gmail.com>
-Date: Mon, 14 Aug 2006 11:13:38 -0400
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AaStnbIn8X0PUsNV/QqaYLrs0EiuoUtEm6E5lE31AI6nqYxsLcw2OeHyZMQMdwWnRIQkNORNQhAn/txdG5br/VS4BrF5buUEpNo8dJZn7QQHW8Qqh4Xe+J3T80iUUtEoZ6LJE5tpimuhEphoMbZTFytW8OULcAHpgLyAUUqGeyQ=
+Message-ID: <d120d5000608140815g121a84a3o58919582d5797305@mail.gmail.com>
+Date: Mon, 14 Aug 2006 11:15:23 -0400
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Gene Heskett" <gene.heskett@verizon.net>
-Subject: Re: Touchpad problems with latest kernels
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200608141038.04746.gene.heskett@verizon.net>
+To: "Dmitry Torokhov" <dtor@insightbb.com>,
+       "Magnus Vigerl???f" <wigge@bigfoot.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: input: evdev.c EVIOCGRAB semantics question
+In-Reply-To: <20060814145848.GA4095@inferi.kami.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
-	 <200608141038.04746.gene.heskett@verizon.net>
+References: <200608121724.16119.wigge@bigfoot.com>
+	 <20060812165228.GA5255@aehallh.com>
+	 <200608122000.47904.dtor@insightbb.com>
+	 <20060813032821.GB5251@aehallh.com>
+	 <d120d5000608140720o4e8cc039u278fea6ccc0aae07@mail.gmail.com>
+	 <20060814145848.GA4095@inferi.kami.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI Gene,
+Hi Mattia,
 
-On 8/14/06, Gene Heskett <gene.heskett@verizon.net> wrote:
+On 8/14/06, Mattia Dongili <malattia@linux.it> wrote:
 >
-> I'm having similar problems with an HP Pavilian dv5220, and with a
-> bluetooth mouse dongle plugged into the right side usb port it works just
-> fine.  What I'd like to do is totally disable that synaptics pad as its
-> way too sensitive,
-
-Are you using synaptics X driver? It can be tweaked to adjust
-sensitivity and lots of other things.
-
-> making it impossible to type more than a line or 2
-> without the cursor suddenly jumping to someplace else in the message,
-> often highliteing several lines of text as it goes, and the next keystroke
-> then deletes wholesale quantities of text, thoroughly destroying any
-> chance of actually writing a cogent, understandable email response to
-> anyone.
+> pbbuttonsd is a nice utility that (between the other things) monitors
+> keyboard and mouse activity and eventually sends the laptop to sleep.
+> The synaptics driver uses EVIOCGRAB and they don't work nice together
+> (eg: laptop goes to sleep even if actively using your touchpad)...
+>
+> Now, with your proposal a user not using the synaptics driver and would
+> lose multiplexing to /dev/input/mice.
 >
 
-Have you tried synclient utility? It temporarily disables the touchpad
-when you start typing and re-enables it when you done.
+Yes, you are right, it won't work.
 
-> Unforch, my questions along those lines have been treated as the ravings of
-> a lunatic and ignored.  The bios has no place to disable it, dumbest bios
-> I've seen in quite a while, and it has been updated in the last 3 months.
->
-> I don't *think* I'm a lunatic, but I'm equally sure that the synaptics is a
-> pain in the ass and should be capable of being totally disabled somehow,
-> hopefully short of opening the lappy up and unplugging or cutting every
-> lead to it until such time as it can be made to behave instead of
-> responding to every thumb waved 1/2 to 3/4" above it.  I've gotten hand
-> cramps trying to hold my thumbs far enough away from that abomination to
-> stop such goings on.
->
-> So count this as a vote FOR doing something about the synaptics touchpad
-> situation.
+> So why not just make EVIOCGRAB mean "don't send events to
+> mousedev but still report data to others opening the device"?
 >
 
-There are ways to disable it:
-
-echo -n "manual" > /sys/bus/serio/devices/serioX/bind_mode
-echo -n "none" > /sys/bus/serio/devices/serioXdrvctl
-
-This should disable it completely.
+That darn layering thing. We don't want evdev to know about all other
+handlers there are.
 
 -- 
 Dmitry

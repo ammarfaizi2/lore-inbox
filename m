@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWHNF5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751866AbWHNF6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751650AbWHNF5M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 01:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWHNF5L
+	id S1751866AbWHNF6n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 01:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751865AbWHNF6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 01:57:11 -0400
-Received: from user-edvans3.msk.internet2.ru ([217.25.93.4]:8168 "EHLO
+	Mon, 14 Aug 2006 01:58:42 -0400
+Received: from user-edvans3.msk.internet2.ru ([217.25.93.4]:26283 "EHLO
 	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S1751650AbWHNF5J convert rfc822-to-8bit (ORCPT
+	id S1751861AbWHNF6l convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 01:57:09 -0400
+	Mon, 14 Aug 2006 01:58:41 -0400
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: [take8 0/2] kevent: Generic event handling mechanism.
+Subject: [take9 0/2] kevent: Generic event handling mechanism.
 In-Reply-To: <20060731103322.GA1898@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 14 Aug 2006 10:20:04 +0400
-Message-Id: <11555364033186@2ka.mipt.ru>
+Date: Mon, 14 Aug 2006 10:21:36 +0400
+Message-Id: <11555364962921@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -29,6 +29,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Generic event handling mechanism.
+
+Changes from 'take8' patchset:
+ * fixed mmap release bug
+ * use module_init() instead of late_initcall()
+ * use better structures for timer notifications
 
 Changes from 'take7' patchset:
  * new mmap interface (not tested, waiting for other changes to be acked)

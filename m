@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWHNWsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWHNWtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbWHNWsl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 18:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbWHNWsl
+	id S965019AbWHNWtk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 18:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbWHNWtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 18:48:41 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20999 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932740AbWHNWsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 18:48:40 -0400
-Date: Tue, 15 Aug 2006 00:48:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Rich Townsend <rhdt@bartol.udel.edu>
-Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: drivers/acpi/sbs.c:acpi_sbs_remove() inconsistent NULL checking
-Message-ID: <20060814224839.GX3543@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 14 Aug 2006 18:49:40 -0400
+Received: from pat.uio.no ([129.240.10.4]:37008 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932740AbWHNWtj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 18:49:39 -0400
+Subject: Re: 2.6.18-rc4-mm1
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+       Ian Kent <raven@themaw.net>
+In-Reply-To: <20060813133935.b0c728ec.akpm@osdl.org>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	 <20060813133935.b0c728ec.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 18:49:27 -0400
+Message-Id: <1155595768.5656.26.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-1.793, required 12,
+	autolearn=disabled, AWL 0.70, RCVD_IN_XBL 2.51,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted the following inconsistent NULL checking 
-introduced by commit 3f86b83243d59bb50caf5938d284d22e10d082a4:
+On Sun, 2006-08-13 at 13:39 -0700, Andrew Morton wrote:
+> On Sun, 13 Aug 2006 01:24:54 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> 
+> This kernel breaks autofs /net handling.  Bisection shows that the bug is
+> introduced by git-nfs.patch.
 
-<--  snip  -->
+Could you try pulling afresh from the NFS git tree? I've fixed up a
+couple of issues in which rpc_pipefs was corrupting the dcache, as well
+as a few dentry leaks that were introduced by David's
+nfs_alloc_client().
 
-...
-int acpi_sbs_remove(struct acpi_device *device, int type)
-{
-        struct acpi_sbs *sbs = (struct acpi_sbs *)acpi_driver_data(device);
-        int id;
-
-        if (!device || !sbs) {
-                return -EINVAL;
-        }
-...
-
-<--  snip  -->
-
-The NULL check for "device" is three lines after it got dereferenced the 
-first time.
-
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+Cheers,
+  Trond
 

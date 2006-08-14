@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWHNOXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWHNOZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbWHNOXH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 10:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWHNOXH
+	id S932384AbWHNOZD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 10:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWHNOZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 10:23:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56489 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932456AbWHNOXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 10:23:05 -0400
-Message-ID: <44E08730.8080702@redhat.com>
-Date: Mon, 14 Aug 2006 10:22:40 -0400
-From: Rik van Riel <riel@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: johnpol@2ka.mipt.ru, phillips@google.com, a.p.zijlstra@chello.nl,
-       indan@nul.nu, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, davem@davemloft.net
-Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
-References: <E1GCbux-0005CO-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1GCbux-0005CO-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 10:25:01 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2795 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932384AbWHNOZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 10:25:00 -0400
+Date: Mon, 14 Aug 2006 08:23:37 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: HT not active
+In-reply-to: <fa.YLv8m2Uw0It/GRKxQHnEfBS+Dao@ifi.uio.no>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <44E08769.7010000@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.YLv8m2Uw0It/GRKxQHnEfBS+Dao@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> Rik van Riel <riel@redhat.com> wrote:
->> That should not be any problem, since skb's (including cowed ones)
->> are short lived anyway.  Allocating a little bit more memory is
->> fine when we have a guarantee that the memory will be freed again
->> shortly.
+Jan Engelhardt wrote:
+> I cannot get HT to be used on some machine:
 > 
-> I'm not sure about the context the comment applies to, but skb's are
-> not necessarily short-lived.  For example, they could be queued for
-> a few seconds for ARP/NDISC and even longer for IPsec SA resolution.
+> w04a# cat /proc/cpuinfo 
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 0
+> model name      : Intel(R) Pentium(R) 4 CPU 1700MHz
+> stepping        : 10
+> cpu MHz         : 1694.890
+> cache size      : 256 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+> cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm up
+> bogomips        : 3393.46
+> 
+> 'ht' indicates:
+> #define X86_FEATURE_HT          (0*32+28) /* Hyper-Threading */                 
 
-That's still below the threshold where it should cause problems
-with the VM going OOM.  Especially if there aren't too many of
-these packets.
+Most P4s that I have seen have the HT flag but only some of them 
+actually support it (and have it enabled in the BIOS). I don't think any 
+1.7GHz models did.
 
 -- 
-All Rights Reversed
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

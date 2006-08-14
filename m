@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWHNRMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWHNRRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWHNRMd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 13:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWHNRMc
+	id S932564AbWHNRRH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 13:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWHNRRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 13:12:32 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:30952 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932449AbWHNRMc (ORCPT
+	Mon, 14 Aug 2006 13:17:07 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:56193 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932506AbWHNRRF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 13:12:32 -0400
-Date: Mon, 14 Aug 2006 19:12:19 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, mlord@pobox.com, axboe@suse.de,
-       zippel@linux-m68k.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: VMPLIT question
-Message-ID: <20060814171219.GB25215@mars.ravnborg.org>
-References: <20060812052744.GB4919@us.ibm.com> <1155393875.7574.88.camel@localhost.localdomain> <20060812191619.GE4919@us.ibm.com> <1155574746.7574.158.camel@localhost.localdomain> <20060814170718.GJ4919@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060814170718.GJ4919@us.ibm.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 14 Aug 2006 13:17:05 -0400
+Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+Cc: Greg KH <greg@kroah.com>, Marcus Better <marcus@better.se>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux scsi <linux-scsi@vger.kernel.org>, ak@suse.de
+In-Reply-To: <200608141858.37465.daniel.ritz-ml@swissonline.ch>
+References: <1155334308.7574.50.camel@localhost.localdomain>
+	 <200608130002.40223.daniel.ritz-ml@swissonline.ch>
+	 <1155571551.7574.143.camel@localhost.localdomain>
+	 <200608141858.37465.daniel.ritz-ml@swissonline.ch>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 10:16:44 -0700
+Message-Id: <1155575804.7574.166.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 10:07:18AM -0700, Nishanth Aravamudan wrote:
- 
-> > I'm sure the Kconfig folks take patches. :P
-> 
-> And that's what I had Roman and Sam on the Cc, as I wanted their input
-> if this was a worthwhile change.
+On Mon, 2006-08-14 at 18:58 +0200, Daniel Ritz wrote:
+> hmm..should be 2.6.16 behavior with this...
+> what kind of box is this?
 
-IMO this would be nice to have fixed - but this part of kconfig is
-really Roman's area.
+I know my earlier description was vague.  Please let me know if there
+are any specifics you need.
 
-	Sam
+> could you give me dmesg output of plain 2.6.18-rc4
+
+http://sr71.net/~dave/linux/daniel.ritz/dmesg-elm3b82-2.6.18-rc4.txt
+
+> and a 2.6.18-rc4 with the patch (not -mm if possible)?
+
+http://sr71.net/~dave/linux/daniel.ritz/dmesg-elm3b82-2.6.18-rc4-with-gregkh-pci-pci-use-pci_bios-as-last-fallback.txt
+
+> oh...and a lspci -vvv please
+
+http://sr71.net/~dave/linux/daniel.ritz/lspci-vvv-elm3b82.txt
+
+(A reversed copy of) the patch I applied to 2.6.18-rc4 is in that
+directory, too:
+
+http://sr71.net/~dave/linux/daniel.ritz/gregkh-pci-pci-use-pci_bios-as-last-fallback.patch
+
+-- Dave
+

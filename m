@@ -1,83 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbWHNWoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbWHNWqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932736AbWHNWoN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 18:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932737AbWHNWoM
+	id S932738AbWHNWqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 18:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWHNWqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 18:44:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40592 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932736AbWHNWoM (ORCPT
+	Mon, 14 Aug 2006 18:46:44 -0400
+Received: from pat.uio.no ([129.240.10.4]:33934 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932738AbWHNWqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 18:44:12 -0400
-Date: Mon, 14 Aug 2006 15:43:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: catalin.marinas@gmail.com
-Cc: Catalin Marinas <catalin.marinas@arm.com>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>
-Subject: Re: [PATCH] Fix memory leak in vc_resize/vc_allocate
-Message-Id: <20060814154356.61fc89ca.akpm@osdl.org>
-In-Reply-To: <20060810142221.31793.20635.stgit@localhost.localdomain>
-References: <20060810142221.31793.20635.stgit@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 14 Aug 2006 18:46:43 -0400
+Subject: Re: [PATCHv3] sunrpc/auth_gss: NULL pointer deref in
+	gss_pipe_release()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Alex Polvi <polvi@google.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e561bacc0608141334i2a942ff5ua97b8c8db381fca1@mail.google.com>
+References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
+	 <1154378242.13744.14.camel@localhost>
+	 <e561bacc0608090827m45fc8f2fia02589be4efce178@mail.google.com>
+	 <1155137983.5731.95.camel@localhost>
+	 <e561bacc0608141232h164f86e2ub2a53061b52d1120@mail.google.com>
+	 <e561bacc0608141334i2a942ff5ua97b8c8db381fca1@mail.google.com>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 18:46:32 -0400
+Message-Id: <1155595592.5656.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-1.966, required 12,
+	autolearn=disabled, AWL 0.52, RCVD_IN_XBL 2.51,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2006 15:22:21 +0100
-Catalin Marinas <catalin.marinas@arm.com> wrote:
-
-> From: Catalin Marinas <catalin.marinas@arm.com>
+On Mon, 2006-08-14 at 16:34 -0400, Alex Polvi wrote:
+> On 8/14/06, Alex Polvi <polvi@google.com> wrote:
+> > Here is another fix. It is quite silly, but clnt->cl_auth is set to
+> > NULL in rpc_destroy_client(), then eventually referenced in
+> > gss_release_pipe() via rpc_rmdir(). Simply removing the clnt->cl_auth
+> > = NULL from clnt.c fixes the issue. I'm still trying to understand the
+> > subsystem, but it seems like rpc_rmdir is being correctly called to
+> > clean up because of the weirdness with umount -l and the nfs server
+> > being turned on and off. Does that seem correct? Or is this still just
+> > covering up some other part of the code being sloppy cleaning up?
 > 
-> Memory leaks can happen in the vc_resize() function in drivers/char/vt.c
-> because of the vc->vc_screenbuf variable overriding in vc_allocate(). The
-> kmemleak reported trace is as follows:
-> 
->   <__kmalloc>
->   <vc_resize>
->   <fbcon_init>
->   <visual_init>
->   <vc_allocate>
->   <con_open>
->   <tty_open>
->   <chrdev_open>
-> 
-> This patch no longer allocates a screen buffer in vc_allocate() if it was
-> already allocated by vc_resize().
-> 
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> ---
-> 
->  drivers/char/vt.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/char/vt.c b/drivers/char/vt.c
-> index da7e66a..31c8b32 100644
-> --- a/drivers/char/vt.c
-> +++ b/drivers/char/vt.c
-> @@ -730,7 +730,8 @@ int vc_allocate(unsigned int currcons)	/
->  	    visual_init(vc, currcons, 1);
->  	    if (!*vc->vc_uni_pagedir_loc)
->  		con_set_default_unimap(vc);
-> -	    vc->vc_screenbuf = kmalloc(vc->vc_screenbuf_size, GFP_KERNEL);
-> +	    if (!vc->vc_kmalloced)
-> +		vc->vc_screenbuf = kmalloc(vc->vc_screenbuf_size, GFP_KERNEL);
->  	    if (!vc->vc_screenbuf) {
->  		kfree(vc);
->  		vc_cons[currcons].d = NULL;
+> Also, I just want to make it clear that I do not think this is the
+> proper fix. It is just pointing out that we intentionally set cl_auth
+> to NULL, then reference it.
 
-hm.  Maybe.  I'd worry that the memory at vc->vc_screenbuf isn't of the
-correct size and this patch will convert a leak into a buffer overrun.
+OK. I think I've finally managed to clean up the various interactions
+with rpc_pipefs. I've uploaded a series of patches on the NFS client
+website. See
 
-Also, what's up with this, in vc_resize()?
+  http://client.linux-nfs.org/Linux-2.6.x/2.6.18-rc4/
 
-	if (vc->vc_kmalloced)
-		kfree(vc->vc_screenbuf);
-	vc->vc_screenbuf = newscreen;
-	vc->vc_kmalloced = 1;
+The relevant patches are
 
-if vc->vc_kmalloced means "there is kmalloced memory at vc->vc_screenbuf"
-then this is wrong.
+linux-2.6.18-006-fix_rpc_unlink.dif: 
+        
+        From: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+        SUNRPC: make rpc_unlink() take a dentry argument instead of a
+        path
+        
+        Signe-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+linux-2.6.18-007-fix_rpc_rmdir.dif: 
+        
+        From: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+        NFS: clean up rpc_rmdir
+        
+        Make it take a dentry argument instead of a path
+        
+        Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+linux-2.6.18-008-fix_rpc_unlink_rmdir_2.dif: 
+        
+        From: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+        SUNRPC: rpc_unlink() must check for unhashed dentries
+        
+        A prior call to rpc_depopulate() by rpc_rmdir() on the parent
+        directory may have already called simple_unlink() on this entry.
+        Add the same check to rpc_rmdir(). Also remove a redundant call
+        to rpc_close_pipes() in rpc_rmdir.
+        
+        Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+linux-2.6.18-009-fix_rpc_unlink_rmdir_3.dif: 
+        
+        From: Trond Myklebust <Trond.Myklebust@netapp.com>
+        
+        SUNRPC: Fix dentry refcounting issues with users of rpc_pipefs
+        
+        rpc_unlink() and rpc_rmdir() will dput the dentry reference for
+        you.
+        
+        Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
 
-This code is all pretty twisty and I fear touching it.
+----
+
+In addition, there is one patch that is needed in order to fix up a
+related issue in the function nfs_alloc_client(), which was introduced
+by David Howells' NFS superblock sharing patches.
+
+Cheers,
+  Trond
+

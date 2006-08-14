@@ -1,146 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932724AbWHNU3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWHNUel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932724AbWHNU3z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 16:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWHNU3y
+	id S964837AbWHNUel (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 16:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWHNUel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 16:29:54 -0400
-Received: from mx04.stofanet.dk ([212.10.10.14]:64731 "EHLO mx04.stofanet.dk")
-	by vger.kernel.org with ESMTP id S932724AbWHNU3y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 16:29:54 -0400
-Date: Mon, 14 Aug 2006 22:29:41 +0200 (CEST)
-From: Esben Nielsen <nielsen.esben@gogglemail.com>
-X-X-Sender: simlo@frodo.shire
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Esben Nielsen <nielsen.esben@googlemail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cleanup and remove some extra spinlocks from rtmutex
-In-Reply-To: <20060813190326.GA2276@oleg>
-Message-ID: <Pine.LNX.4.64.0608142217400.10597@frodo.shire>
-References: <1154439588.25445.31.camel@localhost.localdomain>
- <20060813190326.GA2276@oleg>
+	Mon, 14 Aug 2006 16:34:41 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:49558 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S964837AbWHNUek
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 16:34:40 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=VhAOPKhRtHpbiHFpSNI6KPzmLLUUertNjd3+/2z604suwuXpumFB5anxJNtWDyDYV
+	zAo714B/0C6Mzwfu1ywYw==
+Message-ID: <e561bacc0608141334i2a942ff5ua97b8c8db381fca1@mail.google.com>
+Date: Mon, 14 Aug 2006 16:34:15 -0400
+From: "Alex Polvi" <polvi@google.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCHv3] sunrpc/auth_gss: NULL pointer deref in gss_pipe_release()
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e561bacc0608141232h164f86e2ub2a53061b52d1120@mail.google.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
+	 <1154378242.13744.14.camel@localhost>
+	 <e561bacc0608090827m45fc8f2fia02589be4efce178@mail.google.com>
+	 <1155137983.5731.95.camel@localhost>
+	 <e561bacc0608141232h164f86e2ub2a53061b52d1120@mail.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 13 Aug 2006, Oleg Nesterov wrote:
-
-> Another question: why should we take ->pi_lock to modify rt_mutex's
-> ->wait_list?
-> It looks confusing and unneeded to me, because we already
-> hold ->wait_lock. For example, wakeup_next_waiter() takes current's
-> ->pi_lock before plist_del(), which seems to be completely offtopic,
-> since current->pi_blocked_on has nothing to do with that rt_mutex.
+On 8/14/06, Alex Polvi <polvi@google.com> wrote:
+> On 8/9/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > On Wed, 2006-08-09 at 11:27 -0400, Alex Polvi wrote:
+> > > On 7/31/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > > > On Mon, 2006-07-31 at 10:50 -0400, Alex Polvi wrote:
+> > > > > Proposed (trivial) patch to fix a NULL pointer deref in
+> > > > > gss_pipe_release(). While this does seem to fix the problem, I'm not
+> > > > > entirely sure it is the correct place to handle the NULL pointer.
+> > > > >
+> > > > > Included below is the script I used to recreate the problem, the oops,
+> > > > > and the patch.
+> > > >
+> > > > Sorry, but that is not the correct fix. The problem here is rather that
+> > > > something is causing us to call rpc_close_pipes() on the file after the
+> > > > call to gss_destroy(). That is supposed to be illegal.
+> > >
+> > > Since rpc_rmdir can potentially call rpc_pipe_release, here is a patch
+> > > to make sure it is not called after rpcauth_destroy (which calls
+> > > gss_destroy)!
+> >
+> > No. The current order is correct. The auth layer owns the RPCSEC_GSS
+> > pipe, not the nfs_client.
+> >
+> > rpc_rmdir() should only be calling rpc_pipe_release() if the auth layer
+> > fails to clean up after itself.
 >
-> Note also that ->pi_blocked_on is always modified while also holding
-> ->pi_blocked_on->lock->wait_lock, and things like rt_mutex_top_waiter()
-> need ->wait_lock too, so I don't think we need ->pi_lock for ->wait_list.
+> Here is another fix. It is quite silly, but clnt->cl_auth is set to
+> NULL in rpc_destroy_client(), then eventually referenced in
+> gss_release_pipe() via rpc_rmdir(). Simply removing the clnt->cl_auth
+> = NULL from clnt.c fixes the issue. I'm still trying to understand the
+> subsystem, but it seems like rpc_rmdir is being correctly called to
+> clean up because of the weirdness with umount -l and the nfs server
+> being turned on and off. Does that seem correct? Or is this still just
+> covering up some other part of the code being sloppy cleaning up?
+
+Also, I just want to make it clear that I do not think this is the
+proper fix. It is just pointing out that we intentionally set cl_auth
+to NULL, then reference it.
+
+-Alex
+
+> Signed-off-by: Alex Polvi <polvi@google.com>
+> --
+> git diff net/sunrpc/clnt.c
+> diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+> index d6409e7..bbe2984 100644
+> --- a/net/sunrpc/clnt.c
+> +++ b/net/sunrpc/clnt.c
+> @@ -312,10 +312,8 @@ rpc_destroy_client(struct rpc_clnt *clnt
 >
-
-Yes, that was the basic design:
-
-lock->wait_list and related waiter->list_entry is protected by 
-lock->wait_lock, while task->pi_waiters and related waiter->pi_list_entry.
-
-
-> In other words, could you please explain to me whether the patch below
-> correct or not?
+>         dprintk("RPC: destroying %s client for %s\n",
+>                         clnt->cl_protname, clnt->cl_server);
+> -       if (clnt->cl_auth) {
+> +       if (clnt->cl_auth)
+>                 rpcauth_destroy(clnt->cl_auth);
+> -               clnt->cl_auth = NULL;
+> -       }
+>         if (clnt->cl_parent != clnt) {
+>                 rpc_destroy_client(clnt->cl_parent);
+>                 goto out_free;
 >
-
-Well, we are talking about small optimizations now, moving only a few 
-instructions outside the lock. Except for one of them it is correct, but 
-it is worth risking stability for now?
-
-> Thanks,
 >
-> Oleg.
 >
-> --- 2.6.18-rc3/kernel/rtmutex.c~2_rtm	2006-08-13 19:07:45.000000000 +0400
-> +++ 2.6.18-rc3/kernel/rtmutex.c	2006-08-13 22:09:45.000000000 +0400
-> @@ -236,6 +236,10 @@ static int rt_mutex_adjust_prio_chain(st
-> 		goto out_unlock_pi;
-> 	}
+> > > Signed-off-by: Alex Polvi <polvi@google.com>
+> > > --
+> > > diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+> > > index d6409e7..d2ff886 100644
+> > > --- a/net/sunrpc/clnt.c
+> > > +++ b/net/sunrpc/clnt.c
+> > > @@ -312,16 +312,16 @@ rpc_destroy_client(struct rpc_clnt *clnt
+> > >
+> > >       dprintk("RPC: destroying %s client for %s\n",
+> > >                       clnt->cl_protname, clnt->cl_server);
+> > > -     if (clnt->cl_auth) {
+> > > -             rpcauth_destroy(clnt->cl_auth);
+> > > -             clnt->cl_auth = NULL;
+> > > -     }
+> > >       if (clnt->cl_parent != clnt) {
+> > >               rpc_destroy_client(clnt->cl_parent);
+> > >               goto out_free;
+> > >       }
+> > >       if (clnt->cl_pathname[0])
+> > >               rpc_rmdir(clnt->cl_pathname);
+> > > +     if (clnt->cl_auth) {
+> > > +             rpcauth_destroy(clnt->cl_auth);
+> > > +             clnt->cl_auth = NULL;
+> > > +     }
+> > >       if (clnt->cl_xprt) {
+> > >               xprt_destroy(clnt->cl_xprt);
+> > >               clnt->cl_xprt = NULL;
+> > >
+> > >
+> > >
+> > >
+> > >
+> > >
+> > > > > polvi@return:~/sysops/experimental/polvi$ cat oopsmynfs.sh
+> > > > > #!/bin/bash
+> > > > >
+> > > > > cd / # make sure we are not in the dir
+> > > > >
+> > > > > PROG=${0##*/}
+> > > > >
+> > > > > function usage {
+> > > > >   cat <<EOF
+> > > > > usage: $PROG /nfs/path/
+> > > > >
+> > > > > will oops sunrpc using the nfs host that serves /nfs/path/
+> > > > > EOF
+> > > > >   exit 1
+> > > > > }
+> > > > >
+> > > > > DIR=$1
+> > > > >
+> > > > > [ -d "$DIR" ] || usage
+> > > > >
+> > > > > sudo umount $DIR 2> /dev/null # just house-keeping...
+> > > > >
+> > > > > sudo mount -o sec=krb5 randomfiler:/vol/to/some/share $DIR # must use krb5
+> > > > >
+> > > > > # with out this ls the cd below will say permission denied and not
+> > > > > hang after the
+> > > > > # nfs server has been turned off. It has something to do with stat64
+> > > > > returning EACCES
+> > > > > ls $DIR > /dev/null
+> > > > >
+> > > > > echo "Make the nfs server unusable by the client (turn off nfs, iptables, etc)."
+> > > > > read -p "press enter when ready"
+> > > > >
+> > > > > # if the echo is hit, this script failed to oops sunrpc
+> > > > > (cd $DIR/. ;  echo "will not cause an oops") & # this should hang
+> > > > >
+> > > > > sudo umount -l $DIR
+> > > > >
+> > > > > echo "Turn the nfs server back on and watch for the oops.  Should not
+> > > > > take more then 10s"
+> > > > >
+> > > > >
+> > > > > [  204.385339] net/sunrpc/rpc_pipe.c: rpc_lookup_parent failed to find
+> > > > > path /nfs/clnt4/krb5
+> > > > > [  204.385427] BUG: unable to handle kernel NULL pointer dereference
+> > > > > at virtual address 0000006c
+> > > > > [  204.385554]  printing eip:
+> > > > > [  204.385595] c01d2322
+> > > > > [  204.385678] *pde = 00000000
+> > > > > [  204.385719] Oops: 0000 [#1]
+> > > > > [  204.385781] SMP
+> > > > > [  204.385875] Modules linked in: des binfmt_misc autofs4 video button
+> > > > > battery ac nfs lockd af_packet sg sr_mod pcspkr rtc psm
+> > > > >
+> > > > >
+> > > > >                                    ouse mousedev ide_disk ide_cd cdrom
+> > > > > rpcsec_gss_krb5 auth_rpcgss sunrpc ext3 jbd mbcache thermal processor
+> > > > > fan tg3 sd_mod ide_g
+> > > > >
+> > > > >
+> > > > > eneric ata_piix libata scsi_mod generic ide_core unix
+> > > > > [  204.387417] CPU:    0
+> > > > > [  204.387418] EIP:    0060:[<c01d2322>]    Not tainted VLI
+> > > > > [  204.387419] EFLAGS: 00010292   (2.6.18-rc2-git #1)
+> > > > > [  204.387538] EIP is at _raw_spin_lock+0x12/0x170
+> > > > > [  204.387578] eax: 00000068   ebx: 00000068   ecx: f7157d3c   edx: f7157d3c
+> > > > > [  204.387621] esi: 00000068   edi: 00000000   ebp: f7157d00   esp: f7157cdc
+> > > > > [  204.387664] ds: 007b   es: 007b   ss: 0068
+> > > > > [  204.387704] Process oopsmynfs.sh (pid: 6114, ti=f7156000
+> > > > > task=dffb5aa0 task.ti=f7156000)
+> > > > > [  204.387748] Stack: dffb5aa0 f7157d1c c029ee7d f7157cfc f7156000
+> > > > > f7156000 f73acd00 00000068
+> > > > > [  204.388040]        00000000 f7157d0c c029ff7e 00000068 f7157d24
+> > > > > f88d82cf f73acd00 f73acd00
+> > > > > [  204.388332]        f73acecc f88e1554 f7157d50 f8cbd6a9 f73acd00
+> > > > > f7288460 f73acd80 f73acd70
+> > > > > [  204.388625] Call Trace:
+> > > > > [  204.388868]  [<c029ff7e>] _spin_lock+0xe/0x10
+> > > > > [  204.388997]  [<f88d82cf>] gss_pipe_release+0x1f/0x70 [auth_rpcgss]
+> > > > > [  204.389075]  [<f8cbd6a9>] rpc_close_pipes+0xe9/0x130 [sunrpc]
+> > > > > [  204.389173]  [<f8cbd91f>] rpc_depopulate+0xff/0x140 [sunrpc]
+> > > > > [  204.389267]  [<f8cbda8d>] rpc_rmdir+0x6d/0xa0 [sunrpc]
+> > > > > [  204.389360]  [<f8cac95e>] rpc_destroy_client+0xde/0x110 [sunrpc]
+> > > > > [  204.389443]  [<f8cac8e1>] rpc_destroy_client+0x61/0x110 [sunrpc]
+> > > > > [  204.389524]  [<f8cacab7>] rpc_shutdown_client+0xb7/0x120 [sunrpc]
+> > > > > [  204.389605]  [<f8b2643b>] nfs_kill_super+0x3b/0x90 [nfs]
+> > > > > [  204.389692]  [<c016e2c1>] deactivate_super+0x81/0xa0
+> > > > > [  204.389858]  [<c0185522>] mntput_no_expire+0x52/0x90
+> > > > > [  204.390039]  [<c01770da>] path_release+0x2a/0x30
+> > > > > [  204.390211]  [<c01715cb>] vfs_stat_fd+0x4b/0x60
+> > > > > [  204.390378]  [<c0171600>] vfs_stat+0x20/0x30
+> > > > > [  204.390545]  [<c0171fc9>] sys_stat64+0x19/0x30
+> > > > > [  204.390712]  [<c0102fb1>] sysenter_past_esp+0x56/0x79
+> > > > > [  204.390787]  [<b7fff410>] 0xb7fff410
+> > > > > [  204.390854] Code: 2b c0 89 f8 e8 00 fe ff ff e9 14 ff ff ff 8d 74
+> > > > > 26 00 8d bc 27 00 00 00 00 55 89 e5 83 ec 24 89 5d f4 8b
+> > > > >
+> > > > >
+> > > > >                                      5d 08 89 75 f8 89 7d fc <81> 7b
+> > > > > 04 ad 4e ad de 75 4c 89 e0 25 00 e0 ff ff 8b 00 39 43 0c
+> > > > > [  204.392662] EIP: [<c01d2322>] _raw_spin_lock+0x12/0x170 SS:ESP 0068:f7157cdc
+> > > > >
+> > > > > Signed-off-by: Alex Polvi <polvi@google.com>
+> > > > > ---
+> > > > > diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
+> > > > > index 4a9aa93..2db3bd1 100644
+> > > > > --- a/net/sunrpc/auth_gss/auth_gss.c
+> > > > > +++ b/net/sunrpc/auth_gss/auth_gss.c
+> > > > > @@ -607,6 +607,9 @@ gss_pipe_release(struct inode *inode)
+> > > > >        struct rpc_auth *auth;
+> > > > >        struct gss_auth *gss_auth;
+> > > > >
+> > > > > +       if (rpci->ops == NULL)
+> > > > > +               return;
+> > > > > +
+> > > > >        clnt = rpci->private;
+> > > > >        auth = clnt->cl_auth;
+> > > > >        gss_auth = container_of(auth, struct gss_auth, rpc_auth);
+> > > > > -
+> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > >
+> > > >
+> >
+> >
 >
-> +	/* Release the task */
-> +	spin_unlock_irqrestore(&task->pi_lock, flags);
-> +	put_task_struct(task);
-> +
-
-So you want the task to go away here and use it below?
-
-> 	top_waiter = rt_mutex_top_waiter(lock);
->
-> 	/* Requeue the waiter */
-> @@ -243,10 +247,6 @@ static int rt_mutex_adjust_prio_chain(st
-> 	waiter->list_entry.prio = task->prio;
-> 	plist_add(&waiter->list_entry, &lock->wait_list);
->
-> -	/* Release the task */
-> -	spin_unlock_irqrestore(&task->pi_lock, flags);
-> -	put_task_struct(task);
-> -
-
-No! It is used in the line just above, so we better be sure it still 
-exists!
-
-> 	/* Grab the next task */
-> 	task = rt_mutex_owner(lock);
-> 	get_task_struct(task);
-> @@ -416,15 +416,15 @@ static int task_blocks_on_rt_mutex(struc
-> 	plist_node_init(&waiter->list_entry, current->prio);
-> 	plist_node_init(&waiter->pi_list_entry, current->prio);
->
-> +	current->pi_blocked_on = waiter;
-> +
-> +	spin_unlock_irqrestore(&current->pi_lock, flags);
-> +
-> 	/* Get the top priority waiter on the lock */
-> 	if (rt_mutex_has_waiters(lock))
-> 		top_waiter = rt_mutex_top_waiter(lock);
-> 	plist_add(&waiter->list_entry, &lock->wait_list);
->
-> -	current->pi_blocked_on = waiter;
-> -
-> -	spin_unlock_irqrestore(&current->pi_lock, flags);
-> -
-
-Ok, this change might work out.
-
-> 	if (waiter == rt_mutex_top_waiter(lock)) {
-> 		spin_lock_irqsave(&owner->pi_lock, flags);
-> 		plist_del(&top_waiter->pi_list_entry, &owner->pi_waiters);
-> @@ -472,11 +472,10 @@ static void wakeup_next_waiter(struct rt
-> 	struct task_struct *pendowner;
-> 	unsigned long flags;
->
-> -	spin_lock_irqsave(&current->pi_lock, flags);
-> -
-> 	waiter = rt_mutex_top_waiter(lock);
-> 	plist_del(&waiter->list_entry, &lock->wait_list);
->
-> +	spin_lock_irqsave(&current->pi_lock, flags);
-
-This might be ok, too...
-
-> 	/*
-> 	 * Remove it from current->pi_waiters. We do not adjust a
-> 	 * possible priority boost right now. We execute wakeup in the
-> @@ -530,8 +529,9 @@ static void remove_waiter(struct rt_mute
-> 	unsigned long flags;
-> 	int chain_walk = 0;
->
-> -	spin_lock_irqsave(&current->pi_lock, flags);
-> 	plist_del(&waiter->list_entry, &lock->wait_list);
-> +
-> +	spin_lock_irqsave(&current->pi_lock, flags);
-> 	waiter->task = NULL;
-> 	current->pi_blocked_on = NULL;
-> 	spin_unlock_irqrestore(&current->pi_lock, flags);
->
-And ok.

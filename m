@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWHNHjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWHNHlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWHNHjw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 03:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWHNHjv
+	id S1751509AbWHNHlk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 03:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWHNHlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 03:39:51 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:43968 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750867AbWHNHjv (ORCPT
+	Mon, 14 Aug 2006 03:41:40 -0400
+Received: from stapleshigh.net ([199.249.227.133]:40135 "EHLO junker.org")
+	by vger.kernel.org with ESMTP id S1751509AbWHNHlj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 03:39:51 -0400
-Date: Mon, 14 Aug 2006 11:31:54 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Neil Brown <neilb@suse.de>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
-       Daniel Phillips <phillips@google.com>,
-       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-Message-ID: <20060814073154.GB5161@2ka.mipt.ru>
-References: <44DFA225.1020508@google.com> <20060813.165540.56347790.davem@davemloft.net> <44DFD262.5060106@google.com> <20060813185309.928472f9.akpm@osdl.org> <1155530453.5696.98.camel@twins> <20060813215853.0ed0e973.akpm@osdl.org> <1155531835.5696.103.camel@twins> <20060813222208.7e8583ac.akpm@osdl.org> <1155537940.5696.117.camel@twins> <17632.9097.195772.410011@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <17632.9097.195772.410011@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 14 Aug 2006 11:32:01 +0400 (MSD)
+	Mon, 14 Aug 2006 03:41:39 -0400
+Date: Mon, 14 Aug 2006 03:41:38 -0400 (EDT)
+From: Eric Schoeller <eric@junker.org>
+To: linux-kernel@vger.kernel.org
+Subject: sata_sil driver dev 0 failed to IDENTIFY (INIT_DEV_PARAMS failed)
+Message-ID: <20060814034028.C66081@junker.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 05:17:29PM +1000, Neil Brown (neilb@suse.de) wrote:
-> Would it be too much waste to reserve one page for every idle socket? 
-> 
-> Does this have some fatal flaw?
+howdy,
 
-Yep, in some cases number of sockets is unlimited, but number of total
-memory they can eat is limited already as David mentioned by tcp_?mem[].
+i am using the sata_sil driver with a Silicon Image, Inc. SiI 3112
+Controller and have recently started receiving these messages on driver
+load:
 
-> NeilBrown
+[17179867.424000] libata version 1.20 loaded.
+[17179958.936000] sata_sil 0000:02:0b.0: version 0.9
+[17179958.936000] ACPI: PCI Interrupt 0000:02:0b.0[A] -> Link [LNKA] ->
+GSI 3 (level, low) -> IRQ 3
+[17179958.936000] ata1: SATA max UDMA/100 cmd 0xD0838080 ctl 0xD083808A
+bmdma 0xD0838000 irq 3
+[17179958.936000] ata2: SATA max UDMA/100 cmd 0xD08380C0 ctl 0xD08380CA 
+bmdma 0xD0838008 irq 3
+[17179966.296000] ata1 is slow to respond, please be patient
+[17179975.928000] ata1: SATA link up 1.5 Gbps (SStatus 113)
+[17179975.928000] ata1: dev 0 failed to IDENTIFY (INIT_DEV_PARAMS failed)
+[17179975.928000] scsi0 : sata_sil
+[17179976.132000] ata2: SATA link down (SStatus 0)
 
--- 
-	Evgeniy Polyakov
+As a result, the maxtor 250gb drive fails to be detected   :(
+I'm  roughly 1900 miles away from this box so I have no ability to
+physically inspect the device. I'm worried that the drive is blown (sure
+wish smartmontools was compatible with libata so I might have seen this
+coming sooner!) but  after checking the usual sources I'm still not
+entirely sure what this error message means exactly.
+
+Any insights are greatly appreciated!
+
+Eric Schoeller
+Linux 2.6.17.8 #1 SMP Sun Aug 13 17:49:13 MDT 2006 i686 Intel(R)
+Pentium(R) 4 CPU 1400MHz GNU/Linux

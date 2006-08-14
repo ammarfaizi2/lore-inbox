@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWHNNMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWHNNT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWHNNMS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 09:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWHNNMS
+	id S1750993AbWHNNT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 09:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWHNNT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 09:12:18 -0400
-Received: from erik-slagter.demon.nl ([83.160.41.216]:49053 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S932081AbWHNNMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 09:12:17 -0400
-Subject: md mirror / ext3 / dual core performance strange phenomenon?
-From: Erik Slagter <erik@slagter.name>
+	Mon, 14 Aug 2006 09:19:29 -0400
+Received: from freeautobot.com ([205.244.47.245]:30403 "EHLO
+	www.freeautobot.com") by vger.kernel.org with ESMTP
+	id S1750993AbWHNNT3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 09:19:29 -0400
+Date: Mon, 14 Aug 2006 06:45:51 -0600
+Message-Id: <200608141245.k7ECjnc5011744@www.freeautobot.com>
+From: netfriend@pop3.ru
+Subject: INTERNET MONEY EARNING SECRETS!
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 15:12:14 +0200
-Message-Id: <1155561134.7809.27.camel@skylla.slagter.name>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+X-Lead: 80037960
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello, 
 
-This may be a very stupid question or equally misplaced but I really
-don't know where to ask it elsewhere.
+Bon Jour! ...
+Would you like to know the SECRETS on
 
-I have this configuration (imho significant parts): dual core P915, 2x
-sata harddisk configured as (root) md mirror on intel ICH7R (ahci mode),
-1G ram.
+	"HOW TO EARN MORE IN THE INTERNET?"
 
-The harddisks can sustain both around 55 Mb/s, according to hdparm -tT
-(okay, I now that's only straight reads). Also they can deliver this
-amount of data independent of each other, if both hdparms are run in
-parallel, the same performance is reported. I also did similar tests
-using ddrescue which shows the same.
+If your answer is YES, please submit your 
+contact info below without any obligation
+to purchase on anything:
 
-Now, what puzzles me, is that compiling the kernel (2.6.17.7) using
-either "make -j1 ..." or "make -j2 ..." or "make -j3 ..." makes the
-building take about 6.5 minutes, which is really dissatisfying for this
-cpu/harddisks combination. Also, top shows that most of the time both
-core are between 10-40% idle.
+mailto:  giveinfopleas@bluebottle.com
+Subject: "OK, MORE INFO Palihug!"
+Message: (You must include your info below)
+	
+ 	First Name:
+	Last Name:
+	Tel. Nos.:
+	Country:
 
-BUT... starting from -j4 (and upwards) the compile time suddenly goes to
-3.5 minutes!
+BELIEVE ME, You can thank me later!.
 
-I am really blown away here. It looks like disk access is the bottleneck
-here, but I can't imagine my disks being so slow (at seeking, I guess)
-it should matter that much.
+See you at the top!.
 
-So, I tried changing the readahead value of all relevant devices and...
-there is no difference at all!
 
-I changed journalling parameters to data writeback and commit time =
-30s. Still no difference.
+Cheers,
 
-I kicked one of the two disks out of the mirror. Still no joy.
+ONLINE PARTNER 
+giveinfopleas@bluebottle.com
 
-Then, I tried all i/o schedulers on all relevant devices (except md0 of
-course) and... still no difference at all!
 
-Is there anybody who can shed some light on this or give me a clue or
-pointer?
 
+Note: If dont want to recieve info please click:
+            getmeout@mail15.com 

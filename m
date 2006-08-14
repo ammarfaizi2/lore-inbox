@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752017AbWHNMwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWHNNLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752017AbWHNMwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 08:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752019AbWHNMwU
+	id S1750992AbWHNNLL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 09:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWHNNLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 08:52:20 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:20996 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1752017AbWHNMwT
+	Mon, 14 Aug 2006 09:11:11 -0400
+Received: from crystal.sipsolutions.net ([195.210.38.204]:21377 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1750817AbWHNNLJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 08:52:19 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: riel@redhat.com (Rik van Riel)
-Subject: Re: [RFC][PATCH 0/4] VM deadlock prevention -v4
-Cc: johnpol@2ka.mipt.ru, phillips@google.com, a.p.zijlstra@chello.nl,
-       indan@nul.nu, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, davem@davemloft.net
-Organization: Core
-In-Reply-To: <44E06AC7.6090301@redhat.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1GCbux-0005CO-00@gondolin.me.apana.org.au>
-Date: Mon, 14 Aug 2006 22:51:43 +1000
+	Mon, 14 Aug 2006 09:11:09 -0400
+Message-ID: <44E07662.8070506@sipsolutions.net>
+Date: Mon, 14 Aug 2006 15:10:58 +0200
+From: Johannes Berg <johannes@sipsolutions.net>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: sysfs vs. d80211 configuration
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-sips-origin: submit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@redhat.com> wrote:
-> 
-> That should not be any problem, since skb's (including cowed ones)
-> are short lived anyway.  Allocating a little bit more memory is
-> fine when we have a guarantee that the memory will be freed again
-> shortly.
+Hey,
 
-I'm not sure about the context the comment applies to, but skb's are
-not necessarily short-lived.  For example, they could be queued for
-a few seconds for ARP/NDISC and even longer for IPsec SA resolution.
+In my seemingly never-ending quest to actually use the d80211 stack for 
+something useful I just wanted to write a small setuid tool that:
+ * creates and opens a new monitor interface
+ * drops priviledges
+ * ... does things with received frames ... (not interesting for this 
+discussion)
+ * removes new monitor interface
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+So I figured I'd just keep an fd open to 
+/sys/class/net/mymonitorinterface/remove_iface to which I could write 
+the interfaces name after I was done with it. However, when writing to 
+that fd I got -EACCESS because it checks for CAP_NET_ADMIN.
+
+That seems to make sense. However, it also means that I can simply not 
+write the tool that way, it can't drop priviledges. Of course it could 
+re-exec itself with a special parameter to tell it to remove the 
+interface, but that'd allow anyone to use it to remove any interface. 
+Not good either.
+
+Hence, it seems that in order to properly solve this I should simply add 
+a new  sysfs "remove" property for each d80211 virtual interface that 
+triggers a removal whenever anything is written to it. And it should not 
+have a check for CAP_NET_ADMIN so I can use it after dropping 
+priviledges. Sounds great, right? So why isn't there a patch attached to 
+this mail?
+
+Well, it isn't too great. See, if you think about it again, removing an 
+interface *should* require CAP_NET_ADMIN. But if I want to enable above 
+use-case, then I have to check for CAP_NET_ADMIN when *opening* the 
+sysfs attribute file, not writing to it. But that doesn't seem possible 
+to do. Hence, I lose capability granularity. But it seems that sysfs 
+doesn't allow me to do that. [Nor does a configuration system via 
+netlink. hmm]
+
+Do I lose? Or put from my kernel developer perspective: should we even 
+be enabling such a use?
+
+johannes

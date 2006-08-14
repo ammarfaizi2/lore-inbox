@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932678AbWHNT2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWHNTay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932678AbWHNT2N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 15:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbWHNT2M
+	id S932679AbWHNTay (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 15:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbWHNTay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 15:28:12 -0400
-Received: from dsl254-015-118.sea1.dsl.speakeasy.net ([216.254.15.118]:55651
-	"HELO www2.muking.org") by vger.kernel.org with SMTP
-	id S932678AbWHNT2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 15:28:11 -0400
-Message-ID: <44E0CEC9.2050308@hilman.org>
-Date: Mon, 14 Aug 2006 12:28:09 -0700
-From: Kevin Hilman <kevin@hilman.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Mon, 14 Aug 2006 15:30:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:34287 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932679AbWHNTax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 15:30:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N5u8X64xwKXeI5qAblTNB+yB+Rxz/orS4KdwEy2Rxn+K2AwoZAgvUo2swxr9gMKXw0IcGKeURzs5Kx/xqW9/bBTyf8zafcBg4+CzpFSyAYP9CcVHKJrTt2y5hrlSx6Lo+rX7TUQAdcndpMe7k+5E+CijEqtbJsqxTpcfDyIf8ZE=
+Message-ID: <d120d5000608141230x2b03abe3uff2d310fe37a9ddc@mail.gmail.com>
+Date: Mon, 14 Aug 2006 15:30:51 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
+Subject: Re: Touchpad problems with latest kernels
+Cc: "Gene Heskett" <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <d120d5000608140841q657c6c2euae986b37f6aff605@mail.gmail.com>
 MIME-Version: 1.0
-To: Linux-atm-general@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] net/atm compile error on ARM
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
+	 <200608141038.04746.gene.heskett@verizon.net>
+	 <20060814152000.GA19065@rhlx01.fht-esslingen.de>
+	 <d120d5000608140841q657c6c2euae986b37f6aff605@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-atm_proc_exit() is declared as __exit, and thus in .exit.text.  On
-some architectures (ARM) .exit.text is discarded at compile time, and
-since atm_proc_exit() is called by some other __init functions, it
-results in a link error.
+On 8/14/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 8/14/06, Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+> >
+> > (without a mouse plugged in) after random times the pointer exhibits
+> > clear signs of craziness, moving on its own (mild issue) or jumping
+> > uncontrollably (worse) or being completely off-screen most of the time
+> > (worst).
+> >
 
-Signed-off-by: Kevin Hilman <khilman@mvista.com>
+BTW, next time it gets stuck could you please do:
 
-Index: ixp4xx/net/atm/proc.c
-===================================================================
---- ixp4xx.orig/net/atm/proc.c
-+++ ixp4xx/net/atm/proc.c
-@@ -507,7 +507,7 @@ err_out:
- 	goto out;
- }
+echo 1 > /sys/modules/i8042/parameters/debug
 
--void __exit atm_proc_exit(void)
-+void atm_proc_exit(void)
- {
- 	atm_proc_dirs_remove();
- }
+and if cursor is still stuck (or otherwise misbehaving) after that
+send me your dmesg or /valog/log/kernel.
+
+Thanks!
+
+-- 
+Dmitry

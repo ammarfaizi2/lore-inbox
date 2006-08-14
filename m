@@ -1,110 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752034AbWHNMfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752039AbWHNMhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752034AbWHNMfx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 08:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752033AbWHNMfx
+	id S1752039AbWHNMhP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 08:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752037AbWHNMhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 08:35:53 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:30362 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1752023AbWHNMfw (ORCPT
+	Mon, 14 Aug 2006 08:37:15 -0400
+Received: from outgoing3.smtp.agnat.pl ([193.239.44.85]:19874 "EHLO
+	outgoing3.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S1752033AbWHNMhM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 08:35:52 -0400
-Date: Mon, 14 Aug 2006 16:35:30 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-Message-ID: <20060814123530.GA5019@2ka.mipt.ru>
-References: <20060814110359.GA27704@2ka.mipt.ru> <1155558313.5696.167.camel@twins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Mon, 14 Aug 2006 08:37:12 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: linux-scsi@vger.kernel.org
+Subject: Re: qlogic 2312 problems on 2.6.16.22, 2.6.18rc4
+Date: Mon, 14 Aug 2006 14:37:05 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <200608140946.50411.arekm@pld-linux.org>
+In-Reply-To: <200608140946.50411.arekm@pld-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1155558313.5696.167.camel@twins>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 14 Aug 2006 16:35:31 +0400 (MSD)
+Message-Id: <200608141437.05269.arekm@pld-linux.org>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 02:25:13PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
-> On Mon, 2006-08-14 at 15:04 +0400, Evgeniy Polyakov wrote:
-> 
-> > Defragmentation is a part of freeing algorithm and initial fragmentation
-> > avoidance is being done at allocation time by removing power-of-two
-> > allocations. Rate of fragmentation can be found in some userspace
-> > modlling tests being done for both power-of-two SLAB-like and NTA
-> > allocators. (more details on project's homepage [4]).
-> 
-> Only with a perfect allocation pattern. And then still only internal
-> fragmentation; your allocator is still vulnerable to external
-> fragmentation - you cannot move allocated chunks around because there
-> are pointers into it, hence you will suffer from external fragmentation.
-> 
-> http://en.wikipedia.org/wiki/Fragmentation_%28computer%29
+On Monday 14 August 2006 09:46, Arkadiusz Miskiewicz wrote:
+> Hi,
+>
+> I was using QLA2312 FC card on 32-bit machine with 6GB ram
+> without problems. Recently I've switched to opteron dual core machine
+> also with 6GB ram and I'm having serious problem with access to FC array.
+>
+> When I switch back to 32-bit machine the problem disappears. Some qla2312
+> problems with 64bit machines?
 
-Nature of network dataflow does not obey to that requirements - all
-chunks are "short-lives", i.e. sooner or later they will be put back and
-thus initial region will be repaired.
-With existing allocator it never happens by deisgn.
+I've tested latest git (same as 2.6.18rc4 I guess) using latest ql2300 
+firmware from qlogic site.
 
-> > Benchmarks with trivial epoll based web server showed noticeble (more
-> > than 40%) imrovements of the request rates (1600-1800 requests per
-> > second vs. more than 2300 ones). It can be described by more
-> > cache-friendly freeing algorithm, by tighter objects packing and thus
-> > reduced cache line ping-pongs, reduced lookups into higher-layer caches
-> > and so on.
-> 
-> Nice :-)
-> 
-> > Design of allocator allows to map all node's pages into userspace thus
-> > allows to have true zero-copy support for both sending and receiving
-> > dataflows.
-> 
-> I'm still not clear on how you want to do this, only the trivial case of
-> a sniffer was mentioned by you. To be able to do true zero-copy receive
-> each packet will have to have its own page(s). Simply because you do not
-> know the destination before you receive it, the packet could end up
-> going to a whole different socket that the prev/next. As soon as you
-> start packing multiple packets on 1 page, you've lost the zero-copy
-> receive game.
+mkfs.xfs /dev/sda2
+mount /dev/sda2 /dest
+rpm --root /dest --initdb
 
-Userspace can sak for next packet and pointer to the new location will
-be removed.
+resulted with:
+XFS mounting filesystem sda2
+Ending clean XFS mount for filesystem: sda2
+Filesystem "sda2": XFS internal error xfs_btree_check_sblock at line 334 of 
+file fs/xfs/xfs_btree.c.  Caller 0xffffffff8819c33b
 
-> > As described in recent threads [3] it is also possible to eliminate any 
-> > kind of main system OOM influence on network dataflow processing, thus 
-> > it is possible to prevent deadlock for systems, which use network as 
-> > memory storage (swap over network, iSCSI, NBD and so on).
-> 
-> How? You have never stated how you will avoid getting all packets stuck
-> in blocked sockets.
+Call Trace:
+ [<ffffffff8818a7a7>] :xfs:xfs_btree_check_sblock+0xc7/0xe0
+ [<ffffffff8819c33b>] :xfs:xfs_inobt_lookup+0x10b/0x2c0
+ [<ffffffff8819a4a6>] :xfs:xfs_dialloc+0x266/0x800
+ [<ffffffff8027331c>] cache_alloc_refill+0xcc/0x1b0
+ [<ffffffff8819fecf>] :xfs:xfs_ialloc+0x5f/0x4d0
+ [<ffffffff881be03b>] :xfs:kmem_zone_alloc+0x5b/0xc0
+ [<ffffffff803e4b3f>] thread_return+0x0/0xb1
+ [<ffffffff881b4916>] :xfs:xfs_dir_ialloc+0x86/0x2c0
+ [<ffffffff881a78eb>] :xfs:xfs_log_reserve+0x9b/0xc0
+ [<ffffffff881badfa>] :xfs:xfs_mkdir+0x35a/0x680
+ [<ffffffff88170e5b>] :xfs:xfs_acl_get_attr+0x5b/0x90
+ [<ffffffff881c4c83>] :xfs:xfs_vn_mknod+0x1d3/0x3c0
+ [<ffffffff8028e475>] d_instantiate+0x75/0x90
+ [<ffffffff8028431d>] real_lookup+0x9d/0x110
+ [<ffffffff88022176>] :sunrpc:rpcauth_lookup_credcache+0x96/0x200
+ [<ffffffff88056519>] :nfs:nfs_do_access+0x29/0xa0
+ [<ffffffff8819e886>] :xfs:xfs_iunlock+0x66/0xa0
+ [<ffffffff881b88ba>] :xfs:xfs_access+0x4a/0x60
+ [<ffffffff881c5414>] :xfs:xfs_vn_permission+0x14/0x20
+ [<ffffffff80283ff8>] permission+0xb8/0xd0
+ [<ffffffff8028472b>] __link_path_walk+0x8b/0xcc0
+ [<ffffffff802923f4>] mntput_no_expire+0x24/0xa0
+ [<ffffffff80286ea7>] vfs_mkdir+0xf7/0x180
+ [<ffffffff80286fd8>] sys_mkdirat+0xa8/0xf0
+ [<ffffffff8020a1b1>] error_exit+0x0/0x84
+ [<ffffffff8020991a>] system_call+0x7e/0x83
 
-Each socket has it's limit, so if allocator got enough memory, blocked
-sockets will not affect it's behaviour.
- 
-> On another note, I think you misunderstand our SLAB allocator; we do not
-> round up to nearest order page alloc per object; SLAB is build to avoid
-> that and is designed to pack equal size objects into pages. The kmalloc
-> allocator is build on top of several SLAB allocators; each with its
-> specific size objects to serve.
-> 
-> For example, the 64 byte SLAB will serve 64 byte objects, and packs
-> about PAGE_SIZE/64 per page (about since there is some overhead).
-> 
-> So the actual internal fragmentation of the current kmalloc/SLAB
-> allocator is not as bad as you paint it. The biggest problem we have
-> with the SLAB thing is getting pages back from it. (And the horrific
-> complexity of the current implementation)
 
-Ok, not SLAB, but kmaloc/SLAB.
-That allocator uses power-of-two allocation, so there is extremely
-large overhead for several (and in some cases for all) usage cases
-(e1000 with jumbo frames and unix sockets).
-SLAB allows to have chunks of memory from differenct CPU, so it is
-impossible to create defragmentation, thus kmalloc/SLAB by design will
-suffer from fragmentation.
-Graphs of power-of-two vs. NTA overhead is shown on projects' homepage 
-- overhead is extremely large.
+I was able to reproduce problem with reiserfs, so it doesn't sound as 
+filesystem problem:
+
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11383 0x0 SD]
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11379 0x0 SD]
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11380 0x0 SD]
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11381 0x0 SD]
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11382 0x0 SD]
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11376 0x0 SD]
+ReiserFS: warning: is_leaf: item location seems wrong (second one): *3.5*[2 
+11375 0x1 DIRECT], item_len 16, item_location 2576, free_space(entry_count) 0
+ReiserFS: sda2: warning: vs-5150: search_by_key: invalid format found in block 
+33413. Fsck?
+ReiserFS: sda2: warning: vs-13070: reiserfs_read_locked_inode: i/o failure 
+occurred trying to find stat data of [2 11378 0x0 SD]
+ReiserFS: warning: vs-500: unknown uniqueness 501
+ReiserFS: warning: vs-500: unknown uniqueness 501
+ReiserFS: warning: vs-500: unknown uniqueness 501
+ReiserFS: warning: vs-500: unknown uniqueness 501
+
+and even ext3:
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on sda2, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on sda2, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+EXT3-fs error (device sda2): ext3_readdir: bad entry in directory #16372: 
+rec_len is smaller than minimal - offset=44, inode=0, rec_len=0, name_len=0
+Aborting journal on device sda2.
+ext3_abort called.
+EXT3-fs error (device sda2): ext3_journal_start_sb: Detected aborted journal
+Remounting filesystem read-only
+
+
+This happens on two of my opteron machines so it's not hardware fault I guess.
 
 -- 
-	Evgeniy Polyakov
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

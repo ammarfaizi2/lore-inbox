@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWHNRLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWHNRMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWHNRLi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 13:11:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWHNRLi
+	id S932449AbWHNRMd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 13:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWHNRMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 13:11:38 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:7323 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932438AbWHNRLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 13:11:37 -0400
-Date: Mon, 14 Aug 2006 13:11:34 -0400
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HT not active
-Message-ID: <20060814171134.GM13639@csclub.uwaterloo.ca>
-References: <fa.YLv8m2Uw0It/GRKxQHnEfBS+Dao@ifi.uio.no> <44E08769.7010000@shaw.ca> <Pine.LNX.4.61.0608141035240.21276@chaos.analogic.com> <20060814153209.GB13641@csclub.uwaterloo.ca> <Pine.LNX.4.61.0608141159270.21503@chaos.analogic.com>
-Mime-Version: 1.0
+	Mon, 14 Aug 2006 13:12:32 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:30952 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932449AbWHNRMc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 13:12:32 -0400
+Date: Mon, 14 Aug 2006 19:12:19 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, mlord@pobox.com, axboe@suse.de,
+       zippel@linux-m68k.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: VMPLIT question
+Message-ID: <20060814171219.GB25215@mars.ravnborg.org>
+References: <20060812052744.GB4919@us.ibm.com> <1155393875.7574.88.camel@localhost.localdomain> <20060812191619.GE4919@us.ibm.com> <1155574746.7574.158.camel@localhost.localdomain> <20060814170718.GJ4919@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608141159270.21503@chaos.analogic.com>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+In-Reply-To: <20060814170718.GJ4919@us.ibm.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 12:02:26PM -0400, linux-os (Dick Johnson) wrote:
-> They are now pretty cheap in the USA. Being obsolete by a year
-> or so gets some good performance at the additional electrical
-> cost of a nightlight!
+On Mon, Aug 14, 2006 at 10:07:18AM -0700, Nishanth Aravamudan wrote:
+ 
+> > I'm sure the Kconfig folks take patches. :P
+> 
+> And that's what I had Roman and Sam on the Cc, as I wanted their input
+> if this was a worthwhile change.
 
-5W != 100W
+IMO this would be nice to have fixed - but this part of kconfig is
+really Roman's area.
 
-The athlon 64s look like a very good deal though.
-
---
-Len Sorensen
+	Sam

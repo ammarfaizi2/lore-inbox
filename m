@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbWHNUOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbWHNUPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbWHNUOI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 16:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWHNUOH
+	id S932706AbWHNUPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 16:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWHNUPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 16:14:07 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:3923 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S932693AbWHNUOF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 16:14:05 -0400
-Date: Mon, 14 Aug 2006 22:15:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux RAID Mailing List <linux-raid@vger.kernel.org>
-Subject: Re: Getting 'sync' to flush disk cache?
-Message-ID: <20060814201545.GE16819@suse.de>
-References: <44E0C373.6060008@garzik.org> <1155584098.2886.271.camel@laptopd505.fenrus.org>
+	Mon, 14 Aug 2006 16:15:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59803
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932696AbWHNUPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 16:15:20 -0400
+Date: Mon, 14 Aug 2006 13:15:17 -0700 (PDT)
+Message-Id: <20060814.131517.125893128.davem@davemloft.net>
+To: rick.jones2@hp.com
+Cc: johnpol@2ka.mipt.ru, kaos@ocs.com.au, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44E0B61F.3000706@hp.com>
+References: <9286.1155557268@ocs10w.ocs.com.au>
+	<20060814122049.GC18321@2ka.mipt.ru>
+	<44E0B61F.3000706@hp.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155584098.2886.271.camel@laptopd505.fenrus.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14 2006, Arjan van de Ven wrote:
-> On Mon, 2006-08-14 at 14:39 -0400, Jeff Garzik wrote:
-> > So...  has anybody given any thought to enabling fsync(2), fdatasync(2), 
-> > and sync_file_range(2) issuing a [FLUSH|SYNCHRONIZE] CACHE command?
-> > 
-> > This has bugged me for _years_, that Linux does not do this.  Looking at 
-> > forums on the web, it bugs a lot of other people too.
-> 
-> eh afaik 2.6.17 and such do this if you have barriers enabled...
+From: Rick Jones <rick.jones2@hp.com>
+Date: Mon, 14 Aug 2006 10:42:55 -0700
 
-That is correct, but it only works on reiserfs and XFS and user space
-really cannot tell whether it did the right thing or not. File system
-developers really should take this more seriously...
+> Now, PA-RISC CPUs have the ability to disable spaceid hashing, and it is 
+> entirely possible that the PA-RISC linux port does that, but I thought I 
+> would mention it as an example.  I'm sure the "official" PA-RISC linux 
+> folks can expand on that much much better than I can.
 
--- 
-Jens Axboe
+Regardless, the "offset" it usually taken care of transparently
+by the kernel in order to avoid cache aliasing issues.
 
+It is definitely something we'll need to deal with for zero-copy
+I/O using NTA.  We'll have to make sure that the user mapping of
+the page is of the same color as the mapping the kernel uses.

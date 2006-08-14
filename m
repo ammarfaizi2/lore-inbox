@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWHNPP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWHNPSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWHNPP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 11:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWHNPPZ
+	id S1750733AbWHNPSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 11:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWHNPSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 11:15:25 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:61284 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932106AbWHNPPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 11:15:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AaStnbIn8X0PUsNV/QqaYLrs0EiuoUtEm6E5lE31AI6nqYxsLcw2OeHyZMQMdwWnRIQkNORNQhAn/txdG5br/VS4BrF5buUEpNo8dJZn7QQHW8Qqh4Xe+J3T80iUUtEoZ6LJE5tpimuhEphoMbZTFytW8OULcAHpgLyAUUqGeyQ=
-Message-ID: <d120d5000608140815g121a84a3o58919582d5797305@mail.gmail.com>
-Date: Mon, 14 Aug 2006 11:15:23 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Dmitry Torokhov" <dtor@insightbb.com>,
-       "Magnus Vigerl???f" <wigge@bigfoot.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: input: evdev.c EVIOCGRAB semantics question
-In-Reply-To: <20060814145848.GA4095@inferi.kami.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Aug 2006 11:18:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6373 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750733AbWHNPSG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 11:18:06 -0400
+Date: Mon, 14 Aug 2006 11:18:02 -0400
+From: Dave Jones <davej@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Luke Sharkey <lukesharkey@hotmail.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Touchpad problems with latest kernels
+Message-ID: <20060814151802.GB3196@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Luke Sharkey <lukesharkey@hotmail.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl> <d120d5000608140736w4bc04e69ycbea97e5817ce584@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608121724.16119.wigge@bigfoot.com>
-	 <20060812165228.GA5255@aehallh.com>
-	 <200608122000.47904.dtor@insightbb.com>
-	 <20060813032821.GB5251@aehallh.com>
-	 <d120d5000608140720o4e8cc039u278fea6ccc0aae07@mail.gmail.com>
-	 <20060814145848.GA4095@inferi.kami.home>
+In-Reply-To: <d120d5000608140736w4bc04e69ycbea97e5817ce584@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mattia,
+On Mon, Aug 14, 2006 at 10:36:14AM -0400, Dmitry Torokhov wrote:
+ > On 8/14/06, Luke Sharkey <lukesharkey@hotmail.co.uk> wrote:
+ > > Dear Sir,
+ > >
+ > > I am emailing regarding some problems I have been having with the touchpad
+ > > on my laptop (a hp pavilion dv5046ea  running Fedora Core 5 x86_64).
+ > > [ Here are the specifications for my laptop:
+ > > http://h10010.www1.hp.com/wwpc/uk/en/ho/WF06b/21675-38187-38191-38191-38191-12319008-69074479.html]
+ > >
+ > >
+ > > Support for my touchpad seems to have gotten worse rather than better in
+ > > successive kernels from 2054 onwards.
+ > >
+ > > While on 2054 it generally works fine, On the latest kernels (2154, 2174
+ > > etc.)  I have only to e.g. open a konqueror window for the onscreen pointer
+ > > to start going funny, and jerking about (As happens on computers with v. low
+ > > RAM).  I know its not a RAM problem, as a) everything else works fine, there
+ > > is no slow down of any of the programs I run, only problems with the mouse
+ > > and b) I have just upgraded from 512 MB of RAM to 1 GB.
+ > >
+ > > If I plug in a mouse, the pointer works fine.  Though I would happily use a
+ > > mouse, this is often inconvenient on a laptop.
+ > >
+ > 
+ > What kind of touchpad is this? Are you using synaptics X driver or
+ > standard mouse driver? Also I am not quire sure what 2054 or 2154 is.
+ > Can you please try vanilla kernels from kernel.org?
+ > 
+ > Dave, is there a place where one can see contents of a given RH kernel
+ > (without downloadig and unpacking SRPM)?
 
-On 8/14/06, Mattia Dongili <malattia@linux.it> wrote:
->
-> pbbuttonsd is a nice utility that (between the other things) monitors
-> keyboard and mouse activity and eventually sends the laptop to sleep.
-> The synaptics driver uses EVIOCGRAB and they don't work nice together
-> (eg: laptop goes to sleep even if actively using your touchpad)...
->
-> Now, with your proposal a user not using the synaptics driver and would
-> lose multiplexing to /dev/input/mice.
->
+There are cvs instructions at http://people.redhat.com/davej
+A link to cvsweb is also there.
 
-Yes, you are right, it won't work.
+Quick version number mapping, based on cvs annotate kernel-2.6.spec ..
 
-> So why not just make EVIOCGRAB mean "don't send events to
-> mousedev but still report data to others opening the device"?
->
+2054 - 2.6.16-rc6-git3
+2154 - 2.6.17.3
+2174 - 2.6.17.8
 
-That darn layering thing. We don't want evdev to know about all other
-handlers there are.
+
+		Dave
 
 -- 
-Dmitry
+http://www.codemonkey.org.uk

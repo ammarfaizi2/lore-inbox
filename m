@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751937AbWHNJCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWHNJGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751937AbWHNJCg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 05:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751951AbWHNJCg
+	id S1751963AbWHNJGU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 05:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751962AbWHNJGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 05:02:36 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:6554 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751937AbWHNJCf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 05:02:35 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm 5/5] swsusp: Use memory bitmaps during resume
-Date: Mon, 14 Aug 2006 11:00:38 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200608101510.40544.rjw@sisk.pl> <200608101523.41107.rjw@sisk.pl> <20060813150457.43ba5893.akpm@osdl.org>
-In-Reply-To: <20060813150457.43ba5893.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 14 Aug 2006 05:06:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:30646 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751951AbWHNJGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 05:06:19 -0400
+Subject: Re: module compiler version check still needed?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200608130648.36178.ak@suse.de>
+References: <200608130648.36178.ak@suse.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 14 Aug 2006 11:06:17 +0200
+Message-Id: <1155546377.2886.190.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608141100.38695.rjw@sisk.pl>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 August 2006 00:04, Andrew Morton wrote:
-> On Thu, 10 Aug 2006 15:23:41 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
-> > Make swsusp use memory bitmaps to store its internal information during the
-> > resume phase of the suspend-resume cycle.
-> 
-> This patch makes the resume-time disk IO go all slow again.
-> 
-> Time to read 80k pages:
-> 
-> 2.6.18-rc4:				24 seconds
-> 2.6.18-rc4+akpm-speedups:		10 seconds
-> 2.6.18-rc4+akpm-speedups+this-patch:	24 seconds
+On Sun, 2006-08-13 at 06:48 +0200, Andi Kleen wrote:
+> Does anybody know of any reason why we would still need the compiler version
+> check during module loading? AFAIK on i386 it was only needed to handle
+> 2.95 (which got dropped) and on x86-64 it was never needed. Is there
+> a need on any other architecture for it?
 
-Well, I removed one line too many, sorry.
+is there any harm in doing this check? Checking this for sure rules out
+MANY nasty and really hard to debug corner cases... and there shouldn't
+be any valid reason for doing this ever anyway...
 
- kernel/power/snapshot.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.18-rc4-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/kernel/power/snapshot.c
-+++ linux-2.6.18-rc4-mm1/kernel/power/snapshot.c
-@@ -1278,13 +1278,14 @@ int snapshot_write_next(struct snapshot_
- 				chain_init(&ca, GFP_ATOMIC, PG_SAFE);
- 				memory_bm_position_reset(&orig_bm);
- 				restore_pblist = NULL;
--				handle->sync_read = 0;
- 				handle->buffer = get_buffer(&orig_bm, &ca);
-+				handle->sync_read = 0;
- 				if (!handle->buffer)
- 					return -ENOMEM;
- 			}
- 		} else {
- 			handle->buffer = get_buffer(&orig_bm, &ca);
-+			handle->sync_read = 0;
- 		}
- 		handle->prev = handle->cur;
- 	}

@@ -1,229 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751999AbWHNL1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751998AbWHNL1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751999AbWHNL1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 07:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751997AbWHNL1c
+	id S1751998AbWHNL1d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 07:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752000AbWHNL1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 07:27:32 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:46817 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751994AbWHNL1b (ORCPT
+	Mon, 14 Aug 2006 07:27:33 -0400
+Received: from mail.suse.de ([195.135.220.2]:53168 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751998AbWHNL1c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 07:27:31 -0400
+	Mon, 14 Aug 2006 07:27:32 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20060814 127.183332000@suse.de>
 In-Reply-To: <20060814 127.183332000@suse.de>
 To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] [1/3] Some cleanup in the pipe code
-Message-Id: <20060814112730.4B91213BD9@wotan.suse.de>
-Date: Mon, 14 Aug 2006 13:27:30 +0200 (CEST)
+Subject: [PATCH] [2/3] Create call_usermodehelper_pipe()
+Message-Id: <20060814112731.5A16213BD9@wotan.suse.de>
+Date: Mon, 14 Aug 2006 13:27:31 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Split the big and hard to read do_pipe function into smaller pieces.
+A new member in the ever growing family of call_usermode* functions is born.
+The new call_usermodehelper_pipe() function allows to pipe data to the stdin of the called
+user mode progam and behaves otherwise like the normal call_usermodehelp()
+(except that it always waits for the child to finish)
 
-This creates new create_write_pipe/free_write_pipe/create_read_pipe 
-functions. These functions are made global so that they can be
-used by other parts of the kernel.
-
-The resulting code is more generic and easier to read and has cleaner error 
-handling and less gotos.
+To be used in a follow up patch.
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
-Index: linux/include/linux/fs.h
+Index: linux/kernel/kmod.c
 ===================================================================
---- linux.orig/include/linux/fs.h
-+++ linux/include/linux/fs.h
-@@ -1563,6 +1563,9 @@ static inline void allow_write_access(st
- 		atomic_inc(&file->f_dentry->d_inode->i_writecount);
- }
- extern int do_pipe(int *);
-+extern struct file *create_read_pipe(struct file *f);
-+extern struct file *create_write_pipe(void);
-+extern void free_write_pipe(struct file *);
- 
- extern int open_namei(int dfd, const char *, int, int, struct nameidata *);
- extern int may_open(struct nameidata *, int, int);
-Index: linux/fs/pipe.c
-===================================================================
---- linux.orig/fs/pipe.c
-+++ linux/fs/pipe.c
-@@ -890,87 +890,118 @@ fail_inode:
- 	return NULL;
- }
- 
--int do_pipe(int *fd)
-+struct file *create_write_pipe(void)
- {
--	struct qstr this;
--	char name[32];
-+	int err;
-+	struct inode *inode;
-+	struct file *f;
- 	struct dentry *dentry;
--	struct inode * inode;
--	struct file *f1, *f2;
--	int error;
--	int i, j;
--
--	error = -ENFILE;
--	f1 = get_empty_filp();
--	if (!f1)
--		goto no_files;
--
--	f2 = get_empty_filp();
--	if (!f2)
--		goto close_f1;
-+	char name[32];
-+	struct qstr this;
- 
-+	f = get_empty_filp();
-+	if (!f)
-+		return ERR_PTR(-ENFILE);
-+	err = -ENFILE;
- 	inode = get_pipe_inode();
- 	if (!inode)
--		goto close_f12;
--
--	error = get_unused_fd();
--	if (error < 0)
--		goto close_f12_inode;
--	i = error;
--
--	error = get_unused_fd();
--	if (error < 0)
--		goto close_f12_inode_i;
--	j = error;
-+		goto err_file;
- 
--	error = -ENOMEM;
- 	sprintf(name, "[%lu]", inode->i_ino);
- 	this.name = name;
- 	this.len = strlen(name);
- 	this.hash = inode->i_ino; /* will go */
-+	err = -ENOMEM;
- 	dentry = d_alloc(pipe_mnt->mnt_sb->s_root, &this);
- 	if (!dentry)
--		goto close_f12_inode_i_j;
-+		goto err_inode;
- 
- 	dentry->d_op = &pipefs_dentry_operations;
- 	d_add(dentry, inode);
--	f1->f_vfsmnt = f2->f_vfsmnt = mntget(mntget(pipe_mnt));
--	f1->f_dentry = f2->f_dentry = dget(dentry);
--	f1->f_mapping = f2->f_mapping = inode->i_mapping;
--
--	/* read file */
--	f1->f_pos = f2->f_pos = 0;
--	f1->f_flags = O_RDONLY;
--	f1->f_op = &read_pipe_fops;
--	f1->f_mode = FMODE_READ;
--	f1->f_version = 0;
--
--	/* write file */
--	f2->f_flags = O_WRONLY;
--	f2->f_op = &write_pipe_fops;
--	f2->f_mode = FMODE_WRITE;
--	f2->f_version = 0;
-+	f->f_vfsmnt = mntget(pipe_mnt);
-+	f->f_dentry = dentry;
-+	f->f_mapping = inode->i_mapping;
-+
-+	f->f_flags = O_WRONLY;
-+	f->f_op = &write_pipe_fops;
-+	f->f_mode = FMODE_WRITE;
-+	f->f_version = 0;
-+
-+	return f;
-+
-+ err_inode:
-+	free_pipe_info(inode);
-+	iput(inode);
-+ err_file:
-+	put_filp(f);
-+	return ERR_PTR(err);
-+}
-+
-+void free_write_pipe(struct file *f)
-+{
-+	mntput(f->f_vfsmnt);
-+	dput(f->f_dentry);
-+	put_filp(f);
-+}
-+
-+struct file *create_read_pipe(struct file *wrf)
-+{
-+	struct file *f = get_empty_filp();
-+	if (!f)
-+		return ERR_PTR(-ENFILE);
-+
-+	/* Grab pipe from the writer */
-+	f->f_vfsmnt = mntget(wrf->f_vfsmnt);
-+	f->f_dentry = dget(wrf->f_dentry);
-+	f->f_mapping = wrf->f_dentry->d_inode->i_mapping;
-+
-+	f->f_pos = 0;
-+	f->f_flags = O_RDONLY;
-+	f->f_op = &read_pipe_fops;
-+	f->f_mode = FMODE_READ;
-+	f->f_version = 0;
-+
-+	return f;
-+}
-+
-+int do_pipe(int *fd)
-+{
-+	struct file *fw, *fr;
-+	int error;
-+	int i, j;
- 
--	fd_install(i, f1);
--	fd_install(j, f2);
-+	fw = create_write_pipe();
-+	if (IS_ERR(fw))
-+		return PTR_ERR(fw);
-+	fr = create_read_pipe(fw);
-+	error = PTR_ERR(fr);
-+	if (IS_ERR(fr))
-+		goto err_write_pipe;
-+
-+	error = get_unused_fd();
-+	if (error < 0)
-+		goto err_read_pipe;
-+	i = error;
-+
-+	error = get_unused_fd();
-+	if (error < 0)
-+		goto err_i_fd;
-+	j = error;
-+
-+	fd_install(i, fr);
-+	fd_install(j, fw);
- 	fd[0] = i;
- 	fd[1] = j;
- 
- 	return 0;
- 
--close_f12_inode_i_j:
--	put_unused_fd(j);
--close_f12_inode_i:
-+ err_i_fd:
- 	put_unused_fd(i);
--close_f12_inode:
--	free_pipe_info(inode);
--	iput(inode);
--close_f12:
--	put_filp(f2);
--close_f1:
--	put_filp(f1);
--no_files:
--	return error;	
-+ err_read_pipe:
-+	put_filp(fr);
-+ err_write_pipe:
-+	free_write_pipe(fw);
-+	return error;
- }
+--- linux.orig/kernel/kmod.c
++++ linux/kernel/kmod.c
+@@ -122,6 +122,7 @@ struct subprocess_info {
+ 	struct key *ring;
+ 	int wait;
+ 	int retval;
++	struct file *stdin;
+ };
  
  /*
+@@ -145,12 +146,26 @@ static int ____call_usermodehelper(void 
+ 
+ 	key_put(old_session);
+ 
++	/* Install input pipe when needed */
++	if (sub_info->stdin) {
++		struct files_struct *f = current->files;
++		struct fdtable *fdt;
++		/* no races because files should be private here */
++		sys_close(0);
++		fd_install(0, sub_info->stdin);
++		spin_lock(&f->file_lock);
++		fdt = files_fdtable(f);
++		FD_SET(0, fdt->open_fds);
++		FD_CLR(0, fdt->close_on_exec);
++		spin_unlock(&f->file_lock);
++	}
++
+ 	/* We can run anywhere, unlike our parent keventd(). */
+ 	set_cpus_allowed(current, CPU_MASK_ALL);
+ 
+ 	retval = -EPERM;
+ 	if (current->fs->root)
+-		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
++		retval = execve(sub_info->path, sub_info->argv, sub_info->envp);
+ 
+ 	/* Exec failed? */
+ 	sub_info->retval = retval;
+@@ -257,6 +272,44 @@ int call_usermodehelper_keys(char *path,
+ }
+ EXPORT_SYMBOL(call_usermodehelper_keys);
+ 
++int call_usermodehelper_pipe(char *path, char **argv, char **envp,
++			     struct file **filp)
++{
++	DECLARE_COMPLETION(done);
++	struct subprocess_info sub_info = {
++		.complete	= &done,
++		.path		= path,
++		.argv		= argv,
++		.envp		= envp,
++		.retval		= 0,
++	};
++	struct file *f;
++	DECLARE_WORK(work, __call_usermodehelper, &sub_info);
++
++	if (!khelper_wq)
++		return -EBUSY;
++
++	if (path[0] == '\0')
++		return 0;
++
++	f = create_write_pipe();
++	if (!f)
++		return -ENOMEM;
++	*filp = f;
++
++	f = create_read_pipe(f);
++	if (!f) {
++		free_write_pipe(*filp);
++		return -ENOMEM;
++	}
++	sub_info.stdin = f;
++
++	queue_work(khelper_wq, &work);
++	wait_for_completion(&done);
++	return sub_info.retval;
++}
++EXPORT_SYMBOL(call_usermodehelper_pipe);
++
+ void __init usermodehelper_init(void)
+ {
+ 	khelper_wq = create_singlethread_workqueue("khelper");
+Index: linux/include/linux/kmod.h
+===================================================================
+--- linux.orig/include/linux/kmod.h
++++ linux/include/linux/kmod.h
+@@ -47,4 +47,8 @@ call_usermodehelper(char *path, char **a
+ 
+ extern void usermodehelper_init(void);
+ 
++struct file;
++extern int call_usermodehelper_pipe(char *path, char *argv[], char *envp[],
++				    struct file **filp);
++
+ #endif /* __LINUX_KMOD_H__ */

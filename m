@@ -1,67 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbWHNURE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbWHNUT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbWHNURE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 16:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWHNURE
+	id S932714AbWHNUT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 16:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbWHNUT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 16:17:04 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:5128 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932694AbWHNURD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 16:17:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Jarf4Z53I4KlN9K1O+5qY/GF+ufhc1L+C+IrWSObGSXCCHp2aJ3mfNIpN/4qFmEJQqGq3xMjiDpn8duI2mQL3ABvZu9vUc7fUXI6VpE3uIQCL6Edwp107yK6hiGuqHwncRZvolwXZzNHfA1cL85M0DG/I8QGaPOEgL/UPFZ4Rn0=
-Message-ID: <d120d5000608141317p50540cd5x5e8ec409dc9343ef@mail.gmail.com>
-Date: Mon, 14 Aug 2006 16:17:01 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Giuseppe Bilotta" <bilotta78@hotpop.com>
-Subject: Re: Polling for battery stauts and lost keypresses (was: Touchpad problems with latest kernels)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1q38ghnxvrliv$.zzgutgu0exkm$.dlg@40tude.net>
+	Mon, 14 Aug 2006 16:19:59 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:27785 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932709AbWHNUT5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 16:19:57 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: aic7xxx broken in 2.6.18-rc3-mm2
+Date: Mon, 14 Aug 2006 22:19:26 +0200
+User-Agent: KMail/1.7.2
+Cc: Marcus Better <marcus@better.se>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux scsi <linux-scsi@vger.kernel.org>, ak@suse.de
+References: <1155334308.7574.50.camel@localhost.localdomain> <200608142021.18551.daniel.ritz-ml@swissonline.ch> <1155585403.12700.10.camel@localhost.localdomain>
+In-Reply-To: <1155585403.12700.10.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
-	 <200608141038.04746.gene.heskett@verizon.net>
-	 <20060814152000.GA19065@rhlx01.fht-esslingen.de>
-	 <d120d5000608140841q657c6c2euae986b37f6aff605@mail.gmail.com>
-	 <20060814155437.GA801@rhlx01.fht-esslingen.de>
-	 <d120d5000608140906x47bc572blb1b9821ead987d7e@mail.gmail.com>
-	 <1q38ghnxvrliv$.zzgutgu0exkm$.dlg@40tude.net>
+Message-Id: <200608142219.27950.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-03.tornado.cablecom.ch 1378;
+	Body=8 Fuz1=8 Fuz2=8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/14/06, Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
-> On Mon, 14 Aug 2006 12:06:06 -0400, Dmitry Torokhov wrote:
->
-> > On many laptops (including mine) polling battery takes a loooong time
-> > and is done in SMI mode in BIOS causing lost keypresses, jerky mouse
-> > etc. It is pretty common problem. I think I have my ACPI client
-> > refreshing every 3 minutes.
->
-> BTW, polling battery status takes a lot on a Dell Inspiron 8200 too,
-> and all keypresses and mouse movements (and I think even network
-> IRQs?) are totally *dead* while polling.
->
-> However, The Other OS(tm) *seems* to do it right enough to have no
-> noticeable keypress losses, even when updating the battery status. Is
-> it using different system calls, or what?
->
+On Monday 14 August 2006 21.56, Dave Hansen wrote:
+> On Mon, 2006-08-14 at 20:21 +0200, Daniel Ritz wrote:
+> > errm...sorry, i didn't mean that patch but the alternative i sent later. attached.
+> > it should use direct access while not breaking legacy PCI probing. in theory..
+> > 
+> > thanks,
+> > -daniel
+> > 
+> > diff --git a/arch/i386/pci/init.c b/arch/i386/pci/init.c
+> > index c7650a7..51087a9 100644
+> > --- a/arch/i386/pci/init.c
+> > +++ b/arch/i386/pci/init.c
+> > @@ -14,8 +14,12 @@ #endif
+> >  #ifdef CONFIG_PCI_BIOS
+> >  	pci_pcbios_init();
+> >  #endif
+> > -	if (raw_pci_ops)
+> > -		return 0;
+> > +	/*
+> > +	 * don't check for raw_pci_ops here because we want pcbios as last
+> > +	 * fallback, yet it's needed to run first to set pcibios_last_bus
+> > +	 * in case legacy PCI probing is used. otherwise detecting peer busses
+> > +	 * fails.
+> > +	 */
+> >  #ifdef CONFIG_PCI_DIRECT
+> >  	pci_direct_init();
+> >  #endif
+> 
+> That one works on my box without any issues.  Thanks!
 
-I am not sure, but there are many things that may affect it:
+nice! thanks for testing. 
 
-1. Battry attributes are divided into 2 groups - static (i think they
-go into /proc/acpi/battery/<name>/info and dynamic
-(/proc/acpi/batetry/state). Static attributes take really long time to
-pull and they do not change so it may wery well be they are polled one
-at startup. Dynamic attributes are cheaper to poll and even then OS
-may cache access or limit rate.
+Andrew/Greg could you add the patch to your trees? attached again with a better
+description.
 
-2. Quite often there are OEM drivers that are tweaked to a specific
-hardware and involve hardware-specific hacks.
+rgds
+-daniel
 
--- 
-Dmitry
+-----
+
+[PATCH] PCI: use PCBIOS as last fallback
+
+there was a change in 2.6.17 which affected the order in which the PCI access
+methods are probed. this gives regressions on some machines with broken BIOS.
+the problem is that PCBIOS sometimes reports last bus wrong, leaving cardbus
+non-funcational. previously those system worked fine with direct access.
+
+the patch changes the PCI init code to have PCBIOS as last fallback, yet
+the PCBIOS code still has to run first to set pcibios_last_bus to the value
+reported by the BIOS. this is needed in case legacy PCI probing
+(arch/i386/pci/legacy.c) is used to detect peer busses. using direct access
+if available fixes the cardbus problems.
+
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+
+diff --git a/arch/i386/pci/init.c b/arch/i386/pci/init.c
+index c7650a7..51087a9 100644
+--- a/arch/i386/pci/init.c
++++ b/arch/i386/pci/init.c
+@@ -14,8 +14,12 @@ #endif
+ #ifdef CONFIG_PCI_BIOS
+ 	pci_pcbios_init();
+ #endif
+-	if (raw_pci_ops)
+-		return 0;
++	/*
++	 * don't check for raw_pci_ops here because we want pcbios as last
++	 * fallback, yet it's needed to run first to set pcibios_last_bus
++	 * in case legacy PCI probing is used. otherwise detecting peer busses
++	 * fails.
++	 */
+ #ifdef CONFIG_PCI_DIRECT
+ 	pci_direct_init();
+ #endif
+

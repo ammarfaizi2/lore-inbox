@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751966AbWHNJUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751967AbWHNJc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751966AbWHNJUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 05:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751965AbWHNJUE
+	id S1751967AbWHNJc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 05:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWHNJc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 05:20:04 -0400
-Received: from mx1.suse.de ([195.135.220.2]:15773 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751942AbWHNJUD (ORCPT
+	Mon, 14 Aug 2006 05:32:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28333 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751967AbWHNJc1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 05:20:03 -0400
-From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: module compiler version check still needed?
-Date: Mon, 14 Aug 2006 11:19:46 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200608130648.36178.ak@suse.de> <1155546377.2886.190.camel@laptopd505.fenrus.org>
-In-Reply-To: <1155546377.2886.190.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608141119.46259.ak@suse.de>
+	Mon, 14 Aug 2006 05:32:27 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1155542805.3430.5.camel@raven.themaw.net> 
+References: <1155542805.3430.5.camel@raven.themaw.net>  <20060813012454.f1d52189.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> 
+To: Ian Kent <raven@themaw.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: 2.6.18-rc4-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 14 Aug 2006 10:32:10 +0100
+Message-ID: <15771.1155547930@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 August 2006 11:06, Arjan van de Ven wrote:
-> On Sun, 2006-08-13 at 06:48 +0200, Andi Kleen wrote:
-> > Does anybody know of any reason why we would still need the compiler version
-> > check during module loading? AFAIK on i386 it was only needed to handle
-> > 2.95 (which got dropped) and on x86-64 it was never needed. Is there
-> > a need on any other architecture for it?
-> 
-> is there any harm in doing this check?
+Ian Kent <raven@themaw.net> wrote:
 
-Yes, it can cause lots of trouble when you try to compile external
-modules on a different system with different compiler than on the
-system where the kernel was compiled.
+> I'm having trouble duplicating this.
+> Is there any more info. about this I'm missing?
 
-e.g. you upgrade a distribution kernel but now you can compile
-modules for it because the new rpm was compiled with a newer 
-compiler.
+Works fine for me also.
 
-Happens to me regularly.
+Andrew, can you do the following:
 
--Andi
+	cat /proc/fs/nfsfs/*
+
+And can you try mounting "bix:/" manually to see if that exhibits the same
+problem?  It'd be useful to know if autofs is actually having an effect.
+
+Also, can you do a module list and check that it's autofs4 that's being used,
+and not autofs.  It would be handy if we could rule out an adverse interaction
+between nfs and autofs4.
+
+> Bisection shows that the bug is introduced by git-nfs.patch.
+
+But what does it actually show?  Do you know where the bug is then?  (I don't
+know exactly how bisection works).
+
+David

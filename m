@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWHNUEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbWHNUIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWHNUEt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 16:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWHNUEt
+	id S932698AbWHNUIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 16:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWHNUIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 16:04:49 -0400
-Received: from igw1.zrnko.cz ([81.31.45.161]:61402 "EHLO anubis.fi.muni.cz")
-	by vger.kernel.org with ESMTP id S932207AbWHNUEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 16:04:48 -0400
-Date: Mon, 14 Aug 2006 22:04:57 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Cpufreq on Conroe chip
-Message-ID: <20060814200457.GB12166@mail.muni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 14 Aug 2006 16:08:16 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58506
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932695AbWHNUIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 16:08:14 -0400
+Date: Mon, 14 Aug 2006 13:08:14 -0700 (PDT)
+Message-Id: <20060814.130814.126764626.davem@davemloft.net>
+To: udovdh@xs4all.nl
+Cc: linux-kernel@vger.kernel.org, folkert@vanheusden.com
+Subject: Re: And another Oops / BUG? (2.6.17.7 on VIA Epia CL6000)
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44E096B4.9090207@xs4all.nl>
+References: <44E096B4.9090207@xs4all.nl>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Udo van den Heuvel <udovdh@xs4all.nl>
+Date: Mon, 14 Aug 2006 17:28:52 +0200
 
-does anyone know whether latest Intel's chips Intel Core 2 Duo supports more
-than just two frequency states (2.13GHz and 1.6GHz for 6400 model)?
+> Since 2.6.17.x my kernel Oopses every few days. Bewlo is the log.
 
-Or does it look like speedstep-centrino issue for such processors?
+Contact whoever you got this "pptp_gre.c" source file from.
+It's not in the vanilla kernel, therefore we can't help you
+debug the problem.
 
--- 
-Luká¹ Hejtmánek

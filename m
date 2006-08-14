@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752022AbWHNSTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752043AbWHNSUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752022AbWHNSTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 14:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWHNSTy
+	id S1752043AbWHNSUR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 14:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWHNSUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 14:19:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64171 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752022AbWHNSTx (ORCPT
+	Mon, 14 Aug 2006 14:20:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4012 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752043AbWHNSUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 14:19:53 -0400
-Date: Mon, 14 Aug 2006 11:19:14 -0700
+	Mon, 14 Aug 2006 14:20:14 -0400
+Date: Mon, 14 Aug 2006 11:15:01 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 Subject: Re: 2.6.18-rc4-mm1
-Message-Id: <20060814111914.b50f9b30.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com>
+Message-Id: <20060814111501.874177bf.akpm@osdl.org>
+In-Reply-To: <200608141954.29656.rjw@sisk.pl>
 References: <20060813012454.f1d52189.akpm@osdl.org>
-	<6bffcb0e0608140702i70fb82ffr99a3ad6fdfbfd55e@mail.gmail.com>
+	<200608141954.29656.rjw@sisk.pl>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,76 +25,26 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Aug 2006 16:02:52 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+On Mon, 14 Aug 2006 19:54:29 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-> On 13/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
+> On Sunday 13 August 2006 10:24, Andrew Morton wrote:
+> > 
 > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> >
+> > 
 > 
-> Aug 14 15:35:10 ltg01-fedora kernel: BUG: unable to handle kernel
-> paging request at virtual address fffeffbf
-> Aug 14 15:35:10 ltg01-fedora kernel:  printing eip:
-> Aug 14 15:35:10 ltg01-fedora kernel: c013d539
-> Aug 14 15:35:10 ltg01-fedora kernel: *pde = 00004067
-> Aug 14 15:35:10 ltg01-fedora kernel: *pte = 00000000
-> Aug 14 15:35:10 ltg01-fedora kernel: Oops: 0000 [#1]
-> Aug 14 15:35:10 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
-> Aug 14 15:35:10 ltg01-fedora kernel: last sysfs file:
-> /devices/platform/i2c-9191/9191-0290/temp2_input
-> Aug 14 15:35:10 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf
-> hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
-> _ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp
-> iptable_filter ip_tables x_tables cpufreq_userspace p4_clockmod spe
-> edstep_lib binfmt_misc thermal processor fan container evdev
-> snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_
-> oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
-> snd_mixer_oss snd_pcm sk98lin snd_timer skge snd soundcore snd_pag
-> e_alloc ide_cd intel_agp agpgart cdrom i2c_i801 rtc unix
-> Aug 14 15:35:10 ltg01-fedora kernel: CPU:    1
-> Aug 14 15:35:10 ltg01-fedora kernel: EIP:    0060:[<c013d539>]    Not
-> tainted VLI
-> Aug 14 15:35:10 ltg01-fedora kernel: EFLAGS: 00210286   (2.6.18-rc4-mm1 #97)
-> Aug 14 15:35:10 ltg01-fedora kernel: EIP is at futex_wake+0x9c/0xcb
-> Aug 14 15:35:10 ltg01-fedora kernel: eax: 0808c000   ebx: c0670a60
-> ecx: d3a1dfa2   edx: fffeffbf
-> Aug 14 15:35:10 ltg01-fedora kernel: esi: 00000000   edi: fffeffbf
-> ebp: f4896f64   esp: f4896f40
-> Aug 14 15:35:10 ltg01-fedora kernel: ds: 007b   es: 007b   ss: 0068
-> Aug 14 15:35:10 ltg01-fedora kernel: Process firefox-bin (pid: 2210,
-> ti=f4896000 task=f3d180f0 task.ti=f4896000)
-> Aug 14 15:35:10 ltg01-fedora kernel: Stack: c0670a80 00000001 0808c000
-> f4302e74 00000044 ffffffe7 0808c044 bf8f35b0
-> Aug 14 15:35:10 ltg01-fedora kernel:        00000000 f4896f7c c013ed39
-> 00000001 0808c044 7fffffff bf8f35b0 f4896fb4
-> Aug 14 15:35:10 ltg01-fedora kernel:        c013ee84 7fffffff bf8f35b0
-> 00000000 bf8f3528 00000000 f4896fa8 00000000
-> Aug 14 15:35:10 ltg01-fedora kernel: Call Trace:
-> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
-> Aug 14 15:35:10 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<b7f1d410>] 0xb7f1d410
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0103fc1>] show_trace_log_lvl+0x12/0x22
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104067>] show_stack_log_lvl+0x87/0x8f
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0104203>] show_registers+0x151/0x1d8
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010444d>] die+0x120/0x1f0
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c01185cf>] do_page_fault+0x49d/0x580
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c0303ba9>] error_code+0x39/0x40
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ed39>] do_futex+0x3c/0x92
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c013ee84>] sys_futex+0xf5/0x101
-> Aug 14 15:35:11 ltg01-fedora kernel:  [<c010312d>] sysenter_past_esp+0x56/0x8d
-> Aug 14 15:35:11 ltg01-fedora kernel:  =======================
-> Aug 14 15:35:11 ltg01-fedora kernel: Code: 45 e8 39 41 04 75 22 8b 45
-> ec 39 41 08 75 1a 83 7a 48 00 74 07 be ea ff ff ff eb
-> 16 89 d0 46 e8 00 fd ff ff 3b 75 e0 7d 09 89 fa <8b> 3f 3b 55 dc eb c0
-> 89 d8 e8 bd 60 1c 00 89 e0 25 00 f0 ff ff
-> Aug 14 15:35:11 ltg01-fedora kernel: EIP: [<c013d539>]
-> futex_wake+0x9c/0xcb SS:ESP 0068:f4896f40
+> This patch:
+> 
+> simplify-update_times-avoid-jiffies-jiffies_64-aliasing-problem.patch
+> 
+> makes my x86_64 SMP box (dual-core Athlon 64 on an ULi-based AsRock mobo) run
+> _very_ slow (it would take tens of minutes to boot the box if I were as
+> patient as to wait for that).
+> 
+> Strangely enough, on a non-SMP box I have tested it on it works just fine.
+> 
 
-This is worrisome.  Is it reproducible?  If so, reverting
-futex_handle_fault-always-fails.patch and retesting would be useful.
-
-(please kill the wordwrapping in your email client, btw).
+Thanks.  I dropped a reversion patch into
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/hot-fixes/
 
 

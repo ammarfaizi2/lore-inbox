@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWHOSlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWHOSle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbWHOSlA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWHOSlA
+	id S965066AbWHOSle (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbWHOSle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:41:00 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:6119 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965060AbWHOSk7 (ORCPT
+	Tue, 15 Aug 2006 14:41:34 -0400
+Received: from main.gmane.org ([80.91.229.2]:43742 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965066AbWHOSld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:40:59 -0400
-Subject: Re: [PATCH 1/7] pid: Implement access helpers for a tacks various
-	process groups.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <11556661922952-git-send-email-ebiederm@xmission.com>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-	 <11556661922952-git-send-email-ebiederm@xmission.com>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 11:40:38 -0700
-Message-Id: <1155667238.12700.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 14:41:33 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
+Date: Tue, 15 Aug 2006 18:40:41 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <ebt4f9$sri$1@sea.gmane.org>
+References: <44E0A69C.5030103@agh.edu.pl>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: jameson.reflexsecurity.com
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 12:23 -0600, Eric W. Biederman wrote:
-> +static inline struct pid *task_pid(struct task_struct *task)
-> +{
-> +       return task->pids[PIDTYPE_PID].pid;
-> +} 
+szymans@agh.edu.pl said:
+> I've encountered a strange problem - if an application is sequentially 
+> writing a large file on a busy machine, a single write() of 64KB may 
+> take even 30 seconds. But if I do fsync() after each write() the maximum 
 
-Does this mean we can start to deprecate the use of tsk->pid?
+If the sleeps are that long, and reproducible, then maybe you can find
+the offending wait by using sysrq-t while the writer is blocked.
 
--- Dave
+Jason
 

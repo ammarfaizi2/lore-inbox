@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWHOSPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWHOSQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030433AbWHOSPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWHOSPg
+	id S1030437AbWHOSQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbWHOSQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:15:36 -0400
-Received: from s2.yuriev.com ([69.31.8.140]:32436 "HELO s2.yuriev.com")
-	by vger.kernel.org with SMTP id S1030433AbWHOSPf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:15:35 -0400
-Date: Tue, 15 Aug 2006 14:06:34 -0400
-From: alex@yuriev.com
-To: Mark Reidenbach <m.reidenbach@everytruckjob.com>
+	Tue, 15 Aug 2006 14:16:51 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19853 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030437AbWHOSQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:16:50 -0400
+Subject: Re: Maximum number of processes in Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Irfan Habib <irfan.habib@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling enabled
-Message-ID: <20060815180634.GB15957@s2.yuriev.com>
-References: <44E1F0CD.7000003@everytruckjob.com>
+In-Reply-To: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Aug 2006 19:37:28 +0100
+Message-Id: <1155667048.24077.305.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E1F0CD.7000003@everytruckjob.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After scouring the net for many days trying to find an answer as to how 
-> to find the broken router, I've come up empty and there are many 
-> references as to why you don't want to disable window scaling completely 
-> which so far has been my only working solution.   Can anyone give 
-> instructions or references as to what the requirements are for a router 
-> to work (specifically Cisco routers)?  Is there a minimum required IOS 
-> or certain commands that must be enabled such as any of the following?
-> ip tcp window-size 8388480
-> ip tcp selective-ack
-> ip tcp timestamp
-> 
+Ar Maw, 2006-08-15 am 22:59 +0500, ysgrifennodd Irfan Habib:
+> What is the maximum number of process which can run simultaneously in
+> linux? I need to create an application which requires 40,000 threads.
+> I was testing with far fewer numbers than that, I was getting
+> exceptions in pthread_create
 
-This is absolutely not correct. Routers forward packets. They do not mangle
-the data in them.
+On the usual default configuration far less. If you have lots of memory
+and adjust the pid limits you can create 40,000 threads. Its not a very
+good idea unless you are working on a system with several thousand
+processors and usually means your program design is wrong, but you can
+do it.
 
-Alex
-
+Alan

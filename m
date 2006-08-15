@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965383AbWHORAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWHORBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965383AbWHORAS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 13:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWHORAS
+	id S1030384AbWHORBU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWHORBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 13:00:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50848 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752120AbWHORAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 13:00:16 -0400
-Date: Tue, 15 Aug 2006 12:59:47 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Magnus Damm <magnus@valinux.co.jp>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev structures as __cpuinitdata
-Message-ID: <20060815165947.GE7612@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Magnus Damm <magnus@valinux.co.jp>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andi Kleen <ak@suse.de>
-References: <200608150249_MC3-1-C823-B57B@compuserve.com> <1155627804.3011.46.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Tue, 15 Aug 2006 13:01:19 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:52870 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030373AbWHORBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 13:01:18 -0400
+From: John Keller <jpk@sgi.com>
+Message-Id: <200608151701.k7FH18Tc194363@fcbayern.americas.sgi.com>
+Subject: PCI ROM Shadowing/Copy question
+To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       linux-ia64@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Date: Tue, 15 Aug 2006 12:01:08 -0500 (CDT)
+Cc: jpk@sgi.com, ayoung@sgi.com
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155627804.3011.46.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 09:43:23AM +0200, Arjan van de Ven wrote:
- > On Tue, 2006-08-15 at 02:46 -0400, Chuck Ebbert wrote:
- > > In-Reply-To: <1155518783.5764.10.camel@localhost>
- > > 
- > > On Mon, 14 Aug 2006 10:26:23 +0900, Magnus Damm wrote:
- > > 
- > > > > > The different cpu_dev structures are all used from __cpuinit callers what
- > > > > > I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
- > > > > > little bit unsure about arch/i386/common.c:default_cpu, especially when it
- > > > > > comes to the purpose of this_cpu.
- > > > > 
- > > > > But none of these CPUs supports hotplug and only one (AMD) does SMP.
- > > > > So this is just wasting space in the kernel at runtime.
- > > > 
- > > > How could this be wasting space? If you compile with CONFIG_HOTPLUG_CPU
- > > > disabled then __cpuinitdata will become __initdata - ie the same as
- > > > before. Not a single byte wasted what I can tell.
- > > 
- > > I was talking about wasted space with HOTPLUG_CPU enabled, of course.
- > > Nobody is ever going to hotplug a VIA, Cyrix, Geode, etc. CPU, yet your
- > > patch makes the kernel carry that code and data anyway.
- > 
- > remember that suspend uses software hot(un)plug as well...
+All,
 
-Only for non-boot CPUs. The vendors above (with exception of VIA)
-never made SMP systems.
+ I'm looking for some input on how ROM shadowing
+is handled in the kernel. In particular,
+the case where the PROM/BIOS has shadowed the ROM
+and needs to pass the shadowed copy to the kernel.
 
-		Dave
--- 
-http://www.codemonkey.org.uk
+I have not seen any generic code that handles
+this situation. pci_map_rom_copy() allows the kernel to
+make its own copy (assumming the ROM is still readable,
+which is not the case for us), but I have not seen
+anything that provides for a way to pass a PROM created
+ROM shadow buffer to the kernel.
+
+Is there such a mechanism?
+
+I've seen the thread "Ignore disabled ROM resources at setup"
+that briefly touches on this...
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112537706223050&w=2
+
+If not, is there a preferred way of doing this?
+
+The SN PROM shadows all valid ROM images, and the kernel 'fixup'
+code, via SAL call, currently obtains these shadowed buffer addresses
+and updates the pci_dev.resource[].
+
+Along with an upcoming patch that adds base ACPI support,
+and cleans up related code, we're looking to remove as much
+additional 'fixup' code as possible, by having the generic
+path handle as much as possible.
+
+Should we just simply stuff our PROM address into dev->resource
+and create a new IORESOURCE_ROM_BIOS_COPY flag, which will
+work much the same way as IORESOURCE_ROM_COPY does, and in addition
+prevent pci_cleanup_rom() from attempting to free it?
+
+Thanks for any input,
+
+John
+jpk@sgi.com
+

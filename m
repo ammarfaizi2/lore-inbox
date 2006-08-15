@@ -1,83 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWHOEWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWHOFZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbWHOEWV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 00:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWHOEWU
+	id S965087AbWHOFZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 01:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWHOFZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 00:22:20 -0400
-Received: from sccrmhc14.comcast.net ([204.127.200.84]:16102 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1752102AbWHOEWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 00:22:19 -0400
-Subject: Re: [RFC] [PATCH] file posix capabilities
-From: Nicholas Miell <nmiell@comcast.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-In-Reply-To: <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com>
-	 <20060814220651.GA7726@sergelap.austin.ibm.com>
-	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
-	 <20060815020647.GB16220@sergelap.austin.ibm.com>
-	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Mon, 14 Aug 2006 21:22:16 -0700
-Message-Id: <1155615736.2468.12.camel@entropy>
+	Tue, 15 Aug 2006 01:25:04 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46251
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965087AbWHOFZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 01:25:02 -0400
+Date: Mon, 14 Aug 2006 22:25:04 -0700 (PDT)
+Message-Id: <20060814.222504.61951856.davem@davemloft.net>
+To: udovdh@xs4all.nl
+Cc: linux-kernel@vger.kernel.org, folkert@vanheusden.com
+Subject: Re: And another Oops / BUG? (2.6.17.7 on VIA Epia CL6000)
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44E139CD.3080103@xs4all.nl>
+References: <44E096B4.9090207@xs4all.nl>
+	<20060814.130814.126764626.davem@davemloft.net>
+	<44E139CD.3080103@xs4all.nl>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 21:29 -0600, Eric W. Biederman wrote:
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> 
-> > In fact my version knowingly ignores CAP_AUDIT_WRITE and
-> > CAP_AUDIT_CONTROL (because on my little test .iso they didn't exist).
-> > So a version number may make sense.
-> >
-> >> So we need some for of
-> >> forward/backward compatibility.  Maybe in the cap name?
-> >
-> > You mean as in use 'security.capability_v32" for the xattr name?
-> > Or do you really mean add a cap name to the structure?
-> 
-> I was thinking the xattr name.  But mostly I was looking
-> for a place where you had possibly stashed a version.
-> 
-> Thinking about it possibly the most portable thing to do
-> is to assign each cap a well known name.  Say
-> "security.cap.dac_override" and have a value in there like +1  
-> add the cap -1 clear the cap.  That at least seems to provide
-> granularity and some measure of future proofing and some measure of
-> portability.  The space it would take with those names looks ugly
-> though.
-> 
-> The practical question is what do you do with a program that
-> was give a set of capabilities you no longer support? 
-> Do you run it without any capabilities at all?
-> Do you give it as many capabilities of what it asked for
->    as you can?
-> Do you complain loudly and refuse to execute it at all?
-> 
-> What is the secure choice that least violates the principle of least surprise?
+From: Udo van den Heuvel <udovdh@xs4all.nl>
+Date: Tue, 15 Aug 2006 05:04:45 +0200
 
-Make it an arbitrary length bitfield with a defined byte order (little
-endian, probably). Bits at offsets greater than the length of the
-bitfield are defined to be zero. If the kernel encounters a set bit that
-it doesn't recognizes, fail with EPERM. If userspace attempts to set a
-bit that the kernel doesn't recognize, fail with EINVAL.
+> pptpd is needed for my adsl connection.
+> pppd runs over it.
+> it is not part of the kernel.
 
-It's extensible (as new capability bits are added, the length of the
-bitfield grows), backward compatible (as long as there are no unknown
-bits set, it'll still work) and secure (if an unknown bit is set, the
-kernel fails immediately, so there's no chance of a "secure" app running
-with less privileges than it expects and opening up a security hole).
-
-OTOH, everybody seems to have moved from capability-based security
-models on to TE/RBAC-based security models, so maybe this isn't worth
-the effort?
-
--- 
-Nicholas Miell <nmiell@comcast.net>
+Oh yes it does, the pptp source file was mentioned by the kernel OOPS
+message.  How did it get there if it's not part of the kernel? :)
 

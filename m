@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWHONft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWHONi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbWHONft (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 09:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWHONfs
+	id S1030289AbWHONi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 09:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWHONi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 09:35:48 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:48723 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030286AbWHONfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 09:35:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ODTnC8VYP2nPCXAzLhII96SQwxnLyUpyF+XgvZ4WkmrWpby72gEPmLtVR7WBogO+5bIRrxzgN4mSq3Ge0Js+EX7INQ863GvZ3mtOFQzFiRqzwr+/c26DaWYudc/xH3JCZLRkZahJEfOc3o2aZMPp2x+dTI4swJtd3gIoPdRIT9o=
-Message-ID: <44E1CDAE.7000203@gmail.com>
-Date: Tue, 15 Aug 2006 22:35:42 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+	Tue, 15 Aug 2006 09:38:57 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:41134 "EHLO
+	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1030289AbWHONi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 09:38:56 -0400
+Message-ID: <44E1CE95.304@austin.rr.com>
+Date: Tue, 15 Aug 2006 08:39:33 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: Matthieu CASTET <castet.matthieu@free.fr>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Merging libata PATA support into the base kernel
-References: <1155144599.5729.226.camel@localhost.localdomain>	<44DA4288.6020806@rtr.ca> <44DACE9F.3090909@garzik.org>	<44DCA67B.5070400@rtr.ca> <ebsibq$qgb$1@sea.gmane.org>
-In-Reply-To: <ebsibq$qgb$1@sea.gmane.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] endianness bitrot in cifs
+References: <20060815091646.GX29920@ftp.linux.org.uk>
+In-Reply-To: <20060815091646.GX29920@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthieu CASTET wrote:
-> Hi,
-> 
-> On Fri, 11 Aug 2006 11:47:07 -0400, Mark Lord wrote:
-> 
->> And libata already has sufficient ioctl compatibility for nearly all
->> purposes with the old drivers/ide stuff.  Yes, there are some more
->> esoteric ioctls that I once implemented in drivers/ide that do not
->> exist for libata, and nobody will miss them.
-> IRRC, there nothing for ATAPI ioctl compatibility, there only things for
-> ATA.
+Al Viro wrote:
+> 	le16 compared to host-endian constant
+> 	u8 fed to le32_to_cpu()
+> 	le16 compared to host-endian constant
+>   
 
-What do you mean by ATAPI ioctl - TASK or TASKFILE ioctl or something else?
-
--- 
-tejun
+Thanks - I have applied this to the cifs git tree so should be in mm soon.
+Fortunately this only hit the relatively new lanman support (e.g. Win9x 
+and OS/2 server support not as common anymore - but was needed before 
+smbfs deprecation).

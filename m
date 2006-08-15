@@ -1,71 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWHOXTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWHOXUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWHOXTI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 19:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWHOXTI
+	id S1750810AbWHOXUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 19:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWHOXUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 19:19:08 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:31369 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750808AbWHOXTG
+	Tue, 15 Aug 2006 19:20:25 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:46034 "EHLO
+	kingpin.cenara.com") by vger.kernel.org with ESMTP id S1750810AbWHOXUZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 19:19:06 -0400
-Message-ID: <44E25665.1000702@us.ibm.com>
-Date: Tue, 15 Aug 2006 16:19:01 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
+	Tue, 15 Aug 2006 19:20:25 -0400
+From: Magnus =?iso-8859-1?q?Vigerl=F6f?= <wigge@bigfoot.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Dmitry Torokhov" <dtor@insightbb.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Vojtech Pavlik" <vojtech@suse.cz>,
+       "Zephaniah E. Hull" <warp@aehallh.com>, wigge@bigfoot.com
+Subject: Re: input: evdev.c EVIOCGRAB semantics question
+Date: Wed, 16 Aug 2006 01:20:03 +0200
+User-Agent: KMail/1.9.1
+References: <200608121724.16119.wigge@bigfoot.com> <d120d5000608140815g121a84a3o58919582d5797305@mail.gmail.com> <200608150049.50815.wigge@bigfoot.com>
+In-Reply-To: <200608150049.50815.wigge@bigfoot.com>
 MIME-Version: 1.0
-To: Randy Dunlap <rdunlap@xenotime.net>
-CC: Pavel Machek <pavel@suse.cz>, Alex Tomas <alex@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
-References: <1155677232.11401@shark.he.net>
-In-Reply-To: <1155677232.11401@shark.he.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608160120.03398.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> 
->>Hi!
->>
->>
->>>> AM> - The existing comments could benefit from some rework by a
->>>> AM> native English speaker.
->>>>
->>>>could someone assist here, please?
->>>
->>>See if this helps.
->>>Patch applies on top of all ext4 patches from
->>>http://ext2.sourceforge.net/48bitext3/patches/latest/.
->>
->>>--- linux-2618-rc4-ext4.orig/include/linux/ext4_fs_extents.h
->>>+++ linux-2618-rc4-ext4/include/linux/ext4_fs_extents.h
->>>@@ -22,29 +22,29 @@
->>> #include <linux/ext4_fs.h>
->>> 
->>> /*
->>>- * with AGRESSIVE_TEST defined capacity of index/leaf blocks
->>>- * become very little, so index split, in-depth growing and
->>>- * other hard changes happens much more often
->>>- * this is for debug purposes only
->>>+ * With AGRESSIVE_TEST defined, the capacity of index/leaf blocks
->>>+ * becomes very small, so index split, in-depth growing and
->>>+ * other hard changes happen much more often.
->>>+ * This is for debug purposes only.
->>>  */
->>> #define AGRESSIVE_TEST_
->>
->>Using _ for disabling is unusual/nasty. Can't we simply #undef it?
-> 
-> 
-> Yes, that's the right thing to do.
-> The ext4dev people should do that. :)
-> 
+On Tuesday 15 August 2006 00:49, Magnus Vigerlöf wrote:
+[...]
+> However, this doesn't address the problem I initially described (I
+> think)... What if two application open the same device and one of the
+> application do a EVIOCGRAB. Should both applications still get events? With
+> the above fix two applications that opens /dev/input/mouse2 resp
+> /dev/input/event4 for the same hw and the latter grabs the device, both
+> will get events. Using a counter for grab (just like the open-counter) on
+> the handler should make them behave the same way in both cases I think.
+> Gnnn... I'll make a patch tomorrow (ok today, Tuesday) so you can see what
+> I rambling about..
 
-Okey, I will fixed that. thanks.
-> ---
-> ~Randy
+Ok, this is what I mean (in code) if anyone's interested.. It should apply cleanly
+on Dmitrys git-tree. It seems to work on my system without any side-effects
+regarding the keyboard and Wacom tablet.
 
+/Magnus
+
+---
+ drivers/input/evdev.c |   41 +++++++++++++++++------------------------
+ 1 files changed, 17 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 12c7ab8..c7e741b 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -29,7 +29,7 @@ struct evdev {
+ 	char name[16];
+ 	struct input_handle handle;
+ 	wait_queue_head_t wait;
+-	struct evdev_list *grab;
++	int grab;
+ 	struct list_head list;
+ };
+ 
+@@ -37,6 +37,7 @@ struct evdev_list {
+ 	struct input_event buffer[EVDEV_BUFFER_SIZE];
+ 	int head;
+ 	int tail;
++	int grab;
+ 	struct fasync_struct *fasync;
+ 	struct evdev *evdev;
+ 	struct list_head node;
+@@ -49,8 +50,7 @@ static void evdev_event(struct input_han
+ 	struct evdev *evdev = handle->private;
+ 	struct evdev_list *list;
+ 
+-	if (evdev->grab) {
+-		list = evdev->grab;
++	list_for_each_entry(list, &evdev->list, node) {
+ 
+ 		do_gettimeofday(&list->buffer[list->head].time);
+ 		list->buffer[list->head].type = type;
+@@ -59,17 +59,7 @@ static void evdev_event(struct input_han
+ 		list->head = (list->head + 1) & (EVDEV_BUFFER_SIZE - 1);
+ 
+ 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+-	} else
+-		list_for_each_entry(list, &evdev->list, node) {
+-
+-			do_gettimeofday(&list->buffer[list->head].time);
+-			list->buffer[list->head].type = type;
+-			list->buffer[list->head].code = code;
+-			list->buffer[list->head].value = value;
+-			list->head = (list->head + 1) & (EVDEV_BUFFER_SIZE - 1);
+-
+-			kill_fasync(&list->fasync, SIGIO, POLL_IN);
+-		}
++	}
+ 
+ 	wake_up_interruptible(&evdev->wait);
+ }
+@@ -104,9 +94,10 @@ static int evdev_release(struct inode * 
+ {
+ 	struct evdev_list *list = file->private_data;
+ 
+-	if (list->evdev->grab == list) {
+-		input_release_device(&list->evdev->handle);
+-		list->evdev->grab = NULL;
++	if (list->grab) {
++		if(!--list->evdev->grab && list->evdev->exist)
++			input_release_device(&list->evdev->handle);
++		list->grab = 0;
+ 	}
+ 
+ 	evdev_fasync(-1, file, 0);
+@@ -483,17 +474,19 @@ static long evdev_ioctl_handler(struct f
+ 
+ 		case EVIOCGRAB:
+ 			if (p) {
+-				if (evdev->grab)
+-					return -EBUSY;
+-				if (input_grab_device(&evdev->handle))
++				if (list->grab)
+ 					return -EBUSY;
+-				evdev->grab = list;
++				if (!evdev->grab++)
++					if (input_grab_device(&evdev->handle))
++						return -EBUSY;
++				list->grab = 0;
+ 				return 0;
+ 			} else {
+-				if (evdev->grab != list)
++				if (!list->grab)
+ 					return -EINVAL;
+-				input_release_device(&evdev->handle);
+-				evdev->grab = NULL;
++				if (!--evdev->grab)
++					input_release_device(&evdev->handle);
++				list->grab = 0;
+ 				return 0;
+ 			}
+ 

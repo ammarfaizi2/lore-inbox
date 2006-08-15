@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWHOOmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWHOOpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbWHOOmD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 10:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWHOOmD
+	id S1030326AbWHOOpq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 10:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWHOOpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 10:42:03 -0400
-Received: from mail.suse.de ([195.135.220.2]:2527 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030318AbWHOOmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 10:42:01 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: hugh@veritas.com, akpm@osdl.org, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Shared page tables patch... some results
-References: <1155638047.3011.96.camel@laptopd505.fenrus.org>
-From: Andi Kleen <ak@suse.de>
-Date: 15 Aug 2006 16:41:46 +0200
-In-Reply-To: <1155638047.3011.96.camel@laptopd505.fenrus.org>
-Message-ID: <p73wt9a83it.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Aug 2006 10:45:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15077 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030327AbWHOOpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 10:45:44 -0400
+Subject: Re: What determines which interrupts are shared under Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roger Heflin <rheflin@atipa.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+In-Reply-To: <44E1D760.6070600@atipa.com>
+References: <44E1D760.6070600@atipa.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Aug 2006 16:06:19 +0100
+Message-Id: <1155654379.24077.286.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
-> and the result is interesting:
-> Just booting into runlevel 5 and logging into gnome (without starting
-> any apps) gets a sharing of 1284 pte pages! This means that five
-> megabytes (!!) of memory is saved, and countless pagefaults are avoided.
->
+Ar Maw, 2006-08-15 am 09:17 -0500, ysgrifennodd Roger Heflin:
+> On Linux when interrupts are defined similar to below, what defines say
+> ide2, ide3 to be on the same interrupt?    The bios, linux, the driver using
+> the interrupt?    And can that be controlled/overrode at the 
+> kernel/driver level?
 
-When I start SLES10 GNOME after boot with one firefox window and
-one gnome terminal I only have ~5.3MB in total page tables according
-to /proc/meminfo
+Only with a soldering iron. They are the way the system is wired. Moving
+boards between slots may change the IRQ allocation.
 
-You're saying you can share 5MB of those. Call me sceptical of your
-numbers.
+> I have identified that the disks that are shared on ide2, ide3 do funny
+> things when both are being heavily used (dma_expiry), this is an older 
+> driver versions
 
--Andi
+That could be occuring just through lack of PCI bus bandwidth.
+
+

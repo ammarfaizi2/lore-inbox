@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWHOByQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWHOCHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWHOByQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 21:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWHOByQ
+	id S1751420AbWHOCHE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 22:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWHOCHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 21:54:16 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:17908 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751400AbWHOByP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 21:54:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=IQx8cwq2gAMZIq04Hj5GtVPnHuykW8pqTVofxwfpOzNhTSso9NA+yOGsk4dcy7bvshl2ULOzszqyntlQIUC4f13LnvVleGe5Mr29Lnuj+ZGo64fLxQNwERBdD67PJn1OJh0/QH4fZkkkH3/gd611td5Ny6bScn6vsugYkAIdWQI=
-Subject: Re: vga text console
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-To: James C Georgas <jgeorgas@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1155606109.8131.13.camel@Rainsong>
-References: <1155604313.8131.4.camel@Rainsong>
-	 <1155604928.3948.8.camel@daplas.org>  <1155605197.3948.10.camel@daplas.org>
-	 <1155606109.8131.13.camel@Rainsong>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 09:54:09 +0800
-Message-Id: <1155606849.3948.17.camel@daplas.org>
+	Mon, 14 Aug 2006 22:07:03 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:40081 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751420AbWHOCHA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 22:07:00 -0400
+Date: Mon, 14 Aug 2006 21:06:47 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+Subject: Re: [RFC] [PATCH] file posix capabilities
+Message-ID: <20060815020647.GB16220@sergelap.austin.ibm.com>
+References: <20060730011338.GA31695@sergelap.austin.ibm.com> <20060814220651.GA7726@sergelap.austin.ibm.com> <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 21:41 -0400, James C Georgas wrote:
-> On Tue, 2006-15-08 at 09:26 +0800, Antonino A. Daplas wrote:
-> > On Tue, 2006-08-15 at 09:22 +0800, Antonino A. Daplas wrote:
-> > > On Mon, 2006-08-14 at 21:11 -0400, James C Georgas wrote:
-> > > > I can't seem to remove the VGA text console from my kernel
-> > > > configuration. Can someone please enlighten me?
-> > > 
-> > > You can't. It is always part of the kernel (for X86 at least). What's
-> > > your intention?
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> I want to write my own VGA text console driver.
+> > Quoting Serge E. Hallyn (serue@us.ibm.com):
+> >> This patch implements file (posix) capabilities.  This allows
+> >> a binary to gain a subset of root's capabilities without having
+> >> the file actually be setuid root.
+> >> 
+> >> There are some other implementations out there taking various
+> >> approaches.  This patch keeps all the changes within the
+> >> capability LSM, and stores the file capabilities in xattrs
+> >> named "security.capability".  First question is, do we want
+> >> this in the kernel?  Second is, is this sort of implementation
+> >> we'd want?
+> >> 
+> >> Some userspace tools to manipulate the fscaps are at
+> >> www.sr71.net/~hallyn/fscaps/.  For instance,
+> >> 
+> >> 	setcap writeroot "cap_dac_read_search,cap_dac_override+eip"
+> >> 
+> >> allows the 'writeroot' testcase to write to /root/ab when
+> >> run as a normal user.
+> >> 
+> >> This patch doesn't address the need to update
+> >> cap_bprm_secureexec().
 > 
-> > And correcting myself, you can configure out vgacon, but you have to
-> > define CONFIG_EMBEDDED, and undefine CONFIG_VT.
-> > 
-> If I define CONFIG_EMBEDDED, is that going to change the behaviour of
-> other subsystems, or does it just enable more options?
-> 
+> Looking at your ondisk format it doesn't look like you include a
+> version.  There is no reason to believe the current set of kernel
+> capabilities is fixed for all time.
 
-It basically opens up a lot of config options. It may also disable a few
-incompatible options (ie, CONFIG_DEBUG_VERBOSE), and enable a few.  It
-will require that you know exactly what options need to be turned on or
-off.
+In fact my version knowingly ignores CAP_AUDIT_WRITE and
+CAP_AUDIT_CONTROL (because on my little test .iso they didn't exist).
+So a version number may make sense.
 
-Tony
+> So we need some for of
+> forward/backward compatibility.  Maybe in the cap name?
 
+You mean as in use 'security.capability_v32" for the xattr name?
+Or do you really mean add a cap name to the structure?
+
+thanks,
+-serge

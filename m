@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965314AbWHOJEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965317AbWHOJGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965314AbWHOJEG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965313AbWHOJEG
+	id S965317AbWHOJGs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965316AbWHOJGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:04:06 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:63877 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S965314AbWHOJEE
+	Tue, 15 Aug 2006 05:06:48 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30910 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965315AbWHOJGq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:04:04 -0400
-Message-ID: <44E18DE2.8020700@nachtwindheim.de>
-Date: Tue, 15 Aug 2006 11:03:30 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: gregkh@suse.de
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org
-Subject: [PATCH] Change pci_module_init from macro to inline function marked
- as deprecated
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 05:06:46 -0400
+Date: Tue, 15 Aug 2006 10:06:45 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RHEL5 PATCH 2/4] VFS: Make inode numbers 64-bits
+Message-ID: <20060815090645.GV29920@ftp.linux.org.uk>
+References: <20060815013114.GS29920@ftp.linux.org.uk> <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com> <7303.1155630071@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7303.1155630071@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Tue, Aug 15, 2006 at 09:21:11AM +0100, David Howells wrote:
+> Al Viro <viro@ftp.linux.org.uk> wrote:
+> 
+> > NAK.  There's no need to touch i_ino and a lot of reasons for not doing
+> > that.  ->getattr() can fill 64bit field just fine without that and there's
+> > zero need to touch every fs out there *and* add cycles on icache lookups.
+> > WTF for?
+> 
+> That doesn't fix getdents64() though...
 
-Replaces the pci_module_init()-macro with a inline function,
-which is marked as deprecated.
-This gives a warning at compile time, which may be useful for driver developers who still use
-pci_module_init() on 2.6 drivers.
-
-Signed-of-by: Henrik Kretzschmar <henne@nachtwindheim.de>
-
----
-
---- linux-2.6.18-rc4/include/linux/pci.h	2006-08-11 10:10:08.000000000 +0200
-+++ linux/include/linux/pci.h	2006-08-11 15:04:21.000000000 +0200
-@@ -384,12 +384,6 @@
- 	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
- 	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
- 
--/*
-- * pci_module_init is obsolete, this stays here till we fix up all usages of it
-- * in the tree.
-- */
--#define pci_module_init	pci_register_driver
--
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
- 
-@@ -547,6 +541,16 @@
- 	return __pci_register_driver(driver, THIS_MODULE);
- }
- 
-+/*
-+ * pci_module_init is obsolete, this stays here till we fix up all usages of it
-+ * in the tree.
-+ */
-+
-+static inline int __deprecated pci_module_init(struct pci_driver* drv)
-+{
-+	return pci_register_driver(drv);
-+}
-+
- void pci_unregister_driver(struct pci_driver *);
- void pci_remove_behind_bridge(struct pci_dev *);
- struct pci_driver *pci_dev_driver(const struct pci_dev *);
-
-
+Good grief...  Make filldir() eat u64 explicitly and fix all of a dozen
+instances.  End of story.

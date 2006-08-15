@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932746AbWHOB0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932759AbWHOBbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932746AbWHOB0n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 21:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWHOB0m
+	id S932759AbWHOBbR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 21:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWHOBbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 21:26:42 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:17831 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932746AbWHOB0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 21:26:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=q55ZlSR5cYgy0uMQYJ27wlHlysNUhB2S0mTwfX3smIHdNtfIhkwPWaVUVQvfbjiQMjsnXwB/Cu7OkBxXOiCS97m+B484GdKjPsBrPSYFlQQbuk1yMPZZnPYUwfWQcpyQomtY0Q5Qw/JSWz++3I1CEA1hSasShKmPgVdzk1Za1WA=
-Subject: Re: vga text console
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-To: James C Georgas <jgeorgas@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1155604928.3948.8.camel@daplas.org>
-References: <1155604313.8131.4.camel@Rainsong>
-	 <1155604928.3948.8.camel@daplas.org>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 09:26:37 +0800
-Message-Id: <1155605197.3948.10.camel@daplas.org>
+	Mon, 14 Aug 2006 21:31:17 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:60373 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932486AbWHOBbQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 21:31:16 -0400
+Date: Tue, 15 Aug 2006 02:31:14 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RHEL5 PATCH 2/4] VFS: Make inode numbers 64-bits
+Message-ID: <20060815013114.GS29920@ftp.linux.org.uk>
+References: <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 09:22 +0800, Antonino A. Daplas wrote:
-> On Mon, 2006-08-14 at 21:11 -0400, James C Georgas wrote:
-> > I can't seem to remove the VGA text console from my kernel
-> > configuration. Can someone please enlighten me?
+On Mon, Aug 14, 2006 at 10:15:09PM +0100, David Howells wrote:
+> Make the in-kernel representations of inode number 64-bit in size at a minimum
+> as some network filesystems (eg: NFS) and local filesystems (eg: XFS) provide
+> such.
 > 
-> You can't. It is always part of the kernel (for X86 at least). What's
-> your intention?
+> The 64-bit inode number will be returned through stat64() and getdents64() on
+> archs that are currently set up to do so.
+> 
+> This patch changes __kernel_ino_t to be "unsigned long long" on all archs, but
+> changes usages of that in struct stat to be the old type so that the userspace
+> interface does not change.  The 64-bit division patch is required to get this
+> to link on some archs.
+> 
+> struct inode::i_ino and struct kstat::ino have been converted to ino_t.
+> Neither needs moving within the bounds of its parent structure to make sure
+> that they reside on a 64-bit boundary if the structure itself does so.
 
-And correcting myself, you can configure out vgacon, but you have to
-define CONFIG_EMBEDDED, and undefine CONFIG_VT.
+NAK.  There's no need to touch i_ino and a lot of reasons for not doing
+that.  ->getattr() can fill 64bit field just fine without that and there's
+zero need to touch every fs out there *and* add cycles on icache lookups.
+WTF for?
 
-Tony
+Filesystems that want 64bit values in st_ino are welcome to
+	* set it in ->getattr() and
+	* use iget5()
 
-
+Less PITA for everyone and less intrusive patch that way.

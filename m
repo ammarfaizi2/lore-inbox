@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWHOT0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbWHOT0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbWHOT0I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWHOT0H
+	id S965238AbWHOT0m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWHOT0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:26:07 -0400
-Received: from dsl3-63-249-91-188.cruzio.com ([63.249.91.188]:61128 "EHLO
-	cichlid.com") by vger.kernel.org with ESMTP id S965227AbWHOT0G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:26:06 -0400
-Date: Tue, 15 Aug 2006 12:24:27 -0700
-From: Andrew Burgess <aab@cichlid.com>
-Message-Id: <200608151924.k7FJORMQ014228@cichlid.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Daily crashes, incorrect RAID behaviour, but only with 2.6.14 and later
-Cc: alan@lxorguk.ukuu.org.uk, carsten.otto@gmail.com, mjt@tls.msk.ru
+	Tue, 15 Aug 2006 15:26:41 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:59968 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965238AbWHOT0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 15:26:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m6sCRfktEJqkaOpw98jWKixn/9dSRrx+7/RdKw4S6MYxsPopNMBVB7k3YSspD9TtNguiKLd3qTu7Wb1uQUc5eEgv3s+urdSlJ7ZWlo3uePmTLRlnWeYJGoERxArJj78sXFGP8FeGxd5VimSc8gNGsZhLt4hef/BDcOJ0FlNfmLw=
+Message-ID: <3420082f0608151226h32dc20c1oe0b20549922c8f7@mail.gmail.com>
+Date: Wed, 16 Aug 2006 00:26:32 +0500
+From: "Irfan Habib" <irfan.habib@gmail.com>
+To: "Linux kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum number of processes in Linux
+In-Reply-To: <1155669584.3011.178.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+	 <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
+	 <20060815182219.GL8776@1wt.eu>
+	 <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
+	 <1155669584.3011.178.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carsten Otto said:
+I have 1GB RAM and a p4 HT 3 GHz.
 
->My problems continue, even with a new and good power supply.
->1) The system loses a disk about every week, only a hard reboot solves that
-...
->Regarding 1)
->The system works normally and suddenly one disk does not respond.
-...
 
-I have seen something similar for a few months now (it 
-seems). I use 3ware SATA and PATA cards and have 21 total 
-drives including two 8 disk RAID6 arrays.
-
-I have noticed that everything works with kernel 2.6.13.4 but
-any kernel 2.6.14 or later shows the problem. So you might
-experiment and backrev the kernel. For me the problem
-happens within a few minutes of bootup.
-
-My theory was that the power supplies (I use 3, 8 disks per
-supply) are bad and somehow later kernels get more disks
-seeking at the same time and the power dips and the disk
-goes offline.
-
-Just another data point and weird guess...
-
-Alan Cox said:
-
-> Rule of thumb (and a good one). If the soft reboot and
-> BIOS cannot recover the disk then the disk is the problem. 
-> There isn't really anything we can tell the drive to do 
-> which should make it take a hike and ignore a reset sequence.
-
-Do you think a bad power supply could lock it up to where 
-only a power cycle fixes it?
-
-PS Regarding a possible firmware bug, some of my disks are 
-300G Maxtors (though not the model number posted) but I
-don't recall if it was only those that went offline...
+On 8/16/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> > Shows a consistent 6140.
+> >
+>
+> the default limit in proc scales with memory (to avoid really bad
+> stuff), you can oversize it to 2^16 if you want.
+>
+> Going over 2^16 is not too good an idea (16 bit counters overflow),
+> especially if you have hostile users (read: students) on the machine,
+> since this is the kind of scenario you can trigger on purpose.
+>
+>
+>

@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965277AbWHOHkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965278AbWHOHoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965277AbWHOHkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 03:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965262AbWHOHkK
+	id S965278AbWHOHoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 03:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965279AbWHOHoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 03:40:10 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:11700 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S965221AbWHOHkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 03:40:08 -0400
-Date: Tue, 15 Aug 2006 09:39:59 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>, Christoph Raisch <raisch@de.ibm.com>,
-       Thomas Klein <osstklei@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [PATCH 1/7] ehea: interface to network stack
-Message-ID: <20060815073959.GB6922@osiris.boeblingen.de.ibm.com>
-References: <44E0A4CC.4090705@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E0A4CC.4090705@de.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Tue, 15 Aug 2006 03:44:08 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14792 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965278AbWHOHoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 03:44:07 -0400
+Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev structures as
+	__cpuinitdata
+From: Arjan van de Ven <arjan@infradead.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Magnus Damm <magnus@valinux.co.jp>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+In-Reply-To: <200608150249_MC3-1-C823-B57B@compuserve.com>
+References: <200608150249_MC3-1-C823-B57B@compuserve.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 15 Aug 2006 09:43:23 +0200
+Message-Id: <1155627804.3011.46.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +int __init ehea_module_init(void)
-> +{
-> +	int ret = -EINVAL;
-> +
-> +	EDEB_EN(7, "");
-> +
-> +	printk(KERN_INFO "IBM eHEA Ethernet Device Driver (Release %s)\n",
-> +	       DRV_VERSION);
-> +
-> +
-> +	ret = ibmebus_register_driver(&ehea_driver);
-> +	if (ret) {
-> +		EDEB_ERR(4, "Failed registering eHEA device driver on ebus");
-> +		return -EINVAL;
-> +	}
-> +
-> +	EDEB_EX(7, "");
-> +	return 0;
-> +}
+On Tue, 2006-08-15 at 02:46 -0400, Chuck Ebbert wrote:
+> In-Reply-To: <1155518783.5764.10.camel@localhost>
+> 
+> On Mon, 14 Aug 2006 10:26:23 +0900, Magnus Damm wrote:
+> 
+> > > > The different cpu_dev structures are all used from __cpuinit callers what
+> > > > I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
+> > > > little bit unsure about arch/i386/common.c:default_cpu, especially when it
+> > > > comes to the purpose of this_cpu.
+> > > 
+> > > But none of these CPUs supports hotplug and only one (AMD) does SMP.
+> > > So this is just wasting space in the kernel at runtime.
+> > 
+> > How could this be wasting space? If you compile with CONFIG_HOTPLUG_CPU
+> > disabled then __cpuinitdata will become __initdata - ie the same as
+> > before. Not a single byte wasted what I can tell.
+> 
+> I was talking about wasted space with HOTPLUG_CPU enabled, of course.
+> Nobody is ever going to hotplug a VIA, Cyrix, Geode, etc. CPU, yet your
+> patch makes the kernel carry that code and data anyway.
 
-Function should be static and could be shortened to the single line
+remember that suspend uses software hot(un)plug as well...
 
-return ibmebus_register_driver(&ehea_driver);
 
-, I guess :)

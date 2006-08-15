@@ -1,102 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWHOQgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWHOQj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbWHOQgh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965393AbWHOQgg
+	id S1030371AbWHOQj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 12:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWHOQj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:36:36 -0400
-Received: from web36603.mail.mud.yahoo.com ([209.191.85.20]:60853 "HELO
-	web36603.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965388AbWHOQgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:36:35 -0400
-Message-ID: <20060815163634.8038.qmail@web36603.mail.mud.yahoo.com>
-X-RocketYMMF: rancidfat
-Date: Tue, 15 Aug 2006 09:36:34 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC] [PATCH] file posix capabilities
-To: Stephen Smalley <sds@tycho.nsa.gov>, "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Nicholas Miell <nmiell@comcast.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-In-Reply-To: <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 15 Aug 2006 12:39:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41362 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030371AbWHOQj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 12:39:57 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1155595768.5656.26.camel@localhost> 
+References: <1155595768.5656.26.camel@localhost>  <20060813012454.f1d52189.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>
+Subject: Re: 2.6.18-rc4-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 15 Aug 2006 17:39:37 +0100
+Message-ID: <26190.1155659977@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
+> as well as a few dentry leaks that were introduced by David's
+> nfs_alloc_client().
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+I'm really quite surprised that I haven't seen these bugs.
 
-
-> The hard part of capabilities isn't the kernel
-> mechanism - it is the
-> proper assignment and management of the capability
-> bits on files, and
-> teaching userland that uid 0 is no longer magic.
-
-Stephen is correct here. Getting the capability
-settings correct on all setuid programs is a
-tough nut. Training people out of the root
-model isn't easy, either.
-
-> Which is all work that
-> is already well underway for SELinux, but you would
-> have to replicate it
-> for capabilities.
-
-The work underway for SELinux is different
-from that of capabilities. POSIX capabilities
-offer substantial benefits without the high
-cost of SELinux.
-
-> And since there is no notion of
-> equivalence classes
-> ala SELinux types and the "policy" is completely
-> distributed throughout
-> the filesystem state, management is going to be even
-> more painful for
-> the capabilities.
-
-This is not the experiance of Irix, which
-has supported POSIX capabilities for years.
-
-> On the kernel side, in addition to updating the
-> bprm_secureexec logic,
-> you would need to consider whether the capability
-> module needs to
-> implement capability comparisons for the other
-> hooks, like task_kill.
-> At present, many operations only involve uid
-> comparisons and SELinux
-> checks without explicitly comparing capability sets.
-
-Yes. There is work to be done.
-
->  Properly isolating
-> and protecting processes with different capability
-> sets but the same uid
-> is something SELinux already can do (based on
-> domain), whereas the
-> existing capability module doesn't really provide
-> that. 
-
-That's a matter of taste in policy. There
-is certainly no Common Criteria requirement
-for that.
-
-Sure, SELinux and POSIX capabilities are
-different. No arguement. POSIX capabilities
-predate SELinux in the community and in the
-Linux kernel. To date they have been limited
-by the lack of xattr support, but now that 
-that is available there is every reason to
-complete the implementation.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+Acked-By: David Howells <dhowells@redhat.com>

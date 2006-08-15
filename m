@@ -1,106 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWHOESq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWHOEWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752096AbWHOESq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 00:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752101AbWHOESq
+	id S965073AbWHOEWV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 00:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWHOEWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 00:18:46 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:39155 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752096AbWHOESp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 00:18:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=AoFj979Cb4uyiJ9ogPqSIAY7JD5WG7/NUYZlxD683B5AS1qnOUyV9p94CbWXycARjO7sHIm7wMs59l7GyJsY0rpGt2jOMlNCaWr8ZHlejzUWLYRQsyPSAiyUZmQ1STUgbZv7YykCYXj9JzswE7nhU+GqXO39EASw+HZhq5nEqKQ=
-Date: Tue, 15 Aug 2006 08:18:41 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Drop second arg of unregister_chrdev()
-Message-ID: <20060815041841.GC5163@martell.zuzino.mipt.ru>
-References: <20060815033522.GA5163@martell.zuzino.mipt.ru> <20060814204817.d9365586.akpm@osdl.org>
+	Tue, 15 Aug 2006 00:22:20 -0400
+Received: from sccrmhc14.comcast.net ([204.127.200.84]:16102 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1752102AbWHOEWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 00:22:19 -0400
+Subject: Re: [RFC] [PATCH] file posix capabilities
+From: Nicholas Miell <nmiell@comcast.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+In-Reply-To: <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
+References: <20060730011338.GA31695@sergelap.austin.ibm.com>
+	 <20060814220651.GA7726@sergelap.austin.ibm.com>
+	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
+	 <20060815020647.GB16220@sergelap.austin.ibm.com>
+	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 21:22:16 -0700
+Message-Id: <1155615736.2468.12.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060814204817.d9365586.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 08:48:17PM -0700, Andrew Morton wrote:
-> On Tue, 15 Aug 2006 07:35:22 +0400
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> > * "name" is trivially unused.
->
-> OK.
->
-> > * Requirement to pass to unregister function anything but cookie you've
-> >   got from register counterpart is wrong. It creates opportunity to
-> >   diverge, it create opportunity for bugs if enforced:
+On Mon, 2006-08-14 at 21:29 -0600, Eric W. Biederman wrote:
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+> 
+> > In fact my version knowingly ignores CAP_AUDIT_WRITE and
+> > CAP_AUDIT_CONTROL (because on my little test .iso they didn't exist).
+> > So a version number may make sense.
 > >
-> > 	/*
-> > 	 * XXX(hch): bp->b_count_desired might be incorrect (see
-> > 	 * xfs_buf_associate_memory for details),
+> >> So we need some for of
+> >> forward/backward compatibility.  Maybe in the cap name?
 > >
-> > Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> >
-> > 	 *                                        but fortunately
-> > 	 * the Linux version of kmem_free ignores the len argument..
-> > 	 */
-> > 	 kmem_free(bp->b_addr, bp->b_count_desired);
->
-> I don't understand that.
+> > You mean as in use 'security.capability_v32" for the xattr name?
+> > Or do you really mean add a cap name to the structure?
+> 
+> I was thinking the xattr name.  But mostly I was looking
+> for a place where you had possibly stashed a version.
+> 
+> Thinking about it possibly the most portable thing to do
+> is to assign each cap a well known name.  Say
+> "security.cap.dac_override" and have a value in there like +1  
+> add the cap -1 clear the cap.  That at least seems to provide
+> granularity and some measure of future proofing and some measure of
+> portability.  The space it would take with those names looks ugly
+> though.
+> 
+> The practical question is what do you do with a program that
+> was give a set of capabilities you no longer support? 
+> Do you run it without any capabilities at all?
+> Do you give it as many capabilities of what it asked for
+>    as you can?
+> Do you complain loudly and refuse to execute it at all?
+> 
+> What is the secure choice that least violates the principle of least surprise?
 
-	p = malloc(size);
-	free(p);
-is good. You don't have to remember "size" which sometimes nontrivially
-calculated until free time.
+Make it an arbitrary length bitfield with a defined byte order (little
+endian, probably). Bits at offsets greater than the length of the
+bitfield are defined to be zero. If the kernel encounters a set bit that
+it doesn't recognizes, fail with EPERM. If userspace attempts to set a
+bit that the kernel doesn't recognize, fail with EINVAL.
 
-	mmio = ioremap(start, size);
-	iounmap(mmio);
-is good too for same reasons. Agree so far?
+It's extensible (as new capability bits are added, the length of the
+bitfield grows), backward compatible (as long as there are no unknown
+bits set, it'll still work) and secure (if an unknown bit is set, the
+kernel fails immediately, so there's no chance of a "secure" app running
+with less privileges than it expects and opening up a security hole).
 
-Ergo,
-	major = register_chrdev(0, "foo", &foo_fops);
-	unregister_chrdev(major);
-is good too even if people don't forget to pass the same "foo" in two
-places. Luckily, unregister_chrdev() ignores name arg, so passing wrong
-won't do any harm.
+OTOH, everybody seems to have moved from capability-based security
+models on to TE/RBAC-based security models, so maybe this isn't worth
+the effort?
 
-> >  64 files changed, 97 insertions(+), 97 deletions(-)
->
-> I do understand that.  This'll cause some grief.
-
-In kernel, hardly...
-
-$ grep unregister_chrdev -w -n 2.6.18-rc4-mm1
-33126:  unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
-35853:  unregister_chrdev(MSR_MAJOR, "cpu/msr");
-35861:  unregister_chrdev(MSR_MAJOR, "cpu/msr");
-134610:         unregister_chrdev(LP_MAJOR, "lp");
-291207:-        unregister_chrdev(hptiop_cdev_major, "hptiop");
-352167:+    unregister_chrdev(major_number, "SerialQT_USB");
-
-Two rejects, 4 fuzzy places.
-
-> I'd suggest that we add a
-> new unregister_char_dev() or something, and do
-
-But there is register_CHRDEV_region, unregister_CHRDEV_region,
-alloc_CHRDEV_region, register_CHRDEV. Should I change the spelling of
-register_chrdev() for a good measure, too?
-
-> static inline unregister_chrdev(unsigned int major, const char *name)
-> {
-> 	return unregister_char_dev(major);
-> }
-
-> then migrate callers over to unregister_char_dev() in an organised fashion,
-> via maintainers where poss.
->
-> Then mark unregister_chrdev() deprecated for a while.
->
-> Then nuke it.
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

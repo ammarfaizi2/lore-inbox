@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbWHONRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965370AbWHONRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbWHONRO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 09:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWHONRO
+	id S965370AbWHONRv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 09:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbWHONRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 09:17:14 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:21150 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S965109AbWHONRN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 09:17:13 -0400
-Message-ID: <44E1C624.4010607@nachtwindheim.de>
-Date: Tue, 15 Aug 2006 15:03:32 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+	Tue, 15 Aug 2006 09:17:50 -0400
+Received: from reiner-h.de ([83.151.27.91]:19670 "EHLO reiner-h.de")
+	by vger.kernel.org with ESMTP id S965370AbWHONRu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 09:17:50 -0400
+From: Reiner Herrmann <reiner@reiner-h.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc4: freeze with wistron_btns driver
+Date: Tue, 15 Aug 2006 15:17:57 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Miloslav Trmac <mitr@volny.cz>
 MIME-Version: 1.0
-To: proski@gnu.org
-Cc: orinoco-devel@lists.sourceforge.net, hernes@gibson.dropbear.id.au,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] [NETDEV] [ORINOCO] pci_module_init() -> pci_register_driver()
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608151517.57833.reiner@reiner-h.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+After loading the wistron_btns driver in 2.6.18-rc4 and pressing some buttons
+that become enabled by this driver, the kernel suddenly freezes.
 
-Change pci_module_init() to pci_register_driver().
-This pci_module_init() came to the kernel after 2.6.17.
-
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
-
----
-
-diff -ruN linux-2.6.18-rc4/drivers/net/wireless/orinoco_nortel.c linux/drivers/net/wireless/orinoco_nortel.c
---- linux-2.6.18-rc4/drivers/net/wireless/orinoco_nortel.c	2006-08-11 10:09:08.000000000 +0200
-+++ linux/drivers/net/wireless/orinoco_nortel.c	2006-08-15 14:52:31.000000000 +0200
-@@ -304,7 +304,7 @@
- static int __init orinoco_nortel_init(void)
- {
- 	printk(KERN_DEBUG "%s\n", version);
--	return pci_module_init(&orinoco_nortel_driver);
-+	return pci_register_driver(&orinoco_nortel_driver);
- }
- 
- static void __exit orinoco_nortel_exit(void)
-
-
+The reason seems to be git-commit c7948989f84ee6e9c68cc643f8c6a635eb7a904b.
+After reversing this patch everything is running fine, except that there
+are again the 'section reference mismath' warnings that have been fixed
+by the commit.

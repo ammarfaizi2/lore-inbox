@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWHOQRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbWHOQUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWHOQRp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWHOQRp
+	id S1030379AbWHOQUd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 12:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWHOQUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:17:45 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:3538 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1030365AbWHOQRo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:17:44 -0400
-Subject: Re: [RFC] [PATCH] file posix capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Nicholas Miell <nmiell@comcast.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-In-Reply-To: <20060815114946.GA7267@vino.hallyn.com>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com>
-	 <20060814220651.GA7726@sergelap.austin.ibm.com>
-	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
-	 <20060815020647.GB16220@sergelap.austin.ibm.com>
-	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
-	 <1155615736.2468.12.camel@entropy>  <20060815114946.GA7267@vino.hallyn.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 15 Aug 2006 12:18:08 -0400
-Message-Id: <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Tue, 15 Aug 2006 12:20:33 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:47580 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030379AbWHOQUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 12:20:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=HCnQIDI0UXF7MmMdEMWolao+LdTxlh5DcZ/iuiCy2ROJySINnwY+AQmYPkPxd4kPpv6qgTnrIdvu7s2xifScfqd8EsF1CzNT0HTreMS5B9i7TIKo8s6qsrERmylYX8GILEbzcJsz05bpFv2mg+fJI+AQ6gr5xnkF1hq5Uhz4TmM=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH 0/4] aic7xxx: remove excessive inlining
+Date: Tue, 15 Aug 2006 18:20:21 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200608131457.21951.vda.linux@googlemail.com> <20060814161434.d643f568.akpm@osdl.org> <20060814162516.1a458ff9.rdunlap@xenotime.net>
+In-Reply-To: <20060814162516.1a458ff9.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608151820.21929.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 06:49 -0500, Serge E. Hallyn wrote:
-> Quoting Nicholas Miell (nmiell@comcast.net):
-> > OTOH, everybody seems to have moved from capability-based security
-> > models on to TE/RBAC-based security models, so maybe this isn't worth
-> > the effort?
+On Tuesday 15 August 2006 01:25, Randy.Dunlap wrote:
+> On Mon, 14 Aug 2006 16:14:34 -0700 Andrew Morton wrote:
 > 
-> One day perhaps, but that day isn't here yet.  People are still using
-> setuid (see /sbin/passwd), so obviously they're not sufficiently
-> comfortable using *only* TE/RBAC.
+> > On Sun, 13 Aug 2006 14:57:21 +0200
+> > Denis Vlasenko <vda.linux@googlemail.com> wrote:
+> > 
+> > > This is a resend.
+> > 
+> > Please resend ;)
+> > 
+> > - All these patches had the same Subject:, thus forcing me to invent
+> >   titles for you.  
+> > 
+> > - The changelogs are weird - think what they'll look like once they
+> > hit the git tree.  Someone will need to clean those changelogs up,
+> > and I'd prefer that it not be me.
+> > 
+> > - Missing Signed-off-by:'s.
+> > 
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt is here to
+> > help.
+> 
+> Don't *zip them.
 
-The hard part of capabilities isn't the kernel mechanism - it is the
-proper assignment and management of the capability bits on files, and
-teaching userland that uid 0 is no longer magic.  Which is all work that
-is already well underway for SELinux, but you would have to replicate it
-for capabilities.  And since there is no notion of equivalence classes
-ala SELinux types and the "policy" is completely distributed throughout
-the filesystem state, management is going to be even more painful for
-the capabilities.
-
-On the kernel side, in addition to updating the bprm_secureexec logic,
-you would need to consider whether the capability module needs to
-implement capability comparisons for the other hooks, like task_kill.
-At present, many operations only involve uid comparisons and SELinux
-checks without explicitly comparing capability sets.  Properly isolating
-and protecting processes with different capability sets but the same uid
-is something SELinux already can do (based on domain), whereas the
-existing capability module doesn't really provide that. 
- 
--- 
-Stephen Smalley
-National Security Agency
-
+Ok, resending to Andrew off-list.
+--
+vda

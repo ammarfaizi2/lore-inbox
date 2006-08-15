@@ -1,87 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWHONrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWHONr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWHONrR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 09:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWHONrR
+	id S1030292AbWHONr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 09:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWHONr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 09:47:17 -0400
-Received: from tango.0pointer.de ([217.160.223.3]:13839 "EHLO
-	tango.0pointer.de") by vger.kernel.org with ESMTP id S1030291AbWHONrQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 09:47:16 -0400
-Date: Tue, 15 Aug 2006 15:47:12 +0200
-From: Lennart Poettering <mzxreary@0pointer.de>
-To: Thomas Renninger <trenn@suse.de>
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 2/2] acpi,backlight: MSI S270 laptop support - driver
-Message-ID: <20060815134710.GB28473@tango.0pointer.de>
-References: <20060810010517.GA20849@curacao> <1155645736.4302.1161.camel@queen.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155645736.4302.1161.camel@queen.suse.de>
-Organization: .phi.
-X-Campaign-1: ()  ASCII Ribbon Campaign
-X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
-X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
-X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
-X-Disclaimer-3: keiner Unterschrift.
-User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
+	Tue, 15 Aug 2006 09:47:27 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:7538 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030292AbWHONr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 09:47:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=Ek0Up+1uvXGUpCKu33WQRyOpFnUoeS0TljQZY6LGOzomdMWDpM/gSCdOBPfIopmB/QilUTuIUiyWVw+5l/YHCQkTrInGz2r+jXfyWmOzJiTD0qNT36vBDmwGMo13wyQRtZGnxi8SJoxpXl3g3t9O0GZgmeFy18e9b6GH095Eh6U=
+Subject: Re: [PATCH][Fix] swsusp: Fix swap_type_of
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060815101611.GH7496@elf.ucw.cz>
+References: <200608151218.41041.rjw@sisk.pl>
+	 <20060815101611.GH7496@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 15 Aug 2006 21:47:17 +0800
+Message-Id: <1155649637.3448.4.camel@daplas.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15.08.06 14:42, Thomas Renninger (trenn@suse.de) wrote:
-
-> > +config ACPI_MSI_S270
-> > +	tristate "MSI S270 Laptop Extras"
-> > +	depends on X86
-> > +    depends on BACKLIGHT_CLASS_DEVICE
-> > +	---help---
-> > +	  This is a Linux ACPI driver for MSI S270 laptops. It adds
-> > +	  support for Bluetooth, WLAN and LCD brightness control.
-> > +
-> > +	  More information about this driver is available at
-> > +	  <http://0pointer.de/lennart/tchibo.html>.
-> > +
-> > +	  If you have an MSI S270 laptop, say Y or M here.
+On Tue, 2006-08-15 at 12:16 +0200, Pavel Machek wrote:
+> On Tue 2006-08-15 12:18:40, Rafael J. Wysocki wrote:
+> > There is a bug in mm/swapfile.c#swap_type_of() that makes swsusp only be
+> > able to use the first active swap partition as the resume device.
+> > Fix it.
 > 
-> I don't know anything about MSI laptops. But S270 sounds like a very
-> specific model to me?
+> ACK. (And I guess this is 2.6.18 material, right? Or is that fix not
+> needed in mainline?) 
 
-There are quite a lot of different S270 laptops. And the laptops are
-sold under various brands and names, hence it's not that specific. 
+This fixed an oops on suspend to disk.  Definitely 2.6.18 material.
 
-Until now I found the laptop under the brands MSI, Cytron, TCM,
-Medion, Tchibo and the names MegaBook, S270, MD96100, MS-1013,
-SAM2000. And I am sure there are even more names/brands...
+Tony
 
-> Shouldn't the driver just be called acpi_msi driver and try to also
-> support other MSI models later that might do things at least
-> similar?
 
-The driver uses the ACPI EC but doesn't call any ACPI DSDT method. On
-request of Len Brown I moved the driver out of the /drivers/acpi/
-namespace and made it use sysfs instead of /proc/acpi:
-
-http://lwn.net/Articles/194916/
-
-Hence I don't think it is a good idea to prefix the driver name with
-"acpi_".
-
-I would like to support other laptop models from MSI (specifically
-S260), however I don't have access to any of them or to the necessary
-hardware information.
-
-But yes, I guess I could rename the driver to "laptop_msi.c" or
-something. Although I don't know if the other models use a similar
-ACPI EC interface to the S270 model. 
-
-If anyone has a S260 and wants to test this driver on it: please
-contact me!
-
-Lennart
-
--- 
-Lennart Poettering; lennart [at] poettering [dot] net
-ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/

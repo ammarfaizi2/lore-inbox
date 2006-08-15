@@ -1,55 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbWHOObs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWHOOhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030311AbWHOObs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 10:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWHOObs
+	id S1030314AbWHOOhO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 10:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWHOOhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 10:31:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26772 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030311AbWHOObr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 10:31:47 -0400
-Subject: Re: kernel BUG at <bad filename>:50307!
-From: Arjan van de Ven <arjan@infradead.org>
-To: mbraun@uni-hd.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44E1D9CA.30805@uni-hd.de>
-References: <44E1D9CA.30805@uni-hd.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 15 Aug 2006 16:31:35 +0200
-Message-Id: <1155652295.3011.165.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 15 Aug 2006 10:37:13 -0400
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:41607 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030314AbWHOOhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 10:37:12 -0400
+Date: Tue, 15 Aug 2006 07:37:09 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
+Message-ID: <20060815143709.GA21591@tuatara.stupidest.org>
+References: <20060808185405.B2528231@wobbly.melbourne.sgi.com> <9a8748490608100431m244207b1v9c9c5087233fcf3a@mail.gmail.com> <20060811083546.B2596458@wobbly.melbourne.sgi.com> <9a8748490608101544n29f863e7o7584ac64f1d4c210@mail.gmail.com> <9a8748490608101552w12822fa6m415a5fb5537c744d@mail.gmail.com> <9a8748490608110133v5f973cf6w1af340f59bb229ec@mail.gmail.com> <9a8748490608110325k25c340e2yac925eb226d1fe4f@mail.gmail.com> <20060814120032.E2698880@wobbly.melbourne.sgi.com> <9a8748490608140049t492742cx7f826a9f40835d71@mail.gmail.com> <20060815190343.A2743401@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060815190343.A2743401@wobbly.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 16:27 +0200, Martin Braun wrote:
-> Hello all,
-> 
-> I got this bug (see below) in my logs, the system showed with "top" an
-> increasing load average of 11 and more but with an cpu-idle of 99% and
-> no processes used mentionable resources, there were 6 zombies. A
-> shutdown was not possible most of the samba processes  didn't respond to
-> a kill.
-> Before the exception the server was -as usual- under heavy load of samba
-> processes 4-5 clients, with many automated activity (batch-processes
-> with image processing).
-> 
-> What does this bug mean?
+On Tue, Aug 15, 2006 at 07:03:43PM +1000, Nathan Scott wrote:
 
-Hi,
+> Its not clear to me where the rename operation happens in all of
+> this - does rsync create a local, temporary copy of the file and
+> then rename it?
 
-it means you don't have CONFIG_KALLSYMS enabled, so the kernel isn't
-able to give a decent debugging output in the oops.. if it's a
-repeatable oops turning that option on would be a great help to even
-figure out which part of the kernel is involved...
-
-Greetings,
-   Arjan van de Ven
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Yes, this is normally how rsync does it.

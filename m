@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbWHORm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWHORny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030396AbWHORm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 13:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWHORm1
+	id S1030398AbWHORny (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWHORnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 13:42:27 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:52436 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030396AbWHORm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 13:42:26 -0400
-Subject: Re: [PATCH 1/1] network memory allocator.
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20060815150507.GA9734@2ka.mipt.ru>
-References: <20060814110359.GA27704@2ka.mipt.ru>
-	 <1155558313.5696.167.camel@twins> <20060814123530.GA5019@2ka.mipt.ru>
-	 <1155639302.5696.210.camel@twins> <20060815112617.GB21736@2ka.mipt.ru>
-	 <1155643405.5696.236.camel@twins> <20060815123438.GA29896@2ka.mipt.ru>
-	 <1155649768.5696.262.camel@twins> <20060815141501.GA10998@2ka.mipt.ru>
-	 <1155653339.5696.282.camel@twins>  <20060815150507.GA9734@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 19:42:16 +0200
-Message-Id: <1155663737.13508.127.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 13:43:53 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.143]:41240 "EHLO
+	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
+	id S1030398AbWHORnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 13:43:52 -0400
+Date: Tue, 15 Aug 2006 12:43:38 -0500
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: Terence Ripperda <tripperda@nvidia.com>, Roger Heflin <rheflin@atipa.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: What determines which interrupts are shared under Linux?
+Message-ID: <20060815174338.GR7189@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <44E1D760.6070600@atipa.com> <20060815173116.GQ7189@hygelac> <44E20799.4060606@ru.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E20799.4060606@ru.mvista.com>
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.6.15-1-486 
+User-Agent: Mutt/1.5.11+cvs20060403
+X-OriginalArrivalTime: 15 Aug 2006 17:43:43.0498 (UTC) FILETIME=[5A09AEA0:01C6C092]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 19:05 +0400, Evgeniy Polyakov wrote:
-
-> > Not sure on the details; but you say: when we reach the threshold all
-> > following packets will be dropped. So if you provide enough memory to
-> > exceed the limit, you have some extra. If you then use that extra bit to
-> > allow ACKs to pass through, then you're set.
-> > 
-> > Sounds good, but you'd have to carve a path for the ACKs, right? Or is
-> > that already there?
+On Tue, Aug 15, 2006 at 09:42:49PM +0400, sshtylyov@ru.mvista.com wrote:
+> Hello.
 > 
-> Acks with or without attached data are processed before data queueing.
-> See tcp_rcv_established().
+> Terence Ripperda wrote:
+> >we've seen a lot of problems on ck804 chipsets when multiple devices
+> >share level-triggered interrupts. I think some of the earlier sample
+> >bioses assumed that interrupts would be configured via ACPI, and when
+> >ACPI is not used, the interrupts end up as level-triggered instead of
+> >edge-triggered.
+> 
+>    Edge-triggered *shared* interrupts?! Now that sounds interesting (I'm 
+>    not saying impossible).
 
-Right, however I just realised that most storage protocols (level 7)
-have their own ACK msgs and do not rely on TCP (level 4) ACKs like this.
+ah shoot, you're right. doing too much and got the two backwards.
+ignore my email, I'm going off to sit in the corner with a dunce cap
+on..
 
-So I would like to come back on this, I do need a full data channel
-open.
+> 
+> WBR, Sergei
 
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

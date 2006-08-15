@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbWHOT1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWHOT3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbWHOT1M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWHOT1L
+	id S1030473AbWHOT3a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbWHOT3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:27:11 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:24338 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S965231AbWHOT1K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:27:10 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Mike Dresser <mdresser_l@windsormachine.com>
-Subject: Re: Daily crashes, incorrect RAID behaviour
-Date: Tue, 15 Aug 2006 20:27:09 +0100
-User-Agent: KMail/1.9.4
-Cc: Carsten Otto <carsten.otto@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <13e988610608150436y6812f623p9919b2d5b1989427@mail.gmail.com> <13e988610608150831u18ed0e85s50fe3a865548a865@mail.gmail.com> <Pine.LNX.4.64.0608151423200.25217@router.windsormachine.com>
-In-Reply-To: <Pine.LNX.4.64.0608151423200.25217@router.windsormachine.com>
+	Tue, 15 Aug 2006 15:29:30 -0400
+Received: from ptb-relay03.plus.net ([212.159.14.214]:44773 "EHLO
+	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
+	id S1030473AbWHOT32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 15:29:28 -0400
+Message-ID: <44E22091.4000500@mauve.plus.com>
+Date: Tue, 15 Aug 2006 20:29:21 +0100
+From: Ian Stirling <ian.stirling@mauve.plus.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608152027.09880.s0348365@sms.ed.ac.uk>
+To: Diego Calleja <diegocg@gmail.com>
+CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com, akpm@osdl.org, dmccr@us.ibm.com
+Subject: Re: Shared page tables patch... some results
+References: <1155638047.3011.96.camel@laptopd505.fenrus.org> <20060815175933.3e284567.diegocg@gmail.com>
+In-Reply-To: <20060815175933.3e284567.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 August 2006 19:28, Mike Dresser wrote:
-> On Tue, 15 Aug 2006, Carsten Otto wrote:
-> > Okay, after Ralf's message I found this newsgroup post:
-> > http://groups.google.de/group/linux.debian.user/msg/f12dec920523a629?hl=d
-> >e&
-> >
-> >> You should be aware that currently
-> >> Maxtor Maxline III's(7v300F0's) do not work properly due to a firmware
-> >> bug.  The current version shipping is VA111630, an update is available
-> >> to VA111670 which merely reduces the frequency of timeouts that get the
-> >> drive kicked out from the array.
->
-> I'm running 680 now, and the 15 drives have been up for something like two
-> months or so without issues at all.. Seems like the firmware fixes the
-> problem.
+Diego Calleja wrote:
+> El Tue, 15 Aug 2006 12:34:07 +0200,
+> Arjan van de Ven <arjan@infradead.org> escribió:
+> 
+>> Just booting into runlevel 5 and logging into gnome (without starting
 
-Still, the RAID rebuild problem is worrying. I might have to deliberately 
-fault my RAID5 partitions and see if they rebuild correctly..
+> It's possible to get the patch to test it? (saving memory is one of those
+> things that makes people want to try patches ;) It'd be interesting to see
+> how this affects to other (mine) environments. 
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I always wondered what happened to 'mergemem' - which did similar things 
+in 2.0.33.

@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWHOOjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWHOOmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWHOOjp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 10:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbWHOOjp
+	id S1030318AbWHOOmD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 10:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWHOOmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 10:39:45 -0400
-Received: from rtr.ca ([64.26.128.89]:35256 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1030320AbWHOOjo (ORCPT
+	Tue, 15 Aug 2006 10:42:03 -0400
+Received: from mail.suse.de ([195.135.220.2]:2527 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030318AbWHOOmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 10:39:44 -0400
-Message-ID: <44E1DCAE.9020803@rtr.ca>
-Date: Tue, 15 Aug 2006 10:39:42 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 15 Aug 2006 10:42:01 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: hugh@veritas.com, akpm@osdl.org, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Shared page tables patch... some results
+References: <1155638047.3011.96.camel@laptopd505.fenrus.org>
+From: Andi Kleen <ak@suse.de>
+Date: 15 Aug 2006 16:41:46 +0200
+In-Reply-To: <1155638047.3011.96.camel@laptopd505.fenrus.org>
+Message-ID: <p73wt9a83it.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HT not active
-References: <Pine.LNX.4.61.0608141335550.7970@yvahk01.tjqt.qr> <1155558984.24077.191.camel@localhost.localdomain>
-In-Reply-To: <1155558984.24077.191.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Arjan van de Ven <arjan@infradead.org> writes:
+> and the result is interesting:
+> Just booting into runlevel 5 and logging into gnome (without starting
+> any apps) gets a sharing of 1284 pte pages! This means that five
+> megabytes (!!) of memory is saved, and countless pagefaults are avoided.
 >
-> Hyperthreading must be BIOS enabled, its not something Linux can "turn
-> on". The "ht" flag merely indicates that the processor supports
-> hyperthreading not that it is enabled.
 
-Not quite.  Even non-HT CPUs report the ht flag (I have one here).
-As somebody else said, ht just means the system supports querying
-the number of ht "siblings", even though that number might be zero.
+When I start SLES10 GNOME after boot with one firefox window and
+one gnome terminal I only have ~5.3MB in total page tables according
+to /proc/meminfo
 
-Somewhat misleading, though technically accurate.
+You're saying you can share 5MB of those. Call me sceptical of your
+numbers.
 
-Cheers
+-Andi

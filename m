@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWHOVWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWHOV1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWHOVWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 17:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWHOVWa
+	id S1750723AbWHOV1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 17:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWHOV1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 17:22:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4257 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750706AbWHOVW3 (ORCPT
+	Tue, 15 Aug 2006 17:27:20 -0400
+Received: from xenotime.net ([66.160.160.81]:29830 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750724AbWHOV1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 17:22:29 -0400
-Date: Tue, 15 Aug 2006 14:22:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2/3] Create call_usermodehelper_pipe()
-Message-Id: <20060815142225.52cc86b3.akpm@osdl.org>
-In-Reply-To: <20060814112731.5A16213BD9@wotan.suse.de>
-References: <20060814 127.183332000@suse.de>
-	<20060814112731.5A16213BD9@wotan.suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 17:27:19 -0400
+Message-Id: <1155677232.11401@shark.he.net>
+Date: Tue, 15 Aug 2006 14:27:12 -0700
+From: "Randy Dunlap" <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@suse.cz>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
+X-Mailer: WebMail 1.25
+X-IPAddress: 216.4.146.131
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Aug 2006 13:27:31 +0200 (CEST)
-Andi Kleen <ak@suse.de> wrote:
 
-> +	/* Install input pipe when needed */
-> +	if (sub_info->stdin) {
-> +		struct files_struct *f = current->files;
-> +		struct fdtable *fdt;
-> +		/* no races because files should be private here */
-> +		sys_close(0);
-> +		fd_install(0, sub_info->stdin);
-> +		spin_lock(&f->file_lock);
-> +		fdt = files_fdtable(f);
-> +		FD_SET(0, fdt->open_fds);
-> +		FD_CLR(0, fdt->close_on_exec);
-> +		spin_unlock(&f->file_lock);
-> +	}
 
-This is all going to be run by kernel threads, and all kernel threads share
-current->files=&init_files.
+> Hi!
+> 
+> > >  AM> - The existing comments could benefit from some rework by a
+> > >  AM> native English speaker.
+> > > 
+> > > could someone assist here, please?
+> > 
+> > See if this helps.
+> > Patch applies on top of all ext4 patches from
+> > http://ext2.sourceforge.net/48bitext3/patches/latest/.
+> 
+> > --- linux-2618-rc4-ext4.orig/include/linux/ext4_fs_extents.h
+> > +++ linux-2618-rc4-ext4/include/linux/ext4_fs_extents.h
+> > @@ -22,29 +22,29 @@
+> >  #include <linux/ext4_fs.h>
+> >  
+> >  /*
+> > - * with AGRESSIVE_TEST defined capacity of index/leaf blocks
+> > - * become very little, so index split, in-depth growing and
+> > - * other hard changes happens much more often
+> > - * this is for debug purposes only
+> > + * With AGRESSIVE_TEST defined, the capacity of index/leaf blocks
+> > + * becomes very small, so index split, in-depth growing and
+> > + * other hard changes happen much more often.
+> > + * This is for debug purposes only.
+> >   */
+> >  #define AGRESSIVE_TEST_
+> 
+> Using _ for disabling is unusual/nasty. Can't we simply #undef it?
 
-So I suspect that if two coredumps happen at the same time bad things will
-happen.  Like a BUG() in fd_install()?
+Yes, that's the right thing to do.
+The ext4dev people should do that. :)
 
+---
+~Randy

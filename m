@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWHOTHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbWHOTKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030462AbWHOTHA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWHOTHA
+	id S1030409AbWHOTKV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWHOTKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:07:00 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:56523 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030462AbWHOTG6 (ORCPT
+	Tue, 15 Aug 2006 15:10:21 -0400
+Received: from lixom.net ([66.141.50.11]:19420 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S1030409AbWHOTKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:06:58 -0400
-Message-ID: <44E21B47.7020501@garzik.org>
-Date: Tue, 15 Aug 2006 15:06:47 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 15 Aug 2006 15:10:19 -0400
+Date: Tue, 15 Aug 2006 14:05:24 -0500
+To: James K Lewis <jklewis@us.ibm.com>
+Cc: Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
+       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       Linas Vepstas <linas@austin.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 4/4]: powerpc/cell spidernet ethtool -i version number info.
+Message-ID: <20060815190524.GW6603@pb15.lixom.net>
+References: <20060811180013.GB6550@pb15.lixom.net> <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
-References: <1155172597.3161.72.camel@localhost.localdomain> <44DACB21.9080002@garzik.org> <44DB5FC0.5070405@us.ibm.com> <20060810100012.abc1b5a1.akpm@osdl.org> <20060814214442.GB4032@ucw.cz>
-In-Reply-To: <20060814214442.GB4032@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Fri, Aug 11, 2006 at 01:50:19PM -0500, James K Lewis wrote:
+>  Hi Olof,
 > 
->>> We do maintain a quilt(akpm) style patches on http://ext2.sf.net, the 
->>> latest patches are always at 
->>> http://ext2.sourceforge.net/48bitext3/patches/latest/
->>>
->>> We thought about doing git initially, still open for that doing do, if 
->>> it's more preferable by Linus or Andrew. Just thought  it's a lot 
->>> easiler for non git user to pull the patches from a project website.
->>>
->> We should aim to get the big copy-ext3-to-ext4 patch into Linus's tree as
->> early as possible.
->>
->> I'm just not sure when to do that.  Immediately after 2.6.19-rc1 is
->> released would be good because it is when every tree (including -mm) is in
->> its most-synced-up state.
+>   There are several reasons why an Ethernet driver should have an up to 
+> date version number:
 > 
-> Or you could simply do it _now_. Its new-driver-like, so freeze should
-> not apply :-).
+> 1. Customers like to see they are really getting a new version.
+> 
+> 2. It makes it easier for support personnel (me in this case) to see which 
+> driver they have. Sure, sometimes I can talk them thru doing a "sum" on 
+> the .ko and all that, but why not just use the version number? That's what 
+> it is for. And no, you can't just assume they have the version that came 
+> with the kernel they are running. It doesn't work that way.
+> 
+> 3. It makes bug reporting easier. 
+> 
+> 4. I have already run into too many problems and wasted too much time 
+> working with drivers when the number was NOT getting updated. 
 
-I agree... though that is contingent on having _some_ ext4 patches 
-reviewed and applied.
+Thanks for the info, Jim.
 
-	Jeff
+Sounds like it's most useful if a customer (or distro) takes the driver
+out of the tree and run it with a different kernel, i.e. when kernel
+and driver versions no longer go together. Makes sense.
 
+
+-Olof
 

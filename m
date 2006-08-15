@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWHOWmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWHOWpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWHOWmv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 18:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWHOWmv
+	id S1750764AbWHOWpG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 18:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWHOWpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 18:42:51 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11984 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750762AbWHOWmv (ORCPT
+	Tue, 15 Aug 2006 18:45:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43713 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750764AbWHOWpD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 18:42:51 -0400
-Date: Wed, 16 Aug 2006 00:42:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Robert Love <rlove@rlove.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       hdaps-devel@lists.sourceforge.net, Jean Delvare <khali@linux-fr.org>
-Subject: Re: [-mm patch] hdaps: Add explicit hardware configuration functions - fix
-Message-ID: <20060815224230.GC8938@elf.ucw.cz>
-References: <41840b750608151526r19748630y75118a2f5032ca6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41840b750608151526r19748630y75118a2f5032ca6@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 15 Aug 2006 18:45:03 -0400
+Date: Tue, 15 Aug 2006 15:44:44 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Mitch Williams <mitch.a.williams@intel.com>
+Cc: Bill Nottingham <notting@redhat.com>,
+       "Williams, Mitch A" <mitch.a.williams@intel.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: bonding: cannot remove certain named devices
+Message-ID: <20060815154444.286e12ed@localhost.localdomain>
+In-Reply-To: <Pine.CYG.4.58.0608151532070.2316@mawilli1-desk2.amr.corp.intel.com>
+References: <20060815194856.GA3869@nostromo.devel.redhat.com>
+	<Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
+	<20060815204555.GB4434@nostromo.devel.redhat.com>
+	<20060815140249.15472a82@dxpl.pdx.osdl.net>
+	<20060815214914.GA5307@nostromo.devel.redhat.com>
+	<Pine.CYG.4.58.0608151532070.2316@mawilli1-desk2.amr.corp.intel.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-08-16 01:26:07, Shem Multinymous wrote:
-> Fixes two things about hdaps_check_ec() in the hdaps driver:
-> 1. Remove the __init, it may be called well after module init, during 
-> resume.
-> 2. Remove an unused parameter.
+On Tue, 15 Aug 2006 15:41:08 -0700
+Mitch Williams <mitch.a.williams@intel.com> wrote:
+
+> On Tue, 15 Aug 2006, Bill Nottingham wrote:
+> >
+> > Stephen Hemminger (shemminger@osdl.org) said:
+> > > > They're certainly allowed, and the sysfs directory structure, files,
+> > > > etc. handle it ok. Userspace tends to break in a variety of ways.
+> > > >
+> > > > I believe the only invalid character in an interface name is '/'.
+> > > >
+> > >
+> > > The names "." and ".." are also verboten.
+> >
+> > Right. Well, I suspect they're verboten-because-some-code-breaks-making-the-directory.
+> >
+> > > Names with : in them are for IP aliases.
+> >
 > 
-> Signed-off-by: Shem Multinymous <multinymous@gmail.com>
+> So can we use
+> 	sscanf(buffer, " %[^\n]", command);
+> instead?  This should allow for whitespace in the filename.  Bad interface
+> names will be caught by the call to dev_valid_name().
+> 
+> (I think I'm reading the man page correctly.)
+> 
+> This could have the effect of making the parser way more finicky, though,
+> since we would allow trailing whitespace.  Technically I suppose it's
+> legal, but it's sure hard to see on the screen.
+> 
+> Anybody have a better solution?
+> 
+> -Mitch
 
-Looks okay to me.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+IMHO idiots who put space's in filenames should be ignored. As long as the
+bonding code doesn't throw a fatal error, it has every right to return
+"No such device" to the fool.

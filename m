@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWHORny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWHORr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbWHORny (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 13:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWHORnx
+	id S1030404AbWHORr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWHORr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 13:43:53 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:41240 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1030398AbWHORnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 13:43:52 -0400
-Date: Tue, 15 Aug 2006 12:43:38 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Terence Ripperda <tripperda@nvidia.com>, Roger Heflin <rheflin@atipa.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: What determines which interrupts are shared under Linux?
-Message-ID: <20060815174338.GR7189@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <44E1D760.6070600@atipa.com> <20060815173116.GQ7189@hygelac> <44E20799.4060606@ru.mvista.com>
+	Tue, 15 Aug 2006 13:47:28 -0400
+Received: from mail.everytruckjob.com ([198.87.235.158]:45236 "EHLO
+	mail.everytruckjob.com") by vger.kernel.org with ESMTP
+	id S1030404AbWHORr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 13:47:27 -0400
+Message-ID: <44E208AC.2050906@everytruckjob.com>
+Date: Tue, 15 Aug 2006 12:47:24 -0500
+From: Mark Reidenbach <m.reidenbach@everytruckjob.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E20799.4060606@ru.mvista.com>
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.15-1-486 
-User-Agent: Mutt/1.5.11+cvs20060403
-X-OriginalArrivalTime: 15 Aug 2006 17:43:43.0498 (UTC) FILETIME=[5A09AEA0:01C6C092]
+To: Phil Oester <kernel@linuxace.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling
+ enabled
+References: <44E1F0CD.7000003@everytruckjob.com> <1155661308.24077.297.camel@localhost.localdomain> <20060815173046.GA2034@linuxace.com>
+In-Reply-To: <20060815173046.GA2034@linuxace.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 09:42:49PM +0400, sshtylyov@ru.mvista.com wrote:
-> Hello.
-> 
-> Terence Ripperda wrote:
-> >we've seen a lot of problems on ck804 chipsets when multiple devices
-> >share level-triggered interrupts. I think some of the earlier sample
-> >bioses assumed that interrupts would be configured via ACPI, and when
-> >ACPI is not used, the interrupts end up as level-triggered instead of
-> >edge-triggered.
-> 
->    Edge-triggered *shared* interrupts?! Now that sounds interesting (I'm 
->    not saying impossible).
+Phil Oester wrote:
+> On Tue, Aug 15, 2006 at 06:01:47PM +0100, Alan Cox wrote:
+>   
+>> Ar Maw, 2006-08-15 am 11:05 -0500, ysgrifennodd Mark Reidenbach:
+>>     
+>>> Does anyone have a way to find the broken router if you are not running 
+>>> the networks involved?  
+>>>       
+>> You are almost certainly looking for a broken/crap NAT box, firewall or
+>> similar product. Routers that are just being routers don't touch the TCP
+>> layer so even if they are broken/crap/ancient they won't do any harm to
+>> it.
+>>
+>> The usual offenders are cheap NAT boxes and badly designed load
+>> balancers. They may not even show up in a trace but you should expect
+>> them to be at one end or the other, unless your ISP is providing you
+>> with NATted addresses or some kind of managed security service.
+>>     
+>
+> Certain versions of BSD ipfilter are also broken.  Try some of Apple's
+> websites for examples.  
+>
+> Is the destination box BSD or behind a BSD firewall?
+>
+> Phil
+>   
+I'm not sure what OS the T1 provider's box is running.  I experience the 
+same problems trying to access kernel.org or one of my servers hosted at 
+Verio in Sterling, VA.
 
-ah shoot, you're right. doing too much and got the two backwards.
-ignore my email, I'm going off to sit in the corner with a dunce cap
-on..
+Alan Cox says it's most likely a broken NAT box or firewall.  I'm not 
+aware of any firewalls in between my office and my servers in Sterling 
+other than the Cisco 1811 here in the office, and it is performing NAT 
+and firewall services for our office.  I'm going to try a few cheapo 
+home routers and see if the problem remains.  I would think the Cisco 
+router would be better off than a home Linksys or Xincom one, but I 
+figure it's at least worth a try.
 
-> 
-> WBR, Sergei
+Thanks for your help.
 
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+Mark Reidenbach
+EveryTruckJob.com
+M.Reidenbach@EveryTruckJob.com
+Phone: (205)722-9112

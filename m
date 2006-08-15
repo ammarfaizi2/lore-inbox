@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWHOWMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWHOW0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWHOWMD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 18:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWHOWMD
+	id S1750753AbWHOW0J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 18:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWHOW0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 18:12:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:46319 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750749AbWHOWMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 18:12:01 -0400
+	Tue, 15 Aug 2006 18:26:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:42720 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750753AbWHOW0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 18:26:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=eIcB5K2PTQjf2s0YXfqLPJWqa+F2u0K4mkLkQVvjI4XgMObmDJ/Yl805ChBMiM9S+WirgrYpa5lVW1++HWnYVWmNCs7qzHi4AVLA9F67dlnaBfZTbWZ144PEv6CLl8bAVYFqxCWK+1KbHN/Y4X+i4exAASrnDr+uggfxwOvvqNM=
-Date: Wed, 16 Aug 2006 02:11:57 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] add some unlikely() to fs/select.c
-Message-ID: <20060815221156.GA5206@martell.zuzino.mipt.ru>
-References: <20060815175447.GA8068@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=IKa+5bCmkdOgFXgDryA77C9mzzuhtkE8vn/uXNJNxdpyc7ViUICMMHaMWZewKHca4ToQCUnZmlohYMc6noNM+mxJtj/ytLgJH+Q+CkyOKYt29wTLHG32mHGX/BcUyxEPsva4cMwrt+Q1S3Ri26rS3MKB3gNXvm1SV6Q+I/tEfyM=
+Message-ID: <41840b750608151526r19748630y75118a2f5032ca6@mail.gmail.com>
+Date: Wed, 16 Aug 2006 01:26:07 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [-mm patch] hdaps: Add explicit hardware configuration functions - fix
+Cc: "Andrew Morton" <akpm@osdl.org>, "Robert Love" <rlove@rlove.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>,
+       hdaps-devel@lists.sourceforge.net, "Pavel Machek" <pavel@suse.cz>,
+       "Jean Delvare" <khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060815175447.GA8068@rhlx01.fht-esslingen.de>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 07:54:47PM +0200, Andreas Mohr wrote:
-> Add unlikely() to various core select() and poll() functions.
+Fixes two things about hdaps_check_ec() in the hdaps driver:
+1. Remove the __init, it may be called well after module init, during resume.
+2. Remove an unused parameter.
 
-> Since these functions show up as X server related during profiling
-> (which is quite obvious), I thought that adding some unlikely()
-> shouldn't hurt...
+Signed-off-by: Shem Multinymous <multinymous@gmail.com>
+---
+This applies on top of
+hdaps-add-explicit-hardware-configuration-functions.patch
+currently in -mm
+(LKML: "[PATCH 08/12] hdaps: Add explicit hardware configuration functions").
 
-Have you done any benchmarking? micro-benchmarking?
+Andrew, do you prefer to get the full rolled-up patch in such cases?
 
-> I also moved some error code setting into error path (please yell if
-> I shouldn't do that).
+--- a/drivers/hwmon/hdaps.c
++++ b/drivers/hwmon/hdaps.c
+@@ -305,7 +305,7 @@ static int hdaps_get_ec_mode(u8 *mode)
+  * Follows the clean-room spec for HDAPS; we don't know what it means.
+  * Returns zero on success and negative error code on failure.  Can sleep.
+  */
+-static int __init hdaps_check_ec(u8 *mode)
++static int hdaps_check_ec()
+ {
+ 	const struct thinkpad_ec_row args =
+ 		{ .mask=0x0003, .val={0x17, 0x81} };
+@@ -343,7 +343,7 @@ static int hdaps_device_init(void)
+ 	if (mode==0x00)
+ 		{ ABORT_INIT("accelerometer not available"); goto bad; }
 
-FWIW, unlikely part makes no difference whatsoever with my usual config
-and gcc-3.4.6. Messing with error codes makes .o slightly bigger:
+-	if (hdaps_check_ec(&mode))
++	if (hdaps_check_ec())
+ 		{ ABORT_INIT("hdaps_check_ec failed"); goto bad; }
 
-text    data     bss     dec     hex filename
-4483       0       0    4483    1183 fs/select.o
-4490       0       0    4490    118a fs/select.o
-------------------------------------
-			  +7
-
-And don't mix several things in one patch.
-
+ 	if (hdaps_set_power(1))

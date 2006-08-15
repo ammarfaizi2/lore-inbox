@@ -1,84 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbWHOSYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWHOS0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030445AbWHOSYp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWHOSYM
+	id S1030442AbWHOS0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWHOS0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:24:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16094 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030442AbWHOSYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:24:07 -0400
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>,
-       Oleg Nesterov <oleg@tv-sign.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 6/7] vt: Update spawnpid to be a struct pid_t
-Date: Tue, 15 Aug 2006 12:23:11 -0600
-Message-Id: <1155666193191-git-send-email-ebiederm@xmission.com>
-X-Mailer: git-send-email 1.4.2.g3cd4f
-In-Reply-To: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
+	Tue, 15 Aug 2006 14:26:47 -0400
+Received: from 1wt.eu ([62.212.114.60]:20239 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1030442AbWHOS0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:26:46 -0400
+Date: Tue, 15 Aug 2006 20:22:19 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Irfan Habib <irfan.habib@gmail.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum number of processes in Linux
+Message-ID: <20060815182219.GL8776@1wt.eu>
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This keeps the wrong process from being notified if the
-daemon to spawn a new console dies.
+On Tue, Aug 15, 2006 at 02:22:02PM -0400, linux-os (Dick Johnson) wrote:
+> 
+> On Tue, 15 Aug 2006, Irfan Habib wrote:
+> 
+> > Hi,
+> >
+> > What is the maximum number of process which can run simultaneously in
+> > linux? I need to create an application which requires 40,000 threads.
+> > I was testing with far fewer numbers than that, I was getting
+> > exceptions in pthread_create
+> >
+> > Regards
+> > Irfan
+> 
+> #include <stdio.h>
+> int main(){
+>      unsigned long i;
+       ^^^^^^^^^^^^^^^^
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- drivers/char/keyboard.c |    9 ++++++---
- drivers/char/vt_ioctl.c |    5 +++--
- 2 files changed, 9 insertions(+), 5 deletions(-)
+>      while(fork() != -1)
+>          i++;
+>      printf("%u\n", i);
+>      return 0;
+> }
+> $ gcc -o xxx xxx.c
+> $ ./xxx
+> 
+> 1251392833         <<---- At least this number
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 3e90aac..9acd142 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -108,7 +108,8 @@ const int NR_TYPES = ARRAY_SIZE(max_vals
- struct kbd_struct kbd_table[MAX_NR_CONSOLES];
- static struct kbd_struct *kbd = kbd_table;
- 
--int spawnpid, spawnsig;
-+struct pid *spawnpid;
-+int spawnsig;
- 
- /*
-  * Variables exported for vt.c
-@@ -579,8 +580,10 @@ static void fn_compose(struct vc_data *v
- static void fn_spawn_con(struct vc_data *vc, struct pt_regs *regs)
- {
- 	if (spawnpid)
--		if (kill_proc(spawnpid, spawnsig, 1))
--			spawnpid = 0;
-+		if (kill_pid(spawnpid, spawnsig, 1)) {
-+			put_pid(spawnpid);
-+			spawnpid = NULL;
-+		}
- }
- 
- static void fn_SAK(struct vc_data *vc, struct pt_regs *regs)
-diff --git a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
-index 28eff1a..d7e0187 100644
---- a/drivers/char/vt_ioctl.c
-+++ b/drivers/char/vt_ioctl.c
-@@ -645,12 +645,13 @@ #endif
- 	 */
- 	case KDSIGACCEPT:
- 	{
--		extern int spawnpid, spawnsig;
-+		struct pid *spawnpid;
-+		extern int spawnsig;
- 		if (!perm || !capable(CAP_KILL))
- 		  return -EPERM;
- 		if (!valid_signal(arg) || arg < 1 || arg == SIGKILL)
- 		  return -EINVAL;
--		spawnpid = current->pid;
-+		spawnpid = get_pid(task_pid(current));
- 		spawnsig = arg;
- 		return 0;
- 	}
--- 
-1.4.2.rc3.g7e18e-dirty
+Dick, would you please initialize your local variables when you send
+examples like this ? You should have been amazed by one billion processes
+on your box, at least.
 
+> 1251392834
+> 1251392834
+> 1251392834
+> 1251392834
+> 1251392833
+> 1251392833
+> 1251392834
+> 1251392834
+> 1251392834
+> ^C
+> $ killall xxx
+> 
+> BYW 40,000 threads? 40,000 tasks all sharing the same address space?
+> Hopefully this is just a training exercise to see if it's possible.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+> New book: http://www.AbominableFirebug.com/
+
+Regards,
+Willy

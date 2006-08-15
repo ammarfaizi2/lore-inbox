@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWHOStp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWHOStj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbWHOStp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWHOStp
+	id S965115AbWHOStj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWHOStj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:49:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64472 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965123AbWHOSto (ORCPT
+	Tue, 15 Aug 2006 14:49:39 -0400
+Received: from 1wt.eu ([62.212.114.60]:21263 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S965115AbWHOSti (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:49:44 -0400
-Date: Tue, 15 Aug 2006 11:49:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ian Kent <raven@themaw.net>
-Subject: Re: 2.6.18-rc4-mm1
-Message-Id: <20060815114912.d8fa1512.akpm@osdl.org>
-In-Reply-To: <6241.1155666920@warthog.cambridge.redhat.com>
-References: <20060815104813.7e3a0f98.akpm@osdl.org>
-	<20060815065035.648be867.akpm@osdl.org>
-	<20060814143110.f62bfb01.akpm@osdl.org>
-	<20060813133935.b0c728ec.akpm@osdl.org>
-	<20060813012454.f1d52189.akpm@osdl.org>
-	<10791.1155580339@warthog.cambridge.redhat.com>
-	<918.1155635513@warthog.cambridge.redhat.com>
-	<29717.1155662998@warthog.cambridge.redhat.com>
-	<6241.1155666920@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 15 Aug 2006 14:49:38 -0400
+Date: Tue, 15 Aug 2006 20:45:12 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: alex@yuriev.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling enabled
+Message-ID: <20060815184512.GB6672@1wt.eu>
+References: <44E1F0CD.7000003@everytruckjob.com> <20060815180634.GB15957@s2.yuriev.com> <20060815181938.GK8776@1wt.eu> <20060815183300.GC15957@s2.yuriev.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060815183300.GC15957@s2.yuriev.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 19:35:20 +0100
-David Howells <dhowells@redhat.com> wrote:
-
-> > SELinux: initialized (dev 0:15, type nfs), uses genfs_contexts
+On Tue, Aug 15, 2006 at 02:33:00PM -0400, alex@yuriev.com wrote:
+> On Tue, Aug 15, 2006 at 08:19:39PM +0200, Willy Tarreau wrote:
 > 
-> I wonder if this is something to do with it.
+> > > This is absolutely not correct. Routers forward packets. They do not mangle
+> > > the data in them.
+> > 
+> > Believe it or not, there are a lot of routers nowadays that can do NAT.
+> > And even for very basic NAT, you have to recompute the TCP checksum, which
+> > means that you mangle data within the packet. Even worse, some of them are
+> > able to NAT complex protocols such as FTP and for this, they need to mangle
+> > the application payload. OK, this should not be the router's job, but it's
+> > often the best placed to do the job, and there is customer demand for this.
+> 
+> Just because you are using a Linksys/Netgear or god else knows what to
+> mangle your packets and call that device a router
 
-`echo 0 > /selinux/enforce' "fixes" it.
+That's not what I call a router !
+
+> does not mean that normal service providers have NAT enabled on
+> their GSRs and Junipers.
+
+not on the PE, but offen on the CE.
+
+> The issue is not in a router running IOS somewhere. The issue is in the
+> broken code/broken driver/broken something on the end-point.
+
+He may very well have an IOS based 1600 or equivalent doing a very dirty NAT.
+
+> Alex
+
+Willy
+

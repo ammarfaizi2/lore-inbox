@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965309AbWHOJCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965312AbWHOJCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965309AbWHOJCq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbWHOJCq
+	id S965312AbWHOJCt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965311AbWHOJCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:02:46 -0400
-Received: from mail.charite.de ([160.45.207.131]:27089 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S965309AbWHOJCp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:02:45 -0400
-Date: Tue, 15 Aug 2006 11:02:07 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: PATCH: Fix typo in net/sched/cls_u32.c
-Message-ID: <20060815090207.GO27850@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	kernel-janitors@lists.osdl.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 15 Aug 2006 05:02:48 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:8354 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965310AbWHOJCr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 05:02:47 -0400
+Date: Tue, 15 Aug 2006 10:02:43 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RHEL5 PATCH 2/4] VFS: Make inode numbers 64-bits
+Message-ID: <20060815090243.GT29920@ftp.linux.org.uk>
+References: <20060815013114.GS29920@ftp.linux.org.uk> <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com> <7619.1155630777@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <7619.1155630777@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+On Tue, Aug 15, 2006 at 09:32:57AM +0100, David Howells wrote:
+> Al Viro <viro@ftp.linux.org.uk> wrote:
+> 
+> > NAK.  There's no need to touch i_ino and a lot of reasons for not doing
+> > that.
+> 
+> Like all those printks that write ambiguous messages because they can't report
+> the full inode number?  I'm not so worried about those because they're for the
+> most part debugging messages, but still, they *can* report invalid information
+> because i_ino is not big enough in error and warning messages.
 
-Fixes a typo in net/sched/cls_u32.c.orig
-
-Signed-off-by: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-
----
-
---- /usr/src/linux-2.6.17.8/net/sched/cls_u32.c.orig	2006-08-13 12:51:55.000000000 +0200
-+++ /usr/src/linux-2.6.17.8/net/sched/cls_u32.c	2006-08-13 12:52:06.000000000 +0200
-@@ -802,7 +802,7 @@
- {
- 	printk("u32 classifier\n");
- #ifdef CONFIG_CLS_U32_PERF
--	printk("    Perfomance counters on\n");
-+	printk("    Performance counters on\n");
- #endif
- #ifdef CONFIG_NET_CLS_POLICE
- 	printk("    OLD policer on \n");
-
-
--- 
-_________________________________________________
-
-  Charité - Universitätsmedizin Berlin
-_________________________________________________
-
-  Ralf Hildebrandt
-   i.A. Geschäftsbereich Informationsmanagement
-   Campus Benjamin Franklin
-   Hindenburgdamm 30 | Berlin
-   Tel. +49 30 450 570155 | Fax +49 30 450 570962
-   Ralf.Hildebrandt@charite.de
-   http://www.charite.de
+In fs-independent code?  How many of those do we actually have?

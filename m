@@ -1,44 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965341AbWHOJwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965342AbWHOJzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965341AbWHOJwW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965342AbWHOJwW
+	id S965342AbWHOJzw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965344AbWHOJzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:52:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37558 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965341AbWHOJwV (ORCPT
+	Tue, 15 Aug 2006 05:55:52 -0400
+Received: from mx04.stofanet.dk ([212.10.10.14]:52717 "EHLO mx04.stofanet.dk")
+	by vger.kernel.org with ESMTP id S965342AbWHOJzw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:52:21 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060814143110.f62bfb01.akpm@osdl.org> 
-References: <20060814143110.f62bfb01.akpm@osdl.org>  <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <10791.1155580339@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ian Kent <raven@themaw.net>
-Subject: Re: 2.6.18-rc4-mm1 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 15 Aug 2006 10:51:53 +0100
-Message-ID: <918.1155635513@warthog.cambridge.redhat.com>
+	Tue, 15 Aug 2006 05:55:52 -0400
+Date: Tue, 15 Aug 2006 11:54:42 +0200 (CEST)
+From: Esben Nielsen <nielsen.esben@gogglemail.com>
+X-X-Sender: simlo@frodo.shire
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Esben Nielsen <nielsen.esben@gogglemail.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cleanup and remove some extra spinlocks from rtmutex
+In-Reply-To: <20060815110353.GA111@oleg>
+Message-ID: <Pine.LNX.4.64.0608151152110.10351@frodo.shire>
+References: <1154439588.25445.31.camel@localhost.localdomain>
+ <20060813190326.GA2276@oleg> <Pine.LNX.4.64.0608142217400.10597@frodo.shire>
+ <20060815110353.GA111@oleg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Tue, 15 Aug 2006, Oleg Nesterov wrote:
 
-> bix:/home/akpm> cat /etc/exports
-> /               *(rw,async)
-> /usr/src        *(rw,async)
-> /mnt/export     *(rw,async)
+> On 08/14, Esben Nielsen wrote:
+>>
+>> Well, we are talking about small optimizations now, moving only a few
+>> instructions outside the lock. Except for one of them it is correct, but
+>> it is worth risking stability for now?
+>
+> Yes, optimization is small, but I think this cleanups the code, which is (imho)
+> more important. That said, I don't suggest this patch, it was a question. I stiil
+> can't find a time to read the code hard and convince myself I can understand it :)
+>
+> Also, I think such a change opens the possibility for further cleanups.
+>
+>>> --- 2.6.18-rc3/kernel/rtmutex.c~2_rtm	2006-08-13 19:07:45.000000000 +0400
+>>> +++ 2.6.18-rc3/kernel/rtmutex.c	2006-08-13 22:09:45.000000000 +0400
+>>> @@ -236,6 +236,10 @@ static int rt_mutex_adjust_prio_chain(st
+>>> 		goto out_unlock_pi;
+>>> 	}
+>>>
+>>> +	/* Release the task */
+>>> +	spin_unlock_irqrestore(&task->pi_lock, flags);
+>>> +	put_task_struct(task);
+>>> +
+>>
+>> So you want the task to go away here and use it below?
+>
+> task->pi_blocked_on != NULL, we hold task->pi_blocked_on->lock->wait_lock.
+> Can it go away ?
 
-Hmmm... I still can't reproduce it.
+That is correct. But does it make the code more readable? When you read 
+the code you shouldn't need to go into that kind of complicated arguments 
+to see the correctness - unless the code can't be written otherwise.
 
-What happens if you change your /etc/exports file to:
 
-/               *(rw,async,fsid=0)
-/usr/src        *(rw,async,nohide)
-/mnt/export     *(rw,async,nohide)
+>
+>>
+>>> 	top_waiter = rt_mutex_top_waiter(lock);
+>>>
+>>> 	/* Requeue the waiter */
+>>> @@ -243,10 +247,6 @@ static int rt_mutex_adjust_prio_chain(st
+>>> 	waiter->list_entry.prio = task->prio;
+>>> 	plist_add(&waiter->list_entry, &lock->wait_list);
+>>>
+>>> -	/* Release the task */
+>>> -	spin_unlock_irqrestore(&task->pi_lock, flags);
+>>> -	put_task_struct(task);
+>>> -
+>>
+>> No! It is used in the line just above, so we better be sure it still
+>> exists!
+>
+> See above. If I am wrong, we can move this line
+>
+> 	waiter->list_entry.prio = task->prio;
+>
+> up, under ->pi_lock. plist_del() doesn't need a valid ->prio.
+>
 
-Also, does removing the "/mnt/export" line from /etc/exports mean that the
-/mnt reappears in the directory listing?
+Correct.
 
-David
+> Thanks for your answer!
+>
+> Oleg.
+>
+
+Esben
+

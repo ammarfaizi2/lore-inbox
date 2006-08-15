@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbWHOQUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965381AbWHOQVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbWHOQUd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWHOQUd
+	id S965381AbWHOQVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 12:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWHOQVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:20:33 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:47580 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030379AbWHOQUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:20:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=HCnQIDI0UXF7MmMdEMWolao+LdTxlh5DcZ/iuiCy2ROJySINnwY+AQmYPkPxd4kPpv6qgTnrIdvu7s2xifScfqd8EsF1CzNT0HTreMS5B9i7TIKo8s6qsrERmylYX8GILEbzcJsz05bpFv2mg+fJI+AQ6gr5xnkF1hq5Uhz4TmM=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH 0/4] aic7xxx: remove excessive inlining
-Date: Tue, 15 Aug 2006 18:20:21 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <200608131457.21951.vda.linux@googlemail.com> <20060814161434.d643f568.akpm@osdl.org> <20060814162516.1a458ff9.rdunlap@xenotime.net>
-In-Reply-To: <20060814162516.1a458ff9.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 15 Aug 2006 12:21:51 -0400
+Received: from ns2.suse.de ([195.135.220.15]:27535 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965384AbWHOQVu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 12:21:50 -0400
+Date: Tue, 15 Aug 2006 18:21:45 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
+       <patches@x86-64.org>, discuss@x86-64.org
+Subject: Re: [PATCH] fix x86 cpuid keys used in alternative_smp()
+Message-Id: <20060815182145.6dc74c63.ak@muc.de>
+In-Reply-To: <44E20C5C.76E4.0078.0@novell.com>
+References: <44E20C5C.76E4.0078.0@novell.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608151820.21929.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 August 2006 01:25, Randy.Dunlap wrote:
-> On Mon, 14 Aug 2006 16:14:34 -0700 Andrew Morton wrote:
-> 
-> > On Sun, 13 Aug 2006 14:57:21 +0200
-> > Denis Vlasenko <vda.linux@googlemail.com> wrote:
-> > 
-> > > This is a resend.
-> > 
-> > Please resend ;)
-> > 
-> > - All these patches had the same Subject:, thus forcing me to invent
-> >   titles for you.  
-> > 
-> > - The changelogs are weird - think what they'll look like once they
-> > hit the git tree.  Someone will need to clean those changelogs up,
-> > and I'd prefer that it not be me.
-> > 
-> > - Missing Signed-off-by:'s.
-> > 
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt is here to
-> > help.
-> 
-> Don't *zip them.
+On Tue, 15 Aug 2006 18:03:08 +0200
+"Jan Beulich" <jbeulich@novell.com> wrote:
 
-Ok, resending to Andrew off-list.
---
-vda
+> By hard-coding the cpuid keys for alternative_smp() rather than using
+> the symbolic constant it turned out that incorrect values were used on
+> both i386 (0x68 instead of 0x69) and x86-64 (0x66 instead of 0x68).
+
+Thanks. Applied.
+
+I wonder if that was the reason why the .fill misassembly the 
+2.16.91.0.5 (10.1) binutils commits (see recent discuss report from
+Rafael) didn't cause crashes on UP machines.  Do you have
+an opinion on that?
+
+-Andi
+]

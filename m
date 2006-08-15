@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbWHOT0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965250AbWHOT1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965238AbWHOT0m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWHOT0l
+	id S965250AbWHOT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965380AbWHOT1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:26:41 -0400
-Received: from wx-out-0506.google.com ([66.249.82.238]:59968 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965238AbWHOT0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:26:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m6sCRfktEJqkaOpw98jWKixn/9dSRrx+7/RdKw4S6MYxsPopNMBVB7k3YSspD9TtNguiKLd3qTu7Wb1uQUc5eEgv3s+urdSlJ7ZWlo3uePmTLRlnWeYJGoERxArJj78sXFGP8FeGxd5VimSc8gNGsZhLt4hef/BDcOJ0FlNfmLw=
-Message-ID: <3420082f0608151226h32dc20c1oe0b20549922c8f7@mail.gmail.com>
-Date: Wed, 16 Aug 2006 00:26:32 +0500
-From: "Irfan Habib" <irfan.habib@gmail.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: Maximum number of processes in Linux
-In-Reply-To: <1155669584.3011.178.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 15 Aug 2006 15:27:20 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:12444 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S965250AbWHOT1S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 15:27:18 -0400
+Subject: Re: [2.6 patch] orinoco.h: "extern inline" -> "static
+	__always_inline"
+From: Pavel Roskin <proski@gnu.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: hermes@gibson.dropbear.id.au, orinoco-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linville@tuxdriver.com, jgarzik@pobox.com
+In-Reply-To: <20060815004046.GC3543@stusta.de>
+References: <20060815004046.GC3543@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
-	 <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
-	 <20060815182219.GL8776@1wt.eu>
-	 <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
-	 <1155669584.3011.178.camel@laptopd505.fenrus.org>
+Date: Tue, 15 Aug 2006 15:26:33 -0400
+Message-Id: <1155669993.2063.4.camel@dv>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 1GB RAM and a p4 HT 3 GHz.
+On Tue, 2006-08-15 at 02:40 +0200, Adrian Bunk wrote:
+> "extern inline" generates a warning with -Wmissing-prototypes and I'm 
+> currently working on getting the kernel cleaned up for adding this to 
+> the CFLAGS since it will help us to avoid a nasty class of runtime 
+> errors.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+Thanks for the patch!  I'm removing the last sentence in the comment as
+irrelevant and fixing the comment.  The patch is being sent to netdev by
+StGIT, cc: author.
+
+-- 
+Regards,
+Pavel Roskin
 
 
-On 8/16/06, Arjan van de Ven <arjan@infradead.org> wrote:
->
-> > Shows a consistent 6140.
-> >
->
-> the default limit in proc scales with memory (to avoid really bad
-> stuff), you can oversize it to 2^16 if you want.
->
-> Going over 2^16 is not too good an idea (16 bit counters overflow),
-> especially if you have hostile users (read: students) on the machine,
-> since this is the kind of scenario you can trigger on purpose.
->
->
->

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbWHOGK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWHOGL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965190AbWHOGK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 02:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWHOGK1
+	id S965108AbWHOGL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 02:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWHOGL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 02:10:27 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:13959 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S965106AbWHOGK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 02:10:26 -0400
-Date: Tue, 15 Aug 2006 08:06:18 +0200
-From: Martin Samuelsson <sam@home.se>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: drivers/media/video/bt866.c: array overflows
-Message-Id: <20060815080618.50200f6b.sam@home.se>
-In-Reply-To: <20060814232337.GZ3543@stusta.de>
-References: <20060814232337.GZ3543@stusta.de>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+	Tue, 15 Aug 2006 02:11:57 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:6324 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965108AbWHOGL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 02:11:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=GH+Z+TI7gc+VvATBorjSwCCR6295G4Pcj0BXn9uForD5X4VCPsTxLmvPkRp1qe9VwuRcfk2pLvpx1a4wPLJhQ56ijowlbnpU+5nNoINgBmqp7PzpiuB0uDlC7ELPishBUp7Ld8s2uMF23KD1jIAumoclzcr5vGTbnbHuphO7N24=
+Subject: Re: vga text console
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+To: James C Georgas <jgeorgas@rogers.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1155607768.8131.22.camel@Rainsong>
+References: <1155604313.8131.4.camel@Rainsong>
+	 <1155604928.3948.8.camel@daplas.org>  <1155605197.3948.10.camel@daplas.org>
+	 <1155606109.8131.13.camel@Rainsong>  <1155606849.3948.17.camel@daplas.org>
+	 <1155607768.8131.22.camel@Rainsong>
+Content-Type: text/plain
+Date: Tue, 15 Aug 2006 14:11:50 +0800
+Message-Id: <1155622311.3854.1.camel@daplas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 01:23:37 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+On Mon, 2006-08-14 at 22:09 -0400, James C Georgas wrote:
+> On Tue, 2006-15-08 at 09:54 +0800, Antonino A. Daplas wrote:
+> > > If I define CONFIG_EMBEDDED, is that going to change the behaviour of
+> > > other subsystems, or does it just enable more options?
+> > > 
+> > 
+> > It basically opens up a lot of config options. It may also disable a few
+> > incompatible options (ie, CONFIG_DEBUG_VERBOSE), and enable a few.  It
+> > will require that you know exactly what options need to be turned on or
+> > off.
+> Oh. That actually sounds like it could be a lot of fun. I'm a big fan of
+> the Minimal Kernel.
+> 
+> I'm kind of surprised that the VGA console can't be built as a module,
+> like the other console drivers in the kernel can be. Is this on purpose,
+> or is it just that nobody has gotten around to it?
+> 
 
-> The Coverity checker spotted the following two array overflows:
+It's possible to make vgacon modular, the changes required will be
+minimal. It would seem that nobody ever had a need for it, so that was
+never done.
 
-Nice coverity checker! *pat pat*
+Tony
 
-Now, a question: Where can I find the latest version of the files that concern the avs6eyes driver? In april, I got this mail that informed me that the avs6eyes driver patch had been removed from the -mm tree. I figured that it was removed because of the lack of internal V4L2 support when V4L1 was about to be chucked out from the kernel. I looked around a little to see if I could find the driver, but I couldn't.
-
-Obviously, as you've found bugs in it, I didn't look in the right places. Where, pray tell, did the little critter go?
-
-Getting a new job and moving to another city has hampered me in my efforts to work on the driver, that's why I've been so quiet.
-
-> The two bugs are obvious:
->   0xdc = 220 >= 128
-
-Gotta fix that. Good work.
-
-/Sam

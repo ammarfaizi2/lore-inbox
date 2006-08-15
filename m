@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWHOSr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWHOStp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWHOSr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWHOSr0
+	id S965123AbWHOStp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWHOStp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:47:26 -0400
-Received: from mail.windriver.com ([147.11.1.11]:58512 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id S965114AbWHOSrZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:47:25 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Unable to boot kernel after compiling source for 2.6.17-1.2157
-Date: Tue, 15 Aug 2006 11:46:59 -0700
-Message-ID: <238E9E8D08550342B3642CB0631EFFD42F8EEB@ala-mail04.corp.ad.wrs.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Unable to boot kernel after compiling source for 2.6.17-1.2157
-Thread-Index: AcbAgFNLWe68NHNMQqS13Z8rYiwI5wAGqz2g
-From: "Zeidler, Mike" <mike.zeidler@windriver.com>
-To: "Arjan van de Ven" <arjan@infradead.org>,
-       "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Tue, 15 Aug 2006 14:49:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64472 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965123AbWHOSto (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:49:44 -0400
+Date: Tue, 15 Aug 2006 11:49:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ian Kent <raven@themaw.net>
+Subject: Re: 2.6.18-rc4-mm1
+Message-Id: <20060815114912.d8fa1512.akpm@osdl.org>
+In-Reply-To: <6241.1155666920@warthog.cambridge.redhat.com>
+References: <20060815104813.7e3a0f98.akpm@osdl.org>
+	<20060815065035.648be867.akpm@osdl.org>
+	<20060814143110.f62bfb01.akpm@osdl.org>
+	<20060813133935.b0c728ec.akpm@osdl.org>
+	<20060813012454.f1d52189.akpm@osdl.org>
+	<10791.1155580339@warthog.cambridge.redhat.com>
+	<918.1155635513@warthog.cambridge.redhat.com>
+	<29717.1155662998@warthog.cambridge.redhat.com>
+	<6241.1155666920@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, doing the "make install" as root did the trick. Machine boots
-like a charm.
+On Tue, 15 Aug 2006 19:35:20 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-Mike 
-
------Original Message-----
-From: Arjan van de Ven [mailto:arjan@infradead.org] 
-Sent: Tuesday, August 15, 2006 11:34 AM
-To: Michal Piotrowski
-Cc: Zeidler, Mike; linux-kernel@vger.kernel.org
-Subject: Re: Unable to boot kernel after compiling source for
-2.6.17-1.2157
-
-On Tue, 2006-08-15 at 17:31 +0200, Michal Piotrowski wrote:
-> Hi,
+> > SELinux: initialized (dev 0:15, type nfs), uses genfs_contexts
 > 
-> On 15/08/06, Zeidler, Mike <mike.zeidler@windriver.com> wrote:
-> > After building the kernel  and copying the arch/i386/boot/bzImage to
+> I wonder if this is something to do with it.
 
-> > /boot/vmlinuz-2.6.17-1.2157_FC5smp
-> > and doing a make modules_install
-> > and doing a mkinitrd
-
-
-it's even easier: just do a "make install" 
-
-it looks like the original bug is an selinux case (since nothing else
-should prevent modules from loading ;).. could be a bad initrd could be
-something else.
-
-
-
+`echo 0 > /selinux/enforce' "fixes" it.

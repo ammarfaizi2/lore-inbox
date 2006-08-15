@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbWHOGvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbWHOGxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965236AbWHOGvr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 02:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965238AbWHOGvr
+	id S965239AbWHOGxE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 02:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWHOGxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 02:51:47 -0400
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:33978 "EHLO
-	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S965236AbWHOGvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 02:51:46 -0400
-Date: Tue, 15 Aug 2006 02:46:36 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev
-  structures as __cpuinitdata
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Message-ID: <200608150249_MC3-1-C823-B57B@compuserve.com>
+	Tue, 15 Aug 2006 02:53:04 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:1206 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S965239AbWHOGxB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 02:53:01 -0400
+Date: Tue, 15 Aug 2006 08:52:11 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+cc: James C Georgas <jgeorgas@rogers.com>, linux-kernel@vger.kernel.org
+Subject: Re: vga text console
+In-Reply-To: <1155622311.3854.1.camel@daplas.org>
+Message-ID: <Pine.LNX.4.61.0608150851220.3819@yvahk01.tjqt.qr>
+References: <1155604313.8131.4.camel@Rainsong>  <1155604928.3948.8.camel@daplas.org>
+  <1155605197.3948.10.camel@daplas.org>  <1155606109.8131.13.camel@Rainsong>
+  <1155606849.3948.17.camel@daplas.org>  <1155607768.8131.22.camel@Rainsong>
+ <1155622311.3854.1.camel@daplas.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <1155518783.5764.10.camel@localhost>
+>> I'm kind of surprised that the VGA console can't be built as a module,
+>> like the other console drivers in the kernel can be. Is this on purpose,
+>> or is it just that nobody has gotten around to it?
+>
+>It's possible to make vgacon modular, the changes required will be
+>minimal. It would seem that nobody ever had a need for it, so that was
+>never done.
 
-On Mon, 14 Aug 2006 10:26:23 +0900, Magnus Damm wrote:
+Maybe someday this will happen automagically when VGA/FB switching 
+is finished.
 
-> > > The different cpu_dev structures are all used from __cpuinit callers what
-> > > I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
-> > > little bit unsure about arch/i386/common.c:default_cpu, especially when it
-> > > comes to the purpose of this_cpu.
-> > 
-> > But none of these CPUs supports hotplug and only one (AMD) does SMP.
-> > So this is just wasting space in the kernel at runtime.
-> 
-> How could this be wasting space? If you compile with CONFIG_HOTPLUG_CPU
-> disabled then __cpuinitdata will become __initdata - ie the same as
-> before. Not a single byte wasted what I can tell.
 
-I was talking about wasted space with HOTPLUG_CPU enabled, of course.
-Nobody is ever going to hotplug a VIA, Cyrix, Geode, etc. CPU, yet your
-patch makes the kernel carry that code and data anyway.
-
-Yes, the checking scripts will complain.  But we know it's OK.
-
+Jan Engelhardt
 -- 
-Chuck
-

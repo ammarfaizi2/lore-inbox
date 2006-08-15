@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbWHOScg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030450AbWHOSdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030453AbWHOScg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWHOScf
+	id S1030450AbWHOSdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWHOSds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:32:35 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7561 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030453AbWHOSce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:32:34 -0400
-Subject: Re: [PATCH 6/7] vt: Update spawnpid to be a struct pid_t
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <1155666193191-git-send-email-ebiederm@xmission.com>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-	 <1155666193191-git-send-email-ebiederm@xmission.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 15 Aug 2006 19:53:02 +0100
-Message-Id: <1155667982.24077.307.camel@localhost.localdomain>
+	Tue, 15 Aug 2006 14:33:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22156 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030450AbWHOSdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:33:47 -0400
+Date: Tue, 15 Aug 2006 11:33:43 -0700
+From: Paul Jackson <pj@sgi.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, containers@lists.osdl.org
+Subject: Re: The rest of my proc cleanup.
+Message-Id: <20060815113343.69529c02.pj@sgi.com>
+In-Reply-To: <m1u04d98wa.fsf@ebiederm.dsl.xmission.com>
+References: <m1u04d98wa.fsf@ebiederm.dsl.xmission.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-15 am 12:23 -0600, ysgrifennodd Eric W. Biederman:
-> This keeps the wrong process from being notified if the
-> daemon to spawn a new console dies.
+These patches seem ok to me:
+ 1) in their trivial impact on cpusets, and
+ 2) as a good cleanup.
 
-Not sure why we count pids not task structs but within the proposed
-implementation this appears correct so
+Perhaps others wiser (more seniority in the school of
+hard knocks) will see problems with them.  I don't.
 
-Acked-by: Alan Cox <alan@redhat.com>
+Thanks.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

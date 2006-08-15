@@ -1,38 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWHOUqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWHOUxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWHOUqE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 16:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWHOUqD
+	id S1750701AbWHOUxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 16:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWHOUxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 16:46:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30434 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750725AbWHOUqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 16:46:01 -0400
-Date: Tue, 15 Aug 2006 16:45:55 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Mitch Williams <mitch.a.williams@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: bonding: cannot remove certain named devices
-Message-ID: <20060815204555.GB4434@nostromo.devel.redhat.com>
-Mail-Followup-To: Mitch Williams <mitch.a.williams@intel.com>,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060815194856.GA3869@nostromo.devel.redhat.com> <Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
+	Tue, 15 Aug 2006 16:53:21 -0400
+Received: from host-84-9-202-173.bulldogdsl.com ([84.9.202.173]:9851 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750701AbWHOUxV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 16:53:21 -0400
+Date: Tue, 15 Aug 2006 21:53:20 +0100
+From: Ben Dooks <ben-linux@fluff.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] rtc-s3c.c: fix time setting checks
+Message-ID: <20060815205320.GE8907@home.fluff.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
-User-Agent: Mutt/1.5.11
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitch Williams (mitch.a.williams@intel.com) said: 
-> Are spaces allowed in interface names anyway?  I can't believe that
-> bonding is the only area affected by this.
+Fix the year check on setting the time with the S3C24XX
+RTC driver. Also move the debug to before the set to see
+what is going on if it does fail.
 
-They're certainly allowed, and the sysfs directory structure, files,
-etc. handle it ok. Userspace tends to break in a variety of ways.
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 
-I believe the only invalid character in an interface name is '/'.
-
-Bill
+diff -urpN -X ../dontdiff linux-2.6.18-rc4-rtc1/drivers/rtc/rtc-s3c.c linux-2.6.18-rc4-rtc2/drivers/rtc/rtc-s3c.c
+--- linux-2.6.18-rc4-rtc1/drivers/rtc/rtc-s3c.c	2006-08-11 22:13:21.000000000 +0100
++++ linux-2.6.18-rc4-rtc2/drivers/rtc/rtc-s3c.c	2006-08-15 21:50:23.000000000 +0100
+@@ -153,24 +153,25 @@ static int s3c_rtc_gettime(struct device
+ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
+ {
+ 	void __iomem *base = s3c_rtc_base;
++	int year = tm->tm_year - 100;
+ 
+-	/* the rtc gets round the y2k problem by just not supporting it */
++	pr_debug("set time %02d.%02d.%02d %02d/%02d/%02d\n",
++		 tm->tm_year, tm->tm_mon, tm->tm_mday,
++		 tm->tm_hour, tm->tm_min, tm->tm_sec);
++
++	/* we get around y2k by simply not supporting it */
+ 
+-	if (tm->tm_year > 100) {
++	if (year < 0 || year >= 100) {
+ 		dev_err(dev, "rtc only supports 100 years\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	pr_debug("set time %02d.%02d.%02d %02d/%02d/%02d\n",
+-		 tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		 tm->tm_hour, tm->tm_min, tm->tm_sec);
+-
+ 	writeb(BIN2BCD(tm->tm_sec),  base + S3C2410_RTCSEC);
+ 	writeb(BIN2BCD(tm->tm_min),  base + S3C2410_RTCMIN);
+ 	writeb(BIN2BCD(tm->tm_hour), base + S3C2410_RTCHOUR);
+ 	writeb(BIN2BCD(tm->tm_mday), base + S3C2410_RTCDATE);
+ 	writeb(BIN2BCD(tm->tm_mon + 1), base + S3C2410_RTCMON);
+-	writeb(BIN2BCD(tm->tm_year - 100), base + S3C2410_RTCYEAR);
++	writeb(BIN2BCD(year), base + S3C2410_RTCYEAR);
+ 
+ 	return 0;
+ }

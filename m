@@ -1,40 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965321AbWHOJPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965324AbWHOJQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965321AbWHOJPE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965323AbWHOJPD
+	id S965324AbWHOJQs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965326AbWHOJQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:15:03 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33940
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965321AbWHOJPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:15:01 -0400
-Date: Tue, 15 Aug 2006 02:15:03 -0700 (PDT)
-Message-Id: <20060815.021503.71555009.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: linux-kernel@vger.kernel.org, kkeil@suse.de, kai.germaschewski@gmx.de,
-       isdn4linux@listserv.isdn4linux.de
-Subject: Re: [PATCH] ISDN: fix double free bug in isdn_net
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <9a8748490608150208v4e8b7dccl6dd501a6f2cda4fc@mail.gmail.com>
-References: <200608122248.22639.jesper.juhl@gmail.com>
-	<20060815.020004.76775981.davem@davemloft.net>
-	<9a8748490608150208v4e8b7dccl6dd501a6f2cda4fc@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 15 Aug 2006 05:16:47 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:48514 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965324AbWHOJQr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 05:16:47 -0400
+Date: Tue, 15 Aug 2006 10:16:46 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] endianness bitrot in cifs
+Message-ID: <20060815091646.GX29920@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-Date: Tue, 15 Aug 2006 11:08:35 +0200
+	le16 compared to host-endian constant
+	u8 fed to le32_to_cpu()
+	le16 compared to host-endian constant
 
-> Hmm, perhaps I made a mistake and missed a path. Maybe it would be
-> better to fix if by making isdn_writebuf_skb_stub() always set the skb
-> to NULL when it does free it. That would add a few more assignments
-> but should ensure the right result always.
-> What do you say?
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
 
-Do we know if the ->writebuf_skb() method ever frees the skb?  If it
-never does, then yes your suggestion would be one way to handle this.
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index 19678c5..6a76ae5 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -477,7 +477,7 @@ #ifdef CONFIG_CIFS_WEAK_PW_HASH 
+ 		/* BB get server time for time conversions and add
+ 		code to use it and timezone since this is not UTC */	
+ 
+-		if (rsp->EncryptionKeyLength == CIFS_CRYPTO_KEY_SIZE) {
++		if (rsp->EncryptionKeyLength == cpu_to_le16(CIFS_CRYPTO_KEY_SIZE)) {
+ 			memcpy(server->cryptKey, rsp->EncryptionKey,
+ 				CIFS_CRYPTO_KEY_SIZE);
+ 		} else if (server->secMode & SECMODE_PW_ENCRYPT) {
+diff --git a/fs/cifs/readdir.c b/fs/cifs/readdir.c
+index 03bbcb3..105761e 100644
+--- a/fs/cifs/readdir.c
++++ b/fs/cifs/readdir.c
+@@ -556,7 +556,7 @@ static int cifs_entry_is_dot(char *curre
+ 		FIND_FILE_STANDARD_INFO * pFindData =
+ 			(FIND_FILE_STANDARD_INFO *)current_entry;
+ 		filename = &pFindData->FileName[0];
+-		len = le32_to_cpu(pFindData->FileNameLength);
++		len = pFindData->FileNameLength;
+ 	} else {
+ 		cFYI(1,("Unknown findfirst level %d",cfile->srch_inf.info_level));
+ 	}
+diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
+index 7202d53..d1705ab 100644
+--- a/fs/cifs/sess.c
++++ b/fs/cifs/sess.c
+@@ -372,7 +372,7 @@ #ifdef CONFIG_CIFS_WEAK_PW_HASH
+ 
+ 		/* no capabilities flags in old lanman negotiation */
+ 
+-		pSMB->old_req.PasswordLength = CIFS_SESS_KEY_SIZE; 
++		pSMB->old_req.PasswordLength = cpu_to_le16(CIFS_SESS_KEY_SIZE); 
+ 		/* BB calculate hash with password */
+ 		/* and copy into bcc */
+ 

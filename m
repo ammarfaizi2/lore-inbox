@@ -1,138 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWHORyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbWHOR6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbWHORyt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 13:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWHORyt
+	id S1030382AbWHOR6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWHOR6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 13:54:49 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:63381 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1030373AbWHORys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 13:54:48 -0400
-Date: Tue, 15 Aug 2006 19:54:47 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] add some unlikely() to fs/select.c
-Message-ID: <20060815175447.GA8068@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Aug 2006 13:58:13 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:51629 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030382AbWHOR6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 13:58:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=EzwVWsFO88U3P+jyCPsrnfC4z5QCFvN4+eWf/ANKYs3lQZqG6dlNr258qSE/gbr5xAGlg9/tzKYsvZnDAxtLad27kqBeXYYSvatQBwAkMsXsBrwBkpGYypcEmdE+7EEIU0YGIpKcmibIjczTd6cVQZ8vMMBe8/BtvL5rs4rBHVI=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH] UML - support checkstack
+Date: Tue, 15 Aug 2006 19:57:59 +0200
+User-Agent: KMail/1.9.1
+Cc: Jeff Dike <jdike@addtoit.com>, Matt Mackall <mpm@selenic.com>,
+       akpm@osdl.org, Joern Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org
+References: <200608091815.k79IFQVB005310@ccure.user-mode-linux.org> <20060810164548.GS6908@waste.org> <20060815031733.GA7089@ccure.user-mode-linux.org>
+In-Reply-To: <20060815031733.GA7089@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Message-Id: <200608151957.59759.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add unlikely() to various core select() and poll() functions.
+On Tuesday 15 August 2006 05:17, Jeff Dike wrote:
+> On Thu, Aug 10, 2006 at 11:45:48AM -0500, Matt Mackall wrote:
+> > > SUBARCH has a different meaning here.  For UML, it's the underlying,
+> > > host, architecture, not a variant architecture like Voyager.
+> >
+> > Right, so it sounds like this breaks Voyager. Which I think means we
+> > ought to pass ARCH and SUBARCH and do the right thing inside
+> > checkstack.
+>
+> There is no use of the symbol SUBARCH in arch/i386.  While this may be
+> jarring to people who know and love Voyager, it doesn't break
+> anything.
+>
+> We could do what you suggest, but that sounds unnecessary.
+>
+> I'd rather either
+> 	leave things as they are
+Yes, and make the script check if it ARCH=um or not (which is obvious for 
+now - nobody really wants a clear abstraction here).
+> 	rename SUBARCH
 
-
-Since these functions show up as X server related during profiling
-(which is quite obvious), I thought that adding some unlikely()
-shouldn't hurt...
-
-I also moved some error code setting into error path (please yell if
-I shouldn't do that).
-
-Compile-tested and run-tested on 2.6.18-rc4-mm1.
-
-
-Signed-off-by: Andreas Mohr <andi@lisas.de>
-
-
---- linux-2.6.18-rc4-mm1.orig/fs/select.c	2006-08-22 21:13:24.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/fs/select.c	2006-08-23 19:28:46.000000000 +0200
-@@ -104,7 +104,7 @@
- 		struct poll_table_page *new_table;
- 
- 		new_table = (struct poll_table_page *) __get_free_page(GFP_KERNEL);
--		if (!new_table) {
-+		if (unlikely(!new_table)) {
- 			p->error = -ENOMEM;
- 			__set_current_state(TASK_RUNNING);
- 			return NULL;
-@@ -317,9 +317,10 @@
- 	/* Allocate small arguments on the stack to save memory and be faster */
- 	long stack_fds[SELECT_STACK_ALLOC/sizeof(long)];
- 
--	ret = -EINVAL;
--	if (n < 0)
-+	if (unlikely(n < 0)) {
-+		ret = -EINVAL;
- 		goto out_nofds;
-+	}
- 
- 	/* max_fdset can increase, so grab it once to avoid race */
- 	rcu_read_lock();
-@@ -338,10 +339,11 @@
- 	bits = stack_fds;
- 	if (size > sizeof(stack_fds) / 6) {
- 		/* Not enough space in on-stack array; must use kmalloc */
--		ret = -ENOMEM;
- 		bits = kmalloc(6 * size, GFP_KERNEL);
--		if (!bits)
-+		if (unlikely(!bits)) {
-+			ret = -ENOMEM;
- 			goto out_nofds;
-+		}
- 	}
- 	fds.in      = bits;
- 	fds.out     = bits +   size;
-@@ -363,10 +365,10 @@
- 	if (ret < 0)
- 		goto out;
- 	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
-+		if (signal_pending(current)) {
-+			ret = -ERESTARTNOHAND;
- 			goto out;
--		ret = 0;
-+		}
- 	}
- 
- 	if (set_fd_set(n, inp, fds.res_in) ||
-@@ -392,7 +394,7 @@
- 		if (copy_from_user(&tv, tvp, sizeof(tv)))
- 			return -EFAULT;
- 
--		if (tv.tv_sec < 0 || tv.tv_usec < 0)
-+		if (unlikely(tv.tv_sec < 0 || tv.tv_usec < 0))
- 			return -EINVAL;
- 
- 		/* Cast to u64 to make GCC stop complaining */
-@@ -447,7 +449,7 @@
- 		if (copy_from_user(&ts, tsp, sizeof(ts)))
- 			return -EFAULT;
- 
--		if (ts.tv_sec < 0 || ts.tv_nsec < 0)
-+		if (unlikely(ts.tv_sec < 0 || ts.tv_nsec < 0))
- 			return -EINVAL;
- 
- 		/* Cast to u64 to make GCC stop complaining */
-@@ -461,7 +463,7 @@
- 
- 	if (sigmask) {
- 		/* XXX: Don't preclude handling different sized sigset_t's.  */
--		if (sigsetsize != sizeof(sigset_t))
-+		if (unlikely(sigsetsize != sizeof(sigset_t)))
- 			return -EINVAL;
- 		if (copy_from_user(&ksigmask, sigmask, sizeof(ksigmask)))
- 			return -EFAULT;
-@@ -628,7 +630,7 @@
- 		if (*timeout < 0) {
- 			/* Wait indefinitely */
- 			__timeout = MAX_SCHEDULE_TIMEOUT;
--		} else if (unlikely(*timeout >= (s64)MAX_SCHEDULE_TIMEOUT-1)) {
-+		} else if (unlikely(*timeout >= (s64)MAX_SCHEDULE_TIMEOUT - 1)) {
- 			/*
- 			 * Wait for longer than MAX_SCHEDULE_TIMEOUT. Do it in
- 			 * a loop
-@@ -789,7 +791,7 @@
- 
- 	if (sigmask) {
- 		/* XXX: Don't preclude handling different sized sigset_t's.  */
--		if (sigsetsize != sizeof(sigset_t))
-+		if (unlikely(sigsetsize != sizeof(sigset_t)))
- 			return -EINVAL;
- 		if (copy_from_user(&ksigmask, sigmask, sizeof(ksigmask)))
- 			return -EFAULT;
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

@@ -1,101 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWHOSm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWHOSpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965110AbWHOSm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWHOSm6
+	id S965095AbWHOSpc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWHOSpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:42:58 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:12805 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S965110AbWHOSm6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:42:58 -0400
+	Tue, 15 Aug 2006 14:45:32 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62671 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965095AbWHOSpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:45:30 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [PATCH 6/7] vt: Update spawnpid to be a struct pid_t
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
+	<1155666193191-git-send-email-ebiederm@xmission.com>
+	<1155667982.24077.307.camel@localhost.localdomain>
+Date: Tue, 15 Aug 2006 12:45:09 -0600
+In-Reply-To: <1155667982.24077.307.camel@localhost.localdomain> (Alan Cox's
+	message of "Tue, 15 Aug 2006 19:53:02 +0100")
+Message-ID: <m13bbx96tm.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 15 Aug 2006 18:42:56.0597 (UTC) FILETIME=[9FD99050:01C6C09A]
-Content-class: urn:content-classes:message
-Subject: Re: Maximum number of processes in Linux
-Date: Tue, 15 Aug 2006 14:29:12 -0400
-Message-ID: <Pine.LNX.4.61.0608151427220.17028@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Maximum number of processes in Linux
-thread-index: AcbAmp/9qXGT9UEVT4KR5JvcDtaJ8w==
-References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Irfan Habib" <irfan.habib@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Tue, 15 Aug 2006, linux-os (Dick Johnson) wrote:
+> Ar Maw, 2006-08-15 am 12:23 -0600, ysgrifennodd Eric W. Biederman:
+>> This keeps the wrong process from being notified if the
+>> daemon to spawn a new console dies.
+>
+> Not sure why we count pids not task structs but within the proposed
+> implementation this appears correct so
+
+Basically struct pid is relatively cheap, 64bytes or so.
+struct task is expensive 10K or so, when all of the stacks
+and everything are included.
+
+Counting pids allows the task to exit in user space and free up
+all of it's memory.
+
+When /proc used to count the task struct it was fairly easy to
+deliberately oom a 32bit machine just by open up directories in
+/proc and then having the process exit.  rlimits didn't help because
+we don't count processes that have exited.
 
 >
-> On Tue, 15 Aug 2006, Irfan Habib wrote:
->
->> Hi,
->>
->> What is the maximum number of process which can run simultaneously in
->> linux? I need to create an application which requires 40,000 threads.
->> I was testing with far fewer numbers than that, I was getting
->> exceptions in pthread_create
->>
->> Regards
->> Irfan
->
-> #include <stdio.h>
-> int main(){
->     unsigned long i;
->     while(fork() != -1)
->         i++;
->     printf("%u\n", i);
->     return 0;
-> }
-> $ gcc -o xxx xxx.c
-> $ ./xxx
->
-> 1251392833         <<---- At least this number
-> 1251392834
-> 1251392834
-> 1251392834
-> 1251392834
-> 1251392833
-> 1251392833
-> 1251392834
-> 1251392834
-> 1251392834
-> ^C
-> $ killall xxx
->
-> BYW 40,000 threads? 40,000 tasks all sharing the same address space?
-> Hopefully this is just a training exercise to see if it's possible.
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
-> New book: http://www.AbominableFirebug.com/
-> _
-> 
+> Acked-by: Alan Cox <alan@redhat.com>
 
+Thanks.  When I get to the tty portion of this I think I am going
+to have to synchronize with you as last I looked you were working in
+this area as well.
 
-I blew it here...
-     unsigned long i = 0;
-...required.
+Eric
 
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

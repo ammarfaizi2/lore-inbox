@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWHOStj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbWHOSzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWHOStj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWHOStj
+	id S965121AbWHOSzk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWHOSzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:49:39 -0400
-Received: from 1wt.eu ([62.212.114.60]:21263 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S965115AbWHOSti (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:49:38 -0400
-Date: Tue, 15 Aug 2006 20:45:12 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: alex@yuriev.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling enabled
-Message-ID: <20060815184512.GB6672@1wt.eu>
-References: <44E1F0CD.7000003@everytruckjob.com> <20060815180634.GB15957@s2.yuriev.com> <20060815181938.GK8776@1wt.eu> <20060815183300.GC15957@s2.yuriev.com>
-Mime-Version: 1.0
+	Tue, 15 Aug 2006 14:55:40 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43749 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965121AbWHOSzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:55:39 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Containers <containers@lists.osdl.org>, dave@sr71.net
+Subject: Re: [PATCH 2/7] proc: Modify proc_pident_lookup to be completely table driven.
+References: <m1u04d98wa.fsf@ebiederm.dsl.xmission.com>
+	<11556651312499-git-send-email-ebiederm@xmission.com>
+	<1155666711.12700.54.camel@localhost.localdomain>
+Date: Tue, 15 Aug 2006 12:55:17 -0600
+In-Reply-To: <1155666711.12700.54.camel@localhost.localdomain> (Dave Hansen's
+	message of "Tue, 15 Aug 2006 11:31:51 -0700")
+Message-ID: <m1y7tp7rsa.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060815183300.GC15957@s2.yuriev.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 02:33:00PM -0400, alex@yuriev.com wrote:
-> On Tue, Aug 15, 2006 at 08:19:39PM +0200, Willy Tarreau wrote:
-> 
-> > > This is absolutely not correct. Routers forward packets. They do not mangle
-> > > the data in them.
-> > 
-> > Believe it or not, there are a lot of routers nowadays that can do NAT.
-> > And even for very basic NAT, you have to recompute the TCP checksum, which
-> > means that you mangle data within the packet. Even worse, some of them are
-> > able to NAT complex protocols such as FTP and for this, they need to mangle
-> > the application payload. OK, this should not be the router's job, but it's
-> > often the best placed to do the job, and there is customer demand for this.
-> 
-> Just because you are using a Linksys/Netgear or god else knows what to
-> mangle your packets and call that device a router
+Dave Hansen <haveblue@us.ibm.com> writes:
 
-That's not what I call a router !
+> On Tue, 2006-08-15 at 12:05 -0600, Eric W. Biederman wrote:
+>> Currently proc_pident_lookup gets the names and types from a table
+>> and then has a huge switch statement to get the inode and file
+>> operations it needs.  That is silly and is becoming increasingly hard
+>> to maintain so I just put all of the information in the table.
+>
+> Looks pretty reasonable.
+>
+>> +#define INF(TYPE, NAME, MODE, OTYPE)                   \
+>> +       NOD(TYPE, NAME, (S_IFREG|(MODE)),               \
+>> +               NULL, &proc_info_file_operations,       \
+>> +               { .proc_read = &proc_##OTYPE } )
+> ...
+>> +       INF(PROC_TID_OOM_SCORE,  "oom_score", S_IRUGO, oom_score),
+>> +       REG(PROC_TID_OOM_ADJUST, "oom_adj",   S_IRUGO|S_IWUSR, oom_adjust),
+>
+> Could we give these some slightly more intuitive names?  INF is a bit
+> terse ;)
 
-> does not mean that normal service providers have NAT enabled on
-> their GSRs and Junipers.
+> Since these #defines and function are also all in base.c, and not
+> referenced elsewhere, might it be reasonable to take some of the PROC_
+> headers off of them?  I know I've been frustrated more than once by
+> popping things like "oom_score" in to cscope and finding no definitions.
 
-not on the PE, but offen on the CE.
+So as for taking the proc_ prefix off I don't see a real problem with
+that but that should really be a different increment patch.  Although removing
+a little magic from my macros might be reasonable.
 
-> The issue is not in a router running IOS somewhere. The issue is in the
-> broken code/broken driver/broken something on the end-point.
+The only macro whose name really seems to terse is INF short for info,
+so adding the O would be ok.  What I would really like to see however
+is all of these proc info things just go away.  I seem to recall
+they all have some pretty weird corner cases and a seq file implementation
+is probably better there.
 
-He may very well have an IOS based 1600 or equivalent doing a very dirty NAT.
+The other half of this is that I would very much like to see some of
+these things moved out of base.c
 
-> Alex
-
-Willy
-
+Eric

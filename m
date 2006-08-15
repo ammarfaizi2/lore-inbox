@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWHOVGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWHOVI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWHOVGN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 17:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWHOVGN
+	id S1750711AbWHOVI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 17:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWHOVI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 17:06:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39835 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750712AbWHOVGM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 17:06:12 -0400
-Date: Tue, 15 Aug 2006 14:02:49 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Bill Nottingham <notting@redhat.com>
-Cc: Mitch Williams <mitch.a.williams@intel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: bonding: cannot remove certain named devices
-Message-ID: <20060815140249.15472a82@dxpl.pdx.osdl.net>
-In-Reply-To: <20060815204555.GB4434@nostromo.devel.redhat.com>
-References: <20060815194856.GA3869@nostromo.devel.redhat.com>
-	<Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
-	<20060815204555.GB4434@nostromo.devel.redhat.com>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Tue, 15 Aug 2006 17:08:56 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:10970 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1750711AbWHOVIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 17:08:55 -0400
+Date: Tue, 15 Aug 2006 23:04:56 +0200
+From: Martin Samuelsson <sam@home.se>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: drivers/media/video/bt866.c: array overflows
+Message-Id: <20060815230456.ed280109.sam@home.se>
+In-Reply-To: <20060815181320.GB7813@stusta.de>
+References: <20060814232337.GZ3543@stusta.de>
+	<20060815080618.50200f6b.sam@home.se>
+	<20060815181320.GB7813@stusta.de>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 16:45:55 -0400
-Bill Nottingham <notting@redhat.com> wrote:
+On Tue, 15 Aug 2006 20:13:20 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-> Mitch Williams (mitch.a.williams@intel.com) said: 
-> > Are spaces allowed in interface names anyway?  I can't believe that
-> > bonding is the only area affected by this.
+> On Tue, Aug 15, 2006 at 08:06:18AM +0200, Martin Samuelsson wrote:
+> > Obviously, as you've found bugs in it, I didn't look in the right places. Where, pray tell, did the little critter go?
+> >...
 > 
-> They're certainly allowed, and the sysfs directory structure, files,
-> etc. handle it ok. Userspace tends to break in a variety of ways.
-> 
-> I believe the only invalid character in an interface name is '/'.
-> 
+> It's in 2.6.18-rc4.
 
-The names "." and ".." are also verboten.
-Names with : in them are for IP aliases.
+Nice, it hid in Linus' tree for a while, then. Compiling it now.
+
+Thanks!
+
+/Sam

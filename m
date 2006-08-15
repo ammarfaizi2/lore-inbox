@@ -1,97 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965326AbWHOJVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965329AbWHOJYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965326AbWHOJVs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965329AbWHOJVr
+	id S965329AbWHOJYb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965332AbWHOJYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:21:47 -0400
-Received: from outmx014.isp.belgacom.be ([195.238.4.69]:16824 "EHLO
-	outmx014.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S965326AbWHOJVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:21:46 -0400
-Date: Tue, 15 Aug 2006 11:21:39 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [WATCHDOG] v2.6.18-rc4 Kconfig typos patch
-Message-ID: <20060815092139.GA3668@infomag.infomag.iguana.be>
-Mime-Version: 1.0
+	Tue, 15 Aug 2006 05:24:31 -0400
+Received: from host-84-9-202-173.bulldogdsl.com ([84.9.202.173]:23638 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S965329AbWHOJYa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 05:24:30 -0400
+Date: Tue, 15 Aug 2006 10:24:29 +0100
+From: Ben Dooks <ben-linux@fluff.org>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] rtc-s3c.c: fix time setting checks
+Message-ID: <20060815092429.GA13940@home.fluff.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Fix the checking of the range for the year when
+setting time with the S3C24XX RTC driver
 
-Please pull from 'master' branch of
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 
-This will update the following files:
-
- drivers/char/watchdog/Kconfig |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-with these Changes:
-
-Author: Matt LaPlante <kernel1@cyberdogtech.com>
-Date:   Wed Jul 5 01:20:51 2006 +0000
-
-    [WATCHDOG] Kconfig typos fix.
-    
-    Three typos in drivers/char/watchdog/Kconfig...
-    
-    Signed-off-by: Matt LaPlante <kernel1@cyberdogtech.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
-index d53f664..fff89c2 100644
---- a/drivers/char/watchdog/Kconfig
-+++ b/drivers/char/watchdog/Kconfig
-@@ -45,7 +45,7 @@ #
- comment "Watchdog Device Drivers"
- 	depends on WATCHDOG
+diff -urpN -X ../dontdiff linux-2.6.18-rc4-all1/drivers/rtc/rtc-s3c.c linux-2.6.18-rc4-all2/drivers/rtc/rtc-s3c.c
+--- linux-2.6.18-rc4-all1/drivers/rtc/rtc-s3c.c	2006-08-14 09:04:57.000000000 +0100
++++ linux-2.6.18-rc4-all2/drivers/rtc/rtc-s3c.c	2006-08-14 09:59:47.000000000 +0100
+@@ -11,6 +11,8 @@
+  * S3C2410/S3C2440/S3C24XX Internal RTC Driver
+ */
  
--# Architecture Independant
-+# Architecture Independent
++//B#define DEBUG
++
+ #include <linux/module.h>
+ #include <linux/fs.h>
+ #include <linux/string.h>
+@@ -153,24 +155,25 @@ static int s3c_rtc_gettime(struct device
+ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
+ {
+ 	void __iomem *base = s3c_rtc_base;
++	int year = tm->tm_year - 100;
++
++	pr_debug("set time %02d.%02d.%02d %02d/%02d/%02d\n",
++		 tm->tm_year, tm->tm_mon, tm->tm_mday,
++		 tm->tm_hour, tm->tm_min, tm->tm_sec);
  
- config SOFT_WATCHDOG
- 	tristate "Software watchdog"
-@@ -127,7 +127,7 @@ config S3C2410_WATCHDOG
- 	  enabled.
+-	/* the rtc gets round the y2k problem by just not supporting it */
++	/* we get around y2k by simply not supporting it */
  
- 	  The driver is limited by the speed of the system's PCLK
--	  signal, so with reasonbaly fast systems (PCLK around 50-66MHz)
-+	  signal, so with reasonably fast systems (PCLK around 50-66MHz)
- 	  then watchdog intervals of over approximately 20seconds are
- 	  unavailable.
+-	if (tm->tm_year > 100) {
++	if (year < 0 || year >= 100) {
+ 		dev_err(dev, "rtc only supports 100 years\n");
+ 		return -EINVAL;
+ 	}
  
-@@ -423,7 +423,7 @@ config SBC_EPX_C3_WATCHDOG
- 	  is no way to know if writing to its IO address will corrupt
- 	  your system or have any real effect.  The only way to be sure
- 	  that this driver does what you want is to make sure you
--	  are runnning it on an EPX-C3 from Winsystems with the watchdog
-+	  are running it on an EPX-C3 from Winsystems with the watchdog
- 	  timer at IO address 0x1ee and 0x1ef.  It will write to both those
- 	  IO ports.  Basically, the assumption is made that if you compile
- 	  this driver into your kernel and/or load it as a module, that you
-@@ -472,7 +472,7 @@ config INDYDOG
- 	tristate "Indy/I2 Hardware Watchdog"
- 	depends on WATCHDOG && SGI_IP22
- 	help
--	  Hardwaredriver for the Indy's/I2's watchdog. This is a
-+	  Hardware driver for the Indy's/I2's watchdog. This is a
- 	  watchdog timer that will reboot the machine after a 60 second
- 	  timer expired and no process has written to /dev/watchdog during
- 	  that time.
+-	pr_debug("set time %02d.%02d.%02d %02d/%02d/%02d\n",
+-		 tm->tm_year, tm->tm_mon, tm->tm_mday,
+-		 tm->tm_hour, tm->tm_min, tm->tm_sec);
+-
+ 	writeb(BIN2BCD(tm->tm_sec),  base + S3C2410_RTCSEC);
+ 	writeb(BIN2BCD(tm->tm_min),  base + S3C2410_RTCMIN);
+ 	writeb(BIN2BCD(tm->tm_hour), base + S3C2410_RTCHOUR);
+ 	writeb(BIN2BCD(tm->tm_mday), base + S3C2410_RTCDATE);
+ 	writeb(BIN2BCD(tm->tm_mon + 1), base + S3C2410_RTCMON);
+-	writeb(BIN2BCD(tm->tm_year - 100), base + S3C2410_RTCYEAR);
++	writeb(BIN2BCD(year), base + S3C2410_RTCYEAR);
+ 
+ 	return 0;
+ }

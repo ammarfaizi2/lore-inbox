@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965324AbWHOJQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965327AbWHOJSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965324AbWHOJQs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965326AbWHOJQr
+	id S965327AbWHOJSE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965325AbWHOJSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:16:47 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:48514 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965324AbWHOJQr
+	Tue, 15 Aug 2006 05:18:03 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:47232 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S965319AbWHOJSC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:16:47 -0400
-Date: Tue, 15 Aug 2006 10:16:46 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Steve French <smfrench@austin.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] endianness bitrot in cifs
-Message-ID: <20060815091646.GX29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Aug 2006 05:18:02 -0400
+Message-ID: <44E19121.2060200@nachtwindheim.de>
+Date: Tue, 15 Aug 2006 11:17:21 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+MIME-Version: 1.0
+To: Neela.Kolli@engenio.com
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] [MEGARAID] convert to PCI_DEVICE() macro
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	le16 compared to host-endian constant
-	u8 fed to le32_to_cpu()
-	le16 compared to host-endian constant
+From: Henrik Kretzschmar <henne@nachtwidheim.de>
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
+Convert the pci_device_id-table of the megaraid_sas-driver to
+the PCI_DEVICE-macro, to safe some lines.
 
-diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
-index 19678c5..6a76ae5 100644
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -477,7 +477,7 @@ #ifdef CONFIG_CIFS_WEAK_PW_HASH 
- 		/* BB get server time for time conversions and add
- 		code to use it and timezone since this is not UTC */	
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+
+---
+
+--- linux-2.6.18-rc4/drivers/scsi/megaraid/megaraid_sas.c	2006-08-11 10:09:21.000000000 +0200
++++ linux/drivers/scsi/megaraid/megaraid_sas.c	2006-08-11 13:29:29.000000000 +0200
+@@ -53,31 +53,15 @@
+  */
+ static struct pci_device_id megasas_pci_table[] = {
  
--		if (rsp->EncryptionKeyLength == CIFS_CRYPTO_KEY_SIZE) {
-+		if (rsp->EncryptionKeyLength == cpu_to_le16(CIFS_CRYPTO_KEY_SIZE)) {
- 			memcpy(server->cryptKey, rsp->EncryptionKey,
- 				CIFS_CRYPTO_KEY_SIZE);
- 		} else if (server->secMode & SECMODE_PW_ENCRYPT) {
-diff --git a/fs/cifs/readdir.c b/fs/cifs/readdir.c
-index 03bbcb3..105761e 100644
---- a/fs/cifs/readdir.c
-+++ b/fs/cifs/readdir.c
-@@ -556,7 +556,7 @@ static int cifs_entry_is_dot(char *curre
- 		FIND_FILE_STANDARD_INFO * pFindData =
- 			(FIND_FILE_STANDARD_INFO *)current_entry;
- 		filename = &pFindData->FileName[0];
--		len = le32_to_cpu(pFindData->FileNameLength);
-+		len = pFindData->FileNameLength;
- 	} else {
- 		cFYI(1,("Unknown findfirst level %d",cfile->srch_inf.info_level));
- 	}
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index 7202d53..d1705ab 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -372,7 +372,7 @@ #ifdef CONFIG_CIFS_WEAK_PW_HASH
+-	{
+-	 PCI_VENDOR_ID_LSI_LOGIC,
+-	 PCI_DEVICE_ID_LSI_SAS1064R, /* xscale IOP */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	 },
+-	{
+-	 PCI_VENDOR_ID_LSI_LOGIC,
+-	 PCI_DEVICE_ID_LSI_SAS1078R, /* ppc IOP */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	},
+-	{
+-	 PCI_VENDOR_ID_LSI_LOGIC,
+-	 PCI_DEVICE_ID_LSI_VERDE_ZCR,	/* xscale IOP, vega */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	 },
+-	{
+-	 PCI_VENDOR_ID_DELL,
+-	 PCI_DEVICE_ID_DELL_PERC5, /* xscale IOP */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	 },
+-	{0}			/* Terminating entry */
++	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS1064R)},
++	/* xscale IOP */
++	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_SAS1078R)},
++	/* ppc IOP */
++	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC, PCI_DEVICE_ID_LSI_VERDE_ZCR)},
++	/* xscale IOP, vega */
++	{PCI_DEVICE(PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_PERC5)},
++	/* xscale IOP */
++	{}
+ };
  
- 		/* no capabilities flags in old lanman negotiation */
- 
--		pSMB->old_req.PasswordLength = CIFS_SESS_KEY_SIZE; 
-+		pSMB->old_req.PasswordLength = cpu_to_le16(CIFS_SESS_KEY_SIZE); 
- 		/* BB calculate hash with password */
- 		/* and copy into bcc */
- 
+ MODULE_DEVICE_TABLE(pci, megasas_pci_table);
+
+

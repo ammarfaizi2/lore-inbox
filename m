@@ -1,1106 +1,1828 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWHODfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWHODgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWHODfc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 23:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752086AbWHODfc
+	id S965063AbWHODgI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 23:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWHODgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 23:35:32 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:24674 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750974AbWHODfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 23:35:30 -0400
+	Mon, 14 Aug 2006 23:36:08 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:1327 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1752085AbWHODgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 23:36:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=MwU2xFqxoZsWJKWEHJiL7lJoOKXzeZr65in0y7gs3PruIUwdfXyJ8fArFKVKV4U44/Pdtnon3nXmnFfHS+DrjrpG3QMAYuRrCBA8I/L0mM/AZZGPGc25ShPN96a721aNiB580bkp1ZvTfH5OeGPFbWht2hXkqrKT5tSKCJy+eeM=
-Date: Tue, 15 Aug 2006 07:35:22 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jvYb0UQopNZaDaVaGiuapuu53MswZZy0qVEF/mPiY8NRNfRwCM2aGEj6rLHyVxNH6dJIpIsESwgcgaf5aPFZrso/Qli9jqNNZLwWKiKZytxVOoW0qzxCtDQBk4gCnhN1I/ekexn0TPUS4BItuXomsSSitsP3KTuWRzZg1Gtr9ls=
+Message-ID: <2151339d0608142036o54e94369r8168fa4854e2ccc7@mail.gmail.com>
+Date: Mon, 14 Aug 2006 20:36:01 -0700
+From: "Nathan Becker" <nathanbecker@gmail.com>
+To: "Takashi Iwai" <tiwai@suse.de>
+Subject: Re: kernel panic when sending MIDI sequencer events
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Drop second arg of unregister_chrdev()
-Message-ID: <20060815033522.GA5163@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <s5hbqrbotey.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <2151339d0607251301i716f6a01i17b07de5e7905ffc@mail.gmail.com>
+	 <s5h3bcpsar9.wl%tiwai@suse.de> <s5hzmexqvzv.wl%tiwai@suse.de>
+	 <2151339d0607251739s15a4b52exf1aaf4afac8559f8@mail.gmail.com>
+	 <s5hbqrbotey.wl%tiwai@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* "name" is trivially unused.
-* Requirement to pass to unregister function anything but cookie you've
-  got from register counterpart is wrong. It creates opportunity to
-  diverge, it create opportunity for bugs if enforced:
+Hi,
 
-	/*
-	 * XXX(hch): bp->b_count_desired might be incorrect (see
-	 * xfs_buf_associate_memory for details),
+OK, I set up a serial console to dump the kernel panic to a second
+machine.  To remind you what is going on: I am getting a kernel panic
+whenever I try to play MIDI.  It appears this is somehow related to
+the RTC.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+This problem is somewhat intermittent.  Sometimes the kernel panics
+after I try to play a file, sometimes it happens as soon as I execute
+rosegarden.  Below I am pasting 2 captures of the panic from a serial
+console.
 
-	 *                                        but fortunately
-	 * the Linux version of kmem_free ignores the len argument..
-	 */
-	 kmem_free(bp->b_addr, bp->b_count_desired);
----
+Both times I was running rosegarden over SSH X forwarding so that
+X-windows was not running on the crashing machine.  That is why ssh
+shows up in one of the kernel panic outputs.  Running rosegarden
+locally does not fix this problem btw.
 
- arch/cris/arch-v10/drivers/pcf8563.c     |    2 +-
- arch/cris/arch-v32/drivers/cryptocop.c   |    4 ++--
- arch/cris/arch-v32/drivers/pcf8563.c     |    2 +-
- arch/i386/kernel/cpuid.c                 |    4 ++--
- arch/i386/kernel/msr.c                   |    4 ++--
- arch/mips/kernel/rtlx.c                  |    2 +-
- arch/mips/kernel/vpe.c                   |    2 +-
- arch/mips/sibyte/sb1250/bcm1250_tbprof.c |    2 +-
- arch/sparc64/solaris/socksys.c           |    2 +-
- drivers/block/acsi_slm.c                 |    4 ++--
- drivers/block/aoe/aoechr.c               |    4 ++--
- drivers/block/paride/pg.c                |    4 ++--
- drivers/block/paride/pt.c                |    4 ++--
- drivers/char/drm/drm_drv.c               |    4 ++--
- drivers/char/dsp56k.c                    |    4 ++--
- drivers/char/dtlk.c                      |    2 +-
- drivers/char/ftape/zftape/zftape-init.c  |    2 +-
- drivers/char/ip2/ip2main.c               |    4 ++--
- drivers/char/ipmi/ipmi_devintf.c         |    4 ++--
- drivers/char/istallion.c                 |    2 +-
- drivers/char/lp.c                        |    4 ++--
- drivers/char/mbcs.c                      |    2 +-
- drivers/char/pcmcia/cm4000_cs.c          |    4 ++--
- drivers/char/pcmcia/cm4040_cs.c          |    4 ++--
- drivers/char/ppdev.c                     |    4 ++--
- drivers/char/stallion.c                  |    2 +-
- drivers/char/tipar.c                     |    4 ++--
- drivers/char/tlclk.c                     |    4 ++--
- drivers/char/viotape.c                   |    4 ++--
- drivers/i2c/i2c-dev.c                    |    4 ++--
- drivers/ide/ide-tape.c                   |    2 +-
- drivers/input/input.c                    |    2 +-
- drivers/isdn/capi/capi.c                 |    6 +++---
- drivers/isdn/hardware/eicon/divamnt.c    |    2 +-
- drivers/isdn/hardware/eicon/divasi.c     |    2 +-
- drivers/isdn/hardware/eicon/divasmain.c  |    2 +-
- drivers/isdn/i4l/isdn_common.c           |    6 +++---
- drivers/media/video/videodev.c           |    4 ++--
- drivers/mtd/mtdchar.c                    |    4 ++--
- drivers/net/ppp_generic.c                |    4 ++--
- drivers/net/wan/cosa.c                   |    6 +++---
- drivers/pcmcia/pcmcia_ioctl.c            |    2 +-
- drivers/s390/char/fs3270.c               |    2 +-
- drivers/sbus/char/bpp.c                  |    2 +-
- drivers/sbus/char/vfc_dev.c              |    2 +-
- drivers/scsi/3w-9xxx.c                   |    2 +-
- drivers/scsi/3w-xxxx.c                   |    2 +-
- drivers/scsi/aacraid/linit.c             |    2 +-
- drivers/scsi/ch.c                        |    4 ++--
- drivers/scsi/dpt_i2o.c                   |    2 +-
- drivers/scsi/gdth.c                      |    2 +-
- drivers/scsi/hptiop.c                    |    2 +-
- drivers/scsi/megaraid.c                  |    2 +-
- drivers/scsi/megaraid/megaraid_mm.c      |    2 +-
- drivers/scsi/megaraid/megaraid_sas.c     |    4 ++--
- drivers/scsi/osst.c                      |    2 +-
- drivers/telephony/phonedev.c             |    2 +-
- drivers/usb/core/file.c                  |    2 +-
- drivers/video/fbmem.c                    |    2 +-
- fs/char_dev.c                            |    2 +-
- fs/coda/psdev.c                          |    6 +++---
- include/linux/fs.h                       |    2 +-
- sound/core/sound.c                       |    4 ++--
- sound/sound_core.c                       |    2 +-
- 64 files changed, 97 insertions(+), 97 deletions(-)
+Below the kernel outputs, I am pasting my kernel config.  I tried to
+disable HPET as you requested, but for some reason it gets reenabled
+when I run make to compile the kernel.  Even if I disable it with make
+menuconfig it still pops up as enabled.  Is there some other option I
+have to change as well?
 
---- a/arch/cris/arch-v10/drivers/pcf8563.c
-+++ b/arch/cris/arch-v10/drivers/pcf8563.c
-@@ -180,7 +180,7 @@ err:
- void __exit
- pcf8563_exit(void)
- {
--	if (unregister_chrdev(PCF8563_MAJOR, DEVICE_NAME) < 0) {
-+	if (unregister_chrdev(PCF8563_MAJOR) < 0) {
- 		printk(KERN_INFO "%s: Unable to unregister device.\n", PCF8563_NAME);
- 	}
- }
---- a/arch/cris/arch-v32/drivers/cryptocop.c
-+++ b/arch/cris/arch-v32/drivers/cryptocop.c
-@@ -3476,13 +3476,13 @@ static int init_stream_coprocessor(void)
- 
- 	err = init_cryptocop();
- 	if (err) {
--		(void)unregister_chrdev(CRYPTOCOP_MAJOR, cryptocop_name);
-+		(void)unregister_chrdev(CRYPTOCOP_MAJOR);
- 		return err;
- 	}
- 	err = cryptocop_job_queue_init();
- 	if (err) {
- 		release_cryptocop();
--		(void)unregister_chrdev(CRYPTOCOP_MAJOR, cryptocop_name);
-+		(void)unregister_chrdev(CRYPTOCOP_MAJOR);
- 		return err;
- 	}
- 	/* Init the descriptor pool. */
---- a/arch/cris/arch-v32/drivers/pcf8563.c
-+++ b/arch/cris/arch-v32/drivers/pcf8563.c
-@@ -193,7 +193,7 @@ err:
- void __exit
- pcf8563_exit(void)
- {
--	if (unregister_chrdev(PCF8563_MAJOR, DEVICE_NAME) < 0) {
-+	if (unregister_chrdev(PCF8563_MAJOR) < 0) {
- 		printk(KERN_INFO "%s: Unable to unregister device.\n", PCF8563_NAME);
- 	}
- }
---- a/arch/i386/kernel/cpuid.c
-+++ b/arch/i386/kernel/cpuid.c
-@@ -222,7 +222,7 @@ out_class:
- 	}
- 	class_destroy(cpuid_class);
- out_chrdev:
--	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");	
-+	unregister_chrdev(CPUID_MAJOR);	
- out:
- 	return err;
- }
-@@ -234,7 +234,7 @@ static void __exit cpuid_exit(void)
- 	for_each_online_cpu(cpu)
- 		class_device_destroy(cpuid_class, MKDEV(CPUID_MAJOR, cpu));
- 	class_destroy(cpuid_class);
--	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
-+	unregister_chrdev(CPUID_MAJOR);
- 	unregister_hotcpu_notifier(&cpuid_class_cpu_notifier);
- }
- 
---- a/arch/i386/kernel/msr.c
-+++ b/arch/i386/kernel/msr.c
-@@ -305,7 +305,7 @@ out_class:
- 		class_device_destroy(msr_class, MKDEV(MSR_MAJOR, i));
- 	class_destroy(msr_class);
- out_chrdev:
--	unregister_chrdev(MSR_MAJOR, "cpu/msr");
-+	unregister_chrdev(MSR_MAJOR);
- out:
- 	return err;
- }
-@@ -316,7 +316,7 @@ static void __exit msr_exit(void)
- 	for_each_online_cpu(cpu)
- 		class_device_destroy(msr_class, MKDEV(MSR_MAJOR, cpu));
- 	class_destroy(msr_class);
--	unregister_chrdev(MSR_MAJOR, "cpu/msr");
-+	unregister_chrdev(MSR_MAJOR);
- 	unregister_hotcpu_notifier(&msr_class_cpu_notifier);
- }
- 
---- a/arch/mips/kernel/rtlx.c
-+++ b/arch/mips/kernel/rtlx.c
-@@ -529,7 +529,7 @@ static int rtlx_module_init(void)
- 
- static void __exit rtlx_module_exit(void)
- {
--	unregister_chrdev(major, module_name);
-+	unregister_chrdev(major);
- }
- 
- module_init(rtlx_module_init);
---- a/arch/mips/kernel/vpe.c
-+++ b/arch/mips/kernel/vpe.c
-@@ -1483,7 +1483,7 @@ static void __exit vpe_module_exit(void)
- 		}
- 	}
- 
--	unregister_chrdev(major, module_name);
-+	unregister_chrdev(major);
- }
- 
- module_init(vpe_module_init);
---- a/arch/mips/sibyte/sb1250/bcm1250_tbprof.c
-+++ b/arch/mips/sibyte/sb1250/bcm1250_tbprof.c
-@@ -399,7 +399,7 @@ static int __init sbprof_tb_init(void)
- 
- static void __exit sbprof_tb_cleanup(void)
- {
--	unregister_chrdev(SBPROF_TB_MAJOR, DEVNAME);
-+	unregister_chrdev(SBPROF_TB_MAJOR);
- }
- 
- module_init(sbprof_tb_init);
---- a/arch/sparc64/solaris/socksys.c
-+++ b/arch/sparc64/solaris/socksys.c
-@@ -202,6 +202,6 @@ init_socksys(void)
- void
- cleanup_socksys(void)
- {
--	if (unregister_chrdev(30, "socksys"))
-+	if (unregister_chrdev(30))
- 		printk ("Couldn't unregister socksys character device\n");
- }
---- a/drivers/block/acsi_slm.c
-+++ b/drivers/block/acsi_slm.c
-@@ -998,7 +998,7 @@ int slm_init( void )
- 	
- 	if (!(SLMBuffer = atari_stram_alloc( SLM_BUFFER_SIZE, "SLM" ))) {
- 		printk( KERN_ERR "Unable to get SLM ST-Ram buffer.\n" );
--		unregister_chrdev( ACSI_MAJOR, "slm" );
-+		unregister_chrdev( ACSI_MAJOR );
- 		return -ENOMEM;
- 	}
- 	BufferP = SLMBuffer;
-@@ -1026,7 +1026,7 @@ int init_module(void)
- 
- void cleanup_module(void)
- {
--	if (unregister_chrdev( ACSI_MAJOR, "slm" ) != 0)
-+	if (unregister_chrdev( ACSI_MAJOR ) != 0)
- 		printk( KERN_ERR "acsi_slm: cleanup_module failed\n");
- 	atari_stram_free( SLMBuffer );
- }
---- a/drivers/block/aoe/aoechr.c
-+++ b/drivers/block/aoe/aoechr.c
-@@ -257,7 +257,7 @@ aoechr_init(void)
- 	spin_lock_init(&emsgs_lock);
- 	aoe_class = class_create(THIS_MODULE, "aoe");
- 	if (IS_ERR(aoe_class)) {
--		unregister_chrdev(AOE_MAJOR, "aoechr");
-+		unregister_chrdev(AOE_MAJOR);
- 		return PTR_ERR(aoe_class);
- 	}
- 	for (i = 0; i < ARRAY_SIZE(chardevs); ++i)
-@@ -276,6 +276,6 @@ aoechr_exit(void)
- 	for (i = 0; i < ARRAY_SIZE(chardevs); ++i)
- 		class_device_destroy(aoe_class, MKDEV(AOE_MAJOR, chardevs[i].minor));
- 	class_destroy(aoe_class);
--	unregister_chrdev(AOE_MAJOR, "aoechr");
-+	unregister_chrdev(AOE_MAJOR);
- }
- 
---- a/drivers/block/paride/pg.c
-+++ b/drivers/block/paride/pg.c
-@@ -683,7 +683,7 @@ static int __init pg_init(void)
- 	goto out;
- 
- out_chrdev:
--	unregister_chrdev(major, "pg");
-+	unregister_chrdev(major);
- out:
- 	return err;
- }
-@@ -698,7 +698,7 @@ static void __exit pg_exit(void)
- 			class_device_destroy(pg_class, MKDEV(major, unit));
- 	}
- 	class_destroy(pg_class);
--	unregister_chrdev(major, name);
-+	unregister_chrdev(major);
- 
- 	for (unit = 0; unit < PG_UNITS; unit++) {
- 		struct pg *dev = &devices[unit];
---- a/drivers/block/paride/pt.c
-+++ b/drivers/block/paride/pt.c
-@@ -980,7 +980,7 @@ static int __init pt_init(void)
- 	goto out;
- 
- out_chrdev:
--	unregister_chrdev(major, "pt");
-+	unregister_chrdev(major);
- out:
- 	return err;
- }
-@@ -994,7 +994,7 @@ static void __exit pt_exit(void)
- 			class_device_destroy(pt_class, MKDEV(major, unit + 128));
- 		}
- 	class_destroy(pt_class);
--	unregister_chrdev(major, name);
-+	unregister_chrdev(major);
- 	for (unit = 0; unit < PT_UNITS; unit++)
- 		if (pt[unit].present)
- 			pi_release(pt[unit].pi);
---- a/drivers/char/drm/drm_drv.c
-+++ b/drivers/char/drm/drm_drv.c
-@@ -395,7 +395,7 @@ static int __init drm_core_init(void)
-       err_p3:
- 	drm_sysfs_destroy(drm_class);
-       err_p2:
--	unregister_chrdev(DRM_MAJOR, "drm");
-+	unregister_chrdev(DRM_MAJOR);
- 	drm_free(drm_heads, sizeof(*drm_heads) * drm_cards_limit, DRM_MEM_STUB);
-       err_p1:
- 	return ret;
-@@ -406,7 +406,7 @@ static void __exit drm_core_exit(void)
- 	remove_proc_entry("dri", NULL);
- 	drm_sysfs_destroy(drm_class);
- 
--	unregister_chrdev(DRM_MAJOR, "drm");
-+	unregister_chrdev(DRM_MAJOR);
- 
- 	drm_free(drm_heads, sizeof(*drm_heads) * drm_cards_limit, DRM_MEM_STUB);
- }
---- a/drivers/char/dsp56k.c
-+++ b/drivers/char/dsp56k.c
-@@ -521,7 +521,7 @@ static int __init dsp56k_init_driver(voi
- 	goto out;
- 
- out_chrdev:
--	unregister_chrdev(DSP56K_MAJOR, "dsp56k");
-+	unregister_chrdev(DSP56K_MAJOR);
- out:
- 	return err;
- }
-@@ -531,7 +531,7 @@ static void __exit dsp56k_cleanup_driver
- {
- 	class_device_destroy(dsp56k_class, MKDEV(DSP56K_MAJOR, 0));
- 	class_destroy(dsp56k_class);
--	unregister_chrdev(DSP56K_MAJOR, "dsp56k");
-+	unregister_chrdev(DSP56K_MAJOR);
- }
- module_exit(dsp56k_cleanup_driver);
- 
---- a/drivers/char/dtlk.c
-+++ b/drivers/char/dtlk.c
-@@ -352,7 +352,7 @@ static void __exit dtlk_cleanup (void)
- 						   signals... */
- 
- 	dtlk_write_tts(DTLK_CLEAR);
--	unregister_chrdev(dtlk_major, "dtlk");
-+	unregister_chrdev(dtlk_major);
- 	release_region(dtlk_port_lpc, DTLK_IO_EXTENT);
- }
- 
---- a/drivers/char/ftape/zftape/zftape-init.c
-+++ b/drivers/char/ftape/zftape/zftape-init.c
-@@ -354,7 +354,7 @@ static void zft_exit(void)
- 	int i;
- 	TRACE_FUN(ft_t_flow);
- 
--	if (unregister_chrdev(QIC117_TAPE_MAJOR, "zft") != 0) {
-+	if (unregister_chrdev(QIC117_TAPE_MAJOR) != 0) {
- 		TRACE(ft_t_warn, "failed");
- 	} else {
- 		TRACE(ft_t_info, "successful");
---- a/drivers/char/ip2/ip2main.c
-+++ b/drivers/char/ip2/ip2main.c
-@@ -425,7 +425,7 @@ #endif
- 		printk(KERN_ERR "IP2: failed to unregister tty driver (%d)\n", err);
- 	}
- 	put_tty_driver(ip2_tty_driver);
--	if ( ( err = unregister_chrdev ( IP2_IPL_MAJOR, pcIpl ) ) ) {
-+	if ( ( err = unregister_chrdev ( IP2_IPL_MAJOR ) ) ) {
- 		printk(KERN_ERR "IP2: failed to unregister IPL driver (%d)\n", err);
- 	}
- 	remove_proc_entry("ip2mem", &proc_root);
-@@ -778,7 +778,7 @@ retry:
- out_class:
- 	class_destroy(ip2_class);
- out_chrdev:
--	unregister_chrdev(IP2_IPL_MAJOR, "ip2");
-+	unregister_chrdev(IP2_IPL_MAJOR);
- out:
- 	return err;
- }
---- a/drivers/char/ipmi/ipmi_devintf.c
-+++ b/drivers/char/ipmi/ipmi_devintf.c
-@@ -868,7 +868,7 @@ static __init int init_ipmi_devintf(void
- 
- 	rv = ipmi_smi_watcher_register(&smi_watcher);
- 	if (rv) {
--		unregister_chrdev(ipmi_major, DEVICE_NAME);
-+		unregister_chrdev(ipmi_major);
- 		class_destroy(ipmi_class);
- 		printk(KERN_WARNING "ipmi: can't register smi watcher\n");
- 		return rv;
-@@ -890,7 +890,7 @@ static __exit void cleanup_ipmi(void)
- 	mutex_unlock(&reg_list_mutex);
- 	class_destroy(ipmi_class);
- 	ipmi_smi_watcher_unregister(&smi_watcher);
--	unregister_chrdev(ipmi_major, DEVICE_NAME);
-+	unregister_chrdev(ipmi_major);
- }
- module_exit(cleanup_ipmi);
- 
---- a/drivers/char/istallion.c
-+++ b/drivers/char/istallion.c
-@@ -816,7 +816,7 @@ static void __exit istallion_module_exit
- 	for (i = 0; i < 4; i++)
- 		class_device_destroy(istallion_class, MKDEV(STL_SIOMEMMAJOR, i));
- 	class_destroy(istallion_class);
--	if ((i = unregister_chrdev(STL_SIOMEMMAJOR, "staliomem")))
-+	if ((i = unregister_chrdev(STL_SIOMEMMAJOR)))
- 		printk("STALLION: failed to un-register serial memory device, "
- 			"errno=%d\n", -i);
- 
---- a/drivers/char/lp.c
-+++ b/drivers/char/lp.c
-@@ -928,7 +928,7 @@ #endif
- out_class:
- 	class_destroy(lp_class);
- out_devfs:
--	unregister_chrdev(LP_MAJOR, "lp");
-+	unregister_chrdev(LP_MAJOR);
- 	return err;
- }
- 
-@@ -970,7 +970,7 @@ #ifdef CONFIG_LP_CONSOLE
- 	unregister_console (&lpcons);
- #endif
- 
--	unregister_chrdev(LP_MAJOR, "lp");
-+	unregister_chrdev(LP_MAJOR);
- 	for (offset = 0; offset < LP_NO; offset++) {
- 		if (lp_table[offset].dev == NULL)
- 			continue;
---- a/drivers/char/mbcs.c
-+++ b/drivers/char/mbcs.c
-@@ -818,7 +818,7 @@ static void __exit mbcs_exit(void)
- {
- 	int rv;
- 
--	rv = unregister_chrdev(mbcs_major, DEVICE_NAME);
-+	rv = unregister_chrdev(mbcs_major);
- 	if (rv < 0)
- 		DBG(KERN_ALERT "Error in unregister_chrdev: %d\n", rv);
- 
---- a/drivers/char/pcmcia/cm4000_cs.c
-+++ b/drivers/char/pcmcia/cm4000_cs.c
-@@ -1985,7 +1985,7 @@ static int __init cmm_init(void)
- 
- 	rc = pcmcia_register_driver(&cm4000_driver);
- 	if (rc < 0) {
--		unregister_chrdev(major, DEVICE_NAME);
-+		unregister_chrdev(major);
- 		return rc;
- 	}
- 
-@@ -1996,7 +1996,7 @@ static void __exit cmm_exit(void)
- {
- 	printk(KERN_INFO MODULE_NAME ": unloading\n");
- 	pcmcia_unregister_driver(&cm4000_driver);
--	unregister_chrdev(major, DEVICE_NAME);
-+	unregister_chrdev(major);
- 	class_destroy(cmm_class);
- };
- 
---- a/drivers/char/pcmcia/cm4040_cs.c
-+++ b/drivers/char/pcmcia/cm4040_cs.c
-@@ -733,7 +733,7 @@ static int __init cm4040_init(void)
- 
- 	rc = pcmcia_register_driver(&reader_driver);
- 	if (rc < 0) {
--		unregister_chrdev(major, DEVICE_NAME);
-+		unregister_chrdev(major);
- 		return rc;
- 	}
- 
-@@ -744,7 +744,7 @@ static void __exit cm4040_exit(void)
- {
- 	printk(KERN_INFO MODULE_NAME ": unloading\n");
- 	pcmcia_unregister_driver(&reader_driver);
--	unregister_chrdev(major, DEVICE_NAME);
-+	unregister_chrdev(major);
- 	class_destroy(cmx_class);
- }
- 
---- a/drivers/char/ppdev.c
-+++ b/drivers/char/ppdev.c
-@@ -792,7 +792,7 @@ static int __init ppdev_init (void)
- out_class:
- 	class_destroy(ppdev_class);
- out_chrdev:
--	unregister_chrdev(PP_MAJOR, CHRDEV);
-+	unregister_chrdev(PP_MAJOR);
- out:
- 	return err;
- }
-@@ -802,7 +802,7 @@ static void __exit ppdev_cleanup (void)
- 	/* Clean up all parport stuff */
- 	parport_unregister_driver(&pp_driver);
- 	class_destroy(ppdev_class);
--	unregister_chrdev (PP_MAJOR, CHRDEV);
-+	unregister_chrdev (PP_MAJOR);
- }
- 
- module_init(ppdev_init);
---- a/drivers/char/stallion.c
-+++ b/drivers/char/stallion.c
-@@ -757,7 +757,7 @@ #endif
- 	}
- 	for (i = 0; i < 4; i++)
- 		class_device_destroy(stallion_class, MKDEV(STL_SIOMEMMAJOR, i));
--	if ((i = unregister_chrdev(STL_SIOMEMMAJOR, "staliomem")))
-+	if ((i = unregister_chrdev(STL_SIOMEMMAJOR)))
- 		printk("STALLION: failed to un-register serial memory device, "
- 			"errno=%d\n", -i);
- 	class_destroy(stallion_class);
---- a/drivers/char/tipar.c
-+++ b/drivers/char/tipar.c
-@@ -513,7 +513,7 @@ out_class:
- 	class_destroy(tipar_class);
- 
- out_chrdev:
--	unregister_chrdev(TIPAR_MAJOR, "tipar");
-+	unregister_chrdev(TIPAR_MAJOR);
- out:
- 	return err;	
- }
-@@ -526,7 +526,7 @@ tipar_cleanup_module(void)
- 	/* Unregistering module */
- 	parport_unregister_driver(&tipar_driver);
- 
--	unregister_chrdev(TIPAR_MAJOR, "tipar");
-+	unregister_chrdev(TIPAR_MAJOR);
- 
- 	for (i = 0; i < PP_NO; i++) {
- 		if (table[i].dev == NULL)
---- a/drivers/char/tlclk.c
-+++ b/drivers/char/tlclk.c
-@@ -823,7 +823,7 @@ out3:
- out2:
- 	kfree(alarm_events);
- out1:
--	unregister_chrdev(tlclk_major, "telco_clock");
-+	unregister_chrdev(tlclk_major);
- 	return ret;
- }
- 
-@@ -832,7 +832,7 @@ static void __exit tlclk_cleanup(void)
- 	sysfs_remove_group(&tlclk_device->dev.kobj, &tlclk_attribute_group);
- 	platform_device_unregister(tlclk_device);
- 	misc_deregister(&tlclk_miscdev);
--	unregister_chrdev(tlclk_major, "telco_clock");
-+	unregister_chrdev(tlclk_major);
- 
- 	release_region(TLCLK_BASE, 8);
- 	del_timer_sync(&switchover_timer);
---- a/drivers/char/viotape.c
-+++ b/drivers/char/viotape.c
-@@ -1063,7 +1063,7 @@ int __init viotap_init(void)
- unreg_class:
- 	class_destroy(tape_class);
- unreg_chrdev:
--	unregister_chrdev(VIOTAPE_MAJOR, "viotape");
-+	unregister_chrdev(VIOTAPE_MAJOR);
- clear_handler:
- 	vio_clearHandler(viomajorsubtype_tape);
- 	viopath_close(viopath_hostLp, viomajorsubtype_tape, VIOTAPE_MAXREQ + 2);
-@@ -1102,7 +1102,7 @@ static void __exit viotap_exit(void)
- 	remove_proc_entry("iSeries/viotape", NULL);
- 	vio_unregister_driver(&viotape_driver);
- 	class_destroy(tape_class);
--	ret = unregister_chrdev(VIOTAPE_MAJOR, "viotape");
-+	ret = unregister_chrdev(VIOTAPE_MAJOR);
- 	if (ret < 0)
- 		printk(VIOTAPE_KERN_WARN "Error unregistering device: %d\n",
- 				ret);
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -500,7 +500,7 @@ static int __init i2c_dev_init(void)
- out_unreg_class:
- 	class_destroy(i2c_dev_class);
- out_unreg_chrdev:
--	unregister_chrdev(I2C_MAJOR, "i2c");
-+	unregister_chrdev(I2C_MAJOR);
- out:
- 	printk(KERN_ERR "%s: Driver Initialisation failed\n", __FILE__);
- 	return res;
-@@ -510,7 +510,7 @@ static void __exit i2c_dev_exit(void)
- {
- 	i2c_del_driver(&i2cdev_driver);
- 	class_destroy(i2c_dev_class);
--	unregister_chrdev(I2C_MAJOR,"i2c");
-+	unregister_chrdev(I2C_MAJOR);
- }
- 
- MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl> and "
---- a/drivers/ide/ide-tape.c
-+++ b/drivers/ide/ide-tape.c
-@@ -4915,7 +4915,7 @@ static void __exit idetape_exit (void)
- {
- 	driver_unregister(&idetape_driver.gen_driver);
- 	class_destroy(idetape_sysfs_class);
--	unregister_chrdev(IDETAPE_MAJOR, "ht");
-+	unregister_chrdev(IDETAPE_MAJOR);
- }
- 
- static int __init idetape_init(void)
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1152,7 +1152,7 @@ static int __init input_init(void)
- static void __exit input_exit(void)
- {
- 	input_proc_exit();
--	unregister_chrdev(INPUT_MAJOR, "input");
-+	unregister_chrdev(INPUT_MAJOR);
- 	class_unregister(&input_class);
- }
- 
---- a/drivers/isdn/capi/capi.c
-+++ b/drivers/isdn/capi/capi.c
-@@ -1508,7 +1508,7 @@ static int __init capi_init(void)
- 	}
- 	capi_class = class_create(THIS_MODULE, "capi");
- 	if (IS_ERR(capi_class)) {
--		unregister_chrdev(capi_major, "capi20");
-+		unregister_chrdev(capi_major);
- 		return PTR_ERR(capi_class);
- 	}
- 
-@@ -1518,7 +1518,7 @@ #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
- 	if (capinc_tty_init() < 0) {
- 		class_device_destroy(capi_class, MKDEV(capi_major, 0));
- 		class_destroy(capi_class);
--		unregister_chrdev(capi_major, "capi20");
-+		unregister_chrdev(capi_major);
- 		return -ENOMEM;
- 	}
- #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
-@@ -1546,7 +1546,7 @@ static void __exit capi_exit(void)
- 
- 	class_device_destroy(capi_class, MKDEV(capi_major, 0));
- 	class_destroy(capi_class);
--	unregister_chrdev(capi_major, "capi20");
-+	unregister_chrdev(capi_major);
- 
- #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
- 	capinc_tty_exit();
---- a/drivers/isdn/hardware/eicon/divamnt.c
-+++ b/drivers/isdn/hardware/eicon/divamnt.c
-@@ -176,7 +176,7 @@ static struct file_operations divas_main
- 
- static void divas_maint_unregister_chrdev(void)
- {
--	unregister_chrdev(major, DEVNAME);
-+	unregister_chrdev(major);
- }
- 
- static int DIVA_INIT_FUNCTION divas_maint_register_chrdev(void)
---- a/drivers/isdn/hardware/eicon/divasi.c
-+++ b/drivers/isdn/hardware/eicon/divasi.c
-@@ -143,7 +143,7 @@ static struct file_operations divas_idi_
- 
- static void divas_idi_unregister_chrdev(void)
- {
--	unregister_chrdev(major, DEVNAME);
-+	unregister_chrdev(major);
- }
- 
- static int DIVA_INIT_FUNCTION divas_idi_register_chrdev(void)
---- a/drivers/isdn/hardware/eicon/divasmain.c
-+++ b/drivers/isdn/hardware/eicon/divasmain.c
-@@ -676,7 +676,7 @@ static struct file_operations divas_fops
- 
- static void divas_unregister_chrdev(void)
- {
--	unregister_chrdev(major, DEVNAME);
-+	unregister_chrdev(major);
- }
- 
- static int DIVA_INIT_FUNCTION divas_register_chrdev(void)
---- a/drivers/isdn/i4l/isdn_common.c
-+++ b/drivers/isdn/i4l/isdn_common.c
-@@ -2321,14 +2321,14 @@ #endif
- 	if ((isdn_tty_modem_init()) < 0) {
- 		printk(KERN_WARNING "isdn: Could not register tty devices\n");
- 		vfree(dev);
--		unregister_chrdev(ISDN_MAJOR, "isdn");
-+		unregister_chrdev(ISDN_MAJOR);
- 		return -EIO;
- 	}
- #ifdef CONFIG_ISDN_PPP
- 	if (isdn_ppp_init() < 0) {
- 		printk(KERN_WARNING "isdn: Could not create PPP-device-structs\n");
- 		isdn_tty_exit();
--		unregister_chrdev(ISDN_MAJOR, "isdn");
-+		unregister_chrdev(ISDN_MAJOR);
- 		vfree(dev);
- 		return -EIO;
- 	}
-@@ -2369,7 +2369,7 @@ #endif
- 		return;
- 	}
- 	isdn_tty_exit();
--	unregister_chrdev(ISDN_MAJOR, "isdn");
-+	unregister_chrdev(ISDN_MAJOR);
- 	del_timer(&dev->timer);
- 	/* call vfree with interrupts enabled, else it will hang */
- 	vfree(dev);
---- a/drivers/media/video/videodev.c
-+++ b/drivers/media/video/videodev.c
-@@ -1651,7 +1651,7 @@ static int __init videodev_init(void)
- 
- 	ret = class_register(&video_class);
- 	if (ret < 0) {
--		unregister_chrdev(VIDEO_MAJOR, VIDEO_NAME);
-+		unregister_chrdev(VIDEO_MAJOR);
- 		printk(KERN_WARNING "video_dev: class_register failed\n");
- 		return -EIO;
- 	}
-@@ -1662,7 +1662,7 @@ static int __init videodev_init(void)
- static void __exit videodev_exit(void)
- {
- 	class_unregister(&video_class);
--	unregister_chrdev(VIDEO_MAJOR, VIDEO_NAME);
-+	unregister_chrdev(VIDEO_MAJOR);
- }
- 
- module_init(videodev_init)
---- a/drivers/mtd/mtdchar.c
-+++ b/drivers/mtd/mtdchar.c
-@@ -785,7 +785,7 @@ static int __init init_mtdchar(void)
- 
- 	if (IS_ERR(mtd_class)) {
- 		printk(KERN_ERR "Error creating mtd class.\n");
--		unregister_chrdev(MTD_CHAR_MAJOR, "mtd");
-+		unregister_chrdev(MTD_CHAR_MAJOR);
- 		return PTR_ERR(mtd_class);
- 	}
- 
-@@ -797,7 +797,7 @@ static void __exit cleanup_mtdchar(void)
- {
- 	unregister_mtd_user(&notifier);
- 	class_destroy(mtd_class);
--	unregister_chrdev(MTD_CHAR_MAJOR, "mtd");
-+	unregister_chrdev(MTD_CHAR_MAJOR);
- }
- 
- module_init(init_mtdchar);
---- a/drivers/net/ppp_generic.c
-+++ b/drivers/net/ppp_generic.c
-@@ -869,7 +869,7 @@ out:
- 	return err;
- 
- out_chrdev:
--	unregister_chrdev(PPP_MAJOR, "ppp");
-+	unregister_chrdev(PPP_MAJOR);
- 	goto out;
- }
- 
-@@ -2670,7 +2670,7 @@ static void __exit ppp_cleanup(void)
- 	if (atomic_read(&ppp_unit_count) || atomic_read(&channel_count))
- 		printk(KERN_ERR "PPP: removing module but units remain!\n");
- 	cardmap_destroy(&all_ppp_units);
--	if (unregister_chrdev(PPP_MAJOR, "ppp") != 0)
-+	if (unregister_chrdev(PPP_MAJOR) != 0)
- 		printk(KERN_ERR "PPP: failed to unregister PPP device\n");
- 	class_device_destroy(ppp_class, MKDEV(PPP_MAJOR, 0));
- 	class_destroy(ppp_class);
---- a/drivers/net/wan/cosa.c
-+++ b/drivers/net/wan/cosa.c
-@@ -387,7 +387,7 @@ #endif
- 		cosa_probe(io[i], irq[i], dma[i]);
- 	if (!nr_cards) {
- 		printk(KERN_WARNING "cosa: no devices found.\n");
--		unregister_chrdev(cosa_major, "cosa");
-+		unregister_chrdev(cosa_major);
- 		err = -ENODEV;
- 		goto out;
- 	}
-@@ -404,7 +404,7 @@ #endif
- 	goto out;
- 	
- out_chrdev:
--	unregister_chrdev(cosa_major, "cosa");
-+	unregister_chrdev(cosa_major);
- out:
- 	return err;
- }
-@@ -432,7 +432,7 @@ static void __exit cosa_exit(void)
- 		free_dma(cosa->dma);
- 		release_region(cosa->datareg,is_8bit(cosa)?2:4);
- 	}
--	unregister_chrdev(cosa_major, "cosa");
-+	unregister_chrdev(cosa_major);
- }
- module_exit(cosa_exit);
- 
---- a/drivers/pcmcia/pcmcia_ioctl.c
-+++ b/drivers/pcmcia/pcmcia_ioctl.c
-@@ -793,5 +793,5 @@ #ifdef CONFIG_PROC_FS
- 	}
- #endif
- 	if (major_dev != -1)
--		unregister_chrdev(major_dev, "pcmcia");
-+		unregister_chrdev(major_dev);
- }
---- a/drivers/s390/char/fs3270.c
-+++ b/drivers/s390/char/fs3270.c
-@@ -519,7 +519,7 @@ fs3270_init(void)
- static void __exit
- fs3270_exit(void)
- {
--	unregister_chrdev(IBM_FS3270_MAJOR, "fs3270");
-+	unregister_chrdev(IBM_FS3270_MAJOR);
- }
- 
- MODULE_LICENSE("GPL");
---- a/drivers/sbus/char/bpp.c
-+++ b/drivers/sbus/char/bpp.c
-@@ -1038,7 +1038,7 @@ static void __exit bpp_cleanup(void)
- {
- 	unsigned idx;
- 
--	unregister_chrdev(BPP_MAJOR, dev_name);
-+	unregister_chrdev(BPP_MAJOR);
- 
- 	for (idx = 0;  idx < BPP_NO; idx++) {
- 		if (instances[idx].present)
---- a/drivers/sbus/char/vfc_dev.c
-+++ b/drivers/sbus/char/vfc_dev.c
-@@ -720,7 +720,7 @@ void cleanup_module(void)
- {
- 	struct vfc_dev **devp;
- 
--	unregister_chrdev(VFC_MAJOR,vfcstr);
-+	unregister_chrdev(VFC_MAJOR);
- 
- 	for (devp = vfc_dev_lst; *devp; devp++)
- 		deinit_vfc_device(*devp);
---- a/drivers/scsi/3w-9xxx.c
-+++ b/drivers/scsi/3w-9xxx.c
-@@ -2166,7 +2166,7 @@ static void twa_remove(struct pci_dev *p
- 
- 	/* Unregister character device */
- 	if (twa_major >= 0) {
--		unregister_chrdev(twa_major, "twa");
-+		unregister_chrdev(twa_major);
- 		twa_major = -1;
- 	}
- 
---- a/drivers/scsi/3w-xxxx.c
-+++ b/drivers/scsi/3w-xxxx.c
-@@ -2441,7 +2441,7 @@ static void tw_remove(struct pci_dev *pd
- 
- 	/* Unregister character device */
- 	if (twe_major >= 0) {
--		unregister_chrdev(twe_major, "twe");
-+		unregister_chrdev(twe_major);
- 		twe_major = -1;
- 	}
- 
---- a/drivers/scsi/aacraid/linit.c
-+++ b/drivers/scsi/aacraid/linit.c
-@@ -1046,7 +1046,7 @@ static int __init aac_init(void)
- static void __exit aac_exit(void)
- {
- 	if (aac_cfg_major > -1)
--		unregister_chrdev(aac_cfg_major, "aac");
-+		unregister_chrdev(aac_cfg_major);
- 	pci_unregister_driver(&aac_pci_driver);
- }
- 
---- a/drivers/scsi/ch.c
-+++ b/drivers/scsi/ch.c
-@@ -994,7 +994,7 @@ static int __init init_ch_module(void)
- 	return 0;
- 
-  fail2:
--	unregister_chrdev(SCSI_CHANGER_MAJOR, "ch");
-+	unregister_chrdev(SCSI_CHANGER_MAJOR);
-  fail1:
- 	class_destroy(ch_sysfs_class);
- 	return rc;
-@@ -1003,7 +1003,7 @@ static int __init init_ch_module(void)
- static void __exit exit_ch_module(void) 
- {
- 	scsi_unregister_driver(&ch_template.gendrv);
--	unregister_chrdev(SCSI_CHANGER_MAJOR, "ch");
-+	unregister_chrdev(SCSI_CHANGER_MAJOR);
- 	class_destroy(ch_sysfs_class);
- }
- 
---- a/drivers/scsi/dpt_i2o.c
-+++ b/drivers/scsi/dpt_i2o.c
-@@ -1079,7 +1079,7 @@ static void adpt_i2o_delete_hba(adpt_hba
- 	kfree(pHba);
- 
- 	if(hba_count <= 0){
--		unregister_chrdev(DPTI_I2O_MAJOR, DPT_DRIVER);   
-+		unregister_chrdev(DPTI_I2O_MAJOR);   
- 	}
- }
- 
---- a/drivers/scsi/gdth.c
-+++ b/drivers/scsi/gdth.c
-@@ -4779,7 +4779,7 @@ #endif
- #ifdef GDTH_STATISTICS
-             del_timer(&gdth_timer);
- #endif
--            unregister_chrdev(major,"gdth");
-+            unregister_chrdev(major);
-             unregister_reboot_notifier(&gdth_notifier);
-         }
-     }
---- a/drivers/scsi/hptiop.c
-+++ b/drivers/scsi/hptiop.c
-@@ -1482,7 +1482,7 @@ static int __init hptiop_module_init(voi
- static void __exit hptiop_module_exit(void)
- {
- 	dprintk("hptiop_module_exit\n");
--	unregister_chrdev(hptiop_cdev_major, "hptiop");
-+	unregister_chrdev(hptiop_cdev_major);
- 	pci_unregister_driver(&hptiop_pci_driver);
- }
- 
---- a/drivers/scsi/megaraid.c
-+++ b/drivers/scsi/megaraid.c
-@@ -5100,7 +5100,7 @@ static void __exit megaraid_exit(void)
- 	/*
- 	 * Unregister the character device interface to the driver.
- 	 */
--	unregister_chrdev(major, "megadev_legacy");
-+	unregister_chrdev(major);
- 
- 	pci_unregister_driver(&megaraid_pci_driver);
- 
---- a/drivers/scsi/megaraid/megaraid_mm.c
-+++ b/drivers/scsi/megaraid/megaraid_mm.c
-@@ -1238,7 +1238,7 @@ mraid_mm_exit(void)
- {
- 	con_log(CL_DLEVEL1 , ("exiting common mod\n"));
- 
--	unregister_chrdev(majorno, "megadev");
-+	unregister_chrdev(majorno);
- }
- 
- module_init(mraid_mm_init);
---- a/drivers/scsi/megaraid/megaraid_sas.c
-+++ b/drivers/scsi/megaraid/megaraid_sas.c
-@@ -2858,7 +2858,7 @@ static int __init megasas_init(void)
- 
- 	if (rval) {
- 		printk(KERN_DEBUG "megasas: PCI hotplug regisration failed \n");
--		unregister_chrdev(megasas_mgmt_majorno, "megaraid_sas_ioctl");
-+		unregister_chrdev(megasas_mgmt_majorno);
- 	}
- 
- 	driver_create_file(&megasas_pci_driver.driver, &driver_attr_version);
-@@ -2878,7 +2878,7 @@ static void __exit megasas_exit(void)
- 			   &driver_attr_release_date);
- 
- 	pci_unregister_driver(&megasas_pci_driver);
--	unregister_chrdev(megasas_mgmt_majorno, "megaraid_sas_ioctl");
-+	unregister_chrdev(megasas_mgmt_majorno);
- }
- 
- module_init(megasas_init);
---- a/drivers/scsi/osst.c
-+++ b/drivers/scsi/osst.c
-@@ -5925,7 +5925,7 @@ static void __exit exit_osst (void)
- 
- 	osst_remove_driverfs_files(&osst_template.gendrv);
- 	scsi_unregister_driver(&osst_template.gendrv);
--	unregister_chrdev(OSST_MAJOR, "osst");
-+	unregister_chrdev(OSST_MAJOR);
- 	osst_sysfs_cleanup();
- 
- 	if (os_scsi_tapes) {
---- a/drivers/telephony/phonedev.c
-+++ b/drivers/telephony/phonedev.c
-@@ -155,7 +155,7 @@ static int __init telephony_init(void)
- 
- static void __exit telephony_exit(void)
- {
--	unregister_chrdev(PHONE_MAJOR, "telephony");
-+	unregister_chrdev(PHONE_MAJOR);
- }
- 
- module_init(telephony_init);
---- a/drivers/usb/core/file.c
-+++ b/drivers/usb/core/file.c
-@@ -120,7 +120,7 @@ int usb_major_init(void)
- 
- void usb_major_cleanup(void)
- {
--	unregister_chrdev(USB_MAJOR, "usb");
-+	unregister_chrdev(USB_MAJOR);
- }
- 
- /**
---- a/drivers/video/fbmem.c
-+++ b/drivers/video/fbmem.c
-@@ -1416,7 +1416,7 @@ static void __exit
- fbmem_exit(void)
- {
- 	class_destroy(fb_class);
--	unregister_chrdev(FB_MAJOR, "fb");
-+	unregister_chrdev(FB_MAJOR);
- }
- 
- module_exit(fbmem_exit);
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -253,7 +253,7 @@ void unregister_chrdev_region(dev_t from
- 	}
- }
- 
--int unregister_chrdev(unsigned int major, const char *name)
-+int unregister_chrdev(unsigned int major)
- {
- 	struct char_device_struct *cd;
- 	cd = __unregister_chrdev_region(major, 0, 256);
---- a/fs/coda/psdev.c
-+++ b/fs/coda/psdev.c
-@@ -371,7 +371,7 @@ static int init_coda_psdev(void)
- 	goto out;
- 
- out_chrdev:
--	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
-+	unregister_chrdev(CODA_PSDEV_MAJOR);
- out:
- 	return err;
- }
-@@ -411,7 +411,7 @@ out:
- 	for (i = 0; i < MAX_CODADEVS; i++)
- 		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
- 	class_destroy(coda_psdev_class);
--	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
-+	unregister_chrdev(CODA_PSDEV_MAJOR);
- 	coda_sysctl_clean();
- out1:
- 	coda_destroy_inodecache();
-@@ -430,7 +430,7 @@ static void __exit exit_coda(void)
- 	for (i = 0; i < MAX_CODADEVS; i++)
- 		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
- 	class_destroy(coda_psdev_class);
--	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
-+	unregister_chrdev(CODA_PSDEV_MAJOR);
- 	coda_sysctl_clean();
- 	coda_destroy_inodecache();
- }
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1473,7 +1473,7 @@ extern int alloc_chrdev_region(dev_t *, 
- extern int register_chrdev_region(dev_t, unsigned, const char *);
- extern int register_chrdev(unsigned int, const char *,
- 			   const struct file_operations *);
--extern int unregister_chrdev(unsigned int, const char *);
-+extern int unregister_chrdev(unsigned int);
- extern void unregister_chrdev_region(dev_t, unsigned);
- extern int chrdev_open(struct inode *, struct file *);
- extern void chrdev_show(struct seq_file *,off_t);
---- a/sound/core/sound.c
-+++ b/sound/core/sound.c
-@@ -406,7 +406,7 @@ static int __init alsa_sound_init(void)
- 		return -EIO;
- 	}
- 	if (snd_info_init() < 0) {
--		unregister_chrdev(major, "alsa");
-+		unregister_chrdev(major);
- 		return -ENOMEM;
- 	}
- 	snd_info_minor_register();
-@@ -420,7 +420,7 @@ static void __exit alsa_sound_exit(void)
- {
- 	snd_info_minor_unregister();
- 	snd_info_done();
--	if (unregister_chrdev(major, "alsa") != 0)
-+	if (unregister_chrdev(major) != 0)
- 		snd_printk(KERN_ERR "unable to unregister major device number %d\n", major);
- }
- 
---- a/sound/sound_core.c
-+++ b/sound/sound_core.c
-@@ -564,7 +564,7 @@ static void __exit cleanup_soundcore(voi
- {
- 	/* We have nothing to really do here - we know the lists must be
- 	   empty */
--	unregister_chrdev(SOUND_MAJOR, "sound");
-+	unregister_chrdev(SOUND_MAJOR);
- 	class_destroy(sound_class);
- }
- 
+--------------------------------------------------------
 
+First panic output:
+
+NMI Watchdog detected LOCKUP on CPU 1
+CPU 1
+Modules linked in: snd_rtctimer snd_seq snd_seq_device snd_pcm_oss
+snd_mixer_oss uhci_hcd sky2 generic snd_intel8x0 snd_ac97_codec
+snd_ac97_bus snd_pcm snd_timer snd snd_page_alloc ohci_hcd i2c_nforce2
+xt_tcpudp iptable_filter ip_tables x_tables it87 hwmon_vid eeprom
+i2c_isa ehci_hcd
+Pid: 5252, comm: sshd Not tainted 2.6.17.8 #3
+RIP: 0010:[<ffffffff804f66b3>] <ffffffff804f66b3>{_spin_lock_irqsave+88}
+RSP: 0018:ffff81012fca3e88  EFLAGS: 00000002
+RAX: 0000000000000000 RBX: ffffffff805b1c00 RCX: 00000000ffffffea
+RDX: 0000000000000000 RSI: 0000000000007006 RDI: 0000000000000001
+RBP: ffffffff880bae10 R08: ffff81012f384968 R09: 000000000000000e
+R10: 0000000000000000 R11: ffffffff8048969f R12: 0000000000000000
+R13: 0000000000000008 R14: ffff81012481b9a8 R15: 00000000000ee6b2
+FS:  00002b995387d160(0000) GS:ffff81012fc343c0(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00000000008993c0 CR3: 0000000125402000 CR4: 00000000000006e0
+Process sshd (pid: 5252, threadinfo ffff81012481a000, task ffff81012f002940)
+Stack: 0000000000007006 0000000000000017 0000000000007006 ffffffff8038c9ed
+       0000000000000001 ffff81012f384800 0000000000000000 ffffffff880ba0ee
+       ffff81012f384968 ffffffff88042fb2
+Call Trace: <IRQ> <ffffffff8038c9ed>{rtc_control+56}
+       <ffffffff880ba0ee>{:snd_rtctimer:rtctimer_stop+70}
+<ffffffff88042fb2>{:snd_timer:snd_timer_interrupt+472}
+       <ffffffff8038b7aa>{rtc_interrupt+178}
+<ffffffff80246068>{handle_IRQ_event+41}
+       <ffffffff80246134>{__do_IRQ+155} <ffffffff8020c6e3>{do_IRQ+48}
+       <ffffffff80209e1e>{ret_from_intr+0} <EOI> <ffffffff8048969f>{tcp_poll+0}
+       <ffffffff803808c7>{normal_poll+0} <ffffffff803808e7>{normal_poll+32}
+       <ffffffff804f5b7c>{schedule_timeout+30} <ffffffff8037b747>{tty_poll+84}
+       <ffffffff8027693b>{do_select+641} <ffffffff802765dd>{__pollwait+0}
+       <ffffffff80224967>{default_wake_function+0}
+<ffffffff80224967>{default_wake_function+0}
+       <ffffffff80224967>{default_wake_function+0}
+<ffffffff80224967>{default_wake_function+0}
+       <ffffffff80224967>{default_wake_function+0}
+<ffffffff80224967>{default_wake_function+0}
+       <ffffffff80224967>{default_wake_function+0}
+<ffffffff80224967>{default_wake_function+0}
+       <ffffffff80224967>{default_wake_function+0}
+<ffffffff80224967>{default_wake_function+0}
+       <ffffffff80276dda>{sys_select+755} <ffffffff80265222>{do_sync_write+201}
+       <ffffffff8023c21e>{autoremove_wake_function+0}
+<ffffffff8037ae6d>{tty_ldisc_deref+102}
+       <ffffffff804f6a2c>{_spin_unlock_irqrestore+21}
+<ffffffff8026545d>{sys_write+69}
+       <ffffffff80209902>{system_call+126}
+
+Code: 85 c0 7f aa 83 7b 04 00 74 a4 f3 90 eb f0 c7 43 04 00 00 00
+console shuts up ...
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+
+----------------------------------------------------
+
+Second panic output:
+
+NMI Watchdog detected LOCKUP on CPU 1
+CPU 1
+Modules linked in: snd_rtctimer snd_seq snd_seq_device snd_pcm_oss
+snd_mixer_oss uhci_hcd sky2 generic snd_intel8x0 snd_ac97_codec
+snd_ac97_bus snd_pcm snd_timer snd snd_page_alloc ohci_hcd i2c_nforce2
+xt_tcpudp iptable_filter ip_tables x_tables it87 hwmon_vid eeprom
+i2c_isa ehci_hcd
+Pid: 5072, comm: rosegarden Not tainted 2.6.17.8 #4
+RIP: 0010:[<ffffffff804f62c1>] <ffffffff804f62c1>{_spin_lock_irqsave+86}
+RSP: 0000:ffff81012fca3e88  EFLAGS: 00000002
+RAX: 0000000000000000 RBX: ffffffff805b1bc0 RCX: 00000000ffffffea
+RDX: 0000000000000000 RSI: 0000000000007006 RDI: 0000000000000001
+RBP: ffffffff880bae10 R08: ffff81012e5a6968 R09: 0000000001322098
+R10: 0000000000000000 R11: 00002b7d2b85d880 R12: 0000000000000000
+R13: 0000000000000008 R14: ffff81012372bf58 R15: 00000000000ee6b2
+FS:  00002b7d2ab99b60(0000) GS:ffff81012fc343c0(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00002b7d2b85d000 CR3: 0000000123bae000 CR4: 00000000000006e0
+Process rosegarden (pid: 5072, threadinfo ffff81012372a000, task
+ffff81012fcf4280)
+Stack: 0000000000007006 0000000000000017 0000000000007006 ffffffff8038c34d
+       0000000000000001 ffff81012e5a6800 0000000000000000 ffffffff880ba0ee
+       ffff81012e5a6968 ffffffff88042fb2
+Call Trace: <IRQ> <ffffffff8038c34d>{rtc_control+56}
+       <ffffffff880ba0ee>{:snd_rtctimer:rtctimer_stop+70}
+<ffffffff88042fb2>{:snd_timer:snd_timer_interrupt+472}
+       <ffffffff8038b4d6>{rtc_interrupt+153}
+<ffffffff80245d08>{handle_IRQ_event+41}
+       <ffffffff80245dd4>{__do_IRQ+155} <ffffffff8020c6e3>{do_IRQ+48}
+       <ffffffff80209e1e>{ret_from_intr+0} <EOI>
+
+Code: 8b 03 85 c0 7f aa 83 7b 04 00 74 a4 f3 90 eb f0 c7 43 04 00
+console shuts up ...
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+
+-----------------------------------------------------------------
+
+my .config file:
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.17.8
+# Mon Aug 14 19:49:12 2006
+#
+CONFIG_X86_64=y
+CONFIG_64BIT=y
+CONFIG_X86=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_MMU=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+# CONFIG_AUDIT is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+# CONFIG_CPUSETS is not set
+# CONFIG_RELAY is not set
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_VM86=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_ALL is not set
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+# CONFIG_SLOB is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+# CONFIG_MODVERSIONS is not set
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+
+#
+# Block layer
+#
+CONFIG_LBD=y
+# CONFIG_BLK_DEV_IO_TRACE is not set
+# CONFIG_LSF is not set
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+# CONFIG_IOSCHED_AS is not set
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+# CONFIG_DEFAULT_AS is not set
+CONFIG_DEFAULT_DEADLINE=y
+# CONFIG_DEFAULT_CFQ is not set
+# CONFIG_DEFAULT_NOOP is not set
+CONFIG_DEFAULT_IOSCHED="deadline"
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_VSMP is not set
+CONFIG_MK8=y
+# CONFIG_MPSC is not set
+# CONFIG_GENERIC_CPU is not set
+CONFIG_X86_L1_CACHE_BYTES=64
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_INTERNODE_CACHE_BYTES=64
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+# CONFIG_MICROCODE is not set
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+# CONFIG_SCHED_SMT is not set
+CONFIG_SCHED_MC=y
+# CONFIG_PREEMPT_NONE is not set
+# CONFIG_PREEMPT_VOLUNTARY is not set
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+# CONFIG_NUMA is not set
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+# CONFIG_SPARSEMEM_MANUAL is not set
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+# CONFIG_SPARSEMEM_STATIC is not set
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_NR_CPUS=2
+# CONFIG_HOTPLUG_CPU is not set
+CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_GART_IOMMU=y
+CONFIG_SWIOTLB=y
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_INTEL is not set
+CONFIG_X86_MCE_AMD=y
+# CONFIG_KEXEC is not set
+# CONFIG_CRASH_DUMP is not set
+CONFIG_PHYSICAL_START=0x200000
+CONFIG_SECCOMP=y
+# CONFIG_HZ_100 is not set
+CONFIG_HZ_250=y
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=250
+# CONFIG_REORDER is not set
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_ISA_DMA_API=y
+CONFIG_GENERIC_PENDING_IRQ=y
+
+#
+# Power management options
+#
+CONFIG_PM=y
+CONFIG_PM_LEGACY=y
+# CONFIG_PM_DEBUG is not set
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+CONFIG_ACPI=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=y
+# CONFIG_ACPI_HOTKEY is not set
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+# CONFIG_ACPI_ASUS is not set
+# CONFIG_ACPI_IBM is not set
+# CONFIG_ACPI_TOSHIBA is not set
+CONFIG_ACPI_BLACKLIST_YEAR=0
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+# CONFIG_ACPI_CONTAINER is not set
+# CONFIG_ACPI_HOTPLUG_MEMORY is not set
+
+#
+# CPU Frequency scaling
+#
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=y
+# CONFIG_CPU_FREQ_DEBUG is not set
+CONFIG_CPU_FREQ_STAT=y
+# CONFIG_CPU_FREQ_STAT_DETAILS is not set
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+# CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set
+# CONFIG_CPU_FREQ_GOV_USERSPACE is not set
+# CONFIG_CPU_FREQ_GOV_ONDEMAND is not set
+# CONFIG_CPU_FREQ_GOV_CONSERVATIVE is not set
+
+#
+# CPUFreq processor drivers
+#
+# CONFIG_X86_POWERNOW_K8 is not set
+# CONFIG_X86_SPEEDSTEP_CENTRINO is not set
+# CONFIG_X86_ACPI_CPUFREQ is not set
+
+#
+# shared options
+#
+# CONFIG_X86_SPEEDSTEP_LIB is not set
+
+#
+# Bus options (PCI etc.)
+#
+CONFIG_PCI=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_PCI_MMCONFIG is not set
+CONFIG_PCIEPORTBUS=y
+CONFIG_PCI_MSI=y
+# CONFIG_PCI_DEBUG is not set
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+# CONFIG_PCCARD is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+
+#
+# Executable file formats / Emulations
+#
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_MISC is not set
+CONFIG_IA32_EMULATION=y
+CONFIG_IA32_AOUT=y
+CONFIG_COMPAT=y
+CONFIG_SYSVIPC_COMPAT=y
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+# CONFIG_NETDEBUG is not set
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+# CONFIG_XFRM_USER is not set
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_FIB_HASH=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+# CONFIG_NET_IPGRE_BROADCAST is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+# CONFIG_SYN_COOKIES is not set
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET_XFRM_TUNNEL=y
+CONFIG_INET_TUNNEL=y
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+# CONFIG_TCP_CONG_ADVANCED is not set
+CONFIG_TCP_CONG_BIC=y
+
+#
+# IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+CONFIG_IPV6=y
+# CONFIG_IPV6_PRIVACY is not set
+# CONFIG_IPV6_ROUTER_PREF is not set
+# CONFIG_INET6_AH is not set
+# CONFIG_INET6_ESP is not set
+# CONFIG_INET6_IPCOMP is not set
+# CONFIG_INET6_XFRM_TUNNEL is not set
+# CONFIG_INET6_TUNNEL is not set
+# CONFIG_IPV6_TUNNEL is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# Core Netfilter Configuration
+#
+CONFIG_NETFILTER_NETLINK=m
+# CONFIG_NETFILTER_NETLINK_QUEUE is not set
+# CONFIG_NETFILTER_NETLINK_LOG is not set
+CONFIG_NETFILTER_XTABLES=m
+# CONFIG_NETFILTER_XT_TARGET_CLASSIFY is not set
+# CONFIG_NETFILTER_XT_TARGET_MARK is not set
+# CONFIG_NETFILTER_XT_TARGET_NFQUEUE is not set
+# CONFIG_NETFILTER_XT_TARGET_NOTRACK is not set
+# CONFIG_NETFILTER_XT_MATCH_COMMENT is not set
+# CONFIG_NETFILTER_XT_MATCH_CONNTRACK is not set
+# CONFIG_NETFILTER_XT_MATCH_DCCP is not set
+# CONFIG_NETFILTER_XT_MATCH_ESP is not set
+# CONFIG_NETFILTER_XT_MATCH_HELPER is not set
+# CONFIG_NETFILTER_XT_MATCH_LENGTH is not set
+# CONFIG_NETFILTER_XT_MATCH_LIMIT is not set
+# CONFIG_NETFILTER_XT_MATCH_MAC is not set
+# CONFIG_NETFILTER_XT_MATCH_MARK is not set
+# CONFIG_NETFILTER_XT_MATCH_POLICY is not set
+# CONFIG_NETFILTER_XT_MATCH_MULTIPORT is not set
+# CONFIG_NETFILTER_XT_MATCH_PKTTYPE is not set
+# CONFIG_NETFILTER_XT_MATCH_REALM is not set
+# CONFIG_NETFILTER_XT_MATCH_SCTP is not set
+# CONFIG_NETFILTER_XT_MATCH_STATE is not set
+# CONFIG_NETFILTER_XT_MATCH_STRING is not set
+# CONFIG_NETFILTER_XT_MATCH_TCPMSS is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=y
+# CONFIG_IP_NF_CT_ACCT is not set
+# CONFIG_IP_NF_CONNTRACK_MARK is not set
+# CONFIG_IP_NF_CONNTRACK_EVENTS is not set
+# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+# CONFIG_IP_NF_FTP is not set
+# CONFIG_IP_NF_IRC is not set
+# CONFIG_IP_NF_NETBIOS_NS is not set
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+# CONFIG_IP_NF_PPTP is not set
+# CONFIG_IP_NF_H323 is not set
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+# CONFIG_IP_NF_MATCH_TOS is not set
+# CONFIG_IP_NF_MATCH_RECENT is not set
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+# CONFIG_IP_NF_MATCH_AH is not set
+# CONFIG_IP_NF_MATCH_TTL is not set
+# CONFIG_IP_NF_MATCH_OWNER is not set
+# CONFIG_IP_NF_MATCH_ADDRTYPE is not set
+# CONFIG_IP_NF_MATCH_HASHLIMIT is not set
+CONFIG_IP_NF_FILTER=m
+# CONFIG_IP_NF_TARGET_REJECT is not set
+# CONFIG_IP_NF_TARGET_LOG is not set
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_NAT is not set
+# CONFIG_IP_NF_MANGLE is not set
+CONFIG_IP_NF_RAW=m
+# CONFIG_IP_NF_ARPTABLES is not set
+
+#
+# IPv6: Netfilter Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP6_NF_QUEUE is not set
+# CONFIG_IP6_NF_IPTABLES is not set
+
+#
+# DCCP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_DCCP is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_SCTP is not set
+
+#
+# TIPC Configuration (EXPERIMENTAL)
+#
+# CONFIG_TIPC is not set
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+CONFIG_LLC=m
+# CONFIG_LLC2 is not set
+CONFIG_IPX=m
+# CONFIG_IPX_INTERN is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+# CONFIG_HAMRADIO is not set
+# CONFIG_IRDA is not set
+# CONFIG_BT is not set
+# CONFIG_IEEE80211 is not set
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=y
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+# CONFIG_CONNECTOR is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_SX8 is not set
+# CONFIG_BLK_DEV_UB is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_CDROM_PKTCDVD=y
+CONFIG_CDROM_PKTCDVD_BUFFERS=8
+# CONFIG_CDROM_PKTCDVD_WCACHE is not set
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=y
+# CONFIG_BLK_DEV_CMD640 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=m
+CONFIG_BLK_DEV_OPTI621=m
+CONFIG_BLK_DEV_RZ1000=m
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_AEC62XX=m
+CONFIG_BLK_DEV_ALI15X3=m
+# CONFIG_WDC_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_ATIIXP=m
+CONFIG_BLK_DEV_CMD64X=m
+CONFIG_BLK_DEV_TRIFLEX=m
+CONFIG_BLK_DEV_CY82C693=m
+CONFIG_BLK_DEV_CS5520=m
+CONFIG_BLK_DEV_CS5530=m
+CONFIG_BLK_DEV_HPT34X=m
+# CONFIG_HPT34X_AUTODMA is not set
+CONFIG_BLK_DEV_HPT366=m
+CONFIG_BLK_DEV_SC1200=m
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_IT821X is not set
+CONFIG_BLK_DEV_NS87415=m
+CONFIG_BLK_DEV_PDC202XX_OLD=m
+# CONFIG_PDC202XX_BURST is not set
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_SVWKS=m
+CONFIG_BLK_DEV_SIIMAGE=y
+CONFIG_BLK_DEV_SIS5513=m
+CONFIG_BLK_DEV_SLC90E66=m
+CONFIG_BLK_DEV_TRM290=m
+CONFIG_BLK_DEV_VIA82CXXX=m
+# CONFIG_IDE_ARM is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+# CONFIG_RAID_ATTRS is not set
+CONFIG_SCSI=y
+# CONFIG_SCSI_PROC_FS is not set
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+# CONFIG_CHR_DEV_ST is not set
+# CONFIG_CHR_DEV_OSST is not set
+# CONFIG_BLK_DEV_SR is not set
+CONFIG_CHR_DEV_SG=y
+# CONFIG_CHR_DEV_SCH is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=y
+# CONFIG_SCSI_CONSTANTS is not set
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI Transport Attributes
+#
+# CONFIG_SCSI_SPI_ATTRS is not set
+# CONFIG_SCSI_FC_ATTRS is not set
+# CONFIG_SCSI_ISCSI_ATTRS is not set
+# CONFIG_SCSI_SAS_ATTRS is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_ISCSI_TCP is not set
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_3W_9XXX is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_MEGARAID_NEWGEN is not set
+# CONFIG_MEGARAID_LEGACY is not set
+# CONFIG_MEGARAID_SAS is not set
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_SATA_AHCI=m
+CONFIG_SCSI_SATA_SVW=m
+CONFIG_SCSI_ATA_PIIX=y
+# CONFIG_SCSI_SATA_MV is not set
+CONFIG_SCSI_SATA_NV=y
+# CONFIG_SCSI_PDC_ADMA is not set
+CONFIG_SCSI_SATA_QSTOR=m
+CONFIG_SCSI_SATA_PROMISE=m
+CONFIG_SCSI_SATA_SX4=m
+CONFIG_SCSI_SATA_SIL=y
+# CONFIG_SCSI_SATA_SIL24 is not set
+CONFIG_SCSI_SATA_SIS=m
+CONFIG_SCSI_SATA_ULI=m
+CONFIG_SCSI_SATA_VIA=m
+CONFIG_SCSI_SATA_VITESSE=m
+CONFIG_SCSI_SATA_INTEL_COMBINED=y
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_IPR is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_QLA_FC is not set
+# CONFIG_SCSI_LPFC is not set
+# CONFIG_SCSI_DC395x is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_SPI is not set
+# CONFIG_FUSION_FC is not set
+# CONFIG_FUSION_SAS is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+CONFIG_IEEE1394=y
+
+#
+# Subsystem Options
+#
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
+# CONFIG_IEEE1394_OUI_DB is not set
+# CONFIG_IEEE1394_EXTRA_CONFIG_ROMS is not set
+# CONFIG_IEEE1394_EXPORT_FULL_API is not set
+
+#
+# Device Drivers
+#
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+
+#
+# Protocol Drivers
+#
+CONFIG_IEEE1394_VIDEO1394=y
+CONFIG_IEEE1394_SBP2=y
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+# CONFIG_IEEE1394_ETH1394 is not set
+CONFIG_IEEE1394_DV1394=y
+CONFIG_IEEE1394_RAWIO=y
+
+#
+# I2O device support
+#
+CONFIG_I2O=m
+CONFIG_I2O_LCT_NOTIFY_ON_CHANGES=y
+CONFIG_I2O_EXT_ADAPTEC=y
+CONFIG_I2O_EXT_ADAPTEC_DMA64=y
+CONFIG_I2O_CONFIG=m
+CONFIG_I2O_CONFIG_OLD_IOCTL=y
+CONFIG_I2O_BUS=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+CONFIG_TUN=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# PHY device support
+#
+# CONFIG_PHYLIB is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_CASSINI is not set
+# CONFIG_NET_VENDOR_3COM is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_HP100 is not set
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+CONFIG_AMD8111_ETH=m
+# CONFIG_AMD8111E_NAPI is not set
+CONFIG_ADAPTEC_STARFIRE=m
+# CONFIG_ADAPTEC_STARFIRE_NAPI is not set
+CONFIG_B44=m
+CONFIG_FORCEDETH=y
+CONFIG_DGRS=m
+CONFIG_EEPRO100=m
+CONFIG_E100=m
+CONFIG_FEALNX=m
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+CONFIG_8139CP=y
+CONFIG_8139TOO=y
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+# CONFIG_8139_OLD_RX_RESET is not set
+CONFIG_SIS900=m
+CONFIG_EPIC100=m
+CONFIG_SUNDANCE=m
+# CONFIG_SUNDANCE_MMIO is not set
+CONFIG_VIA_RHINE=m
+# CONFIG_VIA_RHINE_MMIO is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+CONFIG_ACENIC=m
+# CONFIG_ACENIC_OMIT_TIGON_I is not set
+CONFIG_DL2K=m
+CONFIG_E1000=y
+# CONFIG_E1000_NAPI is not set
+# CONFIG_E1000_DISABLE_PACKET_SPLIT is not set
+CONFIG_NS83820=m
+CONFIG_HAMACHI=m
+CONFIG_YELLOWFIN=m
+CONFIG_R8169=m
+# CONFIG_R8169_NAPI is not set
+CONFIG_SIS190=m
+CONFIG_SKGE=m
+CONFIG_SKY2=m
+CONFIG_SK98LIN=y
+CONFIG_VIA_VELOCITY=m
+CONFIG_TIGON3=y
+CONFIG_BNX2=m
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_CHELSIO_T1 is not set
+# CONFIG_IXGB is not set
+CONFIG_S2IO=m
+# CONFIG_S2IO_NAPI is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+# CONFIG_NET_FC is not set
+# CONFIG_SHAPER is not set
+CONFIG_NETCONSOLE=y
+CONFIG_NETPOLL=y
+# CONFIG_NETPOLL_RX is not set
+# CONFIG_NETPOLL_TRAP is not set
+CONFIG_NET_POLL_CONTROLLER=y
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=y
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_VSXXXAA is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PCIPS2 is not set
+CONFIG_SERIO_LIBPS2=y
+# CONFIG_SERIO_RAW is not set
+# CONFIG_GAMEPORT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_PCI=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=4
+# CONFIG_SERIAL_8250_EXTENDED is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+# CONFIG_SERIAL_JSM is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+CONFIG_HW_RANDOM=y
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=y
+CONFIG_AGP_INTEL=y
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_VIA is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+CONFIG_RAW_DRIVER=y
+CONFIG_MAX_RAW_DEVS=256
+# CONFIG_HPET is not set
+CONFIG_HANGCHECK_TIMER=y
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+# CONFIG_TELCLOCK is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=m
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ALGOPCA=m
+
+#
+# I2C Hardware Bus support
+#
+CONFIG_I2C_ALI1535=m
+CONFIG_I2C_ALI1563=m
+CONFIG_I2C_ALI15X3=m
+CONFIG_I2C_AMD756=m
+CONFIG_I2C_AMD756_S4882=m
+CONFIG_I2C_AMD8111=m
+CONFIG_I2C_I801=m
+CONFIG_I2C_I810=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_NFORCE2=m
+CONFIG_I2C_PARPORT_LIGHT=m
+CONFIG_I2C_PROSAVAGE=m
+CONFIG_I2C_SAVAGE4=m
+CONFIG_I2C_SIS5595=m
+CONFIG_I2C_SIS630=m
+CONFIG_I2C_SIS96X=m
+CONFIG_I2C_STUB=m
+CONFIG_I2C_VIA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_VOODOO3=m
+CONFIG_I2C_PCA_ISA=m
+
+#
+# Miscellaneous I2C Chip support
+#
+# CONFIG_SENSORS_DS1337 is not set
+# CONFIG_SENSORS_DS1374 is not set
+CONFIG_SENSORS_EEPROM=m
+# CONFIG_SENSORS_PCF8574 is not set
+# CONFIG_SENSORS_PCA9539 is not set
+# CONFIG_SENSORS_PCF8591 is not set
+# CONFIG_SENSORS_MAX6875 is not set
+# CONFIG_I2C_DEBUG_CORE is not set
+# CONFIG_I2C_DEBUG_ALGO is not set
+# CONFIG_I2C_DEBUG_BUS is not set
+# CONFIG_I2C_DEBUG_CHIP is not set
+
+#
+# SPI support
+#
+# CONFIG_SPI is not set
+# CONFIG_SPI_MASTER is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# Hardware Monitoring support
+#
+CONFIG_HWMON=y
+CONFIG_HWMON_VID=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_ADM1025=m
+CONFIG_SENSORS_ADM1026=m
+CONFIG_SENSORS_ADM1031=m
+# CONFIG_SENSORS_ADM9240 is not set
+CONFIG_SENSORS_ASB100=m
+# CONFIG_SENSORS_ATXP1 is not set
+CONFIG_SENSORS_DS1621=m
+# CONFIG_SENSORS_F71805F is not set
+CONFIG_SENSORS_FSCHER=m
+CONFIG_SENSORS_FSCPOS=m
+CONFIG_SENSORS_GL518SM=m
+CONFIG_SENSORS_GL520SM=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM63=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM77=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_LM87=m
+CONFIG_SENSORS_LM90=m
+CONFIG_SENSORS_LM92=m
+CONFIG_SENSORS_MAX1619=m
+CONFIG_SENSORS_PC87360=m
+CONFIG_SENSORS_SIS5595=m
+CONFIG_SENSORS_SMSC47M1=m
+CONFIG_SENSORS_SMSC47B397=m
+CONFIG_SENSORS_VIA686A=m
+# CONFIG_SENSORS_VT8231 is not set
+CONFIG_SENSORS_W83781D=m
+# CONFIG_SENSORS_W83792D is not set
+CONFIG_SENSORS_W83L785TS=m
+CONFIG_SENSORS_W83627HF=m
+# CONFIG_SENSORS_W83627EHF is not set
+# CONFIG_SENSORS_HDAPS is not set
+# CONFIG_HWMON_DEBUG_CHIP is not set
+
+#
+# Misc devices
+#
+# CONFIG_IBM_ASM is not set
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_V4L1=y
+CONFIG_VIDEO_V4L1_COMPAT=y
+CONFIG_VIDEO_V4L2=y
+
+#
+# Video Capture Adapters
+#
+
+#
+# Video Capture Adapters
+#
+# CONFIG_VIDEO_ADV_DEBUG is not set
+# CONFIG_VIDEO_VIVI is not set
+# CONFIG_VIDEO_BT848 is not set
+# CONFIG_VIDEO_CPIA is not set
+# CONFIG_VIDEO_CPIA2 is not set
+# CONFIG_VIDEO_SAA5246A is not set
+# CONFIG_VIDEO_SAA5249 is not set
+# CONFIG_TUNER_3036 is not set
+# CONFIG_VIDEO_STRADIS is not set
+# CONFIG_VIDEO_ZORAN is not set
+# CONFIG_VIDEO_SAA7134 is not set
+# CONFIG_VIDEO_MXB is not set
+# CONFIG_VIDEO_DPC is not set
+# CONFIG_VIDEO_HEXIUM_ORION is not set
+# CONFIG_VIDEO_HEXIUM_GEMINI is not set
+# CONFIG_VIDEO_CX88 is not set
+# CONFIG_VIDEO_OVCAMCHIP is not set
+
+#
+# Encoders and Decoders
+#
+# CONFIG_VIDEO_MSP3400 is not set
+# CONFIG_VIDEO_CS53L32A is not set
+# CONFIG_VIDEO_WM8775 is not set
+# CONFIG_VIDEO_WM8739 is not set
+# CONFIG_VIDEO_CX25840 is not set
+# CONFIG_VIDEO_SAA711X is not set
+# CONFIG_VIDEO_SAA7127 is not set
+# CONFIG_VIDEO_UPD64031A is not set
+# CONFIG_VIDEO_UPD64083 is not set
+
+#
+# V4L USB devices
+#
+# CONFIG_VIDEO_EM28XX is not set
+# CONFIG_USB_DSBR is not set
+# CONFIG_USB_VICAM is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_KONICAWC is not set
+# CONFIG_USB_ET61X251 is not set
+# CONFIG_USB_OV511 is not set
+# CONFIG_USB_SE401 is not set
+# CONFIG_USB_SN9C102 is not set
+# CONFIG_USB_STV680 is not set
+# CONFIG_USB_W9968CF is not set
+# CONFIG_USB_ZC0301 is not set
+# CONFIG_USB_PWC is not set
+
+#
+# Radio Adapters
+#
+# CONFIG_RADIO_GEMTEK_PCI is not set
+# CONFIG_RADIO_MAXIRADIO is not set
+# CONFIG_RADIO_MAESTRO is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+# CONFIG_USB_DABUSB is not set
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+CONFIG_VIDEO_SELECT=y
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VGACON_SOFT_SCROLLBACK is not set
+CONFIG_DUMMY_CONSOLE=y
+
+#
+# Sound
+#
+CONFIG_SOUND=y
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_SEQUENCER=m
+# CONFIG_SND_SEQ_DUMMY is not set
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_PCM_OSS_PLUGINS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_SEQ_RTCTIMER_DEFAULT=y
+# CONFIG_SND_DYNAMIC_MINORS is not set
+# CONFIG_SND_SUPPORT_OLD_API is not set
+# CONFIG_SND_VERBOSE_PROCFS is not set
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_DEBUG=y
+# CONFIG_SND_DEBUG_DETECT is not set
+
+#
+# Generic devices
+#
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_AC97_BUS=m
+# CONFIG_SND_DUMMY is not set
+# CONFIG_SND_VIRMIDI is not set
+# CONFIG_SND_MTPAV is not set
+# CONFIG_SND_SERIAL_U16550 is not set
+# CONFIG_SND_MPU401 is not set
+
+#
+# PCI devices
+#
+# CONFIG_SND_AD1889 is not set
+# CONFIG_SND_ALS300 is not set
+# CONFIG_SND_ALS4000 is not set
+# CONFIG_SND_ALI5451 is not set
+# CONFIG_SND_ATIIXP is not set
+# CONFIG_SND_ATIIXP_MODEM is not set
+# CONFIG_SND_AU8810 is not set
+# CONFIG_SND_AU8820 is not set
+# CONFIG_SND_AU8830 is not set
+# CONFIG_SND_AZT3328 is not set
+# CONFIG_SND_BT87X is not set
+# CONFIG_SND_CA0106 is not set
+# CONFIG_SND_CMIPCI is not set
+# CONFIG_SND_CS4281 is not set
+# CONFIG_SND_CS46XX is not set
+# CONFIG_SND_EMU10K1 is not set
+# CONFIG_SND_EMU10K1X is not set
+# CONFIG_SND_ENS1370 is not set
+# CONFIG_SND_ENS1371 is not set
+# CONFIG_SND_ES1938 is not set
+# CONFIG_SND_ES1968 is not set
+# CONFIG_SND_FM801 is not set
+# CONFIG_SND_HDA_INTEL is not set
+# CONFIG_SND_HDSP is not set
+# CONFIG_SND_HDSPM is not set
+# CONFIG_SND_ICE1712 is not set
+# CONFIG_SND_ICE1724 is not set
+CONFIG_SND_INTEL8X0=m
+# CONFIG_SND_INTEL8X0M is not set
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_MAESTRO3 is not set
+# CONFIG_SND_MIXART is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_PCXHR is not set
+# CONFIG_SND_RIPTIDE is not set
+# CONFIG_SND_RME32 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_SONICVIBES is not set
+# CONFIG_SND_TRIDENT is not set
+# CONFIG_SND_VIA82XX is not set
+# CONFIG_SND_VIA82XX_MODEM is not set
+# CONFIG_SND_VX222 is not set
+# CONFIG_SND_YMFPCI is not set
+
+#
+# USB devices
+#
+# CONFIG_SND_USB_AUDIO is not set
+# CONFIG_SND_USB_USX2Y is not set
+
+#
+# Open Sound System
+#
+# CONFIG_SOUND_PRIME is not set
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_SUSPEND is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=m
+# CONFIG_USB_EHCI_SPLIT_ISO is not set
+# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
+# CONFIG_USB_ISP116X_HCD is not set
+CONFIG_USB_OHCI_HCD=m
+# CONFIG_USB_OHCI_BIG_ENDIAN is not set
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_USB_UHCI_HCD=m
+# CONFIG_USB_SL811_HCD is not set
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_PRINTER is not set
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
+#
+
+#
+# may also be needed; see USB_STORAGE Help for more information
+#
+CONFIG_USB_STORAGE=y
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_USBAT is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_SDDR55 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_STORAGE_ALAUDA is not set
+# CONFIG_USB_LIBUSUAL is not set
+
+#
+# USB Input Devices
+#
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+# CONFIG_USB_HIDINPUT_POWERBOOK is not set
+# CONFIG_HID_FF is not set
+# CONFIG_USB_HIDDEV is not set
+# CONFIG_USB_AIPTEK is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_ACECAD is not set
+# CONFIG_USB_KBTAB is not set
+# CONFIG_USB_POWERMATE is not set
+# CONFIG_USB_TOUCHSCREEN is not set
+# CONFIG_USB_YEALINK is not set
+# CONFIG_USB_XPAD is not set
+# CONFIG_USB_ATI_REMOTE is not set
+# CONFIG_USB_ATI_REMOTE2 is not set
+# CONFIG_USB_KEYSPAN_REMOTE is not set
+# CONFIG_USB_APPLETOUCH is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_MICROTEK is not set
+
+#
+# USB Network Adapters
+#
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+CONFIG_USB_MON=y
+
+#
+# USB port drivers
+#
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_EMI62 is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_LEGOTOWER is not set
+# CONFIG_USB_LCD is not set
+# CONFIG_USB_LED is not set
+# CONFIG_USB_CYTHERM is not set
+# CONFIG_USB_PHIDGETKIT is not set
+# CONFIG_USB_PHIDGETSERVO is not set
+# CONFIG_USB_IDMOUSE is not set
+# CONFIG_USB_SISUSBVGA is not set
+# CONFIG_USB_LD is not set
+# CONFIG_USB_TEST is not set
+
+#
+# USB DSL modem support
+#
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# MMC/SD Card support
+#
+# CONFIG_MMC is not set
+
+#
+# LED devices
+#
+# CONFIG_NEW_LEDS is not set
+
+#
+# LED drivers
+#
+
+#
+# LED Triggers
+#
+
+#
+# InfiniBand support
+#
+# CONFIG_INFINIBAND is not set
+# CONFIG_IPATH_CORE is not set
+
+#
+# EDAC - error detection and reporting (RAS) (EXPERIMENTAL)
+#
+# CONFIG_EDAC is not set
+
+#
+# Real Time Clock
+#
+# CONFIG_RTC_CLASS is not set
+
+#
+# Firmware Drivers
+#
+# CONFIG_EDD is not set
+# CONFIG_DELL_RBU is not set
+# CONFIG_DCDBAS is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+# CONFIG_EXT2_FS_SECURITY is not set
+# CONFIG_EXT2_FS_XIP is not set
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+# CONFIG_EXT3_FS_SECURITY is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+CONFIG_REISERFS_FS_XATTR=y
+CONFIG_REISERFS_FS_POSIX_ACL=y
+# CONFIG_REISERFS_FS_SECURITY is not set
+# CONFIG_JFS_FS is not set
+CONFIG_FS_POSIX_ACL=y
+# CONFIG_XFS_FS is not set
+# CONFIG_OCFS2_FS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_INOTIFY=y
+# CONFIG_QUOTA is not set
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=y
+# CONFIG_AUTOFS4_FS is not set
+# CONFIG_FUSE_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_HUGETLBFS=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_RAMFS=y
+# CONFIG_CONFIGFS_FS is not set
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+CONFIG_HFS_FS=m
+CONFIG_HFSPLUS_FS=m
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V3_ACL is not set
+# CONFIG_NFS_V4 is not set
+# CONFIG_NFS_DIRECTIO is not set
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_V3_ACL is not set
+# CONFIG_NFSD_V4 is not set
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+# CONFIG_RPCSEC_GSS_KRB5 is not set
+# CONFIG_RPCSEC_GSS_SPKM3 is not set
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+# CONFIG_9P_FS is not set
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+# CONFIG_KARMA_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ASCII=y
+CONFIG_NLS_ISO8859_1=y
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+CONFIG_NLS_ISO8859_15=y
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=y
+
+#
+# Instrumentation Support
+#
+# CONFIG_PROFILING is not set
+# CONFIG_KPROBES is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_PRINTK_TIME is not set
+# CONFIG_MAGIC_SYSRQ is not set
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_DETECT_SOFTLOCKUP=y
+# CONFIG_SCHEDSTATS is not set
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_DEBUG_PREEMPT=y
+# CONFIG_DEBUG_MUTEXES is not set
+CONFIG_DEBUG_SPINLOCK=y
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_INFO=y
+# CONFIG_DEBUG_FS is not set
+# CONFIG_DEBUG_VM is not set
+# CONFIG_FRAME_POINTER is not set
+# CONFIG_UNWIND_INFO is not set
+CONFIG_FORCED_INLINING=y
+# CONFIG_RCU_TORTURE_TEST is not set
+# CONFIG_DEBUG_RODATA is not set
+# CONFIG_IOMMU_DEBUG is not set
+
+#
+# Security options
+#
+# CONFIG_KEYS is not set
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+# CONFIG_CRYPTO_NULL is not set
+# CONFIG_CRYPTO_MD4 is not set
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+# CONFIG_CRYPTO_SHA256 is not set
+# CONFIG_CRYPTO_SHA512 is not set
+# CONFIG_CRYPTO_WP512 is not set
+# CONFIG_CRYPTO_TGR192 is not set
+CONFIG_CRYPTO_DES=y
+# CONFIG_CRYPTO_BLOWFISH is not set
+# CONFIG_CRYPTO_TWOFISH is not set
+# CONFIG_CRYPTO_SERPENT is not set
+# CONFIG_CRYPTO_AES is not set
+# CONFIG_CRYPTO_AES_X86_64 is not set
+# CONFIG_CRYPTO_CAST5 is not set
+# CONFIG_CRYPTO_CAST6 is not set
+# CONFIG_CRYPTO_TEA is not set
+# CONFIG_CRYPTO_ARC4 is not set
+# CONFIG_CRYPTO_KHAZAD is not set
+# CONFIG_CRYPTO_ANUBIS is not set
+CONFIG_CRYPTO_DEFLATE=y
+# CONFIG_CRYPTO_MICHAEL_MIC is not set
+# CONFIG_CRYPTO_CRC32C is not set
+# CONFIG_CRYPTO_TEST is not set
+
+#
+# Hardware crypto devices
+#
+
+#
+# Library routines
+#
+CONFIG_CRC_CCITT=m
+# CONFIG_CRC16 is not set
+CONFIG_CRC32=y
+# CONFIG_LIBCRC32C is not set
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+
+
+
+
+
+On 7/27/06, Takashi Iwai <tiwai@suse.de> wrote:
+> At Tue, 25 Jul 2006 17:39:44 -0700,
+> Nathan Becker wrote:
+> >
+> > Thanks for the quick reply.  The error message is "Kernel panic - not
+> > syncing: Aiee, killing interrupt handler!"
+> >
+> > To get the crash, I used Rosegarden to try to play a MIDI file.
+> > Sometimes the crash happens upon loading a file and sometimes it
+> > happens after I try to play it.
+> >
+> > I tried disabling CONFIG_SND_RTCTIMER and I think that the kernel
+> > panic has stopped.  I have tested it several times and rebooted a
+> > couple of times and there was no crash.  I'm not 100% certain though
+> > because this problem has been slightly intermitent, although usually
+> > easily reproducible.
+>
+> So, this looks like a bug around rtc and ALSA timer.  Or, possibly
+> HPET.
+>
+> > I'm pasting my kernel config below.  Could this just be a problem with
+> > my settings? Should I try to hook up a serial console to get more
+> > details out of the panic?  When I have some free time I could try that
+> > if it might help you.
+>
+> Thanks.
+>
+> Could you try once without HPET support, just to be sure?
+> Anyway, it'd be appreciated if you can get the full log at panic.
+>
+>
+> Takashi
+>

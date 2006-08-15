@@ -1,82 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWHOS0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWHOS2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030442AbWHOS0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWHOS0r
+	id S1030448AbWHOS2z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWHOS2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:26:47 -0400
-Received: from 1wt.eu ([62.212.114.60]:20239 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1030442AbWHOS0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:26:46 -0400
-Date: Tue, 15 Aug 2006 20:22:19 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Irfan Habib <irfan.habib@gmail.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Maximum number of processes in Linux
-Message-ID: <20060815182219.GL8776@1wt.eu>
-References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
-User-Agent: Mutt/1.5.11
+	Tue, 15 Aug 2006 14:28:55 -0400
+Received: from windsormachine.com ([216.8.138.2]:52183 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S1030448AbWHOS2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:28:54 -0400
+Date: Tue, 15 Aug 2006 14:28:51 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Carsten Otto <carsten.otto@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Daily crashes, incorrect RAID behaviour
+In-Reply-To: <13e988610608150831u18ed0e85s50fe3a865548a865@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0608151423200.25217@router.windsormachine.com>
+References: <13e988610608150436y6812f623p9919b2d5b1989427@mail.gmail.com>
+ <13e988610608150831u18ed0e85s50fe3a865548a865@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-scanner: Scanned by Xamime-LT 0.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 02:22:02PM -0400, linux-os (Dick Johnson) wrote:
-> 
-> On Tue, 15 Aug 2006, Irfan Habib wrote:
-> 
-> > Hi,
-> >
-> > What is the maximum number of process which can run simultaneously in
-> > linux? I need to create an application which requires 40,000 threads.
-> > I was testing with far fewer numbers than that, I was getting
-> > exceptions in pthread_create
-> >
-> > Regards
-> > Irfan
-> 
-> #include <stdio.h>
-> int main(){
->      unsigned long i;
-       ^^^^^^^^^^^^^^^^
+On Tue, 15 Aug 2006, Carsten Otto wrote:
 
->      while(fork() != -1)
->          i++;
->      printf("%u\n", i);
->      return 0;
-> }
-> $ gcc -o xxx xxx.c
-> $ ./xxx
-> 
-> 1251392833         <<---- At least this number
+> Okay, after Ralf's message I found this newsgroup post:
+> http://groups.google.de/group/linux.debian.user/msg/f12dec920523a629?hl=de&
+>
+>> You should be aware that currently
+>> Maxtor Maxline III's(7v300F0's) do not work properly due to a firmware
+>> bug.  The current version shipping is VA111630, an update is available to
+>> VA111670 which merely reduces the frequency of timeouts that get the drive
+>> kicked out from the array.
 
-Dick, would you please initialize your local variables when you send
-examples like this ? You should have been amazed by one billion processes
-on your box, at least.
+I'm running 680 now, and the 15 drives have been up for something like two 
+months or so without issues at all.. Seems like the firmware fixes the 
+problem.
 
-> 1251392834
-> 1251392834
-> 1251392834
-> 1251392834
-> 1251392833
-> 1251392833
-> 1251392834
-> 1251392834
-> 1251392834
-> ^C
-> $ killall xxx
-> 
-> BYW 40,000 threads? 40,000 tasks all sharing the same address space?
-> Hopefully this is just a training exercise to see if it's possible.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
-> New book: http://www.AbominableFirebug.com/
+Mike
 
-Regards,
-Willy

@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWHOS6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWHOTBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965124AbWHOS6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965226AbWHOS6j
+	id S1030290AbWHOTBM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWHOTBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:58:39 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12304 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965124AbWHOS6i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:58:38 -0400
-Date: Mon, 14 Aug 2006 20:13:00 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andi Kleen <ak@muc.de>, Dmitry Torokhov <dtor@insightbb.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Turn rdmsr, rdtsc into inline functions, clarify names
-Message-ID: <20060814201300.GA4032@ucw.cz>
-References: <1154771262.28257.38.camel@localhost.localdomain> <1154832963.29151.21.camel@localhost.localdomain> <20060806031643.GA43490@muc.de> <200608062243.45129.dtor@insightbb.com> <20060807084850.GA67713@muc.de> <20060807110931.GM27757@suse.cz> <20060807122845.GA85602@muc.de> <20060807124855.GB21003@suse.cz>
+	Tue, 15 Aug 2006 15:01:12 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:65251 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1030455AbWHOTBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 15:01:11 -0400
+Date: Tue, 15 Aug 2006 21:00:42 +0200
+From: Voluspa <lista1@comhem.se>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: lukesharkey@hotmail.co.uk, andi@rhlx01.fht-esslingen.de, davej@redhat.com,
+       gene.heskett@verizon.net, ian.stirling@mauve.plus.com,
+       linux-kernel@vger.kernel.org, malattia@linux.it
+Subject: Re: Touchpad problems with latest kernels
+Message-Id: <20060815210042.e0c12553.lista1@comhem.se>
+In-Reply-To: <d120d5000608151012y27c1ea2h4adda366112868a7@mail.gmail.com>
+References: <d120d5000608141227h7c707686i7db7eabba0e3a3ca@mail.gmail.com>
+	<BAY114-F2421131E2BFF6216D9A52BFA4F0@phx.gbl>
+	<20060815183310.284d03ae.lista1@comhem.se>
+	<d120d5000608151012y27c1ea2h4adda366112868a7@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.4.13; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060807124855.GB21003@suse.cz>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > > Would not preempt_disable fix that?
-> > > > 
-> > > > Partially, but you still have other problems. Please just get rid
-> > > > of it. Why do we have timer code in the kernel if you then chose
-> > > > not to use it?
-> > >  
-> > > The problem is that gettimeofday() is not always fast. 
-> > 
-> > When it is not fast that means it is not reliable and then you're
-> > also not well off using it anyways.
+On Tue, 15 Aug 2006 13:12:58 -0400 Dmitry Torokhov wrote:
+> On 8/15/06, Voluspa <lista1@comhem.se> wrote:
+> >
+> > Pointer freezing would be Dmitry's domain, but he'd have to work with
+> > someone who can trigger it easily, and who can write scripts to capture
+> > debug data, since it's 'hard' to move a frozen pointer to a terminal
+> > and issue commands...
+> >
 > 
-> I assume you wanted to say "When gettimeofday() is slow, it means TSC is
-> not reliable", which I agree with. 
-> 
-> But I need, in the driver, in the no-TSC case use i/o counting, not a
-> slow but reliable method. And I can't say, from outside the timing
-> subsystem, whether gettimeofday() is fast or slow.
+> The trick is to have a terminal open and then do alt-tab (presuming
+> that it does not unfreeze the pointer)...
 
-do gettimeofday(); gettimeofday(); gettimeofday();, then compare the
-result with gettimeofday(); inb(); gettimeofday(); ?
+Yeah :-) Hitting send a bit too quickly there... But still, from what I
+saw of the freezes, they are in the region of 5 to 10 seconds, so
+having a prepared script ready (maybe even tied to a key-combo) would
+ensure success and ease the stress.
 
-						Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Mvh
+Mats Johannesson

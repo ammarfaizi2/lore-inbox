@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWHOTxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWHOUWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWHOTxj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWHOTxj
+	id S1750812AbWHOUWd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 16:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWHOUWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:53:39 -0400
-Received: from mail.everytruckjob.com ([198.87.235.158]:47584 "EHLO
-	mail.everytruckjob.com") by vger.kernel.org with ESMTP
-	id S932401AbWHOTxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:53:38 -0400
-Message-ID: <44E2263D.4010909@everytruckjob.com>
-Date: Tue, 15 Aug 2006 14:53:33 -0500
-From: Mark Reidenbach <m.reidenbach@everytruckjob.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling
- enabled
-References: <44E1F0CD.7000003@everytruckjob.com> <20060815180634.GB15957@s2.yuriev.com> <20060815181938.GK8776@1wt.eu>
-In-Reply-To: <20060815181938.GK8776@1wt.eu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 16:22:32 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:30875 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750812AbWHOUWc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 16:22:32 -0400
+Date: Tue, 15 Aug 2006 13:23:18 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Dipkanar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH] rcu: Add MODULE_AUTHOR to rcutorture module
+Message-ID: <20060815202318.GA1293@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1155601575.5557.30.camel@josh-work.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155601575.5557.30.camel@josh-work.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> He may very well have an IOS based 1600 or equivalent doing a very dirty NAT.
->
-> Willy
->
->   
-Willy, I am in fact running an IOS based NAT/firewall on a 1811.   It's 
-IOS version 12.3(8)YI1.  Do you know if this version has a "very dirty 
-NAT" implementation?   If you don't, I think I'll just try a few spare 
-home routers and see if their NAT implementation is cleaner than my Cisco's.
+On Mon, Aug 14, 2006 at 05:26:15PM -0700, Josh Triplett wrote:
 
-Mark Reidenbach
-EveryTruckJob.com
-M.Reidenbach@EveryTruckJob.com
-Phone: (205)722-9112
+Fair enough...
+
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Josh Triplett <josh@freedesktop.org>
+> ---
+>  kernel/rcutorture.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+> index 4d1c3d2..16b5899 100644
+> --- a/kernel/rcutorture.c
+> +++ b/kernel/rcutorture.c
+> @@ -46,6 +46,7 @@ #include <linux/byteorder/swabb.h>
+>  #include <linux/stat.h>
+>  
+>  MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Paul E. McKenney <paulmck@us.ibm.com>");
+>  
+>  static int nreaders = -1;	/* # reader threads, defaults to 4*ncpus */
+>  static int stat_interval;	/* Interval between stats, in seconds. */
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

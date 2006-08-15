@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965336AbWHOJjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965339AbWHOJl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965336AbWHOJjc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965338AbWHOJjb
+	id S965339AbWHOJl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965337AbWHOJl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:39:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39690 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965336AbWHOJja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:39:30 -0400
-Date: Tue, 15 Aug 2006 11:39:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [-mm patch] cleanup drivers/ata/Kconfig
-Message-ID: <20060815093929.GL3543@stusta.de>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060813210106.GO3543@stusta.de> <20060815075144.GA31109@kroah.com>
+	Tue, 15 Aug 2006 05:41:57 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:436 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S965237AbWHOJl5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 05:41:57 -0400
+Message-ID: <44E196B7.6060305@nachtwindheim.de>
+Date: Tue, 15 Aug 2006 11:41:11 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060815075144.GA31109@kroah.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: akpm@osdl.org, jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [NET] [VELOCITY] remove an unused function from the header
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 12:51:44AM -0700, Greg KH wrote:
-> On Sun, Aug 13, 2006 at 11:01:06PM +0200, Adrian Bunk wrote:
-> > On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
-> > >...
-> > > Changes since 2.6.18-rc3-mm2:
-> > >...
-> > >  git-libata-all.patch
-> > >...
-> > >  git trees
-> > >...
-> > 
-> > This patch contains the following cleanups:
-> > - create a menu for ATA
-> > - replace the dependencies on ATA with an "if ATA"
-> 
-> Why do this?  Are we going to be doing this for all subsystems?
-> 
-> It seems like a bit of unnecessary churn to me...
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-The following two are exactly equivalent:
+Removes an unused function from the via-velocity-driver.
+It doesn't make the binary smaller, but the source cleaner.
 
-<--  snip  -->
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-tristate BAR1 "bar1"
-	depends on FOO
+---
 
-tristate BAR2 "bar2"
-	depends on FOO
+--- linux-2.6.18-rc2-git6/drivers/net/via-velocity.h	2006-07-30 23:25:59.000000000 +0200
++++ linux/drivers/net/via-velocity.h	2006-08-07 15:24:54.000000000 +0200
+@@ -262,25 +262,6 @@
+ 	dma_addr_t skb_dma;
+ };
+ 
+-/**
+- *	alloc_rd_info		-	allocate an rd info block
+- *
+- *	Alocate and initialize a receive info structure used for keeping
+- *	track of kernel side information related to each receive
+- *	descriptor we are using
+- */
+-
+-static inline struct velocity_rd_info *alloc_rd_info(void)
+-{
+-	struct velocity_rd_info *ptr;
+-	if ((ptr = kmalloc(sizeof(struct velocity_rd_info), GFP_ATOMIC)) == NULL)
+-		return NULL;
+-	else {
+-		memset(ptr, 0, sizeof(struct velocity_rd_info));
+-		return ptr;
+-	}
+-}
+-
+ /*
+  *	Used to track transmit side buffers.
+  */
 
-<--  snip  -->
-
-if FOO
-
-tristate BAR1 "bar1"
-
-tristate BAR2 "bar2"
-
-endif
-
-<--  snip  -->
-
-I'd say the latter is a bit better, but there's no reason to convert all 
-subsystems since the two forms are equivalent.
-
-In this case, I was looking for a way to fix the breakage of the ATA 
-menu indentation due to SATA_INTEL_COMBINED, and this is the solution I 
-did choose.
-
-> thanks,
-> 
-> greg k-h
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

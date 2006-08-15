@@ -1,63 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbWHOTPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWHOTS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbWHOTPv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030472AbWHOTPv
+	id S965172AbWHOTS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbWHOTS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:15:51 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:42177 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030471AbWHOTPu (ORCPT
+	Tue, 15 Aug 2006 15:18:27 -0400
+Received: from 1wt.eu ([62.212.114.60]:22799 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S965172AbWHOTS1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:15:50 -0400
-Subject: Re: [Containers] [PATCH 5/7] pid: Implement pid_nr
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: containers@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <m1psf17riz.fsf@ebiederm.dsl.xmission.com>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-	 <1155666193751-git-send-email-ebiederm@xmission.com>
-	 <1155667063.12700.56.camel@localhost.localdomain>
-	 <m1psf17riz.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 12:15:25 -0700
-Message-Id: <1155669325.18883.10.camel@localhost.localdomain>
+	Tue, 15 Aug 2006 15:18:27 -0400
+Date: Tue, 15 Aug 2006 21:13:57 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Irfan Habib <irfan.habib@gmail.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum number of processes in Linux
+Message-ID: <20060815191356.GC6672@1wt.eu>
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com> <20060815182219.GL8776@1wt.eu> <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 13:00 -0600, Eric W. Biederman wrote:
-> Dave Hansen <haveblue@us.ibm.com> writes:
+On Tue, Aug 15, 2006 at 03:13:35PM -0400, linux-os (Dick Johnson) wrote:
 > 
-> > On Tue, 2006-08-15 at 12:23 -0600, Eric W. Biederman wrote:
-> >> +static inline pid_t pid_nr(struct pid *pid)
-> >> +{
-> >> +       pid_t nr = 0;
-> >> +       if (pid)
-> >> +               nr = pid->nr;
-> >> +       return nr;
-> >> +} 
+> On Tue, 15 Aug 2006, Willy Tarreau wrote:
+> 
+> > On Tue, Aug 15, 2006 at 02:22:02PM -0400, linux-os (Dick Johnson) wrote:
+> >>
+> >> On Tue, 15 Aug 2006, Irfan Habib wrote:
+> >>
+> >>> Hi,
+> >>>
+> >>> What is the maximum number of process which can run simultaneously in
+> >>> linux? I need to create an application which requires 40,000 threads.
+> >>> I was testing with far fewer numbers than that, I was getting
+> >>> exceptions in pthread_create
+> >>>
+> >>> Regards
+> >>> Irfan
+> 
+> [SNIPPED bad stuff]
+> 
 > >
-> > When is it valid to be passing around a NULL 'struct pid *'?
+> > Dick, would you please initialize your local variables when you send
+> > examples like this ? You should have been amazed by one billion processes
+> > on your box, at least.
+> >
 > 
-> When you don't have one at all.  Look at the fcntl case a few
-> patches later, or even the spawnpid case.
+> 
+> Yep....
+> 
+> #include <stdio.h>
+> #include <signal.h>
+> int main()
+> {
+>      unsigned long i;
+>      for(i = 0; ; i++)
+>      {
+>          switch(fork())
+>          {
+>          case 0:		// kid
+>  	pause();
+>          break;
+>          case -1:	// Failed
+>          printf("%lu\n", i);
+>              kill(0, SIGTERM);
+>              exit(0);
+>          default:
+>              break;
+>          }
+>      }
+>      return 0;
+> }
+> 
+> Shows a consistent 6140.
 
-Does the fcntl() one originate from anywhere other than find_pid() in
-f_setown()?  It seems like, perhaps, the error checking is being done at
-the wrong level.
+Better ! :-)
 
-> Then of course there is the later chaos when we get to pid spaces
-> where depending on the pid namespace you are in when you call this
-> on a given struct pid sometimes you will get a pid value and sometimes
-> you won't.
+1) how much memory do you have ?
+2) Would you try with clone() instead of fork(), you should get more because
+   everything will be shared.
 
-OK, I think it is makes sense to me to say 'get_pid(tsk, pidspace)' and
-get back a NULL 'struct pid' if that task isn't visible in that
-namespace.  However, I don't get how it is handy to be able to defer the
-fact that the pid wasn't found until you go do a pid_nr() on that NULL.
-
--- Dave
+Regards,
+Willy
 

@@ -1,86 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWHONpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWHONrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWHONpy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 09:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWHONpy
+	id S1030296AbWHONrR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 09:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWHONrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 09:45:54 -0400
-Received: from tower.bj-ig.de ([194.127.182.2]:12712 "EHLO fs.bj-ig.de")
-	by vger.kernel.org with ESMTP id S1030291AbWHONpx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 09:45:53 -0400
-From: Ralf =?iso-8859-1?q?M=FCller?= <ralf@bj-ig.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Daily crashes, incorrect RAID behaviour
-Date: Tue, 15 Aug 2006 15:45:49 +0200
-User-Agent: KMail/1.9.1
-References: <13e988610608150436y6812f623p9919b2d5b1989427@mail.gmail.com>
-In-Reply-To: <13e988610608150436y6812f623p9919b2d5b1989427@mail.gmail.com>
+	Tue, 15 Aug 2006 09:47:17 -0400
+Received: from tango.0pointer.de ([217.160.223.3]:13839 "EHLO
+	tango.0pointer.de") by vger.kernel.org with ESMTP id S1030291AbWHONrQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 09:47:16 -0400
+Date: Tue, 15 Aug 2006 15:47:12 +0200
+From: Lennart Poettering <mzxreary@0pointer.de>
+To: Thomas Renninger <trenn@suse.de>
+Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [PATCH 2/2] acpi,backlight: MSI S270 laptop support - driver
+Message-ID: <20060815134710.GB28473@tango.0pointer.de>
+References: <20060810010517.GA20849@curacao> <1155645736.4302.1161.camel@queen.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608151545.49345@bj-ig.de>
+In-Reply-To: <1155645736.4302.1161.camel@queen.suse.de>
+Organization: .phi.
+X-Campaign-1: ()  ASCII Ribbon Campaign
+X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
+X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
+X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
+X-Disclaimer-3: keiner Unterschrift.
+User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 August 2006 13:36, you wrote:
-> My problems continue, even with a new and good power supply.
-> 1) The system loses a disk about every week, only a hard reboot
-> solves that 2) In the last three nights the system lost all disk
-> access and trashed the file systems
->
-> Regarding 1)
-> The system works normally and suddenly one disk does not respond.
-> After a soft reboot the BIOS does not recognize the disk, here a hard
-> reboot helps. Whenever I start my normal system in this situation, my
-> file systems get trashed. I think the software raid thinks the failed
-> disks (which lost several hours of write accesses) is OK and then
-> merges the data. When I delete the disk (or create another raid on
-> the partitions) I can add the disk without problems. This might be a
-> bug, at least it is _very_ annoying.
+On Tue, 15.08.06 14:42, Thomas Renninger (trenn@suse.de) wrote:
 
-> 4x Maxtor 300GB (Sata2)
+> > +config ACPI_MSI_S270
+> > +	tristate "MSI S270 Laptop Extras"
+> > +	depends on X86
+> > +    depends on BACKLIGHT_CLASS_DEVICE
+> > +	---help---
+> > +	  This is a Linux ACPI driver for MSI S270 laptops. It adds
+> > +	  support for Bluetooth, WLAN and LCD brightness control.
+> > +
+> > +	  More information about this driver is available at
+> > +	  <http://0pointer.de/lennart/tchibo.html>.
+> > +
+> > +	  If you have an MSI S270 laptop, say Y or M here.
+> 
+> I don't know anything about MSI laptops. But S270 sounds like a very
+> specific model to me?
 
-I have a similar problem with maybe the same type of disk. My analysis 
-of the problem is still not that complete so I did not asked on the 
-kernel mailing list yet.
+There are quite a lot of different S270 laptops. And the laptops are
+sold under various brands and names, hence it's not that specific. 
 
-The disk type we use here in a ten disk RAID6 is:
-Maxtor 7V300F0 300GB Sata2
-on Promise Sata 300 TX4 controllers
+Until now I found the laptop under the brands MSI, Cytron, TCM,
+Medion, Tchibo and the names MegaBook, S270, MD96100, MS-1013,
+SAM2000. And I am sure there are even more names/brands...
 
-Once in a week or two a random disk is not responding anymore and needs 
-a complete power off/on cycle to recover. After power cycle the disk 
-works without problems, doesn't report any SMART problems ...
-I'm quite sure it is no problem with power supply, motherboard, 
-backplane or controllers. Still open are cabling and disks. Nearly the 
-same setup of hardware - just with different disks - is running smooth 
-since about 8 month in a different system.
+> Shouldn't the driver just be called acpi_msi driver and try to also
+> support other MSI models later that might do things at least
+> similar?
 
-If this is the same disk type we maybe should return the disks to our 
-hardware vendors as it may be a disk problem.
+The driver uses the ACPI EC but doesn't call any ACPI DSDT method. On
+request of Len Brown I moved the driver out of the /drivers/acpi/
+namespace and made it use sysfs instead of /proc/acpi:
 
-The only messages I get are like that:
-Aug 13 17:25:10 backup-core kernel: ata7: command timeout
-Aug 13 17:25:10 backup-core kernel: ata7: translated ATA stat/err 
-0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-Aug 13 17:25:10 backup-core kernel: ata7: status=0xff { Busy }
-Aug 13 17:25:42 backup-core kernel: ata7: command timeout
-Aug 13 17:25:42 backup-core kernel: ata7: translated ATA stat/err 
-0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-Aug 13 17:25:42 backup-core kernel: ata7: status=0xff { Busy }
-Aug 13 17:26:43 backup-core kernel: ata7: command timeout
-Aug 13 17:26:43 backup-core kernel: ata7: translated ATA stat/err 
-0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-Aug 13 17:26:43 backup-core kernel: ata7: status=0xff { Busy }
-Aug 13 17:26:43 backup-core kernel: end_request: I/O error, dev sdg, 
-sector 2104383
+http://lwn.net/Articles/194916/
 
-Regards
-Ralf
+Hence I don't think it is a good idea to prefix the driver name with
+"acpi_".
+
+I would like to support other laptop models from MSI (specifically
+S260), however I don't have access to any of them or to the necessary
+hardware information.
+
+But yes, I guess I could rename the driver to "laptop_msi.c" or
+something. Although I don't know if the other models use a similar
+ACPI EC interface to the S270 model. 
+
+If anyone has a S260 and wants to test this driver on it: please
+contact me!
+
+Lennart
 
 -- 
-Van Roy's Law: -------------------------------------------------------
-       An unbreakable toy is useful for breaking other toys.
+Lennart Poettering; lennart [at] poettering [dot] net
+ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/

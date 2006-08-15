@@ -1,93 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWHOLtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWHOLwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWHOLtu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 07:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWHOLtu
+	id S1030264AbWHOLwH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 07:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWHOLwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 07:49:50 -0400
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:34707 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030268AbWHOLtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 07:49:49 -0400
-Date: Tue, 15 Aug 2006 06:49:47 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-Message-ID: <20060815114946.GA7267@vino.hallyn.com>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com> <20060814220651.GA7726@sergelap.austin.ibm.com> <m1r6zirgst.fsf@ebiederm.dsl.xmission.com> <20060815020647.GB16220@sergelap.austin.ibm.com> <m13bbyr80e.fsf@ebiederm.dsl.xmission.com> <1155615736.2468.12.camel@entropy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Aug 2006 07:52:06 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:20138 "EHLO
+	kingpin.cenara.com") by vger.kernel.org with ESMTP id S1030264AbWHOLwF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 07:52:05 -0400
+From: Magnus =?iso-8859-1?q?Vigerl=F6f?= <wigge@bigfoot.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Dmitry Torokhov" <dtor@insightbb.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Vojtech Pavlik" <vojtech@suse.cz>,
+       "Zephaniah E. Hull" <warp@aehallh.com>, wigge@bigfoot.com
+Subject: Re: input: evdev.c EVIOCGRAB semantics question
+Date: Tue, 15 Aug 2006 13:51:49 +0200
+User-Agent: KMail/1.9.1
+References: <200608121724.16119.wigge@bigfoot.com> <d120d5000608140815g121a84a3o58919582d5797305@mail.gmail.com> <200608150049.50815.wigge@bigfoot.com>
+In-Reply-To: <200608150049.50815.wigge@bigfoot.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1155615736.2468.12.camel@entropy>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608151351.49721.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nicholas Miell (nmiell@comcast.net):
-> On Mon, 2006-08-14 at 21:29 -0600, Eric W. Biederman wrote:
-> > "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> > 
-> > > In fact my version knowingly ignores CAP_AUDIT_WRITE and
-> > > CAP_AUDIT_CONTROL (because on my little test .iso they didn't exist).
-> > > So a version number may make sense.
-> > >
-> > >> So we need some for of
-> > >> forward/backward compatibility.  Maybe in the cap name?
-> > >
-> > > You mean as in use 'security.capability_v32" for the xattr name?
-> > > Or do you really mean add a cap name to the structure?
-> > 
-> > I was thinking the xattr name.  But mostly I was looking
-> > for a place where you had possibly stashed a version.
-> > 
-> > Thinking about it possibly the most portable thing to do
-> > is to assign each cap a well known name.  Say
-> > "security.cap.dac_override" and have a value in there like +1  
-> > add the cap -1 clear the cap.  That at least seems to provide
-> > granularity and some measure of future proofing and some measure of
-> > portability.  The space it would take with those names looks ugly
-> > though.
+On Tuesday 15 August 2006 00:49, Magnus Vigerlöf wrote:
+> On Monday 14 August 2006 17:15, Dmitry Torokhov wrote:
+> [...]
+>
+> > > So why not just make EVIOCGRAB mean "don't send events to
+> > > mousedev but still report data to others opening the device"?
+> >
+> > That darn layering thing. We don't want evdev to know about all other
+> > handlers there are.
+>
+> Nonono... I think the layers is a good thingy, even in this case..
+>
+> What if you turn the whole thing around? Let the handler that should not
+> get the events in case someone grabs the device (/dev/input/mice, more
+> devices?) say it's so. And when the event is forwarded through the
+> input-layer, check if the device is grabbed and in that case skip those
+> handlers that shouldn't get any.
+>
+> It would require an additional field in the input_handle struct that should
+> be set to non-zero for mousedev and a change in the event-propagation code
+> to send events to all handlers except to those with a non-zero value if
+> grabbed (I'd estimate it to be less than 5-10 lines that has to be
+> added/changed).
 
-On the one hand, there shouldn't be many executables with capabilities
-so even a horrendous abuse of disk space isn't so bad, but on the other
-hand, yes, it'd be a horrendous abuse of disk space :)
+And since /dev/input/mice does not have an own handler, but leeches the events 
+from the handlers for /dev/input/mouse* this won't work as easily as I 
+wrote.. Though if it get its own handler then it should be a simple thing... 
+A few more lines of code that needs to be changed though, and the event loop 
+will probably cost a little more to run.
 
-> > The practical question is what do you do with a program that
-> > was give a set of capabilities you no longer support? 
-> > Do you run it without any capabilities at all?
-> > Do you give it as many capabilities of what it asked for
-> >    as you can?
-> > Do you complain loudly and refuse to execute it at all?
-> > 
-> > What is the secure choice that least violates the principle of least surprise?
-> 
-> Make it an arbitrary length bitfield with a defined byte order (little
-> endian, probably). Bits at offsets greater than the length of the
-> bitfield are defined to be zero. If the kernel encounters a set bit that
-> it doesn't recognizes, fail with EPERM. If userspace attempts to set a
-> bit that the kernel doesn't recognize, fail with EINVAL.
-> 
-> It's extensible (as new capability bits are added, the length of the
-> bitfield grows), backward compatible (as long as there are no unknown
-> bits set, it'll still work) and secure (if an unknown bit is set, the
-> kernel fails immediately, so there's no chance of a "secure" app running
-> with less privileges than it expects and opening up a security hole).
-
-Sounds good.
-
-The version number will imply the bitfield length, or do we feel warm
-fuzzies if the length is redundantly encoded in the structure?
-
-> OTOH, everybody seems to have moved from capability-based security
-> models on to TE/RBAC-based security models, so maybe this isn't worth
-> the effort?
-
-One day perhaps, but that day isn't here yet.  People are still using
-setuid (see /sbin/passwd), so obviously they're not sufficiently
-comfortable using *only* TE/RBAC.
-
--serge
+> However, this doesn't address the problem I initially described (I
+> think)... What if two application open the same device and one of the
+> application do a EVIOCGRAB. Should both applications still get events? With
+> the above fix two applications that opens /dev/input/mouse2 resp
+> /dev/input/event4 for the same hw and the latter grabs the device, both
+> will get events. Using a counter for grab (just like the open-counter) on
+> the handler should make them behave the same way in both cases I think.
+> Gnnn... I'll make a patch tomorrow (ok today, Tuesday) so you can see what
+> I rambling about..
+>
+> Won't EVIOCGRAB be quite misnamed (not that I propose a change...) if we
+> make a change like this though?
+>
+>  /Magnus
+ /Magnus

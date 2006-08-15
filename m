@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965332AbWHOKCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965352AbWHOKDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965332AbWHOKCK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 06:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965344AbWHOKCK
+	id S965352AbWHOKDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 06:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965350AbWHOKDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 06:02:10 -0400
-Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:57614 "EHLO
-	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP id S965332AbWHOKCJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 06:02:09 -0400
-Message-ID: <44E19B96.7020903@xs4all.nl>
-Date: Tue, 15 Aug 2006 12:01:58 +0200
-From: Udo van den Heuvel <udovdh@xs4all.nl>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: David Miller <davem@davemloft.net>, folkert@vanheusden.com
-Subject: Re: And another Oops / BUG? (2.6.17.7 on VIA Epia CL6000)
-References: <44E096B4.9090207@xs4all.nl>	<20060814.130814.126764626.davem@davemloft.net>	<44E139CD.3080103@xs4all.nl> <20060814.222504.61951856.davem@davemloft.net>
-In-Reply-To: <20060814.222504.61951856.davem@davemloft.net>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=8300CC02
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 06:03:15 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:32468 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S965352AbWHOKDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 06:03:14 -0400
+Date: Tue, 15 Aug 2006 14:02:28 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, David Miller <davem@davemloft.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+Message-ID: <20060815100228.GC1092@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru> <20060815002724.a635d775.akpm@osdl.org> <p738xlqa0aw.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <p738xlqa0aw.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 15 Aug 2006 14:02:29 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> From: Udo van den Heuvel <udovdh@xs4all.nl>
+On Tue, Aug 15, 2006 at 10:08:23AM +0200, Andi Kleen (ak@suse.de) wrote:
+> Andrew Morton <akpm@osdl.org> writes:
+> > 
+> > There will be heaps of cacheline pingpong accessing these arrays.  I'd have
+> > though that
+> > 
+> > static struct whatever {
+> > 	avl_t avl_node_id;
+> > 	struct avl_node **avl_node_array;
+> > 	struct list_head *avl_container_array;
+> > 	struct avl_node *avl_root;
+> > 	struct avl_free_list *avl_free_list_head;
+> > 	spinlock_t avl_free_lock;
+> > } __cacheline_aligned_in_smp whatevers[NR_CPUS];
+> > 
+> > would be better.
 > 
->> pptpd is needed for my adsl connection.
->> pppd runs over it.
->> it is not part of the kernel.
-> 
-> Oh yes it does, the pptp source file was mentioned by the kernel OOPS
-> message.  How did it get there if it's not part of the kernel? :)
+> Or even better per cpu data. New global/static NR_CPUS arrays should be really discouraged.
 
-It IS not part of the kernel. See the log. I left it there since it
-shows some of the issues the Oops causes.
-*Everytime* named is involved.
-It eats entropy.
-It upsets upsd and pptpd.
-It happens since 2.6.17.*.
+I had a version with per-cpu data - it is not very convenient to use here with it's 
+per_cpu_ptr dereferencings....
 
-Kind regards,
-Udo
+> -Andi
+
+-- 
+	Evgeniy Polyakov

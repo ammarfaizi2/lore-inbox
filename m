@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWHOSVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWHOSWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030438AbWHOSVa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbWHOSVa
+	id S1030439AbWHOSWG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWHOSWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:21:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9694 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030438AbWHOSV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:21:29 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>,
-       Linux Containers <containers@lists.osdl.org>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Start using struct pid.
-Date: Tue, 15 Aug 2006 12:21:11 -0600
-Message-ID: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 15 Aug 2006 14:22:06 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:38412 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030439AbWHOSWE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 14:22:04 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 15 Aug 2006 18:22:03.0014 (UTC) FILETIME=[B4A7FA60:01C6C097]
+Content-class: urn:content-classes:message
+Subject: Re: Maximum number of processes in Linux
+Date: Tue, 15 Aug 2006 14:22:02 -0400
+Message-ID: <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com>
+In-Reply-To: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Maximum number of processes in Linux
+thread-index: AcbAl7S2RbLGxV4bSae46xxeB7FHbw==
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Irfan Habib" <irfan.habib@gmail.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In the last round of cleaning up the pid hash table a more
-general struct pid was introduced, that can be referenced
-counted.
+On Tue, 15 Aug 2006, Irfan Habib wrote:
 
-With the more general struct pid most if not all places where
-we store a pid_t we can now store a struct pid * and remove
-the need for a hash table lookup, and avoid any possible problems
-with pid roll over.
+> Hi,
+>
+> What is the maximum number of process which can run simultaneously in
+> linux? I need to create an application which requires 40,000 threads.
+> I was testing with far fewer numbers than that, I was getting
+> exceptions in pthread_create
+>
+> Regards
+> Irfan
 
-Looking forward to the pid namespaces struct pid * gives us
-an absolute form a pid so we can compare and use them without
-caring which pid namespace we are in.
+#include <stdio.h>
+int main(){
+     unsigned long i;
+     while(fork() != -1)
+         i++;
+     printf("%u\n", i);
+     return 0;
+}
+$ gcc -o xxx xxx.c
+$ ./xxx
 
-This patchset introduces the infrastructure needed to use
-struct pid instead of pid_t, and then it goes on to convert
-two different kernel users that currently store a pid_t value.
+1251392833         <<---- At least this number
+1251392834
+1251392834
+1251392834
+1251392834
+1251392833
+1251392833
+1251392834
+1251392834
+1251392834
+^C
+$ killall xxx
 
-There are a lot more places to go but this is enough to get the
-basic idea. 
+BYW 40,000 threads? 40,000 tasks all sharing the same address space?
+Hopefully this is just a training exercise to see if it's possible.
 
-Before we can merge a pid namespace patch all of the kernel pid_t
-users need to be examined.  Those that deal with user space processes
-need to be converted to using a struct pid *.  Those that deal with
-kernel processes need to converted to using the kthread api.  A rare
-few that only use their current processes pid values get to be left
-alone.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-Eric
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

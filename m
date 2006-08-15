@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965339AbWHOJl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965315AbWHOJm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965339AbWHOJl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965337AbWHOJl5
+	id S965315AbWHOJm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965340AbWHOJm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:41:57 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:436 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S965237AbWHOJl5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:41:57 -0400
-Message-ID: <44E196B7.6060305@nachtwindheim.de>
-Date: Tue, 15 Aug 2006 11:41:11 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: akpm@osdl.org, jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [NET] [VELOCITY] remove an unused function from the header
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 15 Aug 2006 05:42:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57033 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965315AbWHOJm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 05:42:56 -0400
+Subject: Re: [PATCH] Change pci_module_init from macro to inline function
+	marked as deprecated
+From: Arjan van de Ven <arjan@infradead.org>
+To: Henne <henne@nachtwindheim.de>
+Cc: gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+In-Reply-To: <44E18DE2.8020700@nachtwindheim.de>
+References: <44E18DE2.8020700@nachtwindheim.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 15 Aug 2006 11:42:47 +0200
+Message-Id: <1155634967.3011.81.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Tue, 2006-08-15 at 11:03 +0200, Henne wrote:
+> From: Henrik Kretzschmar <henne@nachtwindheim.de>
+> 
+> Replaces the pci_module_init()-macro with a inline function,
+> which is marked as deprecated.
+> This gives a warning at compile time, which may be useful for driver developers who still use
+> pci_module_init() on 2.6 drivers.
 
-Removes an unused function from the via-velocity-driver.
-It doesn't make the binary smaller, but the source cleaner.
+Hi,
 
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+good work, but  please stick this also in feature-removal.txt with a
+hard date on it, otherwise we can never get rid of it.....
 
----
+Greetings,
+   Arjan van de Ven
 
---- linux-2.6.18-rc2-git6/drivers/net/via-velocity.h	2006-07-30 23:25:59.000000000 +0200
-+++ linux/drivers/net/via-velocity.h	2006-08-07 15:24:54.000000000 +0200
-@@ -262,25 +262,6 @@
- 	dma_addr_t skb_dma;
- };
- 
--/**
-- *	alloc_rd_info		-	allocate an rd info block
-- *
-- *	Alocate and initialize a receive info structure used for keeping
-- *	track of kernel side information related to each receive
-- *	descriptor we are using
-- */
--
--static inline struct velocity_rd_info *alloc_rd_info(void)
--{
--	struct velocity_rd_info *ptr;
--	if ((ptr = kmalloc(sizeof(struct velocity_rd_info), GFP_ATOMIC)) == NULL)
--		return NULL;
--	else {
--		memset(ptr, 0, sizeof(struct velocity_rd_info));
--		return ptr;
--	}
--}
--
- /*
-  *	Used to track transmit side buffers.
-  */
-
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

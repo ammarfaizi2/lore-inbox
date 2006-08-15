@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWHOUxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWHOVAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWHOUxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 16:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWHOUxV
+	id S1750704AbWHOVAf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 17:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWHOVAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 16:53:21 -0400
-Received: from host-84-9-202-173.bulldogdsl.com ([84.9.202.173]:9851 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750701AbWHOUxV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 16:53:21 -0400
-Date: Tue, 15 Aug 2006 21:53:20 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] rtc-s3c.c: fix time setting checks
-Message-ID: <20060815205320.GE8907@home.fluff.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060403
+	Tue, 15 Aug 2006 17:00:35 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:59796 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750704AbWHOVAf (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 17:00:35 -0400
+Message-Id: <200608152100.k7FL0WrU015381@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Irfan Habib <irfan.habib@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maximum number of processes in Linux
+In-Reply-To: Your message of "Tue, 15 Aug 2006 22:59:37 +0500."
+             <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1155675632_3681P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Aug 2006 17:00:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix the year check on setting the time with the S3C24XX
-RTC driver. Also move the debug to before the set to see
-what is going on if it does fail.
+--==_Exmh_1155675632_3681P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+On Tue, 15 Aug 2006 22:59:37 +0500, Irfan Habib said:
+> Hi,
+> 
+> What is the maximum number of process which can run simultaneously in
+> linux? I need to create an application which requires 40,000 threads.
+> I was testing with far fewer numbers than that, I was getting
+> exceptions in pthread_create
 
-diff -urpN -X ../dontdiff linux-2.6.18-rc4-rtc1/drivers/rtc/rtc-s3c.c linux-2.6.18-rc4-rtc2/drivers/rtc/rtc-s3c.c
---- linux-2.6.18-rc4-rtc1/drivers/rtc/rtc-s3c.c	2006-08-11 22:13:21.000000000 +0100
-+++ linux-2.6.18-rc4-rtc2/drivers/rtc/rtc-s3c.c	2006-08-15 21:50:23.000000000 +0100
-@@ -153,24 +153,25 @@ static int s3c_rtc_gettime(struct device
- static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
- {
- 	void __iomem *base = s3c_rtc_base;
-+	int year = tm->tm_year - 100;
- 
--	/* the rtc gets round the y2k problem by just not supporting it */
-+	pr_debug("set time %02d.%02d.%02d %02d/%02d/%02d\n",
-+		 tm->tm_year, tm->tm_mon, tm->tm_mday,
-+		 tm->tm_hour, tm->tm_min, tm->tm_sec);
-+
-+	/* we get around y2k by simply not supporting it */
- 
--	if (tm->tm_year > 100) {
-+	if (year < 0 || year >= 100) {
- 		dev_err(dev, "rtc only supports 100 years\n");
- 		return -EINVAL;
- 	}
- 
--	pr_debug("set time %02d.%02d.%02d %02d/%02d/%02d\n",
--		 tm->tm_year, tm->tm_mon, tm->tm_mday,
--		 tm->tm_hour, tm->tm_min, tm->tm_sec);
--
- 	writeb(BIN2BCD(tm->tm_sec),  base + S3C2410_RTCSEC);
- 	writeb(BIN2BCD(tm->tm_min),  base + S3C2410_RTCMIN);
- 	writeb(BIN2BCD(tm->tm_hour), base + S3C2410_RTCHOUR);
- 	writeb(BIN2BCD(tm->tm_mday), base + S3C2410_RTCDATE);
- 	writeb(BIN2BCD(tm->tm_mon + 1), base + S3C2410_RTCMON);
--	writeb(BIN2BCD(tm->tm_year - 100), base + S3C2410_RTCYEAR);
-+	writeb(BIN2BCD(year), base + S3C2410_RTCYEAR);
- 
- 	return 0;
- }
+There's some a<<FOO funkiness in the /proc file system that will explode
+on 32-bit machines if the process ID goes over 128K.  Of course, with 40K
+threads, you're probably either on a 64-bit NUMA box or doing things in an
+incredibly ugly way....
+
+--==_Exmh_1155675632_3681P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFE4jXwcC3lWbTT17ARAkB1AJ4oFBoU7ryJfeLVeLpnDjsRY9SiDACgpzuP
+WcdoMZO6EOYjJZrPbRd3+0U=
+=PrYG
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1155675632_3681P--

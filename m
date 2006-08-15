@@ -1,81 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWHONp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWHONpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbWHONp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 09:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWHONp1
+	id S1030287AbWHONpy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 09:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWHONpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 09:45:27 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:4922 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030288AbWHONp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 09:45:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=WVQHD9uNp0a2aRImPiElbgi9bMYaKfkhtqMDQ62Atxoc2GRRZfrHcZ5W9kuVPbUWmInNBzUGQiC/2UfXH7iywWbxm6y/ssT/8DIraSBlOOzY5tJ033+uNMpML+H+7jpaIBxE7UpMTd2uugVObZ++/d5RQoH2ZLtd+QMkNdxt8OY=
-Subject: Re: Oops on suspend
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <200608151512.49265.rjw@sisk.pl>
-References: <1155603152.3948.4.camel@daplas.org>
-	 <200608151153.03441.rjw@sisk.pl> <1155646570.4181.2.camel@daplas.org>
-	 <200608151512.49265.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 21:45:08 +0800
-Message-Id: <1155649508.3448.1.camel@daplas.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Tue, 15 Aug 2006 09:45:54 -0400
+Received: from tower.bj-ig.de ([194.127.182.2]:12712 "EHLO fs.bj-ig.de")
+	by vger.kernel.org with ESMTP id S1030291AbWHONpx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 09:45:53 -0400
+From: Ralf =?iso-8859-1?q?M=FCller?= <ralf@bj-ig.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Daily crashes, incorrect RAID behaviour
+Date: Tue, 15 Aug 2006 15:45:49 +0200
+User-Agent: KMail/1.9.1
+References: <13e988610608150436y6812f623p9919b2d5b1989427@mail.gmail.com>
+In-Reply-To: <13e988610608150436y6812f623p9919b2d5b1989427@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608151545.49345@bj-ig.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 15:12 +0200, Rafael J. Wysocki wrote:
-> On Tuesday 15 August 2006 14:56, Antonino A. Daplas wrote:
-> > On Tue, 2006-08-15 at 11:53 +0200, Rafael J. Wysocki wrote:
-> > > On Tuesday 15 August 2006 02:52, Antonino A. Daplas wrote:
-> > > > Anyone see this oops on suspend to disk? Copied by hand only.
-> > > > 
-> > > > EIP is at swap_type_of
-> > > > 
-> > > > swsusp_write
-> > > > pm_suspend_disk
-> > > > enter_state
-> > > > state_store
-> > > > subsys_attr_store
-> > > > sysfs_write_file
-> > > > vfs_write
-> > > > sys_write
-> > > > sysenter_past_EIP
-> > > > 
-> > > > openSUSE-10.2-Alpha3 (2.6.18-rc4), but I see this also with stock
-> > > > 2.6.18-rc4-mm1.
-> > > 
-> > > Are there two swap partitions on your system?  Is any of them on an LVM?
-> > 
-> > I have two swap partitions, /dev/hda3 and /dev/hdc1. resume=/dev/hdc1.
-> > 
-> > If both partitions are mounted, suspend fails with a message of "cannot
-> > determined swap partition", or something to that effect.
-> > 
-> > If I do swapoff /dev/hda3, then suspend to disk, I get the oops.
-> > 
-> > No LVM.
-> > 
-> > I'll try removing /dev/hda3 and try again. Hold on...
+On Tuesday 15 August 2006 13:36, you wrote:
+> My problems continue, even with a new and good power supply.
+> 1) The system loses a disk about every week, only a hard reboot
+> solves that 2) In the last three nights the system lost all disk
+> access and trashed the file systems
+>
+> Regarding 1)
+> The system works normally and suddenly one disk does not respond.
+> After a soft reboot the BIOS does not recognize the disk, here a hard
+> reboot helps. Whenever I start my normal system in this situation, my
+> file systems get trashed. I think the software raid thinks the failed
+> disks (which lost several hours of write accesses) is OK and then
+> merges the data. When I delete the disk (or create another raid on
+> the partitions) I can add the disk without problems. This might be a
+> bug, at least it is _very_ annoying.
 
-Removing the extra swap partition worked.
+> 4x Maxtor 300GB (Sata2)
 
-> 
-> OK
-> 
-> Could you please try the patch I posted earlier today
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=115563697203025&q=raw)?
-> 
+I have a similar problem with maybe the same type of disk. My analysis 
+of the problem is still not that complete so I did not asked on the 
+kernel mailing list yet.
 
-This patch worked too with my original setup. Thanks :-)
+The disk type we use here in a ten disk RAID6 is:
+Maxtor 7V300F0 300GB Sata2
+on Promise Sata 300 TX4 controllers
 
-Tony
+Once in a week or two a random disk is not responding anymore and needs 
+a complete power off/on cycle to recover. After power cycle the disk 
+works without problems, doesn't report any SMART problems ...
+I'm quite sure it is no problem with power supply, motherboard, 
+backplane or controllers. Still open are cabling and disks. Nearly the 
+same setup of hardware - just with different disks - is running smooth 
+since about 8 month in a different system.
 
+If this is the same disk type we maybe should return the disks to our 
+hardware vendors as it may be a disk problem.
 
+The only messages I get are like that:
+Aug 13 17:25:10 backup-core kernel: ata7: command timeout
+Aug 13 17:25:10 backup-core kernel: ata7: translated ATA stat/err 
+0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+Aug 13 17:25:10 backup-core kernel: ata7: status=0xff { Busy }
+Aug 13 17:25:42 backup-core kernel: ata7: command timeout
+Aug 13 17:25:42 backup-core kernel: ata7: translated ATA stat/err 
+0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+Aug 13 17:25:42 backup-core kernel: ata7: status=0xff { Busy }
+Aug 13 17:26:43 backup-core kernel: ata7: command timeout
+Aug 13 17:26:43 backup-core kernel: ata7: translated ATA stat/err 
+0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+Aug 13 17:26:43 backup-core kernel: ata7: status=0xff { Busy }
+Aug 13 17:26:43 backup-core kernel: end_request: I/O error, dev sdg, 
+sector 2104383
+
+Regards
+Ralf
+
+-- 
+Van Roy's Law: -------------------------------------------------------
+       An unbreakable toy is useful for breaking other toys.

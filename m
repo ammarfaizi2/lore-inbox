@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbWHOS6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbWHOS7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965205AbWHOS6n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 14:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbWHOS6n
+	id S965226AbWHOS7L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 14:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWHOS7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 14:58:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12816 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965205AbWHOS6m
+	Tue, 15 Aug 2006 14:59:09 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13840 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965227AbWHOS6r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 14:58:42 -0400
-Date: Mon, 14 Aug 2006 21:44:43 +0000
+	Tue, 15 Aug 2006 14:58:47 -0400
+Date: Tue, 15 Aug 2006 15:40:19 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
-Message-ID: <20060814214442.GB4032@ucw.cz>
-References: <1155172597.3161.72.camel@localhost.localdomain> <44DACB21.9080002@garzik.org> <44DB5FC0.5070405@us.ibm.com> <20060810100012.abc1b5a1.akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
+Message-ID: <20060815154019.GD4032@ucw.cz>
+References: <1155172827.3161.80.camel@localhost.localdomain> <20060809233940.50162afb.akpm@osdl.org> <m37j1hlyzv.fsf@bzzz.home.net> <20060811135737.1abfa0f6.rdunlap@xenotime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060810100012.abc1b5a1.akpm@osdl.org>
+In-Reply-To: <20060811135737.1abfa0f6.rdunlap@xenotime.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > We do maintain a quilt(akpm) style patches on http://ext2.sf.net, the 
-> > latest patches are always at 
-> > http://ext2.sourceforge.net/48bitext3/patches/latest/
+> >  AM> - The existing comments could benefit from some rework by a
+> >  AM> native English speaker.
 > > 
-> > We thought about doing git initially, still open for that doing do, if 
-> > it's more preferable by Linus or Andrew. Just thought  it's a lot 
-> > easiler for non git user to pull the patches from a project website.
-> > 
+> > could someone assist here, please?
 > 
-> We should aim to get the big copy-ext3-to-ext4 patch into Linus's tree as
-> early as possible.
-> 
-> I'm just not sure when to do that.  Immediately after 2.6.19-rc1 is
-> released would be good because it is when every tree (including -mm) is in
-> its most-synced-up state.
+> See if this helps.
+> Patch applies on top of all ext4 patches from
+> http://ext2.sourceforge.net/48bitext3/patches/latest/.
 
-Or you could simply do it _now_. Its new-driver-like, so freeze should
-not apply :-).
+> --- linux-2618-rc4-ext4.orig/include/linux/ext4_fs_extents.h
+> +++ linux-2618-rc4-ext4/include/linux/ext4_fs_extents.h
+> @@ -22,29 +22,29 @@
+>  #include <linux/ext4_fs.h>
+>  
+>  /*
+> - * with AGRESSIVE_TEST defined capacity of index/leaf blocks
+> - * become very little, so index split, in-depth growing and
+> - * other hard changes happens much more often
+> - * this is for debug purposes only
+> + * With AGRESSIVE_TEST defined, the capacity of index/leaf blocks
+> + * becomes very small, so index split, in-depth growing and
+> + * other hard changes happen much more often.
+> + * This is for debug purposes only.
+>   */
+>  #define AGRESSIVE_TEST_
 
+Using _ for disabling is unusual/nasty. Can't we simply #undef it?
 -- 
 Thanks for all the (sleeping) penguins.

@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752078AbWHOCHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWHOCIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752078AbWHOCHd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 22:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWHOCHd
+	id S965037AbWHOCIs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 22:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752075AbWHOCIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 22:07:33 -0400
-Received: from alnrmhc12.comcast.net ([206.18.177.52]:20416 "EHLO
-	alnrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751456AbWHOCHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 22:07:31 -0400
-Subject: Re: Kernel patches enabling better POSIX AIO (Was Re: [3/4]
-	kevent: AIO, aio_sendfile)
-From: Nicholas Miell <nmiell@comcast.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: suparna@in.ibm.com, sebastien.dugue@bull.net,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>, linux-aio@kvack.org, mingo@elte.hu
-In-Reply-To: <44E0A6F6.509@redhat.com>
-References: <1153982954.3887.9.camel@frecb000686>
-	 <44C8DB80.6030007@us.ibm.com> <44C9029A.4090705@oracle.com>
-	 <1154024943.29920.3.camel@dyn9047017100.beaverton.ibm.com>
-	 <44C90987.1040200@redhat.com>
-	 <1154034164.29920.22.camel@dyn9047017100.beaverton.ibm.com>
-	 <1154091500.13577.14.camel@frecb000686> <44DCDE73.9030901@redhat.com>
-	 <20060812182928.GA1989@in.ibm.com> <44DE27AB.7040507@redhat.com>
-	 <20060814070210.GA27005@in.ibm.com>  <44E0A6F6.509@redhat.com>
+	Mon, 14 Aug 2006 22:08:48 -0400
+Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:63330 "HELO
+	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751534AbWHOCIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 22:08:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=e825Pr2lp6pyYBf4NB3gNvmZkzCcxNLZLeaRkKMuH0cOK4ubh3pMVDI5stswbMsMj/jAtZVlQX2UymYEFKEmQ9V+65YUCJAUTeYcqm4yEvBWeZwOEUvRFId7/Ul6T0mqak60FAoP4LfWdihbsvzoXhzudSHhN63G0bimD9NfZgM=  ;
+Subject: Re: vga text console
+From: James C Georgas <jgeorgas@rogers.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1155606849.3948.17.camel@daplas.org>
+References: <1155604313.8131.4.camel@Rainsong>
+	 <1155604928.3948.8.camel@daplas.org>  <1155605197.3948.10.camel@daplas.org>
+	 <1155606109.8131.13.camel@Rainsong>  <1155606849.3948.17.camel@daplas.org>
 Content-Type: text/plain
-Date: Mon, 14 Aug 2006 19:06:56 -0700
-Message-Id: <1155607616.2468.1.camel@entropy>
+Date: Mon, 14 Aug 2006 22:09:28 -0400
+Message-Id: <1155607768.8131.22.camel@Rainsong>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 09:38 -0700, Ulrich Drepper wrote:
-> Suparna Bhattacharya wrote:
-> > Is there a (remote) possibility that the thread could have died and its
-> > pid got reused by a new thread in another process ? Or is there a mechanism
-> > that prevents such a possibility from arising (not just in NPTL library,
-> > but at the kernel level) ?
+On Tue, 2006-15-08 at 09:54 +0800, Antonino A. Daplas wrote:
+> > If I define CONFIG_EMBEDDED, is that going to change the behaviour of
+> > other subsystems, or does it just enable more options?
+> > 
 > 
-> The UID/GID won't help you with dying processes.  What if the same user
-> creates a process with the same PID?  That process will not expect the
-> notification and mustn't receive it.  If you cannot detect whether the
-> issuing process died you have problems which cannot be solved with a
-> uid/gid pair.
-> 
-> 
+> It basically opens up a lot of config options. It may also disable a few
+> incompatible options (ie, CONFIG_DEBUG_VERBOSE), and enable a few.  It
+> will require that you know exactly what options need to be turned on or
+> off.
+Oh. That actually sounds like it could be a lot of fun. I'm a big fan of
+the Minimal Kernel.
 
-Eric W. Biederman sent a series of patches that introduced a struct
-task_ref specifically to solve this sort of problem on January 28 of
-this year, but I don't think it went anywhere.
-
-
--- 
-Nicholas Miell <nmiell@comcast.net>
+I'm kind of surprised that the VGA console can't be built as a module,
+like the other console drivers in the kernel can be. Is this on purpose,
+or is it just that nobody has gotten around to it?
 

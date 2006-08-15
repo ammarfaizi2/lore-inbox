@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752117AbWHOQzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965383AbWHORAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752117AbWHOQzf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752118AbWHOQzf
+	id S965383AbWHORAS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWHORAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:55:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55965 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752117AbWHOQzf (ORCPT
+	Tue, 15 Aug 2006 13:00:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50848 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752120AbWHORAQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:55:35 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1155595768.5656.26.camel@localhost> 
-References: <1155595768.5656.26.camel@localhost>  <20060813012454.f1d52189.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>
-Subject: Re: 2.6.18-rc4-mm1 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 15 Aug 2006 17:55:19 +0100
-Message-ID: <27792.1155660919@warthog.cambridge.redhat.com>
+	Tue, 15 Aug 2006 13:00:16 -0400
+Date: Tue, 15 Aug 2006 12:59:47 -0400
+From: Dave Jones <davej@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Magnus Damm <magnus@valinux.co.jp>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH for review] [140/145] i386: mark cpu_dev structures as __cpuinitdata
+Message-ID: <20060815165947.GE7612@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Magnus Damm <magnus@valinux.co.jp>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andi Kleen <ak@suse.de>
+References: <200608150249_MC3-1-C823-B57B@compuserve.com> <1155627804.3011.46.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155627804.3011.46.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+On Tue, Aug 15, 2006 at 09:43:23AM +0200, Arjan van de Ven wrote:
+ > On Tue, 2006-08-15 at 02:46 -0400, Chuck Ebbert wrote:
+ > > In-Reply-To: <1155518783.5764.10.camel@localhost>
+ > > 
+ > > On Mon, 14 Aug 2006 10:26:23 +0900, Magnus Damm wrote:
+ > > 
+ > > > > > The different cpu_dev structures are all used from __cpuinit callers what
+ > > > > > I can tell. So mark them as __cpuinitdata instead of __initdata. I am a
+ > > > > > little bit unsure about arch/i386/common.c:default_cpu, especially when it
+ > > > > > comes to the purpose of this_cpu.
+ > > > > 
+ > > > > But none of these CPUs supports hotplug and only one (AMD) does SMP.
+ > > > > So this is just wasting space in the kernel at runtime.
+ > > > 
+ > > > How could this be wasting space? If you compile with CONFIG_HOTPLUG_CPU
+ > > > disabled then __cpuinitdata will become __initdata - ie the same as
+ > > > before. Not a single byte wasted what I can tell.
+ > > 
+ > > I was talking about wasted space with HOTPLUG_CPU enabled, of course.
+ > > Nobody is ever going to hotplug a VIA, Cyrix, Geode, etc. CPU, yet your
+ > > patch makes the kernel carry that code and data anyway.
+ > 
+ > remember that suspend uses software hot(un)plug as well...
 
-> Could you try pulling afresh from the NFS git tree? I've fixed up a couple
-> of issues in which rpc_pipefs was corrupting the dcache,
+Only for non-boot CPUs. The vendors above (with exception of VIA)
+never made SMP systems.
 
-Which patches hold those fixes?  I'm seeing:
-
-	BUG: atomic counter underflow at:
-	 [<c01d5b05>] _atomic_dec_and_lock+0x1d/0x30
-	 [<c0169bd3>] dput+0x22/0x145
-	 [<c8a2f726>] rpc_destroy_client+0xd9/0xee [sunrpc]
-	 [<c8a2f89e>] rpc_shutdown_client+0xea/0xf1 [sunrpc]
-	 [<c8a2f89e>] rpc_shutdown_client+0xea/0xf1 [sunrpc]
-	 [<c886d842>] nfs_free_client+0x95/0xdd [nfs]
-	 [<c886db38>] nfs_free_server+0xa9/0xd9 [nfs]
-	 [<c8873fae>] nfs_kill_super+0xc/0x14 [nfs]
-	 [<c015c033>] deactivate_super+0x4a/0x5d
-	 [<c016df3e>] sys_umount+0x1d3/0x1f1
-	 [<c016ac98>] destroy_inode+0x36/0x45
-	 [<c0169bd3>] dput+0x22/0x145
-	 [<c0157889>] __fput+0x146/0x170
-	 [<c016cf48>] mntput_no_expire+0x11/0x59
-	 [<c016df73>] sys_oldumount+0x17/0x1a
-	 [<c0102b3f>] syscall_call+0x7/0xb
-	 =======================
-
-And I'm wondering if that's due to that problem.
-
-I've applied the patch to fix the resource counting that's at the head of your
-git tree.
-
-David
+		Dave
+-- 
+http://www.codemonkey.org.uk

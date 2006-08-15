@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWHOUmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWHOUqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWHOUmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 16:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWHOUmu
+	id S1750768AbWHOUqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 16:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWHOUqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 16:42:50 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:14734 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750705AbWHOUmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 16:42:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=U4SIdXO9RPi7BA8vK8BKRk4LaXkB6+MZAMdYEwhIdCGSWeLG4SDq9hCK9DTBYNBFkA1aopZwmAM2vN8A0Z5qGV7sI5K3jyF8GGCgOnGwGNncmozvNp7Ph0mNnO6IzBBY8+xgq/3bw5KGR+Jzt2MALX/2RJNVP1M2OOvuNZp9l1g=
-Message-ID: <177b81ff0608151342q66ac9df0rcd88f35e835e470e@mail.gmail.com>
-Date: Tue, 15 Aug 2006 15:42:49 -0500
-From: "Cory Grunden" <cory.grunden@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Nicksched Discontinued?
+	Tue, 15 Aug 2006 16:46:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30434 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750725AbWHOUqB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 16:46:01 -0400
+Date: Tue, 15 Aug 2006 16:45:55 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: Mitch Williams <mitch.a.williams@intel.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: bonding: cannot remove certain named devices
+Message-ID: <20060815204555.GB4434@nostromo.devel.redhat.com>
+Mail-Followup-To: Mitch Williams <mitch.a.williams@intel.com>,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060815194856.GA3869@nostromo.devel.redhat.com> <Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has Nick's Scheduler Policies been discontinued?  I used it in
-2.6.9-2.6.11, but since then I've been using it off and on in
-Plugsched.  Will there be any new "Nicksched" patches in the future?
+Mitch Williams (mitch.a.williams@intel.com) said: 
+> Are spaces allowed in interface names anyway?  I can't believe that
+> bonding is the only area affected by this.
 
-TIA
+They're certainly allowed, and the sysfs directory structure, files,
+etc. handle it ok. Userspace tends to break in a variety of ways.
 
--- 
-Cory Grunden
-Systems Administrator
-Kilgore College
-Kilgore, TX  75662
-903-983-8143
+I believe the only invalid character in an interface name is '/'.
+
+Bill

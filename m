@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWHOCHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752078AbWHOCHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWHOCHE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 22:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWHOCHD
+	id S1752078AbWHOCHd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 22:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWHOCHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 22:07:03 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:40081 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751420AbWHOCHA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 22:07:00 -0400
-Date: Mon, 14 Aug 2006 21:06:47 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-Message-ID: <20060815020647.GB16220@sergelap.austin.ibm.com>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com> <20060814220651.GA7726@sergelap.austin.ibm.com> <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
+	Mon, 14 Aug 2006 22:07:33 -0400
+Received: from alnrmhc12.comcast.net ([206.18.177.52]:20416 "EHLO
+	alnrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751456AbWHOCHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 22:07:31 -0400
+Subject: Re: Kernel patches enabling better POSIX AIO (Was Re: [3/4]
+	kevent: AIO, aio_sendfile)
+From: Nicholas Miell <nmiell@comcast.net>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: suparna@in.ibm.com, sebastien.dugue@bull.net,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       netdev <netdev@vger.kernel.org>, linux-aio@kvack.org, mingo@elte.hu
+In-Reply-To: <44E0A6F6.509@redhat.com>
+References: <1153982954.3887.9.camel@frecb000686>
+	 <44C8DB80.6030007@us.ibm.com> <44C9029A.4090705@oracle.com>
+	 <1154024943.29920.3.camel@dyn9047017100.beaverton.ibm.com>
+	 <44C90987.1040200@redhat.com>
+	 <1154034164.29920.22.camel@dyn9047017100.beaverton.ibm.com>
+	 <1154091500.13577.14.camel@frecb000686> <44DCDE73.9030901@redhat.com>
+	 <20060812182928.GA1989@in.ibm.com> <44DE27AB.7040507@redhat.com>
+	 <20060814070210.GA27005@in.ibm.com>  <44E0A6F6.509@redhat.com>
+Content-Type: text/plain
+Date: Mon, 14 Aug 2006 19:06:56 -0700
+Message-Id: <1155607616.2468.1.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Mon, 2006-08-14 at 09:38 -0700, Ulrich Drepper wrote:
+> Suparna Bhattacharya wrote:
+> > Is there a (remote) possibility that the thread could have died and its
+> > pid got reused by a new thread in another process ? Or is there a mechanism
+> > that prevents such a possibility from arising (not just in NPTL library,
+> > but at the kernel level) ?
 > 
-> > Quoting Serge E. Hallyn (serue@us.ibm.com):
-> >> This patch implements file (posix) capabilities.  This allows
-> >> a binary to gain a subset of root's capabilities without having
-> >> the file actually be setuid root.
-> >> 
-> >> There are some other implementations out there taking various
-> >> approaches.  This patch keeps all the changes within the
-> >> capability LSM, and stores the file capabilities in xattrs
-> >> named "security.capability".  First question is, do we want
-> >> this in the kernel?  Second is, is this sort of implementation
-> >> we'd want?
-> >> 
-> >> Some userspace tools to manipulate the fscaps are at
-> >> www.sr71.net/~hallyn/fscaps/.  For instance,
-> >> 
-> >> 	setcap writeroot "cap_dac_read_search,cap_dac_override+eip"
-> >> 
-> >> allows the 'writeroot' testcase to write to /root/ab when
-> >> run as a normal user.
-> >> 
-> >> This patch doesn't address the need to update
-> >> cap_bprm_secureexec().
+> The UID/GID won't help you with dying processes.  What if the same user
+> creates a process with the same PID?  That process will not expect the
+> notification and mustn't receive it.  If you cannot detect whether the
+> issuing process died you have problems which cannot be solved with a
+> uid/gid pair.
 > 
-> Looking at your ondisk format it doesn't look like you include a
-> version.  There is no reason to believe the current set of kernel
-> capabilities is fixed for all time.
+> 
 
-In fact my version knowingly ignores CAP_AUDIT_WRITE and
-CAP_AUDIT_CONTROL (because on my little test .iso they didn't exist).
-So a version number may make sense.
+Eric W. Biederman sent a series of patches that introduced a struct
+task_ref specifically to solve this sort of problem on January 28 of
+this year, but I don't think it went anywhere.
 
-> So we need some for of
-> forward/backward compatibility.  Maybe in the cap name?
 
-You mean as in use 'security.capability_v32" for the xattr name?
-Or do you really mean add a cap name to the structure?
+-- 
+Nicholas Miell <nmiell@comcast.net>
 
-thanks,
--serge

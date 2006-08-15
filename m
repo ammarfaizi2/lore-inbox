@@ -1,57 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbWHOTKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWHOTNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030409AbWHOTKV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbWHOTKV
+	id S1030467AbWHOTNz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbWHOTNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:10:21 -0400
-Received: from lixom.net ([66.141.50.11]:19420 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S1030409AbWHOTKT (ORCPT
+	Tue, 15 Aug 2006 15:13:55 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:47888 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1030467AbWHOTNy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:10:19 -0400
-Date: Tue, 15 Aug 2006 14:05:24 -0500
-To: James K Lewis <jklewis@us.ibm.com>
-Cc: Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
-       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       Linas Vepstas <linas@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 4/4]: powerpc/cell spidernet ethtool -i version number info.
-Message-ID: <20060815190524.GW6603@pb15.lixom.net>
-References: <20060811180013.GB6550@pb15.lixom.net> <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
+	Tue, 15 Aug 2006 15:13:54 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF934FE4E3.EEC44FDD-ON872571C7.00668651-862571C7.00677A44@us.ibm.com>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 15 Aug 2006 19:13:35.0394 (UTC) FILETIME=[E7DBB820:01C6C09E]
+Content-class: urn:content-classes:message
+Subject: Re: Maximum number of processes in Linux
+Date: Tue, 15 Aug 2006 15:13:35 -0400
+Message-ID: <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
+In-Reply-To: <20060815182219.GL8776@1wt.eu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Maximum number of processes in Linux
+thread-index: AcbAnuf65xrDYTNuTyqgfDH3xDMCUQ==
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com> <20060815182219.GL8776@1wt.eu>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Willy Tarreau" <w@1wt.eu>
+Cc: "Irfan Habib" <irfan.habib@gmail.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 11, 2006 at 01:50:19PM -0500, James K Lewis wrote:
->  Hi Olof,
-> 
->   There are several reasons why an Ethernet driver should have an up to 
-> date version number:
-> 
-> 1. Customers like to see they are really getting a new version.
-> 
-> 2. It makes it easier for support personnel (me in this case) to see which 
-> driver they have. Sure, sometimes I can talk them thru doing a "sum" on 
-> the .ko and all that, but why not just use the version number? That's what 
-> it is for. And no, you can't just assume they have the version that came 
-> with the kernel they are running. It doesn't work that way.
-> 
-> 3. It makes bug reporting easier. 
-> 
-> 4. I have already run into too many problems and wasted too much time 
-> working with drivers when the number was NOT getting updated. 
 
-Thanks for the info, Jim.
+On Tue, 15 Aug 2006, Willy Tarreau wrote:
 
-Sounds like it's most useful if a customer (or distro) takes the driver
-out of the tree and run it with a different kernel, i.e. when kernel
-and driver versions no longer go together. Makes sense.
+> On Tue, Aug 15, 2006 at 02:22:02PM -0400, linux-os (Dick Johnson) wrote:
+>>
+>> On Tue, 15 Aug 2006, Irfan Habib wrote:
+>>
+>>> Hi,
+>>>
+>>> What is the maximum number of process which can run simultaneously in
+>>> linux? I need to create an application which requires 40,000 threads.
+>>> I was testing with far fewer numbers than that, I was getting
+>>> exceptions in pthread_create
+>>>
+>>> Regards
+>>> Irfan
+
+[SNIPPED bad stuff]
+
+>
+> Dick, would you please initialize your local variables when you send
+> examples like this ? You should have been amazed by one billion processes
+> on your box, at least.
+>
 
 
--Olof
+Yep....
 
+#include <stdio.h>
+#include <signal.h>
+int main()
+{
+     unsigned long i;
+     for(i = 0; ; i++)
+     {
+         switch(fork())
+         {
+         case 0:		// kid
+ 	pause();
+         break;
+         case -1:	// Failed
+         printf("%lu\n", i);
+             kill(0, SIGTERM);
+             exit(0);
+         default:
+             break;
+         }
+     }
+     return 0;
+}
+
+Shows a consistent 6140.
+
+>
+> Regards,
+> Willy
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWHOXio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWHOXmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWHOXio (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 19:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWHOXio
+	id S1750807AbWHOXmL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 19:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWHOXmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 19:38:44 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17834 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750816AbWHOXin (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 19:38:43 -0400
-Message-Id: <200608152338.k7FNccMI021012@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-mm2 - ext3 locking issue?
-In-Reply-To: Your message of "Wed, 09 Aug 2006 15:06:35 EDT."
-             <200608091906.k79J6Zrc009211@turing-police.cc.vt.edu>
-From: Valdis.Kletnieks@vt.edu
-References: <20060806030809.2cfb0b1e.akpm@osdl.org>
-            <200608091906.k79J6Zrc009211@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1155685118_3681P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 15 Aug 2006 19:42:11 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:25813
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750807AbWHOXmK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 19:42:10 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Maximum number of processes in Linux
+Date: Wed, 16 Aug 2006 01:39:16 +0200
+User-Agent: KMail/1.9.1
+References: <fa.evUDdOgjejpeNWKvgan3aKFF880@ifi.uio.no> <44E254E4.6090508@shaw.ca>
+In-Reply-To: <44E254E4.6090508@shaw.ca>
+Cc: linux-kernel@vger.kernel.org, Irfan Habib <irfan.habib@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 15 Aug 2006 19:38:38 -0400
-To: unlisted-recipients:; (no To-header on input)
+Content-Disposition: inline
+Message-Id: <200608160139.17019.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1155685118_3681P
-Content-Type: text/plain; charset=us-ascii
-
-On Wed, 09 Aug 2006 15:06:35 EDT, Valdis.Kletnieks@vt.edu said:
-> Yum managed to get wedged: 'echo t > /proc/sysrq-trigger' says:
+On Wednesday 16 August 2006 01:12, Robert Hancock wrote:
+> Irfan Habib wrote:
+> > Hi,
+> > 
+> > What is the maximum number of process which can run simultaneously in
+> > linux? I need to create an application which requires 40,000 threads.
+> > I was testing with far fewer numbers than that, I was getting
+> > exceptions in pthread_create
 > 
-> [ 4514.840000] yum           D D5C32AA0     0  4747   4430                     (NOTLB)
-> [ 4514.840000]        d5c3dda4 d5c3dd78 00000007 d5c32aa0 bd3ddd00 00000338 00000000 d5c32bc0
-> [ 4514.840000]        c1601628 d5c3dd9c 64600300 0000001f d5c3ddd8 d5c3ddd8 c1601628 d5c3ddac
-> [ 4514.840000]        c034fef8 d5c3ddb4 c0136e8e d5c3ddcc c0350026 c0136e58 d5c3ddd8 00000000
-> [ 4514.840000] Call Trace:
-> [ 4514.840000]  [<c034fef8>] io_schedule+0x25/0x44
-> [ 4514.840000]  [<c0136e8e>] sync_page+0x36/0x3a
-> [ 4514.840000]  [<c0350026>] __wait_on_bit_lock+0x30/0x58
-> [ 4514.840000]  [<c0136e44>] __lock_page+0x51/0x59
-> [ 4514.840000]  [<c013f099>] truncate_inode_pages_range+0x1de/0x230
-> [ 4514.840000]  [<c013f0f7>] truncate_inode_pages+0xc/0x11
-> [ 4514.840000]  [<c018ea12>] ext3_delete_inode+0x16/0xbd
-> [ 4514.840000]  [<c016798f>] generic_delete_inode+0xb6/0x130
-> [ 4514.840000]  [<c0167a1b>] generic_drop_inode+0x12/0x166
-> [ 4514.840000]  [<c01673f1>] iput+0x67/0x6a
-> [ 4514.840000]  [<c0165662>] dentry_iput+0x97/0xcc
-> [ 4514.840000]  [<c016613d>] dput+0x183/0x19c
-> [ 4514.840000]  [<c015f64f>] sys_renameat+0x17a/0x1d3
-> [ 4514.840000]  [<c015f6ba>] sys_rename+0x12/0x14
-> [ 4514.840000]  [<c0102849>] sysenter_past_esp+0x56/0x79
+> What architecture is this? On a 32-bit architecture with a 2MB stack 
+> size (which I think is the default) you couldn't possibly create more 
+> than 2048 threads just because of stack space requirements. Reducing the 
+> stack size would get you more.
 
-Well, after a detour into hardware issues (a dying fan ended up escalating
-into swapping a motherboard), I built 2.6.18-rc4-mm1 - unable to replicate
-the 'yum' hang on that.  Somehow, I'm not feeling very motivated to do a
-bisect of -rc3-mm2 to find it, unless somebody thinks we should track it down
-just in case it's just in hiding....
+Hm, I'm on a 4way PPC64 machine with 2.5G RAM.
+It can only create 509 pthreads and fails with ENOMEM
+on the 510th.
+That's not a really big machine, but I expected it to be able
+to create somewhere around 8000 threads or so, at least. Especially
+as it has a 64bit kernel and lots of memory.
 
---==_Exmh_1155685118_3681P
-Content-Type: application/pgp-signature
+Well...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+That's my test app:
 
-iD4DBQFE4lr+cC3lWbTT17ARAngkAKDXElqDs7xfJhlh0kW7ICUpoiVIYACTBqP1
-xCMyDioFUV1YE3mRDTzExw==
-=dcZ1
------END PGP SIGNATURE-----
+#include <stdio.h>
+#include <pthread.h>
+#include <string.h>
+#include <errno.h>
 
---==_Exmh_1155685118_3681P--
+
+static void * thread(void *arg)
+{
+        while (1)
+                sleep(10);
+}
+
+int main(void)
+{
+        int err = 0;
+        unsigned long i = 0;
+        pthread_t t;
+
+        while (!err) {
+                err = pthread_create(&t, NULL, thread, NULL);
+                i++;
+                if (err) {
+                        printf("Creating pthread %lu failed with \"%s\"\n",
+                                i, strerror(errno));
+                        break;
+                }
+                printf("%lu pthreads created\n", i);
+        }
+
+        return 0;
+}
+
+-- 
+Greetings Michael.

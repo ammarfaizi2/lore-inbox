@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWHORKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWHORNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030366AbWHORKS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 13:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbWHORKS
+	id S1030389AbWHORNA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbWHORNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 13:10:18 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:24486 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030366AbWHORKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 13:10:17 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Subject: Re: 2.6.18-rc4-mm1
-Date: Tue, 15 Aug 2006 19:14:07 +0200
-User-Agent: KMail/1.9.3
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20060813012454.f1d52189.akpm@osdl.org> <200608141954.29656.rjw@sisk.pl> <20060815.230741.41198421.anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060815.230741.41198421.anemo@mba.ocn.ne.jp>
+	Tue, 15 Aug 2006 13:13:00 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:13773 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030389AbWHORM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 13:12:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=h8UIsTAx5/XrGXbGiq5ueSD+5QlCVhSeh5N6ES2bosAiWNPlwgWV9ETdLJtWpQduHSjeh5X+/gDcDsWjtsYqu8+wI9w+BA63hi+IR38fwofifx5fIhKXntqQH7nqciPsCcttTwbE4nOJsiMcvYlUd+UDhKujz3/FIVKMfKXoryA=
+Message-ID: <d120d5000608151012y27c1ea2h4adda366112868a7@mail.gmail.com>
+Date: Tue, 15 Aug 2006 13:12:58 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: Voluspa <lista1@comhem.se>
+Subject: Re: Touchpad problems with latest kernels
+Cc: "Luke Sharkey" <lukesharkey@hotmail.co.uk>, andi@rhlx01.fht-esslingen.de,
+       davej@redhat.com, gene.heskett@verizon.net, ian.stirling@mauve.plus.com,
+       linux-kernel@vger.kernel.org, malattia@linux.it
+In-Reply-To: <20060815183310.284d03ae.lista1@comhem.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608151914.07420.rjw@sisk.pl>
+References: <d120d5000608141227h7c707686i7db7eabba0e3a3ca@mail.gmail.com>
+	 <BAY114-F2421131E2BFF6216D9A52BFA4F0@phx.gbl>
+	 <20060815183310.284d03ae.lista1@comhem.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 August 2006 16:07, Atsushi Nemoto wrote:
-> On Mon, 14 Aug 2006 19:54:29 +0200, "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > simplify-update_times-avoid-jiffies-jiffies_64-aliasing-problem.patch
-> > 
-> > makes my x86_64 SMP box (dual-core Athlon 64 on an ULi-based AsRock mobo) run
-> > _very_ slow (it would take tens of minutes to boot the box if I were as
-> > patient as to wait for that).
-> > 
-> > Strangely enough, on a non-SMP box I have tested it on it works just fine.
-> 
-> Oh, my fault.
-> 
-> Could you retry with this patch?
+On 8/15/06, Voluspa <lista1@comhem.se> wrote:
+>
+> Pointer freezing would be Dmitry's domain, but he'd have to work with
+> someone who can trigger it easily, and who can write scripts to capture
+> debug data, since it's 'hard' to move a frozen pointer to a terminal
+> and issue commands...
+>
 
-Yes, the patch helps.
-
-Thanks,
-Rafael
-
+The trick is to have a terminal open and then do alt-tab (presuming
+that it does not unfreeze the pointer)...
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Dmitry

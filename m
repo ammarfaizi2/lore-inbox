@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbWHOIdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWHOI5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965299AbWHOIdL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 04:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965298AbWHOIdK
+	id S932248AbWHOI5s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 04:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWHOI5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 04:33:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39813 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965237AbWHOIdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 04:33:09 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060815013114.GS29920@ftp.linux.org.uk> 
-References: <20060815013114.GS29920@ftp.linux.org.uk>  <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com> 
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RHEL5 PATCH 2/4] VFS: Make inode numbers 64-bits 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 15 Aug 2006 09:32:57 +0100
-Message-ID: <7619.1155630777@warthog.cambridge.redhat.com>
+	Tue, 15 Aug 2006 04:57:48 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:14555 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S932248AbWHOI5r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 04:57:47 -0400
+Message-ID: <44E18C6C.2080902@nachtwindheim.de>
+Date: Tue, 15 Aug 2006 10:57:16 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+MIME-Version: 1.0
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       kernel-janitors@lists.osdl.org
+Subject: [PATCH] kerneldoc correction in pci-driver
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> wrote:
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-> NAK.  There's no need to touch i_ino and a lot of reasons for not doing
-> that.
+Removes an unused kerneldoc entry from pci_match_device and
+put the others into correct order.
 
-Like all those printks that write ambiguous messages because they can't report
-the full inode number?  I'm not so worried about those because they're for the
-most part debugging messages, but still, they *can* report invalid information
-because i_ino is not big enough in error and warning messages.
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-David
+---
+
+--- linux-2.6.18-rc4/drivers/pci/pci-driver.c	2006-06-18 03:49:35.000000000 +0200
++++ linux/drivers/pci/pci-driver.c	2006-08-11 13:59:39.000000000 +0200
+@@ -139,9 +139,8 @@
+ /**
+  * pci_match_device - Tell if a PCI device structure has a matching
+  *                    PCI device id structure
+- * @ids: array of PCI device id structures to search in
+- * @dev: the PCI device structure to match against
+  * @drv: the PCI driver to match against
++ * @dev: the PCI device structure to match against
+  *
+  * Used by a driver to check whether a PCI device present in the
+  * system is in its list of supported devices.  Returns the matching
+
+

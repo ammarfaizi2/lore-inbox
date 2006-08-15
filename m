@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWHOKng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWHOKsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWHOKng (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 06:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWHOKng
+	id S1030199AbWHOKsf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 06:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWHOKsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 06:43:36 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:63371
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1030192AbWHOKnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 06:43:35 -0400
-Date: Tue, 15 Aug 2006 03:43:17 -0700
-To: Robert Crocombe <rcrocomb@gmail.com>
-Cc: Esben Nielsen <nielsen.esben@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, rostedt@goodmis.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re: Problems with 2.6.17-rt8
-Message-ID: <20060815104317.GA2138@gnuppy.monkey.org>
-References: <20060808025615.GA20364@gnuppy.monkey.org> <20060808030524.GA20530@gnuppy.monkey.org> <Pine.LNX.4.64.0608090050500.23474@frodo.shire> <20060810021835.GB12769@gnuppy.monkey.org> <20060811010646.GA24434@gnuppy.monkey.org> <e6babb600608110800g379ed2c3gd0dbed706d50622c@mail.gmail.com> <20060811211857.GA32185@gnuppy.monkey.org> <20060811221054.GA32459@gnuppy.monkey.org> <e6babb600608141056j4410380fr15348430738c91d8@mail.gmail.com> <20060814234423.GA31230@gnuppy.monkey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060814234423.GA31230@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+	Tue, 15 Aug 2006 06:48:35 -0400
+Received: from ns2.suse.de ([195.135.220.15]:64199 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030199AbWHOKse (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 06:48:34 -0400
+Date: Tue, 15 Aug 2006 12:47:09 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Chuck Ebbert" <76306.1226@compuserve.com>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Dave Jones" <davej@redhat.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] i386: fix one case of stuck dwarf2 unwinder II
+Message-Id: <20060815124709.e62d9c57.ak@muc.de>
+In-Reply-To: <44E1BF37.76E4.0078.0@novell.com>
+References: <200608061212_MC3-1-C747-C2AD@compuserve.com>
+	<44D70F42.76E4.0078.0@novell.com>
+	<200608071004.37849.ak@suse.de>
+	<44E1BF37.76E4.0078.0@novell.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 04:44:23PM -0700, Bill Huey wrote:
-> On Mon, Aug 14, 2006 at 10:56:39AM -0700, Robert Crocombe wrote:
-> > And yeah, it is a RAID config.  But for extra bonus points, I found a
-> > spare SCSI disk and installed Fedora Core 5 and did a 'yum upgrade' to
-> > whatever was current as of today.  So it's a single disk config now.
-> > Problem still occurs with 't2' patched kernel.
-> > 
-> > config and dmesg attached, kaboom-like stuff appended.
+On Tue, 15 Aug 2006 12:33:59 +0200
+"Jan Beulich" <jbeulich@novell.com> wrote:
+
+> >> So it would seem to me. Nevertheless, in my opinion the proper fix is
+> to annotate the call site
+> >> (in head.S) to specify a zero EIP as return address (which denotes
+> the bottom of a frame).
+> >
+> >Can you please send a patch to do that?
+> >
+> >That seems to be missing in some other places too, e.g. i386 sysenter
+> path, x86-64 kernel_thread,
+> >more?
 > 
-> It looks like a screw interaction between the latency tracer and the mutex
-> code that creates such a wacked out looking stack trace. Unfortunately,
-> I've been unsuccessful at reproducing it, so I'm going to focus on a partial
-> clean up so that the rtmutex is a bit more friendly to the latency tracer.
-> 
-> This is kind of a pain.
+> Attaching both an i386 version (boot/idle thread only, you did
+> kernel_thread already)
+> and an x86-64 one (boot/idle and kernel_thread). The i386 sysenter path
+> is a different
+> thing,
 
-I'm high, the latency tracer is fine. I'm going to look at the mutex code more.
+Ok added thanks.
 
-bill
+Re One open question: Should this added push perhaps be made conditional
+upon CONFIG_STACK_UNWIND or CONFIG_UNWIND_INFO?
 
+I don't think that's needed because they are all slow paths.
+
+ there we have an actual caller (though outside of the kernel),
+> which I'd like to
+> continue to reflect/catch through arch_unw_user_mode().
+
+Ok, but does it work now? I thought it didn't.
+I've also seen a stuck on the x86-64 sysenter path on x86-64.
+
+-Andi 

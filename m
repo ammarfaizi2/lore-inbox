@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWHOGL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWHOG0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965108AbWHOGL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 02:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWHOGL5
+	id S965215AbWHOG0S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 02:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWHOG0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 02:11:57 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:6324 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965108AbWHOGL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 02:11:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=GH+Z+TI7gc+VvATBorjSwCCR6295G4Pcj0BXn9uForD5X4VCPsTxLmvPkRp1qe9VwuRcfk2pLvpx1a4wPLJhQ56ijowlbnpU+5nNoINgBmqp7PzpiuB0uDlC7ELPishBUp7Ld8s2uMF23KD1jIAumoclzcr5vGTbnbHuphO7N24=
-Subject: Re: vga text console
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-To: James C Georgas <jgeorgas@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1155607768.8131.22.camel@Rainsong>
-References: <1155604313.8131.4.camel@Rainsong>
-	 <1155604928.3948.8.camel@daplas.org>  <1155605197.3948.10.camel@daplas.org>
-	 <1155606109.8131.13.camel@Rainsong>  <1155606849.3948.17.camel@daplas.org>
-	 <1155607768.8131.22.camel@Rainsong>
-Content-Type: text/plain
-Date: Tue, 15 Aug 2006 14:11:50 +0800
-Message-Id: <1155622311.3854.1.camel@daplas.org>
+	Tue, 15 Aug 2006 02:26:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20174 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965215AbWHOG0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 02:26:17 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: What's in kbuild.git for 2.6.19 
+In-reply-to: Your message of "Tue, 15 Aug 2006 13:53:37 +1000."
+             <20560.1155614017@kao2.melbourne.sgi.com> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Aug 2006 16:25:59 +1000
+Message-ID: <25740.1155623159@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-14 at 22:09 -0400, James C Georgas wrote:
-> On Tue, 2006-15-08 at 09:54 +0800, Antonino A. Daplas wrote:
-> > > If I define CONFIG_EMBEDDED, is that going to change the behaviour of
-> > > other subsystems, or does it just enable more options?
-> > > 
-> > 
-> > It basically opens up a lot of config options. It may also disable a few
-> > incompatible options (ie, CONFIG_DEBUG_VERBOSE), and enable a few.  It
-> > will require that you know exactly what options need to be turned on or
-> > off.
-> Oh. That actually sounds like it could be a lot of fun. I'm a big fan of
-> the Minimal Kernel.
-> 
-> I'm kind of surprised that the VGA console can't be built as a module,
-> like the other console drivers in the kernel can be. Is this on purpose,
-> or is it just that nobody has gotten around to it?
-> 
+On Mon, Aug 14, 2006 at 12:02:09AM -0700, Keith Owens wrote:
+>Sam Ravnborg (on Sun, 13 Aug 2006 21:45:03 +0200) wrote:
+>>Outstanding kbuild issues (I should fix a few of these for 2.6.18):
+>>o make -j N is not as parallel as expected (latest report from Keith
+>>  Ownens but others has complained as well). I assume it is a kbuild
+>>  thing but has no clue how to fix it or debug it further.
+>
+>It is the make jobserver code.  make -j<n> causes the various make
+>tasks to communicate and work out how many versions are currently
+>running, to avoid overrunning the -j<n> value.  Every recursive
+>invocation of make subtracts one from the -j value, reducing the value
+>that is left when make finally get down to doing some useful work
+>instead of just recursing.  Jobserver problems are yet another reason
+>why recursive make is bad.
+>
+>kbuild is full of recursive make.  The user cannot just add an excess
+>to <n>, the number of recursive invocations changes from kernel to
+>kernel as people try to fix bugs in makefile generation, so the
+>required excess value keeps changing.
 
-It's possible to make vgacon modular, the changes required will be
-minimal. It would seem that nobody ever had a need for it, so that was
-never done.
-
-Tony
+The jobserver in make 3.80 is buggy.  3.80 appears to work for parallel
+builds using a single Makefile, with recursive make it can lose
+jobserver tokens.  make 3.81 works fine.  Now to persuade SuSE to
+upgrade to make 3.81.
 

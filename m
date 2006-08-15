@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbWHNXzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWHOAEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbWHNXzn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 19:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbWHNXzn
+	id S965082AbWHOAEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 20:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWHOAEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 19:55:43 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30112 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932739AbWHNXzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 19:55:42 -0400
-Date: Mon, 14 Aug 2006 16:52:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       Linux DVB <linux-dvb@linuxtv.org>
-Subject: Re: 2.6.18-rc3-mm2:  oops in device_bind_driver()
-Message-ID: <20060814235208.GA12912@kroah.com>
-References: <1155385726.6151.6.camel@Homer.simpson.net> <20060812180256.445caea9.akpm@osdl.org> <1155448234.7068.1.camel@Homer.simpson.net> <20060814210308.GH11673@kroah.com> <1155590934.13789.19.camel@praia>
+	Mon, 14 Aug 2006 20:04:44 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:47623 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965078AbWHOAEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 20:04:43 -0400
+Date: Tue, 15 Aug 2006 02:04:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: o.bock@fh-wolfenbuettel.de, gregkh@suse.de
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: drivers/usb/misc/cypress_cy7c63.c: NULL dereference
+Message-ID: <20060815000442.GB3543@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1155590934.13789.19.camel@praia>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 06:28:54PM -0300, Mauro Carvalho Chehab wrote:
-> Em Seg, 2006-08-14 ?s 14:03 -0700, Greg KH escreveu:
-> > On Sun, Aug 13, 2006 at 05:50:34AM +0000, Mike Galbraith wrote:
-> > > On Sat, 2006-08-12 at 18:02 -0700, Andrew Morton wrote:
-> > > 
-> > > > I'd assume that you have CONFIG_PCI_MULTITHREAD_PROBE set, and
-> > > 
-> > > Yes.
-> > 
-> > Mauro, this is odd.  Anything in the dvb layer that would not like
-> > multiple devices being probed at the same time?
-> We should hardly check for all race conditions. It is likely to cause
-> some random troubles at both V4L and DVB sides. 
-> 
-> For example, on V4L side, this may produce weird stuff like bad device
-> number associations (for example, the same device might get /dev/video0
-> and /dev/radio1, but apps expects to have the same numbering for
-> both)...
-> 
-> The same on DVB: demux0 should be associated with frontend0, for DVB to
-> work properly, but, with simultaneous probing, this might not happen.
+The Coverity Checker spotted the following obvious NULL dereference:
 
-How do you prevent this from happening today, with USB devices showing
-up at any point in time, combined with PCI hotplug devices?
+<--  snip  -->
 
-> For sure some newer locks will be required for multithread probe.
+...
+static int cypress_probe(struct usb_interface *interface,
+                         const struct usb_device_id *id)
+{
+...
+        if (dev == NULL) {
+                dev_err(&dev->udev->dev, "Out of memory!\n");
+                goto error;
+        }
+...
+}
+...
 
-I think you need it even without this PCI change :)
+<--  snip  -->
 
-thanks,
+cu
+Adrian
 
-greg k-h
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
+

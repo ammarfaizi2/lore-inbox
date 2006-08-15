@@ -1,890 +1,955 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWHOW4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWHOW4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWHOW4g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 18:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWHOW4g
+	id S1750796AbWHOW4o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 18:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWHOW4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 18:56:36 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:4762 "EHLO
-	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1750794AbWHOW4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 18:56:34 -0400
-Date: Tue, 15 Aug 2006 17:56:13 -0500
+	Tue, 15 Aug 2006 18:56:43 -0400
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:31189 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1750796AbWHOW4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 18:56:41 -0400
+Date: Tue, 15 Aug 2006 17:56:18 -0500
 From: Dave McCracken <dmccr@us.ibm.com>
 To: Arjan van de Ven <arjan@infradead.org>, Diego Calleja <diegocg@gmail.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
        Hugh Dickins <hugh@veritas.com>
-Message-Id: <20060815225613.17433.56518.sendpatch@wildcat>
+Message-Id: <20060815225618.17433.84777.sendpatch@wildcat>
 In-Reply-To: <20060815225607.17433.32727.sendpatch@wildcat>
 References: <20060815225607.17433.32727.sendpatch@wildcat>
-Subject: [PATCH 1/2] pxx_page macro cleanup
+Subject: [PATCH 2/2] Simple shared page tables
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These macro changes are needed for shared page tables.
-This patch is in 2.6.18-rc4-mm1, so it's not needed there.
-
-Signed-off-by: Dave McCracken <dmccr@us.ibm.com>
+The actual shared page table patches
 
 ------------------------
 
 Diffstat:
 
- arch/sh/mm/cache-sh7705.c           |    2 +-
- arch/sparc/mm/srmmu.c               |    2 +-
- arch/sparc/mm/sun4c.c               |    2 +-
- arch/um/kernel/skas/mmu.c           |    2 +-
- arch/x86_64/mm/fault.c              |    6 +++---
- include/asm-alpha/mmzone.h          |    1 +
- include/asm-alpha/pgtable.h         |    9 +++++----
- include/asm-arm/pgtable.h           |    8 ++++----
- include/asm-arm26/pgtable.h         |    8 ++++----
- include/asm-cris/pgtable.h          |    4 ++--
- include/asm-frv/pgtable.h           |    8 ++++----
- include/asm-generic/4level-fixup.h  |    4 ++++
- include/asm-generic/pgtable-nopmd.h |    2 +-
- include/asm-generic/pgtable-nopud.h |    2 +-
- include/asm-i386/pgtable-3level.h   |    2 +-
- include/asm-i386/pgtable.h          |    4 ++--
- include/asm-ia64/pgtable.h          |   14 ++++++++------
- include/asm-m32r/pgtable-2level.h   |    6 +++++-
- include/asm-m32r/pgtable.h          |    4 ++--
- include/asm-m68k/motorola_pgtable.h |    1 +
- include/asm-mips/pgtable-32.h       |    4 ++--
- include/asm-mips/pgtable-64.h       |   10 ++++++----
- include/asm-mips/pgtable.h          |    2 +-
- include/asm-parisc/pgtable.h        |    9 +++++----
- include/asm-powerpc/pgtable-4k.h    |    5 +++--
- include/asm-powerpc/pgtable.h       |   11 ++++++-----
- include/asm-ppc/pgtable.h           |    8 ++++----
- include/asm-s390/pgtable.h          |   10 ++++++----
- include/asm-sh/pgtable-2level.h     |    5 ++++-
- include/asm-sh/pgtable.h            |    4 ++--
- include/asm-sh64/pgtable.h          |    6 ++++--
- include/asm-sparc/pgtable.h         |    4 ++--
- include/asm-sparc64/pgtable.h       |    5 +++--
- include/asm-um/pgtable-2level.h     |    2 +-
- include/asm-um/pgtable-3level.h     |    5 +++--
- include/asm-um/pgtable.h            |    4 ++--
- include/asm-x86_64/pgtable.h        |   16 ++++++++--------
- include/asm-xtensa/pgtable.h        |    4 ++--
- 38 files changed, 116 insertions(+), 89 deletions(-)
+ arch/i386/Kconfig             |    7 
+ arch/s390/Kconfig             |    7 
+ arch/x86_64/Kconfig           |    7 
+ fs/proc/proc_misc.c           |    6 
+ fs/proc/task_mmu.c            |    7 
+ include/asm-generic/pgtable.h |   31 +++
+ include/linux/mm.h            |   10 -
+ include/linux/mmzone.h        |    3 
+ include/linux/ptshare.h       |   69 ++++++++
+ include/linux/rmap.h          |    2 
+ include/linux/sched.h         |    5 
+ mm/Makefile                   |    1 
+ mm/filemap_xip.c              |    3 
+ mm/fremap.c                   |    3 
+ mm/memory.c                   |    8 -
+ mm/mmap.c                     |    7 
+ mm/mprotect.c                 |    8 -
+ mm/mremap.c                   |    3 
+ mm/ptshare.c                  |  332 ++++++++++++++++++++++++++++++++++++++++++
+ mm/rmap.c                     |   18 +-
+ mm/vmstat.c                   |    3 
+ 21 files changed, 524 insertions(+), 16 deletions(-)
 
 ------------------------
 
---- 2.6.18-rc4/./arch/sh/mm/cache-sh7705.c	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./arch/sh/mm/cache-sh7705.c	2006-08-07 19:28:26.000000000 -0500
-@@ -30,7 +30,7 @@
+--- 2.6.18-rc4-macro/./arch/i386/Kconfig	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./arch/i386/Kconfig	2006-08-07 19:28:56.000000000 -0500
+@@ -539,6 +539,13 @@ config X86_PAE
+ 	default y
+ 	select RESOURCES_64BIT
  
- #define __pte_offset(address) \
- 		((address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
--#define pte_offset(dir, address) ((pte_t *) pmd_page_kernel(*(dir)) + \
-+#define pte_offset(dir, address) ((pte_t *) pmd_page_vaddr(*(dir)) + \
- 		__pte_offset(address))
- 
- static inline void cache_wback_all(void)
---- 2.6.18-rc4/./arch/sparc/mm/srmmu.c	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./arch/sparc/mm/srmmu.c	2006-08-07 19:28:26.000000000 -0500
-@@ -2175,7 +2175,7 @@ void __init ld_mmu_srmmu(void)
- 
- 	BTFIXUPSET_CALL(pte_pfn, srmmu_pte_pfn, BTFIXUPCALL_NORM);
- 	BTFIXUPSET_CALL(pmd_page, srmmu_pmd_page, BTFIXUPCALL_NORM);
--	BTFIXUPSET_CALL(pgd_page, srmmu_pgd_page, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(pgd_page_vaddr, srmmu_pgd_page, BTFIXUPCALL_NORM);
- 
- 	BTFIXUPSET_SETHI(none_mask, 0xF0000000);
- 
---- 2.6.18-rc4/./arch/sparc/mm/sun4c.c	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./arch/sparc/mm/sun4c.c	2006-08-07 19:28:26.000000000 -0500
-@@ -2280,5 +2280,5 @@ void __init ld_mmu_sun4c(void)
- 
- 	/* These should _never_ get called with two level tables. */
- 	BTFIXUPSET_CALL(pgd_set, sun4c_pgd_set, BTFIXUPCALL_NOP);
--	BTFIXUPSET_CALL(pgd_page, sun4c_pgd_page, BTFIXUPCALL_RETO0);
-+	BTFIXUPSET_CALL(pgd_page_vaddr, sun4c_pgd_page, BTFIXUPCALL_RETO0);
- }
---- 2.6.18-rc4/./arch/um/kernel/skas/mmu.c	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./arch/um/kernel/skas/mmu.c	2006-08-07 19:28:26.000000000 -0500
-@@ -55,7 +55,7 @@ static int init_stub_pte(struct mm_struc
- 	 * destroy_context_skas.
- 	 */
- 
--        mm->context.skas.last_page_table = pmd_page_kernel(*pmd);
-+        mm->context.skas.last_page_table = pmd_page_vaddr(*pmd);
- #ifdef CONFIG_3_LEVEL_PGTABLES
-         mm->context.skas.last_pmd = (unsigned long) __va(pud_val(*pud));
- #endif
---- 2.6.18-rc4/./arch/x86_64/mm/fault.c	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./arch/x86_64/mm/fault.c	2006-08-07 19:28:26.000000000 -0500
-@@ -299,7 +299,7 @@ static int vmalloc_fault(unsigned long a
- 	if (pgd_none(*pgd))
- 		set_pgd(pgd, *pgd_ref);
- 	else
--		BUG_ON(pgd_page(*pgd) != pgd_page(*pgd_ref));
-+		BUG_ON(pgd_page_vaddr(*pgd) != pgd_page_vaddr(*pgd_ref));
- 
- 	/* Below here mismatches are bugs because these lower tables
- 	   are shared */
-@@ -308,7 +308,7 @@ static int vmalloc_fault(unsigned long a
- 	pud_ref = pud_offset(pgd_ref, address);
- 	if (pud_none(*pud_ref))
- 		return -1;
--	if (pud_none(*pud) || pud_page(*pud) != pud_page(*pud_ref))
-+	if (pud_none(*pud) || pud_page_vaddr(*pud) != pud_page_vaddr(*pud_ref))
- 		BUG();
- 	pmd = pmd_offset(pud, address);
- 	pmd_ref = pmd_offset(pud_ref, address);
-@@ -641,7 +641,7 @@ void vmalloc_sync_all(void)
- 				if (pgd_none(*pgd))
- 					set_pgd(pgd, *pgd_ref);
- 				else
--					BUG_ON(pgd_page(*pgd) != pgd_page(*pgd_ref));
-+					BUG_ON(pgd_page_vaddr(*pgd) != pgd_page_vaddr(*pgd_ref));
- 			}
- 			spin_unlock(&pgd_lock);
- 			set_bit(pgd_index(address), insync);
---- 2.6.18-rc4/./include/asm-alpha/mmzone.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-alpha/mmzone.h	2006-08-07 19:28:26.000000000 -0500
-@@ -75,6 +75,7 @@ PLAT_NODE_DATA_LOCALNR(unsigned long p, 
- #define VALID_PAGE(page)	(((page) - mem_map) < max_mapnr)
- 
- #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> 32))
-+#define pgd_page(pgd)		(pfn_to_page(pgd_val(pgd) >> 32))
- #define pte_pfn(pte)		(pte_val(pte) >> 32)
- 
- #define mk_pte(page, pgprot)						     \
---- 2.6.18-rc4/./include/asm-alpha/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-alpha/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -230,16 +230,17 @@ extern inline void pgd_set(pgd_t * pgdp,
- 
- 
- extern inline unsigned long
--pmd_page_kernel(pmd_t pmd)
-+pmd_page_vaddr(pmd_t pmd)
- {
- 	return ((pmd_val(pmd) & _PFN_MASK) >> (32-PAGE_SHIFT)) + PAGE_OFFSET;
- }
- 
- #ifndef CONFIG_DISCONTIGMEM
- #define pmd_page(pmd)	(mem_map + ((pmd_val(pmd) & _PFN_MASK) >> 32))
-+#define pgd_page(pgd)	(mem_map + ((pgd_val(pgd) & _PFN_MASK) >> 32))
- #endif
- 
--extern inline unsigned long pgd_page(pgd_t pgd)
-+extern inline unsigned long pgd_page_vaddr(pgd_t pgd)
- { return PAGE_OFFSET + ((pgd_val(pgd) & _PFN_MASK) >> (32-PAGE_SHIFT)); }
- 
- extern inline int pte_none(pte_t pte)		{ return !pte_val(pte); }
-@@ -293,13 +294,13 @@ extern inline pte_t pte_mkyoung(pte_t pt
- /* Find an entry in the second-level page table.. */
- extern inline pmd_t * pmd_offset(pgd_t * dir, unsigned long address)
- {
--	return (pmd_t *) pgd_page(*dir) + ((address >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
-+	return (pmd_t *) pgd_page_vaddr(*dir) + ((address >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
- }
- 
- /* Find an entry in the third-level page table.. */
- extern inline pte_t * pte_offset_kernel(pmd_t * dir, unsigned long address)
- {
--	return (pte_t *) pmd_page_kernel(*dir)
-+	return (pte_t *) pmd_page_vaddr(*dir)
- 		+ ((address >> PAGE_SHIFT) & (PTRS_PER_PAGE - 1));
- }
- 
---- 2.6.18-rc4/./include/asm-arm/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-arm/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -224,9 +224,9 @@ extern struct page *empty_zero_page;
- #define pte_none(pte)		(!pte_val(pte))
- #define pte_clear(mm,addr,ptep)	set_pte_at((mm),(addr),(ptep), __pte(0))
- #define pte_page(pte)		(pfn_to_page(pte_pfn(pte)))
--#define pte_offset_kernel(dir,addr)	(pmd_page_kernel(*(dir)) + __pte_index(addr))
--#define pte_offset_map(dir,addr)	(pmd_page_kernel(*(dir)) + __pte_index(addr))
--#define pte_offset_map_nested(dir,addr)	(pmd_page_kernel(*(dir)) + __pte_index(addr))
-+#define pte_offset_kernel(dir,addr)	(pmd_page_vaddr(*(dir)) + __pte_index(addr))
-+#define pte_offset_map(dir,addr)	(pmd_page_vaddr(*(dir)) + __pte_index(addr))
-+#define pte_offset_map_nested(dir,addr)	(pmd_page_vaddr(*(dir)) + __pte_index(addr))
- #define pte_unmap(pte)		do { } while (0)
- #define pte_unmap_nested(pte)	do { } while (0)
- 
-@@ -291,7 +291,7 @@ PTE_BIT_FUNC(mkyoung,   |= L_PTE_YOUNG);
- 		clean_pmd_entry(pmdp);	\
- 	} while (0)
- 
--static inline pte_t *pmd_page_kernel(pmd_t pmd)
-+static inline pte_t *pmd_page_vaddr(pmd_t pmd)
- {
- 	unsigned long ptr;
- 
---- 2.6.18-rc4/./include/asm-arm26/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-arm26/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -186,12 +186,12 @@ extern struct page *empty_zero_page;
-  * return a pointer to memory (no special alignment)
-  */
- #define pmd_page(pmd)  ((struct page *)(pmd_val((pmd)) & ~_PMD_PRESENT))
--#define pmd_page_kernel(pmd) ((pte_t *)(pmd_val((pmd)) & ~_PMD_PRESENT))
-+#define pmd_page_vaddr(pmd) ((pte_t *)(pmd_val((pmd)) & ~_PMD_PRESENT))
- 
--#define pte_offset_kernel(dir,addr)     (pmd_page_kernel(*(dir)) + __pte_index(addr))
-+#define pte_offset_kernel(dir,addr)     (pmd_page_vaddr(*(dir)) + __pte_index(addr))
- 
--#define pte_offset_map(dir,addr)        (pmd_page_kernel(*(dir)) + __pte_index(addr))
--#define pte_offset_map_nested(dir,addr) (pmd_page_kernel(*(dir)) + __pte_index(addr))
-+#define pte_offset_map(dir,addr)        (pmd_page_vaddr(*(dir)) + __pte_index(addr))
-+#define pte_offset_map_nested(dir,addr) (pmd_page_vaddr(*(dir)) + __pte_index(addr))
- #define pte_unmap(pte)                  do { } while (0)
- #define pte_unmap_nested(pte)           do { } while (0)
- 
---- 2.6.18-rc4/./include/asm-cris/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-cris/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -253,7 +253,7 @@ static inline void pmd_set(pmd_t * pmdp,
- { pmd_val(*pmdp) = _PAGE_TABLE | (unsigned long) ptep; }
- 
- #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
--#define pmd_page_kernel(pmd)	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
-+#define pmd_page_vaddr(pmd)	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- /* to find an entry in a page-table-directory. */
- #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
-@@ -271,7 +271,7 @@ static inline pgd_t * pgd_offset(struct 
- #define __pte_offset(address) \
- 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, address) \
--	((pte_t *) pmd_page_kernel(*(dir)) +  __pte_offset(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) +  __pte_offset(address))
- #define pte_offset_map(dir, address) \
- 	((pte_t *)page_address(pmd_page(*(dir))) + __pte_offset(address))
- #define pte_offset_map_nested(dir, address) pte_offset_map(dir, address)
---- 2.6.18-rc4/./include/asm-frv/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-frv/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -217,7 +217,7 @@ static inline pud_t *pud_offset(pgd_t *p
- }
- 
- #define pgd_page(pgd)				(pud_page((pud_t){ pgd }))
--#define pgd_page_kernel(pgd)			(pud_page_kernel((pud_t){ pgd }))
-+#define pgd_page_vaddr(pgd)			(pud_page_vaddr((pud_t){ pgd }))
- 
- /*
-  * allocating and freeing a pud is trivial: the 1-entry pud is
-@@ -246,7 +246,7 @@ static inline void pud_clear(pud_t *pud)
- #define set_pud(pudptr, pudval)			set_pmd((pmd_t *)(pudptr), (pmd_t) { pudval })
- 
- #define pud_page(pud)				(pmd_page((pmd_t){ pud }))
--#define pud_page_kernel(pud)			(pmd_page_kernel((pmd_t){ pud }))
-+#define pud_page_vaddr(pud)			(pmd_page_vaddr((pmd_t){ pud }))
- 
- /*
-  * (pmds are folded into pgds so this doesn't get actually called,
-@@ -362,7 +362,7 @@ static inline pmd_t *pmd_offset(pud_t *d
- #define	pmd_bad(x)	(pmd_val(x) & xAMPRx_SS)
- #define pmd_clear(xp)	do { __set_pmd(xp, 0); } while(0)
- 
--#define pmd_page_kernel(pmd) \
-+#define pmd_page_vaddr(pmd) \
- 	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- #ifndef CONFIG_DISCONTIGMEM
-@@ -458,7 +458,7 @@ static inline pte_t pte_modify(pte_t pte
- #define pte_index(address) \
- 		(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, address) \
--	((pte_t *) pmd_page_kernel(*(dir)) +  pte_index(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) +  pte_index(address))
- 
- #if defined(CONFIG_HIGHPTE)
- #define pte_offset_map(dir, address) \
---- 2.6.18-rc4/./include/asm-generic/4level-fixup.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-generic/4level-fixup.h	2006-08-07 19:28:26.000000000 -0500
-@@ -21,6 +21,10 @@
- #define pud_present(pud)		1
- #define pud_ERROR(pud)			do { } while (0)
- #define pud_clear(pud)			pgd_clear(pud)
-+#define pud_val(pud)			pgd_val(pud)
-+#define pud_populate(mm, pud, pmd)	pgd_populate(mm, pud, pmd)
-+#define pud_page(pud)			pgd_page(pud)
-+#define pud_page_vaddr(pud)		pgd_page_vaddr(pud)
- 
- #undef pud_free_tlb
- #define pud_free_tlb(tlb, x)            do { } while (0)
---- 2.6.18-rc4/./include/asm-generic/pgtable-nopmd.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-generic/pgtable-nopmd.h	2006-08-07 19:28:26.000000000 -0500
-@@ -47,7 +47,7 @@ static inline pmd_t * pmd_offset(pud_t *
- #define __pmd(x)				((pmd_t) { __pud(x) } )
- 
- #define pud_page(pud)				(pmd_page((pmd_t){ pud }))
--#define pud_page_kernel(pud)			(pmd_page_kernel((pmd_t){ pud }))
-+#define pud_page_vaddr(pud)			(pmd_page_vaddr((pmd_t){ pud }))
- 
- /*
-  * allocating and freeing a pmd is trivial: the 1-entry pmd is
---- 2.6.18-rc4/./include/asm-generic/pgtable-nopud.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-generic/pgtable-nopud.h	2006-08-07 19:28:26.000000000 -0500
-@@ -44,7 +44,7 @@ static inline pud_t * pud_offset(pgd_t *
- #define __pud(x)				((pud_t) { __pgd(x) } )
- 
- #define pgd_page(pgd)				(pud_page((pud_t){ pgd }))
--#define pgd_page_kernel(pgd)			(pud_page_kernel((pud_t){ pgd }))
-+#define pgd_page_vaddr(pgd)			(pud_page_vaddr((pud_t){ pgd }))
- 
- /*
-  * allocating and freeing a pud is trivial: the 1-entry pud is
---- 2.6.18-rc4/./include/asm-i386/pgtable-3level.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-i386/pgtable-3level.h	2006-08-07 19:28:26.000000000 -0500
-@@ -77,7 +77,7 @@ static inline void pud_clear (pud_t * pu
- #define pud_page(pud) \
- ((struct page *) __va(pud_val(pud) & PAGE_MASK))
- 
--#define pud_page_kernel(pud) \
-+#define pud_page_vaddr(pud) \
- ((unsigned long) __va(pud_val(pud) & PAGE_MASK))
- 
- 
---- 2.6.18-rc4/./include/asm-i386/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-i386/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -364,11 +364,11 @@ static inline pte_t pte_modify(pte_t pte
- #define pte_index(address) \
- 		(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, address) \
--	((pte_t *) pmd_page_kernel(*(dir)) +  pte_index(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) +  pte_index(address))
- 
- #define pmd_page(pmd) (pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
- 
--#define pmd_page_kernel(pmd) \
-+#define pmd_page_vaddr(pmd) \
- 		((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- /*
---- 2.6.18-rc4/./include/asm-ia64/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-ia64/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -275,21 +275,23 @@ ia64_phys_addr_valid (unsigned long addr
- #define pmd_bad(pmd)			(!ia64_phys_addr_valid(pmd_val(pmd)))
- #define pmd_present(pmd)		(pmd_val(pmd) != 0UL)
- #define pmd_clear(pmdp)			(pmd_val(*(pmdp)) = 0UL)
--#define pmd_page_kernel(pmd)		((unsigned long) __va(pmd_val(pmd) & _PFN_MASK))
-+#define pmd_page_vaddr(pmd)		((unsigned long) __va(pmd_val(pmd) & _PFN_MASK))
- #define pmd_page(pmd)			virt_to_page((pmd_val(pmd) + PAGE_OFFSET))
- 
- #define pud_none(pud)			(!pud_val(pud))
- #define pud_bad(pud)			(!ia64_phys_addr_valid(pud_val(pud)))
- #define pud_present(pud)		(pud_val(pud) != 0UL)
- #define pud_clear(pudp)			(pud_val(*(pudp)) = 0UL)
--#define pud_page(pud)			((unsigned long) __va(pud_val(pud) & _PFN_MASK))
-+#define pud_page_vaddr(pud)		((unsigned long) __va(pud_val(pud) & _PFN_MASK))
-+#define pud_page(pud)			virt_to_page((pud_val(pud) + PAGE_OFFSET))
- 
- #ifdef CONFIG_PGTABLE_4
- #define pgd_none(pgd)			(!pgd_val(pgd))
- #define pgd_bad(pgd)			(!ia64_phys_addr_valid(pgd_val(pgd)))
- #define pgd_present(pgd)		(pgd_val(pgd) != 0UL)
- #define pgd_clear(pgdp)			(pgd_val(*(pgdp)) = 0UL)
--#define pgd_page(pgd)			((unsigned long) __va(pgd_val(pgd) & _PFN_MASK))
-+#define pgd_page_vaddr(pgd)		((unsigned long) __va(pgd_val(pgd) & _PFN_MASK))
-+#define pgd_page(pgd)			virt_to_page((pgd_val(pgd) + PAGE_OFFSET))
- #endif
- 
- /*
-@@ -360,19 +362,19 @@ pgd_offset (struct mm_struct *mm, unsign
- #ifdef CONFIG_PGTABLE_4
- /* Find an entry in the second-level page table.. */
- #define pud_offset(dir,addr) \
--	((pud_t *) pgd_page(*(dir)) + (((addr) >> PUD_SHIFT) & (PTRS_PER_PUD - 1)))
-+	((pud_t *) pgd_page_vaddr(*(dir)) + (((addr) >> PUD_SHIFT) & (PTRS_PER_PUD - 1)))
- #endif
- 
- /* Find an entry in the third-level page table.. */
- #define pmd_offset(dir,addr) \
--	((pmd_t *) pud_page(*(dir)) + (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1)))
-+	((pmd_t *) pud_page_vaddr(*(dir)) + (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1)))
- 
- /*
-  * Find an entry in the third-level page table.  This looks more complicated than it
-  * should be because some platforms place page tables in high memory.
-  */
- #define pte_index(addr)	 	(((addr) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
--#define pte_offset_kernel(dir,addr)	((pte_t *) pmd_page_kernel(*(dir)) + pte_index(addr))
-+#define pte_offset_kernel(dir,addr)	((pte_t *) pmd_page_vaddr(*(dir)) + pte_index(addr))
- #define pte_offset_map(dir,addr)	pte_offset_kernel(dir, addr)
- #define pte_offset_map_nested(dir,addr)	pte_offset_map(dir, addr)
- #define pte_unmap(pte)			do { } while (0)
---- 2.6.18-rc4/./include/asm-m32r/pgtable-2level.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-m32r/pgtable-2level.h	2006-08-07 19:28:26.000000000 -0500
-@@ -52,9 +52,13 @@ static inline int pgd_present(pgd_t pgd)
- #define set_pmd(pmdptr, pmdval) (*(pmdptr) = pmdval)
- #define set_pgd(pgdptr, pgdval) (*(pgdptr) = pgdval)
- 
--#define pgd_page(pgd) \
-+#define pgd_page_vaddr(pgd) \
- ((unsigned long) __va(pgd_val(pgd) & PAGE_MASK))
- 
-+#ifndef CONFIG_DISCONTIGMEM
-+#define pgd_page(pgd)	(mem_map + ((pgd_val(pgd) >> PAGE_SHIFT) - PFN_BASE))
-+#endif /* !CONFIG_DISCONTIGMEM */
++config PTSHARE
++	bool "Share page tables"
++	default y
++	help
++	  Turn on sharing of page tables between processes for large shared
++	  memory regions.
 +
- static inline pmd_t *pmd_offset(pgd_t * dir, unsigned long address)
- {
- 	return (pmd_t *) dir;
---- 2.6.18-rc4/./include/asm-m32r/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-m32r/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -336,7 +336,7 @@ static inline void pmd_set(pmd_t * pmdp,
- 	pmd_val(*pmdp) = (((unsigned long) ptep) & PAGE_MASK);
- }
+ # Common NUMA Features
+ config NUMA
+ 	bool "Numa Memory Allocation and Scheduler Support"
+--- 2.6.18-rc4-macro/./arch/s390/Kconfig	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./arch/s390/Kconfig	2006-08-07 19:28:56.000000000 -0500
+@@ -219,6 +219,13 @@ config WARN_STACK_SIZE
  
--#define pmd_page_kernel(pmd)	\
-+#define pmd_page_vaddr(pmd)	\
- 	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
+ source "mm/Kconfig"
  
- #ifndef CONFIG_DISCONTIGMEM
-@@ -358,7 +358,7 @@ static inline void pmd_set(pmd_t * pmdp,
- #define pte_index(address)	\
- 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, address)	\
--	((pte_t *)pmd_page_kernel(*(dir)) + pte_index(address))
-+	((pte_t *)pmd_page_vaddr(*(dir)) + pte_index(address))
- #define pte_offset_map(dir, address)	\
- 	((pte_t *)page_address(pmd_page(*(dir))) + pte_index(address))
- #define pte_offset_map_nested(dir, address)	pte_offset_map(dir, address)
---- 2.6.18-rc4/./include/asm-m68k/motorola_pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-m68k/motorola_pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -150,6 +150,7 @@ static inline void pgd_set(pgd_t *pgdp, 
- #define pgd_bad(pgd)		((pgd_val(pgd) & _DESCTYPE_MASK) != _PAGE_TABLE)
- #define pgd_present(pgd)	(pgd_val(pgd) & _PAGE_TABLE)
- #define pgd_clear(pgdp)		({ pgd_val(*pgdp) = 0; })
-+#define pgd_page(pgd)		(mem_map + ((unsigned long)(__va(pgd_val(pgd)) - PAGE_OFFSET) >> PAGE_SHIFT))
- 
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
---- 2.6.18-rc4/./include/asm-mips/pgtable-32.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-mips/pgtable-32.h	2006-08-07 19:28:26.000000000 -0500
-@@ -156,9 +156,9 @@ pfn_pte(unsigned long pfn, pgprot_t prot
- #define __pte_offset(address)						\
- 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset(dir, address)					\
--	((pte_t *) (pmd_page_kernel(*dir)) + __pte_offset(address))
-+	((pte_t *) (pmd_page_vaddr(*dir)) + __pte_offset(address))
- #define pte_offset_kernel(dir, address) \
--	((pte_t *) pmd_page_kernel(*(dir)) +  __pte_offset(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) +  __pte_offset(address))
- 
- #define pte_offset_map(dir, address)                                    \
- 	((pte_t *)page_address(pmd_page(*(dir))) + __pte_offset(address))
---- 2.6.18-rc4/./include/asm-mips/pgtable-64.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-mips/pgtable-64.h	2006-08-07 19:28:26.000000000 -0500
-@@ -178,24 +178,26 @@ static inline void pud_clear(pud_t *pudp
- /* to find an entry in a page-table-directory */
- #define pgd_offset(mm,addr)	((mm)->pgd + pgd_index(addr))
- 
--static inline unsigned long pud_page(pud_t pud)
-+static inline unsigned long pud_page_vaddr(pud_t pud)
- {
- 	return pud_val(pud);
- }
-+#define pud_phys(pud)		(pud_val(pud) - PAGE_OFFSET)
-+#define pud_page(pud)		(pfn_to_page(pud_phys(pud) >> PAGE_SHIFT))
- 
- /* Find an entry in the second-level page table.. */
- static inline pmd_t *pmd_offset(pud_t * pud, unsigned long address)
- {
--	return (pmd_t *) pud_page(*pud) + pmd_index(address);
-+	return (pmd_t *) pud_page_vaddr(*pud) + pmd_index(address);
- }
- 
- /* Find an entry in the third-level page table.. */
- #define __pte_offset(address)						\
- 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset(dir, address)					\
--	((pte_t *) (pmd_page_kernel(*dir)) + __pte_offset(address))
-+	((pte_t *) (pmd_page_vaddr(*dir)) + __pte_offset(address))
- #define pte_offset_kernel(dir, address)					\
--	((pte_t *) pmd_page_kernel(*(dir)) +  __pte_offset(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) +  __pte_offset(address))
- #define pte_offset_map(dir, address)					\
- 	((pte_t *)page_address(pmd_page(*(dir))) + __pte_offset(address))
- #define pte_offset_map_nested(dir, address)				\
---- 2.6.18-rc4/./include/asm-mips/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-mips/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -87,7 +87,7 @@ extern void paging_init(void);
-  */
- #define pmd_phys(pmd)		(pmd_val(pmd) - PAGE_OFFSET)
- #define pmd_page(pmd)		(pfn_to_page(pmd_phys(pmd) >> PAGE_SHIFT))
--#define pmd_page_kernel(pmd)	pmd_val(pmd)
-+#define pmd_page_vaddr(pmd)	pmd_val(pmd)
- 
- #if defined(CONFIG_64BIT_PHYS_ADDR) && defined(CONFIG_CPU_MIPS32_R1)
- 
---- 2.6.18-rc4/./include/asm-parisc/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-parisc/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -303,7 +303,8 @@ static inline void pmd_clear(pmd_t *pmd)
- 
- 
- #if PT_NLEVELS == 3
--#define pgd_page(pgd) ((unsigned long) __va(pgd_address(pgd)))
-+#define pgd_page_vaddr(pgd) ((unsigned long) __va(pgd_address(pgd)))
-+#define pgd_page(pgd)	virt_to_page((void *)pgd_page_vaddr(pgd))
- 
- /* For 64 bit we have three level tables */
- 
-@@ -382,7 +383,7 @@ extern inline pte_t pte_modify(pte_t pte
- 
- #define pte_page(pte)		(pfn_to_page(pte_pfn(pte)))
- 
--#define pmd_page_kernel(pmd)	((unsigned long) __va(pmd_address(pmd)))
-+#define pmd_page_vaddr(pmd)	((unsigned long) __va(pmd_address(pmd)))
- 
- #define __pmd_page(pmd) ((unsigned long) __va(pmd_address(pmd)))
- #define pmd_page(pmd)	virt_to_page((void *)__pmd_page(pmd))
-@@ -400,7 +401,7 @@ extern inline pte_t pte_modify(pte_t pte
- 
- #if PT_NLEVELS == 3
- #define pmd_offset(dir,address) \
--((pmd_t *) pgd_page(*(dir)) + (((address)>>PMD_SHIFT) & (PTRS_PER_PMD-1)))
-+((pmd_t *) pgd_page_vaddr(*(dir)) + (((address)>>PMD_SHIFT) & (PTRS_PER_PMD-1)))
- #else
- #define pmd_offset(dir,addr) ((pmd_t *) dir)
- #endif
-@@ -408,7 +409,7 @@ extern inline pte_t pte_modify(pte_t pte
- /* Find an entry in the third-level page table.. */ 
- #define pte_index(address) (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE-1))
- #define pte_offset_kernel(pmd, address) \
--	((pte_t *) pmd_page_kernel(*(pmd)) + pte_index(address))
-+	((pte_t *) pmd_page_vaddr(*(pmd)) + pte_index(address))
- #define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
- #define pte_offset_map_nested(pmd, address) pte_offset_kernel(pmd, address)
- #define pte_unmap(pte) do { } while (0)
---- 2.6.18-rc4/./include/asm-powerpc/pgtable-4k.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-powerpc/pgtable-4k.h	2006-08-07 19:28:26.000000000 -0500
-@@ -88,10 +88,11 @@
- #define pgd_bad(pgd)		(pgd_val(pgd) == 0)
- #define pgd_present(pgd)	(pgd_val(pgd) != 0)
- #define pgd_clear(pgdp)		(pgd_val(*(pgdp)) = 0)
--#define pgd_page(pgd)		(pgd_val(pgd) & ~PGD_MASKED_BITS)
-+#define pgd_page_vaddr(pgd)	(pgd_val(pgd) & ~PGD_MASKED_BITS)
-+#define pgd_page(pgd)		virt_to_page(pgd_page_vaddr(pgd))
- 
- #define pud_offset(pgdp, addr)	\
--  (((pud_t *) pgd_page(*(pgdp))) + \
-+  (((pud_t *) pgd_page_vaddr(*(pgdp))) + \
-     (((addr) >> PUD_SHIFT) & (PTRS_PER_PUD - 1)))
- 
- #define pud_ERROR(e) \
---- 2.6.18-rc4/./include/asm-powerpc/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-powerpc/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -196,8 +196,8 @@ static inline pte_t pfn_pte(unsigned lon
- 				 || (pmd_val(pmd) & PMD_BAD_BITS))
- #define	pmd_present(pmd)	(pmd_val(pmd) != 0)
- #define	pmd_clear(pmdp)		(pmd_val(*(pmdp)) = 0)
--#define pmd_page_kernel(pmd)	(pmd_val(pmd) & ~PMD_MASKED_BITS)
--#define pmd_page(pmd)		virt_to_page(pmd_page_kernel(pmd))
-+#define pmd_page_vaddr(pmd)	(pmd_val(pmd) & ~PMD_MASKED_BITS)
-+#define pmd_page(pmd)		virt_to_page(pmd_page_vaddr(pmd))
- 
- #define pud_set(pudp, pudval)	(pud_val(*(pudp)) = (pudval))
- #define pud_none(pud)		(!pud_val(pud))
-@@ -205,7 +205,8 @@ static inline pte_t pfn_pte(unsigned lon
- 				 || (pud_val(pud) & PUD_BAD_BITS))
- #define pud_present(pud)	(pud_val(pud) != 0)
- #define pud_clear(pudp)		(pud_val(*(pudp)) = 0)
--#define pud_page(pud)		(pud_val(pud) & ~PUD_MASKED_BITS)
-+#define pud_page_vaddr(pud)	(pud_val(pud) & ~PUD_MASKED_BITS)
-+#define pud_page(pud)		virt_to_page(pud_page_vaddr(pud))
- 
- #define pgd_set(pgdp, pudp)	({pgd_val(*(pgdp)) = (unsigned long)(pudp);})
- 
-@@ -219,10 +220,10 @@ static inline pte_t pfn_pte(unsigned lon
- #define pgd_offset(mm, address)	 ((mm)->pgd + pgd_index(address))
- 
- #define pmd_offset(pudp,addr) \
--  (((pmd_t *) pud_page(*(pudp))) + (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1)))
-+  (((pmd_t *) pud_page_vaddr(*(pudp))) + (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1)))
- 
- #define pte_offset_kernel(dir,addr) \
--  (((pte_t *) pmd_page_kernel(*(dir))) + (((addr) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1)))
-+  (((pte_t *) pmd_page_vaddr(*(dir))) + (((addr) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1)))
- 
- #define pte_offset_map(dir,addr)	pte_offset_kernel((dir), (addr))
- #define pte_offset_map_nested(dir,addr)	pte_offset_kernel((dir), (addr))
---- 2.6.18-rc4/./include/asm-ppc/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-ppc/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -526,7 +526,7 @@ static inline int pgd_bad(pgd_t pgd)		{ 
- static inline int pgd_present(pgd_t pgd)	{ return 1; }
- #define pgd_clear(xp)				do { } while (0)
- 
--#define pgd_page(pgd) \
-+#define pgd_page_vaddr(pgd) \
- 	((unsigned long) __va(pgd_val(pgd) & PAGE_MASK))
- 
- /*
-@@ -720,12 +720,12 @@ extern pgprot_t phys_mem_access_prot(str
-  * of the pte page.  -- paulus
-  */
- #ifndef CONFIG_BOOKE
--#define pmd_page_kernel(pmd)	\
-+#define pmd_page_vaddr(pmd)	\
- 	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- #define pmd_page(pmd)		\
- 	(mem_map + (pmd_val(pmd) >> PAGE_SHIFT))
- #else
--#define pmd_page_kernel(pmd)	\
-+#define pmd_page_vaddr(pmd)	\
- 	((unsigned long) (pmd_val(pmd) & PAGE_MASK))
- #define pmd_page(pmd)		\
- 	(mem_map + (__pa(pmd_val(pmd)) >> PAGE_SHIFT))
-@@ -748,7 +748,7 @@ static inline pmd_t * pmd_offset(pgd_t *
- #define pte_index(address)		\
- 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, addr)	\
--	((pte_t *) pmd_page_kernel(*(dir)) + pte_index(addr))
-+	((pte_t *) pmd_page_vaddr(*(dir)) + pte_index(addr))
- #define pte_offset_map(dir, addr)		\
- 	((pte_t *) kmap_atomic(pmd_page(*(dir)), KM_PTE0) + pte_index(addr))
- #define pte_offset_map_nested(dir, addr)	\
---- 2.6.18-rc4/./include/asm-s390/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-s390/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -672,11 +672,13 @@ static inline pte_t mk_pte_phys(unsigned
- #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
- #define pte_page(x) pfn_to_page(pte_pfn(x))
- 
--#define pmd_page_kernel(pmd) (pmd_val(pmd) & PAGE_MASK)
-+#define pmd_page_vaddr(pmd) (pmd_val(pmd) & PAGE_MASK)
- 
- #define pmd_page(pmd) (mem_map+(pmd_val(pmd) >> PAGE_SHIFT))
- 
--#define pgd_page_kernel(pgd) (pgd_val(pgd) & PAGE_MASK)
-+#define pgd_page_vaddr(pgd) (pgd_val(pgd) & PAGE_MASK)
++config PTSHARE
++	bool "Share page tables"
++	default y
++	help
++	  Turn on sharing of page tables between processes for large shared
++	  memory regions.
 +
-+#define pgd_page(pgd) (mem_map+(pgd_val(pgd) >> PAGE_SHIFT))
+ comment "I/O subsystem configuration"
  
- /* to find an entry in a page-table-directory */
- #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
-@@ -698,14 +700,14 @@ static inline pmd_t * pmd_offset(pgd_t *
- /* Find an entry in the second-level page table.. */
- #define pmd_index(address) (((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
- #define pmd_offset(dir,addr) \
--	((pmd_t *) pgd_page_kernel(*(dir)) + pmd_index(addr))
-+	((pmd_t *) pgd_page_vaddr(*(dir)) + pmd_index(addr))
+ config MACHCHK_WARNING
+--- 2.6.18-rc4-macro/./arch/x86_64/Kconfig	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./arch/x86_64/Kconfig	2006-08-07 19:28:56.000000000 -0500
+@@ -321,6 +321,13 @@ config NUMA_EMU
+ 	  into virtual nodes when booted with "numa=fake=N", where N is the
+ 	  number of nodes. This is only useful for debugging.
  
- #endif /* __s390x__ */
- 
- /* Find an entry in the third-level page table.. */
- #define pte_index(address) (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE-1))
- #define pte_offset_kernel(pmd, address) \
--	((pte_t *) pmd_page_kernel(*(pmd)) + pte_index(address))
-+	((pte_t *) pmd_page_vaddr(*(pmd)) + pte_index(address))
- #define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
- #define pte_offset_map_nested(pmd, address) pte_offset_kernel(pmd, address)
- #define pte_unmap(pte) do { } while (0)
---- 2.6.18-rc4/./include/asm-sh/pgtable-2level.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-sh/pgtable-2level.h	2006-08-07 19:28:26.000000000 -0500
-@@ -50,9 +50,12 @@ static inline void pgd_clear (pgd_t * pg
- #define set_pmd(pmdptr, pmdval) (*(pmdptr) = pmdval)
- #define set_pgd(pgdptr, pgdval) (*(pgdptr) = pgdval)
- 
--#define pgd_page(pgd) \
-+#define pgd_page_vaddr(pgd) \
- ((unsigned long) __va(pgd_val(pgd) & PAGE_MASK))
- 
-+#define pgd_page(pgd) \
-+	(phys_to_page(pgd_val(pgd)))
++config PTSHARE
++	bool "Share page tables"
++	default y
++	help
++	  Turn on sharing of page tables between processes for large shared
++	  memory regions.
 +
- static inline pmd_t * pmd_offset(pgd_t * dir, unsigned long address)
- {
- 	return (pmd_t *) dir;
---- 2.6.18-rc4/./include/asm-sh/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-sh/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -225,7 +225,7 @@ static inline pgprot_t pgprot_noncached(
- static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- { set_pte(&pte, __pte((pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot))); return pte; }
+ config ARCH_DISCONTIGMEM_ENABLE
+        bool
+        depends on NUMA
+--- 2.6.18-rc4-macro/./fs/proc/proc_misc.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./fs/proc/proc_misc.c	2006-08-15 10:15:09.000000000 -0500
+@@ -169,6 +169,9 @@ static int meminfo_read_proc(char *page,
+ 		"Mapped:       %8lu kB\n"
+ 		"Slab:         %8lu kB\n"
+ 		"PageTables:   %8lu kB\n"
++#ifdef CONFIG_PTSHARE
++		"SharedPTE:    %8lu kB\n"
++#endif
+ 		"NFS Unstable: %8lu kB\n"
+ 		"Bounce:       %8lu kB\n"
+ 		"CommitLimit:  %8lu kB\n"
+@@ -195,6 +198,9 @@ static int meminfo_read_proc(char *page,
+ 		K(global_page_state(NR_FILE_MAPPED)),
+ 		K(global_page_state(NR_SLAB)),
+ 		K(global_page_state(NR_PAGETABLE)),
++#ifdef CONFIG_PTSHARE
++		K(global_page_state(NR_SHAREDPTE)),
++#endif
+ 		K(global_page_state(NR_UNSTABLE_NFS)),
+ 		K(global_page_state(NR_BOUNCE)),
+ 		K(allowed),
+--- 2.6.18-rc4-macro/./fs/proc/task_mmu.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./fs/proc/task_mmu.c	2006-08-15 15:41:06.000000000 -0500
+@@ -43,6 +43,9 @@ char *task_mem(struct mm_struct *mm, cha
+ 		"VmStk:\t%8lu kB\n"
+ 		"VmExe:\t%8lu kB\n"
+ 		"VmLib:\t%8lu kB\n"
++#ifdef CONFIG_PTSHARE
++		"VmSHPT:\t%8lu kB\n"
++#endif
+ 		"VmPTE:\t%8lu kB\n",
+ 		hiwater_vm << (PAGE_SHIFT-10),
+ 		(total_vm - mm->reserved_vm) << (PAGE_SHIFT-10),
+@@ -51,7 +54,11 @@ char *task_mem(struct mm_struct *mm, cha
+ 		total_rss << (PAGE_SHIFT-10),
+ 		data << (PAGE_SHIFT-10),
+ 		mm->stack_vm << (PAGE_SHIFT-10), text, lib,
++#ifdef CONFIG_PTSHARE
++		(PTRS_PER_PTE*sizeof(pte_t)*mm->nr_shpte) >> 10,
++#endif
+ 		(PTRS_PER_PTE*sizeof(pte_t)*mm->nr_ptes) >> 10);
++
+ 	return buffer;
+ }
  
--#define pmd_page_kernel(pmd) \
-+#define pmd_page_vaddr(pmd) \
- ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- #define pmd_page(pmd) \
-@@ -242,7 +242,7 @@ static inline pte_t pte_modify(pte_t pte
- #define pte_index(address) \
- 		((address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, address) \
--	((pte_t *) pmd_page_kernel(*(dir)) + pte_index(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) + pte_index(address))
- #define pte_offset_map(dir, address) pte_offset_kernel(dir, address)
- #define pte_offset_map_nested(dir, address) pte_offset_kernel(dir, address)
- #define pte_unmap(pte)		do { } while (0)
---- 2.6.18-rc4/./include/asm-sh64/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-sh64/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -190,7 +190,9 @@ static inline int pgd_bad(pgd_t pgd)		{ 
+--- 2.6.18-rc4-macro/./include/asm-generic/pgtable.h	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./include/asm-generic/pgtable.h	2006-08-07 19:28:56.000000000 -0500
+@@ -127,6 +127,16 @@ do {									\
+ })
  #endif
  
- 
--#define pgd_page(pgd_entry)	((unsigned long) (pgd_val(pgd_entry) & PAGE_MASK))
-+#define pgd_page_vaddr(pgd_entry)	((unsigned long) (pgd_val(pgd_entry) & PAGE_MASK))
-+#define pgd_page(pgd)	(virt_to_page(pgd_val(pgd)))
++#ifndef __HAVE_ARCH_PTEP_CLEAR_FLUSH_ALL
++#define ptep_clear_flush_all(__vma, __address, __ptep)			\
++({									\
++	pte_t __pte;							\
++	__pte = ptep_get_and_clear((__vma)->vm_mm, __address, __ptep);	\
++	flush_tlb_all();				\
++	__pte;								\
++})
++#endif
 +
- 
- /*
-  * PMD defines. Middle level.
-@@ -219,7 +221,7 @@ static inline pmd_t * pmd_offset(pgd_t *
- #define pmd_none(pmd_entry)	(pmd_val((pmd_entry)) == _PMD_EMPTY)
- #define pmd_bad(pmd_entry)	((pmd_val(pmd_entry) & (~PAGE_MASK & ~_PAGE_USER)) != _KERNPG_TABLE)
- 
--#define pmd_page_kernel(pmd_entry) \
-+#define pmd_page_vaddr(pmd_entry) \
- 	((unsigned long) __va(pmd_val(pmd_entry) & PAGE_MASK))
- 
- #define pmd_page(pmd) \
---- 2.6.18-rc4/./include/asm-sparc/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-sparc/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -143,10 +143,10 @@ extern unsigned long empty_zero_page;
- /*
-  */
- BTFIXUPDEF_CALL_CONST(struct page *, pmd_page, pmd_t)
--BTFIXUPDEF_CALL_CONST(unsigned long, pgd_page, pgd_t)
-+BTFIXUPDEF_CALL_CONST(unsigned long, pgd_page_vaddr, pgd_t)
- 
- #define pmd_page(pmd) BTFIXUP_CALL(pmd_page)(pmd)
--#define pgd_page(pgd) BTFIXUP_CALL(pgd_page)(pgd)
-+#define pgd_page_vaddr(pgd) BTFIXUP_CALL(pgd_page_vaddr)(pgd)
- 
- BTFIXUPDEF_SETHI(none_mask)
- BTFIXUPDEF_CALL_CONST(int, pte_present, pte_t)
---- 2.6.18-rc4/./include/asm-sparc64/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-sparc64/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -630,8 +630,9 @@ static inline unsigned long pte_present(
- #define __pmd_page(pmd)		\
- 	((unsigned long) __va((((unsigned long)pmd_val(pmd))<<11UL)))
- #define pmd_page(pmd) 			virt_to_page((void *)__pmd_page(pmd))
--#define pud_page(pud)		\
-+#define pud_page_vaddr(pud)		\
- 	((unsigned long) __va((((unsigned long)pud_val(pud))<<11UL)))
-+#define pud_page(pud) 			virt_to_page((void *)pud_page_vaddr(pud))
- #define pmd_none(pmd)			(!pmd_val(pmd))
- #define pmd_bad(pmd)			(0)
- #define pmd_present(pmd)		(pmd_val(pmd) != 0U)
-@@ -653,7 +654,7 @@ static inline unsigned long pte_present(
- 
- /* Find an entry in the second-level page table.. */
- #define pmd_offset(pudp, address)	\
--	((pmd_t *) pud_page(*(pudp)) + \
-+	((pmd_t *) pud_page_vaddr(*(pudp)) + \
- 	 (((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1)))
- 
- /* Find an entry in the third-level page table.. */
---- 2.6.18-rc4/./include/asm-um/pgtable-2level.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-um/pgtable-2level.h	2006-08-07 19:28:26.000000000 -0500
-@@ -41,7 +41,7 @@ static inline void pgd_mkuptodate(pgd_t 
- #define pfn_pte(pfn, prot) __pte(pfn_to_phys(pfn) | pgprot_val(prot))
- #define pfn_pmd(pfn, prot) __pmd(pfn_to_phys(pfn) | pgprot_val(prot))
- 
--#define pmd_page_kernel(pmd) \
-+#define pmd_page_vaddr(pmd) \
- 	((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- /*
---- 2.6.18-rc4/./include/asm-um/pgtable-3level.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-um/pgtable-3level.h	2006-08-07 19:28:26.000000000 -0500
-@@ -74,11 +74,12 @@ extern inline void pud_clear (pud_t *pud
-         set_pud(pud, __pud(0));
- }
- 
--#define pud_page(pud) \
-+#define pud_page(pud) phys_to_page(pud_val(pud) & PAGE_MASK)
-+#define pud_page_vaddr(pud) \
- 	((struct page *) __va(pud_val(pud) & PAGE_MASK))
- 
- /* Find an entry in the second-level page table.. */
--#define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
-+#define pmd_offset(pud, address) ((pmd_t *) pud_page_vaddr(*(pud)) + \
- 			pmd_index(address))
- 
- static inline unsigned long pte_pfn(pte_t pte)
---- 2.6.18-rc4/./include/asm-um/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-um/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -349,7 +349,7 @@ static inline pte_t pte_modify(pte_t pte
- 	return pte; 
- }
- 
--#define pmd_page_kernel(pmd) ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
-+#define pmd_page_vaddr(pmd) ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
- 
- /*
-  * the pgd page can be thought of an array like this: pgd_t[PTRS_PER_PGD]
-@@ -389,7 +389,7 @@ static inline pte_t pte_modify(pte_t pte
-  */
- #define pte_index(address) (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, address) \
--	((pte_t *) pmd_page_kernel(*(dir)) +  pte_index(address))
-+	((pte_t *) pmd_page_vaddr(*(dir)) +  pte_index(address))
- #define pte_offset_map(dir, address) \
- 	((pte_t *)page_address(pmd_page(*(dir))) + pte_index(address))
- #define pte_offset_map_nested(dir, address) pte_offset_map(dir, address)
---- 2.6.18-rc4/./include/asm-x86_64/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-x86_64/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -101,9 +101,6 @@ static inline void pgd_clear (pgd_t * pg
- 	set_pgd(pgd, __pgd(0));
- }
- 
--#define pud_page(pud) \
--((unsigned long) __va(pud_val(pud) & PHYSICAL_PAGE_MASK))
--
- #define ptep_get_and_clear(mm,addr,xp)	__pte(xchg(&(xp)->pte, 0))
- 
+ #ifndef __HAVE_ARCH_PTEP_SET_WRPROTECT
  struct mm_struct;
-@@ -326,7 +323,8 @@ static inline int pmd_large(pmd_t pte) {
+ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long address, pte_t *ptep)
+@@ -164,6 +174,27 @@ static inline void ptep_set_wrprotect(st
+ #endif
+ 
  /*
-  * Level 4 access.
++ * Some architectures might need flushes when higher levels of page table
++ * are unshared.
++ */
++
++#ifndef __HAVE_ARCH_PMD_CLEAR_FLUSH
++#define pmd_clear_flush(__mm, __addr, __pmd)				\
++({									\
++	pmd_clear(__pmd);						\
++	flush_tlb_all();						\
++})
++#endif
++
++#ifndef __HAVE_ARCH_PUD_CLEAR_FLUSH
++#define pud_clear_flush(__mm, __addr, __pud)				\
++({									\
++	pud_clear(__pud);						\
++	flush_tlb_all();						\
++})
++#endif
++
++/*
+  * When walking page tables, get the address of the next boundary,
+  * or the end address of the range if that comes earlier.  Although no
+  * vma end wraps to 0, rounded up __boundary may wrap to 0 throughout.
+--- 2.6.18-rc4-macro/./include/linux/mm.h	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./include/linux/mm.h	2006-08-07 19:28:56.000000000 -0500
+@@ -245,7 +245,7 @@ struct page {
+ 						 * see PAGE_MAPPING_ANON below.
+ 						 */
+ 	    };
+-#if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
++#if (NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS) || defined(CONFIG_PTSHARE)
+ 	    spinlock_t ptl;
+ #endif
+ 	};
+@@ -826,19 +826,19 @@ static inline pmd_t *pmd_alloc(struct mm
+ }
+ #endif /* CONFIG_MMU && !__ARCH_HAS_4LEVEL_HACK */
+ 
+-#if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
++#if (NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS) || defined(CONFIG_PTSHARE)
+ /*
+  * We tuck a spinlock to guard each pagetable page into its struct page,
+  * at page->private, with BUILD_BUG_ON to make sure that this will not
+  * overflow into the next struct page (as it might with DEBUG_SPINLOCK).
+  * When freeing, reset page->mapping so free_pages_check won't complain.
   */
--#define pgd_page(pgd) ((unsigned long) __va((unsigned long)pgd_val(pgd) & PTE_MASK))
-+#define pgd_page_vaddr(pgd) ((unsigned long) __va((unsigned long)pgd_val(pgd) & PTE_MASK))
-+#define pgd_page(pgd)		(pfn_to_page(pgd_val(pgd) >> PAGE_SHIFT))
- #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
- #define pgd_offset(mm, addr) ((mm)->pgd + pgd_index(addr))
- #define pgd_offset_k(address) (init_level4_pgt + pgd_index(address))
-@@ -335,16 +333,18 @@ static inline int pmd_large(pmd_t pte) {
- 
- /* PUD - Level3 access */
- /* to find an entry in a page-table-directory. */
-+#define pud_page_vaddr(pud) ((unsigned long) __va(pud_val(pud) & PHYSICAL_PAGE_MASK))
-+#define pud_page(pud)		(pfn_to_page(pud_val(pud) >> PAGE_SHIFT))
- #define pud_index(address) (((address) >> PUD_SHIFT) & (PTRS_PER_PUD-1))
--#define pud_offset(pgd, address) ((pud_t *) pgd_page(*(pgd)) + pud_index(address))
-+#define pud_offset(pgd, address) ((pud_t *) pgd_page_vaddr(*(pgd)) + pud_index(address))
- #define pud_present(pud) (pud_val(pud) & _PAGE_PRESENT)
- 
- /* PMD  - Level 2 access */
--#define pmd_page_kernel(pmd) ((unsigned long) __va(pmd_val(pmd) & PTE_MASK))
-+#define pmd_page_vaddr(pmd) ((unsigned long) __va(pmd_val(pmd) & PTE_MASK))
- #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
- 
- #define pmd_index(address) (((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
--#define pmd_offset(dir, address) ((pmd_t *) pud_page(*(dir)) + \
-+#define pmd_offset(dir, address) ((pmd_t *) pud_page_vaddr(*(dir)) + \
- 			pmd_index(address))
- #define pmd_none(x)	(!pmd_val(x))
- #define pmd_present(x)	(pmd_val(x) & _PAGE_PRESENT)
-@@ -382,7 +382,7 @@ static inline pte_t pte_modify(pte_t pte
- 
- #define pte_index(address) \
- 		(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
--#define pte_offset_kernel(dir, address) ((pte_t *) pmd_page_kernel(*(dir)) + \
-+#define pte_offset_kernel(dir, address) ((pte_t *) pmd_page_vaddr(*(dir)) + \
- 			pte_index(address))
- 
- /* x86-64 always has all page tables mapped. */
---- 2.6.18-rc4/./include/asm-xtensa/pgtable.h	2006-08-06 13:20:11.000000000 -0500
-+++ 2.6.18-rc4-macro/./include/asm-xtensa/pgtable.h	2006-08-07 19:28:26.000000000 -0500
-@@ -218,7 +218,7 @@ extern pgd_t swapper_pg_dir[PAGE_SIZE/si
+-#define __pte_lockptr(page)	&((page)->ptl)
++#define __pt_lockptr(page)	&((page)->ptl)
+ #define pte_lock_init(_page)	do {					\
+-	spin_lock_init(__pte_lockptr(_page));				\
++	spin_lock_init(__pt_lockptr(_page));				\
+ } while (0)
+ #define pte_lock_deinit(page)	((page)->mapping = NULL)
+-#define pte_lockptr(mm, pmd)	({(void)(mm); __pte_lockptr(pmd_page(*(pmd)));})
++#define pte_lockptr(mm, pmd)	({(void)(mm); __pt_lockptr(pmd_page(*(pmd)));})
+ #else
  /*
-  * The pmd contains the kernel virtual address of the pte page.
+  * We use mm->page_table_lock to guard all pagetable pages of the mm.
+--- 2.6.18-rc4-macro/./include/linux/mmzone.h	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./include/linux/mmzone.h	2006-08-15 10:14:04.000000000 -0500
+@@ -65,6 +65,9 @@ enum zone_stat_item {
+ 	NUMA_LOCAL,		/* allocation from local node */
+ 	NUMA_OTHER,		/* allocation from other node */
+ #endif
++#ifdef CONFIG_PTSHARE
++	NR_SHAREDPTE,		/* Number of shared page table pages */
++#endif
+ 	NR_VM_ZONE_STAT_ITEMS };
+ 
+ struct per_cpu_pages {
+--- 2.6.18-rc4-macro/./include/linux/rmap.h	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./include/linux/rmap.h	2006-08-07 19:28:56.000000000 -0500
+@@ -96,7 +96,7 @@ int try_to_unmap(struct page *, int igno
+  * Called from mm/filemap_xip.c to unmap empty zero page
   */
--#define pmd_page_kernel(pmd) ((unsigned long)(pmd_val(pmd) & PAGE_MASK))
-+#define pmd_page_vaddr(pmd) ((unsigned long)(pmd_val(pmd) & PAGE_MASK))
- #define pmd_page(pmd) virt_to_page(pmd_val(pmd))
+ pte_t *page_check_address(struct page *, struct mm_struct *,
+-				unsigned long, spinlock_t **);
++				unsigned long, spinlock_t **, int *);
  
  /*
-@@ -349,7 +349,7 @@ ptep_set_wrprotect(struct mm_struct *mm,
- /* Find an entry in the third-level page table.. */
- #define pte_index(address)	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir,addr) 					\
--	((pte_t*) pmd_page_kernel(*(dir)) + pte_index(addr))
-+	((pte_t*) pmd_page_vaddr(*(dir)) + pte_index(addr))
- #define pte_offset_map(dir,addr)	pte_offset_kernel((dir),(addr))
- #define pte_offset_map_nested(dir,addr)	pte_offset_kernel((dir),(addr))
+  * Used by swapoff to help locate where page is expected in vma.
+--- 2.6.18-rc4-macro/./include/linux/sched.h	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./include/linux/sched.h	2006-08-15 14:05:41.000000000 -0500
+@@ -257,7 +257,7 @@ arch_get_unmapped_area_topdown(struct fi
+ extern void arch_unmap_area(struct mm_struct *, unsigned long);
+ extern void arch_unmap_area_topdown(struct mm_struct *, unsigned long);
  
+-#if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
++#if (NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS) || defined(CONFIG_PTSHARE)
+ /*
+  * The mm counters are not protected by its page_table_lock,
+  * so must be incremented atomically.
+@@ -333,6 +333,9 @@ struct mm_struct {
+ 	unsigned long start_code, end_code, start_data, end_data;
+ 	unsigned long start_brk, brk, start_stack;
+ 	unsigned long arg_start, arg_end, env_start, env_end;
++#ifdef CONFIG_PTSHARE
++	unsigned long nr_shpte;
++#endif
+ 
+ 	unsigned long saved_auxv[AT_VECTOR_SIZE]; /* for /proc/PID/auxv */
+ 
+--- 2.6.18-rc4-macro/./include/linux/ptshare.h	1969-12-31 18:00:00.000000000 -0600
++++ 2.6.18-rc4-shpt/./include/linux/ptshare.h	2006-08-07 19:57:56.000000000 -0500
+@@ -0,0 +1,69 @@
++#ifndef _LINUX_PTSHARE_H
++#define _LINUX_PTSHARE_H
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Copyright (C) IBM Corporation, 2005
++ *
++ * Author: Dave McCracken <dmccr@us.ibm.com>
++ */
++
++#undef	PT_DEBUG
++
++#ifdef CONFIG_PTSHARE
++static inline int pt_is_shared(struct page *page)
++{
++	return (page_mapcount(page) > 0);
++}
++
++static inline int pt_is_shared_pte(pmd_t pmdval)
++{
++	struct page *page;
++
++	page = pmd_page(pmdval);
++	return pt_is_shared(page);
++}
++
++static inline void pt_increment_share(struct page *page)
++{
++	atomic_inc(&page->_mapcount);
++}
++
++static inline void pt_decrement_share(struct page *page)
++{
++	atomic_dec(&page->_mapcount);
++}
++
++extern pte_t *pt_share_pte(struct vm_area_struct *vma, pmd_t *pmd, 
++			   unsigned long address);
++
++extern void pt_unshare_range(struct mm_struct *mm, unsigned long address,
++			     unsigned long end);
++
++extern int pt_check_unshare_pte(struct mm_struct *mm, unsigned long address,
++				pmd_t *pmd);
++
++#else /* CONFIG_PTSHARE */
++#define pt_is_shared(page)	(0)
++#define pt_is_shared_pte(pmdval)	(0)
++#define pt_increment_share(page)
++#define pt_decrement_share(page)
++#define	pt_share_pte(vma, pmd, address)	pte_alloc_map(vma->vm_mm, pmd, address)
++#define pt_unshare_range(mm, address, end)
++#define pt_check_unshare_pte(mm, address, pmd)	(0)
++#endif /* CONFIG_PTSHARE */
++
++#endif /* _LINUX_PTSHARE_H */
+--- 2.6.18-rc4-macro/./mm/Makefile	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/Makefile	2006-08-07 19:28:56.000000000 -0500
+@@ -23,4 +23,5 @@ obj-$(CONFIG_SLAB) += slab.o
+ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_hotplug.o
+ obj-$(CONFIG_FS_XIP) += filemap_xip.o
+ obj-$(CONFIG_MIGRATION) += migrate.o
++obj-$(CONFIG_PTSHARE) += ptshare.o
+ 
+--- 2.6.18-rc4-macro/./mm/filemap_xip.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/filemap_xip.c	2006-08-07 19:28:56.000000000 -0500
+@@ -174,6 +174,7 @@ __xip_unmap (struct address_space * mapp
+ 	unsigned long address;
+ 	pte_t *pte;
+ 	pte_t pteval;
++	int shared;
+ 	spinlock_t *ptl;
+ 	struct page *page;
+ 
+@@ -184,7 +185,7 @@ __xip_unmap (struct address_space * mapp
+ 			((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
+ 		BUG_ON(address < vma->vm_start || address >= vma->vm_end);
+ 		page = ZERO_PAGE(address);
+-		pte = page_check_address(page, mm, address, &ptl);
++		pte = page_check_address(page, mm, address, &ptl, &shared);
+ 		if (pte) {
+ 			/* Nuke the page table entry. */
+ 			flush_cache_page(vma, address, pte_pfn(*pte));
+--- 2.6.18-rc4-macro/./mm/fremap.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/fremap.c	2006-08-07 19:28:56.000000000 -0500
+@@ -15,6 +15,7 @@
+ #include <linux/rmap.h>
+ #include <linux/module.h>
+ #include <linux/syscalls.h>
++#include <linux/ptshare.h>
+ 
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+@@ -200,6 +201,8 @@ asmlinkage long sys_remap_file_pages(uns
+ 				has_write_lock = 1;
+ 				goto retry;
+ 			}
++			pt_unshare_range(mm, vma->vm_start, vma->vm_end);
++
+ 			mapping = vma->vm_file->f_mapping;
+ 			spin_lock(&mapping->i_mmap_lock);
+ 			flush_dcache_mmap_lock(mapping);
+--- 2.6.18-rc4-macro/./mm/memory.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/memory.c	2006-08-15 15:13:51.000000000 -0500
+@@ -49,6 +49,7 @@
+ #include <linux/module.h>
+ #include <linux/delayacct.h>
+ #include <linux/init.h>
++#include <linux/ptshare.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -145,6 +146,8 @@ static inline void free_pmd_range(struct
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
++		if (pt_check_unshare_pte(tlb->mm, addr, pmd))
++			continue;
+ 		free_pte_range(tlb, pmd);
+ 	} while (pmd++, addr = next, addr != end);
+ 
+@@ -626,6 +629,9 @@ static unsigned long zap_pte_range(struc
+ 	int file_rss = 0;
+ 	int anon_rss = 0;
+ 
++	if (pt_check_unshare_pte(mm, addr, pmd))
++		return end;
++
+ 	pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
+ 	do {
+ 		pte_t ptent = *pte;
+@@ -2340,7 +2346,7 @@ int __handle_mm_fault(struct mm_struct *
+ 	pmd = pmd_alloc(mm, pud, address);
+ 	if (!pmd)
+ 		return VM_FAULT_OOM;
+-	pte = pte_alloc_map(mm, pmd, address);
++	pte = pt_share_pte(vma, pmd, address);
+ 	if (!pte)
+ 		return VM_FAULT_OOM;
+ 
+--- 2.6.18-rc4-macro/./mm/mmap.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/mmap.c	2006-08-07 19:34:05.000000000 -0500
+@@ -25,6 +25,7 @@
+ #include <linux/mount.h>
+ #include <linux/mempolicy.h>
+ #include <linux/rmap.h>
++#include <linux/ptshare.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/cacheflush.h>
+@@ -1039,6 +1040,7 @@ munmap_back:
+ 			vm_flags |= VM_ACCOUNT;
+ 		}
+ 	}
++	pt_unshare_range(mm, addr, addr + len);
+ 
+ 	/*
+ 	 * Can we just expand an old private anonymous mapping?
+@@ -1950,6 +1952,9 @@ void exit_mmap(struct mm_struct *mm)
+ 	unsigned long nr_accounted = 0;
+ 	unsigned long end;
+ 
++	/* We need this semaphore to protect against page table sharing */
++	down_write(&mm->mmap_sem);
++
+ 	lru_add_drain();
+ 	flush_cache_mm(mm);
+ 	tlb = tlb_gather_mmu(mm, 1);
+@@ -1959,6 +1964,7 @@ void exit_mmap(struct mm_struct *mm)
+ 	vm_unacct_memory(nr_accounted);
+ 	free_pgtables(&tlb, vma, FIRST_USER_ADDRESS, 0);
+ 	tlb_finish_mmu(tlb, 0, end);
++	up_write(&mm->mmap_sem);
+ 
+ 	/*
+ 	 * Walk the list again, actually closing and freeing it,
+@@ -1967,7 +1973,6 @@ void exit_mmap(struct mm_struct *mm)
+ 	while (vma)
+ 		vma = remove_vma(vma);
+ 
+-	BUG_ON(mm->nr_ptes > (FIRST_USER_ADDRESS+PMD_SIZE-1)>>PMD_SHIFT);
+ }
+ 
+ /* Insert vm structure into process list sorted by address
+--- 2.6.18-rc4-macro/./mm/mprotect.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/mprotect.c	2006-08-07 19:28:56.000000000 -0500
+@@ -21,6 +21,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/swap.h>
+ #include <linux/swapops.h>
++#include <linux/ptshare.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/cacheflush.h>
+@@ -133,6 +134,8 @@ mprotect_fixup(struct vm_area_struct *vm
+ 		return 0;
+ 	}
+ 
++	pt_unshare_range(mm, start, end);
++
+ 	/*
+ 	 * If we make a private mapping writable we increase our commit;
+ 	 * but (without finer accounting) cannot reduce our commit if we
+@@ -144,8 +147,9 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	if (newflags & VM_WRITE) {
+ 		if (!(oldflags & (VM_ACCOUNT|VM_WRITE|VM_SHARED))) {
+ 			charged = nrpages;
+-			if (security_vm_enough_memory(charged))
++			if (security_vm_enough_memory(charged)) {
+ 				return -ENOMEM;
++			}
+ 			newflags |= VM_ACCOUNT;
+ 		}
+ 	}
+@@ -182,7 +186,7 @@ success:
+ 	if (vma->vm_ops && vma->vm_ops->page_mkwrite)
+ 		mask &= ~VM_SHARED;
+ 
+-	newprot = protection_map[newflags & mask];
++ 	newprot = protection_map[newflags & mask];
+ 
+ 	/*
+ 	 * vm_flags and vm_page_prot are protected by the mmap_sem
+--- 2.6.18-rc4-macro/./mm/mremap.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/mremap.c	2006-08-07 19:28:56.000000000 -0500
+@@ -18,6 +18,7 @@
+ #include <linux/highmem.h>
+ #include <linux/security.h>
+ #include <linux/syscalls.h>
++#include <linux/ptshare.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/cacheflush.h>
+@@ -178,6 +179,8 @@ static unsigned long move_vma(struct vm_
+ 	if (!new_vma)
+ 		return -ENOMEM;
+ 
++	pt_unshare_range(mm, old_addr, old_addr + old_len);
++
+ 	moved_len = move_page_tables(vma, old_addr, new_vma, new_addr, old_len);
+ 	if (moved_len < old_len) {
+ 		/*
+--- 2.6.18-rc4-macro/./mm/rmap.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/rmap.c	2006-08-07 19:28:56.000000000 -0500
+@@ -53,6 +53,7 @@
+ #include <linux/rmap.h>
+ #include <linux/rcupdate.h>
+ #include <linux/module.h>
++#include <linux/ptshare.h>
+ 
+ #include <asm/tlbflush.h>
+ 
+@@ -248,7 +249,8 @@ unsigned long page_address_in_vma(struct
+  * On success returns with pte mapped and locked.
+  */
+ pte_t *page_check_address(struct page *page, struct mm_struct *mm,
+-			  unsigned long address, spinlock_t **ptlp)
++			  unsigned long address, spinlock_t **ptlp,
++			  int *shared)
+ {
+ 	pgd_t *pgd;
+ 	pud_t *pud;
+@@ -275,6 +277,9 @@ pte_t *page_check_address(struct page *p
+ 		return NULL;
+ 	}
+ 
++	if (pt_is_shared_pte(*pmd))
++		(*shared)++;
++
+ 	ptl = pte_lockptr(mm, pmd);
+ 	spin_lock(ptl);
+ 	if (pte_present(*pte) && page_to_pfn(page) == pte_pfn(*pte)) {
+@@ -295,6 +300,7 @@ static int page_referenced_one(struct pa
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+ 	pte_t *pte;
++	int shared;
+ 	spinlock_t *ptl;
+ 	int referenced = 0;
+ 
+@@ -302,7 +308,7 @@ static int page_referenced_one(struct pa
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	pte = page_check_address(page, mm, address, &ptl);
++	pte = page_check_address(page, mm, address, &ptl, &shared);
+ 	if (!pte)
+ 		goto out;
+ 
+@@ -547,6 +553,7 @@ static int try_to_unmap_one(struct page 
+ 	unsigned long address;
+ 	pte_t *pte;
+ 	pte_t pteval;
++	int shared = 0;
+ 	spinlock_t *ptl;
+ 	int ret = SWAP_AGAIN;
+ 
+@@ -554,7 +561,7 @@ static int try_to_unmap_one(struct page 
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	pte = page_check_address(page, mm, address, &ptl);
++	pte = page_check_address(page, mm, address, &ptl, &shared);
+ 	if (!pte)
+ 		goto out;
+ 
+@@ -571,7 +578,10 @@ static int try_to_unmap_one(struct page 
+ 
+ 	/* Nuke the page table entry. */
+ 	flush_cache_page(vma, address, page_to_pfn(page));
+-	pteval = ptep_clear_flush(vma, address, pte);
++	if (shared)
++		pteval = ptep_clear_flush_all(vma, address, pte);
++	else
++		pteval = ptep_clear_flush(vma, address, pte);
+ 
+ 	/* Move the dirty bit to the physical page now the pte is gone. */
+ 	if (pte_dirty(pteval))
+--- 2.6.18-rc4-macro/./mm/vmstat.c	2006-08-06 13:20:11.000000000 -0500
++++ 2.6.18-rc4-shpt/./mm/vmstat.c	2006-08-15 16:32:59.000000000 -0500
+@@ -402,6 +402,9 @@ static char *vmstat_text[] = {
+ 	"numa_local",
+ 	"numa_other",
+ #endif
++#ifdef CONFIG_PTSHARE
++	"nr_sharedpte",
++#endif
+ 
+ #ifdef CONFIG_VM_EVENT_COUNTERS
+ 	"pgpgin",
+--- 2.6.18-rc4-macro/./mm/ptshare.c	1969-12-31 18:00:00.000000000 -0600
++++ 2.6.18-rc4-shpt/./mm/ptshare.c	2006-08-15 16:41:49.000000000 -0500
+@@ -0,0 +1,332 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Copyright (C) IBM Corporation, 2005
++ *
++ * Author: Dave McCracken <dmccr@us.ibm.com>
++ */
++
++#include <linux/kernel.h>
++#include <linux/prio_tree.h>
++#include <linux/mm.h>
++#include <linux/ptshare.h>
++
++#include <asm/tlbflush.h>
++#include <asm/pgtable.h>
++#include <asm/pgalloc.h>
++
++#define VM_PGEND(vma)	(((vma->vm_end - vma->vm_start) >> PAGE_SHIFT) -1)
++
++#define	VMFLAG_COMPARE	(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)
++
++#undef	PT_DEBUG
++
++static inline void pt_unshare_pte(struct mm_struct *mm, pmd_t *pmd,
++				  unsigned long address)
++{
++	struct page *page;
++	spinlock_t *ptl;
++
++	if (pmd_present(*pmd)) {
++		page = pmd_page(*pmd);
++		ptl = __pt_lockptr(page);
++		spin_lock(ptl);
++		if (pt_is_shared(page)) {
++#ifdef PT_DEBUG
++			printk(KERN_DEBUG "Force unshare pte for %s[%d] at address 0x%lx\n",
++			       current->comm, current->pid, address);
++#endif
++			pt_decrement_share(page);
++			mm->nr_shpte--;
++			mm->nr_ptes--;
++			if (!pt_is_shared(page))
++				dec_zone_page_state(page, NR_SHAREDPTE);
++			pmd_clear_flush(mm, address, pmd);
++		}
++		spin_unlock(ptl);
++	}
++}
++
++#ifndef __PAGETABLE_PMD_FOLDED
++static void pt_unshare_pmd(struct mm_struct *mm, pud_t *pud, unsigned long address,
++			   unsigned long end)
++{
++	pmd_t *pmd;
++
++	if (!pud_present(*pud))
++	    return;
++
++	pmd = pmd_offset(pud, address);
++	end = pud_addr_end(address, end);
++	while (address < end) {
++		pt_unshare_pte(mm, pmd, address);
++		pmd++;
++		address += PMD_SIZE;
++	}
++}
++
++#ifndef __PAGETABLE_PUD_FOLDED
++static void pt_unshare_pud(struct mm_struct *mm, pgd_t *pgd, unsigned long address,
++			   unsigned long end)
++{
++	pud_t *pud;
++
++	if (!pgd_present(*pgd))
++	    return;
++
++	pud = pud_offset(pgd, address);
++	end = pgd_addr_end(address, end);
++	while (address < end) {
++		pt_unshare_pmd(mm, pud, address, end);
++		pud++;
++		address += PUD_SIZE;
++	}
++}
++#endif /* __PAGETABLE_PUD_FOLDED */
++#endif /* __PAGETABLE_PMD_FOLDED */
++
++void pt_unshare_range(struct mm_struct *mm, unsigned long address,
++		      unsigned long end)
++{
++	pgd_t *pgd;
++
++	pgd = pgd_offset(mm, address);
++
++	spin_lock(&mm->page_table_lock);
++	while (address < end) {
++#ifdef __PAGETABLE_PMD_FOLDED
++		pt_unshare_pte(mm, (pmd_t *)pgd, address);
++#else
++#ifdef __PAGETABLE_PUD_FOLDED
++		pt_unshare_pmd(mm, (pud_t *)pgd, address, end);
++#else
++		pt_unshare_pud(mm, pgd, address, end);
++#endif
++#endif
++		pgd++;
++		address += PGDIR_SIZE;
++	}
++	spin_unlock(&mm->page_table_lock);
++}
++
++static int pt_shareable_flags(struct vm_area_struct *vma)
++{
++	/* We can't share anonymous memory */
++	if (!vma->vm_file || vma->anon_vma)
++		return 0;
++
++	/* No sharing of nonlinear areas */
++	if (vma->vm_flags & (VM_NONLINEAR|VM_PFNMAP|VM_INSERTPAGE|VM_HUGETLB))
++		return 0;
++
++	/* Shared mappings are shareable */
++	if (vma->vm_flags & VM_SHARED)
++		return 1;
++
++	/* We can't share if it's writeable or might have been writeable */
++	if (vma->vm_flags & VM_WRITE)
++		return 0;
++
++	/* What's left is read-only, which is shareable */
++	return 1;
++}
++
++static int pt_shareable_range(struct vm_area_struct *vma, unsigned long address,
++			      unsigned long mask)
++{
++	unsigned long base = address & mask;
++	unsigned long end = base + ~mask;
++	struct vm_area_struct *prev = vma;
++
++	/* We can share if the vma spans the entire page */
++	if ((vma->vm_start <= base) &&
++	    (vma->vm_end > end))
++		return 1;
++
++	/* We can share if the page only contains that vma */
++	while ((vma = vma->vm_next)) {
++		if (vma->vm_start > end)
++			break;
++		/* No access vmas don't count since they don't use the page table */
++		if (vma->vm_flags & (VM_READ|VM_WRITE|VM_EXEC))
++			return 0;
++	}
++	while (1) {
++		vma = prev;
++		BUG_ON(find_vma_prev(vma->vm_mm, vma->vm_start, &prev) != vma);
++		if (!prev)
++			break;
++		if (prev->vm_end < base)
++			break;
++		if (prev->vm_flags & (VM_READ|VM_WRITE|VM_EXEC))
++			return 0;
++	}
++	return 1;
++}
++
++static struct vm_area_struct *next_shareable_vma(struct vm_area_struct *vma,
++						 struct vm_area_struct *svma,
++						 struct prio_tree_iter *iter)
++{
++	struct mm_struct *smm;
++
++	while ((svma = vma_prio_tree_next(svma, iter))) {
++		if (svma == vma)
++			continue;
++
++		smm = svma->vm_mm;
++		/* Skip this one if the mm is doing something to its vmas */
++		if (unlikely(!down_read_trylock(&smm->mmap_sem)))
++			continue;
++
++		if ((vma->vm_flags&VMFLAG_COMPARE) != (svma->vm_flags&VMFLAG_COMPARE))
++			goto next;
++
++		if ((vma->vm_start != svma->vm_start) ||
++		    (vma->vm_end != svma->vm_end) ||
++		    (vma->vm_pgoff != svma->vm_pgoff))
++			goto next;
++
++		return svma;
++
++	    next:
++		up_read(&smm->mmap_sem);
++	}
++	return NULL;
++}
++
++pte_t *pt_share_pte(struct vm_area_struct *vma, pmd_t *pmd, unsigned long address)
++{
++	struct prio_tree_iter iter;
++	struct mm_struct *mm = vma->vm_mm, *smm;
++	struct vm_area_struct *svma = NULL;
++	pgd_t *spgd, spgde;
++	pud_t *spud, spude;
++	pmd_t *spmd, spmde;
++	pte_t *pte;
++	spinlock_t *ptl = NULL;
++	struct page *page = NULL;
++	struct address_space *mapping;
++	int was_shared;
++
++	pmd_clear(&spmde);
++	if (pmd_none(*pmd) &&
++	    pt_shareable_flags(vma) &&
++	    pt_shareable_range(vma, address, PMD_MASK)) {
++#ifdef PT_DEBUG2
++		printk(KERN_DEBUG "Looking for shareable pte page at address 0x%lx\n",
++		       address);
++#endif
++		mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
++		spin_lock(&mapping->i_mmap_lock);
++		prio_tree_iter_init(&iter, &mapping->i_mmap,
++				    vma->vm_pgoff, VM_PGEND(vma));
++
++		while ((svma = next_shareable_vma(vma, svma, &iter))) {
++			smm = svma->vm_mm;
++
++			if (!pt_shareable_range(svma, address, PMD_MASK))
++				goto next;
++
++			spgd = pgd_offset(smm, address);
++			spgde = *spgd;
++			if (!pgd_present(spgde))
++				goto next;
++
++			spud = pud_offset(&spgde, address);
++			spude = *spud;
++			if (!pud_present(spude))
++				goto next;
++
++			spmd = pmd_offset(&spude, address);
++			spmde = *spmd;
++			if (pmd_present(spmde))
++				goto found;
++
++		    next:
++			up_read(&smm->mmap_sem);
++		}
++		spin_unlock(&mapping->i_mmap_lock);
++		goto notfound;
++
++found:
++		/* Found a shareable page */
++		spin_lock(&mm->page_table_lock);
++
++		page = pmd_page(spmde);
++		ptl = __pt_lockptr(page);
++		spin_lock(ptl);
++		was_shared = pt_is_shared(page);
++		pt_increment_share(page);
++
++		/* We have the page.  Now we can release the locks on the other mm */
++		up_read(&smm->mmap_sem);
++		spin_unlock(&mapping->i_mmap_lock);
++
++		/* Check to make sure no one else filled it already */
++		if (pmd_none(*pmd)) {
++#ifdef PT_DEBUG
++			printk(KERN_DEBUG "Sharing pte for %s[%d] at address 0x%lx\n",
++			       current->comm, current->pid, address);
++#endif
++			pmd_populate(mm, pmd, page);
++			mm->nr_shpte++;
++			mm->nr_ptes++;
++			if (!was_shared)
++				inc_zone_page_state(page, NR_SHAREDPTE);
++		} else
++			pt_decrement_share(page);
++
++		spin_unlock(ptl);
++		spin_unlock(&mm->page_table_lock);
++	}
++notfound:
++	pte = pte_alloc_map(mm, pmd, address);
++
++	return pte;
++}
++
++/*
++ *  Check whether this pmd entry points to a shared pte page.  If it does,
++ *  unshare it by removing the entry and decrementing the share count in the
++ *  page.  This effectively gives away the pte page to whoever else is sharing
++ *  it.  This process will then allocate a new pte page on the next fault.
++ */
++int pt_check_unshare_pte(struct mm_struct *mm, unsigned long address, pmd_t *pmd)
++{
++	struct page *page;
++	spinlock_t *ptl;
++	int ret = 0;
++
++	page = pmd_page(*pmd);
++	ptl = __pt_lockptr(page);
++	spin_lock(ptl);
++	/* Check under the lock */
++	if (pt_is_shared(page)) {
++#ifdef PT_DEBUG
++		printk(KERN_DEBUG "Unshare pte for %s[%d] at address 0x%lx\n",
++		       current->comm, current->pid, address);
++#endif
++		pt_decrement_share(page);
++		mm->nr_shpte--;
++		mm->nr_ptes--;
++		if (!pt_is_shared(page))
++			dec_zone_page_state(page, NR_SHAREDPTE);
++		pmd_clear_flush(mm, address, pmd);
++		ret = 1;
++	}
++	spin_unlock(ptl);
++	return ret;
++}

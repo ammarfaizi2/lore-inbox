@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWHOUjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWHOUmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWHOUjM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 16:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWHOUjM
+	id S1750705AbWHOUmu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 16:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWHOUmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 16:39:12 -0400
-Received: from mga03.intel.com ([143.182.124.21]:49831 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751205AbWHOUjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 16:39:08 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,128,1154934000"; 
-   d="scan'208"; a="103370093:sNHT20697565"
-Date: Tue, 15 Aug 2006 13:39:03 -0700
-From: Mitch Williams <mitch.a.williams@intel.com>
-X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
-To: Bill Nottingham <notting@redhat.com>
-cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: bonding: cannot remove certain named devices
-In-Reply-To: <20060815194856.GA3869@nostromo.devel.redhat.com>
-Message-ID: <Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com>
-References: <20060815194856.GA3869@nostromo.devel.redhat.com>
-ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
+	Tue, 15 Aug 2006 16:42:50 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:14734 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750705AbWHOUmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 16:42:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=U4SIdXO9RPi7BA8vK8BKRk4LaXkB6+MZAMdYEwhIdCGSWeLG4SDq9hCK9DTBYNBFkA1aopZwmAM2vN8A0Z5qGV7sI5K3jyF8GGCgOnGwGNncmozvNp7Ph0mNnO6IzBBY8+xgq/3bw5KGR+Jzt2MALX/2RJNVP1M2OOvuNZp9l1g=
+Message-ID: <177b81ff0608151342q66ac9df0rcd88f35e835e470e@mail.gmail.com>
+Date: Tue, 15 Aug 2006 15:42:49 -0500
+From: "Cory Grunden" <cory.grunden@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Nicksched Discontinued?
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Has Nick's Scheduler Policies been discontinued?  I used it in
+2.6.9-2.6.11, but since then I've been using it off and on in
+Plugsched.  Will there be any new "Nicksched" patches in the future?
 
-On Tue, 15 Aug 2006, Bill Nottingham wrote:
+TIA
 
-> 2.6.17-rc4+.
->
-> Trivial example:
->
-> # modprobe bonding (creates bond0)
-> # ip link set bond0 name "a b"
-> # echo "-a b" > /sys/class/net/bonding_masters
-> bonding: unable to delete non-existent bond a
-> bash: echo: write error: No such device
->
-
-Yuck.  The problem here is the space in the interface name, which the
-sysfs code chokes on.  The code just does
-
-	sscanf(buffer, "%16s", command); /* IFNAMSIZ*/
-
-and goes from there.  Because of the space, it only gets the first half of
-the interface name.
-
-Suggestions?  Do we just omit the sscanf and copy up to the newline (or
-EOF)?  Should there be another delimiter here?
-
-Are spaces allowed in interface names anyway?  I can't believe that
-bonding is the only area affected by this.
-
--Mitch
-
-BTW this will also break if you try to add/remove a slave with a space in
-the name through sysfs.
+-- 
+Cory Grunden
+Systems Administrator
+Kilgore College
+Kilgore, TX  75662
+903-983-8143

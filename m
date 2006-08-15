@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965316AbWHOJM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965322AbWHOJOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965316AbWHOJM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965318AbWHOJM5
+	id S965322AbWHOJOF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 05:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965321AbWHOJOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:12:57 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32660
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965316AbWHOJM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:12:56 -0400
-Date: Tue, 15 Aug 2006 02:12:57 -0700 (PDT)
-Message-Id: <20060815.021257.102613936.davem@davemloft.net>
-To: Ralf.Hildebrandt@charite.de
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: Re: PATCH: Fix typo in net/sched/cls_u32.c
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060815090207.GO27850@charite.de>
-References: <20060815090207.GO27850@charite.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 15 Aug 2006 05:14:04 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:11744 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965318AbWHOJOC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 05:14:02 -0400
+Date: Tue, 15 Aug 2006 10:13:58 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: Josh Boyer <jwboyer@gmail.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 0/4] Use 64-bit inode numbers internally in the kernel
+Message-ID: <20060815091358.GW29920@ftp.linux.org.uk>
+References: <625fc13d0608141736q50dea86dh94cdf4ef19fe56d9@mail.gmail.com> <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <7329.1155630113@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7329.1155630113@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Date: Tue, 15 Aug 2006 11:02:07 +0200
-
-> From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+On Tue, Aug 15, 2006 at 09:21:53AM +0100, David Howells wrote:
+> Josh Boyer <jwboyer@gmail.com> wrote:
 > 
-> Fixes a typo in net/sched/cls_u32.c.orig
+> > Out of curiosity, is there a performance hit for 32-bit systems?  Have
+> > you done any minimal benchmarks to see?
 > 
-> Signed-off-by: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+> Yes, I'm sure there is, but we're talking performance vs correctness.
 
-Applied, thanks.
+ITYM performance vs. slightly different patch.  Let me put all pieces
+in one place:
+	* kstat gets u64 ino
+	* filesystems that want to report 64bit st_ino do it in their
+->getattr(); the rest is unchanged.
+	* ino_t is left as-is
+	* filldir() callbacks get u64 ino in arguments.  Filesystem may
+pass 64bit value if it cares to; otherwise it's left unchanged.
+	* filesystem that wants unusual search key can use iget5() (as
+it can do right now)
+	* filesystem that wants to use the values it'd put into st_ino in
+its printks should use appropriate format
+	* any printk in generic code that happens to use i_ino should
+be hunted down and shot for utter uselessness for too many filesystems
+(not sure if we actually _have_ any such printk these days).

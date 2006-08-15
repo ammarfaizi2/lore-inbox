@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWHOHwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbWHOH5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965225AbWHOHwV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 03:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWHOHwV
+	id S965284AbWHOH5T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 03:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965286AbWHOH5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 03:52:21 -0400
-Received: from ns2.suse.de ([195.135.220.15]:47280 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965225AbWHOHwU (ORCPT
+	Tue, 15 Aug 2006 03:57:19 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44977 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965284AbWHOH5S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 03:52:20 -0400
-Date: Tue, 15 Aug 2006 00:51:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [-mm patch] cleanup drivers/ata/Kconfig
-Message-ID: <20060815075144.GA31109@kroah.com>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060813210106.GO3543@stusta.de>
+	Tue, 15 Aug 2006 03:57:18 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: annotate FIX_STACK() and the rest of nmi()
+Date: Tue, 15 Aug 2006 09:57:07 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Jan Beulich <jbeulich@novell.com>
+References: <200608141658_MC3-1-C818-892D@compuserve.com>
+In-Reply-To: <200608141658_MC3-1-C818-892D@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060813210106.GO3543@stusta.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608150957.07369.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 13, 2006 at 11:01:06PM +0200, Adrian Bunk wrote:
-> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.18-rc3-mm2:
-> >...
-> >  git-libata-all.patch
-> >...
-> >  git trees
-> >...
-> 
-> This patch contains the following cleanups:
-> - create a menu for ATA
-> - replace the dependencies on ATA with an "if ATA"
+On Monday 14 August 2006 22:56, Chuck Ebbert wrote:
+> In i386's entry.S, FIX_STACK() needs annotation because it
+> replaces the stack pointer.  And the rest of nmi() needs
+> annotation in order to compile with these new annotations.
 
-Why do this?  Are we going to be doing this for all subsystems?
-
-It seems like a bit of unnecessary churn to me...
-
-thanks,
-
-greg k-h
+Added thanks.
+-Andi

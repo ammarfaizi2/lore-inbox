@@ -1,111 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWHOAIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbWHOAJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbWHOAIW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 20:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbWHOAIW
+	id S965083AbWHOAJv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 20:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWHOAJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 20:08:22 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:65199 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965080AbWHOAIV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 20:08:21 -0400
-Subject: Re: [PATCH 4/6] ehea: header files
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
-       linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>
-In-Reply-To: <44E07267.7070007@de.ibm.com>
-References: <44D99F56.7010201@de.ibm.com>
-	 <1155190921.9801.43.camel@localhost.localdomain>
-	 <44E07267.7070007@de.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mGWz1ApQ+VDu554yWbLm"
-Date: Tue, 15 Aug 2006 10:08:19 +1000
-Message-Id: <1155600499.9047.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 14 Aug 2006 20:09:51 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:43279 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965083AbWHOAJu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 20:09:50 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=hIXuyW1HCiBDJZZwj0H/u9gv8s5J+Y76bd1nYNMf6Y0sl1f5w/yicZyqaNYABPFBP
+	1Q/317yG5fkADaxEEeBOQ==
+Message-ID: <e561bacc0608141709o61294e24o6d920279e721bbf4@mail.google.com>
+Date: Mon, 14 Aug 2006 20:09:14 -0400
+From: "Alex Polvi" <polvi@google.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCHv3] sunrpc/auth_gss: NULL pointer deref in gss_pipe_release()
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1155595592.5656.22.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
+	 <1154378242.13744.14.camel@localhost>
+	 <e561bacc0608090827m45fc8f2fia02589be4efce178@mail.google.com>
+	 <1155137983.5731.95.camel@localhost>
+	 <e561bacc0608141232h164f86e2ub2a53061b52d1120@mail.google.com>
+	 <e561bacc0608141334i2a942ff5ua97b8c8db381fca1@mail.google.com>
+	 <1155595592.5656.22.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 8/14/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> On Mon, 2006-08-14 at 16:34 -0400, Alex Polvi wrote:
+> > On 8/14/06, Alex Polvi <polvi@google.com> wrote:
+> > > Here is another fix. It is quite silly, but clnt->cl_auth is set to
+> > > NULL in rpc_destroy_client(), then eventually referenced in
+> > > gss_release_pipe() via rpc_rmdir(). Simply removing the clnt->cl_auth
+> > > = NULL from clnt.c fixes the issue. I'm still trying to understand the
+> > > subsystem, but it seems like rpc_rmdir is being correctly called to
+> > > clean up because of the weirdness with umount -l and the nfs server
+> > > being turned on and off. Does that seem correct? Or is this still just
+> > > covering up some other part of the code being sloppy cleaning up?
+> >
+> > Also, I just want to make it clear that I do not think this is the
+> > proper fix. It is just pointing out that we intentionally set cl_auth
+> > to NULL, then reference it.
+>
+> OK. I think I've finally managed to clean up the various interactions
+> with rpc_pipefs. I've uploaded a series of patches on the NFS client
+> website. See
+>
+>   http://client.linux-nfs.org/Linux-2.6.x/2.6.18-rc4/
+>
+> The relevant patches are
+>
+> linux-2.6.18-006-fix_rpc_unlink.dif:
+>
+>         From: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+>         SUNRPC: make rpc_unlink() take a dentry argument instead of a
+>         path
+>
+>         Signe-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+> linux-2.6.18-007-fix_rpc_rmdir.dif:
+>
+>         From: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+>         NFS: clean up rpc_rmdir
+>
+>         Make it take a dentry argument instead of a path
+>
+>         Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+> linux-2.6.18-008-fix_rpc_unlink_rmdir_2.dif:
+>
+>         From: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+>         SUNRPC: rpc_unlink() must check for unhashed dentries
+>
+>         A prior call to rpc_depopulate() by rpc_rmdir() on the parent
+>         directory may have already called simple_unlink() on this entry.
+>         Add the same check to rpc_rmdir(). Also remove a redundant call
+>         to rpc_close_pipes() in rpc_rmdir.
+>
+>         Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+> linux-2.6.18-009-fix_rpc_unlink_rmdir_3.dif:
+>
+>         From: Trond Myklebust <Trond.Myklebust@netapp.com>
+>
+>         SUNRPC: Fix dentry refcounting issues with users of rpc_pipefs
+>
+>         rpc_unlink() and rpc_rmdir() will dput the dentry reference for
+>         you.
+>
+>         Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
 
---=-mGWz1ApQ+VDu554yWbLm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Wooohooooo!!!! I can confirm that it fixes my testcase. I'll let you
+know if I run into any problems.
 
-On Mon, 2006-08-14 at 14:53 +0200, Jan-Bernd Themann wrote:
-> Michael Ellerman wrote:
-> >> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea.h	1969-12-31 16:00:00.=
-000000000 -0800
-> >> +++ kernel/drivers/net/ehea/ehea.h	2006-08-08 23:59:39.927452928 -0700
-> >> +
-> >> +#define EHEA_PAGESHIFT  12
-> >> +#define EHEA_PAGESIZE   4096UL
-> >> +#define EHEA_CACHE_LINE 128
-> >=20
-> > This looks like a very bad idea, what happens if you're running on a
-> > machine with 64K pages?
-> >=20
->=20
-> The EHEA_PAGESIZE define is needed for queue management to hardware side.
+Thanks again for all your help figuring this one out!
 
-You mean the eHEA has its own concept of page size? Separate from the
-page size used by the MMU?
-
-> >> +/*
-> >> + *  h_galpa:
-> >> + *  for pSeries this is a 64bit memory address where
-> >> + *  I/O memory is mapped into CPU address space
-> >> + */
-> >> +
-> >> +struct h_galpa {
-> >> +	u64 fw_handle;
-> >> +};
-> >=20
-> > What is a h_galpa? And why does it need a struct if it's just a u64?
-> >=20
->=20
-> The eHEA chip is not PCI attached but directly connected to a proprietary
-> bus. Currently, we can access it by a simple 64 bit address, but this is =
-not
-> true in all cases. Having a struct here allows us to encapsulate the chip
-> register access and to respond to changes to system hardware.
->=20
-> We'll change the name to h_epa meaning "ehea physical address"
-
-Hmm, I'm not convinced. Having the struct doesn't really encapsulate
-much, because most of the places where you use the h_galpa struct just
-pull out the fw_handle anyway. So if you change the layout of the struct
-you're going to have to change most of the code anyway. And in the
-meantime it makes the code a lot less readable, most people understand
-what "u64 addr" is about, whereas "struct h_galpa" is much less
-meaningful. </2c>
-
-cheers
-
---=20
-Michael Ellerman
-IBM OzLabs
-
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---=-mGWz1ApQ+VDu554yWbLm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBE4RBzdSjSd0sB4dIRAh2OAJ94ZbR53XYsEFcsxdnQnDiiiQHn2wCgpDm0
-bn0qC6IRF+LwDf/j5Ml119k=
-=aD/f
------END PGP SIGNATURE-----
-
---=-mGWz1ApQ+VDu554yWbLm--
-
+-Alex

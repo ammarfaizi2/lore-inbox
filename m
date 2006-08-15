@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752097AbWHODso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752095AbWHODx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752097AbWHODso (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 23:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752095AbWHODso
+	id S1752095AbWHODx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Aug 2006 23:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWHODx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 23:48:44 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:53818 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1752096AbWHODsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 23:48:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=Movn9clWVb5TNbZFfvDoMfKc54GcEHm8awqfTiwy00cmENmgbx0z+ZirmysM8bzM+8TxR6VW6paaJG3Ds5HFdP3oXfM/wqrNvs/xMp5LEvmeGG2unEvdT4ffgDP5OM2pkKJySo3kqLSNSQ9W7EmNJ6XCSMKbjQQ/VhzPn+9yVzY=
-Message-ID: <44E14406.7020208@ak.jp.nec.com>
-Date: Tue, 15 Aug 2006 12:48:22 +0900
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-References: <20060730011338.GA31695@sergelap.austin.ibm.com> <20060814220651.GA7726@sergelap.austin.ibm.com> <44E1153D.9000102@ak.jp.nec.com> <20060815021612.GC16220@sergelap.austin.ibm.com>
-In-Reply-To: <20060815021612.GC16220@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-From: KaiGai Kohei <kaigai.kohei@gmail.com>
+	Mon, 14 Aug 2006 23:53:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12230 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752095AbWHODx5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Aug 2006 23:53:57 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: What's in kbuild.git for 2.6.19 
+In-reply-to: Your message of "Mon, 14 Aug 2006 12:02:55 MST."
+             <20060814120255.A25857@unix-os.sc.intel.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Aug 2006 13:53:37 +1000
+Message-ID: <20560.1155614017@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 14, 2006 at 12:02:09AM -0700, Keith Owens wrote:
+>Sam Ravnborg (on Sun, 13 Aug 2006 21:45:03 +0200) wrote:
+>>Outstanding kbuild issues (I should fix a few of these for 2.6.18):
+>>o make -j N is not as parallel as expected (latest report from Keith
+>>  Ownens but others has complained as well). I assume it is a kbuild
+>>  thing but has no clue how to fix it or debug it further.
+>
+>It is the make jobserver code.  make -j<n> causes the various make
+>tasks to communicate and work out how many versions are currently
+>running, to avoid overrunning the -j<n> value.  Every recursive
+>invocation of make subtracts one from the -j value, reducing the value
+>that is left when make finally get down to doing some useful work
+>instead of just recursing.  Jobserver problems are yet another reason
+>why recursive make is bad.
+>
+>kbuild is full of recursive make.  The user cannot just add an excess
+>to <n>, the number of recursive invocations changes from kernel to
+>kernel as people try to fix bugs in makefile generation, so the
+>required excess value keeps changing.
 
->> See
->> http://www.kaigai.gr.jp/index.php?FrontPage#b556e50d
->> http://www.kaigai.gr.jp/pub/fscaps-1.0-kg.src.rpm
->>
->> The later SRPM package includes the cap_file.c.
->> It will be a good sample of using libcaps.
-> 
-> And this has a version number built in, as Eric was asking for.
+This is beginning to look like a bug in make which is exacerbated by
+the large number of recursive make commands issued in 2.6.  Using an
+instrumented version of make 3.80, I see some jobserver tokens being
+consumed and not returned to the pool, which results in a restricted
+number of processes actually running.
 
-_LINUX_CAPABILITY_VERSION defined as 0x19980330 is used for this.
-Is there a possibility to be changed future, isn't it?
-For example, when we think 32-bit width is not enough.
+The bug is timing dependent, it depends on when child processes die and
+are reaped relative to the rest of the make process tree.  Recursive
+make generates many more processes when compared to running make
+against a single Makefile, these extra processes affect the timing.
 
-> My tools were purely for testing, and just kept everything as simple as
-> possible.  So I'll happily port the kernel patch to use your tools  :)
-> 
-> For that matter I see you have your own kernel patch.  Would you mind
-> submitting that to lkml as an alternative to mine?
+I am testing a couple of patches against make which will be going to
+gnu.org.  When I get a reply from gnu.org I will do a follow up to
+lkml.
 
-I have no plan to submit now. It'll be called "Re-investment of wheel".
-# In addition, I'm currently busy to hack PostgreSQL. :D
+BTW, make -j<n> does not quite do what you expect.  info make says "If
+the '-j' option is followed by an integer, this is the number of
+commands to execute at once".  Looking at the source for make, the top
+level make task actually consumes one of those slots, even though it
+does little except run sub-makes.  Even with my bug fix, make -j4
+really only uses about 3.3 cpus, 3 doing compiles and about 0.3 of a
+load keeping track of the first level sub-makes.
 
-I hope to confirm one more point.
-Endian conpatibility is considered in the patches?
-
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>

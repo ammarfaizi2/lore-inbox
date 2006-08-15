@@ -1,68 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752095AbWHODx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWHOESq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752095AbWHODx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Aug 2006 23:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWHODx6
+	id S1752096AbWHOESq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 00:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752101AbWHOESq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Aug 2006 23:53:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12230 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1752095AbWHODx5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Aug 2006 23:53:57 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: What's in kbuild.git for 2.6.19 
-In-reply-to: Your message of "Mon, 14 Aug 2006 12:02:55 MST."
-             <20060814120255.A25857@unix-os.sc.intel.com> 
+	Tue, 15 Aug 2006 00:18:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:39155 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1752096AbWHOESp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 00:18:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=AoFj979Cb4uyiJ9ogPqSIAY7JD5WG7/NUYZlxD683B5AS1qnOUyV9p94CbWXycARjO7sHIm7wMs59l7GyJsY0rpGt2jOMlNCaWr8ZHlejzUWLYRQsyPSAiyUZmQ1STUgbZv7YykCYXj9JzswE7nhU+GqXO39EASw+HZhq5nEqKQ=
+Date: Tue, 15 Aug 2006 08:18:41 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Drop second arg of unregister_chrdev()
+Message-ID: <20060815041841.GC5163@martell.zuzino.mipt.ru>
+References: <20060815033522.GA5163@martell.zuzino.mipt.ru> <20060814204817.d9365586.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 Aug 2006 13:53:37 +1000
-Message-ID: <20560.1155614017@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20060814204817.d9365586.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14, 2006 at 12:02:09AM -0700, Keith Owens wrote:
->Sam Ravnborg (on Sun, 13 Aug 2006 21:45:03 +0200) wrote:
->>Outstanding kbuild issues (I should fix a few of these for 2.6.18):
->>o make -j N is not as parallel as expected (latest report from Keith
->>  Ownens but others has complained as well). I assume it is a kbuild
->>  thing but has no clue how to fix it or debug it further.
+On Mon, Aug 14, 2006 at 08:48:17PM -0700, Andrew Morton wrote:
+> On Tue, 15 Aug 2006 07:35:22 +0400
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
 >
->It is the make jobserver code.  make -j<n> causes the various make
->tasks to communicate and work out how many versions are currently
->running, to avoid overrunning the -j<n> value.  Every recursive
->invocation of make subtracts one from the -j value, reducing the value
->that is left when make finally get down to doing some useful work
->instead of just recursing.  Jobserver problems are yet another reason
->why recursive make is bad.
+> > * "name" is trivially unused.
 >
->kbuild is full of recursive make.  The user cannot just add an excess
->to <n>, the number of recursive invocations changes from kernel to
->kernel as people try to fix bugs in makefile generation, so the
->required excess value keeps changing.
+> OK.
+>
+> > * Requirement to pass to unregister function anything but cookie you've
+> >   got from register counterpart is wrong. It creates opportunity to
+> >   diverge, it create opportunity for bugs if enforced:
+> >
+> > 	/*
+> > 	 * XXX(hch): bp->b_count_desired might be incorrect (see
+> > 	 * xfs_buf_associate_memory for details),
+> >
+> > Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> >
+> > 	 *                                        but fortunately
+> > 	 * the Linux version of kmem_free ignores the len argument..
+> > 	 */
+> > 	 kmem_free(bp->b_addr, bp->b_count_desired);
+>
+> I don't understand that.
 
-This is beginning to look like a bug in make which is exacerbated by
-the large number of recursive make commands issued in 2.6.  Using an
-instrumented version of make 3.80, I see some jobserver tokens being
-consumed and not returned to the pool, which results in a restricted
-number of processes actually running.
+	p = malloc(size);
+	free(p);
+is good. You don't have to remember "size" which sometimes nontrivially
+calculated until free time.
 
-The bug is timing dependent, it depends on when child processes die and
-are reaped relative to the rest of the make process tree.  Recursive
-make generates many more processes when compared to running make
-against a single Makefile, these extra processes affect the timing.
+	mmio = ioremap(start, size);
+	iounmap(mmio);
+is good too for same reasons. Agree so far?
 
-I am testing a couple of patches against make which will be going to
-gnu.org.  When I get a reply from gnu.org I will do a follow up to
-lkml.
+Ergo,
+	major = register_chrdev(0, "foo", &foo_fops);
+	unregister_chrdev(major);
+is good too even if people don't forget to pass the same "foo" in two
+places. Luckily, unregister_chrdev() ignores name arg, so passing wrong
+won't do any harm.
 
-BTW, make -j<n> does not quite do what you expect.  info make says "If
-the '-j' option is followed by an integer, this is the number of
-commands to execute at once".  Looking at the source for make, the top
-level make task actually consumes one of those slots, even though it
-does little except run sub-makes.  Even with my bug fix, make -j4
-really only uses about 3.3 cpus, 3 doing compiles and about 0.3 of a
-load keeping track of the first level sub-makes.
+> >  64 files changed, 97 insertions(+), 97 deletions(-)
+>
+> I do understand that.  This'll cause some grief.
+
+In kernel, hardly...
+
+$ grep unregister_chrdev -w -n 2.6.18-rc4-mm1
+33126:  unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
+35853:  unregister_chrdev(MSR_MAJOR, "cpu/msr");
+35861:  unregister_chrdev(MSR_MAJOR, "cpu/msr");
+134610:         unregister_chrdev(LP_MAJOR, "lp");
+291207:-        unregister_chrdev(hptiop_cdev_major, "hptiop");
+352167:+    unregister_chrdev(major_number, "SerialQT_USB");
+
+Two rejects, 4 fuzzy places.
+
+> I'd suggest that we add a
+> new unregister_char_dev() or something, and do
+
+But there is register_CHRDEV_region, unregister_CHRDEV_region,
+alloc_CHRDEV_region, register_CHRDEV. Should I change the spelling of
+register_chrdev() for a good measure, too?
+
+> static inline unregister_chrdev(unsigned int major, const char *name)
+> {
+> 	return unregister_char_dev(major);
+> }
+
+> then migrate callers over to unregister_char_dev() in an organised fashion,
+> via maintainers where poss.
+>
+> Then mark unregister_chrdev() deprecated for a while.
+>
+> Then nuke it.
 

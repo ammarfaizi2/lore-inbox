@@ -1,34 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965291AbWHOIS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965295AbWHOIV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965291AbWHOIS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 04:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965293AbWHOIS2
+	id S965295AbWHOIV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 04:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWHOIV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 04:18:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:62372 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965291AbWHOIS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 04:18:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=G5e2phAv5R7yCfwXaEunkYiamt/3gJzRSQEtaM4QdFQZTX5SD14Y5afs4tzxMqVbbmC89+dYX3cLVIHygZmlI7YyjKzami9bA8XY8ymUyuflJVXNHmZ2RxIXPZeSUBleE2Eo9Zl1WwLPMseCgzL8u00QzhhkaSmK/LzCGKrbGd4=
-Message-ID: <2ac89c700608150118p5d7ed2cfq6191f8e32cdd79e7@mail.gmail.com>
-Date: Tue, 15 Aug 2006 11:18:26 +0300
-From: "Dmitry Bohush" <dmitrij.bogush@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Intel 945PM/GM Ultra DMA support?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 15 Aug 2006 04:21:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15854 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965286AbWHOIV1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 04:21:27 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060815013114.GS29920@ftp.linux.org.uk> 
+References: <20060815013114.GS29920@ftp.linux.org.uk>  <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com> 
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RHEL5 PATCH 2/4] VFS: Make inode numbers 64-bits 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 15 Aug 2006 09:21:11 +0100
+Message-ID: <7303.1155630071@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was not able to set udma5 mode on this chipset with latest kernel.
-In logs I get messages like: "3/4/5 is not functional!".
+Al Viro <viro@ftp.linux.org.uk> wrote:
 
+> NAK.  There's no need to touch i_ino and a lot of reasons for not doing
+> that.  ->getattr() can fill 64bit field just fine without that and there's
+> zero need to touch every fs out there *and* add cycles on icache lookups.
+> WTF for?
 
--- 
-Best Regards,
-Dmitry A Bohush.
+That doesn't fix getdents64() though...
+
+David

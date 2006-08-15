@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWHOXmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWHOXw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWHOXmL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 19:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWHOXmL
+	id S1750820AbWHOXw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 19:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWHOXw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 19:42:11 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:25813
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750807AbWHOXmK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 19:42:10 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Maximum number of processes in Linux
-Date: Wed, 16 Aug 2006 01:39:16 +0200
-User-Agent: KMail/1.9.1
-References: <fa.evUDdOgjejpeNWKvgan3aKFF880@ifi.uio.no> <44E254E4.6090508@shaw.ca>
-In-Reply-To: <44E254E4.6090508@shaw.ca>
-Cc: linux-kernel@vger.kernel.org, Irfan Habib <irfan.habib@gmail.com>
+	Tue, 15 Aug 2006 19:52:28 -0400
+Received: from khc.piap.pl ([195.187.100.11]:13522 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750700AbWHOXw2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 19:52:28 -0400
+To: Jeff Garzik <jeff@garzik.org>
+Cc: David Miller <davem@davemloft.net>, <netdev@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] WAN: fix C101 card carrier handling
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 16 Aug 2006 01:52:23 +0200
+Message-ID: <m3ejvhftfs.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608160139.17019.mb@bu3sch.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 August 2006 01:12, Robert Hancock wrote:
-> Irfan Habib wrote:
-> > Hi,
-> > 
-> > What is the maximum number of process which can run simultaneously in
-> > linux? I need to create an application which requires 40,000 threads.
-> > I was testing with far fewer numbers than that, I was getting
-> > exceptions in pthread_create
-> 
-> What architecture is this? On a 32-bit architecture with a 2MB stack 
-> size (which I think is the default) you couldn't possibly create more 
-> than 2048 threads just because of stack space requirements. Reducing the 
-> stack size would get you more.
+Hi,
 
-Hm, I'm on a 4way PPC64 machine with 2.5G RAM.
-It can only create 509 pthreads and fails with ENOMEM
-on the 510th.
-That's not a really big machine, but I expected it to be able
-to create somewhere around 8000 threads or so, at least. Especially
-as it has a 64bit kernel and lots of memory.
+One of my recent changes broke C101 carrier handling, this patch
+fixes it. Also fixes an old TX underrun checking bug.
 
-Well...
+2.6.18 material. Please apply.
+Thanks.
 
-That's my test app:
+Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
 
-#include <stdio.h>
-#include <pthread.h>
-#include <string.h>
-#include <errno.h>
-
-
-static void * thread(void *arg)
-{
-        while (1)
-                sleep(10);
-}
-
-int main(void)
-{
-        int err = 0;
-        unsigned long i = 0;
-        pthread_t t;
-
-        while (!err) {
-                err = pthread_create(&t, NULL, thread, NULL);
-                i++;
-                if (err) {
-                        printf("Creating pthread %lu failed with \"%s\"\n",
-                                i, strerror(errno));
-                        break;
-                }
-                printf("%lu pthreads created\n", i);
-        }
-
-        return 0;
-}
-
--- 
-Greetings Michael.
+diff --git a/drivers/net/wan/c101.c b/drivers/net/wan/c101.c
+index 435e91e..6b63b35 100644
+--- a/drivers/net/wan/c101.c
++++ b/drivers/net/wan/c101.c
+@@ -118,7 +118,7 @@ #include "hd6457x.c"
+ 
+ static inline void set_carrier(port_t *port)
+ {
+-	if (!sca_in(MSCI1_OFFSET + ST3, port) & ST3_DCD)
++	if (!(sca_in(MSCI1_OFFSET + ST3, port) & ST3_DCD))
+ 		netif_carrier_on(port_to_dev(port));
+ 	else
+ 		netif_carrier_off(port_to_dev(port));
+@@ -127,10 +127,10 @@ static inline void set_carrier(port_t *p
+ 
+ static void sca_msci_intr(port_t *port)
+ {
+-	u8 stat = sca_in(MSCI1_OFFSET + ST1, port); /* read MSCI ST1 status */
++	u8 stat = sca_in(MSCI0_OFFSET + ST1, port); /* read MSCI ST1 status */
+ 
+-	/* Reset MSCI TX underrun status bit */
+-	sca_out(stat & ST1_UDRN, MSCI0_OFFSET + ST1, port);
++	/* Reset MSCI TX underrun and CDCD (ignored) status bit */
++	sca_out(stat & (ST1_UDRN | ST1_CDCD), MSCI0_OFFSET + ST1, port);
+ 
+ 	if (stat & ST1_UDRN) {
+ 		struct net_device_stats *stats = hdlc_stats(port_to_dev(port));
+@@ -138,6 +138,7 @@ static void sca_msci_intr(port_t *port)
+ 		stats->tx_fifo_errors++;
+ 	}
+ 
++	stat = sca_in(MSCI1_OFFSET + ST1, port); /* read MSCI1 ST1 status */
+ 	/* Reset MSCI CDCD status bit - uses ch#2 DCD input */
+ 	sca_out(stat & ST1_CDCD, MSCI1_OFFSET + ST1, port);
+ 

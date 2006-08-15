@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWHOV1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWHOVl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWHOV1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 17:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWHOV1U
+	id S1750735AbWHOVl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 17:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWHOVl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 17:27:20 -0400
-Received: from xenotime.net ([66.160.160.81]:29830 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750724AbWHOV1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 17:27:19 -0400
-Message-Id: <1155677232.11401@shark.he.net>
-Date: Tue, 15 Aug 2006 14:27:12 -0700
-From: "Randy Dunlap" <rdunlap@xenotime.net>
-To: Pavel Machek <pavel@suse.cz>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 1/9] extents for ext4
-X-Mailer: WebMail 1.25
-X-IPAddress: 216.4.146.131
+	Tue, 15 Aug 2006 17:41:29 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:22219 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750732AbWHOVl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 17:41:28 -0400
+Date: Tue, 15 Aug 2006 23:36:46 +0200
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: trenn@suse.de
+Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot time from 2.6.18-rc4.
+Cc: akpm@osdl.org, "Brown, Len" <len.brown@intel.com>,
+       keith mannthey <kmannth@us.ibm.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+In-Reply-To: <1155643418.4302.1154.camel@queen.suse.de>
+References: <20060810142329.EB03.Y-GOTO@jp.fujitsu.com> <1155643418.4302.1154.camel@queen.suse.de>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20060815233557.7F99.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> Hi!
-> 
-> > >  AM> - The existing comments could benefit from some rework by a
-> > >  AM> native English speaker.
-> > > 
-> > > could someone assist here, please?
+> On Thu, 2006-08-10 at 14:32 +0900, Yasunori Goto wrote:
+> > Hello.
 > > 
-> > See if this helps.
-> > Patch applies on top of all ext4 patches from
-> > http://ext2.sourceforge.net/48bitext3/patches/latest/.
+> > I would like to repost this patch to remove noisy useless message at boot
+> > time from 2.6.18-rc4.
+> > (I said "-mm doesn't shows this message in previous post", but it was wrong.
+> >  This messages are shown by -mm too.)
+> > 
+> > -------------------------
+> > This is to remove noisy useless message at boot time from 2.6.18-rc4.
+> > The message is a ton of
+> > "ACPI Exception (acpi_memory-0492): AE_ERROR, handle is no memory device"
 > 
-> > --- linux-2618-rc4-ext4.orig/include/linux/ext4_fs_extents.h
-> > +++ linux-2618-rc4-ext4/include/linux/ext4_fs_extents.h
-> > @@ -22,29 +22,29 @@
-> >  #include <linux/ext4_fs.h>
-> >  
-> >  /*
-> > - * with AGRESSIVE_TEST defined capacity of index/leaf blocks
-> > - * become very little, so index split, in-depth growing and
-> > - * other hard changes happens much more often
-> > - * this is for debug purposes only
-> > + * With AGRESSIVE_TEST defined, the capacity of index/leaf blocks
-> > + * becomes very small, so index split, in-depth growing and
-> > + * other hard changes happen much more often.
-> > + * This is for debug purposes only.
-> >   */
-> >  #define AGRESSIVE_TEST_
+> I sent a patch a while ago that gets rid of the whole namespace walking
+> by making acpi_memoryhotplug an acpi device and making use of the .add
+> callback function and the acpi_bus_register_driver call.
 > 
-> Using _ for disabling is unusual/nasty. Can't we simply #undef it?
+> I am not sure whether this is possible if you have multiple memory
+> devices, though (if not maybe it should be made possible?)...
+> 
+> Yasunori even tested the patch and sent an Ok:
+> http://marc.theaimsgroup.com/?t=114065312400001&r=1&w=2
+> 
+> If this is acceptable I can rebase the patch on a current kernel.
 
-Yes, that's the right thing to do.
-The ext4dev people should do that. :)
+Ahhhhh. Yes. Indeed.
+I had forgotten it.
 
----
-~Randy
+But, I can't test it in this week due to I'm in vacation.
+(Now, I'm writting this mail at hotel in vacation.)
+Please wait until next week. :-P
+
+Thanks.
+
+-- 
+Yasunori Goto 
+
+

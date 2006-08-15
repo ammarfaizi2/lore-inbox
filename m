@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWHORkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWHORlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030395AbWHORkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 13:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWHORkU
+	id S1030372AbWHORlj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 13:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWHORlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 13:40:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55779 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030367AbWHORkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 13:40:20 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: linux-kernel@vger.kernel.org
-Cc: anemo@mba.ocn.ne.jp, schwidefsky@de.ibm.com, mm-commits@vger.kernel.org
-Subject: Re: - simplify-update_times-avoid-jiffies-jiffies_64-aliasing-problem.patch removed from -mm tree
-References: <200608141803.k7EI3Plc024729@shell0.pdx.osdl.net>
-Date: Tue, 15 Aug 2006 11:39:57 -0600
-In-Reply-To: <200608141803.k7EI3Plc024729@shell0.pdx.osdl.net>
-	(akpm@osdl.org's message of "Mon, 14 Aug 2006 11:03:25 -0700")
-Message-ID: <m1veot99ua.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 15 Aug 2006 13:41:39 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.155]:6751 "EHLO
+	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S1030372AbWHORli
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 13:41:38 -0400
+Message-ID: <44E20799.4060606@ru.mvista.com>
+Date: Tue, 15 Aug 2006 21:42:49 +0400
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Terence Ripperda <tripperda@nvidia.com>
+Cc: Roger Heflin <rheflin@atipa.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: What determines which interrupts are shared under Linux?
+References: <44E1D760.6070600@atipa.com> <20060815173116.GQ7189@hygelac>
+In-Reply-To: <20060815173116.GQ7189@hygelac>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org writes:
+Hello.
 
-> The patch titled
->
->      simplify update_times (avoid jiffies/jiffies_64 aliasing problem)
->
-> has been removed from the -mm tree.  Its filename is
->
->      simplify-update_times-avoid-jiffies-jiffies_64-aliasing-problem.patch
->
-> This patch was dropped because it had testing failures
+Terence Ripperda wrote:
+> we've seen a lot of problems on ck804 chipsets when multiple devices
+> share level-triggered interrupts. I think some of the earlier sample
+> bioses assumed that interrupts would be configured via ACPI, and when
+> ACPI is not used, the interrupts end up as level-triggered instead of
+> edge-triggered.
 
-Thanks.  I didn't see a thread on linux-kernel for this so I
-just wanted to report that this patch killed my boot when the
-serial driver initialized, and at some other point as well when
-I did not compile in the serial driver.
+    Edge-triggered *shared* interrupts?! Now that sounds interesting (I'm not 
+saying impossible).
 
-Just in case an additional data point was needed.
-
-Eric
+WBR, Sergei

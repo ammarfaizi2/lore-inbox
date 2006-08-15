@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWHOQPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWHOQRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWHOQPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWHOQPb
+	id S1030368AbWHOQRp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 12:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWHOQRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:15:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12951 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030362AbWHOQPb (ORCPT
+	Tue, 15 Aug 2006 12:17:45 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:3538 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1030365AbWHOQRo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:15:31 -0400
-Date: Tue, 15 Aug 2006 09:15:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ian Kent <raven@themaw.net>
-Subject: Re: 2.6.18-rc4-mm1
-Message-Id: <20060815091503.eede7bd8.akpm@osdl.org>
-In-Reply-To: <10510.1155653263@warthog.cambridge.redhat.com>
-References: <20060815065035.648be867.akpm@osdl.org>
-	<20060814143110.f62bfb01.akpm@osdl.org>
-	<20060813133935.b0c728ec.akpm@osdl.org>
-	<20060813012454.f1d52189.akpm@osdl.org>
-	<10791.1155580339@warthog.cambridge.redhat.com>
-	<918.1155635513@warthog.cambridge.redhat.com>
-	<10510.1155653263@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 15 Aug 2006 12:17:44 -0400
+Subject: Re: [RFC] [PATCH] file posix capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Nicholas Miell <nmiell@comcast.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+In-Reply-To: <20060815114946.GA7267@vino.hallyn.com>
+References: <20060730011338.GA31695@sergelap.austin.ibm.com>
+	 <20060814220651.GA7726@sergelap.austin.ibm.com>
+	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
+	 <20060815020647.GB16220@sergelap.austin.ibm.com>
+	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
+	 <1155615736.2468.12.camel@entropy>  <20060815114946.GA7267@vino.hallyn.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 15 Aug 2006 12:18:08 -0400
+Message-Id: <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 15:47:43 +0100
-David Howells <dhowells@redhat.com> wrote:
-
+On Tue, 2006-08-15 at 06:49 -0500, Serge E. Hallyn wrote:
+> Quoting Nicholas Miell (nmiell@comcast.net):
+> > OTOH, everybody seems to have moved from capability-based security
+> > models on to TE/RBAC-based security models, so maybe this isn't worth
+> > the effort?
 > 
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/config-sony
-> 
-> Is this pure 2.6.18-rc4-mm1?
+> One day perhaps, but that day isn't here yet.  People are still using
+> setuid (see /sbin/passwd), so obviously they're not sufficiently
+> comfortable using *only* TE/RBAC.
 
-yup.
+The hard part of capabilities isn't the kernel mechanism - it is the
+proper assignment and management of the capability bits on files, and
+teaching userland that uid 0 is no longer magic.  Which is all work that
+is already well underway for SELinux, but you would have to replicate it
+for capabilities.  And since there is no notion of equivalence classes
+ala SELinux types and the "policy" is completely distributed throughout
+the filesystem state, management is going to be even more painful for
+the capabilities.
 
-> This configuration has unsatisfied config
-> options.
+On the kernel side, in addition to updating the bprm_secureexec logic,
+you would need to consider whether the capability module needs to
+implement capability comparisons for the other hooks, like task_kill.
+At present, many operations only involve uid comparisons and SELinux
+checks without explicitly comparing capability sets.  Properly isolating
+and protecting processes with different capability sets but the same uid
+is something SELinux already can do (based on domain), whereas the
+existing capability module doesn't really provide that. 
+ 
+-- 
+Stephen Smalley
+National Security Agency
 
-I rarely update my skeleton configs ($certain_people broke my
-support-symlinked-.config patch and no two kernel builds have the same
-Kconfig set anyway).
-
-So a
-
-	yes '' | make oldconfig
-
-is step 1.

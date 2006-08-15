@@ -1,34 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965343AbWHOJ6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965344AbWHOKCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965343AbWHOJ6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 05:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965318AbWHOJ6M
+	id S965344AbWHOKCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 06:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965348AbWHOKCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 05:58:12 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62921 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965343AbWHOJ6L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 05:58:11 -0400
-Subject: Re: Intel 945PM/GM Ultra DMA support?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dmitry Bohush <dmitrij.bogush@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2ac89c700608150118p5d7ed2cfq6191f8e32cdd79e7@mail.gmail.com>
-References: <2ac89c700608150118p5d7ed2cfq6191f8e32cdd79e7@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 15 Aug 2006 11:18:46 +0100
-Message-Id: <1155637126.24077.238.camel@localhost.localdomain>
+	Tue, 15 Aug 2006 06:02:16 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:64433 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S965344AbWHOKCP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 06:02:15 -0400
+Date: Tue, 15 Aug 2006 18:26:05 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Esben Nielsen <nielsen.esben@gogglemail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cleanup and remove some extra spinlocks from rtmutex
+Message-ID: <20060815142605.GA232@oleg>
+References: <1154439588.25445.31.camel@localhost.localdomain> <20060813190326.GA2276@oleg> <Pine.LNX.4.64.0608142217400.10597@frodo.shire> <20060815110353.GA111@oleg> <Pine.LNX.4.64.0608151152110.10351@frodo.shire>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0608151152110.10351@frodo.shire>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-15 am 11:18 +0300, ysgrifennodd Dmitry Bohush:
-> I was not able to set udma5 mode on this chipset with latest kernel.
-> In logs I get messages like: "3/4/5 is not functional!".
+On 08/15, Esben Nielsen wrote:
+>
+> On Tue, 15 Aug 2006, Oleg Nesterov wrote:
+> >
+> >task->pi_blocked_on != NULL, we hold task->pi_blocked_on->lock->wait_lock.
+> >Can it go away ?
+> 
+> That is correct. But does it make the code more readable?
 
-Please can you quote the actual boot up messages (or stick them
-somewhere). My first guess would be that you don't have an 80 wire cable
-- or something is detecting that you dont.
+Well, in my opinion - yes. But yes, it's only my personal feeling :)
+
+>                                                            When you read 
+> the code you shouldn't need to go into that kind of complicated arguments 
+> to see the correctness - unless the code can't be written otherwise.
+
+Sure, this needs a comment.
+
+Thanks again,
+
+Oleg.
 

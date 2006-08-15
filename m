@@ -1,68 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWHOMEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752104AbWHOME4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWHOMEW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 08:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752032AbWHOMEW
+	id S1752104AbWHOME4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 08:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752101AbWHOME4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 08:04:22 -0400
-Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:38789 "HELO
-	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751447AbWHOMEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 08:04:21 -0400
-Date: Tue, 15 Aug 2006 07:04:19 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: KaiGai Kohei <kaigai.kohei@gmail.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-Message-ID: <20060815120419.GA7372@vino.hallyn.com>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com> <20060814220651.GA7726@sergelap.austin.ibm.com> <44E1153D.9000102@ak.jp.nec.com> <20060815021612.GC16220@sergelap.austin.ibm.com> <44E14406.7020208@ak.jp.nec.com>
+	Tue, 15 Aug 2006 08:04:56 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:7088 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1752032AbWHOMEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 08:04:55 -0400
+Subject: Re: [PATCH 1/1] network memory allocator.
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20060815112617.GB21736@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru>
+	 <1155558313.5696.167.camel@twins> <20060814123530.GA5019@2ka.mipt.ru>
+	 <1155639302.5696.210.camel@twins>  <20060815112617.GB21736@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Tue, 15 Aug 2006 14:03:25 +0200
+Message-Id: <1155643405.5696.236.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E14406.7020208@ak.jp.nec.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.7.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting KaiGai Kohei (kaigai.kohei@gmail.com):
-> Hi,
+On Tue, 2006-08-15 at 15:26 +0400, Evgeniy Polyakov wrote:
+> On Tue, Aug 15, 2006 at 12:55:02PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
+> > > Userspace can sak for next packet and pointer to the new location will
+> > > be removed.
+> > 
+> > /sak/ask/?
+> > 
+> > I'm not understanding, if you have a page A with two packets, a and b;
+> > once you map that page into user-space that process has access to both
+> > packets, which is a security problem. How are you going to solve this?
 > 
-> >>See
-> >>http://www.kaigai.gr.jp/index.php?FrontPage#b556e50d
-> >>http://www.kaigai.gr.jp/pub/fscaps-1.0-kg.src.rpm
-> >>
-> >>The later SRPM package includes the cap_file.c.
-> >>It will be a good sample of using libcaps.
-> >
-> >And this has a version number built in, as Eric was asking for.
+> Yep, there is such issue.
+> But no one is ever going to replace socket code with zero-copy
+> interfaces - Linux has backward compatibility noone ever had, so
+> send()/recv() will be there.
+
+The new AIO network API should be able to provide the needed userspace
+changes.
+
+> It is new interface which can be changed as described in previous
+> e-mails - copy if next chunk belongs to different socket and so on.
+
+But if you copy you're not zero-copy anymore. If you copy every second
+packet you have a 1/2 copy receive, but not zero.
+
+> Initial user will be sniffer, which should get all packets.
+
+Only the root user may get all packets. And most enterprise systems I've
+seen don't generally run a sniffer. That is usually done by
+redirecting/copying the data stream in a router and attach a second host
+to analyse the data.
+
+> > > > > As described in recent threads [3] it is also possible to eliminate any 
+> > > > > kind of main system OOM influence on network dataflow processing, thus 
+> > > > > it is possible to prevent deadlock for systems, which use network as 
+> > > > > memory storage (swap over network, iSCSI, NBD and so on).
+> > > > 
+> > > > How? You have never stated how you will avoid getting all packets stuck
+> > > > in blocked sockets.
+> > > 
+> > > Each socket has it's limit, so if allocator got enough memory, blocked
+> > > sockets will not affect it's behaviour.
+> > 
+> > But isn't the total capacity of the network stack much larger than any
+> > allocator can provide?
 > 
-> _LINUX_CAPABILITY_VERSION defined as 0x19980330 is used for this.
-> Is there a possibility to be changed future, isn't it?
-> For example, when we think 32-bit width is not enough.
+> TCP has 768kb limit on my amd64 with 1gb of ram, so I expect allocator
+> can handle all requests.
+
+But the capacity of the network stack is larger than this (arbitrary)
+limit. It is possible to have all 768kb worth of packets stuck on
+blocked sockets.
+
+> And there is a simple task in TODO list to dynamically grow cache when
+> threshold of memory is in use. It is really simple task and will be
+> implemented as soon as I complete suggestions mentioned by Andrew Morton.
+
+Growing will not help, the problem is you are out of memory, you cannot
+grow at that point.
+
+> > > > On another note, I think you misunderstand our SLAB allocator; we do not
+> > > > round up to nearest order page alloc per object; SLAB is build to avoid
+> > > > that and is designed to pack equal size objects into pages. The kmalloc
+> > > > allocator is build on top of several SLAB allocators; each with its
+> > > > specific size objects to serve.
+> > > > 
+> > > > For example, the 64 byte SLAB will serve 64 byte objects, and packs
+> > > > about PAGE_SIZE/64 per page (about since there is some overhead).
+> > > > 
+> > > > So the actual internal fragmentation of the current kmalloc/SLAB
+> > > > allocator is not as bad as you paint it. The biggest problem we have
+> > > > with the SLAB thing is getting pages back from it. (And the horrific
+> > > > complexity of the current implementation)
+> > > 
+> > > Ok, not SLAB, but kmaloc/SLAB.
+> > 
+> > The page-allocator does what you describe, but hardly anybody uses that
+> > to store small objects.
 > 
-> >My tools were purely for testing, and just kept everything as simple as
-> >possible.  So I'll happily port the kernel patch to use your tools  :)
-> >
-> >For that matter I see you have your own kernel patch.  Would you mind
-> >submitting that to lkml as an alternative to mine?
+> Network stack uses kmalloc.
+
+skbuff_head_cache and skbuff_fclone_cache are SLABs.
+
+> > Page allocator - buddy allocator, gives out memory in 1<<n pages.
+> > 
+> > SLAB allocator - uses the page allocator for backing, each SLAB issues
+> > objects of a fixed, predetermined size, packed in pages.
+> > 
+> > kmalloc - uses a collection of SLAB allocators to issue 'variable' size
+> > objects (see kmalloc_sizes.h - as you will see internal fragmentation
+> > can become quite large for larger objects, but small objects do rather
+> > well - and one could always add a frequently used size if it shows to be
+> > beneficial).
 > 
-> I have no plan to submit now. It'll be called "Re-investment of wheel".
+> There is no "frequently used size", kmalloc() does not know what size is
+> frequent and what is not. And there are other mentioned problems with
+> kmalloc/SLAB besides power-of-two, which prevent fragmentation problem
+> resolution.
 
-Assuming you meant reinvention, not at all.  We want to get the best
-patch in.
+Yes SLAB is a horrid thing on some points but very good at a lot of
+other things. But surely there are frequently used sizes, kmalloc will
+not know, but a developer with profiling tools might.
 
-> # In addition, I'm currently busy to hack PostgreSQL. :D
+> > > That allocator uses power-of-two allocation, so there is extremely
+> > > large overhead for several (and in some cases for all) usage cases
+> > > (e1000 with jumbo frames and unix sockets).
+> > 
+> > Wrong example :-), e1000 is the only driver that doesn't do high order
+> > allocs for jumbo frames. But yes, the other drivers should be fixed,
+> > relying on higher order allocations is unsound.
+> 
+> :) do you read netdev@? There are several quite long recent discussions 
+> where network hackers blame exactly e1000 for it's hardware problems and
+> ugly memory usage model.
+> We even think how to change struct sk_buff - Holy Grail of network code
+> - just to help e1000 driver (well, not exactly for e1000, but that
+> driver was a cause).
 
-Ok, well thanks for taking a look at this one.
+Have you seen the latest code? It allocates single pages and puts them
+in the skb_shared_info fragments. Surely it might have been the one
+pushing for these changes, but they are done. Current status.
 
-> I hope to confirm one more point.
-> Endian conpatibility is considered in the patches?
+> > > SLAB allows to have chunks of memory from differenct CPU, so it is
+> > > impossible to create defragmentation, thus kmalloc/SLAB by design will
+> > > suffer from fragmentation.
+> > 
+> > *confused* memory is not bound to CPUs other than by NUMA, but even
+> > there there is only a single address space. 
+> 
+> Each slab can have objects allocated in different CPUs, it was done to
+> reduce freeing algorithm. If system wants to defragment several objects
+> into bigger one, it must check all CPUs and find in which cache those
+> objects are placed, which is extremely expensive, so SLAB can not
+> perform defragmentation.
 
-Not yet.  Will add that and a check of the cap bitfield length as
-mentioned in another email.
+What you are referring to is coalescence, and yes coalescing over page
+boundaries is hard in the SLAB layer, the page allocator does that.
 
-thanks,
--serge
+> > > Graphs of power-of-two vs. NTA overhead is shown on projects' homepage 
+> > > - overhead is extremely large.
+> > 
+> > Yes seen that, but as stated, hardly anybody uses the page allocator to
+> > store small objects. However if you do, you get large internal
+> > fragmentation but zero external fragmentation (on that allocation
+> > level).
+> 
+> Truncated cat /proc/slabinfo on my machine (usual desktop):
+> size-32             1170   1232     32
+> size-128             663    780    128
+> size-64             4239   9558     64
+
+Sure, point being?
+
+size-64             4497   4602     64   59    1 : tunables  120   60
+8 : slabdata     78     78      0
+
+4497 objects used out of 4602 available, object size 64 bytes, 59
+objects per slab of 1 page. .... 78 pages with active objects out of 78
+pages allocated. 
+
+
+> > This is where my SROG allocator comes in, it is used to group objects by
+> > lifetime and returns the pages to the page allocator. This makes the
+> > whole allocator short-lived and hence cannot add (external)
+> > fragmentation on this level. The use I have for that is that I can then
+> > properly gauge how much memory there is available. External
+> > fragmentation and guarantees can be difficult to reconcile.
+> > 
+> > I have no idea how fast/slow the SROG allocator is, and don't really
+> > care since its only used as a fallback allocator; what I do care about
+> > is determinism (in space).
+> > 
+> > However, I do have a patch that converts the whole skb layer to use the
+> > SROG allocator, not only the payload, so I could do some test. But this
+> > is not a serious candidate until all jumbo frame capable drivers have
+> > been converted to skb fragments instead of high order allocations - a
+> > Good Thing [tm].
+> 
+> You created SROG after my suggestion and discussion about NTA and it works 
+> well for it's purpose (doesn't it?), further extension could lead to creation 
+> of NTA (or could not).
+
+I started with a very broken in-situ allocator (that tried to do the
+same thing) in the very first patch. It was only later that I realised
+the full extend of the skbuff requirements.
+
+And no, NTA is too complex an allocator to do what I need. And more
+specifically its design is quite contrary to what I have done. I
+create/destroy an allocator instance per packet, you have one allocator
+instance and serve multiple packets.
+
+> SROG is a wrapper on top of alloc_pages and list of free objects,
+> there are "several" differencies between allocators and I do not see how
+> they can compete right now.
+
+Yes allocators are build in layers, the page allocator the the basic
+building block in Linux.
+

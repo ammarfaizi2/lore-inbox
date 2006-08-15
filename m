@@ -1,55 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWHOFnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbWHOFye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbWHOFnd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 01:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWHOFnd
+	id S965119AbWHOFye (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 01:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbWHOFyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 01:43:33 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:64519 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S965103AbWHOFnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 01:43:32 -0400
-Date: Tue, 15 Aug 2006 07:45:14 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Getting 'sync' to flush disk cache?
-Message-ID: <20060815054513.GG16819@suse.de>
-References: <fa.W0uMWcngieRXsM23OSdM5c2wdZI@ifi.uio.no> <fa.qZ/OWlxPTq6xK9TZx+9e39itX9k@ifi.uio.no> <fa.PWNfC1odploxRBgLE1vdR69UF9s@ifi.uio.no> <44E10293.7000508@shaw.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E10293.7000508@shaw.ca>
+	Tue, 15 Aug 2006 01:54:33 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:41368 "EHLO
+	dhcp119.mvista.com") by vger.kernel.org with ESMTP id S965119AbWHOFyS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 01:54:18 -0400
+Date: Mon, 14 Aug 2006 22:54:34 -0700
+Message-Id: <200608150554.k7F5sYGu000884@dhcp119.mvista.com>
+Subject: [REPOST] [PATCH 2/2] posix-timers: Fix the flags handling in posix_cpu_nsleep().
+From: Toyo Abe <toyoa@mvista.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 14 2006, Robert Hancock wrote:
-> Jens Axboe wrote:
-> >On Mon, Aug 14 2006, Arjan van de Ven wrote:
-> >>On Mon, 2006-08-14 at 14:39 -0400, Jeff Garzik wrote:
-> >>>So...  has anybody given any thought to enabling fsync(2), fdatasync(2), 
-> >>>and sync_file_range(2) issuing a [FLUSH|SYNCHRONIZE] CACHE command?
-> >>>
-> >>>This has bugged me for _years_, that Linux does not do this.  Looking at 
-> >>>forums on the web, it bugs a lot of other people too.
-> >>eh afaik 2.6.17 and such do this if you have barriers enabled...
-> >
-> >That is correct, but it only works on reiserfs and XFS and user space
-> >really cannot tell whether it did the right thing or not. File system
-> >developers really should take this more seriously...
-> >
-> 
-> I was under the impression that this just worked under recent kernels. 
-> I'm disappointed to hear that it doesn't. It always annoys me that 
-> issues like this sometimes just seem to stick around forever in the 
-> kernel without getting the attention they should (and tend not to be 
-> well documented either..)
+This is also revised. This fixes the wrong expression at the error handlings in 
+posix_cpu_nsleep() and posix_cpu_nsleep_restart().
 
-It is an embarassment that it doesn't just work. For the longest time,
-it seemed nobody really cared about it enough to get it fixed. At least
-now it's gathering a bit of momentum.
+Signed-off-by Toyo Abe <toyoa@mvista.com>
 
--- 
-Jens Axboe
+---
 
+ kernel/posix-cpu-timers.c |   84 +++++++++++++++++++++++++++++++--------------
+ 1 files changed, 58 insertions(+), 26 deletions(-)
+
+diff --git a/kernel/posix-cpu-timers.c b/kernel/posix-cpu-timers.c
+index 5667fef..479b16b 100644
+--- a/kernel/posix-cpu-timers.c
++++ b/kernel/posix-cpu-timers.c
+@@ -1393,23 +1393,13 @@ void set_process_cpu_timer(struct task_s
+ 	}
+ }
+ 
+-int posix_cpu_nsleep(const clockid_t which_clock, int flags,
+-		     struct timespec *rqtp, struct timespec __user *rmtp)
++static int do_cpu_nanosleep(const clockid_t which_clock, int flags,
++			    struct timespec *rqtp, struct itimerspec *it)
+ {
+-	struct restart_block *restart_block =
+-	    &current_thread_info()->restart_block;
+ 	struct k_itimer timer;
+ 	int error;
+ 
+ 	/*
+-	 * Diagnose required errors first.
+-	 */
+-	if (CPUCLOCK_PERTHREAD(which_clock) &&
+-	    (CPUCLOCK_PID(which_clock) == 0 ||
+-	     CPUCLOCK_PID(which_clock) == current->pid))
+-		return -EINVAL;
+-
+-	/*
+ 	 * Set up a temporary timer and then wait for it to go off.
+ 	 */
+ 	memset(&timer, 0, sizeof timer);
+@@ -1420,11 +1410,12 @@ int posix_cpu_nsleep(const clockid_t whi
+ 	timer.it_process = current;
+ 	if (!error) {
+ 		static struct itimerspec zero_it;
+-		struct itimerspec it = { .it_value = *rqtp,
+-					 .it_interval = {} };
++
++		memset(it, 0, sizeof *it);
++		it->it_value = *rqtp;
+ 
+ 		spin_lock_irq(&timer.it_lock);
+-		error = posix_cpu_timer_set(&timer, flags, &it, NULL);
++		error = posix_cpu_timer_set(&timer, flags, it, NULL);
+ 		if (error) {
+ 			spin_unlock_irq(&timer.it_lock);
+ 			return error;
+@@ -1452,33 +1443,56 @@ int posix_cpu_nsleep(const clockid_t whi
+ 		 * We were interrupted by a signal.
+ 		 */
+ 		sample_to_timespec(which_clock, timer.it.cpu.expires, rqtp);
+-		posix_cpu_timer_set(&timer, 0, &zero_it, &it);
++		posix_cpu_timer_set(&timer, 0, &zero_it, it);
+ 		spin_unlock_irq(&timer.it_lock);
+ 
+-		if ((it.it_value.tv_sec | it.it_value.tv_nsec) == 0) {
++		if ((it->it_value.tv_sec | it->it_value.tv_nsec) == 0) {
+ 			/*
+ 			 * It actually did fire already.
+ 			 */
+ 			return 0;
+ 		}
+ 
++		error = -ERESTART_RESTARTBLOCK;
++	}
++
++	return error;
++}
++
++int posix_cpu_nsleep(const clockid_t which_clock, int flags,
++		     struct timespec *rqtp, struct timespec __user *rmtp)
++{
++	struct restart_block *restart_block =
++	    &current_thread_info()->restart_block;
++	struct itimerspec it;
++	int error;
++
++	/*
++	 * Diagnose required errors first.
++	 */
++	if (CPUCLOCK_PERTHREAD(which_clock) &&
++	    (CPUCLOCK_PID(which_clock) == 0 ||
++	     CPUCLOCK_PID(which_clock) == current->pid))
++		return -EINVAL;
++
++	error = do_cpu_nanosleep(which_clock, flags, rqtp, &it);
++
++	if (error == -ERESTART_RESTARTBLOCK) {
++
++	       	if (flags & TIMER_ABSTIME)
++			return -ERESTARTNOHAND;
+ 		/*
+-		 * Report back to the user the time still remaining.
+-		 */
+-		if (rmtp != NULL && !(flags & TIMER_ABSTIME) &&
+-		    copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
++	 	 * Report back to the user the time still remaining.
++	 	 */
++		if (rmtp != NULL && copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
+ 			return -EFAULT;
+ 
+ 		restart_block->fn = posix_cpu_nsleep_restart;
+-		/* Caller already set restart_block->arg1 */
+ 		restart_block->arg0 = which_clock;
+ 		restart_block->arg1 = (unsigned long) rmtp;
+ 		restart_block->arg2 = rqtp->tv_sec;
+ 		restart_block->arg3 = rqtp->tv_nsec;
+-
+-		error = -ERESTART_RESTARTBLOCK;
+ 	}
+-
+ 	return error;
+ }
+ 
+@@ -1487,13 +1501,31 @@ long posix_cpu_nsleep_restart(struct res
+ 	clockid_t which_clock = restart_block->arg0;
+ 	struct timespec __user *rmtp;
+ 	struct timespec t;
++	struct itimerspec it;
++	int error;
+ 
+ 	rmtp = (struct timespec __user *) restart_block->arg1;
+ 	t.tv_sec = restart_block->arg2;
+ 	t.tv_nsec = restart_block->arg3;
+ 
+ 	restart_block->fn = do_no_restart_syscall;
+-	return posix_cpu_nsleep(which_clock, TIMER_ABSTIME, &t, rmtp);
++	error = do_cpu_nanosleep(which_clock, TIMER_ABSTIME, &t, &it);
++
++	if (error == -ERESTART_RESTARTBLOCK) {
++		/*
++	 	 * Report back to the user the time still remaining.
++	 	 */
++		if (rmtp != NULL && copy_to_user(rmtp, &it.it_value, sizeof *rmtp))
++			return -EFAULT;
++
++		restart_block->fn = posix_cpu_nsleep_restart;
++		restart_block->arg0 = which_clock;
++		restart_block->arg1 = (unsigned long) rmtp;
++		restart_block->arg2 = t.tv_sec;
++		restart_block->arg3 = t.tv_nsec;
++	}
++	return error;
++
+ }
+ 
+ 

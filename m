@@ -1,43 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965381AbWHOQVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWHOQWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965381AbWHOQVv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWHOQVv
+	id S965093AbWHOQWH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 12:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965384AbWHOQWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:21:51 -0400
-Received: from ns2.suse.de ([195.135.220.15]:27535 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965384AbWHOQVu (ORCPT
+	Tue, 15 Aug 2006 12:22:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25497 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965093AbWHOQWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:21:50 -0400
-Date: Tue, 15 Aug 2006 18:21:45 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Cc: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
-       <patches@x86-64.org>, discuss@x86-64.org
-Subject: Re: [PATCH] fix x86 cpuid keys used in alternative_smp()
-Message-Id: <20060815182145.6dc74c63.ak@muc.de>
-In-Reply-To: <44E20C5C.76E4.0078.0@novell.com>
-References: <44E20C5C.76E4.0078.0@novell.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 15 Aug 2006 12:22:04 -0400
+Date: Tue, 15 Aug 2006 09:21:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: linux-kernel@vger.kernel.org, airlied@linux.ie,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: Re: 2.6.18-rc4-mm1 BUG, drm related
+Message-Id: <20060815092146.f8a6942a.akpm@osdl.org>
+In-Reply-To: <20060815173726.GA2533@slug>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	<20060815130345.GA3817@slug>
+	<20060815071632.b10d3a03.akpm@osdl.org>
+	<20060815173726.GA2533@slug>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 18:03:08 +0200
-"Jan Beulich" <jbeulich@novell.com> wrote:
+On Tue, 15 Aug 2006 17:37:26 +0000
+Frederik Deweerdt <deweerdt@free.fr> wrote:
 
-> By hard-coding the cpuid keys for alternative_smp() rather than using
-> the symbolic constant it turned out that incorrect values were used on
-> both i386 (0x68 instead of 0x69) and x86-64 (0x66 instead of 0x68).
+> On Tue, Aug 15, 2006 at 07:16:32AM -0700, Andrew Morton wrote:
+> > On Tue, 15 Aug 2006 13:25:56 +0000
+> > Frederik Deweerdt <deweerdt@free.fr> wrote:
+> > 
+> > > On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+> > > > 
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> > > > 
+> > > Hi,
+> > > 
+> > > There are two BUGs with 2.6.18-rc4-mm1 that seem related to (I did the
+> > > bisection[1]):
+> > > git-drm.patch
+> > > drm-build-fix.patch
+> > > drm-build-fixes-2.patch
+> > > allow-drm-detection-of-new-via-chipsets.patch
+> > > git-drm-build-fix.patch
+> > > 
+> > > Here's one of the BUGs (the second one is on the web site below).
+> > > [   40.276000] [drm:drm_unlock] *ERROR* Process 8914 using kernel context 0
+> > 
+> > I guess the above is a non-fatal DRM warning.
+> > 
+> > The below is an ALSA oops.
+> Hmm, that's what I thought at first, but consider the second BUG (as I
+> said, both BUGs, the ALSA one and that one appear alternatively):
+> [   35.600000] [drm:drm_unlock] *ERROR* Process 8835 using kernel context 0
+> [   36.328000] BUG: unable to handle kernel paging request at virtual address 746c6139
 
-Thanks. Applied.
+0.7 seconds is a loooong time.
 
-I wonder if that was the reason why the .fill misassembly the 
-2.16.91.0.5 (10.1) binutils commits (see recent discuss report from
-Rafael) didn't cause crashes on UP machines.  Do you have
-an opinion on that?
+> [   36.328000]  printing eip:
+> [   36.328000] c01fcf39
+> [   36.328000] *pde = 00000000
+> [   36.328000] Oops: 0000 [#1]
+> [   36.328000] PREEMPT 
+> [   36.328000] last sysfs file: /devices/pci0000:00/0000:00:1d.7/usb5/5-0:1.0/bInterfaceProtocol
+> [   36.328000] Modules linked in: snd_seq snd_seq_device ohci_hcd parport_pc parport pcspkr ipw2200 yenta_socket rsrc_nonstatic pcmcia_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd uhci_hcd usbcore cpufreq_stats cpufreq_powersave cpufreq_ondemand cpufreq_conservative speedstep_centrino freq_table processor ac battery i915 drm tg3 tsdev joydev
+> [   36.328000] CPU:    0
+> [   36.328000] EIP:    0060:[<c01fcf39>]    Not tainted VLI
+> [   36.328000] EFLAGS: 00010297   (2.6.18-rc4-def01 #12) 
+> [   36.328000] EIP is at vsnprintf+0x2da/0x4f9
+> [   36.328000] eax: 746c6139   ebx: 0000000a   ecx: 746c6139   edx: fffffffe
+> [   36.328000] esi: f75fa28c   edi: 00000000   ebp: f3701ebc   esp: f3701e80
+> [   36.328000] ds: 007b   es: 007b   ss: 0068
+> [   36.328000] Process modprobe (pid: 8872, ti=f3700000 task=f7189540 task.ti=f3700000)
+> [   36.328000] Stack: f75fa283 f75fb000 00000002 00000000 0000000a fffffffb 00000000 00000000 
+> [   36.328000]        ffffffff ffffffff ffffffff f75fb000 f7129240 f8a1f980 f7129240 f3701ed8 
+> [   36.328000]        c01948a4 f75fa28c 00000d74 c039b84c f3701eec c039ad97 f3701efc c013fd08 
+> [   36.328000] Call Trace:
+> [   36.328000]  [<c01948a4>] seq_printf+0x32/0x55
+> [   36.328000]  [<c013fd08>] print_unload_info+0x6f/0xe9
+> [   36.328000]  [<c0142073>] m_show+0x4b/0xb5
+> [   36.328000]  [<c019440f>] seq_read+0x248/0x2ee
+> [   36.328000]  [<c0171bef>] vfs_read+0x1c1/0x1c6
+> [   36.328000]  [<c0171f0a>] sys_read+0x4b/0x75
+> [   36.328000]  [<c0103139>] sysenter_past_esp+0x56/0x8d
+> [   36.328000]  [<b7fb7410>] 0xb7fb7410
+> [   36.328000]  [<c0104205>] show_stack_log_lvl+0x98/0xb2
+> [   36.328000]  [<c0104434>] show_registers+0x1b7/0x22f
+> [   36.328000]  [<c010460a>] die+0x11e/0x226
+> [   36.328000]  [<c0379dc2>] do_page_fault+0x38c/0x616
+> [   36.328000]  [<c0103cad>] error_code+0x39/0x40
+> [   36.328000]  [<c01948a4>] seq_printf+0x32/0x55
+> [   36.328000]  [<c013fd08>] print_unload_info+0x6f/0xe9
+> [   36.328000]  [<c0142073>] m_show+0x4b/0xb5
+> [   36.328000]  [<c019440f>] seq_read+0x248/0x2ee
+> [   36.328000]  [<c0171bef>] vfs_read+0x1c1/0x1c6
+> [   36.328000]  [<c0171f0a>] sys_read+0x4b/0x75
+> [   36.328000]  [<c0103139>] sysenter_past_esp+0x56/0x8d
+> [   36.328000] Code: fd ff ff 83 cf 40 bb 10 00 00 00 eb 88 8b 45 14 83 45 14 04 8b 55 e8 8b 08 b8 e4 81 3a c0 81 f9 ff 0f 00 00 0f 46 c8 89 c8 eb 06 <80> 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 83 e7 10 89 c3 0f 85 
+> [   36.328000] EIP: [<c01fcf39>] vsnprintf+0x2da/0x4f9 SS:ESP 0068:f3701e80
+> 
+> Please notice how the BUG comes right after the drm warning.
 
--Andi
-]
+Coincidence, I'd say.
+
+This one looks like something horrid happened in the module dependency
+chain.  Heaven knows.  Using ascii `tle9' as a pointer?
+
+CONFIG_DEBUG_PAGEALLOC might tell us more.

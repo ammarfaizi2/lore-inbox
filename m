@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWHOTs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWHOTwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbWHOTs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 15:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbWHOTs7
+	id S932130AbWHOTwc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 15:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWHOTwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 15:48:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46261 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932518AbWHOTs6 (ORCPT
+	Tue, 15 Aug 2006 15:52:32 -0400
+Received: from vena.lwn.net ([206.168.112.25]:40335 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S932130AbWHOTwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 15:48:58 -0400
-Date: Tue, 15 Aug 2006 15:48:57 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: bonding: cannot remove certain named devices
-Message-ID: <20060815194856.GA3869@nostromo.devel.redhat.com>
-Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 15 Aug 2006 15:52:31 -0400
+Message-ID: <20060815195231.17015.qmail@lwn.net>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Drop second arg of unregister_chrdev() 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Tue, 15 Aug 2006 07:35:22 +0400."
+             <20060815033522.GA5163@martell.zuzino.mipt.ru> 
+Date: Tue, 15 Aug 2006 13:52:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.17-rc4+.
+> * "name" is trivially unused.
+> * Requirement to pass to unregister function anything but cookie you've
+>   got from register counterpart is wrong.
 
-Trivial example:
+Might this, instead, be an opportunity to get rid of the internal
+register_chrdev() and unregister_chrdev() calls in favor of the cdev
+interface?  register_chrdev() is a bit of a backward-compatibility hack
+at this point, and cdevs, in theory, are safer since they won't present
+drivers with minor numbers they might not be prepared to handle.
 
-# modprobe bonding (creates bond0)
-# ip link set bond0 name "a b"
-# echo "-a b" > /sys/class/net/bonding_masters 
-bonding: unable to delete non-existent bond a
-bash: echo: write error: No such device
+jon
 
-Bill

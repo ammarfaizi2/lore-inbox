@@ -1,32 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWHOQj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbWHOQlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbWHOQj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 12:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWHOQj6
+	id S1030385AbWHOQlL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 12:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbWHOQlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 12:39:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41362 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030371AbWHOQj5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 12:39:57 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1155595768.5656.26.camel@localhost> 
-References: <1155595768.5656.26.camel@localhost>  <20060813012454.f1d52189.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       David Howells <dhowells@redhat.com>, Ian Kent <raven@themaw.net>
-Subject: Re: 2.6.18-rc4-mm1 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 15 Aug 2006 17:39:37 +0100
-Message-ID: <26190.1155659977@warthog.cambridge.redhat.com>
+	Tue, 15 Aug 2006 12:41:10 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:672 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030385AbWHOQlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 12:41:09 -0400
+Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling
+	enabled
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Reidenbach <m.reidenbach@everytruckjob.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44E1F0CD.7000003@everytruckjob.com>
+References: <44E1F0CD.7000003@everytruckjob.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Aug 2006 18:01:47 +0100
+Message-Id: <1155661308.24077.297.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Ar Maw, 2006-08-15 am 11:05 -0500, ysgrifennodd Mark Reidenbach:
+> Does anyone have a way to find the broken router if you are not running 
+> the networks involved?  
 
-> as well as a few dentry leaks that were introduced by David's
-> nfs_alloc_client().
+You are almost certainly looking for a broken/crap NAT box, firewall or
+similar product. Routers that are just being routers don't touch the TCP
+layer so even if they are broken/crap/ancient they won't do any harm to
+it.
 
-I'm really quite surprised that I haven't seen these bugs.
+The usual offenders are cheap NAT boxes and badly designed load
+balancers. They may not even show up in a trace but you should expect
+them to be at one end or the other, unless your ISP is providing you
+with NATted addresses or some kind of managed security service.
 
-Acked-By: David Howells <dhowells@redhat.com>
+Alan

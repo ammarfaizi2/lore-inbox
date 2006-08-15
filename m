@@ -1,32 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbWHOHvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWHOHwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965282AbWHOHvG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 03:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWHOHvG
+	id S965225AbWHOHwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 03:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWHOHwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 03:51:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50620 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965282AbWHOHvE (ORCPT
+	Tue, 15 Aug 2006 03:52:21 -0400
+Received: from ns2.suse.de ([195.135.220.15]:47280 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965225AbWHOHwU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 03:51:04 -0400
-Date: Tue, 15 Aug 2006 00:51:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrzej Szymanski <szymans@agh.edu.pl>, linux-kernel@vger.kernel.org
-Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
-Message-Id: <20060815005100.be613254.akpm@osdl.org>
-In-Reply-To: <20060815005025.22e8adfe.akpm@osdl.org>
-References: <44E0A69C.5030103@agh.edu.pl>
-	<20060815005025.22e8adfe.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 03:52:20 -0400
+Date: Tue, 15 Aug 2006 00:51:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [-mm patch] cleanup drivers/ata/Kconfig
+Message-ID: <20060815075144.GA31109@kroah.com>
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060813210106.GO3543@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060813210106.GO3543@stusta.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 00:50:25 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+On Sun, Aug 13, 2006 at 11:01:06PM +0200, Adrian Bunk wrote:
+> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.18-rc3-mm2:
+> >...
+> >  git-libata-all.patch
+> >...
+> >  git trees
+> >...
+> 
+> This patch contains the following cleanups:
+> - create a menu for ATA
+> - replace the dependencies on ATA with an "if ATA"
 
-> Mounting with `-o writeback' should help.
+Why do this?  Are we going to be doing this for all subsystems?
 
-err, `-o data=writeback'
+It seems like a bit of unnecessary churn to me...
+
+thanks,
+
+greg k-h

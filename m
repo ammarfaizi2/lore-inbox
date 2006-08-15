@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWHOKmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWHOKng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWHOKmK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 06:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWHOKmK
+	id S1030192AbWHOKng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 06:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWHOKng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 06:42:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:46852 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030191AbWHOKmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 06:42:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GRipQT3X1TKFb8ADrwiHcZjCdJ5WTKGPTcxVN94Rn4daY1OdDfmkAT3RbTpii0AKfCT4RUwetDs+JLVRDFeZ4sYns2Jsj+1EqKLynVylZfVs2KM5HnjAwYVcJga3VIMlNdd7v6rxu7y9VA2wjc9Bv1vQWO7AycozNGE2nVM5J4o=
-Message-ID: <9a8748490608150342i1e546484kb66ff57ab78ebb05@mail.gmail.com>
-Date: Tue, 15 Aug 2006 12:42:07 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "David Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] ISDN: fix double free bug in isdn_net
-Cc: linux-kernel@vger.kernel.org, kkeil@suse.de, kai.germaschewski@gmx.de,
-       isdn4linux@listserv.isdn4linux.de
-In-Reply-To: <20060815.021503.71555009.davem@davemloft.net>
+	Tue, 15 Aug 2006 06:43:36 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:63371
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1030192AbWHOKnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 06:43:35 -0400
+Date: Tue, 15 Aug 2006 03:43:17 -0700
+To: Robert Crocombe <rcrocomb@gmail.com>
+Cc: Esben Nielsen <nielsen.esben@gmail.com>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, rostedt@goodmis.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [Patch] restore the RCU callback to defer put_task_struct() Re: Problems with 2.6.17-rt8
+Message-ID: <20060815104317.GA2138@gnuppy.monkey.org>
+References: <20060808025615.GA20364@gnuppy.monkey.org> <20060808030524.GA20530@gnuppy.monkey.org> <Pine.LNX.4.64.0608090050500.23474@frodo.shire> <20060810021835.GB12769@gnuppy.monkey.org> <20060811010646.GA24434@gnuppy.monkey.org> <e6babb600608110800g379ed2c3gd0dbed706d50622c@mail.gmail.com> <20060811211857.GA32185@gnuppy.monkey.org> <20060811221054.GA32459@gnuppy.monkey.org> <e6babb600608141056j4410380fr15348430738c91d8@mail.gmail.com> <20060814234423.GA31230@gnuppy.monkey.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200608122248.22639.jesper.juhl@gmail.com>
-	 <20060815.020004.76775981.davem@davemloft.net>
-	 <9a8748490608150208v4e8b7dccl6dd501a6f2cda4fc@mail.gmail.com>
-	 <20060815.021503.71555009.davem@davemloft.net>
+In-Reply-To: <20060814234423.GA31230@gnuppy.monkey.org>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15/08/06, David Miller <davem@davemloft.net> wrote:
-> From: "Jesper Juhl" <jesper.juhl@gmail.com>
-> Date: Tue, 15 Aug 2006 11:08:35 +0200
->
-> > Hmm, perhaps I made a mistake and missed a path. Maybe it would be
-> > better to fix if by making isdn_writebuf_skb_stub() always set the skb
-> > to NULL when it does free it. That would add a few more assignments
-> > but should ensure the right result always.
-> > What do you say?
->
-> Do we know if the ->writebuf_skb() method ever frees the skb?  If it
-> never does, then yes your suggestion would be one way to handle this.
->
-I'll look at it tonight and if writebuf_skb() method never frees the
-skb I'll send a patch.
+On Mon, Aug 14, 2006 at 04:44:23PM -0700, Bill Huey wrote:
+> On Mon, Aug 14, 2006 at 10:56:39AM -0700, Robert Crocombe wrote:
+> > And yeah, it is a RAID config.  But for extra bonus points, I found a
+> > spare SCSI disk and installed Fedora Core 5 and did a 'yum upgrade' to
+> > whatever was current as of today.  So it's a single disk config now.
+> > Problem still occurs with 't2' patched kernel.
+> > 
+> > config and dmesg attached, kaboom-like stuff appended.
+> 
+> It looks like a screw interaction between the latency tracer and the mutex
+> code that creates such a wacked out looking stack trace. Unfortunately,
+> I've been unsuccessful at reproducing it, so I'm going to focus on a partial
+> clean up so that the rtmutex is a bit more friendly to the latency tracer.
+> 
+> This is kind of a pain.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I'm high, the latency tracer is fine. I'm going to look at the mutex code more.
+
+bill
+

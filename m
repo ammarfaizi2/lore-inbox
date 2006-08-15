@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932765AbWHOMpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWHOM4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932765AbWHOMpx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 08:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752101AbWHOMpx
+	id S965091AbWHOM4V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 08:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWHOM4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 08:45:53 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:39043 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1751243AbWHOMpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 08:45:52 -0400
-Date: Tue, 15 Aug 2006 22:45:40 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: David Howells <dhowells@redhat.com>
-Cc: viro@ftp.linux.org.uk, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RHEL5 PATCH 2/4] VFS: Make inode numbers 64-bits
-Message-Id: <20060815224540.04177ed9.sfr@canb.auug.org.au>
-In-Reply-To: <9787.1155633947@warthog.cambridge.redhat.com>
-References: <20060815090243.GT29920@ftp.linux.org.uk>
-	<20060815013114.GS29920@ftp.linux.org.uk>
-	<20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com>
-	<20060814211509.27190.51352.stgit@warthog.cambridge.redhat.com>
-	<7619.1155630777@warthog.cambridge.redhat.com>
-	<9787.1155633947@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Tue, 15 Aug 2006 08:56:21 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:35659 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965091AbWHOM4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 08:56:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=Lsanhh7eIvTL637pK9tVdJ/qBXvykyEqLVbyNrin/Uc9CgNg/05dFeHeN7XQZHsIB9zmHpTUWTUM2pA6Flp7+Pz6d2WVL7XMwNNOfDSDOdxiJlbAiq82aW3r/k05V7yyXfE5tbE7xJrYlLQNLoqZE8b9BIjbQCA7fa/RLnypRjQ=
+Subject: Re: Oops on suspend
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <200608151153.03441.rjw@sisk.pl>
+References: <1155603152.3948.4.camel@daplas.org>
+	 <200608151153.03441.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Tue, 15 Aug 2006 20:56:10 +0800
+Message-Id: <1155646570.4181.2.camel@daplas.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__15_Aug_2006_22_45_40_+1000_r2L3twscLeq4K0xi"
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__15_Aug_2006_22_45_40_+1000_r2L3twscLeq4K0xi
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2006-08-15 at 11:53 +0200, Rafael J. Wysocki wrote:
+> On Tuesday 15 August 2006 02:52, Antonino A. Daplas wrote:
+> > Anyone see this oops on suspend to disk? Copied by hand only.
+> > 
+> > EIP is at swap_type_of
+> > 
+> > swsusp_write
+> > pm_suspend_disk
+> > enter_state
+> > state_store
+> > subsys_attr_store
+> > sysfs_write_file
+> > vfs_write
+> > sys_write
+> > sysenter_past_EIP
+> > 
+> > openSUSE-10.2-Alpha3 (2.6.18-rc4), but I see this also with stock
+> > 2.6.18-rc4-mm1.
+> 
+> Are there two swap partitions on your system?  Is any of them on an LVM?
 
-On Tue, 15 Aug 2006 10:25:47 +0100 David Howells <dhowells@redhat.com> wrot=
-e:
->
-> Interestingly, one of these also touches userspace: /proc/locks passes the
-> inode number out, but will pass the wrong one if i_ino is too short.  Does
-> anything in userspace actually use that?
+I have two swap partitions, /dev/hda3 and /dev/hdc1. resume=/dev/hdc1.
 
-As far as I know, /proc/locks is just useful for debugging the locking code.
+If both partitions are mounted, suspend fails with a message of "cannot
+determined swap partition", or something to that effect.
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+If I do swapoff /dev/hda3, then suspend to disk, I get the oops.
 
---Signature=_Tue__15_Aug_2006_22_45_40_+1000_r2L3twscLeq4K0xi
-Content-Type: application/pgp-signature
+No LVM.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+I'll try removing /dev/hda3 and try again. Hold on...
 
-iD8DBQFE4cH0FdBgD/zoJvwRArSCAJsENtwn7XSvHh2PtduZTsJVmlBkiwCgmdjD
-5WHpOFZpWEa7W1ybUvzKaU4=
-=2oDf
------END PGP SIGNATURE-----
+Tony
 
---Signature=_Tue__15_Aug_2006_22_45_40_+1000_r2L3twscLeq4K0xi--
+

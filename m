@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWHOVl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWHOVtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWHOVl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 17:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWHOVl3
+	id S1750741AbWHOVtY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 17:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWHOVtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 17:41:29 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:22219 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750732AbWHOVl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 17:41:28 -0400
-Date: Tue, 15 Aug 2006 23:36:46 +0200
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: trenn@suse.de
-Subject: Re: [PATCH](memory hotplug) Repost remove useless message at boot time from 2.6.18-rc4.
-Cc: akpm@osdl.org, "Brown, Len" <len.brown@intel.com>,
-       keith mannthey <kmannth@us.ibm.com>,
-       ACPI-ML <linux-acpi@vger.kernel.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-In-Reply-To: <1155643418.4302.1154.camel@queen.suse.de>
-References: <20060810142329.EB03.Y-GOTO@jp.fujitsu.com> <1155643418.4302.1154.camel@queen.suse.de>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
-Message-Id: <20060815233557.7F99.Y-GOTO@jp.fujitsu.com>
+	Tue, 15 Aug 2006 17:49:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13987 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750738AbWHOVtX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 17:49:23 -0400
+Date: Tue, 15 Aug 2006 17:49:14 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Mitch Williams <mitch.a.williams@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: bonding: cannot remove certain named devices
+Message-ID: <20060815214914.GA5307@nostromo.devel.redhat.com>
+Mail-Followup-To: Stephen Hemminger <shemminger@osdl.org>,
+	Mitch Williams <mitch.a.williams@intel.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060815194856.GA3869@nostromo.devel.redhat.com> <Pine.CYG.4.58.0608151331220.3272@mawilli1-desk2.amr.corp.intel.com> <20060815204555.GB4434@nostromo.devel.redhat.com> <20060815140249.15472a82@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060815140249.15472a82@dxpl.pdx.osdl.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 2006-08-10 at 14:32 +0900, Yasunori Goto wrote:
-> > Hello.
+Stephen Hemminger (shemminger@osdl.org) said: 
+> > They're certainly allowed, and the sysfs directory structure, files,
+> > etc. handle it ok. Userspace tends to break in a variety of ways.
 > > 
-> > I would like to repost this patch to remove noisy useless message at boot
-> > time from 2.6.18-rc4.
-> > (I said "-mm doesn't shows this message in previous post", but it was wrong.
-> >  This messages are shown by -mm too.)
+> > I believe the only invalid character in an interface name is '/'.
 > > 
-> > -------------------------
-> > This is to remove noisy useless message at boot time from 2.6.18-rc4.
-> > The message is a ton of
-> > "ACPI Exception (acpi_memory-0492): AE_ERROR, handle is no memory device"
 > 
-> I sent a patch a while ago that gets rid of the whole namespace walking
-> by making acpi_memoryhotplug an acpi device and making use of the .add
-> callback function and the acpi_bus_register_driver call.
-> 
-> I am not sure whether this is possible if you have multiple memory
-> devices, though (if not maybe it should be made possible?)...
-> 
-> Yasunori even tested the patch and sent an Ok:
-> http://marc.theaimsgroup.com/?t=114065312400001&r=1&w=2
-> 
-> If this is acceptable I can rebase the patch on a current kernel.
+> The names "." and ".." are also verboten.
 
-Ahhhhh. Yes. Indeed.
-I had forgotten it.
+Right. Well, I suspect they're verboten-because-some-code-breaks-making-the-directory.
 
-But, I can't test it in this week due to I'm in vacation.
-(Now, I'm writting this mail at hotel in vacation.)
-Please wait until next week. :-P
+> Names with : in them are for IP aliases.
 
-Thanks.
+That's certainly not enforced at the kernel level.
 
--- 
-Yasunori Goto 
-
-
+Bill

@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWHOOpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbWHOOq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbWHOOpb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 10:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWHOOpb
+	id S1030331AbWHOOq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 10:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWHOOq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 10:45:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13443 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030323AbWHOOpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 10:45:30 -0400
-Subject: Re: Shared page tables patch... some results
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: hugh@veritas.com, akpm@osdl.org, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <p73wt9a83it.fsf@verdi.suse.de>
-References: <1155638047.3011.96.camel@laptopd505.fenrus.org>
-	 <p73wt9a83it.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 15 Aug 2006 16:45:05 +0200
-Message-Id: <1155653105.3011.167.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 15 Aug 2006 10:46:59 -0400
+Received: from hera.kernel.org ([140.211.167.34]:14037 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030324AbWHOOq6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 10:46:58 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Roger Heflin <rheflin@atipa.com>
+Subject: Re: What determines which interrupts are shared under Linux?
+Date: Tue, 15 Aug 2006 10:47:43 -0400
+User-Agent: KMail/1.8.2
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+References: <44E1D760.6070600@atipa.com>
+In-Reply-To: <44E1D760.6070600@atipa.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608151047.44255.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-15 at 16:41 +0200, Andi Kleen wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
-> > and the result is interesting:
-> > Just booting into runlevel 5 and logging into gnome (without starting
-> > any apps) gets a sharing of 1284 pte pages! This means that five
-> > megabytes (!!) of memory is saved, and countless pagefaults are avoided.
-> >
-> 
-> When I start SLES10 GNOME after boot with one firefox window and
-> one gnome terminal I only have ~5.3MB in total page tables according
-> to /proc/meminfo
-> 
-> You're saying you can share 5MB of those. Call me sceptical of your
-> numbers.
+On Tuesday 15 August 2006 10:17, Roger Heflin wrote:
+>  22:       1165    1704243     576247       6796   IO-APIC-level  ide2,  ide3
 
-PageTables:       9836 kB
+The first thing that determines interrupt sharing is where the physical wires from
+the devices are routed.  If these ide controllers are add-on boards, then you
+could try moving them between PCI slots -- as the slots generally have different
+primary interrupt lines.  When the board runs out of unique lines,
+they are generally wired to re-use lines on different slots.
+The manual for the board will generally tell you how the lines
+are routed.
 
-(this is after sharing, so before it was more)
+If the devices are using the same physical interrupt line, then it
+is not possible for software or BIOS to move them to different
+lines.
 
-maybe your gnome is not as bloated as my gnome ;)
+If these devices are functions in the same device, it is possible
+that there is some internal (BIOS or firmware) setting to tell it to
+use two interrupt wires instead of one.
 
+Once the wire for the device is determined, it is up to the BIOS
+and the OS to program (or not) an interrupt router to assign
+the wire to an interrupt input pin.  Your dmesg will tell us
+if this is happening on this board.
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+-Len

@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbWHOOHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbWHOOLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbWHOOHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 10:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbWHOOHn
+	id S965253AbWHOOLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 10:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965372AbWHOOLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 10:07:43 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:742 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965077AbWHOOHm (ORCPT
+	Tue, 15 Aug 2006 10:11:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27347 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965253AbWHOOLv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 10:07:42 -0400
-Date: Tue, 15 Aug 2006 16:07:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andi Kleen <ak@suse.de>, Keith Owens <kaos@ocs.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4 warning on arch/x86_64/boot/compressed/head.o
-Message-Id: <20060815160728.6eec11f0.ak@muc.de>
-In-Reply-To: <Pine.LNX.4.61.0608151510400.29937@yvahk01.tjqt.qr>
-References: <7161.1155005268@kao2.melbourne.sgi.com>
-	<200608080455.34702.ak@suse.de>
-	<Pine.LNX.4.61.0608090823570.11585@yvahk01.tjqt.qr>
-	<200608090909.19985.ak@suse.de>
-	<Pine.LNX.4.61.0608100911160.10926@yvahk01.tjqt.qr>
-	<Pine.LNX.4.61.0608151510400.29937@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 15 Aug 2006 10:11:51 -0400
+Date: Tue, 15 Aug 2006 07:11:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reiner Herrmann <reiner@reiner-h.de>
+Cc: linux-kernel@vger.kernel.org, Miloslav Trmac <mitr@volny.cz>,
+       Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: 2.6.18-rc4: freeze with wistron_btns driver
+Message-Id: <20060815071138.9f11f8f1.akpm@osdl.org>
+In-Reply-To: <200608151517.57833.reiner@reiner-h.de>
+References: <200608151517.57833.reiner@reiner-h.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 15 Aug 2006 15:17:57 +0200
+Reiner Herrmann <reiner@reiner-h.de> wrote:
 
+> After loading the wistron_btns driver in 2.6.18-rc4 and pressing some buttons
+> that become enabled by this driver, the kernel suddenly freezes.
 > 
-> Any results on this, Andi?
+> The reason seems to be git-commit c7948989f84ee6e9c68cc643f8c6a635eb7a904b.
+> After reversing this patch everything is running fine, except that there
+> are again the 'section reference mismath' warnings that have been fixed
+> by the commit.
 
-I haven't tried, since I asked for a tested patch.
+erp.  Pretty much the whole thing needs reverting because global variable
+`keymap' ends up pointing at one of those tables.
 
--Andi

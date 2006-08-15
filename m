@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWHOMCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWHOMEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWHOMCw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 08:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWHOMCw
+	id S1751447AbWHOMEW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 08:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752032AbWHOMEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 08:02:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:41310 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750803AbWHOMCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 08:02:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=C+kYzUwjhq9W8bxn1mRjYxCNEil2daWwZL4VHlv0+E8wWFmkyreQ5FpT6HEQgtEIpDXNfV2xFkD5ct6poiE1v1sUGWXJ77JMeDHT4gfro/ivNv2lBWvwQO003nryjnl+Q90zOM4pHmF3fLf+6Y8KQ+wyriyi1HPQ9Rg5O8ZjmIY=
-Message-ID: <9a8748490608150502g30c2e566g7301ca5cc50778ce@mail.gmail.com>
-Date: Tue, 15 Aug 2006 14:02:50 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: locks_insert_block: removing duplicated lock (pid=2711 0-9223372036854775807 type=1)
-Cc: "J. Bruce Fields" <bfields@fieldses.org>,
-       "J. Bruce Fields" <bfields@citi.umich.edu>,
-       "Trond Myklebust" <Trond.Myklebust@netapp.com>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <9a8748490608150458t53da165cvca0f6bf71c25ed63@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Aug 2006 08:04:22 -0400
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:38789 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751447AbWHOMEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 08:04:21 -0400
+Date: Tue, 15 Aug 2006 07:04:19 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: KaiGai Kohei <kaigai.kohei@gmail.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+Subject: Re: [RFC] [PATCH] file posix capabilities
+Message-ID: <20060815120419.GA7372@vino.hallyn.com>
+References: <20060730011338.GA31695@sergelap.austin.ibm.com> <20060814220651.GA7726@sergelap.austin.ibm.com> <44E1153D.9000102@ak.jp.nec.com> <20060815021612.GC16220@sergelap.austin.ibm.com> <44E14406.7020208@ak.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490608100502wd9a097cwab80c662300020e8@mail.gmail.com>
-	 <9a8748490608150458t53da165cvca0f6bf71c25ed63@mail.gmail.com>
+In-Reply-To: <44E14406.7020208@ak.jp.nec.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15/08/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 10/08/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > I've got a server running 2.6.11.11 that just reported the following in dmesg :
+Quoting KaiGai Kohei (kaigai.kohei@gmail.com):
+> Hi,
+> 
+> >>See
+> >>http://www.kaigai.gr.jp/index.php?FrontPage#b556e50d
+> >>http://www.kaigai.gr.jp/pub/fscaps-1.0-kg.src.rpm
+> >>
+> >>The later SRPM package includes the cap_file.c.
+> >>It will be a good sample of using libcaps.
 > >
-> > locks_insert_block: removing duplicated lock (pid=2711
-> > 0-9223372036854775807 type=1)
+> >And this has a version number built in, as Eric was asking for.
+> 
+> _LINUX_CAPABILITY_VERSION defined as 0x19980330 is used for this.
+> Is there a possibility to be changed future, isn't it?
+> For example, when we think 32-bit width is not enough.
+> 
+> >My tools were purely for testing, and just kept everything as simple as
+> >possible.  So I'll happily port the kernel patch to use your tools  :)
 > >
-> Still getting lots of these :
->
-> Aug 15 13:53:01 server kernel: locks_insert_block: removing duplicated
-> lock (pid=3 0-9223372036854775807 type=1)
-> Aug 12 22:46:31 server kernel: locks_insert_block: removing duplicated
-> lock (pid=1036 0-9223372036854775807 type=1)
-> Aug 12 00:21:28 server kernel: locks_insert_block: removing duplicated
-> lock (pid=1020 0-9223372036854775807 type=1)
->
-> What's the exact meaning of this?
-> > Should I worry?
-> > Any info I can provide that would be useful?
->
+> >For that matter I see you have your own kernel patch.  Would you mind
+> >submitting that to lkml as an alternative to mine?
+> 
+> I have no plan to submit now. It'll be called "Re-investment of wheel".
 
-I guess I should add a few people who might know something to Cc:
-instead of only sending to LKML ;-)
+Assuming you meant reinvention, not at all.  We want to get the best
+patch in.
 
-The server that generates these log messages is serving up a few
-terrabytes of data via NFS to some tens of clients - in case that's
-relevant.
+> # In addition, I'm currently busy to hack PostgreSQL. :D
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Ok, well thanks for taking a look at this one.
+
+> I hope to confirm one more point.
+> Endian conpatibility is considered in the patches?
+
+Not yet.  Will add that and a check of the cap bitfield length as
+mentioned in another email.
+
+thanks,
+-serge

@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWHOUZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWHOUic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWHOUZF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 16:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWHOUZE
+	id S1750969AbWHOUic (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 16:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWHOUic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 16:25:04 -0400
-Received: from 1wt.eu ([62.212.114.60]:24335 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751189AbWHOUZD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 16:25:03 -0400
-Date: Tue, 15 Aug 2006 22:20:30 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Mark Reidenbach <m.reidenbach@everytruckjob.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling enabled
-Message-ID: <20060815202029.GM8776@1wt.eu>
-References: <44E1F0CD.7000003@everytruckjob.com> <20060815180634.GB15957@s2.yuriev.com> <20060815181938.GK8776@1wt.eu> <44E2263D.4010909@everytruckjob.com>
+	Tue, 15 Aug 2006 16:38:32 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47529 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750969AbWHOUic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 16:38:32 -0400
+Subject: Re: [PATCH] const struct tty_operations
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200608152023.k7FKNbco009918@ccure.user-mode-linux.org>
+References: <200608152023.k7FKNbco009918@ccure.user-mode-linux.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Aug 2006 21:58:51 +0100
+Message-Id: <1155675531.24077.312.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E2263D.4010909@everytruckjob.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 02:53:33PM -0500, Mark Reidenbach wrote:
-> Willy Tarreau wrote:
-> >He may very well have an IOS based 1600 or equivalent doing a very dirty 
-> >NAT.
-> >
-> >Willy
-> >
-> >  
-> Willy, I am in fact running an IOS based NAT/firewall on a 1811.   It's 
-> IOS version 12.3(8)YI1.  Do you know if this version has a "very dirty 
-> NAT" implementation?   If you don't, I think I'll just try a few spare 
-> home routers and see if their NAT implementation is cleaner than my Cisco's.
+Ar Maw, 2006-08-15 am 16:23 -0400, ysgrifennodd Jeff Dike:
+> 53 drivers are affected.  I checked the history of a bunch of them,
+> and in most cases, there have been only a handful of maintenance
+> changes in the last six months.  serial_core.c was the busiest one
+> that I looked at.
 
-I have absolutely no idea. If they borrowed the session tracking code from
-the PIX, you might have window tracking inside it, which might cause what
-you observe if it's buggy. But that's just supposition from me.
+For the tty layer and unmaintained drivers
 
-> Mark Reidenbach
-> EveryTruckJob.com
-> M.Reidenbach@EveryTruckJob.com
-> Phone: (205)722-9112
+Acked-by: Alan Cox <alan@redhat.com>
 
-Regards,
-willy
+I'm all for making better use of const.
+
 

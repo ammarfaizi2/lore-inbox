@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWHPN7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWHPOVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWHPN7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 09:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWHPN7q
+	id S1751081AbWHPOVk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 10:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWHPOVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 09:59:46 -0400
-Received: from bay0-omc2-s19.bay0.hotmail.com ([65.54.246.155]:46226 "EHLO
-	bay0-omc2-s19.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1750760AbWHPN7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 09:59:45 -0400
-Message-ID: <BAY114-F135E5B07856A5191B7A119FA4C0@phx.gbl>
-X-Originating-IP: [193.62.3.251]
-X-Originating-Email: [lukesharkey@hotmail.co.uk]
-In-Reply-To: <d120d5000608151010m3ee6c33fi4a41b41007b1ff69@mail.gmail.com>
-From: "Luke Sharkey" <lukesharkey@hotmail.co.uk>
-To: dmitry.torokhov@gmail.com
-Cc: andi@rhlx01.fht-esslingen.de, davej@redhat.com, gene.heskett@verizon.net,
-       ian.stirling@mauve.plus.com, linux-kernel@vger.kernel.org,
-       malattia@linux.it, lista1@comhem.se
-Subject: Re: Touchpad problems with latest kernels
-Date: Wed, 16 Aug 2006 14:59:40 +0100
+	Wed, 16 Aug 2006 10:21:40 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:60141 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751078AbWHPOVj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 10:21:39 -0400
+Date: Wed, 16 Aug 2006 22:45:29 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org
+Subject: Re: [PATCH 7/7] file: Modify struct fown_struct to use a struct pid.
+Message-ID: <20060816184529.GB472@oleg>
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <11556661943487-git-send-email-ebiederm@xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Aug 2006 13:59:40.0983 (UTC) FILETIME=[38166C70:01C6C13C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11556661943487-git-send-email-ebiederm@xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On 08/15, Eric W. Biederman wrote:
+>
+> File handles can be requested to send sigio and sigurg
+> to processes.   By tracking the destination processes
+> using struct pid instead of pid_t we make the interface
+> safe from all potential pid wrap around problems.
 
->Ok, there seems to be two distinct issues here. 1) Synaptics
->'supersensitive' mode, 2) pointer 'freezing'.
-Hmmm... perhaps "jerky" was the wrong choice of word.  I don't at all mean 
-I've had a supersensitive touchpad: quite the opposite.  What I was trying 
-to convey was the fact that when my pointer freezes, sometimes it becomes 
-unfrozen again suddenly (for a brief time) and then moves forward a little, 
-then gets stuck again, and in this way is "jerky".  So not supersensitivity. 
-  (Apologies for any confusion).
+As I can see, this patch adds 2 user visible changes. I am
+not arguing, but probably it makes sense to document this.
 
->The trick is to have a terminal open and then do alt-tab (presuming that it 
->does not unfreeze the pointer)
+Before this patch, fcntl(F_GETOWN) returns the same pid that
+was given to fcntl(F_SETOWN). Now it returns 0 if there were
+no process/group with such a pid when F_SETOWN was called.
 
-Yes, I've been doing that as a worthwhile precaution.  Sometimes the pointer 
-seems to get so stuck even when I plug in a normal mouse, it remains frozen. 
-  Seeing as Linux is less easily controlled with the keyboard compared to 
-MS-Windows, sometimes all I can do is Alt-tab to the terminal window and do 
-a command line reboot.
+The second change is good (I'd say this is bugfix). It is
+not possible anymore to send the signal to not yet created
+processes via fcntl(F_SETOWN, last_pid + a_little), or hit
+a problem with pid re-use.
 
-(Off topic question: why not have the K menu open when the "MS-Windows" 
-button on the keyboard is pressed, as happens with the "Start" button on 
-MS-windows?)
-
-*However*, I have noticed that sometimes when I alt-tab between any windows 
-/ programs I have open, sometimes the pointer becomes unstuck again...
-
->Also, is there programs that poll status of your battery or monitor box's 
->temperature?
-
-Battery charge level, yes, but not the box's temperature.  I have tried lots 
-of apps to try and do this, e.g. gkrellm, but there is no support for this 
-on my laptop.  Besides, these problems often evidence themselves soon after 
-I switch on, so I don't think laptop temperature would still be a problem 
-that early.  Also, I rip the occasional DVD, sometimes leaving my computer 
-on for 5+ hours: it doesn't overheat.
-
->Oh, another one... try booting with "ec_intr=0" on the kernel command line 
->to disable embedded controller interrupt mode.
-
->And finally, can I mples get a dmesg (or /var/log/messages) of boot with 
->"i8042.debug=1 log_buf_len=131072" please?
-
-Thank you for the suggestions.  I will try the kernel option, and post the 
-results of the error log.
-
-Yours,
-LS
-
-_________________________________________________________________
-Be the first to hear what's new at MSN - sign up to our free newsletters! 
-http://www.msn.co.uk/newsletters
+Oleg.
 

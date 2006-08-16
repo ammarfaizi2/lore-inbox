@@ -1,92 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWHPHw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWHPIB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWHPHw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 03:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWHPHw6
+	id S1750995AbWHPIB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 04:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWHPIB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 03:52:58 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:5799 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750966AbWHPHw5 (ORCPT
+	Wed, 16 Aug 2006 04:01:59 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:48569 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750760AbWHPIB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 03:52:57 -0400
-Date: Wed, 16 Aug 2006 09:52:54 +0200
-From: Andi Kleen <ak@muc.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andi Kleen <ak@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
-       Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
-Message-Id: <20060816095254.14ac872c.ak@muc.de>
-In-Reply-To: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 16 Aug 2006 04:01:58 -0400
+Message-ID: <44E2D175.1010506@sw.ru>
+Date: Wed, 16 Aug 2006 12:04:05 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, containers@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [Containers] [PATCH 6/7] vt: Update spawnpid to be a struct	pid_t
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>	<1155666193191-git-send-email-ebiederm@xmission.com>	<1155667982.24077.307.camel@localhost.localdomain> <m13bbx96tm.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m13bbx96tm.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+> 
+>>Ar Maw, 2006-08-15 am 12:23 -0600, ysgrifennodd Eric W. Biederman:
+>>
+>>>This keeps the wrong process from being notified if the
+>>>daemon to spawn a new console dies.
+>>
+>>Not sure why we count pids not task structs but within the proposed
+>>implementation this appears correct so
+> 
+> 
+> Basically struct pid is relatively cheap, 64bytes or so.
+> struct task is expensive 10K or so, when all of the stacks
+> and everything are included.
+> 
+> Counting pids allows the task to exit in user space and free up
+> all of it's memory.
+> 
+> When /proc used to count the task struct it was fairly easy to
+> deliberately oom a 32bit machine just by open up directories in
+> /proc and then having the process exit.  rlimits didn't help because
+> we don't count processes that have exited.
+hey, hey. your patch doesn't help in this situation (much)!
+inodes and dentries can still consume much memory.
+it just makes the situation a bit better.
 
-> 1. A framework for page allocators and slab allocators
+I wonder whether it is easy to have the following done with your implementation:
+container tasks visible from host. theoretically having 2 pids (vpid, pid)
+it should be implementable. Do you see any obstacles?
 
-Great. 
+in other regards patches look pretty good. Good job!
 
-Hopefully this will combat the recent surge of new custom 
-allocators.
+Kirill
 
-Maybe it would be a good idea to first check if Evgeny's tree allocator
-is really that much better as he claims and if any ideas from
-that one could be incorporated into the new design?
-
-> 2. Various methods to derive new allocators from old ones
->    (add rcu support, destructors, constructors, dma etc)
-
-I'm surprised that you add that many indirect calls when writing
-code for IA64. I remember during SLES kernel testing we found that
-gcc's generation of indirect calls on IA64/McKinley seemed to be rather poor --
-in particular we got a quite measurable slow down just from the indirect calls
-that the LSM layer added to many paths. I hope that's ok.
-
-I'm not arguing against doing this way btw, just a remark.
-
-> 	B. The page slab allocator. This is a simple Pagesize based
-> 	   allocator that uses the page allocator directly to manage its
-> 	   objects. Doing so avoids all the slab overhead for large
-> 	   allocations. The page slab can also slabify any other
-> 	   page allocator.
-
-What other ones do we have?
- 
-> 	C. The NUMA Slab. This allocator is based on the slabifier
-> 	   and simply creates one Slabifier per node and manages
-> 	   those. This allows a clean separation of NUMA.
-> 	   The slabifier stays simple and the NUMA slab can deal
-> 	   with the allocation complexities. So system
-> 	   without NUMA are not affected by the logic that is
-> 	   put in.
-
-I hope the NUMA slab will still perfom well even on non NUMA though.
-That will be a common situation on x86-64 (kernels compiled with NUMA,
-but running on flat Intel systems)
-
- 
-> 1. shrink_slab takes a function to move object. Using that
->    function slabs can be defragmented to ease slab reclaim.
-
-Does that help with the inefficient dcache/icache pruning? 
-
-> - No support for pagese
-
-What does that mean?
-
-> Performance tests with AIM7 on an 8p Itanium machine (4 NUMA nodes)
-> (Memory spreading active which means that we do not take advantage of NUMA locality
-> in favor of load balancing)
-
-Hmm, i'm not sure how allocator intensive AIM7 is. I guess networking
-would be a good test because it is very sensitive to allocator performance.
-Perhaps also check with the routing people on netdev -- they seem to be able
-to stress the allocator very much.
- 
--Andi

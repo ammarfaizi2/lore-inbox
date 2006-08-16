@@ -1,54 +1,36 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWHPJDs (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 16 Aug 2006 05:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWHPJDs
+	id S1751052AbWHPJaR (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 16 Aug 2006 05:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWHPJaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 05:03:48 -0400
-Received: from [213.209.225.2] ([213.209.225.2]:21282 "EHLO comuneforli.it")
-	by vger.kernel.org with ESMTP id S1751027AbWHPJDs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 05:03:48 -0400
-X-Originator: MailScan
-From: postmaster@cofo.it
+	Wed, 16 Aug 2006 05:30:17 -0400
+Received: from black.gradwell.net ([216.218.195.242]:8453 "EHLO
+	black.gradwell.net") by vger.kernel.org with ESMTP id S1751052AbWHPJaQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 05:30:16 -0400
+From: shane@bcs.org.uk
 To: linux-kernel@vger.kernel.org
-Message-id: <24753049312391889312208722562997@cofo.it>
-Date: Wed, 16 Aug 2006 11:07:53 +0200
-MIME-Version: 1.0
-Subject: Attachments not Delivered by MailScan!
-Content-Type: multipart/mixed; boundary="MailScanBoundary0"
-Content-Transfer-Encoding: 7bit
-X-Return-Path: postmaster@cofo.it
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Subject: Re: 
+Message-ID: <gwh.44e2e5a4.4af1.2173@yellow.gradwell.net>
+Date: Wed, 16 Aug 2006 10:30:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751027AbWHPJDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751052AbWHPJaR@vger.kernel.org>
 
---MailScanBoundary0
-Content-type: text/plain;
-Content-Transfer-Encoding: 7bit
+Hello,
 
+Your mail to shane@bcs.org.uk was caught by the
+SpamAssassin filter running on the bcs.org.uk mail system.
 
-=========================================================================
+To confirm that your mail is genuine, please click this
+link, or paste it into your browser:
+https://bcsnet.bcs.org.uk/approve.php?c=2c9bc71e222cc1265421a982
 
-ATTENZIONE!
+You will not have to do this again for any mail sent
+to this recipient (shane@bcs.org.uk).
 
-- L'allegato/i di questa mail è stato bloccato dal sistema antivirus in base alle regole di sicurezza.
-- In generale è consigliabile cancellare questo messaggio.
-- Se siete davvero certi che l'allegato era realmente utile e sicuro ed era indirizzato a Voi da un 
-mittente affidabile contattate l'assistenza tecnica.
+Thank you.
 
-La e-mail viene da : linux-kernel@vger.kernel.org
-Il destinatario è   : valeria.giunchi@cofo.it
-Il soggetto è : Returned mail: Data format error
-L'ID messaggio è : 
-Ricevuta  : from vger.kernel.org (host145-228-static.73-81-b.business.telecomitalia.it [81.73.228.145])
-IP Mittente : 81.73.228.145
-
-I seguenti allegati sono stati rimossi:
-Attachment: MAIL.ZIP
-
-MailScan per MDaemon.
-Comune di Forlì
---MailScanBoundary0--
-
-
+-- 
+British Computer Society - www.bcs.org.uk
+Email Services from gradwell dot com - www.gradwell.com

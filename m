@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWHPXOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWHPXS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWHPXOb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 19:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWHPXOa
+	id S1751224AbWHPXS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 19:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWHPXS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 19:14:30 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:26560 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751222AbWHPXOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 19:14:30 -0400
-Subject: Re: How to avoid serial port buffer overruns?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Paul Fulghum <paulkf@microgate.com>, Raphael Hertzog <hertzog@debian.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060816231033.GB12407@flint.arm.linux.org.uk>
-References: <20060816104559.GF4325@ouaza.com>
-	 <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com>
-	 <1155762739.7338.18.camel@mindpipe>
-	 <1155767066.2600.19.camel@localhost.localdomain>
-	 <20060816231033.GB12407@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Wed, 16 Aug 2006 19:15:06 -0400
-Message-Id: <1155770107.8796.14.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 19:18:28 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:21479 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751224AbWHPXS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 19:18:27 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: New version of ClownToolKit
+To: Sam Ravnborg <sam@ravnborg.org>, clowncoder <clowncoder@clowncode.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Thu, 17 Aug 2006 01:15:43 +0200
+References: <6Kxx5-7PT-7@gated-at.bofh.it> <6KyCM-1w7-1@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1GDUcG-00016M-Nu@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 00:10 +0100, Russell King wrote:
-> On Wed, Aug 16, 2006 at 05:24:26PM -0500, Paul Fulghum wrote:
-> > Does the MIDI device using the standard N_TTY line discipline?
-> > Are you using the low_latency flag on the serial device?
-> > What type of UART has been tested (16550? other?)
-> > Are you seeing overruns or just lost data?
+Sam Ravnborg <sam@ravnborg.org> wrote:
+
+> A small nitpick about the way ou build the ekrnel module:
 > 
-> MIDI uses its own driver - sound/drivers/serial-u16550.c.  My guess
-> is there's something in the system starving interrupt servicing.
-> Serial is very sensitive to that, and increases in other system
-> latencies tends to have an adverse impact on serial.
+> In mk_and_insmod you can replace:
+> make -C /usr/src/linux SUBDIRS=$PWD modules
+> with
+> LIBDIR=/lib/modules/`uname -r`
+> make -C $LIBDIR/source O=$LIBDIR/build SUBDIRS=`pwd` modules
 > 
+> For a normal kernel installation this will do the right thing.
+> source points to the kernel source and build point to the output
+> directory (they are often equal but not always).
 
-Thanks.
+Please don't tell module authors to unconditionally use `uname -r`.
+I frequently build kernels for differentd hosts, and if I don't, I'll
+certainly compile the needed modules before installing the kernel.
+Therefore /lib/modules/`uname -r` is most certainly the completely
+wrong place to look for the kernel source.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-Have you seen many other reports of serial working reliably in 2.4 but
-not in 2.6?  Right now this is the only clue I have to go on...
-
-Lee
-
+http://david.woodhou.se/why-not-spf.html

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWHPMG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWHPMIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWHPMG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 08:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWHPMG0
+	id S1751132AbWHPMIi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 08:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWHPMIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 08:06:26 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12595 "EHLO
+	Wed, 16 Aug 2006 08:08:38 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:34867 "EHLO
 	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751128AbWHPMGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 08:06:25 -0400
-Date: Wed, 16 Aug 2006 14:06:22 +0200
+	id S1751132AbWHPMIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 08:08:37 -0400
+Date: Wed, 16 Aug 2006 14:08:34 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [patch] s390: kernel page table allocation.
-Message-ID: <20060816120622.GD24551@skybase>
+To: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
+Subject: [patch] s390: hypfs compiler warnings.
+Message-ID: <20060816120834.GE24551@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,46 +21,56 @@ User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
-[S390] kernel page table allocation.
+[S390] hypfs compiler warnings.
 
-Don't waste DMA capable pages for identity mapping page tables.
+Add casts to avoid compiler warnings.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/mm/init.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/hypfs/hypfs_diag.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/mm/init.c linux-2.6-patched/arch/s390/mm/init.c
---- linux-2.6/arch/s390/mm/init.c	2006-08-16 13:35:54.000000000 +0200
-+++ linux-2.6-patched/arch/s390/mm/init.c	2006-08-16 13:36:34.000000000 +0200
-@@ -129,7 +129,7 @@ void __init paging_init(void)
-                 /*
-                  * pg_table is physical at this point
-                  */
--		pg_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+		pg_table = (pte_t *) alloc_bootmem_pages(PAGE_SIZE);
+diff -urpN linux-2.6/arch/s390/hypfs/hypfs_diag.c linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c
+--- linux-2.6/arch/s390/hypfs/hypfs_diag.c	2006-08-16 13:36:47.000000000 +0200
++++ linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c	2006-08-16 13:36:47.000000000 +0200
+@@ -432,12 +432,14 @@ static int diag204_probe(void)
  
-                 pg_dir->pgd0 =  (_PAGE_TABLE | __pa(pg_table));
-                 pg_dir->pgd1 =  (_PAGE_TABLE | (__pa(pg_table)+1024));
-@@ -219,7 +219,7 @@ void __init paging_init(void)
-                         continue;
-                 }          
-         
--	        pm_dir = (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE*4);
-+		pm_dir = (pmd_t *) alloc_bootmem_pages(PAGE_SIZE * 4);
-                 pgd_populate(&init_mm, pg_dir, pm_dir);
- 
-                 for (j = 0 ; j < PTRS_PER_PMD ; j++,pm_dir++) {
-@@ -228,7 +228,7 @@ void __init paging_init(void)
-                                 continue; 
-                         }          
-                         
--                        pt_dir = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
-+			pt_dir = (pte_t *) alloc_bootmem_pages(PAGE_SIZE);
-                         pmd_populate_kernel(&init_mm, pm_dir, pt_dir);
- 	
-                         for (k = 0 ; k < PTRS_PER_PTE ; k++,pt_dir++) {
+ 	buf = diag204_get_buffer(INFO_EXT, &pages);
+ 	if (!IS_ERR(buf)) {
+-		if (diag204(SUBC_STIB7 | INFO_EXT, pages, buf) >= 0) {
++		if (diag204((unsigned long)SUBC_STIB7 |
++			    (unsigned long)INFO_EXT, pages, buf) >= 0) {
+ 			diag204_store_sc = SUBC_STIB7;
+ 			diag204_info_type = INFO_EXT;
+ 			goto out;
+ 		}
+-		if (diag204(SUBC_STIB6 | INFO_EXT, pages, buf) >= 0) {
++		if (diag204((unsigned long)SUBC_STIB6 |
++			    (unsigned long)INFO_EXT, pages, buf) >= 0) {
+ 			diag204_store_sc = SUBC_STIB7;
+ 			diag204_info_type = INFO_EXT;
+ 			goto out;
+@@ -452,7 +454,8 @@ static int diag204_probe(void)
+ 		rc = PTR_ERR(buf);
+ 		goto fail_alloc;
+ 	}
+-	if (diag204(SUBC_STIB4 | INFO_SIMPLE, pages, buf) >= 0) {
++	if (diag204((unsigned long)SUBC_STIB4 |
++		    (unsigned long)INFO_SIMPLE, pages, buf) >= 0) {
+ 		diag204_store_sc = SUBC_STIB4;
+ 		diag204_info_type = INFO_SIMPLE;
+ 		goto out;
+@@ -476,7 +479,8 @@ static void *diag204_store(void)
+ 	buf = diag204_get_buffer(diag204_info_type, &pages);
+ 	if (IS_ERR(buf))
+ 		goto out;
+-	if (diag204(diag204_store_sc | diag204_info_type, pages, buf) < 0)
++	if (diag204((unsigned long)diag204_store_sc |
++		    (unsigned long)diag204_info_type, pages, buf) < 0)
+ 		return ERR_PTR(-ENOSYS);
+ out:
+ 	return buf;

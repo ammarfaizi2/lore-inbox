@@ -1,149 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWHPWg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWHPWlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWHPWg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWHPWg4
+	id S932303AbWHPWlz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWHPWlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:36:56 -0400
-Received: from hera.kernel.org ([140.211.167.34]:17611 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932300AbWHPWg4 (ORCPT
+	Wed, 16 Aug 2006 18:41:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1449 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932303AbWHPWly (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:36:56 -0400
-Date: Wed, 16 Aug 2006 22:36:33 +0000
-From: Willy Tarreau <wtarreau@hera.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
-Subject: Linux 2.4.34-pre1
-Message-ID: <20060816223633.GA3421@hera.kernel.org>
+	Wed, 16 Aug 2006 18:41:54 -0400
+Date: Thu, 17 Aug 2006 08:41:11 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+Subject: Re: 'fbno' possibly used uninitialized in xfs_alloc_ag_vextent_small()
+Message-ID: <20060817084111.A2787212@wobbly.melbourne.sgi.com>
+References: <200608162327.34420.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200608162327.34420.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Wed, Aug 16, 2006 at 11:27:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hi Jesper,
 
-here's the first pre-release of 2.4.34. Nothing really serious, I only
-merged the previously queued patches. Pete Zaitcev has issued a bunch
-of USB fixes in usbserial and also more general locking to fix a bug
-with some usb-storage devices such as the TEAC CD-210PU. We only know
-that it fixed the problem for the reporter, but this should definitely
-get more testing. There's also an interesting NFS fix from Jeff Layton.
+On Wed, Aug 16, 2006 at 11:27:34PM +0200, Jesper Juhl wrote:
+> (Please keep me on Cc since I'm not subscribed to the XFS lists)
+> 
+> The coverity checker found what looks to me like a valid case of 
+> potentially uninitialized variable use (see below).
 
-Some people have asked me what the hotfix tree will become. It will
-still exist in its current form to provide fixes for older versions.
-But I will create a 4 digit version for latest release because people
-got used to this since the 2.6-stable branch. The version suffix in
-the hotfix will still reflect the equivalent head level (eg: hf33.1
-will equal 2.4.33.1). I will prepare one soon with the most important
-of the few bugs below.
+It looks invalid, but its not, once again.  To understand why this
+isn't a problem requires looking at the xfs_alloc_ag_vextent_small
+call sites (there's only two).  If (*flen==0) is passed back out,
+then the value in *fbno is discarded, always.
 
-Also, I've been asked by several people to consider merging Mikael
-Pettersson's gcc4 patches :
+> So basically, if we hit the 'else' branch, then 'fbno' has not been 
+> initialized and line 1490 will then use that uninitialized variable.
+> 
+> What would prevent that from happening at some time??
 
-   http://user.it.uu.se/~mikpe/linux/patches/2.4/
+Nothing.  But its not a problem in practice.  However, that final
+else branch is very much unlikely, so theres no real cost to just
+initialising the local fbno to NULLAGBLOCK in that branch, and we
+future proof ourselves a bit that way I guess (in case the callers
+ever change - pretty unlikely, but we may as well).  How does the
+patch below look to you?
 
-I've been reluctant at first for the usual reasons : "who has a 2.4
-distro with gcc4 ?", and after recalling all the trouble Marcelo
-had to deal with during the gcc3 update. But after discussion with
-some people, I realized that the problem is not here, it's for the
-kernels those people have to maintain for other systems (eg: servers,
-firewalls, etc...) and which they suddenly cannot build anymore after
-they have updated the distro on their desktop PC.
+cheers.
 
-With Mikael's help, I've carefully split ant reviewed ALL the fixes,
-and carefully logged the error they each fixed. Also, warnings and
-errors have been split. I must say that those fixes mostly consist in :
-
-  - both static and extern declarations for the same variable
-  - buggy lvalue casts in assignments
-  - buggy expressions such as (i < TIMEOUT > 0) and i=(++i) + FOO
-  - dangerous constructs such as :
-
-       foo = (type_foo *)
-       bar = (type_bar *)(something_else);
-
-Since most of them were sleeping bugs waiting for someone to wake
-them up, I considered it was worth merging them provided that we
-observe no regression. So I have created a separate tree for it
-that I will merge into mainline in a few pre-releases if we don't
-encounter any problem.
-
-What has been tested right now :
-  - make allmodconfig on x86 with gcc-2.95.3, 3.3.6 and 4.1.1
-    => builds OK
-
-  - make "reasonable" config on x86-smp with all 3 compileres
-    => builds and boots
-
-  - make "reasonable" config on x86_64 and PPC with gcc 4.1
-    => builds and boots
-
-  - make "reasonable" config on sparc64-smp with 3.3.5 and 4.1.1
-    => builds and boots
-
-  - build debian's sparc32 kernel with 4.1.1
-    => builds
-
-I have no problem not supporting some rare architectures, and
-people who use them are welcome to port them. It's quite easy,
-it took me less than two hours to fix both sparc32 and sparc64.
-
-Also, I have checked that the patches were really not intrusive.
-I could apply the following cumulative external patches on top
-of a gcc4-patched kernel without even one reject :
-
-  vhz-jiffies64, pax, strict-overcommit, epoll, dm, netdev,
-  preempt, low-latency, virtual-servers, squashfs2.2, ntfs,
-  cifs, acl+ea, a large bunch of netfilter's patch-o-matic,
-  ebtables, layer7-classifier, openswan-1.0, tux3, loop-aes,
-  aic79xx, and a lot of small other ones.
-
-Therefore, I consider the drawbacks almost inexistent (mostly
-some work on our side) compared to the advantages of getting
-cleaner code and making the job easier for the users to
-maintain existing setups.
-
-At the moment, it's available as a GIT tree here :
-
-   git://git.kernel.org/pub/scm/linux/kernel/git/wtarreau/linux-2.4-gcc4.git
-
-and as pure patches (merged and split) here :
-
-   http://www.kernel.org/pub/linux/kernel/people/wtarreau/linux-2.4/gcc-4/
-
-Feedback welcome, particularly on sparc/sparc64 where it is
-difficult to build a full-featured kernel, and therefore I'm
-sure there might still be a few corner cases.
-
-Thanks for your patience during this long mail :-)
-
-Regards,
-Willy
+-- 
+Nathan
 
 
-Summary of changes from v2.4.33 to v2.4.34-pre1
-============================================
-
-Jeff Layton:
-      2.4 NFS client - update d_cache when server reports ENOENT on an NFS remove
-
-Jukka Partanen:
-      Fix AVM C4 ISDN card init problems with newer CPUs
-
-Pete Zaitcev:
-      Bug with USB proc_bulk in 2.4 kernel
-      USB: Little Rework for usbserial
-      USB: unsigned long flags
-
-Willy Tarreau:
-      [BLKMTD] : missing offset sometimes causes panics
-      AVM C4 ISDN card : use cpu_relax() in busy loops
-      [PKTGEN] : fix an oops when used with bonding driver (Tien ChenLi)
-      export memchr() which is used by smbfs and lp driver.
-      Merge branch 'next'
-      Change VERSION to 2.4.34-pre1
-
---
-
+Index: xfs-linux/xfs_alloc.c
+===================================================================
+--- xfs-linux.orig/xfs_alloc.c	2006-08-17 08:27:26.807943000 +1000
++++ xfs-linux/xfs_alloc.c	2006-08-17 08:39:55.126710000 +1000
+@@ -1478,8 +1478,10 @@ xfs_alloc_ag_vextent_small(
+ 	/*
+ 	 * Can't allocate from the freelist for some reason.
+ 	 */
+-	else
++	else {
++		fbno = NULLAGBLOCK;
+ 		flen = 0;
++	}
+ 	/*
+ 	 * Can't do the allocation, give up.
+ 	 */

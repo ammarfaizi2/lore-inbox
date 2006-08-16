@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWHPMsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWHPM4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWHPMsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 08:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWHPMsm
+	id S1751163AbWHPM4K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 08:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWHPM4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 08:48:42 -0400
-Received: from ihug-mail.icp-qv1-irony3.iinet.net.au ([203.59.1.197]:24996
-	"EHLO mail-ihug.icp-qv1-irony3.iinet.net.au") by vger.kernel.org
-	with ESMTP id S1751158AbWHPMsl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 08:48:41 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.08,132,1154880000"; 
-   d="scan'208"; a="903549149:sNHT7283570536"
-Subject: Re: 2.6.18-rc4-mm1
-From: Ian Kent <raven@themaw.net>
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-In-Reply-To: <29660.1155720852@warthog.cambridge.redhat.com>
-References: <20060815114912.d8fa1512.akpm@osdl.org>
-	 <20060815104813.7e3a0f98.akpm@osdl.org>
-	 <20060815065035.648be867.akpm@osdl.org>
-	 <20060814143110.f62bfb01.akpm@osdl.org>
-	 <20060813133935.b0c728ec.akpm@osdl.org>
-	 <20060813012454.f1d52189.akpm@osdl.org>
-	 <10791.1155580339@warthog.cambridge.redhat.com>
-	 <918.1155635513@warthog.cambridge.redhat.com>
-	 <29717.1155662998@warthog.cambridge.redhat.com>
-	 <6241.1155666920@warthog.cambridge.redhat.com>
-	 <29660.1155720852@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 16 Aug 2006 20:36:53 +0800
-Message-Id: <1155731813.21903.14.camel@raven.themaw.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 08:56:09 -0400
+Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:50777 "HELO
+	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751163AbWHPM4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 08:56:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=1C9qbH3xInQucbYUE6ei6WFBoPsfh4/eFULY5qlA0q5+8jM0QCos5ttO1+uLDz7VkNLnDo9Cx3GCedWYz1qK5wSa4LHcewy6iZdw/NTx5qvmtyWm4icyX/PrQxnXwZE9ovQaDZgwvjKaRp/qd033KLNewufQ0i3FymkfzEJP5BE=  ;
+Message-ID: <20060816125606.28947.qmail@web25806.mail.ukl.yahoo.com>
+Date: Wed, 16 Aug 2006 12:56:06 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : Re : Re : Re : sparsemem usage
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <44DC7D99.4040109@shadowen.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 10:34 +0100, David Howells wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
+Andy Whitcroft wrote:
+> moreau francis wrote:
+>>
+>> It's indeed an issue. Could we instead use a combination of flags
+>> that can't happen together. For example PG_Free|PG_Reserved ?
+>>
+> 
+> You'd need to audit all other users of the bits you wanted to borrow to
+> check they would understand.  Like if you used PG_buddy (which I assume
+> is what you are referring to above) then you'd get non-real memory
+> getting merged into your buddies.  Badness.
 > 
 
-....
+It would be great if we could define:
 
-> What is going on here?????????????????????????????????????????????????????
+#define page_is_real(p) (p->_count > 0 || p->flags != 0)
+
+Hence mem_map[] would be automatically initialized as full of page without
+any real memory instead of initializing it with a magic value.
+>>
+>> or maybe _because_ we don't have a consistent interface for finding
+>> whether a page is real or not, we end up with a strange thing called
+>> page_is_ram() which could be the same for all arch and be implemented
+>> very simply.
+>>
+>> BTW, can you try in a linux tree:
+>>
+>> $ grep -r page_is_ram arch/
+>>
+>> and see how it's implemented...
 > 
-> stracing the automount daemon, I see:
-> 
-> [pid  3803] mkdir("/net", 0555)         = -1 EEXIST (File exists)
-> [pid  3803] stat64("/net", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
-> [pid  3803] mkdir("/net/trash", 0555)   = -1 EEXIST (File exists)
-> [pid  3803] stat64("/net/trash", {st_mode=S_IFDIR|0755, st_size=1024, ...}) = 0
-> [pid  3803] mkdir("/net/trash/usr", 0555) = -1 EACCES (Permission denied)
-> 
-> I think that would be the problem.  Ian?
+> Well it depends how you look at it.  You are going to need to know which
+> pages are ram in each architecture to set the bits in the page*'s to
 
-I guess, but it's also possible that multi-entry mounts similar to those
-generated by the auto.net script need mount point directories created.
-The same code is used for all.
+I don't see the problem there. You can init mem_map[] each time it is
+allocated with the magic value (if the above definition can't be used).
+Then, as usual, archs free all zone area by initializing all mem_map
+entries with something different from the magic value. After that all
+entries of mem_map[] with the magic value can be fastly discarded
+because they don't have real memory.
 
-I guess that I could check if the fs is autofs4 and only mount the
-mounts for directories that exist, as I do in v5. However, people may
-have come to rely on this so it would be a regression, for v4 at least.
-
-Thoughts?
+Francis
 
 

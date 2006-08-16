@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWHPQYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWHPQ0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWHPQYY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWHPQYY
+	id S932096AbWHPQ0r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWHPQ0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:24:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:41650 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751139AbWHPQYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:24:23 -0400
-Subject: Re: PATCH: Lock tty directly in acct layer
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1155746201.24077.364.camel@localhost.localdomain>
-References: <1155746201.24077.364.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 16 Aug 2006 18:24:20 +0200
-Message-Id: <1155745460.3023.57.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 16 Aug 2006 12:26:47 -0400
+Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:2701 "EHLO
+	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1751143AbWHPQ0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:26:46 -0400
+Message-ID: <44E34742.80302@lwfinger.net>
+Date: Wed, 16 Aug 2006 11:26:42 -0500
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+MIME-Version: 1.0
+To: Michael Buesch <mb@bu3sch.de>
+CC: bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: DEBUG_LOCKS_WARN_ON triggered by bcm43xx-SoftMAC
+References: <44E296DD.3040803@lwfinger.net> <200608161806.10348.mb@bu3sch.de>
+In-Reply-To: <200608161806.10348.mb@bu3sch.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 17:36 +0100, Alan Cox wrote:
-> Signed-off-by: Alan Cox <alan@redhat.com>
+Michael Buesch wrote:
 > 
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc4-mm1/kernel/acct.c linux-2.6.18-rc4-mm1/kernel/acct.c
-> --- linux.vanilla-2.6.18-rc4-mm1/kernel/acct.c	2006-08-15 15:40:19.000000000 +0100
-> +++ linux-2.6.18-rc4-mm1/kernel/acct.c	2006-08-15 16:03:18.000000000 +0100
-> @@ -483,10 +484,10 @@
->  	ac.ac_ppid = current->parent->tgid;
->  #endif
->  
-> -	read_lock(&tasklist_lock);	/* pin current->signal */
-> +	mutex_lock(&tty_mutex);
->  	ac.ac_tty = current->signal->tty ?
+> Hm, weird bug.
+> I can't reproduce this on i386 or PPC.
+> Could it be a bug in the lockdep code?
+> 
 
-but.. can't ->signal still change, even if signal->tty isn't ?
+It could be. I'll send it on to LKML. Perhaps one of the experts
+there can tell us. It doesn't seem to cause any trouble, but I get
+one of these when bcm43xx starts.
 
+Are you running WPA? The message seems to occur just after
+wpa_supplicant finishes the connection and sets the security flags.
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Larry
 

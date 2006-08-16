@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWHPXsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWHPXsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWHPXsn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 19:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWHPXsn
+	id S932135AbWHPXsb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 19:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWHPXsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 19:48:43 -0400
-Received: from gate.crashing.org ([63.228.1.57]:22968 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932133AbWHPXsm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 19:48:42 -0400
-Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       James K Lewis <jklewis@us.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-In-Reply-To: <20060811170813.GJ10638@austin.ibm.com>
-References: <20060811170337.GH10638@austin.ibm.com>
-	 <20060811170813.GJ10638@austin.ibm.com>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 01:43:40 +0200
-Message-Id: <1155771820.11312.116.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 19:48:31 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:33439 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932123AbWHPXsa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 19:48:30 -0400
+Date: Wed, 16 Aug 2006 18:47:28 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, jeff@garzik.org,
+       netdev@vger.kernel.org, jklewis@us.ibm.com,
+       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com,
+       David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
+Message-ID: <20060816234728.GP20551@austin.ibm.com>
+References: <44E34825.2020105@garzik.org> <200608162324.47235.arnd@arndb.de> <20060816225558.GM20551@austin.ibm.com> <200608170103.21097.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608170103.21097.arnd@arndb.de>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-11 at 12:08 -0500, Linas Vepstas wrote:
+On Thu, Aug 17, 2006 at 01:03:20AM +0200, Arnd Bergmann wrote:
 > 
-> Implement basic low-watermark support for the transmit queue.
+> Could well be related to latencies when going to the remote
+> node for descriptor DMAs. Have you tried if the hch's NUMA
+> patch or using numactl makes a difference here?
+
+No. I guess I should try.
+
+> > > sounds like the right approach to simplify the code.
+> >
+> > Its not a big a driver. 'wc' says its 2.3 loc, which
+> > is 1/3 or 1/5 the size of tg3.c or the e1000*c files.
 > 
-> The basic idea of a low-watermark interrupt is as follows.
-> The device driver queues up a bunch of packets for the hardware
-> to transmit, and then kicks he hardware to get it started.
-> As the hardware drains the queue of pending, untransmitted 
-> packets, the device driver will want to know when the queue
-> is almost empty, so that it can queue some more packets.
-> 
-> This is accomplished by setting the DESCR_TXDESFLG flag in
-> one of the packets. When the hardware sees this flag, it will 
-> interrupt the device driver. Because this flag is on a fixed
-> packet, rather than at  fixed location in the queue, the
-> code below needs to move the flag as more packets are
-> queued up. This implementation attempts to keep te flag 
-> at about 3/4's of the way into the queue.
-> 
-> This patch boosts driver performance from about 
-> 300-400Mbps for 1500 byte packets, to about 710-740Mbps.
+> Right, I was thinking of removing a lock or another, not
+> throwing out half of the driver ;-)
 
-Sounds good (without actually looking at the code though :), that was a
-long required improvement to that driver. Also, we should probably look
-into using NAPI polling for tx completion queue as well, no ?
+There's only four lock points grand total. 
+-- One on the receive side,
+-- one to protect the transmit head pointer, 
+-- one to protect the transmit tail pointer, 
+-- one to protect the location of the transmit low watermark.
 
-Cheers,
-Ben.
+The last three share the same lock. I tried using distinct
+locks, but this worsened things, probably due to cache-line 
+trashing. I tried removing the head pointer lock, but this
+failed. I don't know why, and was surprised by this. I thought
+hard_start_xmit() was serialized.
 
-
+--linas

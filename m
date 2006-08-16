@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWHPQkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWHPQki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWHPQkF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWHPQkF
+	id S1751184AbWHPQki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWHPQki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:40:05 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:18597 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1751179AbWHPQkD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:40:03 -0400
-Date: Thu, 17 Aug 2006 01:03:53 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       containers@lists.osdl.org
-Subject: Re: [PATCH 5/7] pid: Implement pid_nr
-Message-ID: <20060816210353.GA628@oleg>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <1155666193751-git-send-email-ebiederm@xmission.com> <20060816181950.GA472@oleg> <m1lkpo3b8z.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
+	Wed, 16 Aug 2006 12:40:38 -0400
+Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:51377 "HELO
+	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751184AbWHPQkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:40:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type;
+  b=5rAWmEu+do47zdwnLOHedfiaMj5YCfDT9RgLLOOrvlizxWnx8SMcIj69ISJuJHbWCdnOxX4lxKVoDiKy/LzaEx0uKsTrc7TLZ5WNkqJN50fmviKPI9WfeLlAr2PQgN0PBim7VuiUAKT/Y7b9oz/V07GB+B7BjLhkEnXHvz18lE0=  ;
+Message-ID: <20060816164036.32867.qmail@web25805.mail.ukl.yahoo.com>
+Date: Wed, 16 Aug 2006 16:40:36 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: CROSS_COMPILE issue
+To: sam@mars.ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1lkpo3b8z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/16, Eric W. Biederman wrote:
-> Oleg Nesterov <oleg@tv-sign.ru> writes:
-> 
-> > On 08/15, Eric W. Biederman wrote:
-> >>
-> >> +static inline pid_t pid_nr(struct pid *pid)
-> >> +{
-> >> +	pid_t nr = 0;
-> >> +	if (pid)
-> >> +		nr = pid->nr;
-> >> +	return nr;
-> >> +}
-> >
-> > I think this is not safe, you need rcu locks here or the caller should
-> > do some locking.
-> >
-> > Let's look at f_getown() (PATCH 7/7). What if original task which was
-> > pointed by ->f_owner.pid has gone, another thread does fcntl(F_SETOWN),
-> > and pid_nr() takes a preemtion after 'if (pid)'? In this case 'pid->nr'
-> > may follow a freed memory.
-> 
-> This isn't an rcu reference.  I hold a hard reference count on
-> the pid entry.  So this should be safe.
+Hi
 
-	-static void f_modown(struct file *filp, unsigned long pid,
-	+static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
-			      uid_t uid, uid_t euid, int force)
-	 {
-		write_lock_irq(&filp->f_owner.lock);
-		if (force || !filp->f_owner.pid) {
-	-               filp->f_owner.pid = pid;
-	+               put_pid(filp->f_owner.pid);
+I met an issue when compiling kernel 2.6.18-rc4. I 
+cross compile the kernel for a MIPS target on a PC.
+MIPS architecture assigns CROSS_COMPILE in
+its arch/mips/Makefile but it is not included by the 
+main Makefile from the begining. So one of the
+consequence is that CC variable is not correctly
+set until arch's Makefile is included. It's set to "gcc"
+since CROSS_COMPILE is still not defined instead
+of "mips-linux-gcc". During this time CC variable is 
+used to setup CFLAGS for example.
 
-This 'put_pid()' can actually free 'struct pid' if the task/group
-has already gone away. Another thread doing f_getown() can access
-a freed memory, no?
+is it something known ?
 
-> What is an rcu reference is going from struct pid to the task
-> it points to.
+thanks
 
-Yes, you are right... But I'd say it is going form task to pid :)
+Francis
 
-Oleg.
+
 

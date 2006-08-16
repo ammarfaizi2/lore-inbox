@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWHPPI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWHPPMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWHPPI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 11:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWHPPI0
+	id S1751194AbWHPPMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 11:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWHPPMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 11:08:26 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34688 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751197AbWHPPI0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 11:08:26 -0400
-Date: Wed, 16 Aug 2006 08:08:00 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Matt Mackall <mpm@selenic.com>
-cc: Andi Kleen <ak@muc.de>, Marcelo Tosatti <marcelo@kvack.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andi Kleen <ak@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
-       Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
-In-Reply-To: <20060816084119.GW6908@waste.org>
-Message-ID: <Pine.LNX.4.64.0608160807120.16619@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
- <20060816095254.14ac872c.ak@muc.de> <20060816084119.GW6908@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Aug 2006 11:12:13 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:47502 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751194AbWHPPMM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 11:12:12 -0400
+Date: Wed, 16 Aug 2006 23:35:57 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org
+Subject: Re: [PATCH 6/7] vt: Update spawnpid to be a struct pid_t
+Message-ID: <20060816193557.GA586@oleg>
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <1155666193191-git-send-email-ebiederm@xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155666193191-git-send-email-ebiederm@xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006, Matt Mackall wrote:
+On 08/15, Eric W. Biederman wrote:
+>
+> diff --git a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
+> index 28eff1a..d7e0187 100644
+> --- a/drivers/char/vt_ioctl.c
+> +++ b/drivers/char/vt_ioctl.c
+> @@ -645,12 +645,13 @@ #endif
+>  	 */
+>  	case KDSIGACCEPT:
+>  	{
+> -		extern int spawnpid, spawnsig;
+> +		struct pid *spawnpid;
+		^^^^^^^^^^^^^^^^^^^^
+Should be "extern struct pid *spawnpid" ?
 
-> The approach we thought was most promising started with splitting the
-> dcache into directory and leaf entries.
-
-Dipankar later told me that they have tried that approch and it was 
-of no benefit.
+Oleg.
 

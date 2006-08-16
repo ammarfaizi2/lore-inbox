@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWHPW1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWHPWaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWHPW1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWHPW1a
+	id S932298AbWHPWaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWHPWaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:27:30 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:36537 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932293AbWHPW13 (ORCPT
+	Wed, 16 Aug 2006 18:30:05 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57758
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932298AbWHPWaD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:27:29 -0400
-Date: Wed, 16 Aug 2006 15:26:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Multiprobe sanitizer
-Message-ID: <20060816222633.GA6829@kroah.com>
-References: <1155746538.24077.371.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155746538.24077.371.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 16 Aug 2006 18:30:03 -0400
+Date: Wed, 16 Aug 2006 15:29:19 -0700 (PDT)
+Message-Id: <20060816.152919.88472383.davem@davemloft.net>
+To: arnd@arndb.de
+Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, jeff@garzik.org,
+       netdev@vger.kernel.org, jklewis@us.ibm.com,
+       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com
+Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200608170016.47072.arnd@arndb.de>
+References: <200608162324.47235.arnd@arndb.de>
+	<20060816.143203.11626235.davem@davemloft.net>
+	<200608170016.47072.arnd@arndb.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 05:42:18PM +0100, Alan Cox wrote:
-> There are numerous drivers that can use multithreaded probing but having
-> some kind of global flag as the way to control this makes migration to
-> threaded probing hard and since it enables it everywhere and is almost
-> as likely to cause serious pain as holding a clog dance in a minefield.
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 17 Aug 2006 00:16:46 +0200
+
+> Am Wednesday 16 August 2006 23:32 schrieb David Miller:
+> > Can spidernet be told these kinds of parameters?  "N packets or
+> > X usecs"?
 > 
-> If we have a pci_driver multithread_probe flag to inherit you can turn
-> it on for one driver at a time. 
+> It can not do exactly this but probably we can get close to it by
 
-I was thinking about this originally, but didn't want to go and modify
-every PCI driver to enable it :)
+Oh, you can only control TX packet counts using bits in the TX ring
+entries :(
 
-But I do like your patch below that lets the options mix nicely.
+Tigon3 can even be told to use different interrupt mitigation
+parameters when the cpu is actively servicing an interrupt for
+the chip.
 
-> From playing so far however I think we need a different model at the
-> device layer which serializes until the called probe function says "ok
-> you can start another one now". That would need some kind of flag and
-> semaphore plus a helper function.
-
-What would this help out with?  Would the PCI layer (for example) handle
-this "notify the core that it can continue" type logic?  Or would the
-individual drivers need to be able to control it?
-
-I'm guessing that you are thinking of this in relation to the disk
-drivers, have you found cases where something like this is necessary due
-to hardware constraints?
-
-thanks,
-
-greg k-h
+Didn't you say spidernet's facilities were sophisticated? :)
+This Tigon3 stuff is like 5+ year old technology.

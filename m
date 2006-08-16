@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWHPE7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWHPF1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWHPE7T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 00:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWHPE7T
+	id S1750895AbWHPF1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 01:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWHPF1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 00:59:19 -0400
-Received: from mga03.intel.com ([143.182.124.21]:53821 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750733AbWHPE7S convert rfc822-to-8bit (ORCPT
+	Wed, 16 Aug 2006 01:27:33 -0400
+Received: from mail.gmx.net ([213.165.64.20]:1967 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750889AbWHPF1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 00:59:18 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,130,1154934000"; 
-   d="scan'208"; a="103552508:sNHT28982863"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
-Date: Wed, 16 Aug 2006 00:59:09 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6013DE0BC@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
-Thread-Index: Acaw2YxdI+vuJ3lQQCCk00GFigzJngQFyHfA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-Cc: <linux-acpi@vger.kernel.org>, <akpm@osdl.org>, <zippel@linux-m68k.org>,
-       <rdunlap@xenotime.net>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, <pcihpd-discuss@lists.sourceforge.net>
-X-OriginalArrivalTime: 16 Aug 2006 04:59:10.0468 (UTC) FILETIME=[B5FE8C40:01C6C0F0]
+	Wed, 16 Aug 2006 01:27:33 -0400
+X-Authenticated: #14349625
+Subject: Re: And another Oops / BUG? (2.6.17.8 on VIA Epia CL6000)
+From: Mike Galbraith <efault@gmx.de>
+To: Udo van den Heuvel <udovdh@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, Folkert van Heusden <folkert@vanheusden.com>
+In-Reply-To: <44E29415.4040400@xs4all.nl>
+References: <44E29415.4040400@xs4all.nl>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 07:35:39 +0000
+Message-Id: <1155713739.6011.30.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
+On Wed, 2006-08-16 at 05:42 +0200, Udo van den Heuvel wrote:
+> Hello,
 
-thanks,
--Len 
+Greetings,
 
->-----Original Message-----
->From: Kristen Carlson Accardi [mailto:kristen.c.accardi@intel.com] 
->Sent: Wednesday, July 26, 2006 1:32 PM
->To: Keshavamurthy, Anil S
->Cc: linux-acpi@vger.kernel.org; Brown, Len; akpm@osdl.org; 
->zippel@linux-m68k.org; rdunlap@xenotime.net; 
->linux-kernel@vger.kernel.org; greg@kroah.com; 
->pcihpd-discuss@lists.sourceforge.net
->Subject: Re: [patch] pci/hotplug acpiphp: fix Kconfig for Dock 
->dependencies
->
->---
->I confirmed that Anil's patch will work, here is a proper patch with
->Anil's changes.
->
->Change the build options for acpiphp so that it may build without being
->dependent on the ACPI_DOCK option, but yet does not allow the option of
->acpiphp being built-in when dock is built as a module.
->
->Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
->Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
->---
-> drivers/pci/hotplug/Kconfig |    2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->--- 2.6-git.orig/drivers/pci/hotplug/Kconfig
->+++ 2.6-git/drivers/pci/hotplug/Kconfig
->@@ -76,7 +76,7 @@ config HOTPLUG_PCI_IBM
+> Again my CL6000 Oopsed.
+> Again named was involved.
+> Again I cannot locate the cause.
+> The log is below as it was pushed through ksymoops, providing a map and
+> vlinux file.
 > 
-> config HOTPLUG_PCI_ACPI
-> 	tristate "ACPI PCI Hotplug driver"
->-	depends on ACPI_DOCK && HOTPLUG_PCI
->+	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || 
->(ACPI_DOCK && HOTPLUG_PCI)
-> 	help
-> 	  Say Y here if you have a system that supports PCI 
->Hotplug using
-> 	  ACPI.
->
+> How can I proceed to find the cause?
+> 
+> Kidn regards,
+> Udo
+
+(these oopsen would be a heck of a lot easier to look at if the
+timestamp junk was stripped off)
+
+> Aug 16 04:05:35 epia kernel: BUG: unable to handle kernel paging request
+> at virtual address 4e2aad0b
+> Aug 16 04:05:35 epia kernel:  printing eip:
+> Aug 16 04:05:35 epia kernel: 4e2aad0b
+
+The oops doesn't help much.  Once again, eip is in lala land, not the
+kernel.
+
+Given that you're the only person posting this kind of explosion, I
+would cast a very skeptical glance toward my hardware.  I'd suggest
+reverting to a known good kernel first, to verify that you really don't
+have a hardware problem cropping up.
+
+After I did that, I'd enable stack check thingies under kernel hacking,
+and if that didn't turn up anything, I'd try slab and page allocator
+debugging options and hope to catch someone scribbling where they're not
+supposed to.
+
+	-Mike
+

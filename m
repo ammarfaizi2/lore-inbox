@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWHPAFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWHPAIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWHPAFu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWHPAFu
+	id S1750708AbWHPAIm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWHPAIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:05:50 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:53999 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750703AbWHPAFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:05:49 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: bonding: cannot remove certain named devices
-To: Stephen Hemminger <shemminger@osdl.org>,
-       Mitch Williams <mitch.a.williams@intel.com>,
-       Bill Nottingham <notting@redhat.com>,
-       ?missing.closing.'"' in token?"Williams",
-	Mitch A <mitch.a.williams@intel.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org"@vax.1wt.eu
-Illegal-Object: Syntax error in To: address found on vger.kernel.org:
-	To:	?missing closing '"' in token?"Williams", Mitch A <mitch.a.williams@intel.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
-			^				       ^-missing closing '"' in token
-		 \-extraneous tokens in address
-Illegal-Object: Syntax error in To: address found on vger.kernel.org:
-	To:	?missing closing '"' in token?"Williams", Mitch A <mitch.a.williams@intel.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
-			^				       ^-missing closing '"' in token
-		 \-extraneous tokens in address
-Reply-To: 7eggert@gmx.de
-Date: Wed, 16 Aug 2006 02:02:03 +0200
-References: <6Kd5j-3Y7-3@gated-at.bofh.it> <6KdRL-5xP-7@gated-at.bofh.it> <6Ke1p-5N8-7@gated-at.bofh.it> <6KekO-6u0-25@gated-at.bofh.it> <6KeXv-7qe-17@gated-at.bofh.it> <6KfTz-OX-11@gated-at.bofh.it> <6KfTA-OX-15@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1GD8rX-0001cA-CV@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+	Tue, 15 Aug 2006 20:08:42 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:3558 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750708AbWHPAIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 20:08:42 -0400
+Subject: Re: Maximum number of processes in Linux
+From: Lee Revell <rlrevell@joe-job.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Irfan Habib <irfan.habib@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <44E254E4.6090508@shaw.ca>
+References: <fa.evUDdOgjejpeNWKvgan3aKFF880@ifi.uio.no>
+	 <44E254E4.6090508@shaw.ca>
+Content-Type: text/plain
+Date: Tue, 15 Aug 2006 20:04:36 -0400
+Message-Id: <1155686677.2910.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger <shemminger@osdl.org> wrote:
+On Tue, 2006-08-15 at 17:12 -0600, Robert Hancock wrote:
+> Irfan Habib wrote:
+> > Hi,
+> > 
+> > What is the maximum number of process which can run simultaneously in
+> > linux? I need to create an application which requires 40,000 threads.
+> > I was testing with far fewer numbers than that, I was getting
+> > exceptions in pthread_create
+> 
+> What architecture is this? On a 32-bit architecture with a 2MB stack 
+> size (which I think is the default) you couldn't possibly create more 
+> than 2048 threads just because of stack space requirements. Reducing the 
+> stack size would get you more.
+> 
+> I should also point out that any design that requires 40,000 threads is 
+> probably quite flawed unless you are running on a very large machine..
+> 
 
-> IMHO idiots who put space's in filenames should be ignored. As long as the
-> bonding code doesn't throw a fatal error, it has every right to return
-> "No such device" to the fool.
+Thread stack size defaults to whatever your distro sets RLIMIT_STACK to.
+It's 8MB here.
 
-Maybe you should limit device names to eight uppercase characters and up to
-three characters extension, too. NOT! There is no reason to artificially
-impose limitations on device names, so don't do that.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Lee
 
-http://david.woodhou.se/why-not-spf.html

@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWHPL7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWHPMDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWHPL7S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 07:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWHPL7S
+	id S1751125AbWHPMDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 08:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWHPMDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 07:59:18 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:17582 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S1751118AbWHPL7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 07:59:18 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Subject: Re: Maximum number of processes in Linux
-Date: Wed, 16 Aug 2006 12:58:59 +0100
-User-Agent: KMail/1.9.4
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Willy Tarreau <w@1wt.eu>, Irfan Habib <irfan.habib@gmail.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com> <44E2ED07.6070203@aitel.hist.no>
-In-Reply-To: <44E2ED07.6070203@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 08:03:55 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:15596 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751121AbWHPMDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 08:03:54 -0400
+Date: Wed, 16 Aug 2006 16:00:26 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@infradead.org>, David Miller <davem@davemloft.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+Message-ID: <20060816120026.GA30291@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru> <20060816084808.GA7366@infradead.org> <20060816090028.GA25476@2ka.mipt.ru> <200608161327.02826.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200608161258.59646.s0348365@sms.ed.ac.uk>
-X-Originating-Pythagoras-IP: [217.155.137.246]
+In-Reply-To: <200608161327.02826.arnd@arndb.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 16 Aug 2006 16:00:30 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 August 2006 11:01, Helge Hafting wrote:
-> linux-os (Dick Johnson) wrote:
-> > Yep....
-> >
-> > #include <stdio.h>
-> > #include <signal.h>
-> > int main()
-> > {
-> >      unsigned long i;
-> >      for(i = 0; ; i++)
-> >      {
-> >          switch(fork())
-> >          {
-> >          case 0:		// kid
-> >  	pause();
-> >          break;
-> >          case -1:	// Failed
-> >          printf("%lu\n", i);
-> >              kill(0, SIGTERM);
-> >              exit(0);
-> >          default:
-> >              break;
-> >          }
-> >      }
-> >      return 0;
-> > }
-> >
-> > Shows a consistent 6140.
->
-> Doesn't work here.  Without ulimit, I wasn't surprised
-> about the resulting OOM mess.
->
-> Problem was, it never stopped.  I expected OOM to kill
-> this program, and quite possibly lots of other running programs
-> as well.  What I got, was ever-rolling OOM messages
-> with stack traces inbetween.
-> 2.6.18-rc4-mm1 never recovered and had to be killed by sysrq.
+On Wed, Aug 16, 2006 at 01:27:02PM +0200, Arnd Bergmann (arnd@arndb.de) wrote:
+> On Wednesday 16 August 2006 11:00, Evgeniy Polyakov wrote:
+> > There is drawback here - if data was allocated on CPU wheere NIC is
+> > "closer" and then processed on different CPU it will cost more than 
+> > in case where buffer was allocated on CPU where it will be processed.
+> > 
+> > But from other point of view, most of the adapters preallocate set of
+> > skbs, and with msi-x help there will be a possibility to bind irq and
+> > processing to the CPU where data was origianlly allocated.
+> > 
+> > So I would like to know how to determine which node should be used for
+> > allocation. Changes of __get_user_pages() to alloc_pages_node() are
+> > trivial.
+> 
+> There are two separate memory areas here: Your own metadata used by the
+> allocator and the memory used for skb data.
+> 
+> avl_node_array[cpu] and avl_container_array[cpu] are only designed to
+> be accessed only by the local cpu, so these should be done like
+> 
+> avl_node_array[cpu] = kmalloc_node(AVL_NODE_PAGES * sizeof(void *),
+> 			GFP_KERNEL, cpu_to_node(cpu));
+> 
+> or you could make the whole array DEFINE_PER_CPU(void *, which would
+> waste some space in the kernel object file.
+> 
+> Now for the actual pages you get with __get_free_pages(), doing the
+> same (alloc_pages_node), will help accessing your avl_container 
+> members, but may not be the best solution for getting the data
+> next to the network adapter.
 
-It took 4.5 minutes to recover on my X2 3800+, 2GB RAM, 512MB swap, when I 
-tried without ulimit on 2.6.18-rc4. However, the OOM killer did call all of 
-the offending processes and I was able to use the machine for many hours 
-afterwards. The VM didn't even mind after a swapoff -a.
+I can create it with numa_node_id() right now and later, if there will
+exsist some helper to match netdev->node, it can be used instead.
 
-Maybe an -mm patch?
+> 	Arnd <><
 
 -- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+	Evgeniy Polyakov

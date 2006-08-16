@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWHPRSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWHPRTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWHPRSm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 13:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWHPRSm
+	id S1750775AbWHPRTI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 13:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWHPRTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 13:18:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:4745 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750775AbWHPRSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 13:18:41 -0400
-Date: Wed, 16 Aug 2006 10:17:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 4/7] UBC: syscalls (user interface)
-Message-ID: <20060816171747.GC27898@kroah.com>
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>
+	Wed, 16 Aug 2006 13:19:07 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5257 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750775AbWHPRTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 13:19:06 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org
+Subject: Re: [PATCH 5/7] pid: Implement pid_nr
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
+	<1155666193751-git-send-email-ebiederm@xmission.com>
+	<20060816181950.GA472@oleg> <m1lkpo3b8z.fsf@ebiederm.dsl.xmission.com>
+	<20060816210353.GA628@oleg>
+Date: Wed, 16 Aug 2006 11:18:48 -0600
+In-Reply-To: <20060816210353.GA628@oleg> (Oleg Nesterov's message of "Thu, 17
+	Aug 2006 01:03:53 +0400")
+Message-ID: <m1d5b038g7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E33C3F.3010509@sw.ru>
-User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 07:39:43PM +0400, Kirill Korotaev wrote:
-> --- ./include/asm-sparc/unistd.h.arsys	2006-07-10 12:39:19.000000000 +0400
-> +++ ./include/asm-sparc/unistd.h	2006-08-10 17:08:19.000000000 +0400
-> @@ -318,6 +318,9 @@
-> #define __NR_unshare		299
-> #define __NR_set_robust_list	300
-> #define __NR_get_robust_list	301
-> +#define __NR_getluid		302
-> +#define __NR_setluid		303
-> +#define __NR_setublimit		304
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-Hm, you seem to be ignoring this:
+> On 08/16, Eric W. Biederman wrote:
+>> Oleg Nesterov <oleg@tv-sign.ru> writes:
+>> 
+>> > On 08/15, Eric W. Biederman wrote:
+>> >>
+>> >> +static inline pid_t pid_nr(struct pid *pid)
+>> >> +{
+>> >> +	pid_t nr = 0;
+>> >> +	if (pid)
+>> >> +		nr = pid->nr;
+>> >> +	return nr;
+>> >> +}
+>> >
+>> > I think this is not safe, you need rcu locks here or the caller should
+>> > do some locking.
+>> >
+>> > Let's look at f_getown() (PATCH 7/7). What if original task which was
+>> > pointed by ->f_owner.pid has gone, another thread does fcntl(F_SETOWN),
+>> > and pid_nr() takes a preemtion after 'if (pid)'? In this case 'pid->nr'
+>> > may follow a freed memory.
+>> 
+>> This isn't an rcu reference.  I hold a hard reference count on
+>> the pid entry.  So this should be safe.
+>
+> 	-static void f_modown(struct file *filp, unsigned long pid,
+> 	+static void f_modown(struct file *filp, struct pid *pid, enum pid_type
+> type,
+> 			      uid_t uid, uid_t euid, int force)
+> 	 {
+> 		write_lock_irq(&filp->f_owner.lock);
+> 		if (force || !filp->f_owner.pid) {
+> 	-               filp->f_owner.pid = pid;
+> 	+               put_pid(filp->f_owner.pid);
+>
+> This 'put_pid()' can actually free 'struct pid' if the task/group
+> has already gone away. Another thread doing f_getown() can access
+> a freed memory, no?
 
-> 
-> #ifdef __KERNEL__
-> /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+Good point.  In that case it looks like I need to hold the f_owner.lock.
+Something needs to serialize that.
 
-Same thing for sparc64:
+Fun. I touch the code and find a place where we didn't take a lock
+and accidentally relied on integer operations being atomic.
 
-> --- ./include/asm-sparc64/unistd.h.arsys	2006-07-10 
-> 12:39:19.000000000 +0400
-> +++ ./include/asm-sparc64/unistd.h	2006-08-10 17:09:24.000000000 +0400
-> @@ -320,6 +320,9 @@
-> #define __NR_unshare		299
-> #define __NR_set_robust_list	300
-> #define __NR_get_robust_list	301
-> +#define __NR_getluid		302
-> +#define __NR_setluid		303
-> +#define __NR_setublimit		304
-> 
-> #ifdef __KERNEL__
-> /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+I will see about working up a fix for that.
 
-You might want to read those comments...
-
-thanks,
-
-greg k-h
+Eric

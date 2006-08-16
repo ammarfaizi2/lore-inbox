@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWHPT1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWHPT2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWHPT1X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 15:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWHPT1X
+	id S932191AbWHPT2g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 15:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWHPT2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 15:27:23 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:49896 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932188AbWHPT1W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 15:27:22 -0400
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Klein <osstklei@de.ibm.com>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
-From: Michael Neuling <mikey@neuling.org>
-Subject: Re: [PATCH 7/7] ehea: Makefile & Kconfig 
-In-reply-to: <44E0A580.9020507@de.ibm.com> 
-References: <44E0A580.9020507@de.ibm.com>
-Comments: In-reply-to Jan-Bernd Themann <ossthema@de.ibm.com>
-   message dated "Mon, 14 Aug 2006 18:32:00 +0200."
-Reply-to: Michael Neuling <mikey@neuling.org>
-X-Mailer: MH-E 7.85; nmh 1.1; GNU Emacs 21.4.1
-Date: Wed, 16 Aug 2006 14:27:16 -0500
-Message-Id: <20060816192721.09C2967A3A@ozlabs.org>
+	Wed, 16 Aug 2006 15:28:35 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:36615 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932191AbWHPT2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 15:28:34 -0400
+Message-ID: <44E37179.5020404@shadowen.org>
+Date: Wed, 16 Aug 2006 20:26:49 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1 -- new depancy on curses development
+References: <20060813012454.f1d52189.akpm@osdl.org> <44E2E867.2050508@shadowen.org> <20060816183348.GA5852@mars.ravnborg.org>
+In-Reply-To: <20060816183348.GA5852@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is still being white space munged so it doesn't apply.  
+Sam Ravnborg wrote:
+> On Wed, Aug 16, 2006 at 10:41:59AM +0100, Andy Whitcroft wrote:
+>> Andrew Morton wrote:
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+>>> git-lxdialog.patch
+>> This tree seems to change the Makefile dependancies in the kconfig 
+>> subdirectory such that a plain compile of the kernel leads to an attempt 
+>> to build the menuconfig targets.  This in turn adds a new dependancy on 
+>> the curses development libraries.
+> What I see is that "make defconfig" builds _all_ *config targets -
+> strange...
 
-The context is being shifted over 1 column.  All your other patches add
-new files so there is no context and hence they apply.
+Well it could be trying to build them all for me too, but as I don't 
+have curses development libraries it would fail at that point.  I don't 
+think we want it to build the ones its not using.  Thats daft :).
 
-Mikey
+> Hmmm, why does git pick up my hostname (mars)? Have I configured
+> somethign wrong (not in git but my gentoo system)?
 
-In message <44E0A580.9020507@de.ibm.com> you wrote:
-> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
-> 
-> 
->   drivers/net/Kconfig  |    6 ++++++
->   drivers/net/Makefile |    1 +
->   2 files changed, 7 insertions(+)
-> 
-> 
-> 
-> diff -Nurp -X dontdiff linux-2.6.18-rc4/drivers/net/Kconfig patched_kernel/dr
-ivers/net/Kconfig
-> --- linux-2.6.18-rc4/drivers/net/Kconfig	2006-08-06 11:20:11.000000000 -
-0700
-> +++ patched_kernel/drivers/net/Kconfig	2006-08-08 03:00:49.526421944 -
-0700
-> @@ -2277,6 +2277,12 @@ config CHELSIO_T1
->             To compile this driver as a module, choose M here: the module
->             will be called cxgb.
-> 
-> +config EHEA
-> +        tristate "eHEA Ethernet support"
-> +        depends on IBMEBUS
-> +        ---help---
-> +          This driver supports the IBM pSeries ethernet adapter
-> +
->   config IXGB
->   	tristate "Intel(R) PRO/10GbE support"
->   	depends on PCI
-> diff -Nurp -X dontdiff linux-2.6.18-rc4/drivers/net/Makefile patched_kernel/d
-rivers/net/Makefile
-> --- linux-2.6.18-rc4/drivers/net/Makefile	2006-08-06 11:20:11.000000000 -
-0700
-> +++ patched_kernel/drivers/net/Makefile	2006-08-08 03:00:30.061451584 -
-0700
-> @@ -10,6 +10,7 @@ obj-$(CONFIG_E1000) += e1000/
->   obj-$(CONFIG_IBM_EMAC) += ibm_emac/
->   obj-$(CONFIG_IXGB) += ixgb/
->   obj-$(CONFIG_CHELSIO_T1) += chelsio/
-> +obj-$(CONFIG_EHEA) += ehea/
->   obj-$(CONFIG_BONDING) += bonding/
->   obj-$(CONFIG_GIANFAR) += gianfar_driver.o
-> 
-> 
-> 
-> _______________________________________________
-> Linuxppc-dev mailing list
-> Linuxppc-dev@ozlabs.org
-> https://ozlabs.org/mailman/listinfo/linuxppc-dev
-> 
+I had to configure my local git repo:
+
+	git repo-config user.name 'Foo Bar'
+	git repo-config user.email 'foo@bar.org'
+

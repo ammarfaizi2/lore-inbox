@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWHPSdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWHPSdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWHPSdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWHPSdV
+	id S932182AbWHPSdu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 14:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWHPSdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:33:21 -0400
-Received: from mail.gmx.de ([213.165.64.20]:47517 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932181AbWHPSdU (ORCPT
+	Wed, 16 Aug 2006 14:33:50 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:34260 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932182AbWHPSdt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 14:33:20 -0400
-X-Authenticated: #1347008
-Message-ID: <44E365E7.105@gmx.net>
-Date: Wed, 16 Aug 2006 20:37:27 +0200
-From: Dirk <noisyb@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060503 Debian/1.7.8-1sarge6
-X-Accept-Language: en
+	Wed, 16 Aug 2006 14:33:49 -0400
+Date: Wed, 16 Aug 2006 20:33:48 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1 -- new depancy on curses development
+Message-ID: <20060816183348.GA5852@mars.ravnborg.org>
+References: <20060813012454.f1d52189.akpm@osdl.org> <44E2E867.2050508@shadowen.org>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-References: <44E3552A.6010705@gmx.net> <Pine.LNX.4.61.0608161940310.20450@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0608161940310.20450@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+In-Reply-To: <44E2E867.2050508@shadowen.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>I have changed a message that didn't clearly tell the user what was goin
->>on...
->>
->>Please have a look!
+On Wed, Aug 16, 2006 at 10:41:59AM +0100, Andy Whitcroft wrote:
+> Andrew Morton wrote:
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
 > 
+> > git-lxdialog.patch
 > 
-> It is not April 01, is it?
-> 
-> 
-> Jan Engelhardt
+> This tree seems to change the Makefile dependancies in the kconfig 
+> subdirectory such that a plain compile of the kernel leads to an attempt 
+> to build the menuconfig targets.  This in turn adds a new dependancy on 
+> the curses development libraries.
+What I see is that "make defconfig" builds _all_ *config targets -
+strange...
 
-Only when I try to burn a CD...
+Hmmm, why does git pick up my hostname (mars)? Have I configured
+somethign wrong (not in git but my gentoo system)?
+
+	Sam

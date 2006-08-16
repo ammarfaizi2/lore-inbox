@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWHPCn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWHPCws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWHPCn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 22:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWHPCn0
+	id S1750854AbWHPCws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 22:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWHPCws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 22:43:26 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:13408 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750838AbWHPCnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 22:43:25 -0400
+	Tue, 15 Aug 2006 22:52:48 -0400
+Received: from elasmtp-scoter.atl.sa.earthlink.net ([209.86.89.67]:41398 "EHLO
+	elasmtp-scoter.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1750848AbWHPCwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 22:52:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=m1MeJ2UuQd3HaxLhqHzdoXKTycvaFe1Tnjb+1bW/9olUFe/84KF6nCJDCRxoS2N1Ey7XaYmCY7Ia8z1XN/dNsIhDh27ygt+IF6/egtNd/HyWr25PcxUrNqLti3gWjuSjex9Mln+5nScDhBpk+jV1xYxTf/nmAWYaLVp6OB6SHXw=
-Message-ID: <787b0d920608151943k3d39b5b4v26f85cfbc527514c@mail.gmail.com>
-Date: Tue, 15 Aug 2006 22:43:24 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: casey@schaufler-ca.com, serue@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+  s=dk20050327; d=mindspring.com;
+  b=kOT9Pz0qhldWaOgIH95DhbvzVDM43x5VaScTiF2fwtZMcWighL4LYNFRzn3+3Nq8;
+  h=Received:Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:X-Mailer:Mime-Version:Content-Type:Content-Transfer-Encoding:X-ELNK-Trace:X-Originating-IP;
+Date: Tue, 15 Aug 2006 22:52:37 -0400
+From: Bill Fink <billfink@mindspring.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: a.p.zijlstra@chello.nl, davem@davemloft.net, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+Message-Id: <20060815225237.03df7874.billfink@mindspring.com>
+In-Reply-To: <20060815141501.GA10998@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru>
+	<1155558313.5696.167.camel@twins>
+	<20060814123530.GA5019@2ka.mipt.ru>
+	<1155639302.5696.210.camel@twins>
+	<20060815112617.GB21736@2ka.mipt.ru>
+	<1155643405.5696.236.camel@twins>
+	<20060815123438.GA29896@2ka.mipt.ru>
+	<1155649768.5696.262.camel@twins>
+	<20060815141501.GA10998@2ka.mipt.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; powerpc-yellowdog-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-ELNK-Trace: c598f748b88b6fd49c7f779228e2f6aeda0071232e20db4d4e88a51f60a7f78a71f2afcdfa99099d350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 68.55.21.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Casey Schaufler writes:
-> --- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+On Tue, 15 Aug 2006, Evgeniy Polyakov wrote:
 
->> +    bprm->cap_effective = fscaps[0];
->> +    bprm->cap_inheritable = fscaps[1];
->> +    bprm->cap_permitted = fscaps[2];
->
-> It does not appear that you're attempting
-> to maintain the POSIX exec semantics for
-> capability sets. (If you're doing it
-> elsewhere in the code, nevermind) I don't
-> know if this is intentional or not.
+> On Tue, Aug 15, 2006 at 03:49:28PM +0200, Peter Zijlstra (a.p.zijlstra@chello.nl) wrote:
+> 
+> > It could if you can provide adequate detection of memory pressure and
+> > fallback to a degraded mode within the same allocator/stack and can
+> > guarantee limited service to critical parts.
+> 
+> It is not needed, since network allocations are separated from main
+> system ones.
+> I think I need to show an example here.
+> 
+> Let's main system works only with TCP for simplicity.
+> Let's maximum allowed memory is limited by 1mb (it is 768k on machine
+> with 1gb of ram).
 
-Stop right there. No such POSIX semantics exist.
-There is no POSIX standard for this. Out in the
-wild there are numerous dangerously incompatible
-ideas about this concept:
+The maximum amount of memory available for TCP on a system with 1 GB
+of memory is 768 MB (not 768 KB).
 
-a. SGI IRIX, and one draft of a failed POSIX proposal
-b. Linux (half done), and a very different draft
-c. DG-UX, which actually had a workable system
-d. Solaris, which is workable and getting used
+[bill@chance4 ~]$ cat /proc/meminfo
+MemTotal:      1034924 kB
+...
 
-My rant from 4 years ago mostly applies today.
-http://lkml.org/lkml/2003/10/22/135
+[bill@chance4 ~]$ cat /proc/sys/net/ipv4/tcp_mem
+98304   131072  196608
 
-(yes, we have a lame SGI-style set of bits with
-a set of equations that is not compatible)
+Since tcp_mem is in pages (4K in this case), maximum TCP memory
+is 196608*4K or 768 MB.
 
-Something has changed though: people are actually
-using this type of thing on Solaris. Probably the
-sanest thing to do is to copy Solaris: equations,
-tools, set of bits, #define names, API, etc. Just
-let Sun be the standard, and semi-portable apps
-will be able to use the feature. Cross-platform
-admins will be very grateful for the consistency.
+Or am I missing something obvious.
+
+						-Bill

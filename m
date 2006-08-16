@@ -1,79 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWHPXeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWHPXcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWHPXeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 19:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWHPXeG
+	id S932116AbWHPXcx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 19:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWHPXcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 19:34:06 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:22762 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751254AbWHPXeE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 19:34:04 -0400
-Date: Wed, 16 Aug 2006 16:34:04 -0700
-From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-To: akpm@osdl.org
-Cc: "David C. Hansen" <haveblue@us.ibm.com>, clg@fr.ibm.com, serue@us.ibm.com,
-       linux-kernel@vger.kernel.org, containers@lists.osdl.org
-Subject: [PATCH] Coding style - Use struct pidmap
-Message-ID: <20060816233404.GA10635@us.ibm.com>
+	Wed, 16 Aug 2006 19:32:53 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12230
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751239AbWHPXcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 19:32:52 -0400
+Date: Wed, 16 Aug 2006 16:32:52 -0700 (PDT)
+Message-Id: <20060816.163252.64000941.davem@davemloft.net>
+To: linas@austin.ibm.com
+Cc: arnd@arndb.de, linuxppc-dev@ozlabs.org, akpm@osdl.org, jeff@garzik.org,
+       netdev@vger.kernel.org, jklewis@us.ibm.com,
+       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com
+Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060816233028.GO20551@austin.ibm.com>
+References: <20060816.143203.11626235.davem@davemloft.net>
+	<200608170016.47072.arnd@arndb.de>
+	<20060816233028.GO20551@austin.ibm.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.0.32 on an i486
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: linas@austin.ibm.com (Linas Vepstas)
+Date: Wed, 16 Aug 2006 18:30:28 -0500
 
-Use struct pidmap instead of pidmap_t.
+> Why would you want o do this? It seems like a cruddier strategy 
+> than what we can already do  (which is to never get an transmit
+> interrupt, as long as the kernel can shove data into the device fast
+> enough to keep the queue from going empty.)  The whole *point* of a 
+> low-watermark interrupt is to never have to actually get the interrupt, 
+> if the rest of the system is on its toes and is supplying data fast
+> enough.
 
-Its a subset of Eric Biederman's patch http://lkml.org/lkml/2006/2/6/271.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>
-Cc: Serge Hallyn <serue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Cc: <containers@lists.osdl.org>
-
- kernel/pid.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-Index: linux-2.6.18-rc3/kernel/pid.c
-===================================================================
---- linux-2.6.18-rc3.orig/kernel/pid.c	2006-08-10 17:58:55.000000000 -0700
-+++ linux-2.6.18-rc3/kernel/pid.c	2006-08-10 18:32:20.000000000 -0700
-@@ -53,12 +53,12 @@ int pid_max_max = PID_MAX_LIMIT;
-  * value does not cause lots of bitmaps to be allocated, but
-  * the scheme scales to up to 4 million PIDs, runtime.
-  */
--typedef struct pidmap {
-+struct pidmap {
- 	atomic_t nr_free;
- 	void *page;
--} pidmap_t;
-+};
- 
--static pidmap_t pidmap_array[PIDMAP_ENTRIES] =
-+static struct pidmap pidmap_array[PIDMAP_ENTRIES] =
- 	 { [ 0 ... PIDMAP_ENTRIES-1 ] = { ATOMIC_INIT(BITS_PER_PAGE), NULL } };
- 
- /*
-@@ -78,7 +78,7 @@ static  __cacheline_aligned_in_smp DEFIN
- 
- static fastcall void free_pidmap(int pid)
- {
--	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
-+	struct pidmap *map = pidmap_array + pid / BITS_PER_PAGE;
- 	int offset = pid & BITS_PER_PAGE_MASK;
- 
- 	clear_bit(offset, map->page);
-@@ -88,7 +88,7 @@ static fastcall void free_pidmap(int pid
- static int alloc_pidmap(void)
- {
- 	int i, offset, max_scan, pid, last = last_pid;
--	pidmap_t *map;
-+	struct pidmap *map;
- 
- 	pid = last + 1;
- 	if (pid >= pid_max)
+As long as TX packets get freed within a certain latency
+boundary, this kind of scheme should be fine.

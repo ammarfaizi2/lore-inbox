@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWHPDyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWHPE1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWHPDyA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 23:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWHPDyA
+	id S1750736AbWHPE1E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 00:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWHPE1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 23:54:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10389 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750890AbWHPDx7 (ORCPT
+	Wed, 16 Aug 2006 00:27:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13252 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750736AbWHPE1B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 23:53:59 -0400
-Date: Tue, 15 Aug 2006 23:53:52 -0400
-From: Dave Jones <davej@redhat.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: peculiar suspend/resume bug.
-Message-ID: <20060816035351.GB17481@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Matthew Garrett <mjg59@srcf.ucam.org>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060815221035.GX7612@redhat.com> <1155687599.3193.12.camel@nigel.suspend2.net> <20060816003728.GA3605@redhat.com> <20060816024140.GA30814@srcf.ucam.org>
+	Wed, 16 Aug 2006 00:27:01 -0400
+Date: Tue, 15 Aug 2006 21:26:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1
+Message-Id: <20060815212656.4eb260f3.akpm@osdl.org>
+In-Reply-To: <44E28989.1010904@shaw.ca>
+References: <fa.nURugTWtyfQKAbvUB0DbTkmyPAY@ifi.uio.no>
+	<44E28989.1010904@shaw.ca>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060816024140.GA30814@srcf.ucam.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 03:41:40AM +0100, Matthew Garrett wrote:
- > On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
- > 
- > > cpufreq-applet crashes as soon as the cpu goes offline.
- > > Now, the applet should be written to deal with this scenario more
- > > gracefully, but I'm questioning whether or not userspace should
- > > *see* the unplug/replug that suspend does at all.
- > 
- > As Nigel mentioned, cpu unplug happens just before processes are frozen, 
- > so I guess there's a chance for it to be scheduled. On the other hand, 
- > it's not unreasonable for CPUs to be unplugged during runtime anyway - 
- > perhaps userspace should be able to deal with that?
+On Tue, 15 Aug 2006 20:57:13 -0600
+Robert Hancock <hancockr@shaw.ca> wrote:
 
-Sure, I'm not debating that point. It's a bug in the applet that needs fixing,
-but it also seems that we could be saving a whole lot of pain by
-hiding this from userspace at suspend/resume time.
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+> 
+> Warnings and an oops on suspend to disk:
+> 
+> http://www.roberthancock.com/oops1.jpg
+> http://www.roberthancock.com/oops2.jpg
+> http://www.roberthancock.com/oops3.jpg
+> http://www.roberthancock.com/oops4.jpg
+> http://www.roberthancock.com/oops5.jpg
+> http://www.roberthancock.com/oops6.jpg
+> http://www.roberthancock.com/oops7.jpg
+> http://www.roberthancock.com/oops8.jpg
+> 
+> Sleeping function called from invalid context in acpi
 
-		Dave
+Yes.  It appears that we've decided to release 2.6.18 with this feature.
 
--- 
-http://www.codemonkey.org.uk
+> and kernel NULL 
+> pointer dereference in _raw_spin_lock from generic_unplug_device,
+
+Would you be using swap-over-DM?
+
+> with 
+> some "DWARF2 unwinder stuck" errors for good measure..
+
+And this one.

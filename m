@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWHPMIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWHPMJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWHPMIi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 08:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWHPMIi
+	id S1751134AbWHPMJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 08:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWHPMJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 08:08:38 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:34867 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751132AbWHPMIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 08:08:37 -0400
-Date: Wed, 16 Aug 2006 14:08:34 +0200
+	Wed, 16 Aug 2006 08:09:51 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:62585 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751134AbWHPMJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 08:09:50 -0400
+Date: Wed, 16 Aug 2006 14:09:47 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
-Subject: [patch] s390: hypfs compiler warnings.
-Message-ID: <20060816120834.GE24551@skybase>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [patch] s390: fix syscall restart handling.
+Message-ID: <20060816120947.GG24551@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,56 +21,31 @@ User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[S390] hypfs compiler warnings.
+[S390] fix syscall restart handling.
 
-Add casts to avoid compiler warnings.
+If do_signal() gets called several times before returning to user space
+and no signal is pending (e.g. cancelled by a debugger) syscall restart
+handling could be done several times. This would change the user space
+PSW to an address prior to the syscall instruction.
+Fix this by making sure that syscall restart handling is only done once.
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/hypfs/hypfs_diag.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+ arch/s390/kernel/signal.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-diff -urpN linux-2.6/arch/s390/hypfs/hypfs_diag.c linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c
---- linux-2.6/arch/s390/hypfs/hypfs_diag.c	2006-08-16 13:36:47.000000000 +0200
-+++ linux-2.6-patched/arch/s390/hypfs/hypfs_diag.c	2006-08-16 13:36:47.000000000 +0200
-@@ -432,12 +432,14 @@ static int diag204_probe(void)
- 
- 	buf = diag204_get_buffer(INFO_EXT, &pages);
- 	if (!IS_ERR(buf)) {
--		if (diag204(SUBC_STIB7 | INFO_EXT, pages, buf) >= 0) {
-+		if (diag204((unsigned long)SUBC_STIB7 |
-+			    (unsigned long)INFO_EXT, pages, buf) >= 0) {
- 			diag204_store_sc = SUBC_STIB7;
- 			diag204_info_type = INFO_EXT;
- 			goto out;
+diff -urpN linux-2.6/arch/s390/kernel/signal.c linux-2.6-patched/arch/s390/kernel/signal.c
+--- linux-2.6/arch/s390/kernel/signal.c	2006-08-16 13:35:54.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/signal.c	2006-08-16 13:36:51.000000000 +0200
+@@ -457,6 +457,7 @@ void do_signal(struct pt_regs *regs)
+ 		case -ERESTART_RESTARTBLOCK:
+ 			regs->gprs[2] = -EINTR;
  		}
--		if (diag204(SUBC_STIB6 | INFO_EXT, pages, buf) >= 0) {
-+		if (diag204((unsigned long)SUBC_STIB6 |
-+			    (unsigned long)INFO_EXT, pages, buf) >= 0) {
- 			diag204_store_sc = SUBC_STIB7;
- 			diag204_info_type = INFO_EXT;
- 			goto out;
-@@ -452,7 +454,8 @@ static int diag204_probe(void)
- 		rc = PTR_ERR(buf);
- 		goto fail_alloc;
++		regs->trap = -1;	/* Don't deal with this again. */
  	}
--	if (diag204(SUBC_STIB4 | INFO_SIMPLE, pages, buf) >= 0) {
-+	if (diag204((unsigned long)SUBC_STIB4 |
-+		    (unsigned long)INFO_SIMPLE, pages, buf) >= 0) {
- 		diag204_store_sc = SUBC_STIB4;
- 		diag204_info_type = INFO_SIMPLE;
- 		goto out;
-@@ -476,7 +479,8 @@ static void *diag204_store(void)
- 	buf = diag204_get_buffer(diag204_info_type, &pages);
- 	if (IS_ERR(buf))
- 		goto out;
--	if (diag204(diag204_store_sc | diag204_info_type, pages, buf) < 0)
-+	if (diag204((unsigned long)diag204_store_sc |
-+		    (unsigned long)diag204_info_type, pages, buf) < 0)
- 		return ERR_PTR(-ENOSYS);
- out:
- 	return buf;
+ 
+ 	/* Get signal to deliver.  When running under ptrace, at this point

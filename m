@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWHPIkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWHPImx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWHPIkb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 04:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWHPIkb
+	id S1751010AbWHPImx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 04:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWHPImx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 04:40:31 -0400
-Received: from mail.suse.de ([195.135.220.2]:59061 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751004AbWHPIkb (ORCPT
+	Wed, 16 Aug 2006 04:42:53 -0400
+Received: from waste.org ([66.93.16.53]:5788 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751009AbWHPImw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 04:40:31 -0400
-Date: Wed, 16 Aug 2006 01:39:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] v2.6.18-rc4 Kconfig typos patch
-Message-ID: <20060816083944.GE24139@kroah.com>
-References: <20060815092139.GA3668@infomag.infomag.iguana.be>
-MIME-Version: 1.0
+	Wed, 16 Aug 2006 04:42:52 -0400
+Date: Wed, 16 Aug 2006 03:41:19 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Christoph Lameter <clameter@sgi.com>, Marcelo Tosatti <marcelo@kvack.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andi Kleen <ak@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
+       Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
+Message-ID: <20060816084119.GW6908@waste.org>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com> <20060816095254.14ac872c.ak@muc.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060815092139.GA3668@infomag.infomag.iguana.be>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060816095254.14ac872c.ak@muc.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 11:21:39AM +0200, Wim Van Sebroeck wrote:
-> Hi Linus,
+On Wed, Aug 16, 2006 at 09:52:54AM +0200, Andi Kleen wrote:
+> > 1. shrink_slab takes a function to move object. Using that
+> >    function slabs can be defragmented to ease slab reclaim.
 > 
-> Please pull from 'master' branch of
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-> or if master.kernel.org hasn't synced up yet:
-> 	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+> Does that help with the inefficient dcache/icache pruning? 
 
-Thanks, I've pulled this into the tree that I'm using to store things
-for when Linus gets back from vacation in a few weeks.
+There was a fair amount of debate on this at the VM summit.
 
-greg k-h
+The approach we thought was most promising started with splitting the
+dcache into directory and leaf entries.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

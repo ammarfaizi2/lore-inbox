@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWHPQPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWHPQQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWHPQPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWHPQPU
+	id S1751110AbWHPQQS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWHPQQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:15:20 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:23660 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1751096AbWHPQPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:15:18 -0400
-X-IronPort-AV: i="4.08,133,1154934000"; 
-   d="scan'208"; a="336576238:sNHT29287832"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Trivial kzalloc opportunity
-X-Message-Flag: Warning: May contain useful information
-References: <1155745728.24077.354.camel@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 16 Aug 2006 09:15:15 -0700
-In-Reply-To: <1155745728.24077.354.camel@localhost.localdomain> (Alan Cox's message of "Wed, 16 Aug 2006 17:28:48 +0100")
-Message-ID: <aday7toejxo.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Wed, 16 Aug 2006 12:16:18 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:26254 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1751110AbWHPQQQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:16:16 -0400
+Message-ID: <44E344A8.1040804@colorfullife.com>
+Date: Wed, 16 Aug 2006 18:15:36 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 16 Aug 2006 16:15:16.0776 (UTC) FILETIME=[2965EA80:01C6C14F]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Christoph Lameter <clameter@sgi.com>
+CC: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +	return (struct tty_struct *)kzalloc(sizeof(struct tty_struct), GFP_KERNEL);
+Christoph Lameter wrote:
 
-Why the cast here?  kzalloc() returns void *
+>5. Three different slab allocators.
+>[snip]
+>	   It is called the Slabifier because it can slabify any
+>	   page allocator. VMALLOC is a valid page allocator so
+>	   it can do slabs on vmalloc ranges. You can define your
+>	   own page allocator (mempools??) and then slabify that
+>	   one.
+>  
+>
+Which .config settings are necessary? I tried to use it (uniprocessor, 
+no debug options enabled), but the compilation failed. 2.6.18-rc4 
+kernel. All 7 patches applied.
+And: Are you sure that the slabifier works on vmalloc ranges? The code 
+uses virt_to_page(). Does that function work for vmalloc on all archs?
 
- - R.
+The lack of virt_to_page() on vmalloc/mempool memory. always prevented 
+the slab allocator from handling such memory.
+
+--
+    Manfred

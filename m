@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWHPIuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWHPIvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWHPIuE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 04:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWHPIuE
+	id S1751025AbWHPIvA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 04:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWHPIvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 04:50:04 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:11792 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751020AbWHPIuC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 04:50:02 -0400
-Date: Wed, 16 Aug 2006 17:51:44 +0900 (JST)
-Message-Id: <20060816.175144.75075807.yoshfuji@linux-ipv6.org>
-To: gerrit@erg.abdn.ac.uk
-Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH 2.6.17] net/ipv6/udp.c: remove duplicate udp_get_port
- code
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200608160846.48174@strip-the-willow>
-References: <200608160846.48174@strip-the-willow>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 16 Aug 2006 04:51:00 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:47532 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751024AbWHPIu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 04:50:59 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: peculiar suspend/resume bug.
+Date: Wed, 16 Aug 2006 10:54:51 +0200
+User-Agent: KMail/1.9.3
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060815221035.GX7612@redhat.com> <20060816024140.GA30814@srcf.ucam.org> <20060816035351.GB17481@redhat.com>
+In-Reply-To: <20060816035351.GB17481@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608161054.52037.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi,
 
-In article <200608160846.48174@strip-the-willow> (at Wed, 16 Aug 2006 08:46:48 +0100), gerrit@erg.abdn.ac.uk says:
+On Wednesday 16 August 2006 05:53, Dave Jones wrote:
+> On Wed, Aug 16, 2006 at 03:41:40AM +0100, Matthew Garrett wrote:
+>  > On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
+>  > 
+>  > > cpufreq-applet crashes as soon as the cpu goes offline.
+>  > > Now, the applet should be written to deal with this scenario more
+>  > > gracefully, but I'm questioning whether or not userspace should
+>  > > *see* the unplug/replug that suspend does at all.
+>  > 
+>  > As Nigel mentioned, cpu unplug happens just before processes are frozen, 
+>  > so I guess there's a chance for it to be scheduled. On the other hand, 
+>  > it's not unreasonable for CPUs to be unplugged during runtime anyway - 
+>  > perhaps userspace should be able to deal with that?
+> 
+> Sure, I'm not debating that point. It's a bug in the applet that needs fixing,
+> but it also seems that we could be saving a whole lot of pain by
+> hiding this from userspace at suspend/resume time.
 
-> UDPv4 and UDPv6 use an almost identical version of the get_port function,
-> which is unnecessary since the (long) code differs in only one if-statement.
-:
+Yes, that's the plan, but for now the freezer is not SMP-friendly, so to
+speak, and we have some work to do to make it possible.
 
-:
-> +#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-> +				else if(sk->sk_family == PF_INET6     &&
-> +					ipv6_rcv_saddr_equal(sk, sk2)     )
-> +					goto fail;
-> +			}
-> +#endif
+Greetings,
+Rafael
 
-This is not good because you cannot link ipv6_rcv_saddr_equal()
-if you are compiling IPv6 as module.
 
-How about retaining udp_v{4,6}_get_port() and call
-common udp_get_port() from both functions?
-
---yoshfuji
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

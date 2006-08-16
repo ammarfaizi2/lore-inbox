@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHPWVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWHPWVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWHPWVA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWHPWVA
+	id S932282AbWHPWVX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHPWVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:21:00 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:64237 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932285AbWHPWU7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:20:59 -0400
-Subject: [PATCH] rcu: Mention rcu_bh in description of rcutorture's
-	torture_type parameter
-From: Josh Triplett <josht@us.ibm.com>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Paul McKenney <paulmck@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 16 Aug 2006 15:20:59 -0700
-Message-Id: <1155766859.9175.37.camel@josh-work.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Wed, 16 Aug 2006 18:21:22 -0400
+Received: from qb-out-0506.google.com ([72.14.204.224]:5373 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932282AbWHPWVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 18:21:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=YnN0BglKp/0foc3sgQoOxdNPRutmcuhZ0IWIW9/z44yOF0y1Pet8bG6iEf3A/RMz9reBhtol3GF3cfvc34vWR6w1kv2C+5CKcvfjE7eP0zFei61CiV1Eah2EKVk2Rk+BhuqPJHJ8JCRoCF1gyE2riUrd3Ju6Pj5AOtnfPFpMiys=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] NFS: possible NULL pointer deref in nfs_sillyrename()
+Date: Thu, 17 Aug 2006 00:22:28 +0200
+User-Agent: KMail/1.9.4
+Cc: Rick Sladkey <jrs@world.std.com>, Olaf Kirch <okir@monad.swb.de>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608170022.29168.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The comment for rcutorture's torture_type parameter only lists the RCU
-variants rcu and srcu, but not rcu_bh; add rcu_bh to the list.
+The coverity checker spotted this as bug #1013.
 
-Signed-off-by: Josh Triplett <josh@freedesktop.org>
+If we get a NULL dentry->d_inode, then regardless of 
+NFS_PARANOIA or no NFS_PARANOIA, then if 
+   if (dentry->d_flags & DCACHE_NFSFS_RENAMED)
+turns out to be false we'll end up dereferencing 
+that NULL d_inode in two places below.
+
+And since the check for "(!dentry->d_inode)" even exists
+(although inside #ifdef NFS_PARANOIA) I take that to mean
+that this is a possibility. 
+And the fact that we check 
+    if (dentry->d_flags & DCACHE_NFSFS_RENAMED)
+must also mean that there are cases where the check could 
+fail.
+
+So, we can get in trouble here : 
+
+1) as an arg to sprintf() :
+ 		sprintf(silly, ".nfs%*.*lx",
+ 			i_inosize, i_inosize, dentry->d_inode->i_ino);
+
+2) or we pass it to nfs_inode_return_delegation() which then dereferences it.
+ 		nfs_inode_return_delegation(dentry->d_inode);
+
+I propose the following patch to handle this.
+
+Compile tested only.
+
+If this patch is somehow incorrect I'd appreciate an explanation of why :)
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
- kernel/rcutorture.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
-index e34d22b..aff0064 100644
---- a/kernel/rcutorture.c
-+++ b/kernel/rcutorture.c
-@@ -54,7 +54,7 @@ static int stat_interval;	/* Interval be
- static int verbose;		/* Print more debug info. */
- static int test_no_idle_hz;	/* Test RCU's support for tickless idle CPUs. */
- static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
--static char *torture_type = "rcu"; /* What to torture: rcu, srcu. */
-+static char *torture_type = "rcu"; /* What to torture: rcu, rcu_bh, srcu. */
+ fs/nfs/dir.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+--- linux-2.6.18-rc4-orig/fs/nfs/dir.c	2006-08-11 00:11:12.000000000 +0200
++++ linux-2.6.18-rc4/fs/nfs/dir.c	2006-08-17 00:06:23.000000000 +0200
+@@ -1299,15 +1299,15 @@ static int nfs_sillyrename(struct inode 
+ 		atomic_read(&dentry->d_count));
+ 	nfs_inc_stats(dir, NFSIOS_SILLYRENAME);
  
- module_param(nreaders, int, 0);
- MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
--- 
-1.4.1.1
+-#ifdef NFS_PARANOIA
+-if (!dentry->d_inode)
+-printk("NFS: silly-renaming %s/%s, negative dentry??\n",
+-dentry->d_parent->d_name.name, dentry->d_name.name);
+-#endif
++	error = -EBUSY;
++	if (!dentry->d_inode) {
++		printk("NFS: silly-renaming %s/%s, negative dentry??\n",
++			dentry->d_parent->d_name.name, dentry->d_name.name);
++		goto out;
++	}
+ 	/*
+ 	 * We don't allow a dentry to be silly-renamed twice.
+ 	 */
+-	error = -EBUSY;
+ 	if (dentry->d_flags & DCACHE_NFSFS_RENAMED)
+ 		goto out;
+ 
 
 

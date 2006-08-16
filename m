@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWHPAL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWHPATf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWHPAL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWHPAL4
+	id S1750721AbWHPATf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWHPATf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:11:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:42660 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750714AbWHPAL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:11:56 -0400
-Date: Wed, 16 Aug 2006 10:11:22 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Martin Braun <mbraun@uni-hd.de>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: kernel BUG at <bad filename>:50307!
-Message-ID: <20060816101122.E2740551@wobbly.melbourne.sgi.com>
-References: <44E1D9CA.30805@uni-hd.de>
+	Tue, 15 Aug 2006 20:19:35 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:49551 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1750721AbWHPATf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 20:19:35 -0400
+Subject: Re: peculiar suspend/resume bug.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060815221035.GX7612@redhat.com>
+References: <20060815221035.GX7612@redhat.com>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 10:19:59 +1000
+Message-Id: <1155687599.3193.12.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <44E1D9CA.30805@uni-hd.de>; from mbraun@uni-hd.de on Tue, Aug 15, 2006 at 04:27:22PM +0200
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+Hi Dave.
 
-On Tue, Aug 15, 2006 at 04:27:22PM +0200, Martin Braun wrote:
-> ...
-> What does this bug mean?
-> ...
-> Aug 15 15:01:02 pers109 kernel: Access to block zero: fs: <sdc1> inode:
-> 254474718 start_block : 0 start_off : c0a0b0e8a099
-> 0 blkcnt : 90000 extent-state : 0
-> Aug 15 15:01:02 pers109 kernel: ------------[ cut here ]------------
-> Aug 15 15:01:02 pers109 kernel: kernel BUG at <bad filename>:50307!
+On Tue, 2006-08-15 at 18:10 -0400, Dave Jones wrote:
+> Here's a fun one.
+> - Get a dual core cpufreq aware laptop (Like say, a core-duo)
+> - Add a cpufreq monitor to gnome-panel. Configure it
+>   to watch the 2nd core.
+> - Suspend.
+> - Resume.
+> 
+> Watch the cpufreq monitor die horribly.
+> 
+> I believe this is because we take down the 2nd core at suspend
+> time with cpu hotplug, and for some reason we're scheduling
+> userspace before we bring that second core back up.
+> 
+> Anyone have any clues why this is happening?
 
-It means XFS detected ondisk corruption in inode# 254474718, and
-paniced your system (stupidly; a fix for this is around, will be
-merged with the next mainline update).  For me, a more interesting
-question is how that inode got into this state... have you had any
-crashes recently (i.e. has the filesystem journal needed to be
-replayed recently?)  Can you send the output of:
+If you hotunplug and replug the cpu using the sysfs interface, rather
+than suspending and resuming, does the same thing happen?
 
-	# xfs_db -c 'inode 254474718' -c print /dev/sdc1
+Regards,
 
-You'll need to run xfs_repair on that filesystem to fix this up,
-but please send us that output first.
+Nigel
 
-thanks.
-
--- 
-Nathan

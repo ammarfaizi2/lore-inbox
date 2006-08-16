@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWHPP4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWHPP6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWHPP4s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 11:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWHPP4r
+	id S932091AbWHPP6p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 11:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWHPP6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 11:56:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5779 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932092AbWHPP4r (ORCPT
+	Wed, 16 Aug 2006 11:58:45 -0400
+Received: from mail.gmx.de ([213.165.64.20]:50921 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932091AbWHPP6o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 11:56:47 -0400
-Date: Wed, 16 Aug 2006 08:53:14 -0700
-From: Greg KH <gregkh@suse.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Please pull git390 'for-linus' branch
-Message-ID: <20060816155314.GA9682@suse.de>
-References: <20060816121400.GA29406@skybase>
+	Wed, 16 Aug 2006 11:58:44 -0400
+X-Authenticated: #815327
+From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: reiserfs on-demand bitmap loading, what is the state?
+Date: Wed, 16 Aug 2006 17:58:38 +0200
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060816121400.GA29406@skybase>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: multipart/signed;
+  boundary="nextPart1780032.a69gMufrdF";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608161758.41935.MalteSch@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 02:14:00PM +0200, Martin Schwidefsky wrote:
-> Please pull from 'for-linus' branch of
-> 
-> 	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
-> 
-> to receive the following updates:
-> 
->  arch/s390/appldata/appldata_base.c |    2 
->  arch/s390/mm/init.c                |    6 +-
->  drivers/s390/block/dasd.c          |    2 
->  drivers/s390/block/dasd_devmap.c   |   84 +++++++++++++++++--------------------
->  drivers/s390/block/dasd_eckd.c     |    8 +--
->  drivers/s390/block/xpram.c         |   25 -----------
->  drivers/s390/char/tape_class.c     |    2 
->  drivers/s390/cio/device_fsm.c      |    1 
->  drivers/s390/cio/device_ops.c      |    3 +
->  9 files changed, 55 insertions(+), 78 deletions(-)
+--nextPart1780032.a69gMufrdF
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hm, I got:
- arch/s390/appldata/appldata_base.c |    2 -
- arch/s390/mm/init.c                |    6 +--
- drivers/s390/block/dasd.c          |    2 -
- drivers/s390/block/dasd_devmap.c   |   84 +++++++++++++++++-------------------
- drivers/s390/block/dasd_eckd.c     |    8 ++-
- drivers/s390/block/xpram.c         |   25 -----------
- 6 files changed, 50 insertions(+), 77 deletions(-)
+Hello,
+I set up a new raid system with about 500gib space and put reiserfs on it. =
+It=20
+takes some seconds to mount so I patched my 2.6.17.8-tree with those=20
+reiserfs-patches from -mm. Mount time was reduced significantly (less than =
+a=20
+second).
+What I found out about these patches is that they can introduce instability=
+,=20
+but that seemed a bit vague to me.
+Up to now I didn't encounter any problems, so are there (theoretical?)=20
+problems with the on-demand code? Could that stuff go into mainline?
+Maybe there are tests I could run, the data on that box is easily=20
+recoverable ...
 
-instead when pulling.  I've pushed out my tree so you can see what is missing.
+Regards
+=2D-=20
+=2D--------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+=2D--------------------------------------
 
-thanks,
 
-greg k-h
+--nextPart1780032.a69gMufrdF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBE40Cx4q3E2oMjYtURAuRVAKDTkbMWXlhH98FhdHtIFqlpo3jLjgCfbsY1
+VlaM1vTHdzB5pWSEyf8WBEA=
+=ndU+
+-----END PGP SIGNATURE-----
+
+--nextPart1780032.a69gMufrdF--

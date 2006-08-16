@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWHPJnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWHPJoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWHPJnm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 05:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWHPJnm
+	id S1751072AbWHPJoi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 05:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWHPJoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 05:43:42 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:39429 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751065AbWHPJnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 05:43:41 -0400
-Message-ID: <44E2E867.2050508@shadowen.org>
-Date: Wed, 16 Aug 2006 10:41:59 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@mars.ravnborg.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc4-mm1 -- new depancy on curses development
-References: <20060813012454.f1d52189.akpm@osdl.org>
-In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 05:44:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28899 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751070AbWHPJoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 05:44:37 -0400
+Date: Wed, 16 Aug 2006 10:44:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Miller <davem@davemloft.net>
+Cc: hch@infradead.org, johnpol@2ka.mipt.ru, arnd@arndb.de,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+Message-ID: <20060816094431.GA21118@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Miller <davem@davemloft.net>, johnpol@2ka.mipt.ru,
+	arnd@arndb.de, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20060816091029.GA6375@infradead.org> <20060816093159.GA31882@2ka.mipt.ru> <20060816093837.GA11096@infradead.org> <20060816.024008.74744877.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060816.024008.74744877.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
+On Wed, Aug 16, 2006 at 02:40:08AM -0700, David Miller wrote:
+> From: Christoph Hellwig <hch@infradead.org>
+> Date: Wed, 16 Aug 2006 10:38:37 +0100
+> 
+> > We could, but I'd rather waste 4 bytes in struct net_device than
+> > having such ugly warts in common code.
+> 
+> Why not instead have struct device store some default node value?
+> The node decision will be sub-optimal on non-pci but it won't crash.
 
->  git-lxdialog.patch
-
-This tree seems to change the Makefile dependancies in the kconfig 
-subdirectory such that a plain compile of the kernel leads to an attempt 
-to build the menuconfig targets.  This in turn adds a new dependancy on 
-the curses development libraries.
-
-   08/15/06-05:23:09 building kernel - make -j4 vmlinux
-     HOSTCC  scripts/kconfig/lxdialog/checklist.o
-   In file included from scripts/kconfig/lxdialog/checklist.c:24:
-               scripts/kconfig/lxdialog/dialog.h:31:20: error: curses.h:
-               No such file or directory
-
-This seems to come from this rather innocent sounding change in that tree:
-
-commit 9238251dddc15b52656e70b74dffe56193d01215
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Mon Jul 24 21:40:46 2006 +0200
-
-     kconfig/lxdialog: refactor color support
-
-which also seems to change the Makefile about, specifically bringing the 
-sub Makefile into the top level one.
-
-[...]
--       $(Q)$(MAKE) $(build)=scripts/kconfig/lxdialog
-[...]
-+# lxdialog stuff
-+check-lxdialog  := $(srctree)/$(src)/lxdialog/check-lxdialog.sh
-[...]
-
-Sam?
-
--apw
+Right now we don't even have the node stored in the pci_dev structure but
+only arch-specific accessor functions/macros.  We could change those to
+take a struct device instead and make them return -1 for everything non-pci
+as we already do in architectures that don't support those helpers.  -1
+means 'any node' for all common allocators.

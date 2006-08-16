@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWHPTYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWHPTZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWHPTYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 15:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWHPTYa
+	id S932186AbWHPTZU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 15:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWHPTZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 15:24:30 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:52312 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932071AbWHPTY3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 15:24:29 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=rN/T7lLJKOteDMsloNW8VjgbKzdFvawn1JVkXxUE2T6PtPRaKQ5X16eM6iUBzdMXx
-	Xy50niOTjC1sTwuPv9EZw==
-Subject: Re: [RFC][PATCH 4/7] UBC: syscalls (user interface)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-In-Reply-To: <1155755069.24077.392.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>  <44E33C3F.3010509@sw.ru>
-	 <1155752277.22595.70.camel@galaxy.corp.google.com>
-	 <1155755069.24077.392.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 16 Aug 2006 12:22:50 -0700
-Message-Id: <1155756170.22595.109.camel@galaxy.corp.google.com>
+	Wed, 16 Aug 2006 15:25:19 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:37085 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932184AbWHPTZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 15:25:17 -0400
+Date: Wed, 16 Aug 2006 23:24:15 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>
+Subject: Re: [take9 1/2] kevent: Core files.
+Message-ID: <20060816192415.GA19537@2ka.mipt.ru>
+References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru> <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru> <44E35F29.8010500@oracle.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <44E35F29.8010500@oracle.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 16 Aug 2006 23:24:21 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 20:04 +0100, Alan Cox wrote:
-> Ar Mer, 2006-08-16 am 11:17 -0700, ysgrifennodd Rohit Seth:
-> > I think there should be a check here for seeing if the new limits are
-> > lower than the current usage of a resource.  If so then take appropriate
-> > action.
+On Wed, Aug 16, 2006 at 11:08:41AM -0700, Zach Brown (zach.brown@oracle.com) wrote:
 > 
-> Generally speaking there isn't a sane appropriate action because the
-> resources can't just be yanked.
+> >>> +	for (i=0; i<ARRAY_SIZE(u->kevent_list); ++i)
+> >> 	for (i = 0; i < ARRAY_SIZE(u->kevent_list); i++)
+> > 
+> > Ugh, no. It reduces readability due to exessive number of spaces.
 > 
+> Ihavetoverystronglydisagree.
 
-I was more thinking about (for example) user land physical memory limit
-for that bean counter.  If the limits are going down, then the system
-call should try to flush out page cache pages or swap out anonymous
-memory.  But you are right that it won't be possible in all cases, like
-for in kernel memory limits.
+W e l l , i f y o u i n s i s t a n d a b s o l u t e l y s u r e.
 
--rohit
+> - z
 
+-- 
+	Evgeniy Polyakov

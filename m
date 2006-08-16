@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWHPATf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWHPAXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWHPATf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWHPATf
+	id S1750729AbWHPAXL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWHPAXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:19:35 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:49551 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1750721AbWHPATf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:19:35 -0400
-Subject: Re: peculiar suspend/resume bug.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060815221035.GX7612@redhat.com>
-References: <20060815221035.GX7612@redhat.com>
-Content-Type: text/plain
-Date: Wed, 16 Aug 2006 10:19:59 +1000
-Message-Id: <1155687599.3193.12.camel@nigel.suspend2.net>
+	Tue, 15 Aug 2006 20:23:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33189 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750726AbWHPAXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 20:23:09 -0400
+Date: Wed, 16 Aug 2006 10:22:24 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, trond.myklebust@fys.uio.no,
+       aviro@redhat.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org, xfs@oss.sgi.com
+Subject: Re: [PATCH 0/2] Use 64-bit inode numbers internally in the kernel [try #2]
+Message-ID: <20060816102224.F2740551@wobbly.melbourne.sgi.com>
+References: <20060815152627.29222.71414.stgit@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060815152627.29222.71414.stgit@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Tue, Aug 15, 2006 at 04:26:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave.
-
-On Tue, 2006-08-15 at 18:10 -0400, Dave Jones wrote:
-> Here's a fun one.
-> - Get a dual core cpufreq aware laptop (Like say, a core-duo)
-> - Add a cpufreq monitor to gnome-panel. Configure it
->   to watch the 2nd core.
-> - Suspend.
-> - Resume.
+On Tue, Aug 15, 2006 at 04:26:27PM +0100, David Howells wrote:
 > 
-> Watch the cpufreq monitor die horribly.
-> 
-> I believe this is because we take down the 2nd core at suspend
-> time with cpu hotplug, and for some reason we're scheduling
-> userspace before we bring that second core back up.
-> 
-> Anyone have any clues why this is happening?
+> These patches make the kernel pass 64-bit inode numbers internally when
+> communicating to userspace, even on a 32-bit system.  They are required
+> because some filesystems have intrinsic 64-bit inode numbers: NFS3+ and XFS
+> for example.  The 64-bit inode numbers are then propagated to userspace
+> automatically where the arch supports it.
 
-If you hotunplug and replug the cpu using the sysfs interface, rather
-than suspending and resuming, does the same thing happen?
+Thanks for doing this, David.  FWIW, for XFS its not directly a problem
+today, we simply block attempts to mount filesystems on 32 bit systems
+where the inums could get into the problematic ranges.  With several XFS
+changes (main change will be switching to use iget5_locked) we will be
+able to allow those mounts to go ahead - so, thanks again!
 
-Regards,
+cheers.
 
-Nigel
-
+-- 
+Nathan

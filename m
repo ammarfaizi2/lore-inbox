@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWHPQen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWHPQgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWHPQen (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWHPQen
+	id S1750779AbWHPQgE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWHPQgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:34:43 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:8607 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932106AbWHPQem (ORCPT
+	Wed, 16 Aug 2006 12:36:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:17794 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750779AbWHPQgB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:34:42 -0400
-Date: Wed, 16 Aug 2006 18:27:18 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, containers@lists.osdl.org,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [PATCH 5/7] pid: Implement pid_nr
-In-Reply-To: <1155667063.12700.56.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0608161826580.23266@yvahk01.tjqt.qr>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> 
- <1155666193751-git-send-email-ebiederm@xmission.com>
- <1155667063.12700.56.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 16 Aug 2006 12:36:01 -0400
+Date: Wed, 16 Aug 2006 18:35:57 +0200
+From: Andi Kleen <ak@suse.de>
+To: Len Brown <lenb@kernel.org>
+Cc: Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for review] [54/145] x86_64: Remove obsolete PIC mode
+Message-Id: <20060816183557.f7ab6b69.ak@suse.de>
+In-Reply-To: <200608161231.49856.len.brown@intel.com>
+References: <20060810 935.775038000@suse.de>
+	<20060810193609.2977113C0B@wotan.suse.de>
+	<200608161231.49856.len.brown@intel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Aug 2006 12:31:49 -0400
+Len Brown <len.brown@intel.com> wrote:
 
->> +static inline pid_t pid_nr(struct pid *pid)
->> +{
->> +       pid_t nr = 0;
->> +       if (pid)
->> +               nr = pid->nr;
->> +       return nr;
->> +} 
->
->When is it valid to be passing around a NULL 'struct pid *'?
+> On Thursday 10 August 2006 15:36, Andi Kleen wrote:
+> 
+> 
+> > PIC mode is an outdated way to drive the APICs that was used on 
+> > some early MP boards. It is not supported in the ACPI model.
+> > 
+> > It is unlikely to be ever configured by any x86-64 system
+> > 
+> > Remove it thus.
+> 
+> Is there any reason we can't entirely remove MPS from x86_64?
+> (asside from the routines that ACPI uses)
 
-Is 0 even the right thing to return in the rare case that pid == NULL?
--1 maybe?
+There are still people who like to compile with CONFIG_ACPI=n or use 
+acpi=off
 
+I wouldn't have a problem with disallowing CONFIG_ACPI=n, but acpi=off
+still needs to work.
 
-Jan Engelhardt
--- 
+A lot of the newer systems don't have mptables anymore, but there are 
+still a lot around who do.
+
+-Andi
+

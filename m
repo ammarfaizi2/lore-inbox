@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWHPSrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWHPSrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWHPSrl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWHPSrl
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:47:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:10916 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750800AbWHPSrj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750756AbWHPSrj (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 16 Aug 2006 14:47:39 -0400
-Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-In-Reply-To: <44E33C8A.6030705@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWHPSrj
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 16 Aug 2006 14:47:39 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35469 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750756AbWHPSri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 14:47:38 -0400
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dirk <noisyb@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44E3552A.6010705@gmx.net>
+References: <44E3552A.6010705@gmx.net>
 Content-Type: text/plain
-Date: Wed, 16 Aug 2006 11:47:09 -0700
-Message-Id: <1155754029.9274.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Aug 2006 20:08:18 +0100
+Message-Id: <1155755298.24077.395.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 19:40 +0400, Kirill Korotaev wrote:
-> --- ./include/linux/mm.h.kmemcore       2006-08-16 19:10:38.000000000
-> +0400
-> +++ ./include/linux/mm.h        2006-08-16 19:10:51.000000000 +0400
-> @@ -274,8 +274,14 @@ struct page {
->         unsigned int gfp_mask;
->         unsigned long trace[8];
->  #endif
-> +#ifdef CONFIG_USER_RESOURCE
-> +       union {
-> +               struct user_beancounter *page_ub;
-> +       } bc;
-> +#endif
->  };
+Ar Mer, 2006-08-16 am 19:26 +0200, ysgrifennodd Dirk:
+> I have changed a message that didn't clearly tell the user what was goin
+> on...
 
-Is everybody OK with adding this accounting to the 'struct page'?  Is
-there any kind of noticeable performance penalty for this?  I thought
-that we had this aligned pretty well on cacheline boundaries.
+File a gnome/kde/distro bug according whichever pile of garbage you've
+got trying to do CD status monitoring and getting it wrong. This isn't a
+kernel problem, some idiot user application is asking it continually.
 
-How many things actually use this?  Can we have the slab ubcs without
-the struct page pointer?
+Now there is an argument that the message is debug only but thats
+another story.
 
--- Dave
+Alan
 

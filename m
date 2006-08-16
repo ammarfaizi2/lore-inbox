@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWHPWTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWHPWVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWHPWTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWHPWTx
+	id S932283AbWHPWVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWHPWVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:19:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:15717 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932277AbWHPWTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:19:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cao78kezwzj+rh7Ap76jbDRuEqf7qBzN6LbYT3bzHPyZ0mDNCHyM1x4W6hJxhnT4znBcgF5hl9Xg0JjFPq2X2WYBbZtKKEv34IECeCsrUgq559MJ2bLy0Z6pTIyywLVYJGsDndebYlIMnwr3+CPBoB0yM69bhIkunpEiZJGY5Cs=
-Message-ID: <3f250c710608161519o54433300heb1c79de6cbf6ce5@mail.gmail.com>
-Date: Wed, 16 Aug 2006 18:19:50 -0400
-From: "Mauricio Lin" <mauriciolin@gmail.com>
-To: catalin.marinas@gmail.com
-Subject: Some issues about the kernel memory leak detector: __scan_block() function
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 16 Aug 2006 18:21:00 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:64237 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932285AbWHPWU7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 18:20:59 -0400
+Subject: [PATCH] rcu: Mention rcu_bh in description of rcutorture's
+	torture_type parameter
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Paul McKenney <paulmck@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 15:20:59 -0700
+Message-Id: <1155766859.9175.37.camel@josh-work.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin,
+The comment for rcutorture's torture_type parameter only lists the RCU
+variants rcu and srcu, but not rcu_bh; add rcu_bh to the list.
 
-I have tested your latest kernel memory leak detector on my ARM device
-and for curiosity I have checked some part of your patch to figure out
-how the memory is scanned and compared to radix tree for detecting
-orphan pointer.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ kernel/rcutorture.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Let's suppose the a kmalloc() was executed without storing the
-returned pointer to the memory area and its fictitious returned value
-would be the address 0xb7d73000 as:
+diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+index e34d22b..aff0064 100644
+--- a/kernel/rcutorture.c
++++ b/kernel/rcutorture.c
+@@ -54,7 +54,7 @@ static int stat_interval;	/* Interval be
+ static int verbose;		/* Print more debug info. */
+ static int test_no_idle_hz;	/* Test RCU's support for tickless idle CPUs. */
+ static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
+-static char *torture_type = "rcu"; /* What to torture: rcu, srcu. */
++static char *torture_type = "rcu"; /* What to torture: rcu, rcu_bh, srcu. */
+ 
+ module_param(nreaders, int, 0);
+ MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
+-- 
+1.4.1.1
 
-kmalloc(32, GFP_KERNEL);  // Cause memory leak
 
-Is there any possibility the __scan_block() scans a memory block that
-contains the memory area allocated by the previous kmalloc?
-
-If this is possible, during the  "for (ptr = start; ptr < end; ptr++)
-{} " loop in the __scan_block(), the ptr variable can assume the
-address 0xb7d73000 and the radix_tree_lookup() returns the
-corresponding  memleak_pointer and thus such pointer to this memory
-area is not considered orphan (indeed it is an orphan pointer), right?
-
-BR,
-
-Mauricio Lin.

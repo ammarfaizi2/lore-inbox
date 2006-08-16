@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWHPApv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWHPAp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWHPApv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWHPApv
+	id S1750765AbWHPAp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWHPAp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:45:51 -0400
-Received: from [63.64.152.142] ([63.64.152.142]:31753 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1750750AbWHPApv (ORCPT
+	Tue, 15 Aug 2006 20:45:56 -0400
+Received: from [63.64.152.142] ([63.64.152.142]:33289 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1750756AbWHPApz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:45:51 -0400
+	Tue, 15 Aug 2006 20:45:55 -0400
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 1/7] [I/OAT] Push pending transactions to hardware more frequently
-Date: Tue, 15 Aug 2006 17:53:37 -0700
+Subject: [PATCH 3/7] [I/OAT] Don't offload copies for loopback traffic
+Date: Tue, 15 Aug 2006 17:53:41 -0700
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060816005337.8634.70033.stgit@gitlost.site>
+Message-Id: <20060816005341.8634.10380.stgit@gitlost.site>
+In-Reply-To: <20060816005337.8634.70033.stgit@gitlost.site>
+References: <20060816005337.8634.70033.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every 20 descriptors turns out to be to few append commands with
-newer/faster CPUs.  Pushing every 4 still cuts down on MMIO writes to an
-acceptable level without letting the DMA engine run out of work.
+Local traffic (loopback) is generally in cache anyway, and the overhead
+cost of offloading the copy is worse than just doing it with the CPU.
 
 Signed-off-by: Chris Leech <christopher.leech@intel.com>
 ---
 
- drivers/dma/ioatdma.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/tcp.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/dma/ioatdma.c b/drivers/dma/ioatdma.c
-index dbd4d6c..be4fdd7 100644
---- a/drivers/dma/ioatdma.c
-+++ b/drivers/dma/ioatdma.c
-@@ -310,7 +310,7 @@ static dma_cookie_t do_ioat_dma_memcpy(s
- 	list_splice_init(&new_chain, ioat_chan->used_desc.prev);
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 36f6b64..7971e73 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1107,6 +1107,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
+ 	int copied_early = 0;
+ 	int available = 0;
+ 	struct sk_buff *skb;
++	struct dst_entry *dst;
  
- 	ioat_chan->pending += desc_count;
--	if (ioat_chan->pending >= 20) {
-+	if (ioat_chan->pending >= 4) {
- 		append = 1;
- 		ioat_chan->pending = 0;
- 	}
-@@ -818,7 +818,7 @@ static void __devexit ioat_remove(struct
- }
+ 	lock_sock(sk);
  
- /* MODULE API */
--MODULE_VERSION("1.7");
-+MODULE_VERSION("1.9");
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Intel Corporation");
- 
+@@ -1136,7 +1137,8 @@ int tcp_recvmsg(struct kiocb *iocb, stru
+ 	skb = skb_peek_tail(&sk->sk_receive_queue);
+ 	if (skb)
+ 		available = TCP_SKB_CB(skb)->seq + skb->len - (*seq);
+-	if ((available < target) &&
++	dst = __sk_dst_get(sk);
++	if ((available < target) && (!dst || (dst->dev != &loopback_dev)) &&
+ 	    (len > sysctl_tcp_dma_copybreak) && !(flags & MSG_PEEK) &&
+ 	    !sysctl_tcp_low_latency && __get_cpu_var(softnet_data).net_dma) {
+ 		preempt_enable_no_resched();
 

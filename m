@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWHPM01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWHPM1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWHPM01 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 08:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWHPM00
+	id S1751152AbWHPM1I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 08:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWHPM1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 08:26:26 -0400
-Received: from ns2.suse.de ([195.135.220.15]:50378 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751148AbWHPM0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 08:26:25 -0400
-Date: Wed, 16 Aug 2006 14:25:57 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Arnd Bergmann <arnd@arndb.de>,
-       David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-Message-Id: <20060816142557.acccdfcf.ak@suse.de>
-In-Reply-To: <20060816084808.GA7366@infradead.org>
-References: <20060814110359.GA27704@2ka.mipt.ru>
-	<200608152221.22883.arnd@arndb.de>
-	<20060816053545.GB22921@2ka.mipt.ru>
-	<20060816084808.GA7366@infradead.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 08:27:08 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:36332 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1751152AbWHPM1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 08:27:06 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Wed, 16 Aug 2006 14:26:44 +0200
+MIME-Version: 1.0
+Subject: Linux time code
+Message-ID: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.06.0+V=4.06+U=2.07.138+R=05 June 2006+T=125540@20060816.122428Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 09:48:08 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
+Hi everybody!
 
-> On Wed, Aug 16, 2006 at 09:35:46AM +0400, Evgeniy Polyakov wrote:
-> > On Tue, Aug 15, 2006 at 10:21:22PM +0200, Arnd Bergmann (arnd@arndb.de) wrote:
-> > > Am Monday 14 August 2006 13:04 schrieb Evgeniy Polyakov:
-> > > > ?* full per CPU allocation and freeing (objects are never freed on
-> > > > ????????different CPU)
-> > > 
-> > > Many of your data structures are per cpu, but your underlying allocations
-> > > are all using regular kzalloc/__get_free_page/__get_free_pages functions.
-> > > Shouldn't these be converted to calls to kmalloc_node and alloc_pages_node
-> > > in order to get better locality on NUMA systems?
-> > >
-> > > OTOH, we have recently experimented with doing the dev_alloc_skb calls
-> > > with affinity to the NUMA node that holds the actual network adapter, and
-> > > got significant improvements on the Cell blade server. That of course
-> > > may be a conflicting goal since it would mean having per-cpu per-node
-> > > page pools if any CPU is supposed to be able to allocate pages for use
-> > > as DMA buffers on any node.
-> > 
-> > Doesn't alloc_pages() automatically switches to alloc_pages_node() or
-> > alloc_pages_current()?
-> 
-> That's not what's wanted.  If you have a slow interconnect you always want
-> to allocate memory on the node the network device is attached to.
+I've been viewing recent changes to the Linux kernel (specifically 2.6.15.1 to 
+2.6.17.8), and I felt I'll have to say something:
 
-That's not true on all NUMA systems (that they have a slow interconnect)
-I think on x86-64 I would prefer if it was distributed evenly or maybe even 
-on the CPU who is finally going to process it.
+First there's a new routine in kernel/time.c named "set_normalized_timespec()". 
+That routine sets nothing besides the actual argument being passed by reference. 
+Thus I feel that routine should rather be named "normalize_timespec()" (just to 
+save a few bytes. No, not really ;-). Alternatively that thing could be a pure 
+("const") function that returns the normalized timespec. In that case I'd call it 
+"normalized_timespec()"...
 
--Andi "not all NUMA is an Altix"
+OK, that issue woun't make anybody feel hot I guess, so here's another one:
+
+The existing routines for measuring time among the various architectures is an 
+absolute mess. Well, it always had been, but it didn't become any better, but 
+worse it seems. For example there is a POSIX-like sys_clock_gettime() intended to 
+server the end-user directly, but there's no counterpart do_clock_gettime() to 
+server any in-kernel needs. The implementation of clock_getres() is also hardly 
+worth it. I once had implemented a routine like this:
+
+void do_clock_getres(clockid_t sysclock, struct timespec *tsp)
+{
+	struct timespec ts;
+	int retry_limit;
+
+	ts.tv_sec = 0;
+	do {
+		struct timespec ts1, ts2;
+
+		do_clock_gettime(sysclock, &ts1);
+		do_clock_gettime(sysclock, &ts2);
+		ts.tv_sec = ts2.tv_sec - ts1.tv_sec;
+		ts.tv_nsec = ts2.tv_nsec - ts1.tv_nsec;
+	} while (--retry_limit > 0 && (ts.tv_sec != 0 || ts.tv_nsec == 0));
+	*tsp = ts;
+}
+
+That routine tries to get the typical clock resolution the user is expected to 
+see, automatically adjusting to the interpolation method and CPU speed being used. 
+I think that's preferrable to just returning 1ns or "tick" or whatever.
+
+Finally I have the personal need for an "unadjusted tick interpolator" 
+(preferrably being clocked by the same clock as the timer chip) to estimate the 
+frequency error of the system clock (independently from any offset adjustments 
+being made).
+
+For those who might wonder: Yes, that's the code that had been thown out recently: 
+NTP PPS calibration.
+
+So summarize: I'd wish for fewer, but more useful routines dealing with time. Some 
+modules just don't export useful (and otherwise missing) routines, while other 
+useful exported routines have different names for each architecture. A mess...
+
+Sorry if you don't like that kind of message, but I just had to say that. It seems 
+the time subsystem is already so complex that people are just adding new code 
+instead of considering redesign or reuse of the existing code.
+
+Regards,
+Ulrich
+

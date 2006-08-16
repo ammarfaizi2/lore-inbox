@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWHPLKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWHPL12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWHPLKj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 07:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWHPLKj
+	id S1751036AbWHPL12 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 07:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWHPL12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 07:10:39 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:39341 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750951AbWHPLKj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 07:10:39 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC][PATCH] PM: Use suspend_console in swsusp and make it configureable
-Date: Wed, 16 Aug 2006 13:04:51 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-References: <200608151509.06087.rjw@sisk.pl> <20060816104143.GC9497@elf.ucw.cz>
-In-Reply-To: <20060816104143.GC9497@elf.ucw.cz>
+	Wed, 16 Aug 2006 07:27:28 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:31703 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751020AbWHPL11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 07:27:27 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [PATCH 1/1] network memory allocator.
+Date: Wed, 16 Aug 2006 13:27:02 +0200
+User-Agent: KMail/1.9.1
+Cc: Christoph Hellwig <hch@infradead.org>, David Miller <davem@davemloft.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <20060814110359.GA27704@2ka.mipt.ru> <20060816084808.GA7366@infradead.org> <20060816090028.GA25476@2ka.mipt.ru>
+In-Reply-To: <20060816090028.GA25476@2ka.mipt.ru>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608161304.51758.rjw@sisk.pl>
+Message-Id: <200608161327.02826.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday 16 August 2006 12:41, Pavel Machek wrote:
-> Hi!
+On Wednesday 16 August 2006 11:00, Evgeniy Polyakov wrote:
+> There is drawback here - if data was allocated on CPU wheere NIC is
+> "closer" and then processed on different CPU it will cost more than 
+> in case where buffer was allocated on CPU where it will be processed.
 > 
-> > The appended patch does the following:
-> > 
-> > 1) Adds suspend_console() and resume_console() to the suspend-to-disk code
-> > paths so that people using netconsole are safe with swsusp.
-
-So I assume this one is OK.
-
-> > 2) Adds a Kconfig option allowing us to disable suspend_/resume_console()
-> > if need be.
+> But from other point of view, most of the adapters preallocate set of
+> skbs, and with msi-x help there will be a possibility to bind irq and
+> processing to the CPU where data was origianlly allocated.
 > 
-> Slightly ugly, but I guess that is the way to go.
+> So I would like to know how to determine which node should be used for
+> allocation. Changes of __get_user_pages() to alloc_pages_node() are
+> trivial.
 
-It also seems to be needed to add a 2 sec. dealy in suspend_console() so
-that eg. the network console can send the messages before we try to suspend
-the device.
+There are two separate memory areas here: Your own metadata used by the
+allocator and the memory used for skb data.
 
-> > 3) Marks CONFIG_PM_TRACE as dangerous.
-> 
-> I do not think that is enough. "(WILL TRASH YOUR CMOS)" would be more
-> suitable. Dangerous is "may cause problems to you". This is "will
-> cause problems to you". And for this to be useful, people have to edit
-> sources, anyway.
-> 
-> 								Pavel
-> 
-> Can we just delete the config option?
+avl_node_array[cpu] and avl_container_array[cpu] are only designed to
+be accessed only by the local cpu, so these should be done like
 
-OK, I'll do that.
+avl_node_array[cpu] = kmalloc_node(AVL_NODE_PAGES * sizeof(void *),
+			GFP_KERNEL, cpu_to_node(cpu));
 
-I have divided the changes into three individual patches that will follow as
-replies to this message.
+or you could make the whole array DEFINE_PER_CPU(void *, which would
+waste some space in the kernel object file.
 
-Rafael
+Now for the actual pages you get with __get_free_pages(), doing the
+same (alloc_pages_node), will help accessing your avl_container 
+members, but may not be the best solution for getting the data
+next to the network adapter.
 
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
-
+	Arnd <><

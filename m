@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWHPST7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWHPSVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWHPST7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWHPST7
+	id S1751159AbWHPSVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 14:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWHPSVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:19:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45989 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750950AbWHPST6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 14:19:58 -0400
-Date: Wed, 16 Aug 2006 11:18:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: rohitseth@google.com
-Cc: Kirill Korotaev <dev@sw.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
-Message-Id: <20060816111818.de1e4339.akpm@osdl.org>
-In-Reply-To: <1155751868.22595.65.camel@galaxy.corp.google.com>
-References: <44E33893.6020700@sw.ru>
-	<44E33BB6.3050504@sw.ru>
-	<1155751868.22595.65.camel@galaxy.corp.google.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 16 Aug 2006 14:21:24 -0400
+Received: from mga07.intel.com ([143.182.124.22]:40074 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751159AbWHPSVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 14:21:24 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,133,1154934000"; 
+   d="scan'208"; a="103846247:sNHT94266977"
+Date: Wed, 16 Aug 2006 11:03:57 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@redhat.com,
+       apw@shadowen.org
+Subject: Re: [patch] sched: group CPU power setup cleanup
+Message-ID: <20060816110357.B7305@unix-os.sc.intel.com>
+References: <20060815175525.A2333@unix-os.sc.intel.com> <20060815212455.c9fe1e34.pj@sgi.com> <20060815214718.00814767.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060815214718.00814767.akpm@osdl.org>; from akpm@osdl.org on Tue, Aug 15, 2006 at 09:47:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 11:11:08 -0700
-Rohit Seth <rohitseth@google.com> wrote:
-
-> > +struct user_beancounter
-> > +{
-> > +	atomic_t		ub_refcount;
-> > +	spinlock_t		ub_lock;
-> > +	uid_t			ub_uid;
+On Tue, Aug 15, 2006 at 09:47:18PM -0700, Andrew Morton wrote:
+> > > + * cpu_power indicates the computing power of each sched group. This is
+> > > + * used for distributing the load between different sched groups
+> > > + * in a sched domain.
+> > 
+> > Thanks for explaining what cpu_power means.
+> >
 > 
-> Why uid?  Will it be possible to club processes belonging to different
-> users to same bean counter.
+> Hope not.  To me, "computing power" means megaflops/sec, or Dhrystones
+> (don't ask) or whatever.  If that's what "cpu_power" is referring to then
+> the name is hopelessly ambiguous with peak joules/sec and a big renaming is
+> due.
 
-hm.  I'd have expected to see a `struct user_struct *' here, not a uid_t.
+It refers to group's processing power. Perhaps "horsepower" is better term.
+
+thanks,
+suresh

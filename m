@@ -1,67 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWHPMDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWHPMEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWHPMDz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 08:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWHPMDz
+	id S1751124AbWHPMEx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 08:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWHPMEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 08:03:55 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:15596 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751121AbWHPMDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 08:03:54 -0400
-Date: Wed, 16 Aug 2006 16:00:26 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@infradead.org>, David Miller <davem@davemloft.net>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-Message-ID: <20060816120026.GA30291@2ka.mipt.ru>
-References: <20060814110359.GA27704@2ka.mipt.ru> <20060816084808.GA7366@infradead.org> <20060816090028.GA25476@2ka.mipt.ru> <200608161327.02826.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 16 Aug 2006 08:04:53 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:16249 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751126AbWHPMEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 08:04:52 -0400
+Date: Wed, 16 Aug 2006 14:04:49 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, horst.hummel@de.ibm.com
+Subject: [patch] s390: dasd calls kzalloc while holding a spinlock.
+Message-ID: <20060816120449.GA24551@skybase>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608161327.02826.arnd@arndb.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 16 Aug 2006 16:00:30 +0400 (MSD)
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 01:27:02PM +0200, Arnd Bergmann (arnd@arndb.de) wrote:
-> On Wednesday 16 August 2006 11:00, Evgeniy Polyakov wrote:
-> > There is drawback here - if data was allocated on CPU wheere NIC is
-> > "closer" and then processed on different CPU it will cost more than 
-> > in case where buffer was allocated on CPU where it will be processed.
-> > 
-> > But from other point of view, most of the adapters preallocate set of
-> > skbs, and with msi-x help there will be a possibility to bind irq and
-> > processing to the CPU where data was origianlly allocated.
-> > 
-> > So I would like to know how to determine which node should be used for
-> > allocation. Changes of __get_user_pages() to alloc_pages_node() are
-> > trivial.
-> 
-> There are two separate memory areas here: Your own metadata used by the
-> allocator and the memory used for skb data.
-> 
-> avl_node_array[cpu] and avl_container_array[cpu] are only designed to
-> be accessed only by the local cpu, so these should be done like
-> 
-> avl_node_array[cpu] = kmalloc_node(AVL_NODE_PAGES * sizeof(void *),
-> 			GFP_KERNEL, cpu_to_node(cpu));
-> 
-> or you could make the whole array DEFINE_PER_CPU(void *, which would
-> waste some space in the kernel object file.
-> 
-> Now for the actual pages you get with __get_free_pages(), doing the
-> same (alloc_pages_node), will help accessing your avl_container 
-> members, but may not be the best solution for getting the data
-> next to the network adapter.
+From: Horst Hummel <horst.hummel@de.ibm.com>
 
-I can create it with numa_node_id() right now and later, if there will
-exsist some helper to match netdev->node, it can be used instead.
+[S390] dasd calls kzalloc while holding a spinlock.
 
-> 	Arnd <><
+The dasd function dasd_set_uid calls kzalloc while holding the
+dasd_devmap_lock. Rearrange the code to do the memory allocation
+outside the lock.
 
--- 
-	Evgeniy Polyakov
+Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ drivers/s390/block/dasd_devmap.c |   65 ++++++++++++++++-----------------------
+ drivers/s390/block/dasd_eckd.c   |    8 ++--
+ 2 files changed, 32 insertions(+), 41 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/block/dasd_devmap.c linux-2.6-patched/drivers/s390/block/dasd_devmap.c
+--- linux-2.6/drivers/s390/block/dasd_devmap.c	2006-08-16 13:36:06.000000000 +0200
++++ linux-2.6-patched/drivers/s390/block/dasd_devmap.c	2006-08-16 13:36:31.000000000 +0200
+@@ -89,7 +89,7 @@ static char *dasd[256];
+ module_param_array(dasd, charp, NULL, 0);
+ 
+ /*
+- * Single spinlock to protect devmap structures and lists.
++ * Single spinlock to protect devmap and servermap structures and lists.
+  */
+ static DEFINE_SPINLOCK(dasd_devmap_lock);
+ 
+@@ -859,39 +859,6 @@ static struct attribute_group dasd_attr_
+ };
+ 
+ /*
+- * Check if the related storage server is already contained in the
+- * dasd_serverlist. If server is not contained, create new entry.
+- * Return 0 if server was already in serverlist,
+- *	  1 if the server was added successfully
+- *	 <0 in case of error.
+- */
+-static int
+-dasd_add_server(struct dasd_uid *uid)
+-{
+-	struct dasd_servermap *new, *tmp;
+-
+-	/* check if server is already contained */
+-	list_for_each_entry(tmp, &dasd_serverlist, list)
+-	  // normale cmp?
+-		if (strncmp(tmp->sid.vendor, uid->vendor,
+-			    sizeof(tmp->sid.vendor)) == 0
+-		    && strncmp(tmp->sid.serial, uid->serial,
+-			       sizeof(tmp->sid.serial)) == 0)
+-			return 0;
+-
+-	new = (struct dasd_servermap *)
+-		kzalloc(sizeof(struct dasd_servermap), GFP_KERNEL);
+-	if (!new)
+-		return -ENOMEM;
+-
+-	strncpy(new->sid.vendor, uid->vendor, sizeof(new->sid.vendor));
+-	strncpy(new->sid.serial, uid->serial, sizeof(new->sid.serial));
+-	list_add(&new->list, &dasd_serverlist);
+-	return 1;
+-}
+-
+-
+-/*
+  * Return copy of the device unique identifier.
+  */
+ int
+@@ -910,6 +877,8 @@ dasd_get_uid(struct ccw_device *cdev, st
+ 
+ /*
+  * Register the given device unique identifier into devmap struct.
++ * In addition check if the related storage server is already contained in the
++ * dasd_serverlist. If server is not contained, create new entry.
+  * Return 0 if server was already in serverlist,
+  *	  1 if the server was added successful
+  *	 <0 in case of error.
+@@ -918,16 +887,38 @@ int
+ dasd_set_uid(struct ccw_device *cdev, struct dasd_uid *uid)
+ {
+ 	struct dasd_devmap *devmap;
+-	int rc;
++	struct dasd_servermap *srv, *tmp;
+ 
+ 	devmap = dasd_find_busid(cdev->dev.bus_id);
+ 	if (IS_ERR(devmap))
+ 		return PTR_ERR(devmap);
++
++	/* generate entry for servermap */
++	srv = (struct dasd_servermap *)
++		kzalloc(sizeof(struct dasd_servermap), GFP_KERNEL);
++	if (!srv)
++		return -ENOMEM;
++	strncpy(srv->sid.vendor, uid->vendor, sizeof(srv->sid.vendor) - 1);
++	strncpy(srv->sid.serial, uid->serial, sizeof(srv->sid.serial) - 1);
++
++	/* server is already contained ? */
+ 	spin_lock(&dasd_devmap_lock);
+ 	devmap->uid = *uid;
+-	rc = dasd_add_server(uid);
++	list_for_each_entry(tmp, &dasd_serverlist, list) {
++		if (!memcmp(&srv->sid, &tmp->sid,
++			    sizeof(struct dasd_servermap))) {
++			kfree(srv);
++			srv = NULL;
++			break;
++		}
++	}
++
++	/* add servermap to serverlist */
++	if (srv)
++		list_add(&srv->list, &dasd_serverlist);
+ 	spin_unlock(&dasd_devmap_lock);
+-	return rc;
++
++	return (srv ? 1 : 0);
+ }
+ EXPORT_SYMBOL_GPL(dasd_set_uid);
+ 
+diff -urpN linux-2.6/drivers/s390/block/dasd_eckd.c linux-2.6-patched/drivers/s390/block/dasd_eckd.c
+--- linux-2.6/drivers/s390/block/dasd_eckd.c	2006-08-16 13:36:06.000000000 +0200
++++ linux-2.6-patched/drivers/s390/block/dasd_eckd.c	2006-08-16 13:36:31.000000000 +0200
+@@ -468,11 +468,11 @@ dasd_eckd_generate_uid(struct dasd_devic
+ 		return -ENODEV;
+ 
+ 	memset(uid, 0, sizeof(struct dasd_uid));
+-	strncpy(uid->vendor, confdata->ned1.HDA_manufacturer,
+-		sizeof(uid->vendor) - 1);
++	memcpy(uid->vendor, confdata->ned1.HDA_manufacturer,
++	       sizeof(uid->vendor) - 1);
+ 	EBCASC(uid->vendor, sizeof(uid->vendor) - 1);
+-	strncpy(uid->serial, confdata->ned1.HDA_location,
+-		sizeof(uid->serial) - 1);
++	memcpy(uid->serial, confdata->ned1.HDA_location,
++	       sizeof(uid->serial) - 1);
+ 	EBCASC(uid->serial, sizeof(uid->serial) - 1);
+ 	uid->ssid = confdata->neq.subsystemID;
+ 	if (confdata->ned2.sneq.flags == 0x40) {

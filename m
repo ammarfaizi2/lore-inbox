@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWHPT2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWHPTkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWHPT2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 15:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWHPT2N
+	id S932195AbWHPTkL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 15:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWHPTkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 15:28:13 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:33998 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932187AbWHPT2L (ORCPT
+	Wed, 16 Aug 2006 15:40:11 -0400
+Received: from hera.kernel.org ([140.211.167.34]:25224 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932195AbWHPTkK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 15:28:11 -0400
-Date: Wed, 16 Aug 2006 23:27:26 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH2 1/1] network memory allocator.
-Message-ID: <20060816192726.GB19537@2ka.mipt.ru>
-References: <20060814110359.GA27704@2ka.mipt.ru> <20060816075137.GA22397@2ka.mipt.ru> <20060816095712.120b3171@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 16 Aug 2006 15:40:10 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 2.6.18-rc4-mm1
+Date: Wed, 16 Aug 2006 15:41:49 -0400
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <fa.nURugTWtyfQKAbvUB0DbTkmyPAY@ifi.uio.no> <44E28989.1010904@shaw.ca>
+In-Reply-To: <44E28989.1010904@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060816095712.120b3171@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 16 Aug 2006 23:27:30 +0400 (MSD)
+Message-Id: <200608161541.50041.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 09:57:12AM -0700, Stephen Hemminger (shemminger@osdl.org) wrote:
-> IMHO the network memory allocator is being a little too focused on one problem,
-> rather than looking at a general enhancement.
+On Tuesday 15 August 2006 22:57, Robert Hancock wrote:
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
 > 
-> Have you looked into something like the talloc used by Samba (and others)?
-> 	http://talloc.samba.org/
-> 	http://samba.org/ftp/unpacked/samba4/source/lib/talloc/talloc_guide.txt
+> Warnings and an oops on suspend to disk:
 > 
-> By having a context, we could do better resource tracking and also cleanup
-> would be easier on removal.
+> http://www.roberthancock.com/oops1.jpg
+> http://www.roberthancock.com/oops2.jpg
+> http://www.roberthancock.com/oops3.jpg
+> http://www.roberthancock.com/oops4.jpg
+> http://www.roberthancock.com/oops5.jpg
+> http://www.roberthancock.com/oops6.jpg
+> http://www.roberthancock.com/oops7.jpg
+> http://www.roberthancock.com/oops8.jpg
 
-Yes, I saw it - it is slow (not that big overhead, but it definitely not
-the case where we can slow things down more).
-Netwrok tree allocator can be used by other users too without any
-problems ,mmu-less systems will greatly benefit from it.
-There is nothing which prevent other than network cases, so I see no
-problems there.
+Re: acpi_os_wait_sempahore()
 
--- 
-	Evgeniy Polyakov
+please try the patch here:
+http://bugzilla.kernel.org/show_bug.cgi?id=6810
+
+thanks,
+-Len

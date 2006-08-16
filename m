@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWHPQuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWHPQ5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWHPQuE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWHPQuB
+	id S1750700AbWHPQ5n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHPQ5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:50:01 -0400
-Received: from [63.64.152.142] ([63.64.152.142]:40713 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S932108AbWHPQuA (ORCPT
+	Wed, 16 Aug 2006 12:57:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28653 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750700AbWHPQ5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:50:00 -0400
-From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 7/7 v2] [I/OAT] Add entries to MAINTAINERS for the DMA memcpy subsystem and ioatdma
-Date: Wed, 16 Aug 2006 09:57:47 -0700
-To: rdunlap@xenotime.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060816165747.10162.11471.stgit@gitlost.site>
-In-Reply-To: <Pine.LNX.4.58.0608152151430.7622@shark.he.net>
-References: <Pine.LNX.4.58.0608152151430.7622@shark.he.net>
+	Wed, 16 Aug 2006 12:57:42 -0400
+Date: Wed, 16 Aug 2006 09:57:12 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH2 1/1] network memory allocator.
+Message-ID: <20060816095712.120b3171@localhost.localdomain>
+In-Reply-To: <20060816075137.GA22397@2ka.mipt.ru>
+References: <20060814110359.GA27704@2ka.mipt.ru>
+	<20060816075137.GA22397@2ka.mipt.ru>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+IMHO the network memory allocator is being a little too focused on one problem,
+rather than looking at a general enhancement.
 
- MAINTAINERS |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+Have you looked into something like the talloc used by Samba (and others)?
+	http://talloc.samba.org/
+	http://samba.org/ftp/unpacked/samba4/source/lib/talloc/talloc_guide.txt
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 21116cc..2d484aa 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -881,6 +881,12 @@ M:	tori@unhappy.mine.nu
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- 
-+DMA GENERIC MEMCPY SUBSYSTEM
-+P:	Chris Leech
-+M:	christopher.leech@intel.com
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+
- DOCBOOK FOR DOCUMENTATION
- P:	Martin Waitz
- M:	tali@admingilde.org
-@@ -1469,6 +1475,12 @@ P:	Tigran Aivazian
- M:	tigran@veritas.com
- S:	Maintained
- 
-+INTEL I/OAT DMA DRIVER
-+P:	Chris Leech
-+M:	christopher.leech@intel.com
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+
- INTEL IXP4XX RANDOM NUMBER GENERATOR SUPPORT
- P:	Deepak Saxena
- M:	dsaxena@plexity.net
-
+By having a context, we could do better resource tracking and also cleanup
+would be easier on removal.

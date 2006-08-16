@@ -1,49 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWHPWaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWHPWet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWHPWaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWHPWaF
+	id S932288AbWHPWet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWHPWet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:30:05 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57758
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932298AbWHPWaD convert rfc822-to-8bit (ORCPT
+	Wed, 16 Aug 2006 18:34:49 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27304 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932288AbWHPWes (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:30:03 -0400
-Date: Wed, 16 Aug 2006 15:29:19 -0700 (PDT)
-Message-Id: <20060816.152919.88472383.davem@davemloft.net>
-To: arnd@arndb.de
-Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, jeff@garzik.org,
-       netdev@vger.kernel.org, jklewis@us.ibm.com,
-       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com
-Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200608170016.47072.arnd@arndb.de>
-References: <200608162324.47235.arnd@arndb.de>
-	<20060816.143203.11626235.davem@davemloft.net>
-	<200608170016.47072.arnd@arndb.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Aug 2006 18:34:48 -0400
+Date: Wed, 16 Aug 2006 15:34:26 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
+In-Reply-To: <44E344A8.1040804@colorfullife.com>
+Message-ID: <Pine.LNX.4.64.0608161533580.19172@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <44E344A8.1040804@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 17 Aug 2006 00:16:46 +0200
+On Wed, 16 Aug 2006, Manfred Spraul wrote:
 
-> Am Wednesday 16 August 2006 23:32 schrieb David Miller:
-> > Can spidernet be told these kinds of parameters?  "N packets or
-> > X usecs"?
-> 
-> It can not do exactly this but probably we can get close to it by
+> Which .config settings are necessary? I tried to use it (uniprocessor, no
+> debug options enabled), but the compilation failed. 2.6.18-rc4 kernel. All 7
+> patches applied.
 
-Oh, you can only control TX packet counts using bits in the TX ring
-entries :(
-
-Tigon3 can even be told to use different interrupt mitigation
-parameters when the cpu is actively servicing an interrupt for
-the chip.
-
-Didn't you say spidernet's facilities were sophisticated? :)
-This Tigon3 stuff is like 5+ year old technology.
+Ahh. Tried it on i386. This works if you disable full slab support.

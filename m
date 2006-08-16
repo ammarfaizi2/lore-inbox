@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWHPWpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWHPWrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbWHPWpv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHPWpv
+	id S932308AbWHPWrt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWHPWrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:45:51 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:20137 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750915AbWHPWpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:45:51 -0400
-Date: Wed, 16 Aug 2006 15:45:32 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
-In-Reply-To: <Pine.LNX.4.64.0608161533580.19172@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0608161544080.19244@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
- <44E344A8.1040804@colorfullife.com> <Pine.LNX.4.64.0608161533580.19172@schroedinger.engr.sgi.com>
+	Wed, 16 Aug 2006 18:47:49 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:30195 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932308AbWHPWrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 18:47:47 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
+Date: Thu, 17 Aug 2006 00:47:00 +0200
+User-Agent: KMail/1.9.1
+Cc: David Miller <davem@davemloft.net>, akpm@osdl.org, jeff@garzik.org,
+       netdev@vger.kernel.org, jklewis@us.ibm.com,
+       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com
+References: <200608162324.47235.arnd@arndb.de> <200608170016.47072.arnd@arndb.de> <20060816.152919.88472383.davem@davemloft.net>
+In-Reply-To: <20060816.152919.88472383.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608170047.00811.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some more minor fixes that my newer compiler on the i386 box discovered.
+Am Thursday 17 August 2006 00:29 schrieb David Miller:
+> Didn't you say spidernet's facilities were sophisticated? :)
+> This Tigon3 stuff is like 5+ year old technology.
 
+I was rather overwhelmed by the 34 different interrupts that
+the chip can create, that does not mean they chose the right
+events for generating them.
+Interestingly, spidernet has five different counters you can
+set up to generate interrupts after a number of received frames,
+but none for transmit...
 
-Index: linux-2.6.18-rc4/include/linux/allocator.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/allocator.h	2006-08-16 15:42:24.000000000 -0700
-+++ linux-2.6.18-rc4/include/linux/allocator.h	2006-08-16 15:42:27.000000000 -0700
-@@ -66,7 +66,7 @@
-  * a page is freed.
-  */
- struct page_allocator *ctor_and_dtor_for_page_allocator
--	(const struct page_allocator *, unsigned long size, void *private,
-+	(const struct page_allocator *, unsigned int size, void *private,
- 		void (*ctor)(void *, void *, unsigned long),
-                 void (*dtor)(void *, void *, unsigned long));
- 
-Index: linux-2.6.18-rc4/mm/allocator.c
-===================================================================
---- linux-2.6.18-rc4.orig/mm/allocator.c	2006-08-16 15:42:24.000000000 -0700
-+++ linux-2.6.18-rc4/mm/allocator.c	2006-08-16 15:42:27.000000000 -0700
-@@ -123,8 +123,8 @@
- static void page_free_rcu(struct rcu_head *h)
- {
- 	struct page *page;
--	struct page_allocator * base;
--	int order = page->index;
-+	struct page_allocator *base;
-+	int order;
- 
-  	page = container_of((struct list_head *)h, struct page, lru);
- 	base = (void *)page->mapping;
-@@ -228,7 +228,7 @@
- 
- struct page_allocator *ctor_and_dtor_for_page_allocator
- 	(const struct page_allocator *base,
--		size_t size, void *private,
-+		unsigned int size, void *private,
- 		void (*ctor)(void *, void *, unsigned long),
- 		void (*dtor)(void *, void *, unsigned long))
- {
-@@ -318,7 +318,7 @@
- 	struct slabr *r = (void *) rcu;
- 	struct slab_cache *s = r->s;
- 	struct rcuified_slab *d = (void *)s->slab_alloc;
--	void *object = (void *)object - d->rcu_offset;
-+	void *object = (void *)rcu - d->rcu_offset;
- 
- 	d->base->free(s, object);
- }
+	Arnd <><

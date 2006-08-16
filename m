@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWHPG3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWHPGbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWHPG3g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 02:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWHPG3g
+	id S1750949AbWHPGbR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 02:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWHPGbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 02:29:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64457 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750945AbWHPG3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 02:29:35 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: containers@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [Containers] [PATCH 5/7] pid: Implement pid_nr
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-	<1155666193751-git-send-email-ebiederm@xmission.com>
-	<1155667063.12700.56.camel@localhost.localdomain>
-	<m1psf17riz.fsf@ebiederm.dsl.xmission.com>
-	<1155669325.18883.10.camel@localhost.localdomain>
-Date: Wed, 16 Aug 2006 00:29:18 -0600
-In-Reply-To: <1155669325.18883.10.camel@localhost.localdomain> (Dave Hansen's
-	message of "Tue, 15 Aug 2006 12:15:25 -0700")
-Message-ID: <m14pwd6vnl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 16 Aug 2006 02:31:17 -0400
+Received: from outgoing3.smtp.agnat.pl ([193.239.44.85]:199 "EHLO
+	outgoing3.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S1750941AbWHPGbQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 02:31:16 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/1 -resend] Char: mxser, upgrade to 1.9.1
+Date: Wed, 16 Aug 2006 08:31:12 +0200
+User-Agent: KMail/1.9.4
+Cc: Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       support@moxa.com.tw
+References: <mxser191resend3_ee43092305ba163fd5d4@wsc.cz> <20060815225346.cf7ca950.akpm@osdl.org>
+In-Reply-To: <20060815225346.cf7ca950.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200608160831.12848.arekm@pld-linux.org>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
-
-> On Tue, 2006-08-15 at 13:00 -0600, Eric W. Biederman wrote:
->> Dave Hansen <haveblue@us.ibm.com> writes:
->> 
->> > On Tue, 2006-08-15 at 12:23 -0600, Eric W. Biederman wrote:
->> >> +static inline pid_t pid_nr(struct pid *pid)
->> >> +{
->> >> +       pid_t nr = 0;
->> >> +       if (pid)
->> >> +               nr = pid->nr;
->> >> +       return nr;
->> >> +} 
->> >
->> > When is it valid to be passing around a NULL 'struct pid *'?
->> 
->> When you don't have one at all.  Look at the fcntl case a few
->> patches later, or even the spawnpid case.
+On Wednesday 16 August 2006 07:53, Andrew Morton wrote:
+> On Tue, 15 Aug 2006 04:00:14 -0700
 >
-> Does the fcntl() one originate from anywhere other than find_pid() in
-> f_setown()?  It seems like, perhaps, the error checking is being done at
-> the wrong level.
-
-Yes. It is normally NULL as file handles don't usually have a process
-to send a signal to.
-
->> Then of course there is the later chaos when we get to pid spaces
->> where depending on the pid namespace you are in when you call this
->> on a given struct pid sometimes you will get a pid value and sometimes
->> you won't.
+> Jiri Slaby <jirislaby@gmail.com> wrote:
+> > Change driver according to original 1.9.1 moxa driver. Some int->ulong
+> > conversions, outb ~UART_IER_THRI constant. Remove commented stuff.
+> >
+> > I also added printk line with info, if somebody wants to test it, he
+> > should contact me as I can potentially debug the driver with him or just
+> > to confirm it works properly.
 >
-> OK, I think it is makes sense to me to say 'get_pid(tsk, pidspace)' and
-> get back a NULL 'struct pid' if that task isn't visible in that
-> namespace.  However, I don't get how it is handy to be able to defer the
-> fact that the pid wasn't found until you go do a pid_nr() on that NULL.
+> Ho hum, this is hard.  I guess breaking the driver is one way to find out
+> who is using it, but those who redistribute the kernel for a living might
+> not appreciate the technique.
+>
+> Perhaps we could create an mxser-new.c and offer that in config, plan to
+> remove mxser.c N months hence?
 
-If having a pid to signal is optional, which it almost always is, 
-being able to handle that case easily and return a 0 to user space is helpful.
+I can test the updated driver with  MOXA CP-168U series board if it will 
+compile on 2.6.12.6. Unfortunately I can't change kernel to latest one there. 
+Will testing on 2.6.12.6 be enough for you?
 
-So far it is my assumption that everything that looks up a pid and converts
-a pid to a number will do it with respect to the current processes pidspace.
-A very reasonable assumption and only with siginfo have I found a case where
-it looks like I might not be able to implement it that way.
-
-Eric
+-- 
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

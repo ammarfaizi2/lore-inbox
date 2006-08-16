@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWHPJji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWHPJkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWHPJji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 05:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWHPJji
+	id S1751073AbWHPJkz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 05:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWHPJkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 05:39:38 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:61641 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751058AbWHPJjh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 05:39:37 -0400
-Date: Wed, 16 Aug 2006 19:38:25 +1000
-From: David Chinner <dgc@sgi.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andi Kleen <ak@muc.de>, Christoph Lameter <clameter@sgi.com>,
-       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>, Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
-Message-ID: <20060816093825.GN51703024@melbourne.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com> <20060816095254.14ac872c.ak@muc.de> <20060816084119.GW6908@waste.org>
+	Wed, 16 Aug 2006 05:40:55 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:27856
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751066AbWHPJky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 05:40:54 -0400
+Date: Wed, 16 Aug 2006 02:40:08 -0700 (PDT)
+Message-Id: <20060816.024008.74744877.davem@davemloft.net>
+To: hch@infradead.org
+Cc: johnpol@2ka.mipt.ru, arnd@arndb.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 1/1] network memory allocator.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060816093837.GA11096@infradead.org>
+References: <20060816091029.GA6375@infradead.org>
+	<20060816093159.GA31882@2ka.mipt.ru>
+	<20060816093837.GA11096@infradead.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060816084119.GW6908@waste.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 03:41:19AM -0500, Matt Mackall wrote:
-> On Wed, Aug 16, 2006 at 09:52:54AM +0200, Andi Kleen wrote:
-> > > 1. shrink_slab takes a function to move object. Using that
-> > >    function slabs can be defragmented to ease slab reclaim.
-> > 
-> > Does that help with the inefficient dcache/icache pruning? 
-> 
-> There was a fair amount of debate on this at the VM summit.
-> 
-> The approach we thought was most promising started with splitting the
-> dcache into directory and leaf entries.
+From: Christoph Hellwig <hch@infradead.org>
+Date: Wed, 16 Aug 2006 10:38:37 +0100
 
-That's been tried before with no noticable effect on fragmentation.
-Patch:
+> We could, but I'd rather waste 4 bytes in struct net_device than
+> having such ugly warts in common code.
 
-http://marc.theaimsgroup.com/?l=linux-mm&m=112858024817277&w=2
-
-And informative thread:
-
-http://marc.theaimsgroup.com/?l=linux-mm&m=112660138015732&w=2
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Why not instead have struct device store some default node value?
+The node decision will be sub-optimal on non-pci but it won't crash.

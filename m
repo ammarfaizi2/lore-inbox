@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWHPWVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWHPWYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWHPWVp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWHPWVp
+	id S932284AbWHPWYF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWHPWYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:21:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11916 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932286AbWHPWVo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:21:44 -0400
-Date: Wed, 16 Aug 2006 15:21:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Malte =?ISO-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs on-demand bitmap loading, what is the state?
-Message-Id: <20060816152139.0752f406.akpm@osdl.org>
-In-Reply-To: <200608161758.41935.MalteSch@gmx.de>
-References: <200608161758.41935.MalteSch@gmx.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 16 Aug 2006 18:24:04 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:21207 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932287AbWHPWYC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 18:24:02 -0400
+Subject: [PATCH] rcu: Avoid kthread_stop on invalid pointer if rcutorture
+	reader startup fails
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Paul McKenney <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 15:24:02 -0700
+Message-Id: <1155767042.9175.41.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 17:58:38 +0200
-Malte Schr__der <MalteSch@gmx.de> wrote:
+rcu_torture_init kmallocs the array of reader threads, then creates each one
+with kthread_run, cleaning up with rcu_torture_cleanup if this fails.
+rcu_torture_cleanup calls kthread_stop on any non-NULL pointer in the array;
+however, any readers after the one that failed to start up will have invalid
+pointers, not null pointers.  Avoid this by using kzalloc instead.
 
-> Hello,
-> I set up a new raid system with about 500gib space and put reiserfs on it. It 
-> takes some seconds to mount so I patched my 2.6.17.8-tree with those 
-> reiserfs-patches from -mm. Mount time was reduced significantly (less than a 
-> second).
-> What I found out about these patches is that they can introduce instability, 
-> but that seemed a bit vague to me.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ kernel/rcutorture.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-The first version of the patches was (terribly) buggy.  The version in
-current -mm has no known (to me) shortcomings.
+diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+index aff0064..8b09c95 100644
+--- a/kernel/rcutorture.c
++++ b/kernel/rcutorture.c
+@@ -779,7 +779,7 @@ rcu_torture_init(void)
+ 		writer_task = NULL;
+ 		goto unwind;
+ 	}
+-	reader_tasks = kmalloc(nrealreaders * sizeof(reader_tasks[0]),
++	reader_tasks = kzalloc(nrealreaders * sizeof(reader_tasks[0]),
+ 			       GFP_KERNEL);
+ 	if (reader_tasks == NULL) {
+ 		VERBOSE_PRINTK_ERRSTRING("out of memory");
+-- 
+1.4.1.1
 
-> Up to now I didn't encounter any problems, so are there (theoretical?) 
-> problems with the on-demand code? Could that stuff go into mainline?
-
-Expect to see it in 2.6.19-rc1.
-
-> Maybe there are tests I could run, the data on that box is easily 
-> recoverable ...
-
-Yup, please run tests - anything and everything.
-
-Be sure to run reiserfsck before the testing to make sure the fs is clean,
-then run it again at the end of testing, see if anything ended up out of
-place.
 

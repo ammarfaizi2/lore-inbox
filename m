@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWHPOgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWHPOmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWHPOgy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 10:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWHPOgy
+	id S1751185AbWHPOmY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 10:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWHPOmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 10:36:54 -0400
-Received: from main.gmane.org ([80.91.229.2]:63714 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751183AbWHPOgy (ORCPT
+	Wed, 16 Aug 2006 10:42:24 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:52448 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751185AbWHPOmX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 10:36:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Linux time code
-Date: Wed, 16 Aug 2006 14:36:28 +0200
-Organization: Palacky University in Olomouc
-Message-ID: <44E3114C.1010808@flower.upol.cz>
-References: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 158.194.192.153
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+	Wed, 16 Aug 2006 10:42:23 -0400
+Date: Wed, 16 Aug 2006 16:42:22 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Raphael Hertzog <hertzog@debian.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: How to avoid serial port buffer overruns?
+Message-ID: <20060816144221.GO15015@harddisk-recovery.com>
+References: <fa.AByCsBI8k71hMVzCyQVimrLiDU4@ifi.uio.no> <44E32D19.3090405@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E32D19.3090405@shaw.ca>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Windl wrote:
-> Hi everybody!
+On Wed, Aug 16, 2006 at 08:35:05AM -0600, Robert Hancock wrote:
+> Raphael Hertzog wrote:
+> >(Please CC me when replying)
+> >
+> >Hello,
+> >
+> >While using Linux on low-end (semi-embedded) hardware (386 SX 40Mhz, 8Mb
+> >RAM), I discovered that Linux on that machine would suffer from serial
+> >port buffer overruns quite easily if I use a baudrate high enough (I start
+> >loosing bytes at >19200 bauds and I would like to make it reliable up to 
+> >115 kbauds). I check if overruns are happening with
+> >/proc/tty/driver/serial ("oe" field).
 > 
-> I've been viewing recent changes to the Linux kernel (specifically 2.6.15.1 to 
-> 2.6.17.8), and I felt I'll have to say something:
-> 
-> First there's a new routine in kernel/time.c named "set_normalized_timespec()". 
-[..something....]
-> Sorry if you don't like that kind of message, but I just had to say that. It seems 
-> the time subsystem is already so complex that people are just adding new code 
-> instead of considering redesign or reuse of the existing code.
-> 
-As far as i can see here's "return -ENOPATCH;" kind of mail list.
-Did you read and consider cooperation with authors of:
+> What kind of serial port are you using? If it's an unbuffered 8250-type 
+> port, it will NEVER be reliable at higher baud rates. You want a 16550 
+> (or better) port.
 
-"We Are Not Getting Any Younger: A New Approach to  Time and Timers"
-<http://www.linuxsymposium.org/2005/linuxsymposium_procv1.pdf>
+I've run a cable modem connection at 115k2 over a 16450 UART on a
+386DX40 for years. The tricks were:
 
-"Hrtimers and Beyond: Transforming the Linux Time"
-Subsystems <https://ols2006.108.redhat.com/reprints/gleixner-reprint.pdf>  ?
+- hdparm -u 1 /dev/hda
+- play with IRQ priorities in such a way that the serial port UART was
+  handled first (there used to be a kernel module to accomplish that in
+  old debian releases)
 
-> Regards,
-> Ulrich
-> 
+
+Erik
 
 -- 
--o--=O`C
-  #oo'L O
-<___=E M
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

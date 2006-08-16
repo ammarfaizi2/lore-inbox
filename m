@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWHPArO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWHPA6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWHPArO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWHPApz
+	id S1750785AbWHPA6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWHPA6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:45:55 -0400
-Received: from [63.64.152.142] ([63.64.152.142]:32265 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1750751AbWHPApw (ORCPT
+	Tue, 15 Aug 2006 20:58:39 -0400
+Received: from ozlabs.org ([203.10.76.45]:14529 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750738AbWHPA6i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:45:52 -0400
-From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 2/7] [I/OAT] Only offload copies for TCP when there will be a context switch
-Date: Tue, 15 Aug 2006 17:53:39 -0700
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060816005339.8634.23929.stgit@gitlost.site>
-In-Reply-To: <20060816005337.8634.70033.stgit@gitlost.site>
-References: <20060816005337.8634.70033.stgit@gitlost.site>
+	Tue, 15 Aug 2006 20:58:38 -0400
+Subject: RE: [PATCH 4/6] ehea: header files
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Christoph Raisch <RAISCH@de.ibm.com>
+Cc: "Jenkins, Clive" <Clive.Jenkins@xerox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       netdev <netdev@vger.kernel.org>, ossthema@de.ibm.com,
+       Thomas Q Klein <tklein@de.ibm.com>
+In-Reply-To: <OF8C6BA147.30EE53F8-ONC12571CB.003C7748-C12571CB.003CBAA4@de.ibm.com>
+References: <OF8C6BA147.30EE53F8-ONC12571CB.003C7748-C12571CB.003CBAA4@de.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C70jxZ6nTIR1cf7UISPn"
+Date: Wed, 16 Aug 2006 10:58:35 +1000
+Message-Id: <1155689915.26911.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The performance wins come with having the DMA copy engine doing the copies
-in parallel with the context switch.  If there is enough data ready on the
-socket at recv time just use a regular copy.
 
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+--=-C70jxZ6nTIR1cf7UISPn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- net/ipv4/tcp.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
+On Tue, 2006-08-15 at 13:07 +0200, Christoph Raisch wrote:
+>=20
+> "Jenkins, Clive" wrote on 15.08.2006 12:53:05:
+>=20
+> > > > You mean the eHEA has its own concept of page size? Separate from
+> > the
+> > > > page size used by the MMU?
+> > > >
+> > >
+> > > yes, the eHEA currently supports only 4K pages for queues
+> >
+> > In that case, I suggest use the kernel's page size, but add a
+> > compile-time
+> > check, and quit with an error message if driver does not support it.
+>=20
+> eHEA does support other page sizes than 4k, but the HW interface expects =
+to
+> see 4k pages
+> The adaption is done in the device driver, therefore we have a seperate 4=
+k
+> define.
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 934396b..36f6b64 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1105,6 +1105,8 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 	long timeo;
- 	struct task_struct *user_recv = NULL;
- 	int copied_early = 0;
-+	int available = 0;
-+	struct sk_buff *skb;
- 
- 	lock_sock(sk);
- 
-@@ -1131,7 +1133,11 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- #ifdef CONFIG_NET_DMA
- 	tp->ucopy.dma_chan = NULL;
- 	preempt_disable();
--	if ((len > sysctl_tcp_dma_copybreak) && !(flags & MSG_PEEK) &&
-+	skb = skb_peek_tail(&sk->sk_receive_queue);
-+	if (skb)
-+		available = TCP_SKB_CB(skb)->seq + skb->len - (*seq);
-+	if ((available < target) &&
-+	    (len > sysctl_tcp_dma_copybreak) && !(flags & MSG_PEEK) &&
- 	    !sysctl_tcp_low_latency && __get_cpu_var(softnet_data).net_dma) {
- 		preempt_enable_no_resched();
- 		tp->ucopy.pinned_list = dma_pin_iovec_pages(msg->msg_iov, len);
-@@ -1140,7 +1146,6 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- #endif
- 
- 	do {
--		struct sk_buff *skb;
- 		u32 offset;
- 
- 		/* Are we at urgent data? Stop if we have read anything or have SIGURG pending. */
-@@ -1428,7 +1433,6 @@ skip_copy:
- 
- #ifdef CONFIG_NET_DMA
- 	if (tp->ucopy.dma_chan) {
--		struct sk_buff *skb;
- 		dma_cookie_t done, used;
- 
- 		dma_async_memcpy_issue_pending(tp->ucopy.dma_chan);
+Fair enough. You seem to only use it in drivers/net/ehea/ehea_qmr.c, if
+so put the definition in there, that way someone is less likely to use
+the EHEA_PAGESIZE definition where they really need PAGE_SIZE.
+
+cheers
+
+--=20
+Michael Ellerman
+IBM OzLabs
+
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-C70jxZ6nTIR1cf7UISPn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBE4m27dSjSd0sB4dIRAjJoAKCYSuXQcxeK2D8QexOog2psXm/5AACdF9fl
+k8KV682WSg2uHhJ8396+34o=
+=23RL
+-----END PGP SIGNATURE-----
+
+--=-C70jxZ6nTIR1cf7UISPn--
 

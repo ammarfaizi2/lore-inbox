@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWHPQki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWHPQle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWHPQki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWHPQki
+	id S1751210AbWHPQle (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHPQle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:40:38 -0400
-Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:51377 "HELO
-	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751184AbWHPQkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:40:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type;
-  b=5rAWmEu+do47zdwnLOHedfiaMj5YCfDT9RgLLOOrvlizxWnx8SMcIj69ISJuJHbWCdnOxX4lxKVoDiKy/LzaEx0uKsTrc7TLZ5WNkqJN50fmviKPI9WfeLlAr2PQgN0PBim7VuiUAKT/Y7b9oz/V07GB+B7BjLhkEnXHvz18lE0=  ;
-Message-ID: <20060816164036.32867.qmail@web25805.mail.ukl.yahoo.com>
-Date: Wed, 16 Aug 2006 16:40:36 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: CROSS_COMPILE issue
-To: sam@mars.ravnborg.org
-Cc: linux-kernel@vger.kernel.org
+	Wed, 16 Aug 2006 12:41:34 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:44162 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751210AbWHPQld (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:41:33 -0400
+Message-ID: <44E34AB9.4060403@garzik.org>
+Date: Wed, 16 Aug 2006 12:41:29 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Trivial kzalloc opportunity
+References: <1155745728.24077.354.camel@localhost.localdomain>
+In-Reply-To: <1155745728.24077.354.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Alan Cox wrote:
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-I met an issue when compiling kernel 2.6.18-rc4. I 
-cross compile the kernel for a MIPS target on a PC.
-MIPS architecture assigns CROSS_COMPILE in
-its arch/mips/Makefile but it is not included by the 
-main Makefile from the begining. So one of the
-consequence is that CC variable is not correctly
-set until arch's Makefile is included. It's set to "gcc"
-since CROSS_COMPILE is still not defined instead
-of "mips-linux-gcc". During this time CC variable is 
-used to setup CFLAGS for example.
+Your subject line should include an indication of which part of the 
+kernel you are touching...
 
-is it something known ?
+#1 of	http://linux.yyz.us/patch-format.html
+#2 of	http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+#12 of	Documentation/SubmittingPatches
 
-thanks
+Regards,
 
-Francis
-
+	Jeff
 
 

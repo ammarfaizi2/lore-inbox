@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWHPWlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWHPWpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWHPWlz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWHPWlz
+	id S1750915AbWHPWpv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHPWpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:41:55 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1449 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932303AbWHPWly (ORCPT
+	Wed, 16 Aug 2006 18:45:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20137 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750915AbWHPWpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:41:54 -0400
-Date: Thu, 17 Aug 2006 08:41:11 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
-Subject: Re: 'fbno' possibly used uninitialized in xfs_alloc_ag_vextent_small()
-Message-ID: <20060817084111.A2787212@wobbly.melbourne.sgi.com>
-References: <200608162327.34420.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200608162327.34420.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Wed, Aug 16, 2006 at 11:27:34PM +0200
+	Wed, 16 Aug 2006 18:45:51 -0400
+Date: Wed, 16 Aug 2006 15:45:32 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
+In-Reply-To: <Pine.LNX.4.64.0608161533580.19172@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0608161544080.19244@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <44E344A8.1040804@colorfullife.com> <Pine.LNX.4.64.0608161533580.19172@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesper,
-
-On Wed, Aug 16, 2006 at 11:27:34PM +0200, Jesper Juhl wrote:
-> (Please keep me on Cc since I'm not subscribed to the XFS lists)
-> 
-> The coverity checker found what looks to me like a valid case of 
-> potentially uninitialized variable use (see below).
-
-It looks invalid, but its not, once again.  To understand why this
-isn't a problem requires looking at the xfs_alloc_ag_vextent_small
-call sites (there's only two).  If (*flen==0) is passed back out,
-then the value in *fbno is discarded, always.
-
-> So basically, if we hit the 'else' branch, then 'fbno' has not been 
-> initialized and line 1490 will then use that uninitialized variable.
-> 
-> What would prevent that from happening at some time??
-
-Nothing.  But its not a problem in practice.  However, that final
-else branch is very much unlikely, so theres no real cost to just
-initialising the local fbno to NULLAGBLOCK in that branch, and we
-future proof ourselves a bit that way I guess (in case the callers
-ever change - pretty unlikely, but we may as well).  How does the
-patch below look to you?
-
-cheers.
-
--- 
-Nathan
+Some more minor fixes that my newer compiler on the i386 box discovered.
 
 
-Index: xfs-linux/xfs_alloc.c
+Index: linux-2.6.18-rc4/include/linux/allocator.h
 ===================================================================
---- xfs-linux.orig/xfs_alloc.c	2006-08-17 08:27:26.807943000 +1000
-+++ xfs-linux/xfs_alloc.c	2006-08-17 08:39:55.126710000 +1000
-@@ -1478,8 +1478,10 @@ xfs_alloc_ag_vextent_small(
- 	/*
- 	 * Can't allocate from the freelist for some reason.
- 	 */
--	else
-+	else {
-+		fbno = NULLAGBLOCK;
- 		flen = 0;
-+	}
- 	/*
- 	 * Can't do the allocation, give up.
- 	 */
+--- linux-2.6.18-rc4.orig/include/linux/allocator.h	2006-08-16 15:42:24.000000000 -0700
++++ linux-2.6.18-rc4/include/linux/allocator.h	2006-08-16 15:42:27.000000000 -0700
+@@ -66,7 +66,7 @@
+  * a page is freed.
+  */
+ struct page_allocator *ctor_and_dtor_for_page_allocator
+-	(const struct page_allocator *, unsigned long size, void *private,
++	(const struct page_allocator *, unsigned int size, void *private,
+ 		void (*ctor)(void *, void *, unsigned long),
+                 void (*dtor)(void *, void *, unsigned long));
+ 
+Index: linux-2.6.18-rc4/mm/allocator.c
+===================================================================
+--- linux-2.6.18-rc4.orig/mm/allocator.c	2006-08-16 15:42:24.000000000 -0700
++++ linux-2.6.18-rc4/mm/allocator.c	2006-08-16 15:42:27.000000000 -0700
+@@ -123,8 +123,8 @@
+ static void page_free_rcu(struct rcu_head *h)
+ {
+ 	struct page *page;
+-	struct page_allocator * base;
+-	int order = page->index;
++	struct page_allocator *base;
++	int order;
+ 
+  	page = container_of((struct list_head *)h, struct page, lru);
+ 	base = (void *)page->mapping;
+@@ -228,7 +228,7 @@
+ 
+ struct page_allocator *ctor_and_dtor_for_page_allocator
+ 	(const struct page_allocator *base,
+-		size_t size, void *private,
++		unsigned int size, void *private,
+ 		void (*ctor)(void *, void *, unsigned long),
+ 		void (*dtor)(void *, void *, unsigned long))
+ {
+@@ -318,7 +318,7 @@
+ 	struct slabr *r = (void *) rcu;
+ 	struct slab_cache *s = r->s;
+ 	struct rcuified_slab *d = (void *)s->slab_alloc;
+-	void *object = (void *)object - d->rcu_offset;
++	void *object = (void *)rcu - d->rcu_offset;
+ 
+ 	d->base->free(s, object);
+ }

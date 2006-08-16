@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWHPWQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWHPWRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWHPWQS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWHPWQS
+	id S932239AbWHPWRY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWHPWRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:16:18 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:61140 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750730AbWHPWQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:16:18 -0400
-Date: Wed, 16 Aug 2006 15:16:00 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
-In-Reply-To: <44E344A8.1040804@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0608161515110.18878@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
- <44E344A8.1040804@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Aug 2006 18:17:24 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:1719 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932239AbWHPWRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 18:17:23 -0400
+Subject: [PATCH] rcu: Fix incorrect description of default for rcutorture
+	nreaders parameter
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Paul McKenney <paulmck@us.ibm.com>,
+       Dipkanar Sarma <dipankar@in.ibm.com>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 15:17:04 -0700
+Message-Id: <1155766624.9175.34.camel@josh-work.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006, Manfred Spraul wrote:
+The comment for the nreaders parameter of rcutorture gives the default as
+4*ncpus, but the value actually defaults to 2*ncpus; fix the comment.
 
-> The lack of virt_to_page() on vmalloc/mempool memory. always prevented the
-> slab allocator from handling such memory.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ kernel/rcutorture.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Guess you need this patch for the slabifier to make it work:
+diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+index 0778a3d..e34d22b 100644
+--- a/kernel/rcutorture.c
++++ b/kernel/rcutorture.c
+@@ -48,7 +48,7 @@ #include <linux/srcu.h>
+ 
+ MODULE_LICENSE("GPL");
+ 
+-static int nreaders = -1;	/* # reader threads, defaults to 4*ncpus */
++static int nreaders = -1;	/* # reader threads, defaults to 2*ncpus */
+ static int stat_interval;	/* Interval between stats, in seconds. */
+ 				/*  Defaults to "only at end of test". */
+ static int verbose;		/* Print more debug info. */
+-- 
+1.4.1.1
 
-Index: linux-2.6.18-rc4/mm/slabifier.c
-===================================================================
---- linux-2.6.18-rc4.orig/mm/slabifier.c	2006-08-16 14:25:18.449419152 -0700
-+++ linux-2.6.18-rc4/mm/slabifier.c	2006-08-16 15:13:18.687428561 -0700
-@@ -638,7 +638,12 @@ static struct page *get_object_page(cons
- {
- 	struct page * page;
- 
--	page = virt_to_page(x);
-+	if ((unsigned long)x >= VMALLOC_START &&
-+			(unsigned long)x < VMALLOC_END)
-+		page = vmalloc_to_page(x);
-+	else
-+		page = virt_to_page(x);
-+
- 	if (unlikely(PageCompound(page)))
- 		page = (struct page *)page_private(page);
- 
-Index: linux-2.6.18-rc4/mm/memory.c
-===================================================================
---- linux-2.6.18-rc4.orig/mm/memory.c	2006-08-06 11:20:11.000000000 -0700
-+++ linux-2.6.18-rc4/mm/memory.c	2006-08-16 15:14:01.595912665 -0700
-@@ -2432,7 +2432,7 @@ int make_pages_present(unsigned long add
- /* 
-  * Map a vmalloc()-space virtual address to the physical page.
-  */
--struct page * vmalloc_to_page(void * vmalloc_addr)
-+struct page * vmalloc_to_page(const void * vmalloc_addr)
- {
- 	unsigned long addr = (unsigned long) vmalloc_addr;
- 	struct page *page = NULL;
-Index: linux-2.6.18-rc4/include/linux/mm.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/mm.h	2006-08-06 11:20:11.000000000 -0700
-+++ linux-2.6.18-rc4/include/linux/mm.h	2006-08-16 15:14:25.875663886 -0700
-@@ -1013,7 +1013,7 @@ static inline unsigned long vma_pages(st
- }
- 
- struct vm_area_struct *find_extend_vma(struct mm_struct *, unsigned long addr);
--struct page *vmalloc_to_page(void *addr);
-+struct page *vmalloc_to_page(const void *addr);
- unsigned long vmalloc_to_pfn(void *addr);
- int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
- 			unsigned long pfn, unsigned long size, pgprot_t);
+

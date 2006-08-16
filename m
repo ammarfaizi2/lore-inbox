@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWHPBUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWHPB0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWHPBUj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 21:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWHPBUj
+	id S1750776AbWHPB0s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 21:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWHPB0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 21:20:39 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:25287 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750798AbWHPBUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 21:20:38 -0400
-Date: Wed, 16 Aug 2006 10:23:44 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: ebiederm@xmission.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com
-Subject: Re: [RFC] ps command race fix
-Message-Id: <20060816102344.b393aee6.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060813121222.8210ccc2.pj@sgi.com>
-References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724182000.2ab0364a.akpm@osdl.org>
-	<20060724184847.3ff6be7d.pj@sgi.com>
-	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724193318.d57983c1.akpm@osdl.org>
-	<20060725115004.a6c668ca.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060725121640.246a3720.kamezawa.hiroyu@jp.fujitsu.com>
-	<m1mza8wqdc.fsf@ebiederm.dsl.xmission.com>
-	<20060813103434.17804d52.akpm@osdl.org>
-	<m1zme8v4u9.fsf@ebiederm.dsl.xmission.com>
-	<20060813121222.8210ccc2.pj@sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Tue, 15 Aug 2006 21:26:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34473 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750776AbWHPB0r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 21:26:47 -0400
+Date: Wed, 16 Aug 2006 11:26:30 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
+Message-ID: <20060816112630.C2756824@wobbly.melbourne.sgi.com>
+References: <9a8748490608100431m244207b1v9c9c5087233fcf3a@mail.gmail.com> <20060811083546.B2596458@wobbly.melbourne.sgi.com> <9a8748490608101544n29f863e7o7584ac64f1d4c210@mail.gmail.com> <9a8748490608101552w12822fa6m415a5fb5537c744d@mail.gmail.com> <9a8748490608110133v5f973cf6w1af340f59bb229ec@mail.gmail.com> <9a8748490608110325k25c340e2yac925eb226d1fe4f@mail.gmail.com> <20060814120032.E2698880@wobbly.melbourne.sgi.com> <9a8748490608140049t492742cx7f826a9f40835d71@mail.gmail.com> <20060815190343.A2743401@wobbly.melbourne.sgi.com> <9a8748490608150442q4ad7a835r53400e9880da3175@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9a8748490608150442q4ad7a835r53400e9880da3175@mail.gmail.com>; from jesper.juhl@gmail.com on Tue, Aug 15, 2006 at 01:42:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Aug 2006 12:12:22 -0700
-Paul Jackson <pj@sgi.com> wrote:
+On Tue, Aug 15, 2006 at 01:42:27PM +0200, Jesper Juhl wrote:
+> On 15/08/06, Nathan Scott <nathans@sgi.com> wrote:
+> > If you can get the source
+> > and target names in the rename that'll help alot too... I can
+> > explain how to use KDB to get that, but maybe you have another
+> > debugger handy already?
+> >
+> An explanation of how exactely to do that would be greatly appreciated.
 
-> Eric wrote:
-> > Actually except when we can't find the process we were just at
-> > the current code doesn't miss any newly added processes. 
-> 
-> Random thought -- could we have file descriptors open on /proc put some
-> sort of 'hold' on whatever /proc entry they were just at, so it doesn't
-> disappear out from under them, even if that process has otherwise fully
-> exited?
-> 
+- patch in KDB
+- echo 127 > /proc/sys/fs/xfs/panic_mask
+[ filesystem shutdown now == panic ]
+- kdb> bt
+[ pick out parameters to rename from the backtrace ]
+- kdb> md 0xXXX
+[ gives a memory dump of the pointers to pathnames ]
 
-Sorry for long absense, I was on vacation.
+cheers.
 
-I and my colleague  are still working on ps command fix.
-
-For holding, I have a patch to insert a token in a list to remember its
-position. but my colleague may have another thought.
-
--Kame
-
+-- 
+Nathan

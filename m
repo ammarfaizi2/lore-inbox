@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWHPKAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWHPKFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWHPKAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 06:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWHPKAz
+	id S1751087AbWHPKFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 06:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWHPKFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 06:00:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23021 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751085AbWHPKAz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 06:00:55 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <29660.1155720852@warthog.cambridge.redhat.com> 
-References: <29660.1155720852@warthog.cambridge.redhat.com>  <20060815114912.d8fa1512.akpm@osdl.org> <20060815104813.7e3a0f98.akpm@osdl.org> <20060815065035.648be867.akpm@osdl.org> <20060814143110.f62bfb01.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <10791.1155580339@warthog.cambridge.redhat.com> <918.1155635513@warthog.cambridge.redhat.com> <29717.1155662998@warthog.cambridge.redhat.com> <6241.1155666920@warthog.cambridge.redhat.com> 
-To: Ian Kent <raven@themaw.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: 2.6.18-rc4-mm1 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 16 Aug 2006 11:00:39 +0100
-Message-ID: <30157.1155722439@warthog.cambridge.redhat.com>
+	Wed, 16 Aug 2006 06:05:04 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:27359 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751087AbWHPKFB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 06:05:01 -0400
+Message-ID: <44E2ED07.6070203@aitel.hist.no>
+Date: Wed, 16 Aug 2006 12:01:43 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Willy Tarreau <w@1wt.eu>, Irfan Habib <irfan.habib@gmail.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum number of processes in Linux
+References: <3420082f0608151059s40373a0bg4a1af3618c2b1a05@mail.gmail.com> <Pine.LNX.4.61.0608151419120.13947@chaos.analogic.com> <20060815182219.GL8776@1wt.eu> <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0608151511310.3138@chaos.analogic.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+linux-os (Dick Johnson) wrote:
+> Yep....
+>
+> #include <stdio.h>
+> #include <signal.h>
+> int main()
+> {
+>      unsigned long i;
+>      for(i = 0; ; i++)
+>      {
+>          switch(fork())
+>          {
+>          case 0:		// kid
+>  	pause();
+>          break;
+>          case -1:	// Failed
+>          printf("%lu\n", i);
+>              kill(0, SIGTERM);
+>              exit(0);
+>          default:
+>              break;
+>          }
+>      }
+>      return 0;
+> }
+>
+> Shows a consistent 6140.
+>   
+Doesn't work here.  Without ulimit, I wasn't surprised
+about the resulting OOM mess. 
 
-Hi Ian,
+Problem was, it never stopped.  I expected OOM to kill
+this program, and quite possibly lots of other running programs
+as well.  What I got, was ever-rolling OOM messages
+with stack traces inbetween. 
+2.6.18-rc4-mm1 never recovered and had to be killed by sysrq.
 
-I think this is probably a problem with the automounter daemon.
-
-What I think happens is this:
-
- (1) I've got an NFS server (trash) with the following configuration:
-
-	[root@trash dhowells]# cat /etc/exports 
-	/               *(rw,async)
-	/usr/src        *(rw,async)
-	/mnt/export     *(rw,async)
-
- (2) I do "ls -l" on the client to use the automounter to view the root NFS
-     share on the machine.
-
- (3) The automounter makes /net/trash and mounts trash:/ on it.
-
- (4) The automount daemon asks the server what other shares it has available.
-
- (5) For each share, the automounter attempts to create the directories on
-     which to mount it:
-
-	SHARE			DIRECTORIES TO BE CREATED
-	=======================	=============================================
-	trash:/usr/src		/net/trash/usr, /net/trash/usr/src
-	trash:/mnt/exports	/net/trash/mnt, /net/trash/mnt/exports
-
- (6) The automount daemon issued mkdir() syscalls to create these directories,
-     _despite_ the fact that it is doing so in a mounted filesystem.
-
- (7) SELinux prohibits the mkdir() syscall by refusing write permission on the
-     directory.
-
- (8) An unconstructed dentry is left, which causes the "?---------" lines to
-     appear in the ls -l listing.
+Helge Hafting
 
 
-With the new internal automounting code in NFS, the automounter shouldn't
-attempt to do step (4) onwards for submounts as the NFS filesystem itself will
-take care of that.
 
-And, in my opinion, it shouldn't be attempting to create directories on the
-server.
-
-However, (8) might well represent a bug in NFS.
-
-David

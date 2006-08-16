@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWHPCYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWHPCYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWHPCYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 22:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWHPCYr
+	id S1750819AbWHPCYE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 22:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWHPCXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 22:24:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:8365 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750830AbWHPCXb (ORCPT
+	Tue, 15 Aug 2006 22:23:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6829 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750827AbWHPCXZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 22:23:31 -0400
-Date: Tue, 15 Aug 2006 19:23:14 -0700 (PDT)
+	Tue, 15 Aug 2006 22:23:25 -0400
+Date: Tue, 15 Aug 2006 19:23:09 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: mpm@selenic.com
 Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
        Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
-       Christoph Lameter <clameter@sgi.com>, Dave Chinner <dgc@sgi.com>,
-       Manfred Spraul <manfred@colorfullife.com>
-Message-Id: <20060816022314.13379.59229.sendpatchset@schroedinger.engr.sgi.com>
+       Manfred Spraul <manfred@colorfullife.com>, Dave Chinner <dgc@sgi.com>,
+       Christoph Lameter <clameter@sgi.com>
+Message-Id: <20060816022309.13379.60403.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [MODSLAB 7/7] A slab allocator: Page Slab allocator
+Subject: [MODSLAB 6/7] A slab allocator: NUMA Slab allocator
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The page slab is a specialized slab allocator that can only handle
-page order size object. It directly uses the page allocator to
-track the objects and can therefore avoid the overhead of the
-slabifier.
+Simple NUMA slab allocator
 
-[Have not had time to test this one yet. Compiles... and
-its the simplest slab allocator of them all.]
+The NUMA slab allocator simply generates a slab per node
+on demand and uses the slabifier to manage per node
+slab caches.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.18-rc4/mm/page_slab.c
+Index: linux-2.6.18-rc4/mm/numa_slab.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-rc4/mm/page_slab.c	2006-08-15 18:57:03.553625883 -0700
-@@ -0,0 +1,145 @@
++++ linux-2.6.18-rc4/mm/numa_slab.c	2006-08-15 18:44:01.142994108 -0700
+@@ -0,0 +1,311 @@
 +/*
-+ * Page Slab implementation
-+ *
-+ * This is a special slab allocator that uses the page cache to manage
-+ * the objects. It is restricted to page size order allocations.
++ * NUMA slab implementation
 + *
 + * (C) 2006 Silicon Graphics Inc.
 + *		Christoph Lameter <clameter@sgi.com
@@ -50,165 +45,339 @@ Index: linux-2.6.18-rc4/mm/page_slab.c
 +
 +#include <linux/mm.h>
 +#include <linux/allocator.h>
++#include <linux/kmalloc.h>
++#include <linux/cpuset.h>
++#include <linux/mempolicy.h>
++#include <linux/interrupt.h>
 +#include <linux/module.h>
 +
++#define NUMA_SLAB_DEBUG
++
++//#define TPRINTK printk
++#define TPRINTK(x, ...)
++
 +/*
-+ * Allocator to use for the metadata
++ * Prelude : Numacontrol for allocators
 + */
-+#define baseslab slabifier_allocator
++struct numactl {
++	struct page_allocator a;
++	const struct page_allocator *base;
++	int node;
++	gfp_t flags;
++};
 +
-+static struct slab_cache *page_slab_cache;
++static struct page *numactl_alloc(const struct page_allocator *a,
++				int order, gfp_t flags, int node)
++{
++	struct numactl *d = (void *)a;
 +
-+struct page_slab {
++	if (d->node >= 0)
++		node = d->node;
++
++	return d->base->allocate(d->base, order, flags | d->flags, node);
++}
++
++
++struct page_allocator *numactl_allocator(const struct page_allocator *base,
++	int node, gfp_t flags)
++{
++	struct numactl *d =
++		kmalloc(sizeof(struct numactl), GFP_KERNEL);
++
++	d->a.allocate = numactl_alloc;
++	d->a.destructor = derived_destructor;
++	d->a.name = "numa";
++	d->base = base;
++	d->node = node;
++	d->flags = flags;
++	return &d->a;
++}
++
++/*
++ * Allocator on which we base this functionality.
++ */
++#define base slabifier_allocator
++
++static struct slab_cache *numa_cache;
++
++struct numa_slab {
 +	struct slab_cache sc;
 +	spinlock_t lock;
 +	atomic_t refcount;
-+	atomic_t pages;
++	struct slab_cache *node[MAX_NUMNODES];
 +};
 +
-+static struct slab_cache *page_slab_create
++static int __numa_slab_destroy(struct numa_slab *n)
++{
++	int node;
++
++	TPRINTK(KERN_CRIT "__numa_slab_destroy(%s)\n", n->sc.name);
++
++	for_each_node(node) {
++		base.free(NULL,n->node[node]);
++		n->node[node] = NULL;
++	}
++	return 0;
++}
++
++static struct slab_cache *bring_up_node(struct numa_slab *n, int node)
++{
++	struct slab_cache *s = n->node[node];
++	struct slab_cache *sc = &n->sc;
++
++	TPRINTK(KERN_CRIT "bring_up_node(%s, %d)\n", n->sc.name, node);
++	if (s)
++		return s;
++
++	spin_lock(&n->lock);
++	s = n->node[node];
++	if (s) {
++		spin_unlock(&n->lock);
++		return s;
++	}
++	s = n->node[node] = base.create(&base, sc->page_alloc, node,
++		sc->name, sc->size, sc->align, sc->order, sc->objsize, sc->inuse,
++		sc->offset);
++
++	spin_unlock(&n->lock);
++	return s;
++}
++
++static struct slab_cache *numa_slab_create
 +	(const struct slab_allocator *slab_alloc,
 +		const struct page_allocator *page_alloc, int node,
 +		const char *name, int size, int align, int order,
 +		int objsize, int inuse, int offset)
 +{
-+	struct page_slab *n;
++	struct numa_slab *n;
 +
-+	if (!page_slab_cache) {
-+		page_slab_cache = baseslab.create(&baseslab, page_alloc, node,
-+			"page_slab_cache",
-+			ALIGN(sizeof(struct page_slab), L1_CACHE_BYTES),
-+			L1_CACHE_BYTES, 0, sizeof(struct page_slab),
-+			sizeof(struct page_slab), 0);
-+		if (!page_slab_cache)
-+			panic("Cannot create page_slab cache\n");
++	TPRINTK(KERN_CRIT "numa_slab_create(%s, %s, %d, %s, %d, %d, %d ,%d ,%d ,%d)\n",
++			slab_alloc->name, page_alloc->name, node, name, size,
++			align, order, objsize, inuse, offset);
++
++	if (!numa_cache) {
++		numa_cache = base.create(&base, page_alloc, node, "numa_cache",
++			ALIGN(sizeof(struct numa_slab), L1_CACHE_BYTES),
++			L1_CACHE_BYTES, 0, sizeof(struct numa_slab),
++			sizeof(struct numa_slab), 0);
++		if (!numa_cache)
++			panic("Cannot create numa cache\n");
 +	}
 +
-+	n = baseslab.alloc(page_slab_cache, GFP_KERNEL);
++	n = base.alloc(numa_cache, in_atomic() ? GFP_ATOMIC : GFP_KERNEL);
 +	if (!n)
 +		return NULL;
 +
-+	memset(n, 0, sizeof(struct page_slab));
-+	slab_allocator_fill(&n->sc, slab_alloc, page_alloc, node, name, size,
-+			align, order, objsize, inuse, offset);
++	memset(n, 0, sizeof(struct numa_slab));
++	slab_allocator_fill(&n->sc, slab_alloc, page_alloc, node, name, size, align,
++			order, objsize, inuse, offset);
 +	spin_lock_init(&n->lock);
 +	atomic_set(&n->refcount, 1);
++
++	/* Do not bring up a node here. slabulator may set a constructor after the fact */
 +	return &n->sc;
 +}
 +
-+static void *page_slab_alloc_node(struct slab_cache *sc, gfp_t flags, int node)
-+{
-+	struct page_slab *n = (void *)sc;
-+	struct page * page;
++static void *numa_slab_alloc(struct slab_cache *sc, gfp_t flags);
 +
-+	page = sc->page_alloc->allocate(sc->page_alloc, sc->order,
-+					flags, node);
-+	atomic_inc(&n->pages);
-+	if (!page)
-+		return NULL;
-+	return page_address(page);
++static void *numa_slab_alloc_node(struct slab_cache *sc, gfp_t flags, int node)
++{
++	struct numa_slab *n = (void *)sc;
++	struct slab_cache *s;
++
++	TPRINTK(KERN_CRIT "numa_slab_alloc_node(%s, %x, %d)\n", sc->name, flags, node);
++
++	if (node < 0)
++		node = numa_node_id();
++
++	s = n->node[node];
++
++	if (unlikely(!s)) {
++		s = bring_up_node(n, node);
++		if (!s)
++			return NULL;
++	}
++	return base.alloc(s, flags);
 +}
 +
-+static void *page_slab_alloc(struct slab_cache *sc, gfp_t flags)
++static void *numa_slab_alloc(struct slab_cache *sc, gfp_t flags)
 +{
-+	return page_slab_alloc_node(sc, flags, -1);
++	int node = numa_node_id();
++
++	TPRINTK(KERN_CRIT "numa_slab_alloc(%s, %x)\n", sc->name, flags);
++
++	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))
++		&& !in_interrupt()) {
++		if (cpuset_do_slab_mem_spread())
++	 		node = cpuset_mem_spread_node();
++		else if (current->mempolicy)
++                	node = slab_node(current->mempolicy);
++	}
++	return numa_slab_alloc_node(sc, flags, node);
 +}
 +
-+static void page_slab_free(struct slab_cache *sc, const void *object)
++static int numa_slab_destroy(struct slab_cache *sc)
 +{
-+	struct page_slab *p = (void *)sc;
++	struct numa_slab *n = (void *)sc;
 +
-+	atomic_dec(&p->pages);
-+	return __free_pages(virt_to_page(object), sc ? sc->order : 0);
-+}
++	TPRINTK(KERN_CRIT "numa_slab_destroy(%s)\n", sc->name);
 +
-+static int page_slab_destroy(struct slab_cache *sc)
-+{
-+	struct page_slab *p = (void *)sc;
-+
-+	if (!atomic_dec_and_test(&p->refcount))
++	if (!atomic_dec_and_test(&n->refcount))
 +		return 0;
 +
-+	baseslab.free(page_slab_cache, sc);
++	__numa_slab_destroy(n);
 +	return 0;
 +}
 +
-+static int page_slab_pointer_valid(struct slab_cache *sc, const void *object)
++static int numa_slab_pointer_valid(struct slab_cache *sc, const void *object)
 +{
-+	struct page *page = virt_to_page(object);
++	struct numa_slab *n = (void *)sc;
++	int node;
 +
-+	return page_address(page) == object;
++	TPRINTK(KERN_CRIT "numa_slab_pointer_valid(%s, %p)\n", sc->name, object);
++
++	/* We can deduct from the allocator which node this is. */
++	node = ((struct numactl *)(sc->page_alloc))->node;
++	return base.valid_pointer(n->node[node], object);
 +}
 +
-+static unsigned long page_slab_object_size(struct slab_cache *sc,
-+					const void *object)
++static unsigned long numa_slab_object_size(struct slab_cache *sc,
++						 const void *object)
 +{
-+	return PAGE_SIZE << sc->order;
++	struct numa_slab *n = (void *)sc;
++	int node;
++
++	TPRINTK(KERN_CRIT "numa_slab_object_size(%s, %p)\n", sc->name, object);
++
++	/* We can deduct from the allocator which node this is. */
++	node = ((struct numactl *)(sc->page_alloc))->node;
++	return base.object_size(n->node[node], object);
 +}
 +
-+static struct slab_cache *page_slab_dup(struct slab_cache *sc)
++static void numa_slab_free(struct slab_cache *sc, const void *object)
 +{
-+	struct page_slab *p = (void *)sc;
++	TPRINTK(KERN_CRIT "numa_slab_free(%s, %p)\n", sc ? sc->name : "<none>", object);
++	base.free(NULL, object);
++}
 +
-+	atomic_inc(&p->refcount);
++static struct slab_cache *numa_slab_dup(struct slab_cache *sc)
++{
++	struct numa_slab *n = (void *)sc;
++
++	TPRINTK(KERN_CRIT "numa_slab_dup(%s)\n", sc->name);
++
++	atomic_inc(&n->refcount);
 +	return sc;
 +}
 +
-+static int page_slab_shrink(struct slab_cache *sc,
++static struct slab_cache *numa_slab_node(struct slab_cache *sc, int node)
++{
++	struct numa_slab *n = (void *)sc;
++	struct slab_cache *s = n->node[node];
++
++	return s;
++}
++
++static int numa_slab_shrink(struct slab_cache *sc,
 +	int (*move_object)(struct slab_cache *, void *))
 +{
-+	return 0;
++	struct numa_slab *n = (void *)sc;
++	int node;
++	int count = 0;
++
++	TPRINTK(KERN_CRIT "numa_slab_shrink(%s, %p)\n", sc->name, move_object);
++
++	/*
++	 * FIXME: What you really want to do here is to
++	 * run the shrinking on each node separately
++	 */
++	spin_lock(&n->lock);
++	for_each_node(node) {
++		struct slab_cache *s = n->node[node];
++
++		if (s)
++			count += base.shrink(n->node[node], move_object);
++	}
++	spin_unlock(&n->lock);
++	return count;
 +}
 +
-+static unsigned long page_slab_objects(struct slab_cache *sc,
++static unsigned long numa_slab_objects(struct slab_cache *sc,
 +	unsigned long *active, unsigned long *partial)
 +{
-+	struct page_slab *p = (void *)sc;
-+	return atomic_read(&p->pages);
++	struct numa_slab *n = (void *)sc;
++	int node;
++	unsigned long count = 0;
++	unsigned long count_active = 0;
++	unsigned long count_partial = 0;
++
++	printk(KERN_CRIT "numa_slab_objects(%s)\n", sc->name);
++
++	for_each_node(node) {
++		unsigned long nactive, npartial;
++		struct slab_cache *s = n->node[node];
++
++		if (!s)
++			continue;
++
++		count += base.objects(n->node[node], &nactive, &npartial);
++		count_active += nactive;
++		count_partial += npartial;
++	}
++	if  (active)
++		*active = count_active;
++	if (partial)
++		*partial = count_partial;
++	return count;
 +}
 +
-+struct slab_allocator page_slab_allocator = {
-+	.name = "PageSlab",
-+	.create = page_slab_create,
-+	.alloc = page_slab_alloc,
-+	.alloc_node = page_slab_alloc_node,
-+	.free = page_slab_free,
-+	.valid_pointer = page_slab_pointer_valid,
-+	.object_size = page_slab_object_size,
-+	.objects = page_slab_objects,
-+	.shrink = page_slab_shrink,
-+	.dup = page_slab_dup,
-+	.destroy = page_slab_destroy,
++const struct slab_allocator numa_slab_allocator = {
++	.name = "NumaSlab",
++	.create = numa_slab_create,
++	.alloc = numa_slab_alloc,
++	.alloc_node = numa_slab_alloc_node,
++	.free = numa_slab_free,
++	.valid_pointer = numa_slab_pointer_valid,
++	.object_size = numa_slab_object_size,
++	.objects = numa_slab_objects,
++	.shrink = numa_slab_shrink,
++	.dup = numa_slab_dup,
++	.node = numa_slab_node,
++	.destroy = numa_slab_destroy,
 +	.destructor = null_slab_allocator_destructor
 +};
-+EXPORT_SYMBOL(page_slab_allocator);
-+
++EXPORT_SYMBOL(numa_slab_allocator);
 Index: linux-2.6.18-rc4/mm/Makefile
 ===================================================================
---- linux-2.6.18-rc4.orig/mm/Makefile	2006-08-15 18:57:03.516518810 -0700
-+++ linux-2.6.18-rc4/mm/Makefile	2006-08-15 18:57:03.554602385 -0700
-@@ -26,4 +26,5 @@ obj-$(CONFIG_FS_XIP) += filemap_xip.o
+--- linux-2.6.18-rc4.orig/mm/Makefile	2006-08-15 18:37:53.847305724 -0700
++++ linux-2.6.18-rc4/mm/Makefile	2006-08-15 18:43:25.610031185 -0700
+@@ -25,4 +25,5 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
+ obj-$(CONFIG_FS_XIP) += filemap_xip.o
  obj-$(CONFIG_MIGRATION) += migrate.o
  obj-$(CONFIG_MODULAR_SLAB) += allocator.o kmalloc.o slabulator.o slabifier.o
- obj-$(CONFIG_NUMA_SLAB) += numa_slab.o
-+obj-$(CONFIG_PAGE_SLAB) += page_slab.o
++obj-$(CONFIG_NUMA_SLAB) += numa_slab.o
  
 Index: linux-2.6.18-rc4/init/Kconfig
 ===================================================================
---- linux-2.6.18-rc4.orig/init/Kconfig	2006-08-15 18:57:03.517495312 -0700
-+++ linux-2.6.18-rc4/init/Kconfig	2006-08-15 18:57:03.554602385 -0700
-@@ -418,6 +418,15 @@ config NUMA_SLAB
- 	bool "NUMA Slab allocator (for lots of memory)"
- 	depends on MODULAR_SLAB && NUMA
+--- linux-2.6.18-rc4.orig/init/Kconfig	2006-08-15 18:37:52.247795073 -0700
++++ linux-2.6.18-rc4/init/Kconfig	2006-08-15 18:43:25.611007687 -0700
+@@ -405,7 +405,7 @@ config SLAB
  
-+config PAGE_SLAB
-+	default n
-+	depends on MODULAR_SLAB
-+	bool "Page slab allocator"
-+	help
-+	  The page slab allocator is a form of slab allocator but it manges
-+	  page in order of pagesize through the page allocator. This allows
-+	  for efficient management of slab caches with huge objects.
+ config MODULAR_SLAB
+ 	default n
+-	bool "Use the modular slab allocator frameworkr"
++	bool "Modular SLAB allocator framework"
+ 	depends on EXPERIMENTAL
+ 	help
+ 	 The modular slab allocator framework allows the flexible use
+@@ -413,6 +413,11 @@ config MODULAR_SLAB
+ 	 allocation. This will completely replace the existing
+ 	 slab allocator. Beware this is experimental code.
+ 
++config NUMA_SLAB
++	default y
++	bool "NUMA Slab allocator (for lots of memory)"
++	depends on MODULAR_SLAB && NUMA
 +
  config VM_EVENT_COUNTERS
  	default y

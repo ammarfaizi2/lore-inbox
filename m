@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWHPOx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWHPOyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWHPOx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 10:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWHPOx6
+	id S932065AbWHPOyH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 10:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbWHPOyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 10:53:58 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:46729 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1751198AbWHPOx5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 10:53:57 -0400
-Date: Wed, 16 Aug 2006 23:17:48 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
+	Wed, 16 Aug 2006 10:54:07 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:59819 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932065AbWHPOyF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 10:54:05 -0400
+Date: Wed, 16 Aug 2006 16:52:17 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        containers@lists.osdl.org
-Subject: Re: [PATCH 2/7] pid: Add do_each_pid_task
-Message-ID: <20060816191748.GA579@oleg>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <11556661923847-git-send-email-ebiederm@xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11556661923847-git-send-email-ebiederm@xmission.com>
-User-Agent: Mutt/1.5.11
+Subject: Re: [PATCH 5/7] proc: Factor out an instantiate method from every
+ lookup method.
+In-Reply-To: <1155665132678-git-send-email-ebiederm@xmission.com>
+Message-ID: <Pine.LNX.4.61.0608161650160.23266@yvahk01.tjqt.qr>
+References: <m1u04d98wa.fsf@ebiederm.dsl.xmission.com>
+ <1155665132678-git-send-email-ebiederm@xmission.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/15, Eric W. Biederman wrote:
->  
-> +#define do_each_pid_task(pid, type, task)				\
-> +	if ((task = pid_task(pid, type))) {				\
-> +		prefetch(pid_next(task, type));				\
-> +		do {
-> +
-> +#define while_each_pid_task(pid, type, task)				\
-> +		} while (pid_next(task, type) &&  ({			\
-> +				task = pid_next_task(task, type);	\
-> +				rcu_dereference(task);			\
-> +				prefetch(pid_next(task, type));		\
-> +				1; }) );				\
-> +	}
+Hi,
 
-A small nit. Suppose a non-leader thread blocks a signal, and does
-exec. There is a window when we have 2 tasks with the same pid in
-PIDTYPE_PID namespace. If send_sigio() send the signal in that
-window, it will be delivered twice to process.
 
-Oleg.
+> 
+>-out_unlock2:
+>+ out:
 
+Whoops a space. I do not mind if you put a space in front of any label, but 
+at least be consistent over the whole code :)
+
+>+#ifdef CONFIG_SECURITY
+>+	inode->i_nlink += 1;
+>+#endif
+
+Maybe ++inode->i_nlink? (Same code block at another place)
+
+
+
+Jan Engelhardt
+-- 

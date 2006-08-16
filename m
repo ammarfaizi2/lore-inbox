@@ -1,978 +1,486 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750731AbWHPCJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750725AbWHPCJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWHPCJ5 (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 15 Aug 2006 22:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWHPCJk
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 22:09:40 -0400
-Received: from m5-82.163.com ([202.108.5.82]:33503 "HELO m5-82.163.com")
-	by vger.kernel.org with SMTP id S1750727AbWHPCJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1750725AbWHPCJg (ORCPT <rfc822;akpm@zip.com.au>);
 	Tue, 15 Aug 2006 22:09:36 -0400
-Date: Wed, 16 Aug 2006 10:09:07 +0800
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWHPCJg
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Aug 2006 22:09:36 -0400
+Received: from m5-82.163.com ([202.108.5.82]:33247 "HELO m5-82.163.com")
+	by vger.kernel.org with SMTP id S1750725AbWHPCJf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 22:09:35 -0400
+Date: Wed, 16 Aug 2006 10:09:12 +0800
 From: "liyu" <raise_sail@163.com>
 To: "linux-kernel" <linux-kernel@vger.kernel.org>
 Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Greg" <greg@kroah.com>,
         "linux-usb-devel" <linux-usb-devel@lists.sourceforge.net>
-Subject: [PATCH] usb: The HID Simple Driver Interface 0.3.1 (core)
+Subject: [PATCH] usb: Betop BTP-2118 joystick force-feedback driver
 X-mailer: Foxmail 5.0 [cn]
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="gb2312"
 Content-Transfer-Encoding: 7bit
-Message-Id: <44E27D22.04D60D.25433>
+Message-Id: <44E27D27.04D611.25849>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Chanelogs: (upto 20060814)
-	
-	1. add force-feedback driver support.
-	2. add simple driver module refcnt support.
-	3. add two CONFIG_HID_SIMPLE and CONFIG_HID_SIMPLE_FF Kconfig entries.
-	4. refactoring.
-	5. replace two semaphones with mutex.
-	6. some bugfixes.
+Changelogs:
 
-It also can apply on 2.6.17.6 and 2.6.17.8 at least.
+	1. the first release.
+
+NOTE:	This driver requires:
+	1.  [PATCH] usb: The HID Simple Driver Interface 0.3.1 (core)
+	2.  [PATCH] usb: HID Simple Driver Interface 0.3.1 (Kconfig and Makefile)
+
+It also can apply on 2.6.17.6 and 2.6.17.8 at least. 
 
 PS: I have not Subscribe linux-usb-devel maillist, please CC me your reply, thanks. 
 	
 Signed-off-by: Liyu <raise.sail@gmail.com>
 
-diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-core.c linux-2.6.17.7/drivers/usb/input/hid-core.c
---- linux-2.6.17.7/drivers/usb/input.orig/hid-core.c	2006-07-25 11:36:01.000000000 +0800
-+++ linux-2.6.17.7/drivers/usb/input/hid-core.c	2006-08-16 09:17:58.000000000 +0800
-@@ -26,6 +26,7 @@
- #include <asm/byteorder.h>
- #include <linux/input.h>
- #include <linux/wait.h>
-+#include <linux/mutex.h>
- 
- #undef DEBUG
- #undef DEBUG_DATA
-@@ -33,6 +34,9 @@
- #include <linux/usb.h>
- 
- #include "hid.h"
-+#ifdef CONFIG_HID_SIMPLE
-+#include "hid-simple.h"
-+#endif
- #include <linux/hiddev.h>
- 
- /*
-@@ -46,6 +50,17 @@
- 
- static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
- 				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
-+
-+#ifdef CONFIG_HID_SIMPLE
+diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/btp2118.c linux-2.6.17.7/drivers/usb/input/btp2118.c
+--- linux-2.6.17.7/drivers/usb/input.orig/btp2118.c	1970-01-01 08:00:00.000000000 +0800
++++ linux-2.6.17.7/drivers/usb/input/btp2118.c	2006-08-15 15:41:43.000000000 +0800
+@@ -0,0 +1,438 @@
 +/*
-+ * The global data structure for simple device driver interface.
-+ */
-+static DEFINE_MUTEX(matched_lock);
-+static DEFINE_MUTEX(simple_lock);
-+static struct list_head matched_devices_list;
-+static struct list_head simple_drivers_list;
-+#endif
-+
- /*
-  * Module parameters.
-  */
-@@ -785,8 +800,22 @@ static __inline__ int search(__s32 *arra
- static void hid_process_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, int interrupt, struct pt_regs *regs)
- {
- 	hid_dump_input(usage, value);
--	if (hid->claimed & HID_CLAIMED_INPUT)
-+	if (hid->claimed & HID_CLAIMED_INPUT) {
-+#ifdef CONFIG_HID_SIMPLE
-+		/* event filter here */
-+		if (hid->simple) {
-+			if (hid->simple->pre_event &&
-+				!hid->simple->pre_event(hid, field, usage, 
-+								value, regs))
-+			return;
-+		}
-+#endif
- 		hidinput_hid_event(hid, field, usage, value, regs);
-+#ifdef CONFIG_HID_SIMPLE
-+		if (hid->simple && hid->simple->post_event)
-+			hid->simple->post_event(hid, field, usage, value, regs);
-+#endif
-+	}
- 	if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt)
- 		hiddev_hid_event(hid, field, usage, value, regs);
- }
-@@ -832,7 +861,6 @@ static void hid_input_field(struct hid_d
- 			&& field->usage[field->value[n] - min].hid
- 			&& search(value, field->value[n], count))
- 				hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt, regs);
--
- 		if (value[n] >= min && value[n] <= max
- 			&& field->usage[value[n] - min].hid
- 			&& search(field->value, value[n], count))
-@@ -1977,7 +2005,11 @@ fail:
- static void hid_disconnect(struct usb_interface *intf)
- {
- 	struct hid_device *hid = usb_get_intfdata (intf);
--
-+#ifdef CONFIG_HID_SIMPLE
-+	struct list_head *node;
-+	struct matched_device *matched;
-+#endif
-+	
- 	if (!hid)
- 		return;
- 
-@@ -1991,8 +2023,32 @@ static void hid_disconnect(struct usb_in
- 	del_timer_sync(&hid->io_retry);
- 	flush_scheduled_work();
- 
--	if (hid->claimed & HID_CLAIMED_INPUT)
-+	if (hid->claimed & HID_CLAIMED_INPUT) {
-+#ifdef CONFIG_HID_SIMPLE
-+		matched = NULL;
-+		mutex_lock(&matched_lock);
-+		list_for_each(node, &matched_devices_list) {
-+			matched = list_entry(node, struct matched_device, node);
-+			if (matched->intf == intf) {
-+				list_del(&matched->node);
-+				break;
-+			}
-+			matched = NULL;
-+		}
-+		mutex_unlock(&matched_lock);
-+		/* disconnect simple device driver if need */
-+		if (matched && hid->simple) {
-+			hidinput_simple_driver_disconnect(hid);
-+			module_put(hid->simple->owner);
-+			hidinput_simple_driver_pop(hid, matched);
-+		}
-+		if (matched) {
-+			matched->intf = NULL;
-+			kfree(matched);
-+		}
-+#endif
- 		hidinput_disconnect(hid);
-+	}
- 	if (hid->claimed & HID_CLAIMED_HIDDEV)
- 		hiddev_disconnect(hid);
- 
-@@ -2005,12 +2061,150 @@ static void hid_disconnect(struct usb_in
- 	hid_free_device(hid);
- }
- 
-+#ifdef CONFIG_HID_SIMPLE
-+static int hidinput_simple_driver_bind_one(struct hidinput_simple_driver *simple,
-+							struct hid_device *hid,
-+						struct matched_device *matched)
-+{
-+	int ret;
-+
-+	if (!try_module_get(simple->owner))
-+		return -ENODEV;
-+	ret = hidinput_simple_driver_connect(simple, hid);
-+	if (ret)
-+		goto exit_err;
-+	ret = hidinput_simple_driver_push(hid, simple, matched);
-+	if (ret)
-+		goto exit_err;
-+	hidinput_simple_driver_setup_usage(hid);
-+	printk(KERN_INFO"The simple HID driver \'%s\' attach on\'%s\'\n",
-+						simple->name, hid->name);
-+	goto exit;
-+exit_err:
-+	module_put(simple->owner);
-+exit:
-+	return ret;
-+}
-+
-+static void hidinput_simple_driver_bind_foreach(void)
-+{
-+	struct hidinput_simple_driver *simple;
-+	struct matched_device *matched=NULL;
-+	struct list_head *matched_node = NULL;
-+	struct list_head *simple_node = NULL;
-+	struct hid_device *hid=NULL;
-+
-+	mutex_lock(&matched_lock);
-+	list_for_each(matched_node, &matched_devices_list) {
-+		matched = list_entry(matched_node, struct matched_device, node);
-+		hid = usb_get_intfdata(matched->intf);
-+		if (hid->simple)
-+			continue;
-+		mutex_lock(&simple_lock);
-+		list_for_each(simple_node, &simple_drivers_list) {
-+			simple = list_entry(simple_node, struct hidinput_simple_driver, node);
-+
-+			if (test_bit(HIDINPUT_SIMPLE_CONNECTED, &simple->flags))
-+				continue;
-+			if (!usb_match_id(matched->intf, simple->id_table))
-+				continue;
-+			hidinput_simple_driver_bind_one(simple, hid, matched);
-+		}
-+		mutex_unlock(&simple_lock);
-+	}
-+	mutex_unlock(&matched_lock);
-+}
-+
-+static void hidinput_simple_driver_bind_foreach_simple(
-+						struct matched_device *matched)
-+{
-+	struct hidinput_simple_driver *simple;
-+	struct list_head *node;
-+	struct hid_device *hid;
-+	
-+	if (!matched->intf)
-+		return;
-+	hid = usb_get_intfdata (matched->intf);
-+	if (!hid || hid->simple)
-+		return;
-+
-+	mutex_lock(&simple_lock);
-+	list_for_each(node, &simple_drivers_list) {
-+		simple = list_entry(node, struct hidinput_simple_driver, node);
-+		if (test_bit(HIDINPUT_SIMPLE_CONNECTED, &simple->flags))
-+			continue;
-+		if (usb_match_id(matched->intf, simple->id_table)) {
-+			hidinput_simple_driver_bind_one(simple, hid, matched);
-+			break;
-+		}
-+	}
-+	mutex_unlock(&simple_lock);
-+}
-+
-+static void hidinput_simple_driver_bind_foreach_matched(
-+					struct hidinput_simple_driver *simple)
-+{
-+	struct list_head *node=NULL;
-+	struct matched_device *matched;
-+	struct hid_device *hid=NULL;
-+
-+	if (!simple || test_bit(HIDINPUT_SIMPLE_CONNECTED, &simple->flags))
-+		return;
-+
-+	mutex_lock(&matched_lock);
-+	list_for_each(node, &matched_devices_list) {
-+		matched = list_entry(node, struct matched_device, node);
-+		hid = usb_get_intfdata (matched->intf);
-+		if (hid->simple)
-+			continue;
-+		if (!usb_match_id(matched->intf, simple->id_table))
-+			continue;
-+		hidinput_simple_driver_bind_one(simple, hid, matched);
-+	}
-+	mutex_unlock(&matched_lock);
-+}
-+
-+int hidinput_register_simple_driver(struct hidinput_simple_driver *simple)
-+{
-+	if (!simple || !simple->name)
-+		return -EINVAL;
-+
-+	printk(KERN_INFO"The simple HID driver \'%s\' register.\n", 
-+								simple->name);
-+	hidinput_simple_driver_init(simple);
-+	hidinput_simple_driver_bind_foreach_matched(simple);
-+
-+	mutex_lock(&simple_lock);
-+	list_add(&simple->node, &simple_drivers_list);
-+	mutex_unlock(&simple_lock);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(hidinput_register_simple_driver);
-+
-+void hidinput_unregister_simple_driver(struct hidinput_simple_driver *simple)
-+{
-+	printk(KERN_INFO"The simple HID driver \'%s\' unregister.\n", 
-+							simple->name);
-+	hidinput_simple_driver_clear(simple);
-+	mutex_lock(&simple_lock);
-+	list_del(&simple->node);
-+	mutex_unlock(&simple_lock);
-+	/* to active simple device driver that it is waiting */
-+	hidinput_simple_driver_bind_foreach();
-+}
-+EXPORT_SYMBOL_GPL(hidinput_unregister_simple_driver);
-+#endif
-+
- static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
- {
- 	struct hid_device *hid;
- 	char path[64];
- 	int i;
- 	char *c;
-+#ifdef CONFIG_HID_SIMPLE
-+	struct matched_device *matched;
-+#endif
- 
- 	dbg("HID probe called for ifnum %d",
- 			intf->altsetting->desc.bInterfaceNumber);
-@@ -2021,13 +2215,24 @@ static int hid_probe(struct usb_interfac
- 	hid_init_reports(hid);
- 	hid_dump_device(hid);
- 
--	if (!hidinput_connect(hid))
-+	usb_set_intfdata(intf, hid);
-+
-+	if (!hidinput_connect(hid)) {
-+#ifdef CONFIG_HID_SIMPLE
-+		matched = kmalloc(sizeof(struct matched_device), GFP_KERNEL);
-+		if (matched) {
-+			matched->intf = intf;
-+			mutex_lock(&matched_lock);
-+			list_add(&matched->node, &matched_devices_list);
-+			mutex_unlock(&matched_lock);
-+			hidinput_simple_driver_bind_foreach_simple(matched);
-+		}
-+#endif
- 		hid->claimed |= HID_CLAIMED_INPUT;
-+	}
- 	if (!hiddev_connect(hid))
- 		hid->claimed |= HID_CLAIMED_HIDDEV;
- 
--	usb_set_intfdata(intf, hid);
--
- 	if (!hid->claimed) {
- 		printk ("HID device not claimed by input or hiddev\n");
- 		hid_disconnect(intf);
-@@ -2108,6 +2313,10 @@ static int __init hid_init(void)
- 	retval = hiddev_init();
- 	if (retval)
- 		goto hiddev_init_fail;
-+#ifdef CONFIG_HID_SIMPLE
-+	INIT_LIST_HEAD(&matched_devices_list);
-+	INIT_LIST_HEAD(&simple_drivers_list);
-+#endif
- 	retval = usb_register(&hid_driver);
- 	if (retval)
- 		goto usb_register_fail;
-@@ -2122,7 +2331,18 @@ hiddev_init_fail:
- 
- static void __exit hid_exit(void)
- {
-+#ifdef CONFIG_HID_SIMPLE
-+	struct list_head *node, *tmp;
-+	struct matched_device *matched;
-+#endif
- 	usb_deregister(&hid_driver);
-+#ifdef CONFIG_HID_SIMPLE
-+	list_for_each_safe(node, tmp, &matched_devices_list) {
-+		matched = list_entry(node, struct matched_device, node);
-+		list_del(&matched->node);
-+		kfree(matched);
-+	}
-+#endif
- 	hiddev_exit();
- }
- 
-diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid.h linux-2.6.17.7/drivers/usb/input/hid.h
---- linux-2.6.17.7/drivers/usb/input.orig/hid.h	2006-07-25 11:36:01.000000000 +0800
-+++ linux-2.6.17.7/drivers/usb/input/hid.h	2006-08-15 15:41:50.000000000 +0800
-@@ -380,8 +380,13 @@ struct hid_input {
- 	struct list_head list;
- 	struct hid_report *report;
- 	struct input_dev *input;
-+	void *private;
- };
- 
-+#ifdef CONFIG_HID_SIMPLE
-+struct hidinput_simple_driver;
-+#endif
-+
- struct hid_device {							/* device report descriptor */
- 	 __u8 *rdesc;
- 	unsigned rsize;
-@@ -445,6 +450,10 @@ struct hid_device {							/* device repo
- 	int (*ff_event)(struct hid_device *hid, struct input_dev *input,
- 			unsigned int type, unsigned int code, int value);
- 
-+#ifdef CONFIG_HID_SIMPLE
-+	struct hidinput_simple_driver *simple;
-+#endif
-+
- #ifdef CONFIG_USB_HIDINPUT_POWERBOOK
- 	unsigned long pb_pressed_fn[NBITS(KEY_MAX)];
- 	unsigned long pb_pressed_numlock[NBITS(KEY_MAX)];
-diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-input.c linux-2.6.17.7/drivers/usb/input/hid-input.c
---- linux-2.6.17.7/drivers/usb/input.orig/hid-input.c	2006-07-25 11:36:01.000000000 +0800
-+++ linux-2.6.17.7/drivers/usb/input/hid-input.c	2006-08-16 09:23:37.000000000 +0800
-@@ -36,7 +36,9 @@
- #undef DEBUG
- 
- #include "hid.h"
--
-+#ifdef CONFIG_HID_SIMPLE
-+#include "hid-simple.h"
-+#endif
- #define unk	KEY_UNKNOWN
- 
- static const unsigned char hid_keyboard[256] = {
-@@ -63,6 +65,8 @@ static const struct {
- 	__s32 y;
- }  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
- 
-+typedef void (*do_usage_t)(struct hid_field *, struct hid_usage *);
-+
- #define map_abs(c)	do { usage->code = c; usage->type = EV_ABS; bit = input->absbit; max = ABS_MAX; } while (0)
- #define map_rel(c)	do { usage->code = c; usage->type = EV_REL; bit = input->relbit; max = REL_MAX; } while (0)
- #define map_key(c)	do { usage->code = c; usage->type = EV_KEY; bit = input->keybit; max = KEY_MAX; } while (0)
-@@ -736,8 +740,16 @@ static int hidinput_input_event(struct i
- 	struct hid_field *field;
- 	int offset;
- 
--	if (type == EV_FF)
-+	if (type == EV_FF) {
-+#ifdef CONFIG_HID_SIMPLE_FF
-+		if (hid->simple && hid->simple->ff_event) {
-+			if (!hid->simple->ff_event(dev, type, code, value));
-+				return 0;
-+		}
-+#else
- 		return hid_ff_event(hid, dev, type, code, value);
-+#endif
-+	}
- 
- 	if (type != EV_LED)
- 		return -1;
-@@ -756,15 +768,63 @@ static int hidinput_input_event(struct i
- static int hidinput_open(struct input_dev *dev)
- {
- 	struct hid_device *hid = dev->private;
-+#ifdef CONFIG_HID_SIMPLE_FF
-+	int ret = 0;
-+
-+	if (hid->simple && hid->simple->open)
-+		ret = hid->simple->open(dev);
-+	if (!ret)
-+		return hid_open(hid);
-+	else
-+		return ret;
-+#else
- 	return hid_open(hid);
-+#endif
- }
- 
- static void hidinput_close(struct input_dev *dev)
- {
- 	struct hid_device *hid = dev->private;
-+
-+#ifdef CONFIG_HID_SIMPLE_FF
-+	if (hid->simple && hid->simple->close)
-+		hid->simple->close(dev);
-+#endif
- 	hid_close(hid);
- }
- 
-+#ifdef CONFIG_HID_SIMPLE_FF
-+static int hidinput_upload_effect(struct input_dev *dev, struct ff_effect *effect)
-+{
-+	struct hid_device *hid;
-+
-+	hid = dev->private;
-+	if (hid->simple && hid->simple->upload_effect)
-+		return hid->simple->upload_effect(dev, effect);
-+	return 0;
-+}
-+
-+static int hidinput_erase_effect(struct input_dev *dev, int effect_id)
-+{
-+	struct hid_device *hid;
-+
-+	hid = dev->private;
-+	if (hid->simple && hid->simple->erase_effect)
-+		return hid->simple->erase_effect(dev, effect_id);
-+	return 0;
-+}
-+
-+static int hidinput_flush(struct input_dev *dev, struct file *filep)
-+{
-+	struct hid_device *hid;
-+
-+	hid = dev->private;
-+	if (hid->simple && hid->simple->flush)
-+		return hid->simple->flush(dev, filep);
-+	return 0;
-+}
-+#endif
-+
- /*
-  * Register the input device; print a message.
-  * Configure the input layer interface
-@@ -810,7 +870,11 @@ int hidinput_connect(struct hid_device *
- 				input_dev->event = hidinput_input_event;
- 				input_dev->open = hidinput_open;
- 				input_dev->close = hidinput_close;
--
-+#ifdef CONFIG_HID_SIMPLE_FF			
-+				input_dev->upload_effect = hidinput_upload_effect;
-+				input_dev->erase_effect = hidinput_erase_effect;
-+				input_dev->flush = hidinput_flush;
-+#endif
- 				input_dev->name = hid->name;
- 				input_dev->phys = hid->phys;
- 				input_dev->uniq = hid->uniq;
-@@ -849,6 +913,293 @@ int hidinput_connect(struct hid_device *
- 	return 0;
- }
- 
-+#ifdef CONFIG_HID_SIMPLE
-+int hidinput_simple_driver_init(struct hidinput_simple_driver *drv)
-+{
-+	if (unlikely(!drv))
-+		return -EINVAL;
-+	INIT_LIST_HEAD(&drv->node);
-+	INIT_LIST_HEAD(&drv->raw_devices);
-+	drv->flags = 0;
-+	return 0;
-+}
-+
-+#define SET_BIT (1)
-+#define CLR_BIT (0)
-+static void inline hidinput_simple_configure_one_usage(int op, 
-+						struct input_dev *input,
-+						struct hid_usage *usage,
-+						struct usage_block *usage_block)
-+{
-+	unsigned long *bits;
-+	int flag;
-+	struct hid_device *hid;
-+	
-+	hid = input->private;
-+	switch (usage_block->event) {
-+		case EV_KEY:
-+			flag = HIDINPUT_SIMPLE_KEYBIT;
-+			bits = input->keybit;
-+			break;
-+		case EV_REL:
-+			flag = HIDINPUT_SIMPLE_RELBIT;
-+			bits = input->relbit;
-+			break;
-+		case EV_ABS:
-+			flag = HIDINPUT_SIMPLE_ABSBIT;
-+			bits = input->relbit;
-+			break;
-+		case EV_MSC:
-+			flag = HIDINPUT_SIMPLE_MSCBIT;
-+			bits = input->absbit;
-+			break;
-+		case EV_SW:
-+			flag = HIDINPUT_SIMPLE_SWBIT;
-+			bits = input->swbit;
-+			break;
-+		case EV_LED:
-+			flag = HIDINPUT_SIMPLE_LEDBIT;
-+			bits = input->ledbit;
-+			break;
-+		case EV_SND:
-+			flag = HIDINPUT_SIMPLE_SNDBIT;
-+			bits = input->sndbit;
-+			break;
-+#ifdef CONFIG_HID_SIMPLE_FF
-+		case EV_FF:
-+			flag = HIDINPUT_SIMPLE_FFBIT;
-+			bits = input->ffbit;
-+			break;
-+		case EV_FF_STATUS:
-+			flag = HIDINPUT_SIMPLE_FFSTSBIT;
-+			bits = NULL;
-+			break;
-+#endif
-+		default:
-+			return;
-+	}
-+
-+	if (SET_BIT == op) {
-+		usage->code = usage_block->code;
-+		usage->type = usage_block->event;
-+		if (bits)
-+			set_bit(usage_block->code, bits);
-+		if (!test_and_set_bit(usage_block->event, input->evbit))
-+			set_bit(flag, &hid->simple->flags);
-+	}
-+	else if (CLR_BIT == op) {
-+		usage->code = 0;
-+		usage->type = 0;
-+		if (bits)
-+			clear_bit(usage_block->code, bits);
-+		if (test_and_clear_bit(flag, &hid->simple->flags))
-+			clear_bit(usage_block->event, input->evbit);
-+	}
-+}
-+
-+static do_usage_t hidinput_simple_driver_configure_usage_prep(
-+							struct hid_device *hid,
-+							int *op)
-+{
-+	do_usage_t do_usage;
-+	
-+	if (!hid->simple)
-+		return NULL;
-+
-+	if (test_bit(HIDINPUT_SIMPLE_SETUP_USAGE, &hid->simple->flags)) {
-+		do_usage = hid->simple->setup_usage;
-+		*op = SET_BIT;
-+	}
-+	else {
-+		do_usage = hid->simple->clear_usage;
-+		*op = CLR_BIT;
-+	}
-+	return do_usage;
-+}
-+
-+static void __hidinput_simple_driver_configure_usage(int op,
-+						struct hid_field *field,
-+						struct hid_usage *hid_usage)
-+{
-+	struct input_dev *input = field->hidinput->input;
-+	struct hid_device *hid = input->private;
-+	struct usage_block *usage_block;
-+	struct usage_page_block *page_block;
-+	int page;
-+	int usage;
-+	
-+	page = (hid_usage->hid & HID_USAGE_PAGE);
-+	usage = (hid_usage->hid & HID_USAGE);
-+	page_block = hid->simple->usage_page_table;
-+	for (;page_block && page_block->usage_blockes;page_block++) {
-+		if (page_block->page != page)
-+			continue;
-+		usage_block = page_block->usage_blockes;
-+		for (; usage_block && usage_block->usage; usage_block++) {
-+			if (usage_block->usage != usage)
-+				continue;
-+			hidinput_simple_configure_one_usage(op, input, 
-+						hid_usage, usage_block);
-+		}
-+	}
-+}
-+
-+/*
-+ *  To give one simple device a configure usage chance.
-+ *  The framework of this function come from hidinput_connect()
-+ */
-+void hidinput_simple_driver_configure_usage(struct hid_device *hid)
-+{
-+	struct hid_report *report;
-+	int i, j, k;
-+	do_usage_t do_usage;
-+	int op;
-+
-+	if (!hid->simple)
-+		return;
-+
-+	do_usage = hidinput_simple_driver_configure_usage_prep(hid, &op);
-+
-+	for (i = 0; i < hid->maxcollection; i++)
-+		if (hid->collection[i].type == HID_COLLECTION_APPLICATION ||
-+			hid->collection[i].type==HID_COLLECTION_PHYSICAL)
-+			if (IS_INPUT_APPLICATION(hid->collection[i].usage))
-+				break;
-+
-+	if (i == hid->maxcollection)
-+		return;
-+
-+	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
-+		list_for_each_entry(report, &hid->report_enum[k].report_list, list) {
-+			if (!report->maxfield)
-+				continue;
-+
-+			for (i = 0; i < report->maxfield; i++)
-+				for (j = 0; j < report->field[i]->maxusage; j++) {
-+					__hidinput_simple_driver_configure_usage(op, report->field[i], report->field[i]->usage + j);
-+					if (do_usage)
-+						do_usage(report->field[i],
-+						report->field[i]->usage + j);
-+				}
-+		}
-+
-+	return;
-+}
-+#undef SET_BIT
-+#undef CLR_BIT
-+
-+int hidinput_simple_driver_push(struct hid_device *hid, 
-+					struct hidinput_simple_driver *simple,
-+					struct matched_device *matched)
-+{
-+	struct raw_simple_device *raw_simple;
-+	
-+	raw_simple = kmalloc(sizeof(struct raw_simple_device), GFP_KERNEL);
-+	if (!raw_simple)
-+		return -ENOMEM;
-+	raw_simple->intf = matched->intf;
-+	hid = usb_get_intfdata(matched->intf);
-+	hid->simple = simple;
-+	list_add(&raw_simple->node, &simple->raw_devices);
-+	return 0;
-+}
-+
-+void hidinput_simple_driver_pop(struct hid_device *hid,
-+					struct matched_device *matched)
-+{
-+	struct list_head *node;
-+	struct raw_simple_device *raw_simple=NULL;
-+
-+	list_for_each (node, &hid->simple->raw_devices) {
-+		raw_simple = list_entry(node, struct raw_simple_device, node);
-+		if (raw_simple && raw_simple->intf == matched->intf) {
-+			hid->simple = NULL;
-+			list_del(&raw_simple->node);
-+			kfree(raw_simple);
-+			return;
-+		}
-+	}
-+}
-+
-+void hidinput_simple_driver_clear(struct hidinput_simple_driver *simple)
-+{
-+	struct raw_simple_device *raw_simple;
-+	struct hid_device *hid;
-+
-+	while (!list_empty_careful(&simple->raw_devices)) {
-+		raw_simple = list_entry(simple->raw_devices.next, 
-+					struct raw_simple_device, node);
-+		hid = usb_get_intfdata (raw_simple->intf);
-+		if (hid) {
-+			if (hid->simple) {
-+				BUG_ON(hid->simple != simple);
-+				hid->simple = NULL;
-+			}
-+			hidinput_simple_driver_clear_usage(hid);
-+			hidinput_simple_driver_disconnect(hid);
-+		}
-+		list_del_init(simple->raw_devices.next);
-+	}
-+}
-+
-+int hidinput_simple_driver_connect(struct hidinput_simple_driver *simple, 
-+						struct hid_device *hid)
-+{
-+	struct hid_input *hidinput, *next;
-+	int ret = -ENODEV;
-+
-+	if (!simple)
-+		goto exit;
-+	if (!simple->connect) {
-+		ret = 0;
-+		goto exit;
-+	}
-+
-+	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
-+		if (!simple->connect(hid, hidinput)) {
-+			hid->simple = simple;
-+			ret = 0;
-+		}
-+	}
-+exit:
-+	set_bit(HIDINPUT_SIMPLE_CONNECTED, &simple->flags);
-+	return ret;
-+}
-+
-+
-+void hidinput_simple_driver_disconnect(struct hid_device *hid)
-+{
-+	struct hid_input *hidinput, *next;
-+
-+	if (!hid || !hid->simple)
-+		return;
-+
-+	if (!hid->simple->disconnect)
-+		goto exit;
-+	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
-+		hid->simple->disconnect(hid, hidinput);
-+	}
-+exit:
-+	clear_bit(HIDINPUT_SIMPLE_CONNECTED, &hid->simple->flags);
-+	return;
-+}
-+
-+struct hid_input* hidinput_simple_inputdev_to_hidinput(struct input_dev *dev)
-+{
-+	struct hid_device *hid = dev->private;
-+	struct list_head *iter;
-+	struct hid_input *hidinput;
-+	
-+	list_for_each(iter, &hid->inputs) {
-+		hidinput = list_entry(iter, struct hid_input, list);
-+		if (hidinput->input == dev)
-+			return hidinput;
-+	}
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(hidinput_simple_inputdev_to_hidinput);
-+#endif
-+
- void hidinput_disconnect(struct hid_device *hid)
- {
- 	struct hid_input *hidinput, *next;
-diff -Naurp linux-2.6.17.7/drivers/usb/input.orig/hid-simple.h linux-2.6.17.7/drivers/usb/input/hid-simple.h
---- linux-2.6.17.7/drivers/usb/input.orig/hid-simple.h	1970-01-01 08:00:00.000000000 +0800
-+++ linux-2.6.17.7/drivers/usb/input/hid-simple.h	2006-08-15 09:43:09.000000000 +0800
-@@ -0,0 +1,162 @@
-+#ifdef CONFIG_HID_SIMPLE
-+/*
-+ *  NOTE:
-+ *	For use me , you must include hid.h in your source first. 
-+ */
-+#ifndef __HID_SIMPLE_H
-+#define __HID_SIMPLE_H
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/usb.h>
-+
-+/***** The public interface for simple device driver *****/
-+struct usage_block {
-+	int usage; /* usage code */
-+	int value; /* not used, for F_EVENT_BY_VALUE in future  */
-+	int event; /* input event type, e.g. EV_KEY. */
-+	int code;  /* input subsystem code, e.g. KEY_F1. */
-+	int flags; /* not used */
-+};
-+
-+struct usage_page_block {
-+	int page; /* usage page code */
-+	int flags; /* not used */
-+	struct usage_block *usage_blockes;
-+};
-+
-+/* usage_block flags list */
-+#define F_EVENT_BY_VALUE (0x1) /* submit input event by usage_block.value, 
-+				  not implement yet */
-+
-+#define USAGE_BLOCK(i_usage, i_value, i_event, i_code, i_flags) \
-+	{\
-+		.usage = (i_usage),\
-+		.value = (i_value),\
-+		.event = (i_event),\
-+		.code = (i_code),\
-+		.flags = (i_flags),\
-+	}
-+
-+#define USAGE_BLOCK_NULL {}
-+
-+#define USAGE_PAGE_BLOCK(i_page, i_usage_blockes) \
-+	{\
-+		.page = (i_page),\
-+		.usage_blockes = (i_usage_blockes),\
-+	}
-+
-+#define USAGE_PAGE_BLOCK_NULL {}
-+
-+#define __SIMPLE_DRIVER_INIT \
-+	.owner = THIS_MODULE,
-+
-+struct hidinput_simple_driver {
-+/* private */
-+	struct module *owner;
-+	struct list_head node; /* link with simple_drivers_list */
-+	struct list_head raw_devices;
-+	unsigned long flags;
-+/* public */
-+	char *name;
-+	int (*connect)(struct hid_device *, struct hid_input *);	
-+	void (*disconnect)(struct hid_device *, struct hid_input *);
-+	void (*setup_usage)(struct hid_field *,   struct hid_usage *);
-+	void (*clear_usage)(struct hid_field *,   struct hid_usage *);
-+	int (*pre_event)(const struct hid_device *, const struct hid_field *,
-+					const struct hid_usage *, const __s32,
-+					const struct pt_regs *regs);
-+	int (*post_event)(const struct hid_device *, const struct hid_field *,
-+					const struct hid_usage *, const __s32,
-+					const struct pt_regs *regs);
-+#ifdef CONFIG_HID_SIMPLE_FF
-+	int (*open)(struct input_dev *dev);
-+	void (*close)(struct input_dev *dev);
-+        int (*upload_effect)(struct input_dev *dev, struct ff_effect *effect);
-+        int (*erase_effect)(struct input_dev *dev, int effect_id);
-+	int (*flush)(struct input_dev *dev, struct file *file);
-+	int (*ff_event)(struct input_dev *dev, int type, int code, int value);
-+#endif
-+	struct usb_device_id *id_table;
-+	struct usage_page_block *usage_page_table;
-+	void *private;
-+};
-+
-+
-+int hidinput_register_simple_driver(struct hidinput_simple_driver *device);
-+void hidinput_unregister_simple_driver(struct hidinput_simple_driver *device);
-+struct hid_input* hidinput_simple_inputdev_to_hidinput(struct input_dev *dev);
-+
-+/********************* The public section end ***********/
-+
-+/***** The private section for simple device driver implement only *****/
-+
-+/* 
-+ *  matched_device record one device which hid-subsystem handle, it may 
-+ *  be one simple device can not handle.
++ *  Betop BTP-2118 joystick force-feedback driver
 + *
-+ *  The element of matched_device list is inserted at hidinput_connect(), 
-+ *  and is removed  at hidinput_disconnect().
-+ */ 
-+struct matched_device {
-+	struct usb_interface *intf;
-+	struct list_head node;
++ *  Version:	0.1.0
++ *
++ *  Copyright (c) 2006 Liyu <raise.sail@gmail.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/kernel.h>
++#include <linux/input.h>
++#include <linux/spinlock.h>
++#include <linux/timer.h>
++#include <linux/sched.h>
++#include "hid.h"
++#include "hid-simple.h"
++
++#define USB_ID_VENDOR	0x12bd
++#define USB_ID_PRODUCT	0xc003
++
++#define USAGE_PAGE_BTP_FF	0x008c0000 /* Bar Code Scanner ? */
++#define USAGE_BTP_FF	0x0002
++
++#define BTP_EFFECT_NONE	(-1)
++
++/* usb_btp_info->flags list */
++#define BTP_DISCONNECTING	0
++#define BTP_URB_DONE		1
++#define BTP_BUSY		2	/* avoid to resend urb */
++
++#define IS_BTP_DISCONNECTING(info) (test_bit(BTP_DISCONNECTING, &(info)->flags))
++#define IS_BTP_URB_DONE(info) \
++	(test_bit(BTP_URB_DONE|BTP_DISCONNECTING, &(info)->flags))
++#define IS_BTP_BUSY(info) (test_bit(BTP_BUSY, &(info)->flags))
++
++#define BTP_SET_DISCONNECTING(info) (set_bit(BTP_DISCONNECTING, &(info)->flags))
++#define BTP_SET_URB_DONE(info) (set_bit(BTP_URB_DONE, &(info)->flags))
++#define BTP_SET_BUSY(info)	(set_bit(BTP_BUSY, &(info)->flags))
++
++#define BTP_CLR_BUSY(info)	(clear_bit(BTP_BUSY, &(info)->flags))
++
++static spinlock_t btp_lock;
++
++struct usb_btp_info {
++	struct timer_list timer;
++	unsigned long flags;
++	/* default shock strength */
++	unsigned char left_strength;
++	unsigned char right_strength;
++	unsigned char start_packet[8];
++	unsigned char stop_packet[8];
++	/* ff data */
++	struct ff_effect	effects[8];
++	int running_effect;
++	int repeat;
++	/* usb data */
++	struct usb_ctrlrequest req;
++	struct usb_device *dev;
++	struct urb *ctrl0;	
++	unsigned int pipe0;
++	int timeout;
 +};
 +
-+/* 
-+ *  raw_simple_driver record one device which hid simple device handle.
-+ *  It used as one member of hid_simple_driver.
-+ */ 
-+
-+struct raw_simple_device {
-+	struct usb_interface *intf;
-+	struct list_head node;
++static struct usb_device_id btp_id_table[] = {
++	{
++		USB_DEVICE(USB_ID_VENDOR, USB_ID_PRODUCT)
++	},
++	{}
 +};
 +
-+void hidinput_simple_driver_configure_usage(struct hid_device *hid);
-+int hidinput_simple_driver_init(struct hidinput_simple_driver *simple);
-+int hidinput_simple_driver_push(struct hid_device *hid,
-+				struct hidinput_simple_driver *simple,
-+				struct matched_device *dev);
-+void hidinput_simple_driver_pop(struct hid_device *hid,
-+				struct matched_device *dev);
-+void hidinput_simple_driver_clear(struct hidinput_simple_driver *simple);
-+int hidinput_simple_driver_connect(struct hidinput_simple_driver *simple, 
-+							struct hid_device *hid);
-+void hidinput_simple_driver_disconnect(struct hid_device *hid);
++MODULE_DEVICE_TABLE(usb, btp_id_table);
 +
-+/* simple driver internal flags */
-+#define HIDINPUT_SIMPLE_SETUP_USAGE	(0x0)
-+#define HIDINPUT_SIMPLE_KEYBIT	(0x1)
-+#define HIDINPUT_SIMPLE_RELBIT	(0x2)
-+#define HIDINPUT_SIMPLE_ABSBIT	(0x3)
-+#define HIDINPUT_SIMPLE_MSCBIT	(0x4)
-+#define HIDINPUT_SIMPLE_SWBIT	(0x5)
-+#define HIDINPUT_SIMPLE_LEDBIT	(0x6)
-+#define HIDINPUT_SIMPLE_SNDBIT	(0x7)
-+#ifdef CONFIG_HID_SIMPLE_FF
-+#define HIDINPUT_SIMPLE_FFBIT	(0x8)
-+#define HIDINPUT_SIMPLE_FFSTSBIT	(0x9)
-+#endif
-+#define HIDINPUT_SIMPLE_CONNECTED	(0x1f)
++static char driver_name[] = "BETOP Vibration Gamepad (BTP-2118) Driver";
 +
-+static void inline hidinput_simple_driver_setup_usage(struct hid_device *hid)
++/* This gamepad reports three usages, but all are same. */
++static struct usage_block btp_ff_usage_block[] = {
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_GAIN, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_RUMBLE, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_CONSTANT, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_SPRING, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_FRICTION, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_DAMPER, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_INERTIA, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF, FF_RAMP, 0),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF_STATUS, 0, FF_STATUS_STOPPED),
++	USAGE_BLOCK(USAGE_BTP_FF, 0, EV_FF_STATUS, 0, FF_STATUS_PLAYING),
++	USAGE_BLOCK_NULL
++};
++
++static struct usage_page_block btp_ff_usage_page_blockes[] = {
++	USAGE_PAGE_BLOCK(USAGE_PAGE_BTP_FF, btp_ff_usage_block),
++	USAGE_PAGE_BLOCK_NULL
++};
++
++/* usb_complete_t */
++static void urb_complete(struct urb *urb, struct pt_regs *regs)
 +{
-+	if (hid && hid->simple) {
-+		set_bit(HIDINPUT_SIMPLE_SETUP_USAGE, &hid->simple->flags);
-+		hidinput_simple_driver_configure_usage(hid);
-+	}
++	struct usb_btp_info *info = urb->context;
++	
++	info = urb->context;
++	usb_unlink_urb(urb);
++	
++	if (IS_BTP_DISCONNECTING(info))
++		BTP_SET_URB_DONE(info);
++	BTP_CLR_BUSY(info);
 +}
 +
-+static void inline hidinput_simple_driver_clear_usage(struct hid_device *hid)
++static int inline btp_effect_request(struct usb_btp_info *info, char *packet)
 +{
-+	if (hid && hid->simple) {
-+		clear_bit(HIDINPUT_SIMPLE_SETUP_USAGE, &hid->simple->flags);
-+		hidinput_simple_driver_configure_usage(hid);
-+	}
++	if (IS_BTP_BUSY(info))
++		return -EBUSY;
++
++	usb_fill_control_urb (info->ctrl0, info->dev, info->pipe0,
++							(char*)&info->req,
++							packet,
++							info->req.wLength,
++							urb_complete,
++		                                        info);
++	BTP_SET_BUSY(info);
++	usb_submit_urb(info->ctrl0, GFP_ATOMIC);
++	return 0;
 +}
 +
-+/***** The private section end.  *****/
-+#endif /* __KERNEL__ */
-+#endif /* __HID_SIMPLE_H */
-+#endif /* CONFIG_HID_SIMPLE */
++/* run by usb_btp_info->timer */
++static void btp_effect_repeat(unsigned long data)
++{
++	struct usb_btp_info *info = (struct usb_btp_info*)data;
++
++	if (IS_BTP_DISCONNECTING(info))
++		return;
++
++	spin_lock(&btp_lock);
++	if (!info->repeat) {
++		info->running_effect = BTP_EFFECT_NONE;
++	} else {
++		mod_timer(&info->timer, jiffies+4*HZ);
++		BTP_CLR_BUSY(info);
++		btp_effect_request(info, info->start_packet);
++		--info->repeat;
++	}
++	spin_unlock(&btp_lock);
++}
++
++/* the caller must hold btp_lock first */
++static int btp_effect_start(struct hid_input *hidinput)
++{
++	struct usb_btp_info *info;
++
++	info = hidinput->private;
++	if (info)
++		return btp_effect_request(info, info->start_packet);
++	return -ENODEV;
++}
++
++/* the caller must hold btp_lock first */
++static int btp_effect_stop(struct hid_input *hidinput)
++{
++	struct usb_btp_info *info;
++
++	info = hidinput->private;
++	if (info)
++		return btp_effect_request(info, info->stop_packet);
++	return -ENODEV;
++}
++
++static int btp_connect(struct hid_device *hid, struct hid_input *hidinput)
++{
++	struct usb_btp_info *info;
++	
++	info = kzalloc(sizeof(struct usb_btp_info), GFP_KERNEL);
++	if (!info)
++		return -ENOMEM;	
++	info->ctrl0 = usb_alloc_urb(0, GFP_KERNEL);
++	if (!info->ctrl0) {
++		kfree(info);
++		return -ENOMEM;
++	}
++	/* Betop-2118 joystick default parameter */
++	info->left_strength = '\x14';
++	info->right_strength = '\x14';
++	info->req.bRequest = 0x9;
++	info->req.bRequestType = (USB_TYPE_CLASS|USB_RECIP_INTERFACE);
++	info->req.wIndex = 0x0;
++	info->req.wValue = 0x200;
++	info->req.wLength = 0x3;
++	info->timeout = USB_CTRL_SET_TIMEOUT;
++	info->dev = hid->dev;
++	info->pipe0 = usb_sndctrlpipe(hid->dev, 0);
++	info->start_packet[0] = info->left_strength;
++	info->start_packet[1] = info->right_strength;
++	info->running_effect = BTP_EFFECT_NONE;
++	init_timer(&info->timer);
++	info->timer.data = (unsigned long)info;
++	info->timer.function = btp_effect_repeat;
++	hidinput->private = info;
++	spin_lock_init(&btp_lock);
++	return 0;
++}
++
++static void inline btp_wait_for_effect(struct usb_btp_info *info)
++{
++	while ( info->flags && !IS_BTP_URB_DONE(info) )
++		schedule();
++	return;
++}
++
++static void btp_disconnect(struct hid_device *hid, struct hid_input *hidinput)
++{
++	struct usb_btp_info *info;
++	unsigned long flags;
++
++	if (!hidinput)
++		return;
++
++	spin_lock_irqsave(&btp_lock, flags);
++	info = hidinput->private;
++	if (IS_BTP_BUSY(info))
++		BTP_SET_DISCONNECTING(info);
++	info->repeat = 0;
++	spin_unlock_irqrestore(&btp_lock, flags);
++
++	del_timer_sync(&info->timer);
++	btp_wait_for_effect(info);
++
++	spin_lock_irqsave(&btp_lock, flags);
++	hidinput->private = NULL;
++	spin_unlock_irqrestore(&btp_lock, flags);
++
++	usb_free_urb(info->ctrl0);
++	kfree(info);
++}
++
++static void usb_btp_update_effect(struct hid_input *hidinput, int offset)
++{
++	struct usb_btp_info *info;
++
++	spin_lock(&btp_lock);
++	info = hidinput->private;
++	if (offset == info->running_effect) {
++		if (btp_effect_stop(hidinput))
++			goto exit;
++		if (info->effects[offset].type) {
++			if (btp_effect_start(hidinput))
++				goto exit;
++		}
++		else	/* remove effect */
++			del_timer(&info->timer);
++	}
++exit:
++	spin_unlock(&btp_lock);
++}
++
++static int btp_FF_GAIN_handler(struct hid_input *hidinput, int value)
++{
++	int offset;
++	unsigned char strength;
++	struct usb_btp_info *info;
++
++	if (value < 0 || value > 99)
++		return -EINVAL;
++	offset = (value>49); /*0 - left motor, 1 - right motor */
++	if (offset)
++		value -= 50;
++	if (!value) {
++		strength = 0;
++		goto exit0;
++	}
++	/* the range of value is from 1 to 50 */
++	/* this mapping value to shock strength (from 0xa to 0x1f) */
++	strength = ((21*value)+459)/48;
++exit0:
++	spin_lock(&btp_lock);
++	info = hidinput->private;
++	if (info)
++		info->start_packet[offset] = strength;
++	spin_unlock(&btp_lock);
++	return 0;
++}
++
++static int btp_ff_event(struct input_dev *dev, int type, int code, int value)
++{
++	struct hid_input *hidinput;
++	struct usb_btp_info *info;
++	int ret = 0;
++	int running_effect;
++
++	hidinput = hidinput_simple_inputdev_to_hidinput(dev);
++	if (!hidinput)
++		return -ENODEV;
++
++	spin_lock(&btp_lock);
++	info = hidinput->private;
++	if (!info || IS_BTP_DISCONNECTING(info)) {
++		ret = -ENODEV;
++		goto unlock_exit;
++	}
++	running_effect = info->running_effect;
++	spin_unlock(&btp_lock);
++
++	if (type == EV_FF_STATUS) {
++		if (code == running_effect)
++			input_report_ff_status(dev, code, FF_STATUS_PLAYING);
++		else
++			input_report_ff_status(dev, code, FF_STATUS_STOPPED);
++	}
++
++	if (type != EV_FF)
++		return -EINVAL;
++
++	switch (code) {
++		case FF_GAIN:
++			return btp_FF_GAIN_handler(hidinput, value);
++		default:
++			spin_lock(&btp_lock);
++			info = hidinput->private;
++			if (!info) {
++				ret = -ENODEV;
++				goto unlock_exit;
++			}
++			info->repeat = value;
++			if (value) {
++				if (btp_effect_start(hidinput))
++					goto unlock_exit;
++				if (value>1) {
++					del_timer(&info->timer);
++					mod_timer(&info->timer, jiffies+4*HZ);
++				}
++				info->running_effect = code;
++			}
++			else {
++				del_timer(&info->timer);
++				if (btp_effect_stop(hidinput))
++					goto unlock_exit;
++				info->running_effect = BTP_EFFECT_NONE;
++			}
++	}
++
++unlock_exit:
++	spin_unlock(&btp_lock);
++	return ret; 
++}
++
++static int inline btp_new_effect_id(void)
++{
++	static atomic_t effect_id= ATOMIC_INIT(0);
++	
++	atomic_inc(&effect_id);
++	return atomic_read(&effect_id);
++}
++
++static int btp_upload_effect(struct input_dev *dev, struct ff_effect *effect)
++{
++	struct hid_input *hidinput;
++	struct usb_btp_info *info;
++	int offset;
++
++	hidinput = hidinput_simple_inputdev_to_hidinput(dev);
++	if (!hidinput) {
++		return -ENODEV;
++	}
++	offset = effect->type - FF_RUMBLE;
++	effect->id = ((effect->id != -1) ?: btp_new_effect_id());
++	if (offset>=0 && offset<8) {
++		spin_lock(&btp_lock);
++		info = hidinput->private;
++		if (!info || IS_BTP_DISCONNECTING(info)) {
++			spin_unlock(&btp_lock);
++			return -ENODEV;
++		}
++		memcpy(info->effects+offset, effect, sizeof(struct ff_effect));
++		spin_unlock(&btp_lock);
++		usb_btp_update_effect(hidinput, effect->type);
++		return 0;
++	}
++	return -EINVAL;
++}
++
++static int btp_erase_effect(struct input_dev *dev, int effect_id)
++{	
++	struct hid_input *hidinput;
++	struct usb_btp_info *info;
++	int offset, ret=0;
++
++	hidinput = hidinput_simple_inputdev_to_hidinput(dev);
++	if (!hidinput) {
++		return -ENODEV;
++	}
++
++	spin_lock(&btp_lock);
++	info = hidinput->private;
++	if (!info || IS_BTP_DISCONNECTING(info)) {
++		spin_unlock(&btp_lock);
++		return -ENODEV;
++	}
++	for (offset=0; offset<8; ++offset) {
++		if (effect_id == info->effects[offset].id) {
++			memset(info->effects+offset, 0, sizeof(struct ff_effect));
++			break;
++		}
++	}
++	spin_unlock(&btp_lock);
++	usb_btp_update_effect(hidinput, offset);
++	return ret;
++}
++
++static struct hidinput_simple_driver btp_driver = {
++	__SIMPLE_DRIVER_INIT
++	.name = driver_name,
++	.connect = btp_connect,
++	.disconnect = btp_disconnect,
++	.ff_event = btp_ff_event,
++	.upload_effect = btp_upload_effect,
++	.erase_effect = btp_erase_effect,
++	.id_table = btp_id_table,
++	.usage_page_table = btp_ff_usage_page_blockes,
++	.private = NULL,
++};
++
++static int __init btp_init(void)
++{
++	return hidinput_register_simple_driver(&btp_driver);
++}
++
++static void __exit btp_exit(void)
++{
++	hidinput_unregister_simple_driver(&btp_driver);
++}
++
++module_init(btp_init);
++module_exit(btp_exit);
++
++MODULE_LICENSE("GPL");
 
 
 

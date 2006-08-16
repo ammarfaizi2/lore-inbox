@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWHPGbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWHPGfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWHPGbR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 02:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWHPGbR
+	id S1750790AbWHPGfX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 02:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWHPGfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 02:31:17 -0400
-Received: from outgoing3.smtp.agnat.pl ([193.239.44.85]:199 "EHLO
-	outgoing3.smtp.agnat.pl") by vger.kernel.org with ESMTP
-	id S1750941AbWHPGbQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 02:31:16 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1 -resend] Char: mxser, upgrade to 1.9.1
-Date: Wed, 16 Aug 2006 08:31:12 +0200
-User-Agent: KMail/1.9.4
-Cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       support@moxa.com.tw
-References: <mxser191resend3_ee43092305ba163fd5d4@wsc.cz> <20060815225346.cf7ca950.akpm@osdl.org>
-In-Reply-To: <20060815225346.cf7ca950.akpm@osdl.org>
+	Wed, 16 Aug 2006 02:35:23 -0400
+Received: from orion2.pixelized.ch ([195.190.190.13]:38309 "EHLO
+	mail.pixelized.ch") by vger.kernel.org with ESMTP id S1750790AbWHPGfV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 02:35:21 -0400
+Message-ID: <44E2BC9C.1000101@debian.org>
+Date: Wed, 16 Aug 2006 08:35:08 +0200
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608160831.12848.arekm@pld-linux.org>
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-X-Authenticated-Id: arekm
+To: David Miller <davem@davemloft.net>
+CC: 7eggert@gmx.de, 7eggert@elstempel.de, shemminger@osdl.org,
+       mitch.a.williams@intel.com, notting@redhat.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: bonding: cannot remove certain named devices
+References: <6KfTz-OX-11@gated-at.bofh.it>	<6KfTA-OX-15@gated-at.bofh.it>	<E1GD8rX-0001cA-CV@be1.lrz> <20060815.171002.104028951.davem@davemloft.net>
+In-Reply-To: <20060815.171002.104028951.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 August 2006 07:53, Andrew Morton wrote:
-> On Tue, 15 Aug 2006 04:00:14 -0700
->
-> Jiri Slaby <jirislaby@gmail.com> wrote:
-> > Change driver according to original 1.9.1 moxa driver. Some int->ulong
-> > conversions, outb ~UART_IER_THRI constant. Remove commented stuff.
-> >
-> > I also added printk line with info, if somebody wants to test it, he
-> > should contact me as I can potentially debug the driver with him or just
-> > to confirm it works properly.
->
-> Ho hum, this is hard.  I guess breaking the driver is one way to find out
-> who is using it, but those who redistribute the kernel for a living might
-> not appreciate the technique.
->
-> Perhaps we could create an mxser-new.c and offer that in config, plan to
-> remove mxser.c N months hence?
+David Miller wrote:
+> From: Bodo Eggert <7eggert@elstempel.de>
+> Date: Wed, 16 Aug 2006 02:02:03 +0200
+> 
+>> Stephen Hemminger <shemminger@osdl.org> wrote:
+>>
+>>> IMHO idiots who put space's in filenames should be ignored. As long as the
+>>> bonding code doesn't throw a fatal error, it has every right to return
+>>> "No such device" to the fool.
+>> Maybe you should limit device names to eight uppercase characters and up to
+>> three characters extension, too. NOT! There is no reason to artificially
+>> impose limitations on device names, so don't do that.
+> 
+> Are you willing to work to add the special case code necessary to
+> handle whitespace characters in the device name over all of the kernel
+> code and also all of the userland tools too?
 
-I can test the updated driver with  MOXA CP-168U series board if it will 
-compile on 2.6.12.6. Unfortunately I can't change kernel to latest one there. 
-Will testing on 2.6.12.6 be enough for you?
+But if you don't handle spaces in userspace, you handle *, ?, [, ], $,
+", ', \  in userspace? Should kernel disable also these (insane device
+chars) chars?
 
--- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+ciao
+	cate
+> 
+> No?  Great, I'm glad that's settled.
+

@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWHPSfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWHPShK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWHPSfE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWHPSfE
+	id S932185AbWHPShK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 14:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWHPShK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:35:04 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:28623 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932183AbWHPSfD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 14:35:03 -0400
-Date: Wed, 16 Aug 2006 20:35:04 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@muc.de>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Don Zickus <dzickus@redhat.com>
-Subject: Re: [PATCH] x86_64: Re-positioning the bss segment
-Message-ID: <20060816183504.GB5852@mars.ravnborg.org>
-References: <20060815214952.GB11719@in.ibm.com> <20060816170314.f16f8afa.ak@muc.de>
-MIME-Version: 1.0
+	Wed, 16 Aug 2006 14:37:10 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:30668 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932185AbWHPShJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 14:37:09 -0400
+Date: Wed, 16 Aug 2006 14:37:07 -0400
+To: Dirk <noisyb@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+Message-ID: <20060816183707.GD13641@csclub.uwaterloo.ca>
+References: <44E3552A.6010705@gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060816170314.f16f8afa.ak@muc.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <44E3552A.6010705@gmx.net>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 05:03:14PM +0200, Andi Kleen wrote:
- > 
-> > o This patch moves the bss at the end hence reducing the size of
-> >   bzImage by 896 bytes and size of vmlinux.bin by 600K.
-> > 
-> > o This change benefits in the context of relocatable kernel patches. If
-> >   kernel bss is not part of compressed data (vmlinux.bin) then it does
-> >   not have to be decompressed and this area can be used by the decompressor
-> >   for its execution hence keeping the memory requirements bounded and 
-> >   decompressor code does not stomp over any other data loaded beyond
-> >   kernel image (As might be the case with bootloaders like kexec).
+On Wed, Aug 16, 2006 at 07:26:02PM +0200, Dirk wrote:
+> I have changed a message that didn't clearly tell the user what was goin
+> on...
 > 
-> Merged thanks. 
-> 
-> Does i386 need a similar change?
-If it does then I suggest moving the BSS definition to
-include/asm-generic/vmlinux.lds.h
+> Please have a look!
 
-	Sam
+Perhaps the real problem is that some @#$@#$ user space task is
+constantly trying to mount the disc while something else is trying to
+write to it.
+
+gnome and kde both seem very eager to implement such things.  perhaps
+there should be a way to prevent any access by such processes while
+writing to the disc.
+
+--
+Len Sorensen

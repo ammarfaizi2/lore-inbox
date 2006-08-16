@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWHPB0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWHPCNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWHPB0s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 21:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWHPB0s
+	id S1750727AbWHPCNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 22:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHPCNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 21:26:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34473 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750776AbWHPB0r (ORCPT
+	Tue, 15 Aug 2006 22:13:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750727AbWHPCNY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 21:26:47 -0400
-Date: Wed, 16 Aug 2006 11:26:30 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
-Message-ID: <20060816112630.C2756824@wobbly.melbourne.sgi.com>
-References: <9a8748490608100431m244207b1v9c9c5087233fcf3a@mail.gmail.com> <20060811083546.B2596458@wobbly.melbourne.sgi.com> <9a8748490608101544n29f863e7o7584ac64f1d4c210@mail.gmail.com> <9a8748490608101552w12822fa6m415a5fb5537c744d@mail.gmail.com> <9a8748490608110133v5f973cf6w1af340f59bb229ec@mail.gmail.com> <9a8748490608110325k25c340e2yac925eb226d1fe4f@mail.gmail.com> <20060814120032.E2698880@wobbly.melbourne.sgi.com> <9a8748490608140049t492742cx7f826a9f40835d71@mail.gmail.com> <20060815190343.A2743401@wobbly.melbourne.sgi.com> <9a8748490608150442q4ad7a835r53400e9880da3175@mail.gmail.com>
+	Tue, 15 Aug 2006 22:13:24 -0400
+Date: Tue, 15 Aug 2006 19:13:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2/3] Create call_usermodehelper_pipe()
+Message-Id: <20060815191319.e535f5c6.akpm@osdl.org>
+In-Reply-To: <20060815142225.52cc86b3.akpm@osdl.org>
+References: <20060814 127.183332000@suse.de>
+	<20060814112731.5A16213BD9@wotan.suse.de>
+	<20060815142225.52cc86b3.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9a8748490608150442q4ad7a835r53400e9880da3175@mail.gmail.com>; from jesper.juhl@gmail.com on Tue, Aug 15, 2006 at 01:42:27PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 01:42:27PM +0200, Jesper Juhl wrote:
-> On 15/08/06, Nathan Scott <nathans@sgi.com> wrote:
-> > If you can get the source
-> > and target names in the rename that'll help alot too... I can
-> > explain how to use KDB to get that, but maybe you have another
-> > debugger handy already?
-> >
-> An explanation of how exactely to do that would be greatly appreciated.
+On Tue, 15 Aug 2006 14:22:25 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-- patch in KDB
-- echo 127 > /proc/sys/fs/xfs/panic_mask
-[ filesystem shutdown now == panic ]
-- kdb> bt
-[ pick out parameters to rename from the backtrace ]
-- kdb> md 0xXXX
-[ gives a memory dump of the pointers to pathnames ]
+> On Mon, 14 Aug 2006 13:27:31 +0200 (CEST)
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > +	/* Install input pipe when needed */
+> > +	if (sub_info->stdin) {
+> > +		struct files_struct *f = current->files;
+> > +		struct fdtable *fdt;
+> > +		/* no races because files should be private here */
+> > +		sys_close(0);
+> > +		fd_install(0, sub_info->stdin);
+> > +		spin_lock(&f->file_lock);
+> > +		fdt = files_fdtable(f);
+> > +		FD_SET(0, fdt->open_fds);
+> > +		FD_CLR(0, fdt->close_on_exec);
+> > +		spin_unlock(&f->file_lock);
+> > +	}
+> 
+> This is all going to be run by kernel threads, and all kernel threads share
+> current->files=&init_files.
 
-cheers.
+hm, that's wrong, isn't it - we're not using CLONE_FILES...
 
--- 
-Nathan
+So what we have is a copy of init_files.  So the sys_close(0) shouldn't be needed?

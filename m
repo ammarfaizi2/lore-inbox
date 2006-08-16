@@ -1,92 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWHPDoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHPDpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWHPDoI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 23:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWHPDoI
+	id S1750894AbWHPDpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 23:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWHPDpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 23:44:08 -0400
-Received: from web36605.mail.mud.yahoo.com ([209.191.85.22]:49776 "HELO
-	web36605.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750889AbWHPDoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 23:44:06 -0400
-Message-ID: <20060816034406.54724.qmail@web36605.mail.mud.yahoo.com>
-X-RocketYMMF: rancidfat
-Date: Tue, 15 Aug 2006 20:44:06 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC] [PATCH] file posix capabilities
-To: Albert Cahalan <acahalan@gmail.com>, serue@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       chrisw@sous-sol.org
-In-Reply-To: <787b0d920608151943k3d39b5b4v26f85cfbc527514c@mail.gmail.com>
+	Tue, 15 Aug 2006 23:45:31 -0400
+Received: from post-23.mail.nl.demon.net ([194.159.73.193]:56572 "EHLO
+	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S1750893AbWHPDpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 23:45:31 -0400
+Message-ID: <44E29546.904@rebelhomicide.demon.nl>
+Date: Wed, 16 Aug 2006 05:47:18 +0200
+From: "x@rebelhomicide.demon.nl" <x@rebelhomicide.demon.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Milton Mobley <miltmobley@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: need source for lspci, lsusb, etc.
+References: <af203d350608152014i475899cet53d21e07db42d4a2@mail.gmail.com>
+In-Reply-To: <af203d350608152014i475899cet53d21e07db42d4a2@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Milton Mobley wrote:
+> Hi, I am building kernels from kernel.org sources, and am having problems
+> detecting certain pci and usb devices (I didn't change the kernel code
+> much yet).
+> Where can I find the sources for programs that live in /sbin, 
+> /usr/sbin, etc.,
+> especially lspci, lsusb, lsmod?
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+Milton, your distribution of Linux should provide those.
+For Debian Linux for example, you'd do:
 
+$ dpkg -S lspci
+pciutils: /usr/bin/lspci
 
---- Albert Cahalan <acahalan@gmail.com> wrote:
+..and you note that lspci is in the 'pciutils' package.
+You could then do as follows:
 
-> Casey Schaufler writes:
-> > --- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> 
-> >> +    bprm->cap_effective = fscaps[0];
-> >> +    bprm->cap_inheritable = fscaps[1];
-> >> +    bprm->cap_permitted = fscaps[2];
-> >
-> > It does not appear that you're attempting
-> > to maintain the POSIX exec semantics for
-> > capability sets. (If you're doing it
-> > elsewhere in the code, nevermind) I don't
-> > know if this is intentional or not.
-> 
-> Stop right there. No such POSIX semantics exist.
-> There is no POSIX standard for this.
+$ apt-get update
+....
+$ apt-get source pciutils
 
-Strictly speaking you are of course correct.
-Please accept my appologies and pass them along
-to the IEEE.
+The source would be downloaded and unpacked in the current working 
+directory.
 
-> Out in the
-> wild there are numerous dangerously incompatible
-> ideas about this concept:
-> 
-> a. SGI IRIX, and one draft of a failed POSIX
-> proposal
-
-There were 17 drafts. I believe the one you
-refer to is the last, which was withdrawn
-due to lack of participation.
-
-> b. Linux (half done), and a very different draft
-
-A very similar draft. The differences are not
-so significant as to matter much.
-
-> c. DG-UX, which actually had a workable system
-
-Opinions vary!
-
-> d. Solaris, which is workable and getting used
-
-Ok.
- 
-> Something has changed though: people are actually
-> using this type of thing on Solaris. Probably the
-> sanest thing to do is to copy Solaris: equations,
-> tools, set of bits, #define names, API, etc. Just
-> let Sun be the standard, and semi-portable apps
-> will be able to use the feature. Cross-platform
-> admins will be very grateful for the consistency.
-
-There are worse notions floating about.
-I personally prefer the scheme used in
-Irix (big surprise there) but I certainly
-wouldn't obstruct a concerted effort to
-go the Solaris route. 
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+Regards, Michiel de Boer

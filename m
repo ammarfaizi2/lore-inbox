@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWHPPgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWHPPfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWHPPgF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 11:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWHPPgF
+	id S1751195AbWHPPfN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 11:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHPPfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 11:36:05 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:6363 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751212AbWHPPgB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 11:36:01 -0400
-Message-ID: <44E33B48.10704@zytor.com>
-Date: Wed, 16 Aug 2006 08:35:36 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Wed, 16 Aug 2006 11:35:13 -0400
+Received: from hera.kernel.org ([140.211.167.34]:18375 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751195AbWHPPfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 11:35:10 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH for review] [60/145] x86_64: Move early chipset quirks out to new file
+Date: Wed, 16 Aug 2006 11:36:44 -0400
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20060810 935.775038000@suse.de> <20060810193615.80DCC13B90@wotan.suse.de>
+In-Reply-To: <20060810193615.80DCC13B90@wotan.suse.de>
 MIME-Version: 1.0
-To: Oleg Verych <olecom@flower.upol.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux time code
-References: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de> <44E3114C.1010808@flower.upol.cz>
-In-Reply-To: <44E3114C.1010808@flower.upol.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608161136.44944.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Verych wrote:
->
-> As far as i can see here's "return -ENOPATCH;" kind of mail list.
-> Did you read and consider cooperation with authors of:
+On Thursday 10 August 2006 15:36, Andi Kleen wrote:
+
+> They did not really belong into io_apic.c. Move them into a new file
+> and clean it up a bit.
+> 
+> Also remove outdated ATI quirk that was obsolete,
+> 
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> ---
+>  arch/x86_64/kernel/Makefile       |    2 
+>  arch/x86_64/kernel/early-quirks.c |  118 ++++++++++++++++++++++++++++++++++++++
+>  arch/x86_64/kernel/io_apic.c      |  101 --------------------------------
+>  arch/x86_64/kernel/setup.c        |    2 
+>  include/asm-x86_64/proto.h        |    2 
+>  5 files changed, 121 insertions(+), 104 deletions(-)
 > 
 
-I think you're barking up the wrong tree.  Ulrich has been actively 
-involved in Linux timekeeping for over a decade.
-
-	-hpa
+Acked-by: Len Brown <len.brown@intel.com>

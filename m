@@ -1,39 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWHPQjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWHPQkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWHPQjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWHPQjI
+	id S1751179AbWHPQkF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWHPQkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:39:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64691 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751012AbWHPQjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:39:07 -0400
-Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-In-Reply-To: <44E33BB6.3050504@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33BB6.3050504@sw.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Aug 2006 17:58:52 +0100
-Message-Id: <1155747532.24077.382.camel@localhost.localdomain>
+	Wed, 16 Aug 2006 12:40:05 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:18597 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751179AbWHPQkD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:40:03 -0400
+Date: Thu, 17 Aug 2006 01:03:53 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org
+Subject: Re: [PATCH 5/7] pid: Implement pid_nr
+Message-ID: <20060816210353.GA628@oleg>
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <1155666193751-git-send-email-ebiederm@xmission.com> <20060816181950.GA472@oleg> <m1lkpo3b8z.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1lkpo3b8z.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-16 am 19:37 +0400, ysgrifennodd Kirill Korotaev:
-> + * UB_MAXVALUE is essentially LONG_MAX declared in a cross-compiling safe form.
-> + */
-> +#define UB_MAXVALUE	( (1UL << (sizeof(unsigned long)*8-1)) - 1)
-> +
+On 08/16, Eric W. Biederman wrote:
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > On 08/15, Eric W. Biederman wrote:
+> >>
+> >> +static inline pid_t pid_nr(struct pid *pid)
+> >> +{
+> >> +	pid_t nr = 0;
+> >> +	if (pid)
+> >> +		nr = pid->nr;
+> >> +	return nr;
+> >> +}
+> >
+> > I think this is not safe, you need rcu locks here or the caller should
+> > do some locking.
+> >
+> > Let's look at f_getown() (PATCH 7/7). What if original task which was
+> > pointed by ->f_owner.pid has gone, another thread does fcntl(F_SETOWN),
+> > and pid_nr() takes a preemtion after 'if (pid)'? In this case 'pid->nr'
+> > may follow a freed memory.
+> 
+> This isn't an rcu reference.  I hold a hard reference count on
+> the pid entry.  So this should be safe.
 
-Whats wrong with using the kernels LONG_MAX ?
+	-static void f_modown(struct file *filp, unsigned long pid,
+	+static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
+			      uid_t uid, uid_t euid, int force)
+	 {
+		write_lock_irq(&filp->f_owner.lock);
+		if (force || !filp->f_owner.pid) {
+	-               filp->f_owner.pid = pid;
+	+               put_pid(filp->f_owner.pid);
+
+This 'put_pid()' can actually free 'struct pid' if the task/group
+has already gone away. Another thread doing f_getown() can access
+a freed memory, no?
+
+> What is an rcu reference is going from struct pid to the task
+> it points to.
+
+Yes, you are right... But I'd say it is going form task to pid :)
+
+Oleg.
 

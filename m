@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWHPTxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWHPT7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWHPTxt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 15:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWHPTxt
+	id S932201AbWHPT7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 15:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWHPT7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 15:53:49 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:45750 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S1750930AbWHPTxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 15:53:49 -0400
-Date: Wed, 16 Aug 2006 21:53:45 +0200
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Prakash Punnoor <prakash@punnoor.de>
-Cc: Jiri Benc <jbenc@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
-Message-ID: <20060816195345.GA12868@ojjektum.uhulinux.hu>
-References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu> <200608162002.06793.prakash@punnoor.de>
+	Wed, 16 Aug 2006 15:59:36 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:47802 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932201AbWHPT7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 15:59:35 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
+	(core)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: rohitseth@google.com
+Cc: Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1155755729.22595.101.camel@galaxy.corp.google.com>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155754029.9274.21.camel@localhost.localdomain>
+	 <1155755729.22595.101.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 12:59:29 -0700
+Message-Id: <1155758369.9274.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608162002.06793.prakash@punnoor.de>
-User-Agent: Mutt/1.5.7i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 08:02:02PM +0200, Prakash Punnoor wrote:
-> Am Mittwoch 16 August 2006 19:43 schrieb Pozsar Balazs:
-> > On Wed, Aug 16, 2006 at 07:11:39PM +0200, Jiri Benc wrote:
-> > > On Tue, 15 Aug 2006 11:25:52 +0200, Pozsar Balazs wrote:
-> > > > Recently I had similar problems as you described below, that's how I
-> > > > found your email. (My exact problem is that there's no link when I plug
-> > > > in a cable, reloading the driver a few times usually helps.)
-> > > > The problem is, that since you made the patch, the uli526x driver has
-> > > > been split out from the tulip driver.
-> > > > Do you know anything about the current state of the uli526x driver
-> > > > regarding the problems you tried patch?
-> > >
-> > > I use the card with new (split out) uli526x driver with no problem. Your
-> > > problems are probably unrelated.
-> >
-> > So, just to make it clear: if you boot without cable plugged in, let
-> > the driver load, and then plug the cable in, do you have link?
-> > For me, it does not have link until I rmmod the module.
-> 
-> Same here.
+On Wed, 2006-08-16 at 12:15 -0700, Rohit Seth wrote:
+> My preference would be to have container (I keep on saying container,
+> but resource beancounter) pointer embeded in task, mm(not sure),
+> address_space and anon_vma structures. 
 
-The most weird thing is that, when I _rmmod_ the module, the link leds 
-will show a link, _before_ I even re-modprobe it! So somehow the removal 
-(or even an unbind via the sysfs interface) "resets" it.
+Hmm.  If we can embed it in the mm, then we can get there from any given
+anon_vma (or any pte for that matter).  Here's a little prototype for
+doing just that:
 
+http://www.sr71.net/patches/2.6.18/2.6.18-rc4-mm1-lxc1/broken-out/modify-lru-walk.patch
 
-> > Do you have any idea what the problem could be, or could I send you any
-> > info that would help debug it?
-> 
-> I actually played a bit with the code and what fails is uli526x_sense_speed  
-> in that way that phy_mode & 024 is 0 (and stays 0). But I don't understand 
-> why...
+See file/anon_page_has_naughty_cpuset().  Anybody see any basic problems
+with doing it that way?
 
-I made the same discovery. According to mii.h bit 0x20 would mean 
-"Auto-negotiation complete" and bit 0x04 would mean "Link status".
+ One trick with putting it in an mm is that we don't have a direct
+relationship between processes and mm's.  We could also potentially have
+two different threads of a process in two different accounting contexts.
+But, that might be as simple to fix as disallowing things that share mms
+from being in different accounting contexts, unless you unshare the mm.
 
+-- Dave
 
--- 
-pozsy

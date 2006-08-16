@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWHPEuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWHPE7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWHPEuq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 00:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWHPEuq
+	id S1750763AbWHPE7T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 00:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWHPE7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 00:50:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25290 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750747AbWHPEuq (ORCPT
+	Wed, 16 Aug 2006 00:59:19 -0400
+Received: from mga03.intel.com ([143.182.124.21]:53821 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750733AbWHPE7S convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 00:50:46 -0400
-Date: Tue, 15 Aug 2006 21:47:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@redhat.com,
-       apw@shadowen.org
-Subject: Re: [patch] sched: group CPU power setup cleanup
-Message-Id: <20060815214718.00814767.akpm@osdl.org>
-In-Reply-To: <20060815212455.c9fe1e34.pj@sgi.com>
-References: <20060815175525.A2333@unix-os.sc.intel.com>
-	<20060815212455.c9fe1e34.pj@sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 00:59:18 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,130,1154934000"; 
+   d="scan'208"; a="103552508:sNHT28982863"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
+Date: Wed, 16 Aug 2006 00:59:09 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6013DE0BC@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
+Thread-Index: Acaw2YxdI+vuJ3lQQCCk00GFigzJngQFyHfA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+Cc: <linux-acpi@vger.kernel.org>, <akpm@osdl.org>, <zippel@linux-m68k.org>,
+       <rdunlap@xenotime.net>, <linux-kernel@vger.kernel.org>,
+       <greg@kroah.com>, <pcihpd-discuss@lists.sourceforge.net>
+X-OriginalArrivalTime: 16 Aug 2006 04:59:10.0468 (UTC) FILETIME=[B5FE8C40:01C6C0F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2006 21:24:55 -0700
-Paul Jackson <pj@sgi.com> wrote:
+Applied.
 
-> Thanks for the cleanup patch resend, Suresh.
-> 
-> > Resending the new patch. Before patch had some issues for Andy and hence
-> > dropped.
-> > 
-> > Andrew, Please add this to -mm. This patch is against 2.6.18-rc4.
-> > There might be a small conflict while applying to -mm. Let me know if you
-> > want a patch on top of -mm.
-> > 
-> > thanks,
-> > suresh
-> > 
-> > --
-> 
-> I found the above patch commentary frustrating to read, as it told me
-> very little, and teased me with reference to details that are left
-> unsaid.
-> 
-> Can we work on this patch's opening text a bit more?
+thanks,
+-Len 
 
-Believe it or not, I usually suffer in silence.
-
-> 
-> ..
+>-----Original Message-----
+>From: Kristen Carlson Accardi [mailto:kristen.c.accardi@intel.com] 
+>Sent: Wednesday, July 26, 2006 1:32 PM
+>To: Keshavamurthy, Anil S
+>Cc: linux-acpi@vger.kernel.org; Brown, Len; akpm@osdl.org; 
+>zippel@linux-m68k.org; rdunlap@xenotime.net; 
+>linux-kernel@vger.kernel.org; greg@kroah.com; 
+>pcihpd-discuss@lists.sourceforge.net
+>Subject: Re: [patch] pci/hotplug acpiphp: fix Kconfig for Dock 
+>dependencies
 >
-> > + * cpu_power indicates the computing power of each sched group. This is
-> > + * used for distributing the load between different sched groups
-> > + * in a sched domain.
-> 
-> Thanks for explaining what cpu_power means.
+>---
+>I confirmed that Anil's patch will work, here is a proper patch with
+>Anil's changes.
 >
-
-Hope not.  To me, "computing power" means megaflops/sec, or Dhrystones
-(don't ask) or whatever.  If that's what "cpu_power" is referring to then
-the name is hopelessly ambiguous with peak joules/sec and a big renaming is
-due.
-
+>Change the build options for acpiphp so that it may build without being
+>dependent on the ACPI_DOCK option, but yet does not allow the option of
+>acpiphp being built-in when dock is built as a module.
+>
+>Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+>Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+>---
+> drivers/pci/hotplug/Kconfig |    2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>--- 2.6-git.orig/drivers/pci/hotplug/Kconfig
+>+++ 2.6-git/drivers/pci/hotplug/Kconfig
+>@@ -76,7 +76,7 @@ config HOTPLUG_PCI_IBM
+> 
+> config HOTPLUG_PCI_ACPI
+> 	tristate "ACPI PCI Hotplug driver"
+>-	depends on ACPI_DOCK && HOTPLUG_PCI
+>+	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || 
+>(ACPI_DOCK && HOTPLUG_PCI)
+> 	help
+> 	  Say Y here if you have a system that supports PCI 
+>Hotplug using
+> 	  ACPI.
+>

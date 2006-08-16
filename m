@@ -1,83 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWHPUjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWHPUnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWHPUjq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 16:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWHPUjq
+	id S1750847AbWHPUnR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 16:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWHPUnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 16:39:46 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:10408 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751168AbWHPUjq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 16:39:46 -0400
-Date: Wed, 16 Aug 2006 22:39:35 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-       David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] ISDN: fix double free bug in isdn_net
-Message-ID: <20060816203935.GB1040@pingi.kke.suse.de>
-Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
-	linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-	David Miller <davem@davemloft.net>
-References: <200608122248.22639.jesper.juhl@gmail.com> <20060815.020004.76775981.davem@davemloft.net> <9a8748490608150208v4e8b7dccl6dd501a6f2cda4fc@mail.gmail.com> <20060815.021503.71555009.davem@davemloft.net> <20060815160657.GA14266@pingi.kke.suse.de> <9a8748490608161322q64e7d48fmbdf68288db22b64e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Aug 2006 16:43:17 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:52667 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750847AbWHPUnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 16:43:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=uQOepFVh9ZTaqTqpR9D+u0A3OR9Xsq0zYTJsgf2oeq6arvCh4LiNwXFkJRaGW/gSQYq5SElUokihdbZpMLDSi2JXUtCJ/5YJK6ZBevue6XDKv39GZQLDGndoR0ypCr9J67XMTNoerR3/tOb4qhHQ7JyMdTlbMlUZOzZfNt5whBM=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Nathan Scott" <nathans@sgi.com>
+Subject: Re: [PATCH] XFS: remove pointless conditional testing 'nmp' vs NULL in fs/xfs/xfs_rtalloc.c::xfs_growfs_rt()
+Date: Wed, 16 Aug 2006 22:44:19 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+References: <200608130016.51136.jesper.juhl@gmail.com> <20060814110942.C2698880@wobbly.melbourne.sgi.com> <9a8748490608140025w3257f315jcceccf05d200437f@mail.gmail.com>
+In-Reply-To: <9a8748490608140025w3257f315jcceccf05d200437f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9a8748490608161322q64e7d48fmbdf68288db22b64e@mail.gmail.com>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.21-0.13-smp x86_64
-User-Agent: Mutt/1.5.9i
+Message-Id: <200608162244.19957.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 10:22:46PM +0200, Jesper Juhl wrote:
-> On 15/08/06, Karsten Keil <kkeil@suse.de> wrote:
-> >On Tue, Aug 15, 2006 at 02:15:03AM -0700, David Miller wrote:
-> >> From: "Jesper Juhl" <jesper.juhl@gmail.com>
-> >> Date: Tue, 15 Aug 2006 11:08:35 +0200
-> >>
-> >> > Hmm, perhaps I made a mistake and missed a path. Maybe it would be
-> >> > better to fix if by making isdn_writebuf_skb_stub() always set the skb
-> >> > to NULL when it does free it. That would add a few more assignments
-> >> > but should ensure the right result always.
-> >> > What do you say?
-> >>
-> >> Do we know if the ->writebuf_skb() method ever frees the skb?  If it
-> >> never does, then yes your suggestion would be one way to handle this.
+On Monday 14 August 2006 09:25, Jesper Juhl wrote:
+> On 14/08/06, Nathan Scott <nathans@sgi.com> wrote:
+> > On Sun, Aug 13, 2006 at 12:16:50AM +0200, Jesper Juhl wrote:
 > >
+> > Really this code would be better if reworked slightly to just
+> > allocate nmp once before entering the loop, and then free it
+> > once at the end... we wouldn't need a goto, just a few breaks
+> > in the loop and a conditional transaction cancel.
 > >
-> >It does if it consumes the skb (then it returns skb->len).
-> >But the skb have not to be freed imediately in this case, it maybe
-> >queued or used until all bytes are written to the physical device.
+> > > This patch gets rid of the pointless check.
 > >
-> >If it returns any other value the skb is not freed.
+> > Hmm, seems like code churn that makes the code slightly less
+> > obvious, but thats just me... I'd prefer a tested patch that
+> > implements the above suggestion, to be honest. :)
 > >
-> >This logic came from using skb for transparent data too.
-> >Here it was possible, that the hw driver only take some bytes from the
-> >skb (so it returns < skb->len), then the isdn layer should requeue
-> >the skb so no transparent data get lost.
-> >
-> >But this mechanism was never used in drivers, only 3 states:
-> >
-> >The driver accept the packet then it is responsible for the skb
-> >and return skb->len or the driver do not accept it (e.g. buffer full,
-> >conntection is going down), then it return 0 and does not free the
-> >skb.
-> >
-> >If some internal error in the HW driver occur, it should return a
-> >negative value and it also do not free the skb.
-> >
-> 
-> Ok, if I understand you correctly, then there's no actual problem here.
-> right?
+> Ok, I'll see what I can come up with.
 > 
 
-I not aware of any problems in this code (besides it should be cleaned up
-and rewritten).
+How this?
 
-Was here any trigger for your patch ?
+Compile tested only since I'm at home and don't have any XFS filesystems to
+play with atm.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+
+
+Rework fs/xfs/xfs_rtalloc.c::xfs_growfs_rt() to allocate and free 'nmp' just
+once and make the error handling a bit clearer.
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ fs/xfs/xfs_rtalloc.c |   37 +++++++++++++++----------------------
+ 1 files changed, 15 insertions(+), 22 deletions(-)
+
+--- linux-2.6.18-rc4-orig/fs/xfs/xfs_rtalloc.c	2006-08-11 00:11:13.000000000 +0200
++++ linux-2.6.18-rc4/fs/xfs/xfs_rtalloc.c	2006-08-16 22:36:03.000000000 +0200
+@@ -1976,7 +1976,11 @@ xfs_growfs_rt(
+ 	if ((error = xfs_growfs_rt_alloc(mp, rsumblocks, nrsumblocks,
+ 			mp->m_sb.sb_rsumino)))
+ 		return error;
+-	nmp = NULL;
++
++	/*
++	 * Allocate a new (fake) mount/sb.
++	 */
++	nmp = kmem_alloc(sizeof(*nmp), KM_SLEEP);
+ 	/*
+ 	 * Loop over the bitmap blocks.
+ 	 * We will do everything one bitmap block at a time.
+@@ -1987,10 +1991,6 @@ xfs_growfs_rt(
+ 		     ((sbp->sb_rextents & ((1 << mp->m_blkbit_log) - 1)) != 0);
+ 	     bmbno < nrbmblocks;
+ 	     bmbno++) {
+-		/*
+-		 * Allocate a new (fake) mount/sb.
+-		 */
+-		nmp = kmem_alloc(sizeof(*nmp), KM_SLEEP);
+ 		*nmp = *mp;
+ 		nsbp = &nmp->m_sb;
+ 		/*
+@@ -2018,13 +2018,13 @@ xfs_growfs_rt(
+ 		cancelflags = 0;
+ 		if ((error = xfs_trans_reserve(tp, 0,
+ 				XFS_GROWRTFREE_LOG_RES(nmp), 0, 0, 0)))
+-			goto error_exit;
++			break;
+ 		/*
+ 		 * Lock out other callers by grabbing the bitmap inode lock.
+ 		 */
+ 		if ((error = xfs_trans_iget(mp, tp, mp->m_sb.sb_rbmino, 0,
+ 						XFS_ILOCK_EXCL, &ip)))
+-			goto error_exit;
++			break;
+ 		ASSERT(ip == mp->m_rbmip);
+ 		/*
+ 		 * Update the bitmap inode's size.
+@@ -2038,7 +2038,7 @@ xfs_growfs_rt(
+ 		 */
+ 		if ((error = xfs_trans_iget(mp, tp, mp->m_sb.sb_rsumino, 0,
+ 						XFS_ILOCK_EXCL, &ip)))
+-			goto error_exit;
++			break;
+ 		ASSERT(ip == mp->m_rsumip);
+ 		/*
+ 		 * Update the summary inode's size.
+@@ -2053,7 +2053,7 @@ xfs_growfs_rt(
+ 		    mp->m_rsumlevels != nmp->m_rsumlevels) {
+ 			error = xfs_rtcopy_summary(mp, nmp, tp);
+ 			if (error)
+-				goto error_exit;
++				break;
+ 		}
+ 		/*
+ 		 * Update superblock fields.
+@@ -2080,18 +2080,13 @@ xfs_growfs_rt(
+ 		error = xfs_rtfree_range(nmp, tp, sbp->sb_rextents,
+ 			nsbp->sb_rextents - sbp->sb_rextents, &bp, &sumbno);
+ 		if (error)
+-			goto error_exit;
++			break;
+ 		/*
+ 		 * Mark more blocks free in the superblock.
+ 		 */
+ 		xfs_trans_mod_sb(tp, XFS_TRANS_SB_FREXTENTS,
+ 			nsbp->sb_rextents - sbp->sb_rextents);
+ 		/*
+-		 * Free the fake mp structure.
+-		 */
+-		kmem_free(nmp, sizeof(*nmp));
+-		nmp = NULL;
+-		/*
+ 		 * Update mp values into the real mp structure.
+ 		 */
+ 		mp->m_rsumlevels = nrsumlevels;
+@@ -2101,15 +2096,13 @@ xfs_growfs_rt(
+ 		 */
+ 		xfs_trans_commit(tp, 0, NULL);
+ 	}
+-	return 0;
+-
++	if (error)
++		xfs_trans_cancel(tp, cancelflags);
+ 	/*
+-	 * Error paths come here.
++	 * Free the fake mp structure.
+ 	 */
+-error_exit:
+-	if (nmp)
+-		kmem_free(nmp, sizeof(*nmp));
+-	xfs_trans_cancel(tp, cancelflags);
++	kmem_free(nmp, sizeof(*nmp));
++
+ 	return error;
+ }
+ 
+
+

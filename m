@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWHPTZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWHPT0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWHPTZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 15:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWHPTZT
+	id S932184AbWHPT0a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 15:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWHPT0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 15:25:19 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:37085 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932184AbWHPTZR (ORCPT
+	Wed, 16 Aug 2006 15:26:30 -0400
+Received: from mail.gmx.net ([213.165.64.20]:64937 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932184AbWHPT03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 15:25:17 -0400
-Date: Wed, 16 Aug 2006 23:24:15 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>
-Subject: Re: [take9 1/2] kevent: Core files.
-Message-ID: <20060816192415.GA19537@2ka.mipt.ru>
-References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru> <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru> <44E35F29.8010500@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <44E35F29.8010500@oracle.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 16 Aug 2006 23:24:21 +0400 (MSD)
+	Wed, 16 Aug 2006 15:26:29 -0400
+X-Authenticated: #1347008
+Message-ID: <44E3725D.3040208@gmx.net>
+Date: Wed, 16 Aug 2006 21:30:37 +0200
+From: Dirk <noisyb@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060503 Debian/1.7.8-1sarge6
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+References: <44E3552A.6010705@gmx.net> <20060816183707.GD13641@csclub.uwaterloo.ca>
+In-Reply-To: <20060816183707.GD13641@csclub.uwaterloo.ca>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 11:08:41AM -0700, Zach Brown (zach.brown@oracle.com) wrote:
+Lennart Sorensen wrote:
+> On Wed, Aug 16, 2006 at 07:26:02PM +0200, Dirk wrote:
 > 
-> >>> +	for (i=0; i<ARRAY_SIZE(u->kevent_list); ++i)
-> >> 	for (i = 0; i < ARRAY_SIZE(u->kevent_list); i++)
-> > 
-> > Ugh, no. It reduces readability due to exessive number of spaces.
+>>I have changed a message that didn't clearly tell the user what was goin
+>>on...
+>>
+>>Please have a look!
 > 
-> Ihavetoverystronglydisagree.
+> 
+> Perhaps the real problem is that some @#$@#$ user space task is
+> constantly trying to mount the disc while something else is trying to
+> write to it.
+> 
+> gnome and kde both seem very eager to implement such things.  perhaps
+> there should be a way to prevent any access by such processes while
+> writing to the disc.
+> 
+> --
+> Len Sorensen
+> 
+> 
 
-W e l l , i f y o u i n s i s t a n d a b s o l u t e l y s u r e.
+I still use fvwm1 with _my_ config file unchanged for ~6 years now!!!
 
-> - z
+But you were right... after i removed some package called "hal"
+everything works fine again...
 
--- 
-	Evgeniy Polyakov
+must have been another trojan from the "Ready for the Desktop!" camp...
+
+Dirk

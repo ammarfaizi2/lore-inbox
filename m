@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWHPXcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWHPXfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWHPXcx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 19:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWHPXcx
+	id S932122AbWHPXfF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 19:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWHPXfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 19:32:53 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12230
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751239AbWHPXcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 19:32:52 -0400
-Date: Wed, 16 Aug 2006 16:32:52 -0700 (PDT)
-Message-Id: <20060816.163252.64000941.davem@davemloft.net>
-To: linas@austin.ibm.com
-Cc: arnd@arndb.de, linuxppc-dev@ozlabs.org, akpm@osdl.org, jeff@garzik.org,
-       netdev@vger.kernel.org, jklewis@us.ibm.com,
-       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com
-Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060816233028.GO20551@austin.ibm.com>
-References: <20060816.143203.11626235.davem@davemloft.net>
-	<200608170016.47072.arnd@arndb.de>
-	<20060816233028.GO20551@austin.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 16 Aug 2006 19:35:04 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:51178 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751241AbWHPXfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 19:35:01 -0400
+Date: Wed, 16 Aug 2006 16:35:48 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Dipkanar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH] rcu: Fix incorrect description of default for rcutorture nreaders parameter
+Message-ID: <20060816233548.GB1291@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1155766624.9175.34.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155766624.9175.34.camel@josh-work.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linas@austin.ibm.com (Linas Vepstas)
-Date: Wed, 16 Aug 2006 18:30:28 -0500
+On Wed, Aug 16, 2006 at 03:17:04PM -0700, Josh Triplett wrote:
+> The comment for the nreaders parameter of rcutorture gives the default as
+> 4*ncpus, but the value actually defaults to 2*ncpus; fix the comment.
 
-> Why would you want o do this? It seems like a cruddier strategy 
-> than what we can already do  (which is to never get an transmit
-> interrupt, as long as the kernel can shove data into the device fast
-> enough to keep the queue from going empty.)  The whole *point* of a 
-> low-watermark interrupt is to never have to actually get the interrupt, 
-> if the rest of the system is on its toes and is supplying data fast
-> enough.
 
-As long as TX packets get freed within a certain latency
-boundary, this kind of scheme should be fine.
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Josh Triplett <josh@freedesktop.org>
+> ---
+>  kernel/rcutorture.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+> index 0778a3d..e34d22b 100644
+> --- a/kernel/rcutorture.c
+> +++ b/kernel/rcutorture.c
+> @@ -48,7 +48,7 @@ #include <linux/srcu.h>
+>  
+>  MODULE_LICENSE("GPL");
+>  
+> -static int nreaders = -1;	/* # reader threads, defaults to 4*ncpus */
+> +static int nreaders = -1;	/* # reader threads, defaults to 2*ncpus */
+>  static int stat_interval;	/* Interval between stats, in seconds. */
+>  				/*  Defaults to "only at end of test". */
+>  static int verbose;		/* Print more debug info. */
+> -- 
+> 1.4.1.1
+> 
+> 

@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWHPUvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWHPUzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWHPUvp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 16:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWHPUvp
+	id S932219AbWHPUzV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 16:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWHPUzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 16:51:45 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:36554 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932215AbWHPUvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 16:51:45 -0400
-From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: drivers/usb/misc/cypress_cy7c63.c: NULL dereference
-Date: Wed, 16 Aug 2006 22:51:43 +0200
-User-Agent: KMail/1.9.3
-Cc: Adrian Bunk <bunk@stusta.de>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <20060815000442.GB3543@stusta.de> <20060815005749.GA24238@suse.de>
-In-Reply-To: <20060815005749.GA24238@suse.de>
+	Wed, 16 Aug 2006 16:55:20 -0400
+Received: from wx-out-0506.google.com ([66.249.82.236]:14171 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932219AbWHPUzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 16:55:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WHl0t9SZ6vOfoAmrr4fTKxkKD/aa9SChnJXmWgF5z2nXsJbuCcFNEiqnPa5v6WKGdDZpvqpc3NbMBc+qtt+HFWKOFMUCNsNxmmPiKg9mDFGnHXHQ7Ss14kYwkySV/ilRsclMopsBggtBO31cDu6PU4QDGOD0bAgkQ1X+ODiewx4=
+Message-ID: <9a8748490608161355i606e6158ob0f38ac67b72541f@mail.gmail.com>
+Date: Wed, 16 Aug 2006 22:55:17 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Bob Reinkemeyer" <bigbob73@charter.net>
+Subject: Re: [bug] Mouse jumps randomly in x kernel 2.6.18
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44E37FD1.6020506@charter.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608162251.43269.o.bock@fh-wolfenbuettel.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:dd33dd6c1d5f49fc970db4042b12446b
+References: <44E37FD1.6020506@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks guys!
-Sorry for that blunder...
+On 16/08/06, Bob Reinkemeyer <bigbob73@charter.net> wrote:
+> I have an issue where my mouse jumps around the screen randomly in X
+> only.  It works correctly in a vnc window.  The mouse is a Microsoft
+> wireless optical intellimouse.  This was tested in 2.6.18-rc1-rc4 and
+> observed in all. my config for .18 can be found here...
+> http://rafb.net/paste/results/5cyWFd48.html
+>
+> and for .17 here...
+> http://rafb.net/paste/results/xdFUkU58.html
+>
+I take it it works correctly in 2.6.17 ?
 
-Oliver
 
-On Tuesday 15 August 2006 02:57, Greg KH wrote:
-> On Tue, Aug 15, 2006 at 02:04:42AM +0200, Adrian Bunk wrote:
-> > The Coverity Checker spotted the following obvious NULL dereference:
-> >
-> > <--  snip  -->
-> >
-> > ...
-> > static int cypress_probe(struct usb_interface *interface,
-> >                          const struct usb_device_id *id)
-> > {
-> > ...
-> >         if (dev == NULL) {
-> >                 dev_err(&dev->udev->dev, "Out of memory!\n");
-> >                 goto error;
-> >         }
-> > ...
-> > }
-> > ...
-> >
-> > <--  snip  -->
->
-> Thanks for letting me know, the patch below should fix this.
->
-> greg k-h
->
-> ------------
->
-> From: Greg Kroah-Hartman <gregkh@suse.de>
-> Subject: USB: fix bug in cypress_cy7c63.c driver
->
-> This was pointed out by Adrian Bunk <bunk@stusta.de>, as found by the
-> Coverity Checker.
->
->
-> Cc: Adrian Bunk <bunk@stusta.de>
-> Cc: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
->
-> ---
->  drivers/usb/misc/cypress_cy7c63.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- gregkh-2.6.orig/drivers/usb/misc/cypress_cy7c63.c
-> +++ gregkh-2.6/drivers/usb/misc/cypress_cy7c63.c
-> @@ -208,7 +208,7 @@ static int cypress_probe(struct usb_inte
->  	/* allocate memory for our device state and initialize it */
->  	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
->  	if (dev == NULL) {
-> -		dev_err(&dev->udev->dev, "Out of memory!\n");
-> +		dev_err(&interface->dev, "Out of memory!\n");
->  		goto error;
->  	}
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

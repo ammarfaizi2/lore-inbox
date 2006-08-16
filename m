@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWHPO6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWHPPAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWHPO6F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 10:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWHPO6F
+	id S1751200AbWHPPAK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 11:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWHPPAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 10:58:05 -0400
-Received: from arrakeen.ouaza.com ([212.85.152.62]:55976 "EHLO
-	arrakeen.ouaza.com") by vger.kernel.org with ESMTP id S1751199AbWHPO6E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 10:58:04 -0400
-Date: Wed, 16 Aug 2006 16:57:38 +0200
-From: Raphael Hertzog <hertzog@debian.org>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: How to avoid serial port buffer overruns?
-Message-ID: <20060816145738.GA6575@ouaza.com>
-References: <20060816104559.GF4325@ouaza.com> <20060816143147.GC13641@csclub.uwaterloo.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060816143147.GC13641@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 16 Aug 2006 11:00:09 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:16365 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751200AbWHPPAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 11:00:08 -0400
+Subject: Re: 2.6.18-rc3->rc4 hugetlbfs regression
+From: Adam Litke <agl@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Yao Fei Zhu <zhuyaof@cn.ibm.com>,
+       Suzuki Kp <suzukikp@in.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       lge@us.ibm.com, PPC External List <linuxppc-dev@ozlabs.org>,
+       "ADAM G. LITKE [imap]" <agl@us.ibm.com>
+In-Reply-To: <1155655344.12700.45.camel@localhost.localdomain>
+References: <1155655344.12700.45.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 10:00:04 -0500
+Message-Id: <1155740404.21863.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006, Lennart Sorensen wrote:
-> In my experience, the way to avoid overruns on a serial port was to use
-> a buffered serial port UART (such as a 16550A for example).  I remember
-> my 486 wasn't reliable about 19200 or 38400 (depending on how busy the
-> cpu was) when using an 8250.  Using a 16550A based card and I could do
-> 115200 without any issues since the UART had a 16 byte buffer to help
-> out the system.  Unless your 386 has an add in card for the serial port,
-> it almost certainly has a very crappy UART and it would be very hard to
-> make it work reliably at higher speeds.
+On Tue, 2006-08-15 at 08:22 -0700, Dave Hansen wrote:
+> kernel BUG in cache_free_debugcheck at mm/slab.c:2748!
 
-I forgot to mention the kind of UART in my mail but it is a 16650A (and
-configured as such and detected as such) and I have overruns nevertheless.
+Alright, this one is only triggered when slab debugging is enabled.  The slabs
+are assumed to be aligned on a HUGEPTE_TABLE_SIZE boundary.  The free path
+makes use of this assumption and uses the lowest nibble to pass around an index
+into an array of kmem_cache pointers.  With slab debugging turned on, the slab
+is still aligned, but the "working" object pointer is not.  This would break
+the assumption above that a full nibble is available for the PGF_CACHENUM_MASK.
 
-bash-2.05a# cat /proc/tty/driver/serial
-serinfo:1.0 driver revision:
-0: uart:16550A port:000003F8 irq:4 tx:31 rx:7 RTS|CTS|DTR|DSR
-1: uart:16550A port:000002F8 irq:3 tx:24 rx:7 RTS|CTS|DTR|DSR
+The following patch reduces PGF_CACHENUM_MASK to cover only the two least
+significant bits, which is enough to cover the current number of 4 pgtable
+cache types.  Then use this constant to mask out the appropriate part of the
+huge pte pointer.
 
-(here there's no overrun but I almost didn't use the serial port since
-last reboot)
+Signed-off-by: Adam Litke <agl@us.ibm.com>
+---
+ arch/powerpc/mm/hugetlbpage.c |    2 +-
+ include/asm-powerpc/pgalloc.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+diff -upN reference/arch/powerpc/mm/hugetlbpage.c current/arch/powerpc/mm/hugetlbpage.c
+--- reference/arch/powerpc/mm/hugetlbpage.c
++++ current/arch/powerpc/mm/hugetlbpage.c
+@@ -153,7 +153,7 @@ static void free_hugepte_range(struct mm
+ 	hpdp->pd = 0;
+ 	tlb->need_flush = 1;
+ 	pgtable_free_tlb(tlb, pgtable_free_cache(hugepte, HUGEPTE_CACHE_NUM,
+-						 HUGEPTE_TABLE_SIZE-1));
++						 PGF_CACHENUM_MASK));
+ }
+ 
+ #ifdef CONFIG_PPC_64K_PAGES
+diff -upN reference/include/asm-powerpc/pgalloc.h current/include/asm-powerpc/pgalloc.h
+--- reference/include/asm-powerpc/pgalloc.h
++++ current/include/asm-powerpc/pgalloc.h
+@@ -117,7 +117,7 @@ static inline void pte_free(struct page 
+ 	pte_free_kernel(page_address(ptepage));
+ }
+ 
+-#define PGF_CACHENUM_MASK	0xf
++#define PGF_CACHENUM_MASK	0x3
+ 
+ typedef struct pgtable_free {
+ 	unsigned long val;
 
-Cheers,
+
 -- 
-Raphaël Hertzog
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 
-Premier livre français sur Debian GNU/Linux :
-http://www.ouaza.com/livre/admin-debian/

@@ -1,100 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWHPKqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWHPKwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWHPKqV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 06:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWHPKqV
+	id S1751100AbWHPKwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 06:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWHPKwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 06:46:21 -0400
-Received: from arrakeen.ouaza.com ([212.85.152.62]:62879 "EHLO
-	arrakeen.ouaza.com") by vger.kernel.org with ESMTP id S1751097AbWHPKqU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 06:46:20 -0400
-Date: Wed, 16 Aug 2006 12:45:59 +0200
-From: Raphael Hertzog <hertzog@debian.org>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: How to avoid serial port buffer overruns?
-Message-ID: <20060816104559.GF4325@ouaza.com>
+	Wed, 16 Aug 2006 06:52:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8856 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751100AbWHPKws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 06:52:48 -0400
+Date: Wed, 16 Aug 2006 12:52:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jay Lan <jlan@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jes Sorensen <jes@sgi.com>, Chris Sturtivant <csturtiv@sgi.com>,
+       Tony Ernst <tee@sgi.com>
+Subject: Re: [patch 2/3] add CSA accounting to taskstats
+Message-ID: <20060816105222.GA10764@elf.ucw.cz>
+References: <44CE5847.8050706@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <44CE5847.8050706@sgi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Please CC me when replying)
+Hi!
 
-Hello,
+> Signed-off-by:  Jay Lan <jlan@sgi.com>
+> 
 
-While using Linux on low-end (semi-embedded) hardware (386 SX 40Mhz, 8Mb
-RAM), I discovered that Linux on that machine would suffer from serial
-port buffer overruns quite easily if I use a baudrate high enough (I start
-loosing bytes at >19200 bauds and I would like to make it reliable up to 
-115 kbauds). I check if overruns are happening with
-/proc/tty/driver/serial ("oe" field).
+> Index: linux/include/linux/taskstats.h
+> ===================================================================
+> --- linux.orig/include/linux/taskstats.h	2006-07-31 11:42:10.000000000 -0700
+> +++ linux/include/linux/taskstats.h	2006-07-31 11:50:00.412433042 -0700
+> @@ -107,6 +107,21 @@ struct taskstats {
+>  	__u64	ac_utime;		/* User CPU time [usec] */
+>  	__u64	ac_stime;		/* SYstem CPU time [usec] */
+>  	/* Basic Accounting Fields end */
+> +
+> + 	/* CSA accounting fields start */
+> + 	__u16	csa_revision;		/* CSA Revision */
+> + 	__u16	csa_pad[3];		/* Unused */
 
-Back when I was using the 2.4 kernel, I reduced dramatically the frequency
-of overruns by using the "low latency" and "preemptible kernel" patch [1]. But
-it still happened sometimes at 115 kbauds if the system was a bit loaded
-(with disk I/O for example).
+I guess you have way too many TLAs here...
 
-Now I switched to stock 2.6 and while the stock kernel improved in
-responsiveness, it still isn't enough by default (even with
-CONFIG_PREEMPT=y and CONFIG_HZ=1000). So I wanted to try the "rt" patch of
-Ingo Molnar and Thomas Gleixner, but the patched kernel doesn't boot (see
-bug report in a separate mail on this list).
+> +config CSA_ACCT
+> +	bool "Enable CSA Job Accounting (EXPERIMENTAL)"
+> +	depends on TASKSTATS
+> +	help
 
-Other things that I tried which didn't help (enough) are:
+"Enable Comprehensive System Accounting Job Accounting" . Ouch. So you
+do not even know how to use those accronyms correctly.
 
-- tuning with hdparm
-  - make disk IRQ interruptible with hdparm -u 1 /dev/hda
-  - activating DMA is suggested but my disk is a "disk on module"
-    and doesn't support DMA
-- using irqtune (http://cae.best.vwh.net/irqtune/) to reprioritize
-  interrupts
-  irqtune is old and it's very difficult to know if it still works
-  reliably with recent kernel and as there's no way to "read" the
-  interrupt priorities, I have no way to know if irqtune changed anything
-  at all...
+I guess you should invent some better naming.
 
-My questions are thus:
-1/ Is there a way to patch the kernel to make it handle serial IRQ as
-   the highest priority? If yes, how? Where should I look at to create
-   such a patch?
-2/ How can I identify why the serial interrupts are delayed? Or, in other
-   words, how can I find the code blocking for too long the treatment of
-   the serial IRQ?
-   I suppose that network IRQ and disk IRQ are responsible for that but
-   I'm not sure and furthermore disk interrupts are supposed to
-   be interruptible given the hdparm config that I use.
-3/ What other suggestions do you have to avoid those serial buffer
-   overruns?
 
-As usual, I'll gladly try out patches/ideas and will provide any
-required additional information that I didn't include in this mail.
+> +	  Comprehensive System Accounting (CSA) provides job level
+> +	  accounting of resource usage.  The accounting records are
+> +	  written by the kernel into a file.  CSA user level scripts
+> +	  and commands process the binary accounting records and
+> +	  combine them by job identifier within system boot uptime
+> +	  periods.  These accounting records are then used to produce
+> +	  reports and charge fees to users.
+> +
+> +	  Say Y here if you want job level accounting to be compiled
+> +	  into the kernel.  Say M here if you want the writing of
+> +	  accounting records portion of this feature to be a loadable
+> +	  module.  Say N here if you do not want job level accounting
+> +	  (the default).
+> +
+> +	  The CSA commands and scripts package needs to be installed
+> +	  to process the CSA accounting records.  See
+> +	  http://oss.sgi.com/projects/csa for further information
+> +	  about CSA and download instructions for the CSA commands
+> +	  package and documentation.
 
-Some infos on the hardware:
-http://www.icop.com.tw/products_detail.asp?ProductID=205
-More detailed spec of the CPU are here:
-http://www.dmp.com.tw/tech/m6117d/
+...long text and it *still* does not tell me what it is good for.
 
-bash-2.05a# cat /proc/interrupts
-CPU0
-0:   88503366          XT-PIC  timer
-2:          0          XT-PIC  cascade
-3:         11          XT-PIC  serial
-4:         12          XT-PIC  serial
-5:       4958          XT-PIC  NE2000
-14:      10771          XT-PIC  ide0
-NMI:          0
-ERR:          0
+> +/*
+> + * Record revision levels.
+> + *
+> + * These are incremented to indicate that a record's format has changed since
+> + * a previous release.
+> + *
+> + * History:     05000   The first rev in Linux
+> + *              06000   Major rework to clean up unused fields and features.
+> + *                      No binary compatibility with earlier rev.
+> + *		07000	Convert to taskstats interface
+> + */
+> +#define REV_CSA		07000	/* Kernel: CSA base record */
 
-Regards,
+We normally drop back compatibility at merge...
+									Pavel
 
-[1] I documented that in a blog post last year:
-http://www.ouaza.com/wordpress/2005/10/19/serial-overrun-on-linux/
 -- 
-Raphaël Hertzog
-
-Premier livre français sur Debian GNU/Linux :
-http://www.ouaza.com/livre/admin-debian/
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

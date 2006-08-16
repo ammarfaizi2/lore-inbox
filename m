@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWHPCZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWHPClx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWHPCZy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 22:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWHPCZy
+	id S1750835AbWHPClx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 22:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWHPClx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 22:25:54 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:47567 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750830AbWHPCZx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 22:25:53 -0400
-Date: Tue, 15 Aug 2006 21:25:50 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-Message-ID: <20060816022550.GC15241@sergelap.austin.ibm.com>
-References: <20060814220651.GA7726@sergelap.austin.ibm.com> <20060815160246.81566.qmail@web36601.mail.mud.yahoo.com>
+	Tue, 15 Aug 2006 22:41:53 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:38306 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1750835AbWHPClx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 22:41:53 -0400
+Date: Wed, 16 Aug 2006 03:41:40 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Dave Jones <davej@redhat.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: peculiar suspend/resume bug.
+Message-ID: <20060816024140.GA30814@srcf.ucam.org>
+References: <20060815221035.GX7612@redhat.com> <1155687599.3193.12.camel@nigel.suspend2.net> <20060816003728.GA3605@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060815160246.81566.qmail@web36601.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060816003728.GA3605@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Casey Schaufler (casey@schaufler-ca.com):
-> 
-> 
-> --- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> 
-> 
-> > +
-> > +	bprm->cap_effective = fscaps[0];
-> > +	bprm->cap_inheritable = fscaps[1];
-> > +	bprm->cap_permitted = fscaps[2];
-> > +
-> 
-> It does not appear that you're attempting
-> to maintain the POSIX exec semantics for
-> capability sets. (If you're doing it
-> elsewhere in the code, nevermind) I don't
-> know if this is intentional or not.
+On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
 
-It should be getting done correctly at bprm_apply_creds.
-The code you quote here is just setting it on the
-binprm, which represents the executable itself (and as
-pointed out in the comment above it).
+> cpufreq-applet crashes as soon as the cpu goes offline.
+> Now, the applet should be written to deal with this scenario more
+> gracefully, but I'm questioning whether or not userspace should
+> *see* the unplug/replug that suspend does at all.
 
-Now the cap_bprm_secureexec() function needs to be
-updated as I believe I pointed out in the original
-submission.  But if anything else is not getting done
-right please correct me.
+As Nigel mentioned, cpu unplug happens just before processes are frozen, 
+so I guess there's a chance for it to be scheduled. On the other hand, 
+it's not unreasonable for CPUs to be unplugged during runtime anyway - 
+perhaps userspace should be able to deal with that?
 
-> I will have a closer look, but just for
-> grins, I've attached code from the SGI
-> OB1 offering of some years back that
-> includes a function, cap_recalc, that
-> implements the correct behavior. I will
-> also take a stab at working it in, but
-
-Excellent, thanks.
-
-> I expect someone will beat me to it.
-
--serge
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

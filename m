@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWHPVcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWHPVuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWHPVcs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 17:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWHPVcr
+	id S932264AbWHPVuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 17:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWHPVuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 17:32:47 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:55444
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932238AbWHPVcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 17:32:47 -0400
-Date: Wed, 16 Aug 2006 14:32:03 -0700 (PDT)
-Message-Id: <20060816.143203.11626235.davem@davemloft.net>
-To: arnd@arndb.de
-Cc: jeff@garzik.org, linas@austin.ibm.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       jklewis@us.ibm.com, Jens.Osterkamp@de.ibm.com, akpm@osdl.org
-Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200608162324.47235.arnd@arndb.de>
-References: <44E38157.4070805@garzik.org>
-	<20060816.134640.115912460.davem@davemloft.net>
-	<200608162324.47235.arnd@arndb.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Aug 2006 17:50:21 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:978 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932264AbWHPVuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 17:50:20 -0400
+Date: Wed, 16 Aug 2006 14:49:57 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: mpm@selenic.com, Marcelo Tosatti <marcelo@kvack.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
+In-Reply-To: <44E344A8.1040804@colorfullife.com>
+Message-ID: <Pine.LNX.4.64.0608161427500.18621@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <44E344A8.1040804@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 16 Aug 2006 23:24:46 +0200
+On Wed, 16 Aug 2006, Manfred Spraul wrote:
 
-> We first had an interrupt per descriptor, then got rid of all TX
-> interrupts and replaced them by timers to reduce the interrupt load,
-> but reducing throughput in the case where user space sleeps on a full
-> socket buffer.
+> Which .config settings are necessary? I tried to use it (uniprocessor, no
+> debug options enabled), but the compilation failed. 2.6.18-rc4 kernel. All 7
+> patches applied.
 
-The best schemes seem to be to interrupt mitigate using a combination
-of time and number of TX entries pending to be purged.  This is what
-most gigabit chips seem to offer.
+I only build it on IA64. Never tested it on another arch. What error 
+messages are you getting?
 
-On Tigon3, for example, we tell the chip to interrupt if either 53
-frames or 150usecs have passed since the first TX packet has become
-available for reclaim.
+> And: Are you sure that the slabifier works on vmalloc ranges? The code uses
+> virt_to_page(). Does that function work for vmalloc on all archs?
 
-That bounds the latency as well as force the interrupt if a lot of TX
-work becomes available.
+Hmm.... Not tried it just got minimal things going to have some numnbers. 
+You are right. A real virtual address to page translation for 
+vmalloc would involve going through the page tables. Seems that 
+virt_to_page that is used in get_object_page() does not do that.
 
-Can spidernet be told these kinds of parameters?  "N packets or
-X usecs"?
+In order to get vmalloc working we would need first to check the
+address. If its in the vmalloc range then walk the page table and get
+the struct page address that way. There is a function
 
-This is all controllable via ethtool btw (via ETHTOOL_{S,G}COALESCE),
-so you can experiment if you want.
+vmalloc_to_page()
+
+in mm/memory.c that would do that for us. 
+
+So we need to modify get_object_page() to check for a VMALLOC range
+and then use vmalloc_to_page instead of virt_to_page.
+

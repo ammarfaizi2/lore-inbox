@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWHPRTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWHPRVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWHPRTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 13:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWHPRTH
+	id S932114AbWHPRVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 13:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWHPRVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 13:19:07 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5257 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750775AbWHPRTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 13:19:06 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       containers@lists.osdl.org
-Subject: Re: [PATCH 5/7] pid: Implement pid_nr
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com>
-	<1155666193751-git-send-email-ebiederm@xmission.com>
-	<20060816181950.GA472@oleg> <m1lkpo3b8z.fsf@ebiederm.dsl.xmission.com>
-	<20060816210353.GA628@oleg>
-Date: Wed, 16 Aug 2006 11:18:48 -0600
-In-Reply-To: <20060816210353.GA628@oleg> (Oleg Nesterov's message of "Thu, 17
-	Aug 2006 01:03:53 +0400")
-Message-ID: <m1d5b038g7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 16 Aug 2006 13:21:55 -0400
+Received: from mail.gmx.net ([213.165.64.20]:53927 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751211AbWHPRVy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 13:21:54 -0400
+X-Authenticated: #1347008
+Message-ID: <44E3552A.6010705@gmx.net>
+Date: Wed, 16 Aug 2006 19:26:02 +0200
+From: Dirk <noisyb@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060503 Debian/1.7.8-1sarge6
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: PATCH/FIX for drivers/cdrom/cdrom.c
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------040201080600030204000501"
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+This is a multi-part message in MIME format.
+--------------040201080600030204000501
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> On 08/16, Eric W. Biederman wrote:
->> Oleg Nesterov <oleg@tv-sign.ru> writes:
->> 
->> > On 08/15, Eric W. Biederman wrote:
->> >>
->> >> +static inline pid_t pid_nr(struct pid *pid)
->> >> +{
->> >> +	pid_t nr = 0;
->> >> +	if (pid)
->> >> +		nr = pid->nr;
->> >> +	return nr;
->> >> +}
->> >
->> > I think this is not safe, you need rcu locks here or the caller should
->> > do some locking.
->> >
->> > Let's look at f_getown() (PATCH 7/7). What if original task which was
->> > pointed by ->f_owner.pid has gone, another thread does fcntl(F_SETOWN),
->> > and pid_nr() takes a preemtion after 'if (pid)'? In this case 'pid->nr'
->> > may follow a freed memory.
->> 
->> This isn't an rcu reference.  I hold a hard reference count on
->> the pid entry.  So this should be safe.
->
-> 	-static void f_modown(struct file *filp, unsigned long pid,
-> 	+static void f_modown(struct file *filp, struct pid *pid, enum pid_type
-> type,
-> 			      uid_t uid, uid_t euid, int force)
-> 	 {
-> 		write_lock_irq(&filp->f_owner.lock);
-> 		if (force || !filp->f_owner.pid) {
-> 	-               filp->f_owner.pid = pid;
-> 	+               put_pid(filp->f_owner.pid);
->
-> This 'put_pid()' can actually free 'struct pid' if the task/group
-> has already gone away. Another thread doing f_getown() can access
-> a freed memory, no?
+I have changed a message that didn't clearly tell the user what was goin
+on...
 
-Good point.  In that case it looks like I need to hold the f_owner.lock.
-Something needs to serialize that.
+Please have a look!
 
-Fun. I touch the code and find a place where we didn't take a lock
-and accidentally relied on integer operations being atomic.
+Thank you,
+Dirk
 
-I will see about working up a fix for that.
+--------------040201080600030204000501
+Content-Type: text/plain;
+ name="cdrom.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cdrom.patch"
 
-Eric
+--- drivers/cdrom/cdrom.c.old	2006-08-16 19:04:11.000000000 +0200
++++ drivers/cdrom/cdrom.c	2006-08-16 19:04:51.000000000 +0200
+@@ -2455,7 +2455,7 @@
+ 		if (tracks.data > 0) return CDS_DATA_1;
+ 		/* Policy mode off */
+ 
+-		cdinfo(CD_WARNING,"This disc doesn't have any tracks I recognize!\n");
++		cdinfo(CD_WARNING,"I'm a stupid fuck that will repeat this interesting message while endlessly trying to access the media you just inserted until your CD/DVD burning task is eventually fucked\n");
+ 		return CDS_NO_INFO;
+ 		}
+ 
+
+--------------040201080600030204000501--

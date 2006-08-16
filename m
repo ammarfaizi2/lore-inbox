@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWHPPfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWHPPg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWHPPfM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 11:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHPPfL
+	id S1751220AbWHPPg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 11:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHPPg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 11:35:11 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:15003 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751153AbWHPPfJ (ORCPT
+	Wed, 16 Aug 2006 11:36:29 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:7944 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751218AbWHPPg1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 11:35:09 -0400
-Message-ID: <44E33BB6.3050504@sw.ru>
-Date: Wed, 16 Aug 2006 19:37:26 +0400
+	Wed, 16 Aug 2006 11:36:27 -0400
+Message-ID: <44E33C04.50803@sw.ru>
+Date: Wed, 16 Aug 2006 19:38:44 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -22,7 +22,7 @@ CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
        devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
        ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: [RFC][PATCH 2/7] UBC: core (structures, API)
+Subject: [RFC][PATCH 3/7] UBC: ub context and inheritance
 References: <44E33893.6020700@sw.ru>
 In-Reply-To: <44E33893.6020700@sw.ru>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -30,630 +30,279 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Core functionality and interfaces of UBC:
-find/create beancounter, initialization,
-charge/uncharge of resource, core objects' declarations.
+Contains code responsible for setting UB on task,
+it's inheriting and setting host context in interrupts.
 
-Basic structures:
-  ubparm           - resource description
-  user_beancounter - set of resources, id, lock
+Task references three beancounters:
+  1. exec_ub  current context. all resources are
+              charged to this beancounter.
+  2. task_ub  beancounter to which task_struct is
+              charged itself.
+  3. fork_sub beancounter which is inherited by
+              task's children on fork
 
 Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
 Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
 ---
- include/ub/beancounter.h |  157 ++++++++++++++++++
- init/main.c              |    4
- kernel/Makefile          |    1
- kernel/ub/Makefile       |    7
- kernel/ub/beancounter.c  |  398 +++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 567 insertions(+)
+ include/linux/sched.h   |    5 +++++
+ include/ub/task.h       |   42 ++++++++++++++++++++++++++++++++++++++++++
+ kernel/fork.c           |   21 ++++++++++++++++-----
+ kernel/irq/handle.c     |    9 +++++++++
+ kernel/softirq.c        |    8 ++++++++
+ kernel/ub/Makefile      |    1 +
+ kernel/ub/beancounter.c |    4 ++++
+ kernel/ub/misc.c        |   34 ++++++++++++++++++++++++++++++++++
+ 8 files changed, 119 insertions(+), 5 deletions(-)
 
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./include/ub/beancounter.h	2006-08-10 14:58:27.000000000 +0400
-@@ -0,0 +1,157 @@
+--- ./include/linux/sched.h.ubfork	2006-07-17 17:01:12.000000000 +0400
++++ ./include/linux/sched.h	2006-07-31 16:01:54.000000000 +0400
+@@ -81,6 +81,8 @@ struct sched_param {
+ #include <linux/timer.h>
+ #include <linux/hrtimer.h>
+ 
++#include <ub/task.h>
++
+ #include <asm/processor.h>
+ 
+ struct exec_domain;
+@@ -997,6 +999,9 @@ struct task_struct {
+ 	spinlock_t delays_lock;
+ 	struct task_delay_info *delays;
+ #endif
++#ifdef CONFIG_USER_RESOURCE
++	struct task_beancounter	task_bc;
++#endif
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+--- ./include/ub/task.h.ubfork	2006-07-28 18:53:52.000000000 +0400
++++ ./include/ub/task.h	2006-08-01 15:26:08.000000000 +0400
+@@ -0,0 +1,42 @@
 +/*
-+ *  include/ub/beancounter.h
++ *  include/ub/task.h
 + *
 + *  Copyright (C) 2006 OpenVZ. SWsoft Inc
 + *
 + */
 +
-+#ifndef _LINUX_BEANCOUNTER_H
-+#define _LINUX_BEANCOUNTER_H
-+
-+/*
-+ *	Resource list.
-+ */
-+
-+#define UB_RESOURCES	0
-+
-+struct ubparm {
-+	/*
-+	 * A barrier over which resource allocations are failed gracefully.
-+	 * e.g. if the amount of consumed memory is over the barrier further
-+	 * sbrk() or mmap() calls fail, the existing processes are not killed.
-+	 */
-+	unsigned long	barrier;
-+	/* hard resource limit */
-+	unsigned long	limit;
-+	/* consumed resources */
-+	unsigned long	held;
-+	/* maximum amount of consumed resources through the last period */
-+	unsigned long	maxheld;
-+	/* minimum amount of consumed resources through the last period */
-+	unsigned long	minheld;
-+	/* count of failed charges */
-+	unsigned long	failcnt;
-+};
-+
-+/*
-+ * Kernel internal part.
-+ */
-+
-+#ifdef __KERNEL__
++#ifndef __UB_TASK_H_
++#define __UB_TASK_H_
 +
 +#include <linux/config.h>
-+#include <linux/spinlock.h>
-+#include <linux/list.h>
-+#include <asm/atomic.h>
 +
-+/*
-+ * UB_MAXVALUE is essentially LONG_MAX declared in a cross-compiling safe form.
-+ */
-+#define UB_MAXVALUE	( (1UL << (sizeof(unsigned long)*8-1)) - 1)
++struct user_beancounter;
 +
-+
-+/*
-+ *	Resource management structures
-+ * Serialization issues:
-+ *   beancounter list management is protected via ub_hash_lock
-+ *   task pointers are set only for current task and only once
-+ *   refcount is managed atomically
-+ *   value and limit comparison and change are protected by per-ub spinlock
-+ */
-+
-+struct user_beancounter
-+{
-+	atomic_t		ub_refcount;
-+	spinlock_t		ub_lock;
-+	uid_t			ub_uid;
-+	struct hlist_node	hash;
-+
-+	struct user_beancounter	*parent;
-+	void			*private_data;
-+
-+	/* resources statistics and settings */
-+	struct ubparm		ub_parms[UB_RESOURCES];
++struct task_beancounter {
++	struct user_beancounter *exec_ub;
++	struct user_beancounter *task_ub;
++	struct user_beancounter *fork_sub;
 +};
-+
-+enum severity { UB_BARRIER, UB_LIMIT, UB_FORCE };
-+
-+/* Flags passed to beancounter_findcreate() */
-+#define UB_LOOKUP_SUB		0x01 /* Lookup subbeancounter */
-+#define UB_ALLOC		0x02 /* May allocate new one */
-+#define UB_ALLOC_ATOMIC		0x04 /* Allocate with GFP_ATOMIC */
-+
-+#define UB_HASH_SIZE		256
 +
 +#ifdef CONFIG_USER_RESOURCE
-+extern struct hlist_head ub_hash[];
-+extern spinlock_t ub_hash_lock;
++#define get_exec_ub()		(current->task_bc.exec_ub)
++#define set_exec_ub(newub)			\
++	({					\
++		 struct user_beancounter *old;	\
++		 struct task_beancounter *tbc;	\
++		 tbc = &current->task_bc;	\
++		 old = tbc->exec_ub;		\
++		 tbc->exec_ub = newub;		\
++		 old;				\
++	 })
 +
-+static inline void ub_adjust_held_minmax(struct user_beancounter *ub,
-+		int resource)
-+{
-+	if (ub->ub_parms[resource].maxheld < ub->ub_parms[resource].held)
-+		ub->ub_parms[resource].maxheld = ub->ub_parms[resource].held;
-+	if (ub->ub_parms[resource].minheld > ub->ub_parms[resource].held)
-+		ub->ub_parms[resource].minheld = ub->ub_parms[resource].held;
-+}
-+
-+void ub_print_resource_warning(struct user_beancounter *ub, int res,
-+		char *str, unsigned long val, unsigned long held);
-+void ub_print_uid(struct user_beancounter *ub, char *str, int size);
-+
-+int  __charge_beancounter_locked(struct user_beancounter *ub,
-+		int resource, unsigned long val, enum severity strict);
-+void charge_beancounter_notop(struct user_beancounter *ub,
-+		int resource, unsigned long val);
-+int  charge_beancounter(struct user_beancounter *ub,
-+		int resource, unsigned long val, enum severity strict);
-+
-+void __uncharge_beancounter_locked(struct user_beancounter *ub,
-+		int resource, unsigned long val);
-+void uncharge_beancounter_notop(struct user_beancounter *ub,
-+		int resource, unsigned long val);
-+void uncharge_beancounter(struct user_beancounter *ub,
-+		int resource, unsigned long val);
-+
-+struct user_beancounter *beancounter_findcreate(uid_t uid,
-+		struct user_beancounter *parent, int flags);
-+
-+static inline struct user_beancounter *get_beancounter(
-+		struct user_beancounter *ub)
-+{
-+	atomic_inc(&ub->ub_refcount);
-+	return ub;
-+}
-+
-+void __put_beancounter(struct user_beancounter *ub);
-+static inline void put_beancounter(struct user_beancounter *ub)
-+{
-+	__put_beancounter(ub);
-+}
-+
-+void ub_init_early(void);
-+void ub_init_late(void);
-+void ub_init_proc(void);
-+
-+extern struct user_beancounter ub0;
-+extern const char *ub_rnames[];
++int ub_task_charge(struct task_struct *parent, struct task_struct *new);
++void ub_task_uncharge(struct task_struct *tsk);
 +
 +#else /* CONFIG_USER_RESOURCE */
-+
-+#define beancounter_findcreate(id, p, f)		(NULL)
-+#define get_beancounter(ub)				(NULL)
-+#define put_beancounter(ub)				do { } while (0)
-+#define __charge_beancounter_locked(ub, r, v, s)	(0)
-+#define charge_beancounter(ub, r, v, s)			(0)
-+#define charge_beancounter_notop(ub, r, v)		do { } while (0)
-+#define __uncharge_beancounter_locked(ub, r, v)		do { } while (0)
-+#define uncharge_beancounter(ub, r, v)			do { } while (0)
-+#define uncharge_beancounter_notop(ub, r, v)		do { } while (0)
-+#define ub_init_early()					do { } while (0)
-+#define ub_init_late()					do { } while (0)
-+#define ub_init_proc()					do { } while (0)
-+
++#define get_exec_ub()		(NULL)
++#define set_exec_ub(__ub)	(NULL)
++#define ub_task_charge(p, t)	(0)
++#define ub_task_uncharge(t)	do { } while (0)
 +#endif /* CONFIG_USER_RESOURCE */
-+#endif /* __KERNEL__ */
-+
-+#endif /* _LINUX_BEANCOUNTER_H */
---- ./init/main.c.ubcore	2006-08-10 14:55:47.000000000 +0400
-+++ ./init/main.c	2006-08-10 14:57:01.000000000 +0400
-@@ -52,6 +52,8 @@
- #include <linux/debug_locks.h>
- #include <linux/lockdep.h>
++#endif /* __UB_TASK_H_ */
+--- ./kernel/irq/handle.c.ubirq	2006-07-10 12:39:20.000000000 +0400
++++ ./kernel/irq/handle.c	2006-08-01 12:39:34.000000000 +0400
+@@ -16,6 +16,9 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel_stat.h>
  
 +#include <ub/beancounter.h>
++#include <ub/task.h>
 +
- #include <asm/io.h>
- #include <asm/bugs.h>
- #include <asm/setup.h>
-@@ -470,6 +472,7 @@ asmlinkage void __init start_kernel(void
- 	early_boot_irqs_off();
- 	early_init_irq_lock_class();
+ #include "internals.h"
  
-+	ub_init_early();
+ /**
+@@ -166,6 +169,9 @@ fastcall unsigned int __do_IRQ(unsigned 
+ 	struct irq_desc *desc = irq_desc + irq;
+ 	struct irqaction *action;
+ 	unsigned int status;
++	struct user_beancounter *ub;
++
++	ub = set_exec_ub(&ub0);
+ 
+ 	kstat_this_cpu.irqs[irq]++;
+ 	if (CHECK_IRQ_PER_CPU(desc->status)) {
+@@ -178,6 +184,8 @@ fastcall unsigned int __do_IRQ(unsigned 
+ 			desc->chip->ack(irq);
+ 		action_ret = handle_IRQ_event(irq, regs, desc->action);
+ 		desc->chip->end(irq);
++
++		(void) set_exec_ub(ub);
+ 		return 1;
+ 	}
+ 
+@@ -246,6 +254,7 @@ out:
+ 	desc->chip->end(irq);
+ 	spin_unlock(&desc->lock);
+ 
++	(void) set_exec_ub(ub);
+ 	return 1;
+ }
+ 
+--- ./kernel/softirq.c.ubirq	2006-07-17 17:01:12.000000000 +0400
++++ ./kernel/softirq.c	2006-08-01 12:40:44.000000000 +0400
+@@ -18,6 +18,9 @@
+ #include <linux/rcupdate.h>
+ #include <linux/smp.h>
+ 
++#include <ub/beancounter.h>
++#include <ub/task.h>
++
+ #include <asm/irq.h>
  /*
-  * Interrupts are still disabled. Do necessary setups, then
-  * enable them
-@@ -563,6 +566,7 @@ asmlinkage void __init start_kernel(void
- #endif
- 	fork_init(num_physpages);
- 	proc_caches_init();
-+	ub_init_late();
- 	buffer_init();
- 	unnamed_dev_init();
- 	key_init();
---- ./kernel/Makefile.ubcore	2006-08-10 14:55:47.000000000 +0400
-+++ ./kernel/Makefile	2006-08-10 14:57:01.000000000 +0400
-@@ -12,6 +12,7 @@ obj-y     = sched.o fork.o exec_domain.o
- 
- obj-$(CONFIG_STACKTRACE) += stacktrace.o
- obj-y += time/
-+obj-y += ub/
- obj-$(CONFIG_DEBUG_MUTEXES) += mutex-debug.o
- obj-$(CONFIG_LOCKDEP) += lockdep.o
- ifeq ($(CONFIG_PROC_FS),y)
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./kernel/ub/Makefile	2006-08-10 14:57:01.000000000 +0400
-@@ -0,0 +1,7 @@
-+#
-+# User resources part (UBC)
-+#
-+# Copyright (C) 2006 OpenVZ. SWsoft Inc
-+#
+    - No shared variables, all the data are CPU local.
+@@ -191,6 +194,9 @@ asmlinkage void __do_softirq(void)
+ 	__u32 pending;
+ 	int max_restart = MAX_SOFTIRQ_RESTART;
+ 	int cpu;
++	struct user_beancounter *ub;
 +
-+obj-$(CONFIG_USER_RESOURCE) += beancounter.o
---- /dev/null	2006-07-18 14:52:43.075228448 +0400
-+++ ./kernel/ub/beancounter.c	2006-08-10 15:09:34.000000000 +0400
-@@ -0,0 +1,398 @@
++	ub = set_exec_ub(&ub0);
+ 
+ 	pending = local_softirq_pending();
+ 	account_system_vtime(current);
+@@ -229,6 +235,8 @@ restart:
+ 
+ 	account_system_vtime(current);
+ 	_local_bh_enable();
++
++	(void) set_exec_ub(ub);
+ }
+ 
+ #ifndef __ARCH_HAS_DO_SOFTIRQ
+--- ./kernel/fork.c.ubfork	2006-07-17 17:01:12.000000000 +0400
++++ ./kernel/fork.c	2006-08-01 12:58:36.000000000 +0400
+@@ -46,6 +46,8 @@
+ #include <linux/delayacct.h>
+ #include <linux/taskstats_kern.h>
+ 
++#include <ub/task.h>
++
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -102,6 +104,7 @@ static kmem_cache_t *mm_cachep;
+ 
+ void free_task(struct task_struct *tsk)
+ {
++	ub_task_uncharge(tsk);
+ 	free_thread_info(tsk->thread_info);
+ 	rt_mutex_debug_task_free(tsk);
+ 	free_task_struct(tsk);
+@@ -162,18 +165,19 @@ static struct task_struct *dup_task_stru
+ 
+ 	tsk = alloc_task_struct();
+ 	if (!tsk)
+-		return NULL;
++		goto out;
+ 
+ 	ti = alloc_thread_info(tsk);
+-	if (!ti) {
+-		free_task_struct(tsk);
+-		return NULL;
+-	}
++	if (!ti)
++		goto out_tsk;
+ 
+ 	*tsk = *orig;
+ 	tsk->thread_info = ti;
+ 	setup_thread_stack(tsk, orig);
+ 
++	if (ub_task_charge(orig, tsk))
++		goto out_ti;
++
+ 	/* One for us, one for whoever does the "release_task()" (usually parent) */
+ 	atomic_set(&tsk->usage,2);
+ 	atomic_set(&tsk->fs_excl, 0);
+@@ -180,6 +184,13 @@ static struct task_struct *dup_task_stru
+ #endif
+ 	tsk->splice_pipe = NULL;
+ 	return tsk;
++
++out_ti:
++	free_thread_info(ti);
++out_tsk:
++	free_task_struct(tsk);
++out:
++	return NULL;
+ }
+ 
+ #ifdef CONFIG_MMU
+--- ./kernel/ub/Makefile.ubcore	2006-08-03 16:24:56.000000000 +0400
++++ ./kernel/ub/Makefile	2006-08-01 11:08:39.000000000 +0400
+@@ -5,3 +5,4 @@
+ #
+ 
+ obj-$(CONFIG_USER_RESOURCE) += beancounter.o
++obj-$(CONFIG_USER_RESOURCE) += misc.o
+--- ./kernel/ub/beancounter.c.ubcore	2006-07-28 13:07:44.000000000 +0400
++++ ./kernel/ub/beancounter.c	2006-08-03 16:14:17.000000000 +0400
+@@ -395,6 +395,10 @@
+ 	spin_lock_init(&ub_hash_lock);
+ 	slot = &ub_hash[ub_hash_fun(ub->ub_uid)];
+ 	hlist_add_head(&ub->hash, slot);
++
++	current->task_bc.exec_ub = ub;
++	current->task_bc.task_ub = get_beancounter(ub);
++	current->task_bc.fork_sub = get_beancounter(ub);
+ }
+ 
+ void __init ub_init_late(void)
+--- ./kernel/ub/misc.c.ubfork	2006-07-31 16:23:44.000000000 +0400
++++ ./kernel/ub/misc.c	2006-07-31 16:28:47.000000000 +0400
+@@ -0,0 +1,34 @@
 +/*
-+ *  kernel/ub/beancounter.c
++ * kernel/ub/misc.c
 + *
-+ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
-+ *  Original code by (C) 1998      Alan Cox
-+ *                       1998-2000 Andrey Savochkin <saw@saw.sw.com.sg>
++ * Copyright (C) 2006 OpenVZ. SWsoft Inc.
++ *
 + */
 +
-+#include <linux/slab.h>
-+#include <linux/module.h>
++#include <linux/sched.h>
 +
 +#include <ub/beancounter.h>
++#include <ub/task.h>
 +
-+static kmem_cache_t *ub_cachep;
-+static struct user_beancounter default_beancounter;
-+static struct user_beancounter default_subbeancounter;
-+
-+static void init_beancounter_struct(struct user_beancounter *ub, uid_t id);
-+
-+struct user_beancounter ub0;
-+
-+const char *ub_rnames[] = {
-+};
-+
-+#define ub_hash_fun(x) ((((x) >> 8) ^ (x)) & (UB_HASH_SIZE - 1))
-+#define ub_subhash_fun(p, id) ub_hash_fun((p)->ub_uid + (id) * 17)
-+
-+struct hlist_head ub_hash[UB_HASH_SIZE];
-+spinlock_t ub_hash_lock;
-+
-+EXPORT_SYMBOL(ub_hash);
-+EXPORT_SYMBOL(ub_hash_lock);
-+
-+/*
-+ *	Per user resource beancounting. Resources are tied to their luid.
-+ *	The resource structure itself is tagged both to the process and
-+ *	the charging resources (a socket doesn't want to have to search for
-+ *	things at irq time for example). Reference counters keep things in
-+ *	hand.
-+ *
-+ *	The case where a user creates resource, kills all his processes and
-+ *	then starts new ones is correctly handled this way. The refcounters
-+ *	will mean the old entry is still around with resource tied to it.
-+ */
-+
-+struct user_beancounter *beancounter_findcreate(uid_t uid,
-+		struct user_beancounter *p, int mask)
++int ub_task_charge(struct task_struct *parent, struct task_struct *new)
 +{
-+	struct user_beancounter *new_ub, *ub, *tmpl_ub;
-+	unsigned long flags;
-+	struct hlist_head *slot;
-+	struct hlist_node *pos;
-+
-+	if (mask & UB_LOOKUP_SUB) {
-+		WARN_ON(p == NULL);
-+		tmpl_ub = &default_subbeancounter;
-+		slot = &ub_hash[ub_subhash_fun(p, uid)];
-+	} else {
-+		WARN_ON(p != NULL);
-+		tmpl_ub = &default_beancounter;
-+		slot = &ub_hash[ub_hash_fun(uid)];
-+	}
-+	new_ub = NULL;
-+
-+retry:
-+	spin_lock_irqsave(&ub_hash_lock, flags);
-+	hlist_for_each_entry (ub, pos, slot, hash)
-+		if (ub->ub_uid == uid && ub->parent == p)
-+			break;
-+
-+	if (pos != NULL) {
-+		get_beancounter(ub);
-+		spin_unlock_irqrestore(&ub_hash_lock, flags);
-+
-+		if (new_ub != NULL) {
-+			put_beancounter(new_ub->parent);
-+			kmem_cache_free(ub_cachep, new_ub);
-+		}
-+		return ub;
-+	}
-+
-+	if (!(mask & UB_ALLOC))
-+		goto out_unlock;
-+
-+	if (new_ub != NULL)
-+		goto out_install;
-+
-+	if (mask & UB_ALLOC_ATOMIC) {
-+		new_ub = kmem_cache_alloc(ub_cachep, GFP_ATOMIC);
-+		if (new_ub == NULL)
-+			goto out_unlock;
-+
-+		memcpy(new_ub, tmpl_ub, sizeof(*new_ub));
-+		init_beancounter_struct(new_ub, uid);
-+		if (p)
-+			new_ub->parent = get_beancounter(p);
-+		goto out_install;
-+	}
-+
-+	spin_unlock_irqrestore(&ub_hash_lock, flags);
-+
-+	new_ub = kmem_cache_alloc(ub_cachep, GFP_KERNEL);
-+	if (new_ub == NULL)
-+		goto out;
-+
-+	memcpy(new_ub, tmpl_ub, sizeof(*new_ub));
-+	init_beancounter_struct(new_ub, uid);
-+	if (p)
-+		new_ub->parent = get_beancounter(p);
-+	goto retry;
-+
-+out_install:
-+	hlist_add_head(&new_ub->hash, slot);
-+out_unlock:
-+	spin_unlock_irqrestore(&ub_hash_lock, flags);
-+out:
-+	return new_ub;
-+}
-+
-+EXPORT_SYMBOL(beancounter_findcreate);
-+
-+void ub_print_uid(struct user_beancounter *ub, char *str, int size)
-+{
-+	if (ub->parent != NULL)
-+		snprintf(str, size, "%u.%u", ub->parent->ub_uid, ub->ub_uid);
-+	else
-+		snprintf(str, size, "%u", ub->ub_uid);
-+}
-+
-+EXPORT_SYMBOL(ub_print_uid);
-+
-+void ub_print_resource_warning(struct user_beancounter *ub, int res,
-+		char *str, unsigned long val, unsigned long held)
-+{
-+	char uid[64];
-+
-+	ub_print_uid(ub, uid, sizeof(uid));
-+	printk(KERN_WARNING "UB %s %s warning: %s "
-+			"(held %lu, fails %lu, val %lu)\n",
-+			uid, ub_rnames[res], str,
-+			(res < UB_RESOURCES ? ub->ub_parms[res].held : held),
-+			(res < UB_RESOURCES ? ub->ub_parms[res].failcnt : 0),
-+			val);
-+}
-+
-+EXPORT_SYMBOL(ub_print_resource_warning);
-+
-+static inline void verify_held(struct user_beancounter *ub)
-+{
-+	int i;
-+
-+	for (i = 0; i < UB_RESOURCES; i++)
-+		if (ub->ub_parms[i].held != 0)
-+			ub_print_resource_warning(ub, i,
-+					"resource is held on put", 0, 0);
-+}
-+
-+void __put_beancounter(struct user_beancounter *ub)
-+{
-+	unsigned long flags;
-+	struct user_beancounter *parent;
-+
-+again:
-+	parent = ub->parent;
-+	/* equevalent to atomic_dec_and_lock_irqsave() */
-+	local_irq_save(flags);
-+	if (likely(!atomic_dec_and_lock(&ub->ub_refcount, &ub_hash_lock))) {
-+		if (unlikely(atomic_read(&ub->ub_refcount) < 0))
-+			printk(KERN_ERR "UB: Bad ub refcount: ub=%p, "
-+					"luid=%d, ref=%d\n",
-+					ub, ub->ub_uid,
-+					atomic_read(&ub->ub_refcount));
-+		local_irq_restore(flags);
-+		return;
-+	}
-+
-+	if (unlikely(ub == &ub0)) {
-+		printk(KERN_ERR "Trying to put ub0\n");
-+		spin_unlock_irqrestore(&ub_hash_lock, flags);
-+		return;
-+	}
-+
-+	verify_held(ub);
-+	hlist_del(&ub->hash);
-+	spin_unlock_irqrestore(&ub_hash_lock, flags);
-+
-+	kmem_cache_free(ub_cachep, ub);
-+
-+	ub = parent;
-+	if (ub != NULL)
-+		goto again;
-+}
-+
-+EXPORT_SYMBOL(__put_beancounter);
-+
-+/*
-+ *	Generic resource charging stuff
-+ */
-+
-+int __charge_beancounter_locked(struct user_beancounter *ub,
-+		int resource, unsigned long val, enum severity strict)
-+{
-+	/*
-+	 * ub_value <= UB_MAXVALUE, value <= UB_MAXVALUE, and only one addition
-+	 * at the moment is possible so an overflow is impossible.  
-+	 */
-+	ub->ub_parms[resource].held += val;
-+
-+	switch (strict) {
-+		case UB_BARRIER:
-+			if (ub->ub_parms[resource].held >
-+					ub->ub_parms[resource].barrier)
-+				break;
-+			/* fallthrough */
-+		case UB_LIMIT:
-+			if (ub->ub_parms[resource].held >
-+					ub->ub_parms[resource].limit)
-+				break;
-+			/* fallthrough */
-+		case UB_FORCE:
-+			ub_adjust_held_minmax(ub, resource);
-+			return 0;
-+		default:
-+			BUG();
-+	}
-+
-+	ub->ub_parms[resource].failcnt++;
-+	ub->ub_parms[resource].held -= val;
-+	return -ENOMEM;
-+}
-+
-+int charge_beancounter(struct user_beancounter *ub,
-+		int resource, unsigned long val, enum severity strict)
-+{
-+	int retval;
-+	struct user_beancounter *p, *q;
-+	unsigned long flags;
-+
-+	retval = -EINVAL;
-+	BUG_ON(val > UB_MAXVALUE);
-+
-+	local_irq_save(flags);
-+	for (p = ub; p != NULL; p = p->parent) {
-+		spin_lock(&p->ub_lock);
-+		retval = __charge_beancounter_locked(p, resource, val, strict);
-+		spin_unlock(&p->ub_lock);
-+		if (retval)
-+			goto unroll;
-+	}
-+out_restore:
-+	local_irq_restore(flags);
-+	return retval;
-+
-+unroll:
-+	for (q = ub; q != p; q = q->parent) {
-+		spin_lock(&q->ub_lock);
-+		__uncharge_beancounter_locked(q, resource, val);
-+		spin_unlock(&q->ub_lock);
-+	}
-+	goto out_restore;
-+}
-+
-+EXPORT_SYMBOL(charge_beancounter);
-+
-+void charge_beancounter_notop(struct user_beancounter *ub,
-+		int resource, unsigned long val)
-+{
-+	struct user_beancounter *p;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	for (p = ub; p->parent != NULL; p = p->parent) {
-+		spin_lock(&p->ub_lock);
-+		__charge_beancounter_locked(p, resource, val, UB_FORCE);
-+		spin_unlock(&p->ub_lock);
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+EXPORT_SYMBOL(charge_beancounter_notop);
-+
-+void __uncharge_beancounter_locked(struct user_beancounter *ub,
-+		int resource, unsigned long val)
-+{
-+	if (unlikely(ub->ub_parms[resource].held < val)) {
-+		ub_print_resource_warning(ub, resource,
-+				"uncharging too much", val, 0);
-+		val = ub->ub_parms[resource].held;
-+	}
-+	ub->ub_parms[resource].held -= val;
-+	ub_adjust_held_minmax(ub, resource);
-+}
-+
-+void uncharge_beancounter(struct user_beancounter *ub,
-+		int resource, unsigned long val)
-+{
-+	unsigned long flags;
-+	struct user_beancounter *p;
-+
-+	for (p = ub; p != NULL; p = p->parent) {
-+		spin_lock_irqsave(&p->ub_lock, flags);
-+		__uncharge_beancounter_locked(p, resource, val);
-+		spin_unlock_irqrestore(&p->ub_lock, flags);
-+	}
-+}
-+
-+EXPORT_SYMBOL(uncharge_beancounter);
-+
-+void uncharge_beancounter_notop(struct user_beancounter *ub,
-+		int resource, unsigned long val)
-+{
-+	struct user_beancounter *p;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	for (p = ub; p->parent != NULL; p = p->parent) {
-+		spin_lock(&p->ub_lock);
-+		__uncharge_beancounter_locked(p, resource, val);
-+		spin_unlock(&p->ub_lock);
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+EXPORT_SYMBOL(uncharge_beancounter_notop);
-+
-+/*
-+ *	Initialization
-+ *
-+ *	struct user_beancounter contains
-+ *	 - limits and other configuration settings
-+ *	 - structural fields: lists, spinlocks and so on.
-+ *
-+ *	Before these parts are initialized, the structure should be memset
-+ *	to 0 or copied from a known clean structure.  That takes care of a lot
-+ *	of fields not initialized explicitly.
-+ */
-+
-+static void init_beancounter_struct(struct user_beancounter *ub, uid_t id)
-+{
-+	atomic_set(&ub->ub_refcount, 1);
-+	spin_lock_init(&ub->ub_lock);
-+	ub->ub_uid = id;
-+}
-+
-+static void init_beancounter_nolimits(struct user_beancounter *ub)
-+{
-+	int k;
-+
-+	for (k = 0; k < UB_RESOURCES; k++) {
-+		ub->ub_parms[k].limit = UB_MAXVALUE;
-+		ub->ub_parms[k].barrier = UB_MAXVALUE;
-+	}
-+}
-+
-+static void init_beancounter_syslimits(struct user_beancounter *ub)
-+{
-+	int k;
-+
-+	for (k = 0; k < UB_RESOURCES; k++)
-+		ub->ub_parms[k].barrier = ub->ub_parms[k].limit;
-+}
-+
-+void __init ub_init_early(void)
-+{
-+	struct user_beancounter *ub;
-+	struct hlist_head *slot;
-+
-+	ub = &ub0;
-+
-+	memset(ub, 0, sizeof(*ub));
-+	init_beancounter_nolimits(ub);
-+	init_beancounter_struct(ub, 0);
-+
-+	spin_lock_init(&ub_hash_lock);
-+	slot = &ub_hash[ub_hash_fun(ub->ub_uid)];
-+	hlist_add_head(&ub->hash, slot);
-+}
-+
-+void __init ub_init_late(void)
-+{
++	struct task_beancounter *old_bc;
++	struct task_beancounter *new_bc;
 +	struct user_beancounter *ub;
 +
-+	ub_cachep = kmem_cache_create("user_beancounters",
-+			sizeof(struct user_beancounter),
-+			0, SLAB_HWCACHE_ALIGN, NULL, NULL);
-+	if (ub_cachep == NULL)
-+		panic("Can't create ubc caches\n");
++	old_bc = &parent->task_bc;
++	new_bc = &new->task_bc;
 +
-+	ub = &default_beancounter;
-+	memset(ub, 0, sizeof(default_beancounter));
-+	init_beancounter_syslimits(ub);
-+	init_beancounter_struct(ub, 0);
++	ub = old_bc->fork_sub;
++	new_bc->exec_ub = get_beancounter(ub);
++	new_bc->task_ub = get_beancounter(ub);
++	new_bc->fork_sub = get_beancounter(ub);
++	return 0;
++}
 +
-+	ub = &default_subbeancounter;
-+	memset(ub, 0, sizeof(default_subbeancounter));
-+	init_beancounter_nolimits(ub);
-+	init_beancounter_struct(ub, 0);
++void ub_task_uncharge(struct task_struct *tsk)
++{
++	put_beancounter(tsk->task_bc.exec_ub);
++	put_beancounter(tsk->task_bc.task_ub);
++	put_beancounter(tsk->task_bc.fork_sub);
 +}

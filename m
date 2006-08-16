@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWHPJoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWHPJwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWHPJoi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 05:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWHPJoi
+	id S1751079AbWHPJwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 05:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWHPJwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 05:44:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:28899 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751070AbWHPJoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 05:44:37 -0400
-Date: Wed, 16 Aug 2006 10:44:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Miller <davem@davemloft.net>
-Cc: hch@infradead.org, johnpol@2ka.mipt.ru, arnd@arndb.de,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-Message-ID: <20060816094431.GA21118@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Miller <davem@davemloft.net>, johnpol@2ka.mipt.ru,
-	arnd@arndb.de, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20060816091029.GA6375@infradead.org> <20060816093159.GA31882@2ka.mipt.ru> <20060816093837.GA11096@infradead.org> <20060816.024008.74744877.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060816.024008.74744877.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 16 Aug 2006 05:52:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:37646 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751079AbWHPJwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 05:52:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ofHVIz511vhWMoCtfiUYmKX6SglFIpf5xj2ZaeqSgQEIa+xPhv4AywAeT9HtOK/BCTwUaekEQcNRoCItxfPEsd1p1DSph3GbHGmF7ogKZkDhvTrsUy7plpJYKnl3h2khGRpmpZt25a9fqmYyBH/aaKItHpNH+dHgQPcFJdnzHL4=
+Message-ID: <44E2EAE0.7080207@gmail.com>
+Date: Wed, 16 Aug 2006 11:52:09 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       support@moxa.com.tw
+Subject: Re: [PATCH 1/1 -resend] Char: mxser, upgrade to 1.9.1
+References: <mxser191resend3_ee43092305ba163fd5d4@wsc.cz> <200608160831.12848.arekm@pld-linux.org> <20060815234512.0d3bc1d7.akpm@osdl.org> <200608161127.32849.arekm@pld-linux.org>
+In-Reply-To: <200608161127.32849.arekm@pld-linux.org>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 02:40:08AM -0700, David Miller wrote:
-> From: Christoph Hellwig <hch@infradead.org>
-> Date: Wed, 16 Aug 2006 10:38:37 +0100
+Arkadiusz Miskiewicz wrote:
+> On Wednesday 16 August 2006 08:45, Andrew Morton wrote:
 > 
-> > We could, but I'd rather waste 4 bytes in struct net_device than
-> > having such ugly warts in common code.
+>>>> Perhaps we could create an mxser-new.c and offer that in config, plan
+>>>> to remove mxser.c N months hence?
+>>> I can test the updated driver with  MOXA CP-168U series board if it will
+>>> compile on 2.6.12.6.
+>> Thanks.
+>>
+>>> Unfortunately I can't change kernel to latest one there.
+>>> Will testing on 2.6.12.6 be enough for you?
+> [...]
+>> Perhaps it'll work if you apply the patch to 2.6.18-rc4 then copy the
+>> patched files over to 2.6.12..
 > 
-> Why not instead have struct device store some default node value?
-> The node decision will be sub-optimal on non-pci but it won't crash.
+> I've copied 2.6.18rc4+1.9.1 update applied to 2.6.12 + applied patch below, started minicom
+> and tried to write something... at that moment machine blew up - instantly rebooted.
+> Nothing on serial console unfortunately. 
 
-Right now we don't even have the node stored in the pci_dev structure but
-only arch-specific accessor functions/macros.  We could change those to
-take a struct device instead and make them return -1 for everything non-pci
-as we already do in architectures that don't support those helpers.  -1
-means 'any node' for all common allocators.
+Grrr. Grr. Could you, please, revert 
+http://www.fi.muni.cz/~xslaby/sklad/mxreverse/* one-by-one to find out which 
+change causes it (it applies on the top of proposed 1.9.1 patch)?
+
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

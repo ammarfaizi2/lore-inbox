@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWHPTT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWHPTTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWHPTT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 15:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWHPTT3
+	id S1750918AbWHPTTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 15:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWHPTTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 15:19:29 -0400
-Received: from mail.linicks.net ([217.204.244.146]:20485 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750922AbWHPTT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 15:19:28 -0400
-From: Nick Warne <nick@linicks.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: PATCH: Fix crash case
-Date: Wed, 16 Aug 2006 20:19:12 +0100
-User-Agent: KMail/1.9.4
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <1155746131.24077.363.camel@localhost.localdomain> <7c3341450608161210ua4d0d4esc54f98c3ada69f3d@mail.gmail.com> <Pine.LNX.4.58.0608161214380.30053@shark.he.net>
-In-Reply-To: <Pine.LNX.4.58.0608161214380.30053@shark.he.net>
+	Wed, 16 Aug 2006 15:19:04 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:2979 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750918AbWHPTTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 15:19:03 -0400
+Date: Wed, 16 Aug 2006 21:19:02 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kbuild: correct assingment to CFLAGS with CROSS_COMPILE
+Message-ID: <20060816191902.GA14529@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608162019.12678.nick@linicks.net>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 August 2006 20:15, Randy.Dunlap wrote:
+Hi Greg.
 
-> > Sorry for being a noob here - I read LKML to try to learn.
-> >
-> > What is meant by 'If we are going to BUG()...  cover the case
-> > of the BUG being compiled out'.
-> >
-> > What would make BUG(); not being compiled?
->
-> It's a config option is EMBEDDED=y:
->
+Please pull following change for 2.6.18.
+Pull from:
+	git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild-2.6.18.git
 
-Ah!  That option.  OK, thanks.
 
-Nick
--- 
-Every program has two purposes:
-one for which it was written and another for which it wasn't.
+	Sam
+
+
+commit c9eca0b91015bc685c2f35a50efc63d73fdf943a
+Author: Sam Ravnborg <sam@mars.ravnborg.org>
+Date:   Wed Aug 16 21:14:08 2006 +0200
+
+    kbuild: correct assingment to CFLAGS with CROSS_COMPILE
+    
+    Some architectures change $CC in arch/$(ARCH)/Makefile
+    mips is one example.
+    
+    That have impact on what options are supported by gcc so move all
+    $(call cc-option, ...) after include of arch specific Makefile.
+    
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+
+diff --git a/Makefile b/Makefile
+index e71fefd..1589085 100644
+--- a/Makefile
++++ b/Makefile
+@@ -309,9 +309,6 @@ CPPFLAGS        := -D__KERNEL__ $(LINUXI
+ 
+ CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+                    -fno-strict-aliasing -fno-common
+-# Force gcc to behave correct even for buggy distributions
+-CFLAGS          += $(call cc-option, -fno-stack-protector)
+-
+ AFLAGS          := -D__ASSEMBLY__
+ 
+ # Read KERNELRELEASE from include/config/kernel.release (if it exists)
+@@ -486,6 +483,8 @@ else
+ CFLAGS		+= -O2
+ endif
+ 
++include $(srctree)/arch/$(ARCH)/Makefile
++
+ ifdef CONFIG_FRAME_POINTER
+ CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
+ else
+@@ -500,7 +499,8 @@ ifdef CONFIG_DEBUG_INFO
+ CFLAGS		+= -g
+ endif
+ 
+-include $(srctree)/arch/$(ARCH)/Makefile
++# Force gcc to behave correct even for buggy distributions
++CFLAGS          += $(call cc-option, -fno-stack-protector)
+ 
+ # arch Makefile may override CC so keep this after arch Makefile is included
+ NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)

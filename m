@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWHPKhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWHPKmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWHPKhV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 06:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWHPKhV
+	id S1751099AbWHPKmH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 06:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWHPKmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 06:37:21 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:50693 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750957AbWHPKhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 06:37:20 -0400
-Message-ID: <44E2F4F9.8010402@shadowen.org>
-Date: Wed, 16 Aug 2006 11:35:37 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Wed, 16 Aug 2006 06:42:07 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40326 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751100AbWHPKmG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 06:42:06 -0400
+Date: Wed, 16 Aug 2006 12:41:43 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
+Subject: Re: [RFC][PATCH] PM: Use suspend_console in swsusp and make it configureable
+Message-ID: <20060816104143.GC9497@elf.ucw.cz>
+References: <200608151509.06087.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Andy Whitcroft <apw@shadowen.org>
-CC: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 -- new depancy on curses development
-References: <20060813012454.f1d52189.akpm@osdl.org> <44E2E867.2050508@shadowen.org>
-In-Reply-To: <44E2E867.2050508@shadowen.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608151509.06087.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[/me updates the CC: to Sam's real email.]
+Hi!
 
-Andy Whitcroft wrote:
-> Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/ 
->>
+> The appended patch does the following:
 > 
->>  git-lxdialog.patch
-> 
-> This tree seems to change the Makefile dependancies in the kconfig 
-> subdirectory such that a plain compile of the kernel leads to an attempt 
-> to build the menuconfig targets.  This in turn adds a new dependancy on 
-> the curses development libraries.
-> 
->   08/15/06-05:23:09 building kernel - make -j4 vmlinux
->     HOSTCC  scripts/kconfig/lxdialog/checklist.o
->   In file included from scripts/kconfig/lxdialog/checklist.c:24:
->               scripts/kconfig/lxdialog/dialog.h:31:20: error: curses.h:
->               No such file or directory
-> 
-> This seems to come from this rather innocent sounding change in that tree:
-> 
-> commit 9238251dddc15b52656e70b74dffe56193d01215
-> Author: Sam Ravnborg <sam@mars.ravnborg.org>
-> Date:   Mon Jul 24 21:40:46 2006 +0200
-> 
->     kconfig/lxdialog: refactor color support
-> 
+> 1) Adds suspend_console() and resume_console() to the suspend-to-disk code
+> paths so that people using netconsole are safe with swsusp.
 
-Ok, reading the patch as if its git output isn't a good plan.  The 
-changeset appears to be this one:
+> 2) Adds a Kconfig option allowing us to disable suspend_/resume_console()
+> if need be.
 
-commit 49140e7b29bb1fcc195efef3e1c54c144dd2eff7
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Thu Jul 27 22:10:27 2006 +0200
+Slightly ugly, but I guess that is the way to go.
 
-     kconfig/menuconfig: lxdialog is now built-in
+> 3) Marks CONFIG_PM_TRACE as dangerous.
 
+I do not think that is enough. "(WILL TRASH YOUR CMOS)" would be more
+suitable. Dangerous is "may cause problems to you". This is "will
+cause problems to you". And for this to be useful, people have to edit
+sources, anyway.
 
-> which also seems to change the Makefile about, specifically bringing the 
-> sub Makefile into the top level one.
-> 
-> [...]
-> -       $(Q)$(MAKE) $(build)=scripts/kconfig/lxdialog
-> [...]
-> +# lxdialog stuff
-> +check-lxdialog  := $(srctree)/$(src)/lxdialog/check-lxdialog.sh
-> [...]
-> 
-> Sam?
-> 
-> -apw
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+								Pavel
 
+Can we just delete the config option?
+> Index: linux-2.6.18-rc4-mm1/kernel/power/Kconfig
+> ===================================================================
+> --- linux-2.6.18-rc4-mm1.orig/kernel/power/Kconfig
+> +++ linux-2.6.18-rc4-mm1/kernel/power/Kconfig
+>  config PM_TRACE
+> -	bool "Suspend/resume event tracing"
+> +	bool "Suspend/resume event tracing (DANGEROUS)"
+>  	depends on PM && PM_DEBUG && X86_32 && EXPERIMENTAL
+>  	default n
+>  	---help---
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

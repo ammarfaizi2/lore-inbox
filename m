@@ -1,43 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWHPQ0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWHPQ3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWHPQ0r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWHPQ0r
+	id S1751088AbWHPQ3B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWHPQ3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:26:47 -0400
-Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:2701 "EHLO
-	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1751143AbWHPQ0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:26:46 -0400
-Message-ID: <44E34742.80302@lwfinger.net>
-Date: Wed, 16 Aug 2006 11:26:42 -0500
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-CC: bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: DEBUG_LOCKS_WARN_ON triggered by bcm43xx-SoftMAC
-References: <44E296DD.3040803@lwfinger.net> <200608161806.10348.mb@bu3sch.de>
-In-Reply-To: <200608161806.10348.mb@bu3sch.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 16 Aug 2006 12:29:01 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:28734 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751088AbWHPQ3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:29:00 -0400
+Subject: Re: Please pull git390 'for-linus' branch
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Greg KH <gregkh@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060816155314.GA9682@suse.de>
+References: <20060816121400.GA29406@skybase> <20060816155314.GA9682@suse.de>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Wed, 16 Aug 2006 18:28:56 +0200
+Message-Id: <1155745736.5865.31.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
+On Wed, 2006-08-16 at 08:53 -0700, Greg KH wrote:
+> > Please pull from 'for-linus' branch of
+> > 
+> > 	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+> > 
+> > to receive the following updates:
+> > 
+> >  arch/s390/appldata/appldata_base.c |    2 
+> >  arch/s390/mm/init.c                |    6 +-
+> >  drivers/s390/block/dasd.c          |    2 
+> >  drivers/s390/block/dasd_devmap.c   |   84 +++++++++++++++++--------------------
+> >  drivers/s390/block/dasd_eckd.c     |    8 +--
+> >  drivers/s390/block/xpram.c         |   25 -----------
+> >  drivers/s390/char/tape_class.c     |    2 
+> >  drivers/s390/cio/device_fsm.c      |    1 
+> >  drivers/s390/cio/device_ops.c      |    3 +
+> >  9 files changed, 55 insertions(+), 78 deletions(-)
 > 
-> Hm, weird bug.
-> I can't reproduce this on i386 or PPC.
-> Could it be a bug in the lockdep code?
+> Hm, I got:
+>  arch/s390/appldata/appldata_base.c |    2 -
+>  arch/s390/mm/init.c                |    6 +--
+>  drivers/s390/block/dasd.c          |    2 -
+>  drivers/s390/block/dasd_devmap.c   |   84 +++++++++++++++++-------------------
+>  drivers/s390/block/dasd_eckd.c     |    8 ++-
+>  drivers/s390/block/xpram.c         |   25 -----------
+>  6 files changed, 50 insertions(+), 77 deletions(-)
 > 
+> instead when pulling.  I've pushed out my tree so you can see what is missing.
 
-It could be. I'll send it on to LKML. Perhaps one of the experts
-there can tell us. It doesn't seem to cause any trouble, but I get
-one of these when bcm43xx starts.
+That is strange. Just tested it again and I get:
 
-Are you running WPA? The message seems to occur just after
-wpa_supplicant finishes the connection and sets the security flags.
+Fast forward
+ arch/s390/appldata/appldata_base.c |    2 -
+ arch/s390/mm/init.c                |    6 +--
+ drivers/s390/block/dasd.c          |    2 -
+ drivers/s390/block/dasd_devmap.c   |   84 +++++++++++++++++-------------------
+ drivers/s390/block/dasd_eckd.c     |    8 ++-
+ drivers/s390/block/xpram.c         |   25 -----------
+ drivers/s390/char/tape_class.c     |    2 -
+ drivers/s390/cio/device_fsm.c      |    1
+ drivers/s390/cio/device_ops.c      |    3 +
+ 9 files changed, 55 insertions(+), 78 deletions(-)
 
-Larry
+Do you keep a local copy of the git390 tree on you harddrive ?
+
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

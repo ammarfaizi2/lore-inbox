@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWHPVxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWHPVx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWHPVxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 17:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWHPVxA
+	id S932269AbWHPVx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 17:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWHPVx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 17:53:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42883 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932268AbWHPVxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 17:53:00 -0400
-Date: Wed, 16 Aug 2006 14:52:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 3/3] PM: Remove PM_TRACE from Kconfig
-Message-Id: <20060816145242.32faa669.akpm@osdl.org>
-In-Reply-To: <200608162305.34038.rjw@sisk.pl>
-References: <200608162259.00941.rjw@sisk.pl>
-	<200608162305.34038.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 16 Aug 2006 17:53:27 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:56557 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932271AbWHPVxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 17:53:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PMB5ZgnGysOltJlD5QWd1b0lWvUrJErena452mogLCjtjrvNIk1QEHteGurdaZUVEJwOx4bLE3y5mZn8L7rPPt0Y1IN1/6TIIWSeuwRfCNJz25UN+gXyTbZ/cJlCem75PxHhRTm2aYAiYOagI3mVNsoA5sd17L94/qoQ/2fOTAo=
+Message-ID: <9a8748490608161453y58c48fa8s5a64528d01192a84@mail.gmail.com>
+Date: Wed, 16 Aug 2006 23:53:24 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: + tty-trivial-kzalloc-opportunity.patch added to -mm tree
+Cc: mm-commits@vger.kernel.org, alan@lxorguk.ukuu.org.uk, alan@redhat.com
+In-Reply-To: <200608162142.k7GLgMYB013117@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200608162142.k7GLgMYB013117@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 23:05:33 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-
-> Remove the CONFIG_PM_TRACE option, which is dangerous and should only be used
-> by people who know exactly what they are doing, from kernel/power/Kconfig .
-> 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> Acked-by: Pavel Machek <pavel@ucw.cz>
+On 16/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
+>
+> The patch titled
+>
+>      tty: trivial kzalloc opportunity
+>
+> has been added to the -mm tree.  Its filename is
+>
+>      tty-trivial-kzalloc-opportunity.patch
+>
+> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> out what to do about this
+>
+> ------------------------------------------------------
+> Subject: tty: trivial kzalloc opportunity
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>
+> Signed-off-by: Alan Cox <alan@redhat.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 > ---
->  kernel/power/Kconfig |   18 ------------------
->  1 files changed, 18 deletions(-)
-> 
-> Index: linux-2.6.18-rc4-mm1/kernel/power/Kconfig
-> ===================================================================
-> --- linux-2.6.18-rc4-mm1.orig/kernel/power/Kconfig
-> +++ linux-2.6.18-rc4-mm1/kernel/power/Kconfig
-> @@ -47,24 +47,6 @@ config PM_DISABLE_CONSOLE_SUSPEND
->  	suspend/resume routines, but may itself lead to problems, for example
->  	if netconsole is used.
->  
-> -config PM_TRACE
-> -	bool "Suspend/resume event tracing"
-> -	depends on PM && PM_DEBUG && X86_32 && EXPERIMENTAL
-> -	default n
-> -	---help---
-> -	This enables some cheesy code to save the last PM event point in the
-> -	RTC across reboots, so that you can debug a machine that just hangs
-> -	during suspend (or more commonly, during resume).
+>
+>  drivers/char/tty_io.c |    8 +-------
+>  1 files changed, 1 insertion(+), 7 deletions(-)
+>
+> diff -puN drivers/char/tty_io.c~tty-trivial-kzalloc-opportunity drivers/char/tty_io.c
+> --- a/drivers/char/tty_io.c~tty-trivial-kzalloc-opportunity
+> +++ a/drivers/char/tty_io.c
+> @@ -160,17 +160,11 @@ static void release_mem(struct tty_struc
+>   *     been initialized in any way but has been zeroed
+>   *
+>   *     Locking: none
+> - *     FIXME: use kzalloc
+>   */
+>
+>  static struct tty_struct *alloc_tty_struct(void)
+>  {
+> -       struct tty_struct *tty;
 > -
-> -	To use this debugging feature you should attempt to suspend the machine,
-> -	then reboot it, then run
-> -
-> -		dmesg -s 1000000 | grep 'hash matches'
-> -
-> -	CAUTION: this option will cause your machine's real-time clock to be
-> -	set to an invalid time after a resume.
-> -
-> -
->  config SOFTWARE_SUSPEND
->  	bool "Software Suspend"
->  	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP)) || ((FRV || PPC32) && !SMP)
+> -       tty = kmalloc(sizeof(struct tty_struct), GFP_KERNEL);
+> -       if (tty)
+> -               memset(tty, 0, sizeof(struct tty_struct));
+> -       return tty;
+> +       return (struct tty_struct *)kzalloc(sizeof(struct tty_struct), GFP_KERNEL);
+>  }
+Let's get rid of the typecast - eh?
+Might as well also make the function inline given that all that's left
+of it is a single call to kzalloc() - and why not simply replace all
+calls to this function with a call to kzalloc()?
 
-So...  how are people supposed to turn it on again?  By patching the
-kernel?  That's a bit painful if they're using (say) fedora-of-the-day.
-
-How about we add a kernel boot parameter to enable it at runtime?
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWHPHRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWHPHRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWHPHRs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 03:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWHPHRs
+	id S1750960AbWHPHRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 03:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWHPHRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 03:17:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40080 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750962AbWHPHRr (ORCPT
+	Wed, 16 Aug 2006 03:17:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23440 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750960AbWHPHRP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 03:17:47 -0400
+	Wed, 16 Aug 2006 03:17:15 -0400
 From: Roland McGrath <roland@redhat.com>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 X-Fcc: ~/Mail/linus
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] __dequeue_signal cleanup
-Message-Id: <20060816071744.7CAA1180063@magilla.sf.frob.com>
-Date: Wed, 16 Aug 2006 00:17:44 -0700 (PDT)
+Subject: [PATCH] has_stopped_jobs cleanup
+Message-Id: <20060816071710.2AD36180063@magilla.sf.frob.com>
+Date: Wed, 16 Aug 2006 00:17:10 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This tightens up __dequeue_signal a little.  It also avoids doing
-recalc_sigpending twice in a row, instead doing it once in dequeue_signal.
+This check has been obsolete since the introduction of TASK_TRACED.
+Now TASK_STOPPED always means job control stop.
 
 Signed-off-by: Roland McGrath <roland@redhat.com>
 ---
- kernel/signal.c |   30 ++++++++++++++----------------
- 1 files changed, 14 insertions(+), 16 deletions(-)
+ kernel/exit.c |   11 -----------
+ 1 files changed, 0 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index bfdb568..bae6155 100644  
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -417,9 +417,8 @@ static int collect_signal(int sig, struc
- static int __dequeue_signal(struct sigpending *pending, sigset_t *mask,
- 			siginfo_t *info)
- {
--	int sig = 0;
-+	int sig = next_signal(pending, mask);
- 
--	sig = next_signal(pending, mask);
- 	if (sig) {
- 		if (current->notifier) {
- 			if (sigismember(current->notifier_mask, sig)) {
-@@ -432,9 +431,7 @@ static int __dequeue_signal(struct sigpe
- 
- 		if (!collect_signal(sig, pending, info))
- 			sig = 0;
--				
- 	}
--	recalc_sigpending();
- 
- 	return sig;
- }
-@@ -451,6 +448,7 @@ int dequeue_signal(struct task_struct *t
- 	if (!signr)
- 		signr = __dequeue_signal(&tsk->signal->shared_pending,
- 					 mask, info);
-+	recalc_sigpending_tsk(tsk);
-  	if (signr && unlikely(sig_kernel_stop(signr))) {
-  		/*
-  		 * Set a marker that we have dequeued a stop signal.  Our
+diff --git a/kernel/exit.c b/kernel/exit.c
+index dba194a..3783e5a 100644  
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -249,17 +249,6 @@ static int has_stopped_jobs(int pgrp)
+ 	do_each_task_pid(pgrp, PIDTYPE_PGID, p) {
+ 		if (p->state != TASK_STOPPED)
+ 			continue;
+-
+-		/* If p is stopped by a debugger on a signal that won't
+-		   stop it, then don't count p as stopped.  This isn't
+-		   perfect but it's a good approximation.  */
+-		if (unlikely (p->ptrace)
+-		    && p->exit_code != SIGSTOP
+-		    && p->exit_code != SIGTSTP
+-		    && p->exit_code != SIGTTOU
+-		    && p->exit_code != SIGTTIN)
+-			continue;
+-
+ 		retval = 1;
+ 		break;
+ 	} while_each_task_pid(pgrp, PIDTYPE_PGID, p);

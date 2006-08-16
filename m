@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWHPAhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWHPApv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWHPAhe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWHPAhe
+	id S1750754AbWHPApv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWHPApv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:37:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2710 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750734AbWHPAhd (ORCPT
+	Tue, 15 Aug 2006 20:45:51 -0400
+Received: from [63.64.152.142] ([63.64.152.142]:31753 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1750750AbWHPApv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:37:33 -0400
-Date: Tue, 15 Aug 2006 20:37:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: peculiar suspend/resume bug.
-Message-ID: <20060816003728.GA3605@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060815221035.GX7612@redhat.com> <1155687599.3193.12.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155687599.3193.12.camel@nigel.suspend2.net>
-User-Agent: Mutt/1.4.2.2i
+	Tue, 15 Aug 2006 20:45:51 -0400
+From: Chris Leech <christopher.leech@intel.com>
+Subject: [PATCH 1/7] [I/OAT] Push pending transactions to hardware more frequently
+Date: Tue, 15 Aug 2006 17:53:37 -0700
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <20060816005337.8634.70033.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 10:19:59AM +1000, Nigel Cunningham wrote:
- > Hi Dave.
- > 
- > On Tue, 2006-08-15 at 18:10 -0400, Dave Jones wrote:
- > > Here's a fun one.
- > > - Get a dual core cpufreq aware laptop (Like say, a core-duo)
- > > - Add a cpufreq monitor to gnome-panel. Configure it
- > >   to watch the 2nd core.
- > > - Suspend.
- > > - Resume.
- > > 
- > > Watch the cpufreq monitor die horribly.
- > > 
- > > I believe this is because we take down the 2nd core at suspend
- > > time with cpu hotplug, and for some reason we're scheduling
- > > userspace before we bring that second core back up.
- > > 
- > > Anyone have any clues why this is happening?
- > 
- > If you hotunplug and replug the cpu using the sysfs interface, rather
- > than suspending and resuming, does the same thing happen?
+Every 20 descriptors turns out to be to few append commands with
+newer/faster CPUs.  Pushing every 4 still cuts down on MMIO writes to an
+acceptable level without letting the DMA engine run out of work.
 
-cpufreq-applet crashes as soon as the cpu goes offline.
-Now, the applet should be written to deal with this scenario more
-gracefully, but I'm questioning whether or not userspace should
-*see* the unplug/replug that suspend does at all.
+Signed-off-by: Chris Leech <christopher.leech@intel.com>
+---
 
-IMO, when we shouldn't schedule userspace until the system is
-in the exact state it was before we suspended.
+ drivers/dma/ioatdma.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-		Dave
+diff --git a/drivers/dma/ioatdma.c b/drivers/dma/ioatdma.c
+index dbd4d6c..be4fdd7 100644
+--- a/drivers/dma/ioatdma.c
++++ b/drivers/dma/ioatdma.c
+@@ -310,7 +310,7 @@ static dma_cookie_t do_ioat_dma_memcpy(s
+ 	list_splice_init(&new_chain, ioat_chan->used_desc.prev);
+ 
+ 	ioat_chan->pending += desc_count;
+-	if (ioat_chan->pending >= 20) {
++	if (ioat_chan->pending >= 4) {
+ 		append = 1;
+ 		ioat_chan->pending = 0;
+ 	}
+@@ -818,7 +818,7 @@ static void __devexit ioat_remove(struct
+ }
+ 
+ /* MODULE API */
+-MODULE_VERSION("1.7");
++MODULE_VERSION("1.9");
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Intel Corporation");
+ 
 
--- 
-http://www.codemonkey.org.uk

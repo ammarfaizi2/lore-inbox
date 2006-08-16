@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWHPSzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWHPSzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWHPSzh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWHPSzg
+	id S1750836AbWHPSzK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 14:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWHPSzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:55:36 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:35204 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750832AbWHPSzg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 14:55:36 -0400
-Date: Wed, 16 Aug 2006 20:55:38 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [patch 5/5] -fstack-protector feature: Enable the compiler flags in CFLAGS
-Message-ID: <20060816185538.GE5852@mars.ravnborg.org>
-References: <1155746902.3023.63.camel@laptopd505.fenrus.org> <1155747197.3023.73.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155747197.3023.73.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 16 Aug 2006 14:55:09 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:24901 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750836AbWHPSzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 14:55:07 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=NTro22z2F9qimBK/Lclh+XgDbJqoODcgvdmFjjlcFuq89qRcsTt4x7FPqeBvIlof5
+	S9nwo+s4RPvQBvh8b9RnA==
+Subject: Re: [RFC][PATCH] UBC: user resource beancounters
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+In-Reply-To: <44E33893.6020700@sw.ru>
+References: <44E33893.6020700@sw.ru>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Wed, 16 Aug 2006 11:53:47 -0700
+Message-Id: <1155754427.22595.88.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 06:53:17PM +0200, Arjan van de Ven wrote:
-> Subject: [patch 5/5] Add the -fstack-protector option to the CFLAGS
-> From: Arjan van de Ven <arjan@linux.intel.com>
+On Wed, 2006-08-16 at 19:24 +0400, Kirill Korotaev wrote:
+> The following patch set presents base of
+> User Resource Beancounters (UBC).
+> UBC allows to account and control consumption
+> of kernel resources used by group of processes.
 > 
-> Add a feature check that checks that the gcc compiler has stack-protector
-> support and has the bugfix for PR28281 to make this work in kernel mode.
-> The easiest solution I could find was to have a shell script in scripts/
-> to do the detection; if needed we can make this fancier in the future 
-> without making the makefile too complex.
+> The full UBC patch set allows to control:
+> - kernel memory. All the kernel objects allocatable
+>   on user demand should be accounted and limited
+>   for DoS protection.
+>   E.g. page tables, task structs, vmas etc.
 > 
-> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-> CC: Andi Kleen <ak@suse.de>
-> CC: Sam Ravnborg <sam@ravnborg.org>
+
+Good.
+
+> - virtual memory pages. UBC allows to
+>   limit a container to some amount of memory and
+>   introduces 2-level OOM killer taking into account
+>   container's consumption.
+>   pages shared between containers are correctly
+>   charged as fractions (tunable).
 > 
-> ---
->  arch/x86_64/Makefile                      |    3 +++
->  scripts/gcc-x86_64-has-stack-protector.sh |    8 ++++++++
->  2 files changed, 11 insertions(+)
-> 
-> Index: linux-2.6.18-rc4-stackprot/arch/x86_64/Makefile
-> ===================================================================
-> --- linux-2.6.18-rc4-stackprot.orig/arch/x86_64/Makefile
-> +++ linux-2.6.18-rc4-stackprot/arch/x86_64/Makefile
-> @@ -55,6 +55,9 @@ cflags-y += $(call cc-option,-funit-at-a
->  # prevent gcc from generating any FP code by mistake
->  cflags-y += $(call cc-option,-mno-sse -mno-mmx -mno-sse2 -mno-3dnow,)
->  
-> +cflags-$(CONFIG_CC_STACKPROTECTOR) += $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC) -fstack-protector )
-> +cflags-$(CONFIG_CC_STACKPROTECTOR_ALL) += $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC) -fstack-protector-all )
-> +
-I agree with the pricinple on hiding the check in the script.
-But please try to keep lines within 80 coloumn limit.
-something like this which is functionality wise equal:
 
-stack-protector = $(shell $(CONFIG_SHELL) \
-                   $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(1))
-cflags-$(CONFIG_CC_STACKPROTECTOR) += \
-                   $(call stack-protector, $(CC) -fstack-protector)
-cflags-$(CONFIG_CC_STACKPROTECTOR_ALL) += \
-                   $(call stack-protector, $(CC) -fstack-protector-all)
+I wouldn't be too worried about doing fractions.  Make it unfair and
+charge it to either the container who first instantiated the file or the
+container who faulted on that page first.
 
-I do not like the broken lines either but with these long CONFIG_ names
-it is needed.
+Though the part that seems important is to be able to define a directory
+in fs and say all pages belonging to files underneath that directory are
+going to be put in specific container.  Just like you are having
+resource beans associated with sockets, have address_space or inode also
+associated with resource beans. (And it should be possible to have a
+container/resource bean without any active process but set of
+address_space mappings with its own limits and current usage).
 
-Otherwised Acked-by: Sam Ravnborg <sam@ravnborg.org>
+-rohit
 
-PS - above is untested...
 
-	Sam

@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWHPXax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWHPXeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWHPXax (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 19:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWHPXax
+	id S1751254AbWHPXeG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 19:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWHPXeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 19:30:53 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:20929 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750959AbWHPXaw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 19:30:52 -0400
-Date: Wed, 16 Aug 2006 18:30:28 -0500
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, jeff@garzik.org,
-       netdev@vger.kernel.org, jklewis@us.ibm.com,
-       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com,
-       David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 1/2]: powerpc/cell spidernet bottom half
-Message-ID: <20060816233028.GO20551@austin.ibm.com>
-References: <44E38157.4070805@garzik.org> <200608162324.47235.arnd@arndb.de> <20060816.143203.11626235.davem@davemloft.net> <200608170016.47072.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 16 Aug 2006 19:34:06 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:22762 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751254AbWHPXeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 19:34:04 -0400
+Date: Wed, 16 Aug 2006 16:34:04 -0700
+From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+To: akpm@osdl.org
+Cc: "David C. Hansen" <haveblue@us.ibm.com>, clg@fr.ibm.com, serue@us.ibm.com,
+       linux-kernel@vger.kernel.org, containers@lists.osdl.org
+Subject: [PATCH] Coding style - Use struct pidmap
+Message-ID: <20060816233404.GA10635@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200608170016.47072.arnd@arndb.de>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 12:16:46AM +0200, Arnd Bergmann wrote:
-> Am Wednesday 16 August 2006 23:32 schrieb David Miller:
-> > Can spidernet be told these kinds of parameters?  "N packets or
-> > X usecs"?
-> 
-> It can not do exactly this but probably we can get close to it by
 
-Why would you want o do this? It seems like a cruddier strategy 
-than what we can already do  (which is to never get an transmit
-interrupt, as long as the kernel can shove data into the device fast
-enough to keep the queue from going empty.)  The whole *point* of a 
-low-watermark interrupt is to never have to actually get the interrupt, 
-if the rest of the system is on its toes and is supplying data fast
-enough.
+Use struct pidmap instead of pidmap_t.
 
---linas
+Its a subset of Eric Biederman's patch http://lkml.org/lkml/2006/2/6/271.
 
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>
+Cc: Serge Hallyn <serue@us.ibm.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>
+Cc: <containers@lists.osdl.org>
+
+ kernel/pid.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+Index: linux-2.6.18-rc3/kernel/pid.c
+===================================================================
+--- linux-2.6.18-rc3.orig/kernel/pid.c	2006-08-10 17:58:55.000000000 -0700
++++ linux-2.6.18-rc3/kernel/pid.c	2006-08-10 18:32:20.000000000 -0700
+@@ -53,12 +53,12 @@ int pid_max_max = PID_MAX_LIMIT;
+  * value does not cause lots of bitmaps to be allocated, but
+  * the scheme scales to up to 4 million PIDs, runtime.
+  */
+-typedef struct pidmap {
++struct pidmap {
+ 	atomic_t nr_free;
+ 	void *page;
+-} pidmap_t;
++};
+ 
+-static pidmap_t pidmap_array[PIDMAP_ENTRIES] =
++static struct pidmap pidmap_array[PIDMAP_ENTRIES] =
+ 	 { [ 0 ... PIDMAP_ENTRIES-1 ] = { ATOMIC_INIT(BITS_PER_PAGE), NULL } };
+ 
+ /*
+@@ -78,7 +78,7 @@ static  __cacheline_aligned_in_smp DEFIN
+ 
+ static fastcall void free_pidmap(int pid)
+ {
+-	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
++	struct pidmap *map = pidmap_array + pid / BITS_PER_PAGE;
+ 	int offset = pid & BITS_PER_PAGE_MASK;
+ 
+ 	clear_bit(offset, map->page);
+@@ -88,7 +88,7 @@ static fastcall void free_pidmap(int pid
+ static int alloc_pidmap(void)
+ {
+ 	int i, offset, max_scan, pid, last = last_pid;
+-	pidmap_t *map;
++	struct pidmap *map;
+ 
+ 	pid = last + 1;
+ 	if (pid >= pid_max)

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWHPWYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWHPWZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWHPWYj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 18:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWHPWYi
+	id S932287AbWHPWZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 18:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWHPWZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 18:24:38 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:7560
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932285AbWHPWYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 18:24:38 -0400
-Subject: Re: How to avoid serial port buffer overruns?
-From: Paul Fulghum <paulkf@microgate.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Raphael Hertzog <hertzog@debian.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1155762739.7338.18.camel@mindpipe>
-References: <20060816104559.GF4325@ouaza.com>
-	 <1155753868.3397.41.camel@mindpipe>  <44E37095.9070200@microgate.com>
-	 <1155762739.7338.18.camel@mindpipe>
-Content-Type: text/plain
-Date: Wed, 16 Aug 2006 17:24:26 -0500
-Message-Id: <1155767066.2600.19.camel@localhost.localdomain>
+	Wed, 16 Aug 2006 18:25:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38029 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932287AbWHPWZN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 18:25:13 -0400
+Date: Wed, 16 Aug 2006 15:25:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dirk <noisyb@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+Message-Id: <20060816152509.166ce663.akpm@osdl.org>
+In-Reply-To: <44E3552A.6010705@gmx.net>
+References: <44E3552A.6010705@gmx.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 17:12 -0400, Lee Revell wrote:
-> 2.6.15 and 2.6.16.  Here is the .config:
+On Wed, 16 Aug 2006 19:26:02 +0200
+Dirk <noisyb@gmx.net> wrote:
 
-Alan's rework of the receive tty buffering went
-into 2.6.16 and cured some problems, but clearly not yours.
-Some more adjustments are in 2.6.18-rc4, so that
-would be interesting to try for diagnosing this.
+> I have changed a message that didn't clearly tell the user what was goin
+> on...
+> 
+> Please have a look!
+> 
+> Thank you,
+> Dirk
+> 
+>
+> --- drivers/cdrom/cdrom.c.old	2006-08-16 19:04:11.000000000 +0200
+> +++ drivers/cdrom/cdrom.c	2006-08-16 19:04:51.000000000 +0200
+> @@ -2455,7 +2455,7 @@
+>  		if (tracks.data > 0) return CDS_DATA_1;
+>  		/* Policy mode off */
+>  
+> -		cdinfo(CD_WARNING,"This disc doesn't have any tracks I recognize!\n");
+> +		cdinfo(CD_WARNING,"I'm a stupid fuck that will repeat this interesting message while endlessly trying to access the media you just inserted until your CD/DVD burning task is eventually fucked\n");
+>  		return CDS_NO_INFO;
+>  		}
 
-I was wondering if the problem was interrupt latency,
-the tty receive buffering, or something totally different.
-I don't know if your problem and Raphael's are caused
-by the same mechanism. I would still like to know which
-kernel versions he has tried.
+Please keep the code formatted to fit in an 80-column xterm.  See
+Documentation/CodingStyle.  Thanks.
 
-Does the MIDI device using the standard N_TTY line discipline?
-Are you using the low_latency flag on the serial device?
-What type of UART has been tested (16550? other?)
-Are you seeing overruns or just lost data?
-
-Thanks,
-Paul
-
-
-
-
-
-
+(And you forget the Signed-off-by: line)

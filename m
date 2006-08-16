@@ -1,83 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWHPSC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWHPSJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWHPSC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWHPSC0
+	id S1751247AbWHPSJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 14:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWHPSJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:02:26 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:31637 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751237AbWHPSCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 14:02:25 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
-Date: Wed, 16 Aug 2006 20:02:02 +0200
-User-Agent: KMail/1.9.4
-Cc: Jiri Benc <jbenc@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu>
-In-Reply-To: <20060816174329.GC17650@ojjektum.uhulinux.hu>
+	Wed, 16 Aug 2006 14:09:29 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:55415 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751242AbWHPSJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 14:09:28 -0400
+Message-ID: <44E35F29.8010500@oracle.com>
+Date: Wed, 16 Aug 2006 11:08:41 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2397831.R6rdy09zWi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>
+Subject: Re: [take9 1/2] kevent: Core files.
+References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru> <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru>
+In-Reply-To: <20060816135642.GD4314@2ka.mipt.ru>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608162002.06793.prakash@punnoor.de>
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2397831.R6rdy09zWi
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Am Mittwoch 16 August 2006 19:43 schrieb Pozsar Balazs:
-> On Wed, Aug 16, 2006 at 07:11:39PM +0200, Jiri Benc wrote:
-> > On Tue, 15 Aug 2006 11:25:52 +0200, Pozsar Balazs wrote:
-> > > Recently I had similar problems as you described below, that's how I
-> > > found your email. (My exact problem is that there's no link when I pl=
-ug
-> > > in a cable, reloading the driver a few times usually helps.)
-> > > The problem is, that since you made the patch, the uli526x driver has
-> > > been split out from the tulip driver.
-> > > Do you know anything about the current state of the uli526x driver
-> > > regarding the problems you tried patch?
-> >
-> > I use the card with new (split out) uli526x driver with no problem. Your
-> > problems are probably unrelated.
->
-> So, just to make it clear: if you boot without cable plugged in, let
-> the driver load, and then plug the cable in, do you have link?
-> For me, it does not have link until I rmmod the module.
+>>> +	for (i=0; i<ARRAY_SIZE(u->kevent_list); ++i)
+>> 	for (i = 0; i < ARRAY_SIZE(u->kevent_list); i++)
+> 
+> Ugh, no. It reduces readability due to exessive number of spaces.
 
-Same here.
+Ihavetoverystronglydisagree.
 
-> Do you have any idea what the problem could be, or could I send you any
-> info that would help debug it?
-
-I actually played a bit with the code and what fails is uli526x_sense_speed=
- =20
-in that way that phy_mode & 024 is 0 (and stays 0). But I don't understand=
-=20
-why...
-
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart2397831.R6rdy09zWi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBE412exU2n/+9+t5gRAmcIAJ0SFVyq1JtlNQKk5gv2wp0JjQks5ACgqat+
-I9S4ohUO2xMfw+lSCFB6DpM=
-=U41t
------END PGP SIGNATURE-----
-
---nextPart2397831.R6rdy09zWi--
+- z

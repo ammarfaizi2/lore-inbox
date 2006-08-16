@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWHPQa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWHPQcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWHPQa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWHPQay
+	id S932102AbWHPQcP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWHPQcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:30:54 -0400
-Received: from ns.suse.de ([195.135.220.2]:17042 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751149AbWHPQax (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:30:53 -0400
-Date: Wed, 16 Aug 2006 18:30:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Len Brown <lenb@kernel.org>
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for review] [65/145] i386: Clean up code style in
- mpparse.c ACPI code
-Message-Id: <20060816183049.33a92764.ak@suse.de>
-In-Reply-To: <200608161208.44087.len.brown@intel.com>
-References: <20060810 935.775038000@suse.de>
-	<20060810193620.EBC8913B90@wotan.suse.de>
-	<200608161208.44087.len.brown@intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 16 Aug 2006 12:32:15 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41909 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932104AbWHPQcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:32:14 -0400
+Subject: Re: [RFC][PATCH 3/7] UBC: ub context and inheritance
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+In-Reply-To: <44E33C04.50803@sw.ru>
+References: <44E33893.6020700@sw.ru>  <44E33C04.50803@sw.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Aug 2006 17:51:18 +0100
+Message-Id: <1155747079.24077.372.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 12:08:43 -0400
-Len Brown <len.brown@intel.com> wrote:
-
-> On Thursday 10 August 2006 15:36, Andi Kleen wrote:
-> > 
-> > Remove some unlinuxy ways to write function parameter definitions.
-> > Remove some stray "return;"s
-> > 
-> > No functional change.
-> > 
-> > Cc: len.brown@intel.com
-> > Signed-off-by: Andi Kleen <ak@suse.de>
-> > 
-> > ---
-> >  arch/i386/kernel/mpparse.c |   52 ++++++++++++++-------------------------------
-> >  1 files changed, 17 insertions(+), 35 deletions(-)
+Ar Mer, 2006-08-16 am 19:38 +0400, ysgrifennodd Kirill Korotaev:
+> Contains code responsible for setting UB on task,
+> it's inheriting and setting host context in interrupts.
 > 
-> Maybe it is time to just Lindent the file?
-> When I Lindented the ACPI sub-system, I stopped short of mpparse.c.
-
-I think except for the ACPI bits which I already fixed in this patch
-everything else was linuxy already.
-
+> Task references three beancounters:
+>   1. exec_ub  current context. all resources are
+>               charged to this beancounter.
+>   2. task_ub  beancounter to which task_struct is
+>               charged itself.
+>   3. fork_sub beancounter which is inherited by
+>               task's children on fork
 > 
-> As you know, I'd like to see the ACPI part of mpparse.c split out into a different file
-> that can be shared by i386 and x86_64.
+> Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+> Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
-I'm for splitting out in ACPI/non ACPI (with CONFIG for mpparse), but not for 
-sharing.  I want the freedom to change mpparse's internal data structures without 
-caring for i386.
+Acked-by: Alan Cox <alan@redhat.com>
 
-The first step would be to get rid some of the hacks that convert ACPI into
-mpparse.
 
--Andi

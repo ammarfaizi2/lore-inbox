@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWHPQtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWHPQuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWHPQtN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 12:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWHPQtN
+	id S932109AbWHPQuE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 12:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWHPQuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 12:49:13 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31451 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751181AbWHPQtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 12:49:11 -0400
-Subject: Re: PATCH: Lock tty directly in acct layer
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1155745460.3023.57.camel@laptopd505.fenrus.org>
-References: <1155746201.24077.364.camel@localhost.localdomain>
-	 <1155745460.3023.57.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Aug 2006 18:09:54 +0100
-Message-Id: <1155748194.24077.386.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 16 Aug 2006 12:50:01 -0400
+Received: from [63.64.152.142] ([63.64.152.142]:40713 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S932108AbWHPQuA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 12:50:00 -0400
+From: Chris Leech <christopher.leech@intel.com>
+Subject: [PATCH 7/7 v2] [I/OAT] Add entries to MAINTAINERS for the DMA memcpy subsystem and ioatdma
+Date: Wed, 16 Aug 2006 09:57:47 -0700
+To: rdunlap@xenotime.net
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <20060816165747.10162.11471.stgit@gitlost.site>
+In-Reply-To: <Pine.LNX.4.58.0608152151430.7622@shark.he.net>
+References: <Pine.LNX.4.58.0608152151430.7622@shark.he.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-16 am 18:24 +0200, ysgrifennodd Arjan van de Ven:
-> > -	read_lock(&tasklist_lock);	/* pin current->signal */
-> > +	mutex_lock(&tty_mutex);
-> >  	ac.ac_tty = current->signal->tty ?
-> 
-> but.. can't ->signal still change, even if signal->tty isn't ?
+Signed-off-by: Chris Leech <christopher.leech@intel.com>
+---
 
-I'm not sure, thats a good question (as if so is how to lock it). Will
-investigate.
+ MAINTAINERS |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 21116cc..2d484aa 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -881,6 +881,12 @@ M:	tori@unhappy.mine.nu
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ 
++DMA GENERIC MEMCPY SUBSYSTEM
++P:	Chris Leech
++M:	christopher.leech@intel.com
++L:	linux-kernel@vger.kernel.org
++S:	Maintained
++
+ DOCBOOK FOR DOCUMENTATION
+ P:	Martin Waitz
+ M:	tali@admingilde.org
+@@ -1469,6 +1475,12 @@ P:	Tigran Aivazian
+ M:	tigran@veritas.com
+ S:	Maintained
+ 
++INTEL I/OAT DMA DRIVER
++P:	Chris Leech
++M:	christopher.leech@intel.com
++L:	linux-kernel@vger.kernel.org
++S:	Supported
++
+ INTEL IXP4XX RANDOM NUMBER GENERATOR SUPPORT
+ P:	Deepak Saxena
+ M:	dsaxena@plexity.net
 

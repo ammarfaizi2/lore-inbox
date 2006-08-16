@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWHPShK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWHPSm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWHPShK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 14:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWHPShK
+	id S1750716AbWHPSm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 14:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWHPSm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 14:37:10 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:30668 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932185AbWHPShJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 14:37:09 -0400
-Date: Wed, 16 Aug 2006 14:37:07 -0400
-To: Dirk <noisyb@gmx.net>
+	Wed, 16 Aug 2006 14:42:28 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:35516 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750716AbWHPSm2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 14:42:28 -0400
+Date: Wed, 16 Aug 2006 20:42:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: moreau francis <francis_moreau2000@yahoo.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-Message-ID: <20060816183707.GD13641@csclub.uwaterloo.ca>
-References: <44E3552A.6010705@gmx.net>
-Mime-Version: 1.0
+Subject: Re: CROSS_COMPILE issue
+Message-ID: <20060816184231.GC5852@mars.ravnborg.org>
+References: <20060816164036.32867.qmail@web25805.mail.ukl.yahoo.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44E3552A.6010705@gmx.net>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+In-Reply-To: <20060816164036.32867.qmail@web25805.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 07:26:02PM +0200, Dirk wrote:
-> I have changed a message that didn't clearly tell the user what was goin
-> on...
+On Wed, Aug 16, 2006 at 04:40:36PM +0000, moreau francis wrote:
+> Hi
 > 
-> Please have a look!
+> I met an issue when compiling kernel 2.6.18-rc4. I 
+> cross compile the kernel for a MIPS target on a PC.
+> MIPS architecture assigns CROSS_COMPILE in
+> its arch/mips/Makefile but it is not included by the 
+> main Makefile from the begining. So one of the
+> consequence is that CC variable is not correctly
+> set until arch's Makefile is included. It's set to "gcc"
+> since CROSS_COMPILE is still not defined instead
+> of "mips-linux-gcc". During this time CC variable is 
+> used to setup CFLAGS for example.
+> 
+> is it something known ?
+It has been reported before but thanks for the reminder.
+I will try to cook up a fix tonight.
 
-Perhaps the real problem is that some @#$@#$ user space task is
-constantly trying to mount the disc while something else is trying to
-write to it.
-
-gnome and kde both seem very eager to implement such things.  perhaps
-there should be a way to prevent any access by such processes while
-writing to the disc.
-
---
-Len Sorensen
+	Sam

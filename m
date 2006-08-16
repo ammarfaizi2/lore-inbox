@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWHPAKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWHPAL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWHPAKE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Aug 2006 20:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWHPAKE
+	id S1750714AbWHPAL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Aug 2006 20:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWHPAL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Aug 2006 20:10:04 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42221
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750712AbWHPAKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Aug 2006 20:10:01 -0400
-Date: Tue, 15 Aug 2006 17:10:02 -0700 (PDT)
-Message-Id: <20060815.171002.104028951.davem@davemloft.net>
-To: 7eggert@gmx.de, 7eggert@elstempel.de
-Cc: shemminger@osdl.org, mitch.a.williams@intel.com, notting@redhat.com,
-       mitch.a.williams@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: bonding: cannot remove certain named devices
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <E1GD8rX-0001cA-CV@be1.lrz>
-References: <6KfTz-OX-11@gated-at.bofh.it>
-	<6KfTA-OX-15@gated-at.bofh.it>
-	<E1GD8rX-0001cA-CV@be1.lrz>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 15 Aug 2006 20:11:56 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42660 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750714AbWHPAL4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Aug 2006 20:11:56 -0400
+Date: Wed, 16 Aug 2006 10:11:22 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Martin Braun <mbraun@uni-hd.de>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: kernel BUG at <bad filename>:50307!
+Message-ID: <20060816101122.E2740551@wobbly.melbourne.sgi.com>
+References: <44E1D9CA.30805@uni-hd.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <44E1D9CA.30805@uni-hd.de>; from mbraun@uni-hd.de on Tue, Aug 15, 2006 at 04:27:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bodo Eggert <7eggert@elstempel.de>
-Date: Wed, 16 Aug 2006 02:02:03 +0200
+Hi Martin,
 
-> Stephen Hemminger <shemminger@osdl.org> wrote:
-> 
-> > IMHO idiots who put space's in filenames should be ignored. As long as the
-> > bonding code doesn't throw a fatal error, it has every right to return
-> > "No such device" to the fool.
-> 
-> Maybe you should limit device names to eight uppercase characters and up to
-> three characters extension, too. NOT! There is no reason to artificially
-> impose limitations on device names, so don't do that.
+On Tue, Aug 15, 2006 at 04:27:22PM +0200, Martin Braun wrote:
+> ...
+> What does this bug mean?
+> ...
+> Aug 15 15:01:02 pers109 kernel: Access to block zero: fs: <sdc1> inode:
+> 254474718 start_block : 0 start_off : c0a0b0e8a099
+> 0 blkcnt : 90000 extent-state : 0
+> Aug 15 15:01:02 pers109 kernel: ------------[ cut here ]------------
+> Aug 15 15:01:02 pers109 kernel: kernel BUG at <bad filename>:50307!
 
-Are you willing to work to add the special case code necessary to
-handle whitespace characters in the device name over all of the kernel
-code and also all of the userland tools too?
+It means XFS detected ondisk corruption in inode# 254474718, and
+paniced your system (stupidly; a fix for this is around, will be
+merged with the next mainline update).  For me, a more interesting
+question is how that inode got into this state... have you had any
+crashes recently (i.e. has the filesystem journal needed to be
+replayed recently?)  Can you send the output of:
 
-No?  Great, I'm glad that's settled.
+	# xfs_db -c 'inode 254474718' -c print /dev/sdc1
+
+You'll need to run xfs_repair on that filesystem to fix this up,
+but please send us that output first.
+
+thanks.
+
+-- 
+Nathan

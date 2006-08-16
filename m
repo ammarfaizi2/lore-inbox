@@ -1,75 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWHPJTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWHPJ1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWHPJTd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 05:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWHPJTd
+	id S1751051AbWHPJ1q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 05:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWHPJ1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 05:19:33 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:31688 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751047AbWHPJTc (ORCPT
+	Wed, 16 Aug 2006 05:27:46 -0400
+Received: from outgoing3.smtp.agnat.pl ([193.239.44.85]:16306 "EHLO
+	outgoing3.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S1751050AbWHPJ1p convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 05:19:32 -0400
-Date: Wed, 16 Aug 2006 19:18:15 +1000
-From: David Chinner <dgc@sgi.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Christoph Lameter <clameter@sgi.com>, mpm@selenic.com,
-       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [MODSLAB 0/7] A modular slab allocator V1
-Message-ID: <20060816091814.GM51703024@melbourne.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com> <20060816081208.GL51703024@melbourne.sgi.com> <20060816103259.f87c167a.ak@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Aug 2006 05:27:45 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/1 -resend] Char: mxser, upgrade to 1.9.1
+Date: Wed, 16 Aug 2006 11:27:32 +0200
+User-Agent: KMail/1.9.4
+Cc: Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       support@moxa.com.tw
+References: <mxser191resend3_ee43092305ba163fd5d4@wsc.cz> <200608160831.12848.arekm@pld-linux.org> <20060815234512.0d3bc1d7.akpm@osdl.org>
+In-Reply-To: <20060815234512.0d3bc1d7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060816103259.f87c167a.ak@muc.de>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200608161127.32849.arekm@pld-linux.org>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 10:32:59AM +0200, Andi Kleen wrote:
-> 
-> > > 3. New slabs that are created can be merged into the kmalloc array
-> > >    if it is detected that they match. This decreases the number of caches
-> > >    and benefits cache use.
-> > 
-> > While this will be good for reducing fragmentation,
-> 
-> Will it? The theory behind a zone allocator like slab is that objects of the
-> same type have similar livetimes.
+On Wednesday 16 August 2006 08:45, Andrew Morton wrote:
 
-True, but not all users of the slab caches are similar lifetime objects. e.g.
-bufferheads, dentries, inodes, filps, radix tree nodes, etc all have effectively
-random lifetimes. i'd say that most linux slab objects don't have that
-property....
+> > > Perhaps we could create an mxser-new.c and offer that in config, plan
+> > > to remove mxser.c N months hence?
+> >
+> > I can test the updated driver with  MOXA CP-168U series board if it will
+> > compile on 2.6.12.6.
+>
+> Thanks.
+>
+> > Unfortunately I can't change kernel to latest one there.
+> > Will testing on 2.6.12.6 be enough for you?
+[...]
+> Perhaps it'll work if you apply the patch to 2.6.18-rc4 then copy the
+> patched files over to 2.6.12..
 
-> Fragmentation mostly happens when objects
-> have very different live times.
+I've copied 2.6.18rc4+1.9.1 update applied to 2.6.12 + applied patch below, started minicom
+and tried to write something... at that moment machine blew up - instantly rebooted.
+Nothing on serial console unfortunately. 
 
-*nod*
+mxser.c from 2.6.18rc4 without proposed 1.9.1 patch works fine (+ problem described
+here http://lkml.org/lkml/2005/11/2/175 no longer happens).
 
-Just look at how badly the inode and dentry slabs can fragment....
+--- mxser.c.new.org     2006-08-16 10:50:44.578413363 +0200
++++ mxser.c     2006-08-16 10:54:07.399361546 +0200
+@@ -85,7 +85,7 @@
+ #define RELEVANT_IFLAG(iflag)  (iflag & (IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK|\
+                                          IXON|IXOFF))
 
-> If you mix objects of different types
-> into the same slab then you might get more fragmentation.
+-#define IRQ_T(info) ((info->flags & ASYNC_SHARE_IRQ) ? IRQF_SHARED : IRQF_DISABLED)
++#define IRQ_T(info) ((info->flags & ASYNC_SHARE_IRQ) ? SA_SHIRQ : SA_INTERRUPT)
 
-Yes, but you don't tend to get the same worst case behaviour
-that you get with single use slabs. With multiple use slabs, long
-lifetime objects tend to accumulate on the same pages as different
-objects come and go from the pages. IOWs, you waste less pages
-in a fragmented multi-object cache that you do in N fragmented
-single use caches.
+ #define C168_ASIC_ID    1
+ #define C104_ASIC_ID    2
+@@ -1108,7 +1108,8 @@
+                 */
+                timeout = jiffies + HZ;
+                while (!(inb(info->base + UART_LSR) & UART_LSR_TEMT)) {
+-                       schedule_timeout_interruptible(5);
++                       set_current_state(TASK_INTERRUPTIBLE);
++                       schedule_timeout(5);
+                        if (time_after(jiffies, timeout))
+                                break;
+                }
+@@ -1129,8 +1130,10 @@
+        info->event = 0;
+        info->tty = NULL;
+        if (info->blocked_open) {
+-               if (info->close_delay)
+-                       schedule_timeout_interruptible(info->close_delay);
++               if (info->close_delay) {
++                       set_current_state(TASK_INTERRUPTIBLE);
++                       schedule_timeout(info->close_delay);
++               }
+                wake_up_interruptible(&info->open_wait);
+        }
 
-> kmalloc already has that problem but it probably shouldn't be added 
-> to other slabs too.
+@@ -1870,7 +1873,8 @@
+ #ifdef SERIAL_DEBUG_RS_WAIT_UNTIL_SENT
+                printk("lsr = %d (jiff=%lu)...", lsr, jiffies);
+ #endif
+-               schedule_timeout_interruptible(char_time);
++               set_current_state(TASK_INTERRUPTIBLE);
++               schedule_timeout(char_time);
+                if (signal_pending(current))
+                        break;
+                if (timeout && time_after(jiffies, orig_jiffies + timeout))
+@@ -2054,7 +2058,7 @@
 
-I've never seen the kmalloc slabs show anywhere near the levels of
-fragmentation I've seen from the inode and dentry slabs.....
+        spin_lock_irqsave(&info->slock, flags);
 
-Cheers,
+-       recv_room = tty->receive_room;
++       recv_room = tty->ldisc.receive_room(tty);
+        if ((recv_room == 0) && (!info->ldisc_stop_rx)) {
+                /* mxser_throttle(tty); */
+                mxser_stoprx(tty);
 
-Dave.
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

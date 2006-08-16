@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWHPXNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWHPXOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWHPXNm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 19:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWHPXNm
+	id S1751222AbWHPXOb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 19:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWHPXOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 19:13:42 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750746AbWHPXNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 19:13:41 -0400
-Date: Thu, 17 Aug 2006 01:13:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: avr32@atmel.com, hskinnemoen@atmel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: please add an arch/avr32/defconfig
-Message-ID: <20060816231340.GK7813@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 16 Aug 2006 19:14:30 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:26560 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751222AbWHPXOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 19:14:30 -0400
+Subject: Re: How to avoid serial port buffer overruns?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Paul Fulghum <paulkf@microgate.com>, Raphael Hertzog <hertzog@debian.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060816231033.GB12407@flint.arm.linux.org.uk>
+References: <20060816104559.GF4325@ouaza.com>
+	 <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com>
+	 <1155762739.7338.18.camel@mindpipe>
+	 <1155767066.2600.19.camel@localhost.localdomain>
+	 <20060816231033.GB12407@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 19:15:06 -0400
+Message-Id: <1155770107.8796.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please add an arch/avr32/defconfig.
+On Thu, 2006-08-17 at 00:10 +0100, Russell King wrote:
+> On Wed, Aug 16, 2006 at 05:24:26PM -0500, Paul Fulghum wrote:
+> > Does the MIDI device using the standard N_TTY line discipline?
+> > Are you using the low_latency flag on the serial device?
+> > What type of UART has been tested (16550? other?)
+> > Are you seeing overruns or just lost data?
+> 
+> MIDI uses its own driver - sound/drivers/serial-u16550.c.  My guess
+> is there's something in the system starving interrupt servicing.
+> Serial is very sensitive to that, and increases in other system
+> latencies tends to have an adverse impact on serial.
+> 
 
-The purposes of a defconfig are:
-- starting point for people compiling their own kernel
-- usable configuration for compile tests
+Thanks.
 
-It doesn't need to be anything special, e.g. a working .config from a 
-machine you are using would be a suitable defconfig.
+Have you seen many other reports of serial working reliably in 2.4 but
+not in 2.6?  Right now this is the only clue I have to go on...
 
-TIA
-Adrian
-
-BTW: What is the status of getting avr32 support into upstream
-     binutils and gcc?
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+Lee
 

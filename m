@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWHPOmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWHPOnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWHPOmY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 10:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWHPOmY
+	id S1751186AbWHPOnK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 10:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWHPOnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 10:42:24 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:52448 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751185AbWHPOmX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 10:42:23 -0400
-Date: Wed, 16 Aug 2006 16:42:22 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Raphael Hertzog <hertzog@debian.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: How to avoid serial port buffer overruns?
-Message-ID: <20060816144221.GO15015@harddisk-recovery.com>
-References: <fa.AByCsBI8k71hMVzCyQVimrLiDU4@ifi.uio.no> <44E32D19.3090405@shaw.ca>
+	Wed, 16 Aug 2006 10:43:09 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:2187 "EHLO
+	asav00.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751186AbWHPOnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 10:43:08 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Aa4HAEvM4kSBUQ
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Luke Sharkey <lukesharkey@hotmail.co.uk>
+Subject: Re: Touchpad problems with latest kernels
+Date: Wed, 16 Aug 2006 10:42:57 -0400
+User-Agent: KMail/1.9.3
+Cc: andi@rhlx01.fht-esslingen.de, davej@redhat.com, gene.heskett@verizon.net,
+       ian.stirling@mauve.plus.com, linux-kernel@vger.kernel.org,
+       malattia@linux.it, lista1@comhem.se
+References: <BAY114-F135E5B07856A5191B7A119FA4C0@phx.gbl>
+In-Reply-To: <BAY114-F135E5B07856A5191B7A119FA4C0@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44E32D19.3090405@shaw.ca>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608161042.58005.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 08:35:05AM -0600, Robert Hancock wrote:
-> Raphael Hertzog wrote:
-> >(Please CC me when replying)
-> >
-> >Hello,
-> >
-> >While using Linux on low-end (semi-embedded) hardware (386 SX 40Mhz, 8Mb
-> >RAM), I discovered that Linux on that machine would suffer from serial
-> >port buffer overruns quite easily if I use a baudrate high enough (I start
-> >loosing bytes at >19200 bauds and I would like to make it reliable up to 
-> >115 kbauds). I check if overruns are happening with
-> >/proc/tty/driver/serial ("oe" field).
+On Wednesday 16 August 2006 09:59, Luke Sharkey wrote:
+>   Seeing as Linux is less easily controlled with the keyboard compared to 
+> MS-Windows,
+
+Careful, you are threading dangerous waters here ;)
+
+> sometimes all I can do is Alt-tab to the terminal window and do  
+> a command line reboot.
+
 > 
-> What kind of serial port are you using? If it's an unbuffered 8250-type 
-> port, it will NEVER be reliable at higher baud rates. You want a 16550 
-> (or better) port.
+> (Off topic question: why not have the K menu open when the "MS-Windows" 
+> button on the keyboard is pressed, as happens with the "Start" button on 
+> MS-windows?)
+> 
 
-I've run a cable modem connection at 115k2 over a 16450 UART on a
-386DX40 for years. The tricks were:
+It doesn't? Indeed it does not! Alt-F1 does it though and it is much harder
+to hid by accident (I can't count how many times I hit that key by accident
+on windows box and then have to grab mouse to switch focus back to the window
+that had it before). Anyway, it is indeed offtopic for kernel, try asking on
+KDE lists...
 
-- hdparm -u 1 /dev/hda
-- play with IRQ priorities in such a way that the serial port UART was
-  handled first (there used to be a kernel module to accomplish that in
-  old debian releases)
+> *However*, I have noticed that sometimes when I alt-tab between any windows 
+> / programs I have open, sometimes the pointer becomes unstuck again...
+> 
+> >Also, is there programs that poll status of your battery or monitor box's 
+> >temperature?
+> 
+> Battery charge level, yes, but not the box's temperature.  I have tried lots 
+> of apps to try and do this, e.g. gkrellm, but there is no support for this 
+> on my laptop.  Besides, these problems often evidence themselves soon after 
+> I switch on, so I don't think laptop temperature would still be a problem 
+> that early.  Also, I rip the occasional DVD, sometimes leaving my computer 
+> on for 5+ hours: it doesn't overheat.
+>
 
-
-Erik
+No, it is not overheating, just the act of polling battery status or
+temperature may cause pointer stalls on some boxes.
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Dmitry

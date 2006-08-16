@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWHPJ7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWHPKAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWHPJ7w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 05:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWHPJ7w
+	id S1751085AbWHPKAz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 06:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWHPKAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 05:59:52 -0400
-Received: from arrakeen.ouaza.com ([212.85.152.62]:25502 "EHLO
-	arrakeen.ouaza.com") by vger.kernel.org with ESMTP id S1751084AbWHPJ7v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 05:59:51 -0400
-Date: Wed, 16 Aug 2006 11:59:25 +0200
-From: Raphael Hertzog <hertzog@debian.org>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Kernel with rt-preempt patch 2.6.17-rt8 not booting
-Message-ID: <20060816095925.GE4325@ouaza.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.12-2006-07-14
+	Wed, 16 Aug 2006 06:00:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23021 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751085AbWHPKAz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 06:00:55 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <29660.1155720852@warthog.cambridge.redhat.com> 
+References: <29660.1155720852@warthog.cambridge.redhat.com>  <20060815114912.d8fa1512.akpm@osdl.org> <20060815104813.7e3a0f98.akpm@osdl.org> <20060815065035.648be867.akpm@osdl.org> <20060814143110.f62bfb01.akpm@osdl.org> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <10791.1155580339@warthog.cambridge.redhat.com> <918.1155635513@warthog.cambridge.redhat.com> <29717.1155662998@warthog.cambridge.redhat.com> <6241.1155666920@warthog.cambridge.redhat.com> 
+To: Ian Kent <raven@themaw.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: 2.6.18-rc4-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 16 Aug 2006 11:00:39 +0100
+Message-ID: <30157.1155722439@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Please CC me when responding)
 
-Hello,
+Hi Ian,
 
-I was trying the latest rt-preempt patch (2.6.17-rt8) with linux 2.6.17.7 on a
-little 386-based ISA CPU card (40Mhz, 8Mb RAM):
-http://www.icop.com.tw/products_detail.asp?ProductID=205
-More detailed spec of the CPU are here:
-http://www.dmp.com.tw/tech/m6117d/
+I think this is probably a problem with the automounter daemon.
 
-With all options activated (default config), the kernel wouldn't boot with
-the following error displayed in loop:
-Unknown interrupt or fault at EIP 00010086 c0120060 c01218b9
+What I think happens is this:
 
-It happens very early in the boot and I don't see any other kernel message
-before (or if there are any, they are very quickly moved out of the
-display by the error message).
+ (1) I've got an NFS server (trash) with the following configuration:
 
-I tried to "isolate" the error by trying various combinations of options.
-Deactivating CONFIG_PREEMPT_RT and CONFIG_PREEMPT_RCU and (and using
-PREEMPT_DESKTOP and CLASSIC_RCU) let the kernel boot (I'm not sure which
-of the two options solved the boot problem, I didn't try them individually)
-but the "performance" was very bad compared to a stock kernel. I
-guessed this was due to the "threaded soft/hard IRQ" and I tried to disable
-those, and then the machine became very unresponsive... like it would
-answer ping of the last 20 seconds all in once (it looks like the kernel
-didn't receive any interrupt when the network trafic came in and did
-everything in a batch later).
+	[root@trash dhowells]# cat /etc/exports 
+	/               *(rw,async)
+	/usr/src        *(rw,async)
+	/mnt/export     *(rw,async)
 
-What more can I do to help fix this bug ? I'm happy to try out patches and
-do whatever further research may be needed. The initial .config (which
-didn't boot) is here:
-http://ouaza.com/~rhertzog/config-2.6-rt
+ (2) I do "ls -l" on the client to use the automounter to view the root NFS
+     share on the machine.
 
-(this output below is generated with a stock 2.6.17.7 kernel)
-# cat /proc/interrupts
-           CPU0
-  0:   88503366          XT-PIC  timer
-  2:          0          XT-PIC  cascade
-  3:         11          XT-PIC  serial
-  4:         12          XT-PIC  serial
-  5:       4958          XT-PIC  NE2000
- 14:      10771          XT-PIC  ide0
-NMI:          0
-ERR:          0
+ (3) The automounter makes /net/trash and mounts trash:/ on it.
 
-Cheers,
--- 
-Raphaël Hertzog
+ (4) The automount daemon asks the server what other shares it has available.
 
-Premier livre français sur Debian GNU/Linux :
-http://www.ouaza.com/livre/admin-debian/
+ (5) For each share, the automounter attempts to create the directories on
+     which to mount it:
+
+	SHARE			DIRECTORIES TO BE CREATED
+	=======================	=============================================
+	trash:/usr/src		/net/trash/usr, /net/trash/usr/src
+	trash:/mnt/exports	/net/trash/mnt, /net/trash/mnt/exports
+
+ (6) The automount daemon issued mkdir() syscalls to create these directories,
+     _despite_ the fact that it is doing so in a mounted filesystem.
+
+ (7) SELinux prohibits the mkdir() syscall by refusing write permission on the
+     directory.
+
+ (8) An unconstructed dentry is left, which causes the "?---------" lines to
+     appear in the ls -l listing.
+
+
+With the new internal automounting code in NFS, the automounter shouldn't
+attempt to do step (4) onwards for submounts as the NFS filesystem itself will
+take care of that.
+
+And, in my opinion, it shouldn't be attempting to create directories on the
+server.
+
+However, (8) might well represent a bug in NFS.
+
+David

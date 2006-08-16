@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWHPVDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWHPVDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWHPVDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 17:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWHPVDS
+	id S932226AbWHPVDa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 17:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWHPVDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 17:03:18 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:40371 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932225AbWHPVC7 (ORCPT
+	Wed, 16 Aug 2006 17:03:20 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:40627 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932226AbWHPVDA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 17:02:59 -0400
+	Wed, 16 Aug 2006 17:03:00 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/3] swsusp: Use suspend_console
-Date: Wed, 16 Aug 2006 23:00:47 +0200
+Subject: [PATCH 2/3] PM: Make it possible to disable console suspending
+Date: Wed, 16 Aug 2006 23:02:57 +0200
 User-Agent: KMail/1.9.3
 Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
 References: <200608162259.00941.rjw@sisk.pl>
@@ -22,133 +22,96 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608162300.47298.rjw@sisk.pl>
+Message-Id: <200608162302.57721.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add suspend_console() and resume_console() to the suspend-to-disk code paths
-so that the users of netconsole can use swsusp with it.
+Change suspend_console() so that it waits for all consoles to flush the
+remaining messages and make it possible to switch the console suspending
+off with the help of a Kconfig option.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 Acked-by: Pavel Machek <pavel@ucw.cz>
 ---
- kernel/power/disk.c |    8 ++++++++
- kernel/power/user.c |    8 +++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ include/linux/console.h |    5 +++++
+ kernel/power/Kconfig    |   11 +++++++++++
+ kernel/printk.c         |    8 ++++++++
+ 3 files changed, 24 insertions(+)
 
-Index: linux-2.6.18-rc4-mm1/kernel/power/disk.c
+Index: linux-2.6.18-rc4-mm1/include/linux/console.h
 ===================================================================
---- linux-2.6.18-rc4-mm1.orig/kernel/power/disk.c	2006-08-16 11:51:35.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/kernel/power/disk.c	2006-08-16 11:58:01.000000000 +0200
-@@ -18,6 +18,7 @@
- #include <linux/fs.h>
- #include <linux/mount.h>
- #include <linux/pm.h>
-+#include <linux/console.h>
- #include <linux/cpu.h>
+--- linux-2.6.18-rc4-mm1.orig/include/linux/console.h	2006-08-16 11:59:56.000000000 +0200
++++ linux-2.6.18-rc4-mm1/include/linux/console.h	2006-08-16 12:00:01.000000000 +0200
+@@ -120,9 +120,14 @@ extern void console_stop(struct console 
+ extern void console_start(struct console *);
+ extern int is_console_locked(void);
  
- #include "power.h"
-@@ -119,8 +120,10 @@ int pm_suspend_disk(void)
- 	if (error)
- 		return error;
++#ifndef CONFIG_DISABLE_CONSOLE_SUSPEND
+ /* Suspend and resume console messages over PM events */
+ extern void suspend_console(void);
+ extern void resume_console(void);
++#else
++static inline void suspend_console(void) {}
++static inline void resume_console(void) {}
++#endif /* CONFIG_DISABLE_CONSOLE_SUSPEND */
  
-+	suspend_console();
- 	error = device_suspend(PMSG_FREEZE);
- 	if (error) {
-+		resume_console();
- 		printk("Some devices failed to suspend\n");
- 		unprepare_processes();
- 		return error;
-@@ -133,6 +136,7 @@ int pm_suspend_disk(void)
+ /* Some debug stub to catch some of the obvious races in the VT code */
+ #if 1
+Index: linux-2.6.18-rc4-mm1/kernel/power/Kconfig
+===================================================================
+--- linux-2.6.18-rc4-mm1.orig/kernel/power/Kconfig	2006-08-16 11:59:56.000000000 +0200
++++ linux-2.6.18-rc4-mm1/kernel/power/Kconfig	2006-08-16 12:01:26.000000000 +0200
+@@ -36,6 +36,17 @@ config PM_DEBUG
+ 	code. This is helpful when debugging and reporting various PM bugs, 
+ 	like suspend support.
  
- 	if (in_suspend) {
- 		device_resume();
-+		resume_console();
- 		pr_debug("PM: writing image.\n");
- 		error = swsusp_write();
- 		if (!error)
-@@ -148,6 +152,7 @@ int pm_suspend_disk(void)
- 	swsusp_free();
-  Done:
- 	device_resume();
-+	resume_console();
- 	unprepare_processes();
- 	return error;
++config PM_DISABLE_CONSOLE_SUSPEND
++	bool "Keep console(s) enabled during suspend/resume (DANGEROUS)"
++	depends on PM && PM_DEBUG
++	default n
++	---help---
++	This option turns off the console suspend mechanism that prevents
++	debug messages from reaching the console during the suspend/resume
++	operations.  This may be helpful when debugging device drivers'
++	suspend/resume routines, but may itself lead to problems, for example
++	if netconsole is used.
++
+ config PM_TRACE
+ 	bool "Suspend/resume event tracing"
+ 	depends on PM && PM_DEBUG && X86_32 && EXPERIMENTAL
+Index: linux-2.6.18-rc4-mm1/kernel/printk.c
+===================================================================
+--- linux-2.6.18-rc4-mm1.orig/kernel/printk.c	2006-08-16 11:59:56.000000000 +0200
++++ linux-2.6.18-rc4-mm1/kernel/printk.c	2006-08-16 12:08:59.000000000 +0200
+@@ -702,6 +702,7 @@ int __init add_preferred_console(char *n
+ 	return 0;
  }
-@@ -212,7 +217,9 @@ static int software_resume(void)
  
- 	pr_debug("PM: Preparing devices for restore.\n");
++#ifndef CONFIG_DISABLE_CONSOLE_SUSPEND
+ /**
+  * suspend_console - suspend the console subsystem
+  *
+@@ -709,8 +710,14 @@ int __init add_preferred_console(char *n
+  */
+ void suspend_console(void)
+ {
++	printk("Suspending console(s)\n");
+ 	acquire_console_sem();
+ 	console_suspended = 1;
++	/* This is needed so that all of the messages that have already been
++	 * written to all consoles can be actually transmitted (eg. over a
++	 * network) before we try to suspend the consoles' devices.
++	 */
++	ssleep(2);
+ }
  
-+	suspend_console();
- 	if ((error = device_suspend(PMSG_PRETHAW))) {
-+		resume_console();
- 		printk("Some devices failed to suspend\n");
- 		swsusp_free();
- 		goto Thaw;
-@@ -224,6 +231,7 @@ static int software_resume(void)
- 	swsusp_resume();
- 	pr_debug("PM: Restore failed, recovering.n");
- 	device_resume();
-+	resume_console();
-  Thaw:
- 	unprepare_processes();
-  Done:
-Index: linux-2.6.18-rc4-mm1/kernel/power/user.c
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/kernel/power/user.c	2006-08-16 11:51:35.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/kernel/power/user.c	2006-08-16 11:58:01.000000000 +0200
-@@ -19,6 +19,7 @@
- #include <linux/swapops.h>
- #include <linux/pm.h>
- #include <linux/fs.h>
-+#include <linux/console.h>
- #include <linux/cpu.h>
+ void resume_console(void)
+@@ -718,6 +725,7 @@ void resume_console(void)
+ 	console_suspended = 0;
+ 	release_console_sem();
+ }
++#endif /* CONFIG_DISABLE_CONSOLE_SUSPEND */
  
- #include <asm/uaccess.h>
-@@ -173,12 +174,14 @@ static int snapshot_ioctl(struct inode *
- 		/* Free memory before shutting down devices. */
- 		error = swsusp_shrink_memory();
- 		if (!error) {
-+			suspend_console();
- 			error = device_suspend(PMSG_FREEZE);
- 			if (!error) {
- 				in_suspend = 1;
- 				error = swsusp_suspend();
- 				device_resume();
- 			}
-+			resume_console();
- 		}
- 		up(&pm_sem);
- 		if (!error)
-@@ -196,11 +199,13 @@ static int snapshot_ioctl(struct inode *
- 		}
- 		down(&pm_sem);
- 		pm_prepare_console();
-+		suspend_console();
- 		error = device_suspend(PMSG_PRETHAW);
- 		if (!error) {
- 			error = swsusp_resume();
- 			device_resume();
- 		}
-+		resume_console();
- 		pm_restore_console();
- 		up(&pm_sem);
- 		break;
-@@ -289,6 +294,7 @@ static int snapshot_ioctl(struct inode *
- 		}
- 
- 		/* Put devices to sleep */
-+		suspend_console();
- 		error = device_suspend(PMSG_SUSPEND);
- 		if (error) {
- 			printk(KERN_ERR "Failed to suspend some devices.\n");
-@@ -299,7 +305,7 @@ static int snapshot_ioctl(struct inode *
- 			/* Wake up devices */
- 			device_resume();
- 		}
--
-+		resume_console();
- 		if (pm_ops->finish)
- 			pm_ops->finish(PM_SUSPEND_MEM);
- 
+ /**
+  * acquire_console_sem - lock the console system for exclusive use.
 

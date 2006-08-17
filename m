@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWHQUKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWHQULw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030241AbWHQUKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 16:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWHQUJl
+	id S1030265AbWHQULw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 16:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWHQULs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 16:09:41 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:53420 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1030241AbWHQUJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 16:09:33 -0400
+	Thu, 17 Aug 2006 16:11:48 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:62736 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1030255AbWHQULF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 16:11:05 -0400
 Cc: schihei@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
        MEDER@de.ibm.com
-Subject: [PATCH 02/16] IB/ehca: classes
-In-Reply-To: <2006817139.pLkgJggYXy2PkqBH@cisco.com>
+Subject: [PATCH 01/13] IB/ehca: hca
+In-Reply-To: <20068171311.QJ2lcO2NjghtFOX6@cisco.com>
 X-Mailer: Roland's Patchbomber
-Date: Thu, 17 Aug 2006 13:09:28 -0700
-Message-Id: <2006817139.e1epJYk9xVvFdTao@cisco.com>
+Date: Thu, 17 Aug 2006 13:11:00 -0700
+Message-Id: <20068171311.qHSUlh5t6lpV4BeW@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: openib-general@openib.org, linux-kernel@vger.kernel.org,
        linuxppc-dev@ozlabs.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <rolandd@cisco.com>
-X-OriginalArrivalTime: 17 Aug 2006 20:09:31.0122 (UTC) FILETIME=[0CDAAD20:01C6C239]
+X-OriginalArrivalTime: 17 Aug 2006 20:11:01.0029 (UTC) FILETIME=[42716550:01C6C239]
 Authentication-Results: sj-dkim-2.cisco.com; header.From=rolandd@cisco.com; dkim=pass (
 	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- drivers/infiniband/hw/ehca/ehca_classes.h         |  343 +++++++++++++++++++++
- drivers/infiniband/hw/ehca/ehca_classes_pSeries.h |  236 ++++++++++++++
- 2 files changed, 579 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/ehca/ehca_hca.c   |  282 +++++++++++++++++++++++++++++++
+ drivers/infiniband/hw/ehca/ehca_mcast.c |  200 ++++++++++++++++++++++
+ 2 files changed, 482 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/ehca/ehca_classes.h b/drivers/infiniband/hw/ehca/ehca_classes.h
+diff --git a/drivers/infiniband/hw/ehca/ehca_hca.c b/drivers/infiniband/hw/ehca/ehca_hca.c
 new file mode 100644
-index 0000000..1a87bee
+index 0000000..7a871b2
 --- /dev/null
-+++ b/drivers/infiniband/hw/ehca/ehca_classes.h
-@@ -0,0 +1,343 @@
++++ b/drivers/infiniband/hw/ehca/ehca_hca.c
+@@ -0,0 +1,282 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  Struct definition for eHCA internal structures
++ *  HCA query functions
 + *
 + *  Authors: Heiko J Schick <schickhj@de.ibm.com>
 + *           Christoph Raisch <raisch@de.ibm.com>
@@ -79,321 +79,263 @@ index 0000000..1a87bee
 + * POSSIBILITY OF SUCH DAMAGE.
 + */
 +
-+#ifndef __EHCA_CLASSES_H__
-+#define __EHCA_CLASSES_H__
++#undef DEB_PREFIX
++#define DEB_PREFIX "shca"
 +
-+#include "ehca_classes.h"
-+#include "ipz_pt_fn.h"
++#include "ehca_tools.h"
 +
-+struct ehca_module;
-+struct ehca_qp;
-+struct ehca_cq;
-+struct ehca_eq;
-+struct ehca_mr;
-+struct ehca_mw;
-+struct ehca_pd;
-+struct ehca_av;
++#include "hcp_if.h"
 +
-+#ifdef CONFIG_PPC64
-+#include "ehca_classes_pSeries.h"
-+#endif
++int ehca_query_device(struct ib_device *ibdev, struct ib_device_attr *props)
++{
++	int ret = 0;
++	struct ehca_shca *shca;
++	struct hipz_query_hca *rblock;
 +
-+#include <rdma/ib_verbs.h>
-+#include <rdma/ib_user_verbs.h>
++	EDEB_EN(7, "");
 +
-+#include "ehca_irq.h"
++	memset(props, 0, sizeof(struct ib_device_attr));
++	shca = container_of(ibdev, struct ehca_shca, ib_device);
 +
-+struct ehca_module {
-+	struct list_head shca_list;
-+	spinlock_t shca_lock;
-+	struct timer_list timer;
-+	kmem_cache_t *cache_pd;
-+	kmem_cache_t *cache_cq;
-+	kmem_cache_t *cache_qp;
-+	kmem_cache_t *cache_av;
-+	kmem_cache_t *cache_mr;
-+	kmem_cache_t *cache_mw;
-+};
++	rblock = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	if (!rblock) {
++		EDEB_ERR(4, "Can't allocate rblock memory.");
++		ret = -ENOMEM;
++		goto query_device0;
++	}
 +
-+struct ehca_eq {
-+	u32 length;
-+	struct ipz_queue ipz_queue;
-+	struct ipz_eq_handle ipz_eq_handle;
-+	struct work_struct work;
-+	struct h_galpas galpas;
-+	int is_initialized;
-+	struct ehca_pfeq pf;
-+	spinlock_t spinlock;
-+	struct tasklet_struct interrupt_task;
-+	u32 ist;
-+};
++	if (hipz_h_query_hca(shca->ipz_hca_handle, rblock) != H_SUCCESS) {
++		EDEB_ERR(4, "Can't query device properties");
++		ret = -EINVAL;
++		goto query_device1;
++	}
++	props->fw_ver          = rblock->hw_ver;
++	props->max_mr_size     = rblock->max_mr_size;
++	props->vendor_id       = rblock->vendor_id >> 8;
++	props->vendor_part_id  = rblock->vendor_part_id >> 16;
++	props->hw_ver          = rblock->hw_ver;
++	props->max_qp          = min_t(int, rblock->max_qp, INT_MAX);
++	props->max_qp_wr       = min_t(int, rblock->max_wqes_wq, INT_MAX);
++	props->max_sge         = min_t(int, rblock->max_sge, INT_MAX);
++	props->max_sge_rd      = min_t(int, rblock->max_sge_rd, INT_MAX);
++	props->max_cq          = min_t(int, rblock->max_cq, INT_MAX);
++	props->max_cqe         = min_t(int, rblock->max_cqe, INT_MAX);
++	props->max_mr          = min_t(int, rblock->max_mr, INT_MAX);
++	props->max_mw          = min_t(int, rblock->max_mw, INT_MAX);
++	props->max_pd          = min_t(int, rblock->max_pd, INT_MAX);
++	props->max_ah          = min_t(int, rblock->max_ah, INT_MAX);
++	props->max_fmr         = min_t(int, rblock->max_mr, INT_MAX);
++	props->max_srq         = 0;
++	props->max_srq_wr      = 0;
++	props->max_srq_sge     = 0;
++	props->max_pkeys       = 16;
++	props->local_ca_ack_delay
++		= rblock->local_ca_ack_delay;
++	props->max_raw_ipv6_qp
++		= min_t(int, rblock->max_raw_ipv6_qp, INT_MAX);
++	props->max_raw_ethy_qp
++		= min_t(int, rblock->max_raw_ethy_qp, INT_MAX);
++	props->max_mcast_grp
++		= min_t(int, rblock->max_mcast_grp, INT_MAX);
++	props->max_mcast_qp_attach
++		= min_t(int, rblock->max_mcast_qp_attach, INT_MAX);
++	props->max_total_mcast_qp_attach
++		= min_t(int, rblock->max_total_mcast_qp_attach, INT_MAX);
 +
-+struct ehca_sport {
-+	struct ib_cq *ibcq_aqp1;
-+	struct ib_qp *ibqp_aqp1;
-+	enum ib_rate  rate;
-+	enum ib_port_state port_state;
-+};
++query_device1:
++	kfree(rblock);
 +
-+struct ehca_shca {
-+	struct ib_device ib_device;
-+	struct ibmebus_dev *ibmebus_dev;
-+	u8 num_ports;
-+	int hw_level;
-+	struct list_head shca_list;
-+	struct ipz_adapter_handle ipz_hca_handle;
-+	struct ehca_sport sport[2];
-+	struct ehca_eq eq;
-+	struct ehca_eq neq;
-+	struct ehca_mr *maxmr;
-+	struct ehca_pd *pd;
-+	struct h_galpas galpas;
-+};
++query_device0:
++	EDEB_EX(7, "ret=%x", ret);
 +
-+struct ehca_pd {
-+	struct ib_pd ib_pd;
-+	struct ipz_pd fw_pd;
-+	u32 ownpid;
-+};
++	return ret;
++}
 +
-+struct ehca_qp {
-+	struct ib_qp ib_qp;
-+	u32 qp_type;
-+	struct ipz_queue ipz_squeue;
-+	struct ipz_queue ipz_rqueue;
-+	struct h_galpas galpas;
-+	u32 qkey;
-+	u32 real_qp_num;
-+	u32 token;
-+	spinlock_t spinlock_s;
-+	spinlock_t spinlock_r;
-+	u32 sq_max_inline_data_size;
-+	struct ipz_qp_handle ipz_qp_handle;
-+	struct ehca_pfqp pf;
-+	struct ib_qp_init_attr init_attr;
-+	u64 uspace_squeue;
-+	u64 uspace_rqueue;
-+	u64 uspace_fwh;
-+	struct ehca_cq *send_cq;
-+	struct ehca_cq *recv_cq;
-+	unsigned int sqerr_purgeflag;
-+	struct hlist_node list_entries;
-+};
++int ehca_query_port(struct ib_device *ibdev,
++		    u8 port, struct ib_port_attr *props)
++{
++	int ret = 0;
++	struct ehca_shca *shca;
++	struct hipz_query_port *rblock;
 +
-+/* must be power of 2 */
-+#define QP_HASHTAB_LEN 8
++	EDEB_EN(7, "port=%x", port);
 +
-+struct ehca_cq {
-+	struct ib_cq ib_cq;
-+	struct ipz_queue ipz_queue;
-+	struct h_galpas galpas;
-+	spinlock_t spinlock;
-+	u32 cq_number;
-+	u32 token;
-+	u32 nr_of_entries;
-+	struct ipz_cq_handle ipz_cq_handle;
-+	struct ehca_pfcq pf;
-+	spinlock_t cb_lock;
-+	u64 uspace_queue;
-+	u64 uspace_fwh;
-+	struct hlist_head qp_hashtab[QP_HASHTAB_LEN];
-+	struct list_head entry;
-+	u32 nr_callbacks;
-+	spinlock_t task_lock;
-+	u32 ownpid;
-+};
++	memset(props, 0, sizeof(struct ib_port_attr));
++	shca = container_of(ibdev, struct ehca_shca, ib_device);
 +
-+enum ehca_mr_flag {
-+	EHCA_MR_FLAG_FMR = 0x80000000,	 /* FMR, created with ehca_alloc_fmr */
-+	EHCA_MR_FLAG_MAXMR = 0x40000000, /* max-MR                           */
-+};
++	rblock = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	if (!rblock) {
++		EDEB_ERR(4, "Can't allocate rblock memory.");
++		ret = -ENOMEM;
++		goto query_port0;
++	}
 +
-+struct ehca_mr {
-+	union {
-+		struct ib_mr ib_mr;	/* must always be first in ehca_mr */
-+		struct ib_fmr ib_fmr;	/* must always be first in ehca_mr */
-+	} ib;
-+	spinlock_t mrlock;
++	if (hipz_h_query_port(shca->ipz_hca_handle, port, rblock) != H_SUCCESS) {
++		EDEB_ERR(4, "Can't query port properties");
++		ret = -EINVAL;
++		goto query_port1;
++	}
 +
-+	enum ehca_mr_flag flags;
-+	u32 num_pages;		/* number of MR pages */
-+	u32 num_4k;		/* number of 4k "page" portions to form MR */
-+	int acl;		/* ACL (stored here for usage in reregister) */
-+	u64 *start;		/* virtual start address (stored here for */
-+	                        /* usage in reregister) */
-+	u64 size;		/* size (stored here for usage in reregister) */
-+	u32 fmr_page_size;	/* page size for FMR */
-+	u32 fmr_max_pages;	/* max pages for FMR */
-+	u32 fmr_max_maps;	/* max outstanding maps for FMR */
-+	u32 fmr_map_cnt;	/* map counter for FMR */
-+	/* fw specific data */
-+	struct ipz_mrmw_handle ipz_mr_handle;	/* MR handle for h-calls */
-+	struct h_galpas galpas;
-+	/* data for userspace bridge */
-+	u32 nr_of_pages;
-+	void *pagearray;
-+};
++	props->state = rblock->state;
 +
-+struct ehca_mw {
-+	struct ib_mw ib_mw;	/* gen2 mw, must always be first in ehca_mw */
-+	spinlock_t mwlock;
++	switch (rblock->max_mtu) {
++	case 0x1:
++		props->active_mtu = props->max_mtu = IB_MTU_256;
++		break;
++	case 0x2:
++		props->active_mtu = props->max_mtu = IB_MTU_512;
++		break;
++	case 0x3:
++		props->active_mtu = props->max_mtu = IB_MTU_1024;
++		break;
++	case 0x4:
++		props->active_mtu = props->max_mtu = IB_MTU_2048;
++		break;
++	case 0x5:
++		props->active_mtu = props->max_mtu = IB_MTU_4096;
++		break;
++	default:
++		EDEB_ERR(4, "Unknown MTU size: %x.", rblock->max_mtu);
++	}
 +
-+	u8 never_bound;		/* indication MW was never bound */
-+	struct ipz_mrmw_handle ipz_mw_handle;	/* MW handle for h-calls */
-+	struct h_galpas galpas;
-+};
++	props->gid_tbl_len     = rblock->gid_tbl_len;
++	props->max_msg_sz      = rblock->max_msg_sz;
++	props->bad_pkey_cntr   = rblock->bad_pkey_cntr;
++	props->qkey_viol_cntr  = rblock->qkey_viol_cntr;
++	props->pkey_tbl_len    = rblock->pkey_tbl_len;
++	props->lid             = rblock->lid;
++	props->sm_lid          = rblock->sm_lid;
++	props->lmc             = rblock->lmc;
++	props->sm_sl           = rblock->sm_sl;
++	props->subnet_timeout  = rblock->subnet_timeout;
++	props->init_type_reply = rblock->init_type_reply;
 +
-+enum ehca_mr_pgi_type {
-+	EHCA_MR_PGI_PHYS   = 1,  /* type of ehca_reg_phys_mr,
-+				  * ehca_rereg_phys_mr,
-+				  * ehca_reg_internal_maxmr */
-+	EHCA_MR_PGI_USER   = 2,  /* type of ehca_reg_user_mr */
-+	EHCA_MR_PGI_FMR    = 3   /* type of ehca_map_phys_fmr */
-+};
++	props->active_width    = IB_WIDTH_12X;
++	props->active_speed    = 0x1;
 +
-+struct ehca_mr_pginfo {
-+	enum ehca_mr_pgi_type type;
-+	u64 num_pages;
-+	u64 page_cnt;
-+	u64 num_4k;       /* number of 4k "page" portions */
-+	u64 page_4k_cnt;  /* counter for 4k "page" portions */
-+	u64 next_4k;      /* next 4k "page" portion in buffer/chunk/listelem */
++query_port1:
++	kfree(rblock);
 +
-+	/* type EHCA_MR_PGI_PHYS section */
-+	int num_phys_buf;
-+	struct ib_phys_buf *phys_buf_array;
-+	u64 next_buf;
++query_port0:
++	EDEB_EX(7, "ret=%x", ret);
 +
-+	/* type EHCA_MR_PGI_USER section */
-+	struct ib_umem *region;
-+	struct ib_umem_chunk *next_chunk;
-+	u64 next_nmap;
++	return ret;
++}
 +
-+	/* type EHCA_MR_PGI_FMR section */
-+	u64 *page_list;
-+	u64 next_listelem;
-+	/* next_4k also used within EHCA_MR_PGI_FMR */
-+};
++int ehca_query_pkey(struct ib_device *ibdev, u8 port, u16 index, u16 *pkey)
++{
++	int ret = 0;
++	struct ehca_shca *shca;
++	struct hipz_query_port *rblock;
 +
-+/* output parameters for MR/FMR hipz calls */
-+struct ehca_mr_hipzout_parms {
-+	struct ipz_mrmw_handle handle;
-+	u32 lkey;
-+	u32 rkey;
-+	u64 len;
-+	u64 vaddr;
-+	u32 acl;
-+};
++	EDEB_EN(7, "port=%x index=%x", port, index);
 +
-+/* output parameters for MW hipz calls */
-+struct ehca_mw_hipzout_parms {
-+	struct ipz_mrmw_handle handle;
-+	u32 rkey;
-+};
++	if (index > 16) {
++		EDEB_ERR(4, "Invalid index: %x.", index);
++		ret = -EINVAL;
++		goto query_pkey0;
++	}
 +
-+struct ehca_av {
-+	struct ib_ah ib_ah;
-+	struct ehca_ud_av av;
-+};
++	shca = container_of(ibdev, struct ehca_shca, ib_device);
 +
-+struct ehca_ucontext {
-+	struct ib_ucontext ib_ucontext;
-+};
++	rblock = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	if (!rblock) {
++		EDEB_ERR(4,  "Can't allocate rblock memory.");
++		ret = -ENOMEM;
++		goto query_pkey0;
++	}
 +
-+struct ehca_module *ehca_module_new(void);
++	if (hipz_h_query_port(shca->ipz_hca_handle, port, rblock) != H_SUCCESS) {
++		EDEB_ERR(4, "Can't query port properties");
++		ret = -EINVAL;
++		goto query_pkey1;
++	}
 +
-+int ehca_module_delete(struct ehca_module *me);
++	memcpy(pkey, &rblock->pkey_entries + index, sizeof(u16));
 +
-+int ehca_eq_ctor(struct ehca_eq *eq);
++query_pkey1:
++	kfree(rblock);
 +
-+int ehca_eq_dtor(struct ehca_eq *eq);
++query_pkey0:
++	EDEB_EX(7, "ret=%x", ret);
 +
-+struct ehca_shca *ehca_shca_new(void);
++	return ret;
++}
 +
-+int ehca_shca_delete(struct ehca_shca *me);
++int ehca_query_gid(struct ib_device *ibdev, u8 port,
++		   int index, union ib_gid *gid)
++{
++	int ret = 0;
++	struct ehca_shca *shca;
++	struct hipz_query_port *rblock;
 +
-+struct ehca_sport *ehca_sport_new(struct ehca_shca *anchor);
++	EDEB_EN(7, "port=%x index=%x", port, index);
 +
-+extern spinlock_t ehca_qp_idr_lock;
-+extern spinlock_t ehca_cq_idr_lock;
-+extern struct idr ehca_qp_idr;
-+extern struct idr ehca_cq_idr;
++	if (index > 255) {
++		EDEB_ERR(4, "Invalid index: %x.", index);
++		ret = -EINVAL;
++		goto query_gid0;
++	}
 +
-+struct ipzu_queue_resp {
-+	u64 queue;        /* points to first queue entry */
-+	u32 qe_size;      /* queue entry size */
-+	u32 act_nr_of_sg;
-+	u32 queue_length; /* queue length allocated in bytes */
-+	u32 pagesize;
-+	u32 toggle_state;
-+	u32 dummy; /* padding for 8 byte alignment */
-+};
++	shca = container_of(ibdev, struct ehca_shca, ib_device);
 +
-+struct ehca_create_cq_resp {
-+	u32 cq_number;
-+	u32 token;
-+	struct ipzu_queue_resp ipz_queue;
-+	struct h_galpas galpas;
-+};
++	rblock = kzalloc(H_CB_ALIGNMENT, GFP_KERNEL);
++	if (!rblock) {
++		EDEB_ERR(4, "Can't allocate rblock memory.");
++		ret = -ENOMEM;
++		goto query_gid0;
++	}
 +
-+struct ehca_create_qp_resp {
-+	u32 qp_num;
-+	u32 token;
-+	u32 qp_type;
-+	u32 qkey;
-+	/* qp_num assigned by ehca: sqp0/1 may have got different numbers */
-+	u32 real_qp_num;
-+	u32 dummy; /* padding for 8 byte alignment */
-+	struct ipzu_queue_resp ipz_squeue;
-+	struct ipzu_queue_resp ipz_rqueue;
-+	struct h_galpas galpas;
-+};
++	if (hipz_h_query_port(shca->ipz_hca_handle, port, rblock) != H_SUCCESS) {
++		EDEB_ERR(4, "Can't query port properties");
++		ret = -EINVAL;
++		goto query_gid1;
++	}
 +
-+struct ehca_alloc_cq_parms {
-+	u32 nr_cqe;
-+	u32 act_nr_of_entries;
-+	u32 act_pages;
-+	struct ipz_eq_handle eq_handle;
-+};
++	memcpy(&gid->raw[0], &rblock->gid_prefix, sizeof(u64));
++	memcpy(&gid->raw[8], &rblock->guid_entries[index], sizeof(u64));
 +
-+struct ehca_alloc_qp_parms {
-+	int servicetype;
-+	int sigtype;
-+	int daqp_ctrl;
-+	int max_send_sge;
-+	int max_recv_sge;
-+	int ud_av_l_key_ctl;
++query_gid1:
++	kfree(rblock);
 +
-+	u16 act_nr_send_wqes;
-+	u16 act_nr_recv_wqes;
-+	u8  act_nr_recv_sges;
-+	u8  act_nr_send_sges;
++query_gid0:
++	EDEB_EX(7, "ret=%x GID=%lx%lx", ret,
++		*(u64 *) & gid->raw[0],
++		*(u64 *) & gid->raw[8]);
 +
-+	u32 nr_rq_pages;
-+	u32 nr_sq_pages;
++	return ret;
++}
 +
-+	struct ipz_eq_handle ipz_eq_handle;
-+	struct ipz_pd pd;
-+};
++int ehca_modify_port(struct ib_device *ibdev,
++		     u8 port, int port_modify_mask,
++		     struct ib_port_modify *props)
++{
++	int ret = 0;
 +
-+int ehca_cq_assign_qp(struct ehca_cq *cq, struct ehca_qp *qp);
-+int ehca_cq_unassign_qp(struct ehca_cq *cq, unsigned int qp_num);
-+struct ehca_qp* ehca_cq_get_qp(struct ehca_cq *cq, int qp_num);
++	EDEB_EN(7, "port=%x", port);
 +
-+#endif
-diff --git a/drivers/infiniband/hw/ehca/ehca_classes_pSeries.h b/drivers/infiniband/hw/ehca/ehca_classes_pSeries.h
++	/* Not implemented yet. */
++
++	EDEB_EX(7, "ret=%x", ret);
++
++	return ret;
++}
+diff --git a/drivers/infiniband/hw/ehca/ehca_mcast.c b/drivers/infiniband/hw/ehca/ehca_mcast.c
 new file mode 100644
-index 0000000..5665f21
+index 0000000..5c5b024
 --- /dev/null
-+++ b/drivers/infiniband/hw/ehca/ehca_classes_pSeries.h
-@@ -0,0 +1,236 @@
++++ b/drivers/infiniband/hw/ehca/ehca_mcast.c
+@@ -0,0 +1,200 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  pSeries interface definitions
++ *  mcast  functions
 + *
-+ *  Authors: Waleri Fomin <fomin@de.ibm.com>
-+ *           Christoph Raisch <raisch@de.ibm.com>
++ *  Authors: Khadija Souissi <souissik@de.ibm.com>
++ *           Waleri Fomin <fomin@de.ibm.com>
++ *           Reinhard Ernst <rernst@de.ibm.com>
++ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *           Heiko J Schick <schickhj@de.ibm.com>
 + *
 + *  Copyright (c) 2005 IBM Corporation
 + *
@@ -428,201 +370,162 @@ index 0000000..5665f21
 + * POSSIBILITY OF SUCH DAMAGE.
 + */
 +
-+#ifndef __EHCA_CLASSES_PSERIES_H__
-+#define __EHCA_CLASSES_PSERIES_H__
++#define DEB_PREFIX "mcas"
 +
-+#include "hcp_phyp.h"
-+#include "ipz_pt_fn.h"
++#include <linux/module.h>
++#include <linux/err.h>
++#include "ehca_classes.h"
++#include "ehca_tools.h"
++#include "ehca_qes.h"
++#include "ehca_iverbs.h"
 +
++#include "hcp_if.h"
 +
-+struct ehca_pfqp {
-+	struct ipz_qpt sqpt;
-+	struct ipz_qpt rqpt;
-+};
++#define MAX_MC_LID 0xFFFE
++#define MIN_MC_LID 0xC000	/* Multicast limits */
++#define EHCA_VALID_MULTICAST_GID(gid)  ((gid)[0] == 0xFF)
++#define EHCA_VALID_MULTICAST_LID(lid)  (((lid) >= MIN_MC_LID) && ((lid) <= MAX_MC_LID))
 +
-+struct ehca_pfcq {
-+	struct ipz_qpt qpt;
-+	u32 cqnr;
-+};
++int ehca_attach_mcast(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
++{
++	struct ehca_qp *my_qp = NULL;
++	struct ehca_shca *shca = NULL;
++	union ib_gid my_gid;
++	u64 subnet_prefix;
++	u64 interface_id;
++	u64 h_ret = H_SUCCESS;
++	int ret = 0;
 +
-+struct ehca_pfeq {
-+	struct ipz_qpt qpt;
-+	struct h_galpa galpa;
-+	u32 eqnr;
-+};
++	EHCA_CHECK_ADR(ibqp);
++	EHCA_CHECK_ADR(gid);
 +
-+struct ipz_adapter_handle {
-+	u64 handle;
-+};
++	my_qp = container_of(ibqp, struct ehca_qp, ib_qp);
 +
-+struct ipz_cq_handle {
-+	u64 handle;
-+};
++	EHCA_CHECK_QP(my_qp);
++	if (ibqp->qp_type != IB_QPT_UD) {
++		EDEB_ERR(4, "invalid qp_type %x gid, ret=%x",
++			 ibqp->qp_type, EINVAL);
++		return -EINVAL;
++	}
 +
-+struct ipz_eq_handle {
-+	u64 handle;
-+};
++	shca = container_of(ibqp->pd->device, struct ehca_shca, ib_device);
++	EHCA_CHECK_ADR(shca);
 +
-+struct ipz_qp_handle {
-+	u64 handle;
-+};
-+struct ipz_mrmw_handle {
-+	u64 handle;
-+};
++	if (!(EHCA_VALID_MULTICAST_GID(gid->raw))) {
++		EDEB_ERR(4, "gid is not valid mulitcast gid ret=%x",
++			 EINVAL);
++		return -EINVAL;
++	} else if ((lid < MIN_MC_LID) || (lid > MAX_MC_LID)) {
++		EDEB_ERR(4, "lid=%x is not valid mulitcast lid ret=%x",
++			 lid, EINVAL);
++		return -EINVAL;
++	}
 +
-+struct ipz_pd {
-+	u32 value;
-+};
++	memcpy(&my_gid.raw, gid->raw, sizeof(union ib_gid));
 +
-+struct hcp_modify_qp_control_block {
-+	u32 qkey;                      /* 00 */
-+	u32 rdd;                       /* reliable datagram domain */
-+	u32 send_psn;                  /* 02 */
-+	u32 receive_psn;               /* 03 */
-+	u32 prim_phys_port;            /* 04 */
-+	u32 alt_phys_port;             /* 05 */
-+	u32 prim_p_key_idx;            /* 06 */
-+	u32 alt_p_key_idx;             /* 07 */
-+	u32 rdma_atomic_ctrl;          /* 08 */
-+	u32 qp_state;                  /* 09 */
-+	u32 reserved_10;               /* 10 */
-+	u32 rdma_nr_atomic_resp_res;   /* 11 */
-+	u32 path_migration_state;      /* 12 */
-+	u32 rdma_atomic_outst_dest_qp; /* 13 */
-+	u32 dest_qp_nr;                /* 14 */
-+	u32 min_rnr_nak_timer_field;   /* 15 */
-+	u32 service_level;             /* 16 */
-+	u32 send_grh_flag;             /* 17 */
-+	u32 retry_count;               /* 18 */
-+	u32 timeout;                   /* 19 */
-+	u32 path_mtu;                  /* 20 */
-+	u32 max_static_rate;           /* 21 */
-+	u32 dlid;                      /* 22 */
-+	u32 rnr_retry_count;           /* 23 */
-+	u32 source_path_bits;          /* 24 */
-+	u32 traffic_class;             /* 25 */
-+	u32 hop_limit;                 /* 26 */
-+	u32 source_gid_idx;            /* 27 */
-+	u32 flow_label;                /* 28 */
-+	u32 reserved_29;               /* 29 */
-+	union {                        /* 30 */
-+		u64 dw[2];
-+		u8 byte[16];
-+	} dest_gid;
-+	u32 service_level_al;          /* 34 */
-+	u32 send_grh_flag_al;          /* 35 */
-+	u32 retry_count_al;            /* 36 */
-+	u32 timeout_al;                /* 37 */
-+	u32 max_static_rate_al;        /* 38 */
-+	u32 dlid_al;                   /* 39 */
-+	u32 rnr_retry_count_al;        /* 40 */
-+	u32 source_path_bits_al;       /* 41 */
-+	u32 traffic_class_al;          /* 42 */
-+	u32 hop_limit_al;              /* 43 */
-+	u32 source_gid_idx_al;         /* 44 */
-+	u32 flow_label_al;             /* 45 */
-+	u32 reserved_46;               /* 46 */
-+	u32 reserved_47;               /* 47 */
-+	union {                        /* 48 */
-+		u64 dw[2];
-+		u8 byte[16];
-+	} dest_gid_al;
-+	u32 max_nr_outst_send_wr;      /* 52 */
-+	u32 max_nr_outst_recv_wr;      /* 53 */
-+	u32 disable_ete_credit_check;  /* 54 */
-+	u32 qp_number;                 /* 55 */
-+	u64 send_queue_handle;         /* 56 */
-+	u64 recv_queue_handle;         /* 58 */
-+	u32 actual_nr_sges_in_sq_wqe;  /* 60 */
-+	u32 actual_nr_sges_in_rq_wqe;  /* 61 */
-+	u32 qp_enable;                 /* 62 */
-+	u32 curr_srq_limit;            /* 63 */
-+	u64 qp_aff_asyn_ev_log_reg;    /* 64 */
-+	u64 shared_rq_hndl;            /* 66 */
-+	u64 trigg_doorbell_qp_hndl;    /* 68 */
-+	u32 reserved_70_127[58];       /* 70 */
-+};
++	subnet_prefix = be64_to_cpu(my_gid.global.subnet_prefix);
++	interface_id = be64_to_cpu(my_gid.global.interface_id);
++	h_ret = hipz_h_attach_mcqp(shca->ipz_hca_handle,
++				   my_qp->ipz_qp_handle,
++				   my_qp->galpas.kernel,
++				   lid, subnet_prefix, interface_id);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4,
++			 "ehca_qp=%p qp_num=%x hipz_h_attach_mcqp() failed "
++			 "h_ret=%lx", my_qp, ibqp->qp_num, h_ret);
++	}
++	ret = ehca2ib_return_code(h_ret);
 +
-+#define MQPCB_MASK_QKEY                         EHCA_BMASK_IBM(0,0)
-+#define MQPCB_MASK_SEND_PSN                     EHCA_BMASK_IBM(2,2)
-+#define MQPCB_MASK_RECEIVE_PSN                  EHCA_BMASK_IBM(3,3)
-+#define MQPCB_MASK_PRIM_PHYS_PORT               EHCA_BMASK_IBM(4,4)
-+#define MQPCB_PRIM_PHYS_PORT                    EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_ALT_PHYS_PORT                EHCA_BMASK_IBM(5,5)
-+#define MQPCB_MASK_PRIM_P_KEY_IDX               EHCA_BMASK_IBM(6,6)
-+#define MQPCB_PRIM_P_KEY_IDX                    EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_ALT_P_KEY_IDX                EHCA_BMASK_IBM(7,7)
-+#define MQPCB_MASK_RDMA_ATOMIC_CTRL             EHCA_BMASK_IBM(8,8)
-+#define MQPCB_MASK_QP_STATE                     EHCA_BMASK_IBM(9,9)
-+#define MQPCB_QP_STATE                          EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_RDMA_NR_ATOMIC_RESP_RES      EHCA_BMASK_IBM(11,11)
-+#define MQPCB_MASK_PATH_MIGRATION_STATE         EHCA_BMASK_IBM(12,12)
-+#define MQPCB_MASK_RDMA_ATOMIC_OUTST_DEST_QP    EHCA_BMASK_IBM(13,13)
-+#define MQPCB_MASK_DEST_QP_NR                   EHCA_BMASK_IBM(14,14)
-+#define MQPCB_MASK_MIN_RNR_NAK_TIMER_FIELD      EHCA_BMASK_IBM(15,15)
-+#define MQPCB_MASK_SERVICE_LEVEL                EHCA_BMASK_IBM(16,16)
-+#define MQPCB_MASK_SEND_GRH_FLAG                EHCA_BMASK_IBM(17,17)
-+#define MQPCB_MASK_RETRY_COUNT                  EHCA_BMASK_IBM(18,18)
-+#define MQPCB_MASK_TIMEOUT                      EHCA_BMASK_IBM(19,19)
-+#define MQPCB_MASK_PATH_MTU                     EHCA_BMASK_IBM(20,20)
-+#define MQPCB_PATH_MTU                          EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_MAX_STATIC_RATE              EHCA_BMASK_IBM(21,21)
-+#define MQPCB_MAX_STATIC_RATE                   EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_DLID                         EHCA_BMASK_IBM(22,22)
-+#define MQPCB_DLID                              EHCA_BMASK_IBM(16,31)
-+#define MQPCB_MASK_RNR_RETRY_COUNT              EHCA_BMASK_IBM(23,23)
-+#define MQPCB_RNR_RETRY_COUNT                   EHCA_BMASK_IBM(29,31)
-+#define MQPCB_MASK_SOURCE_PATH_BITS             EHCA_BMASK_IBM(24,24)
-+#define MQPCB_SOURCE_PATH_BITS                  EHCA_BMASK_IBM(25,31)
-+#define MQPCB_MASK_TRAFFIC_CLASS                EHCA_BMASK_IBM(25,25)
-+#define MQPCB_TRAFFIC_CLASS                     EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_HOP_LIMIT                    EHCA_BMASK_IBM(26,26)
-+#define MQPCB_HOP_LIMIT                         EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_SOURCE_GID_IDX               EHCA_BMASK_IBM(27,27)
-+#define MQPCB_SOURCE_GID_IDX                    EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_FLOW_LABEL                   EHCA_BMASK_IBM(28,28)
-+#define MQPCB_FLOW_LABEL                        EHCA_BMASK_IBM(12,31)
-+#define MQPCB_MASK_DEST_GID                     EHCA_BMASK_IBM(30,30)
-+#define MQPCB_MASK_SERVICE_LEVEL_AL             EHCA_BMASK_IBM(31,31)
-+#define MQPCB_SERVICE_LEVEL_AL                  EHCA_BMASK_IBM(28,31)
-+#define MQPCB_MASK_SEND_GRH_FLAG_AL             EHCA_BMASK_IBM(32,32)
-+#define MQPCB_SEND_GRH_FLAG_AL                  EHCA_BMASK_IBM(31,31)
-+#define MQPCB_MASK_RETRY_COUNT_AL               EHCA_BMASK_IBM(33,33)
-+#define MQPCB_RETRY_COUNT_AL                    EHCA_BMASK_IBM(29,31)
-+#define MQPCB_MASK_TIMEOUT_AL                   EHCA_BMASK_IBM(34,34)
-+#define MQPCB_TIMEOUT_AL                        EHCA_BMASK_IBM(27,31)
-+#define MQPCB_MASK_MAX_STATIC_RATE_AL           EHCA_BMASK_IBM(35,35)
-+#define MQPCB_MAX_STATIC_RATE_AL                EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_DLID_AL                      EHCA_BMASK_IBM(36,36)
-+#define MQPCB_DLID_AL                           EHCA_BMASK_IBM(16,31)
-+#define MQPCB_MASK_RNR_RETRY_COUNT_AL           EHCA_BMASK_IBM(37,37)
-+#define MQPCB_RNR_RETRY_COUNT_AL                EHCA_BMASK_IBM(29,31)
-+#define MQPCB_MASK_SOURCE_PATH_BITS_AL          EHCA_BMASK_IBM(38,38)
-+#define MQPCB_SOURCE_PATH_BITS_AL               EHCA_BMASK_IBM(25,31)
-+#define MQPCB_MASK_TRAFFIC_CLASS_AL             EHCA_BMASK_IBM(39,39)
-+#define MQPCB_TRAFFIC_CLASS_AL                  EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_HOP_LIMIT_AL                 EHCA_BMASK_IBM(40,40)
-+#define MQPCB_HOP_LIMIT_AL                      EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_SOURCE_GID_IDX_AL            EHCA_BMASK_IBM(41,41)
-+#define MQPCB_SOURCE_GID_IDX_AL                 EHCA_BMASK_IBM(24,31)
-+#define MQPCB_MASK_FLOW_LABEL_AL                EHCA_BMASK_IBM(42,42)
-+#define MQPCB_FLOW_LABEL_AL                     EHCA_BMASK_IBM(12,31)
-+#define MQPCB_MASK_DEST_GID_AL                  EHCA_BMASK_IBM(44,44)
-+#define MQPCB_MASK_MAX_NR_OUTST_SEND_WR         EHCA_BMASK_IBM(45,45)
-+#define MQPCB_MAX_NR_OUTST_SEND_WR              EHCA_BMASK_IBM(16,31)
-+#define MQPCB_MASK_MAX_NR_OUTST_RECV_WR         EHCA_BMASK_IBM(46,46)
-+#define MQPCB_MAX_NR_OUTST_RECV_WR              EHCA_BMASK_IBM(16,31)
-+#define MQPCB_MASK_DISABLE_ETE_CREDIT_CHECK     EHCA_BMASK_IBM(47,47)
-+#define MQPCB_DISABLE_ETE_CREDIT_CHECK          EHCA_BMASK_IBM(31,31)
-+#define MQPCB_QP_NUMBER                         EHCA_BMASK_IBM(8,31)
-+#define MQPCB_MASK_QP_ENABLE                    EHCA_BMASK_IBM(48,48)
-+#define MQPCB_QP_ENABLE                         EHCA_BMASK_IBM(31,31)
-+#define MQPCB_MASK_CURR_SQR_LIMIT               EHCA_BMASK_IBM(49,49)
-+#define MQPCB_CURR_SQR_LIMIT                    EHCA_BMASK_IBM(15,31)
-+#define MQPCB_MASK_QP_AFF_ASYN_EV_LOG_REG       EHCA_BMASK_IBM(50,50)
-+#define MQPCB_MASK_SHARED_RQ_HNDL               EHCA_BMASK_IBM(51,51)
++	EDEB_EX(7, "mcast attach ret=%x\n"
++		   "ehca_qp=%p qp_num=%x  lid=%x\n"
++		   "my_gid=  %x %x %x %x\n"
++		   "         %x %x %x %x\n"
++		   "         %x %x %x %x\n"
++		   "         %x %x %x %x\n",
++		   ret, my_qp, ibqp->qp_num, lid,
++		   my_gid.raw[0], my_gid.raw[1],
++		   my_gid.raw[2], my_gid.raw[3],
++		   my_gid.raw[4], my_gid.raw[5],
++		   my_gid.raw[6], my_gid.raw[7],
++		   my_gid.raw[8], my_gid.raw[9],
++		   my_gid.raw[10], my_gid.raw[11],
++		   my_gid.raw[12], my_gid.raw[13],
++		   my_gid.raw[14], my_gid.raw[15]);
 +
-+#endif /* __EHCA_CLASSES_PSERIES_H__ */
++	return ret;
++}
++
++int ehca_detach_mcast(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
++{
++	struct ehca_qp *my_qp = NULL;
++	struct ehca_shca *shca = NULL;
++	union ib_gid my_gid;
++	u64 subnet_prefix;
++	u64 interface_id;
++	u64 h_ret = H_SUCCESS;
++	int ret = 0;
++
++	EHCA_CHECK_ADR(ibqp);
++	EHCA_CHECK_ADR(gid);
++
++	my_qp = container_of(ibqp, struct ehca_qp, ib_qp);
++
++	EHCA_CHECK_QP(my_qp);
++	if (ibqp->qp_type != IB_QPT_UD) {
++		EDEB_ERR(4, "invalid qp_type %x gid, ret=%x",
++			 ibqp->qp_type, EINVAL);
++		return -EINVAL;
++	}
++
++	shca = container_of(ibqp->pd->device, struct ehca_shca, ib_device);
++	EHCA_CHECK_ADR(shca);
++
++	if (!(EHCA_VALID_MULTICAST_GID(gid->raw))) {
++		EDEB_ERR(4, "gid is not valid mulitcast gid ret=%x",
++			 EINVAL);
++		return -EINVAL;
++	} else if ((lid < MIN_MC_LID) || (lid > MAX_MC_LID)) {
++		EDEB_ERR(4, "lid=%x is not valid mulitcast lid ret=%x",
++			 lid, EINVAL);
++		return -EINVAL;
++	}
++
++	EDEB_EN(7, "dgid=%p qp_numl=%x lid=%x",
++		gid, ibqp->qp_num, lid);
++
++	memcpy(&my_gid.raw, gid->raw, sizeof(union ib_gid));
++
++	subnet_prefix = be64_to_cpu(my_gid.global.subnet_prefix);
++	interface_id = be64_to_cpu(my_gid.global.interface_id);
++	h_ret = hipz_h_detach_mcqp(shca->ipz_hca_handle,
++				     my_qp->ipz_qp_handle,
++				     my_qp->galpas.kernel,
++				     lid, subnet_prefix, interface_id);
++	if (h_ret != H_SUCCESS) {
++		EDEB_ERR(4,
++			 "ehca_qp=%p qp_num=%x hipz_h_detach_mcqp() failed "
++			 "h_ret=%lx", my_qp, ibqp->qp_num, h_ret);
++	}
++	ret = ehca2ib_return_code(h_ret);
++
++	EDEB_EX(7, "mcast detach ret=%x\n"
++		"ehca_qp=%p qp_num=%x  lid=%x\n"
++		"my_gid=  %x %x %x %x\n"
++		"         %x %x %x %x\n"
++		"         %x %x %x %x\n"
++		"         %x %x %x %x\n",
++		ret, my_qp, ibqp->qp_num, lid,
++		my_gid.raw[0], my_gid.raw[1],
++		my_gid.raw[2], my_gid.raw[3],
++		my_gid.raw[4], my_gid.raw[5],
++		my_gid.raw[6], my_gid.raw[7],
++		my_gid.raw[8], my_gid.raw[9],
++		my_gid.raw[10], my_gid.raw[11],
++		my_gid.raw[12], my_gid.raw[13],
++		my_gid.raw[14], my_gid.raw[15]);
++
++	return ret;
++}
 -- 
 1.4.1
 

@@ -1,56 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWHQJTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWHQJUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWHQJTH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWHQJTH
+	id S932453AbWHQJUU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHQJUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:19:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53229 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932382AbWHQJTF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:19:05 -0400
-Date: Thu, 17 Aug 2006 11:18:42 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Jason Lunz <lunz@falooley.org>,
-       Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, Stefan Seyfried <seife@suse.de>
-Subject: Re: Merging libata PATA support into the base kernel
-Message-ID: <20060817091842.GC17899@elf.ucw.cz>
-References: <1155144599.5729.226.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex> <200608102140.36733.rjw@sisk.pl> <44E3E1E6.9090908@PicturesInMotion.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E3E1E6.9090908@PicturesInMotion.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 17 Aug 2006 05:20:20 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:44557 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932453AbWHQJUR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 05:20:17 -0400
+Subject: Re: [RFC][PATCH] Unify interface to persistent CMOS/RTC/whatever
+	clock
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, takata@linux-m32r.org,
+       davem@davemloft.net, wli@holomorphy.com,
+       Joel Becker <Joel.Becker@oracle.com>
+In-Reply-To: <1155768332.6785.58.camel@localhost.localdomain>
+References: <1155768332.6785.58.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Thu, 17 Aug 2006 11:20:08 +0200
+Message-Id: <1155806408.10261.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-08-16 at 15:45 -0700, john stultz wrote:
+> My first pass at this can be found below. There are a few arches
+> (specifically: m32r, s390, sparc, sparc64) where I just didn't know
+> what
+> to do, or where I suspect I didn't get it right, so I've CC'ed those
+> maintainers for suggestions.
 
-> > I agree.  Moreover, the disk-related resume-from-ram problems are the hardest
-> > ones (the graphics may be handled from the user land to a reasonable extent).
-> >
-> > Actually, I'm looking for someone who'd agree to be Cced on bug reports where
-> > we suspect the problem may be related to IDE/PATA/SATA . ;-)
-> >
-> > Greetings,
-> > Rafael
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
-> >   
-> Well it seems I am one of those users who is bit by the resume bug. I
-> was wondering why no developer has replied to my
-> bug(http://bugzilla.kernel.org/show_bug.cgi?id=6840) even though many
-> users have. Id try to fix it myself but Ive never done kernel
+But it is sooo easy ;-)
+See patch below.
 
-Time to learn?
-
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+---
+
+ arch/s390/kernel/time.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
+
+diff -urpN linux-2.6/arch/s390/kernel/time.c linux-2.6-clock/arch/s390/kernel/time.c
+--- linux-2.6/arch/s390/kernel/time.c	2006-08-17 10:34:58.000000000 +0200
++++ linux-2.6-clock/arch/s390/kernel/time.c	2006-08-17 11:05:28.000000000 +0200
+@@ -40,6 +40,9 @@
+ #define USECS_PER_JIFFY     ((unsigned long) 1000000/HZ)
+ #define CLK_TICKS_PER_JIFFY ((unsigned long) USECS_PER_JIFFY << 12)
+ 
++/* The value of the TOD clock for 1.1.1970. */
++#define TOD_UNIX_EPOCH 0x7d91048bca000000ULL
++
+ /*
+  * Create a small time difference between the timer interrupts
+  * on the different cpus to avoid lock contention.
+@@ -343,8 +346,9 @@ extern void vtime_init(void);
+ 
+ unsigned long read_persistent_clock(void)
+ {
+-	/* XXX I have no clue here. s390 folks, help! */
+-	return 0;
++	__u64 tod = (get_clock() - TOD_UNIX_EPOCH) >> 12;
++	do_div(tod, 1000000);
++	return (unsigned long) tod;
+ }
+ 
+ /*
+@@ -353,7 +357,6 @@ unsigned long read_persistent_clock(void
+  */
+ void __init time_init(void)
+ {
+-	__u64 set_time_cc;
+ 	int cc;
+ 
+         /* kick the TOD clock */
+@@ -378,9 +381,7 @@ void __init time_init(void)
+ 
+ 	/* set xtime */
+ 	xtime_cc = init_timer_cc + CLK_TICKS_PER_JIFFY;
+-	set_time_cc = init_timer_cc - 0x8126d60e46000000LL +
+-		(0x3c26700LL*1000000*4096);
+-        tod_to_timeval(set_time_cc, &xtime);
++        tod_to_timeval(init_timer_cc - TOD_UNIX_EPOCH, &xtime);
+         set_normalized_timespec(&wall_to_monotonic,
+                                 -xtime.tv_sec, -xtime.tv_nsec);
+ 
+
+

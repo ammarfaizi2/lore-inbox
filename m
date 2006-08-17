@@ -1,106 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWHQQwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWHQQ5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWHQQwh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWHQQwh
+	id S932564AbWHQQ5c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHQQ5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:52:37 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:210 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932558AbWHQQwg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:52:36 -0400
-Date: Fri, 18 Aug 2006 01:16:26 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       containers@lists.osdl.org
-Subject: [PATCH -mm] simplify pid iterators
-Message-ID: <20060817211626.GA643@oleg>
-References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <11556661923847-git-send-email-ebiederm@xmission.com>
+	Thu, 17 Aug 2006 12:57:31 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:37525 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932564AbWHQQ5a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:57:30 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=djKFGZY2iRff2yUeE+JRRiWTa7Il2LF06fIbLLyZypJPUux6kTtdghAdLhkMSXbsj
+	naIMJDu+bcZyDIy1NgdpQ==
+Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+In-Reply-To: <44E458C4.9030902@sw.ru>
+References: <44E33893.6020700@sw.ru>  <44E33BB6.3050504@sw.ru>
+	 <1155751868.22595.65.camel@galaxy.corp.google.com> <44E458C4.9030902@sw.ru>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Thu, 17 Aug 2006 09:55:53 -0700
+Message-Id: <1155833753.14617.21.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11556661923847-git-send-email-ebiederm@xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of Eric's recent include/linux/pid.h changes.
+On Thu, 2006-08-17 at 15:53 +0400, Kirill Korotaev wrote:
+> Rohit Seth wrote:
+> > On Wed, 2006-08-16 at 19:37 +0400, Kirill Korotaev wrote:
+> > 
+> >>Core functionality and interfaces of UBC:
+> >>find/create beancounter, initialization,
+> >>charge/uncharge of resource, core objects' declarations.
+> >>
+> >>Basic structures:
+> >>  ubparm           - resource description
+> >>  user_beancounter - set of resources, id, lock
+> >>
+> >>Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+> >>Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+> >>
+> >>---
+> >> include/ub/beancounter.h |  157 ++++++++++++++++++
+> >> init/main.c              |    4
+> >> kernel/Makefile          |    1
+> >> kernel/ub/Makefile       |    7
+> >> kernel/ub/beancounter.c  |  398 +++++++++++++++++++++++++++++++++++++++++++++++
+> >> 5 files changed, 567 insertions(+)
+> >>
+> >>--- /dev/null	2006-07-18 14:52:43.075228448 +0400
+> >>+++ ./include/ub/beancounter.h	2006-08-10 14:58:27.000000000 +0400
+> >>@@ -0,0 +1,157 @@
+> >>+/*
+> >>+ *  include/ub/beancounter.h
+> >>+ *
+> >>+ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
+> >>+ *
+> >>+ */
+> >>+
+> >>+#ifndef _LINUX_BEANCOUNTER_H
+> >>+#define _LINUX_BEANCOUNTER_H
+> >>+
+> >>+/*
+> >>+ *	Resource list.
+> >>+ */
+> >>+
+> >>+#define UB_RESOURCES	0
+> >>+
+> >>+struct ubparm {
+> >>+	/*
+> >>+	 * A barrier over which resource allocations are failed gracefully.
+> >>+	 * e.g. if the amount of consumed memory is over the barrier further
+> >>+	 * sbrk() or mmap() calls fail, the existing processes are not killed.
+> >>+	 */
+> >>+	unsigned long	barrier;
+> >>+	/* hard resource limit */
+> >>+	unsigned long	limit;
+> >>+	/* consumed resources */
+> >>+	unsigned long	held;
+> >>+	/* maximum amount of consumed resources through the last period */
+> >>+	unsigned long	maxheld;
+> >>+	/* minimum amount of consumed resources through the last period */
+> >>+	unsigned long	minheld;
+> >>+	/* count of failed charges */
+> >>+	unsigned long	failcnt;
+> >>+};
+> > 
+> > 
+> > What is the difference between barrier and limit. They both sound like
+> > hard limits.  No?
+> check __charge_beancounter_locked and severity.
+> It provides some kind of soft and hard limits.
+> 
 
-I think it is hardly possible to read the current do_each_task_pid().
-The new version is much simpler and makes the code smaller.
+Would be easier to just rename them as soft and hard limits...
 
-Only the do_each_task_pid change is tested, the do_each_pid_task isn't.
-Eric, could you take a hard look at this patch?
+> >>+
+> >>+/*
+> >>+ * Kernel internal part.
+> >>+ */
+> >>+
+> >>+#ifdef __KERNEL__
+> >>+
+> >>+#include <linux/config.h>
+> >>+#include <linux/spinlock.h>
+> >>+#include <linux/list.h>
+> >>+#include <asm/atomic.h>
+> >>+
+> >>+/*
+> >>+ * UB_MAXVALUE is essentially LONG_MAX declared in a cross-compiling safe form.
+> >>+ */
+> >>+	/* resources statistics and settings */
+> >>+	struct ubparm		ub_parms[UB_RESOURCES];
+> >>+};
+> >>+
+> > 
+> > 
+> > I presume UB_RESOURCES value is going to change as different resources
+> > start getting tracked.
+> what's wrong with it?
+> 
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+...just that user land will need to be some how informed about that.
 
---- 2.6.18-rc3/include/linux/pid.h~	2006-08-16 20:40:05.000000000 +0400
-+++ 2.6.18-rc3/include/linux/pid.h	2006-08-18 00:45:06.000000000 +0400
-@@ -99,42 +99,29 @@ static inline pid_t pid_nr(struct pid *p
- 	return nr;
- }
- 
--#define pid_next(task, type)					\
--	((task)->pids[(type)].node.next)
- 
--#define pid_next_task(task, type) 				\
--	hlist_entry(pid_next(task, type), struct task_struct,	\
--			pids[(type)].node)
--
--
--/* We could use hlist_for_each_entry_rcu here but it takes more arguments
-- * than the do_each_task_pid/while_each_task_pid.  So we roll our own
-- * to preserve the existing interface.
-- */
--#define do_each_task_pid(who, type, task)				\
--	if ((task = find_task_by_pid_type(type, who))) {		\
--		prefetch(pid_next(task, type));				\
--		do {
--
--#define while_each_task_pid(who, type, task)				\
--		} while (pid_next(task, type) &&  ({			\
--				task = pid_next_task(task, type);	\
--				rcu_dereference(task);			\
--				prefetch(pid_next(task, type));		\
--				1; }) );				\
--	}
--
--#define do_each_pid_task(pid, type, task)				\
--	if ((task = pid_task(pid, type))) {				\
--		prefetch(pid_next(task, type));				\
--		do {
--
--#define while_each_pid_task(pid, type, task)				\
--		} while (pid_next(task, type) &&  ({			\
--				task = pid_next_task(task, type);	\
--				rcu_dereference(task);			\
--				prefetch(pid_next(task, type));		\
--				1; }) );				\
--	}
-+#define do_each_task_pid(who, type, task)					\
-+	do {									\
-+		struct hlist_node *pos___;					\
-+		struct pid *pid___ = find_pid(who);				\
-+		if (pid___ != NULL)						\
-+			hlist_for_each_entry_rcu((task), pos___,		\
-+				&pid___->tasks[type], pids[type].node) {
-+
-+#define while_each_task_pid(who, type, task)					\
-+			}							\
-+	} while (0)
-+
-+
-+#define do_each_pid_task(pid, type, task)					\
-+	do {									\
-+		struct hlist_node *pos___;					\
-+		if (pid != NULL)						\
-+			hlist_for_each_entry_rcu((task), pos___,		\
-+				&pid->tasks[type], pids[type].node) {
-+
-+#define while_each_pid_task(pid, type, task)					\
-+			}							\
-+	} while (0)
- 
- #endif /* _LINUX_PID_H */
+> > I think something like configfs should be used for user interface.  It
+> > automatically presents the right interfaces to user land (based on
+> > kernel implementation).  And you wouldn't need any changes in glibc etc.
+> 1. UBC doesn't require glibc modificatins.
+
+You are right not for setting the limits.  But for adding any new
+functionality related to containers....as in you just added a new system
+call to get the limits.
+
+> 2. if you think a bit more about it, adding UB parameters doesn't
+>    require user space changes as well.
+> 3. it is possible to add any kind of interface for UBC. but do you like the idea
+>    to grep 200(containers)x20(parameters) files for getting current usages?
+
+How are you doing it currently and how much more efficient it is in
+comparison to configfs?
+
+>    Do you like the idea to convert numbers to strings and back w/o
+>    thinking of data types?
+
+IMO, setting up limits and containers (themselves) is not a common
+operation.    I wouldn't be too worried about loosing those few extra
+cycles in setting them up.
+
+-rohit
 

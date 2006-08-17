@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWHQNW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWHQNXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWHQNW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWHQNW1
+	id S932484AbWHQNXL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWHQNXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:22:27 -0400
-Received: from pat.uio.no ([129.240.10.4]:40136 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932482AbWHQNW0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:22:26 -0400
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
-	writeback.
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Neil Brown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <17635.59821.21444.287979@cse.unsw.edu.au>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	 <20060815010611.7dc08fb1.akpm@osdl.org>
-	 <17635.59821.21444.287979@cse.unsw.edu.au>
+	Thu, 17 Aug 2006 09:23:11 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20704 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932484AbWHQNXJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:23:09 -0400
+Subject: Re: GPL Violation?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Adrian Bunk <bunk@stusta.de>, Patrick McFarland <diablod3@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0608171410570.14828@alpha.polcom.net>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+	 <200608170242.40969.diablod3@gmail.com>
+	 <1155797656.4494.24.camel@laptopd505.fenrus.org>
+	 <200608170332.53556.diablod3@gmail.com> <20060817080243.GN7813@stusta.de>
+	 <Pine.LNX.4.63.0608171410570.14828@alpha.polcom.net>
 Content-Type: text/plain
-Date: Thu, 17 Aug 2006 09:21:51 -0400
-Message-Id: <1155820912.5662.39.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-1.949, required 12,
-	autolearn=disabled, AWL 0.54, RCVD_IN_XBL 2.51,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Date: Thu, 17 Aug 2006 14:41:52 +0100
+Message-Id: <1155822112.15195.88.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 13:59 +1000, Neil Brown wrote:
-> On Tuesday August 15, akpm@osdl.org wrote:
-> > > When Dirty hits 0 (and Writeback is theoretically 80% of RAM)
-> > > balance_dirty_pages will no longer be able to flush the full
-> > > 'write_chunk' (1.5 times number of recent dirtied pages) and so will
-> > > spin in a loop calling blk_congestion_wait(WRITE, HZ/10), so it isn't
-> > > a busy loop, but it won't progress.
-> > 
-> > This assumes that the queues are unbounded.  They're not - they're limited
-> > to 128 requests, which is 60MB or so.
-> 
-> Ahhh... so the limit on the requests-per-queue is an important part of
-> write-throttling behaviour.  I didn't know that, thanks.
-> 
-> fs/nfs doesn't seem to impose a limit.  It will just allocate as many
-> as you ask for until you start running out of memory.  I've seen 60%
-> of memory (10 out of 16Gig) in writeback for NFS.
-> 
-> Maybe I should look there to address my current issue, though imposing
-> a system-wide writeback limit seems safer.
+Ar Iau, 2006-08-17 am 14:39 +0200, ysgrifennodd Grzegorz Kulewski:
+> Why does Linus and others let lawyers and courts decide in such 
+> (important?) thing like what is allowed in Linux (or with Linux) and what 
+> is not?
 
-Exactly how would a request limit help? All that boils down to is having
-the VM monitor global_page_state(NR_FILE_DIRTY) versus monitoring
-global_page_state(NR_FILE_DIRTY)+global_page_state(NR_WRITEBACK).
+Because licenses are bounded and defined by the law. In the case of
+copyright based rights they extend only to the thing that is copyrighted
+and any derivatives so the grey area is not one the GPL could clarify
+further.
 
-Cheers,
-  Trond
+Alan
 

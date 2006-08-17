@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWHQUas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbWHQUbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWHQUas (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 16:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWHQUas
+	id S1030271AbWHQUbm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 16:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030273AbWHQUbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 16:30:48 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:60631 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP
-	id S1030254AbWHQUar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 16:30:47 -0400
-From: Thomas Koeller <thomas.koeller@baslerweb.com>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] Image capturing driver for Basler eXcite smart camera
-Date: Thu, 17 Aug 2006 22:30:30 +0200
-User-Agent: KMail/1.9.3
-Cc: =?iso-8859-1?q?=C9ric_Piel?= <Eric.Piel@lifl.fr>,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       linux-mips@linux-mips.org
-References: <200608102318.04512.thomas.koeller@baslerweb.com> <200608142126.29171.thomas.koeller@baslerweb.com> <20060817153138.GE5950@ucw.cz>
-In-Reply-To: <20060817153138.GE5950@ucw.cz>
-Organization: Basler AG
+	Thu, 17 Aug 2006 16:31:42 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:154 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1030271AbWHQUbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 16:31:40 -0400
+X-IronPort-AV: i="4.08,139,1154934000"; 
+   d="scan'208"; a="1848224268:sNHT59256530"
+To: openib-general@openib.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
+       MEDER@de.ibm.com
+Subject: Re: [openib-general] [PATCH 00/16] IB/ehca: introduction
+X-Message-Flag: Warning: May contain useful information
+References: <2006817139.43eVtRoa2IK8yOPl@cisco.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 17 Aug 2006 13:31:37 -0700
+In-Reply-To: <2006817139.43eVtRoa2IK8yOPl@cisco.com> (Roland Dreier's message of "Thu, 17 Aug 2006 13:09:27 -0700")
+Message-ID: <adasljv85p2.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608172230.30682.thomas.koeller@baslerweb.com>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 17 Aug 2006 20:31:39.0178 (UTC) FILETIME=[246FF0A0:01C6C23C]
+Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 August 2006 17:31, Pavel Machek wrote:
-> Well, I guess v4l api will need to be improved, then. That is still
-> not a reason to introduce completely new api...
+Sorry-- my patchbombing script blew up in the middle, and I didn't
+restart quite correctly.  But I'm pretty sure all 16 patches did make
+it out, although the numbering is screwy.  The correct series is:
 
-The API as implemented by the driver I submitted is very minimalistic,
-because it is just a starting point. There's more to be added in future,
-like controlling flashes, interfacing to line-scan cameras clocked by
-incremental encodes attached to some conveyor, and other stuff which
-is common in industrial image processing applications. You really do
-not want to clutter the v4l2 API with these things; that would hardly
-be an 'improvement'.
+    01/16, 02/16, 00/13, 01/13, ..., 13/13
 
-Different interfaces, designed to serve different purposes...
+I'm not going to spam everybody and resend to all the lists, but I'm
+happy to resend privately to anyone who asks, or you can clone the
+git tree to get the series
 
-Thomas
--- 
-Thomas Koeller, Software Development
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git ehca
 
-Basler Vision Technologies
-An der Strusbek 60-62
-22926 Ahrensburg
-Germany
-
-Tel +49 (4102) 463-390
-Fax +49 (4102) 463-46390
-
-mailto:thomas.koeller@baslerweb.com
-http://www.baslerweb.com
+Thanks,
+  Roland

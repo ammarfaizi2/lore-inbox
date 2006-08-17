@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWHQWIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWHQWLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbWHQWIm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 18:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWHQWIm
+	id S1030221AbWHQWLo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 18:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWHQWLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 18:08:42 -0400
-Received: from wx-out-0506.google.com ([66.249.82.236]:34101 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030216AbWHQWIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 18:08:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=edAIlIKX0b2Ft95vmywZaTjZX+ElEPGYalkCvjaXfkyReERfKkITFcfjQdafcmU58AaCxYytRId+5Lld88N7/UEltSH0h/hZy9tCV8NCTE1sqA6HqaGJ/v408ujcTjfS5kZTlPCiRobQCMBZJnONkKTqVQVas8YP1tLkIjttpFM=
-Message-ID: <29495f1d0608171508k2f465419ue5b87ee2847ae3cd@mail.gmail.com>
-Date: Thu, 17 Aug 2006 15:08:41 -0700
-From: "Nish Aravamudan" <nish.aravamudan@gmail.com>
-To: "Jim Cromie" <jim.cromie@gmail.com>
-Subject: Re: 2.6.18-rc4-mm1 Run-time of Locking API testsuite
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <44E4CC60.3080109@gmail.com>
+	Thu, 17 Aug 2006 18:11:43 -0400
+Received: from outbound-mail-38.bluehost.com ([70.98.111.192]:32215 "HELO
+	outbound-mail-38.bluehost.com") by vger.kernel.org with SMTP
+	id S1030221AbWHQWLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 18:11:43 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: Linux time code
+Date: Thu, 17 Aug 2006 15:11:59 -0700
+User-Agent: KMail/1.9.4
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       linux-kernel@vger.kernel.org, Udo van den Heuvel <udovdh@xs4all.nl>
+References: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de> <Pine.LNX.4.64.0608171334030.6761@scrub.home> <1155851917.31755.125.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1155851917.31755.125.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <44E4CC60.3080109@gmail.com>
+Message-Id: <200608171512.00417.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/17/06, Jim Cromie <jim.cromie@gmail.com> wrote:
+On Thursday, August 17, 2006 2:58 pm, john stultz wrote:
+> On Thu, 2006-08-17 at 13:43 +0200, Roman Zippel wrote:
+> > On Wed, 16 Aug 2006, john stultz wrote:
+> > > > For example there is a POSIX-like sys_clock_gettime() intended
+> > > > to server the end-user directly, but there's no counterpart
+> > > > do_clock_gettime() to server any in-kernel needs.
+> > >
+> > > Hmmm.. ktime_get(), ktime_get_ts() and ktime_get_real(), provide
+> > > this info. Is there something missing here?
+> >
+> > What is missing is the abiltity to map a clock to a posix clock, so
+> > that you would have CLOCK_REALTIME/CLOCK_MONOTONIC as NTP controlled
+> > clocks and other CLOCK_* as the raw clock.
 >
-> Note the non-trivial execution time difference:
->
-> soekris:~/pinlab# egrep -e 'Locking|Good' dmesg-2.6.18-rc4-*
-> dmesg-2.6.18-rc4-mm1-sk:[   16.044699] | Locking API testsuite:
-> dmesg-2.6.18-rc4-mm1-sk:[   96.083576] Good, all 218 testcases passed! |
-> dmesg-2.6.18-rc4-sk:[   18.563808] | Locking API testsuite:
-> dmesg-2.6.18-rc4-sk:[   19.693692] Good, all 218 testcases passed! |
+> Is there a use case for this (wanting non-NTP corrected time on a
+> system running NTPd) you have in mind?
 
-This is more than just a dmesg difference, I assume? As in, you can
-actually tell the difference in time it takes?
+Isn't this what CLOCK_MONOTONIC[_HR] is for?  It's not supposed to jump 
+around at all, so the basic usage model is to use this source for 
+timestamping purposes...
 
-Thanks,
-Nish
+Jesse

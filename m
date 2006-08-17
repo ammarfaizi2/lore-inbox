@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWHQLge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWHQLkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWHQLge (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 07:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWHQLgd
+	id S964817AbWHQLkS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 07:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWHQLkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 07:36:33 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57542 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964814AbWHQLgd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 07:36:33 -0400
-Subject: Re: How to avoid serial port buffer overruns?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Paul Fulghum <paulkf@microgate.com>, Lee Revell <rlrevell@joe-job.com>,
-       Raphael Hertzog <hertzog@debian.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060817092811.GA28474@flint.arm.linux.org.uk>
-References: <20060816104559.GF4325@ouaza.com>
-	 <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com>
-	 <1155762739.7338.18.camel@mindpipe>
-	 <1155767066.2600.19.camel@localhost.localdomain>
-	 <20060816231033.GB12407@flint.arm.linux.org.uk>
-	 <1155806446.15195.42.camel@localhost.localdomain>
-	 <20060817092811.GA28474@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	Thu, 17 Aug 2006 07:40:17 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:26536 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964817AbWHQLkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 07:40:16 -0400
+Message-ID: <44E4562C.8080304@sw.ru>
+Date: Thu, 17 Aug 2006 15:42:36 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
+References: <44E33893.6020700@sw.ru>  <44E33BB6.3050504@sw.ru> <1155747532.24077.382.camel@localhost.localdomain>
+In-Reply-To: <1155747532.24077.382.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 17 Aug 2006 12:57:12 +0100
-Message-Id: <1155815832.15195.80.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-08-17 am 10:28 +0100, ysgrifennodd Russell King:
-> On Thu, Aug 17, 2006 at 10:20:46AM +0100, Alan Cox wrote:
-> > Ar Iau, 2006-08-17 am 00:10 +0100, ysgrifennodd Russell King:
-> > > MIDI uses its own driver - sound/drivers/serial-u16550.c.  My guess
-> > 
-> > How peculiar
-> > 
-> > > is there's something in the system starving interrupt servicing.
-> > > Serial is very sensitive to that, and increases in other system
-> > > latencies tends to have an adverse impact on serial.
-> > 
-> > I see no support for the 16650 specific bits in the driver, so that
-> > alone may be a problem ?
+> Ar Mer, 2006-08-16 am 19:37 +0400, ysgrifennodd Kirill Korotaev:
 > 
-> Huh?  16550 not 16650.  Did you miss this?
+>>+ * UB_MAXVALUE is essentially LONG_MAX declared in a cross-compiling safe form.
+>>+ */
+>>+#define UB_MAXVALUE	( (1UL << (sizeof(unsigned long)*8-1)) - 1)
+>>+
+> 
+> 
+> Whats wrong with using the kernels LONG_MAX ?
+just historical code line which introduces UB_MAXVALUE independant of
+cross-compiler/headers etc.
 
-Raphael said "I forgot to mention the kind of UART in my mail but it is
-a 16650A"
+Will replace it.
+
+Kirill
+

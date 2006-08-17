@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWHQJlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWHQJpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWHQJlh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWHQJlh
+	id S964792AbWHQJpq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWHQJpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:41:37 -0400
-Received: from us.cactii.net ([66.160.141.151]:47376 "EHLO us.cactii.net")
-	by vger.kernel.org with ESMTP id S964785AbWHQJlg (ORCPT
+	Thu, 17 Aug 2006 05:45:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36028 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964784AbWHQJpp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:41:36 -0400
-Date: Thu, 17 Aug 2006 11:38:42 +0200
-From: Ben B <kernel@bb.cactii.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-Message-ID: <20060817093842.GA21430@cactii.net>
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <1155795251.4494.9.camel@laptopd505.fenrus.org>
+	Thu, 17 Aug 2006 05:45:45 -0400
+Date: Thu, 17 Aug 2006 11:45:12 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Trager <Lee@PicturesInMotion.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Jason Lunz <lunz@falooley.org>, Jens Axboe <axboe@suse.de>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, Stefan Seyfried <seife@suse.de>
+Subject: Re: Merging libata PATA support into the base kernel
+Message-ID: <20060817094512.GD17899@elf.ucw.cz>
+References: <1155144599.5729.226.camel@localhost.localdomain> <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex> <200608102140.36733.rjw@sisk.pl> <44E3E1E6.9090908@PicturesInMotion.net> <20060817091842.GC17899@elf.ucw.cz> <1155808348.15195.55.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1155795251.4494.9.camel@laptopd505.fenrus.org>
-X-PGP-Key: 3CD061AD
-X-PGP-Fingerprint: E092 32CA 6196 7C11 0692  BE43 AEDA 4D47 3CD0 61AD
-Jabber-ID: bb@cactii.net
+In-Reply-To: <1155808348.15195.55.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> uttered the following thing:
-> On Wed, 2006-08-16 at 22:48 -0700, Anonymous User wrote:
-> > I believe that new kernel modules will be written to support I/O
-> > peripherals and perhaps other things.  I don't know the details right
-> > now.  What I am trying to do is get an idea of what requirements there
-> > are to make the source code available under the GPL.
+Hi!
+
+> > > Well it seems I am one of those users who is bit by the resume bug. I
+> > > was wondering why no developer has replied to my
+> > > bug(http://bugzilla.kernel.org/show_bug.cgi?id=6840) even though many
+> > > users have. Id try to fix it myself but Ive never done kernel
 > 
+> Probably because its a repeat of a well known problem and nobody has
+> volunteered to fix it even when its been explained to them
 > 
-> you should talk to a lawyer, not LKML.
+> When we set the HPA on boot we must do the same on resume or the error
+> you see occurs.
 
-Minor gripe here...
-
-Whilst it's true that a lawyer should get involved with these things, I
-think it's also perfectly reasonable for someone to ask for input from
-LKML, /. or other interesting places.
-
-OP may already be planning to speak to a lawyer, and just wants to take 
-tidbits of info/experiences/etc from others to help the lawyer's
-research.
-
-BB
-
+This should not be it... it also happens on suspend-to-disk according
+to the report, and during swsusp we do normal boot so HPA should be
+initialized...?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbWHQPUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWHQPWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbWHQPUc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbWHQPUc
+	id S965141AbWHQPWG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWHQPWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:20:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27790 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965135AbWHQPUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:20:30 -0400
-Message-ID: <44E488EF.4090803@redhat.com>
-Date: Thu, 17 Aug 2006 11:19:11 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, rohitseth@google.com,
-       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	 <1155754029.9274.21.camel@localhost.localdomain>	 <1155755729.22595.101.camel@galaxy.corp.google.com>	 <1155758369.9274.26.camel@localhost.localdomain>	 <1155774274.15195.3.camel@localhost.localdomain> <1155824788.9274.32.camel@localhost.localdomain>
-In-Reply-To: <1155824788.9274.32.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 11:22:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52486 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965138AbWHQPWD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:22:03 -0400
+Date: Thu, 17 Aug 2006 15:21:02 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Lennart Poettering <mzxreary@0pointer.de>
+Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [PATCH,RFC]: acpi,backlight: MSI S270 - driver, second try
+Message-ID: <20060817152101.GD5950@ucw.cz>
+References: <20060810162329.GA11603@curacao>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060810162329.GA11603@curacao>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+Hi!
 
-> My main thought is that _everybody_ is going to have to live with the
-> entry in the 'struct page'.  Distros ship one kernel for everybody, and
-> the cost will be paid by those not even using any kind of resource
-> control or containers.
+> - Remove /proc/acpi/s270 interface, replace it by a platform device
+>   /sys/devices/platform/s270pf/. This means: no procfs is touched
+>   anymore, all features are now accessible through /sys/.
+> 
+> This patch applies to 2.6.17 and requires the ACPI ec_transaction()
+> patch I posted earlier:
+> 
+> http://marc.theaimsgroup.com/?l=linux-acpi&m=115517193511970&w=2
+> 
+> Please comment and/or apply!
 
-Every userspace or page cache page will be in an object
-though.  Could we do the pointer on a per object (mapping,
-anon vma, ...) basis?
+Looks ok to me...
 
-Kernel pages are not using all of their struct page entries,
-so we could overload a field.
+> +static int auto_brightness;
+> +module_param(auto_brightness, int, 0);
+> +MODULE_PARM_DESC(auto_brightness, "Enable automatic brightness control (0: disabled; 1: enabled; 2: don't touch)");
+> +
+> +/*** Hardware access ***/
+> +
+> +static const uint8_t lcd_table[MSI_LCD_LEVEL_MAX] = {
+> +        0x00, 0x1f, 0x3e, 0x5d, 0x7c, 0x9b, 0xba, 0xd9, 0xf8
+> +};
 
-It all depends on how much we really care about not growing
-struct page :)
+Can we get 0xf8 levels and simplify code while we are at it?
 
+> +        if ((result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1)) < 0)
+> +                return result;
+
+Please split this into two lines.
+
+result = ...;
+if (result.....)
+
+
+> +static DEVICE_ATTR(bluetooth, 0444, show_bluetooth, NULL);
+> +static DEVICE_ATTR(wlan, 0444, show_wlan, NULL);
+
+So bluetooth and wlan basically mirror physical switch state? Should
+we make these switches available through input subsystem one day?
 -- 
-What is important?  What you want to be true, or what is true?
+Thanks for all the (sleeping) penguins.

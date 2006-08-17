@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWHQWuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWHQWuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030327AbWHQWuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 18:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbWHQWuF
+	id S1030330AbWHQWuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 18:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWHQWuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 18:50:05 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:57067 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030327AbWHQWuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 18:50:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=aZpLhJ7AykbgT+QMFyKcBEjBOCcAAqdXfjYrK2FUAJ3qA/LHMqoBXJTddl724krC+NAG64FK1puWy2Wn2WTJWahFWWXrMW6b5DB9o4MOeTZRQPdhwUEIym5/kAU3K94PMxeFwfGhKeuKqyloOCm7sibXqyUQQlWHUPbq6J9pcfc=
-Message-ID: <44E4F2B1.30408@gmail.com>
-Date: Thu, 17 Aug 2006 16:50:25 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Thu, 17 Aug 2006 18:50:14 -0400
+Received: from outbound-mail-38.bluehost.com ([70.98.111.192]:59298 "HELO
+	outbound-mail-38.bluehost.com") by vger.kernel.org with SMTP
+	id S1030307AbWHQWuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 18:50:12 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: Linux time code
+Date: Thu, 17 Aug 2006 15:50:28 -0700
+User-Agent: KMail/1.9.4
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       linux-kernel@vger.kernel.org, Udo van den Heuvel <udovdh@xs4all.nl>
+References: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de> <200608171512.00417.jbarnes@virtuousgeek.org> <1155853964.31755.131.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1155853964.31755.131.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RFC-patch - make sysfs_create_group skip members with attr.mode ==
- 0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608171550.31097.jbarnes@virtuousgeek.org>
+X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, August 17, 2006 3:32 pm, john stultz wrote:
+> On Thu, 2006-08-17 at 15:11 -0700, Jesse Barnes wrote:
+> > On Thursday, August 17, 2006 2:58 pm, john stultz wrote:
+> > > On Thu, 2006-08-17 at 13:43 +0200, Roman Zippel wrote:
+> > > > What is missing is the abiltity to map a clock to a posix clock,
+> > > > so that you would have CLOCK_REALTIME/CLOCK_MONOTONIC as NTP
+> > > > controlled clocks and other CLOCK_* as the raw clock.
+> > >
+> > > Is there a use case for this (wanting non-NTP corrected time on a
+> > > system running NTPd) you have in mind?
+> >
+> > Isn't this what CLOCK_MONOTONIC[_HR] is for?  It's not supposed to
+> > jump around at all, so the basic usage model is to use this source
+> > for timestamping purposes...
+>
+> Well, CLOCK_MONOTONIC is not affected by calls to settimeofday() so it
+> will never go backward, however it does get frequency correction if
+> provided by NTP (thus a second will be a correct second and you won't
+> accumulate error).
 
-Currently, code in hwmon/*.c uses sysfs_create_group less than it could.
-A contributing reason is that many individual attr-files are created 
-conditionally,
-depending upon both underlying hardware, driver configuration, etc.
+Hm, I guess that's ok for most of the timestamp applications I'm aware of 
+as long as NTP won't cause the clock to stand still...
 
-With proposed patch, the members of a group are conditionally created,
-based upon the mode of the underlying attribute.  mode == 0 suppresses 
-attr-file
-creation, allowing run-time tweaks of compile-time defined groups.
+FWIW I think many other Unices provide a raw cycle counter via the POSIX 
+clock routines.  I don't imagine they're NTP corrected, since at least 
+on IRIX the application is expected to handle even cycle counter 
+wraparound.
 
-The driver defining the group need only disable the unwanted members
-before calling sysfs_create_group()  (theyre 'enabled' by initialization 
-macros,
-since thats the most useful default)
-
-Specifically
-- only group members are created conditionally,
-    theres no effect on calls to device_create_file.
-- only mode == 0 disables member creation,
-    common values like  S_IWUSR | S_IRUGO have un-altered behavior.
-
-
-Signed-off-by:  Jim Cromie  <jim.cromie@gmail.com>
-
-$ diffstat diff.sys-grp-conditional-members
- group.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -ruNp -X dontdiff -X exclude-diffs try1/fs/sysfs/group.c try2/fs/sysfs/group.c
---- try1/fs/sysfs/group.c	2006-06-17 19:49:35.000000000 -0600
-+++ try2/fs/sysfs/group.c	2006-08-17 10:06:26.000000000 -0600
-@@ -32,7 +33,8 @@ static int create_files(struct dentry * 
- 	int error = 0;
- 
- 	for (attr = grp->attrs; *attr && !error; attr++) {
--		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
-+		if ((*attr)->mode)
-+			error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
- 	}
- 	if (error)
- 		remove_files(dir,grp);
-
-
+Jesse

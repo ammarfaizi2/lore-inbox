@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWHQOoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWHQOmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965099AbWHQOoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbWHQOoZ
+	id S932537AbWHQOmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWHQOmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:44:25 -0400
-Received: from natblert.rzone.de ([81.169.145.181]:26050 "EHLO
-	natblert.rzone.de") by vger.kernel.org with ESMTP id S965062AbWHQOoX
+	Thu, 17 Aug 2006 10:42:49 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36767 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965067AbWHQOm0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:44:23 -0400
-Date: Thu, 17 Aug 2006 16:43:29 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Greg KH <greg@kroah.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Multiprobe sanitizer
-Message-ID: <20060817144329.GA20790@aepfle.de>
-References: <1155746538.24077.371.camel@localhost.localdomain> <20060816222633.GA6829@kroah.com> <1155774994.15195.12.camel@localhost.localdomain> <1155797833.11312.160.camel@localhost.localdomain> <1155804060.15195.30.camel@localhost.localdomain> <1155806676.11312.175.camel@localhost.localdomain> <20060817120013.GC6843@kroah.com> <1155816777.11312.177.camel@localhost.localdomain> <20060817122244.GA17956@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060817122244.GA17956@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 17 Aug 2006 10:42:26 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
+	(core)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: rohitseth@google.com, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1155824788.9274.32.camel@localhost.localdomain>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155754029.9274.21.camel@localhost.localdomain>
+	 <1155755729.22595.101.camel@galaxy.corp.google.com>
+	 <1155758369.9274.26.camel@localhost.localdomain>
+	 <1155774274.15195.3.camel@localhost.localdomain>
+	 <1155824788.9274.32.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Aug 2006 16:01:57 +0100
+Message-Id: <1155826917.15195.101.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 05:22:44AM -0700, Greg KH wrote:
-> On Thu, Aug 17, 2006 at 02:12:57PM +0200, Benjamin Herrenschmidt wrote:
-> > On Thu, 2006-08-17 at 05:00 -0700, Greg KH wrote:
-> > > On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
-> > > > Probe ordering is fragile and completely defeated with busses that are
-> > > > already probed asynchronously (like USB or firewire), and things can
-> > > > only get worse. Thus we need to look for generic solutions, the trick of
-> > > > maintaining probe ordering will work around problems today but we'll
-> > > > still hit the wall in an increasing number of cases in the future.
-> > > 
-> > > That's exactly why udev was created :)
-> > > 
-> > > It can handle bus ordering issues already today just fine, and distros
-> > > use it this way in shipping, "enterprise ready" products.
-> > 
-> > Only up to a certain point and for certain drivers... but yeah. 
+Ar Iau, 2006-08-17 am 07:26 -0700, ysgrifennodd Dave Hansen:
+> My main thought is that _everybody_ is going to have to live with the
+> entry in the 'struct page'.  Distros ship one kernel for everybody, and
+> the cost will be paid by those not even using any kind of resource
+> control or containers.
 > 
-> What drivers are not supported by this?  Seriously, have we missed any?
+> That said, it sure is simpler to implement, so I'm all for it!
 
-Do serial drivers have a device symlink now, and video drivers?
+I don't see any good way around that. For the page struct it is a
+material issue, for the others its not a big deal providing we avoid
+accounting dumb stuff like dentries.
+
+At the VM summit Linus suggested one option for user page allocation
+tracking would be to track not per page but by block of pages (say the
+2MB chunks) and hand those out per container. That would really need the
+defrag work though.
+
+

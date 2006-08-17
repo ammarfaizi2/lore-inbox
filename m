@@ -1,52 +1,52 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbWHQOUF (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 10:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWHQOUD
+	id S965030AbWHQOZA (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Aug 2006 10:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWHQOUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:20:03 -0400
-Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:3823 "EHLO
+	Thu, 17 Aug 2006 10:20:08 -0400
+Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:2287 "EHLO
 	timeinc-s02.websys.aol.com") by vger.kernel.org with ESMTP
-	id S965029AbWHQOTq (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Thu, 17 Aug 2006 10:19:46 -0400
-Message-Id: <200608171419.k7HBgaAr022422@timeinc-s01.websys.aol.com>
-Date: Thu, 17 Aug 2006 10:19:45 -0400
+	id S965027AbWHQOTo (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Thu, 17 Aug 2006 10:19:44 -0400
+Message-Id: <200608171419.k7HBgaAn022422@timeinc-s01.websys.aol.com>
+Date: Thu, 17 Aug 2006 10:19:43 -0400
 From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
-Subject: You are now subscribed to the HBGUSA-TEENREADS list
+Subject: You are now subscribed to the HBGUSA-GEORGEPELECANOS list
 To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
-Reply-To: HBGUSA-TEENREADS-request@LS.TIMEINC.NET
-X-LSV-ListID: HBGUSA-TEENREADS
+Reply-To: HBGUSA-GEORGEPELECANOS-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-GEORGEPELECANOS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965034AbWHQOUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965030AbWHQOZA@vger.kernel.org>
 
 ________________________________________________________________________
 ________________________________________________________________________
 
 This e-mail contains important information about your subscription
-to HBGUSA-TEENREADS.  Please save it for future reference.
+to HBGUSA-GEORGEPELECANOS.  Please save it for future reference.
 ________________________________________________________________________
 ________________________________________________________________________
 
-Welcome to the Hachette Book Group USA Teen Reads Mailing List! Shortly we will
-start sending you the latest news and information on Teen Read books from
-Warner Books, Inc. and Little, Brown and Company. Enjoy!
-
+Welcome to the George Pelecanos Mailing List! Shortly we will start
+sending you the latest news and information on the author of HELL
+TO PAY, RIGHT AS RAIN and more from Little, Brown and Company. Stay
+tuned!
 
 TO UNSUBSCRIBE:
 
 You have received this e-mail because you are a Hachette Book Group USA
-Teen Reads newsletter subscriber.  To unsubscribe from this newsletter,
-please send a blank e-mail to:
+George Pelecanos newsletter subscriber.  To unsubscribe from this 
+newsletter, please send a blank e-mail to:
 
-hbgusa-teenreads-unsubscribe-request@timeinc.net
+hbgusa-georgepelecanos-unsubscribe-request@timeinc.net
 
 Please make sure that you are sending the signoff request from the
 *same* e-mail address  <linux-kernel@VGER.KERNEL.ORG> that you originally
 subscribed from.
 
-Important: You cannot sign off from HBGUSA-TEENREADS by replying to this
+Important: You cannot sign off from HBGUSA-GEORGEPELECANOS by replying to this
 message. Please follow the instructions above. E-mail about unresolved
-list problems can be sent to <hbgusael@timeinc.net>.
+list problems can be sent to <hbgusamp@timeinc.net>.
 
 
 PRIVACY POLICY:
@@ -66,14 +66,15 @@ Boston, MA 02108-2084
 
 TO SUBSCRIBE TO THE NEWSLETTER:
 
-Send a blank e-mail to hbgusa-teenreads-subscribe-request@timeinc.net
+Send a blank e-mail to hbgusa-georgepelecanos-subscribe-request@timeinc.net
 ________________________________________________________________________
 ________________________________________________________________________
 
+
 Previous issues of this list are saved as files. You can
 get a list of available files by sending mail to
-LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-TEENREADS" in the body
+LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-GEORGEPELECANOS" in the body
 of the message. You can then order these files with a
-"GET HBGUSA-TEENREADS LOGxxxx" command.
+"GET HBGUSA-GEORGEPELECANOS LOGxxxx" command.
 
 

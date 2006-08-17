@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWHQTa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWHQTa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWHQTa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 15:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWHQTa7
+	id S1751264AbWHQTa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 15:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWHQTa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 15:30:59 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:20960 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751260AbWHQTa5 (ORCPT
+	Thu, 17 Aug 2006 15:30:26 -0400
+Received: from khc.piap.pl ([195.187.100.11]:42683 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751258AbWHQTa0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 15:30:57 -0400
-Date: Thu, 17 Aug 2006 21:23:19 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-cc: Vernon Mauery <vernux@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Eric Piel <Eric.Piel@tremplin-utc.net>,
-       Steve Barnhart <stb52988@gmail.com>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bootsplash integration
-In-Reply-To: <20060817160247.GB25136@lgb.hu>
-Message-ID: <Pine.LNX.4.61.0608172122320.10786@yvahk01.tjqt.qr>
-References: <15ce3ec0608110736y5ef185e8v6acd4f7556adcc49@mail.gmail.com>
- <44DCB95B.4060101@tremplin-utc.net> <1155317729.24077.110.camel@localhost.localdomain>
- <200608120727.58446.vernux@us.ibm.com> <Pine.LNX.4.61.0608121913490.2346@yvahk01.tjqt.qr>
- <20060817160247.GB25136@lgb.hu>
+	Thu, 17 Aug 2006 15:30:26 -0400
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 50/75] net: drivers/net/wan/pci200syn.c pci_module_init to pci_register_driver conversion
+References: <20060817132854.50.mHRHNx4920.3636.michal@euridica.enternet.net.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 17 Aug 2006 21:30:19 +0200
+In-Reply-To: <20060817132854.50.mHRHNx4920.3636.michal@euridica.enternet.net.pl> (Michal Piotrowski's message of "Thu, 17 Aug 2006 13:28:54 +0000")
+Message-ID: <m3psez5fec.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >mplayer knows how to play to a framebuffer on the console without X.  So this 
->> >is possible.  I have played a movie on my framebuffer before.
->> 
->> mplayer even works without framebuffer, and I am not talking about aalib or 
->> caca, but cvidix.
->
->As an ex-developer of MPlayer I should say that MPlayer even supports direct
->hardware access and such if you're brave enough ;-)
->
->http://www.mplayerhq.hu/DOCS/HTML-single/en/MPlayer.html#vidix
+Michal Piotrowski <michal.k.k.piotrowski@gmail.com> writes:
 
-vidix does not work, but vesa and svga do. However, one of vesa/svga also 
-ceased to work recently. Very sad :(
+> +++ linux-work2/drivers/net/wan/wanxl.c
+> +++ linux-work2/drivers/net/wan/pci200syn.c
 
+> -	return pci_module_init(&pci200_pci_driver);
+> +	return pci_register_driver(&pci200_pci_driver);
 
-Jan Engelhardt
+Ok. Rozumiem, ze Jeff zrobi to w jednym, duzym batchu?
 -- 
+Krzysztof Halasa

@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWHQIg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWHQIqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWHQIg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 04:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWHQIg6
+	id S932354AbWHQIqt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 04:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHQIqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 04:36:58 -0400
-Received: from news.cistron.nl ([62.216.30.38]:31165 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S932457AbWHQIg4 (ORCPT
+	Thu, 17 Aug 2006 04:46:49 -0400
+Received: from 1wt.eu ([62.212.114.60]:2320 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S932354AbWHQIqs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 04:36:56 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
-Date: Thu, 17 Aug 2006 08:36:55 +0000 (UTC)
-Organization: Cistron
-Message-ID: <ec19r7$uba$1@news.cistron.nl>
-References: <44E0A69C.5030103@agh.edu.pl>
+	Thu, 17 Aug 2006 04:46:48 -0400
+Date: Thu, 17 Aug 2006 10:37:02 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+Message-ID: <20060817083702.GB14673@1wt.eu>
+References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1155803815 31082 194.109.0.112 (17 Aug 2006 08:36:55 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155797331.4494.17.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <44E0A69C.5030103@agh.edu.pl>,
-Andrzej Szymanski  <szymans@agh.edu.pl> wrote:
->I've encountered a strange problem - if an application is sequentially 
->writing a large file on a busy machine, a single write() of 64KB may 
->take even 30 seconds. But if I do fsync() after each write() the maximum 
->time of write()+fsync() is about 0.5 second (the overall performance is, 
->of course, degraded).
+Hi Arjan,
 
-I'm seeing something similar.
+On Thu, Aug 17, 2006 at 08:48:51AM +0200, Arjan van de Ven wrote:
+> 
+> > Right now, I'd prefer getting gcc 4 support than gcc 3.4, because I don't
+> > know if even one common distro has shipped with gcc 3.4 by default. 2.95,
+> > 3.0, and 3.3 have been common, and right now, 4.[01] is almost everywhere.
+> 
+> but most distros that ship with gcc 4 aren't capable of running a 2.4
+> kernel.... all the new distros greatly depend on sysfs for example, and
+> ntpl in glibc requires 2.6 etc etc etc. So I'm rather sceptical about
+> this argument.
 
-I upgraded one of our newsrouters from 2.6.14.2 to 2.6.17.8 because
-I needed ethernet bonding with vlan support.
+I know, and this is not what I'm targetting. People use 2.4 on their file
+server or firewall for instance, on an old distro, while they use 2.6 on
+their notebook with newer gcc. They build from their fresh new system
+(because most often you don't install build tools on a server) and this
+is at least why some of them have already been asking for this. To be honnest,
+I don't really need gcc 4 myself right now, but I'm more responding to some
+users demand that I find somewhat legitimate.
 
-It performs quite a bit worse now that before. The nightly report
-that the INN software writes, tells me that the average write()
-time (of the single threaded innd process to news storage) went
-up from min/avg/max  0.942/1.716/2.337 ms to min/avg/max
-2.952/4.553/5.658 ms.
+> > >   Since there shouldn't be any reason for still using a 2.4 kernel
+> > >   except for "never change a running system",
+> > 
+> > I think that by "never change", you meant "except for regular updates".
+> 
+> I think that you'll find that people who run 2.4 today, if you ask them,
+> will say "please change as little as possible, only serious bugs and
+> security issues". After all the people who run 2.4 still are generally
+> those who resist new stuff in favor of stability of existing systems....
+> But maybe it's worth doing a user survey to find out what the users of
+> 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
+> people who use enterprise distro kernels don't count for this since
+> they'll not go to a newer released 2.4 anyway)
 
-The innd process writes to a simple filesystem I wrote myself that
-shows a blockdevice as a single large file. It's a bit more efficient
-than using the blockdevice directly.
+Agreed, that's also why I've left it in another tree right now, so that
+interested people can test it and other ones have the time to pronounce
+themselves against it if needed. Anyway, as I said, most of the fixes were
+for real coding bugs, and do not affect either the output code nor external
+patches. I don't want to experiment with new killer features at all, if I
+accepted to work on 2.4, this is because I'm rather conservative ;-)
 
-So I don't see large write delays, but the average write() time
-has gone up significantly (bad in my case, since it starves the
-innd process).
-
-Since I've also had several unexplained hangs I'm going back
-to 2.6.14.x for now, since this machine is too important .. as
-soon as I've got some more redundancy I'll experiment some more.
-
-Mike.
+Cheers,
+Willy
 

@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWHQOmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWHQOoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbWHQOmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWHQOmS
+	id S965099AbWHQOoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbWHQOoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:42:18 -0400
-Received: from [85.103.119.140] ([85.103.119.140]:25608 "EHLO
-	KO-A5EBBCE2DA9A.y28arig.com") by vger.kernel.org with ESMTP
-	id S965063AbWHQOmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:42:12 -0400
-Message-ID: <92211914647008.04118894DA@8BR0NJ3K>
-From: "austin" <citroenalight@rouge.ch>
-To: <linux-kernel@vger.kernel.org>
-Subject: big babble
-Date: Thu, 17 Aug 2006 17:42:41 +0300
+	Thu, 17 Aug 2006 10:44:25 -0400
+Received: from natblert.rzone.de ([81.169.145.181]:26050 "EHLO
+	natblert.rzone.de") by vger.kernel.org with ESMTP id S965062AbWHQOoX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:44:23 -0400
+Date: Thu, 17 Aug 2006 16:43:29 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Greg KH <greg@kroah.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Multiprobe sanitizer
+Message-ID: <20060817144329.GA20790@aepfle.de>
+References: <1155746538.24077.371.camel@localhost.localdomain> <20060816222633.GA6829@kroah.com> <1155774994.15195.12.camel@localhost.localdomain> <1155797833.11312.160.camel@localhost.localdomain> <1155804060.15195.30.camel@localhost.localdomain> <1155806676.11312.175.camel@localhost.localdomain> <20060817120013.GC6843@kroah.com> <1155816777.11312.177.camel@localhost.localdomain> <20060817122244.GA17956@kroah.com>
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: 90cwL4u9wKSIbpHfJCAGpLop8u94AliuElP7
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060817122244.GA17956@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Insider sstock trading information with tremendous value
+On Thu, Aug 17, 2006 at 05:22:44AM -0700, Greg KH wrote:
+> On Thu, Aug 17, 2006 at 02:12:57PM +0200, Benjamin Herrenschmidt wrote:
+> > On Thu, 2006-08-17 at 05:00 -0700, Greg KH wrote:
+> > > On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
+> > > > Probe ordering is fragile and completely defeated with busses that are
+> > > > already probed asynchronously (like USB or firewire), and things can
+> > > > only get worse. Thus we need to look for generic solutions, the trick of
+> > > > maintaining probe ordering will work around problems today but we'll
+> > > > still hit the wall in an increasing number of cases in the future.
+> > > 
+> > > That's exactly why udev was created :)
+> > > 
+> > > It can handle bus ordering issues already today just fine, and distros
+> > > use it this way in shipping, "enterprise ready" products.
+> > 
+> > Only up to a certain point and for certain drivers... but yeah. 
+> 
+> What drivers are not supported by this?  Seriously, have we missed any?
 
-Fellow Invvestor, big news are hitting on thursday for AGA O!!!
-
-Somebody knows something...place AG AO on the radar!!!
-
-Get ready for a volatile 2nd half of 2006 - one where the Bulls and 
-Bears will BOTH be proved wrong. But odds are, we'll see another 
-year where the marekt indexes bounce around a lot without really going anywhere. And we'll also see certain sectors - favored at this point in the economic cycle - SOAR... 
-
-Own the right sstocks, in the right space, and you could reap a 
-handful of money-doublers. But if you own the wrong investment, you could easly lose 25%-35% or more! 
-
-Here is my Favorite Pick for the second half of 2006: AG AO!!!
-
-Tradde Alret: Thursday, August 17, 2006 
----------------------------------------------
-Comppany: AGGA RESOUURCES NNEW
-Stcok: AG AO 
-Currrent Pricce: $1.69
-1 Week Target: $4.10
-Buy: "STRONGG" 
-Expectations: Max 
----------------------------------------------
-
-When this Sotck moves - watch out! This is your chance to get in 
-the low. Big watch in play this Thursday morning! Out AG AO on your 
-radar's now and reap the benefits early. 
-
-
-There is a massive promotion underway this Thursday, August 17 
-apprising potential eager invvestors of this emerging situation. 
-When this sotck moves - watch out! sttoccks wee prrofile shoow aa significaant increaase iin stoock pricee sometimes in days, not months or years, remember this is a strrong playy. 
-
-Massive news for AG AO this thursday! AG AO is a big mover in the SOTCK MAKRET!!! 
-
-
-Murder will out Be kind to people on the way up, you may need them when you are on your way down. Believe nothing of what you hear, and only half of what you see  The longest rope has an end.
-Go to heaven for the climate and hell for the company  Too many cooks spoil the broth.
-
+Do serial drivers have a device symlink now, and video drivers?

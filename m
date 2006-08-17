@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWHQNq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWHQNn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWHQNq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWHQNqb
+	id S964996AbWHQNn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWHQN2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:46:31 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:9603 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964911AbWHQNqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:46:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YDqlYNcgkwp0qlCgze4y6x76XQ8Ta2rlDyqEZvkLfTnU+cwZ/CMTHNkMk/6XaEHjzb2o0q/Rl2n0PewMkwf7EoRupdNG/cIvPupegpLr/gJaOBXCI8t74D6Wm/LXS+HzCTg/O9nILkyQ5XRhAgpUqscM2rnSkso7HjpC96Lo65c=
-Message-ID: <62b0912f0608170646jee93cabs46bdf9424a16b8d7@mail.gmail.com>
-Date: Thu, 17 Aug 2006 15:46:19 +0200
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: ext3 corruption
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200608170127.k7H1RZBQ003805@laptop13.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 09:28:36 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:16034 "EHLO
+	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
+	id S964901AbWHQN2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:28:31 -0400
+Date: Thu, 17 Aug 2006 13:28:06 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: ipw2100-admin@linux.intel.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 32/75] net: drivers/net/wireless/ipw2200.c pci_module_init to pci_register_driver conversion
+Message-ID: <20060817132806.32.NwBxBR4470.3636.michal@euridica.enternet.net.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <molle.bestefich@gmail.com>
-	 <62b0912f0608120154s1b158732y5da52b17583fdfa0@mail.gmail.com>
-	 <200608170127.k7H1RZBQ003805@laptop13.inf.utfsm.cl>
+User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst H. von Brand wrote:
-> > > The kernel people are certainly not infallible either. And there are cases
-> > > where the right order is A B C, and others in which it is C B A, and still
-> > > others where it doesn't matter.
->
-> > In the quite unlikely situation where that happens, you've obviously
-> > got a piece of software which is broken dependency-wise.  Many of the
-> > current schemes will fail to accommodate that too.
->
-> It isn't broken /software/, it is /different setups/.
 
-It's broken software.
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-> > For example, no amount of moving the /etc/rc.d/rc6.d/K35smb script
-> > around will fix that situation on Red Hat.
->
-> What situation?
-
-The situation you outlined, where A can depend on B, which can depend
-on C, but in another usage scenario C can depend on B which can depend
-on A.
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/wireless/ipw2200.c linux-work2/drivers/net/wireless/ipw2200.c
+--- linux-work-clean/drivers/net/wireless/ipw2200.c	2006-08-16 22:41:17.000000000 +0200
++++ linux-work2/drivers/net/wireless/ipw2200.c	2006-08-17 05:20:17.000000000 +0200
+@@ -11753,7 +11753,7 @@ static int __init ipw_init(void)
+ 	printk(KERN_INFO DRV_NAME ": " DRV_DESCRIPTION ", " DRV_VERSION "\n");
+ 	printk(KERN_INFO DRV_NAME ": " DRV_COPYRIGHT "\n");
+ 
+-	ret = pci_module_init(&ipw_driver);
++	ret = pci_register_driver(&ipw_driver);
+ 	if (ret) {
+ 		IPW_ERROR("Unable to initialize PCI module\n");
+ 		return ret;

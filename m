@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWHQMUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWHQMWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbWHQMUF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWHQMUF
+	id S932107AbWHQMWv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWHQMWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:20:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:57492 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932107AbWHQMUB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:20:01 -0400
-Date: Thu, 17 Aug 2006 05:14:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
-Message-ID: <20060817121449.GA17649@kroah.com>
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <20060816171527.GB27898@kroah.com> <44E456F4.10001@sw.ru>
-MIME-Version: 1.0
+	Thu, 17 Aug 2006 08:22:51 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:63123 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932107AbWHQMWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:22:50 -0400
+Date: Thu, 17 Aug 2006 14:22:48 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Maciej Rutecki <maciej.rutecki@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: 2.6.18-rc4-mm1
+Message-ID: <20060817122248.GA16927@rhlx01.fht-esslingen.de>
+References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com> <20060813121126.b1dc22ee.akpm@osdl.org> <62F8B56A.8000908@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44E456F4.10001@sw.ru>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <62F8B56A.8000908@gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 03:45:56PM +0400, Kirill Korotaev wrote:
-> >>+struct user_beancounter
-> >>+{
-> >>+	atomic_t		ub_refcount;
-> >
-> >
-> >Why not use a struct kref here instead of rolling your own reference
-> >counting logic?
+Hi,
+
+On Sun, Aug 14, 2022 at 10:42:18AM +0200, Maciej Rutecki wrote:
+> Andrew Morton napisa??(a):
+> > Please always do reply-to-all.
+> > 
 > 
-> We need more complex decrement/locking scheme than krefs
-> provide. e.g. in __put_beancounter() we need
-> atomic_dec_and_lock_irqsave() semantics for performance optimizations.
+> Sorry.
+> 
+> > 
+> > 
+> > Could be i8042-get-rid-of-polling-timer-v4.patch.  Please try the below
+> > reversion patch, on top of rc4-mm1, thanks.
+> > 
+> > 
+> 
+> Thanks for help.
+> 
+> I try this patch, keyboard works, but I have other problem. When I try:
+> 
+> echo "standby" > /sys/power/state
+> 
+> system goes to standby, but keyboard stop working and CMOS clock was
+> corrupted (randomize date and time e.g. Fri Feb 18 2028 13:57:43). So I
+> must reset computer.
 
-Ah, ok, missed that.  Nevermind then :)
+Thou shalt Not enable no dangerous CMOS corrupting suspend debugging configs ;)
 
-thanks,
+No idea whether "corrupting" the CMOS content with suspend debugging data
+has any influence on the keyboard resume, though, but it could easily have.
 
-greg k-h
+Andreas Mohr

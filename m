@@ -1,67 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWHQQrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWHQQwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbWHQQrd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWHQQrd
+	id S932558AbWHQQwh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWHQQwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:47:33 -0400
-Received: from heze.lunarpages.com ([216.193.215.79]:37006 "EHLO
-	heze.lunarpages.com") by vger.kernel.org with ESMTP id S932532AbWHQQrc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:47:32 -0400
-Message-ID: <48464.220.227.202.101.1155833364.squirrel@www.mistralsoftware.com>
-Date: Thu, 17 Aug 2006 09:49:24 -0700 (PDT)
-Subject: GadgetFS AIO problem
-From: shankar@mistralsoftware.com
-To: linux-kernel@vger.kernel.org
-Cc: shankar@mistralsoftware.com, aravind@mistralsoftware.com
-User-Agent: SquirrelMail/1.4.6
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: 
-In-Reply-To: 
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - heze.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32285 32286] / [47 12]
-X-AntiAbuse: Sender Address Domain - mistralsoftware.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 17 Aug 2006 12:52:37 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:210 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S932558AbWHQQwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:52:36 -0400
+Date: Fri, 18 Aug 2006 01:16:26 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       containers@lists.osdl.org
+Subject: [PATCH -mm] simplify pid iterators
+Message-ID: <20060817211626.GA643@oleg>
+References: <m1k65997xk.fsf@ebiederm.dsl.xmission.com> <11556661923847-git-send-email-ebiederm@xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11556661923847-git-send-email-ebiederm@xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-  This is regarding debugging a problem in GadgetFS AIO functionality. I'm
-working on an developing a USB user space driver on top of the GadgetFS
-Driver on Linux Kernel version 2.6.10. I'm using the AIO support of the
-GadgetFS driver in my design. When I make a io_getevents call from the
-user space, it hangs and never returns. I see that there is a patch
-released  to fix this on 2.6.17 kernel
-(http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.6/2.6.17/). I
-tried applying the following of patches in the same order as mentioned
-below
+On top of Eric's recent include/linux/pid.h changes.
 
-usb-gadgetfs-highspeed-bugfix.patch (all the Hunks succeed)
-gadgetfs-fix-memory-leaks.patch  (2 out of 6 Hunks, #4 and #6 FAILED)
-gadgetfs-fix-aio-interface-bugs.patch (all the Hunks succeed)
+I think it is hardly possible to read the current do_each_task_pid().
+The new version is much simpler and makes the code smaller.
 
-After applying the patches, I get some memory faults when the io_submit is
-called. But the io_getevetns returns without reading any data. I don't
-know whether it matters, but the libaio version that I use is
-libaio-0.3.99.
+Only the do_each_task_pid change is tested, the do_each_pid_task isn't.
+Eric, could you take a hard look at this patch?
 
-Please advice me on whether I'm applying the patches in the correct order
-or am I missing something here. If some one can give me a direction on how
-to go about fixing this, it would be great.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Please mark a copy of your reply to my email id: shankar@mistralsoftware.com
-
-Thanks and Regards,
-Shankar
-
-
+--- 2.6.18-rc3/include/linux/pid.h~	2006-08-16 20:40:05.000000000 +0400
++++ 2.6.18-rc3/include/linux/pid.h	2006-08-18 00:45:06.000000000 +0400
+@@ -99,42 +99,29 @@ static inline pid_t pid_nr(struct pid *p
+ 	return nr;
+ }
+ 
+-#define pid_next(task, type)					\
+-	((task)->pids[(type)].node.next)
+ 
+-#define pid_next_task(task, type) 				\
+-	hlist_entry(pid_next(task, type), struct task_struct,	\
+-			pids[(type)].node)
+-
+-
+-/* We could use hlist_for_each_entry_rcu here but it takes more arguments
+- * than the do_each_task_pid/while_each_task_pid.  So we roll our own
+- * to preserve the existing interface.
+- */
+-#define do_each_task_pid(who, type, task)				\
+-	if ((task = find_task_by_pid_type(type, who))) {		\
+-		prefetch(pid_next(task, type));				\
+-		do {
+-
+-#define while_each_task_pid(who, type, task)				\
+-		} while (pid_next(task, type) &&  ({			\
+-				task = pid_next_task(task, type);	\
+-				rcu_dereference(task);			\
+-				prefetch(pid_next(task, type));		\
+-				1; }) );				\
+-	}
+-
+-#define do_each_pid_task(pid, type, task)				\
+-	if ((task = pid_task(pid, type))) {				\
+-		prefetch(pid_next(task, type));				\
+-		do {
+-
+-#define while_each_pid_task(pid, type, task)				\
+-		} while (pid_next(task, type) &&  ({			\
+-				task = pid_next_task(task, type);	\
+-				rcu_dereference(task);			\
+-				prefetch(pid_next(task, type));		\
+-				1; }) );				\
+-	}
++#define do_each_task_pid(who, type, task)					\
++	do {									\
++		struct hlist_node *pos___;					\
++		struct pid *pid___ = find_pid(who);				\
++		if (pid___ != NULL)						\
++			hlist_for_each_entry_rcu((task), pos___,		\
++				&pid___->tasks[type], pids[type].node) {
++
++#define while_each_task_pid(who, type, task)					\
++			}							\
++	} while (0)
++
++
++#define do_each_pid_task(pid, type, task)					\
++	do {									\
++		struct hlist_node *pos___;					\
++		if (pid != NULL)						\
++			hlist_for_each_entry_rcu((task), pos___,		\
++				&pid->tasks[type], pids[type].node) {
++
++#define while_each_pid_task(pid, type, task)					\
++			}							\
++	} while (0)
+ 
+ #endif /* _LINUX_PID_H */
 

@@ -1,108 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWHQH40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWHQH6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWHQH40 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWHQH40
+	id S932252AbWHQH6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWHQH6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:56:26 -0400
-Received: from msr32.hinet.net ([168.95.4.132]:8338 "EHLO msr32.hinet.net")
-	by vger.kernel.org with ESMTP id S932158AbWHQH4Z (ORCPT
+	Thu, 17 Aug 2006 03:58:24 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:27480 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932250AbWHQH6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 03:56:25 -0400
-Subject: [PATCH 2/7] ip1000: remove some default phy params
-From: Jesse Huang <jesse@icplus.com.tw>
-To: romieu@fr.zoreil.com, penberg@cs.Helsinki.FI, akpm@osdl.org,
-       dvrabel@cantab.net, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net, jesse@icplus.com.tw
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 15:43:29 -0400
-Message-Id: <1155843809.5006.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+	Thu, 17 Aug 2006 03:58:23 -0400
+Message-ID: <44E42198.3030500@tls.msk.ru>
+Date: Thu, 17 Aug 2006 11:58:16 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Lee Trager <Lee@PicturesInMotion.net>
+CC: Jeff Garzik <jeff@garzik.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: /dev/sd*
+References: <1155144599.5729.226.camel@localhost.localdomain> <20060809212124.GC3691@stusta.de> <1155160903.5729.263.camel@localhost.localdomain> <20060809221857.GG3691@stusta.de> <20060810123643.GC25187@boogie.lpds.sztaki.hu> <44DB289A.4060503@garzik.org> <44E3DFD6.4010504@PicturesInMotion.net>
+In-Reply-To: <44E3DFD6.4010504@PicturesInMotion.net>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesse Huang <jesse@icplus.com.tw>
+Lee Trager wrote:
+> Jeff Garzik wrote:
+>> Gabor Gombas wrote:
+>>> AFAIR long ago Linus said he'd like just one major number (and thus only
+>>> one naming scheme) for every disk in the system; with /dev/sd* we're now
+>>> getting there.
+>> Yep.  /dev/disk is a long term goal :)
+[]
+> I agree with Adrian, users are going to get confused if their devices
+> are named something different once they switch to this new interface. So
+> if we're going to confusing them why not just take the big leap and
+> switch it over to /dev/disk? It seems to make more sense then to have
+> all IDE and SATA users use /dev/sda for awhile only to down the road
+> have to to switch to /dev/disk.
 
-remove some default phy params
+The reason, in my opinion anyway, is that not all the word is IDE now,
+and it has been this way for a long time.  I mean, real scsi uses /dev/sd*
+*right now*, and changing this to /dev/disk* will break just everything,
+not only people using IDE.
 
-Change Logs:
-    remove some default phy params
-
----
-
- drivers/net/ipg.h |   54 +----------------------------------------------------
- 1 files changed, 1 insertions(+), 53 deletions(-)
-
-af38044af640ea6997ad6ced277e5f42f8307d8d
-diff --git a/drivers/net/ipg.h b/drivers/net/ipg.h
-index 58b1417..9f841d2 100644
---- a/drivers/net/ipg.h
-+++ b/drivers/net/ipg.h
-@@ -919,59 +919,7 @@ unsigned short DefaultPhyParam[] = {
- 	// 01/09/04 IP1000A v1-5 rev=0x41
- 	(0x4100 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
- 	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x42
--	(0x4200 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x43
--	(0x4300 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x44
--	(0x4400 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x45
--	(0x4500 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x46
--	(0x4600 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x47
--	(0x4700 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x48
--	(0x4800 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x49
--	(0x4900 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x4A
--	(0x4A00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x4B
--	(0x4B00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x4C
--	(0x4C00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x4D
--	(0x4D00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
--	// 01/09/04 IP1000A v1-5 rev=0x4E
--	(0x4E00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
--	    0x0000,
--	30, 0x005e, 9, 0x0700,
-+	30, 0x005e, 9, 0x0700,	
- 	0x0000
- };
- 
--- 
-1.3.2
-
-
+/mjt
 

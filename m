@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWHQXpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWHQX4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWHQXpT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 19:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWHQXpT
+	id S1751274AbWHQX4u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 19:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWHQX4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 19:45:19 -0400
-Received: from ptb-relay02.plus.net ([212.159.14.213]:46816 "EHLO
-	ptb-relay02.plus.net") by vger.kernel.org with ESMTP
-	id S965150AbWHQXpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 19:45:18 -0400
-Message-ID: <44E4FF89.3080500@mauve.plus.com>
-Date: Fri, 18 Aug 2006 00:45:13 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Thu, 17 Aug 2006 19:56:50 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:36980 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751233AbWHQX4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 19:56:49 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=dR4uSgByGpJPWVejNHmeSXE2nGteYQ71nZLVeMVTnJ5ufJ1aZAS4vjan3qHDrPqBk
+	+NAgpkLmNibjO0JRo6D/w==
+Message-ID: <44E5015D.80606@google.com>
+Date: Thu, 17 Aug 2006 16:53:01 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Patrick McFarland <diablod3@gmail.com>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>	 <200608170242.40969.diablod3@gmail.com> <1155807431.22871.157.camel@pmac.infradead.org>
-In-Reply-To: <1155807431.22871.157.camel@pmac.infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+CC: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+References: <20060808211731.GR14627@postel.suug.ch>	<44DBED4C.6040604@redhat.com>	<44DFA225.1020508@google.com>	<20060813.165540.56347790.davem@davemloft.net>	<44DFD262.5060106@google.com>	<20060813185309.928472f9.akpm@osdl.org>	<1155530453.5696.98.camel@twins>	<20060813215853.0ed0e973.akpm@osdl.org>	<44E3E964.8010602@google.com> <20060816225726.3622cab1.akpm@osdl.org>
+In-Reply-To: <20060816225726.3622cab1.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-<snip>
-> So when you distribute a product which combines the kernel and some
-> driver module, and which isn't 'mere aggregation on a storage medium'
-> but is actually a coherent whole which works together and wouldn't
-> function correctly if either the kernel or the module were missing, then
-> your module _must_ be released under the terms of the GPL too.
+Andrew Morton wrote:
+> Daniel Phillips <phillips@google.com> wrote:
+>>What happened to the case where we just fill memory full of dirty file
+>>pages backed by a remote disk?
+> 
+> Processes which are dirtying those pages throttle at
+> /proc/sys/vm/dirty_ratio% of memory dirty.  So it is not possible to "fill"
+> memory with dirty pages.  If the amount of physical memory which is dirty
+> exceeds 40%: bug.
 
-'function correctly' ?
+Hi Andrew,
 
-As what?
+So we make 400 MB of a 1 GB system unavailable for write caching just to
+get around the network receive starvation issue?
 
-I've bought a number of devices that I know will not have all the
-advertised features available to me, because I install a different
-version of linux on them.
+What happens if some in kernel user grabs 68% of kernel memory to do some
+very important thing, does this starvation avoidance scheme still work?
 
-It functions correctly, as delivered.
+Regards,
 
-With the appropriate disclaimers on the box, it cannot function
-incorrectly, as you will know that the  thumb-print reader won't
-work if you upgrade the kernel, and if you intend to do so,
-you don't buy.
-
-I've got a number of wireless routers that I don't have working
-drivers for the wifi cards, happily wired into my network doing
-things that they were not intended for, but they are functioning
-'correctly' as I see it.
+Daniel

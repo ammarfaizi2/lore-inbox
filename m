@@ -1,65 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWHQGER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWHQGOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWHQGER (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 02:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWHQGER
+	id S1750884AbWHQGOf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 02:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWHQGOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 02:04:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11422 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750777AbWHQGEQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 02:04:16 -0400
-Date: Wed, 16 Aug 2006 22:57:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Phillips <phillips@google.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-Message-Id: <20060816225726.3622cab1.akpm@osdl.org>
-In-Reply-To: <44E3E964.8010602@google.com>
-References: <20060808211731.GR14627@postel.suug.ch>
-	<44DBED4C.6040604@redhat.com>
-	<44DFA225.1020508@google.com>
-	<20060813.165540.56347790.davem@davemloft.net>
-	<44DFD262.5060106@google.com>
-	<20060813185309.928472f9.akpm@osdl.org>
-	<1155530453.5696.98.camel@twins>
-	<20060813215853.0ed0e973.akpm@osdl.org>
-	<44E3E964.8010602@google.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 17 Aug 2006 02:14:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51920 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750884AbWHQGOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 02:14:35 -0400
+Subject: Re: GPL Violation?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Anonymous User <anonymouslinuxuser@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 17 Aug 2006 08:14:10 +0200
+Message-Id: <1155795251.4494.9.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 20:58:28 -0700
-Daniel Phillips <phillips@google.com> wrote:
+On Wed, 2006-08-16 at 22:48 -0700, Anonymous User wrote:
+> I work for a company that will be developing an embedded Linux based
+> consumer electronic device.
+> 
+> I believe that new kernel modules will be written to support I/O
+> peripherals and perhaps other things.  I don't know the details right
+> now.  What I am trying to do is get an idea of what requirements there
+> are to make the source code available under the GPL.
 
-> Andrew Morton wrote:
-> > Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> >>Testcase:
-> >>
-> >>Mount an NBD device as sole swap device and mmap > physical RAM, then
-> >>loop through touching pages only once.
-> > 
-> > Fix: don't try to swap over the network.  Yes, there may be some scenarios
-> > where people have no local storage, but it's reasonable to expect anyone
-> > who is using Linux as an "enterprise storage platform" to stick a local
-> > disk on the thing for swap.
-> > 
-> > That leaves MAP_SHARED, but mm-tracking-shared-dirty-pages.patch will fix
-> > that, will it not?
-> 
-> Hi Andrew,
-> 
-> What happened to the case where we just fill memory full of dirty file
-> pages backed by a remote disk?
-> 
 
-Processes which are dirtying those pages throttle at
-/proc/sys/vm/dirty_ratio% of memory dirty.  So it is not possible to "fill"
-memory with dirty pages.  If the amount of physical memory which is dirty
-exceeds 40%: bug.
+you should talk to a lawyer, not LKML.
+
+

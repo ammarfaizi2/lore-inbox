@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWHQMOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWHQMO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWHQMOl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWHQMOl
+	id S932108AbWHQMO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWHQMO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:14:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25039 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932172AbWHQMOi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:14:38 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060817004219.44c45bbd.akpm@osdl.org> 
-References: <20060817004219.44c45bbd.akpm@osdl.org>  <1155743399.5683.13.camel@localhost> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <5910.1155741329@warthog.cambridge.redhat.com> <13319.1155744959@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, aviro@redhat.com,
-       Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 17 Aug 2006 13:13:29 +0100
-Message-ID: <3930.1155816809@warthog.cambridge.redhat.com>
+	Thu, 17 Aug 2006 08:14:26 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:20460 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932108AbWHQMOZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:14:25 -0400
+Date: Thu, 17 Aug 2006 16:39:13 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
+Message-ID: <20060817110913.GB19127@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E33BB6.3050504@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Wed, Aug 16, 2006 at 07:37:26PM +0400, Kirill Korotaev wrote:
+> +struct user_beancounter
+> +{
+> +	atomic_t		ub_refcount;
+> +	spinlock_t		ub_lock;
+> +	uid_t			ub_uid;
+> +	struct hlist_node	hash;
+> +
+> +	struct user_beancounter	*parent;
 
-> VFS: Busy inodes after unmount of 0:15. Self-destruct in 5 seconds.  Have a
-> nice day...
+This seems to hint at some heirarchy of ubc? How would that heirarchy be
+used? I cant find anything in the patch which forms this heirarchy
+(basically I dont see any place where beancounter_findcreate() is called
+with non-NULL 2nd arg).
 
-Sigh.
+[snip]
 
-Guess what?  I don't see that...
+> +static void init_beancounter_syslimits(struct user_beancounter *ub)
+> +{
+> +	int k;
+> +
+> +	for (k = 0; k < UB_RESOURCES; k++)
+> +		ub->ub_parms[k].barrier = ub->ub_parms[k].limit;
 
-After you've done the "ls -l", can you run:
+This sets barrier to 0. Is this value of 0 interpreted differently by
+different controllers? One way to interpret it is "dont allocate any
+resource", other way to interpret it is "don't care - give me what you
+can" (which makes sense for stuff like CPU and network bandwidth).
 
-	cat /proc/mounts
-	cat /proc/fs/nfsfs/*
 
-Before unmounting, and then can you run:
 
-	cat /proc/fs/nfsfs/*
-
-Again afterwards?
-
-David
+-- 
+Regards,
+vatsa

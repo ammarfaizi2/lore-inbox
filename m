@@ -1,58 +1,52 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWHQOVe (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 10:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWHQOU5
+	id S965019AbWHQOWt (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Aug 2006 10:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWHQOUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:20:57 -0400
-Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:10735 "EHLO
+	Thu, 17 Aug 2006 10:20:19 -0400
+Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:62190 "EHLO
 	timeinc-s02.websys.aol.com") by vger.kernel.org with ESMTP
-	id S965022AbWHQOUW (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Thu, 17 Aug 2006 10:20:22 -0400
-Message-Id: <200608171420.k7HBgaBN022422@timeinc-s01.websys.aol.com>
-Date: Thu, 17 Aug 2006 10:20:21 -0400
+	id S965019AbWHQOTh (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Thu, 17 Aug 2006 10:19:37 -0400
+Message-Id: <200608171419.k7HBgaAf022422@timeinc-s01.websys.aol.com>
+Date: Thu, 17 Aug 2006 10:19:36 -0400
 From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
-Subject: You are now subscribed to the HBGUSA-ROMANCE list
+Subject: You are now subscribed to the HBGUSA-CHRISTIAN list
 To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
-Reply-To: HBGUSA-ROMANCE-request@LS.TIMEINC.NET
-X-LSV-ListID: HBGUSA-ROMANCE
+Reply-To: HBGUSA-CHRISTIAN-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-CHRISTIAN
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965041AbWHQOVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965019AbWHQOWt@vger.kernel.org>
 
 ________________________________________________________________________
 ________________________________________________________________________
 
 This e-mail contains important information about your subscription
-to HBGUSA-ROMANCE.  Please save it for future reference.
+to HBGUSA-CHRISTIAN.  Please save it for future reference.
 ________________________________________________________________________
 ________________________________________________________________________
 
-Welcome to the Hachette Book Group USA Romance Mailing List! Shortly we
-will start sending you the latest news and information on Romance
-books from Time Warner Book Group. Enjoy!
-
-If you use an automatic 'vacation' or 'out-of-office' e-mail replier,
-remember to configure your program so that these notices aren't
-sent to the HBGUSA-ROMANCE list. If you don't, you may be unsubscribed
-from the list.
-
+Welcome to the Hachette Book Group USA Christian Mailing List!
+Shortly, we will start sending you the latest news and information
+on Christian titles from Warner Faith, Warner Books, Inc. and
+Little, Brown and Company.  Enjoy!
 
 TO UNSUBSCRIBE:
 
 You have received this e-mail because you are a Hachette Book Group USA
-Romance newsletter subscriber.  To unsubscribe from this newsletter,
+Christian newsletter subscriber.  To unsubscribe from this newsletter,
 please send a blank e-mail to:
 
-hbgusa-romance-unsubscribe-request@timeinc.net
+hbgusa-christian-unsubscribe-request@timeinc.net
 
 Please make sure that you are sending the signoff request from the
 *same* e-mail address  <linux-kernel@VGER.KERNEL.ORG> that you originally
 subscribed from.
 
-Important: You cannot sign off from HBGUSA-ROMANCE by replying to this
+Important: You cannot sign off from HBGUSA-CHRISTIAN by replying to this
 message. Please follow the instructions above. E-mail about unresolved
-list problems can be sent to <hbgusamh@timeinc.net>.
-
+list problems can be sent to <hbgusakl@timeinc.net>.
 
 PRIVACY POLICY:
 
@@ -65,20 +59,21 @@ FOR FURTHER INFORMATION, PLEASE CONTACT:
 
 Hachette Book Group USA
 Customer Service
-3 Center Plaza
+3 Center Plaza 
 Boston, MA 02108-2084
 
 
 TO SUBSCRIBE TO THE NEWSLETTER:
 
-Send a blank e-mail to hbgusa-romance-subscribe-request@timeinc.net
+Send a blank e-mail to hbgusa-christian-subscribe-request@timeinc.net
 ________________________________________________________________________
 ________________________________________________________________________
 
+
 Previous issues of this list are saved as files. You can
 get a list of available files by sending mail to
-LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-ROMANCE" in the body
+LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-CHRISTIAN" in the body
 of the message. You can then order these files with a
-"GET HBGUSA-ROMANCE LOGxxxx" command.
+"GET HBGUSA-CHRISTIAN LOGxxxx" command.
 
 

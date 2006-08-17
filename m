@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWHQKFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWHQKin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWHQKFo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 06:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWHQKFo
+	id S964793AbWHQKin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 06:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWHQKim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 06:05:44 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:32644 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932467AbWHQKFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 06:05:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pzrxnagRienZPVucfaCIsONx6XGUKCcrcPGvrHLcsaNDJmwmQiqYkiB2zmwn3H95XM0oPLO/Kr9pwOXILq62Tjf9Dn/Tyb21Xg25yGa8g9orlnxxieuD2XSJFOH+B08PzYKuhhr3k9myhhAx316P573JGryYqA9Wyg+zc7JII0Q=
-Message-ID: <9a8748490608170305v53a2fd20q29d12e2a7b7229d4@mail.gmail.com>
-Date: Thu, 17 Aug 2006 12:05:41 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] NFS: possible NULL pointer deref in nfs_sillyrename()
-Cc: linux-kernel@vger.kernel.org, "Rick Sladkey" <jrs@world.std.com>,
-       "Neil Brown" <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net
-In-Reply-To: <1155773801.6739.5.camel@localhost>
+	Thu, 17 Aug 2006 06:38:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:53959 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964793AbWHQKim (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 06:38:42 -0400
+Date: Thu, 17 Aug 2006 12:32:37 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [NTP 0/9] NTP patches
+In-Reply-To: <1155769647.6785.67.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0608171203240.6761@scrub.home>
+References: <20060810000146.913645000@linux-m68k.org>
+ <1155769647.6785.67.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608170022.29168.jesper.juhl@gmail.com>
-	 <1155773801.6739.5.camel@localhost>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Thu, 2006-08-17 at 00:22 +0200, Jesper Juhl wrote:
-> > The coverity checker spotted this as bug #1013.
-> >
-> > If we get a NULL dentry->d_inode, then regardless of
-> > NFS_PARANOIA or no NFS_PARANOIA, then if
-> >    if (dentry->d_flags & DCACHE_NFSFS_RENAMED)
-> > turns out to be false we'll end up dereferencing
-> > that NULL d_inode in two places below.
-> >
-> > And since the check for "(!dentry->d_inode)" even exists
-> > (although inside #ifdef NFS_PARANOIA) I take that to mean
-> > that this is a possibility.
->
-> Sorry, but it isn't possible. See the checks in may_delete() (which is
-> called before ->unlink()) and nfs_rename().
->
-Thanks, that was useful info.
+Hi,
 
-> IOW: Feel free to kill the NFS_PARANOIA crap. It looks like legacy code
-> from a debugging session about a decade or so ago.
->
-Sure thing, I'll cook up a patch to do that.
+On Wed, 16 Aug 2006, john stultz wrote:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> 	How much real-world testing have you done with these patches? I've been
+> running w/ this set of patches for a few days and I've been noticing my
+> system is having difficulties synching up w/ the NTP server.
+
+I tested it on a few machines of course.
+
+> I haven't been logging anything, so its currently uncertain data, but
+> normally I've seen NTP sync the time within 1-2ms in just an hour or so,
+> however since this morning (~6 hours ago) I'm seeing it still 10ms off.
+> 
+> I'm going to let it run for the rest of the day then try to bisect the
+> patches to see where things went wrong. I'll let you know as soon as I
+> find anything.
+
+I would need the loopstats over a few days to really say something about 
+this. It may also depend on the stability of your remote NTP serer. The 
+new code adjusts a little a slower, but should be overall a little more 
+stable.
+The ntpd does basically "if (!pll_nano) ntv.constant = sys_poll - 4;" to 
+adjust for the difference in behaviour of the two models, but this causes 
+rather fast adjustments. In the NTP4 patch I undo this adjustment for the 
+new model.
+
+> I'm going to let it run for the rest of the day then try to bisect the
+> patches to see where things went wrong. I'll let you know as soon as I
+> find anything.
+
+Well, upto the NTP4 patch the behaviour should be mostly unchanged.
+
+bye, Roman

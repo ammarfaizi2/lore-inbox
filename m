@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWHQOpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWHQOpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbWHQOpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWHQOpI
+	id S965067AbWHQOpX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWHQOpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:45:08 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:43895 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965076AbWHQOpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:45:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KcLDVVtbI+mIJ2QDHYxRhk/U9mpq8e/p4BYGXuxxnsBeSnmocWRfqzCrNXtQpao40uGUzzXkLVTHQkyrrNnijZY/XgchYdwIk13j0ZTjbA/QApdrDJd1AcM3GPZHGF/+0A+x8RlEpnP9Mmitu2BcwnaCxN37S1e3rAd2kKBtF8U=
-Message-ID: <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
-Date: Thu, 17 Aug 2006 16:45:02 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+	Thu, 17 Aug 2006 10:45:22 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:64177 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965062AbWHQOpS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:45:18 -0400
+Message-ID: <44E480FA.70806@pobox.com>
+Date: Thu, 17 Aug 2006 10:45:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
+To: Jesse Huang <jesse@icplus.com.tw>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/6] IP100A, add end of pci id table
+References: <1155841247.4532.6.camel@localhost.localdomain>
+In-Reply-To: <1155841247.4532.6.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
-	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
-	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
-	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin,
+Jesse Huang wrote:
+> @@ -212,7 +212,7 @@ static const struct pci_device_id sundan
+>  	{ 0x1186, 0x1002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
+>  	{ 0x13F0, 0x0201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5 },
+>  	{ 0x13F0, 0x0200, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6 },
+> -	{ }
+> +	{ 0,}
+>  };
+>  MODULE_DEVICE_TABLE(pci, sundance_pci_tbl);
+>  
+> @@ -231,7 +231,7 @@ static const struct pci_id_info pci_id_t
+>  	{"D-Link DL10050-based FAST Ethernet Adapter"},
+>  	{"Sundance Technology Alta"},
+>  	{"IC Plus Corporation IP100A FAST Ethernet Adapter"},
+> -	{ }	/* terminate list. */
+> +	{ NULL,}	/* terminate list. */
 
-On 17/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> On 13/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > It's kmemleak 0.9 issue. I have tested kmemleak 0.8 on 2.6.18-rc1and
-> > 2.6.18-rc2. I haven't seen this before.
->
-> it looks like it was caused by commit
-> fc818301a8a39fedd7f0a71f878f29130c72193d where free_block() now calls
-> slab_destroy() with l3->list_lock held.
+NAK.
 
-I'll revert this commit.
+An empty array element "{ }" implies NULL.  It is the kernel standard to 
+prefer "{ }" over an explicit initialization.  Looks cleaner.
 
->
-> The prio_tree use (which doesn't alloc memory) instead of the
-> radix_tree is about 4 times slower when scanning the memory and I
-> don't think I'll use it.
->
-> It leaves me with the options of either implementing my own memory
-> allocator based on pages (including a simple hash table instead of
-> radix tree) or fix the locking in kmemleak so that memory allocations
-> happen without memleak_lock held. The latter is a bit complicated as
-> well since any slab allocation causes a re-entrance into kmemleak.
->
-> Any other suggestions?
+	Jeff
 
-Please talk with Christoph Lameter, he is working on Modular Slab.
-http://www.ussg.iu.edu/hypermail/linux/kernel/0608.1/0951.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0608.2/0030.html
-Maybe he can help with this problem.
 
->
-> Thanks.
->
-> --
-> Catalin
->
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

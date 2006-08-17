@@ -1,65 +1,70 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWHQBwb (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 16 Aug 2006 21:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWHQBwb
+	id S1751265AbWHQDbz (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 16 Aug 2006 23:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWHQDbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 21:52:31 -0400
-Received: from client-190.40.27.63.speedy.net.pe ([190.40.27.63]:65036 "EHLO
-	JOVISA-603B91FC.cguunvor.net") by vger.kernel.org with ESMTP
-	id S932402AbWHQBwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 21:52:30 -0400
-Message-ID: <87926545217128.F726067B86@B8LFEFM>
-From: "australite" <consolidatedetermine@rotc11.or.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: large beta
-Date: Wed, 16 Aug 2006 20:48:21 -0500
+	Wed, 16 Aug 2006 23:31:55 -0400
+Received: from [213.228.192.143] ([213.228.192.143]:13215 "EHLO
+	hv143.hispavista.com") by vger.kernel.org with ESMTP
+	id S1751265AbWHQDbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 23:31:55 -0400
+X-HV-AntiSpam: 0
+From: "goody" <frank_samuel@hispavista.com>
+Subject: Contact my secretary
+To: frank_samuel@hispavista.com
+X-Mailer: CommuniGate Pro Web Mailer v.4.0.5
+Date: Thu, 17 Aug 2006 05:25:25 +0200
+Message-ID: <web-68243128@hispavista.com>
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: FPrw7hy62A3q0C7qMluCzJqUQOe63mBV5bK1
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932402AbWHQBwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751265AbWHQDbz@vger.kernel.org>
 
-stoock market analysis for beneficial cooperation
+Dear Friend,=20
+I am happy to inform you about my success in=20
+getting those funds transferred under the co=20
+operation of a new partner from Korea. Presently=20
+I'm in Korea for investment projects with my own=20
+share . meanwhile,I didn't forget your past=20
+efforts and attempts to assist me in=20
+transferring those funds despite that it later=20
+failed us some how .=20
 
-Fellow Investtor, big news are hitting on thursday for AGA O!!!
+Contact my secretary,Mrpeter contact him on his=20
+email address(peter_okey2006yahoo.ca) ask him to=20
+send you the total amount of $800, 000.00 which=20
+I kept for your compensation for all the past=20
+efforts and attempts to assist me in this=20
+matter. I appreciated your efforts at that time=20
+very much. so feel alright and get in touched=20
+with my secretary and convince him where to send=20
+the amount to you.
 
-Somebody knows something...place AGA O on the radar!!!
-
-Get ready for a volatile 2nd half of 2006 - one where the Bulls and 
-Bears will BOTH be proved wrong. But odds are, we'll see another 
-year where the mraket indexes bounce around a lot without really going anywhere. And we'll also see certain sectors - favored at this point in the economic cycle - SOAR... 
-
-Own the right sttocks, in the right space, and you could reap a 
-handful of money-doublers. But if you own the wrong investment, you could easly lose 25%-35% or more! 
-
-Here is my Favorite Pick for the second half of 2006: AG AO!!!
-
-Tradee Alret: Thursday, August 17, 2006 
----------------------------------------------
-Comppany: AGAA RESOOURCES NNEW
-Sotck: A GAO 
-Currrent PPrice: $1.69
-1 Week Target: $4.10
-Buy: "STROONG" 
-Expectations: Max 
----------------------------------------------
-
-When this Sotck moves - watch out! This is your chance to get in 
-the low. Big watch in play this Thursday morning! Out A GAO on your 
-radar's now and reap the benefits early. 
-
-
-There is a massive promotion underway this Thursday, August 17 
-apprising potential eager investorss of this emerging situation. 
-When this stcok moves - watch out! stoockss wwe prrofile shoow aa signifiicant increease inn stocck pprice sometimes in days, not months or years, remember this is a stroong pplay. 
-
-Massive news for AG AO this thursday! A GAO is a big mover in the SOTCK MRAKET!!! 
-
-
->From clogs to clogs in only three generations. Speak softly and carry a cellular phone. Admiration is the daughter of ignorance  Every cloud has a silver lining A good beginning makes a good ending..
-One of these days is none of these days. Daddies know best.
-
+Please do let me know immediately you receive it=20
+so that we can share the tremendious atmospheric=20
+nature of success together after all. For this=20
+moment, I am very busy here in Korea because of=20
+the investment projects which I and the new=20
+partner are having at hand, finally, I had=20
+forwarded instruction to My secretary on your=20
+behalf to receive the money, so you should to=20
+get in touch with Mr peter he will send the=20
+amount to you as get in touch with him=20
+Yours sincerely
+frank samuel
+-----------------------------------------------------------------------=
+------------
+Di adi=F3s a los virus y a los pop-ups:
+http://barra.hispavista.com/hispavista/cargar.html
+Correo seguro con tecnolog=EDa Panda Software.
+-----------------------------------------------------------------------=
+------------
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

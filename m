@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWHQRDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965052AbWHQREy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWHQRDs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 13:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965130AbWHQRDs
+	id S965052AbWHQREy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 13:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWHQREx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 13:03:48 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:7833 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965056AbWHQRDr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 13:03:47 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=nPZtFW0BKMjilRGj5Fmwy/SmyxWvQAq4ujpPuGr10lMbtqHKW0c/GzkpHccjfKKO9
-	Ack6uZNusoHWu2e3sbDvw==
-Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-In-Reply-To: <44E46ED3.7000201@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155752693.22595.76.camel@galaxy.corp.google.com> <44E46ED3.7000201@sw.ru>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 17 Aug 2006 10:02:16 -0700
-Message-Id: <1155834136.14617.29.camel@galaxy.corp.google.com>
+	Thu, 17 Aug 2006 13:04:53 -0400
+Received: from websiteout12.httpserveur.net ([67.15.80.77]:50053 "HELO
+	websiteout12.httpserveur.net") by vger.kernel.org with SMTP
+	id S965052AbWHQREw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 13:04:52 -0400
+X-Abuse: Please report all abuse immediately to abuse@httpserveur.net
+Subject: Re: New version of ClownToolKit
+From: clowncoder <clowncoder@clowncode.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, 7eggert@gmx.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0608170945410.16217@yvahk01.tjqt.qr>
+References: <6Kxx5-7PT-7@gated-at.bofh.it> <6KyCM-1w7-1@gated-at.bofh.it>
+	 <E1GDUcG-00016M-Nu@be1.lrz> <20060817044228.GA16320@mars.ravnborg.org>
+	 <Pine.LNX.4.61.0608170945410.16217@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 17 Aug 2006 19:04:49 +0200
+Message-Id: <1155834289.3673.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 17:27 +0400, Kirill Korotaev wrote:
-> > If I'm reading this patch right then seems like you are making page
-> > allocations to fail w/o (for example) trying to purge some pages from
-> > the page cache belonging to this container.  Or is that reclaim going to
-> > come later?
+Le jeudi 17 août 2006 à 09:47 +0200, Jan Engelhardt a écrit :
+> >> > LIBDIR=/lib/modules/`uname -r`
+> >> > make -C $LIBDIR/source O=$LIBDIR/build SUBDIRS=`pwd` modules
+> >> > 
+> >> > For a normal kernel installation this will do the right thing.
+> >> > source points to the kernel source and build point to the output
+> >> > directory (they are often equal but not always).
+> >> 
+> >> Please don't tell module authors to unconditionally use `uname -r`.
+> >> I frequently build kernels for differentd hosts, and if I don't, I'll
+> >> certainly compile the needed modules before installing the kernel.
+> >> Therefore /lib/modules/`uname -r` is most certainly the completely
+> >> wrong place to look for the kernel source.
+> >
+> >/lib/modules/`uname -r` is the general solution that works for most
+> >people and should be at least default. It is certainly better than
+> >/usr/src/linux.
+> >But yes they better make it override able.
 > 
-> charged kernel objects can't be _reclaimed_. how do you propose
-> to reclaim tasks page tables or files or task struct or vma or etc.?
+> In some outoftree modules of mine, the Makefile reads like this
+> 
+> MODULES_DIR := /lib/modules/$(shell uname -r)
+> KSRC_DIR    := ${MODULES_DIR}/source
+> KOBJ_DIR    := ${MODULES_DIR}/build
+> 
+> all: modules
+> modules:
+> 	make -C "${KOBJ_DIR}" M="$$PWD";
+> 
+> and one can easily override it by calling `make MODULES_DIR=/foo/bar` 
+> (instead of just `make`).
+> 
+> 
+> Jan Engelhardt
 
+Thank you all for all those tips, I will use this last one.
 
-I agree that kernel objects cann't be reclaimed easily.  But what you
-are proposing is also not right.  Returning failure w/o doing any
-reclaim on pages (that are reclaimable) is not useful.  And this is why
-I asked, is this change going to be part of next set of patches (as
-current set of patches are only tracking kernel usage).
-
--rohit
+Vincent Perrier
 

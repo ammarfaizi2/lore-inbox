@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWHQOl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWHQOmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbWHQOl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWHQOl3
+	id S932536AbWHQOmU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWHQOmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:41:29 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:30956 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932530AbWHQOl1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:41:27 -0400
-Message-ID: <44E47F54.3000300@aitel.hist.no>
-Date: Thu, 17 Aug 2006 16:38:12 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Thu, 17 Aug 2006 10:42:18 -0400
+Received: from [85.103.119.140] ([85.103.119.140]:25608 "EHLO
+	KO-A5EBBCE2DA9A.y28arig.com") by vger.kernel.org with ESMTP
+	id S965063AbWHQOmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:42:12 -0400
+Message-ID: <92211914647008.04118894DA@8BR0NJ3K>
+From: "austin" <citroenalight@rouge.ch>
+To: <linux-kernel@vger.kernel.org>
+Subject: big babble
+Date: Thu, 17 Aug 2006 17:42:41 +0300
 MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Jeff Garzik <jeff@garzik.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       7eggert@gmx.de, Arjan van de Ven <arjan@infradead.org>,
-       Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it> <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz> <1155821951.15195.85.camel@localhost.localdomain> <20060817132309.GX13639@csclub.uwaterloo.ca> <44E471F2.5000003@garzik.org> <20060817135431.GE13641@csclub.uwaterloo.ca>
-In-Reply-To: <20060817135431.GE13641@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: 90cwL4u9wKSIbpHfJCAGpLop8u94AliuElP7
+Content-Type: text/plain;
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Thu, Aug 17, 2006 at 09:41:06AM -0400, Jeff Garzik wrote:
->   
->> Lennart Sorensen wrote:
->>     
->>> Why can't O_EXCL mean that the kernel prevents anyone else from issuing
->>> ioctl's to the device?  One would think that is the meaning of exlusive.
->>> That way when the burning program opens the device with O_EXCL, no one
->>> else can screw it up while it is open.  If it happens to be polled by
->>> hal when the burning program tries to open it, it can just wait and
->>> retry again until it gets it open.
->>>       
->> Such use of O_EXCL is a weird and non-standard behavior.
->>     
->
-> So what method exists for opening a file/device an guaranteeing that
-> nothing else can do anything to it?
->   
-None on the file level I hope, for it will surely get abused.
-Windows have exclusive open for example, and there acrobat reader
-locks the pdf file it views, so you can't make a new version without
-killing acrobat first.  (And then you have to restart it to
-view the new file.)  Stupid in the extreme.  Fortunately, acrobat can't
-do that on linux where there is no (easy) opportunity to do so.
+Insider sstock trading information with tremendous value
 
-There are many other examples - backup sw can't read files that
-happens to be opened exclusive by some process.
+Fellow Invvestor, big news are hitting on thursday for AGA O!!!
 
-I guess this particular case could be solved by fixing the cdrom
-driver like this:
+Somebody knows something...place AG AO on the radar!!!
 
-Whenever the device is opened for writing (i.e. someone is
-burning a CD/DVD), then reject the probing ioctls HAL uses.
-Or just make the device exclusive while burning.  Restore
-normal operation as soon as the burn ends.   There is no
-use for reading the device during a burn anyway - a special case
-for CD/DVD writers.
+Get ready for a volatile 2nd half of 2006 - one where the Bulls and 
+Bears will BOTH be proved wrong. But odds are, we'll see another 
+year where the marekt indexes bounce around a lot without really going anywhere. And we'll also see certain sectors - favored at this point in the economic cycle - SOAR... 
+
+Own the right sstocks, in the right space, and you could reap a 
+handful of money-doublers. But if you own the wrong investment, you could easly lose 25%-35% or more! 
+
+Here is my Favorite Pick for the second half of 2006: AG AO!!!
+
+Tradde Alret: Thursday, August 17, 2006 
+---------------------------------------------
+Comppany: AGGA RESOUURCES NNEW
+Stcok: AG AO 
+Currrent Pricce: $1.69
+1 Week Target: $4.10
+Buy: "STRONGG" 
+Expectations: Max 
+---------------------------------------------
+
+When this Sotck moves - watch out! This is your chance to get in 
+the low. Big watch in play this Thursday morning! Out AG AO on your 
+radar's now and reap the benefits early. 
 
 
-Helge Hafting
+There is a massive promotion underway this Thursday, August 17 
+apprising potential eager invvestors of this emerging situation. 
+When this sotck moves - watch out! sttoccks wee prrofile shoow aa significaant increaase iin stoock pricee sometimes in days, not months or years, remember this is a strrong playy. 
+
+Massive news for AG AO this thursday! AG AO is a big mover in the SOTCK MAKRET!!! 
 
 
-
-
-
+Murder will out Be kind to people on the way up, you may need them when you are on your way down. Believe nothing of what you hear, and only half of what you see  The longest rope has an end.
+Go to heaven for the climate and hell for the company  Too many cooks spoil the broth.
 

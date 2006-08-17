@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWHQVAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWHQVKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWHQVAA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 17:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWHQVAA
+	id S932274AbWHQVKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 17:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWHQVKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 17:00:00 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:23487 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S932216AbWHQU76 convert rfc822-to-8bit
+	Thu, 17 Aug 2006 17:10:16 -0400
+Received: from mail.freedom.ind.br ([201.35.65.90]:59548 "EHLO
+	mail.freedom.ind.br") by vger.kernel.org with ESMTP id S932216AbWHQVKO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 16:59:58 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 17 Aug 2006 17:10:14 -0400
+From: Otavio Salvador <otavio@debian.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Steve Barnhart <stb52988@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: bootsplash integration
+Organization: O.S. Systems Ltda.
+References: <15ce3ec0608110736y5ef185e8v6acd4f7556adcc49@mail.gmail.com>
+	<20060817155458.GB6450@ucw.cz>
+X-URL: http://www.debian.org/~otavio/
+X-Attribution: O.S.
+Date: Thu, 17 Aug 2006 18:10:09 -0300
+In-Reply-To: <20060817155458.GB6450@ucw.cz> (Pavel Machek's message of "Thu,
+	17 Aug 2006 15:54:59 +0000")
+Message-ID: <87ejvfhxvy.fsf@neumann.lab.ossystems.com.br>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [RFC][PATCH 38/75] scsi: drivers/scsi/megaraid.c pci_module_init to pci_register_driver conversion
-Date: Thu, 17 Aug 2006 14:59:56 -0600
-Message-ID: <890BF3111FB9484E9526987D912B261932E351@NAMAIL3.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH 38/75] scsi: drivers/scsi/megaraid.c pci_module_init to pci_register_driver conversion
-Thread-Index: AcbCBFNzUJZyt8Y4SYK+PW/QpUfyZwAO1nkg
-From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       "Kolli, Neela" <Neela.Kolli@engenio.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 17 Aug 2006 20:59:56.0812 (UTC) FILETIME=[184E54C0:01C6C240]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACK - pci_module_init is obsolete.
+Pavel Machek <pavel@ucw.cz> writes:
 
-Thank you,
+> OTOH all the distros use it, anyway, so integration would make _some_
+> sense.
 
-Seokmann
+There's some alteratives running well in usermode so I don't think it
+makes sense anymore.
 
-> -----Original Message-----
-> From: linux-scsi-owner@vger.kernel.org 
-> [mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Michal 
-> Piotrowski
-> Sent: Thursday, August 17, 2006 9:28 AM
-> To: Kolli, Neela
-> Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-> Subject: [RFC][PATCH 38/75] scsi: drivers/scsi/megaraid.c 
-> pci_module_init to pci_register_driver conversion
-> 
-> 
-> Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-> 
-> diff -uprN -X linux-work/Documentation/dontdiff 
-> linux-work-clean/drivers/scsi/megaraid.c 
-> linux-work2/drivers/scsi/megaraid.c
-> --- linux-work-clean/drivers/scsi/megaraid.c	2006-08-16 
-> 22:41:17.000000000 +0200
-> +++ linux-work2/drivers/scsi/megaraid.c	2006-08-17 
-> 05:21:04.000000000 +0200
-> @@ -5078,7 +5078,7 @@ static int __init megaraid_init(void)
->  				"megaraid: failed to create 
-> megaraid root\n");
->  	}
->  #endif
-> -	error = pci_module_init(&megaraid_pci_driver);
-> +	error = pci_register_driver(&megaraid_pci_driver);
->  	if (error) {
->  #ifdef CONFIG_PROC_FS
->  		remove_proc_entry("megaraid", &proc_root);
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+I can cite usplash and splashy as examples.
+
+-- 
+        O T A V I O    S A L V A D O R
+---------------------------------------------
+ E-mail: otavio@debian.org      UIN: 5906116
+ GNU/Linux User: 239058     GPG ID: 49A5F855
+ Home Page: http://www.freedom.ind.br/otavio
+---------------------------------------------
+"Microsoft gives you Windows ... Linux gives
+ you the whole house."

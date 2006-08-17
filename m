@@ -1,96 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWHQJY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWHQJ1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWHQJY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWHQJY7
+	id S964775AbWHQJ1a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWHQJ1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:24:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:56510 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964771AbWHQJY6 (ORCPT
+	Thu, 17 Aug 2006 05:27:30 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:43679 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964771AbWHQJ12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:24:58 -0400
-Subject: Re: PATCH: Multiprobe sanitizer
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1155804060.15195.30.camel@localhost.localdomain>
-References: <1155746538.24077.371.camel@localhost.localdomain>
-	 <20060816222633.GA6829@kroah.com>
-	 <1155774994.15195.12.camel@localhost.localdomain>
-	 <1155797833.11312.160.camel@localhost.localdomain>
-	 <1155804060.15195.30.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 11:24:35 +0200
-Message-Id: <1155806676.11312.175.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 05:27:28 -0400
+Date: Thu, 17 Aug 2006 11:21:18 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lee Trager <Lee@PicturesInMotion.net>
+cc: Jeff Garzik <jeff@garzik.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: /dev/sd*
+In-Reply-To: <44E42900.1030905@PicturesInMotion.net>
+Message-ID: <Pine.LNX.4.61.0608171120260.4252@yvahk01.tjqt.qr>
+References: <1155144599.5729.226.camel@localhost.localdomain>
+ <20060809212124.GC3691@stusta.de> <1155160903.5729.263.camel@localhost.localdomain>
+ <20060809221857.GG3691@stusta.de> <20060810123643.GC25187@boogie.lpds.sztaki.hu>
+ <44DB289A.4060503@garzik.org> <44E3DFD6.4010504@PicturesInMotion.net>
+ <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr> <44E42900.1030905@PicturesInMotion.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 09:41 +0100, Alan Cox wrote:
-> Ar Iau, 2006-08-17 am 08:57 +0200, ysgrifennodd Benjamin Herrenschmidt:
-> > In fact, I'm all about making the problem worse by agressively
-> > paralellilizing everything to get distros config mecanisms to catch up
-> > and stop using the interface name (or use ifrename).
-> 
-> I'm so glad I don't have to depend on your code then because I have to
-> actually deal with the real world not try to commit design suicide in
-> pursuit in of elegance.
+>> In the process, we can rename the then-"generic disk" (scsi ide whatever) 
+>> back to "hd*" since that actually expands to Hard Disk.
+>> (If I would have known a lot earlier about Linux I would have proposed 
+>> "id*" for the IDE disks.)
+>>
+>Actually that does make more sense then using disk. So I guess we're
+>back to square one. Personally I don't think its that big of a deal, all
+>you have to do is change fstab and grub or lilo. My main concern is for
+>the less advanced Linux users.
 
-Heh, ok, I wasn't 100% serious there :) Though I still think it's a bit
-sad to have to add that sort of "workarounds" all over the place to get
-some kind of parallelism. At least disk is getting better on most
-distros (with, iirc, the notable exception of debian (and maybe ubuntu)
-which still defaults to not using labels).
-
-> There are numerous cases where bus stability happens to matter because
-> you cannot identify the different devices. The disk and ethernet cases
-> are relatively managable (disk has some distribution issues with fstab
-> etc on older setups). Things get nasty when you look at say sound or
-> video.
-> 
-> A classic example would be a typical security system with four identical
-> PCI video capture cards. There is no way other than PCI bus ordering to
-> order them, and if you don't order them your system isn't useful as you
-> do different processing on different camera streams.
-
-There are ways. Using sysfs, you can match a given card to a given PCI
-"location", in absence of any other way of identifying, it's still
-better than relying on driver probe ordering imho.
-
-My main point is if we don't find a way to get some incentive to get it
-fixed, userland will probably not be fixed. Maybe your approach as a
-"temporary measure" coupled with a kernel command line argument to force
-full parallelism is the way to go...
-
-> From a performance perspective the only one we really care about is
-> probably disks. Even there we need some kind of ordering (or ability to
-> order) so that we can handle unlabelled (eg new) volumes and md
-> components.
-> 
-> Right now lvm/dm/md all depend on real disk names to be useful on large
-> systems because the time to scan for labels is too high. On small
-> systems some tools work ok although not all with labels.
-> 
-> Disk has another awkward problem too - power control and management.
-
-I've been thinking about this problem in the past and one solution I
-found was to have a concept of a "ID" string (sort-of an exension of the
-current syfs busid, though a sysfs path would probably do the trick for
-most devices) that allows to uniquely identify a device in the system
-with good stability. Devices that can support some kind of serial
-number / uuid would be able to override that with it to provide even
-better stability. The idea is to provide the stablest possible
-identifier for a device, slot ID being fairly unperfect but probably the
-best one can do in absence of better.
-
-Probe ordering is fragile and completely defeated with busses that are
-already probed asynchronously (like USB or firewire), and things can
-only get worse. Thus we need to look for generic solutions, the trick of
-maintaining probe ordering will work around problems today but we'll
-still hit the wall in an increasing number of cases in the future.
-
-Ben.
+Less advanced users should use the upgrade tools their distribution 
+provides.
 
 
+Jan Engelhardt
+-- 

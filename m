@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWHQQUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWHQQXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWHQQUB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWHQQUB
+	id S965061AbWHQQXV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWHQQXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:20:01 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:62670 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964855AbWHQQT7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:19:59 -0400
-Date: Thu, 17 Aug 2006 21:49:06 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 4/7] UBC: syscalls (user interface)
-Message-ID: <20060817161906.GA23627@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru> <20060817110940.GC19127@in.ibm.com> <44E4778B.1020808@sw.ru>
+	Thu, 17 Aug 2006 12:23:20 -0400
+Received: from pat.uio.no ([129.240.10.4]:14253 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965061AbWHQQXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:23:19 -0400
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
+	writeback.
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@suse.de>, David Chinner <dgc@sgi.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060817081415.f48fbb37.akpm@osdl.org>
+References: <17633.2524.95912.960672@cse.unsw.edu.au>
+	 <20060815010611.7dc08fb1.akpm@osdl.org>
+	 <20060815230050.GB51703024@melbourne.sgi.com>
+	 <17635.60378.733953.956807@cse.unsw.edu.au>
+	 <20060816231448.cc71fde7.akpm@osdl.org>
+	 <1155818179.5662.19.camel@localhost>
+	 <20060817081415.f48fbb37.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 12:22:59 -0400
+Message-Id: <1155831779.5620.15.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E4778B.1020808@sw.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-1.986, required 12,
+	autolearn=disabled, AWL 0.50, RCVD_IN_XBL 2.51,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 06:04:59PM +0400, Kirill Korotaev wrote:
-> Please, keep in mind. This patch set can be extended in infinite number
-> of ways. But!!! It contains only the required minimal functionality.
+On Thu, 2006-08-17 at 08:14 -0700, Andrew Morton wrote:
+> Take a look at blk_congestion_wait().  It doesn't know about request
+> queues.  We'd need a new
+> 
+> void writeback_congestion_end(int rw)
+> {
+> 	wake_up(congestion_wqh[rw]);
+> }
+> 
+> or similar.
 
-Sure ..But going by this it should mean that we don't see any code which 
-hints of heirarchy (->parent)? :)
+...and how often do you want us to call this? NFS doesn't know much
+about request queues either: it writes out pages on a per-RPC call
+basis. In the worst case that could mean waking up the VM every time we
+write out a single page.
 
-> When we are to add code requiring to know about limit changes or fails
-> or whatever we can always extend it accordingly.
+Cheers,
+  Trond
 
--- 
-Regards,
-vatsa

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWHQI2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWHQI3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWHQI2G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 04:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWHQI2G
+	id S932449AbWHQI3s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 04:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWHQI3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 04:28:06 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:3435 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932329AbWHQI2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 04:28:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pM9/HukxOSFoqbWggx1p9EwGV2DJhXLDG/u8KCP9fmIuv0RvMc+6khKuZ7eUVM/Dx/+4i3gfZygD0PMto3R2J4rCi4h15hRnFYDyHcIYFrOD/1IBQezrMqIadZr0WMYXi0i9DKRq4ofGOlkNaK7TiX6jY3EafO522fW4t817ncQ=
-Message-ID: <b0943d9e0608170128l5f9cec1ej3d46ac797c4c4738@mail.gmail.com>
-Date: Thu, 17 Aug 2006 09:28:03 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Mauricio Lin" <mauriciolin@gmail.com>
-Subject: Re: Some issues about the kernel memory leak detector: __scan_block() function
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3f250c710608161519o54433300heb1c79de6cbf6ce5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <3f250c710608161519o54433300heb1c79de6cbf6ce5@mail.gmail.com>
+	Thu, 17 Aug 2006 04:29:47 -0400
+Received: from mta4.srv.hcvlny.cv.net ([167.206.4.199]:4963 "EHLO
+	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S932449AbWHQI3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 04:29:46 -0400
+Date: Thu, 17 Aug 2006 04:29:52 -0400
+From: Lee Trager <Lee@PicturesInMotion.net>
+Subject: Re: /dev/sd*
+In-reply-to: <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Jeff Garzik <jeff@garzik.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Message-id: <44E42900.1030905@PicturesInMotion.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+References: <1155144599.5729.226.camel@localhost.localdomain>
+ <20060809212124.GC3691@stusta.de>
+ <1155160903.5729.263.camel@localhost.localdomain>
+ <20060809221857.GG3691@stusta.de>
+ <20060810123643.GC25187@boogie.lpds.sztaki.hu> <44DB289A.4060503@garzik.org>
+ <44E3DFD6.4010504@PicturesInMotion.net>
+ <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060731)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mauricio,
-
-On 16/08/06, Mauricio Lin <mauriciolin@gmail.com> wrote:
-> Let's suppose the a kmalloc() was executed without storing the
-> returned pointer to the memory area and its fictitious returned value
-> would be the address 0xb7d73000 as:
+Jan Engelhardt wrote:
+>>>> AFAIR long ago Linus said he'd like just one major number (and thus only
+>>>> one naming scheme) for every disk in the system; with /dev/sd* we're now
+>>>> getting there.
+>>>>         
+>>> Yep.  /dev/disk is a long term goal :)
+>>>
+>>>       
+>> I agree with Adrian, users are going to get confused if their devices
+>> are named something different once they switch to this new interface. So
+>> if we're going to confusing them why not just take the big leap and
+>> switch it over to /dev/disk? It seems to make more sense then to have
+>> all IDE and SATA users use /dev/sda for awhile only to down the road
+>> have to to switch to /dev/disk.
+>>     
 >
-> kmalloc(32, GFP_KERNEL);  // Cause memory leak
+> In the process, we can rename the then-"generic disk" (scsi ide whatever) 
+> back to "hd*" since that actually expands to Hard Disk.
+> (If I would have known a lot earlier about Linux I would have proposed 
+> "id*" for the IDE disks.)
 >
-> Is there any possibility the __scan_block() scans a memory block that
-> contains the memory area allocated by the previous kmalloc?
-
-That's what the memleak-test module does.
-
-Yes, there is a chance and this is called a false negative. If there
-is a (non-)pointer location having this value (especially the stack),
-it won't be reported. However, these locations might change and at
-some point you will get the leak reported.
-
-To reduce the false negatives, I'll have to eliminate the stacks
-scanning completely (and make sure there are no false positives
-reported for pointers on the stack). Another improvement is to only
-look at the places that would have pointers in a structure (both
-Ingo's ideas). The latter is a bit more complicated but I could use
-the compiler-generated data (-fdump-translation-unit) to identify the
-structures and their members. It also requires some API changes to
-allow exact type identification.
-
-Anyway, I'll look into implementing the above after I sort out some
-locking issues (which might cause deadlocks on SMP systems) with the
-kmemleak re-entrancy.
-
--- 
-Catalin
+>
+> Jan Engelhardt
+>   
+Actually that does make more sense then using disk. So I guess we're
+back to square one. Personally I don't think its that big of a deal, all
+you have to do is change fstab and grub or lilo. My main concern is for
+the less advanced Linux users.

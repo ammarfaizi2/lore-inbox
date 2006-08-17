@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWHQWoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030313AbWHQWsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWHQWoX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 18:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWHQWoX
+	id S1030313AbWHQWsF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 18:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWHQWsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 18:44:23 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40397 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030304AbWHQWoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 18:44:22 -0400
-Subject: Re: 2.6.18-rc4-mm1 + hotfix -- Many processes use the sysctl
-	system call
-From: Lee Revell <rlrevell@joe-job.com>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, "akpm@osdl.org" <akpm@osdl.org>
-In-Reply-To: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
-References: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 18:45:01 -0400
-Message-Id: <1155854702.8796.97.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 18:48:04 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:13440 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1030313AbWHQWsE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 18:48:04 -0400
+Date: Fri, 18 Aug 2006 00:44:48 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed!
+Message-ID: <20060817224448.GB3616@aitel.hist.no>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 15:41 -0700, Miles Lane wrote:
-> My installation of Ubuntu is having trouble with my kernel build
-> because I disabled support for sysctl:
-> 
-> warning: process `ls' used the removed sysctl system call
-> warning: process `touch' used the removed sysctl system call
-> warning: process `touch' used the removed sysctl system call
-> warning: process `evms_activate' used the removed sysctl system call
-> warning: process `alsactl' used the removed sysctl system call
-> 
-> I am curious whether the use of sysctl indicates a problem in these
-> processes.  What is the benefit of offering disabling sysctl support?
+I got 2.6.18-rc4-mm1 going, and it appears that system 
+moves at about 3x normal speed.  A software clock need 3
+seconds to advance 10 seconds, for example.
 
-To make the kernel smaller for people who don't need sysctl.
-Apparently, you need it.
+Everything else seems faster too, the keyboard autorepeat,
+delay loops in games, and so on.  
 
-Lee
+Guess I could live with this, if it'd also compile
+3x faster. :-/
 
+This is a x86-64 kernel, with the jiffies hotfix applied.
+
+Helge Hafting

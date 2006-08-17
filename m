@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWHQXCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWHQXLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWHQXCg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 19:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbWHQXCg
+	id S965143AbWHQXLS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 19:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbWHQXLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 19:02:36 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46282 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965147AbWHQXCe (ORCPT
+	Thu, 17 Aug 2006 19:11:17 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:1941 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965143AbWHQXLR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 19:02:34 -0400
-Date: Fri, 18 Aug 2006 01:02:14 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
-Message-ID: <20060817230213.GA18786@elf.ucw.cz>
-References: <1155844419.6788.62.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155844419.6788.62.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 17 Aug 2006 19:11:17 -0400
+Subject: Re: [BLOCK] bh: Ensure bh fits within a page
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Jens Axboe <axboe@suse.de>, akpm@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1G83hL-00035h-00@gondolin.me.apana.org.au>
+References: <E1G83hL-00035h-00@gondolin.me.apana.org.au>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 16:14:16 -0700
+Message-Id: <1155856456.18864.5.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2006-08-02 at 09:30 +1000, Herbert Xu wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > That looks really dangerous, I'd prefer that to be a BUG_ON() as well to
+> > prevent nastiness further down.
+> 
+> OK, I used a WARN_ON mainly because ext3 has been doing this for years
+> without killing anyone until now :)
+> 
+> [BLOCK] bh: Ensure bh fits within a page
+> 
+> There is a bug in jbd with slab debugging enabled where it was submitting
+> a bh obtained via jbd_rep_kmalloc which crossed a page boundary.  A lot
+> of time was spent on tracking this down because the symptoms were far off
+> from where the problem was.
+> 
+> This patch adds a sanity check to submit_bh so we can immediately spot
+> anyone doing similar things in future.
+> 
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> 
+> Cheers,
 
-> Documentation.
+Hi,
 
-No, I still do not understand how this is supposed to work.
+I am working on a fix to address this problem. Do you have any testcases
+to reproduce the problem ? I have been running bunch of tests with
+CONFIG_DEBUG_SLAB with WARN_ON() and I haven't seen it yet :(
 
-> +In normal operation, the system seems to stabilize with a roughly
-> +equal mixture of SYSTEM, USER, and UNTRUSTED processes. Most
+Wondering, if there is any special thing I need to do to reproduce
+the problem ? Please let me know.
 
-So you split processes to three classes (why three?), and
-automagically move them between classes based on some rules? (What
-rules?)
+Thanks,
+Badari
 
-Like if I'm UNTRUSTED process, I may not read ~/.ssh/private_key? So
-files get this kind of labels, too? And it is "mozilla starts as a
-USER, but when it accesses first web page it becomes UNTRUSTED"?
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

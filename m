@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWHQQCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWHQQCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbWHQQCx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWHQQCx
+	id S932515AbWHQQCi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbWHQQCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:02:53 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3537 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932551AbWHQQCv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:02:51 -0400
-Date: Thu, 17 Aug 2006 08:52:07 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/75] pci_module_init to pci_register_driver conversion
-Message-ID: <20060817155207.GA7426@kroah.com>
-References: <20060817042634.0.CrzcY28443.28439.michal@ltg01-fedora.pl> <20060817055814.GA14950@kroah.com> <44E46280.2020109@garzik.org>
+	Thu, 17 Aug 2006 12:02:38 -0400
+Received: from a.relay.invitel.net ([62.77.203.3]:28800 "EHLO
+	a.relay.invitel.net") by vger.kernel.org with ESMTP id S932515AbWHQQCh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:02:37 -0400
+Date: Thu, 17 Aug 2006 18:02:47 +0200
+From: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Vernon Mauery <vernux@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Steve Barnhart <stb52988@gmail.com>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bootsplash integration
+Message-ID: <20060817160247.GB25136@lgb.hu>
+Reply-To: lgb@lgb.hu
+References: <15ce3ec0608110736y5ef185e8v6acd4f7556adcc49@mail.gmail.com> <44DCB95B.4060101@tremplin-utc.net> <1155317729.24077.110.camel@localhost.localdomain> <200608120727.58446.vernux@us.ibm.com> <Pine.LNX.4.61.0608121913490.2346@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <44E46280.2020109@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0608121913490.2346@yvahk01.tjqt.qr>
+X-Operating-System: vega Linux 2.6.15-25-686 i686
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 08:35:12AM -0400, Jeff Garzik wrote:
-> Greg KH wrote:
-> >On Thu, Aug 17, 2006 at 04:26:35AM +0000, Michal Piotrowski wrote:
-> >>Hi,
-> >>
-> >>pci_module_init is obsolete.
-> >>
-> >>This patch series converts pci_module_init to pci_register_driver.
-> >>
-> >>
-> >>Can I remove this?
-> >>
-> >>include/linux/pci.h:385
-> >>/*
-> >> * pci_module_init is obsolete, this stays here till we fix up all usages 
-> >> of it
-> >> * in the tree.
-> >> */
-> >>#define pci_module_init pci_register_driver
-> >
-> >As repeated numerous times, it's up to the network developers if they
-> >will take this or not.
-> >
-> >I'll hold off on taking this series, please push it through the driver
-> >subsystem maintainers.
+On Sat, Aug 12, 2006 at 07:14:33PM +0200, Jan Engelhardt wrote:
+> >mplayer knows how to play to a framebuffer on the console without X.  So this 
+> >is possible.  I have played a movie on my framebuffer before.
 > 
-> It's already in subsystem trees, in fact.
+> mplayer even works without framebuffer, and I am not talking about aalib or 
+> caca, but cvidix.
 
-Great, it can wait until 2.6.19.
+As an ex-developer of MPlayer I should say that MPlayer even supports direct
+hardware access and such if you're brave enough ;-)
 
-> But it is most definitely not 2.6.18-rc material :)
+http://www.mplayerhq.hu/DOCS/HTML-single/en/MPlayer.html#vidix
 
-Agreed.
-
-thanks,
-
-greg k-h
+-- 
+- Gábor

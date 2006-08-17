@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWHQTSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWHQTVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWHQTSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 15:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWHQTSQ
+	id S1030190AbWHQTVa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 15:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWHQTVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 15:18:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52888 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751239AbWHQTSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 15:18:15 -0400
-Date: Thu, 17 Aug 2006 12:18:04 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: suresh.b.siddha@intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, mingo@redhat.com, apw@shadowen.org
-Subject: Re: [patch] sched: group CPU power setup cleanup
-Message-Id: <20060817121804.e140f19e.pj@sgi.com>
-In-Reply-To: <20060817110317.A14787@unix-os.sc.intel.com>
-References: <20060815175525.A2333@unix-os.sc.intel.com>
-	<20060815212455.c9fe1e34.pj@sgi.com>
-	<20060815214718.00814767.akpm@osdl.org>
-	<20060816110357.B7305@unix-os.sc.intel.com>
-	<20060817102030.f8c41330.pj@sgi.com>
-	<20060817110317.A14787@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 17 Aug 2006 15:21:30 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:39694 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751258AbWHQTV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 15:21:29 -0400
+Message-ID: <44E4C1B7.9020700@superbug.co.uk>
+Date: Thu, 17 Aug 2006 20:21:27 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060730)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation?
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <1155795251.4494.9.camel@laptopd505.fenrus.org>
+In-Reply-To: <1155795251.4494.9.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suresh wrote:
-> Let me resist the temptation and not go into the definition of horsepower
-> here. You can refer any dictionary.
+Arjan van de Ven wrote:
+> On Wed, 2006-08-16 at 22:48 -0700, Anonymous User wrote:
+>> I work for a company that will be developing an embedded Linux based
+>> consumer electronic device.
+>>
+>> I believe that new kernel modules will be written to support I/O
+>> peripherals and perhaps other things.  I don't know the details right
+>> now.  What I am trying to do is get an idea of what requirements there
+>> are to make the source code available under the GPL.
+> 
+> 
+> you should talk to a lawyer, not LKML.
+> 
 
-Good point <grin>.
+The easiest, no need to talk to a lawyer, most economical, way out of
+this is to simply make all source code open and published under the GPL
+or GPL compatible license with the appropriate "signed-off" entries.
 
-Horsepower is a measure of power, of energy over time, such as the
-rate of providing or using electrical or mechanical energy.
+As soon as you start trying to release some part of it as binary code,
+then lawyers have to be involved and that tends to cost a lot more.
 
-So, with your suggestion of 'horsepower', are you saying that cpu_power
-is a metric of such electrical or mechanical energy -- the peak or
-average watts of the electricity consumed by the CPUs in a group?
+People on this list are NOT lawyers, so don't ask about that option on
+this list.
 
-Or is 'cpu_power' a metric of the computational capacity, such as
-BogoMIPS provided by the CPUs in a group, such as I had presumed?
+>From the business perspective, it is likely to be far more profitable to
+ deliver an open source GPL licensed product to market, as you are then
+likely to get a lot of free development effort work done for you by your
+users.
 
-Hmmm ... apparently from your latest explanation, it's neither
-of these.
+James
 
-Rather it's a metric of how many tasks to place in a group, due to
-various capacities and constraints, such as computational power
-(BogoMIPS) and electrical power (watts or horsepower).
-
-Should 'cpu_power' be renamed to 'task_load' ?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

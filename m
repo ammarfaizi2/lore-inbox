@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWHQAP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWHQAPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWHQAP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 20:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWHQAP3
+	id S932148AbWHQAPu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 20:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWHQAPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 20:15:29 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:43488 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S932147AbWHQAP2 convert rfc822-to-8bit
+	Wed, 16 Aug 2006 20:15:50 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25043 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932148AbWHQAPt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 20:15:28 -0400
-From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
-To: "Linux Kernel ML" <linux-kernel@vger.kernel.org>
-Subject: R: How to avoid serial port buffer overruns?
-Date: Thu, 17 Aug 2006 02:15:29 +0200
-Message-ID: <NBBBIHMOBLOHKCGIMJMDMEBBFNAA.g.tomassoni@libero.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1155770899.8796.21.camel@mindpipe>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Importance: Normal
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Wed, 16 Aug 2006 20:15:49 -0400
+Subject: Re: PATCH: Multiprobe sanitizer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060816222633.GA6829@kroah.com>
+References: <1155746538.24077.371.camel@localhost.localdomain>
+	 <20060816222633.GA6829@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Aug 2006 01:36:33 +0100
+Message-Id: <1155774994.15195.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, thanks.  FWIW here is the serial board we are using:
+Ar Mer, 2006-08-16 am 15:26 -0700, ysgrifennodd Greg KH:
+> What would this help out with?  Would the PCI layer (for example) handle
+> this "notify the core that it can continue" type logic?  Or would the
+> individual drivers need to be able to control it?
 > 
-> http://www.moschip.com/html/MCS9845.html
-> 
-> The hardware guy says "The mn9845cv, have in default 2 serial ports and
-> one ISA bus, where we have connected the tl16c554, quad serial port."
-> 
-> Hopefully Ingo's latency tracer can tell me what is holding off
-> interrupts.
+> I'm guessing that you are thinking of this in relation to the disk
+> drivers, have you found cases where something like this is necessary due
+> to hardware constraints?
 
-That may be an interrupt-sharing issue: quad port often use at most two irq lines and, FWIK, ISA irqs are edge-triggered, not level-triggered. Are you tring to use two MIDI ports at the same time?
+Actually it occurs everywhere because what happens is
 
-Giampaolo
+	PCI enumerates in bus order
+	Threads *usually* run in bus order
 
-> 
-> Lee
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+so every n'th boot your devices re-order themselves out of bus order,
+and eth1 becomes eth0 for the day.
+
+If you have a "ok now continue scanning" API then we can do
+
+	Grab resources
+	Register driver
+	Go parallel
+	[Slow stuff]
+
+I was thinking if we set multithread = 2 (and define some constants)
+then the core code would do
+
+	if (multithread == WAIT)
+		down(&drv->wait);
+
+
+and we'd have
+
+	pci_driver_continue_enumerating(struct pci_driver *drv) {
+		up(&drv->wait);
+	}
+
 

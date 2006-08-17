@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWHQNdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWHQNeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWHQNdk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWHQNbd
+	id S964952AbWHQNeW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWHQNb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:31:33 -0400
-Received: from 125.14.cm.sunflower.com ([24.124.14.125]:30494 "EHLO
-	mail.atipa.com") by vger.kernel.org with ESMTP id S964939AbWHQN3W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:29:22 -0400
-Message-ID: <44E46F3A.9000608@atipa.com>
-Date: Thu, 17 Aug 2006 08:29:30 -0500
-From: Roger Heflin <rheflin@atipa.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: Willy Tarreau <w@1wt.eu>, Xin Zhao <uszhaoxin@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: What's the NFS OOM problem?
-References: <4ae3c140608081524u4666fb7x741734908c35cfe6@mail.gmail.com>	<20060810045711.GI8776@1wt.eu>	<17627.53340.43470.60811@cse.unsw.edu.au>	<44E21166.60308@atipa.com> <17635.63709.848914.895135@cse.unsw.edu.au>
-In-Reply-To: <17635.63709.848914.895135@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Aug 2006 13:29:42.0453 (UTC) FILETIME=[327E4650:01C6C201]
+	Thu, 17 Aug 2006 09:31:28 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:38322 "EHLO
+	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
+	id S964932AbWHQN3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:29:25 -0400
+Date: Thu, 17 Aug 2006 13:29:59 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: becker@scyld.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 75/75] net: drivers/net/yellowfin.c pci_module_init to pci_register_driver conversion
+Message-ID: <20060817132959.75.bZTQwX5601.3636.michal@euridica.enternet.net.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Tuesday August 15, rheflin@atipa.com wrote:
->> I have noticed on SLES kernels that when the dirty_*ratios turned down it
->> still uses alot more memory than it should work writeback buffers, it makes
->> me think that with the default setting of 40% that it for some reason
->> may be using all of memory and deadlocking.   It does not seem like an
->> NFS only issue, as I believe I have duplicated it with a fast lock
->> setup.
-> 
-> We seem to have a little patch in SuSE kernels that might be making
-> the problem worse .... though I presume it was introduced for a
-> reason.  I haven't managed to track what that reason was yet.
-> 
-> What is "a fast lock setup"??  I don't understand.
-> 
-> NeilBrown
-> 
 
-I am not sure what I ment, I may have ment a fast disk setup, and
-thought or typed the wrong thing.  The machine I duplicated it with
-had disks that would sustain 175MB/second (3 striped), 4cpus with local
-ram of 32GB.   The 2 cpu/4GB/100MB/second machine does not seem
-to have the issue.   Both machines are opterons, I believe I duplicated
-it under SP2, I know I duplicated it SP3 and one of the
-post-SP3 kernels.   It did not occur under SP1.
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-Turning down the dirty*ratios seems to make it go away.   When I
-get a chance I will retest on SP2 and see if it happens there.
-
-I do know (and this may be related) that if on a 32GB machine I
-pagelock a large portion of ram (say 28GB) that machine will deadlock
-under high IO.  The basic symptoms are similar to the writeback
-issue the machine responds to ping/sysrq, but logins fail, and any
-new process creation fails.
-
-                                  Roger
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/yellowfin.c linux-work2/drivers/net/yellowfin.c
+--- linux-work-clean/drivers/net/yellowfin.c	2006-08-16 22:41:00.000000000 +0200
++++ linux-work2/drivers/net/yellowfin.c	2006-08-17 05:20:50.000000000 +0200
+@@ -1434,7 +1434,7 @@ static int __init yellowfin_init (void)
+ #ifdef MODULE
+ 	printk(version);
+ #endif
+-	return pci_module_init (&yellowfin_driver);
++	return pci_register_driver(&yellowfin_driver);
+ }
+ 
+ 

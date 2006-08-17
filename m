@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWHQJB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWHQJGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWHQJB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWHQJB6
+	id S932355AbWHQJGx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWHQJGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:01:58 -0400
-Received: from wx-out-0506.google.com ([66.249.82.226]:58355 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750838AbWHQJB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:01:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=DDl5IVcgvynP67Mcz/YJunvE0g3RM8gynLcacYpKJejSGaeurSYoBwYnFmq7D5yTaXNGIM2UCQxhcOcq9h4jtiphDmuhG+AAR2kocfOzYqArC+ydw1jZqEC9bpIHKvwDVgdFSX2ygFC4RXSSYu9tlDN2rUx94mNd0aqQCUd2I8A=
-From: Patrick McFarland <diablod3@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: GPL Violation?
-Date: Thu, 17 Aug 2006 05:03:03 -0400
-User-Agent: KMail/1.9.1
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <200608170332.53556.diablod3@gmail.com> <20060817080243.GN7813@stusta.de>
-In-Reply-To: <20060817080243.GN7813@stusta.de>
+	Thu, 17 Aug 2006 05:06:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12804 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932355AbWHQJGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 05:06:53 -0400
+Date: Thu, 17 Aug 2006 11:06:51 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <w@1wt.eu>,
+       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
+       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+Message-ID: <20060817090651.GP7813@stusta.de>
+References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608170503.05171.diablod3@gmail.com>
+In-Reply-To: <44E42A4C.4040100@domdv.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 August 2006 04:02, Adrian Bunk wrote:
-> This is _your personal interpretation_ of what consists a "derived work"
-> under the GPL.
-> This is a known grey area that has AFAIK not yet been brought to court
-> in any country, and neither your personal opinion on this issue nor my
-> personal opinion on this issue can replace legel advice.
+On Thu, Aug 17, 2006 at 10:35:24AM +0200, Andreas Steinmetz wrote:
+> Arjan van de Ven wrote:
+> > But maybe it's worth doing a user survey to find out what the users of
+> > 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
+> > people who use enterprise distro kernels don't count for this since
+> > they'll not go to a newer released 2.4 anyway)
+> 
+> Currently I'm working with ARM based embedded systems. I prefer 2.4
+> kernels to 2.6 as they are smaller thus leaving more flash for jffs2.
+>...
 
-And I never said anything different. Stop being hostile to other's opinions. 
-LKML isn't the place for a flamewar.
+In this case, kernel 2.4 is a workaround, not a solution, and the 
+solution is to get kernel 2.6 as small as kernel 2.4.
 
-> cu
-> Adrian
+Can you send me the .config's you are using for 2.4 and 2.6 
+(preferably for kernel.org kernels)?
+
+> Andreas Steinmetz
+
+cu
+Adrian
 
 -- 
-Patrick McFarland || www.AdTerrasPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

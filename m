@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWHQGaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWHQGbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWHQGaV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 02:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWHQGaV
+	id S1751190AbWHQGbs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 02:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWHQGbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 02:30:21 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:9395 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751188AbWHQGaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 02:30:19 -0400
-Date: Thu, 17 Aug 2006 15:32:58 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: pj@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com, jdelvare@suse.de
-Subject: Re: [RFC] ps command race fix
-Message-Id: <20060817153258.8dfe5973.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <m11wrg0xfd.fsf@ebiederm.dsl.xmission.com>
-References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724182000.2ab0364a.akpm@osdl.org>
-	<20060724184847.3ff6be7d.pj@sgi.com>
-	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724193318.d57983c1.akpm@osdl.org>
-	<20060725115004.a6c668ca.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060725121640.246a3720.kamezawa.hiroyu@jp.fujitsu.com>
-	<m1mza8wqdc.fsf@ebiederm.dsl.xmission.com>
-	<20060813103434.17804d52.akpm@osdl.org>
-	<m1zme8v4u9.fsf@ebiederm.dsl.xmission.com>
-	<20060813121222.8210ccc2.pj@sgi.com>
-	<20060816102344.b393aee6.kamezawa.hiroyu@jp.fujitsu.com>
-	<m11wrg0xfd.fsf@ebiederm.dsl.xmission.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Thu, 17 Aug 2006 02:31:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37320 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751180AbWHQGbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 02:31:47 -0400
+Date: Thu, 17 Aug 2006 16:31:10 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+Subject: Re: [PATCH] XFS: remove pointless conditional testing 'nmp' vs NULL in fs/xfs/xfs_rtalloc.c::xfs_growfs_rt()
+Message-ID: <20060817163109.A2792453@wobbly.melbourne.sgi.com>
+References: <200608130016.51136.jesper.juhl@gmail.com> <20060814110942.C2698880@wobbly.melbourne.sgi.com> <9a8748490608140025w3257f315jcceccf05d200437f@mail.gmail.com> <200608162244.19957.jesper.juhl@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200608162244.19957.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Wed, Aug 16, 2006 at 10:44:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006 22:59:50 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
-
+On Wed, Aug 16, 2006 at 10:44:19PM +0200, Jesper Juhl wrote:
+> On Monday 14 August 2006 09:25, Jesper Juhl wrote:
+> > On 14/08/06, Nathan Scott <nathans@sgi.com> wrote:
+> > > On Sun, Aug 13, 2006 at 12:16:50AM +0200, Jesper Juhl wrote:
+> > >
+> > > > This patch gets rid of the pointless check.
+> > >
+> > > Hmm, seems like code churn that makes the code slightly less
+> > > obvious, but thats just me... I'd prefer a tested patch that
+> > > implements the above suggestion, to be honest. :)
+> > >
+> > Ok, I'll see what I can come up with.
+> > 
 > 
-> So I just threw something together that seems to work.
+> How this?
 > 
-> All of the pid are listed in order and the next used pid is found by
-> scanning the pid bitmap. 
-> 
-> Scanning the pid bitmap might be a little heavy but actually is likely
-> quite cache friendly as the accesses are extremely predictable, and
-> everything should fit into 64 cache lines, which is fewer cache lines
-> than walking a tree, and more predictable.  Of course I turn around
-> and then do a hash table lookup which is at least one more cache line
-> and probably an unpredictable one at that. 
-> 
-> The point despite the brute force nature I have no reason to suspect
-> this will run any noticeably slower than the current implementation.
-> 
-> Look at this try it out and if this solves the problem we can push
-> this upstream.
-> 
-At first, Thanks.
+> Compile tested only since I'm at home and don't have any XFS filesystems to
+> play with atm.
 
-question:
+It looks good.  I've tested it, and it works fine - I'll merge it
+into my tree shortly.  Thanks for following up on this.
 
-	task = get_pid_task(find_next_pid(tgid), PIDTYPE_PID);
+cheers.
 
-Does this return only "task/process" ? and never return "thread" ?
-
-My another concern is that newly-created-process while ps running cannot be catched
-by this kind of "table walking" approach (as my previous work)
-But if people say O.K, I have no complaint.
-
-I(we)'ll post another list-based one in the next week, anyway.
-(I can't go-ahead this week...)
-
--Kame
-
+-- 
+Nathan

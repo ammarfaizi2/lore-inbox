@@ -1,54 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWHQNXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWHQNYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWHQNXT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWHQNXS
+	id S932486AbWHQNYv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWHQNYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:23:18 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:56454 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932485AbWHQNXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:23:18 -0400
-Date: Thu, 17 Aug 2006 09:23:09 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: 7eggert@gmx.de, Arjan van de Ven <arjan@infradead.org>,
-       Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-Message-ID: <20060817132309.GX13639@csclub.uwaterloo.ca>
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it> <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz> <1155821951.15195.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155821951.15195.85.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+	Thu, 17 Aug 2006 09:24:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36756 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932486AbWHQNYu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:24:50 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060817004219.44c45bbd.akpm@osdl.org> 
+References: <20060817004219.44c45bbd.akpm@osdl.org>  <1155743399.5683.13.camel@localhost> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <5910.1155741329@warthog.cambridge.redhat.com> <13319.1155744959@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com,
+       Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 17 Aug 2006 14:24:38 +0100
+Message-ID: <7923.1155821078@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 02:39:11PM +0100, Alan Cox wrote:
-> man 3 sleep
-> man 2 flock
-> 
-> or in the GUI world I'm firmly assured that the sun shines out of the
-> arse of dbus for intra desktop communication.
-> 
-> Lots of solutions.
-> 
-> We could certainly add an ioctl for this in the new libata layer. We
-> couldn't automate it as with pass through commands the kernel doesn't
-> really know what kind of exclusivity is needed and when.
-> 
-> Not sure its actually useful but its doable.
+Andrew Morton <akpm@osdl.org> wrote:
 
-Why can't O_EXCL mean that the kernel prevents anyone else from issuing
-ioctl's to the device?  One would think that is the meaning of exlusive.
-That way when the burning program opens the device with O_EXCL, no one
-else can screw it up while it is open.  If it happens to be polled by
-hal when the burning program tries to open it, it can just wait and
-retry again until it gets it open.
+> VFS: Busy inodes after unmount of 0:15. Self-destruct in 5 seconds.  Have a
+> nice day...
 
---
-Len Sorensen
+Does the same happen with the first patch I sent you (see attached)?  I know
+Trond doesn't like it, but it would be a useful data point if you could try
+it.
+
+David
+
+---
+NFS: Revalidate on readdir referring to null dentry
+
+From: David Howells <dhowells@redhat.com>
+
+Have nfs_readdir_lookup() force dentry revalidation when it comes across a
+name specified by a READDIR RPC call that corresponds to a negative dentry in
+the dcache.
+
+This can be caused by an optimisation in nfs_lookup() that causes a dentry to
+be incorrectly left as negative when mkdir() or similar is aborted by SELinux
+mid-procedure.
+
+This can be triggered by mounting through autofs4 a server:/ NFS share for
+which there are other exports available on that server.  SELinux also has to
+be turned on in enforcing mode to abort mid-flow the mkdir operation performed
+by autofs4.
+
+The problematic sequence of events is this:
+
+ (1) nfs_lookup() is called by sys_mkdirat() -> lookup_create() ->
+     __lookup_hash() with intent to create exclusively set in the nameidata:
+
+	nd->flags == LOOKUP_CREATE
+	nd->intent.open.flags == O_EXCL
+
+ (2) nfs_lookup() has an optimisation to avoid going to the server in this
+     case, presumably since the nfs_mkdir() op or whatever will deal with the
+     conflict.
+
+ (3) nfs_lookup() returns successfully, leaving the dentry in a negative state,
+     but attached to the parent directory.
+
+ (4) sys_mkdirat() calls vfs_mkdir() which calls may_create().  may_create()
+     checks that the directory has MAY_WRITE and MAY_EXEC permissions.
+
+ (5) may_create() calls nfs_permission(), which grants permission.
+
+ (6) may_create() calls security_inode_permission(), which calls SELinux, which
+     then _DENIES_ permission.
+
+ (7) may_create() fails, and vfs_mkdir() then fails and sys_mkdirat() then
+     fails (as does sys_mkdir).
+
+     _However_, the new dentry is left in the negative state, with no
+     consultation of the server.
+
+ (8) The parent directory is listed, and the name of the new dentry is
+     returned.
+
+ (9) stat on the new dentry fails (because it's negative), and "ls -l" returns
+     "?---------" as the file type and mode.
+
+This fix makes step (8) cause a revalidation to occur on the dentry at the
+start of step (9).
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ fs/nfs/dir.c           |   16 +++++++++++++++-
+ include/linux/dcache.h |    5 +++++
+ 2 files changed, 20 insertions(+), 1 deletions(-)
+
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index e746ed1..901b382 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -745,6 +745,13 @@ static int nfs_lookup_revalidate(struct 
+ 	nfs_inc_stats(dir, NFSIOS_DENTRYREVALIDATE);
+ 	inode = dentry->d_inode;
+ 
++	if (dentry->d_flags & DCACHE_NEED_REVALIDATE) {
++		spin_lock(&dentry->d_lock);
++		dentry->d_flags &= ~DCACHE_NEED_REVALIDATE;
++		spin_unlock(&dentry->d_lock);
++		goto out_bad;
++	}
++
+ 	if (!inode) {
+ 		if (nfs_neg_need_reval(dir, dentry, nd))
+ 			goto out_bad;
+@@ -1105,8 +1112,15 @@ static struct dentry *nfs_readdir_lookup
+ 	}
+ 	name.hash = full_name_hash(name.name, name.len);
+ 	dentry = d_lookup(parent, &name);
+-	if (dentry != NULL)
++	if (dentry != NULL) {
++		/* negative dentries must be reconsidered */
++		if (!IS_ERR(dentry) && !dentry->d_inode) {
++			spin_lock(&dentry->d_lock);
++			dentry->d_flags |= DCACHE_NEED_REVALIDATE;
++			spin_unlock(&dentry->d_lock);
++		}
+ 		return dentry;
++	}
+ 	if (!desc->plus || !(entry->fattr->valid & NFS_ATTR_FATTR))
+ 		return NULL;
+ 	/* Note: caller is already holding the dir->i_mutex! */
+diff --git a/include/linux/dcache.h b/include/linux/dcache.h
+index 63f64a9..c401a7d 100644
+--- a/include/linux/dcache.h
++++ b/include/linux/dcache.h
+@@ -176,6 +176,11 @@ #define DCACHE_UNHASHED		0x0010	
+ 
+ #define DCACHE_INOTIFY_PARENT_WATCHED	0x0020 /* Parent inode is watched */
+ 
++#define DCACHE_NEED_REVALIDATE	0x0040
++	/* Dentry needs revalidation by filesystem.  Set by NFS, for example,
++	 * when we see in a directory listing a file for which we have a
++	 * negative dentry */
++
+ extern spinlock_t dcache_lock;
+ 
+ /**
+

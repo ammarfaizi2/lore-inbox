@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWHQJGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHQJJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWHQJGx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWHQJGx
+	id S932204AbWHQJJr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWHQJJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:06:53 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12804 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932355AbWHQJGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:06:53 -0400
-Date: Thu, 17 Aug 2006 11:06:51 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <w@1wt.eu>,
-       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: Linux 2.4.34-pre1
-Message-ID: <20060817090651.GP7813@stusta.de>
-References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E42A4C.4040100@domdv.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 17 Aug 2006 05:09:47 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48584 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932204AbWHQJJr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 05:09:47 -0400
+Subject: Re: GPL Violation?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Anonymous User <anonymouslinuxuser@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Aug 2006 10:30:37 +0100
+Message-Id: <1155807037.15195.50.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 10:35:24AM +0200, Andreas Steinmetz wrote:
-> Arjan van de Ven wrote:
-> > But maybe it's worth doing a user survey to find out what the users of
-> > 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
-> > people who use enterprise distro kernels don't count for this since
-> > they'll not go to a newer released 2.4 anyway)
-> 
-> Currently I'm working with ARM based embedded systems. I prefer 2.4
-> kernels to 2.6 as they are smaller thus leaving more flash for jffs2.
->...
+Ar Mer, 2006-08-16 am 22:48 -0700, ysgrifennodd Anonymous User:
+> I suspect the company will try to get away with releasing as little as
+> possible.  I don't know much about the GPL or Linux kernel internals,
+> but I want to encourage the company I work for to give back to the
+> community.
 
-In this case, kernel 2.4 is a workaround, not a solution, and the 
-solution is to get kernel 2.6 as small as kernel 2.4.
+You should read the GPL license (its fairly plain English). Any matters
+of doubt should be discussed with someone qualified to discuss then
+(such as a lawyer).
 
-Can you send me the .config's you are using for 2.4 and 2.6 
-(preferably for kernel.org kernels)?
+In terms of general policy
+- The GPL requires you make source available to your customers by one of
+several means (mail in, zip archive on the CD with the manual etc). It
+is considered "polite" to also make the changes available publically on
+the web somewhere as well.
+- There are bodies such as the CE Linux Forum that may be useful to you
+and the company.
 
-> Andreas Steinmetz
+> I understand that modifications to GPL code must be released under the
+> GPL.  So if they tweak a scheduler implementation, this must be
+> released.  What if a new driver is written to support a custom piece
+> of hardware?  Yes, the driver was written to work with the Linux
+> kernel, but it isn't based off any existing piece of code.
 
-cu
-Adrian
+Basically if it is a derivative work (see your lawyer). This is a
+non-trivial area of law so really you should ask your lawyer not a bunch
+of programmers.
 
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+Alan
+--
+        "Some people are like Slinkies...
+        Not really good for anything,
+        but they still bring a smile to your face
+        when you push them down a flight of stairs."
+                        -- Gordon Wolfe.
 

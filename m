@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWHQEqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWHQEm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWHQEqO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 00:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWHQEqO
+	id S932423AbWHQEm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 00:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWHQEm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 00:46:14 -0400
-Received: from mail.kroah.org ([69.55.234.183]:664 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932425AbWHQEqN (ORCPT
+	Thu, 17 Aug 2006 00:42:29 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:20122 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932423AbWHQEm3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 00:46:13 -0400
-Date: Wed, 16 Aug 2006 21:40:11 -0700
-From: Greg KH <greg@kroah.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Linux PM <linux-pm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC][PATCH 3/3] PM: Remove PM_TRACE from Kconfig
-Message-ID: <20060817044011.GB14127@kroah.com>
-References: <200608151509.06087.rjw@sisk.pl> <20060816104143.GC9497@elf.ucw.cz> <200608161304.51758.rjw@sisk.pl> <200608161314.11128.rjw@sisk.pl>
+	Thu, 17 Aug 2006 00:42:29 -0400
+Date: Thu, 17 Aug 2006 06:42:28 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: 7eggert@gmx.de
+Cc: clowncoder <clowncoder@clowncode.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New version of ClownToolKit
+Message-ID: <20060817044228.GA16320@mars.ravnborg.org>
+References: <6Kxx5-7PT-7@gated-at.bofh.it> <6KyCM-1w7-1@gated-at.bofh.it> <E1GDUcG-00016M-Nu@be1.lrz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608161314.11128.rjw@sisk.pl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <E1GDUcG-00016M-Nu@be1.lrz>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 01:14:11PM +0200, Rafael J. Wysocki wrote:
-> Remove the CONFIG_PM_TRACE option, which is dangerous and should only be used
-> by people who know exactly what they are doing, from Kconfig.
+On Thu, Aug 17, 2006 at 01:15:43AM +0200, Bodo Eggert wrote:
+> Sam Ravnborg <sam@ravnborg.org> wrote:
+> 
+> > A small nitpick about the way ou build the ekrnel module:
+> > 
+> > In mk_and_insmod you can replace:
+> > make -C /usr/src/linux SUBDIRS=$PWD modules
+> > with
+> > LIBDIR=/lib/modules/`uname -r`
+> > make -C $LIBDIR/source O=$LIBDIR/build SUBDIRS=`pwd` modules
+> > 
+> > For a normal kernel installation this will do the right thing.
+> > source points to the kernel source and build point to the output
+> > directory (they are often equal but not always).
+> 
+> Please don't tell module authors to unconditionally use `uname -r`.
+> I frequently build kernels for differentd hosts, and if I don't, I'll
+> certainly compile the needed modules before installing the kernel.
+> Therefore /lib/modules/`uname -r` is most certainly the completely
+> wrong place to look for the kernel source.
+/lib/modules/`uname -r` is the general solution that works for most
+people and should be at least default. It is certainly better than
+/usr/src/linux.
+But yes they better make it override able.
 
-No, don't remove this, that's not acceptable at all.  This is useful for
-others (and one specifically who will be pissed to see this removed...)
-
-So NAK to this.
-
-thanks,
-
-greg k-h
+	Sam

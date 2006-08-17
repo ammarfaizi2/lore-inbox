@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWHQKtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWHQK4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWHQKtE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 06:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWHQKtE
+	id S964795AbWHQK4E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 06:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWHQK4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 06:49:04 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:488 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932437AbWHQKtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 06:49:01 -0400
-Subject: RE: Relation between free() and remove_vm_struct()
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Abu M. Muttalib" <abum@aftek.com>
-Cc: kernelnewbies@nl.linux.org, linux-newbie@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMKEEMDGAA.abum@aftek.com>
-References: <BKEKJNIHLJDCFGDBOHGMKEEMDGAA.abum@aftek.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 17 Aug 2006 12:48:36 +0200
-Message-Id: <1155811716.4494.51.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 17 Aug 2006 06:56:04 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:23644 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932474AbWHQK4B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 06:56:01 -0400
+Message-ID: <44E44B3E.10708@tls.msk.ru>
+Date: Thu, 17 Aug 2006 14:55:58 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: linux-scsi@vger.kernel.org
+Subject: Random scsi disk disappearing
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 13:26 +0530, Abu M. Muttalib wrote:
-> Hi Arjan,
-> 
-> Thnax for your reply.
-> 
-> > second of all, glibc delays freeing of some memory (in the brk() area)
-> > to optimize for cases of frequent malloc/free operations, so that it
-> > doesn't have to go to the kernel all the time (and a free would imply a
-> > cross cpu TLB invalidate which is *expensive*, so batching those up is a
-> > really good thing for performance)
-> 
-> As per my observation, in two scenarios that I have tried, in one scenario I
-> am able to see the prints from remove_vm_struct(), but in the other
-> scenario, I don't see any prints from remove_vm_strcut().
-> 
-> My question is, if there is delayed freeing of virtual address space, it
-> should be the same in both the scenarios, but its not the case, and this
-> behavior is consistent for my two scenarios, i.e.. in one I am able to see
-> the kernel prints and in other I am not, respectively.
+An old problem, very annoying.
 
-I'm sorry but you're not providing enough information for me to
-understand your follow-on question.
+>From time to time, an scsi disk just disappears from
+the bus, without any [error] messages whatsoever.
+The only relevant stuff in dmesg is logging from md
+(softraid) layer, about "error updating superblock"
+and later "giving up and removing the disk from the
+array" - not even error number.
 
-Greetings,
-   Arjan van de Ven
+When I try to access such a disk (/dev/sdX device),
+I got "No such device or address" error back.
 
-> 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+It's still listed in /sys/block and /proc/scsi/scsi,
+but any access to the device gives this error.
 
+But the disk is here, I know it is.  Deleting it from
+kernel:
+
+  echo y > /sys/block/sdX/device/delete
+
+and adding it back:
+
+  echo scsi add-single-device x y z > /proc/scsi/scsi
+
+works just fine, linux finds "new" scsi device and it
+happily works again.
+
+This happens on alot of different machines, with different
+disk drives (ok, most of them are from Seagate, but not
+all).  I can't say for sure that it happens on different
+scsi controllers - at least majority of them are adaptecs,
+using aic7xxx or aix79xx driver.
+
+I suspected the disks are too hot - nope, according to
+smartctrl, the themp is far from bad (typically about
+25..35 Celsius, and the themperature is not changing much).
+Bad cables, bad power supply, bad anything else?  Not sure
+either, at least I can't guess more: the machines are
+really different, some has good, under-loaded power supplies
+(and server chassis/motherboards/allthestuff) some has less
+good ones - makes no difference.  And the thing is - having
+in mind really sporadic disappearing, not depending on current
+load, time of day (eg, during nights, there's no one on site
+so no one to touch cables etc), ...  Well, I just can't think
+of any reason, at all.
+
+But one thing bothers me most: there's NO LOGGING from scsi
+layer.  None, zero, not at all.
+
+Has anyone else seen something similar?  Any pointers on how
+to debug the issue?
+
+Thanks.
+
+/mjt

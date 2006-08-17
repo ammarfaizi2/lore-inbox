@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbWHQXfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbWHQXgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030380AbWHQXfo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 19:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWHQXfn
+	id S1030394AbWHQXgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 19:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWHQXgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 19:35:43 -0400
-Received: from bayc1-pasmtp02.bayc1.hotmail.com ([65.54.191.162]:2362 "EHLO
-	BAYC1-PASMTP02.CEZ.ICE") by vger.kernel.org with ESMTP
-	id S1030380AbWHQXfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 19:35:43 -0400
-Message-ID: <BAYC1-PASMTP02D09F87AA103F112B20A2AE4D0@CEZ.ICE>
-X-Originating-IP: [65.94.249.130]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Thu, 17 Aug 2006 19:35:40 -0400
-From: Sean <seanlkml@sympatico.ca>
+	Thu, 17 Aug 2006 19:36:08 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39321 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030391AbWHQXgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 19:36:06 -0400
+Date: Thu, 17 Aug 2006 16:35:30 -0700
+From: Paul Jackson <pj@sgi.com>
 To: Ian Stirling <ian.stirling@mauve.plus.com>
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-Message-Id: <20060817193540.dc819396.seanlkml@sympatico.ca>
-In-Reply-To: <44E4FB43.4090304@mauve.plus.com>
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
-	<1155795251.4494.9.camel@laptopd505.fenrus.org>
-	<44E4C1B7.9020700@superbug.co.uk>
-	<44E4FB43.4090304@mauve.plus.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.1; i386-redhat-linux-gnu)
+Cc: suresh.b.siddha@intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, mingo@redhat.com, apw@shadowen.org
+Subject: Re: [patch] sched: group CPU power setup cleanup
+Message-Id: <20060817163530.29f8d4ab.pj@sgi.com>
+In-Reply-To: <44E4FBC8.1040607@mauve.plus.com>
+References: <20060815175525.A2333@unix-os.sc.intel.com>
+	<20060815212455.c9fe1e34.pj@sgi.com>
+	<20060815214718.00814767.akpm@osdl.org>
+	<20060816110357.B7305@unix-os.sc.intel.com>
+	<20060817102030.f8c41330.pj@sgi.com>
+	<20060817110317.A14787@unix-os.sc.intel.com>
+	<20060817121804.e140f19e.pj@sgi.com>
+	<44E4FBC8.1040607@mauve.plus.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Aug 2006 23:35:42.0390 (UTC) FILETIME=[DAB45D60:01C6C255]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 00:26:59 +0100
-Ian Stirling <ian.stirling@mauve.plus.com> wrote:
+Ian wrote:
+> I'd suggest 'computing_power' might be less ambiguous.
 
-> Well...
-> The problem is that in many cases AIUI, a large entry barrier to
-> someone taking CPU A, chip B, sticking it in a box, and selling
-> it, is that there is no linux driver for chip B.
-> If you (as someone who does not make chip B) release the GPL'd
-> driver, then you're making it a fair bit easier for competitors,
-> who can now simply copy your often not very novel in any way
-> other than you thought of it first - design, and use that driver.
-> 
+Eh ... I should quit suggesting names, until I figure
+out more accurately what it means.
 
-That seems like a very reasonable price to pay for the ability to
-use all the work of the many developers who created Linux in the
-first place.  There are other operating systems available to use
-if you're not happy with such a deal.
-
-Sean
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

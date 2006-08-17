@@ -1,51 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWHQMSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWHQMTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWHQMSY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWHQMSY
+	id S932241AbWHQMTY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWHQMTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:18:24 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:63886 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932231AbWHQMSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:18:23 -0400
-Date: Thu, 17 Aug 2006 16:39:52 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 3/7] UBC: ub context and inheritance
-Message-ID: <20060817110952.GD19127@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <44E33893.6020700@sw.ru> <44E33C04.50803@sw.ru>
-Mime-Version: 1.0
+	Thu, 17 Aug 2006 08:19:24 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5559 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932241AbWHQMTX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:19:23 -0400
+Date: Thu, 17 Aug 2006 14:19:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [RFC][PATCH] PM: Add pm_trace switch
+Message-ID: <20060817121901.GA18700@elf.ucw.cz>
+References: <200608171416.18802.rjw@sisk.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44E33C04.50803@sw.ru>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200608171416.18802.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 07:38:44PM +0400, Kirill Korotaev wrote:
-> Contains code responsible for setting UB on task,
-> it's inheriting and setting host context in interrupts.
+On Thu 2006-08-17 14:16:18, Rafael J. Wysocki wrote:
+> Add the pm_trace attribute in /sys/power which has to be set to one so that
+> the "PM tracing" functionality is really enabled.
 > 
-> Task references three beancounters:
->   1. exec_ub  current context. all resources are
->               charged to this beancounter.
->   2. task_ub  beancounter to which task_struct is
->               charged itself.
->   3. fork_sub beancounter which is inherited by
->               task's children on fork
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-Is there a case where exec_ub and fork_sub can differ? I dont see that
-in the patch.
+ACK and thanks for patience.
+
+> ---
+>  include/linux/resume-trace.h |   24 ++++++++++++++----------
+>  kernel/power/main.c          |   30 ++++++++++++++++++++++++++++++
+>  2 files changed, 44 insertions(+), 10 deletions(-)
+> 
+> Index: linux-2.6.18-rc4-mm1/include/linux/resume-trace.h
+> ===================================================================
+> --- linux-2.6.18-rc4-mm1.orig/include/linux/resume-trace.h	2006-08-13 14:54:42.000000000 +0200
+> +++ linux-2.6.18-rc4-mm1/include/linux/resume-trace.h	2006-08-17 12:27:34.000000000 +0200
+> @@ -3,21 +3,25 @@
+>  
+>  #ifdef CONFIG_PM_TRACE
+>  
+> +extern int pm_trace_enabled;
+> +
+>  struct device;
+>  extern void set_trace_device(struct device *);
+>  extern void generate_resume_trace(void *tracedata, unsigned int user);
+>  
+>  #define TRACE_DEVICE(dev) set_trace_device(dev)
+> -#define TRACE_RESUME(user) do {				\
+> -	void *tracedata;				\
+> -	asm volatile("movl $1f,%0\n"			\
+> -		".section .tracedata,\"a\"\n"		\
+> -		"1:\t.word %c1\n"			\
+> -		"\t.long %c2\n"				\
+> -		".previous"				\
+> -		:"=r" (tracedata)			\
+> -		: "i" (__LINE__), "i" (__FILE__));	\
+> -	generate_resume_trace(tracedata, user);		\
+> +#define TRACE_RESUME(user) do {					\
+> +	if (pm_trace_enabled) {					\
+> +		void *tracedata;				\
+> +		asm volatile("movl $1f,%0\n"			\
+> +			".section .tracedata,\"a\"\n"		\
+> +			"1:\t.word %c1\n"			\
+> +			"\t.long %c2\n"				\
+> +			".previous"				\
+> +			:"=r" (tracedata)			\
+> +			: "i" (__LINE__), "i" (__FILE__));	\
+> +		generate_resume_trace(tracedata, user);		\
+> +	}							\
+>  } while (0)
+>  
+>  #else
+> Index: linux-2.6.18-rc4-mm1/kernel/power/main.c
+> ===================================================================
+> --- linux-2.6.18-rc4-mm1.orig/kernel/power/main.c	2006-08-14 20:51:47.000000000 +0200
+> +++ linux-2.6.18-rc4-mm1/kernel/power/main.c	2006-08-17 12:34:23.000000000 +0200
+> @@ -17,6 +17,7 @@
+>  #include <linux/pm.h>
+>  #include <linux/console.h>
+>  #include <linux/cpu.h>
+> +#include <linux/resume-trace.h>
+>  
+>  #include "power.h"
+>  
+> @@ -285,10 +286,39 @@ static ssize_t state_store(struct subsys
+>  
+>  power_attr(state);
+>  
+> +#ifdef CONFIG_PM_TRACE
+> +int pm_trace_enabled;
+> +
+> +static ssize_t pm_trace_show(struct subsystem * subsys, char * buf)
+> +{
+> +	return sprintf(buf, "%d\n", pm_trace_enabled);
+> +}
+> +
+> +static ssize_t
+> +pm_trace_store(struct subsystem * subsys, const char * buf, size_t n)
+> +{
+> +	int val;
+> +
+> +	if (sscanf(buf, "%d", &val) == 1) {
+> +		pm_trace_enabled = !!val;
+> +		return n;
+> +	}
+> +	return -EINVAL;
+> +}
+> +
+> +power_attr(pm_trace);
+> +
+> +static struct attribute * g[] = {
+> +	&state_attr.attr,
+> +	&pm_trace_attr.attr,
+> +	NULL,
+> +};
+> +#else
+>  static struct attribute * g[] = {
+>  	&state_attr.attr,
+>  	NULL,
+>  };
+> +#endif /* CONFIG_PM_TRACE */
+>  
+>  static struct attribute_group attr_group = {
+>  	.attrs = g,
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Regards,
-vatsa
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

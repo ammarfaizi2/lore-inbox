@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWHQL7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWHQMBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWHQL7z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 07:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWHQL7z
+	id S1751242AbWHQMBG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWHQMBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 07:59:55 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:17056 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751035AbWHQL7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 07:59:54 -0400
-Message-ID: <44E45AC6.3040903@sw.ru>
-Date: Thu, 17 Aug 2006 16:02:14 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Thu, 17 Aug 2006 08:01:06 -0400
+Received: from tresys.irides.com ([216.250.243.126]:17690 "HELO
+	exchange.columbia.tresys.com") by vger.kernel.org with SMTP
+	id S1751218AbWHQMBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:01:04 -0400
+Message-ID: <44E45A70.8090801@gentoo.org>
+Date: Thu, 17 Aug 2006 08:00:48 -0400
+From: Joshua Brindle <method@gentoo.org>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 4/7] UBC: syscalls (user interface)
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru> <20060816171747.GC27898@kroah.com>
-In-Reply-To: <20060816171747.GC27898@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, "Serge E. Hallyn" <serge@hallyn.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+Subject: Re: [RFC] [PATCH] file posix capabilities
+References: <20060730011338.GA31695@sergelap.austin.ibm.com>	 <20060814220651.GA7726@sergelap.austin.ibm.com>	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>	 <20060815020647.GB16220@sergelap.austin.ibm.com>	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>	 <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com>	 <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>	 <20060816024200.GD15241@sergelap.austin.ibm.com> <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus: avast! (VPS 0633-2, 08/16/2006), Outbound message
+X-Antivirus-Status: Clean
+X-OriginalArrivalTime: 17 Aug 2006 12:01:03.0594 (UTC) FILETIME=[D034CCA0:01C6C1F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Aug 16, 2006 at 07:39:43PM +0400, Kirill Korotaev wrote:
-> 
->>--- ./include/asm-sparc/unistd.h.arsys	2006-07-10 12:39:19.000000000 +0400
->>+++ ./include/asm-sparc/unistd.h	2006-08-10 17:08:19.000000000 +0400
->>@@ -318,6 +318,9 @@
->>#define __NR_unshare		299
->>#define __NR_set_robust_list	300
->>#define __NR_get_robust_list	301
->>+#define __NR_getluid		302
->>+#define __NR_setluid		303
->>+#define __NR_setublimit		304
-> 
-> 
-> Hm, you seem to be ignoring this:
-> 
-> 
->>#ifdef __KERNEL__
->>/* WARNING: You MAY NOT add syscall numbers larger than 301, since
-> 
-> 
-> Same thing for sparc64:
-[...skipped...]
+Stephen Smalley wrote:
+> On Tue, 2006-08-15 at 21:42 -0500, Serge E. Hallyn wrote:
+>   
+> <snip>
+>> Very good point.  Preventing communication channels i.e. through signals
+>> isn't a concern, but user hallyn ptracing himself running /bin/passwd
+>> certainly is.
+>>     
+>
+> Actually, ptrace already performs a capability comparison (cap_ptrace).
+> Wrt signals, it wasn't the communication channel that concerned me but
+> the ability to interfere with the operation of a process running in the
+> same uid but different capabilities, like stopping it at a critical
+> point.  Likewise with many other task hooks - you wouldn't want to be
+> able to depress the priority of a process running with greater
+> capabilities.
+>
+>   
+On this point, what about environment tampering of processes with caps? 
+LD_PRELOAD=my_bad_lib.so /usr/bin/passwd. glibc atsecure logic would 
+have to be updated to do a capability comparison.
 
-Oh, will fix NR_SYSCALLS in entry.S and the comment in unistd.h. Thanks for catching this!
-
-Thanks,
-Kirill
-
+> One other point to consider is Solaris seems to have diverged from their
+> own past approaches for privileges/capabilities,
+> http://blogs.sun.com/casper/20040722
+> http://www.opensolaris.org/os/community/security/library/howto/privbracket/
+>
+> Doesn't sound like they are even using file capabilities at all.
+>
+> Also, think about the real benefits of capabilities, at least as defined
+> in Linux.  The coarse granularity and the lack of any per-object support
+> is a fairly significant deficiency there that is much better handled via
+> TE.  At least some of the Linux capabilities lend themselves to easy
+> privilege escalation to gaining other capabilities or effectively
+> bypassing them

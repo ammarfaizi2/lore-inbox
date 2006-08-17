@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWHQJ6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWHQKFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWHQJ6L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWHQJ6K
+	id S932467AbWHQKFo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 06:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWHQKFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:58:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:35171 "EHLO
+	Thu, 17 Aug 2006 06:05:44 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:32644 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932273AbWHQJ6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:58:09 -0400
+	id S932467AbWHQKFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 06:05:43 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RRVFDzbtvtlPArOv0aUpaylvbUBAukmnrSlrklfLYIQkTB1i8XFFBYomwBSiPyWxqMMpntlSHRgB0bk3ygQyoXvvECdkwFoB1nz0j/4nfXzEtCzkCMjcEWUJxCaxTJg3yziU10YQrbAMmw3OnPMaMx+hrqlVLqs4XBwFv3JZZzo=
-Message-ID: <9a8748490608170258s32df0272r60c8c540e5871485@mail.gmail.com>
-Date: Thu, 17 Aug 2006 11:58:07 +0200
+        b=pzrxnagRienZPVucfaCIsONx6XGUKCcrcPGvrHLcsaNDJmwmQiqYkiB2zmwn3H95XM0oPLO/Kr9pwOXILq62Tjf9Dn/Tyb21Xg25yGa8g9orlnxxieuD2XSJFOH+B08PzYKuhhr3k9myhhAx316P573JGryYqA9Wyg+zc7JII0Q=
+Message-ID: <9a8748490608170305v53a2fd20q29d12e2a7b7229d4@mail.gmail.com>
+Date: Thu, 17 Aug 2006 12:05:41 +0200
 From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Neil Brown" <neilb@suse.de>
-Subject: Re: [NFS] 2.6.17.8 - do_vfs_lock: VFS is out of sync with lock manager!
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       nfs@lists.sourceforge.net,
-       "Trond Myklebust" <trond.myklebust@fys.uio.no>
-In-Reply-To: <17636.4462.975774.528003@cse.unsw.edu.au>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] NFS: possible NULL pointer deref in nfs_sillyrename()
+Cc: linux-kernel@vger.kernel.org, "Rick Sladkey" <jrs@world.std.com>,
+       "Neil Brown" <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net
+In-Reply-To: <1155773801.6739.5.camel@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <9a8748490608080739w2e14e5ceg44a7bf0a3b475704@mail.gmail.com>
-	 <17636.4462.975774.528003@cse.unsw.edu.au>
+References: <200608170022.29168.jesper.juhl@gmail.com>
+	 <1155773801.6739.5.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/06, Neil Brown <neilb@suse.de> wrote:
-> On Tuesday August 8, jesper.juhl@gmail.com wrote:
-> > I have some webservers that have recently started reporting the
-> > following message in their logs :
+On 17/08/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> On Thu, 2006-08-17 at 00:22 +0200, Jesper Juhl wrote:
+> > The coverity checker spotted this as bug #1013.
 > >
-> >   do_vfs_lock: VFS is out of sync with lock manager!
+> > If we get a NULL dentry->d_inode, then regardless of
+> > NFS_PARANOIA or no NFS_PARANOIA, then if
+> >    if (dentry->d_flags & DCACHE_NFSFS_RENAMED)
+> > turns out to be false we'll end up dereferencing
+> > that NULL d_inode in two places below.
+> >
+> > And since the check for "(!dentry->d_inode)" even exists
+> > (although inside #ifdef NFS_PARANOIA) I take that to mean
+> > that this is a possibility.
 >
+> Sorry, but it isn't possible. See the checks in may_delete() (which is
+> called before ->unlink()) and nfs_rename().
 >
-> I can imagine that happening if you mount with '-o nolocks'.
-> Then a non-blocking lock could cause that message (I think).
-> Can you conform that you aren't using 'nolocks'.
->
-Confirmed.
+Thanks, that was useful info.
 
-All my webservers (the ones that generate this message) are identical
-and this is the filesystems they have and their mount options:
-
-/ is on a local scsi disk, ext3 fs, mounted with (rw)
-/boot is on a local scsi disk, ext3 fs, mounted with (rw)
-users homedirs (where the DocumentRoots are) are NFS mounted with
-mount options (rw,rsize=8192,wsize=8192,hard,intr,addr=xxx.xxx.xxx.xxx)
+> IOW: Feel free to kill the NFS_PARANOIA crap. It looks like legacy code
+> from a debugging session about a decade or so ago.
+>
+Sure thing, I'll cook up a patch to do that.
 
 -- 
 Jesper Juhl <jesper.juhl@gmail.com>

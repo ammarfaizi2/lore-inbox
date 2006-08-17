@@ -1,158 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWHQVmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWHQVxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWHQVmF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 17:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWHQVmF
+	id S932395AbWHQVxr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 17:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWHQVxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 17:42:05 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:51109 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932374AbWHQVmD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 17:42:03 -0400
-Subject: Re: [RFC][PATCH] Unify interface to persistent CMOS/RTC/whatever
-	clock
-From: john stultz <johnstul@us.ibm.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200608171328.24344.david-b@pacbell.net>
-References: <200608162247.41632.david-b@pacbell.net>
-	 <1155841724.31755.58.camel@cog.beaverton.ibm.com>
-	 <200608171328.24344.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 14:42:00 -0700
-Message-Id: <1155850921.31755.115.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Thu, 17 Aug 2006 17:53:46 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:4451 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932376AbWHQVxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 17:53:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=DGY0pmGW9lEQYdM3GDJH7XVtLWO2hfiubvVADcwCDsDrdZTh5N8atbffoY0RCj/hld4Q5FVW5WMYMSImuZOqfUMCrbZ6igwM965Rvl0WRFLleWeOzIKr2wTyLhfB1pg9h1bylIF5PlV60UE89YT0uql+wT4+73x2JbohYmvtpsU=
+Message-ID: <44E4E57A.8050800@gmail.com>
+Date: Thu, 17 Aug 2006 15:54:02 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc4-mm1 Run-time of Locking API testsuite
+References: <44E4CC60.3080109@gmail.com> <9a8748490608171440h56fad8cesff32466a8beaf6f5@mail.gmail.com>
+In-Reply-To: <9a8748490608171440h56fad8cesff32466a8beaf6f5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 13:28 -0700, David Brownell wrote:
-> On Thursday 17 August 2006 12:08 pm, john stultz wrote:
-> > On Wed, 2006-08-16 at 22:47 -0700, David Brownell wrote:
-> > > 
-> > > Hmm, this seems to ignore the RTC framework rather entirely, which
-> > > seems to me like the wrong implementation approach.  You'd likely have
-> > > noticed that if you had supported a few ARM boards.  :)
-> > 
-> > Good point. I've not spent enough time looking at the RTC code, and it
-> > looks like it has potential to resolve some of the issues I'm looking
-> > at. Although, how common is it really?
-> 
-> Increasingly so; it solves a lot of reinvent-the-wheel problems, much
-> like the recent generic time-of-day updates are doing.  And just like
-> with clocksource updates, not all architectures have converted yet!
+Jesper Juhl wrote:
+> On 17/08/06, Jim Cromie <jim.cromie@gmail.com> wrote:
+>>
+>> Note the non-trivial execution time difference:
+>>
+>> soekris:~/pinlab# egrep -e 'Locking|Good' dmesg-2.6.18-rc4-*
+>> dmesg-2.6.18-rc4-mm1-sk:[   16.044699] | Locking API testsuite:
+>> dmesg-2.6.18-rc4-mm1-sk:[   96.083576] Good, all 218 testcases passed! |
+>> dmesg-2.6.18-rc4-sk:[   18.563808] | Locking API testsuite:
+>> dmesg-2.6.18-rc4-sk:[   19.693692] Good, all 218 testcases passed! |
+>>
+> Interresting. On my box it takes at most a few seconds (don't have
+> printk times enabled, so I can't give exact numbers). My best estimate
+> is 2-3 seconds to run the self tests.
+>
+> I wonder what's so different about our machines. Mine is a Athlon64 X2
+> 4400+ w/ 2GB RAM.
+>
+> relevant config options look identical to yours... Strange..
+>
 
-Is a breakdown somewhere of what is covered at this point? The two
-letters followed by six number driver files make it difficult to see
-which arches use what. :)
+Mines a toy in comparison :-( but has its uses )
 
-> > Could we currently replace all 
-> > arches xtime initialization code with it?
-> 
-> Not yet, I think, mostly because RTCs are still being converted to
-> that framework.
+# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : Geode by NSC
+cpu family      : 5
+model           : 9
+model name      : Unknown
+stepping        : 1
+cpu MHz         : 266.670
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu tsc msr cx8 cmov mmx cxmmx up
+bogomips        : 535.83
 
-With a list of arches that are covered, I'll start working on patches to
-do so.
+these are my closest-fit cpu choices
 
-
-> For ACPI PCs, I converted drivers/char/rtc.c to that framework (see:
-> http://article.gmane.org/gmane.linux.kernel/427493) covering most
-> hardware over the last few years.
-
-Cool.
-
-> > I suspect that would require 
-> > it to be built at all times. Would that be acceptable?
-> 
-> It's just a question of _which_ code to build all the time, right?
-> Having it be standardized core code would seem appropriate.
-
-Yea. We also need to make sure every arch has something that will work
-w/o special compile time config options.
-
-
-> > > Here's a fairly common scenario for an embedded system:  the battery
-> > > backed clock is accessed through I2C or SPI, rather than an ISA style
-> > > direct register access, so it's not accessible until after those driver
-> > > stacks have initialized.
-> > 
-> > Yea. Although late initialization isn't that much of an issue in my
-> > mind.
-> 
-> ... except that unless I traced the code wrong, your current patch is
-> initializing the (wall) clock extremely early ... ergo my comment about
-> assuming ISA style access.  I'm happy to call that a minor implementation
-> artifact though, since I haven't noticed any issues with "late" init
-> for the system wall clock either.
-
-Indeed. If we cannot initialize xtime early, that's not an issue.
-settimeofday() will fix that up. However the suspend/resume ordering
-issue is more difficult. On resume we need to have something usable
-before we resume the timekeeping code in order to correctly increment
-xtime and jiffies in one atomic action.
-
-> > > Or similarly, the SOC family may have a powerful RTC ("arch specific")
-> > > with alarm and system wakeup capabilities, but it may not be the system's
-> > > battery backed clock ... so that RTC would be initialized from another one,
-> > > which is accessed using I2C/SPI/etc.  (RTCs integrated on SOCs evidently
-> > > have a hard time being as power-miserly as the discrete ones.)
-> > 
-> > SOC?
-> 
-> System-On-Chip ... one chip has not just CPU+cache, but also memory controllers
-> and enough I/O that few external chips are needed.  The one in your cell phone
-> is probably Linux-capable; the one in your microwave probably isn't.  (For some
-> sophisticated examples, www.omap.com ... click the left menu then look at the
-> chips' block diagrams to see what cell phone CPUs look like.)
-
-Thanks for the clarification.
-
-With regards to more powerful RTCs, those I don't really care too much
-about. I just want access the battery backed clock for suspend/resume
-and watchdog uses.
-
-
-> > > I'd be more interested in something that improves on CONFIG_RTC_HCTOSYS,
-> > > and for example addresses the need to update the system wall time from
-> > > such RTCs after resume, not just at boot time.
-> > 
-> > Agreed.
-> 
-> There's some ARM code to restore the jiffies-vs-rtc clock offset on resume,
-> which seems like a candidate for wider use.
-
-Where is this code? I'm interested here, but I suspect for correctness
-that bit should be under the control of the timekeeping core.
-
-
-> > Basically what I'm trying to provide w/ read_persistent_clock() is:
-> > 1) A method for generic timekeeping to access a battery backed clock to
-> > avoid potential suspend/resume ordering problems.
-> > 2) A generic interface to a low-res hardware driven clock for the
-> > hangcheck-timer and other watchdog timers.
-> > 3) To cleanup the arch time initialization code and encapsulate xtime
-> > 
-> > Do you think the RTC interface is sufficient for this?
-> 
-> I think the resume side needs some tweaks, but basically yes.  (The
-> resume sequencing, like the suspend sequencing, is excessively dumb.
-> It'd probably be good to resume RTCs before drivers that care about
-> elapsed time, for example ... )
-
-Ok. I'm not totally sold on it, but I'll start looking in more detail
-here. Starting w/ i386 and possibly moving across the rest of the
-arches.
-
-
-> I'm not entirely sure I see RTC as a clocksource, but maybe that'd
-> make sense...
-
-Ehh. That's definitely not the direction I'm trying to go (although I
-guess one could possibly do so). I just want the 3 items above. :)
-
-
-thanks
--john
+# CONFIG_M586MMX is not set
+CONFIG_MGEODEGX1=y
+# CONFIG_MGEODE_LX is not set
 

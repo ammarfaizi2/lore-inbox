@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWHQOct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWHQOgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbWHQOct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWHQOct
+	id S932510AbWHQOgF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWHQOgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:32:49 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:65434 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932509AbWHQOcr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:32:47 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44E456F4.10001@sw.ru>
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru>
-	 <20060816171527.GB27898@kroah.com>  <44E456F4.10001@sw.ru>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 07:32:40 -0700
-Message-Id: <1155825160.9274.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 10:36:05 -0400
+Received: from RedStar.dorchain.net ([212.88.133.153]:16283 "EHLO
+	Redstar.dorchain.net") by vger.kernel.org with ESMTP
+	id S932199AbWHQOgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:36:03 -0400
+Message-ID: <11849.158.169.9.14.1155825358.squirrel@www.dorchain.net>
+In-Reply-To: <20060817132842.47.NURIpB4835.3636.michal@euridica.enternet.net.pl>
+References: <20060817132842.47.NURIpB4835.3636.michal@euridica.enternet.net.pl>
+Date: Thu, 17 Aug 2006 16:35:58 +0200 (CEST)
+Subject: Re: [RFC][PATCH 47/75] net: drivers/net/wireless/orinoco_tmd.c 
+     pci_module_init to pci_register_driver conversion
+From: "Joerg Dorchain" <joerg@dorchain.net>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: joerg@dorchain.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+User-Agent: SquirrelMail/1.4.8
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-recent-milter: 0 total hits in last 604800 seconds
+	digest1 a363891676f67f60444d1cec51c6870e
+	digest2 ffdb59d345ac8ca44228978a37f1e473
+	digest3 (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 15:45 +0400, Kirill Korotaev wrote:
-> We need more complex decrement/locking scheme than krefs
-> provide. e.g. in __put_beancounter() we need
-> atomic_dec_and_lock_irqsave() semantics for performance optimizations.
+>
+> Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-Is it possible to put the locking in the destructor?  It seems like that
-should give similar behavior.
+Fine with me.
+Signed-off-by: Joerg Dorchain <joerg@dorchain.net>
 
--- Dave
+>
+> diff -uprN -X linux-work/Documentation/dontdiff
+> linux-work-clean/drivers/net/wireless/orinoco_tmd.c
+> linux-work2/drivers/net/wireless/orinoco_tmd.c
+> --- linux-work-clean/drivers/net/wireless/orinoco_tmd.c	2006-08-16
+> 22:41:00.000000000 +0200
+> +++ linux-work2/drivers/net/wireless/orinoco_tmd.c	2006-08-17
+> 05:20:37.000000000 +0200
+> @@ -228,7 +228,7 @@ MODULE_LICENSE("Dual MPL/GPL");
+>  static int __init orinoco_tmd_init(void)
+>  {
+>  	printk(KERN_DEBUG "%s\n", version);
+> -	return pci_module_init(&orinoco_tmd_driver);
+> +	return pci_register_driver(&orinoco_tmd_driver);
+>  }
+>
+>  static void __exit orinoco_tmd_exit(void)
+>
+
 

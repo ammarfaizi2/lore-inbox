@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWHQHtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWHQHvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWHQHtc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWHQHtc
+	id S932153AbWHQHvi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWHQHvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:49:32 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:13980 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932207AbWHQHtc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 03:49:32 -0400
-Date: Thu, 17 Aug 2006 09:47:51 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: 7eggert@gmx.de, clowncoder <clowncoder@clowncode.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New version of ClownToolKit
-In-Reply-To: <20060817044228.GA16320@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0608170945410.16217@yvahk01.tjqt.qr>
-References: <6Kxx5-7PT-7@gated-at.bofh.it> <6KyCM-1w7-1@gated-at.bofh.it>
- <E1GDUcG-00016M-Nu@be1.lrz> <20060817044228.GA16320@mars.ravnborg.org>
+	Thu, 17 Aug 2006 03:51:37 -0400
+Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:3017 "EHLO
+	mail.aftek.com") by vger.kernel.org with ESMTP id S932153AbWHQHvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 03:51:36 -0400
+X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
+X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(203.129.230.146):SA:0(-102.5/1.7):. Processed in 1.447431 secs Process 7629)
+From: "Abu M. Muttalib" <abum@aftek.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
+Subject: RE: Relation between free() and remove_vm_struct()
+Date: Thu, 17 Aug 2006 13:26:03 +0530
+Message-ID: <BKEKJNIHLJDCFGDBOHGMKEEMDGAA.abum@aftek.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1155797966.4494.29.camel@laptopd505.fenrus.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > LIBDIR=/lib/modules/`uname -r`
->> > make -C $LIBDIR/source O=$LIBDIR/build SUBDIRS=`pwd` modules
->> > 
->> > For a normal kernel installation this will do the right thing.
->> > source points to the kernel source and build point to the output
->> > directory (they are often equal but not always).
->> 
->> Please don't tell module authors to unconditionally use `uname -r`.
->> I frequently build kernels for differentd hosts, and if I don't, I'll
->> certainly compile the needed modules before installing the kernel.
->> Therefore /lib/modules/`uname -r` is most certainly the completely
->> wrong place to look for the kernel source.
->
->/lib/modules/`uname -r` is the general solution that works for most
->people and should be at least default. It is certainly better than
->/usr/src/linux.
->But yes they better make it override able.
+Hi Arjan,
 
-In some outoftree modules of mine, the Makefile reads like this
+Thnax for your reply.
 
-MODULES_DIR := /lib/modules/$(shell uname -r)
-KSRC_DIR    := ${MODULES_DIR}/source
-KOBJ_DIR    := ${MODULES_DIR}/build
+> second of all, glibc delays freeing of some memory (in the brk() area)
+> to optimize for cases of frequent malloc/free operations, so that it
+> doesn't have to go to the kernel all the time (and a free would imply a
+> cross cpu TLB invalidate which is *expensive*, so batching those up is a
+> really good thing for performance)
 
-all: modules
-modules:
-	make -C "${KOBJ_DIR}" M="$$PWD";
+As per my observation, in two scenarios that I have tried, in one scenario I
+am able to see the prints from remove_vm_struct(), but in the other
+scenario, I don't see any prints from remove_vm_strcut().
 
-and one can easily override it by calling `make MODULES_DIR=/foo/bar` 
-(instead of just `make`).
+My question is, if there is delayed freeing of virtual address space, it
+should be the same in both the scenarios, but its not the case, and this
+behavior is consistent for my two scenarios, i.e.. in one I am able to see
+the kernel prints and in other I am not, respectively.
+
+Note: I am using glib-2.0-arm.
+
+Regards,
+Abu.
 
 
-Jan Engelhardt
--- 

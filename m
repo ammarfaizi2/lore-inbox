@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWHQGtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWHQGt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWHQGtf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 02:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWHQGtf
+	id S1750959AbWHQGt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 02:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWHQGt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 02:49:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61351 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932067AbWHQGte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 02:49:34 -0400
-Subject: Re: Linux 2.4.34-pre1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Adrian Bunk <bunk@stusta.de>, Willy Tarreau <wtarreau@hera.kernel.org>,
-       linux-kernel@vger.kernel.org, mtosatti@redhat.com,
-       Mikael Pettersson <mikpe@it.uu.se>
-In-Reply-To: <20060817051616.GB13878@1wt.eu>
-References: <20060816223633.GA3421@hera.kernel.org>
-	 <20060816235459.GM7813@stusta.de>  <20060817051616.GB13878@1wt.eu>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 17 Aug 2006 08:48:51 +0200
-Message-Id: <1155797331.4494.17.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 17 Aug 2006 02:49:27 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:40071 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750959AbWHQGt0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 02:49:26 -0400
+From: Neil Brown <neilb@suse.de>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Date: Thu, 17 Aug 2006 16:49:18 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <17636.4462.975774.528003@cse.unsw.edu.au>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [NFS] 2.6.17.8 - do_vfs_lock: VFS is out of sync with lock manager!
+In-Reply-To: message from Jesper Juhl on Tuesday August 8
+References: <9a8748490608080739w2e14e5ceg44a7bf0a3b475704@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Right now, I'd prefer getting gcc 4 support than gcc 3.4, because I don't
-> know if even one common distro has shipped with gcc 3.4 by default. 2.95,
-> 3.0, and 3.3 have been common, and right now, 4.[01] is almost everywhere.
-
-but most distros that ship with gcc 4 aren't capable of running a 2.4
-kernel.... all the new distros greatly depend on sysfs for example, and
-ntpl in glibc requires 2.6 etc etc etc. So I'm rather sceptical about
-this argument.
+On Tuesday August 8, jesper.juhl@gmail.com wrote:
+> I have some webservers that have recently started reporting the
+> following message in their logs :
 > 
-> >   Since there shouldn't be any reason for still using a 2.4 kernel
-> >   except for "never change a running system",
-> 
-> I think that by "never change", you meant "except for regular updates".
-
-I think that you'll find that people who run 2.4 today, if you ask them,
-will say "please change as little as possible, only serious bugs and
-security issues". After all the people who run 2.4 still are generally
-those who resist new stuff in favor of stability of existing systems....
-But maybe it's worth doing a user survey to find out what the users of
-2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
-people who use enterprise distro kernels don't count for this since
-they'll not go to a newer released 2.4 anyway)
+>   do_vfs_lock: VFS is out of sync with lock manager!
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+I can imagine that happening if you mount with '-o nolocks'.
+Then a non-blocking lock could cause that message (I think).
+Can you conform that you aren't using 'nolocks'.
 
+Thanks,
+NeilBrown

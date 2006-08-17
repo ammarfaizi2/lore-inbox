@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWHQNhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWHQNiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWHQNhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWHQNgw
+	id S964968AbWHQNiH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWHQN3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:36:52 -0400
-Received: from euridica.enternet.net.pl ([62.233.231.82]:145 "EHLO
+	Thu, 17 Aug 2006 09:29:10 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:26290 "EHLO
 	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
-	id S964973AbWHQNgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:36:48 -0400
-Date: Thu, 17 Aug 2006 13:29:45 +0000
+	id S964921AbWHQN3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:29:00 -0400
+Date: Thu, 17 Aug 2006 13:29:32 +0000
 From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: jgarzik@pobox.com
+To: ionut@badula.org
 Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [RFC][PATCH 68/75] net: drivers/net/tulip/tulip_core.c pci_module_init to pci_register_driver conversion
-Message-ID: <20060817132945.68.cHhBof5402.3636.michal@euridica.enternet.net.pl>
+Subject: [RFC][PATCH 62/75] net: drivers/net/starfire.c pci_module_init to pci_register_driver conversion
+Message-ID: <20060817132932.62.DSvssd5251.3636.michal@euridica.enternet.net.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,15 +26,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/tulip/tulip_core.c linux-work2/drivers/net/tulip/tulip_core.c
---- linux-work-clean/drivers/net/tulip/tulip_core.c	2006-08-16 22:41:17.000000000 +0200
-+++ linux-work2/drivers/net/tulip/tulip_core.c	2006-08-17 05:18:56.000000000 +0200
-@@ -1860,7 +1860,7 @@ static int __init tulip_init (void)
- 	tulip_max_interrupt_work = max_interrupt_work;
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/starfire.c linux-work2/drivers/net/starfire.c
+--- linux-work-clean/drivers/net/starfire.c	2006-08-16 22:41:17.000000000 +0200
++++ linux-work2/drivers/net/starfire.c	2006-08-17 05:17:15.000000000 +0200
+@@ -2053,7 +2053,7 @@ static int __init starfire_init (void)
+ 		return -ENODEV;
+ 	}
  
- 	/* probe for and init boards */
--	return pci_module_init (&tulip_driver);
-+	return pci_register_driver(&tulip_driver);
+-	return pci_module_init (&starfire_driver);
++	return pci_register_driver(&starfire_driver);
  }
  
  

@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWHQP23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbWHQPap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965140AbWHQP23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWHQP23
+	id S965148AbWHQPap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWHQPap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:28:29 -0400
-Received: from wr-out-0506.google.com ([64.233.184.229]:65102 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965140AbWHQP21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:28:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=chQDETxOxVpV30Ik+hkGbE/mMKeB2qkie0zTUtuIaliE8NhlSk3HSqhCpp/qFYLME+KVrmk+U7fRgECxXaan+FWfEgoUazH33If2Ux+ozlvWvviscjrS+rWw4JlhO1clyomEBxTGYhehRYMqpeUobhLjilD2Fx1fbcozuCgO2cY=
-Message-ID: <d120d5000608170828l75aeb693vb38f52ce71facf45@mail.gmail.com>
-Date: Thu, 17 Aug 2006 11:28:25 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Luke Sharkey" <lukesharkey@hotmail.co.uk>
-Subject: Re: Touchpad problems with latest kernels
-Cc: andi@rhlx01.fht-esslingen.de, davej@redhat.com, gene.heskett@verizon.net,
-       ian.stirling@mauve.plus.com, linux-kernel@vger.kernel.org,
-       malattia@linux.it, lista1@comhem.se
-In-Reply-To: <BAY114-F39F04F7AD7901A482EB648FA4D0@phx.gbl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Aug 2006 11:30:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2777 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965148AbWHQPao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:30:44 -0400
+Date: Thu, 17 Aug 2006 08:30:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
+ writeback.
+Message-Id: <20060817083035.8b775b12.akpm@osdl.org>
+In-Reply-To: <1155820912.5662.39.camel@localhost>
+References: <17633.2524.95912.960672@cse.unsw.edu.au>
+	<20060815010611.7dc08fb1.akpm@osdl.org>
+	<17635.59821.21444.287979@cse.unsw.edu.au>
+	<1155820912.5662.39.camel@localhost>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608161042.58005.dtor@insightbb.com>
-	 <BAY114-F39F04F7AD7901A482EB648FA4D0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/17/06, Luke Sharkey <lukesharkey@hotmail.co.uk> wrote:
->
-> > >   Seeing as Linux is less easily controlled with the keyboard compared
-> >to
-> > > MS-Windows,
-> >
-> >Careful, you are threading dangerous waters here ;)
->
-> Well, I wasn't trying to be inflammatory.  It's just that Microsoft seems to
-> make such a big deal of how their OS can be controlled solely from keyboard.
->
+On Thu, 17 Aug 2006 09:21:51 -0400
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-I guess there is a difference as to what you call controlling. You
-probably mean that in Windows is is easier to navigate GUI with
-keyboard whereas I mean that in Linux or Unix you just start a
-terminal program and do all necessary setup from within it (with
-keyboard ;) )
+> On Thu, 2006-08-17 at 13:59 +1000, Neil Brown wrote:
+> > On Tuesday August 15, akpm@osdl.org wrote:
+> > > > When Dirty hits 0 (and Writeback is theoretically 80% of RAM)
+> > > > balance_dirty_pages will no longer be able to flush the full
+> > > > 'write_chunk' (1.5 times number of recent dirtied pages) and so will
+> > > > spin in a loop calling blk_congestion_wait(WRITE, HZ/10), so it isn't
+> > > > a busy loop, but it won't progress.
+> > > 
+> > > This assumes that the queues are unbounded.  They're not - they're limited
+> > > to 128 requests, which is 60MB or so.
+> > 
+> > Ahhh... so the limit on the requests-per-queue is an important part of
+> > write-throttling behaviour.  I didn't know that, thanks.
+> > 
+> > fs/nfs doesn't seem to impose a limit.  It will just allocate as many
+> > as you ask for until you start running out of memory.  I've seen 60%
+> > of memory (10 out of 16Gig) in writeback for NFS.
+> > 
+> > Maybe I should look there to address my current issue, though imposing
+> > a system-wide writeback limit seems safer.
+> 
+> Exactly how would a request limit help? All that boils down to is having
+> the VM monitor global_page_state(NR_FILE_DIRTY) versus monitoring
+> global_page_state(NR_FILE_DIRTY)+global_page_state(NR_WRITEBACK).
+> 
 
-> >Alt-F1 does it though
->
-> Thanks for that.
->
-> >Oh, another one... try booting with "ec_intr=0" on the kernel command line
-> >to disable embedded controller interrupt mode.
->
-> I tried this.  Was this meant to cause a major improvement in mouse control?
->  If there *was* a difference, it was only subtle.  I'd have to boot in to
-> the kernel with and without this option a few times to see whether it truly
-> makes a difference or not.
->
+I assume that if NFS is not limiting its NR_WRITEBACK consumption and block
+devices are doing so, we could get in a situation where NFS hogs all of the
+fixed-size NR_DIRTY+NR_WRITEBACK resource at the expense of concurrent
+block-device-based writeback.
 
-Well, it was just a thing to try. On some boxes interrupt mode of EC
-was reported to hurt mice, while on others there was no effect or even
-was an improvement.
-
-> >And finally, can I mples get a dmesg (or /var/log/messages) of boot with
-> >"i8042.debug=1 log_buf_len=131072" please?
->
-> Yes.  Here is the output of dmesg with "i8042.debug=1 log_buf_len=131072"
-> appended to the kernel line:
->
-
-Hmm, don't see anything bad happening here.. Could you please send me
-your /var/log/messages (still after booting with i8042.debug=1
-log_buf_len=131072)? You should probably spare other people's
-mailboxes and send it to me directly... Or put it on FTP somewhere.
-
-Thanks!
-
--- 
-Dmitry
+Perhaps.  The top-level poll-the-superblocks writeback loop might tend to
+prevent that from happening.  But if applications were doing a lot of
+superblock-specific writeback (fdatasync,
+sync_file_range(SYNC_FILE_RANGE_WRITE), etc) then unfairness might occur.

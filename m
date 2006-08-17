@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWHQN2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWHQNte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWHQN2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWHQN2Q
+	id S964889AbWHQNte (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWHQN2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:28:16 -0400
-Received: from euridica.enternet.net.pl ([62.233.231.82]:4258 "EHLO
-	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
-	id S964859AbWHQN14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:27:56 -0400
-Date: Thu, 17 Aug 2006 13:28:32 +0000
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: mikep@linuxtr.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [RFC][PATCH 43/75] net: drivers/net/tokenring/olympic.c pci_module_init to pci_register_driver conversion
-Message-ID: <20060817132832.43.kWltTh4713.3636.michal@euridica.enternet.net.pl>
+	Thu, 17 Aug 2006 09:28:10 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55951 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964885AbWHQN2G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:28:06 -0400
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: 7eggert@gmx.de, Arjan van de Ven <arjan@infradead.org>,
+       Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060817132309.GX13639@csclub.uwaterloo.ca>
+References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it>
+	 <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz>
+	 <1155821951.15195.85.camel@localhost.localdomain>
+	 <20060817132309.GX13639@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Aug 2006 14:48:50 +0100
+Message-Id: <1155822530.15195.95.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Iau, 2006-08-17 am 09:23 -0400, ysgrifennodd Lennart Sorensen:
+> Why can't O_EXCL mean that the kernel prevents anyone else from issuing
+> ioctl's to the device?  One would think that is the meaning of exlusive.
 
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+If you were designing a new OS from scratch you might want to explore
+that semantic as a design idea. I wouldn't recommend it because a lot of
+apps will be upset if they issue an ioctl and it mysteriously fails or
+hangs.
 
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/tokenring/olympic.c linux-work2/drivers/net/tokenring/olympic.c
---- linux-work-clean/drivers/net/tokenring/olympic.c	2006-08-16 22:41:00.000000000 +0200
-+++ linux-work2/drivers/net/tokenring/olympic.c	2006-08-17 05:18:24.000000000 +0200
-@@ -1771,7 +1771,7 @@ static struct pci_driver olympic_driver 
- 
- static int __init olympic_pci_init(void) 
- {
--	return pci_module_init (&olympic_driver) ; 
-+	return pci_register_driver(&olympic_driver);
- }
- 
- static void __exit olympic_pci_cleanup(void)
+Issues of this nature require high level synchronization and that
+(witness email) is generally done in user space which is the only place
+that has transaction level visibility.
+
+Alan
+

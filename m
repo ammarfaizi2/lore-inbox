@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWHQM0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWHQM3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWHQM0U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWHQM0T
+	id S932299AbWHQM3o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWHQM3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:26:19 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:16004 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932296AbWHQM0P (ORCPT
+	Thu, 17 Aug 2006 08:29:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:919 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932299AbWHQM3n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:26:15 -0400
-Subject: Re: [RFC] [PATCH] file posix capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@gentoo.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, "Serge E. Hallyn" <serge@hallyn.com>,
-       Nicholas Miell <nmiell@comcast.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-In-Reply-To: <44E45A70.8090801@gentoo.org>
-References: <20060730011338.GA31695@sergelap.austin.ibm.com>
-	 <20060814220651.GA7726@sergelap.austin.ibm.com>
-	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
-	 <20060815020647.GB16220@sergelap.austin.ibm.com>
-	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
-	 <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com>
-	 <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060816024200.GD15241@sergelap.austin.ibm.com>
-	 <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil>
-	 <44E45A70.8090801@gentoo.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 17 Aug 2006 08:28:18 -0400
-Message-Id: <1155817698.21070.18.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 08:29:43 -0400
+Date: Thu, 17 Aug 2006 05:22:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Multiprobe sanitizer
+Message-ID: <20060817122244.GA17956@kroah.com>
+References: <1155746538.24077.371.camel@localhost.localdomain> <20060816222633.GA6829@kroah.com> <1155774994.15195.12.camel@localhost.localdomain> <1155797833.11312.160.camel@localhost.localdomain> <1155804060.15195.30.camel@localhost.localdomain> <1155806676.11312.175.camel@localhost.localdomain> <20060817120013.GC6843@kroah.com> <1155816777.11312.177.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155816777.11312.177.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 08:00 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2006-08-15 at 21:42 -0500, Serge E. Hallyn wrote:
-> >   
-> > <snip>
-> >> Very good point.  Preventing communication channels i.e. through signals
-> >> isn't a concern, but user hallyn ptracing himself running /bin/passwd
-> >> certainly is.
-> >>     
-> >
-> > Actually, ptrace already performs a capability comparison (cap_ptrace).
-> > Wrt signals, it wasn't the communication channel that concerned me but
-> > the ability to interfere with the operation of a process running in the
-> > same uid but different capabilities, like stopping it at a critical
-> > point.  Likewise with many other task hooks - you wouldn't want to be
-> > able to depress the priority of a process running with greater
-> > capabilities.
-> >
-> >   
-> On this point, what about environment tampering of processes with caps? 
-> LD_PRELOAD=my_bad_lib.so /usr/bin/passwd. glibc atsecure logic would 
-> have to be updated to do a capability comparison.
+On Thu, Aug 17, 2006 at 02:12:57PM +0200, Benjamin Herrenschmidt wrote:
+> On Thu, 2006-08-17 at 05:00 -0700, Greg KH wrote:
+> > On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
+> > > Probe ordering is fragile and completely defeated with busses that are
+> > > already probed asynchronously (like USB or firewire), and things can
+> > > only get worse. Thus we need to look for generic solutions, the trick of
+> > > maintaining probe ordering will work around problems today but we'll
+> > > still hit the wall in an increasing number of cases in the future.
+> > 
+> > That's exactly why udev was created :)
+> > 
+> > It can handle bus ordering issues already today just fine, and distros
+> > use it this way in shipping, "enterprise ready" products.
+> 
+> Only up to a certain point and for certain drivers... but yeah. 
 
-That's the bprm_secureexec logic change that has already been mentioned;
-that determines the AT_SECURE value, and glibc then just acts based on
-that value provided by the kernel.  Just a matter of extending
-cap_bprm_secureexec to compare the capability sets.  Already on Serge's
-todo list, but it is necessary for this to be a safe change, and should
-happen before this patch goes anywhere (even -mm), IMHO.
+What drivers are not supported by this?  Seriously, have we missed any?
 
--- 
-Stephen Smalley
-National Security Agency
+thanks,
 
+greg k-h

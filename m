@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWHQEsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWHQEsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWHQEsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 00:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWHQEsF
+	id S932418AbWHQEsE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 00:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWHQEsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 00:48:05 -0400
-Received: from euridica.enternet.net.pl ([62.233.231.82]:63138 "EHLO
+	Thu, 17 Aug 2006 00:48:04 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:62882 "EHLO
 	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
-	id S932273AbWHQEsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932270AbWHQEsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 17 Aug 2006 00:48:01 -0400
-Date: Thu, 17 Aug 2006 04:48:19 +0000
+Date: Thu, 17 Aug 2006 04:48:01 +0000
 From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, jes@trained-monkey.org,
        netdev@vger.kernel.org, davem@davemloft.net, tglx@linutronix.de,
        Eric.Moore@lsil.com, linux-scsi@vger.kernel.org, mikep@linuxtr.net,
        xfs-masters@oss.sgi.com, nathans@sgi.com
-Subject: [RFC][PATCH 0/8] [RFC][PATCH 0/8] Removal of old code
-Message-ID: <20060817044819.0.oIvGvh2320.2316.michal@euridica.enternet.net.pl>
+Subject: [RFC][PATCH 0/1] [RFC][PATCH 0/8] Removal of old code
+Message-ID: <20060817044801.0.bQKWyd2269.2265.michal@euridica.enternet.net.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline

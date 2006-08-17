@@ -1,128 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWHQMMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWHQMOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWHQMMc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWHQMMc
+	id S932172AbWHQMOl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWHQMOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:12:32 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:6330 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932108AbWHQMMb (ORCPT
+	Thu, 17 Aug 2006 08:14:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25039 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932172AbWHQMOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:12:31 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] PM: Add pm_trace switch
-Date: Thu, 17 Aug 2006 14:16:18 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Greg KH <greg@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608171416.18802.rjw@sisk.pl>
+	Thu, 17 Aug 2006 08:14:38 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060817004219.44c45bbd.akpm@osdl.org> 
+References: <20060817004219.44c45bbd.akpm@osdl.org>  <1155743399.5683.13.camel@localhost> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <5910.1155741329@warthog.cambridge.redhat.com> <13319.1155744959@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com,
+       Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 17 Aug 2006 13:13:29 +0100
+Message-ID: <3930.1155816809@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the pm_trace attribute in /sys/power which has to be set to one so that
-the "PM tracing" functionality is really enabled.
+Andrew Morton <akpm@osdl.org> wrote:
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- include/linux/resume-trace.h |   24 ++++++++++++++----------
- kernel/power/main.c          |   30 ++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+), 10 deletions(-)
+> VFS: Busy inodes after unmount of 0:15. Self-destruct in 5 seconds.  Have a
+> nice day...
 
-Index: linux-2.6.18-rc4-mm1/include/linux/resume-trace.h
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/include/linux/resume-trace.h	2006-08-13 14:54:42.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/include/linux/resume-trace.h	2006-08-17 12:27:34.000000000 +0200
-@@ -3,21 +3,25 @@
- 
- #ifdef CONFIG_PM_TRACE
- 
-+extern int pm_trace_enabled;
-+
- struct device;
- extern void set_trace_device(struct device *);
- extern void generate_resume_trace(void *tracedata, unsigned int user);
- 
- #define TRACE_DEVICE(dev) set_trace_device(dev)
--#define TRACE_RESUME(user) do {				\
--	void *tracedata;				\
--	asm volatile("movl $1f,%0\n"			\
--		".section .tracedata,\"a\"\n"		\
--		"1:\t.word %c1\n"			\
--		"\t.long %c2\n"				\
--		".previous"				\
--		:"=r" (tracedata)			\
--		: "i" (__LINE__), "i" (__FILE__));	\
--	generate_resume_trace(tracedata, user);		\
-+#define TRACE_RESUME(user) do {					\
-+	if (pm_trace_enabled) {					\
-+		void *tracedata;				\
-+		asm volatile("movl $1f,%0\n"			\
-+			".section .tracedata,\"a\"\n"		\
-+			"1:\t.word %c1\n"			\
-+			"\t.long %c2\n"				\
-+			".previous"				\
-+			:"=r" (tracedata)			\
-+			: "i" (__LINE__), "i" (__FILE__));	\
-+		generate_resume_trace(tracedata, user);		\
-+	}							\
- } while (0)
- 
- #else
-Index: linux-2.6.18-rc4-mm1/kernel/power/main.c
-===================================================================
---- linux-2.6.18-rc4-mm1.orig/kernel/power/main.c	2006-08-14 20:51:47.000000000 +0200
-+++ linux-2.6.18-rc4-mm1/kernel/power/main.c	2006-08-17 12:34:23.000000000 +0200
-@@ -17,6 +17,7 @@
- #include <linux/pm.h>
- #include <linux/console.h>
- #include <linux/cpu.h>
-+#include <linux/resume-trace.h>
- 
- #include "power.h"
- 
-@@ -285,10 +286,39 @@ static ssize_t state_store(struct subsys
- 
- power_attr(state);
- 
-+#ifdef CONFIG_PM_TRACE
-+int pm_trace_enabled;
-+
-+static ssize_t pm_trace_show(struct subsystem * subsys, char * buf)
-+{
-+	return sprintf(buf, "%d\n", pm_trace_enabled);
-+}
-+
-+static ssize_t
-+pm_trace_store(struct subsystem * subsys, const char * buf, size_t n)
-+{
-+	int val;
-+
-+	if (sscanf(buf, "%d", &val) == 1) {
-+		pm_trace_enabled = !!val;
-+		return n;
-+	}
-+	return -EINVAL;
-+}
-+
-+power_attr(pm_trace);
-+
-+static struct attribute * g[] = {
-+	&state_attr.attr,
-+	&pm_trace_attr.attr,
-+	NULL,
-+};
-+#else
- static struct attribute * g[] = {
- 	&state_attr.attr,
- 	NULL,
- };
-+#endif /* CONFIG_PM_TRACE */
- 
- static struct attribute_group attr_group = {
- 	.attrs = g,
+Sigh.
+
+Guess what?  I don't see that...
+
+After you've done the "ls -l", can you run:
+
+	cat /proc/mounts
+	cat /proc/fs/nfsfs/*
+
+Before unmounting, and then can you run:
+
+	cat /proc/fs/nfsfs/*
+
+Again afterwards?
+
+David

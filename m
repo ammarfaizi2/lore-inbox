@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWHQQSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWHQQUB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbWHQQSX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWHQQSX
+	id S964855AbWHQQUB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWHQQUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:18:23 -0400
-Received: from post-23.mail.nl.demon.net ([194.159.73.193]:25297 "EHLO
-	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S932555AbWHQQSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:18:22 -0400
-Message-ID: <44E4971F.2000903@rebelhomicide.demon.nl>
-Date: Thu, 17 Aug 2006 18:19:43 +0200
-From: Michiel de Boer <x@rebelhomicide.demon.nl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Anonymous User <anonymouslinuxuser@gmail.com>
-CC: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       Patrick McFarland <diablod3@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Grzegorz Kulewski <kangur@polcom.net>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: GPL Violation?
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
-In-Reply-To: <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 12:20:01 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:62670 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964855AbWHQQT7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:19:59 -0400
+Date: Thu, 17 Aug 2006 21:49:06 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 4/7] UBC: syscalls (user interface)
+Message-ID: <20060817161906.GA23627@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru> <20060817110940.GC19127@in.ibm.com> <44E4778B.1020808@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E4778B.1020808@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anonymous User wrote:
-> On 8/16/06, Anonymous User <anonymouslinuxuser@gmail.com> wrote:
->> I work for a company that will be developing an embedded Linux based
->> consumer electronic device.
->>
->> I believe that new kernel modules will be written to support I/O
->> peripherals and perhaps other things.  I don't know the details right
->> now.  What I am trying to do is get an idea of what requirements there
->> are to make the source code available under the GPL.
->>
->> I suspect the company will try to get away with releasing as little as
->> possible.  I don't know much about the GPL or Linux kernel internals,
->> but I want to encourage the company I work for to give back to the
->> community.
->>
->> I understand that modifications to GPL code must be released under the
->> GPL.  So if they tweak a scheduler implementation, this must be
->> released.  What if a new driver is written to support a custom piece
->> of hardware?  Yes, the driver was written to work with the Linux
->> kernel, but it isn't based off any existing piece of code.
->>
->> I'm posting anonymously because the company probably wouldn't want me
->> discussing this at all  :(
->
->
-> Thanks to everyone who has responded to my question so far.
->
-> It seems like the two issues that need to be addressed are:
-> 1) Are the kernel modules being developed derived works?  If they are,
-> they must be released along with the entire kernel source.
-> 2) If they are not derived works, and shipped in a product, does the
-> fact that they are shipped in a product that uses the linux kernel
-> require that the new modules be licensed under the GPL?
->
-> Yes, I agree that the company I work for should talk to a lawyer.  I
-> however, am not interested in picking up a big legal tab to satisfy my
-> curiosity.
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-I suggest you take a look at http://gpl-violations.org/
+On Thu, Aug 17, 2006 at 06:04:59PM +0400, Kirill Korotaev wrote:
+> Please, keep in mind. This patch set can be extended in infinite number
+> of ways. But!!! It contains only the required minimal functionality.
 
-Regards, Michiel de Boer
+Sure ..But going by this it should mean that we don't see any code which 
+hints of heirarchy (->parent)? :)
 
+> When we are to add code requiring to know about limit changes or fails
+> or whatever we can always extend it accordingly.
+
+-- 
+Regards,
+vatsa

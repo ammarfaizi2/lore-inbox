@@ -1,95 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWHQO1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWHQO1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWHQO1s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWHQO1r
+	id S965028AbWHQO1X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWHQO1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:27:47 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:20671 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965027AbWHQO1p (ORCPT
+	Thu, 17 Aug 2006 10:27:22 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:4743 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965028AbWHQO1U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:27:45 -0400
-Message-ID: <44E47D55.3080105@sw.ru>
-Date: Thu, 17 Aug 2006 18:29:41 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: Pavel Emelianov <xemul@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
-References: <20060817183551.GA588@oleg>
-In-Reply-To: <20060817183551.GA588@oleg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 17 Aug 2006 10:27:20 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
+	(core)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rohitseth@google.com, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1155774274.15195.3.camel@localhost.localdomain>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155754029.9274.21.camel@localhost.localdomain>
+	 <1155755729.22595.101.camel@galaxy.corp.google.com>
+	 <1155758369.9274.26.camel@localhost.localdomain>
+	 <1155774274.15195.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 07:26:28 -0700
+Message-Id: <1155824788.9274.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg,
+On Thu, 2006-08-17 at 01:24 +0100, Alan Cox wrote:
+> Ar Mer, 2006-08-16 am 12:59 -0700, ysgrifennodd Dave Hansen:
+> > relationship between processes and mm's.  We could also potentially have
+> > two different threads of a process in two different accounting contexts.
+> > But, that might be as simple to fix as disallowing things that share mms
+> > from being in different accounting contexts, unless you unshare the mm.
+> 
+> At the point I have twenty containers containing 20 copies of glibc to
+> meet your suggestion it would be *far* cheaper to put it in the page
+> struct.
 
->>+struct user_beancounter *beancounter_findcreate(uid_t uid,
->>+		struct user_beancounter *p, int mask)
->>+{
->>+	struct user_beancounter *new_ub, *ub, *tmpl_ub;
->>+	unsigned long flags;
->>+	struct hlist_head *slot;
->>+	struct hlist_node *pos;
->>+
->>+	if (mask & UB_LOOKUP_SUB) {
->>+		WARN_ON(p == NULL);
->>+		tmpl_ub = &default_subbeancounter;
->>+		slot = &ub_hash[ub_subhash_fun(p, uid)];
->>+	} else {
->>+		WARN_ON(p != NULL);
->>+		tmpl_ub = &default_beancounter;
->>+		slot = &ub_hash[ub_hash_fun(uid)];
->>+	}
->>+	new_ub = NULL;
->>+
->>+retry:
->>+	spin_lock_irqsave(&ub_hash_lock, flags);
->>+	hlist_for_each_entry (ub, pos, slot, hash)
->>+		if (ub->ub_uid == uid && ub->parent == p)
->>+			break;
->>+
->>+	if (pos != NULL) {
->>+		get_beancounter(ub);
->>+		spin_unlock_irqrestore(&ub_hash_lock, flags);
->>+
->>+		if (new_ub != NULL) {
->>+			put_beancounter(new_ub->parent);
-> 
-> 					^^^^^^^^^^^^^^
-> 
-> Stupid question: why ->parent can't be NULL ? (without UB_LOOKUP_SUB).
-oh, good catch. We removed the check for NULL in put_beancounter() for cleanup,
-but didn't notice this place. Thanks!
+My main thought is that _everybody_ is going to have to live with the
+entry in the 'struct page'.  Distros ship one kernel for everybody, and
+the cost will be paid by those not even using any kind of resource
+control or containers.
 
->>+	if (mask & UB_ALLOC_ATOMIC) {
->>+		new_ub = kmem_cache_alloc(ub_cachep, GFP_ATOMIC);
->>+		if (new_ub == NULL)
->>+			goto out_unlock;
->>+
->>+		memcpy(new_ub, tmpl_ub, sizeof(*new_ub));
->>+		init_beancounter_struct(new_ub, uid);
->>+		if (p)
->>+			new_ub->parent = get_beancounter(p);
->>+		goto out_install;
->>+	}
->>+
->>+	spin_unlock_irqrestore(&ub_hash_lock, flags);
->>+
->>+	new_ub = kmem_cache_alloc(ub_cachep, GFP_KERNEL);
-> 
-> 
-> beancounter_findcreate() is not time critical, yes? Isn't it better
-> to kill 'if (mask & UB_ALLOC_ATOMIC) { ... }' and just do
-> 
-> 	new_ub = kmem_cache_alloc(ub_cachep,
-> 		UB_ALLOC_ATOMIC ? GFP_ATOMIC : GFP_KERNEL);
-> 
-> after spin_unlock(&ub_hash_lock) ?
-ok, will do. Thanks for comments!
+That said, it sure is simpler to implement, so I'm all for it!
 
-Kirill
+-- Dave
+

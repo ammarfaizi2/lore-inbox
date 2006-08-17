@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWHQHVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWHQHVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWHQHVo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWHQHVl
+	id S932141AbWHQHVi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWHQHVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:21:41 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:21978 "EHLO
-	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S932137AbWHQHVh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 17 Aug 2006 03:21:37 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:21722 "EHLO
+	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S932132AbWHQHVg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 03:21:36 -0400
 Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
        Christoph Hellwig <hch@infradead.org>
-Subject: [take11 3/3] kevent: Timer notifications.
-In-Reply-To: <11558006133752@2ka.mipt.ru>
+Subject: [take11 0/3] kevent: Generic event handling mechanism.
+In-Reply-To: <12345678912345.GA1898@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 17 Aug 2006 11:43:33 +0400
-Message-Id: <1155800613375@2ka.mipt.ru>
+Date: Thu, 17 Aug 2006 11:43:32 +0400
+Message-Id: <1155800612858@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -29,126 +29,88 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Generic event handling mechanism.
 
-Timer notifications.
+Changes from 'take10' patchset:
+ * removed non-existent prototypes
+ * added helper function for kevent_registered_callbacks
+ * fixed 80 lines comments issues
+ * added shared between userspace and kernelspace header instead of embedd them in one
+ * core restructuring to remove forward declarations
+ * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
+ * use vm_insert_page() instead of remap_pfn_range()
 
-Timer notifications can be used for fine grained per-process time 
-management, since interval timers are very inconvenient to use, 
-and they are limited.
+Changes from 'take9' patchset:
+ * fixed ->nopage method
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mitp.ru>
+Changes from 'take8' patchset:
+ * fixed mmap release bug
+ * use module_init() instead of late_initcall()
+ * use better structures for timer notifications
 
-diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
-new file mode 100644
-index 0000000..5217cd1
---- /dev/null
-+++ b/kernel/kevent/kevent_timer.c
-@@ -0,0 +1,107 @@
-+/*
-+ * 	kevent_timer.c
-+ * 
-+ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/list.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
-+#include <linux/jiffies.h>
-+#include <linux/kevent.h>
-+
-+struct kevent_timer
-+{
-+	struct timer_list	ktimer;
-+	struct kevent_storage	ktimer_storage;
-+};
-+
-+static void kevent_timer_func(unsigned long data)
-+{
-+	struct kevent *k = (struct kevent *)data;
-+	struct timer_list *t = k->st->origin;
-+
-+	kevent_storage_ready(k->st, NULL, KEVENT_MASK_ALL);
-+	mod_timer(t, jiffies + msecs_to_jiffies(k->event.id.raw[0]));
-+}
-+
-+static struct lock_class_key kevent_timer_key;
-+
-+static int kevent_timer_enqueue(struct kevent *k)
-+{
-+	int err;
-+	struct kevent_timer *t;
-+
-+	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
-+	if (!t)
-+		return -ENOMEM;
-+
-+	setup_timer(&t->ktimer, &kevent_timer_func, (unsigned long)k);
-+
-+	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
-+	if (err)
-+		goto err_out_free;
-+	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
-+
-+	err = kevent_storage_enqueue(&t->ktimer_storage, k);
-+	if (err)
-+		goto err_out_st_fini;
-+	
-+	mod_timer(&t->ktimer, jiffies + msecs_to_jiffies(k->event.id.raw[0]));
-+
-+	return 0;
-+
-+err_out_st_fini:	
-+	kevent_storage_fini(&t->ktimer_storage);
-+err_out_free:
-+	kfree(t);
-+
-+	return err;
-+}
-+
-+static int kevent_timer_dequeue(struct kevent *k)
-+{
-+	struct kevent_storage *st = k->st;
-+	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
-+
-+	del_timer_sync(&t->ktimer);
-+	kevent_storage_dequeue(st, k);
-+	kfree(t);
-+
-+	return 0;
-+}
-+
-+static int kevent_timer_callback(struct kevent *k)
-+{
-+	k->event.ret_data[0] = (__u32)jiffies;
-+	return 1;
-+}
-+
-+static int __init kevent_init_timer(void)
-+{
-+	struct kevent_callbacks tc = {
-+		.callback = &kevent_timer_callback, 
-+		.enqueue = &kevent_timer_enqueue, 
-+		.dequeue = &kevent_timer_dequeue};
-+
-+	return kevent_add_callbacks(&tc, KEVENT_TIMER);
-+}
-+module_init(kevent_init_timer);
+Changes from 'take7' patchset:
+ * new mmap interface (not tested, waiting for other changes to be acked)
+	- use nopage() method to dynamically substitue pages
+	- allocate new page for events only when new added kevent requres it
+	- do not use ugly index dereferencing, use structure instead
+	- reduced amount of data in the ring (id and flags), 
+		maximum 12 pages on x86 per kevent fd
+
+Changes from 'take6' patchset:
+ * a lot of comments!
+ * do not use list poisoning for detection of the fact, that entry is in the list
+ * return number of ready kevents even if copy*user() fails
+ * strict check for number of kevents in syscall
+ * use ARRAY_SIZE for array size calculation
+ * changed superblock magic number
+ * use SLAB_PANIC instead of direct panic() call
+ * changed -E* return values
+ * a lot of small cleanups and indent fixes
+
+Changes from 'take5' patchset:
+ * removed compilation warnings about unused wariables when lockdep is not turned on
+ * do not use internal socket structures, use appropriate (exported) wrappers instead
+ * removed default 1 second timeout
+ * removed AIO stuff from patchset
+
+Changes from 'take4' patchset:
+ * use miscdevice instead of chardevice
+ * comments fixes
+
+Changes from 'take3' patchset:
+ * removed serializing mutex from kevent_user_wait()
+ * moved storage list processing to RCU
+ * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
+	to differentiate between various cases
+ * remove kevent from storage if is marked as broken after callback
+ * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+
+Changes from 'take2' patchset:
+ * split kevent_finish_user() to locked and unlocked variants
+ * do not use KEVENT_STAT ifdefs, use inline functions instead
+ * use array of callbacks of each type instead of each kevent callback initialization
+ * changed name of ukevent guarding lock
+ * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
+ * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
+ * various indent cleanups
+ * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
+ * mapped buffer (initial) implementation (no userspace yet)
+
+Changes from 'take1' patchset:
+ - rebased against 2.6.18-git tree
+ - removed ioctl controlling
+ - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
+			unsigned int timeout, void __user *buf, unsigned flags)
+ - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
+	initialization
+ - use mutuxes instead of semaphores
+ - added file descriptor check and return error if provided descriptor does not match
+	kevent file operations
+ - various indent fixes
+ - removed aio_sendfile() declarations.
+
+Thank you.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
 

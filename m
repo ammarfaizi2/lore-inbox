@@ -1,110 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbWHQRNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbWHQRO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbWHQRNf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 13:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbWHQRNf
+	id S965144AbWHQRO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 13:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWHQRO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 13:13:35 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:2214 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965134AbWHQRNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 13:13:34 -0400
-Date: Thu, 17 Aug 2006 22:44:05 +0530
-From: "S. P. Prasanna" <prasanna@in.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Jan Beulich <jbeulich@novell.com>, jeremy@goop.org, ananth@in.ibm.com,
-       anil.s.keshavamurthy@intel.com
-Subject: [PATCH] Kprobes - x86_64 add KPROBE_END macro for .popsection
-Message-ID: <20060817171405.GA7973@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
+	Thu, 17 Aug 2006 13:14:28 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:13215 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965144AbWHQRO0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 13:14:26 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=xjsFpoYAuZDeYvr4k6XRWOMdCrRSQ6m47A0fEjvs4SN6Ls0kjzpKpacyU9QbaH4Y8
+	hhXw1GKNd57eihqTbgW4Q==
+Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+In-Reply-To: <44E470B5.4020706@sw.ru>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155754029.9274.21.camel@localhost.localdomain>
+	 <1155755729.22595.101.camel@galaxy.corp.google.com>
+	 <44E470B5.4020706@sw.ru>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Thu, 17 Aug 2006 10:13:11 -0700
+Message-Id: <1155834791.14617.42.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replace .popsection with the KPROBE_END() macro, as
-suggested by Jan Beulich similar to i386 architecture. This will
-be helpful for the conversions ike the recent .section -> .pushsection
-and .previous -> .popsection to be confined to the header defining
-these macros, without need to touch any assembly files.
+On Thu, 2006-08-17 at 17:35 +0400, Kirill Korotaev wrote:
 
-Signed-off-by: Prasanna S. P. <prasanna@in.ibm.com>
+> > My preference would be to have container (I keep on saying container,
+> > but resource beancounter) pointer embeded in task, mm(not sure),
+> > address_space and anon_vma structures.  This should allow us to track
+> > user land pages optimally.  But for tracking kernel usage on behalf of
+> > user, we will have to use an additional field (unless we can re-use
+> > mapping).  Please correct me if I'm wrong, though all the kernel
+> > resources will be allocated/freed in context of a user process.  And at
+> > that time we know if a allocation should succeed or not.  So we may
+> > actually not need to track kernel pages that closely.  We are not going
+> > to run reclaim on any of them anyways.  
+> objects are really allocated in process context
+> (except for TCP/IP and other softirqs which are done in arbitrary
+> process context!)
 
+Can these pages be tagged using mapping field of the page struct.
 
- arch/x86_64/kernel/entry.S |   18 ++++++------------
- 1 files changed, 6 insertions(+), 12 deletions(-)
+> And objects are not always freed in correct context (!).
+> 
+You mean beyond Networking and softirq.
 
-diff -puN arch/x86_64/kernel/entry.S~kprobes-x86_64-add-popsection-macro-for-assembly-stub arch/x86_64/kernel/entry.S
---- linux-2.6.18-rc4-mm1/arch/x86_64/kernel/entry.S~kprobes-x86_64-add-popsection-macro-for-assembly-stub	2006-08-17 12:21:28.000000000 +0530
-+++ linux-2.6.18-rc4-mm1-prasanna/arch/x86_64/kernel/entry.S	2006-08-17 12:23:57.000000000 +0530
-@@ -903,8 +903,7 @@ error_kernelspace:
- 	cmpq $gs_change,RIP(%rsp)
-         je   error_swapgs
- 	jmp  error_sti
--END(error_entry)
--	.popsection
-+KPROBE_END(error_entry)
- 	
-        /* Reload gs selector with exception handling */
-        /* edi:  new selector */ 
-@@ -1023,8 +1022,7 @@ ENDPROC(execve)
- 
- KPROBE_ENTRY(page_fault)
- 	errorentry do_page_fault
--END(page_fault)
--	.popsection
-+KPROBE_END(page_fault)
- 
- ENTRY(coprocessor_error)
- 	zeroentry do_coprocessor_error
-@@ -1045,8 +1043,7 @@ KPROBE_ENTRY(debug)
- 	CFI_ADJUST_CFA_OFFSET 8		
- 	paranoidentry do_debug, DEBUG_STACK
- 	paranoidexit
--END(debug)
--	.popsection
-+KPROBE_END(debug)
- 
- 	/* runs on exception stack */	
- KPROBE_ENTRY(nmi)
-@@ -1060,8 +1057,7 @@ KPROBE_ENTRY(nmi)
- 	jmp paranoid_exit1
-  	CFI_ENDPROC
- #endif
--END(nmi)
--	.popsection
-+KPROBE_END(nmi)
- 
- KPROBE_ENTRY(int3)
-  	INTR_FRAME
-@@ -1070,8 +1066,7 @@ KPROBE_ENTRY(int3)
-  	paranoidentry do_int3, DEBUG_STACK
-  	jmp paranoid_exit1
-  	CFI_ENDPROC
--END(int3)
--	.popsection
-+KPROBE_END(int3)
- 
- ENTRY(overflow)
- 	zeroentry do_overflow
-@@ -1119,8 +1114,7 @@ END(stack_segment)
- 
- KPROBE_ENTRY(general_protection)
- 	errorentry do_general_protection
--END(general_protection)
--	.popsection
-+KPROBE_END(general_protection)
- 
- ENTRY(alignment_check)
- 	errorentry do_alignment_check
+> Note, page_ub is not for _user_ pages. user pages accounting will be added
+> in next patch set. page_ub is added to track kernel allocations.
+> 
 
-_
--- 
-Prasanna S.P.
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Email: prasanna@in.ibm.com
-Ph: 91-80-41776329
+But will the page_ub be used for some purpose for user land pages?
+
+-rohit
+

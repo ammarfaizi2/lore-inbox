@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWHQFXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWHQF2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWHQFXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 01:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHQFXM
+	id S932292AbWHQF2g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 01:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHQF2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 01:23:12 -0400
-Received: from 1wt.eu ([62.212.114.60]:61967 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751297AbWHQFXL (ORCPT
+	Thu, 17 Aug 2006 01:28:35 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:17334 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750972AbWHQF2f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 01:23:11 -0400
-Date: Thu, 17 Aug 2006 07:16:16 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: Linux 2.4.34-pre1
-Message-ID: <20060817051616.GB13878@1wt.eu>
-References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Aug 2006 01:28:35 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 3/3] PM: Remove PM_TRACE from Kconfig
+Date: Thu, 17 Aug 2006 07:32:39 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200608162259.00941.rjw@sisk.pl> <200608162305.34038.rjw@sisk.pl> <20060816145242.32faa669.akpm@osdl.org>
+In-Reply-To: <20060816145242.32faa669.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060816235459.GM7813@stusta.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608170732.40048.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 01:54:59AM +0200, Adrian Bunk wrote:
-> Hi Willy!
-
-Hi Adrian !
-
-(I knew you would be the first one to raise your hand :-))
-
-> My points against allowing to compile kernel 2.4 with gcc 4 are:
+On Wednesday 16 August 2006 23:52, Andrew Morton wrote:
+> On Wed, 16 Aug 2006 23:05:33 +0200
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > 
-> - There isn't much testing coverage - and will never be much testing
->   coverage - of using a kernel 2.4 compiled with gcc 4.
->   We've already seen several cases where only some compiler versions
->   caused miscompilations or exposed a runtime bug in the kernel.
+> > Remove the CONFIG_PM_TRACE option, which is dangerous and should only be used
+> > by people who know exactly what they are doing, from kernel/power/Kconfig .
+> > 
+> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> > Acked-by: Pavel Machek <pavel@ucw.cz>
+> > ---
+> >  kernel/power/Kconfig |   18 ------------------
+> >  1 files changed, 18 deletions(-)
+> > 
+> > Index: linux-2.6.18-rc4-mm1/kernel/power/Kconfig
+> > ===================================================================
+> > --- linux-2.6.18-rc4-mm1.orig/kernel/power/Kconfig
+> > +++ linux-2.6.18-rc4-mm1/kernel/power/Kconfig
+> > @@ -47,24 +47,6 @@ config PM_DISABLE_CONSOLE_SUSPEND
+> >  	suspend/resume routines, but may itself lead to problems, for example
+> >  	if netconsole is used.
+> >  
+> > -config PM_TRACE
+> > -	bool "Suspend/resume event tracing"
+> > -	depends on PM && PM_DEBUG && X86_32 && EXPERIMENTAL
+> > -	default n
+> > -	---help---
+> > -	This enables some cheesy code to save the last PM event point in the
+> > -	RTC across reboots, so that you can debug a machine that just hangs
+> > -	during suspend (or more commonly, during resume).
+> > -
+> > -	To use this debugging feature you should attempt to suspend the machine,
+> > -	then reboot it, then run
+> > -
+> > -		dmesg -s 1000000 | grep 'hash matches'
+> > -
+> > -	CAUTION: this option will cause your machine's real-time clock to be
+> > -	set to an invalid time after a resume.
+> > -
+> > -
+> >  config SOFTWARE_SUSPEND
+> >  	bool "Software Suspend"
+> >  	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP)) || ((FRV || PPC32) && !SMP)
+> 
+> So...  how are people supposed to turn it on again?  By patching the
+> kernel?  That's a bit painful if they're using (say) fedora-of-the-day.
+> 
+> How about we add a kernel boot parameter to enable it at runtime?
 
-Yes, and the same arguments were true when moving on to support gcc 3,
-and the 3.4 that you propose below has not received much testing
-coverage on 2.4 either. However, when you talk about exposing runtime
-bugs, I notice that gcc 4 emits a lot of very valid compile time warnings
-about constructs that can produced undefined code.
+I'm considering a sysfs attribute in /sys/power .
 
-I was a bit disappointed when I saw the bugs Mikael had to fix to make
-the kernel compilable by gcc 4. Also, for bad code generation, it's good
-to be able to build 2.4 and 2.6 with the same kernels, because it helps
-detecting compiler bugs faster.
+If PM_TRACE is compiled in, an attribute, say "pm_trace", shows up in sysfs
+which is initially set to 0 and the user has to explicitly set it to 1 to
+enable the feature?  Pavel, what do you think?
 
-Right now, I'd prefer getting gcc 4 support than gcc 3.4, because I don't
-know if even one common distro has shipped with gcc 3.4 by default. 2.95,
-3.0, and 3.3 have been common, and right now, 4.[01] is almost everywhere.
+Rafael
 
->   Since there shouldn't be any reason for still using a 2.4 kernel
->   except for "never change a running system",
 
-I think that by "never change", you meant "except for regular updates".
-
-> I don't see a good
->   reason for allowing such an untested gcc/kernel combination.
-
-You're very well placed to know that every new 2.6 that comes out has
-received too little testing for some people to generally deploy it
-everywhere. Probably that one year from now, 2.6.16 will be considered
-the most stable kernel (and I hope it too) and people will deploy it
-on thousands of remotely managed sites, but right now, they still rely
-on 2.4 for this. And it's easier for them to check that a new gcc on
-their old kernel runs as expected than to validate that a completely
-new kernel (with a new gcc too) runs like the old one.
-
-> - Even if your distribution does no longer ship any gcc 3, it's
->   easy building and using your own gcc 3.4.6:
->     wget ftp://ftp.gnu.org/gnu/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2
->     tar xjf gcc-3.4.6.tar.bz2
->     mkdir build-gcc
->     cd build-gcc
->     ../gcc-3.4.6/configure --enable-languages=c --prefix=/usr/local/gcc-3.4.6
->     make bootstrap
->     make install
->     # change HOSTCC and CC in the toplevel Makefile of the kernel:
->     # HOSTCC = /usr/local/gcc-3.4.6/bin/gcc
->     # CC = /usr/local/gcc-3.4.6/bin/gcc
-
-Agreed, and this is what *I* do, but I would understand people who don't
-feel confident enough in a freshly built compiler to build their kernel
-when they don't know all the relevant build options. BTW, you don't have
-to change the makefile contents, you can simply pass CC= to make.
-
-I know that our opinions diverge on the gcc+kernel subject because we
-don't evaluate it from the same point of view, but you raised interesting
-points anyway.
-
-Thanks,
-Willy
-
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

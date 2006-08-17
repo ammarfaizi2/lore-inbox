@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWHQHSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWHQHTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWHQHSh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWHQHSh
+	id S932111AbWHQHTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWHQHTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:18:37 -0400
-Received: from msr12.hinet.net ([168.95.4.112]:26356 "EHLO msr12.hinet.net")
-	by vger.kernel.org with ESMTP id S932090AbWHQHSg (ORCPT
+	Thu, 17 Aug 2006 03:19:52 -0400
+Received: from msr39.hinet.net ([168.95.4.139]:707 "EHLO msr39.hinet.net")
+	by vger.kernel.org with ESMTP id S932111AbWHQHTv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 03:18:36 -0400
-Subject: [PATCH 3/6] IP100A Remove CONFIG_SUNDANCE_MMIO, mask of mapping
-	address
+	Thu, 17 Aug 2006 03:19:51 -0400
+Subject: [PATCH 4/6] IP100A Change search phy addr start form 0
 From: Jesse Huang <jesse@icplus.com.tw>
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
        jgarzik@pobox.com, jesse@icplus.com.tw
 Content-Type: text/plain
-Date: Thu, 17 Aug 2006 15:06:01 -0400
-Message-Id: <1155841561.4532.13.camel@localhost.localdomain>
+Date: Thu, 17 Aug 2006 15:07:16 -0400
+Message-Id: <1155841636.4532.16.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
@@ -25,61 +24,43 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Jesse Huang <jesse@icplus.com.tw>
 
-Remove CONFIG_SUNDANCE_MMIO, mask of mapping address
+Change search phy addr start form 0
 
 Change Logs:
-    Remove CONFIG_SUNDANCE_MMIO, mask of mapping address
+    Change search phy addr start form 0
 
 ---
 
- drivers/net/sundance.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/sundance.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-dc932975858ae18801620d04212c516ced6920bd
+212cd4ffa21a57300eae4254bf02e5b33b96f544
 diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
-index 910ea17..2bde1b3 100755
+index 2bde1b3..f63871a 100755
 --- a/drivers/net/sundance.c
 +++ b/drivers/net/sundance.c
-@@ -21,8 +21,8 @@
+@@ -21,7 +21,7 @@
  */
  
  #define DRV_NAME	"sundance"
--#define DRV_VERSION	"1.2"
--#define DRV_RELDATE	"03-Aug-2006"
-+#define DRV_VERSION	"1.01+LK1.13"
-+#define DRV_RELDATE	"04-Aug-2006"
+-#define DRV_VERSION	"1.01+LK1.13"
++#define DRV_VERSION	"1.01+LK1.14"
+ #define DRV_RELDATE	"04-Aug-2006"
  
  
- /* The user-configurable values.
-@@ -199,10 +199,6 @@ IVc. Errata
- 
- */
- 
--/* Work-around for Kendin chip bugs. */
--#ifndef CONFIG_SUNDANCE_MMIO
--#define USE_IO_OPS 1
--#endif
- 
- static const struct pci_device_id sundance_pci_tbl[] = {
- 	{ 0x1186, 0x1002, 0x1186, 0x1002, 0, 0, 0 },
-@@ -491,10 +487,13 @@ #endif
- 	if (pci_request_regions(pdev, DRV_NAME))
- 		goto err_out_netdev;
- 
--	ioaddr = pci_iomap(pdev, bar, netdev_io_size);
-+	ioaddr =(void __iomem *)
-+		 ((unsigned long)pci_iomap(pdev, bar, netdev_io_size) & 
-+	          0xffffff80);
- 	if (!ioaddr)
- 		goto err_out_res;
- 
-+
- 	for (i = 0; i < 3; i++)
- 		((u16 *)dev->dev_addr)[i] =
- 			le16_to_cpu(eeprom_read(ioaddr, i + EEPROM_SA_OFFSET));
+@@ -559,8 +559,9 @@ #endif
+ 	/*
+ 	 * It seems some phys doesn't deal well with address 0 being accessed
+ 	 * first, so leave address zero to the end of the loop (32 & 31).
++	 * for IP100A the phy should start from 0
+ 	 */
+-	for (phy = 1; phy <= 32 && phy_idx < MII_CNT; phy++) {
++	for (phy = 0; phy <= 32 && phy_idx < MII_CNT; phy++) {
+ 		int phyx = phy & 0x1f;
+ 		int mii_status = mdio_read(dev, phyx, MII_BMSR);
+ 		if (mii_status != 0xffff  &&  mii_status != 0x0000) {
 -- 
 1.3.GIT
-
 
 
 

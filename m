@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWHQNmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWHQNlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbWHQNmh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWHQNmf
+	id S964977AbWHQNlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWHQNld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:42:35 -0400
-Received: from euridica.enternet.net.pl ([62.233.231.82]:20146 "EHLO
-	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
-	id S964899AbWHQN2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:28:46 -0400
-Date: Thu, 17 Aug 2006 13:27:37 +0000
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: linux.nics@intel.com, e1000-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [RFC][PATCH 20/75] net: drivers/net/e1000/e1000_main.c pci_module_init to pci_register_driver conversion
-Message-ID: <20060817132737.20.RyDdba4146.3636.michal@euridica.enternet.net.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
+	Thu, 17 Aug 2006 09:41:33 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:51567 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964978AbWHQNk4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:40:56 -0400
+Message-ID: <44E47274.70506@sw.ru>
+Date: Thu, 17 Aug 2006 17:43:16 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH 7/7] UBC: proc interface
+References: <44E33893.6020700@sw.ru> <44E33D5E.7000205@sw.ru> <20060816171328.GA27898@kroah.com>
+In-Reply-To: <20060816171328.GA27898@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Wed, Aug 16, 2006 at 07:44:30PM +0400, Kirill Korotaev wrote:
+> 
+>>Add proc interface (/proc/user_beancounters) allowing to see current
+>>state (usage/limits/fails for each UB). Implemented via seq files.
+> 
+> 
+> Ugh, why /proc?  This doesn't have anything to do with processes, just
+> users, right?  What's wrong with /sys/kernel/ instead?
+We can move it, if there are much objections.
+It is just here for more than 3 years (AFAIK starting from Alan's UBC)
+and would be nice to have for compatibility (at least with existing OpenVZ).
+But if it is required -- will do.
 
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+> Or /sys/kernel/debug/user_beancounters/ in debugfs as this is just a
+> debugging thing, right?
+debugfs is usually OFF imho. you don't export meminfo information in debugfs,
+correct? user usages are the same imho...
 
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/e1000/e1000_main.c linux-work2/drivers/net/e1000/e1000_main.c
---- linux-work-clean/drivers/net/e1000/e1000_main.c	2006-08-16 22:41:17.000000000 +0200
-+++ linux-work2/drivers/net/e1000/e1000_main.c	2006-08-17 05:14:36.000000000 +0200
-@@ -245,7 +245,7 @@ e1000_init_module(void)
- 
- 	printk(KERN_INFO "%s\n", e1000_copyright);
- 
--	ret = pci_module_init(&e1000_driver);
-+	ret = pci_register_driver(&e1000_driver);
- 
- 	return ret;
- }
+Kirill

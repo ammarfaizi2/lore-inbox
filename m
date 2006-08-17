@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbWHQPap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWHQPfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965148AbWHQPap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWHQPap
+	id S965152AbWHQPfO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWHQPfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:30:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2777 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965148AbWHQPao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:30:44 -0400
-Date: Thu, 17 Aug 2006 08:30:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
- writeback.
-Message-Id: <20060817083035.8b775b12.akpm@osdl.org>
-In-Reply-To: <1155820912.5662.39.camel@localhost>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	<20060815010611.7dc08fb1.akpm@osdl.org>
-	<17635.59821.21444.287979@cse.unsw.edu.au>
-	<1155820912.5662.39.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 17 Aug 2006 11:35:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22287 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965152AbWHQPfM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:35:12 -0400
+Date: Thu, 17 Aug 2006 15:31:38 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Thomas Koeller <thomas.koeller@baslerweb.com>
+Cc: =?iso-8859-1?Q?=C9ric?= Piel <Eric.Piel@lifl.fr>,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-mips@linux-mips.org,
+       Thomas =?iso-8859-1?Q?K=F6ller?= <thomas@koeller.dyndns.org>
+Subject: Re: [PATCH] Image capturing driver for Basler eXcite smart camera
+Message-ID: <20060817153138.GE5950@ucw.cz>
+References: <200608102318.04512.thomas.koeller@baslerweb.com> <loom.20060812T191433-775@post.gmane.org> <44E09C7E.204@lifl.fr> <200608142126.29171.thomas.koeller@baslerweb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608142126.29171.thomas.koeller@baslerweb.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006 09:21:51 -0400
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Hi!
 
-> On Thu, 2006-08-17 at 13:59 +1000, Neil Brown wrote:
-> > On Tuesday August 15, akpm@osdl.org wrote:
-> > > > When Dirty hits 0 (and Writeback is theoretically 80% of RAM)
-> > > > balance_dirty_pages will no longer be able to flush the full
-> > > > 'write_chunk' (1.5 times number of recent dirtied pages) and so will
-> > > > spin in a loop calling blk_congestion_wait(WRITE, HZ/10), so it isn't
-> > > > a busy loop, but it won't progress.
-> > > 
-> > > This assumes that the queues are unbounded.  They're not - they're limited
-> > > to 128 requests, which is 60MB or so.
-> > 
-> > Ahhh... so the limit on the requests-per-queue is an important part of
-> > write-throttling behaviour.  I didn't know that, thanks.
-> > 
-> > fs/nfs doesn't seem to impose a limit.  It will just allocate as many
-> > as you ask for until you start running out of memory.  I've seen 60%
-> > of memory (10 out of 16Gig) in writeback for NFS.
-> > 
-> > Maybe I should look there to address my current issue, though imposing
-> > a system-wide writeback limit seems safer.
+> > If so then the Video4Linux2 API is still the best way to implement the
+> > protocol to pass data between the user-space programs and the driver.
+> > The V4L2 API doesn't says that the camera must be far away from the
+> > processor, it can work for USB webcams, for Firewire video camera, PCI
+> > TV tuners, and probably also for your device. Using the V4L2 not only
+> > has the advantage of being a well tested API for communicating video
+> > related information with the user-space but it also buys you the fact
+> > that any program available on Linux for video should be able to directly
+> > detect and use the captor!
 > 
-> Exactly how would a request limit help? All that boils down to is having
-> the VM monitor global_page_state(NR_FILE_DIRTY) versus monitoring
-> global_page_state(NR_FILE_DIRTY)+global_page_state(NR_WRITEBACK).
-> 
+> Sorry, but no. The camera has been designed to be used in industrial
+> control applications, such as quality assurance. Think of an automated
+> inspection of a certain product, where the inspection is integrated
+> into the production process. Faulty products are sorted out. For this to
+> work it is absolutely necessary to get the maximum speed (image frames
+> per second) out of the hardware, so image acquisition and processing
+> must be carried out in parallel. The way to achieve this is have the
+> driver manage a queue of image buffers to fill, so it will continue
+> grabbing images even if no read operation is currently pending. Also,
+> the ability to attach user-specific context information to every buffer
+> is essential.
 
-I assume that if NFS is not limiting its NR_WRITEBACK consumption and block
-devices are doing so, we could get in a situation where NFS hogs all of the
-fixed-size NR_DIRTY+NR_WRITEBACK resource at the expense of concurrent
-block-device-based writeback.
+Well, I guess v4l api will need to be improved, then. That is still
+not a reason to introduce completely new api...
 
-Perhaps.  The top-level poll-the-superblocks writeback loop might tend to
-prevent that from happening.  But if applications were doing a lot of
-superblock-specific writeback (fdatasync,
-sync_file_range(SYNC_FILE_RANGE_WRITE), etc) then unfairness might occur.
+-- 
+Thanks for all the (sleeping) penguins.

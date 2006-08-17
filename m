@@ -1,48 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWHQH5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWHQH40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWHQH5I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWHQH5I
+	id S932158AbWHQH40 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWHQH40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:57:08 -0400
-Received: from web52908.mail.yahoo.com ([206.190.49.18]:36997 "HELO
-	web52908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932238AbWHQH5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 03:57:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SCTI5JE6O+K0esZyPGtnxAotsfgrBfgU89YRWnEAEjb1iAojPoVbfNKm770tfx997vhDjlyKNNITRr/o7vP4YGXxHXmvFvMECcWOUZUnFGJ6ZES4I1QVmo05IO9wNJ2T6QGultwZprzbCMvPAswlbCOGPKqV+5Lpw0Iet7try4o=  ;
-Message-ID: <20060817075705.79729.qmail@web52908.mail.yahoo.com>
-Date: Thu, 17 Aug 2006 08:57:05 +0100 (BST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: Linux 2.4.34-pre1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 17 Aug 2006 03:56:26 -0400
+Received: from msr32.hinet.net ([168.95.4.132]:8338 "EHLO msr32.hinet.net")
+	by vger.kernel.org with ESMTP id S932158AbWHQH4Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 03:56:25 -0400
+Subject: [PATCH 2/7] ip1000: remove some default phy params
+From: Jesse Huang <jesse@icplus.com.tw>
+To: romieu@fr.zoreil.com, penberg@cs.Helsinki.FI, akpm@osdl.org,
+       dvrabel@cantab.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net, jesse@icplus.com.tw
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 15:43:29 -0400
+Message-Id: <1155843809.5006.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But maybe it's worth doing a user survey to find out what the users of
-> 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
-> people who use enterprise distro kernels don't count for this since
-> they'll not go to a newer released 2.4 anyway)
+From: Jesse Huang <jesse@icplus.com.tw>
 
-I have only one machine that is still running a v2.4 kernel (from ftp.kernel.org), and that is an
-old P120 that I occasionally use as a wireless acess point.
+remove some default phy params
 
-The compiler on this P120 is indeed gcc-3.4. However, building any kernel on that machine is now
-so excruciatingly painful that I am considering using a newer, beefier machine as a build machine
-instead. That machine is running FC5, and so uses gcc-4.1. So from my perspective, being able to
-build a 2.4 kernel using gcc-4.x would be a benefit.
+Change Logs:
+    remove some default phy params
 
-Cheers,
-Chris
+---
 
+ drivers/net/ipg.h |   54 +----------------------------------------------------
+ 1 files changed, 1 insertions(+), 53 deletions(-)
 
-
-		
-____________________________________________________ 
+af38044af640ea6997ad6ced277e5f42f8307d8d
+diff --git a/drivers/net/ipg.h b/drivers/net/ipg.h
+index 58b1417..9f841d2 100644
+--- a/drivers/net/ipg.h
++++ b/drivers/net/ipg.h
+@@ -919,59 +919,7 @@ unsigned short DefaultPhyParam[] = {
+ 	// 01/09/04 IP1000A v1-5 rev=0x41
+ 	(0x4100 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+ 	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x42
+-	(0x4200 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x43
+-	(0x4300 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x44
+-	(0x4400 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x45
+-	(0x4500 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x46
+-	(0x4600 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x47
+-	(0x4700 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x48
+-	(0x4800 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x49
+-	(0x4900 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x4A
+-	(0x4A00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x4B
+-	(0x4B00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x4C
+-	(0x4C00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x4D
+-	(0x4D00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
+-	// 01/09/04 IP1000A v1-5 rev=0x4E
+-	(0x4E00 | (07 * 4)), 31, 0x0001, 27, 0x01e0, 31, 0x0002, 27, 0xeb8e, 31,
+-	    0x0000,
+-	30, 0x005e, 9, 0x0700,
++	30, 0x005e, 9, 0x0700,	
+ 	0x0000
+ };
  
-Yahoo! Photos is now offering a quality print service from just 7p a photo. http://uk.photos.yahoo.com
+-- 
+1.3.2
+
+
+

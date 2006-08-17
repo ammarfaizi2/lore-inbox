@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWHQWOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWHQWSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964824AbWHQWOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 18:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWHQWOJ
+	id S964970AbWHQWSO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 18:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbWHQWSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 18:14:09 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:7808 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964824AbWHQWOI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 18:14:08 -0400
-Date: Fri, 18 Aug 2006 00:10:52 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 Spurious ACK/NAK on isa0060/serio0, 2.6.18-rc2 is fine
-Message-ID: <20060817221052.GA3025@aitel.hist.no>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 17 Aug 2006 18:18:14 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41383 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964970AbWHQWSO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 18:18:14 -0400
+Date: Fri, 18 Aug 2006 08:17:17 +1000
+From: David Chinner <dgc@sgi.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow writeback.
+Message-ID: <20060817221717.GV51703024@melbourne.sgi.com>
+References: <17633.2524.95912.960672@cse.unsw.edu.au> <20060815010611.7dc08fb1.akpm@osdl.org> <20060815230050.GB51703024@melbourne.sgi.com> <17635.60378.733953.956807@cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <17635.60378.733953.956807@cse.unsw.edu.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So I tried 2.6.18-rc4-mm1 on my opteron. (Running 64-bit)
+On Thu, Aug 17, 2006 at 02:08:58PM +1000, Neil Brown wrote:
+> On Wednesday August 16, dgc@sgi.com wrote:
+> > 
+> > IMO, if you've got slow writeback, you should be reducing the amount
+> > of dirty memory you allow in the machine so that you don't tie up
+> > large amounts of memory that takes a long time to clean. Throttle earlier
+> > and you avoid this problem entirely.
+> 
+> I completely agree that 'throttle earlier' is important.  I just not
+> completely sure what should be throttled when.
+> 
+> I think I could argue that pages in 'Writeback' are really still
+> dirty.  The difference is really just an implementation issue.
 
-The kernel did not boot, but went into an infinite loop of
+No argument here - I think you're right, Neil.
 
-Spurious ACK on isa0060/serio0
-over and over.  I have two keyboards, one attached the usual
-way and another attached where a mouse usually goes.
-This works fine with 2.6.18-rc2, but no longer now.
-One keyboard is dead, and on the other, two of the
-leds blink on and off.
+> So when the dirty_ratio is set to 40%, that should apply to all
+> 'dirty' pages, which means both that flagged as 'Dirty' and those
+> flagged as 'Writeback'.
 
-Unplugging a keyboard changes the repeating message to
-Spurious NAK ... instead.
+Don't forget NFS client unstable pages.
 
-Unplugging both keyboards stops the nonsense, but then - no keyboard.
+FWIW, with writeback not being accounted as dirty, there is a window
+in the NFS client where a page during writeback is not dirty or
+unstable and hence not visible to the throttle. Hence if we have
+lots of outstanding async writes to NFS servers, or their I/O
+completion is held off, the throttle won't activate where is should
+and potentially let too many pages get dirtied.
 
-This kernel also fails to mount root, a fact that is hard to see as
-the stupid messages quickly scroll everything else away.
-That might be something simple like the changed ATA config
-or multithreaded pci probe.
+This may not be a major problem with the traditional small write
+sizes, but with 1MB I/Os this could be a fairly large number of
+pages that are unaccounted for a short period of time.
 
-There just cannot be any program "trying to access hw directly",
-I don't get the root fs so I don't even have init running.
+> So I think you need to throttle when Dirty+Writeback hits dirty_ratio
+> (which we don't quite get right at the moment).  But the trick is to
+> throttle gently and fairly, rather than having a hard wall so that any
+> one who hits it just stops.
 
-Helge Hafting
+I disagree with the "throttle gently" bit there. If a process is
+writing faster than the underlying storage can write, then you have
+to stop the process in it's tracks while the storage catches up.
+Especially if other processes are writing tothe same device. You
+may as well just hit it with a big hammer becauses it's simple and
+pretty effective.
+
+Besides, it is difficult to be gentle when you can dirty memory at
+least an order of magnitude faster than you can clean it.
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

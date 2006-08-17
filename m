@@ -1,56 +1,52 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWHQOXZ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 10:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWHQOUQ
+	id S965031AbWHQOX0 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Aug 2006 10:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWHQOUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:20:16 -0400
-Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:63214 "EHLO
-	timeinc-s02.websys.aol.com") by vger.kernel.org with ESMTP
-	id S965022AbWHQOTj (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Thu, 17 Aug 2006 10:20:13 -0400
+Received: from timeinc-s03.websys.aol.com ([64.12.55.161]:5314 "EHLO
+	timeinc-s03.websys.aol.com") by vger.kernel.org with ESMTP
+	id S965023AbWHQOTj (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
 	Thu, 17 Aug 2006 10:19:39 -0400
-Message-Id: <200608171419.k7HBgaAh022422@timeinc-s01.websys.aol.com>
-Date: Thu, 17 Aug 2006 10:19:38 -0400
+Message-Id: <200608171419.k7HBgaAj022422@timeinc-s01.websys.aol.com>
+Date: Thu, 17 Aug 2006 10:19:39 -0400
 From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
-Subject: You are now subscribed to the HBGUSA-CHILDREN list
+Subject: You are now subscribed to the HBGUSA-NONFICTION list
 To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
-Reply-To: HBGUSA-CHILDREN-request@LS.TIMEINC.NET
-X-LSV-ListID: HBGUSA-CHILDREN
+Reply-To: HBGUSA-NONFICTION-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-NONFICTION
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965035AbWHQOXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965031AbWHQOX0@vger.kernel.org>
 
 ________________________________________________________________________
 ________________________________________________________________________
 
 This e-mail contains important information about your subscription
-to HBGUSA-CHILDREN.  Please save it for future reference.
+to HBGUSA-NONFICTION.  Please save it for future reference.
 ________________________________________________________________________
 ________________________________________________________________________
 
-Welcome to the Hachette Book Group USA Children's Book Nook Mailing List!
-Shortly we will start sending you the latest news and information on Little,
-Brown and Company Books for Children and Young Adults.  Enjoy!
-
-If you use an automatic 'vacation' or 'out-of-office' e-mail replier,
-please remember to configure your program so that these notices aren't
-sent to HBGUSA-CHILDREN list. Otherwise you may be unsubscribed from the list.
+Welcome to the Hachette Book Group USA Non-fiction Mailing List!  Shortly 
+we will start sending you the latest news and information on Non-fiction 
+books from Warner Books, Inc. and Little, Brown and Company.  Enjoy!
 
 
 TO UNSUBSCRIBE:
 
 You have received this e-mail because you are a Hachette Book Group USA
-Children's Book newsletter subscriber.  To unsubscribe from this 
-newsletter, please send a blank e-mail to:
+Non-fiction newsletter subscriber.  To unsubscribe from this newsletter,
+please send a blank e-mail to:
 
-hbgusa-children-unsubscribe-request@timeinc.net
+hbgusa-nonfiction-unsubscribe-request@timeinc.net
 
 Please make sure that you are sending the signoff request from the
 *same* e-mail address  <linux-kernel@VGER.KERNEL.ORG> that you originally
 subscribed from.
 
-Important: You cannot sign off from HBGUSA-CHILDREN by replying to this
+Important: You cannot sign off from HBGUSA-NONFICTION by replying to this
 message. Please follow the instructions above. E-mail about unresolved
-list problems can be sent to <hbgusael@timeinc.net>.
+list problems can be sent to <hbgusamh@timeinc.net>.
 
 
 PRIVACY POLICY:
@@ -64,22 +60,20 @@ FOR FURTHER INFORMATION, PLEASE CONTACT:
 
 Hachette Book Group USA
 Customer Service
-3 Center Plaza Boston, MA 02108-2084
+3 Center Plaza
+Boston, MA 02108-2084
 
 
 TO SUBSCRIBE TO THE NEWSLETTER:
 
-Send a blank e-mail to hbgusa-children-subscribe-request@timeinc.net
+Send a blank e-mail to hbgusa-nonfiction-subscribe-request@timeinc.net
 ________________________________________________________________________
 ________________________________________________________________________
---More--(40%)
-
-
 
 Previous issues of this list are saved as files. You can
 get a list of available files by sending mail to
-LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-CHILDREN" in the body
+LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-NONFICTION" in the body
 of the message. You can then order these files with a
-"GET HBGUSA-CHILDREN LOGxxxx" command.
+"GET HBGUSA-NONFICTION LOGxxxx" command.
 
 

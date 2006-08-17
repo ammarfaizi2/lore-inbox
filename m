@@ -1,99 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWHQQOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWHQQOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbWHQQOL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbWHQQOL
+	id S932554AbWHQQOA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbWHQQOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:14:11 -0400
-Received: from [62.205.161.221] ([62.205.161.221]:19105 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S932552AbWHQQOJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:14:09 -0400
-Message-ID: <44E4956E.8050503@openvz.org>
-Date: Thu, 17 Aug 2006 20:12:30 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060802)
+	Thu, 17 Aug 2006 12:14:00 -0400
+Received: from arrakeen.ouaza.com ([212.85.152.62]:974 "EHLO
+	arrakeen.ouaza.com") by vger.kernel.org with ESMTP id S964855AbWHQQN7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:13:59 -0400
+Date: Thu, 17 Aug 2006 18:10:42 +0200
+From: Raphael Hertzog <hertzog@debian.org>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: How to avoid serial port buffer overruns?
+Message-ID: <20060817161042.GC10818@ouaza.com>
+References: <20060816104559.GF4325@ouaza.com> <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com> <1155762739.7338.18.camel@mindpipe> <1155767066.2600.19.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: devel@openvz.org
-CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Devel] Re: [RFC][PATCH 7/7] UBC: proc interface
-References: <44E33893.6020700@sw.ru> <44E33D5E.7000205@sw.ru>	<20060816171328.GA27898@kroah.com> <44E47274.70506@sw.ru> <20060817154023.GA7070@kroah.com>
-In-Reply-To: <20060817154023.GA7070@kroah.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Thu, 17 Aug 2006 20:11:15 +0400 (MSD)
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1155767066.2600.19.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Aug 17, 2006 at 05:43:16PM +0400, Kirill Korotaev wrote:
->   
->>> On Wed, Aug 16, 2006 at 07:44:30PM +0400, Kirill Korotaev wrote:
->>>
->>>       
->>>> Add proc interface (/proc/user_beancounters) allowing to see current
->>>> state (usage/limits/fails for each UB). Implemented via seq files.
->>>>         
->>> Ugh, why /proc?  This doesn't have anything to do with processes, just
->>> users, right?  What's wrong with /sys/kernel/ instead?
->>>       
->> We can move it, if there are much objections.
->>     
->
-> I am objecting.  /proc is for processes so do not add any new files
-> there that do not deal with processes.
->
->   
->>> Or /sys/kernel/debug/user_beancounters/ in debugfs as this is just a
->>> debugging thing, right?
->>>       
->> debugfs is usually OFF imho.
->>     
->
-> No, distros enable it.
->
->   
->> you don't export meminfo information in debugfs, correct?
->>     
->
-> That is because the meminfo is tied to processes, or was added to proc
-> before debugfs came about.
->
-> Then how about just /sys/kernel/ instead and use sysfs?  Just remember,
-> one value per file please.
->   
-I see two problems with that. But let me first describe the current 
-/proc/user_beancounters.  This is how it looks like from inside a container:
+On Wed, 16 Aug 2006, Paul Fulghum wrote:
+> On Wed, 2006-08-16 at 17:12 -0400, Lee Revell wrote:
+> > 2.6.15 and 2.6.16.  Here is the .config:
+> 
+> Alan's rework of the receive tty buffering went
+> into 2.6.16 and cured some problems, but clearly not yours.
+> Some more adjustments are in 2.6.18-rc4, so that
+> would be interesting to try for diagnosing this.
 
-# cat /proc/user_beancounters
-Version: 2.5
-       uid  resource           held    maxheld    barrier      limit    failcnt
-       123: kmemsize         836919    1005343    2752512    2936012          0
-            lockedpages           0          0         32         32          0
-            privvmpages        4587       7289      49152      53575          0
-............(more lines like that).........................................
+I will try 2.6.18-rc4 and keep you informed.
 
+> I was wondering if the problem was interrupt latency,
+> the tty receive buffering, or something totally different.
+> I don't know if your problem and Raphael's are caused
+> by the same mechanism. I would still like to know which
+> kernel versions he has tried.
 
-I.e. a container owner can take a glance over the current parameters, 
-their usage and (the thing that is really important) fail counters. Fail 
-counter increases each time a parameter hits the limit. This is very 
-straightforward way for container's owner to see if everything is OK or not.
+I tried 2.6.17.7.
 
-So, the problems with /sys are:
+But I'm really not sure that the 2.6 is a regression from 2.4, in fact I
+think it does better by default.
 
-(1) Gettng such info from 40+ files requires at least some script, while 
-now cat is just fine.
+The stock 2.4.31 kernel I was using had serial overruns at 9600 bauds
+already. Once patched with the low latency/preemptive kernel patchs, it
+was way better and I had only overruns at 115200 bauds.
 
-(2) Do we want to virtualize sysfs and enable /sys for every container? 
-Note that user_beancounters statistics is really needed for container's 
-owner to see. At the same time, container's owner should not be able to 
-modify it -- so we should end up with read/write ubc entries for the 
-host system and read-only ones for the container.
+With the 2.6.17.7 kernel (configured with CONFIG_PREEMPT and
+CONFIG_HZ=1000), I'm seeing overruns starting at 38400 bauds. So
+compared to plain 2.4, it's better. However compared to the patched
+2.4, it's worse.
 
-Taking into account those two issues, current /proc/user_beancounters 
-might be not that bad.
+(the figures are *very approximative* as the overruns haven't been
+detected with the same test conditions on 2.4 and on 2.6)
+
+I have no result with the 2.6.17.7 patched with the real time patch of
+Ingo/Thomas since it currently doesn't work on my card (see my separate
+bugreport).
+
+(those questions may have been directed to Lee but I'll respond in my case
+as well)
+> Are you using the low_latency flag on the serial device?
+
+I tried that option with the 2.4 kernel and it didn't improve the situation
+at all, and I haven't retried it with the 2.6 yet. But I will do.
+
+> What type of UART has been tested (16550? other?)
+
+I'm using only 16550 and I have no choice here, it's an "off the shelf"
+card.
+
+> Are you seeing overruns or just lost data?
+
+I'm seeing overruns.
+
+Regards,
+-- 
+Raphaël Hertzog
+
+Premier livre français sur Debian GNU/Linux :
+http://www.ouaza.com/livre/admin-debian/

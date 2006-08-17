@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWHQOAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWHQOBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWHQOAG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWHQN77
+	id S932502AbWHQOBS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWHQOBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:59:59 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:30362 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932498AbWHQN7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:59:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uFhxFcHxNalEOQXCw1vLNWlSXMi03Z1C3xh7H1iZ5C82BX5L/GAL2mfcMAbPOeSCnpAZvcskpUcSm1qNBw1J3l8qSS3gccrE5zLELpRbVcEOVXxfHNErPCbCyJMii8McaKHVzwUiH4Bnf3+M9jQWjdwqy4v5ZEBQ01mFVxaCwLE=
-Message-ID: <3f250c710608170659l3d0f92c7qfe2503ce8ab58dd5@mail.gmail.com>
-Date: Thu, 17 Aug 2006 09:59:37 -0400
-From: "Mauricio Lin" <mauriciolin@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: Some issues about the kernel memory leak detector: __scan_block() function
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <b0943d9e0608170128l5f9cec1ej3d46ac797c4c4738@mail.gmail.com>
+	Thu, 17 Aug 2006 10:01:17 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:60808 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S932504AbWHQOBO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:01:14 -0400
+Date: Thu, 17 Aug 2006 10:01:15 -0400
+From: mikepolniak <mikpolniak@adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: JMicron SATA/IDE and 2.6.18-rc4 fails to detect CDROM
+Message-ID: <20060817140115.GA3808@debamd64>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3f250c710608161519o54433300heb1c79de6cbf6ce5@mail.gmail.com>
-	 <b0943d9e0608170128l5f9cec1ej3d46ac797c4c4738@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin,
+Using 2.6.18-rc4 and CONFIG_SCSI_SATA_AHCI=m, fails to detect ide cdrom.
 
-On 8/17/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> Hi Mauricio,
->
-> On 16/08/06, Mauricio Lin <mauriciolin@gmail.com> wrote:
-> > Let's suppose the a kmalloc() was executed without storing the
-> > returned pointer to the memory area and its fictitious returned value
-> > would be the address 0xb7d73000 as:
-> >
-> > kmalloc(32, GFP_KERNEL);  // Cause memory leak
-> >
-> > Is there any possibility the __scan_block() scans a memory block that
-> > contains the memory area allocated by the previous kmalloc?
->
-> That's what the memleak-test module does.
->
-> Yes, there is a chance and this is called a false negative. If there
-> is a (non-)pointer location having this value (especially the stack),
-> it won't be reported. However, these locations might change and at
-> some point you will get the leak reported.
+lspci
 
-Do you mean that the (non-)pointer location might be moved to another
-memory location?
+03:00.1 IDE interface: JMicron Technologies, Inc. JMicron 20360/20363
+AHCI
+Controller (rev02)
 
-Let's say that the fictitious address 0xb7d73000 can be changed to
-another memory address, right?
+and from dmesg|grep -i ide
 
-BR,
+BIOS-provided physical RAM map:
+ACPI: IRQ0 used by override.
+ACPI: IRQ2 used by override.
+ACPI: IRQ9 used by override.
+Boot video device is 0000:01:00.0
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2 ide: Assuming
+33MHz system bus speed for PIO modes; override with idebus=xx Probing IDE
+interface ide0...
+Probing IDE interface ide1...
 
-Mauricio Lin.
+If i modprobe ahci dmesg shows:
+
+ahci 0000:03:00.0: version 2.0
+ACPI: PCI Interrupt 0000:03:00.0[A] -> GSI 19 (level, low) -> IRQ 17 PCI:
+Setting latency timer of device 0000:03:00.0 to 64 ahci 0000:03:00.0:
+AHCI
+0001.0000 32 slots 2 ports 3 Gbps 0x3 impl SATA mode ahci 0000:03:00.0:
+flags: 64bit ncq pm led clo pmp pio slum part ata5: SATA max UDMA/133 cmd
+0xFFFFC2000002C100 ctl 0x0 bmdma 0x0 irq 17 ata6: SATA max UDMA/133 cmd
+0xFFFFC2000002C180 ctl 0x0 bmdma 0x0 irq 17 scsi6 : ahci
+ata5: SATA link down (SStatus 0 SControl 300) scsi7 : ahci
+ata6: SATA link down (SStatus 0 SControl 300)
+
+The BIOS sees the CDROM but it is not detected by ide driver.

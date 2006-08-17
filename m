@@ -1,108 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWHQTqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWHQTxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWHQTqR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 15:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWHQTqR
+	id S1030215AbWHQTxL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 15:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWHQTxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 15:46:17 -0400
-Received: from mail.tigress.co.uk ([195.172.168.163]:38589 "EHLO
-	intgat.tigress.co.uk") by vger.kernel.org with ESMTP
-	id S1030194AbWHQTqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 15:46:16 -0400
-From: Ron Yorston <rmy@tigress.co.uk>
-Message-Id: <200608171945.k7HJjaLk029781@tiffany.internal.tigress.co.uk>
-Date: Thu, 17 Aug 2006 20:45:36 +0100
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ext2: avoid needless discard of preallocated blocks
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Aug 2006 15:53:10 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:43198 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030208AbWHQTxI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 15:53:08 -0400
+Subject: [RFC][PATCH 3/8] init security for init task
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>
+Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 12:53:17 -0700
+Message-Id: <1155844397.6788.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently preallocated blocks in ext2 are discarded on every call
-to iput() (by ext2_put_inode() calling ext2_discard_prealloc()).
+Added a LSM hook to initialize the security pointer of the init task.
 
-An earlier attempt to fix this ("discard ext2 preallocation in last
-iput") moved the ext2_discard_prealloc() call to ext2_clear_inode(),
-but was found to cause filesystem corruption in a test using fsx.
-The problem was that ext2_clear_inode() was writing the inode data
-to disk before calling ext2_discard_prealloc(), so the value of
-i_blocks on disk included the preallocated blocks.
-
-This patch moves the call to ext2_discard_prealloc() to the new
-function ext2_drop_inode().  This should be both efficient (discard
-happens on only the last call to iput()) and correct (fixes i_blocks
-before writing to disk).  Also, as there is now possibly a longer
-window during which an open file may have an incorrrect block count
-in its on-disk inode, ext2_update_inode adjusts the block count to
-account for preallocated blocks.
-
-No corruption has been detected using the fsx test.
-
-Signed-off-by: Ron Yorston <rmy@tigress.co.uk>
+Signed-off-by: Mimi Zohar <zohar@us.ibm.com> 
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 ---
+ include/linux/security.h |   17 +++++++++++++++++
+ init/main.c              |    1 +
+ security/dummy.c         |    6 ++++++
+ 3 files changed, 24 insertions(+)
 
---- linux-2.6.17/fs/ext2/super.c.prealloc	2006-06-18 02:49:35.000000000 +0100
-+++ linux-2.6.17/fs/ext2/super.c	2006-08-17 20:16:34.000000000 +0100
-@@ -238,7 +238,7 @@ static struct super_operations ext2_sops
- 	.destroy_inode	= ext2_destroy_inode,
- 	.read_inode	= ext2_read_inode,
- 	.write_inode	= ext2_write_inode,
--	.put_inode	= ext2_put_inode,
-+	.drop_inode	= ext2_drop_inode,
- 	.delete_inode	= ext2_delete_inode,
- 	.put_super	= ext2_put_super,
- 	.write_super	= ext2_write_super,
---- linux-2.6.17/fs/ext2/inode.c.prealloc	2006-06-18 02:49:35.000000000 +0100
-+++ linux-2.6.17/fs/ext2/inode.c	2006-08-17 20:16:34.000000000 +0100
-@@ -54,16 +54,18 @@ static inline int ext2_inode_is_fast_sym
+--- linux-2.6.18-rc3/include/linux/security.h	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/include/linux/security.h	2006-08-08 13:05:48.000000000 -0500
+@@ -516,6 +516,12 @@ struct swap_info_struct;
+  * @task_free_security:
+  *	@p contains the task_struct for process.
+  *	Deallocate and clear the p->security field.
++ * @task_init_alloc_security:
++ *	@p contains the task_struct for init process.
++ *	Allocate and attach a security structure to the p->security field for
++ *	the init task. The security field is initialized to NULL when the task
++ *	structure is allocated.
++ *	Return 0 if operation was successful.
+  * @task_setuid:
+  *	Check permission before setting one or more of the user identity
+  *	attributes of the current process.  The @flags parameter indicates
+@@ -1220,6 +1226,7 @@ struct security_operations {
+ 	int (*task_create) (unsigned long clone_flags);
+ 	int (*task_alloc_security) (struct task_struct * p);
+ 	void (*task_free_security) (struct task_struct * p);
++	int (*task_init_alloc_security) (struct task_struct * p);
+ 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
+ 	int (*task_post_setuid) (uid_t old_ruid /* or fsuid */ ,
+ 				 uid_t old_euid, uid_t old_suid, int flags);
+@@ -1816,6 +1823,11 @@ static inline void security_task_free (s
+ 	security_ops->task_free_security (p);
  }
  
- /*
-- * Called at each iput().
-+ * Called from iput_final().
-  *
-  * The inode may be "bad" if ext2_read_inode() saw an error from
-  * ext2_get_inode(), so we need to check that to avoid freeing random disk
-  * blocks.
-  */
--void ext2_put_inode(struct inode *inode)
-+void ext2_drop_inode(struct inode *inode)
- {
- 	if (!is_bad_inode(inode))
- 		ext2_discard_prealloc(inode);
++static inline int security_task_init_alloc (struct task_struct *p)
++{
++	return security_ops->task_init_alloc_security (p);
++}
 +
-+	generic_drop_inode(inode);
+ static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+ 					int flags)
+ {
+@@ -2479,6 +2491,11 @@ static inline int security_task_alloc (s
+ static inline void security_task_free (struct task_struct *p)
+ { }
+ 
++static inline int security_task_init_alloc (struct task_struct *p)
++{
++	return 0;
++}
++
+ static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+ 					int flags)
+ {
+--- linux-2.6.18-rc3/security/dummy.c	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/security/dummy.c	2006-08-04 13:28:34.000000000 -0500
+@@ -474,6 +474,11 @@ static void dummy_task_free_security (st
+ 	return;
  }
  
- /*
-@@ -1176,6 +1178,7 @@ static int ext2_update_inode(struct inod
- 	ino_t ino = inode->i_ino;
- 	uid_t uid = inode->i_uid;
- 	gid_t gid = inode->i_gid;
-+	blkcnt_t blocks = inode->i_blocks;
- 	struct buffer_head * bh;
- 	struct ext2_inode * raw_inode = ext2_get_inode(sb, ino, &bh);
- 	int n;
-@@ -1216,7 +1219,8 @@ static int ext2_update_inode(struct inod
- 	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
- 	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
++static int dummy_task_init_alloc_security (struct task_struct *p)
++{
++	return 0;
++}
++
+ static int dummy_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return 0;
+@@ -982,6 +987,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, task_create);
+ 	set_to_dummy_if_null(ops, task_alloc_security);
+ 	set_to_dummy_if_null(ops, task_free_security);
++	set_to_dummy_if_null(ops, task_init_alloc_security);
+ 	set_to_dummy_if_null(ops, task_setuid);
+ 	set_to_dummy_if_null(ops, task_post_setuid);
+ 	set_to_dummy_if_null(ops, task_setgid);
+--- linux-2.6.18-rc3/init/main.c	2006-07-30 01:15:36.000000000 -0500
++++ linux-2.6.18-rc3-working/init/main.c	2006-08-04 13:26:12.000000000 -0500
+@@ -698,6 +698,7 @@ static int init(void * unused)
+ 	 * can be found.
+ 	 */
+ 	child_reaper = current;
++	security_task_init_alloc(current);
  
--	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
-+	blocks -= ei->i_prealloc_count * (inode->i_sb->s_blocksize >> 9);
-+	raw_inode->i_blocks = cpu_to_le32(blocks);
- 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
- 	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
- 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
---- linux-2.6.17/fs/ext2/ext2.h.prealloc	2006-06-18 02:49:35.000000000 +0100
-+++ linux-2.6.17/fs/ext2/ext2.h	2006-08-17 20:16:34.000000000 +0100
-@@ -125,7 +125,7 @@ extern unsigned long ext2_count_free (st
- /* inode.c */
- extern void ext2_read_inode (struct inode *);
- extern int ext2_write_inode (struct inode *, int);
--extern void ext2_put_inode (struct inode *);
-+extern void ext2_drop_inode (struct inode *);
- extern void ext2_delete_inode (struct inode *);
- extern int ext2_sync_inode (struct inode *);
- extern void ext2_discard_prealloc (struct inode *);
+ 	smp_prepare_cpus(max_cpus);
+ 
+
+

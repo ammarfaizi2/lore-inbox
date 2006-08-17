@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWHQO6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWHQO6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWHQO6D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWHQO6B
+	id S932110AbWHQO6F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWHQO6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:58:01 -0400
-Received: from mail.suse.de ([195.135.220.2]:48285 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932110AbWHQO57 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:57:59 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-Date: Thu, 17 Aug 2006 18:04:40 +0200
-User-Agent: KMail/1.9.1
-Cc: Dave Hansen <haveblue@us.ibm.com>, rohitseth@google.com,
-       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
-References: <44E33893.6020700@sw.ru> <1155824788.9274.32.camel@localhost.localdomain> <1155826917.15195.101.camel@localhost.localdomain>
-In-Reply-To: <1155826917.15195.101.camel@localhost.localdomain>
+	Thu, 17 Aug 2006 10:58:05 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:64678 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965101AbWHQO6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:58:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qc5AbRPbJHLAEACixmfKph4Z2mmhESOShzTF+o7PkkgokLufvK1n/EW2/+GkYw8BTE23LUeFC8Pr7MDtEoSYLcFgVzWckrA/jPXYRWL9cxurbAzUED86ZDTM2lZlE0nf4OdsAU3kMOG1ZJGTnqCHbyaFKBxHYoUbT+2mK/qX+Ko=
+Message-ID: <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
+Date: Thu, 17 Aug 2006 07:58:01 -0700
+From: "Anonymous User" <anonymouslinuxuser@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation?
+Cc: "Adrian Bunk" <bunk@stusta.de>, "Patrick McFarland" <diablod3@gmail.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Grzegorz Kulewski" <kangur@polcom.net>,
+       "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+In-Reply-To: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608171804.41433.ak@suse.de>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I don't see any good way around that. For the page struct it is a
-> material issue, for the others its not a big deal providing we avoid
-> accounting dumb stuff like dentries.
+On 8/16/06, Anonymous User <anonymouslinuxuser@gmail.com> wrote:
+> I work for a company that will be developing an embedded Linux based
+> consumer electronic device.
 >
-> At the VM summit Linus suggested one option for user page allocation
-> tracking would be to track not per page but by block of pages (say the
-> 2MB chunks) and hand those out per container. That would really need the
-> defrag work though.
+> I believe that new kernel modules will be written to support I/O
+> peripherals and perhaps other things.  I don't know the details right
+> now.  What I am trying to do is get an idea of what requirements there
+> are to make the source code available under the GPL.
+>
+> I suspect the company will try to get away with releasing as little as
+> possible.  I don't know much about the GPL or Linux kernel internals,
+> but I want to encourage the company I work for to give back to the
+> community.
+>
+> I understand that modifications to GPL code must be released under the
+> GPL.  So if they tweak a scheduler implementation, this must be
+> released.  What if a new driver is written to support a custom piece
+> of hardware?  Yes, the driver was written to work with the Linux
+> kernel, but it isn't based off any existing piece of code.
+>
+> I'm posting anonymously because the company probably wouldn't want me
+> discussing this at all  :(
 
-One could always use a second set of arrays, mirroring mem_map
 
--Andi
+Thanks to everyone who has responded to my question so far.
+
+It seems like the two issues that need to be addressed are:
+1) Are the kernel modules being developed derived works?  If they are,
+they must be released along with the entire kernel source.
+2) If they are not derived works, and shipped in a product, does the
+fact that they are shipped in a product that uses the linux kernel
+require that the new modules be licensed under the GPL?
+
+Yes, I agree that the company I work for should talk to a lawyer.  I
+however, am not interested in picking up a big legal tab to satisfy my
+curiosity.

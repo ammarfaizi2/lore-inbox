@@ -1,68 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWHQMBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWHQMCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWHQMBG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWHQMBG
+	id S1751235AbWHQMCs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWHQMCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:01:06 -0400
-Received: from tresys.irides.com ([216.250.243.126]:17690 "HELO
-	exchange.columbia.tresys.com") by vger.kernel.org with SMTP
-	id S1751218AbWHQMBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:01:04 -0400
-Message-ID: <44E45A70.8090801@gentoo.org>
-Date: Thu, 17 Aug 2006 08:00:48 -0400
-From: Joshua Brindle <method@gentoo.org>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Thu, 17 Aug 2006 08:02:48 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:36618 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751235AbWHQMCr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:02:47 -0400
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Serge E. Hallyn" <serue@us.ibm.com>, "Serge E. Hallyn" <serge@hallyn.com>,
-       Nicholas Miell <nmiell@comcast.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
-Subject: Re: [RFC] [PATCH] file posix capabilities
-References: <20060730011338.GA31695@sergelap.austin.ibm.com>	 <20060814220651.GA7726@sergelap.austin.ibm.com>	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>	 <20060815020647.GB16220@sergelap.austin.ibm.com>	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>	 <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com>	 <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>	 <20060816024200.GD15241@sergelap.austin.ibm.com> <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0633-2, 08/16/2006), Outbound message
-X-Antivirus-Status: Clean
-X-OriginalArrivalTime: 17 Aug 2006 12:01:03.0594 (UTC) FILETIME=[D034CCA0:01C6C1F4]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 17 Aug 2006 12:02:45.0907 (UTC) FILETIME=[0D308630:01C6C1F5]
+Content-class: urn:content-classes:message
+Subject: Re: GPL Violation?
+Date: Thu, 17 Aug 2006 08:02:45 -0400
+Message-ID: <Pine.LNX.4.61.0608170743290.15190@chaos.analogic.com>
+In-Reply-To: <20060817093842.GA21430@cactii.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: GPL Violation?
+thread-index: AcbB9Q03Yi+s9QycRfSjBQkKtwLI9Q==
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <1155795251.4494.9.camel@laptopd505.fenrus.org> <20060817093842.GA21430@cactii.net>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Ben B" <kernel@bb.cactii.net>
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Anonymous User" <anonymouslinuxuser@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
-> On Tue, 2006-08-15 at 21:42 -0500, Serge E. Hallyn wrote:
->   
-> <snip>
->> Very good point.  Preventing communication channels i.e. through signals
->> isn't a concern, but user hallyn ptracing himself running /bin/passwd
->> certainly is.
->>     
->
-> Actually, ptrace already performs a capability comparison (cap_ptrace).
-> Wrt signals, it wasn't the communication channel that concerned me but
-> the ability to interfere with the operation of a process running in the
-> same uid but different capabilities, like stopping it at a critical
-> point.  Likewise with many other task hooks - you wouldn't want to be
-> able to depress the priority of a process running with greater
-> capabilities.
->
->   
-On this point, what about environment tampering of processes with caps? 
-LD_PRELOAD=my_bad_lib.so /usr/bin/passwd. glibc atsecure logic would 
-have to be updated to do a capability comparison.
 
-> One other point to consider is Solaris seems to have diverged from their
-> own past approaches for privileges/capabilities,
-> http://blogs.sun.com/casper/20040722
-> http://www.opensolaris.org/os/community/security/library/howto/privbracket/
+On Thu, 17 Aug 2006, Ben B wrote:
+
+> Arjan van de Ven <arjan@infradead.org> uttered the following thing:
+>> On Wed, 2006-08-16 at 22:48 -0700, Anonymous User wrote:
+>>> I believe that new kernel modules will be written to support I/O
+>>> peripherals and perhaps other things.  I don't know the details right
+>>> now.  What I am trying to do is get an idea of what requirements there
+>>> are to make the source code available under the GPL.
+>>
+>>
+>> you should talk to a lawyer, not LKML.
 >
-> Doesn't sound like they are even using file capabilities at all.
+> Minor gripe here...
 >
-> Also, think about the real benefits of capabilities, at least as defined
-> in Linux.  The coarse granularity and the lack of any per-object support
-> is a fairly significant deficiency there that is much better handled via
-> TE.  At least some of the Linux capabilities lend themselves to easy
-> privilege escalation to gaining other capabilities or effectively
-> bypassing them
+> Whilst it's true that a lawyer should get involved with these things, I
+> think it's also perfectly reasonable for someone to ask for input from
+> LKML, /. or other interesting places.
+>
+> OP may already be planning to speak to a lawyer, and just wants to take
+> tidbits of info/experiences/etc from others to help the lawyer's
+> research.
+>
+> BB
+
+"Talk to a lawyer..." Good copout. I have talked to lawyers
+about Linux, GPL, etc. "Don't touch that stuff with a 10-foot
+pole," is the response. A couple years ago, I was all set to
+make some very smart WiFi routers using Linux in a closely-held
+company that I had invested in. We built prototypes and were
+performing measurements for FCC approval. After buying a $15k
+spectrum analyzer, we needed more money to advertise and start
+production. A quick trip to a lawyer queered the deal. Undaunted,
+we went to another lawyer with another investor. We couldn't get
+any funding and had to give it up. Then Linksys got into that
+area and you know the rest. We had a two-year head start.
+Fortunately we didn't give up the "day jobs".
+
+It's all about managing risk. Lawyers want to minimize risk,
+accountants want to eliminate risk, engineers want to analyze
+risk, and entrepreneurs want to manage risk. Software engineers
+have a better "handle" on the risk analysis than the lawyers.
+Let them be heard.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

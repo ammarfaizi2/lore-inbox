@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWHQLwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWHQLx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWHQLwB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 07:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWHQLwB
+	id S964834AbWHQLx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 07:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWHQLx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 07:52:01 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:1059 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964828AbWHQLwA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 07:52:00 -0400
-Message-ID: <44E458ED.3060404@sw.ru>
-Date: Thu, 17 Aug 2006 15:54:21 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Thu, 17 Aug 2006 07:53:58 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:53196 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S964831AbWHQLx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 07:53:57 -0400
+Date: Thu, 17 Aug 2006 05:53:56 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Random scsi disk disappearing
+Message-ID: <20060817115356.GM4340@parisc-linux.org>
+References: <44E44B3E.10708@tls.msk.ru> <20060817113537.GK4340@parisc-linux.org> <44E4567B.4080104@tls.msk.ru>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: rohitseth@google.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
-References: <44E33893.6020700@sw.ru>	<44E33BB6.3050504@sw.ru>	<1155751868.22595.65.camel@galaxy.corp.google.com> <20060816111818.de1e4339.akpm@osdl.org>
-In-Reply-To: <20060816111818.de1e4339.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E4567B.4080104@tls.msk.ru>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 16 Aug 2006 11:11:08 -0700
-> Rohit Seth <rohitseth@google.com> wrote:
+On Thu, Aug 17, 2006 at 03:43:55PM +0400, Michael Tokarev wrote:
+> Matthew Wilcox wrote:
+> > On Thu, Aug 17, 2006 at 02:55:58PM +0400, Michael Tokarev wrote:
+> [sporadic disk disappearing, no logging]
+> > 
+> > I'd recommend turning on scsi logging; it might give you a clue about
+> > which bit of scanning is failing to work properly.
+> > 
+> > Try booting with scsi_mod.scsi_logging_level = 448 (I think I have that
+> > number right; 7 shifted left by 6) and then you can compare failing and
+> > non-failing runs and see if there's any difference.
 > 
-> 
->>>+struct user_beancounter
->>>+{
->>>+	atomic_t		ub_refcount;
->>>+	spinlock_t		ub_lock;
->>>+	uid_t			ub_uid;
->>
->>Why uid?  Will it be possible to club processes belonging to different
->>users to same bean counter.
-> 
-> 
-> hm.  I'd have expected to see a `struct user_struct *' here, not a uid_t.
+> It should be the same as
+>    echo $((7<<6)) > /sys/module/scsi_mod/parameters/scsi_logging_level
+> (which indeed is 448) at runtime, right?  (And yes, CONFIG_SCSI_LOGGING
+> is set to y).
 
-Sorry, misused name. should be ub_id. not related to user_struct or user.
+That's right.
 
-Thanks,
-Kirill
+> Heh oh those magic numbers!.. ;)
+
+Yeah, but the alternative is an in-kernel named symbol parser ... which
+we have in some drivers, but boy is it ugly.
+
+> Ok, I've turned on the logging on a bunch of machines (using the sysfs
+> method), let's see what will happen next.  Thank you!
+> 
+> By the way, should kernel pefrorm at least *some* "minimal" logging of
+> such a serious events by default?  Well ok, ok, it's not known yet what
+> the event really is, so I'm shutting up now, at least for a while.. ;)
+
+That's the problem -- if it turns out the event is a reasonable thing to
+happen for some devices, we'll annoy everyone with those devices.  It's
+hard to please everybody ;-)

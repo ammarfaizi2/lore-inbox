@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWHQNaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWHQNcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWHQNaB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWHQN34
+	id S964939AbWHQNcv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWHQNcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:29:56 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:3439 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964943AbWHQN31 (ORCPT
+	Thu, 17 Aug 2006 09:32:20 -0400
+Received: from alpha.polcom.net ([83.143.162.52]:29598 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S964939AbWHQNcK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:29:27 -0400
-Message-ID: <44E46FC4.2050002@sw.ru>
-Date: Thu, 17 Aug 2006 17:31:48 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Thu, 17 Aug 2006 09:32:10 -0400
+Date: Thu, 17 Aug 2006 15:31:53 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Adrian Bunk <bunk@stusta.de>, Patrick McFarland <diablod3@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation?
+In-Reply-To: <1155822112.15195.88.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0608171524400.14828@alpha.polcom.net>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> 
+ <200608170242.40969.diablod3@gmail.com>  <1155797656.4494.24.camel@laptopd505.fenrus.org>
+  <200608170332.53556.diablod3@gmail.com> <20060817080243.GN7813@stusta.de>
+  <Pine.LNX.4.63.0608171410570.14828@alpha.polcom.net>
+ <1155822112.15195.88.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru> <1155754029.9274.21.camel@localhost.localdomain>
-In-Reply-To: <1155754029.9274.21.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Wed, 2006-08-16 at 19:40 +0400, Kirill Korotaev wrote:
-> 
->>--- ./include/linux/mm.h.kmemcore       2006-08-16 19:10:38.000000000
->>+0400
->>+++ ./include/linux/mm.h        2006-08-16 19:10:51.000000000 +0400
->>@@ -274,8 +274,14 @@ struct page {
->>        unsigned int gfp_mask;
->>        unsigned long trace[8];
->> #endif
->>+#ifdef CONFIG_USER_RESOURCE
->>+       union {
->>+               struct user_beancounter *page_ub;
->>+       } bc;
->>+#endif
->> };
-> 
-> 
-> Is everybody OK with adding this accounting to the 'struct page'?  Is
-> there any kind of noticeable performance penalty for this?  I thought
-> that we had this aligned pretty well on cacheline boundaries.
-When I discussed this with Hugh Dickins on summit we agreed
-that +4 bytes on page struct for kernel using accounting
-are ok and almost unavoidable.
+On Thu, 17 Aug 2006, Alan Cox wrote:
+> Ar Iau, 2006-08-17 am 14:39 +0200, ysgrifennodd Grzegorz Kulewski:
+>> Why does Linus and others let lawyers and courts decide in such
+>> (important?) thing like what is allowed in Linux (or with Linux) and what
+>> is not?
+>
+> Because licenses are bounded and defined by the law. In the case of
+> copyright based rights they extend only to the thing that is copyrighted
+> and any derivatives so the grey area is not one the GPL could clarify
+> further.
 
-it can be stored not on the struct page, but in this
-case you need to introduce some kind of hash to lookup ub
-quickly from page, which is slower for accounting-enabled kernels.
+Ok, that could be a reason. But then at least make such strong comment as 
+proposed later in my post and put it where people will be searching for it 
+- in COPYING file. Even if it will not be legally enforceable, it will 
+show the intentions of main authors and will anwser many people
+questions.
 
-> How many things actually use this?  Can we have the slab ubcs without
-> the struct page pointer?
-slab doesn't use this pointer on the page.
-It is used for pages allocated by buddy
-alocator implicitly (e.g. LDT pages, page tables, ...).
 
-Kirill
+Grzegorz Kulewski
 

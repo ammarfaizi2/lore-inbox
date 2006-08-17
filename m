@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWHQQTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWHQQSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbWHQQTH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWHQQTG
+	id S932555AbWHQQSX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWHQQSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:19:06 -0400
-Received: from pat.uio.no ([129.240.10.4]:37796 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932558AbWHQQTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:19:04 -0400
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
-	writeback.
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060817083035.8b775b12.akpm@osdl.org>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	 <20060815010611.7dc08fb1.akpm@osdl.org>
-	 <17635.59821.21444.287979@cse.unsw.edu.au>
-	 <1155820912.5662.39.camel@localhost>
-	 <20060817083035.8b775b12.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 12:18:52 -0400
-Message-Id: <1155831532.5620.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 17 Aug 2006 12:18:23 -0400
+Received: from post-23.mail.nl.demon.net ([194.159.73.193]:25297 "EHLO
+	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S932555AbWHQQSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:18:22 -0400
+Message-ID: <44E4971F.2000903@rebelhomicide.demon.nl>
+Date: Thu, 17 Aug 2006 18:19:43 +0200
+From: Michiel de Boer <x@rebelhomicide.demon.nl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Anonymous User <anonymouslinuxuser@gmail.com>
+CC: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       Patrick McFarland <diablod3@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Grzegorz Kulewski <kangur@polcom.net>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: GPL Violation?
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
+In-Reply-To: <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-1.783, required 12,
-	autolearn=disabled, AWL 0.71, RCVD_IN_XBL 2.51,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 08:30 -0700, Andrew Morton wrote:
-> On Thu, 17 Aug 2006 09:21:51 -0400
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > Exactly how would a request limit help? All that boils down to is having
-> > the VM monitor global_page_state(NR_FILE_DIRTY) versus monitoring
-> > global_page_state(NR_FILE_DIRTY)+global_page_state(NR_WRITEBACK).
-> > 
-> 
-> I assume that if NFS is not limiting its NR_WRITEBACK consumption and block
-> devices are doing so, we could get in a situation where NFS hogs all of the
-> fixed-size NR_DIRTY+NR_WRITEBACK resource at the expense of concurrent
-> block-device-based writeback.
+Anonymous User wrote:
+> On 8/16/06, Anonymous User <anonymouslinuxuser@gmail.com> wrote:
+>> I work for a company that will be developing an embedded Linux based
+>> consumer electronic device.
+>>
+>> I believe that new kernel modules will be written to support I/O
+>> peripherals and perhaps other things.  I don't know the details right
+>> now.  What I am trying to do is get an idea of what requirements there
+>> are to make the source code available under the GPL.
+>>
+>> I suspect the company will try to get away with releasing as little as
+>> possible.  I don't know much about the GPL or Linux kernel internals,
+>> but I want to encourage the company I work for to give back to the
+>> community.
+>>
+>> I understand that modifications to GPL code must be released under the
+>> GPL.  So if they tweak a scheduler implementation, this must be
+>> released.  What if a new driver is written to support a custom piece
+>> of hardware?  Yes, the driver was written to work with the Linux
+>> kernel, but it isn't based off any existing piece of code.
+>>
+>> I'm posting anonymously because the company probably wouldn't want me
+>> discussing this at all  :(
+>
+>
+> Thanks to everyone who has responded to my question so far.
+>
+> It seems like the two issues that need to be addressed are:
+> 1) Are the kernel modules being developed derived works?  If they are,
+> they must be released along with the entire kernel source.
+> 2) If they are not derived works, and shipped in a product, does the
+> fact that they are shipped in a product that uses the linux kernel
+> require that the new modules be licensed under the GPL?
+>
+> Yes, I agree that the company I work for should talk to a lawyer.  I
+> however, am not interested in picking up a big legal tab to satisfy my
+> curiosity.
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+I suggest you take a look at http://gpl-violations.org/
 
-Since NFS has no control over NR_DIRTY, how does controlling
-NR_WRITEBACK help? The only resource that NFS shares with the block
-device writeout queues is memory.
-
-IOW: The resource that needs to be controlled is the dirty pages, not
-the write-out queue. Unless you can throttle back on the creation of
-dirty NFS pages in the first place, then the potential for unfairness
-will exist.
-
-Trond
+Regards, Michiel de Boer
 

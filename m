@@ -1,79 +1,79 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965032AbWHQOUw (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 10:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWHQOU0
+	id S965033AbWHQOT7 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Aug 2006 10:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWHQOTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:20:26 -0400
-Received: from timeinc-s03.websys.aol.com ([64.12.55.161]:11714 "EHLO
+	Thu, 17 Aug 2006 10:19:36 -0400
+Received: from timeinc-s03.websys.aol.com ([64.12.55.161]:1986 "EHLO
 	timeinc-s03.websys.aol.com") by vger.kernel.org with ESMTP
-	id S932510AbWHQOUD (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Thu, 17 Aug 2006 10:20:03 -0400
-Message-Id: <200608171420.k7HBgaBB022422@timeinc-s01.websys.aol.com>
-Date: Thu, 17 Aug 2006 10:20:02 -0400
+	id S932504AbWHQOTe (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Thu, 17 Aug 2006 10:19:34 -0400
+Message-Id: <200608171419.k7HBgaAb022422@timeinc-s01.websys.aol.com>
+Date: Thu, 17 Aug 2006 10:19:33 -0400
 From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
-Subject: You are now subscribed to the HBGUSA-NICHOLASSPARKS list
+Subject: You are now subscribed to the HBGUSA-BUSINESSANDMONEY list
 To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
-Reply-To: HBGUSA-NICHOLASSPARKS-request@LS.TIMEINC.NET
-X-LSV-ListID: HBGUSA-NICHOLASSPARKS
+Reply-To: HBGUSA-BUSINESSANDMONEY-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-BUSINESSANDMONEY
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965032AbWHQOUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965033AbWHQOT7@vger.kernel.org>
 
 ________________________________________________________________________
 ________________________________________________________________________
 
 This e-mail contains important information about your subscription
-to HBGUSA-NICHOLASSPARKS.  Please save it for future reference.
+to HBGUSA-BUSINESSANDMONEY.  Please save it for future reference.
 ________________________________________________________________________
 ________________________________________________________________________
 
-Welcome to the Hachette Book Group USA Nicholas Sparks Mailing
-List! Shortly we will start sending you the latest news and
-information on bestselling author Nicholas Sparks.   Enjoy!
+Welcome to the Hachette Book Group USA Business and Money Mailing List!  
+Shortly we will start sending you the latest news and information on 
+Business and Money books from Hachette Book Group USA.  Enjoy!
+
+If you use an automatic 'vacation' or 'out-of-office' e-mail replier,
+please remember to configure your program so that these notices aren't
+sent to HBGUSA-BUSINESSANDMONEY list. Otherwise you may be unsubscribed from the list.
 
 
 TO UNSUBSCRIBE:
 
 You have received this e-mail because you are a Hachette Book Group USA
-Nicholas Sparks newsletter subscriber.  To unsubscribe from this 
+Business and Money newsletter subscriber.  To unsubscribe from this 
 newsletter, please send a blank e-mail to:
 
-hbgusa-nicholassparks-unsubscribe-request@timeinc.net
+hbgusa-businessandmoney-unsubscribe-request@timeinc.net
 
 Please make sure that you are sending the signoff request from the
 *same* e-mail address  <linux-kernel@VGER.KERNEL.ORG> that you originally
 subscribed from.
 
-Important: You cannot sign off from HBGUSA-NICHOLASSPARKS by replying to this
+Important: You cannot sign off from HBGUSA-BUSINESSANDMONEY by replying to this
 message. Please follow the instructions above. E-mail about unresolved
-list problems can be sent to <hbgusamp@timeinc.net>.
+list problems can be sent to <hbgusabc@timeinc.net>.
 
 
-PRIVACY POLICY:
+PRIVACY POLICY: 
 
-Please read our Privacy Policy, or copy and paste this link into your
-browser:
+Please read our Privacy Policy, or copy and paste this link into your browser: 
+http://www.hbgusa.com/legal/index.html 
 
-http://www.hachettebookgroupusa.com/legal/index.html
-
-FOR FURTHER INFORMATION, PLEASE CONTACT:
+FOR FURTHER INFORMATION, PLEASE CONTACT: 
 
 Hachette Book Group USA
 Customer Service
-3 Center Plaza
-Boston, MA 02108-2084
-
+3 Center Plaza Boston, MA 02108-2084
 
 TO SUBSCRIBE TO THE NEWSLETTER:
 
-Send a blank e-mail to hbgusa-nicholassparks-subscribe-request@timeinc.net
+Send a blank e-mail to hbgusa-businessandmoney-subscribe-request@timeinc.net
 ________________________________________________________________________
 ________________________________________________________________________
 
 Previous issues of this list are saved as files. You can
 get a list of available files by sending mail to
-LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-NICHOLASSPARKS" in the body
+LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-BUSINESSANDMONEY" in the body
 of the message. You can then order these files with a
-"GET HBGUSA-NICHOLASSPARKS LOGxxxx" command.
+"GET HBGUSA-BUSINESSANDMONEY LOGxxxx" command.
 
 

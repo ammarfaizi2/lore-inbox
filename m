@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWHQPq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWHQPq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965044AbWHQPq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWHQPq2
+	id S965047AbWHQPq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWHQPq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:46:28 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30156 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965044AbWHQPq1 (ORCPT
+	Thu, 17 Aug 2006 11:46:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:45772 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965156AbWHQPq5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:46:27 -0400
-Date: Thu, 17 Aug 2006 08:42:45 -0700
+	Thu, 17 Aug 2006 11:46:57 -0400
+Date: Thu, 17 Aug 2006 08:40:23 -0700
 From: Greg KH <greg@kroah.com>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Multiprobe sanitizer
-Message-ID: <20060817154245.GB7070@kroah.com>
-References: <1155746538.24077.371.camel@localhost.localdomain> <20060816222633.GA6829@kroah.com> <1155774994.15195.12.camel@localhost.localdomain> <1155797833.11312.160.camel@localhost.localdomain> <1155804060.15195.30.camel@localhost.localdomain> <1155806676.11312.175.camel@localhost.localdomain> <20060817120013.GC6843@kroah.com> <1155816777.11312.177.camel@localhost.localdomain> <20060817122244.GA17956@kroah.com> <20060817144329.GA20790@aepfle.de>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH 7/7] UBC: proc interface
+Message-ID: <20060817154023.GA7070@kroah.com>
+References: <44E33893.6020700@sw.ru> <44E33D5E.7000205@sw.ru> <20060816171328.GA27898@kroah.com> <44E47274.70506@sw.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060817144329.GA20790@aepfle.de>
+In-Reply-To: <44E47274.70506@sw.ru>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 04:43:29PM +0200, Olaf Hering wrote:
-> On Thu, Aug 17, 2006 at 05:22:44AM -0700, Greg KH wrote:
-> > On Thu, Aug 17, 2006 at 02:12:57PM +0200, Benjamin Herrenschmidt wrote:
-> > > On Thu, 2006-08-17 at 05:00 -0700, Greg KH wrote:
-> > > > On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
-> > > > > Probe ordering is fragile and completely defeated with busses that are
-> > > > > already probed asynchronously (like USB or firewire), and things can
-> > > > > only get worse. Thus we need to look for generic solutions, the trick of
-> > > > > maintaining probe ordering will work around problems today but we'll
-> > > > > still hit the wall in an increasing number of cases in the future.
-> > > > 
-> > > > That's exactly why udev was created :)
-> > > > 
-> > > > It can handle bus ordering issues already today just fine, and distros
-> > > > use it this way in shipping, "enterprise ready" products.
-> > > 
-> > > Only up to a certain point and for certain drivers... but yeah. 
-> > 
-> > What drivers are not supported by this?  Seriously, have we missed any?
-> 
-> Do serial drivers have a device symlink now
+On Thu, Aug 17, 2006 at 05:43:16PM +0400, Kirill Korotaev wrote:
+> >On Wed, Aug 16, 2006 at 07:44:30PM +0400, Kirill Korotaev wrote:
+> >
+> >>Add proc interface (/proc/user_beancounters) allowing to see current
+> >>state (usage/limits/fails for each UB). Implemented via seq files.
+> >
+> >
+> >Ugh, why /proc?  This doesn't have anything to do with processes, just
+> >users, right?  What's wrong with /sys/kernel/ instead?
+> We can move it, if there are much objections.
 
-Yes:
- $ tree /sys/class/tty/ttyS0
-/sys/class/tty/ttyS0
-|-- dev
-|-- device -> ../../../devices/platform/serial8250
-|-- subsystem -> ../../../class/tty
-`-- uevent
+I am objecting.  /proc is for processes so do not add any new files
+there that do not deal with processes.
 
-> and video drivers?
+> >Or /sys/kernel/debug/user_beancounters/ in debugfs as this is just a
+> >debugging thing, right?
+> debugfs is usually OFF imho.
 
-Properly written ones do, I have heard reports that some do not, but
-that's a driver bug that should be fixed with a one line addition.  If
-you know of any specific ones, please let me know and I'll make the
-needed change.
+No, distros enable it.
+
+> you don't export meminfo information in debugfs, correct?
+
+That is because the meminfo is tied to processes, or was added to proc
+before debugfs came about.
+
+Then how about just /sys/kernel/ instead and use sysfs?  Just remember,
+one value per file please.
 
 thanks,
 

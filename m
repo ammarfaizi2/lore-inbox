@@ -1,73 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWHQUOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWHQUO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWHQUOp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 16:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWHQUOa
+	id S1030259AbWHQUO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 16:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWHQULa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 16:14:30 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:4779 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1030258AbWHQUOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 16:14:04 -0400
-X-IronPort-AV: i="4.08,139,1154934000"; 
-   d="scan'208"; a="312148577:sNHT32781260"
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, openib-general@openib.org
-Subject: InfiniBand merge plans for 2.6.19
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 17 Aug 2006 13:13:57 -0700
-Message-ID: <adawt9786ii.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 17 Aug 2006 20:13:59.0108 (UTC) FILETIME=[AC961840:01C6C239]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	Thu, 17 Aug 2006 16:11:30 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:62313 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1030259AbWHQULF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 16:11:05 -0400
+Cc: schihei@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
+       MEDER@de.ibm.com
+Subject: [PATCH 12/13] IB/ehca: phyp
+In-Reply-To: <20068171311.NYGfAW00YTmK6YKh@cisco.com>
+X-Mailer: Roland's Patchbomber
+Date: Thu, 17 Aug 2006 13:11:02 -0700
+Message-Id: <20068171311.P1OwgyzMAlKlrkeW@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: openib-general@openib.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <rolandd@cisco.com>
+X-OriginalArrivalTime: 17 Aug 2006 20:11:02.0597 (UTC) FILETIME=[4360A750:01C6C239]
+Authentication-Results: sj-dkim-1.cisco.com; header.From=rolandd@cisco.com; dkim=pass (
 	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a short summary of what I plan to merge for 2.6.19.  Some of
-this is already in infiniband.git[1], while some still needs to be
-merged up.  Highlights:
+ drivers/infiniband/hw/ehca/hcp_phyp.c |   92 ++++++++++++++++++++++++++++++++
+ drivers/infiniband/hw/ehca/hcp_phyp.h |   96 +++++++++++++++++++++++++++++++++
+ 2 files changed, 188 insertions(+), 0 deletions(-)
 
-    o  iWARP core support[2].  This updates drivers/infiniband to work
-       with devices that do RDMA over IP/ethernet in addition to
-       InfiniBand devices.  As a first user of this support, I also
-       plan to merge the amso1100[3] driver for Ammasso RNIC.
+diff --git a/drivers/infiniband/hw/ehca/hcp_phyp.c b/drivers/infiniband/hw/ehca/hcp_phyp.c
+new file mode 100644
+index 0000000..d522d50
+--- /dev/null
++++ b/drivers/infiniband/hw/ehca/hcp_phyp.c
+@@ -0,0 +1,92 @@
++/*
++ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
++ *
++ *   load store abstraction for ehca register access with tracing
++ *
++ *  Authors: Christoph Raisch <raisch@de.ibm.com>
++ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *
++ *  Copyright (c) 2005 IBM Corporation
++ *
++ *  All rights reserved.
++ *
++ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
++ *  BSD.
++ *
++ * OpenIB BSD License
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * Redistributions of source code must retain the above copyright notice, this
++ * list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright notice,
++ * this list of conditions and the following disclaimer in the documentation
++ * and/or other materials
++ * provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
++ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#define DEB_PREFIX "PHYP"
++
++#include "ehca_classes.h"
++#include "hipz_hw.h"
++
++int hcall_map_page(u64 physaddr, u64 *mapaddr)
++{
++	*mapaddr = (u64)(ioremap(physaddr, EHCA_PAGESIZE));
++
++	EDEB(7, "ioremap physaddr=%lx mapaddr=%lx", physaddr, *mapaddr);
++	return 0;
++}
++
++int hcall_unmap_page(u64 mapaddr)
++{
++	EDEB(7, "mapaddr=%lx", mapaddr);
++	iounmap((volatile void __iomem*)mapaddr);
++	return 0;
++}
++
++int hcp_galpas_ctor(struct h_galpas *galpas,
++		    u64 paddr_kernel, u64 paddr_user)
++{
++	int ret = hcall_map_page(paddr_kernel, &galpas->kernel.fw_handle);
++	if (ret)
++		return ret;
++
++	galpas->user.fw_handle = paddr_user;
++
++	EDEB(7, "paddr_kernel=%lx paddr_user=%lx galpas->kernel=%lx"
++	     " galpas->user=%lx",
++	     paddr_kernel, paddr_user, galpas->kernel.fw_handle,
++	     galpas->user.fw_handle);
++
++	return ret;
++}
++
++int hcp_galpas_dtor(struct h_galpas *galpas)
++{
++	int ret = 0;
++
++	if (galpas->kernel.fw_handle)
++		ret = hcall_unmap_page(galpas->kernel.fw_handle);
++
++	if (ret)
++		return ret;
++
++	galpas->user.fw_handle = galpas->kernel.fw_handle = 0;
++
++	return ret;
++}
+diff --git a/drivers/infiniband/hw/ehca/hcp_phyp.h b/drivers/infiniband/hw/ehca/hcp_phyp.h
+new file mode 100644
+index 0000000..ecb1117
+--- /dev/null
++++ b/drivers/infiniband/hw/ehca/hcp_phyp.h
+@@ -0,0 +1,96 @@
++/*
++ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
++ *
++ *  Firmware calls
++ *
++ *  Authors: Christoph Raisch <raisch@de.ibm.com>
++ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *           Waleri Fomin <fomin@de.ibm.com>
++ *           Gerd Bayer <gerd.bayer@de.ibm.com>
++ *
++ *  Copyright (c) 2005 IBM Corporation
++ *
++ *  All rights reserved.
++ *
++ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
++ *  BSD.
++ *
++ * OpenIB BSD License
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * Redistributions of source code must retain the above copyright notice, this
++ * list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright notice,
++ * this list of conditions and the following disclaimer in the documentation
++ * and/or other materials
++ * provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
++ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef __HCP_PHYP_H__
++#define __HCP_PHYP_H__
++
++
++/*
++ * eHCA page (mapped into memory)
++ * resource to access eHCA register pages in CPU address space
++*/
++struct h_galpa {
++	u64 fw_handle;
++	/* for pSeries this is a 64bit memory address where
++	   I/O memory is mapped into CPU address space (kv) */
++};
++
++/*
++ * resource to access eHCA address space registers, all types
++ */
++struct h_galpas {
++	u32 pid;		/*PID of userspace galpa checking */
++	struct h_galpa user;	/* user space accessible resource,
++				   set to 0 if unused */
++	struct h_galpa kernel;	/* kernel space accessible resource,
++				   set to 0 if unused */
++};
++
++static inline u64 hipz_galpa_load(struct h_galpa galpa, u32 offset)
++{
++	u64 addr = galpa.fw_handle + offset;
++	u64 out;
++	EDEB_EN(7, "addr=%lx offset=%x ", addr, offset);
++	out = *(u64 *) addr;
++	EDEB_EX(7, "addr=%lx value=%lx", addr, out);
++	return out;
++}
++
++static inline void hipz_galpa_store(struct h_galpa galpa, u32 offset, u64 value)
++{
++	u64 addr = galpa.fw_handle + offset;
++	EDEB(7, "addr=%lx offset=%x value=%lx", addr,
++	     offset, value);
++	*(u64 *) addr = value;
++}
++
++int hcp_galpas_ctor(struct h_galpas *galpas,
++		    u64 paddr_kernel, u64 paddr_user);
++
++int hcp_galpas_dtor(struct h_galpas *galpas);
++
++int hcall_map_page(u64 physaddr, u64 * mapaddr);
++
++int hcall_unmap_page(u64 mapaddr);
++
++#endif
+-- 
+1.4.1
 
-       I will post this for review one more time after I pull it into
-       my git tree for last minute cleanups.  But if you feel this
-       iWARP support should not be merged, please let me know why now.
-
-    o  IBM eHCA driver, which supports IBM pSeries-specific InfiniBand
-       hardware.  This is in the ehca branch of infiniband.git, and I
-       will post it for review one more time.  My feeling is that more
-       cleanups are certainly possible, but this driver is "good
-       enough to merge" now and has languished out of tree for long
-       enough.  I'm certainly happy to merge cleanup patches, though.
-
-    o  mmap()ed userspace work queues for ipath.  This is a
-       performance enhancement for QLogic/PathScale HCAs but it does
-       touch core stuff in minor ways.  Should not be controversial.
-
-    o  I also have the following minor changes queued in the
-       for-2.6.19 branch of infiniband.git:
-
-       Ishai Rabinovitz:
-             IB/srp: Add port/device attributes
-
-       James Lentini:
-             IB/mthca: Include the header we really want
-
-       Michael S. Tsirkin:
-             IB/mthca: Don't use privileged UAR for kernel access
-             IB/ipoib: Fix flush/start xmit race (from code review)
-       
-       Roland Dreier:
-             IB/uverbs: Use idr_read_cq() where appropriate
-             IB/uverbs: Fix lockdep warning when QP is created with 2 CQs
-
-[1]  git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git
-[2]  http://thread.gmane.org/gmane.linux.network/40903
-[3]  http://thread.gmane.org/gmane.linux.drivers.openib/28657

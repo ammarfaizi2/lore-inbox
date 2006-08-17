@@ -1,330 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWHQM0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWHQM0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWHQM0R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWHQM0R
+	id S932296AbWHQM0U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWHQM0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:26:17 -0400
-Received: from dee.erg.abdn.ac.uk ([139.133.204.82]:50570 "EHLO erg.abdn.ac.uk")
-	by vger.kernel.org with ESMTP id S932294AbWHQM0P (ORCPT
+	Thu, 17 Aug 2006 08:26:19 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:16004 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932296AbWHQM0P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 17 Aug 2006 08:26:15 -0400
-From: gerrit@erg.abdn.ac.uk
-To: netdev@vger.kernel.org
-Subject: [PATCHv2 2.6.17] net/ipv6/udp.c: remove duplicate udp_get_port code
-Date: Thu, 17 Aug 2006 13:25:46 +0100
-User-Agent: KMail/1.8.3
-Cc: davem@davemloft.net, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608171325.47349@strip-the-willow>
-Content-Type: text/plain;
-  charset="us-ascii"
+Subject: Re: [RFC] [PATCH] file posix capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@gentoo.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, "Serge E. Hallyn" <serge@hallyn.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org
+In-Reply-To: <44E45A70.8090801@gentoo.org>
+References: <20060730011338.GA31695@sergelap.austin.ibm.com>
+	 <20060814220651.GA7726@sergelap.austin.ibm.com>
+	 <m1r6zirgst.fsf@ebiederm.dsl.xmission.com>
+	 <20060815020647.GB16220@sergelap.austin.ibm.com>
+	 <m13bbyr80e.fsf@ebiederm.dsl.xmission.com>
+	 <1155615736.2468.12.camel@entropy> <20060815114946.GA7267@vino.hallyn.com>
+	 <1155658688.1780.33.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060816024200.GD15241@sergelap.austin.ibm.com>
+	 <1155734401.18911.33.camel@moss-spartans.epoch.ncsc.mil>
+	 <44E45A70.8090801@gentoo.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 17 Aug 2006 08:28:18 -0400
+Message-Id: <1155817698.21070.18.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-X-ERG-MailScanner: Found to be clean
-X-ERG-MailScanner-From: gerrit@erg.abdn.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[NET]: UDPv4 and UDPv6 use an almost identical version of the get_port function,
-which is unnecessary since the (long) code differs in only one if-statement.
+On Thu, 2006-08-17 at 08:00 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Tue, 2006-08-15 at 21:42 -0500, Serge E. Hallyn wrote:
+> >   
+> > <snip>
+> >> Very good point.  Preventing communication channels i.e. through signals
+> >> isn't a concern, but user hallyn ptracing himself running /bin/passwd
+> >> certainly is.
+> >>     
+> >
+> > Actually, ptrace already performs a capability comparison (cap_ptrace).
+> > Wrt signals, it wasn't the communication channel that concerned me but
+> > the ability to interfere with the operation of a process running in the
+> > same uid but different capabilities, like stopping it at a critical
+> > point.  Likewise with many other task hooks - you wouldn't want to be
+> > able to depress the priority of a process running with greater
+> > capabilities.
+> >
+> >   
+> On this point, what about environment tampering of processes with caps? 
+> LD_PRELOAD=my_bad_lib.so /usr/bin/passwd. glibc atsecure logic would 
+> have to be updated to do a capability comparison.
 
-This patch creates one common function which is called by udp_v4_get_port() and
-udp_v6_get_port(). As a result,
-  * duplicated code is removed
-  * udp_port_rover and local port lookup can now be removed from udp.h
-  * further savings follow since the same function will be used by UDP-Litev4 
-    and UDP-Litev6
+That's the bprm_secureexec logic change that has already been mentioned;
+that determines the AT_SECURE value, and glibc then just acts based on
+that value provided by the kernel.  Just a matter of extending
+cap_bprm_secureexec to compare the capability sets.  Already on Serge's
+todo list, but it is necessary for this to be a safe change, and should
+happen before this patch goes anywhere (even -mm), IMHO.
 
-In contrast to the patch sent in response to Yoshifujis comments (fixed by this
-variant), the code below also removes the EXPORT_SYMBOL(udp_port_rover), since
-udp_port_rover can now remain local to net/ipv4/udp.c.
+-- 
+Stephen Smalley
+National Security Agency
 
-Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
----
-
- include/net/udp.h |   18 +---------
- net/ipv4/udp.c    |   96 +++++++++++++++++++++++++++++++++---------------------
- net/ipv6/udp.c    |   76 +-----------------------------------------
- 3 files changed, 64 insertions(+), 126 deletions(-)
-
-
-
-diff --git a/include/net/udp.h b/include/net/udp.h
-index 766fba1..c490a0f 100644
---- a/include/net/udp.h
-+++ b/include/net/udp.h
-@@ -30,25 +30,9 @@ #include <linux/seq_file.h>
- 
- #define UDP_HTABLE_SIZE		128
- 
--/* udp.c: This needs to be shared by v4 and v6 because the lookup
-- *        and hashing code needs to work with different AF's yet
-- *        the port space is shared.
-- */
- extern struct hlist_head udp_hash[UDP_HTABLE_SIZE];
- extern rwlock_t udp_hash_lock;
- 
--extern int udp_port_rover;
--
--static inline int udp_lport_inuse(u16 num)
--{
--	struct sock *sk;
--	struct hlist_node *node;
--
--	sk_for_each(sk, node, &udp_hash[num & (UDP_HTABLE_SIZE - 1)])
--		if (inet_sk(sk)->num == num)
--			return 1;
--	return 0;
--}
- 
- /* Note: this must match 'valbool' in sock_setsockopt */
- #define UDP_CSUM_NOXMIT		1
-@@ -63,6 +47,8 @@ extern struct proto udp_prot;
- 
- struct sk_buff;
- 
-+extern int	udp_get_port(struct sock *sk, unsigned short snum,
-+			     int (*saddr_cmp)(struct sock *, struct sock *));
- extern void	udp_err(struct sk_buff *, u32);
- 
- extern int	udp_sendmsg(struct kiocb *iocb, struct sock *sk,
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 3f93292..9d4e156 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -119,14 +119,34 @@ DEFINE_SNMP_STAT(struct udp_mib, udp_sta
- struct hlist_head udp_hash[UDP_HTABLE_SIZE];
- DEFINE_RWLOCK(udp_hash_lock);
- 
--/* Shared by v4/v6 udp. */
-+/* Shared by v4/v6 udp_get_port */
- int udp_port_rover;
- 
--static int udp_v4_get_port(struct sock *sk, unsigned short snum)
-+static inline int udp_lport_inuse(u16 num)
- {
-+	struct sock *sk;
- 	struct hlist_node *node;
-+
-+	sk_for_each(sk, node, &udp_hash[num & (UDP_HTABLE_SIZE - 1)])
-+		if (inet_sk(sk)->num == num)
-+			return 1;
-+	return 0;
-+}
-+
-+/**
-+ *  udp_get_port  -  common port lookup for IPv4 and IPv6
-+ *
-+ *  @sk:          socket struct in question
-+ *  @snum:        port number to look up
-+ *  @saddr_comp:  AF-dependent comparison of bound local IP addresses
-+ */
-+int udp_get_port(struct sock *sk, unsigned short snum,
-+		 int (*saddr_cmp)(struct sock *sk1, struct sock *sk2))
-+{
-+	struct hlist_node *node;
-+	struct hlist_head *head;
- 	struct sock *sk2;
--	struct inet_sock *inet = inet_sk(sk);
-+	int    error = 1;
- 
- 	write_lock_bh(&udp_hash_lock);
- 	if (snum == 0) {
-@@ -138,11 +158,10 @@ static int udp_v4_get_port(struct sock *
- 		best_size_so_far = 32767;
- 		best = result = udp_port_rover;
- 		for (i = 0; i < UDP_HTABLE_SIZE; i++, result++) {
--			struct hlist_head *list;
- 			int size;
- 
--			list = &udp_hash[result & (UDP_HTABLE_SIZE - 1)];
--			if (hlist_empty(list)) {
-+			head = &udp_hash[result & (UDP_HTABLE_SIZE - 1)];
-+			if (hlist_empty(head)) {
- 				if (result > sysctl_local_port_range[1])
- 					result = sysctl_local_port_range[0] +
- 						((result - sysctl_local_port_range[0]) &
-@@ -150,12 +169,11 @@ static int udp_v4_get_port(struct sock *
- 				goto gotit;
- 			}
- 			size = 0;
--			sk_for_each(sk2, node, list)
--				if (++size >= best_size_so_far)
--					goto next;
--			best_size_so_far = size;
--			best = result;
--		next:;
-+			sk_for_each(sk2, node, head)
-+				if (++size < best_size_so_far) {
-+					best_size_so_far = size;
-+					best = result;
-+				}
- 		}
- 		result = best;
- 		for(i = 0; i < (1 << 16) / UDP_HTABLE_SIZE; i++, result += UDP_HTABLE_SIZE) {
-@@ -171,38 +189,44 @@ static int udp_v4_get_port(struct sock *
- gotit:
- 		udp_port_rover = snum = result;
- 	} else {
--		sk_for_each(sk2, node,
--			    &udp_hash[snum & (UDP_HTABLE_SIZE - 1)]) {
--			struct inet_sock *inet2 = inet_sk(sk2);
--
--			if (inet2->num == snum &&
--			    sk2 != sk &&
--			    !ipv6_only_sock(sk2) &&
--			    (!sk2->sk_bound_dev_if ||
--			     !sk->sk_bound_dev_if ||
--			     sk2->sk_bound_dev_if == sk->sk_bound_dev_if) &&
--			    (!inet2->rcv_saddr ||
--			     !inet->rcv_saddr ||
--			     inet2->rcv_saddr == inet->rcv_saddr) &&
--			    (!sk2->sk_reuse || !sk->sk_reuse))
-+		head = &udp_hash[snum & (UDP_HTABLE_SIZE - 1)];
-+
-+		sk_for_each(sk2, node, head)
-+			if (inet_sk(sk2)->num == snum                        &&
-+			    sk2 != sk                                        &&
-+			    (!sk2->sk_reuse        || !sk->sk_reuse)         &&
-+			    (!sk2->sk_bound_dev_if || !sk->sk_bound_dev_if
-+			     || sk2->sk_bound_dev_if == sk->sk_bound_dev_if) &&
-+			    (*saddr_cmp)(sk, sk2)                              )
- 				goto fail;
--		}
- 	}
--	inet->num = snum;
-+	inet_sk(sk)->num = snum;
- 	if (sk_unhashed(sk)) {
--		struct hlist_head *h = &udp_hash[snum & (UDP_HTABLE_SIZE - 1)];
--
--		sk_add_node(sk, h);
-+		head = &udp_hash[snum & (UDP_HTABLE_SIZE - 1)];
-+		sk_add_node(sk, head);
- 		sock_prot_inc_use(sk->sk_prot);
- 	}
--	write_unlock_bh(&udp_hash_lock);
--	return 0;
--
-+	error = 0;
- fail:
- 	write_unlock_bh(&udp_hash_lock);
--	return 1;
-+	return error;
-+}
-+
-+static inline int  ipv4_rcv_saddr_equal(struct sock *sk1, struct sock *sk2)
-+{
-+	struct inet_sock *inet1 = inet_sk(sk1), *inet2 = inet_sk(sk2);
-+
-+	return 	( !ipv6_only_sock(sk2)  &&
-+		  (!inet1->rcv_saddr || !inet2->rcv_saddr ||
-+		   inet1->rcv_saddr == inet2->rcv_saddr      ));
-+}
-+
-+static inline int udp_v4_get_port(struct sock *sk, unsigned short snum)
-+{
-+	return udp_get_port(sk, snum, ipv4_rcv_saddr_equal);
- }
- 
-+
- static void udp_v4_hash(struct sock *sk)
- {
- 	BUG();
-@@ -1583,7 +1607,7 @@ EXPORT_SYMBOL(udp_disconnect);
- EXPORT_SYMBOL(udp_hash);
- EXPORT_SYMBOL(udp_hash_lock);
- EXPORT_SYMBOL(udp_ioctl);
--EXPORT_SYMBOL(udp_port_rover);
-+EXPORT_SYMBOL(udp_get_port);
- EXPORT_SYMBOL(udp_prot);
- EXPORT_SYMBOL(udp_sendmsg);
- EXPORT_SYMBOL(udp_poll);
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 8d3432a..74fd59a 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -62,81 +62,9 @@ #include <linux/seq_file.h>
- 
- DEFINE_SNMP_STAT(struct udp_mib, udp_stats_in6) __read_mostly;
- 
--/* Grrr, addr_type already calculated by caller, but I don't want
-- * to add some silly "cookie" argument to this method just for that.
-- */
--static int udp_v6_get_port(struct sock *sk, unsigned short snum)
-+static inline int udp_v6_get_port(struct sock *sk, unsigned short snum)
- {
--	struct sock *sk2;
--	struct hlist_node *node;
--
--	write_lock_bh(&udp_hash_lock);
--	if (snum == 0) {
--		int best_size_so_far, best, result, i;
--
--		if (udp_port_rover > sysctl_local_port_range[1] ||
--		    udp_port_rover < sysctl_local_port_range[0])
--			udp_port_rover = sysctl_local_port_range[0];
--		best_size_so_far = 32767;
--		best = result = udp_port_rover;
--		for (i = 0; i < UDP_HTABLE_SIZE; i++, result++) {
--			int size;
--			struct hlist_head *list;
--
--			list = &udp_hash[result & (UDP_HTABLE_SIZE - 1)];
--			if (hlist_empty(list)) {
--				if (result > sysctl_local_port_range[1])
--					result = sysctl_local_port_range[0] +
--						((result - sysctl_local_port_range[0]) &
--						 (UDP_HTABLE_SIZE - 1));
--				goto gotit;
--			}
--			size = 0;
--			sk_for_each(sk2, node, list)
--				if (++size >= best_size_so_far)
--					goto next;
--			best_size_so_far = size;
--			best = result;
--		next:;
--		}
--		result = best;
--		for(i = 0; i < (1 << 16) / UDP_HTABLE_SIZE; i++, result += UDP_HTABLE_SIZE) {
--			if (result > sysctl_local_port_range[1])
--				result = sysctl_local_port_range[0]
--					+ ((result - sysctl_local_port_range[0]) &
--					   (UDP_HTABLE_SIZE - 1));
--			if (!udp_lport_inuse(result))
--				break;
--		}
--		if (i >= (1 << 16) / UDP_HTABLE_SIZE)
--			goto fail;
--gotit:
--		udp_port_rover = snum = result;
--	} else {
--		sk_for_each(sk2, node,
--			    &udp_hash[snum & (UDP_HTABLE_SIZE - 1)]) {
--			if (inet_sk(sk2)->num == snum &&
--			    sk2 != sk &&
--			    (!sk2->sk_bound_dev_if ||
--			     !sk->sk_bound_dev_if ||
--			     sk2->sk_bound_dev_if == sk->sk_bound_dev_if) &&
--			    (!sk2->sk_reuse || !sk->sk_reuse) &&
--			    ipv6_rcv_saddr_equal(sk, sk2))
--				goto fail;
--		}
--	}
--
--	inet_sk(sk)->num = snum;
--	if (sk_unhashed(sk)) {
--		sk_add_node(sk, &udp_hash[snum & (UDP_HTABLE_SIZE - 1)]);
--		sock_prot_inc_use(sk->sk_prot);
--	}
--	write_unlock_bh(&udp_hash_lock);
--	return 0;
--
--fail:
--	write_unlock_bh(&udp_hash_lock);
--	return 1;
-+	return udp_get_port(sk, snum, ipv6_rcv_saddr_equal);
- }
- 
- static void udp_v6_hash(struct sock *sk)

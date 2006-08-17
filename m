@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWHQWct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWHQWfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWHQWct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 18:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbWHQWct
+	id S1030284AbWHQWfs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 18:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWHQWfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 18:32:49 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:18142 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030239AbWHQWcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 18:32:48 -0400
-Subject: Re: Linux time code
-From: john stultz <johnstul@us.ibm.com>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       linux-kernel@vger.kernel.org, Udo van den Heuvel <udovdh@xs4all.nl>
-In-Reply-To: <200608171512.00417.jbarnes@virtuousgeek.org>
-References: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-	 <Pine.LNX.4.64.0608171334030.6761@scrub.home>
-	 <1155851917.31755.125.camel@cog.beaverton.ibm.com>
-	 <200608171512.00417.jbarnes@virtuousgeek.org>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 15:32:44 -0700
-Message-Id: <1155853964.31755.131.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Thu, 17 Aug 2006 18:35:48 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:20713 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1030277AbWHQWfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 18:35:47 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44E4EEC6.6040900@s5r6.in-berlin.de>
+Date: Fri, 18 Aug 2006 00:33:42 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Andreas Herrmann <AHERRMAN@de.ibm.com>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-scsi-owner@vger.kernel.org,
+       Matthew Wilcox <matthew@wil.cx>, Michael Tokarev <mjt@tls.msk.ru>
+Subject: Re: Random scsi disk disappearing
+References: <OF23DA8DB2.DFFECE8E-ON422571CD.005B6F56-422571CD.005BA03C@de.ibm.com>
+In-Reply-To: <OF23DA8DB2.DFFECE8E-ON422571CD.005B6F56-422571CD.005BA03C@de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 15:11 -0700, Jesse Barnes wrote:
-> On Thursday, August 17, 2006 2:58 pm, john stultz wrote:
-> > On Thu, 2006-08-17 at 13:43 +0200, Roman Zippel wrote:
-> > > On Wed, 16 Aug 2006, john stultz wrote:
-> > > > > For example there is a POSIX-like sys_clock_gettime() intended
-> > > > > to server the end-user directly, but there's no counterpart
-> > > > > do_clock_gettime() to server any in-kernel needs.
-> > > >
-> > > > Hmmm.. ktime_get(), ktime_get_ts() and ktime_get_real(), provide
-> > > > this info. Is there something missing here?
-> > >
-> > > What is missing is the abiltity to map a clock to a posix clock, so
-> > > that you would have CLOCK_REALTIME/CLOCK_MONOTONIC as NTP controlled
-> > > clocks and other CLOCK_* as the raw clock.
-> >
-> > Is there a use case for this (wanting non-NTP corrected time on a
-> > system running NTPd) you have in mind?
-> 
-> Isn't this what CLOCK_MONOTONIC[_HR] is for?  It's not supposed to jump 
-> around at all, so the basic usage model is to use this source for 
-> timestamping purposes...
+Andreas Herrmann wrote:
+> Anyone interested in a script to conveniently interpret or change the
+> SCSI logging level? Such a script (scsi_logging_level) exists in the
+> s390-tools package (version 1.5.3).
 
-Well, CLOCK_MONOTONIC is not affected by calls to settimeofday() so it
-will never go backward, however it does get frequency correction if
-provided by NTP (thus a second will be a correct second and you won't
-accumulate error).
+That would be very welcome.
 
-Also the _HR clocks have always been out of tree, so there isn't the
-binary compatibility worry.
+> If others show interest for this script, maybe a better place can be
+> found than s390-tools (because it is not really s390-specific).
 
-thanks
--john
-
-
+It could be put into linux/Documentation/scsi/. People who are 
+confronted with a debugging problem probably look into Documentation/. 
+Also, scripts which demonstrate usage of certain kernel interfaces do 
+count as valuable documentation.
+-- 
+Stefan Richter
+-=====-=-==- =--- =--=-
+http://arcgraph.de/sr/

@@ -1,116 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWHQHVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWHQHVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWHQHVi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWHQHVh
+	id S932124AbWHQHVL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWHQHVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:21:37 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:21722 "EHLO
-	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S932132AbWHQHVg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 03:21:36 -0400
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: [take11 0/3] kevent: Generic event handling mechanism.
-In-Reply-To: <12345678912345.GA1898@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 17 Aug 2006 11:43:32 +0400
-Message-Id: <1155800612858@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Thu, 17 Aug 2006 03:21:10 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:48790 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S932124AbWHQHVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 03:21:07 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: john stultz <johnstul@us.ibm.com>
+Date: Thu, 17 Aug 2006 09:20:36 +0200
+MIME-Version: 1.0
+Subject: Re: Linux time code
+Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>,
+       Udo van den Heuvel <udovdh@xs4all.nl>
+Message-ID: <44E434E4.3276.FC937A2@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <1155758034.5513.69.camel@localhost.localdomain>
+References: <44E32B23.16949.BBB1EC4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.06.0+V=4.06+U=2.07.138+R=05 June 2006+T=125555@20060817.071637Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 16 Aug 2006 at 12:53, john stultz wrote:
 
-Generic event handling mechanism.
+> On Wed, 2006-08-16 at 14:26 +0200, Ulrich Windl wrote:
+> > I've been viewing recent changes to the Linux kernel (specifically 2.6.15.1 to 
+> > 2.6.17.8), and I felt I'll have to say something:
+> 
+> Hey Ulrich,
+> 
+> If you haven't already (and have the time), please also take a peek at
+> the current 2.6.18-rc patch as well as -mm, as a number of timekeeping
+> changes have been made since 2.6.17.x.
 
-Changes from 'take10' patchset:
- * removed non-existent prototypes
- * added helper function for kevent_registered_callbacks
- * fixed 80 lines comments issues
- * added shared between userspace and kernelspace header instead of embedd them in one
- * core restructuring to remove forward declarations
- * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
- * use vm_insert_page() instead of remap_pfn_range()
+Hi John,
 
-Changes from 'take9' patchset:
- * fixed ->nopage method
+during the nice weather I was quite lazy here, but the weather recently was so bad 
+that I turned on the computer again ;-) I decided to download a "stable" kernel 
+release to evaluate (hoping your code was in already). I cannot tell you when, but 
+I'll have a look sooner or later ;-)
 
-Changes from 'take8' patchset:
- * fixed mmap release bug
- * use module_init() instead of late_initcall()
- * use better structures for timer notifications
+> 
+> > First there's a new routine in kernel/time.c named "set_normalized_timespec()". 
+> > That routine sets nothing besides the actual argument being passed by reference. 
+> > Thus I feel that routine should rather be named "normalize_timespec()" (just to 
+> > save a few bytes. No, not really ;-). Alternatively that thing could be a pure 
+> > ("const") function that returns the normalized timespec. In that case I'd call it 
+> > "normalized_timespec()"...
+> 
+> Sounds reasonable.
+> 
+> > OK, that issue woun't make anybody feel hot I guess, so here's another one:
+> > 
+> > The existing routines for measuring time among the various architectures is an 
+> > absolute mess. Well, it always had been, but it didn't become any better, but 
+> > worse it seems. 
+> 
+> As you know, myself and others are working on this. Its taken quite a
+> bit of time to get some of the groundwork in, and cleanups are still
+> needed, but I think we're on the right track. However, criticism is
+> welcome, and I'd appreciate your input (I did try to keep you CC'ed on
+> most of the early discussions, but forgive me as I left you out on some
+> of the more recent discussions)
 
-Changes from 'take7' patchset:
- * new mmap interface (not tested, waiting for other changes to be acked)
-	- use nopage() method to dynamically substitue pages
-	- allocate new page for events only when new added kevent requres it
-	- do not use ugly index dereferencing, use structure instead
-	- reduced amount of data in the ring (id and flags), 
-		maximum 12 pages on x86 per kevent fd
+No problem, I was on holiday anyway. The code I tried had a problem with my ADM 
+Athlon X2 (Dual core): Both cores run with different frequency, a feature of power 
+management, thus making hi-res timing instable. I haven't investigated in-depth, 
+but I thought the hpet timer was used.
 
-Changes from 'take6' patchset:
- * a lot of comments!
- * do not use list poisoning for detection of the fact, that entry is in the list
- * return number of ready kevents even if copy*user() fails
- * strict check for number of kevents in syscall
- * use ARRAY_SIZE for array size calculation
- * changed superblock magic number
- * use SLAB_PANIC instead of direct panic() call
- * changed -E* return values
- * a lot of small cleanups and indent fixes
+> 
+> > For example there is a POSIX-like sys_clock_gettime() intended to 
+> > server the end-user directly, but there's no counterpart do_clock_gettime() to 
+> > server any in-kernel needs. 
+> 
+> Hmmm.. ktime_get(), ktime_get_ts() and ktime_get_real(), provide this
+> info. Is there something missing here?
 
-Changes from 'take5' patchset:
- * removed compilation warnings about unused wariables when lockdep is not turned on
- * do not use internal socket structures, use appropriate (exported) wrappers instead
- * removed default 1 second timeout
- * removed AIO stuff from patchset
+>From memory: Are those exported from posix_timer? I think I saw those, but wasn't 
+sure whether they are for general cross-arch use.
 
-Changes from 'take4' patchset:
- * use miscdevice instead of chardevice
- * comments fixes
+> 
+> I will agree that the code in kernel/time.c, kernel/timer.c,
+> kernel/posix-timers.c, and kernel/hrtimer.c files could be better
+> organized so the layered logic is more clear. I am working on this (see
+> the ntp-move-all-the-ntp-related-code-to-ntpc-fix patch currently in
+> -mm), but untangling the code without breaking anyone (well, that's the
+> intent) is a slow process.
+> 
+> > The implementation of clock_getres() is also hardly 
+> > worth it. I once had implemented a routine like this:
+> [snip]
+> > That routine tries to get the typical clock resolution the user is expected to 
+> > see, automatically adjusting to the interpolation method and CPU speed being used. 
+> > I think that's preferrable to just returning 1ns or "tick" or whatever.
+> 
+> Yea. This area could use improvement. The clocksource infrastructure
+> should better allow us to export the actual hardware resolution.
+> 
+> > Finally I have the personal need for an "unadjusted tick interpolator" 
+> > (preferrably being clocked by the same clock as the timer chip) to estimate the 
+> > frequency error of the system clock (independently from any offset adjustments 
+> > being made).
+> > 
+> > For those who might wonder: Yes, that's the code that had been thown out recently: 
+> > NTP PPS calibration.
+> 
+> The NTP PPS code was dropped because there were no in-kernel users of
+> that interface. But as I've always said, I'd be very happy to see your
+> PPS work get merged. I know there are a few out-of-tree patches
+> currently floating around (Udo mailed me awhile back with some links,
+> but I can't find them at the moment), and I'm sure due to the high level
+> of activity in this area makes it difficult to keep out of tree patches
+> up to date. Is there any reason these patches aren't being pushed into
+> mainline?
 
-Changes from 'take3' patchset:
- * removed serializing mutex from kevent_user_wait()
- * moved storage list processing to RCU
- * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
-	to differentiate between various cases
- * remove kevent from storage if is marked as broken after callback
- * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+I'm only waiting for a "pusher" ;-) No actually I have my own quality check, and 
+currently the code fails those. It's named "alpha" by myself. Unless it's "beta" I 
+won't ask anybody for inclusion.
 
-Changes from 'take2' patchset:
- * split kevent_finish_user() to locked and unlocked variants
- * do not use KEVENT_STAT ifdefs, use inline functions instead
- * use array of callbacks of each type instead of each kevent callback initialization
- * changed name of ukevent guarding lock
- * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
- * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
- * various indent cleanups
- * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
- * mapped buffer (initial) implementation (no userspace yet)
+I don't like the idea of a loadable module, because most of the code accesses 
+several timing variables that are (or can be) private now. A module would make 
+them public (for misuse). The time machinery should be a sealed black box IMHO.
 
-Changes from 'take1' patchset:
- - rebased against 2.6.18-git tree
- - removed ioctl controlling
- - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
-			unsigned int timeout, void __user *buf, unsigned flags)
- - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
-	initialization
- - use mutuxes instead of semaphores
- - added file descriptor check and return error if provided descriptor does not match
-	kevent file operations
- - various indent fixes
- - removed aio_sendfile() declarations.
+> 
+> > So summarize: I'd wish for fewer, but more useful routines dealing with time. Some 
+> > modules just don't export useful (and otherwise missing) routines, while other 
+> > useful exported routines have different names for each architecture. A mess...
+> 
+> I agree, and folks are working to clean this up (I've got a
+> get_persistent_clock patch to try to unify all the different
+> get_rtc/cmos/boot_time() hooks across the arches coming soon). Again, I
+> very much welcome your experience, suggestions and patches to this area.
 
-Thank you.
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
+Regards,
+Ulrich
 

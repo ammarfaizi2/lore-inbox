@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWHQMfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWHQMfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWHQMfo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWHQMfo
+	id S964836AbWHQMfS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWHQMfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:35:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54243 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932351AbWHQMfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:35:43 -0400
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: 7eggert@gmx.de
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, Dirk <noisyb@gmx.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <E1GDgyZ-0000jV-MV@be1.lrz>
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it>
-	 <6KyCQ-1w7-25@gated-at.bofh.it>  <E1GDgyZ-0000jV-MV@be1.lrz>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 17 Aug 2006 14:35:37 +0200
-Message-Id: <1155818138.4494.56.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 17 Aug 2006 08:35:18 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:36266 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932340AbWHQMfQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:35:16 -0400
+Message-ID: <44E46280.2020109@garzik.org>
+Date: Thu, 17 Aug 2006 08:35:12 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/75] pci_module_init to pci_register_driver conversion
+References: <20060817042634.0.CrzcY28443.28439.michal@ltg01-fedora.pl> <20060817055814.GA14950@kroah.com>
+In-Reply-To: <20060817055814.GA14950@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 14:27 +0200, Bodo Eggert wrote:
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Wed, 2006-08-16 at 14:37 -0400, Lennart Sorensen wrote:
+Greg KH wrote:
+> On Thu, Aug 17, 2006 at 04:26:35AM +0000, Michal Piotrowski wrote:
+>> Hi,
+>>
+>> pci_module_init is obsolete.
+>>
+>> This patch series converts pci_module_init to pci_register_driver.
+>>
+>>
+>> Can I remove this?
+>>
+>> include/linux/pci.h:385
+>> /*
+>>  * pci_module_init is obsolete, this stays here till we fix up all usages of it
+>>  * in the tree.
+>>  */
+>> #define pci_module_init pci_register_driver
 > 
-> >> Perhaps the real problem is that some @#$@#$ user space task is
-> >> constantly trying to mount the disc while something else is trying to
-> >> write to it.
-> >> 
-> >> gnome and kde both seem very eager to implement such things.  perhaps
-> >> there should be a way to prevent any access by such processes while
-> >> writing to the disc.
-> > 
-> > there is. O_EXCL works for this.
-> > Any sane desktop app and cd burning app use O_EXCL already for this
-> > purpose...
+> As repeated numerous times, it's up to the network developers if they
+> will take this or not.
 > 
-> This was discussed to death:
-> 
-> HAL using O_EXCL will randomly prevent burning/mounting/etc by causing a
-> race condition, so it can't do that.
+> I'll hold off on taking this series, please push it through the driver
+> subsystem maintainers.
 
-all burning apps will retry a few times if they get "busy"....
+It's already in subsystem trees, in fact.
 
->  HAL not using O_EXCL will OTOH succeed
-> in opening despite of O_EXCL used by the burning process and thereby
-> prevent burning by opening a busy device. The proposed solution was
-> introducing O_NONE or O_HARMLESS to prevent side-effects from opening
-> the device.
+But it is most definitely not 2.6.18-rc material :)
 
-doesn't help, since hal doesn't just open it, but also issues an ioctl
-that then goes to the device, and THAT is causing the damage. Not the
-open itself.
+	Jeff
 
-> This will, however, not prevent other users from maliciously destroying the
-> CD by not using O_EXCL.
 
-if the user wants to destroy his own burning cd... then why is it the
-kernels job to stop him?
-
-> Maybe it's possible to cache the result and thereby prevent repeated
-> opening from disturbing the burning process.
-
-oh I really want to have this ioctl cached, but more so that the kernel
-can enforce a reasonable polling interval ;)
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

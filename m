@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWHQRTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWHQRUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWHQRTb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 13:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWHQRTb
+	id S1030189AbWHQRUr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 13:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWHQRUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 13:19:31 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:49825 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030185AbWHQRTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 13:19:30 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=TKWEnhXbc9tzQqxiA8meuY4BP6bmcf8hYtq959reml2lxIwjqYDlcQll8Wl7nDNAw
-	HAqe4kyvraGhT+hFfxpaw==
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
-	(core)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1155824788.9274.32.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155754029.9274.21.camel@localhost.localdomain>
-	 <1155755729.22595.101.camel@galaxy.corp.google.com>
-	 <1155758369.9274.26.camel@localhost.localdomain>
-	 <1155774274.15195.3.camel@localhost.localdomain>
-	 <1155824788.9274.32.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 17 Aug 2006 10:16:43 -0700
-Message-Id: <1155835003.14617.45.camel@galaxy.corp.google.com>
+	Thu, 17 Aug 2006 13:20:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61326 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030186AbWHQRUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 13:20:46 -0400
+Date: Thu, 17 Aug 2006 10:20:30 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: akpm@osdl.org, suresh.b.siddha@intel.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, mingo@redhat.com, apw@shadowen.org
+Subject: Re: [patch] sched: group CPU power setup cleanup
+Message-Id: <20060817102030.f8c41330.pj@sgi.com>
+In-Reply-To: <20060816110357.B7305@unix-os.sc.intel.com>
+References: <20060815175525.A2333@unix-os.sc.intel.com>
+	<20060815212455.c9fe1e34.pj@sgi.com>
+	<20060815214718.00814767.akpm@osdl.org>
+	<20060816110357.B7305@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 07:26 -0700, Dave Hansen wrote:
-> On Thu, 2006-08-17 at 01:24 +0100, Alan Cox wrote:
-> > Ar Mer, 2006-08-16 am 12:59 -0700, ysgrifennodd Dave Hansen:
-> > > relationship between processes and mm's.  We could also potentially have
-> > > two different threads of a process in two different accounting contexts.
-> > > But, that might be as simple to fix as disallowing things that share mms
-> > > from being in different accounting contexts, unless you unshare the mm.
-> > 
-> > At the point I have twenty containers containing 20 copies of glibc to
-> > meet your suggestion it would be *far* cheaper to put it in the page
-> > struct.
+> > Hope not.  To me, "computing power" means megaflops/sec, or Dhrystones
+> > (don't ask) or whatever.  If that's what "cpu_power" is referring to then
+> > the name is hopelessly ambiguous with peak joules/sec and a big renaming is
+> > due.
 > 
-> My main thought is that _everybody_ is going to have to live with the
-> entry in the 'struct page'.  Distros ship one kernel for everybody, and
-> the cost will be paid by those not even using any kind of resource
-> control or containers.
-> 
-> That said, it sure is simpler to implement, so I'm all for it!
+> It refers to group's processing power. Perhaps "horsepower" is better term.
 
+Well ... I don't think "horsepower" is a step in the right direction.
 
-hmm, not sure why it is simpler.
+Andrew's point was over the word "power", not "cpu".  The term
+"cpu_power" suggested to him we were concerned with the power supply
+watts consumed by a group of CPUs.  Indeed, both those concerned with
+laptop battery lifetimes, and the air conditioning tonnage needed
+for big honkin NUMA iron might have reason to be concerned with the
+power consumed by CPUs.
 
--rohit
+Changing the word "cpu" to "horse", but keeping the word "power",
+does nothing to address Andrew's point.  Rather it just adds more
+confusion.  We are obviously dealing with CPUs here, not horses.
 
+My understanding is that the "cpu_power" of the cpus in a sched group
+is rougly proportional to the BogoMIPS of the CPUs in that group.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

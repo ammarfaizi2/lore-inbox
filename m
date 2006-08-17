@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWHQIqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWHQIrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWHQIqt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 04:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHQIqt
+	id S932353AbWHQIrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 04:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHQIrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 04:46:49 -0400
-Received: from 1wt.eu ([62.212.114.60]:2320 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S932354AbWHQIqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 04:46:48 -0400
-Date: Thu, 17 Aug 2006 10:37:02 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: Linux 2.4.34-pre1
-Message-ID: <20060817083702.GB14673@1wt.eu>
-References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Aug 2006 04:47:25 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:64294 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932353AbWHQIrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 04:47:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O4DcHuARUY0tsLtHVKYXiT2bp5g7nLNNoc14xUA+3vRJW9234R0uca54cXyuRl72d6Qg9hq/324kZjAnbMjy2KosmJif23gx0FhKQnGDISduOYTyxvzAy21yP5qrkGU7hWMO16IRHqIv79pMUwEyfgKvvuGY1jD2Os7vTZxl4e4=
+Message-ID: <9a8748490608170147o7bc9a457ud3e0a6729444c27e@mail.gmail.com>
+Date: Thu, 17 Aug 2006 10:47:07 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Nathan Scott" <nathans@sgi.com>
+Subject: Re: 'fbno' possibly used uninitialized in xfs_alloc_ag_vextent_small()
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
+In-Reply-To: <20060817084111.A2787212@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155797331.4494.17.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+References: <200608162327.34420.jesper.juhl@gmail.com>
+	 <20060817084111.A2787212@wobbly.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arjan,
+On 17/08/06, Nathan Scott <nathans@sgi.com> wrote:
+> Hi Jesper,
+>
+> On Wed, Aug 16, 2006 at 11:27:34PM +0200, Jesper Juhl wrote:
+> > (Please keep me on Cc since I'm not subscribed to the XFS lists)
+> >
+> > The coverity checker found what looks to me like a valid case of
+> > potentially uninitialized variable use (see below).
+>
+> It looks invalid, but its not, once again.  To understand why this
+> isn't a problem requires looking at the xfs_alloc_ag_vextent_small
+> call sites (there's only two).  If (*flen==0) is passed back out,
+> then the value in *fbno is discarded, always.
+>
+> > So basically, if we hit the 'else' branch, then 'fbno' has not been
+> > initialized and line 1490 will then use that uninitialized variable.
+> >
+> > What would prevent that from happening at some time??
+>
+> Nothing.  But its not a problem in practice.  However, that final
+> else branch is very much unlikely, so theres no real cost to just
+> initialising the local fbno to NULLAGBLOCK in that branch, and we
+> future proof ourselves a bit that way I guess (in case the callers
+> ever change - pretty unlikely, but we may as well).  How does the
+> patch below look to you?
+>
+Looks good to me.
 
-On Thu, Aug 17, 2006 at 08:48:51AM +0200, Arjan van de Ven wrote:
-> 
-> > Right now, I'd prefer getting gcc 4 support than gcc 3.4, because I don't
-> > know if even one common distro has shipped with gcc 3.4 by default. 2.95,
-> > 3.0, and 3.3 have been common, and right now, 4.[01] is almost everywhere.
-> 
-> but most distros that ship with gcc 4 aren't capable of running a 2.4
-> kernel.... all the new distros greatly depend on sysfs for example, and
-> ntpl in glibc requires 2.6 etc etc etc. So I'm rather sceptical about
-> this argument.
-
-I know, and this is not what I'm targetting. People use 2.4 on their file
-server or firewall for instance, on an old distro, while they use 2.6 on
-their notebook with newer gcc. They build from their fresh new system
-(because most often you don't install build tools on a server) and this
-is at least why some of them have already been asking for this. To be honnest,
-I don't really need gcc 4 myself right now, but I'm more responding to some
-users demand that I find somewhat legitimate.
-
-> > >   Since there shouldn't be any reason for still using a 2.4 kernel
-> > >   except for "never change a running system",
-> > 
-> > I think that by "never change", you meant "except for regular updates".
-> 
-> I think that you'll find that people who run 2.4 today, if you ask them,
-> will say "please change as little as possible, only serious bugs and
-> security issues". After all the people who run 2.4 still are generally
-> those who resist new stuff in favor of stability of existing systems....
-> But maybe it's worth doing a user survey to find out what the users of
-> 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
-> people who use enterprise distro kernels don't count for this since
-> they'll not go to a newer released 2.4 anyway)
-
-Agreed, that's also why I've left it in another tree right now, so that
-interested people can test it and other ones have the time to pronounce
-themselves against it if needed. Anyway, as I said, most of the fixes were
-for real coding bugs, and do not affect either the output code nor external
-patches. I don't want to experiment with new killer features at all, if I
-accepted to work on 2.4, this is because I'm rather conservative ;-)
-
-Cheers,
-Willy
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

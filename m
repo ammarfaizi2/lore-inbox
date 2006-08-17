@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWHQJCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWHQJB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWHQJCO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHQJCN
+	id S1750874AbWHQJB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWHQJB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:02:13 -0400
-Received: from xs.wurtel.net ([83.68.3.130]:42681 "EHLO mx.wurtel.net")
-	by vger.kernel.org with ESMTP id S1750841AbWHQJCM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:02:12 -0400
-Date: Thu, 17 Aug 2006 11:01:49 +0200
-From: Paul Slootman <paul+nospam@wurtel.net>
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3-git3 - XFS - BUG: unable to handle kernel NULL pointer dereference at virtual address 00000078
-Message-ID: <20060817090149.GA7919@wurtel.net>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org
-References: <3aa654a40608072039r2b5c5a19hbd3e68e4fee40869@mail.gmail.com> <9a8748490608110133v5f973cf6w1af340f59bb229ec@mail.gmail.com> <9a8748490608110325k25c340e2yac925eb226d1fe4f@mail.gmail.com> <20060814120032.E2698880@wobbly.melbourne.sgi.com> <ebv3ji$gls$1@news.cistron.nl> <20060817084750.B2787212@wobbly.melbourne.sgi.com>
+	Thu, 17 Aug 2006 05:01:58 -0400
+Received: from wx-out-0506.google.com ([66.249.82.226]:58355 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750838AbWHQJB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 05:01:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=DDl5IVcgvynP67Mcz/YJunvE0g3RM8gynLcacYpKJejSGaeurSYoBwYnFmq7D5yTaXNGIM2UCQxhcOcq9h4jtiphDmuhG+AAR2kocfOzYqArC+ydw1jZqEC9bpIHKvwDVgdFSX2ygFC4RXSSYu9tlDN2rUx94mNd0aqQCUd2I8A=
+From: Patrick McFarland <diablod3@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: GPL Violation?
+Date: Thu, 17 Aug 2006 05:03:03 -0400
+User-Agent: KMail/1.9.1
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <200608170332.53556.diablod3@gmail.com> <20060817080243.GN7813@stusta.de>
+In-Reply-To: <20060817080243.GN7813@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060817084750.B2787212@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Scanner: exiscan *1GDdl8-0000Bm-00*AkyAFuZpeT6*Wurtel
+Message-Id: <200608170503.05171.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 17 Aug 2006, Nathan Scott wrote:
-> On Wed, Aug 16, 2006 at 12:38:10PM +0000, Paul Slootman wrote:
-> > Nathan Scott  <nathans@sgi.com> wrote:
-> > >On Fri, Aug 11, 2006 at 12:25:03PM +0200, Jesper Juhl wrote:
-> > >> I didn't capture all of the xfs_repair output, but I did get this :
-> > >> ...
-> > >> Phase 4 - check for duplicate blocks...
-> > >>         - setting up duplicate extent list...
-> > >>         - clear lost+found (if it exists) ...
-> > >>         - clearing existing "lost+found" inode
-> > >>         - deleting existing "lost+found" entry
-> > >>         - check for inodes claiming duplicate blocks...
-> > >>         - agno = 0
-> > >>         - agno = 1
-> > >>         - agno = 2
-> > >>         - agno = 3
-> > >>         - agno = 4
-> > >>         - agno = 5
-> > >>         - agno = 6
-> > >> LEAFN node level is 1 inode 412035424 bno = 8388608
-> > >
-> > >Ooh.  Can you describe this test case you're using?  Something with
-> > >a bunch of renames in it, obviously, but I'd also like to be able to
-> > >reproduce locally with the exact data set (file names in particular),
-> > >if at all possible.
-> > 
-> > >From your reaction above I gather that "LEAFN node level is 1 inode ..."
-> > is a bad thing?
-> > 
-> > My filesystem (that crashes under heavy load, while rsyncing to and from
-> > it) has a lot of these messages when xfs_repair is run.
-> 
-> Do you have a reproducible test case?  Please send a go-to-woe recipe
-> so I can see the problem first hand... and preferably one that is, er,
-> slightly simpler than Jesper's case.
+On Thursday 17 August 2006 04:02, Adrian Bunk wrote:
+> This is _your personal interpretation_ of what consists a "derived work"
+> under the GPL.
+> This is a known grey area that has AFAIK not yet been brought to court
+> in any country, and neither your personal opinion on this issue nor my
+> personal opinion on this issue can replace legel advice.
 
-Unfortunately no, this is a 1.1TB filesystem with 54% usage, and dozens
-of large rsyncs to and from it. However during this XFS panicks.
+And I never said anything different. Stop being hostile to other's opinions. 
+LKML isn't the place for a flamewar.
 
-That was with 2.6.17.7 (after 2.6.17.4 had buggered it with the endian
-bug, but after numerous xfs_repairs).  Interestingly I rebooted into an
-old 2.6.15.6 kernel yesterday after the last XFS crash, and it survived
-last night's activities perfectly well. After a couple of days I'm
-willing to give the latest 2.6.18-rc or whatever a try (once I've a
-complete set of backups again, and they've been passed on to the
-long-term backup system).
+> cu
+> Adrian
 
+-- 
+Patrick McFarland || www.AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
 
-Paul Slootman

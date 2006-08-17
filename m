@@ -1,49 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWHQVKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWHQVJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbWHQVKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 17:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWHQVKQ
+	id S964900AbWHQVJi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 17:09:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWHQVJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 17:10:16 -0400
-Received: from mail.freedom.ind.br ([201.35.65.90]:59548 "EHLO
-	mail.freedom.ind.br") by vger.kernel.org with ESMTP id S932216AbWHQVKO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 17:10:14 -0400
-From: Otavio Salvador <otavio@debian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Steve Barnhart <stb52988@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: bootsplash integration
-Organization: O.S. Systems Ltda.
-References: <15ce3ec0608110736y5ef185e8v6acd4f7556adcc49@mail.gmail.com>
-	<20060817155458.GB6450@ucw.cz>
-X-URL: http://www.debian.org/~otavio/
-X-Attribution: O.S.
-Date: Thu, 17 Aug 2006 18:10:09 -0300
-In-Reply-To: <20060817155458.GB6450@ucw.cz> (Pavel Machek's message of "Thu,
-	17 Aug 2006 15:54:59 +0000")
-Message-ID: <87ejvfhxvy.fsf@neumann.lab.ossystems.com.br>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Thu, 17 Aug 2006 17:09:38 -0400
+Received: from khc.piap.pl ([195.187.100.11]:7108 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932265AbWHQVJh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 17:09:37 -0400
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 50/75] net: drivers/net/wan/pci200syn.c pci_module_init to pci_register_driver conversion
+References: <20060817132854.50.mHRHNx4920.3636.michal@euridica.enternet.net.pl>
+	<m3psez5fec.fsf@defiant.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 17 Aug 2006 23:09:35 +0200
+In-Reply-To: <m3psez5fec.fsf@defiant.localdomain> (Krzysztof Halasa's message of "Thu, 17 Aug 2006 21:30:19 +0200")
+Message-ID: <m3hd0b5asw.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+Krzysztof Halasa <khc@pm.waw.pl> writes:
 
-> OTOH all the distros use it, anyway, so integration would make _some_
-> sense.
+> Ok. Rozumiem, ze Jeff zrobi to w jednym, duzym batchu?
 
-There's some alteratives running well in usermode so I don't think it
-makes sense anymore.
+Oops, hit the wrong key.
 
-I can cite usplash and splashy as examples.
-
+Ok WRT both patches and assume Jeff will apply this all-at-once.
 -- 
-        O T A V I O    S A L V A D O R
----------------------------------------------
- E-mail: otavio@debian.org      UIN: 5906116
- GNU/Linux User: 239058     GPG ID: 49A5F855
- Home Page: http://www.freedom.ind.br/otavio
----------------------------------------------
-"Microsoft gives you Windows ... Linux gives
- you the whole house."
+Krzysztof Halasa

@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWHQJ2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWHQJ2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWHQJ2W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWHQJ2W
+	id S964773AbWHQJ2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWHQJ2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:28:22 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:65294 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964774AbWHQJ2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:28:21 -0400
-Date: Thu, 17 Aug 2006 10:28:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Thu, 17 Aug 2006 05:28:34 -0400
+Received: from wx-out-0506.google.com ([66.249.82.233]:38682 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964773AbWHQJ2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 05:28:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=utDac4+H7GVqMvzv67fbZunMVbJaGQG7u3n1rE5TmSoaCYdkg3DcZ0YD4J80iRUn11IwKQv4TYFOGG960CSitvdbhfIMaXpVXG/YT0x/zv9jXQq5YwWBQOQ6mCC0UqBb54XCydMLOmU4KmEA627K+R7Tp2mhJRpF6+xHbiy2wsw=
+From: Patrick McFarland <diablod3@gmail.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Fulghum <paulkf@microgate.com>, Lee Revell <rlrevell@joe-job.com>,
-       Raphael Hertzog <hertzog@debian.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: How to avoid serial port buffer overruns?
-Message-ID: <20060817092811.GA28474@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Paul Fulghum <paulkf@microgate.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Raphael Hertzog <hertzog@debian.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20060816104559.GF4325@ouaza.com> <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com> <1155762739.7338.18.camel@mindpipe> <1155767066.2600.19.camel@localhost.localdomain> <20060816231033.GB12407@flint.arm.linux.org.uk> <1155806446.15195.42.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: GPL Violation?
+Date: Thu, 17 Aug 2006 05:29:40 -0400
+User-Agent: KMail/1.9.1
+Cc: Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <1155807037.15195.50.camel@localhost.localdomain>
+In-Reply-To: <1155807037.15195.50.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155806446.15195.42.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200608170529.41490.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 10:20:46AM +0100, Alan Cox wrote:
-> Ar Iau, 2006-08-17 am 00:10 +0100, ysgrifennodd Russell King:
-> > MIDI uses its own driver - sound/drivers/serial-u16550.c.  My guess
-> 
-> How peculiar
-> 
-> > is there's something in the system starving interrupt servicing.
-> > Serial is very sensitive to that, and increases in other system
-> > latencies tends to have an adverse impact on serial.
-> 
-> I see no support for the 16650 specific bits in the driver, so that
-> alone may be a problem ?
+On Thursday 17 August 2006 05:30, Alan Cox wrote:
+> Ar Mer, 2006-08-16 am 22:48 -0700, ysgrifennodd Anonymous User:
+> > I suspect the company will try to get away with releasing as little as
+> > possible.  I don't know much about the GPL or Linux kernel internals,
+> > but I want to encourage the company I work for to give back to the
+> > community.
+>
+> You should read the GPL license (its fairly plain English). Any matters
+> of doubt should be discussed with someone qualified to discuss then
+> (such as a lawyer).
 
-Huh?  16550 not 16650.  Did you miss this?
+(Yes, which I've basically said that about five times now)
 
-        outb(UART_FCR_ENABLE_FIFO       /* Enable FIFO's (if available) */
-             | UART_FCR_CLEAR_RCVR      /* Clear receiver FIFO */
-             | UART_FCR_CLEAR_XMIT      /* Clear transmitter FIFO */
-             | UART_FCR_TRIGGER_4       /* Set FIFO trigger at 4-bytes */
-        /* NOTE: interrupt generated after T=(time)4-bytes
-         * if less than UART_FCR_TRIGGER bytes received
-         */
-             ,uart->base + UART_FCR);   /* FIFO Control Register */
+> Basically if it is a derivative work (see your lawyer). This is a
+> non-trivial area of law so really you should ask your lawyer not a bunch
+> of programmers.
+
+It's still important for programmers to understand licenses well. Maybe Linus 
+needs to put up a page somewhere detailing, in plain, yet non-legally 
+binding, English, what you can and cannot do.
+
+Of course, this wouldn't be even an issue if companies understood how Linux, 
+operating system drivers, and computers historically work instead of having 
+to screw everything up with all these new ways new ways of screwing people 
+with IP rights and unwarrented paranoia.
+
+Side question, would it ever be possible, with GPL code, to make modules and 
+plugins of non-GPL compatible origin a license violation? Would this be a 
+good idea for the kernel?
+
+> Alan
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Patrick McFarland || www.AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
+

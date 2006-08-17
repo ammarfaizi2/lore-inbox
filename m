@@ -1,52 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWHQGbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWHQGlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWHQGbs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 02:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWHQGbs
+	id S1751201AbWHQGlf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 02:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWHQGlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 02:31:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37320 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751180AbWHQGbr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 02:31:47 -0400
-Date: Thu, 17 Aug 2006 16:31:10 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
-Subject: Re: [PATCH] XFS: remove pointless conditional testing 'nmp' vs NULL in fs/xfs/xfs_rtalloc.c::xfs_growfs_rt()
-Message-ID: <20060817163109.A2792453@wobbly.melbourne.sgi.com>
-References: <200608130016.51136.jesper.juhl@gmail.com> <20060814110942.C2698880@wobbly.melbourne.sgi.com> <9a8748490608140025w3257f315jcceccf05d200437f@mail.gmail.com> <200608162244.19957.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Aug 2006 02:41:35 -0400
+Received: from wx-out-0506.google.com ([66.249.82.233]:43347 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750824AbWHQGle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 02:41:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=SFZQrFUZ5vHnv3HH8kXH7Zt9/IOto8Om42/am1pDOSjHlnMwHEDtzuzdVSFoFQ7iKa01YX9YoeQeyvq5jaZPmJJw1EfRY59cgvmeGzICQnKui93lEnXfy+g2rlxwlmYXhIDc8zakUPCyjLEtFPXnb7rSZzJK5P78/Ua+yMOxSUU=
+From: Patrick McFarland <diablod3@gmail.com>
+To: "Anonymous User" <anonymouslinuxuser@gmail.com>
+Subject: Re: GPL Violation?
+Date: Thu, 17 Aug 2006 02:42:40 -0400
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+In-Reply-To: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200608162244.19957.jesper.juhl@gmail.com>; from jesper.juhl@gmail.com on Wed, Aug 16, 2006 at 10:44:19PM +0200
+Message-Id: <200608170242.40969.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 10:44:19PM +0200, Jesper Juhl wrote:
-> On Monday 14 August 2006 09:25, Jesper Juhl wrote:
-> > On 14/08/06, Nathan Scott <nathans@sgi.com> wrote:
-> > > On Sun, Aug 13, 2006 at 12:16:50AM +0200, Jesper Juhl wrote:
-> > >
-> > > > This patch gets rid of the pointless check.
-> > >
-> > > Hmm, seems like code churn that makes the code slightly less
-> > > obvious, but thats just me... I'd prefer a tested patch that
-> > > implements the above suggestion, to be honest. :)
-> > >
-> > Ok, I'll see what I can come up with.
-> > 
-> 
-> How this?
-> 
-> Compile tested only since I'm at home and don't have any XFS filesystems to
-> play with atm.
+On Thursday 17 August 2006 01:48, Anonymous User wrote:
+> I work for a company that will be developing an embedded Linux based
+> consumer electronic device.
+>
+> I believe that new kernel modules will be written to support I/O
+> peripherals and perhaps other things.  I don't know the details right
+> now.  What I am trying to do is get an idea of what requirements there
+> are to make the source code available under the GPL.
 
-It looks good.  I've tested it, and it works fine - I'll merge it
-into my tree shortly.  Thanks for following up on this.
+I am not a lawyer, and I suggest your company speak with one before doing 
+this. (And most likely, someone from the list will correct me if I get 
+something wrong).
 
-cheers.
+However, your company only has to release any code they use, preferably in the 
+form of unmodified tarballs (pointing to project websites for downloads isn't 
+valid anymore) plus patches against said unmodified tarballs if modified. If 
+not modified, you still have to release the unmodified tarballs.
+
+They don't have to release source code for any module you wrote from scratch 
+themselves, but said modules cannot say they are GPL (ie, they have to poison 
+the kernel).
+
+Also, said kernel modules have to be real modules and not statically linked 
+into the kernel, and said modules have to have the compiled component objects 
+(ie, *.o) available so people can relink them into new modules to work with 
+new kernels.
+
+In addition, you probably want to distribute the original source for any file 
+that uses a kernel API directly so people can fix things if/when the API 
+changes (which implies using dummy functions that access the kernel API and 
+call symbols in the closed source objects that do the actual work and form 
+the bulk of the code).
+
+An example of what to do is what ATI and Nvidia did for their hardware access 
+modules. An example of what *not* to do is what Broadcom does for their wifi 
+AP drivers (which are broken on 2.6.x due to API change) and what Linuxant 
+does for their modem drivers (which are broken on nearly all kernels no 
+matter the version).
+
+*However*, it would totally rock if your company did GPL any new modules and 
+send it to Linus; they'd get free patches/code from the community and lots of 
+karma as well. Having a built-in customer base is never bad...
+
+Also, completely open sourcing the drivers means, if applicable, people can 
+use the hardware on platforms other than your processor architecture of 
+choice. ie, lots of people are screwed because of x86 only modules and they 
+want to run on PPC or Alpha or whatever.
 
 -- 
-Nathan
+Patrick McFarland || www.AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
+

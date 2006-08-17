@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWHQIrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWHQI7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWHQIrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 04:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWHQIrZ
+	id S932217AbWHQI7a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 04:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWHQI7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 04:47:25 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:64294 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932353AbWHQIrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 04:47:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O4DcHuARUY0tsLtHVKYXiT2bp5g7nLNNoc14xUA+3vRJW9234R0uca54cXyuRl72d6Qg9hq/324kZjAnbMjy2KosmJif23gx0FhKQnGDISduOYTyxvzAy21yP5qrkGU7hWMO16IRHqIv79pMUwEyfgKvvuGY1jD2Os7vTZxl4e4=
-Message-ID: <9a8748490608170147o7bc9a457ud3e0a6729444c27e@mail.gmail.com>
-Date: Thu, 17 Aug 2006 10:47:07 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Nathan Scott" <nathans@sgi.com>
-Subject: Re: 'fbno' possibly used uninitialized in xfs_alloc_ag_vextent_small()
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, xfs@oss.sgi.com
-In-Reply-To: <20060817084111.A2787212@wobbly.melbourne.sgi.com>
+	Thu, 17 Aug 2006 04:59:30 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:36514 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932217AbWHQI73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 04:59:29 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200608162327.34420.jesper.juhl@gmail.com>
-	 <20060817084111.A2787212@wobbly.melbourne.sgi.com>
+Message-ID: <17636.11747.89849.992490@alkaid.it.uu.se>
+Date: Thu, 17 Aug 2006 10:50:43 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <w@1wt.eu>,
+       Adrian Bunk <bunk@stusta.de>, Willy Tarreau <wtarreau@hera.kernel.org>,
+       linux-kernel@vger.kernel.org, mtosatti@redhat.com,
+       Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+In-Reply-To: <44E42A4C.4040100@domdv.de>
+References: <20060816223633.GA3421@hera.kernel.org>
+	<20060816235459.GM7813@stusta.de>
+	<20060817051616.GB13878@1wt.eu>
+	<1155797331.4494.17.camel@laptopd505.fenrus.org>
+	<44E42A4C.4040100@domdv.de>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/06, Nathan Scott <nathans@sgi.com> wrote:
-> Hi Jesper,
->
-> On Wed, Aug 16, 2006 at 11:27:34PM +0200, Jesper Juhl wrote:
-> > (Please keep me on Cc since I'm not subscribed to the XFS lists)
-> >
-> > The coverity checker found what looks to me like a valid case of
-> > potentially uninitialized variable use (see below).
->
-> It looks invalid, but its not, once again.  To understand why this
-> isn't a problem requires looking at the xfs_alloc_ag_vextent_small
-> call sites (there's only two).  If (*flen==0) is passed back out,
-> then the value in *fbno is discarded, always.
->
-> > So basically, if we hit the 'else' branch, then 'fbno' has not been
-> > initialized and line 1490 will then use that uninitialized variable.
-> >
-> > What would prevent that from happening at some time??
->
-> Nothing.  But its not a problem in practice.  However, that final
-> else branch is very much unlikely, so theres no real cost to just
-> initialising the local fbno to NULLAGBLOCK in that branch, and we
-> future proof ourselves a bit that way I guess (in case the callers
-> ever change - pretty unlikely, but we may as well).  How does the
-> patch below look to you?
->
-Looks good to me.
+Andreas Steinmetz writes:
+ > Arjan van de Ven wrote:
+ > > But maybe it's worth doing a user survey to find out what the users of
+ > > 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
+ > > people who use enterprise distro kernels don't count for this since
+ > > they'll not go to a newer released 2.4 anyway)
+ > 
+ > Currently I'm working with ARM based embedded systems. I prefer 2.4
+ > kernels to 2.6 as they are smaller thus leaving more flash for jffs2.
+ > Not speaking of the kernel a gcc 4.1.1 compile of code for a LPC2103
+ > resulted in a clearly smaller binary as the same compile with gcc 3.4.
+ > Thus I really would like to be able to use gcc 4.x with 2.4 kernels.
+ > There are even kernel miscompiles with gcc 3.4 that might be fixed with
+ > gcc 4 (one has to try).
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I've done a fair amount of ARM user-space hacking recently, and the
+number of bug fixes one has to apply to gcc-3.3 or gcc-3.4 to make it
+even semi-correct on ARM is scary. Since these versions aren't supported
+any more, being able to use newer, hopefully less buggy, and _supported_
+gcc versions is clearly beneficial.
+
+Of course, this is not an issue for x86 users.

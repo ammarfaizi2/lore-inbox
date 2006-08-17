@@ -1,182 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWHQTyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWHQT4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWHQTyS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 15:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWHQTyF
+	id S1030222AbWHQT4H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 15:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbWHQT4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 15:54:05 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:20189 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030220AbWHQTxp
+	Thu, 17 Aug 2006 15:56:06 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:36831 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030232AbWHQT4D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 15:53:45 -0400
-Subject: [RFC][PATCH 6/8] SLIM: make and config stuff
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>
-Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
+	Thu, 17 Aug 2006 15:56:03 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: vatsa@in.ibm.com, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <44E47547.8030702@sw.ru>
+References: <44E33893.6020700@sw.ru> <20060817110237.GA19127@in.ibm.com>
+	 <44E47547.8030702@sw.ru>
 Content-Type: text/plain
-Date: Thu, 17 Aug 2006 12:53:30 -0700
-Message-Id: <1155844410.6788.60.camel@localhost.localdomain>
+Organization: IBM
+Date: Thu, 17 Aug 2006 12:55:43 -0700
+Message-Id: <1155844543.26155.10.camel@linuxchandra>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the Makefile, Kconfig and .h files for SLIM.
+On Thu, 2006-08-17 at 17:55 +0400, Kirill Korotaev wrote:
+> > On Wed, Aug 16, 2006 at 07:24:03PM +0400, Kirill Korotaev wrote:
+> > 
+> >>As the first step we want to propose for discussion
+> >>the most complicated parts of resource management:
+> >>kernel memory and virtual memory.
+> > 
+> > Do you have any plans to post a CPU controller? Is that tied to UBC
+> > interface as well?
+> 
+> Not everything at once :) To tell the truth I think CPU controller
+> is even more complicated than user memory accounting/limiting.
+> 
+> No, fair CPU scheduler is not tied to UBC in any regard.
 
-Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
- security/Kconfig       |    1
- security/Makefile      |    1
- security/slim/Kconfig  |    6 ++
- security/slim/Makefile |    6 ++
- security/slim/slim.h   |  102 +++++++++++++++++++++++++++++++++++++++
- 5 files changed, 116 insertions(+)
+Not having the CPU controller on UBC doesn't sound good for the
+infrastructure. IMHO, the infrastructure (for resource management) we
+are going to have should be able to support different resource
+controllers, without each controllers needing to have their own
+infrastructure/interface etc.,
 
---- linux-2.6.18-rc3/security/slim/slim.h	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.18-rc3-working/security/slim/slim.h	2006-08-07 13:00:14.000000000 -0500
-@@ -0,0 +1,102 @@
-+/*
-+ * slim.h - simple linux integrity module
-+ *
-+ * SLIM's specific model is:
-+ *
-+ *  All objects are labeled with exteded attributes to indicate:
-+ *      Integrity Access Class (IAC)
-+ *      Secrecy Access Class (SAC)
-+ *
-+ *  All processes inherit from their parents:
-+ *      Integrity Read Access Class (IRAC)
-+ *      Integrity Write/Execute Access Class (IWXAC)
-+ *      Secrecy Write Access Class (SWAC)
-+ *      Secrecy Read/Execute Access Class (SRXAC)
-+ *
-+ *  SLIM enforces the following Mandatory Access Control Rules:
-+ *      Read:
-+ *          IRAC(process) <= IAC(object)
-+ *          SRXAC(process) >= SAC(object)
-+ *      Write:
-+ *          IWXAC(process) >= IAC(object)
-+ *          SWAC(process) <= SAC(process)
-+ *      Execute:
-+ *          IWXAC(process) <= IAC(object)
-+ *          SRXAC(process) >= SAC(object)
-+*/
-+
-+#include <linux/security.h>
-+#include <linux/version.h>
-+#include <linux/spinlock_types.h>
-+
-+struct xattr_data {
-+	char *name;
-+	void *value;
-+	size_t len;
-+};
-+
-+ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer,
-+			 size_t size);
-+ssize_t generic_listxattr(struct dentry *dentry, char *buffer,
-+			  size_t buffer_size);
-+int generic_setxattr(struct dentry *dentry, const char *name, const void *value,
-+		     size_t size, int flags);
-+enum slm_iac_level {		/* integrity access class */
-+	SLM_IAC_ERROR = -2,
-+	SLM_IAC_EXEMPT = -1, 
-+	SLM_IAC_NOTDEFINED = 0, 
-+	SLM_IAC_UNTRUSTED,
-+	SLM_IAC_USER, 
-+	SLM_IAC_SYSTEM, 
-+	SLM_IAC_HIGHEST
-+};
-+extern char *slm_iac_str[];
-+
-+enum slm_sac_level {		/* secrecy access class */
-+	SLM_SAC_ERROR = -2,
-+	SLM_SAC_EXEMPT = -1, 
-+	SLM_SAC_NOTDEFINED = 0,
-+	SLM_SAC_PUBLIC, 
-+	SLM_SAC_USER,
-+	SLM_SAC_USER_SENSITIVE, 
-+	SLM_SAC_SYSTEM_SENSITIVE, 
-+	SLM_SAC_HIGHEST
-+};
-+
-+struct slm_tsec_data {		/* task security data (process info) */
-+	enum slm_iac_level iac_r;	/* read low integrity files */
-+	enum slm_iac_level iac_wx;	/* ability to write/execute higher */
-+	enum slm_sac_level sac_w;	/* ability to write low secrecy files */
-+	enum slm_sac_level sac_rx;	/* read/execute high secrecy files */
-+	int unlimited;		/* unlimited guard process */
-+	struct dentry *script_dentry;	/* used when filename != interp */
-+	spinlock_t lock;
-+};
-+
-+struct slm_file_xattr {		/* file extended attributes */
-+	enum slm_iac_level iac_level;	/* integrity */
-+	enum slm_sac_level sac_level;	/* secrecy */
-+	struct slm_tsec_data guard;	/* guard process information */
-+};
-+
-+#define SLM_LSM_ID 0x999
-+extern int slm_idx;
-+
-+struct slm_isec_data {
-+	struct slm_file_xattr level;
-+	spinlock_t lock;
-+};
-+
-+static inline int is_kernel_thread(struct task_struct *tsk)
-+{
-+	return (!tsk->mm) ? 1 : 0;
-+}
-+
-+extern struct slm_xattr_config *slm_parse_config(char *data,
-+						 unsigned long datalen,
-+						 int *datasize);
-+
-+extern int slm_init_config(void);
-+
-+extern __init int slm_init_secfs(void);
-+extern __exit void slm_cleanup_secfs(void);
---- linux-2.6.18-rc3/security/slim/Makefile	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.18-rc3-working/security/slim/Makefile	2006-08-04 13:29:13.000000000 -0500
-@@ -0,0 +1,6 @@
-+#
-+# Makefile for building the SLIM module as part of the kernel tree.
-+#
-+
-+obj-$(CONFIG_SECURITY_SLIM) += slim.o
-+slim-y 	:= slm_main.o slm_secfs.o
---- linux-2.6.18-rc3/security/slim/Kconfig	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.18-rc3-working/security/slim/Kconfig	2006-08-04 13:29:13.000000000 -0500
-@@ -0,0 +1,6 @@
-+config SECURITY_SLIM
-+	boolean "SLIM support"
-+	depends on SECURITY && SECURITY_NETWORK
-+	help
-+	  The Simple Linux Integrity Module implements a modified low water-mark
-+	  mandatory access control integrity model.
---- linux-2.6.18-rc3/security/Makefile	2006-07-30 01:15:36.000000000 -0500
-+++ linux-2.6.18-rc3-working/security/Makefile	2006-08-01 12:21:24.000000000 -0500
-@@ -3,6 +3,7 @@
- #
- 
- obj-$(CONFIG_KEYS)			+= keys/
-+obj-$(CONFIG_SECURITY_SLIM)		+= slim/
- subdir-$(CONFIG_SECURITY_SELINUX)	+= selinux
- 
- # if we don't select a security model, use the default capabilities
---- linux-2.6.18-rc3/security/Kconfig	2006-07-30 01:15:36.000000000 -0500
-+++ linux-2.6.18-rc3-working/security/Kconfig	2006-08-01 12:21:24.000000000 -0500
-@@ -107,5 +107,6 @@ config SECURITY_SECLVL
- 
- source security/selinux/Kconfig
- 
-+source security/slim/Kconfig
- endmenu
- 
+> As we discussed before, it is valuable to have an ability to limit
+> different resources separately (CPU, disk I/O, memory, etc.).
+
+Having ability to limit/control different resources separately not
+necessarily mean we should have different infrastructure for each.
+
+> For example, it can be possible to place some mission critical
+> kernel threads (like kjournald) in a separate contanier.
+
+I don't understand the comment above (in this context).
+> 
+> This patches are related to kernel memory and nothing more :)
+> 
+> Thanks,
+> Kirill
+> 
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
 

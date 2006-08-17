@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbWHQP4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWHQQCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbWHQP4b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWHQP4b
+	id S932553AbWHQQCx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWHQQCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:56:31 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:11965 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S932543AbWHQP4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:56:30 -0400
-Message-ID: <44E490CA.8070603@s5r6.in-berlin.de>
-Date: Thu, 17 Aug 2006 17:52:42 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+	Thu, 17 Aug 2006 12:02:53 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3537 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932551AbWHQQCv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:02:51 -0400
+Date: Thu, 17 Aug 2006 08:52:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/75] pci_module_init to pci_register_driver conversion
+Message-ID: <20060817155207.GA7426@kroah.com>
+References: <20060817042634.0.CrzcY28443.28439.michal@ltg01-fedora.pl> <20060817055814.GA14950@kroah.com> <44E46280.2020109@garzik.org>
 MIME-Version: 1.0
-To: Anonymous User <anonymouslinuxuser@gmail.com>
-CC: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       Patrick McFarland <diablod3@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Grzegorz Kulewski <kangur@polcom.net>
-Subject: Re: GPL Violation?
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
-In-Reply-To: <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E46280.2020109@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anonymous User wrote:
-> Thanks to everyone who has responded to my question so far.
+On Thu, Aug 17, 2006 at 08:35:12AM -0400, Jeff Garzik wrote:
+> Greg KH wrote:
+> >On Thu, Aug 17, 2006 at 04:26:35AM +0000, Michal Piotrowski wrote:
+> >>Hi,
+> >>
+> >>pci_module_init is obsolete.
+> >>
+> >>This patch series converts pci_module_init to pci_register_driver.
+> >>
+> >>
+> >>Can I remove this?
+> >>
+> >>include/linux/pci.h:385
+> >>/*
+> >> * pci_module_init is obsolete, this stays here till we fix up all usages 
+> >> of it
+> >> * in the tree.
+> >> */
+> >>#define pci_module_init pci_register_driver
+> >
+> >As repeated numerous times, it's up to the network developers if they
+> >will take this or not.
+> >
+> >I'll hold off on taking this series, please push it through the driver
+> >subsystem maintainers.
 > 
-> It seems like the two issues that need to be addressed are:
-> 1) Are the kernel modules being developed derived works?  If they are,
-> they must be released along with the entire kernel source.
-> 2) If they are not derived works, and shipped in a product, does the
-> fact that they are shipped in a product that uses the linux kernel
-> require that the new modules be licensed under the GPL?
+> It's already in subsystem trees, in fact.
 
-If you refer to "kernel modules" in the commonly used sense of the term,
-i.e. modules that are linked into the kernel's address space and use its
-symbols, then at least the FSF's lawyers' interpretation of the GPL is
-unmistakable.
--- 
-Stefan Richter
--=====-=-==- =--- =---=
-http://arcgraph.de/sr/
+Great, it can wait until 2.6.19.
+
+> But it is most definitely not 2.6.18-rc material :)
+
+Agreed.
+
+thanks,
+
+greg k-h

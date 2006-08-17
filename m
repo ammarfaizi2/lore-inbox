@@ -1,30 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWHQAuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWHQA5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWHQAuM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 20:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWHQAuL
+	id S932169AbWHQA5J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 20:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWHQA5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 20:50:11 -0400
-Received: from wacom-nt10.wacom.com ([204.119.25.43]:22619 "EHLO
-	wacom-nt10.wacom.com") by vger.kernel.org with ESMTP
-	id S932325AbWHQAuL convert rfc822-to-8bit (ORCPT
+	Wed, 16 Aug 2006 20:57:08 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:5587 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932169AbWHQA5H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 20:50:11 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Removing of UTS_RELEASE in include/linux/version.h
-Date: Wed, 16 Aug 2006 17:46:06 -0700
-Message-ID: <6753EB6004AFF34FAA275742C104F95201753B@wacom-nt10.wacom.com>
-From: "Ping Cheng" <pingc@wacom.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 16 Aug 2006 20:57:07 -0400
+Subject: Re: [RFC PATCH 1/4] powerpc 2.6.16-rt17: to build on powerpc w/ RT
+From: john stultz <johnstul@us.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Tsutomu OWA <tsutomu.owa@toshiba.co.jp>, linuxppc-dev@ozlabs.org,
+       mingo@elte.hu, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de
+In-Reply-To: <1155774368.11312.135.camel@localhost.localdomain>
+References: <yyiodushvxs.wl@forest.swc.toshiba.co.jp>
+	 <17628.4499.609213.401518@cargo.ozlabs.ibm.com>
+	 <yyiac6biz3c.wl@forest.swc.toshiba.co.jp>
+	 <1155318983.5337.2.camel@localhost.localdomain>
+	 <1155771487.11312.114.camel@localhost.localdomain>
+	 <1155772859.15360.12.camel@localhost.localdomain>
+	 <1155774368.11312.135.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 16 Aug 2006 17:56:10 -0700
+Message-Id: <1155776171.15360.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Thu, 2006-08-17 at 02:26 +0200, Benjamin Herrenschmidt wrote:
+> > Hey Ben,
+> > 	I appreciate your looking over my patch. You are correct, the
+> > conversion is a bit rough and I've not yet been able to work on the
+> > powerpc vDSO, although I'd like to get it working so any help or
+> > suggestions would be appreciated (is there a reason the vDSO is written
+> > in ASM?).
+> > 
+> > If you have any other concerns w/ that patch, or the generic timekeeping
+> > code, please let me know and I'll do what I can to address them.
+> 
+> Well, I've been wanting to look at your stuff and possibly do the
+> conversion for some time, provided we don't lose performances ... Our
+> current implementation is very optimized to avoid even memory barriers
+> in most cases and I doubt we'll be able to be as fine tuned using your
+> generic code, thus it's a tradeoff decision that we have to do. But
+> then, I need to look into the details before doing any final
+> statement :)
 
-I was told that the removing of UTS_RELEASE in include/linux/version.h is permanent. I use it in my configuration script to get the version numbers of different kernel build sources.  Greg k-h told me to ask you about how to properly get the kernel source version.  Do you have any suggestions?  Please don't forget to cc me directly since I am not in the mailing list.
+Ok, although do let me know if you see places where the generic code
+could use any of the optimizations used in powerpc.
 
-Thanks,
+thanks
+-john
 
-Ping
+

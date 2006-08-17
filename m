@@ -1,103 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWHQICp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWHQIK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWHQICp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 04:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHQICp
+	id S932271AbWHQIK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 04:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWHQIK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 04:02:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4115 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932260AbWHQICo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 04:02:44 -0400
-Date: Thu, 17 Aug 2006 10:02:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-Message-ID: <20060817080243.GN7813@stusta.de>
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <200608170242.40969.diablod3@gmail.com> <1155797656.4494.24.camel@laptopd505.fenrus.org> <200608170332.53556.diablod3@gmail.com>
+	Thu, 17 Aug 2006 04:10:27 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:39332 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932271AbWHQIKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 04:10:25 -0400
+Date: Thu, 17 Aug 2006 10:01:50 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lee Trager <Lee@PicturesInMotion.net>
+cc: Jeff Garzik <jeff@garzik.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: /dev/sd*
+In-Reply-To: <44E3DFD6.4010504@PicturesInMotion.net>
+Message-ID: <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr>
+References: <1155144599.5729.226.camel@localhost.localdomain>
+ <20060809212124.GC3691@stusta.de> <1155160903.5729.263.camel@localhost.localdomain>
+ <20060809221857.GG3691@stusta.de> <20060810123643.GC25187@boogie.lpds.sztaki.hu>
+ <44DB289A.4060503@garzik.org> <44E3DFD6.4010504@PicturesInMotion.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608170332.53556.diablod3@gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 03:32:51AM -0400, Patrick McFarland wrote:
-> On Thursday 17 August 2006 02:54, Arjan van de Ven wrote:
-> > On Thu, 2006-08-17 at 02:42 -0400, Patrick McFarland wrote:
-> > > On Thursday 17 August 2006 01:48, Anonymous User wrote:
-> > > > I work for a company that will be developing an embedded Linux based
-> > > > consumer electronic device.
-> > > >
-> > > > I believe that new kernel modules will be written to support I/O
-> > > > peripherals and perhaps other things.  I don't know the details right
-> > > > now.  What I am trying to do is get an idea of what requirements there
-> > > > are to make the source code available under the GPL.
-> > >
-> > > I am not a lawyer, and I suggest your company speak with one before doing
-> > > this. (And most likely, someone from the list will correct me if I get
-> > > something wrong).
-> > >
-> > > However, your company only has to release any code they use, preferably
-> > > in the form of unmodified tarballs (pointing to project websites for
-> > > downloads isn't valid anymore) plus patches against said unmodified
-> > > tarballs if modified. If not modified, you still have to release the
-> > > unmodified tarballs.
-> > >
-> > > They don't have to release source code for any module you wrote from
-> > > scratch themselves, but said modules cannot say they are GPL (ie, they
-> > > have to poison the kernel).
-> >
-> > Just as a warning: This is your own legal opinion/advice, one which is
-> > apparently not shared with many other kernel developers, including me.
-> > For example see Greg's OLS keynote:
-> > http://www.kroah.com/log/2006/07/23/#ols_2006_keynote
-> > or some of Linus' emails on this topic:
-> > http://cvs.fedora.redhat.com/viewcvs/*checkout*/rpms/kernel/devel/COPYING.m
-> >odules?rev=1.5
-> >
-> > I hope you have talked to a lawyer about your advice, but I sort of
-> > doubt it since your answer doesn't sound like something a lawyer will
-> > tell you (it sure doesn't match what the various lawyers I talked to
-> > told me, not at all)
-> 
-> Like I told him, he needs to talk to a lawyer. Also, Linus probably won't 
-> agree with me because I said closed source modules are possible. If Linus 
-> wants those to not be possible, then hes going to have to change the 
-> licensing agreement altogether; which, honestly, I wish he would. 
-> 
-> Closed source modules are lame, and against the spirit of open source, but 
-> that still doesn't make them against the license.
+>>> AFAIR long ago Linus said he'd like just one major number (and thus only
+>>> one naming scheme) for every disk in the system; with /dev/sd* we're now
+>>> getting there.
+>>
+>> Yep.  /dev/disk is a long term goal :)
+>>
+>I agree with Adrian, users are going to get confused if their devices
+>are named something different once they switch to this new interface. So
+>if we're going to confusing them why not just take the big leap and
+>switch it over to /dev/disk? It seems to make more sense then to have
+>all IDE and SATA users use /dev/sda for awhile only to down the road
+>have to to switch to /dev/disk.
 
-This is _your personal interpretation_ of what consists a "derived work" 
-under the GPL.
+In the process, we can rename the then-"generic disk" (scsi ide whatever) 
+back to "hd*" since that actually expands to Hard Disk.
+(If I would have known a lot earlier about Linux I would have proposed 
+"id*" for the IDE disks.)
 
-Other people have other opinions on this issue.
 
-Other people even have asked lawyers that said they'd disagree with 
-interpretations like the one you expressed.
-
-If someone needs advice about the legal risks of kernel modules with a 
-not GPL compatible licence, he has to ask lawyers knowing the copyright 
-laws of the countries he plans to distribute his products to.
-
-This is a known grey area that has AFAIK not yet been brought to court 
-in any country, and neither your personal opinion on this issue nor my 
-personal opinion on this issue can replace legel advice.
-
-cu
-Adrian
-
+Jan Engelhardt
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-

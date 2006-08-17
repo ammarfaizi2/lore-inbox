@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWHQNCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWHQNFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWHQNCN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWHQNCN
+	id S932439AbWHQNFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWHQNFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:02:13 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:19660 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932294AbWHQNCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:02:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RSa7LyrNo0CnMvmHef5lg9j7ZKDtnXgN4ym5caCIINs4ljOoKvHIerIPv8YjAgx4ESgicifOrqHkv/cSQNWOE9hh5DXJF24jMfeQpzhpnRUKIvfjDUAw+LB0pqF5CliJk8IWieh4jqHbVhPWxQ+tjjP4b/cycdM3M6f0zYAZvJQ=
-Message-ID: <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
-Date: Thu, 17 Aug 2006 14:02:12 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Aug 2006 09:05:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61575 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932439AbWHQNFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:05:01 -0400
+Subject: Re: PATCH: Multiprobe sanitizer
+From: Arjan van de Ven <arjan@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1155818250.11312.181.camel@localhost.localdomain>
+References: <1155746538.24077.371.camel@localhost.localdomain>
+	 <20060816222633.GA6829@kroah.com>
+	 <1155774994.15195.12.camel@localhost.localdomain>
+	 <1155797833.11312.160.camel@localhost.localdomain>
+	 <1155804060.15195.30.camel@localhost.localdomain>
+	 <1155806676.11312.175.camel@localhost.localdomain>
+	 <20060817120013.GC6843@kroah.com>
+	 <1155816777.11312.177.camel@localhost.localdomain>
+	 <20060817122244.GA17956@kroah.com>
+	 <1155818250.11312.181.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 17 Aug 2006 15:04:21 +0200
+Message-Id: <1155819861.4494.61.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
-	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
-	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> It's kmemleak 0.9 issue. I have tested kmemleak 0.8 on 2.6.18-rc1and
-> 2.6.18-rc2. I haven't seen this before.
+On Thu, 2006-08-17 at 14:37 +0200, Benjamin Herrenschmidt wrote:
+> On Thu, 2006-08-17 at 05:22 -0700, Greg KH wrote:
+> > On Thu, Aug 17, 2006 at 02:12:57PM +0200, Benjamin Herrenschmidt wrote:
+> > > On Thu, 2006-08-17 at 05:00 -0700, Greg KH wrote:
+> > > > On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
+> > > > > Probe ordering is fragile and completely defeated with busses that are
+> > > > > already probed asynchronously (like USB or firewire), and things can
+> > > > > only get worse. Thus we need to look for generic solutions, the trick of
+> > > > > maintaining probe ordering will work around problems today but we'll
+> > > > > still hit the wall in an increasing number of cases in the future.
+> > > > 
+> > > > That's exactly why udev was created :)
+> > > > 
+> > > > It can handle bus ordering issues already today just fine, and distros
+> > > > use it this way in shipping, "enterprise ready" products.
+> > > 
+> > > Only up to a certain point and for certain drivers... but yeah. 
+> > 
+> > What drivers are not supported by this?  Seriously, have we missed any?
+> 
+> udev will not create stable names for a bunch of things... at least not
+> with the default config that comes with distros. On my shuttle with the
+> built-in USB card reader, whatever config comes up with the box will
+> cause the machine to boot or fail to boot due to sda not beeing what
+> it's expected to be, and udev is of no help because it won't create
+> stable device names. 
 
-it looks like it was caused by commit
-fc818301a8a39fedd7f0a71f878f29130c72193d where free_block() now calls
-slab_destroy() with l3->list_lock held.
+that's what mount by label is for though..
 
-The prio_tree use (which doesn't alloc memory) instead of the
-radix_tree is about 4 times slower when scanning the memory and I
-don't think I'll use it.
+(which isn't a udev but a distro thing)
 
-It leaves me with the options of either implementing my own memory
-allocator based on pages (including a simple hash table instead of
-radix tree) or fix the locking in kmemleak so that memory allocations
-happen without memleak_lock held. The latter is a bit complicated as
-well since any slab allocation causes a re-entrance into kmemleak.
-
-Any other suggestions?
-
-Thanks.
-
--- 
-Catalin

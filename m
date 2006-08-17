@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWHQOgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWHQOg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbWHQOgF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWHQOgF
+	id S932454AbWHQOg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWHQOg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:36:05 -0400
-Received: from RedStar.dorchain.net ([212.88.133.153]:16283 "EHLO
-	Redstar.dorchain.net") by vger.kernel.org with ESMTP
-	id S932199AbWHQOgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:36:03 -0400
-Message-ID: <11849.158.169.9.14.1155825358.squirrel@www.dorchain.net>
-In-Reply-To: <20060817132842.47.NURIpB4835.3636.michal@euridica.enternet.net.pl>
-References: <20060817132842.47.NURIpB4835.3636.michal@euridica.enternet.net.pl>
-Date: Thu, 17 Aug 2006 16:35:58 +0200 (CEST)
-Subject: Re: [RFC][PATCH 47/75] net: drivers/net/wireless/orinoco_tmd.c 
-     pci_module_init to pci_register_driver conversion
-From: "Joerg Dorchain" <joerg@dorchain.net>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: joerg@dorchain.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-User-Agent: SquirrelMail/1.4.8
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-recent-milter: 0 total hits in last 604800 seconds
-	digest1 a363891676f67f60444d1cec51c6870e
-	digest2 ffdb59d345ac8ca44228978a37f1e473
-	digest3 (null)
+	Thu, 17 Aug 2006 10:36:28 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:6804 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932454AbWHQOg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:36:27 -0400
+Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+In-Reply-To: <44E46FC4.2050002@sw.ru>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155754029.9274.21.camel@localhost.localdomain>  <44E46FC4.2050002@sw.ru>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 07:36:19 -0700
+Message-Id: <1155825379.9274.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+On Thu, 2006-08-17 at 17:31 +0400, Kirill Korotaev wrote:
+> > How many things actually use this?  Can we have the slab ubcs
+> without
+> > the struct page pointer?
+> slab doesn't use this pointer on the page.
+> It is used for pages allocated by buddy
+> alocator implicitly (e.g. LDT pages, page tables, ...). 
 
-Fine with me.
-Signed-off-by: Joerg Dorchain <joerg@dorchain.net>
+Hmmm.  There aren't _that_ many of those cases, right?  Are there any
+that absolutely need raw access to the buddy allocator?  I'm pretty sure
+that pagetables can be moved over to a slab, as long as we bump up the
+alignment.
 
->
-> diff -uprN -X linux-work/Documentation/dontdiff
-> linux-work-clean/drivers/net/wireless/orinoco_tmd.c
-> linux-work2/drivers/net/wireless/orinoco_tmd.c
-> --- linux-work-clean/drivers/net/wireless/orinoco_tmd.c	2006-08-16
-> 22:41:00.000000000 +0200
-> +++ linux-work2/drivers/net/wireless/orinoco_tmd.c	2006-08-17
-> 05:20:37.000000000 +0200
-> @@ -228,7 +228,7 @@ MODULE_LICENSE("Dual MPL/GPL");
->  static int __init orinoco_tmd_init(void)
->  {
->  	printk(KERN_DEBUG "%s\n", version);
-> -	return pci_module_init(&orinoco_tmd_driver);
-> +	return pci_register_driver(&orinoco_tmd_driver);
->  }
->
->  static void __exit orinoco_tmd_exit(void)
->
+It does seem a wee bit silly to have the pointer in _all_ of the struct
+pages, even the ones for which we will never do any accounting (and even
+on kernels that never need it).  But, a hashing scheme sounds like a
+fine idea.
 
+-- Dave
 

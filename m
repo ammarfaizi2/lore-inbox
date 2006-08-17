@@ -1,85 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWHQFgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWHQFkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWHQFgv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 01:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHQFgu
+	id S932307AbWHQFkt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 01:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWHQFkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 01:36:50 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:14830 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751300AbWHQFgu (ORCPT
+	Thu, 17 Aug 2006 01:40:49 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:22198 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932307AbWHQFkt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 01:36:50 -0400
-Date: Thu, 17 Aug 2006 09:36:36 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Daniel Phillips <phillips@google.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/9] Network receive deadlock prevention for NBD
-Message-ID: <20060817053636.GA30920@2ka.mipt.ru>
-References: <1155127040.12225.25.camel@twins> <20060809130752.GA17953@2ka.mipt.ru> <1155130353.12225.53.camel@twins> <20060809.165431.118952392.davem@davemloft.net> <1155189988.12225.100.camel@twins> <44DF888F.1010601@google.com> <20060814051323.GA1335@2ka.mipt.ru> <44E3F525.3060303@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Thu, 17 Aug 2006 01:40:49 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: peculiar suspend/resume bug.
+Date: Thu, 17 Aug 2006 07:44:38 +0200
+User-Agent: KMail/1.9.3
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060815221035.GX7612@redhat.com> <20060816024140.GA30814@srcf.ucam.org> <1155779070.3369.44.camel@nigel.suspend2.net>
+In-Reply-To: <1155779070.3369.44.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44E3F525.3060303@google.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 17 Aug 2006 09:36:38 +0400 (MSD)
+Message-Id: <200608170744.38446.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 09:48:37PM -0700, Daniel Phillips (phillips@google.com) wrote:
-> Evgeniy Polyakov wrote:
-> >On Sun, Aug 13, 2006 at 01:16:15PM -0700, Daniel Phillips 
-> >(phillips@google.com) wrote:
-> >>Indeed.  The rest of the corner cases like netfilter, layered protocol and
-> >>so on need to be handled, however they do not need to be handled right now
-> >>in order to make remote storage on a lan work properly.  The sane thing 
-> >>for
-> >>the immediate future is to flag each socket as safe for remote block IO or
-> >>not, then gradually widen the scope of what is safe.  We need to set up an
-> >>opt in strategy for network block IO that views such network subsystems as
-> >>ipfilter as not safe by default, until somebody puts in the work to make
-> >>them safe.
-> >
-> >Just for clarification - it will be completely impossible to login using 
-> >openssh or some other priveledge separation protocol to the machine due
-> >to the nature of unix sockets. So you will be unable to manage your
-> >storage system just because it is in OOM - it is not what is expected
-> >from reliable system.
+On Thursday 17 August 2006 03:44, Nigel Cunningham wrote:
+> Hi.
 > 
-> The system is not OOM, it is in reclaim, a transient condition that will be
-> resolved in normal course by IO progress.  However you raise an excellent
-> point: if there is any remote management that we absolutely require to be
-> available while remote IO is interrupted - manual failover for example -
-> then we must supply a means of carrying out such remote administration, that
-> is guaranteed not to deadlock on a normal mode memory request.  This ends up
-> as a new network stack feature I think, and probably a theoretical one for
-> the time being since we don't actually know of any such mandatory login
-> that must be carried out while remote disk IO is suspended.
-
-That is why you are not allowed to depend on main system's allocator
-problems. That is why network can have it's own allocator.
-
-> >>But really, if you expect to run reliable block IO to Zanzibar over an ssh
-> >>tunnel through a firewall, then you might also consider taking up bungie
-> >>jumping with the cord tied to your neck.
-> >
-> >Just pure openssh for control connection (admin should be able to
-> >login).
+> On Wed, 2006-08-16 at 03:41 +0100, Matthew Garrett wrote:
+> > On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
+> > 
+> > > cpufreq-applet crashes as soon as the cpu goes offline.
+> > > Now, the applet should be written to deal with this scenario more
+> > > gracefully, but I'm questioning whether or not userspace should
+> > > *see* the unplug/replug that suspend does at all.
+> > 
+> > As Nigel mentioned, cpu unplug happens just before processes are frozen, 
+> > so I guess there's a chance for it to be scheduled. On the other hand, 
+> > it's not unreasonable for CPUs to be unplugged during runtime anyway - 
+> > perhaps userspace should be able to deal with that?
 > 
-> And the admin will be able to, but in the cluster stack itself we don't
-> bless such stupidity as emailing an admin to ask for a login in order to
-> break a tie over which node should take charge of DLM recovery.
-
-No, you can't since openssh and any other priveledge separation
-mechanisms use adtional sockets to transfer data between it's parts,
-unix sockets require page sized allocation frequently which will endup
-with 8k allocation in slab.
-You will not be able to login using openssh.
-
-> Regards,
+> Agreed.
 > 
-> Da niel
+> I've spent a little more time thinking about this, and want to put a few
+> thoughts forward for discussion/ignoring/flame bait/whatever.
+> 
+> I see two main issues at the moment with freezing before hotplugging.
+> The first is that we have cpu specific kernel threads that we're going
+> to want to kill, and the second is that we have userspace threads that
+> we want to migrate to another cpu. Have I missed anything?
+
+I have bad memories from the time we were not using the CPU-hotplug and
+tried to freeze tasks with all CPUs on-line.  There were some very subtle
+race conditions appearing between the freezer and the running tasks
+which were a nightmare to figure out.  I'm not sure that they will appear
+now, but something tells me so. :-)
+
+> The first issue could be helped by splitting the freezing of userspace
+> processes from kernel space. The kernel threads could thus die without
+> us having to worry about userspace seeing what's going on. I haven't
+> looked at vanilla in a while; this might already be in.
+
+Yes, it is.
+
+> Alternatively, if it's viable, per-cpu kernel threads could perhaps be made
+> NO_FREEZE. 
+> 
+> The second issue is migrating userspace threads. I'm no scheduling
+> expert, so I'll just speculate :>. I wondered if it's possible to make
+> the migration happen lazily; in such a way that if, when we come to thaw
+> userspace, the cpu has been hotplugged again, the migration never
+> happens. Does that sound possible?
+
+The CPU hotplug makes the tasks migrate automatically, but that's not
+a problem, as I see it.  The problem is some tasks may have specific CPU
+affinities set and these should not change accross suspend/resume.
+
+Greetings,
+Rafael
+
 
 -- 
-	Evgeniy Polyakov
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

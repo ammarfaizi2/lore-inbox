@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWHQPWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWHQP23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965141AbWHQPWG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWHQPWF
+	id S965140AbWHQP23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWHQP23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:22:05 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52486 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S965138AbWHQPWD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:22:03 -0400
-Date: Thu, 17 Aug 2006 15:21:02 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Lennart Poettering <mzxreary@0pointer.de>
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH,RFC]: acpi,backlight: MSI S270 - driver, second try
-Message-ID: <20060817152101.GD5950@ucw.cz>
-References: <20060810162329.GA11603@curacao>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Aug 2006 11:28:29 -0400
+Received: from wr-out-0506.google.com ([64.233.184.229]:65102 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965140AbWHQP21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:28:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=chQDETxOxVpV30Ik+hkGbE/mMKeB2qkie0zTUtuIaliE8NhlSk3HSqhCpp/qFYLME+KVrmk+U7fRgECxXaan+FWfEgoUazH33If2Ux+ozlvWvviscjrS+rWw4JlhO1clyomEBxTGYhehRYMqpeUobhLjilD2Fx1fbcozuCgO2cY=
+Message-ID: <d120d5000608170828l75aeb693vb38f52ce71facf45@mail.gmail.com>
+Date: Thu, 17 Aug 2006 11:28:25 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Luke Sharkey" <lukesharkey@hotmail.co.uk>
+Subject: Re: Touchpad problems with latest kernels
+Cc: andi@rhlx01.fht-esslingen.de, davej@redhat.com, gene.heskett@verizon.net,
+       ian.stirling@mauve.plus.com, linux-kernel@vger.kernel.org,
+       malattia@linux.it, lista1@comhem.se
+In-Reply-To: <BAY114-F39F04F7AD7901A482EB648FA4D0@phx.gbl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060810162329.GA11603@curacao>
-User-Agent: Mutt/1.5.9i
+References: <200608161042.58005.dtor@insightbb.com>
+	 <BAY114-F39F04F7AD7901A482EB648FA4D0@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 8/17/06, Luke Sharkey <lukesharkey@hotmail.co.uk> wrote:
+>
+> > >   Seeing as Linux is less easily controlled with the keyboard compared
+> >to
+> > > MS-Windows,
+> >
+> >Careful, you are threading dangerous waters here ;)
+>
+> Well, I wasn't trying to be inflammatory.  It's just that Microsoft seems to
+> make such a big deal of how their OS can be controlled solely from keyboard.
+>
 
-> - Remove /proc/acpi/s270 interface, replace it by a platform device
->   /sys/devices/platform/s270pf/. This means: no procfs is touched
->   anymore, all features are now accessible through /sys/.
-> 
-> This patch applies to 2.6.17 and requires the ACPI ec_transaction()
-> patch I posted earlier:
-> 
-> http://marc.theaimsgroup.com/?l=linux-acpi&m=115517193511970&w=2
-> 
-> Please comment and/or apply!
+I guess there is a difference as to what you call controlling. You
+probably mean that in Windows is is easier to navigate GUI with
+keyboard whereas I mean that in Linux or Unix you just start a
+terminal program and do all necessary setup from within it (with
+keyboard ;) )
 
-Looks ok to me...
+> >Alt-F1 does it though
+>
+> Thanks for that.
+>
+> >Oh, another one... try booting with "ec_intr=0" on the kernel command line
+> >to disable embedded controller interrupt mode.
+>
+> I tried this.  Was this meant to cause a major improvement in mouse control?
+>  If there *was* a difference, it was only subtle.  I'd have to boot in to
+> the kernel with and without this option a few times to see whether it truly
+> makes a difference or not.
+>
 
-> +static int auto_brightness;
-> +module_param(auto_brightness, int, 0);
-> +MODULE_PARM_DESC(auto_brightness, "Enable automatic brightness control (0: disabled; 1: enabled; 2: don't touch)");
-> +
-> +/*** Hardware access ***/
-> +
-> +static const uint8_t lcd_table[MSI_LCD_LEVEL_MAX] = {
-> +        0x00, 0x1f, 0x3e, 0x5d, 0x7c, 0x9b, 0xba, 0xd9, 0xf8
-> +};
+Well, it was just a thing to try. On some boxes interrupt mode of EC
+was reported to hurt mice, while on others there was no effect or even
+was an improvement.
 
-Can we get 0xf8 levels and simplify code while we are at it?
+> >And finally, can I mples get a dmesg (or /var/log/messages) of boot with
+> >"i8042.debug=1 log_buf_len=131072" please?
+>
+> Yes.  Here is the output of dmesg with "i8042.debug=1 log_buf_len=131072"
+> appended to the kernel line:
+>
 
-> +        if ((result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1)) < 0)
-> +                return result;
+Hmm, don't see anything bad happening here.. Could you please send me
+your /var/log/messages (still after booting with i8042.debug=1
+log_buf_len=131072)? You should probably spare other people's
+mailboxes and send it to me directly... Or put it on FTP somewhere.
 
-Please split this into two lines.
+Thanks!
 
-result = ...;
-if (result.....)
-
-
-> +static DEVICE_ATTR(bluetooth, 0444, show_bluetooth, NULL);
-> +static DEVICE_ATTR(wlan, 0444, show_wlan, NULL);
-
-So bluetooth and wlan basically mirror physical switch state? Should
-we make these switches available through input subsystem one day?
 -- 
-Thanks for all the (sleeping) penguins.
+Dmitry

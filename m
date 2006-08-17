@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWHQPTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbWHQPUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965131AbWHQPTz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWHQPTz
+	id S965135AbWHQPUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbWHQPUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:19:55 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:30953 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965131AbWHQPTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:19:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=KyyPoWK/Wjhw2Tr2y73fShyuyNUC14uLzxqQVt0qz+hdr7cG/S6aYDQVI2GrmsLfsCXDXeVsHF4xIGRe/YFCkQ9DdJTWCvMUYGb63u56dFfAGTduiWMMYwgxW/4a69Rn54XviDpM5rLhQiUwnHLCqRmgq/rrEst6jGhkIPh7mtQ=
-Date: Thu, 17 Aug 2006 19:19:45 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Jesse Huang <jesse@icplus.com.tw>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH 1/6] IP100A, add end of pci id table
-Message-ID: <20060817151945.GC5205@martell.zuzino.mipt.ru>
-References: <1155841247.4532.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155841247.4532.6.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Thu, 17 Aug 2006 11:20:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27790 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965135AbWHQPUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:20:30 -0400
+Message-ID: <44E488EF.4090803@redhat.com>
+Date: Thu, 17 Aug 2006 11:19:11 -0400
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, rohitseth@google.com,
+       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	 <1155754029.9274.21.camel@localhost.localdomain>	 <1155755729.22595.101.camel@galaxy.corp.google.com>	 <1155758369.9274.26.camel@localhost.localdomain>	 <1155774274.15195.3.camel@localhost.localdomain> <1155824788.9274.32.camel@localhost.localdomain>
+In-Reply-To: <1155824788.9274.32.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 03:00:47PM -0400, Jesse Huang wrote:
-> Add "0," and "NULL," to sundance_pci_tbl and pci_id_table.
+Dave Hansen wrote:
 
-> @@ -212,7 +212,7 @@ static const struct pci_device_id sundan
->  	{ 0x1186, 0x1002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
->  	{ 0x13F0, 0x0201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5 },
->  	{ 0x13F0, 0x0200, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6 },
-> -	{ }
-> +	{ 0,}
->  };
->  MODULE_DEVICE_TABLE(pci, sundance_pci_tbl);
->  
-> @@ -231,7 +231,7 @@ static const struct pci_id_info pci_id_t
->  	{"D-Link DL10050-based FAST Ethernet Adapter"},
->  	{"Sundance Technology Alta"},
->  	{"IC Plus Corporation IP100A FAST Ethernet Adapter"},
-> -	{ }	/* terminate list. */
-> +	{ NULL,}	/* terminate list. */
+> My main thought is that _everybody_ is going to have to live with the
+> entry in the 'struct page'.  Distros ship one kernel for everybody, and
+> the cost will be paid by those not even using any kind of resource
+> control or containers.
 
-They are already properly terminated. You don't have to do anything.
+Every userspace or page cache page will be in an object
+though.  Could we do the pointer on a per object (mapping,
+anon vma, ...) basis?
 
+Kernel pages are not using all of their struct page entries,
+so we could overload a field.
+
+It all depends on how much we really care about not growing
+struct page :)
+
+-- 
+What is important?  What you want to be true, or what is true?

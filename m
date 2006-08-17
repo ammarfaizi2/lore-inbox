@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbWHQQig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWHQQkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965119AbWHQQig (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWHQQig
+	id S965125AbWHQQkz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWHQQkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:38:36 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:42728 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965119AbWHQQif (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:38:35 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
-	(core)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rohitseth@google.com, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>,
-       dave@sr71.net
-In-Reply-To: <1155826917.15195.101.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155754029.9274.21.camel@localhost.localdomain>
-	 <1155755729.22595.101.camel@galaxy.corp.google.com>
-	 <1155758369.9274.26.camel@localhost.localdomain>
-	 <1155774274.15195.3.camel@localhost.localdomain>
-	 <1155824788.9274.32.camel@localhost.localdomain>
-	 <1155826917.15195.101.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 09:37:39 -0700
-Message-Id: <1155832659.9274.62.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 17 Aug 2006 12:40:55 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:48769
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S965125AbWHQQky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:40:54 -0400
+Message-ID: <44E49C0F.7030600@microgate.com>
+Date: Thu, 17 Aug 2006 11:40:47 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Raphael Hertzog <hertzog@debian.org>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: How to avoid serial port buffer overruns?
+References: <20060816104559.GF4325@ouaza.com> <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com> <1155762739.7338.18.camel@mindpipe> <1155767066.2600.19.camel@localhost.localdomain> <20060817161042.GC10818@ouaza.com>
+In-Reply-To: <20060817161042.GC10818@ouaza.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 16:01 +0100, Alan Cox wrote:
-> Ar Iau, 2006-08-17 am 07:26 -0700, ysgrifennodd Dave Hansen:
-> > My main thought is that _everybody_ is going to have to live with the
-> > entry in the 'struct page'.  Distros ship one kernel for everybody, and
-> > the cost will be paid by those not even using any kind of resource
-> > control or containers.
-> > 
-> > That said, it sure is simpler to implement, so I'm all for it!
+Raphael Hertzog wrote:
+> I tried 2.6.17.7.
 > 
-> I don't see any good way around that. For the page struct it is a
-> material issue, for the others its not a big deal providing we avoid
-> accounting dumb stuff like dentries.
+> But I'm really not sure that the 2.6 is a regression from 2.4, in fact I
+> think it does better by default.
+> 
+> The stock 2.4.31 kernel I was using had serial overruns at 9600 bauds
+> already. Once patched with the low latency/preemptive kernel patchs, it
+> was way better and I had only overruns at 115200 bauds.
+> 
+> With the 2.6.17.7 kernel (configured with CONFIG_PREEMPT and
+> CONFIG_HZ=1000), I'm seeing overruns starting at 38400 bauds. So
+> compared to plain 2.4, it's better. However compared to the patched
+> 2.4, it's worse.
 
-The only way I see around it is using other mechanisms to more loosely
-attribute ownership of a page to particular containers.  I know that my
-suggestion of traversing the rmap chains at page reclaim time is going
-appears to be slow compared to the regular reclaim path, but I'm not
-sure it really matters.  
+This tells me your issue is not a problem with the
+serial or tty code, but rather a matter of IRQ latency.
+(Which you may have already known, but I was unclear on)
+I do not expect 2.6.18-rc4 to make a difference.
 
-Let's say you have 20 containers sharing 20 pages which are on the LRU,
-and those pages are evenly distributed so that each container owns one
-page.  Only one of those 20 containers is over its limit.  With
-something that strictly assigns container ownership to one and only one
-container, you're going to have to walk half of the LRU to find the
-page.
+For fun, have you tried playing with the rx FIFO trigger
+level in the 16550A entry in drivers/serial/8250.c ?
+You could try replacing UART_FCR_R_TRIG_10 (8 char trigger)
+with UART_FCR_R_TRIG_01 (4 char trigger) or even
+UART_FCR_R_TRIG_00 (1 char trigger).
+That creates more interrupts, but allows
+more time to activate the ISR before overrun.
 
-With a "loose ownership" scheme, you'd hit on the first page, and you'd
-pay the cost by having to walk halfway through the 20 rmap entries.
-Admittedly, the rmap walk is much slower than an LRU walk.  
+Lee's issue may still merit investigation into the
+serial/tty code.
 
--- Dave
-
+-- 
+Paul Fulghum
+Microgate Systems, Ltd.

@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWHQMO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWHQMPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWHQMO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWHQMO0
+	id S932214AbWHQMPM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWHQMPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:14:26 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:20460 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932108AbWHQMOZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:14:25 -0400
-Date: Thu, 17 Aug 2006 16:39:13 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-Message-ID: <20060817110913.GB19127@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru>
+	Thu, 17 Aug 2006 08:15:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:51136 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932206AbWHQMPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 08:15:10 -0400
+Subject: Re: PATCH: Multiprobe sanitizer
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060817120013.GC6843@kroah.com>
+References: <1155746538.24077.371.camel@localhost.localdomain>
+	 <20060816222633.GA6829@kroah.com>
+	 <1155774994.15195.12.camel@localhost.localdomain>
+	 <1155797833.11312.160.camel@localhost.localdomain>
+	 <1155804060.15195.30.camel@localhost.localdomain>
+	 <1155806676.11312.175.camel@localhost.localdomain>
+	 <20060817120013.GC6843@kroah.com>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 14:12:57 +0200
+Message-Id: <1155816777.11312.177.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E33BB6.3050504@sw.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 16, 2006 at 07:37:26PM +0400, Kirill Korotaev wrote:
-> +struct user_beancounter
-> +{
-> +	atomic_t		ub_refcount;
-> +	spinlock_t		ub_lock;
-> +	uid_t			ub_uid;
-> +	struct hlist_node	hash;
-> +
-> +	struct user_beancounter	*parent;
+On Thu, 2006-08-17 at 05:00 -0700, Greg KH wrote:
+> On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
+> > Probe ordering is fragile and completely defeated with busses that are
+> > already probed asynchronously (like USB or firewire), and things can
+> > only get worse. Thus we need to look for generic solutions, the trick of
+> > maintaining probe ordering will work around problems today but we'll
+> > still hit the wall in an increasing number of cases in the future.
+> 
+> That's exactly why udev was created :)
+> 
+> It can handle bus ordering issues already today just fine, and distros
+> use it this way in shipping, "enterprise ready" products.
 
-This seems to hint at some heirarchy of ubc? How would that heirarchy be
-used? I cant find anything in the patch which forms this heirarchy
-(basically I dont see any place where beancounter_findcreate() is called
-with non-NULL 2nd arg).
+Only up to a certain point and for certain drivers... but yeah. That's
+probably the right direction to take. Now, I'll let you and Alan argue
+wether it's sufficient or not to move toward a fully parallel probing :)
 
-[snip]
-
-> +static void init_beancounter_syslimits(struct user_beancounter *ub)
-> +{
-> +	int k;
-> +
-> +	for (k = 0; k < UB_RESOURCES; k++)
-> +		ub->ub_parms[k].barrier = ub->ub_parms[k].limit;
-
-This sets barrier to 0. Is this value of 0 interpreted differently by
-different controllers? One way to interpret it is "dont allocate any
-resource", other way to interpret it is "don't care - give me what you
-can" (which makes sense for stuff like CPU and network bandwidth).
+Ben.
 
 
-
--- 
-Regards,
-vatsa

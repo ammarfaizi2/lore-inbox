@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWHQJhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWHQJlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWHQJhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 05:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWHQJhP
+	id S964785AbWHQJlh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 05:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWHQJlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 05:37:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51392 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964781AbWHQJhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 05:37:14 -0400
-Subject: Re: GPL Violation?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Patrick McFarland <diablod3@gmail.com>
+	Thu, 17 Aug 2006 05:41:37 -0400
+Received: from us.cactii.net ([66.160.141.151]:47376 "EHLO us.cactii.net")
+	by vger.kernel.org with ESMTP id S964785AbWHQJlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 05:41:36 -0400
+Date: Thu, 17 Aug 2006 11:38:42 +0200
+From: Ben B <kernel@bb.cactii.net>
+To: Arjan van de Ven <arjan@infradead.org>
 Cc: Anonymous User <anonymouslinuxuser@gmail.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <200608170242.40969.diablod3@gmail.com>
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
-	 <200608170242.40969.diablod3@gmail.com>
-Content-Type: text/plain
-Date: Thu, 17 Aug 2006 10:37:11 +0100
-Message-Id: <1155807431.22871.157.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Subject: Re: GPL Violation?
+Message-ID: <20060817093842.GA21430@cactii.net>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <1155795251.4494.9.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155795251.4494.9.camel@laptopd505.fenrus.org>
+X-PGP-Key: 3CD061AD
+X-PGP-Fingerprint: E092 32CA 6196 7C11 0692  BE43 AEDA 4D47 3CD0 61AD
+Jabber-ID: bb@cactii.net
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 02:42 -0400, Patrick McFarland wrote:
-> They don't have to release source code for any module you wrote from scratch 
-> themselves, but said modules cannot say they are GPL (ie, they have to poison 
-> the kernel). 
+Arjan van de Ven <arjan@infradead.org> uttered the following thing:
+> On Wed, 2006-08-16 at 22:48 -0700, Anonymous User wrote:
+> > I believe that new kernel modules will be written to support I/O
+> > peripherals and perhaps other things.  I don't know the details right
+> > now.  What I am trying to do is get an idea of what requirements there
+> > are to make the source code available under the GPL.
+> 
+> 
+> you should talk to a lawyer, not LKML.
 
-If you're distributing a product which contains both the kernel and some
-modules, then there is a more important (or at least a more clear-cut)
-caveat to bear in mind than the question of whether the module in itself
-is a derived work.
+Minor gripe here...
 
-Read section 2 of the GPL carefully:
+Whilst it's true that a lawyer should get involved with these things, I
+think it's also perfectly reasonable for someone to ask for input from
+LKML, /. or other interesting places.
 
-	"These requirements apply to the modified work as a whole.  If
-	identifiable sections of that work are not derived from the
-	Program, and can be reasonably considered independent and
-	separate works in themselves, then this License, and its terms,
-	do not apply to those sections when you distribute them as
-	separate works."
+OP may already be planning to speak to a lawyer, and just wants to take 
+tidbits of info/experiences/etc from others to help the lawyer's
+research.
 
-That's what Patrick is referring to, presumably, (and he's assuming that
-your module would _not_ be derived from the kernel, which many people
-are already disputing).
-
-However, do not let that debate distract you from the fact that the GPL
-continues as follows:
-
-	"But when you distribute the same sections as part of a whole
-	which is a work based on the Program, the distribution of the
-	whole must be on the terms of this License, whose permissions
-	for other licensees extend to the ENTIRE WHOLE, and thus to EACH
-	AND EVERY PART REGARDLESS OF WHO WROTE IT."
-
-So when you distribute a product which combines the kernel and some
-driver module, and which isn't 'mere aggregation on a storage medium'
-but is actually a coherent whole which works together and wouldn't
-function correctly if either the kernel or the module were missing, then
-your module _must_ be released under the terms of the GPL too.
-
-This is entirely separate to the question of whether the module should
-be considered a derived work in itself -- if we consider the module a
-derived work (as I personally do), then of course you must release the
-module's source under the terms of the GPL, whatever happens.
-
-But _even_ if GregKH, Arjan and all of IBM's lawyers are wrong and we
-don't consider the module a derived work, then you may release the
-module without source _only_ if you do so on its _own_ ("as separate
-works"), and not as part of a product which also contains a Linux
-kernel.
-
--- 
-dwmw2
+BB
 

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWHQBTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWHQB1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWHQBTL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 21:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWHQBTK
+	id S932352AbWHQB1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 21:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWHQB1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 21:19:10 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:19601 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932331AbWHQBTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 21:19:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n6qmxZ2bJuHeRoRJA6w6Cep2gx/GoVgKXJJFCwwkMYAtRBjitY1O9c/qYTAsokyLbPTXgmrBN10ApwU+cLvwpFT98WM8+46TCCKrnDXHqdoImk0/OZ5MCcUr/D4tT4OT9o0gbGfKwOkU8qvI0Izsri+GRZQA7wbYu4ai6z1rlRc=
-Message-ID: <625fc13d0608161819j7186a51et767473a01a4bbbf3@mail.gmail.com>
-Date: Wed, 16 Aug 2006 20:19:08 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Haavard Skinnemoen" <hskinnemoen@atmel.com>
-Subject: Re: [PATCH] MTD: Convert Atmel PRI information to AMD format
-Cc: "David Woodhouse" <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <11551136843896-git-send-email-hskinnemoen@atmel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <11551136843896-git-send-email-hskinnemoen@atmel.com>
+	Wed, 16 Aug 2006 21:27:49 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:58322 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932348AbWHQB1s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 21:27:48 -0400
+Message-Id: <200608170127.k7H1RZBQ003805@laptop13.inf.utfsm.cl>
+To: "Molle Bestefich" <molle.bestefich@gmail.com>
+cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 corruption 
+In-Reply-To: Message from "Molle Bestefich" <molle.bestefich@gmail.com> 
+   of "Sat, 12 Aug 2006 10:54:50 +0200." <62b0912f0608120154s1b158732y5da52b17583fdfa0@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Wed, 16 Aug 2006 21:27:35 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 16 Aug 2006 21:27:41 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/9/06, Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
-> Atmel flash chips don't have PRI information in the same format as
-> AMD flash chips. This patch installs a fixup for all Atmel chips that
-> converts the relevant PRI fields into AMD format.
->
-> Only the fields that are actually used by the command set is actually
-> converted. The rest are initialized to zero (which should be safe)
->
-> Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Molle Bestefich <molle.bestefich@gmail.com> wrote:
+> Horst H. von Brand wrote:
 
-I've added this patch to my tree.  Thanks.
+[...]
 
-josh
+> > The kernel people are certainly not infallible either. And there are cases
+> > where the right order is A B C, and others in which it is C B A, and still
+> > others where it doesn't matter.
+
+> In the quite unlikely situation where that happens, you've obviously
+> got a piece of software which is broken dependency-wise.  Many of the
+> current schemes will fail to accommodate that too.
+
+It isn't broken /software/, it is /different setups/.
+
+> For example, no amount of moving the /etc/rc.d/rc6.d/K35smb script
+> around will fix that situation on Red Hat.
+
+What situation?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

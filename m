@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWHQO6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWHQPBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWHQO6F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWHQO6F
+	id S965108AbWHQPBt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWHQPBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:58:05 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:64678 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965101AbWHQO6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:58:02 -0400
+	Thu, 17 Aug 2006 11:01:49 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:19412 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965108AbWHQPBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:01:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qc5AbRPbJHLAEACixmfKph4Z2mmhESOShzTF+o7PkkgokLufvK1n/EW2/+GkYw8BTE23LUeFC8Pr7MDtEoSYLcFgVzWckrA/jPXYRWL9cxurbAzUED86ZDTM2lZlE0nf4OdsAU3kMOG1ZJGTnqCHbyaFKBxHYoUbT+2mK/qX+Ko=
-Message-ID: <40d80630608170758h801504boebb92563238d8b06@mail.gmail.com>
-Date: Thu, 17 Aug 2006 07:58:01 -0700
-From: "Anonymous User" <anonymouslinuxuser@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-Cc: "Adrian Bunk" <bunk@stusta.de>, "Patrick McFarland" <diablod3@gmail.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Grzegorz Kulewski" <kangur@polcom.net>,
-       "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-In-Reply-To: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+        b=dCu5K7ZQKPzqemar7RaVgCWTc99UCbqQzf4INAMh4NBvxOXEn+8Bf8JbZ4GX/gJ9TlOwqbVt7CdKDGw7XtAq3T7owCYovlgBkZE03r0jLIU81ZXAcTYf1rTEOHhz3rnIhTvgloFLca5a0z4aidP8/d57BpzS0yGrHsZ9WXvMbHs=
+Message-ID: <b0943d9e0608170801v23592952scf12c2c0b4a7bf4@mail.gmail.com>
+Date: Thu, 17 Aug 2006 16:01:37 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
+Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
+In-Reply-To: <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
+	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
+	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
+	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+	 <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/16/06, Anonymous User <anonymouslinuxuser@gmail.com> wrote:
-> I work for a company that will be developing an embedded Linux based
-> consumer electronic device.
+On 17/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> On 17/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > On 13/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > > It's kmemleak 0.9 issue. I have tested kmemleak 0.8 on 2.6.18-rc1and
+> > > 2.6.18-rc2. I haven't seen this before.
+> >
+> > it looks like it was caused by commit
+> > fc818301a8a39fedd7f0a71f878f29130c72193d where free_block() now calls
+> > slab_destroy() with l3->list_lock held.
 >
-> I believe that new kernel modules will be written to support I/O
-> peripherals and perhaps other things.  I don't know the details right
-> now.  What I am trying to do is get an idea of what requirements there
-> are to make the source code available under the GPL.
->
-> I suspect the company will try to get away with releasing as little as
-> possible.  I don't know much about the GPL or Linux kernel internals,
-> but I want to encourage the company I work for to give back to the
-> community.
->
-> I understand that modifications to GPL code must be released under the
-> GPL.  So if they tweak a scheduler implementation, this must be
-> released.  What if a new driver is written to support a custom piece
-> of hardware?  Yes, the driver was written to work with the Linux
-> kernel, but it isn't based off any existing piece of code.
->
-> I'm posting anonymously because the company probably wouldn't want me
-> discussing this at all  :(
+> I'll revert this commit.
 
+I'm not sure it's a good idea, it might have other implications in
+slab.c. I better fix kmemleak (I think currently you could get a
+deadlock only on SMP).
 
-Thanks to everyone who has responded to my question so far.
+> Please talk with Christoph Lameter, he is working on Modular Slab.
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0608.1/0951.html
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0608.2/0030.html
+> Maybe he can help with this problem.
 
-It seems like the two issues that need to be addressed are:
-1) Are the kernel modules being developed derived works?  If they are,
-they must be released along with the entire kernel source.
-2) If they are not derived works, and shipped in a product, does the
-fact that they are shipped in a product that uses the linux kernel
-require that the new modules be licensed under the GPL?
+I haven't looked at these patches in detail but they look like making
+the slab allocator cleaner.
 
-Yes, I agree that the company I work for should talk to a lawyer.  I
-however, am not interested in picking up a big legal tab to satisfy my
-curiosity.
+Anyway, I still need to revisit the locking in kmemleak and not rely
+on future changes to slab.c. At the moment I think I can avoid any
+kmemleak locks when allocating memory (by using radix_tree_preload
+with the radix trees). If this still fails, I'll think about writing
+my own, very simple, memory allocator and avoid the re-entrance
+problem.
+
+Thanks.
+
+-- 
+Catalin

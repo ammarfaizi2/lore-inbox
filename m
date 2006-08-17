@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWHQFrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWHQFsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWHQFrq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 01:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWHQFrq
+	id S932442AbWHQFsi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 01:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWHQFsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 01:47:46 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:22636 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932438AbWHQFrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 01:47:45 -0400
-From: David Brownell <david-b@pacbell.net>
-To: johnstul@us.ibm.com
-Subject: Re: [RFC][PATCH] Unify interface to persistent CMOS/RTC/whatever clock
-Date: Wed, 16 Aug 2006 22:47:41 -0700
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+	Thu, 17 Aug 2006 01:48:38 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:31479 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932443AbWHQFsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 01:48:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pB1/QLi9Ey+VsAO3FXDdc8KQOpKdroAO/dLeaeekoRclLpJCwgyC2ELpsTZHsBXa4Fss92J0Mi1oGw5zV4ik4vYxO3XymuUExxXdV7pVfQScL0xGrnlfXOO4YUYGsYRKd3pmeNX3TH1VEiZpgi5CpHbptaayvey0cZhdigJYmDU=
+Message-ID: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+Date: Wed, 16 Aug 2006 22:48:36 -0700
+From: "Anonymous User" <anonymouslinuxuser@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: GPL Violation?
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608162247.41632.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         Almost every arch has some form of persistent clock (CMOS, RTC, etc)
-> which is normally used at boot time to initialize xtime and
-> wall_to_monotonic. As part of the timekeeping consolidation, I propose
-> the following generic interface to the arch specific persistent clock:
+I work for a company that will be developing an embedded Linux based
+consumer electronic device.
 
-Hmm, this seems to ignore the RTC framework rather entirely, which
-seems to me like the wrong implementation approach.  You'd likely have
-noticed that if you had supported a few ARM boards.  :)
+I believe that new kernel modules will be written to support I/O
+peripherals and perhaps other things.  I don't know the details right
+now.  What I am trying to do is get an idea of what requirements there
+are to make the source code available under the GPL.
 
-Here's a fairly common scenario for an embedded system:  the battery
-backed clock is accessed through I2C or SPI, rather than an ISA style
-direct register access, so it's not accessible until after those driver
-stacks have initialized.
+I suspect the company will try to get away with releasing as little as
+possible.  I don't know much about the GPL or Linux kernel internals,
+but I want to encourage the company I work for to give back to the
+community.
 
-Or similarly, the SOC family may have a powerful RTC ("arch specific")
-with alarm and system wakeup capabilities, but it may not be the system's
-battery backed clock ... so that RTC would be initialized from another one,
-which is accessed using I2C/SPI/etc.  (RTCs integrated on SOCs evidently
-have a hard time being as power-miserly as the discrete ones.)
+I understand that modifications to GPL code must be released under the
+GPL.  So if they tweak a scheduler implementation, this must be
+released.  What if a new driver is written to support a custom piece
+of hardware?  Yes, the driver was written to work with the Linux
+kernel, but it isn't based off any existing piece of code.
 
-The approach in this patch doesn't seem to play well with those scenarios,
-because it expects to do timekeeping setup long before the system's RTC is
-necessarily going to be available ... and doesn't have an answer for those
-cases where the RTC is unavailable before e.g. late_initcall().
+I'm posting anonymously because the company probably wouldn't want me
+discussing this at all  :(
 
-I'd be more interested in something that improves on CONFIG_RTC_HCTOSYS,
-and for example addresses the need to update the system wall time from
-such RTCs after resume, not just at boot time.
-
-- Dave
-
+-anonymouslinuxuser

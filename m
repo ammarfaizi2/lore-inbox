@@ -1,61 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWHQGW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWHQG1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbWHQGW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 02:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWHQGW6
+	id S1750985AbWHQG1L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 02:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWHQG1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 02:22:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13733 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750911AbWHQGW6 (ORCPT
+	Thu, 17 Aug 2006 02:27:11 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:40630 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750985AbWHQG1J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 02:22:58 -0400
-Date: Wed, 16 Aug 2006 23:22:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
- writeback.
-Message-Id: <20060816232253.169e8957.akpm@osdl.org>
-In-Reply-To: <17635.59821.21444.287979@cse.unsw.edu.au>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	<20060815010611.7dc08fb1.akpm@osdl.org>
-	<17635.59821.21444.287979@cse.unsw.edu.au>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 17 Aug 2006 02:27:09 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: peculiar suspend/resume bug.
+Date: Thu, 17 Aug 2006 08:30:48 +0200
+User-Agent: KMail/1.9.3
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060815221035.GX7612@redhat.com> <200608170744.38446.rjw@sisk.pl> <1155794103.17301.26.camel@nigel.suspend2.net>
+In-Reply-To: <1155794103.17301.26.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608170830.48324.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006 13:59:41 +1000
-Neil Brown <neilb@suse.de> wrote:
+Hi,
 
-> > CFQ used to have 1024 requests and we did have problems with excessive
-> > numbers of writeback pages.  I fixed that in 2.6.early, but that seems to
-> > have got lost as well.
+On Thursday 17 August 2006 07:55, Nigel Cunningham wrote:
+> Hi.
+> 
+> Thanks for the reply.
+> 
+> On Thu, 2006-08-17 at 07:44 +0200, Rafael J. Wysocki wrote:
+> > On Thursday 17 August 2006 03:44, Nigel Cunningham wrote:
+> > > Hi.
+> > > 
+> > > On Wed, 2006-08-16 at 03:41 +0100, Matthew Garrett wrote:
+> > > > On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
+> > > > 
+> > > > > cpufreq-applet crashes as soon as the cpu goes offline.
+> > > > > Now, the applet should be written to deal with this scenario more
+> > > > > gracefully, but I'm questioning whether or not userspace should
+> > > > > *see* the unplug/replug that suspend does at all.
+> > > > 
+> > > > As Nigel mentioned, cpu unplug happens just before processes are frozen, 
+> > > > so I guess there's a chance for it to be scheduled. On the other hand, 
+> > > > it's not unreasonable for CPUs to be unplugged during runtime anyway - 
+> > > > perhaps userspace should be able to deal with that?
+> > > 
+> > > Agreed.
+> > > 
+> > > I've spent a little more time thinking about this, and want to put a few
+> > > thoughts forward for discussion/ignoring/flame bait/whatever.
+> > > 
+> > > I see two main issues at the moment with freezing before hotplugging.
+> > > The first is that we have cpu specific kernel threads that we're going
+> > > to want to kill, and the second is that we have userspace threads that
+> > > we want to migrate to another cpu. Have I missed anything?
 > > 
+> > I have bad memories from the time we were not using the CPU-hotplug and
+> > tried to freeze tasks with all CPUs on-line.  There were some very subtle
+> > race conditions appearing between the freezer and the running tasks
+> > which were a nightmare to figure out.  I'm not sure that they will appear
+> > now, but something tells me so. :-)
 > 
-> What would you say constitutes "excessive"?  Is there any sense in
-> which some absolute number is excessive (as it takes too long to scan
-> some list) or is it just a percent-of-memory thing?
+> I think you'll find that the separate freezing of kernel space will
+> help.
 
-Excessive = 100% of memory dirty or under writeback against a single disk
-on a 512MB machine.  Perhaps that problem just got forgotten about when CFQ
-went from 1024 requests down to 128.  (That 128 was actually
-64-available-for-read+64-available-for-write, so it's really 64 requests).
+That certainly is possible, but will need some testing.
 
+> We had SMP support in Suspend2 long before cpu hotplugging was 
+> added, and it was stable and reliable. I'm reasonably certain that the
+> switch to splitting freezing was pre-cpu hotplugging.
+>
+> > > The first issue could be helped by splitting the freezing of userspace
+> > > processes from kernel space. The kernel threads could thus die without
+> > > us having to worry about userspace seeing what's going on. I haven't
+> > > looked at vanilla in a while; this might already be in.
 > > 
-> > Something like that - it'll be relatively simple.
+> > Yes, it is.
 > 
-> Unfortunately I think it is also relatively simple to get it badly
-> wrong:-)  Make one workload fast, and another slower.
+> Great. Sorry for my slowness. I just keep too many things on the go at
+> once.
 > 
+> > > Alternatively, if it's viable, per-cpu kernel threads could perhaps be made
+> > > NO_FREEZE. 
+> > > 
+> > > The second issue is migrating userspace threads. I'm no scheduling
+> > > expert, so I'll just speculate :>. I wondered if it's possible to make
+> > > the migration happen lazily; in such a way that if, when we come to thaw
+> > > userspace, the cpu has been hotplugged again, the migration never
+> > > happens. Does that sound possible?
+> > 
+> > The CPU hotplug makes the tasks migrate automatically, but that's not
+> > a problem, as I see it.  The problem is some tasks may have specific CPU
+> > affinities set and these should not change accross suspend/resume.
+> 
+> Mmm. My concern was that cpu hotplug might somehow deadlock if the
+> process it was trying to migrate was frozen. You don't think that's a
+> possibility?
 
-I think it's unlikely in this case.  As long as we keep the queues
-reasonably full, the disks will be running flat-out and merging will be as
-good as we're going to get.
+No, I don't.  Of course it'll have to be tested anyway. :-)
 
-One thing one does have to watch out for is the many-disks scenario: do
-concurrent dd's onto 12 disks and make sure that none of their LEDs go
-out.  This is actually surprisingly hard to do, but it would be very hard
-to do worse than 2.4.x ;)
+> With affinities, would saving and restoring be a possibility?
+
+I haven't thought about it yet.  Perhaps, but it will need to be done with
+care.
+
+Greetings,
+Rafael
+ 
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

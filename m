@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWHQB1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWHQBoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbWHQB1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Aug 2006 21:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWHQB1t
+	id S932396AbWHQBoI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Aug 2006 21:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWHQBoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Aug 2006 21:27:49 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:58322 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932348AbWHQB1s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Aug 2006 21:27:48 -0400
-Message-Id: <200608170127.k7H1RZBQ003805@laptop13.inf.utfsm.cl>
-To: "Molle Bestefich" <molle.bestefich@gmail.com>
-cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 corruption 
-In-Reply-To: Message from "Molle Bestefich" <molle.bestefich@gmail.com> 
-   of "Sat, 12 Aug 2006 10:54:50 +0200." <62b0912f0608120154s1b158732y5da52b17583fdfa0@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Wed, 16 Aug 2006 21:27:35 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 16 Aug 2006 21:27:41 -0400 (CLT)
+	Wed, 16 Aug 2006 21:44:07 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:52619 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932370AbWHQBoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Aug 2006 21:44:03 -0400
+Subject: Re: peculiar suspend/resume bug.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060816024140.GA30814@srcf.ucam.org>
+References: <20060815221035.GX7612@redhat.com>
+	 <1155687599.3193.12.camel@nigel.suspend2.net>
+	 <20060816003728.GA3605@redhat.com>  <20060816024140.GA30814@srcf.ucam.org>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 11:44:30 +1000
+Message-Id: <1155779070.3369.44.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Molle Bestefich <molle.bestefich@gmail.com> wrote:
-> Horst H. von Brand wrote:
+Hi.
 
-[...]
+On Wed, 2006-08-16 at 03:41 +0100, Matthew Garrett wrote:
+> On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
+> 
+> > cpufreq-applet crashes as soon as the cpu goes offline.
+> > Now, the applet should be written to deal with this scenario more
+> > gracefully, but I'm questioning whether or not userspace should
+> > *see* the unplug/replug that suspend does at all.
+> 
+> As Nigel mentioned, cpu unplug happens just before processes are frozen, 
+> so I guess there's a chance for it to be scheduled. On the other hand, 
+> it's not unreasonable for CPUs to be unplugged during runtime anyway - 
+> perhaps userspace should be able to deal with that?
 
-> > The kernel people are certainly not infallible either. And there are cases
-> > where the right order is A B C, and others in which it is C B A, and still
-> > others where it doesn't matter.
+Agreed.
 
-> In the quite unlikely situation where that happens, you've obviously
-> got a piece of software which is broken dependency-wise.  Many of the
-> current schemes will fail to accommodate that too.
+I've spent a little more time thinking about this, and want to put a few
+thoughts forward for discussion/ignoring/flame bait/whatever.
 
-It isn't broken /software/, it is /different setups/.
+I see two main issues at the moment with freezing before hotplugging.
+The first is that we have cpu specific kernel threads that we're going
+to want to kill, and the second is that we have userspace threads that
+we want to migrate to another cpu. Have I missed anything?
 
-> For example, no amount of moving the /etc/rc.d/rc6.d/K35smb script
-> around will fix that situation on Red Hat.
+The first issue could be helped by splitting the freezing of userspace
+processes from kernel space. The kernel threads could thus die without
+us having to worry about userspace seeing what's going on. I haven't
+looked at vanilla in a while; this might already be in. Alternatively,
+if it's viable, per-cpu kernel threads could perhaps be made NO_FREEZE.
 
-What situation?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+The second issue is migrating userspace threads. I'm no scheduling
+expert, so I'll just speculate :>. I wondered if it's possible to make
+the migration happen lazily; in such a way that if, when we come to thaw
+userspace, the cpu has been hotplugged again, the migration never
+happens. Does that sound possible?
+
+Regards,
+
+Nigel
+

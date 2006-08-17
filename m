@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWHQNlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWHQNmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWHQNlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWHQNlb
+	id S964899AbWHQNmh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWHQNmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:41:31 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:45741 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964977AbWHQNlN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:41:13 -0400
-Message-ID: <44E471F2.5000003@garzik.org>
-Date: Thu, 17 Aug 2006 09:41:06 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, 7eggert@gmx.de,
-       Arjan van de Ven <arjan@infradead.org>, Dirk <noisyb@gmx.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it> <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz> <1155821951.15195.85.camel@localhost.localdomain> <20060817132309.GX13639@csclub.uwaterloo.ca>
-In-Reply-To: <20060817132309.GX13639@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 17 Aug 2006 09:42:35 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:20146 "EHLO
+	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
+	id S964899AbWHQN2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:28:46 -0400
+Date: Thu, 17 Aug 2006 13:27:37 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: linux.nics@intel.com, e1000-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 20/75] net: drivers/net/e1000/e1000_main.c pci_module_init to pci_register_driver conversion
+Message-ID: <20060817132737.20.RyDdba4146.3636.michal@euridica.enternet.net.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> Why can't O_EXCL mean that the kernel prevents anyone else from issuing
-> ioctl's to the device?  One would think that is the meaning of exlusive.
-> That way when the burning program opens the device with O_EXCL, no one
-> else can screw it up while it is open.  If it happens to be polled by
-> hal when the burning program tries to open it, it can just wait and
-> retry again until it gets it open.
 
-Such use of O_EXCL is a weird and non-standard behavior.
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-	Jeff
-
-
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/e1000/e1000_main.c linux-work2/drivers/net/e1000/e1000_main.c
+--- linux-work-clean/drivers/net/e1000/e1000_main.c	2006-08-16 22:41:17.000000000 +0200
++++ linux-work2/drivers/net/e1000/e1000_main.c	2006-08-17 05:14:36.000000000 +0200
+@@ -245,7 +245,7 @@ e1000_init_module(void)
+ 
+ 	printk(KERN_INFO "%s\n", e1000_copyright);
+ 
+-	ret = pci_module_init(&e1000_driver);
++	ret = pci_register_driver(&e1000_driver);
+ 
+ 	return ret;
+ }

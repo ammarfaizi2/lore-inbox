@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWHQOBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWHQOAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWHQOBS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWHQOBR
+	id S932302AbWHQOAH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWHQN75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:01:17 -0400
-Received: from mta10.adelphia.net ([68.168.78.202]:60808 "EHLO
-	mta10.adelphia.net") by vger.kernel.org with ESMTP id S932504AbWHQOBO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:01:14 -0400
-Date: Thu, 17 Aug 2006 10:01:15 -0400
-From: mikepolniak <mikpolniak@adelphia.net>
-To: linux-kernel@vger.kernel.org
-Subject: JMicron SATA/IDE and 2.6.18-rc4 fails to detect CDROM
-Message-ID: <20060817140115.GA3808@debamd64>
+	Thu, 17 Aug 2006 09:59:57 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:47206 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932490AbWHQN7s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:59:48 -0400
+Message-ID: <44E476DE.4050903@sw.ru>
+Date: Thu, 17 Aug 2006 18:02:06 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+To: vatsa@in.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
+References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <20060817110913.GB19127@in.ibm.com>
+In-Reply-To: <20060817110913.GB19127@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using 2.6.18-rc4 and CONFIG_SCSI_SATA_AHCI=m, fails to detect ide cdrom.
+> On Wed, Aug 16, 2006 at 07:37:26PM +0400, Kirill Korotaev wrote:
+> 
+>>+struct user_beancounter
+>>+{
+>>+	atomic_t		ub_refcount;
+>>+	spinlock_t		ub_lock;
+>>+	uid_t			ub_uid;
+>>+	struct hlist_node	hash;
+>>+
+>>+	struct user_beancounter	*parent;
+> 
+> 
+> This seems to hint at some heirarchy of ubc? How would that heirarchy be
+> used? I cant find anything in the patch which forms this heirarchy
+> (basically I dont see any place where beancounter_findcreate() is called
+> with non-NULL 2nd arg).
+yes, it is possible to use hierarchical beancounters.
+kernel memory, user memory and TCP/IP buffers are accounted hierarchicaly.
+user interface for this is not provided yet as it would complicate patchset
+and increase number of topics for discussion :)
 
-lspci
+> [snip]
+> 
+> 
+>>+static void init_beancounter_syslimits(struct user_beancounter *ub)
+>>+{
+>>+	int k;
+>>+
+>>+	for (k = 0; k < UB_RESOURCES; k++)
+>>+		ub->ub_parms[k].barrier = ub->ub_parms[k].limit;
+> 
+> 
+> This sets barrier to 0. Is this value of 0 interpreted differently by
+> different controllers? One way to interpret it is "dont allocate any
+> resource", other way to interpret it is "don't care - give me what you
+> can" (which makes sense for stuff like CPU and network bandwidth).
+every patch which adds a resource modifies this function and sets
+some default limit. Check: [PATCH 5/7] UBC: kernel memory accounting (core)
 
-03:00.1 IDE interface: JMicron Technologies, Inc. JMicron 20360/20363
-AHCI
-Controller (rev02)
+Thanks,
+Kirill
 
-and from dmesg|grep -i ide
-
-BIOS-provided physical RAM map:
-ACPI: IRQ0 used by override.
-ACPI: IRQ2 used by override.
-ACPI: IRQ9 used by override.
-Boot video device is 0000:01:00.0
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2 ide: Assuming
-33MHz system bus speed for PIO modes; override with idebus=xx Probing IDE
-interface ide0...
-Probing IDE interface ide1...
-
-If i modprobe ahci dmesg shows:
-
-ahci 0000:03:00.0: version 2.0
-ACPI: PCI Interrupt 0000:03:00.0[A] -> GSI 19 (level, low) -> IRQ 17 PCI:
-Setting latency timer of device 0000:03:00.0 to 64 ahci 0000:03:00.0:
-AHCI
-0001.0000 32 slots 2 ports 3 Gbps 0x3 impl SATA mode ahci 0000:03:00.0:
-flags: 64bit ncq pm led clo pmp pio slum part ata5: SATA max UDMA/133 cmd
-0xFFFFC2000002C100 ctl 0x0 bmdma 0x0 irq 17 ata6: SATA max UDMA/133 cmd
-0xFFFFC2000002C180 ctl 0x0 bmdma 0x0 irq 17 scsi6 : ahci
-ata5: SATA link down (SStatus 0 SControl 300) scsi7 : ahci
-ata6: SATA link down (SStatus 0 SControl 300)
-
-The BIOS sees the CDROM but it is not detected by ide driver.

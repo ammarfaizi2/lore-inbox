@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWHQQ1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWHQQfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWHQQ1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWHQQ1J
+	id S965063AbWHQQfg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWHQQfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:27:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11914 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964771AbWHQQ1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:27:08 -0400
-Date: Thu, 17 Aug 2006 09:26:33 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Andi Kleen <ak@muc.de>, mpm@selenic.com,
-       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
-       Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
-In-Reply-To: <44E3FC4F.2090506@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0608170922030.24204@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
- <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
- <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
- <44E3FC4F.2090506@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Aug 2006 12:35:36 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:52872 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S965063AbWHQQff
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:35:35 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=rVo6FeMAcdkaWCfMMmd/Ldkx9D1rbAih01icpnTEdkze8ekaTTIVlJW6MnVQ0xaHi
+	sPngg0zEg2Yx2DPQQg4UQ==
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
+	(core)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1155758369.9274.26.camel@localhost.localdomain>
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
+	 <1155754029.9274.21.camel@localhost.localdomain>
+	 <1155755729.22595.101.camel@galaxy.corp.google.com>
+	 <1155758369.9274.26.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Thu, 17 Aug 2006 09:31:48 -0700
+Message-Id: <1155832308.14617.1.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006, Manfred Spraul wrote:
+On Wed, 2006-08-16 at 12:59 -0700, Dave Hansen wrote:
+> On Wed, 2006-08-16 at 12:15 -0700, Rohit Seth wrote:
+> > My preference would be to have container (I keep on saying container,
+> > but resource beancounter) pointer embeded in task, mm(not sure),
+> > address_space and anon_vma structures. 
+> 
+> Hmm.  If we can embed it in the mm, then we can get there from any given
+> anon_vma (or any pte for that matter).  Here's a little prototype for
+> doing just that:
+> 
+> http://www.sr71.net/patches/2.6.18/2.6.18-rc4-mm1-lxc1/broken-out/modify-lru-walk.patch
+> 
+> See file/anon_page_has_naughty_cpuset().  Anybody see any basic problems
+> with doing it that way?
+> 
+>  One trick with putting it in an mm is that we don't have a direct
+> relationship between processes and mm's.  We could also potentially have
+> two different threads of a process in two different accounting contexts.
+> But, that might be as simple to fix as disallowing things that share mms
+> from being in different accounting contexts, unless you unshare the mm.
 
-> I'm not sure that the current approach with virt_to_page()/vmalloc_to_page()
-> is the right thing(tm): Both functions are slow.
 
-Right. Would be great to avoid it but if we have to use it then I think we 
-should just store as much metainformation in the page as possible.
+But anon_vmas could be shared across different processes (with different
+mms).
 
-> If you have non-power-of-two caches, you could store the control data at
-> (addr&(~PAGE_SIZE)) - the lookup would be much faster. I wrote a patch a few
-> weeks ago, it's attached.
+-rohit
 
-That would only work for slabs that use order 0 pages.
-
-> Right now we have a few slab users that perform kmalloc(PAGE_SIZE). But that's
-> a mostly for historic reasons: kmalloc was significantly (IIRC up to factor
-> 10) faster than get_free_pages(). Now get_free_pages() also contains per-cpu
-> structures, so we could convert __get_name or the pipe code back to
-> get_free_pages().
-
-Note that the caches of the page allocator only work for zero order pages. 
-
-And the reason for the existence of those caches is questionable. 
-We have repeatedly found in pratical tests that switching off these 
-caches has no influence on performance whatsoever.

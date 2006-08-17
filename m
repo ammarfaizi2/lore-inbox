@@ -1,70 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWHQQfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWHQQhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbWHQQfg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWHQQfg
+	id S965081AbWHQQhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWHQQhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:35:36 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:52872 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965063AbWHQQff
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:35:35 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=rVo6FeMAcdkaWCfMMmd/Ldkx9D1rbAih01icpnTEdkze8ekaTTIVlJW6MnVQ0xaHi
-	sPngg0zEg2Yx2DPQQg4UQ==
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting
-	(core)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1155758369.9274.26.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155754029.9274.21.camel@localhost.localdomain>
-	 <1155755729.22595.101.camel@galaxy.corp.google.com>
-	 <1155758369.9274.26.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 17 Aug 2006 09:31:48 -0700
-Message-Id: <1155832308.14617.1.camel@galaxy.corp.google.com>
+	Thu, 17 Aug 2006 12:37:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:62842 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965081AbWHQQhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:37:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=MsUUQATPcDVEOHceJoUAWwKxEcy/i6VFvN02BRTCzlc0IVjxXCTHkXOQgHKQwU3rqFNRVV8G6iuZaEaDoivVnPHe+U4cyL9ezRqSUHnM3nZnGRs3HvJrAfJatCd7udidsarucIi4sDJ9JRpOPS61aSaDU9sKtL/zAQmkN0POc5g=
+Date: Thu, 17 Aug 2006 20:42:26 +0400
+From: Andrew Brukhov <pingved@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [bug] Mouse jumps randomly in x kernel 2.6.18
+Message-ID: <20060817164226.GA4467@windows95>
+References: <44E37FD1.6020506@charter.net> <9a8748490608161355i606e6158ob0f38ac67b72541f@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490608161355i606e6158ob0f38ac67b72541f@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 12:59 -0700, Dave Hansen wrote:
-> On Wed, 2006-08-16 at 12:15 -0700, Rohit Seth wrote:
-> > My preference would be to have container (I keep on saying container,
-> > but resource beancounter) pointer embeded in task, mm(not sure),
-> > address_space and anon_vma structures. 
-> 
-> Hmm.  If we can embed it in the mm, then we can get there from any given
-> anon_vma (or any pte for that matter).  Here's a little prototype for
-> doing just that:
-> 
-> http://www.sr71.net/patches/2.6.18/2.6.18-rc4-mm1-lxc1/broken-out/modify-lru-walk.patch
-> 
-> See file/anon_page_has_naughty_cpuset().  Anybody see any basic problems
-> with doing it that way?
-> 
->  One trick with putting it in an mm is that we don't have a direct
-> relationship between processes and mm's.  We could also potentially have
-> two different threads of a process in two different accounting contexts.
-> But, that might be as simple to fix as disallowing things that share mms
-> from being in different accounting contexts, unless you unshare the mm.
+my mouse sometime going jumps too.
+Mouse Genius NetScroll+
+kernel 2.6.17.8
 
-
-But anon_vmas could be shared across different processes (with different
-mms).
-
--rohit
-
+--------------
+Andrew Brukhov

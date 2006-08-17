@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWHQEDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWHQEJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWHQEDX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 00:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWHQEDX
+	id S932389AbWHQEJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 00:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWHQEJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 00:03:23 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:13144 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932243AbWHQEDW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 00:03:22 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=ekTPU9BkA108kNXe1bfOgjVFdAM3KU5+k7zcZ77QGoqrQVGbvDxx26pMU/tX6ycWs
-	ECTARwvXEOL8SrWGYLdAw==
-Message-ID: <44E3E964.8010602@google.com>
-Date: Wed, 16 Aug 2006 20:58:28 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Thu, 17 Aug 2006 00:09:13 -0400
+Received: from ns.suse.de ([195.135.220.2]:22676 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932389AbWHQEJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 00:09:13 -0400
+From: Neil Brown <neilb@suse.de>
+To: David Chinner <dgc@sgi.com>
+Date: Thu, 17 Aug 2006 14:08:58 +1000
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-References: <20060808211731.GR14627@postel.suug.ch>	<44DBED4C.6040604@redhat.com>	<44DFA225.1020508@google.com>	<20060813.165540.56347790.davem@davemloft.net>	<44DFD262.5060106@google.com>	<20060813185309.928472f9.akpm@osdl.org>	<1155530453.5696.98.camel@twins> <20060813215853.0ed0e973.akpm@osdl.org>
-In-Reply-To: <20060813215853.0ed0e973.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17635.60378.733953.956807@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow writeback.
+In-Reply-To: message from David Chinner on Wednesday August 16
+References: <17633.2524.95912.960672@cse.unsw.edu.au>
+	<20060815010611.7dc08fb1.akpm@osdl.org>
+	<20060815230050.GB51703024@melbourne.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
->>Testcase:
->>
->>Mount an NBD device as sole swap device and mmap > physical RAM, then
->>loop through touching pages only once.
+On Wednesday August 16, dgc@sgi.com wrote:
 > 
-> Fix: don't try to swap over the network.  Yes, there may be some scenarios
-> where people have no local storage, but it's reasonable to expect anyone
-> who is using Linux as an "enterprise storage platform" to stick a local
-> disk on the thing for swap.
-> 
-> That leaves MAP_SHARED, but mm-tracking-shared-dirty-pages.patch will fix
-> that, will it not?
+> IMO, if you've got slow writeback, you should be reducing the amount
+> of dirty memory you allow in the machine so that you don't tie up
+> large amounts of memory that takes a long time to clean. Throttle earlier
+> and you avoid this problem entirely.
 
-Hi Andrew,
+I completely agree that 'throttle earlier' is important.  I just not
+completely sure what should be throttled when.
 
-What happened to the case where we just fill memory full of dirty file
-pages backed by a remote disk?
+I think I could argue that pages in 'Writeback' are really still
+dirty.  The difference is really just an implementation issue.
 
-Regards,
+So when the dirty_ratio is set to 40%, that should apply to all
+'dirty' pages, which means both that flagged as 'Dirty' and those
+flagged as 'Writeback'.
 
-Daniel
+So I think you need to throttle when Dirty+Writeback hits dirty_ratio
+(which we don't quite get right at the moment).  But the trick is to
+throttle gently and fairly, rather than having a hard wall so that any
+one who hits it just stops.
+
+
+Thanks,
+NeilBrown

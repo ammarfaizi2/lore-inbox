@@ -1,53 +1,52 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWHQOUE (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 10:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWHQOUA
+	id S965049AbWHQOZ4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Aug 2006 10:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWHQOUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:20:00 -0400
-Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:4335 "EHLO
+	Thu, 17 Aug 2006 10:20:05 -0400
+Received: from timeinc-s02.websys.aol.com ([64.12.55.130]:3311 "EHLO
 	timeinc-s02.websys.aol.com") by vger.kernel.org with ESMTP
-	id S965030AbWHQOTr (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Thu, 17 Aug 2006 10:19:47 -0400
-Message-Id: <200608171419.k7HA8tkd021973@timeinc-s01.websys.aol.com>
-Date: Thu, 17 Aug 2006 10:19:46 -0400
+	id S965028AbWHQOTp (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Thu, 17 Aug 2006 10:19:45 -0400
+Message-Id: <200608171419.k7HBgaAp022422@timeinc-s01.websys.aol.com>
+Date: Thu, 17 Aug 2006 10:19:44 -0400
 From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
-Subject: You are now subscribed to the HBGUSA-MILITARY list
+Subject: You are now subscribed to the HBGUSA-SIDNEYSHELDON list
 To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
-Reply-To: HBGUSA-MILITARY-request@LS.TIMEINC.NET
-X-LSV-ListID: HBGUSA-MILITARY
+Reply-To: HBGUSA-SIDNEYSHELDON-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-SIDNEYSHELDON
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932511AbWHQOUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965049AbWHQOZ4@vger.kernel.org>
 
 ________________________________________________________________________
 ________________________________________________________________________
 
 This e-mail contains important information about your subscription
-to HBGUSA-MILITARY.  Please save it for future reference.
+to HBGUSA-SIDNEYSHELDON.  Please save it for future reference.
 ________________________________________________________________________
 ________________________________________________________________________
 
-Welcome to the Time Warner Bookmark Military Fiction and Nonfiction
-Mailing List!  Shortly we will start sending you the latest news and
-information on Military books and audiobooks from Warner Books, Inc.,
-Little, Brown and Company, and Time Warner AudioBooks.  Enjoy!
+Welcome to the Hachette Book Group USA Sidney Sheldon Mailing List.
+Shortly we will start sending you the latest news and information about
+Sidney Sheldon.  Enjoy!
 
 
 TO UNSUBSCRIBE:
 
 You have received this e-mail because you are a Hachette Book Group USA
-Military Fiction and Nonfiction newsletter subscriber.  To unsubscribe 
-from this newsletter, please send a blank e-mail to:
+Sidney Sheldon newsletter subscriber.  To unsubscribe from this 
+newsletter, please send a blank e-mail to:
 
-hbgusa-military-unsubscribe-request@timeinc.net
+hbgusa-sidneysheldon-unsubscribe-request@timeinc.net
 
 Please make sure that you are sending the signoff request from the
 *same* e-mail address  <linux-kernel@VGER.KERNEL.ORG> that you originally
 subscribed from.
 
-Important: You cannot sign off from HBGUSA-MILITARY by replying to this
+Important: You cannot sign off from HBGUSA-SIDNEYSHELDON by replying to this
 message. Please follow the instructions above. E-mail about unresolved
-list problems can be sent to <hbgusakl@timeinc.net>.
+list problems can be sent to <hbgusamp@timeinc.net>.
 
 
 PRIVACY POLICY:
@@ -67,14 +66,14 @@ Boston, MA 02108-2084
 
 TO SUBSCRIBE TO THE NEWSLETTER:
 
-Send a blank e-mail to hgbusa-military-subscribe-request@timeinc.net
+Send a blank e-mail to hbgusa-sidneysheldon-subscribe-request@timeinc.net
 ________________________________________________________________________
 ________________________________________________________________________
 
 Previous issues of this list are saved as files. You can
 get a list of available files by sending mail to
-LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-MILITARY" in the body
+LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-SIDNEYSHELDON" in the body
 of the message. You can then order these files with a
-"GET HBGUSA-MILITARY LOGxxxx" command.
+"GET HBGUSA-SIDNEYSHELDON LOGxxxx" command.
 
 

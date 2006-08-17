@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWHQHvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWHQHzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWHQHvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 03:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWHQHvd
+	id S932229AbWHQHzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 03:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWHQHzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 03:51:33 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:15786 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932218AbWHQHvc (ORCPT
+	Thu, 17 Aug 2006 03:55:25 -0400
+Received: from msr16.hinet.net ([168.95.4.116]:51199 "EHLO msr16.hinet.net")
+	by vger.kernel.org with ESMTP id S932229AbWHQHzY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 03:51:32 -0400
-Date: Thu, 17 Aug 2006 09:50:37 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-In-Reply-To: <20060816152509.166ce663.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0608170950220.16217@yvahk01.tjqt.qr>
-References: <44E3552A.6010705@gmx.net> <20060816152509.166ce663.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Thu, 17 Aug 2006 03:55:24 -0400
+Subject: [PATCH 1/7] ip1000: update maintainer information
+From: Jesse Huang <jesse@icplus.com.tw>
+To: romieu@fr.zoreil.com, penberg@cs.Helsinki.FI, akpm@osdl.org,
+       dvrabel@cantab.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net, jesse@icplus.com.tw
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 15:42:23 -0400
+Message-Id: <1155843743.5006.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I have changed a message that didn't clearly tell the user what was goin
->> on...
->> 
->> Please have a look!
->> 
->> Thank you,
->> Dirk
->> 
->>
->> --- drivers/cdrom/cdrom.c.old	2006-08-16 19:04:11.000000000 +0200
->> +++ drivers/cdrom/cdrom.c	2006-08-16 19:04:51.000000000 +0200
->> @@ -2455,7 +2455,7 @@
->>  		if (tracks.data > 0) return CDS_DATA_1;
->>  		/* Policy mode off */
->>  
->> -		cdinfo(CD_WARNING,"This disc doesn't have any tracks I recognize!\n");
->> +		cdinfo(CD_WARNING,"I'm a stupid fuck that will repeat this interesting message while endlessly trying to access the media you just inserted until your CD/DVD burning task is eventually fucked\n");
->>  		return CDS_NO_INFO;
->>  		}
->
->Please keep the code formatted to fit in an 80-column xterm.  See
->Documentation/CodingStyle.  Thanks.
->
->(And you forget the Signed-off-by: line)
+From: Jesse Huang <jesse@icplus.com.tw>
 
-Before any of this gets ANY chance to get in:
+update maintainer information
 
-NAK.
+Change Logs:
+    update maintainer information
 
+---
 
+ drivers/net/ipg.c |   32 ++++++++++++++++++++------------
+ 1 files changed, 20 insertions(+), 12 deletions(-)
 
-Jan Engelhardt
+11745492c8580b2e40764e7fcd6a7a35f28c7635
+diff --git a/drivers/net/ipg.c b/drivers/net/ipg.c
+index 754ddb5..67bf552 100644
+--- a/drivers/net/ipg.c
++++ b/drivers/net/ipg.c
+@@ -1,18 +1,26 @@
+-/*PCI_DEVICE_ID_IP1000
++/*
++ * ipg.c: Device Driver for the IP1000 Gigabit Ethernet Adapter
++ *
++ * Copyright (C) 2003, 2006  IC Plus Corp.
++ *
++ * Original Author:
+  *
+- * ipg.c
++ *   Craig Rich
++ *   Sundance Technology, Inc.
++ *   1485 Saratoga Avenue
++ *   Suite 200
++ *   San Jose, CA 95129
++ *   408 873 4117
++ *   www.sundanceti.com
++ *   craig_rich@sundanceti.com
+  *
+- * IC Plus IP1000 Gigabit Ethernet Adapter Linux Driver v2.01
+- * by IC Plus Corp. 2003
++ * Current Maintainer:
+  *
+- * Craig Rich
+- * Sundance Technology, Inc.
+- * 1485 Saratoga Avenue
+- * Suite 200
+- * San Jose, CA 95129
+- * 408 873 4117
+- * www.sundanceti.com
+- * craig_rich@sundanceti.com
++ *   Sorbica Shieh.
++ *   10F, No.47, Lane 2, Kwang-Fu RD.
++ *   Sec. 2, Hsin-Chu, Taiwan, R.O.C.
++ *   http://www.icplus.com.tw
++ *   sorbica@icplus.com.tw
+  */
+ #include <linux/crc32.h>
+ #include <linux/ethtool.h>
 -- 
+1.3.2
+
+
+

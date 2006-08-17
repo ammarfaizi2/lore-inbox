@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWHQMsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWHQNCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWHQMsl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWHQMsl
+	id S932294AbWHQNCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWHQNCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:48:41 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25094 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932371AbWHQMsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:48:40 -0400
-Date: Thu, 17 Aug 2006 14:48:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andreas Steinmetz <ast@domdv.de>, Arjan van de Ven <arjan@infradead.org>,
-       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: Linux 2.4.34-pre1
-Message-ID: <20060817124839.GR7813@stusta.de>
-References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de> <17636.11747.89849.992490@alkaid.it.uu.se>
+	Thu, 17 Aug 2006 09:02:13 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:19660 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932294AbWHQNCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:02:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RSa7LyrNo0CnMvmHef5lg9j7ZKDtnXgN4ym5caCIINs4ljOoKvHIerIPv8YjAgx4ESgicifOrqHkv/cSQNWOE9hh5DXJF24jMfeQpzhpnRUKIvfjDUAw+LB0pqF5CliJk8IWieh4jqHbVhPWxQ+tjjP4b/cycdM3M6f0zYAZvJQ=
+Message-ID: <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+Date: Thu, 17 Aug 2006 14:02:12 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
+Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
+In-Reply-To: <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <17636.11747.89849.992490@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
+	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
+	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 10:50:43AM +0200, Mikael Pettersson wrote:
-> Andreas Steinmetz writes:
->  > Arjan van de Ven wrote:
->  > > But maybe it's worth doing a user survey to find out what the users of
->  > > 2.4 want... (and with that I mean users of the kernel.org 2.4 kernels,
->  > > people who use enterprise distro kernels don't count for this since
->  > > they'll not go to a newer released 2.4 anyway)
->  > 
->  > Currently I'm working with ARM based embedded systems. I prefer 2.4
->  > kernels to 2.6 as they are smaller thus leaving more flash for jffs2.
->  > Not speaking of the kernel a gcc 4.1.1 compile of code for a LPC2103
->  > resulted in a clearly smaller binary as the same compile with gcc 3.4.
->  > Thus I really would like to be able to use gcc 4.x with 2.4 kernels.
->  > There are even kernel miscompiles with gcc 3.4 that might be fixed with
->  > gcc 4 (one has to try).
-> 
-> I've done a fair amount of ARM user-space hacking recently, and the
-> number of bug fixes one has to apply to gcc-3.3 or gcc-3.4 to make it
-> even semi-correct on ARM is scary. Since these versions aren't supported
-> any more, being able to use newer, hopefully less buggy, and _supported_
-> gcc versions is clearly beneficial.
-> 
-> Of course, this is not an issue for x86 users.
+On 13/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> It's kmemleak 0.9 issue. I have tested kmemleak 0.8 on 2.6.18-rc1and
+> 2.6.18-rc2. I haven't seen this before.
 
-The only valid point I see for still using kernel 2.4 is
-"never touch a running system".
+it looks like it was caused by commit
+fc818301a8a39fedd7f0a71f878f29130c72193d where free_block() now calls
+slab_destroy() with l3->list_lock held.
 
-But your ARM work seems to be new development.
+The prio_tree use (which doesn't alloc memory) instead of the
+radix_tree is about 4 times slower when scanning the memory and I
+don't think I'll use it.
 
-If there are any problems preventing people from switching to kernel 2.6 
-when deploying new systems (e.g. increased kernel size), we should get 
-these problems reported and fixed in kernel 2.6.
+It leaves me with the options of either implementing my own memory
+allocator based on pages (including a simple hash table instead of
+radix tree) or fix the locking in kmemleak so that memory allocations
+happen without memleak_lock held. The latter is a bit complicated as
+well since any slab allocation causes a re-entrance into kmemleak.
 
-cu
-Adrian
+Any other suggestions?
+
+Thanks.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Catalin

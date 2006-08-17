@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWHQN70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWHQOAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWHQN70 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWHQN7Y
+	id S932498AbWHQOAG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWHQN77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:59:24 -0400
-Received: from euridica.enternet.net.pl ([62.233.231.82]:41121 "EHLO
-	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
-	id S932513AbWHQN0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:26:47 -0400
-Date: Thu, 17 Aug 2006 13:27:10 +0000
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: maintainers@chelsio.com
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [RFC][PATCH 13/75] net: drivers/net/chelsio/cxgb2.c pci_module_init to pci_register_driver conversion
-Message-ID: <20060817132710.13.yZCPrn3983.3636.michal@euridica.enternet.net.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Aug 2006 09:59:59 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:30362 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932498AbWHQN7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:59:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uFhxFcHxNalEOQXCw1vLNWlSXMi03Z1C3xh7H1iZ5C82BX5L/GAL2mfcMAbPOeSCnpAZvcskpUcSm1qNBw1J3l8qSS3gccrE5zLELpRbVcEOVXxfHNErPCbCyJMii8McaKHVzwUiH4Bnf3+M9jQWjdwqy4v5ZEBQ01mFVxaCwLE=
+Message-ID: <3f250c710608170659l3d0f92c7qfe2503ce8ab58dd5@mail.gmail.com>
+Date: Thu, 17 Aug 2006 09:59:37 -0400
+From: "Mauricio Lin" <mauriciolin@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: Some issues about the kernel memory leak detector: __scan_block() function
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <b0943d9e0608170128l5f9cec1ej3d46ac797c4c4738@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
+References: <3f250c710608161519o54433300heb1c79de6cbf6ce5@mail.gmail.com>
+	 <b0943d9e0608170128l5f9cec1ej3d46ac797c4c4738@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Catalin,
 
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+On 8/17/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> Hi Mauricio,
+>
+> On 16/08/06, Mauricio Lin <mauriciolin@gmail.com> wrote:
+> > Let's suppose the a kmalloc() was executed without storing the
+> > returned pointer to the memory area and its fictitious returned value
+> > would be the address 0xb7d73000 as:
+> >
+> > kmalloc(32, GFP_KERNEL);  // Cause memory leak
+> >
+> > Is there any possibility the __scan_block() scans a memory block that
+> > contains the memory area allocated by the previous kmalloc?
+>
+> That's what the memleak-test module does.
+>
+> Yes, there is a chance and this is called a false negative. If there
+> is a (non-)pointer location having this value (especially the stack),
+> it won't be reported. However, these locations might change and at
+> some point you will get the leak reported.
 
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/chelsio/cxgb2.c linux-work2/drivers/net/chelsio/cxgb2.c
---- linux-work-clean/drivers/net/chelsio/cxgb2.c	2006-08-16 22:40:59.000000000 +0200
-+++ linux-work2/drivers/net/chelsio/cxgb2.c	2006-08-17 05:14:12.000000000 +0200
-@@ -1243,7 +1243,7 @@ static struct pci_driver driver = {
- 
- static int __init t1_init_module(void)
- {
--	return pci_module_init(&driver);
-+	return pci_register_driver(&driver);
- }
- 
- static void __exit t1_cleanup_module(void)
+Do you mean that the (non-)pointer location might be moved to another
+memory location?
+
+Let's say that the fictitious address 0xb7d73000 can be changed to
+another memory address, right?
+
+BR,
+
+Mauricio Lin.

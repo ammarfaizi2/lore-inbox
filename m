@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWHQNoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWHQNoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbWHQNoq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWHQNop
+	id S964905AbWHQNoA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWHQN2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:44:45 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:22146 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964988AbWHQNoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:44:39 -0400
-Message-ID: <44E47354.1020902@sw.ru>
-Date: Thu, 17 Aug 2006 17:47:00 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru> <1155747362.24077.378.camel@localhost.localdomain>
-In-Reply-To: <1155747362.24077.378.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Aug 2006 09:28:25 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:12194 "EHLO
+	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
+	id S964894AbWHQN2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:28:21 -0400
+Date: Thu, 17 Aug 2006 13:28:54 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: khc@pm.waw.pl
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 50/75] net: drivers/net/wan/pci200syn.c pci_module_init to pci_register_driver conversion
+Message-ID: <20060817132854.50.mHRHNx4920.3636.michal@euridica.enternet.net.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The 
-> 
-> +       ub->ub_parms[UB_KMEMSIZE].limit = 32 * 1024 * 1024
-> 
-> seems a bit arbitary. 32Mb is variously vast amounts of memory and not
-> enough to boot depending if you are booting a PDA or a 4096 core Itanic
-> box
-this limit is for newly created UBs, host system (ub0) is
-_unlimited_ by default.
-The idea was to limit the user by default to make system secure.
-do you think it is good idea to have unlimited users created by default?
-Anyway, after creating UB context normal behaviour would be to set
-some limits.
 
-Thanks,
-Kirill
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/wan/pci200syn.c linux-work2/drivers/net/wan/pci200syn.c
+--- linux-work-clean/drivers/net/wan/pci200syn.c	2006-08-16 22:41:00.000000000 +0200
++++ linux-work2/drivers/net/wan/pci200syn.c	2006-08-17 05:19:56.000000000 +0200
+@@ -476,7 +476,7 @@ static int __init pci200_init_module(voi
+ 		printk(KERN_ERR "pci200syn: Invalid PCI clock frequency\n");
+ 		return -EINVAL;
+ 	}
+-	return pci_module_init(&pci200_pci_driver);
++	return pci_register_driver(&pci200_pci_driver);
+ }
+ 
+ 

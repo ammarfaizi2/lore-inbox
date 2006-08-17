@@ -1,119 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWHQG1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWHQGaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWHQG1L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 02:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWHQG1L
+	id S1751188AbWHQGaV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 02:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWHQGaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 02:27:11 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:40630 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750985AbWHQG1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 02:27:09 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: peculiar suspend/resume bug.
-Date: Thu, 17 Aug 2006 08:30:48 +0200
-User-Agent: KMail/1.9.3
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060815221035.GX7612@redhat.com> <200608170744.38446.rjw@sisk.pl> <1155794103.17301.26.camel@nigel.suspend2.net>
-In-Reply-To: <1155794103.17301.26.camel@nigel.suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 17 Aug 2006 02:30:21 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:9395 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751188AbWHQGaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 02:30:19 -0400
+Date: Thu, 17 Aug 2006 15:32:58 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: pj@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com, jdelvare@suse.de
+Subject: Re: [RFC] ps command race fix
+Message-Id: <20060817153258.8dfe5973.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <m11wrg0xfd.fsf@ebiederm.dsl.xmission.com>
+References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724182000.2ab0364a.akpm@osdl.org>
+	<20060724184847.3ff6be7d.pj@sgi.com>
+	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724193318.d57983c1.akpm@osdl.org>
+	<20060725115004.a6c668ca.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060725121640.246a3720.kamezawa.hiroyu@jp.fujitsu.com>
+	<m1mza8wqdc.fsf@ebiederm.dsl.xmission.com>
+	<20060813103434.17804d52.akpm@osdl.org>
+	<m1zme8v4u9.fsf@ebiederm.dsl.xmission.com>
+	<20060813121222.8210ccc2.pj@sgi.com>
+	<20060816102344.b393aee6.kamezawa.hiroyu@jp.fujitsu.com>
+	<m11wrg0xfd.fsf@ebiederm.dsl.xmission.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608170830.48324.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 16 Aug 2006 22:59:50 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-On Thursday 17 August 2006 07:55, Nigel Cunningham wrote:
-> Hi.
 > 
-> Thanks for the reply.
+> So I just threw something together that seems to work.
 > 
-> On Thu, 2006-08-17 at 07:44 +0200, Rafael J. Wysocki wrote:
-> > On Thursday 17 August 2006 03:44, Nigel Cunningham wrote:
-> > > Hi.
-> > > 
-> > > On Wed, 2006-08-16 at 03:41 +0100, Matthew Garrett wrote:
-> > > > On Tue, Aug 15, 2006 at 08:37:28PM -0400, Dave Jones wrote:
-> > > > 
-> > > > > cpufreq-applet crashes as soon as the cpu goes offline.
-> > > > > Now, the applet should be written to deal with this scenario more
-> > > > > gracefully, but I'm questioning whether or not userspace should
-> > > > > *see* the unplug/replug that suspend does at all.
-> > > > 
-> > > > As Nigel mentioned, cpu unplug happens just before processes are frozen, 
-> > > > so I guess there's a chance for it to be scheduled. On the other hand, 
-> > > > it's not unreasonable for CPUs to be unplugged during runtime anyway - 
-> > > > perhaps userspace should be able to deal with that?
-> > > 
-> > > Agreed.
-> > > 
-> > > I've spent a little more time thinking about this, and want to put a few
-> > > thoughts forward for discussion/ignoring/flame bait/whatever.
-> > > 
-> > > I see two main issues at the moment with freezing before hotplugging.
-> > > The first is that we have cpu specific kernel threads that we're going
-> > > to want to kill, and the second is that we have userspace threads that
-> > > we want to migrate to another cpu. Have I missed anything?
-> > 
-> > I have bad memories from the time we were not using the CPU-hotplug and
-> > tried to freeze tasks with all CPUs on-line.  There were some very subtle
-> > race conditions appearing between the freezer and the running tasks
-> > which were a nightmare to figure out.  I'm not sure that they will appear
-> > now, but something tells me so. :-)
+> All of the pid are listed in order and the next used pid is found by
+> scanning the pid bitmap. 
 > 
-> I think you'll find that the separate freezing of kernel space will
-> help.
-
-That certainly is possible, but will need some testing.
-
-> We had SMP support in Suspend2 long before cpu hotplugging was 
-> added, and it was stable and reliable. I'm reasonably certain that the
-> switch to splitting freezing was pre-cpu hotplugging.
->
-> > > The first issue could be helped by splitting the freezing of userspace
-> > > processes from kernel space. The kernel threads could thus die without
-> > > us having to worry about userspace seeing what's going on. I haven't
-> > > looked at vanilla in a while; this might already be in.
-> > 
-> > Yes, it is.
+> Scanning the pid bitmap might be a little heavy but actually is likely
+> quite cache friendly as the accesses are extremely predictable, and
+> everything should fit into 64 cache lines, which is fewer cache lines
+> than walking a tree, and more predictable.  Of course I turn around
+> and then do a hash table lookup which is at least one more cache line
+> and probably an unpredictable one at that. 
 > 
-> Great. Sorry for my slowness. I just keep too many things on the go at
-> once.
+> The point despite the brute force nature I have no reason to suspect
+> this will run any noticeably slower than the current implementation.
 > 
-> > > Alternatively, if it's viable, per-cpu kernel threads could perhaps be made
-> > > NO_FREEZE. 
-> > > 
-> > > The second issue is migrating userspace threads. I'm no scheduling
-> > > expert, so I'll just speculate :>. I wondered if it's possible to make
-> > > the migration happen lazily; in such a way that if, when we come to thaw
-> > > userspace, the cpu has been hotplugged again, the migration never
-> > > happens. Does that sound possible?
-> > 
-> > The CPU hotplug makes the tasks migrate automatically, but that's not
-> > a problem, as I see it.  The problem is some tasks may have specific CPU
-> > affinities set and these should not change accross suspend/resume.
+> Look at this try it out and if this solves the problem we can push
+> this upstream.
 > 
-> Mmm. My concern was that cpu hotplug might somehow deadlock if the
-> process it was trying to migrate was frozen. You don't think that's a
-> possibility?
+At first, Thanks.
 
-No, I don't.  Of course it'll have to be tested anyway. :-)
+question:
 
-> With affinities, would saving and restoring be a possibility?
+	task = get_pid_task(find_next_pid(tgid), PIDTYPE_PID);
 
-I haven't thought about it yet.  Perhaps, but it will need to be done with
-care.
+Does this return only "task/process" ? and never return "thread" ?
 
-Greetings,
-Rafael
- 
+My another concern is that newly-created-process while ps running cannot be catched
+by this kind of "table walking" approach (as my previous work)
+But if people say O.K, I have no complaint.
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+I(we)'ll post another list-based one in the next week, anyway.
+(I can't go-ahead this week...)
+
+-Kame
+

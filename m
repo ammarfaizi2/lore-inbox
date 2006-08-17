@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWHQMEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWHQMLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWHQMEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 08:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWHQMEq
+	id S1751237AbWHQMLL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 08:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWHQMLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 08:04:46 -0400
-Received: from mail.kroah.org ([69.55.234.183]:12945 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751044AbWHQMEp (ORCPT
+	Thu, 17 Aug 2006 08:11:11 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:49210 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751168AbWHQMLK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 08:04:45 -0400
-Date: Thu, 17 Aug 2006 05:00:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Multiprobe sanitizer
-Message-ID: <20060817120013.GC6843@kroah.com>
-References: <1155746538.24077.371.camel@localhost.localdomain> <20060816222633.GA6829@kroah.com> <1155774994.15195.12.camel@localhost.localdomain> <1155797833.11312.160.camel@localhost.localdomain> <1155804060.15195.30.camel@localhost.localdomain> <1155806676.11312.175.camel@localhost.localdomain>
+	Thu, 17 Aug 2006 08:11:10 -0400
+Message-ID: <44E45D6A.8000003@sw.ru>
+Date: Thu, 17 Aug 2006 16:13:30 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155806676.11312.175.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: rohitseth@google.com
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH 4/7] UBC: syscalls (user interface)
+References: <44E33893.6020700@sw.ru>  <44E33C3F.3010509@sw.ru>	 <1155752277.22595.70.camel@galaxy.corp.google.com>	 <1155755069.24077.392.camel@localhost.localdomain> <1155756170.22595.109.camel@galaxy.corp.google.com>
+In-Reply-To: <1155756170.22595.109.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 11:24:35AM +0200, Benjamin Herrenschmidt wrote:
-> Probe ordering is fragile and completely defeated with busses that are
-> already probed asynchronously (like USB or firewire), and things can
-> only get worse. Thus we need to look for generic solutions, the trick of
-> maintaining probe ordering will work around problems today but we'll
-> still hit the wall in an increasing number of cases in the future.
+Rohit Seth wrote:
+> On Wed, 2006-08-16 at 20:04 +0100, Alan Cox wrote:
+> 
+>>Ar Mer, 2006-08-16 am 11:17 -0700, ysgrifennodd Rohit Seth:
+>>
+>>>I think there should be a check here for seeing if the new limits are
+>>>lower than the current usage of a resource.  If so then take appropriate
+>>>action.
+>>
+>>Generally speaking there isn't a sane appropriate action because the
+>>resources can't just be yanked.
+>>
+> 
+> 
+> I was more thinking about (for example) user land physical memory limit
+> for that bean counter.  If the limits are going down, then the system
+> call should try to flush out page cache pages or swap out anonymous
+> memory.  But you are right that it won't be possible in all cases, like
+> for in kernel memory limits.
+Such kind of memory management is less efficient than the one 
+making decisions based on global shortages and global LRU alogrithm.
 
-That's exactly why udev was created :)
+The problem here is that doing swap out takes more expensive disk I/O
+influencing other users.
 
-It can handle bus ordering issues already today just fine, and distros
-use it this way in shipping, "enterprise ready" products.
+So throttling algorithms if wanted should be optional, not mandatory.
+Lets postpone it and concentrate on the core.
 
-thanks,
-
-greg k-h
+Thanks,
+Kirill

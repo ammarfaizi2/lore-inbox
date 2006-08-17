@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWHQPO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWHQPQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWHQPO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWHQPO2
+	id S965133AbWHQPQk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWHQPQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:14:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53458 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964930AbWHQPO0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:14:26 -0400
-Date: Thu, 17 Aug 2006 08:14:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Neil Brown <neilb@suse.de>, David Chinner <dgc@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
- writeback.
-Message-Id: <20060817081415.f48fbb37.akpm@osdl.org>
-In-Reply-To: <1155818179.5662.19.camel@localhost>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	<20060815010611.7dc08fb1.akpm@osdl.org>
-	<20060815230050.GB51703024@melbourne.sgi.com>
-	<17635.60378.733953.956807@cse.unsw.edu.au>
-	<20060816231448.cc71fde7.akpm@osdl.org>
-	<1155818179.5662.19.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 17 Aug 2006 11:16:39 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:22800 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S964980AbWHQPQi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:16:38 -0400
+Date: Fri, 18 Aug 2006 00:18:20 +0900 (JST)
+Message-Id: <20060818.001820.05196705.yoshfuji@linux-ipv6.org>
+To: gerrit@erg.abdn.ac.uk, jmorris@namei.org
+Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: [PATCHv2 2.6.17] net/ipv6/udp.c: remove duplicate udp_get_port
+ code
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Pine.LNX.4.64.0608171054560.19149@d.namei>
+References: <200608171325.47349@strip-the-willow>
+	<Pine.LNX.4.64.0608171054560.19149@d.namei>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006 08:36:19 -0400
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Hi,
 
-> On Wed, 2006-08-16 at 23:14 -0700, Andrew Morton wrote:
-> > btw, one thing which afaik NFS _still_ doesn't do is to wake up processes
-> > which are stuck in blk_congestion_wait() when NFS has retired a bunch of
-> > writes.  It should do so, otherwise NFS write-intensive workloads might end
-> > up sleeping for too long.  I guess the amount of buffering and hysteresis
-> > we have in there has thus far prevented any problems from being observed.
-> 
-> Are we to understand it that you consider blk_congestion_wait() to be an
-> official API, and not just another block layer hack inside the VM?
-> 
-> 'cos currently the only tools for waking up processes in
-> blk_congestion_wait() are the two routines:
-> 
->    static void clear_queue_congested(request_queue_t *q, int rw)
-> and
->    static void set_queue_congested(request_queue_t *q, int rw)
-> 
-> in block/ll_rw_blk.c. Hardly a model of well thought out code...
-> 
+In article <Pine.LNX.4.64.0608171054560.19149@d.namei> (at Thu, 17 Aug 2006 10:56:40 -0400 (EDT)), James Morris <jmorris@namei.org> says:
 
-We've been over this before...
+> On Thu, 17 Aug 2006, gerrit@erg.abdn.ac.uk wrote:
+> 
+> > -			if (inet2->num == snum &&
+> > -			    sk2 != sk &&
+> > -			    !ipv6_only_sock(sk2) &&
+> > -			    (!sk2->sk_bound_dev_if ||
+> > -			     !sk->sk_bound_dev_if ||
+> > -			     sk2->sk_bound_dev_if == sk->sk_bound_dev_if) &&
+> 
+> 
+> > +		sk_for_each(sk2, node, head)
+> > +			if (inet_sk(sk2)->num == snum                        &&
+> > +			    sk2 != sk                                        &&
+> > +			    (!sk2->sk_reuse        || !sk->sk_reuse)         &&
+> > +			    (!sk2->sk_bound_dev_if || !sk->sk_bound_dev_if
+> > +			     || sk2->sk_bound_dev_if == sk->sk_bound_dev_if) &&
+> 
+> 
+> Doesn't this change the behavior for IPV6_V6ONLY sockets ?
 
-Take a look at blk_congestion_wait().  It doesn't know about request
-queues.  We'd need a new
+It is tested in ipv4_rcv_saddr_equal() (called vi saddr_cmp), isn't it?
 
-void writeback_congestion_end(int rw)
-{
-	wake_up(congestion_wqh[rw]);
-}
-
-or similar.
+--yoshfuji

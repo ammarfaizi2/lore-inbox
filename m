@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWHQNte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWHQNtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWHQNte (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 09:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWHQN2K
+	id S964886AbWHQNtl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 09:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWHQNth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 09:28:10 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55951 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964885AbWHQN2G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 09:28:06 -0400
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: 7eggert@gmx.de, Arjan van de Ven <arjan@infradead.org>,
-       Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060817132309.GX13639@csclub.uwaterloo.ca>
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it>
-	 <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz>
-	 <1155821951.15195.85.camel@localhost.localdomain>
-	 <20060817132309.GX13639@csclub.uwaterloo.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 17 Aug 2006 14:48:50 +0100
-Message-Id: <1155822530.15195.95.camel@localhost.localdomain>
+	Thu, 17 Aug 2006 09:49:37 -0400
+Received: from euridica.enternet.net.pl ([62.233.231.82]:2210 "EHLO
+	euridica.enternet.net.pl") by vger.kernel.org with ESMTP
+	id S964881AbWHQN1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 09:27:53 -0400
+Date: Thu, 17 Aug 2006 13:28:24 +0000
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: laforge@gnumonks.org
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [RFC][PATCH 40/75] net: drivers/net/natsemi.c pci_module_init to pci_register_driver conversion
+Message-ID: <20060817132824.40.ADmmVk4649.3636.michal@euridica.enternet.net.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060817132638.0.iSIzDm3640.3636.michal@euridica.enternet.net.pl>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-08-17 am 09:23 -0400, ysgrifennodd Lennart Sorensen:
-> Why can't O_EXCL mean that the kernel prevents anyone else from issuing
-> ioctl's to the device?  One would think that is the meaning of exlusive.
 
-If you were designing a new OS from scratch you might want to explore
-that semantic as a design idea. I wouldn't recommend it because a lot of
-apps will be upset if they issue an ioctl and it mysteriously fails or
-hangs.
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-Issues of this nature require high level synchronization and that
-(witness email) is generally done in user space which is the only place
-that has transaction level visibility.
-
-Alan
-
+diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/net/natsemi.c linux-work2/drivers/net/natsemi.c
+--- linux-work-clean/drivers/net/natsemi.c	2006-08-16 22:41:17.000000000 +0200
++++ linux-work2/drivers/net/natsemi.c	2006-08-17 05:15:22.000000000 +0200
+@@ -3275,7 +3275,7 @@ static int __init natsemi_init_mod (void
+ 	printk(version);
+ #endif
+ 
+-	return pci_module_init (&natsemi_driver);
++	return pci_register_driver(&natsemi_driver);
+ }
+ 
+ static void __exit natsemi_exit_mod (void)

@@ -1,52 +1,63 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965022AbWHQOVe (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 17 Aug 2006 10:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWHQOVd
+	id S965040AbWHQOWt (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Aug 2006 10:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWHQOUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:21:33 -0400
-Received: from timeinc-s03.websys.aol.com ([64.12.55.161]:21954 "EHLO
+	Thu, 17 Aug 2006 10:20:55 -0400
+Received: from timeinc-s03.websys.aol.com ([64.12.55.161]:18882 "EHLO
 	timeinc-s03.websys.aol.com") by vger.kernel.org with ESMTP
-	id S965041AbWHQOU6 (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Thu, 17 Aug 2006 10:20:58 -0400
-Message-Id: <200608171420.k7HA8tkl021973@timeinc-s01.websys.aol.com>
-Date: Thu, 17 Aug 2006 10:20:57 -0400
+	id S965038AbWHQOU2 (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Thu, 17 Aug 2006 10:20:28 -0400
+Message-Id: <200608171420.k7HBgaBX022422@timeinc-s01.websys.aol.com>
+Date: Thu, 17 Aug 2006 10:20:27 -0400
 From: "L-Soft list server at Time Inc. (1.8e)" <LISTSERV@LS.TIMEINC.NET>
-Subject: You are now subscribed to the HBGUSA-WALTERMOSLEY list
+Subject: You are now subscribed to the HBGUSA-SCIENCEFICTION list
 To: Linux Kernel <linux-kernel@VGER.KERNEL.ORG>
-Reply-To: HBGUSA-WALTERMOSLEY-request@LS.TIMEINC.NET
-X-LSV-ListID: HBGUSA-WALTERMOSLEY
+Reply-To: HBGUSA-SCIENCEFICTION-request@LS.TIMEINC.NET
+X-LSV-ListID: HBGUSA-SCIENCEFICTION
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965022AbWHQOVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965040AbWHQOWt@vger.kernel.org>
 
 ________________________________________________________________________
 ________________________________________________________________________
 
 This e-mail contains important information about your subscription
-to HBGUSA-WALTERMOSLEY.  Please save it for future reference.
+to HBGUSA-SCIENCEFICTION.  Please save it for future reference.
 ________________________________________________________________________
 ________________________________________________________________________
 
-Welcome to the Hachette Book Group USA Walter Mosley Mailing List!
-Shortly we will start sending you the latest news and information on
-bestselling and critically acclaimed author Walter Mosley. Enjoy!
+
+Welcome to the Time Warner Bookmark Science Fiction and Fantasy Mailing
+List! Shortly we will start sending you the latest news and
+information on Science Fiction and Fantasy books from Time Warner 
+Book Group. Enjoy!
+
+If you use an automatic 'vacation' or 'out-of-office' e-mail replier,
+remember to configure your program so that these notices aren't
+sent to the HBGUSA-SCIENCEFICTION list. If you don't, you may be unsubscribed
+from the list.
+
+Thank you for signing up for HBGUSA-SCIENCEFICTION!
+
+The Aspect Staff
 
 
 TO UNSUBSCRIBE:
 
 You have received this e-mail because you are a Hachette Book Group USA
-Walter Mosley newsletter subscriber.  To unsubscribe from this 
-newsletter, please send a blank e-mail to:
+Science Fiction and Fantasy newsletter subscriber.  To unsubscribe from 
+this newsletter, please send a blank e-mail to:
 
-hbgusa-waltermosley-unsubscribe-request@timeinc.net
+hbgusa-sciencefiction-unsubscribe-request@timeinc.net
 
 Please make sure that you are sending the signoff request from the
 *same* e-mail address  <linux-kernel@VGER.KERNEL.ORG> that you originally
 subscribed from.
 
-Important: You cannot sign off from HBGUSA-WALTERMOSLEY by replying to this
+Important: You cannot sign off from HBGUSA-SCIENCEFICTION by replying to this
 message. Please follow the instructions above. E-mail about unresolved
-list problems can be sent to <hbgusamp@timeinc.net>.
+list problems can be sent to <hbgusabc@timeinc.net>.
 
 
 PRIVACY POLICY:
@@ -66,14 +77,14 @@ Boston, MA 02108-2084
 
 TO SUBSCRIBE TO THE NEWSLETTER:
 
-Send a blank e-mail to hbgusa-waltermosley-subscribe-request@timeinc.net
+Send a blank e-mail to hbgusa-sciencefiction-subscribe-request@timeinc.net
 ________________________________________________________________________
 ________________________________________________________________________
 
 Previous issues of this list are saved as files. You can
 get a list of available files by sending mail to
-LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-WALTERMOSLEY" in the body
+LISTSERV@LS.TIMEINC.NET with "INDEX HBGUSA-SCIENCEFICTION" in the body
 of the message. You can then order these files with a
-"GET HBGUSA-WALTERMOSLEY LOGxxxx" command.
+"GET HBGUSA-SCIENCEFICTION LOGxxxx" command.
 
 

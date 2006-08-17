@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWHQOR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWHQOYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWHQOR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 10:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWHQOR2
+	id S965023AbWHQOYP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 10:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWHQOYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 10:17:28 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:19925 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932165AbWHQOR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 10:17:27 -0400
-Message-ID: <44E47AC5.8010607@mvista.com>
-Date: Thu, 17 Aug 2006 09:18:45 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
-MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: minyard@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 29/75] char: drivers/char/ipmi/ipmi_si_intf.c pci_module_init
- to pci_register_driver conversion
-References: <20060817132758.29.IlpbiS4384.3636.michal@euridica.enternet.net.pl>
-In-Reply-To: <20060817132758.29.IlpbiS4384.3636.michal@euridica.enternet.net.pl>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 17 Aug 2006 10:24:01 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:390 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965023AbWHQOXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 10:23:44 -0400
+Subject: Re: JMicron SATA/IDE and 2.6.18-rc4 fails to detect CDROM
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mikepolniak <mikpolniak@adelphia.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060817140115.GA3808@debamd64>
+References: <20060817140115.GA3808@debamd64>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Aug 2006 15:44:26 +0100
+Message-Id: <1155825866.15195.97.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, please.  Thank you.
+Ar Iau, 2006-08-17 am 10:01 -0400, ysgrifennodd mikepolniak:
+> Using 2.6.18-rc4 and CONFIG_SCSI_SATA_AHCI=m, fails to detect ide cdrom.
 
--Corey
+rc4 support for the PATA ports on the jmicron is broken. Please try
+rc4-mm1 if you need it. A patch went to Greg a while ago so it should I
+hope be fixed in rc5
 
-Michal Piotrowski wrote:
-> Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
->
-> diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/char/ipmi/ipmi_si_intf.c linux-work2/drivers/char/ipmi/ipmi_si_intf.c
-> --- linux-work-clean/drivers/char/ipmi/ipmi_si_intf.c	2006-08-16 22:40:58.000000000 +0200
-> +++ linux-work2/drivers/char/ipmi/ipmi_si_intf.c	2006-08-17 05:12:42.000000000 +0200
-> @@ -2461,7 +2461,7 @@ static __devinit int init_ipmi_si(void)
->  #endif
->  
->  #ifdef CONFIG_PCI
-> -	pci_module_init(&ipmi_pci_driver);
-> +	pci_register_driver(&ipmi_pci_driver);
->  #endif
->  
->  	if (si_trydefaults) {
->   
-
+Alan

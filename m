@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWHQPFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWHQPO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWHQPFB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 11:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWHQPFA
+	id S964930AbWHQPO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 11:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWHQPO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 11:05:00 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:55366 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965118AbWHQPE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 11:04:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DGNheks8FJ9hZfx55RLhnmoyDYJV6qYWhpMxfqjS8XPlF9Bsb2SyZUFlWvCGc9uFPBeZNQK8o0Z3+ceRHYLjE/RM+Kn6PsAqI7yo7J0dhdVitnl34yhO1pnGAgcn4HK9MmFV7U5QuhqwFPoeDBJMcpYL4jhzILuAoGaqqaknJQQ=
-Message-ID: <b0943d9e0608170804p11641244w1416290d39663eb7@mail.gmail.com>
-Date: Thu, 17 Aug 2006 16:04:52 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <6bffcb0e0608170748v332cc93cv3f1b79c45800d20d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Aug 2006 11:14:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53458 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964930AbWHQPO0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 11:14:26 -0400
+Date: Thu, 17 Aug 2006 08:14:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Neil Brown <neilb@suse.de>, David Chinner <dgc@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
+ writeback.
+Message-Id: <20060817081415.f48fbb37.akpm@osdl.org>
+In-Reply-To: <1155818179.5662.19.camel@localhost>
+References: <17633.2524.95912.960672@cse.unsw.edu.au>
+	<20060815010611.7dc08fb1.akpm@osdl.org>
+	<20060815230050.GB51703024@melbourne.sgi.com>
+	<17635.60378.733953.956807@cse.unsw.edu.au>
+	<20060816231448.cc71fde7.akpm@osdl.org>
+	<1155818179.5662.19.camel@localhost>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
-	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
-	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
-	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
-	 <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
-	 <6bffcb0e0608170748v332cc93cv3f1b79c45800d20d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > On 17/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > > It leaves me with the options of either implementing my own memory
-> > > allocator based on pages
->
-> [MODSLAB 7/7] A slab allocator: Page Slab allocator
-> "The page slab is a specialized slab allocator that can only handle
-> page order size object. It directly uses the page allocator to
-> track the objects and can therefore avoid the overhead of the
-> slabifier."
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0608.1/3023.html
+On Thu, 17 Aug 2006 08:36:19 -0400
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-But this one allocates page-order size objects. I usually have plenty
-of small objects in kmemleak.
+> On Wed, 2006-08-16 at 23:14 -0700, Andrew Morton wrote:
+> > btw, one thing which afaik NFS _still_ doesn't do is to wake up processes
+> > which are stuck in blk_congestion_wait() when NFS has retired a bunch of
+> > writes.  It should do so, otherwise NFS write-intensive workloads might end
+> > up sleeping for too long.  I guess the amount of buffering and hysteresis
+> > we have in there has thus far prevented any problems from being observed.
+> 
+> Are we to understand it that you consider blk_congestion_wait() to be an
+> official API, and not just another block layer hack inside the VM?
+> 
+> 'cos currently the only tools for waking up processes in
+> blk_congestion_wait() are the two routines:
+> 
+>    static void clear_queue_congested(request_queue_t *q, int rw)
+> and
+>    static void set_queue_congested(request_queue_t *q, int rw)
+> 
+> in block/ll_rw_blk.c. Hardly a model of well thought out code...
+> 
 
--- 
-Catalin
+We've been over this before...
+
+Take a look at blk_congestion_wait().  It doesn't know about request
+queues.  We'd need a new
+
+void writeback_congestion_end(int rw)
+{
+	wake_up(congestion_wqh[rw]);
+}
+
+or similar.

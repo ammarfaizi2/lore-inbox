@@ -1,95 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWHQQDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWHQQOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbWHQQDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 12:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWHQQDn
+	id S932552AbWHQQOL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 12:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbWHQQOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 12:03:43 -0400
-Received: from tango.0pointer.de ([217.160.223.3]:58633 "EHLO
-	tango.0pointer.de") by vger.kernel.org with ESMTP id S932557AbWHQQDl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 12:03:41 -0400
-Date: Thu, 17 Aug 2006 18:03:39 +0200
-From: Lennart Poettering <mzxreary@0pointer.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH,RFC]: acpi,backlight: MSI S270 - driver, second try
-Message-ID: <20060817160338.GA19502@tango.0pointer.de>
-References: <20060810162329.GA11603@curacao> <20060817152101.GD5950@ucw.cz>
+	Thu, 17 Aug 2006 12:14:11 -0400
+Received: from [62.205.161.221] ([62.205.161.221]:19105 "EHLO kir.sacred.ru")
+	by vger.kernel.org with ESMTP id S932552AbWHQQOJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 12:14:09 -0400
+Message-ID: <44E4956E.8050503@openvz.org>
+Date: Thu, 17 Aug 2006 20:12:30 +0400
+From: Kir Kolyshkin <kir@openvz.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060802)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060817152101.GD5950@ucw.cz>
-Organization: .phi.
-X-Campaign-1: ()  ASCII Ribbon Campaign
-X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
-X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
-X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
-X-Disclaimer-3: keiner Unterschrift.
-User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
+To: devel@openvz.org
+CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Devel] Re: [RFC][PATCH 7/7] UBC: proc interface
+References: <44E33893.6020700@sw.ru> <44E33D5E.7000205@sw.ru>	<20060816171328.GA27898@kroah.com> <44E47274.70506@sw.ru> <20060817154023.GA7070@kroah.com>
+In-Reply-To: <20060817154023.GA7070@kroah.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Thu, 17 Aug 2006 20:11:15 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17.08.06 15:21, Pavel Machek (pavel@suse.cz) wrote:
+Greg KH wrote:
+> On Thu, Aug 17, 2006 at 05:43:16PM +0400, Kirill Korotaev wrote:
+>   
+>>> On Wed, Aug 16, 2006 at 07:44:30PM +0400, Kirill Korotaev wrote:
+>>>
+>>>       
+>>>> Add proc interface (/proc/user_beancounters) allowing to see current
+>>>> state (usage/limits/fails for each UB). Implemented via seq files.
+>>>>         
+>>> Ugh, why /proc?  This doesn't have anything to do with processes, just
+>>> users, right?  What's wrong with /sys/kernel/ instead?
+>>>       
+>> We can move it, if there are much objections.
+>>     
+>
+> I am objecting.  /proc is for processes so do not add any new files
+> there that do not deal with processes.
+>
+>   
+>>> Or /sys/kernel/debug/user_beancounters/ in debugfs as this is just a
+>>> debugging thing, right?
+>>>       
+>> debugfs is usually OFF imho.
+>>     
+>
+> No, distros enable it.
+>
+>   
+>> you don't export meminfo information in debugfs, correct?
+>>     
+>
+> That is because the meminfo is tied to processes, or was added to proc
+> before debugfs came about.
+>
+> Then how about just /sys/kernel/ instead and use sysfs?  Just remember,
+> one value per file please.
+>   
+I see two problems with that. But let me first describe the current 
+/proc/user_beancounters.  This is how it looks like from inside a container:
 
-> > This patch applies to 2.6.17 and requires the ACPI ec_transaction()
-> > patch I posted earlier:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-acpi&m=115517193511970&w=2
-> > 
-> > Please comment and/or apply!
-> 
-> Looks ok to me...
+# cat /proc/user_beancounters
+Version: 2.5
+       uid  resource           held    maxheld    barrier      limit    failcnt
+       123: kmemsize         836919    1005343    2752512    2936012          0
+            lockedpages           0          0         32         32          0
+            privvmpages        4587       7289      49152      53575          0
+............(more lines like that).........................................
 
-Thanks!
 
-> 
-> > +static int auto_brightness;
-> > +module_param(auto_brightness, int, 0);
-> > +MODULE_PARM_DESC(auto_brightness, "Enable automatic brightness control (0: disabled; 1: enabled; 2: don't touch)");
-> > +
-> > +/*** Hardware access ***/
-> > +
-> > +static const uint8_t lcd_table[MSI_LCD_LEVEL_MAX] = {
-> > +        0x00, 0x1f, 0x3e, 0x5d, 0x7c, 0x9b, 0xba, 0xd9, 0xf8
-> > +};
-> 
-> Can we get 0xf8 levels and simplify code while we are at it?
+I.e. a container owner can take a glance over the current parameters, 
+their usage and (the thing that is really important) fail counters. Fail 
+counter increases each time a parameter hits the limit. This is very 
+straightforward way for container's owner to see if everything is OK or not.
 
-Unfortunately not. The hardware only supports 9 levels of
-brightness. 
+So, the problems with /sys are:
 
-However, I guess I could multiply the brightness level with 31 instead
-of using the translation table above. 
+(1) Gettng such info from 40+ files requires at least some script, while 
+now cat is just fine.
 
-I will fix that.
+(2) Do we want to virtualize sysfs and enable /sys for every container? 
+Note that user_beancounters statistics is really needed for container's 
+owner to see. At the same time, container's owner should not be able to 
+modify it -- so we should end up with read/write ubc entries for the 
+host system and read-only ones for the container.
 
-> > +        if ((result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1)) < 0)
-> > +                return result;
-> 
-> Please split this into two lines.
-> 
-> result = ...;
-> if (result.....)
-
-Will do.
-
-> > +static DEVICE_ATTR(bluetooth, 0444, show_bluetooth, NULL);
-> > +static DEVICE_ATTR(wlan, 0444, show_wlan, NULL);
-> 
-> So bluetooth and wlan basically mirror physical switch state? Should
-> we make these switches available through input subsystem one day?
-
-Yes. Actually I've already been discussing with Ivo how to extend the
-rfkill API to tell userspace whether an rfkill device is actually for
-Bluetooth, for wlan, for uwb and so on. I will update my S270 code as
-soon as rfkill enters the kernel to support this new API properly. The
-driver will then register two rfkill devices, one for Bluetooth and
-one for WLAN.
-
-Lennart
-
--- 
-Lennart Poettering; lennart [at] poettering [dot] net
-ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/
+Taking into account those two issues, current /proc/user_beancounters 
+might be not that bad.

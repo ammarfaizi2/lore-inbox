@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWHROgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWHROjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWHROgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 10:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWHROgJ
+	id S1030429AbWHROjM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 10:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbWHROjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 10:36:09 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:51840 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030267AbWHROgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 10:36:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AuvheCP5k50ZtL4+ynX/ITls2eGQFL2/6Du2hrxZhi+b/TTUwoUG5tvGSNPh8wZ/8ghlQZUxgDILUp7PasomgU923MDyNvhT9rT4X4cOh8AaEL+//7vTwfe9RVeJp6XUhNgJpFLj+Kv+8x0hfMCrw9BoqdNc52dq4frixRvxHB8=
-Message-ID: <d120d5000608180736s73964217kd30a79168a761ea8@mail.gmail.com>
-Date: Fri, 18 Aug 2006 10:36:06 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: Question about handling return value of device_create_file function
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <6bffcb0e0608180618m13153b26yb8c3151c30265be@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 18 Aug 2006 10:39:11 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:22144 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030429AbWHROjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 10:39:09 -0400
+Subject: Re: /dev/sd*
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Seewer Philippe <philippe.seewer@bfh.ch>, Jeff Garzik <jeff@garzik.org>,
+       Gabor Gombas <gombasg@sztaki.hu>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0608181050490.27740@yvahk01.tjqt.qr>
+References: <1155144599.5729.226.camel@localhost.localdomain>
+	 <20060809212124.GC3691@stusta.de>
+	 <1155160903.5729.263.camel@localhost.localdomain>
+	 <20060809221857.GG3691@stusta.de>
+	 <20060810123643.GC25187@boogie.lpds.sztaki.hu>
+	 <44DB289A.4060503@garzik.org> <44E3DFD6.4010504@PicturesInMotion.net>
+	 <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr>
+	 <44E42900.1030905@PicturesInMotion.net>
+	 <Pine.LNX.4.61.0608171120260.4252@yvahk01.tjqt.qr>
+	 <44E56804.1080906@bfh.ch>
+	 <Pine.LNX.4.61.0608181050490.27740@yvahk01.tjqt.qr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6bffcb0e0608180618m13153b26yb8c3151c30265be@mail.gmail.com>
+Date: Fri, 18 Aug 2006 15:57:51 +0100
+Message-Id: <1155913072.28764.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/18/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Hi,
->
-> I have noticed that sparse generates a lot of "ignoring return value
-> of 'device_create_file'" warnings.
->
-> (cat sparse.txt | grep -c "device_create_file"
-> 1231 :)
->
-> I want to fix this warnings, but I'm wondering how to properly handle
-> return value of device_create_file function.
->
-> The shortest way.
->
-> int foo()
-> {
->        int error;
->
->        [..]
->
->        error = device_create_file(&bar, &bas)
->
->        if (error)
->                return error;
-> }
->
-> A bit longer way.
->
-> int foo()
-> {
->        int error;
->
->        [..]
->
->        error = device_create_file(&bar, &bas)
->
->        if (error) {
->                subsystem_remove_device(bar);
->                return error;
->        }
-> }
->
+Ar Gwe, 2006-08-18 am 10:52 +0200, ysgrifennodd Jan Engelhardt:
+> Umm, hdx or sdx is a small impact. The real power of /dev/disk is that 
+> not-so-technically minded users can go looking for their disk by its name 
 
-Normally you should use 2nd form, especially when foo is a
-module_init(foo) as you do not want to have a half-registered device
-without supporting code in kernel.
+They already can. It appears on their desktop with a little picture that
+says "My iSpod" or similar 8)
 
--- 
-Dmitry
+What sort of "name" are you considering for /dev/disk ?
+
+Alan
+
+

@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWHRRln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWHRRm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbWHRRln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbWHRRlm
+	id S1751438AbWHRRm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWHRRm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:41:42 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:33999 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751435AbWHRRll (ORCPT
+	Fri, 18 Aug 2006 13:42:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50817 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751438AbWHRRm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:41:41 -0400
-In-Reply-To: <20060817230213.GA18786@elf.ucw.cz>
-Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Safford <safford@us.ibm.com>, kjhall@us.ibm.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       linux-security-module-owner@vger.kernel.org,
-       Serge E Hallyn <sergeh@us.ibm.com>
-X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
-Message-ID: <OFA16BD859.1B593DA2-ON852571CE.005FA4FF-852571CE.004BD083@us.ibm.com>
-From: Mimi Zohar <zohar@us.ibm.com>
-Date: Fri, 18 Aug 2006 13:41:37 -0400
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0.1HF269 | June 22, 2006) at
- 08/18/2006 13:41:38
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Fri, 18 Aug 2006 13:42:57 -0400
+Date: Fri, 18 Aug 2006 10:38:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Christoph@sc8-sf-spam2-b.sourceforge.net,
+       List <linux-kernel@vger.kernel.org>, Kirill Korotaev <dev@sw.ru>,
+       Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux@sc8-sf-spam2-b.sourceforge.net, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
+       Andi Kleen <ak@suse.de>, Linux Containers <containers@lists.osdl.org>
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+Message-Id: <20060818103820.34cc631a.akpm@osdl.org>
+In-Reply-To: <1155922156.12204.18.camel@localhost.localdomain>
+References: <44E33893.6020700@sw.ru>
+	<44E33C3F.3010509@sw.ru>
+	<1155752277.22595.70.camel@galaxy.corp.google.com>
+	<1155755069.24077.392.camel@localhost.localdomain>
+	<1155756170.22595.109.camel@galaxy.corp.google.com>
+	<44E45D6A.8000003@sw.ru>
+	<20060817084033.f199d4c7.akpm@osdl.org>
+	<20060818120809.B11407@castle.nmd.msu.ru>
+	<1155912348.9274.83.camel@localhost.localdomain>
+	<20060818094248.cdca152d.akpm@osdl.org>
+	<1155922156.12204.18.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 18 Aug 2006 10:29:16 -0700
+Dave Hansen <haveblue@us.ibm.com> wrote:
 
-Pavel Machek wrote on 08/17/2006 07:02:14 PM:
+> On Fri, 2006-08-18 at 09:42 -0700, Andrew Morton wrote:
+> > I have this mad idea that you can divide a 128GB machine up into 256 fake
+> > NUMA nodes, then you use each "node" as a 512MB unit of memory allocation. 
+> > So that 4.5GB job would be placed within an exclusive cpuset which has nine
+> > "mems" (what are these called?) and voila: the job has a hard 4.5GB limit,
+> > no kernel changes needed.
+> 
+> Is this similar to Mel Gorman's zone-based anti-fragmentation approach?
 
-> Hi!
->
-> > Documentation.
->
-> No, I still do not understand how this is supposed to work.
+I don't think so - it's using zones, but for a quite different thing.
 
-Yes, the documentation definitely needs more work.
+> I thought he was discouraged from pursuing that at the VM summit.
 
-> > +In normal operation, the system seems to stabilize with a roughly
-> > +equal mixture of SYSTEM, USER, and UNTRUSTED processes. Most
->
-> So you split processes to three classes (why three?), and
-> automagically move them between classes based on some rules? (What
-> rules?)
->
-> Like if I'm UNTRUSTED process, I may not read ~/.ssh/private_key? So
-> files get this kind of labels, too? And it is "mozilla starts as a
-> USER, but when it accesses first web page it becomes UNTRUSTED"?
-
-Processes are not moved from one integrity level to another, but are
-demoted when they read from a lower integrity level object. By
-definition sockets, are defined as UNTRUSTED, so reading from a
-socket demotes the process to UNTRUSTED.  (Secrecy is a separate
-attribute.) In the Mozilla example, /usr/bin/mozilla is defined as
-SYSTEM, preventing any process with lesser integrity from modifying
-it.  'level -s' displays the level of the current process or of a
-given file.  For example,
-
-[zohar@L3X098X ~]$ level -s /usr/bin/mozilla
-/usr/bin/mozilla
-        security.slim.level: SYSTEM PUBLIC
-
-Both mozilla and firefox-bin are defined as SYSTEM, as soon as the
-firefox-bin process opens a socket, the process is demoted to
-UNTRUSTED.
-
-I hope this answered some of your questions.  We're working on
-more comprehensive documentation, which we'll post with the next
-release.
-
-Mimi Zohar
-
+That seemed to a be a 49%/51% call, iirc.

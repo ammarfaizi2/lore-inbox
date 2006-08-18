@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWHRItY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWHRItl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWHRItY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 04:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWHRItY
+	id S1751277AbWHRItl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWHRItl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 04:49:24 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:54796 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751217AbWHRItY (ORCPT
+	Fri, 18 Aug 2006 04:49:41 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:13857 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751272AbWHRItk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 04:49:24 -0400
-Message-ID: <44E57FA4.1080809@sw.ru>
-Date: Fri, 18 Aug 2006 12:51:48 +0400
+	Fri, 18 Aug 2006 04:49:40 -0400
+Message-ID: <44E57FB4.8090905@sw.ru>
+Date: Fri, 18 Aug 2006 12:52:04 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -59,7 +59,7 @@ Rohit Seth wrote:
 > hmm, not sure why it is simpler.
 because introducing additonal lookups/hashes etc. is harder and
 adds another source for possible mistakes.
-we can always optimize it out if people insist.
+we can always optimize it out if people insist (by cost of slower accounting).
 
 Kirill
 

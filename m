@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWHRItl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWHRIuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWHRItl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 04:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWHRItl
+	id S1751140AbWHRIuo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHRIuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 04:49:41 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:13857 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751272AbWHRItk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 04:49:40 -0400
-Message-ID: <44E57FB4.8090905@sw.ru>
-Date: Fri, 18 Aug 2006 12:52:04 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 18 Aug 2006 04:50:44 -0400
+Received: from smtp0.libero.it ([193.70.192.33]:41450 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S1751140AbWHRIuc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 04:50:32 -0400
+From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
+To: "Linux Kernel ML" <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Paul Fulghum" <paulkf@microgate.com>,
+       "Lee Revell" <rlrevell@joe-job.com>
+Subject: R: How to avoid serial port buffer overruns?
+Date: Fri, 18 Aug 2006 10:48:53 +0200
+Message-ID: <NBBBIHMOBLOHKCGIMJMDGEIMFNAA.g.tomassoni@libero.it>
 MIME-Version: 1.0
-To: rohitseth@google.com
-CC: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Pavel Emelianov <xemul@openvz.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory	accounting	(core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	<1155754029.9274.21.camel@localhost.localdomain>	<1155755729.22595.101.camel@galaxy.corp.google.com>	<1155758369.9274.26.camel@localhost.localdomain>	<1155774274.15195.3.camel@localhost.localdomain>	<1155824788.9274.32.camel@localhost.localdomain> <1155835003.14617.45.camel@galaxy.corp.google.com>
-In-Reply-To: <1155835003.14617.45.camel@galaxy.corp.google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1155770899.8796.21.camel@mindpipe>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Importance: Normal
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth wrote:
-> On Thu, 2006-08-17 at 07:26 -0700, Dave Hansen wrote:
-> 
->>On Thu, 2006-08-17 at 01:24 +0100, Alan Cox wrote:
->>
->>>Ar Mer, 2006-08-16 am 12:59 -0700, ysgrifennodd Dave Hansen:
->>>
->>>>relationship between processes and mm's.  We could also potentially have
->>>>two different threads of a process in two different accounting contexts.
->>>>But, that might be as simple to fix as disallowing things that share mms
->>>>from being in different accounting contexts, unless you unshare the mm.
->>>
->>>At the point I have twenty containers containing 20 copies of glibc to
->>>meet your suggestion it would be *far* cheaper to put it in the page
->>>struct.
->>
->>My main thought is that _everybody_ is going to have to live with the
->>entry in the 'struct page'.  Distros ship one kernel for everybody, and
->>the cost will be paid by those not even using any kind of resource
->>control or containers.
->>
->>That said, it sure is simpler to implement, so I'm all for it!
+> On Thu, 2006-08-17 at 00:19 +0100, Russell King wrote:
 > 
 > 
+> OK, thanks.  FWIW here is the serial board we are using:
 > 
-> hmm, not sure why it is simpler.
-because introducing additonal lookups/hashes etc. is harder and
-adds another source for possible mistakes.
-we can always optimize it out if people insist (by cost of slower accounting).
+> http://www.moschip.com/html/MCS9845.html
+> 
+> The hardware guy says "The mn9845cv, have in default 2 serial ports and
+> one ISA bus, where we have connected the tl16c554, quad serial port."
+> 
+> Hopefully Ingo's latency tracer can tell me what is holding off
+> interrupts.
 
-Kirill
+I beg your pardon: I'm not used that much to interrupts handling in Linux, but this piece of code from sound/drivers/serial-u16550.c in a linux-2.6.16:
+
+	static irqreturn_t snd_uart16550_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+	{
+	        snd_uart16550_t *uart;
+	
+	        uart = (snd_uart16550_t *) dev_id;
+	        spin_lock(&uart->open_lock);
+	        if (uart->filemode == SERIAL_MODE_NOT_OPENED) {
+	                spin_unlock(&uart->open_lock);
+	                return IRQ_NONE;
+	        }
+	        inb(uart->base + UART_IIR);             /* indicate to the UART that the interrupt has been serviced */
+	        snd_uart16550_io_loop(uart);
+	        spin_unlock(&uart->open_lock);
+	        return IRQ_HANDLED;
+	}
+
+means to me that IRQ_HANDLED is returned even when the interrupt is not issued by the specific UART. This may lead to problems when two or more uarts share the same irq line and the irq line is edge-triggered instead of level-triggered, as is the case with ISA.
+
+To my knowledge, IRQ_HANDLED should be returned when an interrupt had been served by that specific device handler. Returning a IRQ_HANDLED when the device didn't request for service, in the best case cuases interrupt latencies, in the worst (like in an ISA environment) impairs servicing requests from devices sharing the same IRQ line.
+
+The byte returned from inb(uart->base + UART_IIR) can be used to detect if this is the requesting UART.
+
+Am I wrong?
+
+Regards,
+
+	Giampaolo
 

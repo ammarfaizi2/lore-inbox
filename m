@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030504AbWHRQz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbWHRQ5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030504AbWHRQz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWHRQz1
+	id S1030501AbWHRQ5l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030492AbWHRQ5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:55:27 -0400
-Received: from mga01.intel.com ([192.55.52.88]:26665 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1030498AbWHRQz0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:55:26 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,146,1154934000"; 
-   d="scan'208"; a="118174732:sNHT25117876"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: I/OAT configuration ?
-Date: Fri, 18 Aug 2006 09:55:22 -0700
-Message-ID: <BD524EA7912ED5469DFD0BAEF6BC752F29656A@orsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: I/OAT configuration ?
-thread-index: AcbCWjI5taXfTOPRSq2moq2UdVWKDQAjGYsg
-From: "Leech, Christopher" <christopher.leech@intel.com>
-To: <ravinandan.arakali@neterion.com>, <linux-kernel@vger.kernel.org>,
-       <netdev@vger.kernel.org>
-X-OriginalArrivalTime: 18 Aug 2006 16:55:24.0301 (UTC) FILETIME=[193893D0:01C6C2E7]
+	Fri, 18 Aug 2006 12:57:41 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:1796 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1030501AbWHRQ5h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:57:37 -0400
+Date: Fri, 18 Aug 2006 18:57:43 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-pci" <linux-pci@atrey.karlin.mff.cuni.cz>
+Subject: Re: [PATCH] PCI: fix ICH6 quirks
+Message-Id: <20060818185743.d16d2a98.khali@linux-fr.org>
+In-Reply-To: <200608181650.41869.daniel.ritz-ml@swissonline.ch>
+References: <200608181650.41869.daniel.ritz-ml@swissonline.ch>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ravinandan Arakali
->
-> Hi,
-> I am trying to use I/OAT on one of the newer woodcrest boxes.
-> But not sure if things are configured properly since there
-> seems to be no change in performance with I/OAT enabled
-> or disabled.
-> Following are the steps followed.
-> 1. MSI (CONFIG_PCI_MSI) is enabled in kernel(2.6.16.21).
-> 2. In kernel DMA configuration, following are enabled.
->      Support for DMA Engines
->      Network: TCP receive copy offload
->      Test DMA Client
->      Intel I/OAT DMA support
-> 3. I manually load the ioatdma driver (modprobe ioatdma)
+Hi Daniel,
+
+> [PATCH] PCI: fix ICH6 quirks
 > 
-> As per some documentation I read, when step #3 is performed
-> successfully, directories dma0chanX is supposed to be created
-> under /sys/class/dma but in my case, this directory stays
-> empty. I don't see any messages in /var/log/messages.
-> Any idea what is missing ?
+> - add the ICH6(R) LPC to the ICH6 ACPI quirks. currently only the ICH6-M is
+>   handled. [ PCI_DEVICE_ID_INTEL_ICH6_1 is the ICH6-M LPC, ICH6_0 is the ICH6(R) ]
 
-Does a PCI device with vendor ID 8086 and device ID 1a38 show up in
-lspci?  That's the embedded DMA engine in the MCH.  It's only in the
-5000 series chipsets, and may require a BIOS setting to enable.  It
-should show up as bus 0 device 8 (00:08.0).
+No objection.
 
-- Chris
+> - remove the wrong quirk calling asus_hides_smbus_lpc() for ICH6. the register
+>   modified in asus_hides_smbus_lpc() has a different meaning in ICH6.
+
+My mistake :( Thanks for fixing it. Do you know if executing the old
+quirk on the ICH6 can cause trouble? In other words, should we backport
+this fix to 2.6.17.y?
+
+> Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+> Cc: Jean Delvare <khali@linux-fr.org>
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+> index fb08bc9..e4bd137 100644
+> --- a/drivers/pci/quirks.c
+> +++ b/drivers/pci/quirks.c
+> @@ -438,6 +438,7 @@ static void __devinit quirk_ich6_lpc_acp
+>  	pci_read_config_dword(dev, 0x48, &region);
+>  	quirk_io_region(dev, region, 64, PCI_BRIDGE_RESOURCES+1, "ICH6 GPIO");
+>  }
+> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_0, quirk_ich6_lpc_acpi );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1, quirk_ich6_lpc_acpi );
+>  
+>  /*
+> @@ -1091,7 +1092,6 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_I
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_12,	asus_hides_smbus_lpc );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc );
+> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc );
+>  
+>  static void __init asus_hides_smbus_lpc_ich6(struct pci_dev *dev)
+>  {
+
+
+-- 
+Jean Delvare

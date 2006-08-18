@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWHQX4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWHRAGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWHQX4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 19:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWHQX4F
+	id S1750857AbWHRAGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 20:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWHRAGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 19:56:05 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:9319 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750719AbWHQX4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 19:56:04 -0400
-Message-ID: <44E50210.4060102@bigpond.net.au>
-Date: Fri, 18 Aug 2006 09:56:00 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Thu, 17 Aug 2006 20:06:46 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:38855 "EHLO
+	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
+	id S1750843AbWHRAGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 20:06:45 -0400
+X-ASG-Debug-ID: 1155859604-9100-5-2
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+X-ASG-Whitelist: Client
+Reply-To: <ravinandan.arakali@neterion.com>
+From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
+To: "'Chris Leech'" <christopher.leech@intel.com>,
+       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
+X-ASG-Orig-Subj: I/OAT configuration ?
+Subject: I/OAT configuration ?
+Date: Thu, 17 Aug 2006 17:05:27 -0700
+Message-ID: <003701c6c25a$034b0090$4010100a@pc.s2io.com>
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@redhat.com,
-       apw@shadowen.org
-Subject: Re: [patch] sched: group CPU power setup cleanup
-References: <20060815175525.A2333@unix-os.sc.intel.com>	<20060815212455.c9fe1e34.pj@sgi.com>	<20060815214718.00814767.akpm@osdl.org>	<20060816110357.B7305@unix-os.sc.intel.com> <20060817102030.f8c41330.pj@sgi.com>
-In-Reply-To: <20060817102030.f8c41330.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.128.202] using ID pwil3058@bigpond.net.au at Thu, 17 Aug 2006 23:56:01 +0000
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+In-Reply-To: <20060816005343.8634.21805.stgit@gitlost.site>
+Importance: Normal
+X-OriginalArrivalTime: 18 Aug 2006 00:05:26.0825 (UTC) FILETIME=[024F8990:01C6C25A]
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
->>> Hope not.  To me, "computing power" means megaflops/sec, or Dhrystones
->>> (don't ask) or whatever.  If that's what "cpu_power" is referring to then
->>> the name is hopelessly ambiguous with peak joules/sec and a big renaming is
->>> due.
->> It refers to group's processing power. Perhaps "horsepower" is better term.
-> 
-> Well ... I don't think "horsepower" is a step in the right direction.
-> 
-> Andrew's point was over the word "power", not "cpu".  The term
-> "cpu_power" suggested to him we were concerned with the power supply
-> watts consumed by a group of CPUs.  Indeed, both those concerned with
-> laptop battery lifetimes, and the air conditioning tonnage needed
-> for big honkin NUMA iron might have reason to be concerned with the
-> power consumed by CPUs.
-> 
-> Changing the word "cpu" to "horse", but keeping the word "power",
-> does nothing to address Andrew's point.  Rather it just adds more
-> confusion.  We are obviously dealing with CPUs here, not horses.
-> 
-> My understanding is that the "cpu_power" of the cpus in a sched group
-> is rougly proportional to the BogoMIPS of the CPUs in that group.
-> 
+Hi,
+I am trying to use I/OAT on one of the newer woodcrest boxes.
+But not sure if things are configured properly since there
+seems to be no change in performance with I/OAT enabled
+or disabled.
+Following are the steps followed.
+1. MSI (CONFIG_PCI_MSI) is enabled in kernel(2.6.16.21).
+2. In kernel DMA configuration, following are enabled.
+     Support for DMA Engines
+     Network: TCP receive copy offload
+     Test DMA Client
+     Intel I/OAT DMA support
+3. I manually load the ioatdma driver (modprobe ioatdma)
 
-How about energy instead of power?  I.e. the CPU's capacity to do work.
+As per some documentation I read, when step #3 is performed
+successfully, directories dma0chanX is supposed to be created
+under /sys/class/dma but in my case, this directory stays
+empty. I don't see any messages in /var/log/messages.
+Any idea what is missing ?
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Thanks,
+Ravi
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+

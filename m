@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbWHRTWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWHRTYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbWHRTWV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWHRTWV
+	id S1161090AbWHRTYA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWHRTYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:22:21 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.4.202]:11211 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S932487AbWHRTWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:22:19 -0400
-Date: Fri, 18 Aug 2006 15:22:35 -0400
-From: Lee Trager <Lee@PicturesInMotion.net>
-Subject: Re: Merging libata PATA support into the base kernel
-In-reply-to: <1155916869.28764.20.camel@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Jason Lunz <lunz@falooley.org>, Jens Axboe <axboe@suse.de>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, Stefan Seyfried <seife@suse.de>
-Message-id: <44E6137B.9090103@PicturesInMotion.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-References: <1155144599.5729.226.camel@localhost.localdomain>
- <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
- <200608102140.36733.rjw@sisk.pl> <44E3E1E6.9090908@PicturesInMotion.net>
- <20060817091842.GC17899@elf.ucw.cz>
- <1155808348.15195.55.camel@localhost.localdomain>
- <20060817094512.GD17899@elf.ucw.cz>
- <1155815491.15195.75.camel@localhost.localdomain>
- <44E53635.3080702@PicturesInMotion.net>
- <44E53A9B.6080701@PicturesInMotion.net>
- <1155916869.28764.20.camel@localhost.localdomain>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060731)
+	Fri, 18 Aug 2006 15:24:00 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:52120 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932483AbWHRTX6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:23:58 -0400
+Date: Fri, 18 Aug 2006 14:23:56 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       James K Lewis <jklewis@us.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
+Message-ID: <20060818192356.GD26889@austin.ibm.com>
+References: <20060811170337.GH10638@austin.ibm.com> <20060811170813.GJ10638@austin.ibm.com> <1155771820.11312.116.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155771820.11312.116.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Iau, 2006-08-17 am 23:57 -0400, ysgrifennodd Lee Trager:
->   
->> Ok I got it now. Anyway I tried disabling it in the BIOS(IBM called it
->> the Predesktop Area) and I still get the same thing.
->>     
->
-> You would. You'd need to reinstall not using the HPA area of the disk in
-> order to fix this, or patch the kernel to restore the HPA on resume
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->   
-Well where in the kernel is the code that disabled HPA on startup? Im
-new to kernel hacking so if you could point me in the right direction I
-could try to patch it myself.
+On Thu, Aug 17, 2006 at 01:43:40AM +0200, Benjamin Herrenschmidt wrote:
+> 
+> Sounds good (without actually looking at the code though :), that was a
+> long required improvement to that driver. Also, we should probably look
+> into using NAPI polling for tx completion queue as well, no ?
+
+Just for a lark, I tried using NAPI polling, while disabling all TX
+interrupts. Performance was a disaster: 8Mbits/sec, fom which I conclude
+that the tcp ack packets do not flow back fast enough to allw reliance
+on NAPI polling for transmit.
+
+I was able to get as high as 960 Mbits/sec in unusal circumstances, 
+at 100% cpu usage. Oprofile indicates that the next major improvement
+would be to add scatter/gather, which I'll take a shot at next week,
+if I don't get interrupted. However, I'm getting interrupted a lot these
+days.
+
+--linas

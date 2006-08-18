@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWHRKUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWHRKdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWHRKUk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWHRKUk
+	id S1751347AbWHRKdX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWHRKdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:20:40 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:8388 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751344AbWHRKUk (ORCPT
+	Fri, 18 Aug 2006 06:33:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7318 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751347AbWHRKdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:20:40 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed!
-Date: Fri, 18 Aug 2006 12:24:11 +0200
-User-Agent: KMail/1.9.3
-Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060813012454.f1d52189.akpm@osdl.org> <200608181255.46999.ak@suse.de> <44E58FDC.6030007@aitel.hist.no>
-In-Reply-To: <44E58FDC.6030007@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608181224.11303.rjw@sisk.pl>
+	Fri, 18 Aug 2006 06:33:22 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060818083911.GB7516@ucw.cz> 
+References: <20060818083911.GB7516@ucw.cz>  <p734pwea07b.fsf@verdi.suse.de> <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211507.27190.61876.stgit@warthog.cambridge.redhat.com> <7510.1155630597@warthog.cambridge.redhat.com> 
+To: Pavel Machek <pavel@suse.cz>
+Cc: David Howells <dhowells@redhat.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org#
+Subject: Re: [RHEL5 PATCH 1/4] Provide fallback full 64-bit divide/modulus ops for gcc 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 18 Aug 2006 11:33:08 +0100
+Message-ID: <4341.1155897188@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek <pavel@suse.cz> wrote:
 
-On Friday 18 August 2006 12:01, Helge Hafting wrote:
-> Andi Kleen wrote:
-> >> I have narrowed it down.  2.6.18-rc4 does not have the 3x time
-> >> problem,  while mm1 have it.  mm1 without the hotfix jiffies
-> >> patch is just as bad.
-> >>     
-> >
-> > Can you narrow it down to a specific patch in -mm? 
-> >   
-> How do I do that?  Is -mm available through git somehow,
-> or is there some other clever way?
+> > There are places where the compiler emits these that aren't entirely
+> > obvious, one of which IIRC is in ext2 inode allocation.
+> 
+> Well -- but that is good reason to keep that open-coded, right?
 
-You can download the broken-out version of the -mm and use quilt.
+Maybe.  I'm not sure I agree, but Linus is permitted to have differing
+opinions.
 
-Quick start:
-- unpack the tarball in a directory containing vanilla 2.6.18-rc4 sources,
-- rename 'broken-out' to 'patches'
-- use 'quilt push n' to apply the next n patches,
-- use 'quilt pop n' to revert the last n patches applied,
-- 'quilt applied | wc' gives you the number of patches currently applied,
-- 'quilt top' returns the name of the last patch applied.
+Anyway, that set of patches has been superseded since Al didn't want it done
+that way.
 
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+David

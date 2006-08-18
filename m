@@ -1,53 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWHRPvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWHRPw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161020AbWHRPvV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 11:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWHRPvV
+	id S1161037AbWHRPw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 11:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbWHRPw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 11:51:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31164 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161020AbWHRPvU (ORCPT
+	Fri, 18 Aug 2006 11:52:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19649 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161037AbWHRPw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 11:51:20 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <76bd70e30608180843m536e9f57y90e1915f40f85b2@mail.gmail.com> 
-References: <76bd70e30608180843m536e9f57y90e1915f40f85b2@mail.gmail.com>  <20060818153502.29482.91650.stgit@warthog.cambridge.redhat.com> <20060818153514.29482.78513.stgit@warthog.cambridge.redhat.com> 
-To: "Chuck Lever" <chucklever@gmail.com>
-Cc: "David Howells" <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       steved@redhat.com, trond.myklebust@fys.uio.no,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/7] NFS: Use local caching [try #12] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 18 Aug 2006 16:51:06 +0100
-Message-ID: <30101.1155916266@warthog.cambridge.redhat.com>
+	Fri, 18 Aug 2006 11:52:56 -0400
+Date: Fri, 18 Aug 2006 08:52:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: linux-kernel@vger.kernel.org, airlied@linux.ie,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: Re: oops while loading snd-seq-oss (was: Re: 2.6.18-rc4-mm1 BUG,
+ drm related)
+Message-Id: <20060818085220.2f679f9c.akpm@osdl.org>
+In-Reply-To: <20060818111118.GB1586@slug>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	<20060815130345.GA3817@slug>
+	<20060815071632.b10d3a03.akpm@osdl.org>
+	<20060815173726.GA2533@slug>
+	<20060815092146.f8a6942a.akpm@osdl.org>
+	<20060818111118.GB1586@slug>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever <chucklever@gmail.com> wrote:
+On Fri, 18 Aug 2006 11:11:18 +0000
+Frederik Deweerdt <deweerdt@free.fr> wrote:
 
-> > +static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
-> > +                                  void *buffer, uint16_t bufmax)
-> > +{
-> 
-> Why don't you use the function declaration style that is used in the
-> rest of the NFS client?
+> > CONFIG_DEBUG_PAGEALLOC might tell us more.
+> I've tried enabling it, at it appears that we catch an earlier error:
+> [   34.988000] [drm:drm_unlock] *ERROR* Process 8826 using kernel context 0
+> [   35.644000] BUG: unable to handle kernel paging request at virtual address 00716573
+> [   35.644000]  printing eip:
+> [   35.644000] c01aeacb
+> [   35.644000] *pde = 00000000
+> [   35.644000] Oops: 0000 [#1]
+> [   35.644000] PREEMPT DEBUG_PAGEALLOC
+> [   35.644000] last sysfs file: /devices/pci0000:00/0000:00:1d.7/usb5/5-0:1.0/bInterfaceProtocol
+> [   35.644000] Modules linked in: snd_seq snd_seq_device ohci_hcd parport_pc parport pcspkr ipw2200 yenta_socket rsrc_nonstatic pcmcia_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd uhci_hcd usbcore cpufreq_stats cpufreq_powersave cpufreq_ondemand cpufreq_conservative speedstep_centrino freq_table processor ac battery i915 drm tg3 joydev tsdev
+> [   35.644000] CPU:    0
+> [   35.644000] EIP:    0060:[<c01aeacb>]    Not tainted VLI
+> [   35.644000] EFLAGS: 00210246   (2.6.18-rc4-def01 #18) 
+> [   35.644000] EIP is at sysfs_dirent_exist+0x4b/0x70
+> [   35.644000] eax: 00716573   ebx: f36f263c   ecx: f71962a0   edx: f36f263c
+> [   35.644000] esi: 00716573   edi: c03b4177   ebp: f711fe90   esp: f711fe7c
+> [   35.644000] ds: 007b   es: 007b   ss: 0068
+> [   35.644000] Process modprobe (pid: 8864, ti=f711e000 task=c193b540 task.ti=f711e000)
+> [   35.644000] Stack: f36f263c f36f26a0 f36bf120 c03b4177 ffffffef f711feb0 c01afb95 f36f2694 
+> [   35.644000]        c03b4177 f7ba4108 00000000 f7ba4000 f7ba4108 f711fed8 c027ece1 f7ba4108 
+> [   35.644000]        f74b5d08 c03b4177 f7ba416c f7ba4000 f71962a0 f7ba4000 f7ba4108 f711ff08 
+> [   35.644000] Call Trace:
+> [   35.644000]  [<c01afb95>] sysfs_create_link+0x4d/0xa2
+> [   35.644000]  [<c027ece1>] device_add_class_symlinks+0xb0/0x14d
+> [   35.644000]  [<c027eff1>] device_add+0x1a0/0x37e
+> [   35.644000]  [<c027f1e9>] device_register+0x1a/0x20
+> [   35.644000]  [<c027f52f>] device_create+0xaa/0xc4
+> [   35.644000]  [<f8a0e472>] snd_register_device+0xcf/0x104 [snd]
+> [   35.644000]  [<f8abd0c2>] snd_sequencer_device_init+0x4e/0x7c [snd_seq]
+> [   35.644000]  [<f8abd02f>] alsa_seq_init+0x2f/0x51 [snd_seq]
+> [   35.644000]  [<c0141ab9>] sys_init_module+0x163/0x221
+> [   35.644000]  [<c0103139>] sysenter_past_esp+0x56/0x8d
+> [   35.644000]  [<b7fcd410>] 0xb7fcd410
+> [   35.644000]  [<c0104205>] show_stack_log_lvl+0x98/0xb2
+> [   35.644000]  [<c0104434>] show_registers+0x1b7/0x22f
+> [   35.644000]  [<c0104616>] die+0x12a/0x232
+> [   35.644000]  [<c0377042>] do_page_fault+0x38c/0x616
+> [   35.644000]  [<c0103cad>] error_code+0x39/0x40
+> [   35.644000]  [<c01afb95>] sysfs_create_link+0x4d/0xa2
+> [   35.644000]  [<c027ece1>] device_add_class_symlinks+0xb0/0x14d
+> [   35.644000]  [<c027eff1>] device_add+0x1a0/0x37e
+> [   35.644000]  [<c027f1e9>] device_register+0x1a/0x20
+> [   35.644000]  [<c027f52f>] device_create+0xaa/0xc4
+> [   35.644000]  [<f8a0e472>] snd_register_device+0xcf/0x104 [snd]
+> [   35.644000]  [<f8abd0c2>] snd_sequencer_device_init+0x4e/0x7c [snd_seq]
+> [   35.644000]  [<f8abd02f>] alsa_seq_init+0x2f/0x51 [snd_seq]
+> [   35.644000]  [<c0141ab9>] sys_init_module+0x163/0x221
+> [   35.644000]  [<c0103139>] sysenter_past_esp+0x56/0x8d
+> [   35.644000] Code: f0 eb 12 8b 53 04 8d 42 fc 89 c3 8b 40 04 0f 18 00 90 3b 55 f0 74 2f 8b 43 14 85 c0 74 e5 89 1c 24 e8 39 f0 ff ff 8b 7d 0c 89 c6 <ac> ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 c4 b8 
+> [   35.644000] EIP: [<c01aeacb>] sysfs_dirent_exist+0x4b/0x70 SS:ESP 0068:f711fe7c
+> [   35.644000]  
+> It looks like %eax is in fact a sort of "seq" string, but I couldn't
+> figure out why we ended with this pointer :(
 
-Actually, the NFS client has several different styles, and mine's not without
-precedent, eg:
+These sorts of crashes down in sysfs often are hard to diagnose.  What did
+the driver do to cause this?  Dunno.  But it continues to look like an ALSA
+thing.
 
-extern int nfs3_setxattr(struct dentry *, const char *,
-			const void *, size_t, int);
-
-extern ssize_t nfs_direct_IO(int, struct kiocb *, const struct iovec *, loff_t,
-			unsigned long);
-
-static inline loff_t
-nfs_size_to_loff_t(__u64 size)
-
-> All the parameters belong on one line, don't they?
-
-Depends how much you want to upset those people who tremble with anxiety at
-the sight of a line longer than 80 chars.
-
-David
+If you had CONFIG_PCI_MULTITHREAD_PROBE enabled, please try disabling it.

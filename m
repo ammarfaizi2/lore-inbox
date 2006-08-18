@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWHRXks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWHRXpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422642AbWHRXks (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWHRXkr
+	id S1422651AbWHRXpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWHRXpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:40:47 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:12908 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1751415AbWHRXkr (ORCPT
+	Fri, 18 Aug 2006 19:45:51 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:10903 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751595AbWHRXpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:40:47 -0400
-Date: Fri, 18 Aug 2006 19:10:38 -0400
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.18-rc4] aoe [10/13]: module parameter for device timeout
-Message-ID: <20060818231037.GW29988@coraid.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com> <a47db3897e5de69fbe6bfaf1fea169a2@coraid.com> <1155942187.31543.26.camel@localhost.localdomain>
+	Fri, 18 Aug 2006 19:45:50 -0400
+Date: Fri, 18 Aug 2006 18:45:32 -0500
+To: David Miller <davem@davemloft.net>
+Cc: benh@kernel.crashing.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       Jens.Osterkamp@de.ibm.com, jklewis@us.ibm.com, arnd@arndb.de
+Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
+Message-ID: <20060818234532.GA8644@austin.ibm.com>
+References: <20060818192356.GD26889@austin.ibm.com> <20060818.142513.29571851.davem@davemloft.net> <20060818224618.GN26889@austin.ibm.com> <20060818.155116.112621100.davem@davemloft.net> <20060818232942.GO26889@austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1155942187.31543.26.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060818232942.GO26889@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 12:03:07AM +0100, Alan Cox wrote:
-> Ar Gwe, 2006-08-18 am 13:39 -0400, ysgrifennodd Ed L. Cashin:
-> > Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
-> > 
-> > The aoe_deadsecs module parameter sets the number of seconds that
-> > elapse before a nonresponsive AoE device is marked as dead.
-> > 
+On Fri, Aug 18, 2006 at 06:29:42PM -0500, linas wrote:
 > 
-> Isn't this a) per link dependant and b) needing to be runtime tuned
-> (sysfs say ?)
+> I don't understand what you are saying. If I call the transmit 
+> queue cleanup code from the poll() routine, nothing hapens, 
+> because the kernel does not call the poll() routine often 
+> enough. I've stated this several times.  
 
-No, this is just for users who need very fast failure.  The default
-three minutes is good for things like short network interruptions and
-even quick AoE device reboots, but users who aren't interested in that
-kind of flexibility and want a fast failure generally want it always
-and on every link.
+OK, Arnd gave me a clue stick. I need to call the (misnamed)
+netif_rx_schedule() from the tx interrupt in order to get 
+this to work. That makes sense, and its easy, I'll send the 
+revised patch.. well, not tonight, but shortly.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+--linas

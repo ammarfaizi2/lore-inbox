@@ -1,96 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWHRX1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422646AbWHRX3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751589AbWHRX1v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWHRX1v
+	id S1422646AbWHRX3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWHRX3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:27:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62187 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751290AbWHRX1v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:27:51 -0400
-Date: Fri, 18 Aug 2006 16:27:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: [PATCH][CHAR] Return better error codes if drivers/char/raw.c
- module init fails
-Message-Id: <20060818162743.f97ff431.akpm@osdl.org>
-In-Reply-To: <200608180918.30483.eike-kernel@sf-tec.de>
-References: <200608180918.30483.eike-kernel@sf-tec.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 18 Aug 2006 19:29:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:7738 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422646AbWHRX3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 19:29:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
+        b=JlY/nDthDN4BgjGlU/CMrOI1XqJcUgOXKsr8CyOHuMzPDtP1lvIQL6PgWymFF+FQ5wvaraClrBxYJb3EjWyVOT8nxAsjORQ5p90NX+ms9T8LKcRyqH6NU7XDTZtsyHT7eFhNu5E0MZotrPb6mpF4dnBG3aEqCLrCNftnGx5C73g=
+Date: Sat, 19 Aug 2006 03:29:10 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Kai Petzke <wpp@marie.physik.tu-berlin.de>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Complaint about return code convention in queue_work() etc.
+Message-ID: <20060818232910.GA5221@martell.zuzino.mipt.ru>
+References: <Pine.LNX.4.44L0.0608181730510.5732-100000@iolanthe.rowland.org> <44E63476.201@garzik.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44E63476.201@garzik.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 09:18:30 +0200
-Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+On Fri, Aug 18, 2006 at 05:43:18PM -0400, Jeff Garzik wrote:
+> Alan Stern wrote:
+> >I'd like to lodge a bitter complaint about the return codes used by
+> >queue_work() and related functions:
+> >
+> >	Why do the damn things return 0 for error and 1 for success???
+> >	Why don't they use negative error codes for failure, like
+> >	everything else in the kernel?!!
+>
+> It's a standard programming idiom:  return false (0) for failure, true
+> (non-zero) for success.  Boolean.
 
-> Currently this module just returns 1 if anything on module init fails. Store
-> the error code of the different function calls and return their error on
-> problems.
-> 
-> I'm not sure if this doesn't need even more cleanup, for example kobj_put() 
-> is called only in one error case.
-> 
+There are at least 3 idioms:
 
-You seem to be using kmail in funky-confuse-sylpheed mode.  Inlined patches
-in plain-text emails are preferred, please.  
+1) return 0 on success, -E on fail¹.
 
-> 
-> diff --git a/drivers/char/raw.c b/drivers/char/raw.c
-> index 579868a..5938e6b 100644
-> --- a/drivers/char/raw.c
-> +++ b/drivers/char/raw.c
-> @@ -288,31 +288,35 @@ static struct cdev raw_cdev = {
->  static int __init raw_init(void)
->  {
->  	dev_t dev = MKDEV(RAW_MAJOR, 0);
-> +	int ret;
->  
-> -	if (register_chrdev_region(dev, MAX_RAW_MINORS, "raw"))
-> +	ret = register_chrdev_region(dev, MAX_RAW_MINORS, "raw");
-> +	if (ret)
->  		goto error;
->  
->  	cdev_init(&raw_cdev, &raw_fops);
-> -	if (cdev_add(&raw_cdev, dev, MAX_RAW_MINORS)) {
-> +	ret = cdev_add(&raw_cdev, dev, MAX_RAW_MINORS); 
-> +	if (ret) {
-> +		printk(KERN_ERR "error register raw device\n");
->  		kobject_put(&raw_cdev.kobj);
-> -		unregister_chrdev_region(dev, MAX_RAW_MINORS);
-> -		goto error;
-> +		goto error_region;
->  	}
->  
->  	raw_class = class_create(THIS_MODULE, "raw");
->  	if (IS_ERR(raw_class)) {
->  		printk(KERN_ERR "Error creating raw class.\n");
->  		cdev_del(&raw_cdev);
-> -		unregister_chrdev_region(dev, MAX_RAW_MINORS);
-> -		goto error;
-> +		ret = PTR_ERR(raw_class);
-> +		goto error_region;
->  	}
->  	class_device_create(raw_class, NULL, MKDEV(RAW_MAJOR, 0), NULL, "rawctl");
->  
->  	return 0;
->  
-> +error_region:
-> +	unregister_chrdev_region(dev, MAX_RAW_MINORS);
->  error:
-> -	printk(KERN_ERR "error register raw device\n");
-> -	return 1;
-> +	return ret;
->  }
+	rv = foo();
+	if (rv < 0)
+		...
 
-No, it's not obvious what that stray kobject_put() is doing in there.
+2) return 1 on YES, 0 on NO.
+3) return valid pointer on OK, NULL on fail.
 
-<hunt, hunt>
+	p = kmalloc();
+	if (!p)
+		...
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=b8ff72d28c349bdb7ff5246e83aba384f45d8078
+#2 should only be used if condition in question is spelled nice:
 
+	if (license_is_gpl_compatible())
+		...
+	else
+		ATI_you_can_fuck_off_too();
+
+The question is into which category queue_work() fails.
+
+> Certainly the kernel often uses the -errno convention, but it's not a rule.
+
+¹ BSD returns E* where E* is negative and thus avoids "return E*;" bugs (where E
+  is positive).
 

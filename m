@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWHRXV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHRXZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751586AbWHRXV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751587AbWHRXV0
+	id S1750894AbWHRXZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWHRXZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:21:26 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:51563 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1751584AbWHRXV0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:21:26 -0400
-Date: Fri, 18 Aug 2006 19:04:58 -0400
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.18-rc4] aoe [07/13]: jumbo frame support 2 of 2
-Message-ID: <20060818230457.GT29988@coraid.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com> <89aa13bbceac9f7580cfa29d3a05a236@coraid.com> <1155941912.31543.21.camel@localhost.localdomain>
+	Fri, 18 Aug 2006 19:25:04 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:61449 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750894AbWHRXZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 19:25:03 -0400
+Date: Sat, 19 Aug 2006 01:25:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <w@1wt.eu>,
+       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
+       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+Message-ID: <20060818232501.GE7813@stusta.de>
+References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de> <20060817090651.GP7813@stusta.de> <44E433DB.9090501@domdv.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1155941912.31543.21.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <44E433DB.9090501@domdv.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 11:58:32PM +0100, Alan Cox wrote:
-> Ar Gwe, 2006-08-18 am 13:39 -0400, ysgrifennodd Ed L. Cashin:
-...
-> > @@ -28,7 +28,7 @@ new_skb(ulong len)
-> >  		skb->protocol = __constant_htons(ETH_P_AOE);
-> >  		skb->priority = 0;
-> >  		skb_put(skb, len);
-> > -		memset(skb->head, 0, len);
-> > +		memset(skb->head, 0, ETH_ZLEN);
+On Thu, Aug 17, 2006 at 11:16:11AM +0200, Andreas Steinmetz wrote:
+> Adrian Bunk wrote:
+> > Can you send me the .config's you are using for 2.4 and 2.6 
+> > (preferably for kernel.org kernels)?
+> > 
 > 
-> You realise the tail of a short packet is cleared by the network drivers
-> either in software or hardware ?
+> I can send you only the current 2.4 config I use (not exactly vanilla).
 
-Yes, I think that the patch author is used to doing ETH_ZLEN because
-of a bug in the e1000 driver where the short packets weren't getting
-padded.  I don't think I ever heard of a resolution to that issue, but
-I could change it back to "len" here.
+Thanks, but it didn't help me much since it needed some work getting it 
+compiling with uClinux-2.4.31-uc0, and the next step of creating a 
+functionally equivalent 2.6 kernel doesn't seem to be reasonably 
+possible.
+
+My aim is to compare the size of the compiled objects for finding what 
+causes size regressions in 2.6 compared to 2.4.
+
+Does anyone have an example with working kernels for both 2.4 and 2.6
+and a significantely bigger functionally equivalent 2.6 kernel?
+
+> Andreas Steinmetz
+
+cu
+Adrian
 
 -- 
-  Ed L Cashin <ecashin@coraid.com>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

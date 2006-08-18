@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWHRFe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWHRFt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWHRFe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 01:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWHRFe4
+	id S964839AbWHRFt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 01:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWHRFt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 01:34:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30950 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964787AbWHRFez (ORCPT
+	Fri, 18 Aug 2006 01:49:58 -0400
+Received: from msr34.hinet.net ([168.95.4.134]:23006 "EHLO msr34.hinet.net")
+	by vger.kernel.org with ESMTP id S964813AbWHRFt5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 01:34:55 -0400
-Date: Thu, 17 Aug 2006 22:34:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow
- writeback.
-Message-Id: <20060817223446.10ef5e8e.akpm@osdl.org>
-In-Reply-To: <1155831532.5620.12.camel@localhost>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	<20060815010611.7dc08fb1.akpm@osdl.org>
-	<17635.59821.21444.287979@cse.unsw.edu.au>
-	<1155820912.5662.39.camel@localhost>
-	<20060817083035.8b775b12.akpm@osdl.org>
-	<1155831532.5620.12.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 01:49:57 -0400
+Message-ID: <02cb01c6c28a$10c26ad0$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Cc: <romieu@fr.zoreil.com>, <akpm@osdl.org>, <dvrabel@cantab.net>,
+       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       <david@pleyades.net>
+References: <1155843743.5006.3.camel@localhost.localdomain> <84144f020608170126n37574012u1dd6756ea6ead061@mail.gmail.com>
+Subject: Re: [PATCH 1/7] ip1000: update maintainer information
+Date: Fri, 18 Aug 2006 13:49:24 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006 12:18:52 -0400
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Hi Pekka:
 
-> On Thu, 2006-08-17 at 08:30 -0700, Andrew Morton wrote:
-> > On Thu, 17 Aug 2006 09:21:51 -0400
-> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > > Exactly how would a request limit help? All that boils down to is having
-> > > the VM monitor global_page_state(NR_FILE_DIRTY) versus monitoring
-> > > global_page_state(NR_FILE_DIRTY)+global_page_state(NR_WRITEBACK).
-> > > 
-> > 
-> > I assume that if NFS is not limiting its NR_WRITEBACK consumption and block
-> > devices are doing so, we could get in a situation where NFS hogs all of the
-> > fixed-size NR_DIRTY+NR_WRITEBACK resource at the expense of concurrent
-> > block-device-based writeback.
-> 
-> Since NFS has no control over NR_DIRTY, how does controlling
-> NR_WRITEBACK help? The only resource that NFS shares with the block
-> device writeout queues is memory.
+    OK, I will generate a patch from to your git. And add sign-off-by in the
+mail.
 
-Block devices have a limit on the amount of IO which they will queue.  NFS
-doesn't.
+Thanks for that.
 
-> IOW: The resource that needs to be controlled is the dirty pages, not
-> the write-out queue. Unless you can throttle back on the creation of
-> dirty NFS pages in the first place, then the potential for unfairness
-> will exist.
+Jesse Huang
 
-Please read the whole thread - we're violently agreeing.
+----- Original Message ----- 
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <romieu@fr.zoreil.com>; <akpm@osdl.org>; <dvrabel@cantab.net>;
+<linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
+<david@pleyades.net>
+Sent: Thursday, August 17, 2006 4:26 PM
+Subject: Re: [PATCH 1/7] ip1000: update maintainer information
+
+
+The patches are missing signed-off-by so please resend. I am starting
+my vacation on friday so I suggest you send the whole driver as a
+patch for review at netdev@vger.kernel.org for inclusion. I can apply
+your patches to
+git://git.kernel.org/pub/scm/linux/kernel/git/penberg/netdev-ipg-2.6.git
+if you want, though. Only the first three patches apply and everything
+starting from "ipg_config_autoneg rewrite' fail.
+
+                                              Pekka
+
+

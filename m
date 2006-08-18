@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWHRKES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWHRKDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWHRKES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWHRKER
+	id S1751336AbWHRKDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWHRKDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:04:17 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:388 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751337AbWHRKEQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:04:16 -0400
-Message-ID: <44E58FDC.6030007@aitel.hist.no>
-Date: Fri, 18 Aug 2006 12:01:00 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Fri, 18 Aug 2006 06:03:55 -0400
+Received: from mail.suse.de ([195.135.220.2]:60906 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751336AbWHRKDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 06:03:54 -0400
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [patch 2/5] -fstack-protector feature: Add the Kconfig option
+Date: Fri, 18 Aug 2006 13:08:07 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1155746902.3023.63.camel@laptopd505.fenrus.org> <1155747038.3023.67.camel@laptopd505.fenrus.org>
+In-Reply-To: <1155747038.3023.67.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: john stultz <johnstul@us.ibm.com>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed!
-References: <20060813012454.f1d52189.akpm@osdl.org> <200608181134.02427.ak@suse.de> <44E588AB.3050900@aitel.hist.no> <200608181255.46999.ak@suse.de>
-In-Reply-To: <200608181255.46999.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Disposition: inline
+Message-Id: <200608181308.07752.ak@suse.de>
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> I have narrowed it down.  2.6.18-rc4 does not have the 3x time
->> problem,  while mm1 have it.  mm1 without the hotfix jiffies
->> patch is just as bad.
->>     
+On Wednesday 16 August 2006 18:50, Arjan van de Ven wrote:
+> Subject: [patch 2/5] Add the Kconfig option for the stackprotector feature
+> From: Arjan van de Ven <arjan@linux.intel.com>
 >
-> Can you narrow it down to a specific patch in -mm? 
->   
-How do I do that?  Is -mm available through git somehow,
-or is there some other clever way?
+> This patch adds the config options for -fstack-protector.
 
-Helge Hafting
+Normally it's better to add the CONFIG options after the code or 
+at the same time. Otherwise binary searches later can break
+
+Also can the CC be dropped in the option? It makes it too long.
+
+-Andi
+
+>

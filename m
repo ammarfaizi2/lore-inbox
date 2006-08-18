@@ -1,80 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWHRLkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWHRLnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWHRLkg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 07:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWHRLkg
+	id S964842AbWHRLnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 07:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWHRLnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 07:40:36 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:38874 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030207AbWHRLkf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 07:40:35 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: Kirill Korotaev <dev@sw.ru>
-Subject: Re: [RFC][PATCH 4/7] UBC: syscalls (user interface)
-Date: Fri, 18 Aug 2006 13:40:30 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>
-In-Reply-To: <44E33C3F.3010509@sw.ru>
+	Fri, 18 Aug 2006 07:43:16 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:51544 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964842AbWHRLnP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 07:43:15 -0400
+Message-ID: <44E5A863.5090003@sw.ru>
+Date: Fri, 18 Aug 2006 15:45:39 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608181340.31773.arnd.bergmann@de.ibm.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 4/7] UBC: syscalls (user interface)
+References: <44E33893.6020700@sw.ru>  <44E33C3F.3010509@sw.ru> <1155868300.2510.272.camel@stark>
+In-Reply-To: <1155868300.2510.272.camel@stark>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 August 2006 17:39, Kirill Korotaev wrote:
-> --- ./include/asm-powerpc/systbl.h.arsys        2006-07-10 12:39:19.000000000 +0400
-> +++ ./include/asm-powerpc/systbl.h      2006-08-10 17:05:53.000000000 +0400
-> @@ -304,3 +304,6 @@ SYSCALL_SPU(fchmodat)
->  SYSCALL_SPU(faccessat)
->  COMPAT_SYS_SPU(get_robust_list)
->  COMPAT_SYS_SPU(set_robust_list)
-> +SYSCALL(sys_getluid)
-> +SYSCALL(sys_setluid)
-> +SYSCALL(sys_setublimit)
-...
-> --- ./include/asm-x86_64/unistd.h.ubsys 2006-07-10 12:39:19.000000000 +0400
-> +++ ./include/asm-x86_64/unistd.h       2006-07-31 16:00:01.000000000 +0400
-> @@ -619,10 +619,16 @@ __SYSCALL(__NR_sync_file_range, sys_sync
->  __SYSCALL(__NR_vmsplice, sys_vmsplice)
->  #define __NR_move_pages                279
->  __SYSCALL(__NR_move_pages, sys_move_pages)
-> +#define __NR_getluid           280
-> +__SYSCALL(__NR_getluid, sys_getluid)
-> +#define __NR_setluid           281
-> +__SYSCALL(__NR_setluid, sys_setluid)
-> +#define __NR_setublimit                282
-> +__SYSCALL(__NR_setublimit, sys_setublimit)
->  
-...
-> +/*
-> + *     The setbeanlimit syscall
-> + */
-> +asmlinkage long sys_setublimit(uid_t uid, unsigned long resource,
-> +               unsigned long *limits)
+Matt Helsley wrote:
 
-While I don't yet understand what this call does, it looks to me that
-the way it's implemented breaks in 32 bit emulation mode on x86_64 and
-powerpc.
+[... snip ...]
+>>--- ./kernel/ub/sys.c.ubsys	2006-07-28 18:52:18.000000000 +0400
+>>+++ ./kernel/ub/sys.c	2006-08-03 16:14:23.000000000 +0400
+>>@@ -0,0 +1,126 @@
+>>+/*
+>>+ *  kernel/ub/sys.c
+>>+ *
+>>+ *  Copyright (C) 2006 OpenVZ. SWsoft Inc
+>>+ *
+>>+ */
+>>+
+>>+#include <linux/config.h>
+>>+#include <linux/sched.h>
+>>+#include <asm/uaccess.h>
+>>+
+>>+#include <ub/beancounter.h>
+>>+#include <ub/task.h>
+>>+
+>>+#ifndef CONFIG_USER_RESOURCE
+> 
+> 
+> Get rid of the #ifdef since this file should only be compiled if
+> CONFIG_USER_RESOURCE=y anyway.
+> 
+> 
+>>+asmlinkage long sys_getluid(void)
+>>+{
+>>+	return -ENOSYS;
+>>+}
+>>+
+>>+asmlinkage long sys_setluid(uid_t uid)
+>>+{
+>>+	return -ENOSYS;
+>>+}
+>>+
+>>+asmlinkage long sys_setublimit(uid_t uid, unsigned long resource, 
+>>+		unsigned long *limits)
+>>+{
+>>+	return -ENOSYS;
+>>+}
+> 
+> 
+> Looks to me like you want to add:
+> 
+> cond_syscall(sys_getluid);
+> ...
+> 
+> in kernel/sys_ni.c and then you won't have to worry about making these
+> empty functions.
+Good note. Thanks, will do it!
 
-You either need to pass a pointer a something that is the same on 32 and
-64 bit (e.g. __u64 __user *limits), or need to provide a different
-entry point for 32 bit applications:
+>>+#else /* CONFIG_USER_RESOURCE */
+>>+
+>>+/*
+>>+ *	The (rather boring) getluid syscall
+>>+ */
+>>+asmlinkage long sys_getluid(void)
+>>+{
+>>+	struct user_beancounter *ub;
+>>+
+>>+	ub = get_exec_ub();
+>>+	if (ub == NULL)
+>>+		return -EINVAL;
+>>+
+>>+	return ub->ub_uid;
+>>+}
+>>+
+>>+/*
+>>+ *	The setluid syscall
+>>+ */
+>>+asmlinkage long sys_setluid(uid_t uid)
+>>+{
+>>+	int error;
+>>+	struct user_beancounter *ub;
+>>+	struct task_beancounter *task_bc;
+>>+
+>>+	task_bc = &current->task_bc;
+>>+
+>>+	/* You may not disown a setluid */
+>>+	error = -EINVAL;
+>>+	if (uid == (uid_t)-1)
+>>+		goto out;
+>>+
+>>+	/* You may only set an ub as root */
+>>+	error = -EPERM;
+>>+	if (!capable(CAP_SETUID))
+>>+		goto out;
+> 
+> 
+> With resource groups you don't necessarily have to be root -- just the
+> owner of the group and task. 
+the question is - who is the owner of group?
+user, user group or who?
+Both are bad, since the same user can run inside the container and thus
+container will be potentially controllable/breakable from inside.
 
-long compat_sys_setublimit(compat_uid_t uid, compat_ulong_t resource,
-				compat_ulong_t __user *limits);
 
-You should also add the prototypes to include/linux/syscalls.h.
+> Filesystems and appropriate share representations offer a way to give
+> regular users the ability to manage their resources without requiring
+> CAP_FOO.
+not sure what you propose...
 
-	Arnd <><
+we can introduce the following rules:
+
+containers (UB) can be created by process with SETUID cap only.
+subcontainers (SUB) can be created by any process.
+
+what do you think?
+
+
+>>+	/* Ok - set up a beancounter entry for this user */
+>>+	error = -ENOBUFS;
+>>+	ub = beancounter_findcreate(uid, NULL, UB_ALLOC);
+>>+	if (ub == NULL)
+>>+		goto out;
+>>+
+>>+	/* install bc */
+>>+	put_beancounter(task_bc->exec_ub);
+>>+	task_bc->exec_ub = ub;
+>>+	put_beancounter(task_bc->fork_sub);
+>>+	task_bc->fork_sub = get_beancounter(ub);
+>>+	error = 0;
+>>+out:
+>>+	return error;
+>>+}
+>>+
+>>+/*
+>>+ *	The setbeanlimit syscall
+>>+ */
+>>+asmlinkage long sys_setublimit(uid_t uid, unsigned long resource,
+>>+		unsigned long *limits)
+>>+{
+>>+	int error;
+>>+	unsigned long flags;
+>>+	struct user_beancounter *ub;
+>>+	unsigned long new_limits[2];
+>>+
+>>+	error = -EPERM;
+>>+	if(!capable(CAP_SYS_RESOURCE))
+>>+		goto out;
+> 
+> 
+> Again, a filesystem interface would give us more flexibility when it
+> comes to allowing users to manage their resources while still preventing
+> them from exceeding limits.
+we can have 2 different root users with uid = 0 in 2 different containers.
+
+> I doubt you really want to give owners of a container CAP_SYS_RESOURCE
+> and CAP_USER (i.e. total control over resource management) just to allow
+> them to manage their subset of the resources.
+The origin idea is that administator of the node can manage user
+resources only. Users can't, since otherwise they can increase the limits.
+But we can allow them to manage sub beancoutners imho...
+
+>>+	error = -EINVAL;
+>>+	if (resource >= UB_RESOURCES)
+>>+		goto out;
+>>+
+>>+	error = -EFAULT;
+>>+	if (copy_from_user(&new_limits, limits, sizeof(new_limits)))
+>>+		goto out;
+>>+
+>>+	error = -EINVAL;
+>>+	if (new_limits[0] > UB_MAXVALUE || new_limits[1] > UB_MAXVALUE)
+>>+		goto out;
+>>+
+>>+	error = -ENOENT;
+>>+	ub = beancounter_findcreate(uid, NULL, 0);
+>>+	if (ub == NULL)
+>>+		goto out;
+>>+
+>>+	spin_lock_irqsave(&ub->ub_lock, flags);
+>>+	ub->ub_parms[resource].barrier = new_limits[0];
+>>+	ub->ub_parms[resource].limit = new_limits[1];
+>>+	spin_unlock_irqrestore(&ub->ub_lock, flags);
+>>+
+>>+	put_beancounter(ub);
+>>+	error = 0;
+>>+out:
+>>+	return error;
+>>+}
+>>+#endif
+>>
+>>-------------------------------------------------------------------------
+>>Using Tomcat but need to do more? Need to support web services, security?
+>>Get stuff done quickly with pre-integrated technology to make your job easier
+>>Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+>>http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+>>_______________________________________________
+>>ckrm-tech mailing list
+>>https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+> 
+> 
+> 
+

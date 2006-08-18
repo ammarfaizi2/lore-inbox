@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161082AbWHRTV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWHRTUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161082AbWHRTV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWHRTV2
+	id S932240AbWHRTUy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWHRTUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:21:28 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6589 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932483AbWHRTV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:21:27 -0400
-Subject: Re: Serial issue
-From: Lee Revell <rlrevell@joe-job.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Paul Fulghum <paulkf@microgate.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com>
-References: <1155862076.24907.5.camel@mindpipe>
-	 <1155915851.3426.4.camel@amdx2.microgate.com>
-	 <1155923734.2924.16.camel@mindpipe>  <44E602C8.3030805@microgate.com>
-	 <1155925024.2924.22.camel@mindpipe>
-	 <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 15:21:25 -0400
-Message-Id: <1155928885.2924.40.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 18 Aug 2006 15:20:54 -0400
+Received: from zcars04e.nortel.com ([47.129.242.56]:1923 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S932240AbWHRTUy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:20:54 -0400
+Message-ID: <44E61227.9020006@nortel.com>
+Date: Fri, 18 Aug 2006 13:16:55 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: sekharan@us.ibm.com, riel@redhat.com, Linux@sc8-sf-spam2-b.sourceforge.net,
+       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, dev@sw.ru, hch@infradead.org, saw@sw.ru,
+       alan@lxorguk.ukuu.org.uk, rohitseth@google.com, hugh@veritas.com,
+       Christoph@sc8-sf-spam2-b.sourceforge.net, xemul@openvz.org,
+       mingo@elte.hu, devel@openvz.org, ak@suse.de
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru> <1155752277.22595.70.camel@galaxy.corp.google.com> <1155755069.24077.392.camel@localhost.localdomain> <1155756170.22595.109.camel@galaxy.corp.google.com> <44E45D6A.8000003@sw.ru> <20060817084033.f199d4c7.akpm@osdl.org> <20060818120809.B11407@castle.nmd.msu.ru> <1155912348.9274.83.camel@localhost.localdomain> <20060818094248.cdca152d.akpm@osdl.org> <1155925065.26155.17.camel@linuxchandra> <20060818115624.fd875624.pj@sgi.com>
+In-Reply-To: <20060818115624.fd875624.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Aug 2006 19:17:00.0785 (UTC) FILETIME=[E1852610:01C6C2FA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 15:15 -0400, linux-os (Dick Johnson) wrote:
-> A file-transfer protocol??? Has he got hardware the __required__
-> hardware flow-control enabled on both ends? One can't spew
-> high-speed serial data out forever without a hardware handshake.
+Paul Jackson wrote:
+
+> The fair sharing model (such as in CKRM) that strives for maximum
+> utilization of resources respecting priorities and min/max limits is
+> (I suppose) quite useful for certain workloads and customers.
 > 
+> The hardwall NUMA placement model (such as in cpusets) that strives
+> for maximum processor and memory isolation between jobs, preferring
+> to leave allocated resources unused rather than trying to share them,
+> is also quite useful for some.  Customers with 256 thread, one or
+> two day long run time, -very- tightly coupled huge OpenMP Fortran
+> jobs that need to complete within a few percent of the same time,
+> every runtime, demand it.
 
-Interesting you should mention that.  As a matter of fact I have to
-disable all flow control or the serial console doesn't even work.  I
-considered this a minor issue and had forgotten about it.
+Hypothetically, if you can guarantee that those threads get a specified 
+amount of time, but may possibly get *more* cpu time and thus finish 
+faster, what's the problem?
 
-But, in polled mode with no flow control I can transfer a 10MB file.
-There are a lot of retransmits but it works.
-
-Lee
-
+Chris

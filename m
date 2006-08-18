@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWHRKOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWHRKSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWHRKOT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHRKOR
+	id S1751342AbWHRKSX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHRKSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:14:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58123 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751342AbWHRKOM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:14:12 -0400
-Date: Fri, 18 Aug 2006 08:39:12 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: David Howells <dhowells@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org#
-Subject: Re: [RHEL5 PATCH 1/4] Provide fallback full 64-bit divide/modulus ops for gcc
-Message-ID: <20060818083911.GB7516@ucw.cz>
-References: <p734pwea07b.fsf@verdi.suse.de> <20060814211504.27190.10491.stgit@warthog.cambridge.redhat.com> <20060814211507.27190.61876.stgit@warthog.cambridge.redhat.com> <7510.1155630597@warthog.cambridge.redhat.com>
+	Fri, 18 Aug 2006 06:18:22 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:8588 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751342AbWHRKSV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 06:18:21 -0400
+Date: Fri, 18 Aug 2006 14:10:04 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Joe Jin <lkmaillist@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take10 1/2] kevent: Core files.
+Message-ID: <20060818100959.GA27479@2ka.mipt.ru>
+References: <11557316922047@2ka.mipt.ru> <11557316932803@2ka.mipt.ru> <215036450608180235l28836e3fpa2b529d7c0f69571@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <7510.1155630597@warthog.cambridge.redhat.com>
+In-Reply-To: <215036450608180235l28836e3fpa2b529d7c0f69571@mail.gmail.com>
 User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 18 Aug 2006 14:13:25 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 15-08-06 09:29:57, David Howells wrote:
-> Andi Kleen <ak@suse.de> wrote:
+On Fri, Aug 18, 2006 at 05:35:45PM +0800, Joe Jin (lkmaillist@gmail.com) wrote:
+> >+static int __devinit kevent_user_init(void)
+> >+{
+> >+       int err = 0;
+> >+
+> >+       err = kevent_sys_init();
+> >+       if (err)
+> >+               panic("%s: failed to initialize kevent: err=%d.\n", err);
 > 
-> > At least Linus' traditional argument against this is that it's better
-> > to open code these (do_div) so that it's clear to the coder that they
-> > are really costly.
-> 
-> do_div() is not a full replacement for __udivdi3(), __umoddi3() or
-> __udivmoddi4(), though I suspect we don't need divisor >= 2^32 anywhere atm.
-> 
-> There are places where the compiler emits these that aren't entirely obvious,
-> one of which IIRC is in ext2 inode allocation.
+> Here should be?
+>                    panic("%s: failed to initialize kevent: err=%d\n",
+> kevent_name, err);
 
-Well -- but that is good reason to keep that open-coded, right?
+The whole function does not exist in the latest patchset anymore.
 
 -- 
-Thanks for all the (sleeping) penguins.
+	Evgeniy Polyakov

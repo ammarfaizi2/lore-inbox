@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWHRArP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWHRArm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbWHRArP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 20:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHRArP
+	id S932188AbWHRArm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 20:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHRArm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 20:47:15 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:8419 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932137AbWHRArP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 20:47:15 -0400
-Subject: Serial issue
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Paul Fulghum <paulkf@microgate.com>
+	Thu, 17 Aug 2006 20:47:42 -0400
+Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:17491
+	"EHLO mail-ihug.icp-qv1-irony4.iinet.net.au") by vger.kernel.org
+	with ESMTP id S932180AbWHRArl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 20:47:41 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.08,140,1154880000"; 
+   d="scan'208"; a="857299643:sNHT134686810"
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's
+	list
+From: Ian Kent <raven@themaw.net>
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+In-Reply-To: <13319.1155744959@warthog.cambridge.redhat.com>
+References: <1155743399.5683.13.camel@localhost>
+	 <20060813133935.b0c728ec.akpm@osdl.org>
+	 <20060813012454.f1d52189.akpm@osdl.org>
+	 <5910.1155741329@warthog.cambridge.redhat.com>
+	 <13319.1155744959@warthog.cambridge.redhat.com>
 Content-Type: text/plain
-Date: Thu, 17 Aug 2006 20:47:55 -0400
-Message-Id: <1155862076.24907.5.camel@mindpipe>
+Date: Fri, 18 Aug 2006 08:47:43 +0800
+Message-Id: <1155862063.2997.6.camel@raven.themaw.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've found a weird serial bug.  My host is a Via EPIA M-6000 running
-2.6.17 connected to a PPC Yosemite board running 2.6.13. 
+On Wed, 2006-08-16 at 17:15 +0100, David Howells wrote:
 
-In all cases the serial console works great.  But, with the default
-setting of IRQ 4, Kermit file transfers via the serial interface simply
-time out.  However if I use polling mode (setserial /dev/ttyS0 irq 0 on
-the host), file transfers work.
+>  fs/nfs/dir.c |    9 +++++++--
+>  1 files changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+> index e746ed1..bb8b5f0 100644
+> --- a/fs/nfs/dir.c
+> +++ b/fs/nfs/dir.c
+> @@ -1105,8 +1105,13 @@ static struct dentry *nfs_readdir_lookup
+>  	}
+>  	name.hash = full_name_hash(name.name, name.len);
+>  	dentry = d_lookup(parent, &name);
+> -	if (dentry != NULL)
+> -		return dentry;
+> +	if (dentry != NULL) {
+> +		/* negative dentries must be reconsidered */
+> +		if (!IS_ERR(dentry) && !dentry->d_inode)
+> +			d_drop(dentry);
 
-When set to IRQ 4, the interrupt count does increase.
+Don't we need to return something like NULL here also?
 
-# cat /proc/tty/driver/serial 
-serinfo:1.0 driver revision:
-0: uart:16550A port:000003F8 irq:4 tx:267 rx:667 DSR|CD
-1: uart:16550A port:000002F8 irq:3 tx:0 rx:0
-2: uart:unknown port:000003E8 irq:4
-3: uart:unknown port:000002E8 irq:3
-
-# setserial /dev/ttyS0 
-/dev/ttyS0, UART: 16550A, Port: 0x03f8, IRQ: 4
-
-# cat /proc/interrupts 
-           CPU0       
-  0:  175715279          XT-PIC  timer
-  1:     137763          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  4:        326          XT-PIC  serial
-[...]
-
-Any ideas?  I'm guessing it might be a quirk of the VIA chipset?
-
-Lee
-
-
-
+> +		else
+> +			return dentry;
+> +	}
+>  	if (!desc->plus || !(entry->fattr->valid & NFS_ATTR_FATTR))
+>  		return NULL;
+>  	/* Note: caller is already holding the dir->i_mutex! */

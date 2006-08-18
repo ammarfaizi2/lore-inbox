@@ -1,52 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWHRBtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWHRBvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbWHRBtc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 21:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWHRBtc
+	id S1030383AbWHRBvL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 21:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWHRBvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 21:49:32 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:56252 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030264AbWHRBtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 21:49:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=ezZ/v1MvXnoqubiydVOiQ3/tSFDuKjWAyFNVATXuyqmQn9hiSmSh8nwBf1HJrhOZxry8/18mNf5n9lCzugYnlsZ3V055QMW7lK3mRswWGbiXqpm/up4cGqJOFdz6tQ91lxic6N+11ZjtyVZMc+cBuMTou7O4yTVCyHWa5TV4TEA=
-Date: Fri, 18 Aug 2006 05:49:22 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC-patch - make sysfs_create_group skip members with attr.mode == 0
-Message-ID: <20060818014922.GA2622@martell.zuzino.mipt.ru>
-References: <44E4F2B1.30408@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E4F2B1.30408@gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 17 Aug 2006 21:51:11 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:6111 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1030201AbWHRBvJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 21:51:09 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] [MEGARAID] convert to PCI_DEVICE() macro
+Date: Thu, 17 Aug 2006 19:50:55 -0600
+Message-ID: <0631C836DBF79F42B5A60C8C8D4E8229674D30@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] [MEGARAID] convert to PCI_DEVICE() macro
+Thread-Index: AcbAS/NWljqBJfpaRbKUT5RSEyMWJwCHKbDg
+From: "Patro, Sumant" <Sumant.Patro@lsil.com>
+To: "Henne" <henne@nachtwindheim.de>, "Kolli, Neela" <Neela.Kolli@engenio.com>
+Cc: <James.Bottomley@SteelEye.com>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Aug 2006 01:50:56.0228 (UTC) FILETIME=[BEEDCA40:01C6C268]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 04:50:25PM -0600, Jim Cromie wrote:
-> Currently, code in hwmon/*.c uses sysfs_create_group less than it could.
+ACK.
+Thanks for submitting the patch.
 
-Please, provide sample patch which will use this feature. And I personally
-don't understand the reasoning: can i2c code use sysfs_create_group()
-with elements of struct attribute_group::attrs array ifdeffed?
+Regards,
+Sumant
 
-> A contributing reason is that many individual attr-files are created
-> conditionally,
-> depending upon both underlying hardware, driver configuration, etc.
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Henne
+Sent: Tuesday, August 15, 2006 2:17 AM
+To: Kolli, Neela
+Cc: James.Bottomley@SteelEye.com; linux-scsi@vger.kernel.org;
+linux-kernel@vger.kernel.org
+Subject: [PATCH] [MEGARAID] convert to PCI_DEVICE() macro
 
-> --- try1/fs/sysfs/group.c	2006-06-17 19:49:35.000000000 -0600
-> +++ try2/fs/sysfs/group.c	2006-08-17 10:06:26.000000000 -0600
-> @@ -32,7 +33,8 @@ static int create_files(struct dentry *
-> 	int error = 0;
->
-> 	for (attr = grp->attrs; *attr && !error; attr++) {
-> -		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
-> +		if ((*attr)->mode)
-> +			error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
-> 	}
+From: Henrik Kretzschmar <henne@nachtwidheim.de>
 
+Convert the pci_device_id-table of the megaraid_sas-driver to
+the PCI_DEVICE-macro, to safe some lines.
+
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+
+---
+
+--- linux-2.6.18-rc4/drivers/scsi/megaraid/megaraid_sas.c
+2006-08-11 10:09:21.000000000 +0200
++++ linux/drivers/scsi/megaraid/megaraid_sas.c	2006-08-11
+13:29:29.000000000 +0200
+@@ -53,31 +53,15 @@
+  */
+ static struct pci_device_id megasas_pci_table[] = {
+ 
+-	{
+-	 PCI_VENDOR_ID_LSI_LOGIC,
+-	 PCI_DEVICE_ID_LSI_SAS1064R, /* xscale IOP */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	 },
+-	{
+-	 PCI_VENDOR_ID_LSI_LOGIC,
+-	 PCI_DEVICE_ID_LSI_SAS1078R, /* ppc IOP */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	},
+-	{
+-	 PCI_VENDOR_ID_LSI_LOGIC,
+-	 PCI_DEVICE_ID_LSI_VERDE_ZCR,	/* xscale IOP, vega */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	 },
+-	{
+-	 PCI_VENDOR_ID_DELL,
+-	 PCI_DEVICE_ID_DELL_PERC5, /* xscale IOP */
+-	 PCI_ANY_ID,
+-	 PCI_ANY_ID,
+-	 },
+-	{0}			/* Terminating entry */
++	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC,
+PCI_DEVICE_ID_LSI_SAS1064R)},
++	/* xscale IOP */
++	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC,
+PCI_DEVICE_ID_LSI_SAS1078R)},
++	/* ppc IOP */
++	{PCI_DEVICE(PCI_VENDOR_ID_LSI_LOGIC,
+PCI_DEVICE_ID_LSI_VERDE_ZCR)},
++	/* xscale IOP, vega */
++	{PCI_DEVICE(PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_PERC5)},
++	/* xscale IOP */
++	{}
+ };
+ 
+ MODULE_DEVICE_TABLE(pci, megasas_pci_table);
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

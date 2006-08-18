@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWHRFwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWHRGHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWHRFwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 01:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWHRFwp
+	id S964857AbWHRGHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 02:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWHRGHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 01:52:45 -0400
-Received: from msr3.hinet.net ([168.95.4.103]:49657 "EHLO msr3.hinet.net")
-	by vger.kernel.org with ESMTP id S964841AbWHRFwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 01:52:44 -0400
-Message-ID: <02d101c6c28a$7c19d160$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
-References: <1155841247.4532.6.camel@localhost.localdomain> <44E480FA.70806@pobox.com>
-Subject: Re: [PATCH 1/6] IP100A, add end of pci id table
-Date: Fri, 18 Aug 2006 13:52:26 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Fri, 18 Aug 2006 02:07:52 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:18845 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S964857AbWHRGHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 02:07:51 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44E55887.2050309@s5r6.in-berlin.de>
+Date: Fri, 18 Aug 2006 08:04:55 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: stable@kernel.org, Adrian Bunk <bunk@stusta.de>
+CC: danny@mailmij.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fix for recently added firewire patch that breaks things
+ on	ppc
+References: <20060805151050.B24484@luna.ellen.dexterslabs.com>	<1155118273.4040.81.camel@localhost.localdomain>	<20060809151226.A31391@luna.ellen.dexterslabs.com>	<1155201211.17187.128.camel@localhost.localdomain> <20060818072143.A32418@luna.ellen.dexterslabs.com>
+In-Reply-To: <20060818072143.A32418@luna.ellen.dexterslabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff:
+Danny Tholen wrote:
+>     Recently a patch was added for preliminary suspend/resume 
+>     handling on !PPC_PMAC. However, this broke both suspend and firewire
+>     on powerpc because it saves the pci state after the device has already
+>     been disabled.
+>  
+>     This moves the save state to before the pmac specific code.
+>     Please apply before 2.6.18.
+> 
+>     Signed-off-by: Danny Tholen <obiwan at mailmij.org>
 
-    Sorry for that. I will remove those. Am I need to resent all of those
-patch or send all in one patch?
+This fix should go into 2.6.17.x and 2.6.16.yy too. (I sent the patch 
+with the regression also to Adrian recently.)
 
-Jesse Huang.
+> --- linux-2.6.17.7/drivers/ieee1394/ohci1394.c~ 2006-08-09 09:00:32.556422070 -0400
+> +++ linux-2.6.17.7/drivers/ieee1394/ohci1394.c  2006-08-09 09:02:53.546090923 -0400
+> @@ -3548,6 +3548,8 @@
+>  
+>  static int ohci1394_pci_suspend (struct pci_dev *pdev, pm_message_t state)
+>  {
+> +	pci_save_state(pdev);
+> +
+>  #ifdef CONFIG_PPC_PMAC
+>  	if (machine_is(powermac)) {
+>  		struct device_node *of_node;
+> @@ -3559,8 +3561,6 @@
+>  	}
+>  #endif
+>  
+> -	pci_save_state(pdev);
+> -
+>  	return 0;
+>  } 
+> 
 
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<akpm@osdl.org>
-Sent: Thursday, August 17, 2006 10:45 PM
-Subject: Re: [PATCH 1/6] IP100A, add end of pci id table
-
-
-Jesse Huang wrote:
-> @@ -212,7 +212,7 @@ static const struct pci_device_id sundan
->  { 0x1186, 0x1002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
->  { 0x13F0, 0x0201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5 },
->  { 0x13F0, 0x0200, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6 },
-> - { }
-> + { 0,}
->  };
->  MODULE_DEVICE_TABLE(pci, sundance_pci_tbl);
->
-> @@ -231,7 +231,7 @@ static const struct pci_id_info pci_id_t
->  {"D-Link DL10050-based FAST Ethernet Adapter"},
->  {"Sundance Technology Alta"},
->  {"IC Plus Corporation IP100A FAST Ethernet Adapter"},
-> - { } /* terminate list. */
-> + { NULL,} /* terminate list. */
-
-NAK.
-
-An empty array element "{ }" implies NULL.  It is the kernel standard to
-prefer "{ }" over an explicit initialization.  Looks cleaner.
-
-Jeff
-
-
+-- 
+Stefan Richter
+-=====-=-==- =--- =--=-
+http://arcgraph.de/sr/

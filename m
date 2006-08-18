@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWHRTJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWHRTOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbWHRTJy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWHRTJx
+	id S932416AbWHRTOl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWHRTOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:09:53 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61370 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932400AbWHRTJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:09:52 -0400
-Subject: Re: R: How to avoid serial port buffer overruns?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Paul Fulghum <paulkf@microgate.com>
-In-Reply-To: <20060818190106.GG21101@flint.arm.linux.org.uk>
-References: <NBBBIHMOBLOHKCGIMJMDGEIMFNAA.g.tomassoni@libero.it>
-	 <1155920400.24907.63.camel@mindpipe>
-	 <20060818170450.GC21101@flint.arm.linux.org.uk>
-	 <1155922240.2924.5.camel@mindpipe>
-	 <20060818183430.GD21101@flint.arm.linux.org.uk>
-	 <1155927174.2924.28.camel@mindpipe>
-	 <20060818190106.GG21101@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 15:09:50 -0400
-Message-Id: <1155928190.2924.36.camel@mindpipe>
+	Fri, 18 Aug 2006 15:14:41 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:45798 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932416AbWHRTOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:14:40 -0400
+Date: Sat, 19 Aug 2006 04:13:28 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: manfred@colorfullife.com, ak@muc.de, mpm@selenic.com, marcelo@kvack.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, ak@suse.de,
+       dgc@sgi.com
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+Message-Id: <20060819041328.225b0170.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0608181138190.32621@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+	<20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
+	<20060816094358.e7006276.ak@muc.de>
+	<Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
+	<44E3FC4F.2090506@colorfullife.com>
+	<Pine.LNX.4.64.0608172222210.29168@schroedinger.engr.sgi.com>
+	<20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
+	<20060819031916.85d5979e.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0608181138190.32621@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 20:01 +0100, Russell King wrote:
-> What problem are we talking about here again?  Sorry, I've completely
-> lost track and this particular thread of 26 messages is soo convoluted
-> and too much to re-read.
+On Fri, 18 Aug 2006 11:44:22 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
+> > and usual SPARSEMEM, (not EXTREME)
+> > --
+> > page = mem_section[(pfn >> SECTION_SHIFT)].mem_map + pfn
+> > --
+> > need one table look up. maybe not very big.
+> 
+> Bigger than a cacheline that can be kept in the cache? 
+
+powerpc's section size is 16Mbytes. so table itself is bigger than cacheline.
+And powerpc doesn't have DISCONTIG configuration.
+
+> > with SPARSEMEM_EXTREME
+> > --
+> > page = mem_section[(pfn >> SECTION_SHIFT)][(pfn & MASK)].mem_map + pfn
+> > --
+> > need one (big)table look up.
+> 
+> Owww... Cache issues.
+> 
+> Could we do the lookup using a sparse virtually mapped table like on 
+> IA64. Then align section shift to whatever page table is in place (on 
+> platforms that require page tables and IA64 could continue to use its 
+> special handler)?
+> 
+> Then page could be reached via
+> 
+> page = vmem_map + pfn
+> 
+> again ?
 > 
 
-I thought I might have been seeing the same problem as the OP, but I've
-found it's a separate issue.  I'll start a new thread.
+In early days of implementing SPARSEMEM,  I tried vmem_map + SPARSEMEM.
+But it was very complicated.....so it was dropped.
+Before retrying, I think performance/profile test with each memory model should
+be done.
 
-The original poster in this thread was just wondering how to reduce the
-number of serial overruns at baud rates over 19200.
+Considering ia64, an advantage of SPARSEMEM is (just?) memory hotplug.
+If people need extreme performance, they can select DISCONTIGMEM.
 
-> Since you only appear to be the messenger, wouldn't it be far better
-> to get the person with the problem to report and respond rather than
-> sitting in the middle?
+But powerpc(NUMA) people has only SPARSEMEM. So test on powerpc will be 
+necessary, anyway.(of course, they doesn't have vmem_map)
 
-Sorry, it took me a while but I have access to the machine with the
-problem now.
+-Kame
 
-Lee
+
+
+
 

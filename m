@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWHRWa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWHRWdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWHRWa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWHRWa2
+	id S1751502AbWHRWdA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWHRWc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:30:28 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:50379 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964803AbWHRWa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:30:27 -0400
-Date: Fri, 18 Aug 2006 15:29:54 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       mingo@redhat.com, apw@shadowen.org
-Subject: Re: [patch] sched: generic sched_group cpu power setup
-Message-Id: <20060818152954.1ef5aa34.pj@sgi.com>
-In-Reply-To: <20060818142347.A22846@unix-os.sc.intel.com>
-References: <20060815175525.A2333@unix-os.sc.intel.com>
-	<20060815212455.c9fe1e34.pj@sgi.com>
-	<20060816104551.A7305@unix-os.sc.intel.com>
-	<20060818142347.A22846@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Aug 2006 18:32:59 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14511 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751502AbWHRWc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 18:32:59 -0400
+Subject: Re: [PATCH 2.6.18-rc4] aoe [01/13]: eliminate isbusy message
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Ed L. Cashin" <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+In-Reply-To: <6a9b724fbffdcf29b863a289f95266e9@coraid.com>
+References: <6a9b724fbffdcf29b863a289f95266e9@coraid.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 18 Aug 2006 23:53:56 +0100
+Message-Id: <1155941636.31543.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suresh wrote:
-> I will post a 'cpu_power' renaming patch shortly.
+Ar Gwe, 2006-08-18 am 13:37 -0400, ysgrifennodd Ed L. Cashin:
+> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+> 
+> This message doesn't help users because the circumstance isn't problematic.
 
-Rename to what?
+Acked-by: Alan Cox <alan@redhat.com>
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

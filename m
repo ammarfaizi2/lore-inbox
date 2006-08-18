@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWHRXd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWHRXez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWHRXd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWHRXd3
+	id S964940AbWHRXez (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWHRXez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:33:29 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:5484 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S964938AbWHRXd2 (ORCPT
+	Fri, 18 Aug 2006 19:34:55 -0400
+Received: from xenotime.net ([66.160.160.81]:54197 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964940AbWHRXey (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:33:28 -0400
-Date: Fri, 18 Aug 2006 18:23:29 -0400
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.18-rc4] aoe [06/13]: clean up printks via macros
-Message-ID: <20060818222328.GS29988@coraid.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com> <6dc082092248e90db76de47c0bd5bd6c@coraid.com> <200608182129.46571.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608182129.46571.arnd@arndb.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 18 Aug 2006 19:34:54 -0400
+Date: Fri, 18 Aug 2006 16:37:53 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH][CHAR] Return better error codes if drivers/char/raw.c
+ module init fails
+Message-Id: <20060818163753.8f25d58d.rdunlap@xenotime.net>
+In-Reply-To: <20060818162743.f97ff431.akpm@osdl.org>
+References: <200608180918.30483.eike-kernel@sf-tec.de>
+	<20060818162743.f97ff431.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 09:29:45PM +0200, Arnd Bergmann wrote:
-> On Friday 18 August 2006 19:39, Ed L. Cashin wrote:
-> > 
-> > +#define xprintk(L, fmt, arg...) printk(L "aoe: " "%s: " fmt, __func__, ## arg) 
-> > +#define iprintk(fmt, arg...) xprintk(KERN_INFO, fmt, ## arg)
-> > +#define eprintk(fmt, arg...) xprintk(KERN_ERR, fmt, ## arg)
-> > +#define dprintk(fmt, arg...) xprintk(KERN_DEBUG, fmt, ## arg)
-> > +
+On Fri, 18 Aug 2006 16:27:43 -0700 Andrew Morton wrote:
+
+> On Fri, 18 Aug 2006 09:18:30 +0200
+> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
 > 
-> Can't you use the dev_{info,error,dbg}() functions instead?
+> > Currently this module just returns 1 if anything on module init
+> > fails. Store the error code of the different function calls and
+> > return their error on problems.
+> > 
+> > I'm not sure if this doesn't need even more cleanup, for example
+> > kobj_put() is called only in one error case.
+> > 
+> 
+> You seem to be using kmail in funky-confuse-sylpheed mode.  Inlined
+> patches in plain-text emails are preferred, please.  
 
-That's a good thought, but I don't think so.  The dev_* macros don't
-add the function name to the printed message, and we don't have a
-struct device pointer in all our contexts.  Even if we did, it would
-be kind of forced to do that just to try to get the prefix "aoe: " and
-the function name into the printks, which the new macros do nicely.
+Something about the SLIM docum. patch did that too, although
+it was not an attachment.
+Sylpheed had trouble with the line endings....
+Saving the patch to a file works well, but replying to it looks
+like garbage.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+---
+~Randy

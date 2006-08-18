@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWHRJ1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWHRJ3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWHRJ1e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 05:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWHRJ1e
+	id S1751322AbWHRJ3F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 05:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWHRJ3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 05:27:34 -0400
-Received: from mxout2.iskon.hr ([213.191.128.16]:31890 "HELO mxout2.iskon.hr")
-	by vger.kernel.org with SMTP id S1751320AbWHRJ1d (ORCPT
+	Fri, 18 Aug 2006 05:29:05 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:3250 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751322AbWHRJ3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 05:27:33 -0400
-X-Remote-IP: 213.191.142.123
-X-Remote-IP: 213.191.128.133
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-To: Steffen Maier <smaier@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Chad Talbott <ctalbott@google.com>,
-       Jochen Suckfuell <jo-lkml@suckfuell.net>, Jens Axboe <axboe@suse.de>
-Subject: Re: ios_in_flight of CONFIG_BLK_STATS (still) negative in 2.4
-References: <Pine.LNX.4.64.0608171924570.16659@nettc.informatik.uni-stuttgart.de>
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAJ1BMVEUAAABNIxCTRh9lLxXY
- 0cuva0MHBQScUCmCOxmpWTL///8gEAk8Gw1gSXqgAAACWElEQVQ4y43TQW/TMBQAYHPpGS9CVCKX
- uRt1BJfVEhi0yxiwqTuh1VrbU7nkEi7rqLxMuzQB1UhcqFQFc0PrhLRxmYamSu6lbJUmmh+F02nE
- 6UDiHSLFX+JnP/uBo38E+B8o/xX6z3fO7RGr3ICViUpiWJ+B/sRtuJ6WcRb622cAuDqUqmfgYOIC
- kJvCOAMbSkMinjrZM0BnuA41vGPCmf421g8X5NSwnMKh641oc1nFGj21l8LXxuuOlJgIEU489SuF
- Y/fSlzLi3JeFM3WRwkv3bqRFR2/rnvfDAK/kyx5jkjE2rzKQL+rxaWybsOHlubyS2ryZ4/hNwJHf
- k9JnbCc24PtpJ2qiYpHrJFvLxlQHAwHtmIbQKrHaR2Mfh4M2nKjztvJGc7WHT41aDUJbqcG+ck9I
- b9+En+14GM9t6uO9bO3XU2Al3IbWkyqEedT7VEmhWuLNAC3WkHAY+1wr/4H1gEvZXWQyqUm3m/6x
- TpEvu71prWSzlcIzHDgSO6yr68v9dyl8wwKh8ByiIkfIXzA2WBAC4xg6SIdjrKovRIB2l/My0hAY
- +zh6oacihAaSI6dTNu/uLsLEIuRDhN5mL3U1KEBClkoRWpgBIQQRSHD+JQub+krZowAjVJ4BqoVq
- 6Mw0TjUvirwVIfx+FpYIDYMmEgs3AI5saFG6N9Nq1bYdq2Fs0WxzrpziEMZqckKDigmrOb0kCG3b
- KnYeVVJYa+QwCgmBscWdB+DiGtYaAFAkNEAaaQAXV2e+qtsVDBIgGvz7SfeOy0fgVTIObuGkVuRx
- 5N+evoPT3+mFUpdZ4E28AAAAAElFTkSuQmCC
-Date: Fri, 18 Aug 2006 11:27:30 +0200
-In-Reply-To: <Pine.LNX.4.64.0608171924570.16659@nettc.informatik.uni-stuttgart.de>
-	(Steffen Maier's message of "Thu, 17 Aug 2006 19:36:51 +0200 (CEST)")
-Message-ID: <87hd0acs1p.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Fri, 18 Aug 2006 05:29:04 -0400
+Message-ID: <44E588F0.40502@sw.ru>
+Date: Fri, 18 Aug 2006 13:31:28 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: rohitseth@google.com, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
+References: <44E33893.6020700@sw.ru> <44E33C8A.6030705@sw.ru>	 <1155752693.22595.76.camel@galaxy.corp.google.com> <44E46ED3.7000201@sw.ru> <1155825493.9274.42.camel@localhost.localdomain>
+In-Reply-To: <1155825493.9274.42.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steffen Maier <smaier@users.sourceforge.net> writes:
+Dave Hansen wrote:
+> On Thu, 2006-08-17 at 17:27 +0400, Kirill Korotaev wrote:
+> 
+>>charged kernel objects can't be _reclaimed_. how do you propose
+>>to reclaim tasks page tables or files or task struct or vma or etc.?
+> 
+> 
+> Do you have any statistics on which of these objects are the most
+> troublesome?  If it _is_ pagetables, for instance, it is quite
+> conceivable that we could reclaim them.
+they all are troublesome :/
+user can create lots of vmas, w/o page tables.
+lots of fdsets, ipcids.
+These are not reclaimable.
 
-> Hello,
->
-> in this posting I would like to analyze and discuss a bug(?), that
-> causes the number of I/O requests in flight (ios_in_flight) of the
-> extended block device statistics (CONFIG_BLK_STATS) to become and stay
-> negative on various kernels of version 2.4. In turn, this leads to
-> erroneous display of 100% utilization for certain classes of harddisk
-> devices with 'iostat -x' and probably other statistic tools relying on
-> the 13th (last but two) field (ios_in_flight) of extended block device
-> statistics listed in /proc/partitions.
->
-> First I encountered the behavior with 2.4.24 but could reproduce it
-> with 2.4.33-rc3 (which is now the latest 2.4 kernel version 2.4.33).
-> There have been various postings concerning this problem in recent
-> years but to the best of my knowledge no ultimate fix has been merged
-> into the mainstream kernel so far.
+Also consider the following scenario with reclaimable page tables.
+e.g. user hit kmemsize limit due to fat page tables.
+kernel reclaims some of the page tables and frees user kenerl memory.
+after that user creates some uncreclaimable objects like fdsets or ipcs
+and then accesses memory with reclaimed page tables.
+Sooner or later we kill user with SIGSEGV from page fault due to
+no memory. This is worse then returning ENOMEM from poll() or
+mmap() where user allocates kernel objects.
 
-Have you tried this patch: http://linux.inet.hr/iostat_patch_2.4.html
+> This one probably deserves a big, fat comment, though. ;)
+tell me where to write it and what? :)
 
-It was made against 2.4.24 so you'll probably need to tweak it a
-little bit before applying it cleanly to a newer 2.4, but I think it
-deserves it's chance.
--- 
-Zlatko
+Thanks,
+Kirill
+
+

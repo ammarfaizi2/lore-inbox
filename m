@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWHRLYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWHRLXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbWHRLYM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 07:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWHRLYM
+	id S932414AbWHRLXy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 07:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWHRLXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 07:24:12 -0400
-Received: from rtsoft3.corbina.net ([85.21.88.6]:14949 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S932422AbWHRLYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 07:24:10 -0400
-Date: Fri, 18 Aug 2006 15:23:46 +0400
-From: Vitaly Wool <vwool@ru.mvista.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: jean-paul.saman@philips.com, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, vitalywool@gmail.com
-Subject: Re: ip3106_uart oddity
-Message-Id: <20060818152346.b1d4c7f3.vwool@ru.mvista.com>
-In-Reply-To: <20060818082756.GB6901@flint.arm.linux.org.uk>
-References: <20060817202954.GC28474@flint.arm.linux.org.uk>
-	<OF21337E37.31820A4F-ONC12571CE.002682FD-C12571CE.002AB6EB@philips.com>
-	<20060818082756.GB6901@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.13; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Aug 2006 07:23:54 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:42384 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S932414AbWHRLXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 07:23:53 -0400
+Subject: Re: [patch 2/5] -fstack-protector feature: Add the Kconfig option
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <200608181308.07752.ak@suse.de>
+References: <1155746902.3023.63.camel@laptopd505.fenrus.org>
+	 <1155747038.3023.67.camel@laptopd505.fenrus.org>
+	 <200608181308.07752.ak@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 18 Aug 2006 13:23:26 +0200
+Message-Id: <1155900206.4494.141.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 09:27:56 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
- 
-> There are no plans what so ever to "restore" what was never even there.
-> Searching around, there was a pnx0105 driver submitted but needed some
-> additional work which was never done.
+On Fri, 2006-08-18 at 13:08 +0200, Andi Kleen wrote:
+> On Wednesday 16 August 2006 18:50, Arjan van de Ven wrote:
+> > Subject: [patch 2/5] Add the Kconfig option for the stackprotector feature
+> > From: Arjan van de Ven <arjan@linux.intel.com>
+> >
+> > This patch adds the config options for -fstack-protector.
+> 
+> Normally it's better to add the CONFIG options after the code or 
+> at the same time. Otherwise binary searches later can break
 
-pnx0105's uart fits well into 8250 concept, so I don't think it will ever show up.
- 
-> The same situation seems to apply to this driver.  Ralf submitted a
-> driver called ip3106_uart.c which claimed to be a rewrite of
-> pnx8550_uart.c.  Comments were given at that time, no real feedback
-> came of that.
+the binary search argument in this case is moot, just having a config
+option doesn't break anything compile wise and each later step is
+self-compiling..
 
-Is it possbile that you include comments in the reply to this message? TIA! :)
-
-Vitaly

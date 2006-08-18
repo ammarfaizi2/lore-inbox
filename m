@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWHROdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWHROgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWHROdi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 10:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWHROdi
+	id S1030267AbWHROgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 10:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWHROgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 10:33:38 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:6294 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932458AbWHROdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 10:33:37 -0400
-Date: Fri, 18 Aug 2006 16:33:28 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Thomas Klein <osstklei@de.ibm.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Jan-Bernd Themann <ossthema@de.ibm.com>,
-       netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [2.6.19 PATCH 3/7] ehea: queue management
-Message-ID: <20060818143328.GC6393@wohnheim.fh-wedel.de>
-References: <200608181331.19501.ossthema@de.ibm.com> <1155903451.4494.168.camel@laptopd505.fenrus.org> <44E5BFB7.4000400@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 18 Aug 2006 10:36:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:51840 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030267AbWHROgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 10:36:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AuvheCP5k50ZtL4+ynX/ITls2eGQFL2/6Du2hrxZhi+b/TTUwoUG5tvGSNPh8wZ/8ghlQZUxgDILUp7PasomgU923MDyNvhT9rT4X4cOh8AaEL+//7vTwfe9RVeJp6XUhNgJpFLj+Kv+8x0hfMCrw9BoqdNc52dq4frixRvxHB8=
+Message-ID: <d120d5000608180736s73964217kd30a79168a761ea8@mail.gmail.com>
+Date: Fri, 18 Aug 2006 10:36:06 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: Question about handling return value of device_create_file function
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <6bffcb0e0608180618m13153b26yb8c3151c30265be@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44E5BFB7.4000400@de.ibm.com>
-User-Agent: Mutt/1.5.9i
+References: <6bffcb0e0608180618m13153b26yb8c3151c30265be@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 August 2006 15:25:11 +0200, Thomas Klein wrote:
-> Arjan van de Ven wrote:
-> >>+	queue->queue_length = nr_of_pages * pagesize;
-> >>+	queue->queue_pages = vmalloc(nr_of_pages * sizeof(void *));
-> >
-> >
-> >wow... is this really so large that it warrants a vmalloc()???
-> 
-> Agreed: Replaced with kmalloc()
+On 8/18/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Hi,
+>
+> I have noticed that sparse generates a lot of "ignoring return value
+> of 'device_create_file'" warnings.
+>
+> (cat sparse.txt | grep -c "device_create_file"
+> 1231 :)
+>
+> I want to fix this warnings, but I'm wondering how to properly handle
+> return value of device_create_file function.
+>
+> The shortest way.
+>
+> int foo()
+> {
+>        int error;
+>
+>        [..]
+>
+>        error = device_create_file(&bar, &bas)
+>
+>        if (error)
+>                return error;
+> }
+>
+> A bit longer way.
+>
+> int foo()
+> {
+>        int error;
+>
+>        [..]
+>
+>        error = device_create_file(&bar, &bas)
+>
+>        if (error) {
+>                subsystem_remove_device(bar);
+>                return error;
+>        }
+> }
+>
 
-kzalloc() and you can remove the memset() as well.
-
-Jörn
+Normally you should use 2nd form, especially when foo is a
+module_init(foo) as you do not want to have a half-registered device
+without supporting code in kernel.
 
 -- 
-Data dominates. If you've chosen the right data structures and organized
-things well, the algorithms will almost always be self-evident. Data
-structures, not algorithms, are central to programming.
--- Rob Pike
+Dmitry

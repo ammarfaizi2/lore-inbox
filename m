@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWHRMpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWHRMqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWHRMpo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 08:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWHRMpo
+	id S1030193AbWHRMqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 08:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWHRMqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 08:45:44 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:56258 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932452AbWHRMpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 08:45:43 -0400
-Date: Fri, 18 Aug 2006 14:39:38 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Jeff Garzik <jeff@garzik.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       7eggert@gmx.de, Arjan van de Ven <arjan@infradead.org>,
-       Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-In-Reply-To: <44E47F54.3000300@aitel.hist.no>
-Message-ID: <Pine.LNX.4.58.0608181431500.2760@be1.lrz>
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it>
- <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz>
- <1155821951.15195.85.camel@localhost.localdomain> <20060817132309.GX13639@csclub.uwaterloo.ca>
- <44E471F2.5000003@garzik.org> <20060817135431.GE13641@csclub.uwaterloo.ca>
- <44E47F54.3000300@aitel.hist.no>
+	Fri, 18 Aug 2006 08:46:40 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:3752 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1030193AbWHRMqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 08:46:39 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: [TTY] Remove bogus call to cdev_del()
+Date: Fri, 18 Aug 2006 14:46:51 +0200
+User-Agent: KMail/1.9.4
+Cc: "Jonathan Corbet" <corbet@lwn.net>,
+       "Alexey Dobriyan" <adobriyan@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060817212248.19853.qmail@lwn.net> <200608180915.28763.eike-kernel@sf-tec.de> <d120d5000608180532j453bf0f3l2ee88b0502c20cfd@mail.gmail.com>
+In-Reply-To: <d120d5000608180532j453bf0f3l2ee88b0502c20cfd@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608181446.52076.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006, Helge Hafting wrote:
+When cdev_add() failed there is no reason to call cdev_del().
 
-> None on the file level I hope, for it will surely get abused.
-> Windows have exclusive open for example, and there acrobat reader
-> locks the pdf file it views, so you can't make a new version without
-> killing acrobat first.  (And then you have to restart it to
-> view the new file.)  Stupid in the extreme.  Fortunately, acrobat can't
-> do that on linux where there is no (easy) opportunity to do so.
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
-The default open mode on network-aware DOS-systems will automatically 
-aquire an exclusive lock in order to maintain DOS 2.0 compatibility,
-and the filename is part of the file's metadata. Windows seems to have
-kept this behaviour.
--- 
-"Bravery is being the only one who knows you're afraid."
--David Hackworth
+---
+commit d31aa8d2f27346fe0663bd9675185c649d5d9801
+tree 67f30f1547f19eb2bc0961abf5b4e2f35834ed41
+parent f6272846a16df0c7acb5c1701c0acdee0b472047
+author Rolf Eike Beer <eike-kernel@sf-tec.de> Fri, 18 Aug 2006 14:45:01 +0200
+committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Fri, 18 Aug 2006 14:45:01 +0200
+
+ drivers/char/tty_io.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+index bfdb902..d6e4eaa 100644
+--- a/drivers/char/tty_io.c
++++ b/drivers/char/tty_io.c
+@@ -3094,7 +3094,6 @@ int tty_register_driver(struct tty_drive
+ 	driver->cdev.owner = driver->owner;
+ 	error = cdev_add(&driver->cdev, dev, driver->num);
+ 	if (error) {
+-		cdev_del(&driver->cdev);
+ 		unregister_chrdev_region(dev, driver->num);
+ 		driver->ttys = NULL;
+ 		driver->termios = driver->termios_locked = NULL;

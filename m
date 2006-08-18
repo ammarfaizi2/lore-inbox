@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWHRIav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWHRIbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWHRIav (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 04:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWHRIak
+	id S1751212AbWHRIbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWHRIbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 04:30:40 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:13528 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751217AbWHRIah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 04:30:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=cWy7LbupJ+IPVvK9Bq6NRyUWK6PAPoyarwWFi6QSab+3iPwgzevfDbSgSnz8Gf0OCPpOgk6++Hi9+rqEoSe+M4YOUXeH/PxNZac68Pgh8NamJt0JJoXNE5OY9ecMCXf3Mh0KjDxJsJbyGJpKUakzgvOHhcCF40f25uU2lyHLaY0=
-Date: Fri, 18 Aug 2006 10:30:22 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, "akpm@osdl.org" <akpm@osdl.org>
-Subject: Re: 2.6.18-rc4-mm1 + hotfix -- Many processes use the sysctl system call
-Message-ID: <20060818103022.GA1586@slug>
-References: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
-MIME-Version: 1.0
+	Fri, 18 Aug 2006 04:31:24 -0400
+Received: from colin.muc.de ([193.149.48.1]:45070 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751213AbWHRIbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 04:31:23 -0400
+Date: 18 Aug 2006 10:31:21 +0200
+Date: Fri, 18 Aug 2006 10:31:21 +0200
+From: Andi Kleen <ak@muc.de>
+To: "S. P. Prasanna" <prasanna@in.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jan Beulich <jbeulich@novell.com>, jeremy@goop.org, ananth@in.ibm.com,
+       anil.s.keshavamurthy@intel.com
+Subject: Re: [PATCH] Kprobes - x86_64 add KPROBE_END macro for .popsection
+Message-ID: <20060818083121.GB5862@muc.de>
+References: <20060817171405.GA7973@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <20060817171405.GA7973@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 03:41:27PM -0700, Miles Lane wrote:
-> My installation of Ubuntu is having trouble with my kernel build
-> because I disabled support for sysctl:
-> 
-> warning: process `ls' used the removed sysctl system call
-> warning: process `touch' used the removed sysctl system call
-> warning: process `touch' used the removed sysctl system call
-> warning: process `evms_activate' used the removed sysctl system call
-> warning: process `alsactl' used the removed sysctl system call
-> 
-> I am curious whether the use of sysctl indicates a problem in these
-> processes.  What is the benefit of offering disabling sysctl support?
-> 
-You may want to have a look at the '2.6.18-rc1-mm2: process `showconsole'
-used the removed sysctl system call' thread in the archives.
+On Thu, Aug 17, 2006 at 10:44:05PM +0530, S. P. Prasanna wrote:
+> This patch replace .popsection with the KPROBE_END() macro, as
+> suggested by Jan Beulich similar to i386 architecture. This will
+> be helpful for the conversions ike the recent .section -> .pushsection
+> and .previous -> .popsection to be confined to the header defining
+> these macros, without need to touch any assembly files.
 
-Regards,
-Frederik
-> Thanks,
->        Miles
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Already got the change, thank you.
+
+-Andi

@@ -1,69 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWHRWvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWHRWvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbWHRWvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWHRWvP
+	id S1751494AbWHRWvU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWHRWvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:51:15 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16877
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751494AbWHRWvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:51:14 -0400
-Date: Fri, 18 Aug 2006 15:51:16 -0700 (PDT)
-Message-Id: <20060818.155116.112621100.davem@davemloft.net>
-To: linas@austin.ibm.com
-Cc: benh@kernel.crashing.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Jens.Osterkamp@de.ibm.com, jklewis@us.ibm.com, arnd@arndb.de
-Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060818224618.GN26889@austin.ibm.com>
-References: <20060818192356.GD26889@austin.ibm.com>
-	<20060818.142513.29571851.davem@davemloft.net>
-	<20060818224618.GN26889@austin.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 18 Aug 2006 18:51:20 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:32472 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751494AbWHRWvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 18:51:18 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 1/6]: powerpc/cell spidernet burst alignment patch
+Date: Sat, 19 Aug 2006 00:51:01 +0200
+User-Agent: KMail/1.9.1
+Cc: Linas Vepstas <linas@austin.ibm.com>, Jeff Garzik <jgarzik@pobox.com>,
+       akpm@osdl.org, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ens Osterkamp <Jens.Osterkamp@de.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com> <20060818222038.GH26889@austin.ibm.com>
+In-Reply-To: <20060818222038.GH26889@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608190051.03105.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linas@austin.ibm.com (Linas Vepstas)
-Date: Fri, 18 Aug 2006 17:46:18 -0500
+On Saturday 19 August 2006 00:20, Linas Vepstas wrote:
+> This patch increases the Burst Address alignment from 64 to 1024 in the
+> Spidernet driver. This improves transmit performance for arge packets
+> from about 100Mbps to 300-400Mbps.
 
-> > We're not saying to use the RX interrupt as the trigger for
-> > RX and TX work.  Rather, either of RX or TX interrupt will
-> > schedule the NAPI poll.
-> 
-> And, for a lark, this is exactly what I did. Just to see.
-> Because there are so few ack packets, there are very few 
-> RX interrupts -- not enough to get NAPI to actually keep
-> the device busy.
-
-You're misreading me.  TX interrupts are intended to be "enabled" and
-trigger NAPI polls.  TX IRQ enabled, enabled :-)
-
-If you want to eliminate them if the kernel keeps hopping into
-the ->hard_start_xmit() via hw interrupt mitigation or whatever,
-that's fine.  But if you do need to do TX interrupt processing,
-do it in NAPI ->poll().
-
-> I'm somewhat disoriened from this conversation. Its presumably
-> clear that low-watermark mechanisms are superior to NAPI. 
-> >From what I gather, NAPI was invented to deal with cheap 
-> or low-function hardware; it adds nothing to this particular
-> situation. Why are we talking about this?
-
-NAPI is meant to give fairness to all devices receiving packets
-in the system, particularly in times of high load or overload.
-
-And equally importantly, it allows you to run the majority of your
-interrupt handler in software IRQ context.  This allows not only your
-locking to be simpler, but it also allows things like oprofile to
-monitor almost your entire IRQ processing path even with just timer
-interrupt based oprofile profiling.
-
-I see you moving TX reclaim into tasklets and stuff.  I've vehemently
-against that because you wouldn't need it in order to move TX
-processing into software interrupts if you did it all in NAPI
-->poll().
+Acked-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>

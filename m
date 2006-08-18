@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWHRJHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWHRJJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWHRJHc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 05:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWHRJHc
+	id S1750795AbWHRJJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 05:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWHRJJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 05:07:32 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:36739 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751308AbWHRJHb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 05:07:31 -0400
-Message-ID: <44E5828F.70007@aitel.hist.no>
-Date: Fri, 18 Aug 2006 11:04:15 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
-MIME-Version: 1.0
-To: Ian Stirling <ian.stirling@mauve.plus.com>
-CC: James Courtier-Dutton <James@superbug.co.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <1155795251.4494.9.camel@laptopd505.fenrus.org> <44E4C1B7.9020700@superbug.co.uk> <44E4FB43.4090304@mauve.plus.com>
-In-Reply-To: <44E4FB43.4090304@mauve.plus.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 05:09:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3798 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750795AbWHRJJd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 05:09:33 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <3930.1155816809@warthog.cambridge.redhat.com> 
+References: <3930.1155816809@warthog.cambridge.redhat.com>  <20060817004219.44c45bbd.akpm@osdl.org> <1155743399.5683.13.camel@localhost> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <5910.1155741329@warthog.cambridge.redhat.com> <13319.1155744959@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com,
+       Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 18 Aug 2006 10:09:21 +0100
+Message-ID: <626.1155892161@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Stirling wrote:
->
-> Well...
-> The problem is that in many cases AIUI, a large entry barrier to
-> someone taking CPU A, chip B, sticking it in a box, and selling
-> it, is that there is no linux driver for chip B.
-> If you (as someone who does not make chip B) release the GPL'd
-> driver, then you're making it a fair bit easier for competitors,
-> who can now simply copy your often not very novel in any way
-> other than you thought of it first - design, and use that driver. 
-Which is why the maker of chip B would do very well to make a basic
-linux driver - perhaps not novel in any way, but now everybody want to
-use B chips because it comes with working software.
+David Howells <dhowells@redhat.com> wrote:
 
-And if linux powered gadgets with chip B becomes popular, surely
-someone pick up the simple driver and improves it too.
+> > VFS: Busy inodes after unmount of 0:15. Self-destruct in 5 seconds.  Have a
+> > nice day...
+> 
+> Sigh.
+> 
+> Guess what?  I don't see that...
 
-Helge Hafting
+I wonder...  I think I forgot to turn SELinux enforcing back on when testing
+it.  Now that I do that, I see:
+
+	BUG: Dentry c5294c08{i=0,n=mnt} still in use (1) [unmount of nfs 0:14]
+	------------[ cut here ]------------
+	kernel BUG at fs/dcache.c:611!
+
+I think Ian's right, I think I've forgotten a dput(), though why you see the
+busy inodes message and not the above bug, I'm not sure.
+
+David

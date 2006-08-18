@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWHRSBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWHRSDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbWHRSBU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 14:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWHRSBU
+	id S1751457AbWHRSDs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 14:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWHRSDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 14:01:20 -0400
-Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:20704 "EHLO
-	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
-	id S1751453AbWHRSBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 14:01:19 -0400
-Message-ID: <44E6006C.2030406@tremplin-utc.net>
-Date: Fri, 18 Aug 2006 20:01:16 +0200
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060804)
-MIME-Version: 1.0
-To: Denis Vlasenko <vda.linux@googlemail.com>
-Cc: mplayer-users@mplayerhq.hu, linux-kernel@vger.kernel.org
-Subject: Re: mplayer + heavy io: why ionice doesn't help?
-References: <200608181937.25295.vda.linux@googlemail.com>
-In-Reply-To: <200608181937.25295.vda.linux@googlemail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 18 Aug 2006 14:03:47 -0400
+Received: from ozlabs.org ([203.10.76.45]:47026 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751455AbWHRSDr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 14:03:47 -0400
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Klein <osstklei@de.ibm.com>, linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+From: Michael Neuling <mikey@neuling.org>
+Subject: Re: [2.6.19 PATCH 5/7] ehea: main header files 
+In-reply-to: <200608181334.57701.ossthema@de.ibm.com> 
+References: <200608181334.57701.ossthema@de.ibm.com>
+Comments: In-reply-to Jan-Bernd Themann <ossthema@de.ibm.com>
+   message dated "Fri, 18 Aug 2006 13:34:57 +0200."
+Reply-to: Michael Neuling <mikey@neuling.org>
+X-Mailer: MH-E 7.85; nmh 1.1; GNU Emacs 21.4.1
+Date: Fri, 18 Aug 2006 13:03:41 -0500
+Message-Id: <20060818180345.9660E67B64@ozlabs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-08/18/2006 07:37 PM, Denis Vlasenko wrote/a écrit:
-> Hi,
-> 
-> I noticed that mplayer's video playback starts to skip
-> if I do some serious copying or grepping on the disk
-> with movie being played from.
-> 
-> nice helps, but does not eliminate the problem.
-> I guessed that this is a problem with mplayer
-> failing to read next portion of input data in time,
-> so I used Jens's ionice.c from
-> Documentation/block/ioprio.txt
-> 
-> I am using it this:
-> 
-> ionice -c1 -n0 -p<mplayer pid>
-> 
-> but so far I don't see any effect from using it.
-> mplayer still skips.
-> 
-> Does anybody have an experience in this?
-Hello
+> +static inline void ehea_update_sqa(struct ehea_qp *qp, u16 nr_wqes)
+> +{
+> +	struct h_epa epa = qp->epas.kernel;
+> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_sqa),
+> +		      EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
+> +}
+> +
+> +static inline void ehea_update_rq3a(struct ehea_qp *qp, u16 nr_wqes)
+> +{
+> +	struct h_epa epa = qp->epas.kernel;
+> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq3a),
+> +		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+> +}
+> +
+> +static inline void ehea_update_rq2a(struct ehea_qp *qp, u16 nr_wqes)
+> +{
+> +	struct h_epa epa = qp->epas.kernel;
+> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq2a),
+> +		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+> +}
+> +
+> +static inline void ehea_update_rq1a(struct ehea_qp *qp, u16 nr_wqes)
+> +{
+> +	struct h_epa epa = qp->epas.kernel;
+> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq1a),
+> +		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+> +}
+> +
+> +static inline void ehea_update_feca(struct ehea_cq *cq, u32 nr_cqes)
+> +{
+> +	struct h_epa epa = cq->epas.kernel;
+> +	epa_store_acc(epa, CQTEMM_OFFSET(cqx_feca),
+> +		      EHEA_BMASK_SET(CQX_FECADDER, nr_cqes));
+> +}
+> +
+> +static inline void ehea_reset_cq_n1(struct ehea_cq *cq)
+> +{
+> +	struct h_epa epa = cq->epas.kernel;
+> +	epa_store_cq(epa, cqx_n1,
+> +		     EHEA_BMASK_SET(CQX_N1_GENERATE_COMP_EVENT, 1));
+> +}
+> +
+> +static inline void ehea_reset_cq_ep(struct ehea_cq *my_cq)
+> +{
+> +	struct h_epa epa = my_cq->epas.kernel;
+> +	epa_store_acc(epa, CQTEMM_OFFSET(cqx_ep),
+> +		      EHEA_BMASK_SET(CQX_EP_EVENT_PENDING, 0));
+> +}
 
-IOnice only works with CFQ, have you checked that you are using the CFQ 
-IO scheduler?
-# cat /sys/block/hda/queue/scheduler   #put the name of YOUR harddisk
+These are almost identical... I'm sure most (if not all) could be merged
+into a single function or #define.
 
-In case it's not the default IO scheduler, you can change it with:
-# echo cfq > /sys/block/hda/queue/scheduler
-
-
-My two cents...
-See you,
-Eric
-
-
+Mikey

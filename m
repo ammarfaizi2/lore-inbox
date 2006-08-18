@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbWHRLqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWHRLuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030282AbWHRLqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 07:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWHRLqK
+	id S964880AbWHRLuF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 07:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWHRLuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 07:46:10 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:46861 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1030282AbWHRLqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 07:46:08 -0400
-Message-ID: <44E5A7F3.8080707@shadowen.org>
-Date: Fri, 18 Aug 2006 12:43:47 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Fri, 18 Aug 2006 07:50:05 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:57115 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964880AbWHRLuE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 07:50:04 -0400
+Message-ID: <44E5A9FC.70507@sw.ru>
+Date: Fri, 18 Aug 2006 15:52:28 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-To: "Abu M. Muttalib" <abum@aftek.com>
-CC: Arjan van de Ven <arjan@infradead.org>, kernelnewbies@nl.linux.org,
-       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Relation between free() and remove_vm_struct()
-References: <BKEKJNIHLJDCFGDBOHGMEEFBDGAA.abum@aftek.com>
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMEEFBDGAA.abum@aftek.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Andrey Savochkin <saw@sw.ru>, Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [ckrm-tech] [PATCH 2/7] UBC: core (structures, API)
+References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru>	<1155751868.22595.65.camel@galaxy.corp.google.com>	<44E458C4.9030902@sw.ru> <20060817223137.ca4951ff.akpm@osdl.org>	<20060818113525.A11407@castle.nmd.msu.ru> <1155889563.2510.303.camel@stark>
+In-Reply-To: <1155889563.2510.303.camel@stark>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abu M. Muttalib wrote:
-> Hi,
+Matt Helsley wrote:
+> On Fri, 2006-08-18 at 11:35 +0400, Andrey Savochkin wrote:
 > 
->>>> second of all, glibc delays freeing of some memory (in the brk() area)
->>>> to optimize for cases of frequent malloc/free operations, so that it
->>>> doesn't have to go to the kernel all the time (and a free would imply
-> a
->>>> cross cpu TLB invalidate which is *expensive*, so batching those up is
-> a
->>>> really good thing for performance)
->>> As per my observation, in two scenarios that I have tried, in one
-> scenario I
->>> am able to see the prints from remove_vm_struct(), but in the other
->>> scenario, I don't see any prints from remove_vm_strcut().
+>>On Thu, Aug 17, 2006 at 10:31:37PM -0700, Andrew Morton wrote:
+>>
+>>>On Thu, 17 Aug 2006 15:53:40 +0400
+>>>Kirill Korotaev <dev@sw.ru> wrote:
 >>>
->>> My question is, if there is delayed freeing of virtual address space, it
->>> should be the same in both the scenarios, but its not the case, and this
->>> behavior is consistent for my two scenarios, i.e.. in one I am able to
-> see
->>> the kernel prints and in other I am not, respectively.
->> I'm sorry but you're not providing enough information for me to
->> understand your follow-on question.
+>>>
+>>>>>>+struct user_beancounter
+>>>>>>+{
+>>>>>>+	atomic_t		ub_refcount;
+>>>>>>+	spinlock_t		ub_lock;
+>>>>>>+	uid_t			ub_uid;
+>>>>>
+>>>>>
+>>>>>Why uid?  Will it be possible to club processes belonging to different
+>>>>>users to same bean counter.
+>>>>
+>>>>oh, its a misname. Should be ub_id. it is ID of user_beancounter
+>>>>and has nothing to do with user id.
+>>>
+>>>But it uses a uid_t.  That's more than a misnaming?
+>>
+>>It used to be uid-related in ancient times when the notion of container
+>>hadn't formed up.
+>>"user" part of user_beancounter name has the same origin :)
 > 
-> Well, the application, which is causing problem is specific to our
-> organization and details may not be known to the list. Any ways I am
-> detailing it further,
 > 
-> Our application is a VoIP application, which uses OSIP stack.
-> 
-> While running the application, when I give outgoing call, I see the VM
-> getting allocated and subsequently getting freed, this I have verified from
-> /proc/meminfo and kernel prints (that of remove_vm_struct). But in the case
-> of incoming call, though this is a reverse case, but I see memory only
-> getting allocated and not being freed.
-> 
-> I can see in the code that the free function is called but the call has not
-> been propagated to the kernel. The allocation is in the tune of 4 MB, so the
-> memory must have been allocated using mmap and not brk, as the heap size for
-> an application is defined to be 4 K, as per my knowledge. Even if the
-> allocation is from heap, the heap should get enlarged and on subsequent call
-> to free, the surplus space should be returned to OS.
-> 
-> Please help.
+> Is it similarly irrelevant now? If so perhaps a big rename could be used
+> to make the names clearer (s/user_//, s/ub_/bc_/, ...).
+hm... let's try :)
 
-Can you attach a ptrace to the process in question to see what calls it 
-makes, brk, mmap, munmap should be sufficient.  That will allow you to 
-determine if the memory is being returned by the libc to the kernel or not.
-
--apw
+Kirill

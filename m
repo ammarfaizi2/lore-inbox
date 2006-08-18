@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWHRQY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbWHRQZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWHRQY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWHRQY7
+	id S1030483AbWHRQZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbWHRQZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:24:59 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15831 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030220AbWHRQY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:24:58 -0400
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, Dirk <noisyb@gmx.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0608181428430.2760@be1.lrz>
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it>
-	 <6KyCQ-1w7-25@gated-at.bofh.it>  <E1GDgyZ-0000jV-MV@be1.lrz>
-	 <1155818138.4494.56.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0608181428430.2760@be1.lrz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 17:45:47 +0100
-Message-Id: <1155919547.30279.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 18 Aug 2006 12:25:58 -0400
+Received: from ns1.suse.de ([195.135.220.2]:59850 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030220AbWHRQZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:25:57 -0400
+To: "Vishal Patil" <vishpat@gmail.com>
+Cc: "Andrea Arcangeli" <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Page cache using B-trees benchmark results
+References: <4745278c0608171843j5b3d28bbx16ddf472e1bdb329@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Aug 2006 18:25:54 +0200
+In-Reply-To: <4745278c0608171843j5b3d28bbx16ddf472e1bdb329@mail.gmail.com>
+Message-ID: <p73mza280z1.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 14:31 +0200, ysgrifennodd Bodo Eggert:
-> It's user a destroying the CD of user b (e.g. because he erroneously 
-> believes his CD with the plain tar archive is in the burner, or because
-> he's simply malicious).
+"Vishal Patil" <vishpat@gmail.com> writes:
 
-Thats why you need revoke().
+> I am attaching the benchmark results for Page Cache Implementation
+> using B-trees. I basically ran the tio (threaded i/o) benchmark
+> against my kernel (with the B-tree implementation) and the Linux
 
-Alan
+I suppose you'll need some more varied benchmarks to get
+more solid data.
 
+> kernel shipped with FC5. Radix tree implementation is definately
+> better however the B-tree implementation did not suck that bad :)
+
+Have you considered trying it again instead of radix tree with
+another data structure? There are still plenty of other big
+hash tables in the kernel that might benefit from trying
+a different approach:
+
+> dmesg | grep -i hash
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Mount-cache hash table entries: 256
+Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+IP route cache hash table entries: 65536 (order: 7, 524288 bytes)
+TCP established hash table entries: 262144 (order: 9, 2097152 bytes)
+TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
+TCP: Hash tables configured (established 262144 bind 65536)
+
+e.g. the dentry/inode hashes are an obvious attack point.
+
+Of course you'll need benchmarks that actually stress them.
+
+-Andi

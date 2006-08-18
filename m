@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWHRUa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWHRUct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbWHRUa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 16:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWHRUa5
+	id S932246AbWHRUct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 16:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWHRUct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 16:30:57 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19335 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932519AbWHRUa4
+	Fri, 18 Aug 2006 16:32:49 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:54447 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S932246AbWHRUcs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 16:30:56 -0400
-Subject: Re: Merging libata PATA support into the base kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: Pavel Machek <pavel@suse.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Jason Lunz <lunz@falooley.org>, Jens Axboe <axboe@suse.de>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, Stefan Seyfried <seife@suse.de>
-In-Reply-To: <44E6137B.9090103@PicturesInMotion.net>
-References: <1155144599.5729.226.camel@localhost.localdomain>
-	 <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
-	 <200608102140.36733.rjw@sisk.pl> <44E3E1E6.9090908@PicturesInMotion.net>
-	 <20060817091842.GC17899@elf.ucw.cz>
-	 <1155808348.15195.55.camel@localhost.localdomain>
-	 <20060817094512.GD17899@elf.ucw.cz>
-	 <1155815491.15195.75.camel@localhost.localdomain>
-	 <44E53635.3080702@PicturesInMotion.net>
-	 <44E53A9B.6080701@PicturesInMotion.net>
-	 <1155916869.28764.20.camel@localhost.localdomain>
-	 <44E6137B.9090103@PicturesInMotion.net>
-Content-Type: text/plain
+	Fri, 18 Aug 2006 16:32:48 -0400
+Message-ID: <44E623EB.1060908@compro.net>
+Date: Fri, 18 Aug 2006 16:32:43 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Paul Fulghum <paulkf@microgate.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: Serial issue
+References: <1155862076.24907.5.camel@mindpipe>	 <1155915851.3426.4.camel@amdx2.microgate.com>	 <1155923734.2924.16.camel@mindpipe>  <44E602C8.3030805@microgate.com>	 <1155925024.2924.22.camel@mindpipe>	 <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com>	 <1155928885.2924.40.camel@mindpipe>	 <Pine.LNX.4.61.0608181551510.19978@chaos.analogic.com>	 <44E6221D.4040008@compro.net> <1155932916.2924.47.camel@mindpipe>
+In-Reply-To: <1155932916.2924.47.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 21:50:54 +0100
-Message-Id: <1155934254.31543.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 15:22 -0400, ysgrifennodd Lee Trager:
-> Well where in the kernel is the code that disabled HPA on startup? Im
-> new to kernel hacking so if you could point me in the right direction I
-> could try to patch it myself.
+Lee Revell wrote:
+> On Fri, 2006-08-18 at 16:25 -0400, Mark Hounschell wrote:
+>> Take it from someone who actually still uses dumb terminals every day,
+>> any thing over 9600 baud still requires some kind of flow control for
+>> reliable consistent operation. Software (Xon/Xoff) and or hardware
+>> (RTS/RTS/DTE) flow control.
+>>
+> 
+> Any idea why the serial console does not work at all with flow control
+> enabled (regardless of whether the host runs Linux or another OS)?
+> 
+> Lee
+> 
+> 
 
-drivers/ide/ide-disk.c
+Your cable is probably wrong.  Both ends have to be using the type of flow
+control your cable is wired for.
 
-Particularly:
-	idedisk_check_hpa()
-
-which if you call at the end of the resume sequence for disks ought to
-do the right thing for you
-
+Mark

@@ -1,93 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWHRV5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWHRWCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751503AbWHRV5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 17:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWHRV5w
+	id S1751505AbWHRWCb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWHRWCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 17:57:52 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:12972 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751503AbWHRV5v (ORCPT
+	Fri, 18 Aug 2006 18:02:31 -0400
+Received: from xenotime.net ([66.160.160.81]:63723 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751502AbWHRWCa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 17:57:51 -0400
-Date: Fri, 18 Aug 2006 14:56:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 Spurious ACK/NAK on isa0060/serio0, 2.6.18-rc2 is fine
-Message-ID: <20060818215644.GA1893@kroah.com>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060817221052.GA3025@aitel.hist.no> <20060817223434.GA3616@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060817223434.GA3616@aitel.hist.no>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Fri, 18 Aug 2006 18:02:30 -0400
+Date: Fri, 18 Aug 2006 15:05:26 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+Subject: Re: [RFC][PATCH 8/8] SLIM: documentation
+Message-Id: <20060818150526.cc4318bb.rdunlap@xenotime.net>
+In-Reply-To: <1155844419.6788.62.camel@localhost.localdomain>
+References: <1155844419.6788.62.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 12:34:34AM +0200, Helge Hafting wrote:
-> On Fri, Aug 18, 2006 at 12:10:52AM +0200, Helge Hafting wrote:
-> > So I tried 2.6.18-rc4-mm1 on my opteron. (Running 64-bit)
-> > 
-> > The kernel did not boot, but went into an infinite loop of
-> > 
-> > Spurious ACK on isa0060/serio0
-> > over and over.  I have two keyboards, one attached the usual
-> > way and another attached where a mouse usually goes.
-> > This works fine with 2.6.18-rc2, but no longer now.
-> > One keyboard is dead, and on the other, two of the
-> > leds blink on and off.
-> > 
-> > Unplugging a keyboard changes the repeating message to
-> > Spurious NAK ... instead.
-> > 
-> > Unplugging both keyboards stops the nonsense, but then - no keyboard.
-> > 
-> > This kernel also fails to mount root, a fact that is hard to see as
-> > the stupid messages quickly scroll everything else away.
-> > That might be something simple like the changed ATA config
-> > or multithreaded pci probe.
-> > 
-> > There just cannot be any program "trying to access hw directly",
-> > I don't get the root fs so I don't even have init running.
-> >
-> I got rid of the multithreaded PCI probe - and the root fs was
-> recognised again (I have both SATA and SCSI, perhaps they
-> were probed in wrong order)
+On Thu, 17 Aug 2006 12:53:39 -0700 Kylene Jo Hall wrote:
 
-Are you using the ata_piix driver by chance for your root partition?  If
-so, the multi-thread stuff will not work unless you use the hack below.
+> Documentation.
 
-> Curiously enough, the keyboard trouble went away too.  Odd.
-> Now posting from a working 2.6.18-rc4-mm1 (With the jiffies hotfix)
+Here are a few comments for you.
+I'll look for the updates as well.
 
-The keyboard stuff is very odd, your keyboard should not be on the PCI
-bus :(
+> Documentation/slim.txt |   69 ++++++++++++++++++++++++++++++++++++++
+> + 1 files changed, 69 insertions(+) 
+> 
+> --- linux-2.6.18/Documentation/slim.txt	1969-12-31
+> 16:00:00.000000000 -0800 +++
+> linux-2.6.18-rc4/Documentation/slim.txt	2006-08-17
+> 12:38:24.000000000 -0700 @@ -0,0 +1,69 @@ 
+> +SLIM is an LSM module which provides an enhanced low water-mark
+> +integrity and high water-mark secrecy mandatory access control
+> +model.
+> +
+> +SLIM now performs a generic revocation operation, including
 
-thanks,
+Drop "now".
 
-greg k-h
+> revoking +mmap and shared memory access. Note that during demotion
+> or promotion +of a process, SLIM needs only revoke write access to
+> files with higher +integrity, or lower secrecy. Read and execute
+> permissions are blocked +as needed, not revoked.  SLIM hopefully
+> uses d_instantiate correctly now. +
 
---------------
+Drop "now".
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Driver: multi-threaded hacks
+> +In normal operation, the system seems to stabilize with a roughly
+> +equal mixture of SYSTEM, USER, and UNTRUSTED processes. Most
+> +applications seem to do a fixed set of operations in a fixed
+> domain, +and stabilize at their appropriate level. Some
+> applications, like +firefox and evolution, which inherently deal
+> with untrusted data, +immediately go to the UNTRUSTED level, which
+> is where they belong. +In a couple of cases, including cups and
+> Notes, the applications +did not handle their demotions well, as
+> they occured well into their +startup. For these applications, we
 
- - Fix "issue" with ata_piix doing multi-threaded boot
+occurred
 
-Use at your own risk.
+> simply force them to start up +as UNTRUSTED, so demotion is not an
+> issue. The one application +that does tend to get demoted over time
+> are shells, such as bash.
+
+s/application/application area/ or /application type/ ?
+
+> +These are not problems, as new ones can
+> be created with the +windowing system, or with su, as needed. To
+> help with the associated +user interface issue, the user space
+> package README shows how to +display the SLIM level in window
+> titles, so it is always clear at +what level the process is
+> currently running.
+
+This is confusing to me.  What README?
+
+> +As mentioned earlier, cupsd and notes are applications which are
+
+Notes (as used earlier)
+
+> +always run directly in untrusted mode, regardless of the level of
+> +the invoking process.
+
 
 ---
- drivers/scsi/ata_piix.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- gregkh-2.6.orig/drivers/scsi/ata_piix.c
-+++ gregkh-2.6/drivers/scsi/ata_piix.c
-@@ -945,7 +945,7 @@ static int __init piix_init(void)
- 	if (rc)
- 		return rc;
- 
--	in_module_init = 0;
-+//	in_module_init = 0;  multi-threaded probe doesn't like this...
- 
- 	DPRINTK("done\n");
- 	return 0;
+~Randy

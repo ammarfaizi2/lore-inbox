@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWHRRVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbWHRRVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbWHRRVY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWHRRVY
+	id S1030325AbWHRRVq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWHRRVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:21:24 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:22739 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030324AbWHRRVY (ORCPT
+	Fri, 18 Aug 2006 13:21:46 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:56510 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1030325AbWHRRVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:21:24 -0400
-Date: Fri, 18 Aug 2006 19:21:09 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch 2/5] -fstack-protector feature: Add the Kconfig option
-Message-ID: <20060818172109.GB7595@mars.ravnborg.org>
-References: <1155746902.3023.63.camel@laptopd505.fenrus.org> <200608181308.07752.ak@suse.de> <1155900206.4494.141.camel@laptopd505.fenrus.org> <200608181605.19520.ak@suse.de>
+	Fri, 18 Aug 2006 13:21:45 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] PCI: fix ICH6 quirks
+Date: Fri, 18 Aug 2006 19:21:31 +0200
+User-Agent: KMail/1.7.2
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-pci" <linux-pci@atrey.karlin.mff.cuni.cz>
+References: <200608181650.41869.daniel.ritz-ml@swissonline.ch> <20060818185743.d16d2a98.khali@linux-fr.org>
+In-Reply-To: <20060818185743.d16d2a98.khali@linux-fr.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608181605.19520.ak@suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+Message-Id: <200608181921.31798.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-08.tornado.cablecom.ch 1377;
+	Body=5 Fuz1=5 Fuz2=5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 04:05:19PM +0200, Andi Kleen wrote:
+On Friday 18 August 2006 18.57, Jean Delvare wrote:
+> Hi Daniel,
 > 
-> > the binary search argument in this case is moot, just having a config
-> > option doesn't break anything compile wise and each later step is
-> > self-compiling..
+> > [PATCH] PCI: fix ICH6 quirks
+> > 
+> > - add the ICH6(R) LPC to the ICH6 ACPI quirks. currently only the ICH6-M is
+> >   handled. [ PCI_DEVICE_ID_INTEL_ICH6_1 is the ICH6-M LPC, ICH6_0 is the ICH6(R) ]
 > 
-> Not true when the config used for the binary search has stack protector
-> enabled.
-kconfig will remove undefined CONFIG_ options from the .config as part
-of the kernel compile.
+> No objection.
+> 
+> > - remove the wrong quirk calling asus_hides_smbus_lpc() for ICH6. the register
+> >   modified in asus_hides_smbus_lpc() has a different meaning in ICH6.
+> 
+> My mistake :( Thanks for fixing it. Do you know if executing the old
+> quirk on the ICH6 can cause trouble? In other words, should we backport
+> this fix to 2.6.17.y?
 
-	Sam
+the register it touches is part of the "root complex base address" register. so
+changing it means the ICH6 decodes a different address range that could conflict
+with something else...so yes, i think this is a 2.6.17.x candidate.
+
+rgds
+-daniel

@@ -1,59 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWHRXZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWHRX1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWHRXZF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWHRXZE
+	id S1751589AbWHRX1v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWHRX1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:25:04 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61449 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750894AbWHRXZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:25:03 -0400
-Date: Sat, 19 Aug 2006 01:25:01 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, Willy Tarreau <w@1wt.eu>,
-       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: Linux 2.4.34-pre1
-Message-ID: <20060818232501.GE7813@stusta.de>
-References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de> <20060817090651.GP7813@stusta.de> <44E433DB.9090501@domdv.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E433DB.9090501@domdv.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Fri, 18 Aug 2006 19:27:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62187 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751290AbWHRX1v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 19:27:51 -0400
+Date: Fri, 18 Aug 2006 16:27:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH][CHAR] Return better error codes if drivers/char/raw.c
+ module init fails
+Message-Id: <20060818162743.f97ff431.akpm@osdl.org>
+In-Reply-To: <200608180918.30483.eike-kernel@sf-tec.de>
+References: <200608180918.30483.eike-kernel@sf-tec.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 11:16:11AM +0200, Andreas Steinmetz wrote:
-> Adrian Bunk wrote:
-> > Can you send me the .config's you are using for 2.4 and 2.6 
-> > (preferably for kernel.org kernels)?
-> > 
+On Fri, 18 Aug 2006 09:18:30 +0200
+Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+
+> Currently this module just returns 1 if anything on module init fails. Store
+> the error code of the different function calls and return their error on
+> problems.
 > 
-> I can send you only the current 2.4 config I use (not exactly vanilla).
+> I'm not sure if this doesn't need even more cleanup, for example kobj_put() 
+> is called only in one error case.
+> 
 
-Thanks, but it didn't help me much since it needed some work getting it 
-compiling with uClinux-2.4.31-uc0, and the next step of creating a 
-functionally equivalent 2.6 kernel doesn't seem to be reasonably 
-possible.
+You seem to be using kmail in funky-confuse-sylpheed mode.  Inlined patches
+in plain-text emails are preferred, please.  
 
-My aim is to compare the size of the compiled objects for finding what 
-causes size regressions in 2.6 compared to 2.4.
+> 
+> diff --git a/drivers/char/raw.c b/drivers/char/raw.c
+> index 579868a..5938e6b 100644
+> --- a/drivers/char/raw.c
+> +++ b/drivers/char/raw.c
+> @@ -288,31 +288,35 @@ static struct cdev raw_cdev = {
+>  static int __init raw_init(void)
+>  {
+>  	dev_t dev = MKDEV(RAW_MAJOR, 0);
+> +	int ret;
+>  
+> -	if (register_chrdev_region(dev, MAX_RAW_MINORS, "raw"))
+> +	ret = register_chrdev_region(dev, MAX_RAW_MINORS, "raw");
+> +	if (ret)
+>  		goto error;
+>  
+>  	cdev_init(&raw_cdev, &raw_fops);
+> -	if (cdev_add(&raw_cdev, dev, MAX_RAW_MINORS)) {
+> +	ret = cdev_add(&raw_cdev, dev, MAX_RAW_MINORS); 
+> +	if (ret) {
+> +		printk(KERN_ERR "error register raw device\n");
+>  		kobject_put(&raw_cdev.kobj);
+> -		unregister_chrdev_region(dev, MAX_RAW_MINORS);
+> -		goto error;
+> +		goto error_region;
+>  	}
+>  
+>  	raw_class = class_create(THIS_MODULE, "raw");
+>  	if (IS_ERR(raw_class)) {
+>  		printk(KERN_ERR "Error creating raw class.\n");
+>  		cdev_del(&raw_cdev);
+> -		unregister_chrdev_region(dev, MAX_RAW_MINORS);
+> -		goto error;
+> +		ret = PTR_ERR(raw_class);
+> +		goto error_region;
+>  	}
+>  	class_device_create(raw_class, NULL, MKDEV(RAW_MAJOR, 0), NULL, "rawctl");
+>  
+>  	return 0;
+>  
+> +error_region:
+> +	unregister_chrdev_region(dev, MAX_RAW_MINORS);
+>  error:
+> -	printk(KERN_ERR "error register raw device\n");
+> -	return 1;
+> +	return ret;
+>  }
 
-Does anyone have an example with working kernels for both 2.4 and 2.6
-and a significantely bigger functionally equivalent 2.6 kernel?
+No, it's not obvious what that stray kobject_put() is doing in there.
 
-> Andreas Steinmetz
+<hunt, hunt>
 
-cu
-Adrian
+http://kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=b8ff72d28c349bdb7ff5246e83aba384f45d8078
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

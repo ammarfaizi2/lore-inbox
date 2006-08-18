@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWHRQbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWHRQdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWHRQbc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbWHRQbc
+	id S1751411AbWHRQdV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWHRQdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:31:32 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29660 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751407AbWHRQbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:31:31 -0400
-Subject: RE: GPL Violation?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: davids@webmaster.com
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEMKNNAB.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKIEMKNNAB.davids@webmaster.com>
+	Fri, 18 Aug 2006 12:33:21 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:58516 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751411AbWHRQdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:33:20 -0400
+Subject: Re: Serial issue
+From: Lee Revell <rlrevell@joe-job.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <1155915851.3426.4.camel@amdx2.microgate.com>
+References: <1155862076.24907.5.camel@mindpipe>
+	 <1155915851.3426.4.camel@amdx2.microgate.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 17:52:30 +0100
-Message-Id: <1155919950.30279.8.camel@localhost.localdomain>
+Date: Fri, 18 Aug 2006 12:34:04 -0400
+Message-Id: <1155918845.24907.42.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 02:51 -0700, ysgrifennodd David Schwartz:
-> 	Otherwise, for example, a printer by Lexmark could require a poem with the
-> words 'Copyright, Lexmark Inc.' at the end to be in a chip in the printer
-> cartridge and refuse to work if it wasn't there. This would, if enforceable,
-> prevent anyone from making compatible cartridges.
+On Fri, 2006-08-18 at 10:44 -0500, Paul Fulghum wrote:
+> On Thu, 2006-08-17 at 20:47 -0400, Lee Revell wrote:
+> > I've found a weird serial bug.  My host is a Via EPIA M-6000 running
+> > 2.6.17 connected to a PPC Yosemite board running 2.6.13. 
+> > 
+> > In all cases the serial console works great.  But, with the default
+> > setting of IRQ 4, Kermit file transfers via the serial interface simply
+> > time out.  However if I use polling mode (setserial /dev/ttyS0 irq 0 on
+> > the host), file transfers work.
+> > 
+> > When set to IRQ 4, the interrupt count does increase.
+> > 
+> > # cat /proc/tty/driver/serial 
+> > serinfo:1.0 driver revision:
+> > 0: uart:16550A port:000003F8 irq:4 tx:267 rx:667 DSR|CD
+> > [...]
+> > 
+> > Any ideas?  I'm guessing it might be a quirk of the VIA chipset?
+> 
+> You mention serial console. Hasn't there been some changes
+> related to reenabling the THRE interrupt after sending
+> console data? IIRC the changes fixed transmit stalls on
+> some machines but broke things on other machine.
+> 
+> Can you try disabling the serial console and see
+> if the file transfer starts working?
+> 
 
-True once upon a time (and people did this for IBM clone PC systems when
-IBM tried that in graphics cards)
+I tried it with the serial console inactive (not disabled) and file
+transfers don't work whether I set IRQ 0 or 4.  Maybe I'm doing it wrong
+- I connected to the target via SSH and ran "gkermit -r" then ran
+ckermit locally and issued a "send file.txt" command.
 
-Once the phrase "Copyright, Lexamrk Inc." is checked to ascertain
-permissions you are in the world of the EUCD and DMCA. You are
-subverting a rights management system which places you on interestingly
-vague ground.
+Normally I connect to the target with "kermit -c" which gives me a
+serial console, then issue a "gkermit -r", then escape to my local
+Kermit and issue the send file command.
 
-EXPORT_SYMBOL_GPL is clearly a rights management systems. Thats one of
-its little charms.
-
-Alan
+Lee
 

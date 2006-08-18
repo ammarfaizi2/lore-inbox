@@ -1,80 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWHRSUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWHRSUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751463AbWHRSUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 14:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWHRSUA
+	id S1751464AbWHRSUr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 14:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWHRSUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 14:20:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46222 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751463AbWHRST7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 14:19:59 -0400
-Date: Fri, 18 Aug 2006 11:18:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: rohitseth@google.com
-Cc: Dave Hansen <haveblue@us.ibm.com>, Andrey Savochkin <saw@sw.ru>,
-       Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       devel@openvz.org, hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-Message-Id: <20060818111816.38ad6074.akpm@osdl.org>
-In-Reply-To: <1155923946.23242.21.camel@galaxy.corp.google.com>
-References: <44E33893.6020700@sw.ru>
-	<44E33C3F.3010509@sw.ru>
-	<1155752277.22595.70.camel@galaxy.corp.google.com>
-	<1155755069.24077.392.camel@localhost.localdomain>
-	<1155756170.22595.109.camel@galaxy.corp.google.com>
-	<44E45D6A.8000003@sw.ru>
-	<20060817084033.f199d4c7.akpm@osdl.org>
-	<20060818120809.B11407@castle.nmd.msu.ru>
-	<1155912348.9274.83.camel@localhost.localdomain>
-	<20060818094248.cdca152d.akpm@osdl.org>
-	<1155923946.23242.21.camel@galaxy.corp.google.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 18 Aug 2006 14:20:47 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:25296 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751464AbWHRSUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 14:20:46 -0400
+Date: Sat, 19 Aug 2006 03:19:16 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: manfred@colorfullife.com, ak@muc.de, mpm@selenic.com, marcelo@kvack.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, ak@suse.de,
+       dgc@sgi.com
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+Message-Id: <20060819031916.85d5979e.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+	<20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
+	<20060816094358.e7006276.ak@muc.de>
+	<Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
+	<44E3FC4F.2090506@colorfullife.com>
+	<Pine.LNX.4.64.0608172222210.29168@schroedinger.engr.sgi.com>
+	<20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 10:59:06 -0700
-Rohit Seth <rohitseth@google.com> wrote:
+On Fri, 18 Aug 2006 09:58:13 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-> On Fri, 2006-08-18 at 09:42 -0700, Andrew Morton wrote:
-> > On Fri, 18 Aug 2006 07:45:48 -0700
-> > Dave Hansen <haveblue@us.ibm.com> wrote:
-> > 
-> > > On Fri, 2006-08-18 at 12:08 +0400, Andrey Savochkin wrote:
-> > > > 
-> > > > A) Have separate memory management for each container,
-> > > >    with separate buddy allocator, lru lists, page replacement mechanism.
-> > > >    That implies a considerable overhead, and the main challenge there
-> > > >    is sharing of pages between these separate memory managers.
-> > > 
-> > > Hold on here for just a sec...
-> > > 
-> > > It is quite possible to do memory management aimed at one container
-> > > while that container's memory still participates in the main VM.  
-> > > 
-> > > There is overhead here, as the LRU scanning mechanisms get less
-> > > efficient, but I'd rather pay a penalty at LRU scanning time than divide
-> > > up the VM, or coarsely start failing allocations.
-> > > 
-> > 
-> > I have this mad idea that you can divide a 128GB machine up into 256 fake
-> > NUMA nodes, then you use each "node" as a 512MB unit of memory allocation. 
-> > So that 4.5GB job would be placed within an exclusive cpuset which has nine
-> > "mems" (what are these called?) and voila: the job has a hard 4.5GB limit,
-> > no kernel changes needed.
-> > 
-> Sounds like an interesting idea.  Will have to depend on something like
-> memory hot-plug to get the things move around...
+> On Fri, 18 Aug 2006, KAMEZAWA Hiroyuki wrote:
 > 
+> > Just a note: with SPARSEMEM, we need more calculation and access to
+> > mem_section[] table and page structs(mem_map).
+> 
+> Uhh, a regression against DISCONTIG. Could you address that issue?
+> 
+At first, ia64's DISCONTIG is special because of VIRTUAL_MEMMAP.
+and ia64's SPARSEMEM is special,too. it's SPARSEMEM_EXTREME.
 
-mmm, hadn't thought that far ahead.  One could manually resize such a
-contained with sys_move_pages().  Or just sit and wait: normal page
-allocation and reclaim activity would eventually resize the job to the new
-set of mems.
+
+Considering generic arch, see include/asm-generic/memory_model.h,
+which doesn't use virtual mem_map.
+
+with FLATMEM, pfn_to_page() is  pfn + mem_map. just an address calclation.
+
+with *usual* DISCONTIG
+--  
+  pgdat = NODE_DATA(pfn_to_nid(pfn));
+  page = pgdat->node_mem_map + pfn - pgdat->node_start_pfn
+--
+if accessing to pgdat is fast, cost will not be big problem.
+pfn_to_nid() is usually implemeted by calclation or table look up.
+
+and usual SPARSEMEM, (not EXTREME)
+--
+page = mem_section[(pfn >> SECTION_SHIFT)].mem_map + pfn
+--
+need one table look up. maybe not very big.
+
+with SPARSEMEM_EXTREME
+--
+page = mem_section[(pfn >> SECTION_SHIFT)][(pfn & MASK)].mem_map + pfn
+--
+need one (big)table look up.
+
+
+-Kame
+

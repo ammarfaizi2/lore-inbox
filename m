@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWHRCaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWHRCiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWHRCaN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 22:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWHRCaN
+	id S932319AbWHRCiz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 22:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWHRCiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 22:30:13 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56250 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932323AbWHRCaL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 22:30:11 -0400
-Date: Thu, 17 Aug 2006 19:25:38 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Arnd Bergmann <arnd@arndb.de>,
-       David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 1/1] network memory allocator.
-In-Reply-To: <20060816142557.acccdfcf.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0608171920220.28680@schroedinger.engr.sgi.com>
-References: <20060814110359.GA27704@2ka.mipt.ru> <200608152221.22883.arnd@arndb.de>
- <20060816053545.GB22921@2ka.mipt.ru> <20060816084808.GA7366@infradead.org>
- <20060816142557.acccdfcf.ak@suse.de>
+	Thu, 17 Aug 2006 22:38:55 -0400
+Received: from mxsf15.cluster1.charter.net ([209.225.28.215]:20928 "EHLO
+	mxsf15.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932319AbWHRCiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 22:38:54 -0400
+Message-ID: <44E5283A.8050902@charter.net>
+Date: Thu, 17 Aug 2006 21:38:50 -0500
+From: Bob Reinkemeyer <bigbob73@charter.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [bug] Mouse jumps randomly in x kernel 2.6.18
+References: <44E37FD1.6020506@charter.net> <d120d5000608171138p41b41ce2w38d62117f1817bd0@mail.gmail.com>
+In-Reply-To: <d120d5000608171138p41b41ce2w38d62117f1817bd0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Aug 2006, Andi Kleen wrote:
 
-> That's not true on all NUMA systems (that they have a slow interconnect)
-> I think on x86-64 I would prefer if it was distributed evenly or maybe even 
-> on the CPU who is finally going to process it.
+
+Dmitry Torokhov wrote:
+> On 8/16/06, Bob Reinkemeyer <bigbob73@charter.net> wrote:
+>> I have an issue where my mouse jumps around the screen randomly in X
+>> only.  It works correctly in a vnc window.  The mouse is a Microsoft
+>> wireless optical intellimouse.  This was tested in 2.6.18-rc1-rc4 and
+>> observed in all. my config for .18 can be found here...
+>> http://rafb.net/paste/results/5cyWFd48.html
+>>
+>> and for .17 here...
+>> http://rafb.net/paste/results/xdFUkU58.html
+>>
 > 
-> -Andi "not all NUMA is an Altix"
+> Does it help if you revert this patch:
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=b0c9ad8e0ff154f8c4730b8c4383f49b846c97c4 
+> 
+> 
 
-The Altix NUMA interconnect has the same speed as far as I can recall as 
-Hypertransport. It is the distance (real physical cable length) that 
-creates latencies for huge systems. Sadly the Hypertransport is designed 
-to stay on the motherboard. Hypertransport can only be said to be fast 
-because its only used for tinzy winzy systems of a few processors. Are 
-you saying that the design limitations of Hypertransport are an 
-advantage?
-
-
+that fixed it.  Thanks!

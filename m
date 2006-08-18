@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWHRTHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161089AbWHRTHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWHRTHL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWHRTHL
+	id S1161089AbWHRTHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWHRTHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:07:11 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:36795
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932235AbWHRTHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:07:09 -0400
-Message-ID: <44E60FD3.7040003@microgate.com>
-Date: Fri, 18 Aug 2006 14:06:59 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serial issue
-References: <1155862076.24907.5.camel@mindpipe> <1155915851.3426.4.camel@amdx2.microgate.com> <1155923734.2924.16.camel@mindpipe> <44E602C8.3030805@microgate.com> <1155925024.2924.22.camel@mindpipe> <20060818183609.GE21101@flint.arm.linux.org.uk> <1155926405.2924.25.camel@mindpipe> <20060818185209.GF21101@flint.arm.linux.org.uk>
-In-Reply-To: <20060818185209.GF21101@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 15:07:52 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:15118 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1161089AbWHRTHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:07:51 -0400
+Date: Fri, 18 Aug 2006 20:07:42 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>,
+       Giampaolo Tomassoni <g.tomassoni@libero.it>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Paul Fulghum <paulkf@microgate.com>
+Subject: Re: R: How to avoid serial port buffer overruns?
+Message-ID: <20060818190742.GH21101@flint.arm.linux.org.uk>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Giampaolo Tomassoni <g.tomassoni@libero.it>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Fulghum <paulkf@microgate.com>
+References: <NBBBIHMOBLOHKCGIMJMDGEIMFNAA.g.tomassoni@libero.it> <1155920400.24907.63.camel@mindpipe> <20060818170450.GC21101@flint.arm.linux.org.uk> <1155922240.2924.5.camel@mindpipe> <20060818183430.GD21101@flint.arm.linux.org.uk> <1155927174.2924.28.camel@mindpipe> <20060818190106.GG21101@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060818190106.GG21101@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Fri, Aug 18, 2006 at 02:40:05PM -0400, Lee Revell wrote:
+On Fri, Aug 18, 2006 at 08:01:06PM +0100, Russell King wrote:
+> On Fri, Aug 18, 2006 at 02:52:53PM -0400, Lee Revell wrote:
+> > On Fri, 2006-08-18 at 19:34 +0100, Russell King wrote:
+> > > That "0000:00:0b.0" looks like a PCI device ID.  If it were a fourport
+> > > board, it would be "serial8250.3" according to the current enumeration
+> > > in linux/serial_8250.h.
+> > > 
+> > > Also, another give away is that IRQ185 is being setup as a PCI interrupt
+> > > immediately prior to the devices being registered.
+> > > 
+> > > And I doubt that an ISA board (which is what fourport is) would ever get
+> > > such a high IRQ number.
+> > > 
+> > 
+> > So you're saying that the standard 8250 driver is being used?
 > 
->>On Fri, 2006-08-18 at 19:36 +0100, Russell King wrote:
->>
->>>On Fri, Aug 18, 2006 at 02:17:04PM -0400, Lee Revell wrote:
->>>Are you transferring from or two the machine which is having a problem?
->>>IOW, is the problem machine doing lots of receive or lots of transmit?
->>>
->>
->>Neither uploads nor downloads work in interrupt mode.  Both work in
->>polled mode.
+> Yes, which is also the case with 8250_fourport.  8250_fourport is just
+> a probe module just like 8250_pnp or 8250_pci.
 > 
+> > http://www.moschip.com/html/MCS9845.html
 > 
-> Ho hum.  This probably requires the use of a serial splitter so that
-> an independent known good machine can monitor what's being sent by
-> each end.
+> That also clearly says its a PCI device. 8)
+> 
+> What problem are we talking about here again?  Sorry, I've completely lost
+> track and this particular thread of 26 messages is soo convoluted and too
+> much to re-read.
+> 
+> Since you only appear to be the messenger, wouldn't it be far better to get
+> the person with the problem to report and respond rather than sitting in
+> the middle?
 
-Since you have 2 serial ports, can you test
-using ttyS1 as the console (kernel boot parameter console=ttyS1)
-and do a transfer on ttyS0 (interrupt mode) with a separate
-connection to another machine?
+BTW, let's have _one_ email which describes what problem it is, the
+hardware which its being seen on, the kernel configuration, what
+modules are loaded, the lspci output and so forth.  Let's not spread
+all the information over 20 emails.
 
-This at least removes interaction with the console
-from the picture.
+I just can't work with dribbled small bits of inforamtion sparsely
+spread.  Neither can I work when it takes days to get that information -
+I forget both the reported details and the thread of thought I was
+following to maybe work towards a conclusion.
+
+(Though at present I'm rather devoid of ideas in this area.)
 
 -- 
-Paul Fulghum
-Microgate Systems, Ltd.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

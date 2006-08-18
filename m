@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWHRXHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWHRXLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbWHRXHs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWHRXHs
+	id S1751374AbWHRXLR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWHRXLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:07:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45542 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750990AbWHRXHr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:07:47 -0400
-Date: Fri, 18 Aug 2006 16:07:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix docs for fs.suid_dumpable (#6145)
-Message-Id: <20060818160744.50dec49c.akpm@osdl.org>
-In-Reply-To: <20060817222652.GE5205@martell.zuzino.mipt.ru>
-References: <20060817222652.GE5205@martell.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 19:11:17 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52233 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751374AbWHRXLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 19:11:16 -0400
+Date: Sat, 19 Aug 2006 01:11:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Solar Designer <solar@openwall.com>
+Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
+       mtosatti@redhat.com, Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+Message-ID: <20060818231115.GC7813@stusta.de>
+References: <20060816223633.GA3421@hera.kernel.org> <20060818224814.GA10524@openwall.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060818224814.GA10524@openwall.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 02:26:52 +0400
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
+On Sat, Aug 19, 2006 at 02:48:14AM +0400, Solar Designer wrote:
+> Hi Willy,
+> 
+> On Wed, Aug 16, 2006 at 10:36:33PM +0000, Willy Tarreau wrote:
+> > Also, I've been asked by several people to consider merging Mikael
+> > Pettersson's gcc4 patches :
+> > 
+> >    http://user.it.uu.se/~mikpe/linux/patches/2.4/
+> > 
+> > I've been reluctant at first for the usual reasons : "who has a 2.4
+> > distro with gcc4 ?" ...
+> 
+> We're about to migrate Openwall GNU/*/Linux (Owl) from its current gcc
+> 3.4.5 (which we used in our 2.0 release) to gcc 4+ - and we'd rather
+> _not_ migrate to Linux 2.6 at the same time, if we can.  We'd be more
+> comfortable migrating to Linux 2.6 a few months later.
+>...
 
-> Sergey Vlasov noticed that there is not kernel.suid_dumpable,
-> but fs.suid_dumpable.
+Considering that it's really easy to compile the kernel with a different 
+compiler than the userland, do you _really_ want to use such a 
+relatively untested kernel/gcc combination for a server platform?
 
-Ho hum.
+cu
+Adrian
 
-> How KERN_SETUID_DUMPABLE ended up in fs_table[]? Hell knows...
+-- 
 
-The tables in kernel/sys.c are a common source of patch conflicts. 
-patch(1) likes to solve this problem by putting new additions into the
-wrong array.
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWHRVnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWHRVpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWHRVnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 17:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWHRVnZ
+	id S1751491AbWHRVpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 17:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWHRVpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 17:43:25 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:17792 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751490AbWHRVnY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 17:43:24 -0400
-Message-ID: <44E63476.201@garzik.org>
-Date: Fri, 18 Aug 2006 17:43:18 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Fri, 18 Aug 2006 17:45:08 -0400
+Received: from smtp7k.poczta.onet.pl ([213.180.130.85]:37786 "EHLO
+	smtp7k.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S1751491AbWHRVpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 17:45:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Kernel development list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Kai Petzke <wpp@marie.physik.tu-berlin.de>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Complaint about return code convention in queue_work() etc.
-References: <Pine.LNX.4.44L0.0608181730510.5732-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0608181730510.5732-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Date: Fri, 18 Aug 2006 23:43:29 +0200
+From: tomek.fizyk@op.pl
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH 2.6.17.9] USB: pl2303: removed support for OTi's DKU-5
+    clone cable
+X-Priority: 3
+X-Mailer: onet.poczta
+Message-Id: <20060818214343Z1208572-9773+4@kps7.test.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> I'd like to lodge a bitter complaint about the return codes used by 
-> queue_work() and related functions:
-> 
-> 	Why do the damn things return 0 for error and 1 for success???
-> 	Why don't they use negative error codes for failure, like 
-> 	everything else in the kernel?!!
+From: Tomasz Kazmierczak <tomek.fizyk@op.pl>
 
-It's a standard programming idiom:  return false (0) for failure, true 
-(non-zero) for success.  Boolean.
+This patch removes support for a clone of Nokia DKU-5 cable made by
+Ours Technology Inc, as it turned out that the cable does not use the pl2303 chip, but OTI-6858 chip which is not compatible with the pl2303.
 
-Certainly the kernel often uses the -errno convention, but it's not a rule.
+Signed-off-by: Tomasz Kazmierczak <tomek.fizyk@op.pl>
 
-	Jeff
-
-
-
+---
+diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
+--- a/drivers/usb/serial/pl2303.c	2006-08-18 18:26:24.000000000 +0200
++++ b/drivers/usb/serial/pl2303.c	2006-08-18 22:32:53.000000000 +0200
+@@ -79,7 +79,6 @@
+ 	{ USB_DEVICE(SAGEM_VENDOR_ID, SAGEM_PRODUCT_ID) },
+ 	{ USB_DEVICE(LEADTEK_VENDOR_ID, LEADTEK_9531_PRODUCT_ID) },
+ 	{ USB_DEVICE(SPEEDDRAGON_VENDOR_ID, SPEEDDRAGON_PRODUCT_ID) },
+-	{ USB_DEVICE(OTI_VENDOR_ID, OTI_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+ };
+ 
+diff --git a/drivers/usb/serial/pl2303.h b/drivers/usb/serial/pl2303.h
+--- a/drivers/usb/serial/pl2303.h	2006-08-18 18:26:24.000000000 +0200
++++ b/drivers/usb/serial/pl2303.h	2006-08-18 22:32:38.000000000 +0200
+@@ -80,7 +80,3 @@
+ /* USB GSM cable from Speed Dragon Multimedia, Ltd */
+ #define SPEEDDRAGON_VENDOR_ID	0x0e55
+ #define SPEEDDRAGON_PRODUCT_ID	0x110b
+-
+-/* Ours Technology Inc DKU-5 clone, chipset: Prolific Technology Inc */
+-#define OTI_VENDOR_ID	0x0ea0
+-#define OTI_PRODUCT_ID	0x6858

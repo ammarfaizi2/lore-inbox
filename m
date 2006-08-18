@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWHRR4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWHRR5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbWHRR4u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWHRR4t
+	id S1751451AbWHRR5N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWHRR5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:56:49 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52998 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751445AbWHRR4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:56:49 -0400
-Date: Fri, 18 Aug 2006 19:56:48 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-Message-ID: <20060818175648.GS7813@stusta.de>
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <200608170332.53556.diablod3@gmail.com> <20060817080243.GN7813@stusta.de> <200608170503.05171.diablod3@gmail.com>
+	Fri, 18 Aug 2006 13:57:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:32170 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751448AbWHRR5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:57:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EDu4rEMjK2zo5f3vsz0knP379cm4vr4GT1Vps9bjRMjsYe5ZoLSA+55AOKDEoGRcaB3xIe3l6UW8hPuS07iSpeNKUigX5cX+aliD1Ycz6GFu+3xWGefwGsg13r9CG5yWjTJGtC/Yg/hedLjU5ysO+kiTL7LoQZvouZ07WXTiRLg=
+Message-ID: <7c3341450608181057j6b4df954v48b993a0891d82dc@mail.gmail.com>
+Date: Fri, 18 Aug 2006 18:57:09 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "Denis Vlasenko" <vda.linux@googlemail.com>
+Subject: Re: mplayer + heavy io: why ionice doesn't help?
+Cc: mplayer-users@mplayerhq.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <200608181937.25295.vda.linux@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200608170503.05171.diablod3@gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <200608181937.25295.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 05:03:03AM -0400, Patrick McFarland wrote:
-> On Thursday 17 August 2006 04:02, Adrian Bunk wrote:
-> > This is _your personal interpretation_ of what consists a "derived work"
-> > under the GPL.
-> > This is a known grey area that has AFAIK not yet been brought to court
-> > in any country, and neither your personal opinion on this issue nor my
-> > personal opinion on this issue can replace legel advice.
-> 
-> And I never said anything different. Stop being hostile to other's opinions. 
-> LKML isn't the place for a flamewar.
+Hi,
 
-You said:
+Have you followed this:
 
-<--  snip  -->
+http://www.mplayerhq.hu/DOCS/HTML/en/rtc.html
 
-Closed source modules are lame, and against the spirit of open source, but
-that still doesn't make them against the license.
+Not that it will help, I don't know, but it could be to do with timing.
 
-<--  snip  -->
+Nick
 
-And exactly the question whether modules with not GPL compatible 
-licences are against the license is the grey area.
-
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+On 18/08/06, Denis Vlasenko <vda.linux@googlemail.com> wrote:
+> Hi,
+>
+> I noticed that mplayer's video playback starts to skip
+> if I do some serious copying or grepping on the disk
+> with movie being played from.
+>
+> nice helps, but does not eliminate the problem.
+> I guessed that this is a problem with mplayer
+> failing to read next portion of input data in time,
+> so I used Jens's ionice.c from
+> Documentation/block/ioprio.txt
+>
+> I am using it this:
+>
+> ionice -c1 -n0 -p<mplayer pid>
+>
+> but so far I don't see any effect from using it.
+> mplayer still skips.
+>
+> Does anybody have an experience in this?
+> --
+> vda
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

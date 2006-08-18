@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWHRIYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWHRI1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWHRIYd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 04:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWHRIYd
+	id S1751111AbWHRI1M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWHRI1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 04:24:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:30870 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751072AbWHRIYc (ORCPT
+	Fri, 18 Aug 2006 04:27:12 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:57724 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751111AbWHRI1K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 04:24:32 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH 1/1] network memory allocator.
-Date: Fri, 18 Aug 2006 11:29:14 +0200
-User-Agent: KMail/1.9.1
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Arnd Bergmann <arnd@arndb.de>,
-       David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20060814110359.GA27704@2ka.mipt.ru> <20060816142557.acccdfcf.ak@suse.de> <Pine.LNX.4.64.0608171920220.28680@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0608171920220.28680@schroedinger.engr.sgi.com>
+	Fri, 18 Aug 2006 04:27:10 -0400
+Message-ID: <44E57A6D.4040608@sw.ru>
+Date: Fri, 18 Aug 2006 12:29:33 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Rik van Riel <riel@redhat.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       rohitseth@google.com, Andi Kleen <ak@suse.de>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	 <1155754029.9274.21.camel@localhost.localdomain>	 <1155755729.22595.101.camel@galaxy.corp.google.com>	 <1155758369.9274.26.camel@localhost.localdomain>	 <1155774274.15195.3.camel@localhost.localdomain> <1155824788.9274.32.camel@localhost.localdomain> <44E488EF.4090803@redhat.com>
+In-Reply-To: <44E488EF.4090803@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608181129.15075.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 August 2006 04:25, Christoph Lameter wrote:
-> On Wed, 16 Aug 2006, Andi Kleen wrote:
-> > That's not true on all NUMA systems (that they have a slow interconnect)
-> > I think on x86-64 I would prefer if it was distributed evenly or maybe
-> > even on the CPU who is finally going to process it.
-> >
-> > -Andi "not all NUMA is an Altix"
->
-> The Altix NUMA interconnect has the same speed as far as I can recall as
-> Hypertransport. It is the distance (real physical cable length) that
-> creates latencies for huge systems. Sadly the Hypertransport is designed
-> to stay on the motherboard. Hypertransport can only be said to be fast
-> because its only used for tinzy winzy systems of a few processors. Are
-> you saying that the design limitations of Hypertransport are an
-> advantage?
+Rik van Riel wrote:
+> Dave Hansen wrote:
+> 
+>> My main thought is that _everybody_ is going to have to live with the
+>> entry in the 'struct page'.  Distros ship one kernel for everybody, and
+>> the cost will be paid by those not even using any kind of resource
+>> control or containers.
+> 
+> 
+> Every userspace or page cache page will be in an object
+> though.  Could we do the pointer on a per object (mapping,
+> anon vma, ...) basis?
+in this case no memory fractions accounting is possible :/
+please, note, this field added by this patchset is in union
+and used by user pages accounting as well.
+ 
+> Kernel pages are not using all of their struct page entries,
+> so we could overload a field.
+yeah, we can. probably mapping.
+but as I said we use the same pointer for user pages accounting as well.
 
-Sorry, didn't want to state anything particular about advantages 
-or disadvantages of different interconnects. I just wanted to say
-that there are a lot of NUMA systems out there which have a very low
-NUMA factor (for whatever reason, including them being quite small)
-and that they should be considered for NUMA optimizations too.
+> It all depends on how much we really care about not growing
+> struct page :)
+so what is your opinion?
+Kernel compiled w/o UBC do not introduce additional pointer.
 
-So if you really want strict IO placement at least allow an easy way 
-to turn it off even when CONFIG_NUMA is defined.
-
-BTW there are large x86-64 NUMA systems that don't use HyperTransport
-and have a varying NUMA factor, and also even HyperTransport
-based systems have a widely varying NUMA factor depending on machine
-size and hop distance (2-8 sockets and larger systems are in development)
-
-So ideal would be something dynamic to turn on/off io placement, maybe based 
-on node_distance() again, with the threshold tweakable per architecture?
-
-Also I must say it's still not quite clear to me if it's better to place
-network packets on the node the device is connected to or on the 
-node which contains the CPU who processes the packet data 
-For RX this can be three different nodes in the worst case
-(CPU processing is often split on different CPUs between softirq
-and user context), for TX  two. Do you have some experience that shows 
-that a particular placement is better than the other?
-
--Andi
+Thanks,
+Kirill
 

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWHRPgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWHRPjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbWHRPgE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 11:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWHRPgB
+	id S1161015AbWHRPjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 11:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWHRPjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 11:36:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64171 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161015AbWHRPf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 11:35:58 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 6/7] FS-Cache: CacheFiles: ia64: missing copy_page export [try #12]
-Date: Fri, 18 Aug 2006 16:35:16 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060818153516.29482.55752.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060818153502.29482.91650.stgit@warthog.cambridge.redhat.com>
-References: <20060818153502.29482.91650.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 18 Aug 2006 11:39:24 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:38983 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161015AbWHRPjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 11:39:23 -0400
+In-Reply-To: <200608180134.39050.arnd.bergmann@de.ibm.com>
+Subject: Re: [PATCH 13/13] IB/ehca: makefiles/kconfig
+To: abergman@de.ibm.com
+Cc: Christoph Raisch <RAISCH@de.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Marcus Eder <MEDER@de.ibm.com>,
+       openib-general@openib.org, Roland Dreier <rolandd@cisco.com>
+X-Mailer: Lotus Notes Release 7.0 HF242 April 21, 2006
+Message-ID: <OFC07EB1C7.B6C18CC5-ONC12571CE.0056110B-C12571CE.0055FF7C@de.ibm.com>
+From: Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>
+Date: Fri, 18 Aug 2006 17:43:13 +0200
+X-MIMETrack: Serialize by Router on D12ML065/12/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
+ 18/08/2006 17:43:15
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one-line patch fixes the missing export of copy_page introduced
-by the cachefile patches.  This patch is not yet upstream, but is required
-for cachefile on ia64.  It will be pushed upstream when cachefile goes
-upstream.
 
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+abergman@de.ltcfwd.linux.ibm.com wrote on 18.08.2006 01:34:37:
 
- arch/ia64/kernel/ia64_ksyms.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+> On Thursday 17 August 2006 22:11, Roland Dreier wrote:
+> > +
+> > +CFLAGS += -DEHCA_USE_HCALL -DEHCA_USE_HCALL_KERNEL
+>
+> This seems really pointless, since you're always defining these
+> macros to the same value.
+>
+> Just drop the CFLAGS and remove the code that depends on them
+> being different.
+Yes, that's true. Those defines are unnecessary. We'll throw them out.
+Thx
+Hoang-Nam Nguyen
 
-diff --git a/arch/ia64/kernel/ia64_ksyms.c b/arch/ia64/kernel/ia64_ksyms.c
-index 3ead20f..6746a3e 100644
---- a/arch/ia64/kernel/ia64_ksyms.c
-+++ b/arch/ia64/kernel/ia64_ksyms.c
-@@ -42,6 +42,7 @@ EXPORT_SYMBOL(__do_clear_user);
- EXPORT_SYMBOL(__strlen_user);
- EXPORT_SYMBOL(__strncpy_from_user);
- EXPORT_SYMBOL(__strnlen_user);
-+EXPORT_SYMBOL(copy_page);
- 
- /* from arch/ia64/lib */
- extern void __divsi3(void);

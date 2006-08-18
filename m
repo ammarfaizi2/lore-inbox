@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWHRN4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030399AbWHRN4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030387AbWHRN4A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 09:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWHRN4A
+	id S1030399AbWHRN4m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 09:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWHRN4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 09:56:00 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:7928 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030387AbWHRNz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 09:55:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HXmZoF5Km6SV7OrxT2B6BViWPm7flOKCa3bGmcvOxxB0lsVEU8CXVx17rA5uxUVPTnq00xJkFhJb6YgnwR8d5N61Pw4GK8jDPL1159cXNjizg2sv45WWb1XmSiGpvCYjk587VALeSMYjwjkGcCugqrztYvgRN9lQKtTBXGgomFU=
-Message-ID: <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
-Date: Fri, 18 Aug 2006 15:55:59 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 18 Aug 2006 09:56:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:16291 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030399AbWHRN4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 09:56:41 -0400
+Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
+       Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <osstklei@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>
+In-Reply-To: <20060818134728.GB5201@martell.zuzino.mipt.ru>
+References: <200608181329.02042.ossthema@de.ibm.com>
+	 <20060818134728.GB5201@martell.zuzino.mipt.ru>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 18 Aug 2006 15:56:17 +0200
+Message-Id: <1155909377.4494.192.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
-	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
-	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
-	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
-	 <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
-	 <b0943d9e0608170801v23592952scf12c2c0b4a7bf4@mail.gmail.com>
-	 <b0943d9e0608171458l45b717bexbfb8fb2ba68228db@mail.gmail.com>
-	 <6bffcb0e0608180528ocadc36ck8868ae1a33342bb9@mail.gmail.com>
-	 <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > Something doesn't work. It appears while udev start.
->
-> Could you try the attached patch? It has some improvements from the
-> yesterday's one and also prints extra information when that error
-> happens.
+On Fri, 2006-08-18 at 17:47 +0400, Alexey Dobriyan wrote:
+> On Fri, Aug 18, 2006 at 01:29:01PM +0200, Jan-Bernd Themann wrote:
+> 
+> Was there noticeable performance difference when explicit prefetching is
+> removed? At some (invisible) point CPUs will become smarter about prefetching
+> than programmers and this code will be slower than possible.
 
-Problem fixed, thank. I'll do some tests.
+Hi,
 
->
-> Thanks.
->
-> --
-> Catalin
->
->
->
+what you say is true in general, however the packet response part of the
+kernel is special; the cpu just cannot know where your card just dma'd
+the packet to (and thus cleared it from any caches anywhere in the
+system) so it's going to be pretty much a 100% cachemiss always...
 
-Regards,
-Michal
+Greetings,
+   Arjan van de Ven
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

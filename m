@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWHRSsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWHRSvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWHRSsy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 14:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWHRSsy
+	id S1750986AbWHRSvz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 14:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHRSvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 14:48:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47771 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750717AbWHRSsx (ORCPT
+	Fri, 18 Aug 2006 14:51:55 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:48229 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1750986AbWHRSvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 14:48:53 -0400
-Date: Fri, 18 Aug 2006 11:48:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thierry Vignaud <tvignaud@mandriva.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: +
- support-piping-into-commands-in-proc-sys-kernel-core_pattern.patch added to
- -mm tree
-Message-Id: <20060818114835.bcdac825.akpm@osdl.org>
-In-Reply-To: <m2fyftevt0.fsf@vador.mandriva.com>
-References: <200608161809.k7GI9ODk007199@shell0.pdx.osdl.net>
-	<m2fyftevt0.fsf@vador.mandriva.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 14:51:55 -0400
+Message-ID: <6a9b724fbffdcf29b863a289f95266e9@coraid.com>
+Date: Fri, 18 Aug 2006 13:37:37 -0400
+To: linux-kernel@vger.kernel.org
+Cc: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.18-rc4] aoe [01/13]: eliminate isbusy message
+From: "Ed L. Cashin" <ecashin@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 20:35:39 +0200
-Thierry Vignaud <tvignaud@mandriva.com> wrote:
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-> akpm@osdl.org writes:
-> 
-> > Subject: Support piping into commands in /proc/sys/kernel/core_pattern
-> > From: Andi Kleen <ak@suse.de>
-> > 
-> > Using the infrastructure created in previous patches implement support to
-> > pipe core dumps into programs.
-> > 
-> > This is done by overloading the existing core_pattern sysctl
-> > with a new syntax:
-> > 
-> > |program
-> 
-> nice but what if the core analyzer segfaults too? looping? DOS
-> coredumping :-) ?
+This message doesn't help users because the circumstance isn't problematic.
 
-rofl.  Good question ;)
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c	2006-08-17 16:45:33.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c	2006-08-17 16:45:34.000000000 -0400
+@@ -20,11 +20,8 @@ aoedev_isbusy(struct aoedev *d)
+ 	f = d->frames;
+ 	e = f + d->nframes;
+ 	do {
+-		if (f->tag != FREETAG) {
+-			printk(KERN_DEBUG "aoe: %ld.%ld isbusy\n",
+-				d->aoemajor, d->aoeminor);
++		if (f->tag != FREETAG)
+ 			return 1;
+-		}
+ 	} while (++f < e);
+ 
+ 	return 0;
+
+
+-- 
+  "Ed L. Cashin" <ecashin@coraid.com>

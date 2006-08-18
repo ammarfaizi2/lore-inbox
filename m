@@ -1,30 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWHRFaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWHRFdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWHRFaX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 01:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWHRFaX
+	id S964796AbWHRFdT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 01:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWHRFdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 01:30:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17381 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964794AbWHRFaW (ORCPT
+	Fri, 18 Aug 2006 01:33:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7910 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964796AbWHRFdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 01:30:22 -0400
-Date: Thu, 17 Aug 2006 22:30:09 -0700
+	Fri, 18 Aug 2006 01:33:18 -0400
+Date: Thu, 17 Aug 2006 22:31:37 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [3/3] Support piping into commands in
- /proc/sys/kernel/core_pattern
-Message-Id: <20060817223009.932f9383.akpm@osdl.org>
-In-Reply-To: <1155814064.15195.60.camel@localhost.localdomain>
-References: <20060814127.183332000@suse.de>
-	<20060814112732.684D313BD9@wotan.suse.de>
-	<20060816084354.GF24139@kroah.com>
-	<20060816111801.0fc5093e.ak@muc.de>
-	<20060816111025.1ab702a1.akpm@osdl.org>
-	<20060817094640.GA3173@muc.de>
-	<1155814064.15195.60.camel@localhost.localdomain>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: rohitseth@google.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
+Message-Id: <20060817223137.ca4951ff.akpm@osdl.org>
+In-Reply-To: <44E458C4.9030902@sw.ru>
+References: <44E33893.6020700@sw.ru>
+	<44E33BB6.3050504@sw.ru>
+	<1155751868.22595.65.camel@galaxy.corp.google.com>
+	<44E458C4.9030902@sw.ru>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -32,32 +33,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Aug 2006 12:27:44 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Thu, 17 Aug 2006 15:53:40 +0400
+Kirill Korotaev <dev@sw.ru> wrote:
 
-> Ar Iau, 2006-08-17 am 11:46 +0200, ysgrifennodd Andi Kleen:
-> > Several people from the embedded area wrote me privately
-> > it would be useful for them. Also I think once it's in the main kernel
-> > there will be more incentive for user space to use it and I'm optimistic
-> > it will get some adoption (ok I guess I should write some better
-> > documentation, but there was no obvious place for it)
-> 
-> I don't believe that piping as such as neccessarily the right model, but
-> the ability to intercept and processes core dumps from user space is
-> asked for by many enterprise users as well. They want to know about,
-> capture, analyse and process core dumps, often centrally and in
-> automated form.
-> 
+> >>+struct user_beancounter
+> >>+{
+> >>+	atomic_t		ub_refcount;
+> >>+	spinlock_t		ub_lock;
+> >>+	uid_t			ub_uid;
+> > 
+> > 
+> > Why uid?  Will it be possible to club processes belonging to different
+> > users to same bean counter.
+> oh, its a misname. Should be ub_id. it is ID of user_beancounter
+> and has nothing to do with user id.
 
-OK, fair enough.
-
-Now let's think about security.  Patches against ptrace, coredump and
-procfs give me the creeps because we've had (relatively) so many problems
-in those areas in the past.
-
-So I'd suggest that we should look at this code and think about it in a
-really twisted fashion - does it open any exploits?  I can't think of any,
-which is worth practically zero, but I don't see how this differs from
-/proc/sys/kernel/modprobe.
-
-But still.   Is this code secure?
+But it uses a uid_t.  That's more than a misnaming?

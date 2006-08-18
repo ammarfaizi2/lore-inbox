@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWHRI2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWHRI2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWHRI2I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 04:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWHRI2I
+	id S1751148AbWHRI2u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWHRI2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 04:28:08 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:58633 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751132AbWHRI2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 04:28:06 -0400
-Date: Fri, 18 Aug 2006 09:27:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jean-Paul Saman <jean-paul.saman@philips.com>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       Vitaly Wool <vitalywool@gmail.com>
-Subject: Re: ip3106_uart oddity
-Message-ID: <20060818082756.GB6901@flint.arm.linux.org.uk>
-Mail-Followup-To: Jean-Paul Saman <jean-paul.saman@philips.com>,
-	linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-	Vitaly Wool <vitalywool@gmail.com>
-References: <20060817202954.GC28474@flint.arm.linux.org.uk> <OF21337E37.31820A4F-ONC12571CE.002682FD-C12571CE.002AB6EB@philips.com>
+	Fri, 18 Aug 2006 04:28:50 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23010 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751148AbWHRI2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 04:28:49 -0400
+Subject: Re: GPL Violation?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ian Stirling <ian.stirling@mauve.plus.com>
+Cc: Patrick McFarland <diablod3@gmail.com>,
+       Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44E4FF89.3080500@mauve.plus.com>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
+	 <200608170242.40969.diablod3@gmail.com>
+	 <1155807431.22871.157.camel@pmac.infradead.org>
+	 <44E4FF89.3080500@mauve.plus.com>
+Content-Type: text/plain
+Date: Fri, 18 Aug 2006 09:28:40 +0100
+Message-Id: <1155889720.22871.182.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF21337E37.31820A4F-ONC12571CE.002682FD-C12571CE.002AB6EB@philips.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 09:46:01AM +0200, Jean-Paul Saman wrote:
-> linux-kernel-owner@vger.kernel.org wrote on 17-08-2006 22:29:54:
-> > On Thu, Aug 17, 2006 at 06:29:48PM +0400, Vitaly Wool wrote:
-> > > I'd like to take the burden of restoring the UART functionality for
-> > > PNX8550 boards in the mainline. This very UART HW is very weird and
-> > > doesn't fit well into 8250 model, even with fixups like those that
-> > > were introduced for Alchemy. It also differs from the IP_3106-based
-> > > UARTs used on Philips ARM targets in registers layout so I'm not
-> > > sure it's correct to call it ip3106_uart.
-> > > So, given the above, does it make sense to try make it fir into
-> > > standard 8250 driver model or restore/rework the custom driver?
-> > 
-> > No real clue.  Is it similar to any other drivers?
-> 
-> The ip3106_uart.c file that was used in the PNX8550 boards is wrongly 
-> named. The uart just isn't an ip3106, because those are used in philips 
-> ARM based devices.
-> 
-> If you restore the ip3106T_uart.c, then please rename it pnx8550_uart.c 
-> (or pnx8xxxx_uart.c).
+On Fri, 2006-08-18 at 00:45 +0100, Ian Stirling wrote:
+> With the appropriate disclaimers on the box, it cannot function
+> incorrectly, as you will know that the  thumb-print reader won't
+> work if you upgrade the kernel, and if you intend to do so,
+> you don't buy.
 
-There are no plans what so ever to "restore" what was never even there.
-Searching around, there was a pnx0105 driver submitted but needed some
-additional work which was never done.
+As far as I can tell, the GPL does not contain the text "if you are
+shipping a commercial product don't really want to comply with this
+licence, you can just put a disclaimer on the box of your product and
+that's OK instead".
 
-The same situation seems to apply to this driver.  Ralf submitted a
-driver called ip3106_uart.c which claimed to be a rewrite of
-pnx8550_uart.c.  Comments were given at that time, no real feedback
-came of that.
+> I've got a number of wireless routers that I don't have working
+> drivers for the wifi cards, happily wired into my network doing
+> things that they were not intended for, but they are functioning
+> 'correctly' as I see it. 
 
-I would suggest you read the "Serial driver for the Philips PNX8550
-SOC." thread, but it was a private one between Ralf, me and an
-embeddedalley.com employee (who allegedly was the author of the driver
-and who volunteered to do the work to fix the comments, but seemingly
-never actually did anything.)
-
-I suggest you ask embeddedalley.com...
+Both are fairly clear examples of GPL violations. The manufacturer has
+_not_ granted you the freedom to copy, modify and distribute all the
+Linux-based code in the device, as is required by the GPL.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+dwmw2
+

@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWHRS6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWHRTBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161074AbWHRS6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 14:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWHRS6V
+	id S1750858AbWHRTBP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHRTBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 14:58:21 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53163 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161074AbWHRS5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 14:57:53 -0400
-Date: Fri, 18 Aug 2006 11:56:24 -0700
-From: Paul Jackson <pj@sgi.com>
-To: sekharan@us.ibm.com
-Cc: akpm@osdl.org, riel@redhat.com, Linux@sc8-sf-spam2-b.sourceforge.net,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, dev@sw.ru, hch@infradead.org, saw@sw.ru,
-       devel@openvz.org, rohitseth@google.com, hugh@veritas.com,
-       Christoph@sc8-sf-spam2-b.sourceforge.net, ak@suse.de, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, xemul@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-Message-Id: <20060818115624.fd875624.pj@sgi.com>
-In-Reply-To: <1155925065.26155.17.camel@linuxchandra>
-References: <44E33893.6020700@sw.ru>
-	<44E33C3F.3010509@sw.ru>
-	<1155752277.22595.70.camel@galaxy.corp.google.com>
-	<1155755069.24077.392.camel@localhost.localdomain>
-	<1155756170.22595.109.camel@galaxy.corp.google.com>
-	<44E45D6A.8000003@sw.ru>
-	<20060817084033.f199d4c7.akpm@osdl.org>
-	<20060818120809.B11407@castle.nmd.msu.ru>
-	<1155912348.9274.83.camel@localhost.localdomain>
-	<20060818094248.cdca152d.akpm@osdl.org>
-	<1155925065.26155.17.camel@linuxchandra>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Fri, 18 Aug 2006 15:01:15 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:22284 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750858AbWHRTBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:01:14 -0400
+Date: Fri, 18 Aug 2006 20:01:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Paul Fulghum <paulkf@microgate.com>
+Subject: Re: R: How to avoid serial port buffer overruns?
+Message-ID: <20060818190106.GG21101@flint.arm.linux.org.uk>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Giampaolo Tomassoni <g.tomassoni@libero.it>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Fulghum <paulkf@microgate.com>
+References: <NBBBIHMOBLOHKCGIMJMDGEIMFNAA.g.tomassoni@libero.it> <1155920400.24907.63.camel@mindpipe> <20060818170450.GC21101@flint.arm.linux.org.uk> <1155922240.2924.5.camel@mindpipe> <20060818183430.GD21101@flint.arm.linux.org.uk> <1155927174.2924.28.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155927174.2924.28.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra wrote:
-> In order to minimize this effect, resource controllers should be
-> providing both minimum and maximum amount of resources available for a
-> resource group.
+On Fri, Aug 18, 2006 at 02:52:53PM -0400, Lee Revell wrote:
+> On Fri, 2006-08-18 at 19:34 +0100, Russell King wrote:
+> > That "0000:00:0b.0" looks like a PCI device ID.  If it were a fourport
+> > board, it would be "serial8250.3" according to the current enumeration
+> > in linux/serial_8250.h.
+> > 
+> > Also, another give away is that IRQ185 is being setup as a PCI interrupt
+> > immediately prior to the devices being registered.
+> > 
+> > And I doubt that an ISA board (which is what fourport is) would ever get
+> > such a high IRQ number.
+> > 
+> 
+> So you're saying that the standard 8250 driver is being used?
 
-No - not "should be."  Rather "could also be."
+Yes, which is also the case with 8250_fourport.  8250_fourport is just
+a probe module just like 8250_pnp or 8250_pci.
 
-The fair sharing model (such as in CKRM) that strives for maximum
-utilization of resources respecting priorities and min/max limits is
-(I suppose) quite useful for certain workloads and customers.
+> http://www.moschip.com/html/MCS9845.html
 
-The hardwall NUMA placement model (such as in cpusets) that strives
-for maximum processor and memory isolation between jobs, preferring
-to leave allocated resources unused rather than trying to share them,
-is also quite useful for some.  Customers with 256 thread, one or
-two day long run time, -very- tightly coupled huge OpenMP Fortran
-jobs that need to complete within a few percent of the same time,
-every runtime, demand it.
+That also clearly says its a PCI device. 8)
 
-Don't presume that fair sharing -should- always be preferred to
-hardwall NUMA placement.
+What problem are we talking about here again?  Sorry, I've completely lost
+track and this particular thread of 26 messages is soo convoluted and too
+much to re-read.
 
-Just not so.
-
-Besides -- what benefit would CKRM gain from Andrew's latest
-brainstorm?  Doesn't CKRM already have whatever means it needs to
-define and share pools of memory?
+Since you only appear to be the messenger, wouldn't it be far better to get
+the person with the problem to report and respond rather than sitting in
+the middle?
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

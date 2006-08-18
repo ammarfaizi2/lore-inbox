@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWHRHqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWHRIKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751028AbWHRHqh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 03:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWHRHqg
+	id S1751065AbWHRIKe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWHRIKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 03:46:36 -0400
-Received: from gw-eur4.philips.com ([161.85.125.10]:42472 "EHLO
-	gw-eur4.philips.com") by vger.kernel.org with ESMTP
-	id S1751028AbWHRHqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 03:46:36 -0400
-In-Reply-To: <20060817202954.GC28474@flint.arm.linux.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       Vitaly Wool <vitalywool@gmail.com>
-Subject: Re: ip3106_uart oddity
+	Fri, 18 Aug 2006 04:10:34 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:50721 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751065AbWHRIKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 04:10:33 -0400
+Message-ID: <44E57689.9070209@sw.ru>
+Date: Fri, 18 Aug 2006 12:12:57 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
-Message-ID: <OF21337E37.31820A4F-ONC12571CE.002682FD-C12571CE.002AB6EB@philips.com>
-From: Jean-Paul Saman <jean-paul.saman@philips.com>
-Date: Fri, 18 Aug 2006 09:46:01 +0200
-X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF561 | June
- 9, 2006) at 18/08/2006 09:46:03,
-	Serialize complete at 18/08/2006 09:46:03
-Content-Type: text/plain; charset="US-ASCII"
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	<1155754029.9274.21.camel@localhost.localdomain>	<44E46FC4.2050002@sw.ru> <1155825379.9274.39.camel@localhost.localdomain>
+In-Reply-To: <1155825379.9274.39.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel-owner@vger.kernel.org wrote on 17-08-2006 22:29:54:
-
-> On Thu, Aug 17, 2006 at 06:29:48PM +0400, Vitaly Wool wrote:
-> > it looks like drivers/serial/ip3106_uart.c was dropped from the
-> > mainline at some point I couldn't identify. Can you please confirm
-> > that?
+Dave Hansen wrote:
+> On Thu, 2006-08-17 at 17:31 +0400, Kirill Korotaev wrote:
 > 
-Looks like someone wanted to rename it, but forgot to include the new 
-file.
-
-> I am not aware of its addition nor removal of this file.  There was
-> au1x00_uart.c at one time.
+>>>How many things actually use this?  Can we have the slab ubcs
+>>
+>>without
+>>
+>>>the struct page pointer?
+>>
+>>slab doesn't use this pointer on the page.
+>>It is used for pages allocated by buddy
+>>alocator implicitly (e.g. LDT pages, page tables, ...). 
 > 
-> > I'd like to take the burden of restoring the UART functionality for
-> > PNX8550 boards in the mainline. This very UART HW is very weird and
-> > doesn't fit well into 8250 model, even with fixups like those that
-> > were introduced for Alchemy. It also differs from the IP_3106-based
-> > UARTs used on Philips ARM targets in registers layout so I'm not
-> > sure it's correct to call it ip3106_uart.
-> > So, given the above, does it make sense to try make it fir into
-> > standard 8250 driver model or restore/rework the custom driver?
 > 
-> No real clue.  Is it similar to any other drivers?
+> Hmmm.  There aren't _that_ many of those cases, right?  Are there any
+> that absolutely need raw access to the buddy allocator?  I'm pretty sure
+> that pagetables can be moved over to a slab, as long as we bump up the
+> alignment.
+LDT takes from 1 to 16 pages. and is allocated by vmalloc.
+do you propose to replace it with slab which can fail due to memory
+fragmentation?
 
-The ip3106_uart.c file that was used in the PNX8550 boards is wrongly 
-named. The uart just isn't an ip3106, because those are used in philips 
-ARM based devices.
+the same applies to fdset, fdarray, ipc ids and iptables entries.
 
-If you restore the ip3106T_uart.c, then please rename it pnx8550_uart.c 
-(or pnx8xxxx_uart.c).
+> It does seem a wee bit silly to have the pointer in _all_ of the struct
+> pages, even the ones for which we will never do any accounting (and even
+> on kernels that never need it).  But, a hashing scheme sounds like a
+> fine idea.
+It seems a silly for you since 2nd patchset accounting user pages
+is not here yet. As you can see we added a union into page,
+which is shared between kernel memory and user memory accounting.
 
-Kind greetings,
+THERE IS NOT USER ACCOUNTING HERE YET GUYS! :) THIS FIELD WILL BE USED!!!
 
-Jean-Paul Saman
+Thanks,
+Kirill
 
-Philips Semiconductors

@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWHRQ6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWHRQ53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbWHRQ6r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWHRQ6r
+	id S1751424AbWHRQ53 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWHRQ53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:58:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33949 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161052AbWHRQ6q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:58:46 -0400
-Date: Fri, 18 Aug 2006 09:58:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-cc: manfred@colorfullife.com, ak@muc.de, mpm@selenic.com, marcelo@kvack.org,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, ak@suse.de,
-       dgc@sgi.com
-Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
-In-Reply-To: <20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
- <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
- <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
- <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608172222210.29168@schroedinger.engr.sgi.com>
- <20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
+	Fri, 18 Aug 2006 12:57:29 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:33844 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751424AbWHRQ53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:57:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Mi/L7HXcRYY+QIFIOTgcoim/JlunQqzjt9vZfFirpEHhTmJ+OSjlcupH5xjPWZyVRvsUHcoFCS5zMlMadT11EhZTNpuDW9PRQvWpJCHTU63UNEWDtsZpyrV0lJGEAvo8WrskVA0usl5NRRPfTBYsqjF9s3lZBHi/g8/Rg3kWwXI=
+Message-ID: <b0943d9e0608180957w60d22261k61b272c9b76505bd@mail.gmail.com>
+Date: Fri, 18 Aug 2006 17:57:27 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0608180942l12e342epd60dffbb5c5d4b3e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+	 <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
+	 <b0943d9e0608170801v23592952scf12c2c0b4a7bf4@mail.gmail.com>
+	 <b0943d9e0608171458l45b717bexbfb8fb2ba68228db@mail.gmail.com>
+	 <6bffcb0e0608180528ocadc36ck8868ae1a33342bb9@mail.gmail.com>
+	 <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
+	 <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
+	 <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
+	 <b0943d9e0608180846s4ed560b7ld4e3081bdc754454@mail.gmail.com>
+	 <6bffcb0e0608180942l12e342epd60dffbb5c5d4b3e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006, KAMEZAWA Hiroyuki wrote:
+On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> On 18/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > > Lockdep still detects this bug
+> >
+> > Do you have the complete dmesg output? There should be a different
+> > path which I missed (I didn't get this yestarday but I haven't tried
+> > with the latest patch I sent to you today).
+>
+> Here is dmesg output
+> http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.9/kml-dmesg2
 
-> Just a note: with SPARSEMEM, we need more calculation and access to
-> mem_section[] table and page structs(mem_map).
+Thanks. It is strange - I was under the impression that calling
+radix_tree_preload() outside the memleak_lock holding would actually
+prevent radix_tree_insert() from allocating a node (and therefore call
+kmem_cache_alloc and acquire the list_lock). I'll look at the
+radix_tree code this weekend. I'm looking at implementing some kind of
+RCU mechanism in kmemleak to avoid future problems (might need changed
+to radix_tree as well).
 
-Uhh, a regression against DISCONTIG. Could you address that issue?
-
-> > vmalloc_to_addr is certainly slower due to the page table walking. But the 
-> > user already is aware of the fact that vmalloc memory is not as fast as
-> > direct mapped.
-
-> Considering some code walking through a list of objects scattered over all memory,
-> Is virtually-mapped area really slow ?
-
-On most arches it is somewhat slower. IA64 is special in the sense that it 
-has virtually mapped kernel memory.
+-- 
+Catalin

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWHRKst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWHRKwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbWHRKst (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWHRKst
+	id S1751361AbWHRKwI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWHRKwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:48:49 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:3503 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751354AbWHRKss
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:48:48 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Fri, 18 Aug 2006 06:52:08 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:39853 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751361AbWHRKwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 06:52:06 -0400
+Message-ID: <44E59C65.7000807@sw.ru>
+Date: Fri, 18 Aug 2006 14:54:29 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       rohitseth@google.com, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       devel@openvz.org, hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
+References: <44E33893.6020700@sw.ru> <1155824788.9274.32.camel@localhost.localdomain> <1155826917.15195.101.camel@localhost.localdomain> <200608171804.41433.ak@suse.de>
+In-Reply-To: <200608171804.41433.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17637.39394.504082.975709@gargle.gargle.HOWL>
-Date: Fri, 18 Aug 2006 14:43:46 +0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@suse.de>, David Chinner <dgc@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow writeback.
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <20060817224952.e418c669.akpm@osdl.org>
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	<20060815010611.7dc08fb1.akpm@osdl.org>
-	<20060815230050.GB51703024@melbourne.sgi.com>
-	<17635.60378.733953.956807@cse.unsw.edu.au>
-	<20060816231448.cc71fde7.akpm@osdl.org>
-	<1155818179.5662.19.camel@localhost>
-	<20060817081415.f48fbb37.akpm@osdl.org>
-	<1155831779.5620.15.camel@localhost>
-	<20060817224952.e418c669.akpm@osdl.org>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
-X-SystemSpamProbe: GOOD 0.0000046 283252a83b1f50a3af86e2f46a6ca109
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+Andi Kleen wrote:
+>>I don't see any good way around that. For the page struct it is a
+>>material issue, for the others its not a big deal providing we avoid
+>>accounting dumb stuff like dentries.
+>>
+>>At the VM summit Linus suggested one option for user page allocation
+>>tracking would be to track not per page but by block of pages (say the
+>>2MB chunks) and hand those out per container. That would really need the
+>>defrag work though.
+> 
+> 
+> One could always use a second set of arrays, mirroring mem_map
+which one do you prefer:
+- having a pointer on the struct page?
+  kernels without resource accounting won't have this.
 
-[...]
+- having a mirroring mem_map?
+  on i686 it is easy, but not sure about sparse mem
+  or numa configurations.
+  advantage: run-time configurable on boot time.
+  disadvantage: much lower performance with accounting.
 
- > 
- > The way this code all works is pretty crude and simple: a process comes
- > in to to some writeback and it enters a polling loop:
- > 
- > 	while (we need to do writeback) {
- > 		for (each superblock) {
- > 			if (the superblock's backing_dev isn't congested) {
- > 				stuff some more IO down it()
- > 			}
- > 		}
- > 		take_a_nap();
- > 	}
- > 
- > so the process remains captured in that polling loop until the
- > dirty-memory-exceed condition subsides.  The reason why we avoid
+- address_space/anon_vma can be replaced with some kind of proxy object
+  with 2 pointers - address_space and ub. however I don't see how it is
+  better then a single ptr on page.
 
-Hm... wbc->nr_to_write is checked all the way down
-(balance_dirty_pages(), writeback_inodes(), sync_sb_inodes(),
-mpage_writepages()), so "occasional writer" cannot be stuck for more
-than 32 + 16 pages, it seems.
-
-Nikita.
+Thanks,
+Kirill
 

@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWHRMCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWHRMHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWHRMCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 08:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWHRMCJ
+	id S932432AbWHRMHg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 08:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWHRMHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 08:02:09 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39307 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932408AbWHRMCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 08:02:08 -0400
-Subject: Re: [PATCH] [3/3] Support piping into commands in
-	/proc/sys/kernel/core_pattern
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Greg KH <greg@kroah.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060818082958.GA5862@muc.de>
-References: <20060814127.183332000@suse.de>
-	 <20060814112732.684D313BD9@wotan.suse.de>
-	 <20060816084354.GF24139@kroah.com> <20060816111801.0fc5093e.ak@muc.de>
-	 <20060816111025.1ab702a1.akpm@osdl.org> <20060817094640.GA3173@muc.de>
-	 <1155814064.15195.60.camel@localhost.localdomain>
-	 <20060817223009.932f9383.akpm@osdl.org>  <20060818082958.GA5862@muc.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 18 Aug 2006 14:01:25 +0200
-Message-Id: <1155902485.4494.164.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 18 Aug 2006 08:07:36 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:43459 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932432AbWHRMHf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 08:07:35 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+Subject: [2.6.19 PATCH 0/7] ehea: IBM eHEA Ethernet Device Driver
+Date: Fri, 18 Aug 2006 13:28:04 +0200
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Disposition: inline
+To: netdev <netdev@vger.kernel.org>
+Cc: Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <osstklei@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200608181328.04607.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 10:29 +0200, Andi Kleen wrote:
-> > But still.   Is this code secure?
-> 
-> Any auditing from third parties appreciated.
-> 
-> I don't know of any obvious flaws (at least assuming the pipe handler
-> isn't insecure code), but then I'm biased. 
+Hello,
 
-one angle is... is the userspace handler trusted code by root? Or is it
-allowed to be per user/user defined binary? In the later case there are
-all kinds of DoS scenarios possible; in the former it's root doing that
-to himself ;)
+this is the latest version of the IBM eHEA Ethernet Device Driver.
+The main difference to the previous version is the rework of the debug
+mechanism. 
+We highly appreciate further comments.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Thanks,
+Jan-Bernd
+
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+Changelog-by:  Jan-Bernd Themann <themann@de.ibm.com>
+
+Differences to patch set: http://www.spinics.net/lists/netdev/msg11593.html
+
+Changelog:
+
+- Logging rework (EDEB macros removed, netif_msg_X mechansim used)
+
+
+ drivers/net/Kconfig             |    6 
+ drivers/net/Makefile            |    1 
+ drivers/net/ehea/Makefile       |    7 
+ drivers/net/ehea/ehea.h         |  442 +++++++
+ drivers/net/ehea/ehea_ethtool.c |  264 ++++
+ drivers/net/ehea/ehea_hcall.h   |   51 
+ drivers/net/ehea/ehea_hw.h      |  292 ++++
+ drivers/net/ehea/ehea_main.c    | 2480 ++++++++++++++++++++++++++++++++++++++++
+ drivers/net/ehea/ehea_phyp.c    |  884 ++++++++++++++
+ drivers/net/ehea/ehea_phyp.h    |  523 ++++++++
+ drivers/net/ehea/ehea_qmr.c     |  643 ++++++++++
+ drivers/net/ehea/ehea_qmr.h     |  367 +++++
+ 12 files changed, 5960 insertions(+)
+
+
 

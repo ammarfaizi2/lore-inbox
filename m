@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWHRIjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWHRIm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWHRIjH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 04:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWHRIjG
+	id S1751153AbWHRIm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 04:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWHRIm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 04:39:06 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:44444 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750829AbWHRIjF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 04:39:05 -0400
-Subject: Re: [ckrm-tech] [PATCH 2/7] UBC: core (structures, API)
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Andrey Savochkin <saw@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Andi Kleen <ak@suse.de>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+	Fri, 18 Aug 2006 04:42:26 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:27277 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751153AbWHRImZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 04:42:25 -0400
+Message-ID: <44E57E01.8070406@sw.ru>
+Date: Fri, 18 Aug 2006 12:44:49 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: rohitseth@google.com
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, ckrm-tech@lists.sourceforge.net,
+       Dave Hansen <haveblue@us.ibm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@sw.ru>, Christoph Hellwig <hch@infradead.org>,
-       devel@openvz.org, rohitseth@google.com, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
        Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <20060818113525.A11407@castle.nmd.msu.ru>
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru>
-	 <1155751868.22595.65.camel@galaxy.corp.google.com> <44E458C4.9030902@sw.ru>
-	 <20060817223137.ca4951ff.akpm@osdl.org>
-	 <20060818113525.A11407@castle.nmd.msu.ru>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 01:26:03 -0700
-Message-Id: <1155889563.2510.303.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
+References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	<1155754029.9274.21.camel@localhost.localdomain>	<1155755729.22595.101.camel@galaxy.corp.google.com>	<1155774141.15195.0.camel@localhost.localdomain> <1155832615.14617.8.camel@galaxy.corp.google.com>
+In-Reply-To: <1155832615.14617.8.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 11:35 +0400, Andrey Savochkin wrote:
-> On Thu, Aug 17, 2006 at 10:31:37PM -0700, Andrew Morton wrote:
-> > On Thu, 17 Aug 2006 15:53:40 +0400
-> > Kirill Korotaev <dev@sw.ru> wrote:
-> > 
-> > > >>+struct user_beancounter
-> > > >>+{
-> > > >>+	atomic_t		ub_refcount;
-> > > >>+	spinlock_t		ub_lock;
-> > > >>+	uid_t			ub_uid;
-> > > > 
-> > > > 
-> > > > Why uid?  Will it be possible to club processes belonging to different
-> > > > users to same bean counter.
-> > > oh, its a misname. Should be ub_id. it is ID of user_beancounter
-> > > and has nothing to do with user id.
-> > 
-> > But it uses a uid_t.  That's more than a misnaming?
+Rohit Seth wrote:
+> On Thu, 2006-08-17 at 01:22 +0100, Alan Cox wrote:
 > 
-> It used to be uid-related in ancient times when the notion of container
-> hadn't formed up.
-> "user" part of user_beancounter name has the same origin :)
+>>Ar Mer, 2006-08-16 am 12:15 -0700, ysgrifennodd Rohit Seth:
+>>
+>>>resources will be allocated/freed in context of a user process.  And at
+>>>that time we know if a allocation should succeed or not.  So we may
+>>>actually not need to track kernel pages that closely.
+>>
+>>Quite the reverse, tracking kernel pages is critical, 
+> 
+> 
+> Having the knowledge of how many kernel pages are getting used by each
+> container is indeed very useful.  But as long as the context in which
+> they are created and destroyed is identifiable, there is no need to
+> really physically tag each page with container id.  And for the cases
+> where we have no context, it will be worth while to see if mapping field
+> could be used.
+as I described in another email this field is also reused for tracking
+user pages.
 
-Is it similarly irrelevant now? If so perhaps a big rename could be used
-to make the names clearer (s/user_//, s/ub_/bc_/, ...).
-
-<snip>
-
-Cheers,
-	-Matt Helsley
-
+Kirill

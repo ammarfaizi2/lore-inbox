@@ -1,116 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWHRHSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWHRHSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWHRHSP (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750839AbWHRHSP (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 18 Aug 2006 03:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWHRHSO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWHRHSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 03:18:14 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:61149 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1750875AbWHRHSN (ORCPT
+	Fri, 18 Aug 2006 03:18:15 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:60125 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1750839AbWHRHSN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 18 Aug 2006 03:18:13 -0400
 From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][CHAR] Return better error codes if drivers/char/raw.c module init fails
-Date: Fri, 18 Aug 2006 09:18:30 +0200
+To: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: cdev documentation (was Drop second arg of unregister_chrdev())
+Date: Fri, 18 Aug 2006 09:15:28 +0200
 User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060817212248.19853.qmail@lwn.net>
+In-Reply-To: <20060817212248.19853.qmail@lwn.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart2417681.Cme2DcPV5G";
+  boundary="nextPart1587963.HkYOHklsBE";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608180918.30483.eike-kernel@sf-tec.de>
+Message-Id: <200608180915.28763.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2417681.Cme2DcPV5G
+--nextPart1587963.HkYOHklsBE
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Currently this module just returns 1 if anything on module init fails. Store
-the error code of the different function calls and return their error on
-problems.
+Jonathan Corbet wrote:
+> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+> > > Might this, instead, be an opportunity to get rid of the internal
+> > > register_chrdev() and unregister_chrdev() calls in favor of the cdev
+> > > interface?
+> >
+> > In this case I would suggest to add documentation to this functions fir=
+st
+> > to get people the chance to actually know how to use them.
+>
+> How's the following?  Quickly done but, I hope, useful.
+>
+> I've also put something more tutorial-oriented at:
+>
+> 	http://lwn.net/SubscriberLink/195805/b835f36d3b8ee266/
+>
+> This can be formatted up for the Documentation directory if so desired.
 
-I'm not sure if this doesn't need even more cleanup, for example kobj_put()=
+Thanks from the "other developer". What I would like to have is a function=
 =20
-is called only in one error case.
+that gives me the next (or even a random) available number from my range.=20
+Currently I have to do it on my own AFAICS.=20
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Nevertheless, I ported my driver to the new interface. I see it cdev_add()=
+=20
+succeeding, but the device never shows up in sysfs. Do I have to do any mor=
+e=20
+tricks with class devices and stuff?
 
-=2D--
-commit f6272846a16df0c7acb5c1701c0acdee0b472047
-tree 441e29883ce4f449ca269b571e901ab617e0733c
-parent 2cb2450818804edcbcb1486a4df0db06e5d49969
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Fri, 18 Aug 2006 09:13:03 +02=
-00
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Fri, 18 Au=
-g 2006 09:13:03 +0200
+While I was sneaking around in the code I found this drivers/char/tty_io:30=
+93
 
- drivers/char/raw.c |   20 ++++++++++++--------
- 1 files changed, 12 insertions(+), 8 deletions(-)
+        cdev_init(&driver->cdev, &tty_fops);
+        driver->cdev.owner =3D driver->owner;
+        error =3D cdev_add(&driver->cdev, dev, driver->num);
+        if (error) {
+                cdev_del(&driver->cdev);
 
-diff --git a/drivers/char/raw.c b/drivers/char/raw.c
-index 579868a..5938e6b 100644
-=2D-- a/drivers/char/raw.c
-+++ b/drivers/char/raw.c
-@@ -288,31 +288,35 @@ static struct cdev raw_cdev =3D {
- static int __init raw_init(void)
- {
- 	dev_t dev =3D MKDEV(RAW_MAJOR, 0);
-+	int ret;
-=20
-=2D	if (register_chrdev_region(dev, MAX_RAW_MINORS, "raw"))
-+	ret =3D register_chrdev_region(dev, MAX_RAW_MINORS, "raw");
-+	if (ret)
- 		goto error;
-=20
- 	cdev_init(&raw_cdev, &raw_fops);
-=2D	if (cdev_add(&raw_cdev, dev, MAX_RAW_MINORS)) {
-+	ret =3D cdev_add(&raw_cdev, dev, MAX_RAW_MINORS);=20
-+	if (ret) {
-+		printk(KERN_ERR "error register raw device\n");
- 		kobject_put(&raw_cdev.kobj);
-=2D		unregister_chrdev_region(dev, MAX_RAW_MINORS);
-=2D		goto error;
-+		goto error_region;
- 	}
-=20
- 	raw_class =3D class_create(THIS_MODULE, "raw");
- 	if (IS_ERR(raw_class)) {
- 		printk(KERN_ERR "Error creating raw class.\n");
- 		cdev_del(&raw_cdev);
-=2D		unregister_chrdev_region(dev, MAX_RAW_MINORS);
-=2D		goto error;
-+		ret =3D PTR_ERR(raw_class);
-+		goto error_region;
- 	}
- 	class_device_create(raw_class, NULL, MKDEV(RAW_MAJOR, 0), NULL, "rawctl");
-=20
- 	return 0;
-=20
-+error_region:
-+	unregister_chrdev_region(dev, MAX_RAW_MINORS);
- error:
-=2D	printk(KERN_ERR "error register raw device\n");
-=2D	return 1;
-+	return ret;
- }
-=20
- static void __exit raw_exit(void)
+Isn't the call to cdev_del() just wrong here?
 
---nextPart2417681.Cme2DcPV5G
+Eike
+
+--nextPart1587963.HkYOHklsBE
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQBE5WnGXKSJPmm5/E4RAg/dAKCCU5UaD0HSFArqHtJeQXE6gLFSmQCgg+QB
-gWpCABqPtgqBgcVCXYc2EQs=
-=6xl8
+iD8DBQBE5WkQXKSJPmm5/E4RAsm+AJ9QavefNr7Gr1izdq52M9Jzs7/o9gCfXiFI
+v65V6mjWiZmcp/7QwlwOCtI=
+=GJiY
 -----END PGP SIGNATURE-----
 
---nextPart2417681.Cme2DcPV5G--
+--nextPart1587963.HkYOHklsBE--

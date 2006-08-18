@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWHRXQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWHRXTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWHRXQo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 19:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWHRXQo
+	id S1751049AbWHRXTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbWHRXTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 19:16:44 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:57211 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750948AbWHRXQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 19:16:43 -0400
-Date: Fri, 18 Aug 2006 17:16:59 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: R: R: How to avoid serial port buffer overruns?
-In-reply-to: <fa.f1Jp2YDS6/xT0GB2fsQq98CdRtA@ifi.uio.no>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>
-Message-id: <44E64A6B.8030105@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.QIapfCxFpNcj7ZdkL+1slt8AXnQ@ifi.uio.no>
- <fa.f1Jp2YDS6/xT0GB2fsQq98CdRtA@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Fri, 18 Aug 2006 19:19:04 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:31971 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751049AbWHRXTA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 19:19:00 -0400
+Date: Fri, 18 Aug 2006 17:18:55 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Eric Sandeen <esandeen@redhat.com>
+Cc: Mingming Cao <cmm@us.ibm.com>, sho@tnes.nec.co.jp,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH] fix ext3 mounts at 16T
+Message-ID: <20060818231855.GW6634@schatzie.adilger.int>
+Mail-Followup-To: Eric Sandeen <esandeen@redhat.com>,
+	Mingming Cao <cmm@us.ibm.com>, sho@tnes.nec.co.jp,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060818181516sho@rifu.tnes.nec.co.jp> <44E5F9F0.6030805@us.ibm.com> <44E5FB5D.60403@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E5FB5D.60403@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> Apparently to handle these kinds of kludges, the kernel
-> interrupt code was modified so that the device-driver
-> code needs to returna value to the kernel core code.
-> If the value is not IRQ_HANDLED, then the ISR will be
-> called again. If your ISR never returns IRQ_HANDLED,
-> then the kernel core code will shut you off when it
-> detects a loop of (last I checked) 10,000 spins.
+On Aug 18, 2006  12:39 -0500, Eric Sandeen wrote:
+> @@ -168,7 +168,7 @@ goal_in_my_reservation(struct ext3_reser
+>  	ext3_fsblk_t group_first_block, group_last_block;
+>  
+>  	group_first_block = ext3_group_first_block_no(sb, group);
+> -	group_last_block = group_first_block + EXT3_BLOCKS_PER_GROUP(sb) - 1;
+> +	group_last_block = group_first_block + (EXT3_BLOCKS_PER_GROUP(sb) - 1);
+>  
+>  	if ((rsv->_rsv_start > group_last_block) ||
+>  	    (rsv->_rsv_end < group_first_block))
+> @@ -897,7 +897,7 @@ static int alloc_new_reservation(struct 
+>  	spinlock_t *rsv_lock = &EXT3_SB(sb)->s_rsv_window_lock;
+>  
+>  	group_first_block = ext3_group_first_block_no(sb, group);
+> -	group_end_block = group_first_block + EXT3_BLOCKS_PER_GROUP(sb) - 1;
+> +	group_end_block = group_first_block + (EXT3_BLOCKS_PER_GROUP(sb) - 1);
+>  
+>  	if (grp_goal < 0)
+>  		start_block = group_first_block;
 
-This isn't to handle the edge-triggered case, that return value is to 
-shut off the interrupt entirely in the case of a device that is 
-asserting its interrupt but no driver claims to be handling it. 
-Otherwise the interrupt storm could cause the machine to simply lock up. 
-It doesn't just disable that ISR either, the interrupt line is disabled 
-in the interrupt controller which may disable other devices using that line.
+I don't see how these can make a difference?  Surely, if the intermediate
+sum overflows it will then underflow when "- 1" is done?  Not that I mind,
+per-se, just curious why you think this fixes anything.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

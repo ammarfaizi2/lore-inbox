@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWHRKSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWHRKUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWHRKSX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHRKSW
+	id S1751344AbWHRKUk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWHRKUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:18:22 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:8588 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751342AbWHRKSV (ORCPT
+	Fri, 18 Aug 2006 06:20:40 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:8388 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751344AbWHRKUk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:18:21 -0400
-Date: Fri, 18 Aug 2006 14:10:04 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Joe Jin <lkmaillist@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take10 1/2] kevent: Core files.
-Message-ID: <20060818100959.GA27479@2ka.mipt.ru>
-References: <11557316922047@2ka.mipt.ru> <11557316932803@2ka.mipt.ru> <215036450608180235l28836e3fpa2b529d7c0f69571@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Fri, 18 Aug 2006 06:20:40 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed!
+Date: Fri, 18 Aug 2006 12:24:11 +0200
+User-Agent: KMail/1.9.3
+Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060813012454.f1d52189.akpm@osdl.org> <200608181255.46999.ak@suse.de> <44E58FDC.6030007@aitel.hist.no>
+In-Reply-To: <44E58FDC.6030007@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <215036450608180235l28836e3fpa2b529d7c0f69571@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 18 Aug 2006 14:13:25 +0400 (MSD)
+Message-Id: <200608181224.11303.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 05:35:45PM +0800, Joe Jin (lkmaillist@gmail.com) wrote:
-> >+static int __devinit kevent_user_init(void)
-> >+{
-> >+       int err = 0;
-> >+
-> >+       err = kevent_sys_init();
-> >+       if (err)
-> >+               panic("%s: failed to initialize kevent: err=%d.\n", err);
-> 
-> Here should be?
->                    panic("%s: failed to initialize kevent: err=%d\n",
-> kevent_name, err);
+Hi,
 
-The whole function does not exist in the latest patchset anymore.
+On Friday 18 August 2006 12:01, Helge Hafting wrote:
+> Andi Kleen wrote:
+> >> I have narrowed it down.  2.6.18-rc4 does not have the 3x time
+> >> problem,  while mm1 have it.  mm1 without the hotfix jiffies
+> >> patch is just as bad.
+> >>     
+> >
+> > Can you narrow it down to a specific patch in -mm? 
+> >   
+> How do I do that?  Is -mm available through git somehow,
+> or is there some other clever way?
+
+You can download the broken-out version of the -mm and use quilt.
+
+Quick start:
+- unpack the tarball in a directory containing vanilla 2.6.18-rc4 sources,
+- rename 'broken-out' to 'patches'
+- use 'quilt push n' to apply the next n patches,
+- use 'quilt pop n' to revert the last n patches applied,
+- 'quilt applied | wc' gives you the number of patches currently applied,
+- 'quilt top' returns the name of the last patch applied.
+
+Greetings,
+Rafael
+
 
 -- 
-	Evgeniy Polyakov
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

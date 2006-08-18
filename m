@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWHRAjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWHRArP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWHRAjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 20:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWHRAjJ
+	id S932137AbWHRArP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 20:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHRArP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 20:39:09 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:54662 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932099AbWHRAjH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 20:39:07 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=ttg5je9Cv73arVasWlly+wsS4PI3dSlx/jCPX1ndrcaI/UKNBzB0oHrw/QFUMLCuz
-	dSkOX1t4AZzeGnL+W77yg==
-Message-ID: <44E50B5D.9060506@google.com>
-Date: Thu, 17 Aug 2006 17:35:41 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@google.com>
-CC: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-References: <20060808211731.GR14627@postel.suug.ch>	<44DBED4C.6040604@redhat.com>	<44DFA225.1020508@google.com>	<20060813.165540.56347790.davem@davemloft.net>	<44DFD262.5060106@google.com>	<20060813185309.928472f9.akpm@osdl.org>	<1155530453.5696.98.camel@twins>	<20060813215853.0ed0e973.akpm@osdl.org>	<44E3E964.8010602@google.com> <20060816225726.3622cab1.akpm@osdl.org> <44E5015D.80606@google.com>
-In-Reply-To: <44E5015D.80606@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Aug 2006 20:47:15 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:8419 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932137AbWHRArP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 20:47:15 -0400
+Subject: Serial issue
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Paul Fulghum <paulkf@microgate.com>
+Content-Type: text/plain
+Date: Thu, 17 Aug 2006 20:47:55 -0400
+Message-Id: <1155862076.24907.5.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Andrew Morton wrote:
->> Processes which are dirtying those pages throttle at
->> /proc/sys/vm/dirty_ratio% of memory dirty.  So it is not possible to "fill"
->> memory with dirty pages.  If the amount of physical memory which is dirty
->> exceeds 40%: bug.
-> 
-> So we make 400 MB of a 1 GB system unavailable for write caching just to
-> get around the network receive starvation issue?
+I've found a weird serial bug.  My host is a Via EPIA M-6000 running
+2.6.17 connected to a PPC Yosemite board running 2.6.13. 
 
-Excuse me, 600 MB of a 1 GB system :-/
+In all cases the serial console works great.  But, with the default
+setting of IRQ 4, Kermit file transfers via the serial interface simply
+time out.  However if I use polling mode (setserial /dev/ttyS0 irq 0 on
+the host), file transfers work.
 
-Regards,
+When set to IRQ 4, the interrupt count does increase.
 
-Daniel
+# cat /proc/tty/driver/serial 
+serinfo:1.0 driver revision:
+0: uart:16550A port:000003F8 irq:4 tx:267 rx:667 DSR|CD
+1: uart:16550A port:000002F8 irq:3 tx:0 rx:0
+2: uart:unknown port:000003E8 irq:4
+3: uart:unknown port:000002E8 irq:3
+
+# setserial /dev/ttyS0 
+/dev/ttyS0, UART: 16550A, Port: 0x03f8, IRQ: 4
+
+# cat /proc/interrupts 
+           CPU0       
+  0:  175715279          XT-PIC  timer
+  1:     137763          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  4:        326          XT-PIC  serial
+[...]
+
+Any ideas?  I'm guessing it might be a quirk of the VIA chipset?
+
+Lee
+
+
+

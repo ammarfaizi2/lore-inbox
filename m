@@ -1,53 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWHRR3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWHRRao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWHRR3a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWHRR3a
+	id S1751428AbWHRRao (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWHRRao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:29:30 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:24745 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750707AbWHRR33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:29:29 -0400
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Christoph@sc8-sf-spam2-b.sourceforge.net,
-       List <linux-kernel@vger.kernel.org>, Kirill Korotaev <dev@sw.ru>,
-       Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+	Fri, 18 Aug 2006 13:30:44 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26278 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751430AbWHRRan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:30:43 -0400
+Subject: Re: R: How to avoid serial port buffer overruns?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux@sc8-sf-spam2-b.sourceforge.net, rohitseth@google.com,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
-       Andi Kleen <ak@suse.de>, Linux Containers <containers@lists.osdl.org>
-In-Reply-To: <20060818094248.cdca152d.akpm@osdl.org>
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>
-	 <1155752277.22595.70.camel@galaxy.corp.google.com>
-	 <1155755069.24077.392.camel@localhost.localdomain>
-	 <1155756170.22595.109.camel@galaxy.corp.google.com>
-	 <44E45D6A.8000003@sw.ru> <20060817084033.f199d4c7.akpm@osdl.org>
-	 <20060818120809.B11407@castle.nmd.msu.ru>
-	 <1155912348.9274.83.camel@localhost.localdomain>
-	 <20060818094248.cdca152d.akpm@osdl.org>
+       Paul Fulghum <paulkf@microgate.com>
+In-Reply-To: <20060818170450.GC21101@flint.arm.linux.org.uk>
+References: <NBBBIHMOBLOHKCGIMJMDGEIMFNAA.g.tomassoni@libero.it>
+	 <1155920400.24907.63.camel@mindpipe>
+	 <20060818170450.GC21101@flint.arm.linux.org.uk>
 Content-Type: text/plain
-Date: Fri, 18 Aug 2006 10:29:16 -0700
-Message-Id: <1155922156.12204.18.camel@localhost.localdomain>
+Date: Fri, 18 Aug 2006 13:30:40 -0400
+Message-Id: <1155922240.2924.5.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 09:42 -0700, Andrew Morton wrote:
-> I have this mad idea that you can divide a 128GB machine up into 256 fake
-> NUMA nodes, then you use each "node" as a 512MB unit of memory allocation. 
-> So that 4.5GB job would be placed within an exclusive cpuset which has nine
-> "mems" (what are these called?) and voila: the job has a hard 4.5GB limit,
-> no kernel changes needed.
+On Fri, 2006-08-18 at 18:04 +0100, Russell King wrote:
+> On Fri, Aug 18, 2006 at 01:00:00PM -0400, Lee Revell wrote:
+> > On Fri, 2006-08-18 at 10:48 +0200, Giampaolo Tomassoni wrote:
+> > > > On Thu, 2006-08-17 at 00:19 +0100, Russell King wrote:
+> > > > 
+> > > > 
+> > > > OK, thanks.  FWIW here is the serial board we are using:
+> > > > 
+> > > > http://www.moschip.com/html/MCS9845.html
+> > > > 
+> > > > The hardware guy says "The mn9845cv, have in default 2 serial ports and
+> > > > one ISA bus, where we have connected the tl16c554, quad serial port."
+> > > > 
+> > > > Hopefully Ingo's latency tracer can tell me what is holding off
+> > > > interrupts.
+> > > 
+> > > I beg your pardon: I'm not used that much to interrupts handling in Linux, but this piece of code from sound/drivers/serial-u16550.c in a linux-2.6.16:
+> > 
+> > OK, they are not using serial-u16550 but 8250_fourport for some reason:
+> 
+> Doesn't look like it.  fourport cards have their ports at 0x1a0..0x1bf
+> and 0x2a0..0x2bf, and have some special and non-standard features.
+> 
 
-Is this similar to Mel Gorman's zone-based anti-fragmentation approach?
-I thought he was discouraged from pursuing that at the VM summit.
+Which driver is being used then?
 
--- Dave
+# cat /proc/interrupts 
+           CPU0       
+  0:     801050    IO-APIC-edge  timer
+  1:         42    IO-APIC-edge  i8042
+  7:          0    IO-APIC-edge  parport0
+  8:          4    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 12:      11022    IO-APIC-edge  i8042
+ 14:       2517    IO-APIC-edge  ide0
+169:     536096   IO-APIC-level  ohci1394, ICE1712
+185:       3908   IO-APIC-level  eth0, serial
+193:       8610   IO-APIC-level  libata
+201:        326   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2,
+uhci_hcd:usb3, uhci_hcd:usb4, ehci_hcd:usb5
+217:      84947   IO-APIC-level  nvidia
+NMI:          0 
+LOC:     800973 
+ERR:          0
+MIS:          0
+
+# lsmod | egrep serial\|8250
+8250_fourport           2048  0 [permanent]
+8250_pnp                8704  0 
+parport_serial          7680  0 
+parport_pc             31984  1 parport_serial
+8250_pci               19968  1 parport_serial
+8250                   22704  12 8250_pnp,8250_pci
+serial_core            19200  1 8250
+
+Serial: 8250/16550 driver $Revision: 1.90 $ 10 ports, IRQ sharing
+enabled
+serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+shpchp: Standard Hot Plug PCI Controller Driver version: 0.4
+Linux agpgart interface v0.101 (c) Dave Jones
+agpgart: Detected AGP bridge 0
+agpgart: AGP aperture is 128M @ 0xe8000000
+parport: PnPBIOS parport detected.
+parport0: PC-style at 0x378, irq 7 [PCSPP,TRISTATE]
+Real Time Clock Driver v1.12ac
+input: PC Speaker as /class/input/input1
+ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 185
+0000:00:0b.0: ttyS4 at I/O 0xdd00 (irq = 185) is a 16550A
+0000:00:0b.0: ttyS5 at I/O 0xe300 (irq = 185) is a 16550A
+0000:00:0b.0: ttyS6 at I/O 0xe400 (irq = 185) is a 16550A
+0000:00:0b.0: ttyS7 at I/O 0xd000 (irq = 185) is a 16550A
+0000:00:0b.0: ttyS8 at I/O 0xd100 (irq = 185) is a 16550A
+0000:00:0b.0: ttyS9 at I/O 0xd200 (irq = 185) is a 16550A
+
+Lee
 

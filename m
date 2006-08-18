@@ -1,70 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWHRGHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWHRGLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWHRGHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 02:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWHRGHw
+	id S932399AbWHRGLs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 02:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWHRGLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 02:07:52 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:18845 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S964857AbWHRGHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 02:07:51 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44E55887.2050309@s5r6.in-berlin.de>
-Date: Fri, 18 Aug 2006 08:04:55 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: stable@kernel.org, Adrian Bunk <bunk@stusta.de>
-CC: danny@mailmij.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH] fix for recently added firewire patch that breaks things
- on	ppc
-References: <20060805151050.B24484@luna.ellen.dexterslabs.com>	<1155118273.4040.81.camel@localhost.localdomain>	<20060809151226.A31391@luna.ellen.dexterslabs.com>	<1155201211.17187.128.camel@localhost.localdomain> <20060818072143.A32418@luna.ellen.dexterslabs.com>
-In-Reply-To: <20060818072143.A32418@luna.ellen.dexterslabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 18 Aug 2006 02:11:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22146 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932152AbWHRGLr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 02:11:47 -0400
+Date: Thu, 17 Aug 2006 23:11:27 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: David Miller <davem@davemloft.net>, xavier.bestel@free.fr, 7eggert@gmx.de,
+       cate@debian.org, 7eggert@elstempel.de, mitch.a.williams@intel.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] net: restrict device names from having whitespace
+Message-ID: <20060817231127.6438324e@localhost.localdomain>
+In-Reply-To: <44E68C4E.8070607@osdl.org>
+References: <20060816133811.GA26471@nostromo.devel.redhat.com>
+	<Pine.LNX.4.58.0608161636250.2044@be1.lrz>
+	<1155799783.7566.5.camel@capoeira>
+	<20060817.162340.74748342.davem@davemloft.net>
+	<20060818022057.GA27076@nostromo.devel.redhat.com>
+	<44E68C4E.8070607@osdl.org>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny Tholen wrote:
->     Recently a patch was added for preliminary suspend/resume 
->     handling on !PPC_PMAC. However, this broke both suspend and firewire
->     on powerpc because it saves the pci state after the device has already
->     been disabled.
->  
->     This moves the save state to before the pmac specific code.
->     Please apply before 2.6.18.
-> 
->     Signed-off-by: Danny Tholen <obiwan at mailmij.org>
+Don't allow spaces in network device names because it makes
+it difficult to provide text interfaces via sysfs.
 
-This fix should go into 2.6.17.x and 2.6.16.yy too. (I sent the patch 
-with the regression also to Adrian recently.)
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+---
+ net/core/dev.c |   24 ++++++++++++++++++++----
+ 1 files changed, 20 insertions(+), 4 deletions(-)
 
-> --- linux-2.6.17.7/drivers/ieee1394/ohci1394.c~ 2006-08-09 09:00:32.556422070 -0400
-> +++ linux-2.6.17.7/drivers/ieee1394/ohci1394.c  2006-08-09 09:02:53.546090923 -0400
-> @@ -3548,6 +3548,8 @@
->  
->  static int ohci1394_pci_suspend (struct pci_dev *pdev, pm_message_t state)
->  {
-> +	pci_save_state(pdev);
-> +
->  #ifdef CONFIG_PPC_PMAC
->  	if (machine_is(powermac)) {
->  		struct device_node *of_node;
-> @@ -3559,8 +3561,6 @@
->  	}
->  #endif
->  
-> -	pci_save_state(pdev);
-> -
->  	return 0;
->  } 
-> 
-
+diff --git a/net/core/dev.c b/net/core/dev.c
+index d95e262..56c8afb 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -79,6 +79,7 @@ #include <linux/capability.h>
+ #include <linux/cpu.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
++#include <linux/ctype.h>
+ #include <linux/sched.h>
+ #include <linux/mutex.h>
+ #include <linux/string.h>
+@@ -636,10 +637,25 @@ struct net_device * dev_get_by_flags(uns
+  */
+ int dev_valid_name(const char *name)
+ {
+-	return !(*name == '\0' 
+-		 || !strcmp(name, ".")
+-		 || !strcmp(name, "..")
+-		 || strchr(name, '/'));
++	if (*name == '\0')	 /* null string */
++		return 0;
++
++	if (*name == '.') {
++		if (name[1] == '\0')	/* can't have . in directory */
++			return 0;
++		if (name[1] == '.' && name[2] == '\0')
++			return 0;	/* or .. */
++	}
++
++	/* Check for blanks and slash because it confuses sysfs interfaces */
++	do {
++		if (*name == '/')
++			return 0;
++		if (isspace(*name))
++			return 0;
++	} while (*++name);
++
++	return 1;
+ }
+ 
+ /**
 -- 
-Stefan Richter
--=====-=-==- =--- =--=-
-http://arcgraph.de/sr/
+1.4.0
+

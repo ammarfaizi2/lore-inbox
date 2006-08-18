@@ -1,101 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWHRSmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbWHRSou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWHRSmM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 14:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWHRSmM
+	id S1030510AbWHRSou (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 14:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWHRSou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 14:42:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:48360 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751435AbWHRSmL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 14:42:11 -0400
-Message-ID: <44E609F6.1090603@garzik.org>
-Date: Fri, 18 Aug 2006 14:41:58 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Fri, 18 Aug 2006 14:44:50 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40109 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751465AbWHRSot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 14:44:49 -0400
+Date: Fri, 18 Aug 2006 11:44:22 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: manfred@colorfullife.com, ak@muc.de, mpm@selenic.com, marcelo@kvack.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, ak@suse.de,
+       dgc@sgi.com
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+In-Reply-To: <20060819031916.85d5979e.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0608181138190.32621@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
+ <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608172222210.29168@schroedinger.engr.sgi.com>
+ <20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
+ <20060819031916.85d5979e.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Chuck Lever <chucklever@gmail.com>
-CC: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       steved@redhat.com, trond.myklebust@fys.uio.no,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/7] NFS: Use local caching [try #12]
-References: <20060818153502.29482.91650.stgit@warthog.cambridge.redhat.com>	 <20060818153514.29482.78513.stgit@warthog.cambridge.redhat.com> <76bd70e30608180843m536e9f57y90e1915f40f85b2@mail.gmail.com>
-In-Reply-To: <76bd70e30608180843m536e9f57y90e1915f40f85b2@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever wrote:
-> Hi David-
-> 
-> On 8/18/06, David Howells <dhowells@redhat.com> wrote:
->> The attached patch makes it possible for the NFS filesystem to make 
->> use of the
->> network filesystem local caching service (FS-Cache).
->>
->> To be able to use this, an updated mount program is required.  This 
->> can be
->> obtained from:
->>
->>         http://people.redhat.com/steved/cachefs/util-linux/
->>
->> To mount an NFS filesystem to use caching, add an "fsc" option to the 
->> mount:
->>
->>         mount warthog:/ /a -o fsc
->>
->> Signed-Off-By: David Howells <dhowells@redhat.com>
->> ---
->>
->>  fs/Kconfig                 |    7 +
->>  fs/nfs/Makefile            |    1
->>  fs/nfs/client.c            |   11 +
->>  fs/nfs/file.c              |   49 ++++-
->>  fs/nfs/fscache.c           |  348 ++++++++++++++++++++++++++++++++
->>  fs/nfs/fscache.h           |  476 
->> ++++++++++++++++++++++++++++++++++++++++++++
->>  fs/nfs/inode.c             |   21 ++
->>  fs/nfs/internal.h          |   32 +++
->>  fs/nfs/pagelist.c          |    3
->>  fs/nfs/read.c              |   30 +++
->>  fs/nfs/super.c             |    1
->>  fs/nfs/sysctl.c            |   43 ++++
->>  fs/nfs/write.c             |   11 +
->>  include/linux/nfs4_mount.h |    1
->>  include/linux/nfs_fs.h     |    5
->>  include/linux/nfs_fs_sb.h  |    5
->>  include/linux/nfs_mount.h  |    1
->>  17 files changed, 1035 insertions(+), 10 deletions(-)
->>
->> diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
->> new file mode 100644
->> index 0000000..94d5e3a
->> --- /dev/null
->> +++ b/fs/nfs/fscache.c
->> @@ -0,0 +1,348 @@
->> +/* fscache.c: NFS filesystem cache interface
->> + *
->> + * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
->> + * Written by David Howells (dhowells@redhat.com)
->> + *
-> 
->> +
->> +static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
->> +                                  void *buffer, uint16_t bufmax)
->> +{
-> 
-> Why don't you use the function declaration style that is used in the
-> rest of the NFS client?  All the parameters belong on one line, don't
-> they?
+On Sat, 19 Aug 2006, KAMEZAWA Hiroyuki wrote:
 
-Normally, one wraps the line if it exceeds 80 columns...
+> At first, ia64's DISCONTIG is special because of VIRTUAL_MEMMAP.
+> and ia64's SPARSEMEM is special,too. it's SPARSEMEM_EXTREME.
 
-	Jeff
+Right. Would it be possible to get VIRTUAL_MEMMAP support into SPARSEMEM?
 
+> with FLATMEM, pfn_to_page() is  pfn + mem_map. just an address calclation.
 
+So the virt_to_page is as fast as IA64 DISCONTIG on UP and SMP.
+
+> with *usual* DISCONTIG
+> --  
+>   pgdat = NODE_DATA(pfn_to_nid(pfn));
+>   page = pgdat->node_mem_map + pfn - pgdat->node_start_pfn
+> --
+> if accessing to pgdat is fast, cost will not be big problem.
+> pfn_to_nid() is usually implemeted by calclation or table look up.
+
+Hmmm.... pfn_to_nid usually involves a table lookup. So two table lookups 
+to get there.
+
+> and usual SPARSEMEM, (not EXTREME)
+> --
+> page = mem_section[(pfn >> SECTION_SHIFT)].mem_map + pfn
+> --
+> need one table look up. maybe not very big.
+
+Bigger than a cacheline that can be kept in the cache? On a large Altix we 
+may have 1k nodes meaning up to 4k zones!
+
+> with SPARSEMEM_EXTREME
+> --
+> page = mem_section[(pfn >> SECTION_SHIFT)][(pfn & MASK)].mem_map + pfn
+> --
+> need one (big)table look up.
+
+Owww... Cache issues.
+
+Could we do the lookup using a sparse virtually mapped table like on 
+IA64. Then align section shift to whatever page table is in place (on 
+platforms that require page tables and IA64 could continue to use its 
+special handler)?
+
+Then page could be reached via
+
+page = vmem_map + pfn
+
+again ?
 

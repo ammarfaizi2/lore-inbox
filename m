@@ -1,19 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWHRQqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWHRQsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWHRQqg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWHRQqg
+	id S1161041AbWHRQsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWHRQsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:46:36 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:52374 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751419AbWHRQqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:46:35 -0400
+	Fri, 18 Aug 2006 12:48:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:9939 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1161041AbWHRQsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:48:01 -0400
 Subject: Re: /dev/sd*
-From: Lee Revell <rlrevell@joe-job.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Seewer Philippe <philippe.seewer@bfh.ch>, Jeff Garzik <jeff@garzik.org>,
+Cc: Seewer Philippe <philippe.seewer@bfh.ch>, Jeff Garzik <jeff@garzik.org>,
        Gabor Gombas <gombasg@sztaki.hu>, Adrian Bunk <bunk@stusta.de>,
        linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.61.0608181748280.11320@yvahk01.tjqt.qr>
@@ -31,27 +30,23 @@ References: <1155144599.5729.226.camel@localhost.localdomain>
 	 <1155913072.28764.3.camel@localhost.localdomain>
 	 <Pine.LNX.4.61.0608181748280.11320@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Date: Fri, 18 Aug 2006 12:47:18 -0400
-Message-Id: <1155919638.24907.54.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 18 Aug 2006 18:02:21 +0100
+Message-Id: <1155920541.30279.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 17:51 +0200, Jan Engelhardt wrote:
-> >> Umm, hdx or sdx is a small impact. The real power of /dev/disk is that 
-> >> not-so-technically minded users can go looking for their disk by its name 
-> >
-> >They already can. It appears on their desktop with a little picture that
-> >says "My iSpod" or similar 8)
+Ar Gwe, 2006-08-18 am 17:51 +0200, ysgrifennodd Jan Engelhardt:
+> Whatever udev does currently seems good:
 > 
-> Not everyone follows Linus's "suggestion" to use KDE. Actually, there are 
-> even people not thrilled by either KDE or GNOME.
+> 17:48 shanghai:~ > ls /dev/disk/by-id/*
+> /dev/disk/by-id/ata-DIAMOND_250G_2B5400_030400026
+> /dev/disk/by-id/ata-DIAMOND_250G_2B5400_030400026-part1
+> /dev/disk/by-id/usb-0_USB_DRIVE_0000000000004287
+> /dev/disk/by-id/usb-0_USB_DRIVE_0000000000004287-part1
 
-It works the same way in Gnome (and any reasonable desktop OS).  If
-users really don't want an integrated desktop environment I think they
-get to figure out the disk naming issues themselves.
-
-Lee
+I wouldn't try that on a typical "non technical user", at least except
+for Halloween 8)
 

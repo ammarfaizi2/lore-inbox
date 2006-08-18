@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWHRRm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWHRRoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWHRRm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWHRRm6
+	id S1030297AbWHRRoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWHRRoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:42:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50817 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751438AbWHRRm5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:42:57 -0400
-Date: Fri, 18 Aug 2006 10:38:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Christoph@sc8-sf-spam2-b.sourceforge.net,
-       List <linux-kernel@vger.kernel.org>, Kirill Korotaev <dev@sw.ru>,
-       Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux@sc8-sf-spam2-b.sourceforge.net, rohitseth@google.com,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
-       Andi Kleen <ak@suse.de>, Linux Containers <containers@lists.osdl.org>
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-Message-Id: <20060818103820.34cc631a.akpm@osdl.org>
-In-Reply-To: <1155922156.12204.18.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>
-	<44E33C3F.3010509@sw.ru>
-	<1155752277.22595.70.camel@galaxy.corp.google.com>
-	<1155755069.24077.392.camel@localhost.localdomain>
-	<1155756170.22595.109.camel@galaxy.corp.google.com>
-	<44E45D6A.8000003@sw.ru>
-	<20060817084033.f199d4c7.akpm@osdl.org>
-	<20060818120809.B11407@castle.nmd.msu.ru>
-	<1155912348.9274.83.camel@localhost.localdomain>
-	<20060818094248.cdca152d.akpm@osdl.org>
-	<1155922156.12204.18.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 13:44:08 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:56946 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751440AbWHRRoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:44:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=D6DLgzU+JbdI6GnVRCf1yWSxFyOF3UI5fkOnKkN3SzettVsBcvt2YgOEblGSqzpwNAaxZUwVM2hwSYYM7gAIjYpiodWW4SaMLBjVhm8mzWXprDi0CpP2R6j3qZSro7INHIWgvstIHwO4fd/zvU94fhbmODVYBBolaY94Yvlo8Dg=
+Date: Fri, 18 Aug 2006 19:43:52 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       airlied@linux.ie, Jaroslav Kysela <perex@suse.cz>
+Subject: Re: oops while loading snd-seq-oss (was: Re: 2.6.18-rc4-mm1 BUG, drm related)
+Message-ID: <20060818194352.GC720@slug>
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060815130345.GA3817@slug> <20060815071632.b10d3a03.akpm@osdl.org> <20060815173726.GA2533@slug> <20060815092146.f8a6942a.akpm@osdl.org> <20060818111118.GB1586@slug> <20060818085220.2f679f9c.akpm@osdl.org> <s5hsljuyr1h.wl%tiwai@suse.de> <20060818184411.GA720@slug>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060818184411.GA720@slug>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 10:29:16 -0700
-Dave Hansen <haveblue@us.ibm.com> wrote:
-
-> On Fri, 2006-08-18 at 09:42 -0700, Andrew Morton wrote:
-> > I have this mad idea that you can divide a 128GB machine up into 256 fake
-> > NUMA nodes, then you use each "node" as a 512MB unit of memory allocation. 
-> > So that 4.5GB job would be placed within an exclusive cpuset which has nine
-> > "mems" (what are these called?) and voila: the job has a hard 4.5GB limit,
-> > no kernel changes needed.
+On Fri, Aug 18, 2006 at 06:44:11PM +0000, Frederik Deweerdt wrote:
+> On Fri, Aug 18, 2006 at 05:58:18PM +0200, Takashi Iwai wrote:
+> > At Fri, 18 Aug 2006 08:52:20 -0700,
+> > Andrew Morton wrote:
+> > > 
+> > Frederik, what hardware are you using?  Is it emu10k1?
+> You'll find the lspci output, dmesg, .config at
+> http://fdeweerdt.free.fr/drm_bug/, I mentioned it previously on the
+> thread, but at that time I thought it was related with drm (I must have
+> messed up with my bisection) so you weren't CC'd, sorry.
 > 
-> Is this similar to Mel Gorman's zone-based anti-fragmentation approach?
+Err, turns up I maybe was right with the bisection.  I think that the
+drm patches mess my box in some way that it makes ALSA fail: I was
+trying to load the modules by hand as you suggested, but the machine
+rebooted instantaneously.
+As I was about to retry, it occured to me that maybe this drm had
+something to do after all and I tried shutting down the X server _before_
+loading the ALSA modules: box freeze.
 
-I don't think so - it's using zones, but for a quite different thing.
+Now, the box is behaving OK (no oopses) with the DRI line commented in
+the xorg.conf file. I'll try to narrow down which part of the DRM update
+is causing such a strange behaviour. Sorry for the noise Takashi.
 
-> I thought he was discouraged from pursuing that at the VM summit.
-
-That seemed to a be a 49%/51% call, iirc.
+Regards,
+Frederik

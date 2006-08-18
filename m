@@ -1,63 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWHRKc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWHRKeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWHRKc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWHRKc6
+	id S1751349AbWHRKeN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWHRKeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:32:58 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:34317 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751346AbWHRKc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:32:57 -0400
-Message-ID: <44E596E1.3070201@shadowen.org>
-Date: Fri, 18 Aug 2006 11:30:57 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Fri, 18 Aug 2006 06:34:12 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:65064 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751349AbWHRKeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 06:34:10 -0400
+Message-ID: <44E5982C.80304@sw.ru>
+Date: Fri, 18 Aug 2006 14:36:28 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-CC: Maciej Rutecki <maciej.rutecki@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: 2.6.18-rc4-mm1
-References: <20060813012454.f1d52189.akpm@osdl.org> <44DF10DF.5070307@gmail.com> <20060813121126.b1dc22ee.akpm@osdl.org> <62F8B56A.8000908@gmail.com> <20060817122248.GA16927@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060817122248.GA16927@rhlx01.fht-esslingen.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: sekharan@us.ibm.com
+CC: vatsa@in.ibm.com, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+References: <44E33893.6020700@sw.ru> <20060817110237.GA19127@in.ibm.com>	 <44E47547.8030702@sw.ru> <1155844543.26155.10.camel@linuxchandra>
+In-Reply-To: <1155844543.26155.10.camel@linuxchandra>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr wrote:
-> Hi,
+Chandra Seetharaman wrote:
+> On Thu, 2006-08-17 at 17:55 +0400, Kirill Korotaev wrote:
 > 
-> On Sun, Aug 14, 2022 at 10:42:18AM +0200, Maciej Rutecki wrote:
->> Andrew Morton napisa??(a):
->>> Please always do reply-to-all.
->>>
->> Sorry.
->>
->>>
->>> Could be i8042-get-rid-of-polling-timer-v4.patch.  Please try the below
->>> reversion patch, on top of rc4-mm1, thanks.
+>>>On Wed, Aug 16, 2006 at 07:24:03PM +0400, Kirill Korotaev wrote:
 >>>
 >>>
->> Thanks for help.
+>>>>As the first step we want to propose for discussion
+>>>>the most complicated parts of resource management:
+>>>>kernel memory and virtual memory.
+>>>
+>>>Do you have any plans to post a CPU controller? Is that tied to UBC
+>>>interface as well?
 >>
->> I try this patch, keyboard works, but I have other problem. When I try:
+>>Not everything at once :) To tell the truth I think CPU controller
+>>is even more complicated than user memory accounting/limiting.
 >>
->> echo "standby" > /sys/power/state
->>
->> system goes to standby, but keyboard stop working and CMOS clock was
->> corrupted (randomize date and time e.g. Fri Feb 18 2028 13:57:43). So I
->> must reset computer.
+>>No, fair CPU scheduler is not tied to UBC in any regard.
 > 
-> Thou shalt Not enable no dangerous CMOS corrupting suspend debugging configs ;)
 > 
-> No idea whether "corrupting" the CMOS content with suspend debugging data
-> has any influence on the keyboard resume, though, but it could easily have.
+> Not having the CPU controller on UBC doesn't sound good for the
+> infrastructure. IMHO, the infrastructure (for resource management) we
+> are going to have should be able to support different resource
+> controllers, without each controllers needing to have their own
+> infrastructure/interface etc.,
+1. nothing prevents fair cpu scheduler from using UBC infrastructure.
+   but currently we didn't start discussing it.
 
-If my memory is working correctly, the CMOS and keyboard etc are all out 
-there on that primative (XC?) bus, off a sort of ISA spur, off the first 
-PCI bus?  So they may be 'near' in address terms.
+2. as was discussed with a number of people on summit we agreed that
+   it maybe more flexible to not merge all resource types into one set.
+   CPU scheduler is usefull by itself w/o memory management.
+   the same for disk I/O bandwidht which is controlled in CFQ by
+   a separate system call.
 
-Anyone got one of those old diagrams?
+   it is also more logical to have them separate since they
+   operate in different terms. For example, for CPU it is
+   shares which are relative units, while for memory it is
+   absolute units in bytes.
 
--apw
+>>As we discussed before, it is valuable to have an ability to limit
+>>different resources separately (CPU, disk I/O, memory, etc.).
+> 
+> Having ability to limit/control different resources separately not
+> necessarily mean we should have different infrastructure for each.
+I'm not advocating to have a different infrastructure.
+It is not the topic I raise with this patch set.
+
+>>For example, it can be possible to place some mission critical
+>>kernel threads (like kjournald) in a separate contanier.
+> I don't understand the comment above (in this context).
+If you have a single container controlling all the resources, then
+placing kjournald into CPU container would require setting
+it's memory limits etc. And kjournald will start to be accounted separately,
+while my intention is kjournald to be accounted as the host system.
+I only want to _guarentee_ some CPU to it.
+
+Thanks,
+Kirill

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWHRT3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbWHRTbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWHRT3x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWHRT3x
+	id S1161093AbWHRTbL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWHRTbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:29:53 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:13002 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932187AbWHRT3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:29:53 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Ed L. Cashin" <ecashin@coraid.com>
-Subject: Re: [PATCH 2.6.18-rc4] aoe [06/13]: clean up printks via macros
-Date: Fri, 18 Aug 2006 21:29:45 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com> <6dc082092248e90db76de47c0bd5bd6c@coraid.com>
-In-Reply-To: <6dc082092248e90db76de47c0bd5bd6c@coraid.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608182129.46571.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Fri, 18 Aug 2006 15:31:11 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:15551 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932243AbWHRTbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:31:09 -0400
+Subject: Re: How to avoid serial port buffer overruns?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Raphael Hertzog <hertzog@debian.org>
+Cc: Paul Fulghum <paulkf@microgate.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060817161042.GC10818@ouaza.com>
+References: <20060816104559.GF4325@ouaza.com>
+	 <1155753868.3397.41.camel@mindpipe> <44E37095.9070200@microgate.com>
+	 <1155762739.7338.18.camel@mindpipe>
+	 <1155767066.2600.19.camel@localhost.localdomain>
+	 <20060817161042.GC10818@ouaza.com>
+Content-Type: text/plain
+Date: Fri, 18 Aug 2006 15:31:07 -0400
+Message-Id: <1155929467.2924.41.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 August 2006 19:39, Ed L. Cashin wrote:
+On Thu, 2006-08-17 at 18:10 +0200, Raphael Hertzog wrote:
+> With the 2.6.17.7 kernel (configured with CONFIG_PREEMPT and
+> CONFIG_HZ=1000), I'm seeing overruns starting at 38400 bauds. So
+> compared to plain 2.4, it's better. However compared to the patched
+> 2.4, it's worse.
 > 
-> +#define xprintk(L, fmt, arg...) printk(L "aoe: " "%s: " fmt, __func__, ## arg) 
-> +#define iprintk(fmt, arg...) xprintk(KERN_INFO, fmt, ## arg)
-> +#define eprintk(fmt, arg...) xprintk(KERN_ERR, fmt, ## arg)
-> +#define dprintk(fmt, arg...) xprintk(KERN_DEBUG, fmt, ## arg)
-> +
 
-Can't you use the dev_{info,error,dbg}() functions instead?
+(Sorry for hijacking your thread)
 
-	Arnd <><
+Have you tried it with HZ=100?  HZ=1000 might just be too much for that
+board.
+
+Lee
+

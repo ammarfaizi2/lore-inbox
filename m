@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWHRHf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWHRHqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWHRHf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 03:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWHRHf1
+	id S1751028AbWHRHqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 03:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWHRHqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 03:35:27 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:3600 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S1750984AbWHRHf0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 03:35:26 -0400
-Message-ID: <20060818113525.A11407@castle.nmd.msu.ru>
-Date: Fri, 18 Aug 2006 11:35:25 +0400
-From: Andrey Savochkin <saw@sw.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kirill Korotaev <dev@sw.ru>, rohitseth@google.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
-       Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 2/7] UBC: core (structures, API)
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <1155751868.22595.65.camel@galaxy.corp.google.com> <44E458C4.9030902@sw.ru> <20060817223137.ca4951ff.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20060817223137.ca4951ff.akpm@osdl.org>; from "Andrew Morton" on Thu, Aug 17, 2006 at 10:31:37PM
+	Fri, 18 Aug 2006 03:46:36 -0400
+Received: from gw-eur4.philips.com ([161.85.125.10]:42472 "EHLO
+	gw-eur4.philips.com") by vger.kernel.org with ESMTP
+	id S1751028AbWHRHqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 03:46:36 -0400
+In-Reply-To: <20060817202954.GC28474@flint.arm.linux.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       Vitaly Wool <vitalywool@gmail.com>
+Subject: Re: ip3106_uart oddity
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
+Message-ID: <OF21337E37.31820A4F-ONC12571CE.002682FD-C12571CE.002AB6EB@philips.com>
+From: Jean-Paul Saman <jean-paul.saman@philips.com>
+Date: Fri, 18 Aug 2006 09:46:01 +0200
+X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF561 | June
+ 9, 2006) at 18/08/2006 09:46:03,
+	Serialize complete at 18/08/2006 09:46:03
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 10:31:37PM -0700, Andrew Morton wrote:
-> On Thu, 17 Aug 2006 15:53:40 +0400
-> Kirill Korotaev <dev@sw.ru> wrote:
+linux-kernel-owner@vger.kernel.org wrote on 17-08-2006 22:29:54:
+
+> On Thu, Aug 17, 2006 at 06:29:48PM +0400, Vitaly Wool wrote:
+> > it looks like drivers/serial/ip3106_uart.c was dropped from the
+> > mainline at some point I couldn't identify. Can you please confirm
+> > that?
 > 
-> > >>+struct user_beancounter
-> > >>+{
-> > >>+	atomic_t		ub_refcount;
-> > >>+	spinlock_t		ub_lock;
-> > >>+	uid_t			ub_uid;
-> > > 
-> > > 
-> > > Why uid?  Will it be possible to club processes belonging to different
-> > > users to same bean counter.
-> > oh, its a misname. Should be ub_id. it is ID of user_beancounter
-> > and has nothing to do with user id.
+Looks like someone wanted to rename it, but forgot to include the new 
+file.
+
+> I am not aware of its addition nor removal of this file.  There was
+> au1x00_uart.c at one time.
 > 
-> But it uses a uid_t.  That's more than a misnaming?
+> > I'd like to take the burden of restoring the UART functionality for
+> > PNX8550 boards in the mainline. This very UART HW is very weird and
+> > doesn't fit well into 8250 model, even with fixups like those that
+> > were introduced for Alchemy. It also differs from the IP_3106-based
+> > UARTs used on Philips ARM targets in registers layout so I'm not
+> > sure it's correct to call it ip3106_uart.
+> > So, given the above, does it make sense to try make it fir into
+> > standard 8250 driver model or restore/rework the custom driver?
+> 
+> No real clue.  Is it similar to any other drivers?
 
-It used to be uid-related in ancient times when the notion of container
-hadn't formed up.
-"user" part of user_beancounter name has the same origin :)
+The ip3106_uart.c file that was used in the PNX8550 boards is wrongly 
+named. The uart just isn't an ip3106, because those are used in philips 
+ARM based devices.
 
-Now ub_id_t or something like that would be the most logical type.
+If you restore the ip3106T_uart.c, then please rename it pnx8550_uart.c 
+(or pnx8xxxx_uart.c).
 
-	Andrey
+Kind greetings,
+
+Jean-Paul Saman
+
+Philips Semiconductors

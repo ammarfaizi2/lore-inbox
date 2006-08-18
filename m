@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWHRW4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWHRXCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751565AbWHRW4z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbWHRW4z
+	id S1751570AbWHRXCA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 19:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbWHRXCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:56:55 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:5878 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751559AbWHRW4y convert rfc822-to-8bit (ORCPT
+	Fri, 18 Aug 2006 19:02:00 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:32939 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751569AbWHRXB7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:56:54 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 4/6]: powerpc/cell spidernet ethtool -i version number info.
-Date: Sat, 19 Aug 2006 00:56:34 +0200
-User-Agent: KMail/1.9.1
-Cc: Linas Vepstas <linas@austin.ibm.com>, Jeff Garzik <jgarzik@pobox.com>,
-       akpm@osdl.org, netdev@vger.kernel.org,
-       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
-       ens Osterkamp <Jens.Osterkamp@de.ibm.com>
-References: <20060818220700.GG26889@austin.ibm.com> <20060818222500.GK26889@austin.ibm.com>
-In-Reply-To: <20060818222500.GK26889@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608190056.35775.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+	Fri, 18 Aug 2006 19:01:59 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+From: Matt Helsley <matthltc@us.ibm.com>
+To: "Chandra S. Seetharaman" <sekharan@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1155927229.26155.28.camel@linuxchandra>
+References: <44E33893.6020700@sw.ru> <20060817110237.GA19127@in.ibm.com>
+	 <44E47547.8030702@sw.ru> <1155844543.26155.10.camel@linuxchandra>
+	 <44E5982C.80304@sw.ru>  <1155927229.26155.28.camel@linuxchandra>
+Content-Type: text/plain
+Date: Fri, 18 Aug 2006 15:55:28 -0700
+Message-Id: <1155941729.2510.376.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 19 August 2006 00:25, Linas Vepstas wrote:
-> This patch adds version information as reported by 
-> ethtool -i to the Spidernet driver.
+On Fri, 2006-08-18 at 11:53 -0700, Chandra Seetharaman wrote:
+> On Fri, 2006-08-18 at 14:36 +0400, Kirill Korotaev wrote:
 
-Acked-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+<snip>
 
-except for
+> > 2. as was discussed with a number of people on summit we agreed that
+> >    it maybe more flexible to not merge all resource types into one set.
+> >    CPU scheduler is usefull by itself w/o memory management.
+> >    the same for disk I/O bandwidht which is controlled in CFQ by
+> >    a separate system call.
+> > 
+> >    it is also more logical to have them separate since they
+> >    operate in different terms. For example, for CPU it is
+> >    shares which are relative units, while for memory it is
+> >    absolute units in bytes.
+> 
+> We don't have to tie the units with the number. We can leave it to be
+> sorted out between the user and the controller writer.
 
-> @@ -2293,6 +2294,8 @@ static struct pci_driver spider_net_driv
->   */
->  static int __init spider_net_init(void)
->  {
-> +       printk("spidernet Version %s.\n",VERSION);
-> +
+Yes. The user specifies a ratio of the parent group's resources and the
+controller maps that unitless number into appropriate units for the
+resource.
 
-This printk is missing a level (KERN_INFO or similar). Moreover,
-it is rather strange for a driver to print a message when no
-device is actually used by it. I'd rather drop the version
-printk completely, but I know that Jim has strong feelings about
-what to do with version information. I suggest that if we decide
-to keep something like that in the driver, it should be printed
-in spider_net_probe().
+> Current implementation of resource groups does that.
 
-	Arnd <><
+IMHO this also better facilitates hotplug addition/removal of resources,
+arbitrary levels of groups, and containers.
+
+<snip>
+
+Cheers,
+	-Matt Helsley
+

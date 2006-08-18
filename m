@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWHRKq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWHRKst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbWHRKq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 06:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWHRKq0
+	id S1751354AbWHRKst (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 06:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWHRKst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 06:46:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:65453 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750942AbWHRKqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 06:46:25 -0400
-Date: Fri, 18 Aug 2006 11:46:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take9 1/2] kevent: Core files.
-Message-ID: <20060818104607.GB20816@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	lkml <linux-kernel@vger.kernel.org>,
-	David Miller <davem@davemloft.net>,
-	Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru> <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru>
-Mime-Version: 1.0
+	Fri, 18 Aug 2006 06:48:49 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:3503 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751354AbWHRKss
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 06:48:48 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060816135642.GD4314@2ka.mipt.ru>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
+Message-ID: <17637.39394.504082.975709@gargle.gargle.HOWL>
+Date: Fri, 18 Aug 2006 14:43:46 +0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@suse.de>, David Chinner <dgc@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow writeback.
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <20060817224952.e418c669.akpm@osdl.org>
+References: <17633.2524.95912.960672@cse.unsw.edu.au>
+	<20060815010611.7dc08fb1.akpm@osdl.org>
+	<20060815230050.GB51703024@melbourne.sgi.com>
+	<17635.60378.733953.956807@cse.unsw.edu.au>
+	<20060816231448.cc71fde7.akpm@osdl.org>
+	<1155818179.5662.19.camel@localhost>
+	<20060817081415.f48fbb37.akpm@osdl.org>
+	<1155831779.5620.15.camel@localhost>
+	<20060817224952.e418c669.akpm@osdl.org>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-SystemSpamProbe: GOOD 0.0000046 283252a83b1f50a3af86e2f46a6ca109
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > +#define KEVENT_READY		0x1
-> > > +#define KEVENT_STORAGE		0x2
-> > > +#define KEVENT_USER		0x4
-> > 
-> > Please use enums here.
-> 
-> I used, but I was sugested to use define in some previous releases :)
+Andrew Morton writes:
 
-defines make some sense for userspace-visible ABIs because then people
-can test for features with ifdef.  It doesn't make any sense for constants
-that are used purely in-kernel.  For those enums make more sense because
-you can for example looks at the symbolic names with a debugger.
+[...]
 
-> > We were rather against these kind of odd multiplexers in the past.  For
-> > these three we at least have a common type beeing passed down so there's
-> > not compat handling problem, but I'm still not very happy with it..
-> 
-> I use one syscall for add/remove/modify, so it requires multiplexer.
+ > 
+ > The way this code all works is pretty crude and simple: a process comes
+ > in to to some writeback and it enters a polling loop:
+ > 
+ > 	while (we need to do writeback) {
+ > 		for (each superblock) {
+ > 			if (the superblock's backing_dev isn't congested) {
+ > 				stuff some more IO down it()
+ > 			}
+ > 		}
+ > 		take_a_nap();
+ > 	}
+ > 
+ > so the process remains captured in that polling loop until the
+ > dirty-memory-exceed condition subsides.  The reason why we avoid
 
-I noticed that you do it, but it's not exactly considered a nice design.
+Hm... wbc->nr_to_write is checked all the way down
+(balance_dirty_pages(), writeback_inodes(), sync_sb_inodes(),
+mpage_writepages()), so "occasional writer" cannot be stuck for more
+than 32 + 16 pages, it seems.
 
-> > > +asmlinkage long sys_kevent_ctl(int fd, unsigned int cmd, unsigned int num, void __user *arg)
-> > > +{
-> > > +	int err = -EINVAL;
-> > > +	struct file *file;
-> > > +
-> > > +	if (cmd == KEVENT_CTL_INIT)
-> > > +		return kevent_ctl_init();
-> > 
-> > This one on the other hand is plain wrong. At least it should be a separate
-> > syscall.  But looking at the code I don't quite understand why you need
-> > a syscall at all, why can't kevent be implemented as a cloning chardevice
-> > (on where every open allocates a new structure and stores it into
-> > file->private_data?)
-> 
-> That requires separate syscall.
+Nikita.
 
-Yes, it requires a separate syscall.
-
-> I created a char device in first releases and was forced to not use it
-> at all.
-
-Do you have a reference to it?  In this case a char devices makes a lot of
-sense because you get a filedescriptor and have operations only defined on
-it.  In fact given that you have a multiplexer anyway there's really no
-point in adding a syscall for that aswell, you could rather use the existing
-and debugged ioctl() multiplexer.  Sure, it's still not what we consider
-nice, but better than adding even more odd multiplexer syscalls.

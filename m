@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWHRGnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWHRGxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWHRGnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 02:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWHRGnl
+	id S1750738AbWHRGxa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 02:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHRGxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 02:43:41 -0400
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:16046 "HELO
-	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750723AbWHRGnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 02:43:41 -0400
-Date: Thu, 17 Aug 2006 23:43:38 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: David Miller <davem@davemloft.net>
-Cc: ashok.s.das@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM Please Help
-Message-ID: <20060818064338.GA28939@tuatara.stupidest.org>
-References: <8032e0b00608172322y6e77b9d9v3f8cd73e8a7b454d@mail.gmail.com> <20060817.233910.78711257.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060817.233910.78711257.davem@davemloft.net>
+	Fri, 18 Aug 2006 02:53:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19600 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750738AbWHRGxa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 02:53:30 -0400
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Use decimal for PTRACE_ATTACH and PTRACE_DETACH.
+X-Antipastobozoticataclysm: Bariumenemanilow
+Message-Id: <20060818065320.47B97180030@magilla.sf.frob.com>
+Date: Thu, 17 Aug 2006 23:53:20 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 11:39:10PM -0700, David Miller wrote:
+It is sure confusing that linux/ptrace.h has:
+	#define PTRACE_SINGLESTEP	   9
+	#define PTRACE_ATTACH		0x10
+	#define PTRACE_DETACH		0x11
+	#define PTRACE_SYSCALL		  24
+All the low-numbered constants are in decimal, but the last two in hex.
+It sure makes it likely that someone will look at this and think that
+9, 10, 11 are used, and that 16 and 17 are not used.
 
-> The IRQ for the network device is not being enabled properly.  The
-> MOUSE happens to be on the same shared interrupt as the network
-> device so when you move it the interrupt handler for the network
-> device gets invoked too.
->
-> Just my guess...
+How about we use the same notation for all the numbers [0,24] in the
+same short list?
 
-Some (a lot) of VIA silicon needs a quirk for interrupts to work
-properly (ACPI should do the work for us but it's not reliable).
+Signed-off-by: Roland McGrath <roland@redhat.com>
+---
+ include/linux/ptrace.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Please apply:
-
-    http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/broken-out/pci-quirk_via_irq-behaviour-change.patch
-
-and see if that helps.
+diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
+index 8b2749a..eeb1976 100644  
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -16,8 +16,8 @@
+ #define PTRACE_KILL		   8
+ #define PTRACE_SINGLESTEP	   9
+ 
+-#define PTRACE_ATTACH		0x10
+-#define PTRACE_DETACH		0x11
++#define PTRACE_ATTACH		  16
++#define PTRACE_DETACH		  17
+ 
+ #define PTRACE_SYSCALL		  24
+ 

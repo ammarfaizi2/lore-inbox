@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161099AbWHRUgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWHRUqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161099AbWHRUgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 16:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161100AbWHRUgQ
+	id S964777AbWHRUqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 16:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWHRUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 16:36:16 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:18959 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1161099AbWHRUgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 16:36:15 -0400
-Date: Fri, 18 Aug 2006 21:36:07 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Mark Hounschell <markh@compro.net>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Paul Fulghum <paulkf@microgate.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serial issue
-Message-ID: <20060818203607.GK21101@flint.arm.linux.org.uk>
-Mail-Followup-To: Mark Hounschell <markh@compro.net>,
-	Lee Revell <rlrevell@joe-job.com>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	Paul Fulghum <paulkf@microgate.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1155915851.3426.4.camel@amdx2.microgate.com> <1155923734.2924.16.camel@mindpipe> <44E602C8.3030805@microgate.com> <1155925024.2924.22.camel@mindpipe> <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com> <1155928885.2924.40.camel@mindpipe> <Pine.LNX.4.61.0608181551510.19978@chaos.analogic.com> <44E6221D.4040008@compro.net> <1155932916.2924.47.camel@mindpipe> <44E623EB.1060908@compro.net>
+	Fri, 18 Aug 2006 16:46:42 -0400
+Received: from xenotime.net ([66.160.160.81]:20909 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964777AbWHRUqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 16:46:42 -0400
+Date: Fri, 18 Aug 2006 13:49:33 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+Subject: Re: [RFC][PATCH 6/8] SLIM: make and config stuff
+Message-Id: <20060818134933.846526eb.rdunlap@xenotime.net>
+In-Reply-To: <1155844410.6788.60.camel@localhost.localdomain>
+References: <1155844410.6788.60.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E623EB.1060908@compro.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 04:32:43PM -0400, Mark Hounschell wrote:
-> Lee Revell wrote:
-> > On Fri, 2006-08-18 at 16:25 -0400, Mark Hounschell wrote:
-> >> Take it from someone who actually still uses dumb terminals every day,
-> >> any thing over 9600 baud still requires some kind of flow control for
-> >> reliable consistent operation. Software (Xon/Xoff) and or hardware
-> >> (RTS/RTS/DTE) flow control.
-> >>
-> > 
-> > Any idea why the serial console does not work at all with flow control
-> > enabled (regardless of whether the host runs Linux or another OS)?
-> > 
-> > Lee
-> > 
-> > 
+On Thu, 17 Aug 2006 12:53:30 -0700 Kylene Jo Hall wrote:
+
+> This patch contains the Makefile, Kconfig and .h files for SLIM.
 > 
-> Your cable is probably wrong.  Both ends have to be using the type of flow
-> control your cable is wired for.
+> Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> ---
+>  security/Kconfig       |    1
+>  security/Makefile      |    1
+>  security/slim/Kconfig  |    6 ++
+>  security/slim/Makefile |    6 ++
+>  security/slim/slim.h   |  102 +++++++++++++++++++++++++++++++++++++
+> ++ 5 files changed, 116 insertions(+)
+> 
+> --- linux-2.6.18-rc3/security/slim/slim.h	1969-12-31
+> 18:00:00.000000000 -0600 +++
+> linux-2.6.18-rc3-working/security/slim/slim.h	2006-08-07
+> 13:00:14.000000000 -0500 @@ -0,0 +1,102 @@ +/*
+> + * slim.h - simple linux integrity module
+> + *
+> + * SLIM's specific model is:
+> + *
+> + *  All objects are labeled with exteded attributes to indicate:
 
-Not quite true.  You can use XON/XOFF or hardware flow with a fully
-populated cable, but if you have a sparsely populated cable (RX,TX,GND
-only) then hardware flow control can't (and won't) work.
+extended
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> + *      Integrity Access Class (IAC)
+> + *      Secrecy Access Class (SAC)
+
+---
+~Randy

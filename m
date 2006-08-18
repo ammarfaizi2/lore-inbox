@@ -1,101 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHRNgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWHRNrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWHRNgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 09:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHRNgJ
+	id S1030298AbWHRNrx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 09:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWHRNrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 09:36:09 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:49645 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751392AbWHRNgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 09:36:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=p3jrK85+7CXUKidsH30Hj3d7hrwMU6ONrkp8eNncHfM8D1YViZHPxMkMmW8C+f5Lj9KESiMo4oT1f753DqxMDPKuC1pmH17GlUb2wzabiAVZL9JUVud8VaKvsiHYnnonSlp3dr9fgf3kxSs723zKWFmwKSKMLLPWdKUiOGeF+5Q=
-Date: Fri, 18 Aug 2006 17:35:52 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dirk Eibach <eibach@gdsys.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] char/moxa.c: fix endianess and multiple-card issues
-Message-ID: <20060818133552.GA5201@martell.zuzino.mipt.ru>
-References: <44E5A6DE.7090402@gdsys.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Aug 2006 09:47:51 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:10198 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751388AbWHRNru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 09:47:50 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [2.6.19 PATCH 3/7] ehea: queue management
+Date: Fri, 18 Aug 2006 15:47:46 +0200
+User-Agent: KMail/1.9.1
+Cc: Thomas Klein <osstklei@de.ibm.com>, Arjan van de Ven <arjan@infradead.org>,
+       Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+References: <200608181331.19501.ossthema@de.ibm.com> <1155903451.4494.168.camel@laptopd505.fenrus.org> <44E5BFB7.4000400@de.ibm.com>
+In-Reply-To: <44E5BFB7.4000400@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44E5A6DE.7090402@gdsys.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608181547.47081.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 01:39:10PM +0200, Dirk Eibach wrote:
-> From: Dirk Eibach <eibach@gdsys.de>
+On Friday 18 August 2006 15:25, Thomas Klein wrote:
 > 
-> While testing Moxa C218T/PCI on PowerPC 405EP I found that loading 
-> firmware using the linux kernel driver fails because calculation of the 
-> checksum is not endianess independent in the original code.
+> > wow... is this really so large that it warrants a vmalloc()???
 > 
-> After I fixed this I found that uploading firmware in a system with 
-> multiple cards causes a kernel oops. I had a look in the recent moxa 
-> sources and found that they do some kind of locking there. Applying this 
-> lock fixed the problem.
+> Agreed: Replaced with kmalloc()
 
-Patch for endian bug needs sparse endian annotations as well.
---------------------------------------
-[PATCH] moxa: fix checksum endianness
+My understanding from the previous discussion was that it actually
+is a multi-page power of two allocation, so the right choice might
+be __get_free_pages() instead of kmalloc, but it probably doesn't
+make much of a difference.
 
-From: Dirk Eibach <eibach@gdsys.de>
+You should really do some measurements to see what the minimal
+queue sizes are that can get you optimal throughput.
 
-While testing Moxa C218T/PCI on PowerPC 405EP I found that loading
-firmware using the linux kernel driver fails because calculation of the
-checksum is not endianess independent in the original code.
-
-Signed-off-by: Dirk Eibach <eibach@gdsys.de>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
-
- drivers/char/moxa.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
---- a/drivers/char/moxa.c
-+++ b/drivers/char/moxa.c
-@@ -2910,7 +2910,8 @@ static int moxaloadc218(int cardno, void
- {
- 	char retry;
- 	int i, j, len1, len2;
--	ushort usum, *ptr, keycode;
-+	ushort usum, keycode;
-+	__le16 *ptr;
- 
- 	if (moxa_boards[cardno].boardType == MOXA_BOARD_CP204J)
- 		keycode = CP204J_KeyCode;
-@@ -2918,9 +2919,9 @@ static int moxaloadc218(int cardno, void
- 		keycode = C218_KeyCode;
- 	usum = 0;
- 	len1 = len >> 1;
--	ptr = (ushort *) moxaBuff;
-+	ptr = (__le16 *) moxaBuff;
- 	for (i = 0; i < len1; i++)
--		usum += *(ptr + i);
-+		usum += le16_to_cpu(*(ptr + i));
- 	retry = 0;
- 	do {
- 		len1 = len >> 1;
-@@ -2986,13 +2987,13 @@ static int moxaloadc320(int cardno, void
- {
- 	ushort usum;
- 	int i, j, wlen, len2, retry;
--	ushort *uptr;
-+	__le16 *uptr;
- 
- 	usum = 0;
- 	wlen = len >> 1;
--	uptr = (ushort *) moxaBuff;
-+	uptr = (__le16 *) moxaBuff;
- 	for (i = 0; i < wlen; i++)
--		usum += uptr[i];
-+		usum += le16_to_cpu(uptr[i]);
- 	retry = 0;
- 	j = 0;
- 	do {
-
+	Arnd <><

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWHROkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbWHROkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWHROkM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 10:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWHROkL
+	id S1030431AbWHROkj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 10:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWHROkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 10:40:11 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:24704 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030430AbWHROkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 10:40:09 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel
-	memory	accounting	(core)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: rohitseth@google.com, Dave Hansen <haveblue@us.ibm.com>,
-       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Pavel Emelianov <xemul@openvz.org>, Andi Kleen <ak@suse.de>
-In-Reply-To: <44E57FB4.8090905@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155754029.9274.21.camel@localhost.localdomain>
-	 <1155755729.22595.101.camel@galaxy.corp.google.com>
-	 <1155758369.9274.26.camel@localhost.localdomain>
-	 <1155774274.15195.3.camel@localhost.localdomain>
-	 <1155824788.9274.32.camel@localhost.localdomain>
-	 <1155835003.14617.45.camel@galaxy.corp.google.com> <44E57FB4.8090905@sw.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 15:59:25 +0100
-Message-Id: <1155913165.28764.6.camel@localhost.localdomain>
+	Fri, 18 Aug 2006 10:40:39 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:56215 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1030431AbWHROki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 10:40:38 -0400
+Date: Fri, 18 Aug 2006 16:40:34 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+Cc: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <osstklei@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [2.6.19 PATCH 3/7] ehea: queue management
+Message-ID: <20060818144034.GD6393@wohnheim.fh-wedel.de>
+References: <200608181331.19501.ossthema@de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200608181331.19501.ossthema@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 12:52 +0400, ysgrifennodd Kirill Korotaev:
-> > hmm, not sure why it is simpler.
-> because introducing additonal lookups/hashes etc. is harder and
-> adds another source for possible mistakes.
-> we can always optimize it out if people insist (by cost of slower accounting).
+On Fri, 18 August 2006 13:31:19 +0200, Jan-Bernd Themann wrote:
+>
+> +	if (queue->current_q_offset > queue->queue_length) {
+> +		queue->current_q_offset -= queue->pagesize;
+> +		retvalue = NULL;
+> +	}
+> +	else if ((((u64) retvalue) & (EHEA_PAGESIZE-1)) != 0) {
 
-It ought to be cheap. Given each set of page structs is an array its a
-simple subtract and divide (or with care and people try to pack them
-nicely for cache lines - shift) to get to the parallel accounting array.
+	} else if (((u64) retvalue) & (EHEA_PAGESIZE-1)) {
 
-Alan
+> +		if (hret < H_SUCCESS) {
 
+Do you have a reason to keep H_SUCCESS?
+
+> +   	if(qp_attr->rq_count > 1)
+> +		hw_queue_dtor(&qp->hw_rqueue2);
+> +   	if(qp_attr->rq_count > 2)
+
+Small amount of whitespace damage.
+
+Jörn
+
+-- 
+Write programs that do one thing and do it well. Write programs to work
+together. Write programs to handle text streams, because that is a
+universal interface.
+-- Doug MacIlroy

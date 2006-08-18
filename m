@@ -1,168 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWHRT5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWHRUF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWHRT5l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHRT5l
+	id S932315AbWHRUF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 16:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWHRUF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:57:41 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:54988 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932314AbWHRT5k
+	Fri, 18 Aug 2006 16:05:28 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:30987 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932315AbWHRUF1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:57:40 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 1/7] UBC: kconfig
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44E33B46.2010200@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33B46.2010200@sw.ru>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 18 Aug 2006 12:57:33 -0700
-Message-Id: <1155931053.26155.71.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 16:05:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 18 Aug 2006 20:05:26.0137 (UTC) FILETIME=[A53EAE90:01C6C301]
+Content-class: urn:content-classes:message
+Subject: Re: Serial issue
+Date: Fri, 18 Aug 2006 16:05:20 -0400
+Message-ID: <Pine.LNX.4.61.0608181551510.19978@chaos.analogic.com>
+In-Reply-To: <1155928885.2924.40.camel@mindpipe>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Serial issue
+thread-index: AcbDAaVII8yyFmlYSkKrFpcayzkxxQ==
+References: <1155862076.24907.5.camel@mindpipe> <1155915851.3426.4.camel@amdx2.microgate.com> <1155923734.2924.16.camel@mindpipe>  <44E602C8.3030805@microgate.com> <1155925024.2924.22.camel@mindpipe> <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com> <1155928885.2924.40.camel@mindpipe>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "Paul Fulghum" <paulkf@microgate.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Russell King" <rmk+lkml@arm.linux.org.uk>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As pointed in an earlier email, it would be better if we could have this
-in a arch-independent Kconfig, unless there is any problem with that.
 
-On Wed, 2006-08-16 at 19:35 +0400, Kirill Korotaev wrote:
-> Add kernel/ub/Kconfig file with UBC options and
-> includes it into arch Kconfigs
-> 
-> Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
-> Signed-Off-By: Kirill Korotaev <dev@sw.ru>
-> 
-> ---
->  arch/i386/Kconfig    |    2 ++
->  arch/ia64/Kconfig    |    2 ++
->  arch/powerpc/Kconfig |    2 ++
->  arch/ppc/Kconfig     |    2 ++
->  arch/sparc/Kconfig   |    2 ++
->  arch/sparc64/Kconfig |    2 ++
->  arch/x86_64/Kconfig  |    2 ++
->  kernel/ub/Kconfig    |   25 +++++++++++++++++++++++++
->  8 files changed, 39 insertions(+)
-> 
-> --- ./arch/i386/Kconfig.ubkm	2006-07-10 12:39:10.000000000 +0400
-> +++ ./arch/i386/Kconfig	2006-07-28 14:10:41.000000000 +0400
-> @@ -1146,6 +1146,8 @@ source "crypto/Kconfig"
->  
->  source "lib/Kconfig"
->  
-> +source "kernel/ub/Kconfig"
-> +
->  #
->  # Use the generic interrupt handling code in kernel/irq/:
->  #
-> --- ./arch/ia64/Kconfig.ubkm	2006-07-10 12:39:10.000000000 +0400
-> +++ ./arch/ia64/Kconfig	2006-07-28 14:10:56.000000000 +0400
-> @@ -481,6 +481,8 @@ source "fs/Kconfig"
->  
->  source "lib/Kconfig"
->  
-> +source "kernel/ub/Kconfig"
-> +
->  #
->  # Use the generic interrupt handling code in kernel/irq/:
->  #
-> --- ./arch/powerpc/Kconfig.arkcfg	2006-08-07 14:07:12.000000000 +0400
-> +++ ./arch/powerpc/Kconfig	2006-08-10 17:55:58.000000000 +0400
-> @@ -1038,6 +1038,8 @@ source "arch/powerpc/platforms/iseries/K
->  
->  source "lib/Kconfig"
->  
-> +source "ub/Kconfig"
-> +
->  menu "Instrumentation Support"
->          depends on EXPERIMENTAL
->  
-> --- ./arch/ppc/Kconfig.arkcfg	2006-07-10 12:39:10.000000000 +0400
-> +++ ./arch/ppc/Kconfig	2006-08-10 17:56:13.000000000 +0400
-> @@ -1414,6 +1414,8 @@ endmenu
->  
->  source "lib/Kconfig"
->  
-> +source "ub/Kconfig"
-> +
->  source "arch/powerpc/oprofile/Kconfig"
->  
->  source "arch/ppc/Kconfig.debug"
-> --- ./arch/sparc/Kconfig.arkcfg	2006-04-21 11:59:32.000000000 +0400
-> +++ ./arch/sparc/Kconfig	2006-08-10 17:56:24.000000000 +0400
-> @@ -296,3 +296,5 @@ source "security/Kconfig"
->  source "crypto/Kconfig"
->  
->  source "lib/Kconfig"
-> +
-> +source "ub/Kconfig"
-> --- ./arch/sparc64/Kconfig.arkcfg	2006-07-17 17:01:11.000000000 +0400
-> +++ ./arch/sparc64/Kconfig	2006-08-10 17:56:36.000000000 +0400
-> @@ -432,3 +432,5 @@ source "security/Kconfig"
->  source "crypto/Kconfig"
->  
->  source "lib/Kconfig"
-> +
-> +source "lib/Kconfig"
-> --- ./arch/x86_64/Kconfig.ubkm	2006-07-10 12:39:11.000000000 +0400
-> +++ ./arch/x86_64/Kconfig	2006-07-28 14:10:49.000000000 +0400
-> @@ -655,3 +655,5 @@ source "security/Kconfig"
->  source "crypto/Kconfig"
->  
->  source "lib/Kconfig"
-> +
-> +source "kernel/ub/Kconfig"
-> --- ./kernel/ub/Kconfig.ubkm	2006-07-28 13:07:38.000000000 +0400
-> +++ ./kernel/ub/Kconfig	2006-07-28 13:09:51.000000000 +0400
-> @@ -0,0 +1,25 @@
-> +#
-> +# User resources part (UBC)
-> +#
-> +# Copyright (C) 2006 OpenVZ. SWsoft Inc
-> +
-> +menu "User resources"
-> +
-> +config USER_RESOURCE
-> +	bool "Enable user resource accounting"
-> +	default y
-> +	help 
-> +          This patch provides accounting and allows to configure
-> +          limits for user's consumption of exhaustible system resources.
-> +          The most important resource controlled by this patch is unswappable 
-> +          memory (either mlock'ed or used by internal kernel structures and 
-> +          buffers). The main goal of this patch is to protect processes
-> +          from running short of important resources because of an accidental
-> +          misbehavior of processes or malicious activity aiming to ``kill'' 
-> +          the system. It's worth to mention that resource limits configured 
-> +          by setrlimit(2) do not give an acceptable level of protection 
-> +          because they cover only small fraction of resources and work on a 
-> +          per-process basis.  Per-process accounting doesn't prevent malicious
-> +          users from spawning a lot of resource-consuming processes.
-> +
-> +endmenu
-> 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+On Fri, 18 Aug 2006, Lee Revell wrote:
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+> On Fri, 2006-08-18 at 15:15 -0400, linux-os (Dick Johnson) wrote:
+>> A file-transfer protocol??? Has he got hardware the __required__
+>> hardware flow-control enabled on both ends? One can't spew
+>> high-speed serial data out forever without a hardware handshake.
+>>
+>
+> Interesting you should mention that.  As a matter of fact I have to
+> disable all flow control or the serial console doesn't even work.  I
+> considered this a minor issue and had forgotten about it.
+>
+> But, in polled mode with no flow control I can transfer a 10MB file.
+> There are a lot of retransmits but it works.
+>
+> Lee
+>
 
+Using RS-232C for file transfer and as a serial console are two
+different things. Many terminals and terminal emulators don't
+even activate RTS/CTS. If you are just getting data from the
+output of a UART to view on a screen, the data usually comes
+in spurts, a line at a time, and a screen at a time. There
+is plenty of time for the receiving terminal to write the
+stuff to the screen.
 
+However, with file transfers, data streams with no breaks.
+There needs to be time for these buffers of data to be written
+to files, etc., or else you eventually run out of buffers even
+if no interrupts are ever lost. Therefore, you must use hardware
+handshake. In other words, you need to connect your machines
+together with a complete null-modem cable, not just three wires.
+Then both machines need to cooperate, i.e., the receiving machine
+needs to lower CTS before its buffers get full and the sender,
+must look at its RTS bit and wait for it to go false before
+sending anymore data. Failure to do this __will__ result in
+lost data.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

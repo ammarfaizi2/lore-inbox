@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWHRRoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWHRRqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWHRRoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWHRRoI
+	id S1751442AbWHRRqB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWHRRqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:44:08 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:56946 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751440AbWHRRoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:44:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=D6DLgzU+JbdI6GnVRCf1yWSxFyOF3UI5fkOnKkN3SzettVsBcvt2YgOEblGSqzpwNAaxZUwVM2hwSYYM7gAIjYpiodWW4SaMLBjVhm8mzWXprDi0CpP2R6j3qZSro7INHIWgvstIHwO4fd/zvU94fhbmODVYBBolaY94Yvlo8Dg=
-Date: Fri, 18 Aug 2006 19:43:52 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       airlied@linux.ie, Jaroslav Kysela <perex@suse.cz>
-Subject: Re: oops while loading snd-seq-oss (was: Re: 2.6.18-rc4-mm1 BUG, drm related)
-Message-ID: <20060818194352.GC720@slug>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060815130345.GA3817@slug> <20060815071632.b10d3a03.akpm@osdl.org> <20060815173726.GA2533@slug> <20060815092146.f8a6942a.akpm@osdl.org> <20060818111118.GB1586@slug> <20060818085220.2f679f9c.akpm@osdl.org> <s5hsljuyr1h.wl%tiwai@suse.de> <20060818184411.GA720@slug>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060818184411.GA720@slug>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Fri, 18 Aug 2006 13:46:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25475 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751442AbWHRRqA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:46:00 -0400
+Date: Fri, 18 Aug 2006 10:45:47 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Thomas Klein <osstklei@de.ibm.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>,
+       Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
+       Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [2.6.19 PATCH 4/7] ehea: ethtool interface
+Message-ID: <20060818104547.5ad1352f@localhost.localdomain>
+In-Reply-To: <44E5DFA6.7040707@de.ibm.com>
+References: <200608181333.23031.ossthema@de.ibm.com>
+	<20060818140506.GC5201@martell.zuzino.mipt.ru>
+	<44E5DFA6.7040707@de.ibm.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 06:44:11PM +0000, Frederik Deweerdt wrote:
-> On Fri, Aug 18, 2006 at 05:58:18PM +0200, Takashi Iwai wrote:
-> > At Fri, 18 Aug 2006 08:52:20 -0700,
-> > Andrew Morton wrote:
-> > > 
-> > Frederik, what hardware are you using?  Is it emu10k1?
-> You'll find the lspci output, dmesg, .config at
-> http://fdeweerdt.free.fr/drm_bug/, I mentioned it previously on the
-> thread, but at that time I thought it was related with drm (I must have
-> messed up with my bisection) so you weren't CC'd, sorry.
+On Fri, 18 Aug 2006 17:41:26 +0200
+Thomas Klein <osstklei@de.ibm.com> wrote:
+
+> Hi Alexey,
 > 
-Err, turns up I maybe was right with the bisection.  I think that the
-drm patches mess my box in some way that it makes ALSA fail: I was
-trying to load the modules by hand as you suggested, but the machine
-rebooted instantaneously.
-As I was about to retry, it occured to me that maybe this drm had
-something to do after all and I tried shutting down the X server _before_
-loading the ALSA modules: box freeze.
+> first of all thanks a lot for the extensive review.
+> 
+> 
+> Alexey Dobriyan wrote:
+> >> +	u64 hret = H_HARDWARE;
+> > 
+> > Useless assignment here and everywhere.
+> > 
+> 
+> Initializing returncodes to errorstate is a cheap way to prevent
+> accidentally returning (uninitalized) success returncodes which
+> can lead to catastrophic misbehaviour.
 
-Now, the box is behaving OK (no oopses) with the DRI line commented in
-the xorg.conf file. I'll try to narrow down which part of the DRM update
-is causing such a strange behaviour. Sorry for the noise Takashi.
-
-Regards,
-Frederik
+That is old thinking. Current compilers do live/dead analysis
+and tell you about this at compile time which is better than relying
+on default behavior at runtime.

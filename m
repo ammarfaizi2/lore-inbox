@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWHRQdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWHRQhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWHRQdV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWHRQdV
+	id S1030499AbWHRQhm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbWHRQhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:33:21 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:58516 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751411AbWHRQdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:33:20 -0400
-Subject: Re: Serial issue
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <1155915851.3426.4.camel@amdx2.microgate.com>
-References: <1155862076.24907.5.camel@mindpipe>
-	 <1155915851.3426.4.camel@amdx2.microgate.com>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 12:34:04 -0400
-Message-Id: <1155918845.24907.42.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 18 Aug 2006 12:37:42 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:32496 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030499AbWHRQhm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:37:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HjZMOGxi7m1sUbq11XlglxlaynFCWm0FpVcsioNXj+/D9r32JzAnreyuQkDO6k8kL/73tEsV3tJ8A2E5XsipqGFVbG+vRHS1vntMDuE7JAelluFgjUyCMXT+B30Mmq4sfJX5LIGxvjok7wGhbt8tSzcxmDZxMhzPCKWm34v9Yug=
+Message-ID: <4745278c0608180937k1a2af05fp7142e4cc062bf200@mail.gmail.com>
+Date: Fri, 18 Aug 2006 12:37:40 -0400
+From: "Vishal Patil" <vishpat@gmail.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: Page cache using B-trees benchmark results
+Cc: "Andrea Arcangeli" <andrea@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <p73mza280z1.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4745278c0608171843j5b3d28bbx16ddf472e1bdb329@mail.gmail.com>
+	 <p73mza280z1.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 10:44 -0500, Paul Fulghum wrote:
-> On Thu, 2006-08-17 at 20:47 -0400, Lee Revell wrote:
-> > I've found a weird serial bug.  My host is a Via EPIA M-6000 running
-> > 2.6.17 connected to a PPC Yosemite board running 2.6.13. 
-> > 
-> > In all cases the serial console works great.  But, with the default
-> > setting of IRQ 4, Kermit file transfers via the serial interface simply
-> > time out.  However if I use polling mode (setserial /dev/ttyS0 irq 0 on
-> > the host), file transfers work.
-> > 
-> > When set to IRQ 4, the interrupt count does increase.
-> > 
-> > # cat /proc/tty/driver/serial 
-> > serinfo:1.0 driver revision:
-> > 0: uart:16550A port:000003F8 irq:4 tx:267 rx:667 DSR|CD
-> > [...]
-> > 
-> > Any ideas?  I'm guessing it might be a quirk of the VIA chipset?
-> 
-> You mention serial console. Hasn't there been some changes
-> related to reenabling the THRE interrupt after sending
-> console data? IIRC the changes fixed transmit stalls on
-> some machines but broke things on other machine.
-> 
-> Can you try disabling the serial console and see
-> if the file transfer starts working?
-> 
+Hey Andi....This is useful information....I will look into it and let
+you know....
+Many thanks.
 
-I tried it with the serial console inactive (not disabled) and file
-transfers don't work whether I set IRQ 0 or 4.  Maybe I'm doing it wrong
-- I connected to the target via SSH and ran "gkermit -r" then ran
-ckermit locally and issued a "send file.txt" command.
+- Vishal
 
-Normally I connect to the target with "kermit -c" which gives me a
-serial console, then issue a "gkermit -r", then escape to my local
-Kermit and issue the send file command.
+On 18 Aug 2006 18:25:54 +0200, Andi Kleen <ak@suse.de> wrote:
+> "Vishal Patil" <vishpat@gmail.com> writes:
+>
+> > I am attaching the benchmark results for Page Cache Implementation
+> > using B-trees. I basically ran the tio (threaded i/o) benchmark
+> > against my kernel (with the B-tree implementation) and the Linux
+>
+> I suppose you'll need some more varied benchmarks to get
+> more solid data.
+>
+> > kernel shipped with FC5. Radix tree implementation is definately
+> > better however the B-tree implementation did not suck that bad :)
+>
+> Have you considered trying it again instead of radix tree with
+> another data structure? There are still plenty of other big
+> hash tables in the kernel that might benefit from trying
+> a different approach:
+>
+> > dmesg | grep -i hash
+> PID hash table entries: 4096 (order: 12, 131072 bytes)
+> Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+> Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+> Mount-cache hash table entries: 256
+> Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+> IP route cache hash table entries: 65536 (order: 7, 524288 bytes)
+> TCP established hash table entries: 262144 (order: 9, 2097152 bytes)
+> TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
+> TCP: Hash tables configured (established 262144 bind 65536)
+>
+> e.g. the dentry/inode hashes are an obvious attack point.
+>
+> Of course you'll need benchmarks that actually stress them.
+>
+> -Andi
+>
 
-Lee
 
+-- 
+Motivation will almost always beat mere talent.

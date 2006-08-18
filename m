@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWHRWUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751523AbWHRWUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751521AbWHRWUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWHRWUV
+	id S1751523AbWHRWUm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWHRWUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:20:21 -0400
-Received: from xenotime.net ([66.160.160.81]:5002 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751514AbWHRWUV (ORCPT
+	Fri, 18 Aug 2006 18:20:42 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:32454 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751522AbWHRWUl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:20:21 -0400
-Date: Fri, 18 Aug 2006 15:23:20 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed!
-Message-Id: <20060818152320.9f0e3693.rdunlap@xenotime.net>
-In-Reply-To: <44E58FDC.6030007@aitel.hist.no>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-	<200608181134.02427.ak@suse.de>
-	<44E588AB.3050900@aitel.hist.no>
-	<200608181255.46999.ak@suse.de>
-	<44E58FDC.6030007@aitel.hist.no>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 18:20:41 -0400
+Date: Fri, 18 Aug 2006 17:20:38 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, ens Osterkamp <Jens.Osterkamp@de.ibm.com>
+Subject: [PATCH 1/6]: powerpc/cell spidernet burst alignment patch
+Message-ID: <20060818222038.GH26889@austin.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060818220700.GG26889@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 12:01:00 +0200 Helge Hafting wrote:
 
-> Andi Kleen wrote:
-> >> I have narrowed it down.  2.6.18-rc4 does not have the 3x time
-> >> problem,  while mm1 have it.  mm1 without the hotfix jiffies
-> >> patch is just as bad.
-> >>     
-> >
-> > Can you narrow it down to a specific patch in -mm? 
-> >   
-> How do I do that?  Is -mm available through git somehow,
-> or is there some other clever way?
 
-http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+This patch increases the Burst Address alignment from 64 to 1024 in the
+Spidernet driver. This improves transmit performance for arge packets
+from about 100Mbps to 300-400Mbps.
 
----
-~Randy
+From: James K Lewis <jklewis@us.ibm.com>
+Signed-off-by: James K Lewis <jklewis@us.ibm.com>
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Cc: Utz Bacher <utz.bacher@de.ibm.com>
+Cc: Jens Osterkamp <Jens.Osterkamp@de.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+
+----
+ drivers/net/spider_net.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.18-rc3-mm2/drivers/net/spider_net.h
+===================================================================
+--- linux-2.6.18-rc3-mm2.orig/drivers/net/spider_net.h	2006-08-07 14:37:10.000000000 -0500
++++ linux-2.6.18-rc3-mm2/drivers/net/spider_net.h	2006-08-11 11:09:57.000000000 -0500
+@@ -209,7 +209,7 @@ extern char spider_net_driver_name[];
+ #define SPIDER_NET_DMA_RX_FEND_VALUE	0x00030003
+ /* to set TX_DMA_EN */
+ #define SPIDER_NET_TX_DMA_EN		0x80000000
+-#define SPIDER_NET_GDTDCEIDIS		0x00000002
++#define SPIDER_NET_GDTDCEIDIS		0x00000302
+ #define SPIDER_NET_DMA_TX_VALUE		SPIDER_NET_TX_DMA_EN | \
+ 					SPIDER_NET_GDTDCEIDIS
+ #define SPIDER_NET_DMA_TX_FEND_VALUE	0x00030003

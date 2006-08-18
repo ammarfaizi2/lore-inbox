@@ -1,56 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWHRNah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWHRNgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWHRNah (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 09:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWHRNah
+	id S1751392AbWHRNgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 09:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWHRNgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 09:30:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23520 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751387AbWHRNah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 09:30:37 -0400
-Subject: Re: [patch 2/5] -fstack-protector feature: Add the Kconfig option
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <44E5BC2C.80708@linux.intel.com>
-References: <1155746902.3023.63.camel@laptopd505.fenrus.org>
-	 <200608181308.07752.ak@suse.de>
-	 <1155900206.4494.141.camel@laptopd505.fenrus.org>
-	 <200608181605.19520.ak@suse.de>  <44E5BC2C.80708@linux.intel.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 18 Aug 2006 15:30:14 +0200
-Message-Id: <1155907814.4494.187.camel@laptopd505.fenrus.org>
+	Fri, 18 Aug 2006 09:36:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:49645 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751392AbWHRNgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 09:36:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=p3jrK85+7CXUKidsH30Hj3d7hrwMU6ONrkp8eNncHfM8D1YViZHPxMkMmW8C+f5Lj9KESiMo4oT1f753DqxMDPKuC1pmH17GlUb2wzabiAVZL9JUVud8VaKvsiHYnnonSlp3dr9fgf3kxSs723zKWFmwKSKMLLPWdKUiOGeF+5Q=
+Date: Fri, 18 Aug 2006 17:35:52 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Dirk Eibach <eibach@gdsys.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] char/moxa.c: fix endianess and multiple-card issues
+Message-ID: <20060818133552.GA5201@martell.zuzino.mipt.ru>
+References: <44E5A6DE.7090402@gdsys.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E5A6DE.7090402@gdsys.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 15:10 +0200, Arjan van de Ven wrote:
-> Andi Kleen wrote:
-> >> the binary search argument in this case is moot, just having a config
-> >> option doesn't break anything compile wise and each later step is
-> >> self-compiling..
-> > 
-> > Not true when the config used for the binary search has stack protector
-> > enabled.
-> >
-> oh? I thought I was pretty careful about that
+On Fri, Aug 18, 2006 at 01:39:10PM +0200, Dirk Eibach wrote:
+> From: Dirk Eibach <eibach@gdsys.de>
 > 
-> looking over the patches again I can't find any reason for a non-compiling/working kernel; at any step..
+> While testing Moxa C218T/PCI on PowerPC 405EP I found that loading 
+> firmware using the linux kernel driver fails because calculation of the 
+> checksum is not endianess independent in the original code.
+> 
+> After I fixed this I found that uploading firmware in a system with 
+> multiple cards causes a kernel oops. I had a look in the recent moxa 
+> sources and found that they do some kind of locking there. Applying this 
+> lock fixed the problem.
 
-I just compiled each step separately [*] and they all compile just fine,
-and will work just fine as well...
+Patch for endian bug needs sparse endian annotations as well.
+--------------------------------------
+[PATCH] moxa: fix checksum endianness
 
+From: Dirk Eibach <eibach@gdsys.de>
 
+While testing Moxa C218T/PCI on PowerPC 405EP I found that loading
+firmware using the linux kernel driver fails because calculation of the
+checksum is not endianess independent in the original code.
 
-[*] <shameless plug>thanks to the 2 1/2 minute full kernel compile time
-of my new Intel box with Woodcrest cpus </shameless plug>
+Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+ drivers/char/moxa.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+--- a/drivers/char/moxa.c
++++ b/drivers/char/moxa.c
+@@ -2910,7 +2910,8 @@ static int moxaloadc218(int cardno, void
+ {
+ 	char retry;
+ 	int i, j, len1, len2;
+-	ushort usum, *ptr, keycode;
++	ushort usum, keycode;
++	__le16 *ptr;
+ 
+ 	if (moxa_boards[cardno].boardType == MOXA_BOARD_CP204J)
+ 		keycode = CP204J_KeyCode;
+@@ -2918,9 +2919,9 @@ static int moxaloadc218(int cardno, void
+ 		keycode = C218_KeyCode;
+ 	usum = 0;
+ 	len1 = len >> 1;
+-	ptr = (ushort *) moxaBuff;
++	ptr = (__le16 *) moxaBuff;
+ 	for (i = 0; i < len1; i++)
+-		usum += *(ptr + i);
++		usum += le16_to_cpu(*(ptr + i));
+ 	retry = 0;
+ 	do {
+ 		len1 = len >> 1;
+@@ -2986,13 +2987,13 @@ static int moxaloadc320(int cardno, void
+ {
+ 	ushort usum;
+ 	int i, j, wlen, len2, retry;
+-	ushort *uptr;
++	__le16 *uptr;
+ 
+ 	usum = 0;
+ 	wlen = len >> 1;
+-	uptr = (ushort *) moxaBuff;
++	uptr = (__le16 *) moxaBuff;
+ 	for (i = 0; i < wlen; i++)
+-		usum += uptr[i];
++		usum += le16_to_cpu(uptr[i]);
+ 	retry = 0;
+ 	j = 0;
+ 	do {
 

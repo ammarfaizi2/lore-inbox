@@ -1,84 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbWHRQ5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWHRRE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030492AbWHRQ5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161045AbWHRQ5w
+	id S1030279AbWHRRE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWHRRE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:57:52 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:38104 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030492AbWHRQ5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:57:46 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=le774lh+2OwohJc/sWaOi5zO9N4AjHn6y+VtNixrq3lYI623nD4/HtuyI2OSIJvjn
-	3iesCyWMF7xn7qFo78U7w==
-Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-In-Reply-To: <44E58A89.8040001@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>
-	 <1155752693.22595.76.camel@galaxy.corp.google.com> <44E46ED3.7000201@sw.ru>
-	 <1155834136.14617.29.camel@galaxy.corp.google.com> <44E58A89.8040001@sw.ru>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Fri, 18 Aug 2006 09:55:58 -0700
-Message-Id: <1155920158.22899.8.camel@galaxy.corp.google.com>
+	Fri, 18 Aug 2006 13:04:59 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:7944 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030279AbWHRRE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:04:58 -0400
+Date: Fri, 18 Aug 2006 18:04:51 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Paul Fulghum <paulkf@microgate.com>
+Subject: Re: R: How to avoid serial port buffer overruns?
+Message-ID: <20060818170450.GC21101@flint.arm.linux.org.uk>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Giampaolo Tomassoni <g.tomassoni@libero.it>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Fulghum <paulkf@microgate.com>
+References: <NBBBIHMOBLOHKCGIMJMDGEIMFNAA.g.tomassoni@libero.it> <1155920400.24907.63.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155920400.24907.63.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 13:38 +0400, Kirill Korotaev wrote:
-> Rohit Seth wrote:
-> > On Thu, 2006-08-17 at 17:27 +0400, Kirill Korotaev wrote:
+On Fri, Aug 18, 2006 at 01:00:00PM -0400, Lee Revell wrote:
+> On Fri, 2006-08-18 at 10:48 +0200, Giampaolo Tomassoni wrote:
+> > > On Thu, 2006-08-17 at 00:19 +0100, Russell King wrote:
+> > > 
+> > > 
+> > > OK, thanks.  FWIW here is the serial board we are using:
+> > > 
+> > > http://www.moschip.com/html/MCS9845.html
+> > > 
+> > > The hardware guy says "The mn9845cv, have in default 2 serial ports and
+> > > one ISA bus, where we have connected the tl16c554, quad serial port."
+> > > 
+> > > Hopefully Ingo's latency tracer can tell me what is holding off
+> > > interrupts.
 > > 
-> >>>If I'm reading this patch right then seems like you are making page
-> >>>allocations to fail w/o (for example) trying to purge some pages from
-> >>>the page cache belonging to this container.  Or is that reclaim going to
-> >>>come later?
-> >>
-> >>charged kernel objects can't be _reclaimed_. how do you propose
-> >>to reclaim tasks page tables or files or task struct or vma or etc.?
-> > 
-> > 
-> > 
-> > I agree that kernel objects cann't be reclaimed easily.  But what you
-> > are proposing is also not right.  Returning failure w/o doing any
-> > reclaim on pages (that are reclaimable) is not useful.  And this is why
-> > I asked, is this change going to be part of next set of patches (as
-> > current set of patches are only tracking kernel usage).
-
-> 1. reclaiming user resources is not that good idea as it looks to you.
-> such solutions end up with lots of resources spent on reclaim.
-> for user memory reclaims mean consumption of expensive disk I/O bandwidth
-> which reduces overall system throughput and influences other users.
+> > I beg your pardon: I'm not used that much to interrupts handling in Linux, but this piece of code from sound/drivers/serial-u16550.c in a linux-2.6.16:
 > 
+> OK, they are not using serial-u16550 but 8250_fourport for some reason:
 
-May be I'm overlooking something very obvious.  Please tell me, what
-happens when a user hits a page fault and the page allocator is easily
-able to give a page from its pcp list.  But container is over its limit
-of physical memory.  In your patch there is no attempt by container
-support to see if some of the user pages are easily reclaimable.  What
-options a user will have to make sure some room is created.
+Doesn't look like it.  fourport cards have their ports at 0x1a0..0x1bf
+and 0x2a0..0x2bf, and have some special and non-standard features.
 
-> 2. kernel memory is mostly not reclaimable. can you reclaim vma structs or ipc ids?
+> # cat /proc/tty/driver/serial 
+> serinfo:1.0 driver revision:
+> 0: uart:16550A port:000003F8 irq:4 tx:0 rx:0
+> 1: uart:unknown port:000002B8 irq:5
+> 2: uart:unknown port:000003E8 irq:4
+> 3: uart:unknown port:000002E8 irq:3
+> 4: uart:16550A port:0000DD00 irq:185 tx:234335 rx:47502 RTS|DTR
+> 5: uart:16550A port:0000E300 irq:185 tx:249926 rx:27732 RTS|DTR
+> 6: uart:16550A port:0000E400 irq:185 tx:120958 rx:0 RTS|DTR
+> 7: uart:16550A port:0000D000 irq:185 tx:0 rx:0
+> 8: uart:16550A port:0000D100 irq:185 tx:0 rx:0 RTS|DTR
+> 9: uart:16550A port:0000D200 irq:185 tx:0 rx:123406 RTS|DTR
+> 
+> It looks like no overruns are reported, but I have to find out whether
+> they have reproduced the bug since the last reboot.
 
-I'm not arguing about that at all.  If people want to talk about
-reclaiming kernel pages then that should be done independent of this
-subject.
-
-
-
--rohit
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWHRNtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWHRN4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030374AbWHRNtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 09:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWHRNtx
+	id S1030387AbWHRN4A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 09:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWHRN4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 09:49:53 -0400
-Received: from main.gmane.org ([80.91.229.2]:40138 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030374AbWHRNtw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 09:49:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Page cache using B-trees benchmark results
-Date: Fri, 18 Aug 2006 09:52:59 -0400
-Message-ID: <44E5C63B.4080000@tmr.com>
-References: <4745278c0608171843j5b3d28bbx16ddf472e1bdb329@mail.gmail.com>
-Mime-Version: 1.0
+	Fri, 18 Aug 2006 09:56:00 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:7928 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030387AbWHRNz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 09:55:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HXmZoF5Km6SV7OrxT2B6BViWPm7flOKCa3bGmcvOxxB0lsVEU8CXVx17rA5uxUVPTnq00xJkFhJb6YgnwR8d5N61Pw4GK8jDPL1159cXNjizg2sv45WWb1XmSiGpvCYjk587VALeSMYjwjkGcCugqrztYvgRN9lQKtTBXGgomFU=
+Message-ID: <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
+Date: Fri, 18 Aug 2006 15:55:59 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Andrea Arcangeli <andrea@suse.de>
-X-Gmane-NNTP-Posting-Host: mail.tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-In-Reply-To: <4745278c0608171843j5b3d28bbx16ddf472e1bdb329@mail.gmail.com>
+Content-Disposition: inline
+References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+	 <6bffcb0e0608130459k1c7e142esbfc2439badf323bd@mail.gmail.com>
+	 <b0943d9e0608130713j1e4a8836i943d31011169cf05@mail.gmail.com>
+	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
+	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
+	 <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
+	 <b0943d9e0608170801v23592952scf12c2c0b4a7bf4@mail.gmail.com>
+	 <b0943d9e0608171458l45b717bexbfb8fb2ba68228db@mail.gmail.com>
+	 <6bffcb0e0608180528ocadc36ck8868ae1a33342bb9@mail.gmail.com>
+	 <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vishal Patil wrote:
-> Folks
-> 
-> I am attaching the benchmark results for Page Cache Implementation
-> using B-trees. I basically ran the tio (threaded i/o) benchmark
-> against my kernel (with the B-tree implementation) and the Linux
-> kernel shipped with FC5. Radix tree implementation is definately
-> better however the B-tree implementation did not suck that bad :)
-> 
-> Also I attaching a new patch which was used for measuring the
-> benchmarks. Also henceforth changes to the page will be tracked using
-> the projected hosted at http://code.google.com/p/btreepc
-> 
-Thanks for this. I guess a purist would say that you need to run against 
-the base kernel and base kernel plus your patches, but these numbers are 
-certainly enough to support your conclusion.
+On 18/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > Something doesn't work. It appears while udev start.
+>
+> Could you try the attached patch? It has some improvements from the
+> yesterday's one and also prints extra information when that error
+> happens.
 
-What's next?
+Problem fixed, thank. I'll do some tests.
+
+>
+> Thanks.
+>
+> --
+> Catalin
+>
+>
+>
+
+Regards,
+Michal
 
 -- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
-
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

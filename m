@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWHRWzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWHRW4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWHRWzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWHRWzI
+	id S1751565AbWHRW4z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbWHRW4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:55:08 -0400
-Received: from mga06.intel.com ([134.134.136.21]:42129 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751559AbWHRWzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:55:06 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,147,1154934000"; 
-   d="scan'208"; a="111061100:sNHT29504790"
-Date: Fri, 18 Aug 2006 15:42:30 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@redhat.com,
-       apw@shadowen.org
-Subject: Re: [patch] sched: generic sched_group cpu power setup
-Message-ID: <20060818154230.A23214@unix-os.sc.intel.com>
-References: <20060815175525.A2333@unix-os.sc.intel.com> <20060815212455.c9fe1e34.pj@sgi.com> <20060816104551.A7305@unix-os.sc.intel.com> <20060818142347.A22846@unix-os.sc.intel.com> <20060818152954.1ef5aa34.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Aug 2006 18:56:55 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:5878 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751559AbWHRW4y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 18:56:54 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 4/6]: powerpc/cell spidernet ethtool -i version number info.
+Date: Sat, 19 Aug 2006 00:56:34 +0200
+User-Agent: KMail/1.9.1
+Cc: Linas Vepstas <linas@austin.ibm.com>, Jeff Garzik <jgarzik@pobox.com>,
+       akpm@osdl.org, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ens Osterkamp <Jens.Osterkamp@de.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com> <20060818222500.GK26889@austin.ibm.com>
+In-Reply-To: <20060818222500.GK26889@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060818152954.1ef5aa34.pj@sgi.com>; from pj@sgi.com on Fri, Aug 18, 2006 at 03:29:54PM -0700
+Message-Id: <200608190056.35775.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 03:29:54PM -0700, Paul Jackson wrote:
-> Suresh wrote:
-> > I will post a 'cpu_power' renaming patch shortly.
-> 
-> Rename to what?
+On Saturday 19 August 2006 00:25, Linas Vepstas wrote:
+> This patch adds version information as reported by 
+> ethtool -i to the Spidernet driver.
 
-Not yet decided. But both the words "cpu" and "power" will disappear :)
-sched group can have one or more cpus.. so having 'cpu' is confusing
-and 'power/energy' seems to be confusing too..
+Acked-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-I don't like 'task_load' as it kind of refers to current task load in a
-sched_group.  Currently I favor for 'load_capacity'. Anyone reading
-sched code know what 'load' is.
+except for
 
-If any one has a better suggestion, I am open.
+> @@ -2293,6 +2294,8 @@ static struct pci_driver spider_net_driv
+>   */
+>  static int __init spider_net_init(void)
+>  {
+> +       printk("spidernet Version %s.\n",VERSION);
+> +
 
-thanks,
-suresh
+This printk is missing a level (KERN_INFO or similar). Moreover,
+it is rather strange for a driver to print a message when no
+device is actually used by it. I'd rather drop the version
+printk completely, but I know that Jim has strong feelings about
+what to do with version information. I suggest that if we decide
+to keep something like that in the driver, it should be printed
+in spider_net_probe().
+
+	Arnd <><

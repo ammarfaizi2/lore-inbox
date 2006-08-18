@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWHRTYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWHRT12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161090AbWHRTYA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWHRTYA
+	id S932475AbWHRT12 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWHRT12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:24:00 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:52120 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932483AbWHRTX6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:23:58 -0400
-Date: Fri, 18 Aug 2006 14:23:56 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       James K Lewis <jklewis@us.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
-Message-ID: <20060818192356.GD26889@austin.ibm.com>
-References: <20060811170337.GH10638@austin.ibm.com> <20060811170813.GJ10638@austin.ibm.com> <1155771820.11312.116.camel@localhost.localdomain>
+	Fri, 18 Aug 2006 15:27:28 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:55218 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932475AbWHRT11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:27:27 -0400
+Date: Fri, 18 Aug 2006 12:19:54 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: manfred@colorfullife.com, ak@muc.de, mpm@selenic.com, marcelo@kvack.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, ak@suse.de,
+       dgc@sgi.com
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+In-Reply-To: <20060819041328.225b0170.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0608181219050.488@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
+ <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608172222210.29168@schroedinger.engr.sgi.com>
+ <20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
+ <20060819031916.85d5979e.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0608181138190.32621@schroedinger.engr.sgi.com>
+ <20060819041328.225b0170.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1155771820.11312.116.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 17, 2006 at 01:43:40AM +0200, Benjamin Herrenschmidt wrote:
-> 
-> Sounds good (without actually looking at the code though :), that was a
-> long required improvement to that driver. Also, we should probably look
-> into using NAPI polling for tx completion queue as well, no ?
+On Sat, 19 Aug 2006, KAMEZAWA Hiroyuki wrote:
 
-Just for a lark, I tried using NAPI polling, while disabling all TX
-interrupts. Performance was a disaster: 8Mbits/sec, fom which I conclude
-that the tcp ack packets do not flow back fast enough to allw reliance
-on NAPI polling for transmit.
+> But powerpc(NUMA) people has only SPARSEMEM. So test on powerpc will be 
+> necessary, anyway.(of course, they doesn't have vmem_map)
 
-I was able to get as high as 960 Mbits/sec in unusal circumstances, 
-at 100% cpu usage. Oprofile indicates that the next major improvement
-would be to add scatter/gather, which I'll take a shot at next week,
-if I don't get interrupted. However, I'm getting interrupted a lot these
-days.
+Well they also have quite sophisticated page tables. They may be able to 
+do the same thing as we have on IA64.
 
---linas

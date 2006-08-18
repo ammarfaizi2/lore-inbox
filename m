@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbWHRWwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWHRWzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751567AbWHRWwU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbWHRWwU
+	id S1422636AbWHRWzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWHRWzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:52:20 -0400
-Received: from mother.openwall.net ([195.42.179.200]:55483 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S1751565AbWHRWwT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:52:19 -0400
-Date: Sat, 19 Aug 2006 02:48:14 +0400
-From: Solar Designer <solar@openwall.com>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org, mtosatti@redhat.com,
-       Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: Linux 2.4.34-pre1
-Message-ID: <20060818224814.GA10524@openwall.com>
-References: <20060816223633.GA3421@hera.kernel.org>
+	Fri, 18 Aug 2006 18:55:08 -0400
+Received: from mga06.intel.com ([134.134.136.21]:42129 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751559AbWHRWzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 18:55:06 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,147,1154934000"; 
+   d="scan'208"; a="111061100:sNHT29504790"
+Date: Fri, 18 Aug 2006 15:42:30 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@redhat.com,
+       apw@shadowen.org
+Subject: Re: [patch] sched: generic sched_group cpu power setup
+Message-ID: <20060818154230.A23214@unix-os.sc.intel.com>
+References: <20060815175525.A2333@unix-os.sc.intel.com> <20060815212455.c9fe1e34.pj@sgi.com> <20060816104551.A7305@unix-os.sc.intel.com> <20060818142347.A22846@unix-os.sc.intel.com> <20060818152954.1ef5aa34.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060816223633.GA3421@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060818152954.1ef5aa34.pj@sgi.com>; from pj@sgi.com on Fri, Aug 18, 2006 at 03:29:54PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Willy,
-
-On Wed, Aug 16, 2006 at 10:36:33PM +0000, Willy Tarreau wrote:
-> Also, I've been asked by several people to consider merging Mikael
-> Pettersson's gcc4 patches :
+On Fri, Aug 18, 2006 at 03:29:54PM -0700, Paul Jackson wrote:
+> Suresh wrote:
+> > I will post a 'cpu_power' renaming patch shortly.
 > 
->    http://user.it.uu.se/~mikpe/linux/patches/2.4/
-> 
-> I've been reluctant at first for the usual reasons : "who has a 2.4
-> distro with gcc4 ?" ...
+> Rename to what?
 
-We're about to migrate Openwall GNU/*/Linux (Owl) from its current gcc
-3.4.5 (which we used in our 2.0 release) to gcc 4+ - and we'd rather
-_not_ migrate to Linux 2.6 at the same time, if we can.  We'd be more
-comfortable migrating to Linux 2.6 a few months later.
-   
-So your intent to add gcc 4+ support into Linux 2.4 is very welcome!
+Not yet decided. But both the words "cpu" and "power" will disappear :)
+sched group can have one or more cpus.. so having 'cpu' is confusing
+and 'power/energy' seems to be confusing too..
 
--- 
-Alexander Peslyak <solar at openwall.com>
-GPG key ID: B35D3598  fp: 6429 0D7E F130 C13E C929  6447 73C3 A290 B35D 3598
-http://www.openwall.com - bringing security into open computing environments
+I don't like 'task_load' as it kind of refers to current task load in a
+sched_group.  Currently I favor for 'load_capacity'. Anyone reading
+sched code know what 'load' is.
+
+If any one has a better suggestion, I am open.
+
+thanks,
+suresh

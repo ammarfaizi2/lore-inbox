@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWHRMdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWHRMfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWHRMdz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 08:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHRMdz
+	id S1751257AbWHRMfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 08:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWHRMfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 08:33:55 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:42304 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932433AbWHRMdz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 08:33:55 -0400
-Message-ID: <44E5B441.5090404@sw.ru>
-Date: Fri, 18 Aug 2006 16:36:17 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 18 Aug 2006 08:35:09 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:38114 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751257AbWHRMfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 08:35:07 -0400
+Date: Fri, 18 Aug 2006 14:31:14 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: 7eggert@gmx.de, Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+In-Reply-To: <1155818138.4494.56.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.58.0608181428430.2760@be1.lrz>
+References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it>
+  <6KyCQ-1w7-25@gated-at.bofh.it>  <E1GDgyZ-0000jV-MV@be1.lrz>
+ <1155818138.4494.56.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Greg KH <greg@kroah.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru>	<20060816171527.GB27898@kroah.com>  <44E456F4.10001@sw.ru> <1155825160.9274.35.camel@localhost.localdomain>
-In-Reply-To: <1155825160.9274.35.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Thu, 2006-08-17 at 15:45 +0400, Kirill Korotaev wrote:
-> 
->>We need more complex decrement/locking scheme than krefs
->>provide. e.g. in __put_beancounter() we need
->>atomic_dec_and_lock_irqsave() semantics for performance optimizations.
-> 
-> 
-> Is it possible to put the locking in the destructor?  It seems like that
-> should give similar behavior.
-objects live in hashes also so you need to distinguish objects being freed
-on lookup somehow.
+On Thu, 17 Aug 2006, Arjan van de Ven wrote:
+> On Thu, 2006-08-17 at 14:27 +0200, Bodo Eggert wrote:
 
-Kirill
+> > This will, however, not prevent other users from maliciously destroying the
+> > CD by not using O_EXCL.
+> 
+> if the user wants to destroy his own burning cd... then why is it the
+> kernels job to stop him?
 
+It's user a destroying the CD of user b (e.g. because he erroneously 
+believes his CD with the plain tar archive is in the burner, or because
+he's simply malicious).
+-- 
+"Of course, as admin, I can read all your email. But I am not THAT bored!"
+	-- unknown author in comp.unix.aix

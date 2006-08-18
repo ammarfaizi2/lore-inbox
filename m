@@ -1,87 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWHRTOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWHRTPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWHRTOl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 15:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWHRTOl
+	id S932407AbWHRTPX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 15:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWHRTPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 15:14:41 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:45798 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932416AbWHRTOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 15:14:40 -0400
-Date: Sat, 19 Aug 2006 04:13:28 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: manfred@colorfullife.com, ak@muc.de, mpm@selenic.com, marcelo@kvack.org,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, ak@suse.de,
-       dgc@sgi.com
-Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
-Message-Id: <20060819041328.225b0170.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <Pine.LNX.4.64.0608181138190.32621@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
-	<20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
-	<20060816094358.e7006276.ak@muc.de>
-	<Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
-	<44E3FC4F.2090506@colorfullife.com>
-	<Pine.LNX.4.64.0608172222210.29168@schroedinger.engr.sgi.com>
-	<20060818161739.f7581645.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0608180956080.31844@schroedinger.engr.sgi.com>
-	<20060819031916.85d5979e.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0608181138190.32621@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
+	Fri, 18 Aug 2006 15:15:23 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:36621 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932487AbWHRTPV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 15:15:21 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 18 Aug 2006 19:15:20.0013 (UTC) FILETIME=[A5748FD0:01C6C2FA]
+Content-class: urn:content-classes:message
+Subject: Re: Serial issue
+Date: Fri, 18 Aug 2006 15:15:19 -0400
+Message-ID: <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com>
+In-Reply-To: <1155925024.2924.22.camel@mindpipe>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Serial issue
+thread-index: AcbC+qV+bKDln2CPR4WY5elZ8tHO8w==
+References: <1155862076.24907.5.camel@mindpipe> <1155915851.3426.4.camel@amdx2.microgate.com> <1155923734.2924.16.camel@mindpipe>  <44E602C8.3030805@microgate.com> <1155925024.2924.22.camel@mindpipe>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "Paul Fulghum" <paulkf@microgate.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Russell King" <rmk+lkml@arm.linux.org.uk>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Aug 2006 11:44:22 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
-> > and usual SPARSEMEM, (not EXTREME)
-> > --
-> > page = mem_section[(pfn >> SECTION_SHIFT)].mem_map + pfn
-> > --
-> > need one table look up. maybe not very big.
-> 
-> Bigger than a cacheline that can be kept in the cache? 
 
-powerpc's section size is 16Mbytes. so table itself is bigger than cacheline.
-And powerpc doesn't have DISCONTIG configuration.
+On Fri, 18 Aug 2006, Lee Revell wrote:
 
-> > with SPARSEMEM_EXTREME
-> > --
-> > page = mem_section[(pfn >> SECTION_SHIFT)][(pfn & MASK)].mem_map + pfn
-> > --
-> > need one (big)table look up.
-> 
-> Owww... Cache issues.
-> 
-> Could we do the lookup using a sparse virtually mapped table like on 
-> IA64. Then align section shift to whatever page table is in place (on 
-> platforms that require page tables and IA64 could continue to use its 
-> special handler)?
-> 
-> Then page could be reached via
-> 
-> page = vmem_map + pfn
-> 
-> again ?
-> 
+> On Fri, 2006-08-18 at 13:11 -0500, Paul Fulghum wrote:
+>> Lee Revell wrote:
+>>> But it had no effect.
+>>>
+>>> Could it be a hardware-specific bug?  After all VIA chipsets are
+>>> notorious for interrupts not working right.
+>>>
+>>> Any other suggestions?
+>>
+>> I can't think of any. The interrupts are occurring
+>> and being serviced. Nothing else seems to be sitting
+>> on that interrupt. It's reaching a bit: maybe there
+>> is some console output interfering with the
+>> file transfer protocol, but it only occurs with
+>> interrupt enabled because of some initial timing?
+>> (polling mode may delay things enough to work)
+>> What protocol is ckermit using? (zmodem, etc)
+>>
+>
+> I think it's just using the kermit file transfer protocol.
+>
+> Lee
 
-In early days of implementing SPARSEMEM,  I tried vmem_map + SPARSEMEM.
-But it was very complicated.....so it was dropped.
-Before retrying, I think performance/profile test with each memory model should
-be done.
+A file-transfer protocol??? Has he got hardware the __required__
+hardware flow-control enabled on both ends? One can't spew
+high-speed serial data out forever without a hardware handshake.
 
-Considering ia64, an advantage of SPARSEMEM is (just?) memory hotplug.
-If people need extreme performance, they can select DISCONTIGMEM.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-But powerpc(NUMA) people has only SPARSEMEM. So test on powerpc will be 
-necessary, anyway.(of course, they doesn't have vmem_map)
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
--Kame
-
-
-
-
-
+Thank you.

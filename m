@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbWHRQbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWHRQbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbWHRQbR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWHRQbR
+	id S1751407AbWHRQbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbWHRQbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:31:17 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:37 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1751407AbWHRQbQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:31:16 -0400
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, openib-general@openib.org
-Subject: Re: InfiniBand merge plans for 2.6.19
-X-Message-Flag: Warning: May contain useful information
-References: <adawt9786ii.fsf@cisco.com>
-	<20060818162135.GA20206@mellanox.co.il>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 18 Aug 2006 09:31:09 -0700
-In-Reply-To: <20060818162135.GA20206@mellanox.co.il> (Michael S. Tsirkin's message of "Fri, 18 Aug 2006 19:21:35 +0300")
-Message-ID: <adahd0a80qa.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 18 Aug 2006 16:31:12.0128 (UTC) FILETIME=[B7A89000:01C6C2E3]
-Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Fri, 18 Aug 2006 12:31:32 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29660 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751407AbWHRQbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:31:31 -0400
+Subject: RE: GPL Violation?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: davids@webmaster.com
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEMKNNAB.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKIEMKNNAB.davids@webmaster.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 18 Aug 2006 17:52:30 +0100
+Message-Id: <1155919950.30279.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> Cold you oplease consider IB/mthca: recover from device
-    Michael> errors as well?
+Ar Gwe, 2006-08-18 am 02:51 -0700, ysgrifennodd David Schwartz:
+> 	Otherwise, for example, a printer by Lexmark could require a poem with the
+> words 'Copyright, Lexmark Inc.' at the end to be in a chip in the printer
+> cartridge and refuse to work if it wasn't there. This would, if enforceable,
+> prevent anyone from making compatible cartridges.
 
-Yes, I will.  There's still plenty of time before 2.6.19 opens up.
+True once upon a time (and people did this for IBM clone PC systems when
+IBM tried that in graphics cards)
+
+Once the phrase "Copyright, Lexamrk Inc." is checked to ascertain
+permissions you are in the world of the EUCD and DMCA. You are
+subverting a rights management system which places you on interestingly
+vague ground.
+
+EXPORT_SYMBOL_GPL is clearly a rights management systems. Thats one of
+its little charms.
+
+Alan
+

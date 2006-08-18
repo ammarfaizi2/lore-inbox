@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWHRNKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWHRNQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbWHRNKT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 09:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWHRNKT
+	id S1751125AbWHRNQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 09:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWHRNQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 09:10:19 -0400
-Received: from mga05.intel.com ([192.55.52.89]:32166 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1030373AbWHRNKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 09:10:18 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,143,1154934000"; 
-   d="scan'208"; a="118092196:sNHT16771496"
-Message-ID: <44E5BC2C.80708@linux.intel.com>
-Date: Fri, 18 Aug 2006 15:10:04 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 18 Aug 2006 09:16:09 -0400
+Received: from mail.tmr.com ([64.65.253.246]:46734 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S1751125AbWHRNQI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 09:16:08 -0400
+Message-ID: <44E5BE77.9040200@tmr.com>
+Date: Fri, 18 Aug 2006 09:19:51 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 2/5] -fstack-protector feature: Add the Kconfig option
-References: <1155746902.3023.63.camel@laptopd505.fenrus.org> <200608181308.07752.ak@suse.de> <1155900206.4494.141.camel@laptopd505.fenrus.org> <200608181605.19520.ak@suse.de>
-In-Reply-To: <200608181605.19520.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Thomas Koeller <thomas.koeller@baslerweb.com>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-mips@linux-mips.org
+Subject: Re: [PATCH] Image capturing driver for Basler eXcite smart camera
+References: <200608102318.04512.thomas.koeller@baslerweb.com> <200608142126.29171.thomas.koeller@baslerweb.com> <20060817153138.GE5950@ucw.cz> <200608172230.30682.thomas.koeller@baslerweb.com>
+In-Reply-To: <200608172230.30682.thomas.koeller@baslerweb.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> the binary search argument in this case is moot, just having a config
->> option doesn't break anything compile wise and each later step is
->> self-compiling..
+Thomas Koeller wrote:
+> On Thursday 17 August 2006 17:31, Pavel Machek wrote:
+>> Well, I guess v4l api will need to be improved, then. That is still
+>> not a reason to introduce completely new api...
 > 
-> Not true when the config used for the binary search has stack protector
-> enabled.
->
-oh? I thought I was pretty careful about that
+> The API as implemented by the driver I submitted is very minimalistic,
+> because it is just a starting point. There's more to be added in future,
+> like controlling flashes, interfacing to line-scan cameras clocked by
+> incremental encodes attached to some conveyor, and other stuff which
+> is common in industrial image processing applications. You really do
+> not want to clutter the v4l2 API with these things; that would hardly
+> be an 'improvement'.
+> 
+> Different interfaces, designed to serve different purposes...
+> 
+If you look at Pavel's posts WRT swsusp2, he has taken this position 
+before, that lack of functionality in {something} is no justification to 
+introduce a new solution, and that the limitations of {something} can be 
+addressed by incremental improvement. Like any good idea, this can be 
+carried to extremes.
 
-looking over the patches again I can't find any reason for a non-compiling/working kernel; at any step..
-can you show me the compile error you got or the bug you found?
+Don't take it personally, just write working code people can patch in. 
+When your code has the features you mentioned it will be highly useful 
+and hopefully ported to many devices. I guess security monitoring is an 
+"industrial image processing application," which interests me. At the 
+moment I would call it an impressive proof of concept, but you have many 
+useful ideas for its future.
 
-Also, I generally like this order since this order allows you to bisect stackprotector patches itself, rather than the
-artificial "add a bunch of dead code and then suddenly turn the light on" approach..
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.

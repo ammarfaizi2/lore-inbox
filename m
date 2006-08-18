@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWHRRwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWHRRzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWHRRwx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWHRRwx
+	id S1751443AbWHRRzg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWHRRzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:52:53 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:55026 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751441AbWHRRww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:52:52 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=crP3WjFxPs2GegMlH6HNOfu/VaxZn/1Jhs48HAUfeyQkePhu8mcTUzSVt5kfFPvVP
-	+4kO0OTN6Du5JTda0zxag==
-Subject: Re: [RFC][PATCH 2/7] UBC: core (structures, API)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-In-Reply-To: <44E5A12E.6020900@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33BB6.3050504@sw.ru>
-	 <1155751868.22595.65.camel@galaxy.corp.google.com> <44E458C4.9030902@sw.ru>
-	 <1155833753.14617.21.camel@galaxy.corp.google.com> <44E5A12E.6020900@sw.ru>
+	Fri, 18 Aug 2006 13:55:36 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:63403 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751443AbWHRRzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:55:35 -0400
+Subject: Re: Serial issue
+From: Lee Revell <rlrevell@joe-job.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <1155915851.3426.4.camel@amdx2.microgate.com>
+References: <1155862076.24907.5.camel@mindpipe>
+	 <1155915851.3426.4.camel@amdx2.microgate.com>
 Content-Type: text/plain
-Organization: Google Inc
-Date: Fri, 18 Aug 2006 10:51:10 -0700
-Message-Id: <1155923470.23242.18.camel@galaxy.corp.google.com>
+Date: Fri, 18 Aug 2006 13:55:33 -0400
+Message-Id: <1155923734.2924.16.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 15:14 +0400, Kirill Korotaev wrote:
-
-> >>2. if you think a bit more about it, adding UB parameters doesn't
-> >>   require user space changes as well.
-> >>3. it is possible to add any kind of interface for UBC. but do you like the idea
-> >>   to grep 200(containers)x20(parameters) files for getting current usages?
+On Fri, 2006-08-18 at 10:44 -0500, Paul Fulghum wrote:
+> On Thu, 2006-08-17 at 20:47 -0400, Lee Revell wrote:
+> > I've found a weird serial bug.  My host is a Via EPIA M-6000 running
+> > 2.6.17 connected to a PPC Yosemite board running 2.6.13. 
 > > 
+> > In all cases the serial console works great.  But, with the default
+> > setting of IRQ 4, Kermit file transfers via the serial interface simply
+> > time out.  However if I use polling mode (setserial /dev/ttyS0 irq 0 on
+> > the host), file transfers work.
 > > 
-> > How are you doing it currently and how much more efficient it is in
-> > comparison to configfs?
-> currently it is done with a single file read.
-> you can grep it, sum up resources or do what ever you want from bash.
-> what is important! you can check whether container hits its limits
-> with a single command, while with configs you would have to look through
-> 20 files...
+> > When set to IRQ 4, the interrupt count does increase.
+> > 
+> > # cat /proc/tty/driver/serial 
+> > serinfo:1.0 driver revision:
+> > 0: uart:16550A port:000003F8 irq:4 tx:267 rx:667 DSR|CD
+> > [...]
+> > 
+> > Any ideas?  I'm guessing it might be a quirk of the VIA chipset?
 > 
+> You mention serial console. Hasn't there been some changes
+> related to reenabling the THRE interrupt after sending
+> console data? IIRC the changes fixed transmit stalls on
+> some machines but broke things on other machine.
 
-I think configfs provides all the required functionality that you
-listed. You can define the attributes in a such a away that it prints
-all the information that you need in one single read operation (I think
-the limit is PAGE_SIZE....which is kind of sad).
+I tried Paul's suggestion:
 
-I've just started playing with configfs for a container implementation
-that I'm trying to get a better idea of details.
+--- drivers/serial/8250.c~	2006-06-17 21:49:35.000000000 -0400
++++ drivers/serial/8250.c	2006-08-18 12:57:16.000000000 -0400
+@@ -2263,7 +2263,7 @@
+ 	 *	and restore the IER
+ 	 */
+ 	wait_for_xmitr(up, BOTH_EMPTY);
+-	serial_out(up, UART_IER, ier);
++	serial_out(up, UART_IER, ier | UART_IER_THRI);
  
-> IMHO it is convinient to have a text file representing the whole information state
-> and system call for applications.
-> 
-
-There should be an easy interface for shell to be able to do the needful
-as well, for example, set the limits.
+ 	if (locked)
+ 		spin_unlock_irqrestore(&up->port.lock, flags);
 
 
--rohit
+But it had no effect.
+
+Could it be a hardware-specific bug?  After all VIA chipsets are
+notorious for interrupts not working right.
+
+Any other suggestions?
+
+Lee
 

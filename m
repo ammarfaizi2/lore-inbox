@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWHRQWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWHRQXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWHRQWP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWHRQWP
+	id S1751403AbWHRQXL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWHRQXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:22:15 -0400
-Received: from p02c11o144.mxlogic.net ([208.65.145.67]:19671 "EHLO
-	p02c11o144.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1751410AbWHRQWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:22:12 -0400
-Date: Fri, 18 Aug 2006 19:21:35 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, openib-general@openib.org
-Subject: Re: InfiniBand merge plans for 2.6.19
-Message-ID: <20060818162135.GA20206@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <adawt9786ii.fsf@cisco.com>
+	Fri, 18 Aug 2006 12:23:11 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13459 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751403AbWHRQXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:23:10 -0400
+Subject: Re: 2.6.18-rc4-mm1 + hotfix -- Many processes use the sysctl
+	system call
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mattia Dongili <malattia@linux.it>
+Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       "akpm@osdl.org" <akpm@osdl.org>
+In-Reply-To: <20060818144626.GA8236@inferi.kami.home>
+References: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
+	 <1155854702.8796.97.camel@mindpipe>
+	 <20060818144626.GA8236@inferi.kami.home>
+Content-Type: text/plain
+Date: Fri, 18 Aug 2006 12:23:54 -0400
+Message-Id: <1155918234.24907.35.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adawt9786ii.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 18 Aug 2006 16:28:06.0718 (UTC) FILETIME=[49253DE0:01C6C2E3]
-X-Spam: [F=0.0100000000; S=0.010(2006081701)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Roland Dreier <rdreier@cisco.com>:
->     o  I also have the following minor changes queued in the
->        for-2.6.19 branch of infiniband.git:
+On Fri, 2006-08-18 at 16:46 +0200, Mattia Dongili wrote:
+> On Thu, Aug 17, 2006 at 06:45:01PM -0400, Lee Revell wrote:
+> > On Thu, 2006-08-17 at 15:41 -0700, Miles Lane wrote:
+> > > My installation of Ubuntu is having trouble with my kernel build
+> > > because I disabled support for sysctl:
+> > > 
+> > > warning: process `ls' used the removed sysctl system call
+> > > warning: process `touch' used the removed sysctl system call
+> > > warning: process `touch' used the removed sysctl system call
+> > > warning: process `evms_activate' used the removed sysctl system call
+> > > warning: process `alsactl' used the removed sysctl system call
+> > > 
+> > > I am curious whether the use of sysctl indicates a problem in these
+> > > processes.  What is the benefit of offering disabling sysctl support?
+> > 
+> > To make the kernel smaller for people who don't need sysctl.
+> > Apparently, you need it.
+> 
+> afaik, they are being fixed (in debian at least):
+> http://lists.debian.org/debian-glibc/2006/08/msg00163.html
+> 
 
+"fixed"?  Why is sysctl being removed in the middle of a stable kernel
+series?!?  I thought the new golden rule was "don't break userspace"?
 
-Cold you oplease consider IB/mthca: recover from device errors
-as well?
+Lee
 
--- 
-MST

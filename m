@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWHRRdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWHRRhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWHRRdu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWHRRdu
+	id S1751432AbWHRRhj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWHRRhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:33:50 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:26602 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751431AbWHRRdt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:33:49 -0400
-Message-ID: <44E5F9F0.6030805@us.ibm.com>
-Date: Fri, 18 Aug 2006 10:33:36 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
+	Fri, 18 Aug 2006 13:37:39 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:33808 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751432AbWHRRhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:37:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ufRkeAYy9gqtTTDHwQS8tAmLpHxc7Hx1k86j6gPJH5aMbBSginze08Ef/CirPErl32sBgLovhN/Vg7opCEK+6AmYazly9QVi5R6e8NIpM7/ELg04B2qwi6Qo0I8wBiudvQCNS46ehgvCizc+X0h8GpswY636hMzgfIkDGTMx6oA=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: mplayer-users@mplayerhq.hu, linux-kernel@vger.kernel.org
+Subject: mplayer + heavy io: why ionice doesn't help?
+Date: Fri, 18 Aug 2006 19:37:25 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-To: sho@tnes.nec.co.jp
-CC: esandeen@redhat.com, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH] fix ext3 mounts at 16T
-References: <20060818181516sho@rifu.tnes.nec.co.jp>
-In-Reply-To: <20060818181516sho@rifu.tnes.nec.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608181937.25295.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sho@tnes.nec.co.jp wrote:
+Hi,
 
-> I have reviewed your patch and found other place which might
-> cause overflow as below.  If group_first_block is the first block of
-> the last group, overflow will occur.  This has already been fixed
-> in my patch.
-> 
-> o ext3_try_to_allocate_with_rsv() in fs/ext3/balloc.c
-> 	if ((my_rsv->rsv_start >= group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
-> 		    || (my_rsv->rsv_end < group_first_block))
-> 			BUG();
-> 
+I noticed that mplayer's video playback starts to skip
+if I do some serious copying or grepping on the disk
+with movie being played from.
 
-Yes, this isn't being addressed in the current 2.6.18-rc4 kernel. I 
-think this is better than casting to unsigned long long:
+nice helps, but does not eliminate the problem.
+I guessed that this is a problem with mplayer
+failing to read next portion of input data in time,
+so I used Jens's ionice.c from
+Documentation/block/ioprio.txt
 
-- 	if ((my_rsv->rsv_start >= group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
-+ 	if ((my_rsv->rsv_start > group_first_block - 1 + 
-EXT3_BLOCKS_PER_GROUP(sb))
+I am using it this:
 
+ionice -c1 -n0 -p<mplayer pid>
 
-Thanks,
+but so far I don't see any effect from using it.
+mplayer still skips.
 
-Mingming
+Does anybody have an experience in this?
+--
+vda

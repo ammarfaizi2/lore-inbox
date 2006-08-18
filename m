@@ -1,42 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWHRLXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWHRL1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbWHRLXy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 07:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWHRLXy
+	id S964860AbWHRL1h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 07:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWHRL1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 07:23:54 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:42384 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932414AbWHRLXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 07:23:53 -0400
-Subject: Re: [patch 2/5] -fstack-protector feature: Add the Kconfig option
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <200608181308.07752.ak@suse.de>
-References: <1155746902.3023.63.camel@laptopd505.fenrus.org>
-	 <1155747038.3023.67.camel@laptopd505.fenrus.org>
-	 <200608181308.07752.ak@suse.de>
-Content-Type: text/plain
+	Fri, 18 Aug 2006 07:27:37 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:26840 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932426AbWHRL1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 07:27:36 -0400
+Message-ID: <44E5A425.8020200@pobox.com>
+Date: Fri, 18 Aug 2006 07:27:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Jesse Huang <jesse@icplus.com.tw>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2/6] IP100A Fix Tx pause bug
+References: <1155841445.4532.10.camel@localhost.localdomain>
+In-Reply-To: <1155841445.4532.10.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 13:23:26 +0200
-Message-Id: <1155900206.4494.141.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 13:08 +0200, Andi Kleen wrote:
-> On Wednesday 16 August 2006 18:50, Arjan van de Ven wrote:
-> > Subject: [patch 2/5] Add the Kconfig option for the stackprotector feature
-> > From: Arjan van de Ven <arjan@linux.intel.com>
-> >
-> > This patch adds the config options for -fstack-protector.
-> 
-> Normally it's better to add the CONFIG options after the code or 
-> at the same time. Otherwise binary searches later can break
+Jesse Huang wrote:
+> @@ -1099,6 +1099,10 @@ reset_tx (struct net_device *dev)
+>  	}
+>  	np->cur_tx = np->dirty_tx = 0;
+>  	np->cur_task = 0;
+> +	
+> +	np->last_tx=0;
 
-the binary search argument in this case is moot, just having a config
-option doesn't break anything compile wise and each later step is
-self-compiling..
+add whitespace, to make it look like all other assignments:
+s/=/ = /
+
+
+> +	iowrite8(127, ioaddr + TxDMAPollPeriod);	
+> +	
+
+what does the value 127 represent?
+
+
+>  	iowrite16 (StatsEnable | RxEnable | TxEnable, ioaddr + MACCtrl1);
+>  	return 0;
+>  }
+> @@ -1156,29 +1160,29 @@ static irqreturn_t intr_handler(int irq,
+>  						np->stats.tx_fifo_errors++;
+>  					if (tx_status & 0x02)
+>  						np->stats.tx_window_errors++;
+> -					/*
+> -					** This reset has been verified on
+> -					** DFE-580TX boards ! phdm@macqel.be.
+> -					*/
+> -					if (tx_status & 0x10) {	/* TxUnderrun */
+> -						unsigned short txthreshold;
+> -
+> -						txthreshold = ioread16 (ioaddr + TxStartThresh);
+> -						/* Restart Tx FIFO and transmitter */
+> -						sundance_reset(dev, (NetworkReset|FIFOReset|TxReset) << 16);
+> -						iowrite16 (txthreshold, ioaddr + TxStartThresh);
+> -						/* No need to reset the Tx pointer here */
+> +
+> +					/* FIFO ERROR need to be reset tx */
+> +					if (tx_status & 0x10) {	/* Reset the Tx. */
+> +						spin_lock(&np->lock);
+> +						reset_tx(dev);
+> +						spin_unlock(&np->lock);
+> +					}
+> +					if (tx_status & 0x1e) {
+> +					/* need to make sure tx enabled */
+> +						int i = 10;
+> +						do {
+> +							iowrite16 (ioread16(ioaddr + MACCtrl1) | TxEnable, ioaddr + MACCtrl1);
+> +							if (ioread16(ioaddr + MACCtrl1) & TxEnabled)
+> +								break;
+> +							mdelay(1);
+> +						} while (--i);
+>  					}
+> -					/* Restart the Tx. */
+> -					iowrite16 (TxEnable, ioaddr + MACCtrl1);
+>  				}
+> -				/* Yup, this is a documentation bug.  It cost me *hours*. */
+> +				
+>  				iowrite16 (0, ioaddr + TxStatus);
+> -				if (tx_cnt < 0) {
+> -					iowrite32(5000, ioaddr + DownCounter);
+> -					break;
+> -				}
+>  				tx_status = ioread16 (ioaddr + TxStatus);
+> +				if (tx_cnt < 0)
+> +					break;
+>  			}
+>  			hw_frame_id = (tx_status >> 8) & 0xff;
+>  		} else 	{
+> @@ -1244,6 +1248,9 @@ static irqreturn_t intr_handler(int irq,
+>  	if (netif_msg_intr(np))
+>  		printk(KERN_DEBUG "%s: exiting interrupt, status=%#4.4x.\n",
+>  			   dev->name, ioread16(ioaddr + IntrStatus));
+> +			   
+> +	iowrite32(5000, ioaddr + DownCounter); 
+> +				   
+>  	return IRQ_RETVAL(handled);
+
+DownCounter should not be written unconditionally.  Consider shared 
+interrupts, where sundance performs no work, and handled==0.
+
+	Jeff
+
 

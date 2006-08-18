@@ -1,114 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWHRL1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWHRL3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWHRL1h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 07:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWHRL1h
+	id S964869AbWHRL3i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 07:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWHRL3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 07:27:37 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:26840 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932426AbWHRL1g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 07:27:36 -0400
-Message-ID: <44E5A425.8020200@pobox.com>
-Date: Fri, 18 Aug 2006 07:27:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Jesse Huang <jesse@icplus.com.tw>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/6] IP100A Fix Tx pause bug
-References: <1155841445.4532.10.camel@localhost.localdomain>
-In-Reply-To: <1155841445.4532.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 18 Aug 2006 07:29:38 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:33003 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S964869AbWHRL3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 07:29:37 -0400
+Subject: Re: [patch 0/5] -fstack-protector feature for the kernel (try 2)
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: akpm@Osdl.org
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <200608181315.35536.ak@suse.de>
+References: <1155746902.3023.63.camel@laptopd505.fenrus.org>
+	 <200608181315.35536.ak@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Date: Fri, 18 Aug 2006 13:29:21 +0200
+Message-Id: <1155900561.4494.145.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Huang wrote:
-> @@ -1099,6 +1099,10 @@ reset_tx (struct net_device *dev)
->  	}
->  	np->cur_tx = np->dirty_tx = 0;
->  	np->cur_task = 0;
-> +	
-> +	np->last_tx=0;
-
-add whitespace, to make it look like all other assignments:
-s/=/ = /
-
-
-> +	iowrite8(127, ioaddr + TxDMAPollPeriod);	
-> +	
-
-what does the value 127 represent?
+On Fri, 2006-08-18 at 13:15 +0200, Andi Kleen wrote:
+> On Wednesday 16 August 2006 18:48, Arjan van de Ven wrote:
+> > This patch series adds support for the gcc -fstack-protector feature to
+> > the kernel. While gcc 4.1 supports this feature for userspace, the patches
+> > to support it for the kernel only got added to the gcc tree on 27/7/2006
+> > (eg for 4.2); it is expected that several distributors will backport this
+> > patch to their 4.1 gcc versions. (For those who want to know more, see gcc
+> > PR 28281)
+> 
+> FWIW -- my queue for 2.6.19 is already quite full and I'm
+> in the stabilization phase for the merge.
 
 
->  	iowrite16 (StatsEnable | RxEnable | TxEnable, ioaddr + MACCtrl1);
->  	return 0;
->  }
-> @@ -1156,29 +1160,29 @@ static irqreturn_t intr_handler(int irq,
->  						np->stats.tx_fifo_errors++;
->  					if (tx_status & 0x02)
->  						np->stats.tx_window_errors++;
-> -					/*
-> -					** This reset has been verified on
-> -					** DFE-580TX boards ! phdm@macqel.be.
-> -					*/
-> -					if (tx_status & 0x10) {	/* TxUnderrun */
-> -						unsigned short txthreshold;
-> -
-> -						txthreshold = ioread16 (ioaddr + TxStartThresh);
-> -						/* Restart Tx FIFO and transmitter */
-> -						sundance_reset(dev, (NetworkReset|FIFOReset|TxReset) << 16);
-> -						iowrite16 (txthreshold, ioaddr + TxStartThresh);
-> -						/* No need to reset the Tx pointer here */
-> +
-> +					/* FIFO ERROR need to be reset tx */
-> +					if (tx_status & 0x10) {	/* Reset the Tx. */
-> +						spin_lock(&np->lock);
-> +						reset_tx(dev);
-> +						spin_unlock(&np->lock);
-> +					}
-> +					if (tx_status & 0x1e) {
-> +					/* need to make sure tx enabled */
-> +						int i = 10;
-> +						do {
-> +							iowrite16 (ioread16(ioaddr + MACCtrl1) | TxEnable, ioaddr + MACCtrl1);
-> +							if (ioread16(ioaddr + MACCtrl1) & TxEnabled)
-> +								break;
-> +							mdelay(1);
-> +						} while (--i);
->  					}
-> -					/* Restart the Tx. */
-> -					iowrite16 (TxEnable, ioaddr + MACCtrl1);
->  				}
-> -				/* Yup, this is a documentation bug.  It cost me *hours*. */
-> +				
->  				iowrite16 (0, ioaddr + TxStatus);
-> -				if (tx_cnt < 0) {
-> -					iowrite32(5000, ioaddr + DownCounter);
-> -					break;
-> -				}
->  				tx_status = ioread16 (ioaddr + TxStatus);
-> +				if (tx_cnt < 0)
-> +					break;
->  			}
->  			hw_frame_id = (tx_status >> 8) & 0xff;
->  		} else 	{
-> @@ -1244,6 +1248,9 @@ static irqreturn_t intr_handler(int irq,
->  	if (netif_msg_intr(np))
->  		printk(KERN_DEBUG "%s: exiting interrupt, status=%#4.4x.\n",
->  			   dev->name, ioread16(ioaddr + IntrStatus));
-> +			   
-> +	iowrite32(5000, ioaddr + DownCounter); 
-> +				   
->  	return IRQ_RETVAL(handled);
-
-DownCounter should not be written unconditionally.  Consider shared 
-interrupts, where sundance performs no work, and handled==0.
-
-	Jeff
+Andrew, can you please consider sticking these into -mm ?
+FC6 already has a gcc capable of using this feature (and I hope/assume
+other similar distros as well; for other distros using gcc 4.1, the
+respective gcc owner should put in
+http://www.fenrus.org/stackprotector/gcc41.patch to fix PR28281) and
+since it's a relatively simple feature patch wise (and entirely off if
+the config option is off) I sort of feel 2.6.20 is a long way away..
 
 

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWHRPqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWHRPvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWHRPqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 11:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWHRPqb
+	id S1161020AbWHRPvV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 11:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWHRPvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 11:46:31 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:6998 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161036AbWHRPqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 11:46:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RfzJylj8mdBofZ1j/e6lzJkEF+/p8yRZ2x/Tr6LPy3G4dwAS/qnd8gMzTcH0ku8cDJUga6ORV/TwC0CxIIBfT0Ag66OV4CaDhHo2BjggRhaZHipMNMTnbj6pe64cmd6KDhKw7rzyTYsPKtEq6Z6QF998g8Fmc5yK9G0CwUFW1kc=
-Message-ID: <b0943d9e0608180846s4ed560b7ld4e3081bdc754454@mail.gmail.com>
-Date: Fri, 18 Aug 2006 16:46:29 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608130726x8fc1c0v7717165a63391e80@mail.gmail.com>
-	 <b0943d9e0608170602v13dea49bgf64dbf17b7a52273@mail.gmail.com>
-	 <6bffcb0e0608170745s8145df4ya4e946c76ab83c1b@mail.gmail.com>
-	 <b0943d9e0608170801v23592952scf12c2c0b4a7bf4@mail.gmail.com>
-	 <b0943d9e0608171458l45b717bexbfb8fb2ba68228db@mail.gmail.com>
-	 <6bffcb0e0608180528ocadc36ck8868ae1a33342bb9@mail.gmail.com>
-	 <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
-	 <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
-	 <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
+	Fri, 18 Aug 2006 11:51:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31164 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161020AbWHRPvU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 11:51:20 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <76bd70e30608180843m536e9f57y90e1915f40f85b2@mail.gmail.com> 
+References: <76bd70e30608180843m536e9f57y90e1915f40f85b2@mail.gmail.com>  <20060818153502.29482.91650.stgit@warthog.cambridge.redhat.com> <20060818153514.29482.78513.stgit@warthog.cambridge.redhat.com> 
+To: "Chuck Lever" <chucklever@gmail.com>
+Cc: "David Howells" <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       steved@redhat.com, trond.myklebust@fys.uio.no,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/7] NFS: Use local caching [try #12] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 18 Aug 2006 16:51:06 +0100
+Message-ID: <30101.1155916266@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Lockdep still detects this bug
->
-> =======================================================
-> [ INFO: possible circular locking dependency detected ]
-> -------------------------------------------------------
-> events/0/8 is trying to acquire lock:
->  (memleak_lock){++..}, at: [<c0176a11>] memleak_free+0x9e/0x16f
->
-> but task is already holding lock:
->  (&parent->list_lock){++..}, at: [<c0174f29>] drain_array+0x49/0xad
->
-> which lock already depends on the new lock.
-> etc.
+Chuck Lever <chucklever@gmail.com> wrote:
 
-Do you have the complete dmesg output? There should be a different
-path which I missed (I didn't get this yestarday but I haven't tried
-with the latest patch I sent to you today).
+> > +static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
+> > +                                  void *buffer, uint16_t bufmax)
+> > +{
+> 
+> Why don't you use the function declaration style that is used in the
+> rest of the NFS client?
 
--- 
-Catalin
+Actually, the NFS client has several different styles, and mine's not without
+precedent, eg:
+
+extern int nfs3_setxattr(struct dentry *, const char *,
+			const void *, size_t, int);
+
+extern ssize_t nfs_direct_IO(int, struct kiocb *, const struct iovec *, loff_t,
+			unsigned long);
+
+static inline loff_t
+nfs_size_to_loff_t(__u64 size)
+
+> All the parameters belong on one line, don't they?
+
+Depends how much you want to upset those people who tremble with anxiety at
+the sight of a line longer than 80 chars.
+
+David

@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWHRSDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWHRSKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWHRSDs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 14:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWHRSDr
+	id S1751462AbWHRSKm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 14:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWHRSKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 14:03:47 -0400
-Received: from ozlabs.org ([203.10.76.45]:47026 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751455AbWHRSDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 14:03:47 -0400
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Klein <osstklei@de.ibm.com>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
-From: Michael Neuling <mikey@neuling.org>
-Subject: Re: [2.6.19 PATCH 5/7] ehea: main header files 
-In-reply-to: <200608181334.57701.ossthema@de.ibm.com> 
-References: <200608181334.57701.ossthema@de.ibm.com>
-Comments: In-reply-to Jan-Bernd Themann <ossthema@de.ibm.com>
-   message dated "Fri, 18 Aug 2006 13:34:57 +0200."
-Reply-to: Michael Neuling <mikey@neuling.org>
-X-Mailer: MH-E 7.85; nmh 1.1; GNU Emacs 21.4.1
-Date: Fri, 18 Aug 2006 13:03:41 -0500
-Message-Id: <20060818180345.9660E67B64@ozlabs.org>
+	Fri, 18 Aug 2006 14:10:42 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8105 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751462AbWHRSKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 14:10:41 -0400
+Date: Fri, 18 Aug 2006 11:09:19 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: haveblue@us.ibm.com, saw@sw.ru, dev@sw.ru, riel@redhat.com,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       ak@suse.de, hch@infradead.org, devel@openvz.org, rohitseth@google.com,
+       hugh@veritas.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       xemul@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+Message-Id: <20060818110919.14424cf5.pj@sgi.com>
+In-Reply-To: <20060818094248.cdca152d.akpm@osdl.org>
+References: <44E33893.6020700@sw.ru>
+	<44E33C3F.3010509@sw.ru>
+	<1155752277.22595.70.camel@galaxy.corp.google.com>
+	<1155755069.24077.392.camel@localhost.localdomain>
+	<1155756170.22595.109.camel@galaxy.corp.google.com>
+	<44E45D6A.8000003@sw.ru>
+	<20060817084033.f199d4c7.akpm@osdl.org>
+	<20060818120809.B11407@castle.nmd.msu.ru>
+	<1155912348.9274.83.camel@localhost.localdomain>
+	<20060818094248.cdca152d.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +static inline void ehea_update_sqa(struct ehea_qp *qp, u16 nr_wqes)
-> +{
-> +	struct h_epa epa = qp->epas.kernel;
-> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_sqa),
-> +		      EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
-> +}
-> +
-> +static inline void ehea_update_rq3a(struct ehea_qp *qp, u16 nr_wqes)
-> +{
-> +	struct h_epa epa = qp->epas.kernel;
-> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq3a),
-> +		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
-> +}
-> +
-> +static inline void ehea_update_rq2a(struct ehea_qp *qp, u16 nr_wqes)
-> +{
-> +	struct h_epa epa = qp->epas.kernel;
-> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq2a),
-> +		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
-> +}
-> +
-> +static inline void ehea_update_rq1a(struct ehea_qp *qp, u16 nr_wqes)
-> +{
-> +	struct h_epa epa = qp->epas.kernel;
-> +	epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq1a),
-> +		      EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
-> +}
-> +
-> +static inline void ehea_update_feca(struct ehea_cq *cq, u32 nr_cqes)
-> +{
-> +	struct h_epa epa = cq->epas.kernel;
-> +	epa_store_acc(epa, CQTEMM_OFFSET(cqx_feca),
-> +		      EHEA_BMASK_SET(CQX_FECADDER, nr_cqes));
-> +}
-> +
-> +static inline void ehea_reset_cq_n1(struct ehea_cq *cq)
-> +{
-> +	struct h_epa epa = cq->epas.kernel;
-> +	epa_store_cq(epa, cqx_n1,
-> +		     EHEA_BMASK_SET(CQX_N1_GENERATE_COMP_EVENT, 1));
-> +}
-> +
-> +static inline void ehea_reset_cq_ep(struct ehea_cq *my_cq)
-> +{
-> +	struct h_epa epa = my_cq->epas.kernel;
-> +	epa_store_acc(epa, CQTEMM_OFFSET(cqx_ep),
-> +		      EHEA_BMASK_SET(CQX_EP_EVENT_PENDING, 0));
-> +}
+Andrew wrote:
+> "mems" (what are these called?)
 
-These are almost identical... I'm sure most (if not all) could be merged
-into a single function or #define.
+I call them "Memory Nodes", or "nodes" for short when the qualifier
+"memory" is clear from the context.
 
-Mikey
+I was just reading up on FB-DIMM memory, and notice that each DIMM on
+a channel has a different latency.  That sure looks like the defining
+characteristic of NUMA memory to my way of thinking - non-uniform memory.
+
+So for extra credit if your fake numa nodes pan out, it would be cute if
+the fake nodes could be defined so as to respect these latency
+differences - memory in different nodes if at different positions along
+a memory channel.  Then a sysadmin could put their most latency
+sensitive jobs on the DIMMs closest to the CPUs.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

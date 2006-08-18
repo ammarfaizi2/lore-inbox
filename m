@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWHRGxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWHRHBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWHRGxa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 02:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHRGxa
+	id S1750760AbWHRHBV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 03:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWHRHBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 02:53:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19600 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750738AbWHRGxa (ORCPT
+	Fri, 18 Aug 2006 03:01:21 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:10299 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1750760AbWHRHBU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 02:53:30 -0400
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Use decimal for PTRACE_ATTACH and PTRACE_DETACH.
-X-Antipastobozoticataclysm: Bariumenemanilow
-Message-Id: <20060818065320.47B97180030@magilla.sf.frob.com>
-Date: Thu, 17 Aug 2006 23:53:20 -0700 (PDT)
+	Fri, 18 Aug 2006 03:01:20 -0400
+Date: Fri, 18 Aug 2006 09:03:15 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Chinner <dgc@sgi.com>, Neil Brown <neilb@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow  writeback.
+Message-ID: <20060818070314.GE798@suse.de>
+References: <17633.2524.95912.960672@cse.unsw.edu.au> <20060815010611.7dc08fb1.akpm@osdl.org> <20060815230050.GB51703024@melbourne.sgi.com> <17635.60378.733953.956807@cse.unsw.edu.au> <20060816231448.cc71fde7.akpm@osdl.org> <20060818001102.GW51703024@melbourne.sgi.com> <20060817232942.c35b1371.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060817232942.c35b1371.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is sure confusing that linux/ptrace.h has:
-	#define PTRACE_SINGLESTEP	   9
-	#define PTRACE_ATTACH		0x10
-	#define PTRACE_DETACH		0x11
-	#define PTRACE_SYSCALL		  24
-All the low-numbered constants are in decimal, but the last two in hex.
-It sure makes it likely that someone will look at this and think that
-9, 10, 11 are used, and that 16 and 17 are not used.
+On Thu, Aug 17 2006, Andrew Morton wrote:
+> It seems that the many-writers-to-different-disks workloads don't happen
+> very often.  We know this because
+> 
+> a) The 2.4 performance is utterly awful, and I never saw anybody
+>    complain and
 
-How about we use the same notation for all the numbers [0,24] in the
-same short list?
+Talk to some of the people that used DVD-RAM devices (or other
+excruciatingly slow writers) on their system, and they would disagree
+violently :-)
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
----
- include/linux/ptrace.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+It's been discussed here on lkml many times in the past, but that's
+years behind us now. Thankfully your pdflush work got rid of that
+embarassment. But it definitely does matter, to real ordinary users.
 
-diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
-index 8b2749a..eeb1976 100644  
---- a/include/linux/ptrace.h
-+++ b/include/linux/ptrace.h
-@@ -16,8 +16,8 @@
- #define PTRACE_KILL		   8
- #define PTRACE_SINGLESTEP	   9
- 
--#define PTRACE_ATTACH		0x10
--#define PTRACE_DETACH		0x11
-+#define PTRACE_ATTACH		  16
-+#define PTRACE_DETACH		  17
- 
- #define PTRACE_SYSCALL		  24
- 
+-- 
+Jens Axboe
+

@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWHRRzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWHRR4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWHRRzg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 13:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWHRRzg
+	id S1751445AbWHRR4u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 13:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWHRR4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 13:55:36 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:63403 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751443AbWHRRzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 13:55:35 -0400
-Subject: Re: Serial issue
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <1155915851.3426.4.camel@amdx2.microgate.com>
-References: <1155862076.24907.5.camel@mindpipe>
-	 <1155915851.3426.4.camel@amdx2.microgate.com>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 13:55:33 -0400
-Message-Id: <1155923734.2924.16.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 13:56:49 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52998 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751445AbWHRR4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 13:56:49 -0400
+Date: Fri, 18 Aug 2006 19:56:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation?
+Message-ID: <20060818175648.GS7813@stusta.de>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <200608170332.53556.diablod3@gmail.com> <20060817080243.GN7813@stusta.de> <200608170503.05171.diablod3@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608170503.05171.diablod3@gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 10:44 -0500, Paul Fulghum wrote:
-> On Thu, 2006-08-17 at 20:47 -0400, Lee Revell wrote:
-> > I've found a weird serial bug.  My host is a Via EPIA M-6000 running
-> > 2.6.17 connected to a PPC Yosemite board running 2.6.13. 
-> > 
-> > In all cases the serial console works great.  But, with the default
-> > setting of IRQ 4, Kermit file transfers via the serial interface simply
-> > time out.  However if I use polling mode (setserial /dev/ttyS0 irq 0 on
-> > the host), file transfers work.
-> > 
-> > When set to IRQ 4, the interrupt count does increase.
-> > 
-> > # cat /proc/tty/driver/serial 
-> > serinfo:1.0 driver revision:
-> > 0: uart:16550A port:000003F8 irq:4 tx:267 rx:667 DSR|CD
-> > [...]
-> > 
-> > Any ideas?  I'm guessing it might be a quirk of the VIA chipset?
+On Thu, Aug 17, 2006 at 05:03:03AM -0400, Patrick McFarland wrote:
+> On Thursday 17 August 2006 04:02, Adrian Bunk wrote:
+> > This is _your personal interpretation_ of what consists a "derived work"
+> > under the GPL.
+> > This is a known grey area that has AFAIK not yet been brought to court
+> > in any country, and neither your personal opinion on this issue nor my
+> > personal opinion on this issue can replace legel advice.
 > 
-> You mention serial console. Hasn't there been some changes
-> related to reenabling the THRE interrupt after sending
-> console data? IIRC the changes fixed transmit stalls on
-> some machines but broke things on other machine.
+> And I never said anything different. Stop being hostile to other's opinions. 
+> LKML isn't the place for a flamewar.
 
-I tried Paul's suggestion:
+You said:
 
---- drivers/serial/8250.c~	2006-06-17 21:49:35.000000000 -0400
-+++ drivers/serial/8250.c	2006-08-18 12:57:16.000000000 -0400
-@@ -2263,7 +2263,7 @@
- 	 *	and restore the IER
- 	 */
- 	wait_for_xmitr(up, BOTH_EMPTY);
--	serial_out(up, UART_IER, ier);
-+	serial_out(up, UART_IER, ier | UART_IER_THRI);
- 
- 	if (locked)
- 		spin_unlock_irqrestore(&up->port.lock, flags);
+<--  snip  -->
 
+Closed source modules are lame, and against the spirit of open source, but
+that still doesn't make them against the license.
 
-But it had no effect.
+<--  snip  -->
 
-Could it be a hardware-specific bug?  After all VIA chipsets are
-notorious for interrupts not working right.
+And exactly the question whether modules with not GPL compatible 
+licences are against the license is the grey area.
 
-Any other suggestions?
+cu
+Adrian
 
-Lee
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
 

@@ -1,101 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWHRUQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWHRUZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbWHRUQy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 16:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWHRUQy
+	id S932508AbWHRUZI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 16:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWHRUZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 16:16:54 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:1460 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932496AbWHRUQx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 16:16:53 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 4/7] UBC: syscalls (user interface)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44E33C3F.3010509@sw.ru>
-References: <44E33893.6020700@sw.ru>  <44E33C3F.3010509@sw.ru>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 18 Aug 2006 13:13:34 -0700
-Message-Id: <1155932014.26155.78.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Fri, 18 Aug 2006 16:25:08 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:33945 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S932508AbWHRUZG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 16:25:06 -0400
+Message-ID: <44E6221D.4040008@compro.net>
+Date: Fri, 18 Aug 2006 16:25:01 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Paul Fulghum <paulkf@microgate.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: Serial issue
+References: <1155862076.24907.5.camel@mindpipe> <1155915851.3426.4.camel@amdx2.microgate.com> <1155923734.2924.16.camel@mindpipe>  <44E602C8.3030805@microgate.com> <1155925024.2924.22.camel@mindpipe> <Pine.LNX.4.61.0608181512520.19876@chaos.analogic.com> <1155928885.2924.40.camel@mindpipe> <Pine.LNX.4.61.0608181551510.19978@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0608181551510.19978@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-08-16 at 19:39 +0400, Kirill Korotaev wrote:
-
-<snip>
-
-> +/*
-> + *	The setbeanlimit syscall
-> + */
-> +asmlinkage long sys_setublimit(uid_t uid, unsigned long resource,
-> +		unsigned long *limits)
-> +{
-> +	int error;
-> +	unsigned long flags;
-> +	struct user_beancounter *ub;
-> +	unsigned long new_limits[2];
-> +
-> +	error = -EPERM;
-> +	if(!capable(CAP_SYS_RESOURCE))
-> +		goto out;
-> +
-> +	error = -EINVAL;
-> +	if (resource >= UB_RESOURCES)
-> +		goto out;
-> +
-> +	error = -EFAULT;
-> +	if (copy_from_user(&new_limits, limits, sizeof(new_limits)))
-> +		goto out;
-> +
-> +	error = -EINVAL;
-> +	if (new_limits[0] > UB_MAXVALUE || new_limits[1] > UB_MAXVALUE)
-> +		goto out;
-> +
-> +	error = -ENOENT;
-> +	ub = beancounter_findcreate(uid, NULL, 0);
-> +	if (ub == NULL)
-> +		goto out;
-> +
-> +	spin_lock_irqsave(&ub->ub_lock, flags);
-> +	ub->ub_parms[resource].barrier = new_limits[0];
-> +	ub->ub_parms[resource].limit = new_limits[1];
-
->From my understanding it appear that barrier <= limit. But, the check is
-missing here.
-> +	spin_unlock_irqrestore(&ub->ub_lock, flags);
-> +
-> +	put_beancounter(ub);
-> +	error = 0;
-> +out:
-> +	return error;
-> +}
-> +#endif
+linux-os (Dick Johnson) wrote:
+> On Fri, 18 Aug 2006, Lee Revell wrote:
 > 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+>> On Fri, 2006-08-18 at 15:15 -0400, linux-os (Dick Johnson) wrote:
+>>> A file-transfer protocol??? Has he got hardware the __required__
+>>> hardware flow-control enabled on both ends? One can't spew
+>>> high-speed serial data out forever without a hardware handshake.
+>>>
+>> Interesting you should mention that.  As a matter of fact I have to
+>> disable all flow control or the serial console doesn't even work.  I
+>> considered this a minor issue and had forgotten about it.
+>>
+>> But, in polled mode with no flow control I can transfer a 10MB file.
+>> There are a lot of retransmits but it works.
+>>
+>> Lee
+>>
+> 
+> Using RS-232C for file transfer and as a serial console are two
+> different things. Many terminals and terminal emulators don't
+> even activate RTS/CTS. If you are just getting data from the
+> output of a UART to view on a screen, the data usually comes
+> in spurts, a line at a time, and a screen at a time. There
+> is plenty of time for the receiving terminal to write the
+> stuff to the screen.
+> 
+> However, with file transfers, data streams with no breaks.
+> There needs to be time for these buffers of data to be written
+> to files, etc., or else you eventually run out of buffers even
+> if no interrupts are ever lost. Therefore, you must use hardware
+> handshake. In other words, you need to connect your machines
+> together with a complete null-modem cable, not just three wires.
+> Then both machines need to cooperate, i.e., the receiving machine
+> needs to lower CTS before its buffers get full and the sender,
+> must look at its RTS bit and wait for it to go false before
+> sending anymore data. Failure to do this __will__ result in
+> lost data.
+> 
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Don't mean to but it but:
 
+Take it from someone who actually still uses dumb terminals every day, any thing
+over 9600 baud still requires some kind of flow control for reliable consistent
+operation. Software (Xon/Xoff) and or hardware (RTS/RTS/DTE) flow control.
+
+
+Mark
 

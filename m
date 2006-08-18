@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWHRWPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWHRWUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751517AbWHRWPL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 18:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWHRWPL
+	id S1751521AbWHRWUW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 18:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWHRWUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 18:15:11 -0400
-Received: from mailout1.pacific.net.au ([61.8.0.84]:32437 "EHLO
-	mailout1.pacific.net.au") by vger.kernel.org with ESMTP
-	id S1751517AbWHRWPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 18:15:10 -0400
-Date: Sat, 19 Aug 2006 08:12:56 +1000
-From: Greg Schafer <gschafer@zip.com.au>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's in kbuild.git for 2.6.19
-Message-ID: <20060818221256.GA23549@tigers.local>
-References: <20060813194503.GA21736@mars.ravnborg.org> <pan.2006.08.18.08.26.03.994311@zip.com.au> <20060818171335.GA7595@mars.ravnborg.org>
+	Fri, 18 Aug 2006 18:20:21 -0400
+Received: from xenotime.net ([66.160.160.81]:5002 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751514AbWHRWUV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 18:20:21 -0400
+Date: Fri, 18 Aug 2006 15:23:20 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed!
+Message-Id: <20060818152320.9f0e3693.rdunlap@xenotime.net>
+In-Reply-To: <44E58FDC.6030007@aitel.hist.no>
+References: <20060813012454.f1d52189.akpm@osdl.org>
+	<200608181134.02427.ak@suse.de>
+	<44E588AB.3050900@aitel.hist.no>
+	<200608181255.46999.ak@suse.de>
+	<44E58FDC.6030007@aitel.hist.no>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060818171335.GA7595@mars.ravnborg.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 07:13:35PM +0200, Sam Ravnborg wrote:
-> On Fri, Aug 18, 2006 at 06:26:07PM +1000, Greg Schafer wrote:
-> >   HOSTCC  scripts/unifdef
-> > /tmp/ccwcmPxS.o: In function `keywordedit':
-> > unifdef.c:(.text+0x25c): undefined reference to `strlcpy'
-> > collect2: ld returned 1 exit status
-> > make[1]: *** [scripts/unifdef] Error 1
-> > make: *** [headers_install] Error 2
-> 
-> When I grep in the unifdef sources I get only one reference to strlcpy.
-> That's a prototype that was missed when I replaced the use of strlcpy
-> with a dedicated implementation.
+On Fri, 18 Aug 2006 12:01:00 +0200 Helge Hafting wrote:
 
-Arghhh, I was cherry-picking patches and missed "replace use of strlcpy with
-a dedicated implmentation in unifdef". Sorry for the noise..
+> Andi Kleen wrote:
+> >> I have narrowed it down.  2.6.18-rc4 does not have the 3x time
+> >> problem,  while mm1 have it.  mm1 without the hotfix jiffies
+> >> patch is just as bad.
+> >>     
+> >
+> > Can you narrow it down to a specific patch in -mm? 
+> >   
+> How do I do that?  Is -mm available through git somehow,
+> or is there some other clever way?
 
-Regards
-Greg
+http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+
+---
+~Randy

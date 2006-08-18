@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbWHRQjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWHRQkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030480AbWHRQjp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 12:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbWHRQjp
+	id S1751413AbWHRQkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 12:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWHRQkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 12:39:45 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52925 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030480AbWHRQjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 12:39:44 -0400
-Subject: Re: 2.6.18-rc4-mm1 + hotfix -- Many processes use the sysctl
-	system call
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mattia Dongili <malattia@linux.it>, Miles Lane <miles.lane@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, "akpm@osdl.org" <akpm@osdl.org>
-In-Reply-To: <1155918234.24907.35.camel@mindpipe>
-References: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
-	 <1155854702.8796.97.camel@mindpipe>
-	 <20060818144626.GA8236@inferi.kami.home>
-	 <1155918234.24907.35.camel@mindpipe>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 18:00:32 +0100
-Message-Id: <1155920432.30279.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 18 Aug 2006 12:40:09 -0400
+Received: from mx2.suse.de ([195.135.220.15]:12267 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751413AbWHRQkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 12:40:06 -0400
+Date: Fri, 18 Aug 2006 09:39:01 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.17.9
+Message-ID: <20060818163901.GB16920@kroah.com>
+References: <20060818163831.GA16920@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060818163831.GA16920@kroah.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 12:23 -0400, ysgrifennodd Lee Revell:
-> "fixed"?  Why is sysctl being removed in the middle of a stable kernel
-> series?!?  I thought the new golden rule was "don't break userspace"?
-
-Its being made optional like a lot of other things. It does probably
-belong under CONFIG_EMBEDDED to turn it off tho
-
-
-Alan
-
+diff --git a/Makefile b/Makefile
+index 4c9fe27..505c55f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 17
+-EXTRAVERSION = .8
++EXTRAVERSION = .9
+ NAME=Crazed Snow-Weasel
+ 
+ # *DOCUMENTATION*
+diff --git a/arch/powerpc/kernel/cpu_setup_power4.S b/arch/powerpc/kernel/cpu_setup_power4.S
+index b61d86e..55f367e 100644
+--- a/arch/powerpc/kernel/cpu_setup_power4.S
++++ b/arch/powerpc/kernel/cpu_setup_power4.S
+@@ -94,6 +94,8 @@ _GLOBAL(__setup_cpu_ppc970)
+ 	mfspr	r0,SPRN_HID0
+ 	li	r11,5			/* clear DOZE and SLEEP */
+ 	rldimi	r0,r11,52,8		/* set NAP and DPM */
++	li	r11,0
++	rldimi	r0,r11,32,31		/* clear EN_ATTN */
+ 	mtspr	SPRN_HID0,r0
+ 	mfspr	r0,SPRN_HID0
+ 	mfspr	r0,SPRN_HID0

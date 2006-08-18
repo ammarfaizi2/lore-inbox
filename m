@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWHRAMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWHRAOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWHRAMh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 20:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWHRAMh
+	id S932356AbWHRAOt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 20:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWHRAOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 20:12:37 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27837 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932206AbWHRAMg
+	Thu, 17 Aug 2006 20:14:49 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30909 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932212AbWHRAOs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 20:12:36 -0400
-Subject: Re: GPL Violation?
+	Thu, 17 Aug 2006 20:14:48 -0400
+Subject: Re: bonding: cannot remove certain named devices
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ian Stirling <ian.stirling@mauve.plus.com>
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Anonymous User <anonymouslinuxuser@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44E4FB43.4090304@mauve.plus.com>
-References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com>
-	 <1155795251.4494.9.camel@laptopd505.fenrus.org>
-	 <44E4C1B7.9020700@superbug.co.uk>  <44E4FB43.4090304@mauve.plus.com>
+To: David Miller <davem@davemloft.net>
+Cc: xavier.bestel@free.fr, 7eggert@gmx.de, notting@redhat.com, cate@debian.org,
+       7eggert@elstempel.de, shemminger@osdl.org, mitch.a.williams@intel.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060817.162340.74748342.davem@davemloft.net>
+References: <20060816133811.GA26471@nostromo.devel.redhat.com>
+	 <Pine.LNX.4.58.0608161636250.2044@be1.lrz>
+	 <1155799783.7566.5.camel@capoeira>
+	 <20060817.162340.74748342.davem@davemloft.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Aug 2006 01:32:46 +0100
-Message-Id: <1155861166.15195.109.camel@localhost.localdomain>
+Date: Fri, 18 Aug 2006 01:34:43 +0100
+Message-Id: <1155861283.15195.112.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 00:26 +0100, ysgrifennodd Ian Stirling:
-> If you (as someone who does not make chip B) release the GPL'd
-> driver, then you're making it a fair bit easier for competitors,
-> who can now simply copy your often not very novel in any way
-> other than you thought of it first - design, and use that driver.
+Ar Iau, 2006-08-17 am 16:23 -0700, ysgrifennodd David Miller:
+> Nobody in their right mind puts a space in their network device name.
 
-If your product differentiator is "used a different ten cent ethernet
-chip" then remind me no to buy your stock 8)
+It works fine. Been there done that. I'm probably not in my right mind
+but it causes no problems. Nor btw does UTF-8 naming which is handy if
+you want to name your devices in Japanese or Arabic...
 
-What many vendors have found is the fact that they can support chip B
-under Linux by copying an existing driver and changing small parts of it
-is far more important. 
+> All you "name purists", go rename the block device name that is used
+> for your root partition to something with a space in it
+
+Works fine. It doesn't work fine for non root volumes (except by label)
+because of the fstab format but root is ok !
 
 Alan
-

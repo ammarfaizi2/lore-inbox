@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751775AbWHSTN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWHSTRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751775AbWHSTN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 15:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWHSTN7
+	id S1751774AbWHSTRl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 15:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWHSTRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 15:13:59 -0400
-Received: from mail.gmx.net ([213.165.64.20]:65475 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751775AbWHSTN7 (ORCPT
+	Sat, 19 Aug 2006 15:17:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46559 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751774AbWHSTRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 15:13:59 -0400
-X-Authenticated: #704063
-Subject: [Patch] Signedness issue in drivers/scsi/ipr.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: brking@us.ibm.com
-Content-Type: text/plain
-Date: Sat, 19 Aug 2006 21:13:55 +0200
-Message-Id: <1156014835.19657.3.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sat, 19 Aug 2006 15:17:40 -0400
+Date: Sat, 19 Aug 2006 12:17:13 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Andi Kleen <ak@muc.de>, mpm@selenic.com,
+       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
+       Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+In-Reply-To: <44E75E56.60905@colorfullife.com>
+Message-ID: <Pine.LNX.4.64.0608191209370.4890@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
+ <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608170922030.24204@schroedinger.engr.sgi.com>
+ <44E6B8EA.2010100@colorfullife.com> <Pine.LNX.4.64.0608190941490.4872@schroedinger.engr.sgi.com>
+ <44E75E56.60905@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Sat, 19 Aug 2006, Manfred Spraul wrote:
 
-gcc 4.1 with some extra warnings show the following:
+> > And as we have just seen virt to page is mostly an address calculation in
+> > many configurations. I doubt that there would be a great advantage. Todays
+> > processors biggest cause for latencies are cacheline misses..
+> > 
+> It involves table walking on discontigmem archs. "slabp=addr &
+> (~(PAGE_SIZE-1));" means no pointer chasing, and the access touches the same
+> page, i.e. definitively no TLB miss.
 
-drivers/scsi/ipr.c:6361: warning: comparison of unsigned expression < 0 is always false
-drivers/scsi/ipr.c:6385: warning: comparison of unsigned expression < 0 is always false
-drivers/scsi/ipr.c:6415: warning: comparison of unsigned expression < 0 is always false
+There is no table walking for discontigmem on ia64. Ia64 only creates page 
+table if it needs to satify the Linux kernels demands for such a thing. 
+And this is a kernel mapping. No page table involved.
 
-The problem is that rc is of the type u32, which can never be smaller than zero,
-therefore all three error handling checks get useless. This patch changes it to
-a normal int, because all usages / all functions it get used with expect an int.
+The current sparsemem approach also does not need table walking. It needs
+to do lookups in a table.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+UP and SMP currently work cleanly.
 
---- linux-2.6.18-rc4/drivers/scsi/ipr.c.orig	2006-08-19 21:10:18.000000000 +0200
-+++ linux-2.6.18-rc4/drivers/scsi/ipr.c	2006-08-19 21:10:25.000000000 +0200
-@@ -6324,7 +6324,7 @@ static int __devinit ipr_probe_ioa(struc
- 	struct Scsi_Host *host;
- 	unsigned long ipr_regs_pci;
- 	void __iomem *ipr_regs;
--	u32 rc = PCIBIOS_SUCCESSFUL;
-+	int rc = PCIBIOS_SUCCESSFUL;
- 	volatile u32 mask, uproc;
- 
- 	ENTER;
+> > Power of 2 cache sizes make the object align neatly to cacheline boundaries
+> > and make them fit tightly into a page.
+> >  
+> IMHO not really an issue. 2kb-cache_line_size() also aligns perfectly.
+
+That would work and also be in line with the existing overhead of the 
+slabs.
+
+
 
 

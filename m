@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWHSDl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWHSD4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751621AbWHSDl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 23:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWHSDl2
+	id S932115AbWHSD4u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 23:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWHSD4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 23:41:28 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53452 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751621AbWHSDl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 23:41:27 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Cal Peake <cp@absolutedigital.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] kill extraneous printk in kernel_restart()
-References: <Pine.LNX.4.64.0608181650001.30597@lancer.cnet.absolutedigital.net>
-Date: Fri, 18 Aug 2006 21:41:05 -0600
-In-Reply-To: <Pine.LNX.4.64.0608181650001.30597@lancer.cnet.absolutedigital.net>
-	(Cal Peake's message of "Fri, 18 Aug 2006 17:02:12 -0400 (EDT)")
-Message-ID: <m13bbtwfxq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Aug 2006 23:56:50 -0400
+Received: from xenotime.net ([66.160.160.81]:52416 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932115AbWHSD4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 23:56:50 -0400
+Date: Fri, 18 Aug 2006 20:59:49 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "jeff shia" <tshxiayu@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: can I insmod a module if my hardware donot support it?
+Message-Id: <20060818205949.0bba8b10.rdunlap@xenotime.net>
+In-Reply-To: <7cd5d4b40608182012p433ad168oa2ab1688aa9209b4@mail.gmail.com>
+References: <7cd5d4b40608182012p433ad168oa2ab1688aa9209b4@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake <cp@absolutedigital.net> writes:
+On Sat, 19 Aug 2006 11:12:52 +0800 jeff shia wrote:
 
-> Hi,
->
-> Is there a reason for printing a single dot and newline in 
-> kernel_restart()? If not, below is a one-liner to kill it.
+> Hello,
+> 
+> If I have not a 8139 network card, can I insmod the 8139too.o
+> module?
+> 
+> Thank you in advance.
 
-Hmm.  This looks like a thinko from my original patch.
+I just did:
+8139too Fast Ethernet driver 0.9.27
 
-Signed-off-By: Eric W. Biederman <ebiederm@xmission.com>
+# lsmod
+Module                  Size  Used by
+8139too                44800  0
 
-> -- 
->
-> Get rid of an extraneous printk in kernel_restart().
->
-> Signed-off-by: Cal Peake <cp@absolutedigital.net>
->
-> --- linux-2.6.18-rc4/kernel/sys.c~orig	2006-08-07 22:00:27.000000000 -0400
-> +++ linux-2.6.18-rc4/kernel/sys.c	2006-08-18 16:52:52.000000000 -0400
-> @@ -611,7 +611,6 @@ void kernel_restart(char *cmd)
->  	} else {
->  		printk(KERN_EMERG "Restarting system with command '%s'.\n", cmd);
->  	}
-> -	printk(".\n");
->  	machine_restart(cmd);
->  }
->  EXPORT_SYMBOL_GPL(kernel_restart);
+
+---
+~Randy

@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWHSQmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWHSQqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWHSQmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 12:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHSQmW
+	id S932125AbWHSQqp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 12:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHSQqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 12:42:22 -0400
-Received: from mail.charite.de ([160.45.207.131]:13525 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S932397AbWHSQmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 12:42:22 -0400
-Date: Sat, 19 Aug 2006 18:42:18 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling enabled
-Message-ID: <20060819164218.GG9537@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <44E1F0CD.7000003@everytruckjob.com>
+	Sat, 19 Aug 2006 12:46:45 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:53984 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932125AbWHSQqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 12:46:44 -0400
+Date: Sat, 19 Aug 2006 09:46:18 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Andi Kleen <ak@muc.de>, mpm@selenic.com,
+       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
+       Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+In-Reply-To: <44E6B8EA.2010100@colorfullife.com>
+Message-ID: <Pine.LNX.4.64.0608190941490.4872@schroedinger.engr.sgi.com>
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
+ <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
+ <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608170922030.24204@schroedinger.engr.sgi.com>
+ <44E6B8EA.2010100@colorfullife.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44E1F0CD.7000003@everytruckjob.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mark Reidenbach <m.reidenbach@everytruckjob.com>:
-> I had made an earlier post concerning very poor network performance 
-> after upgrading to 2.6.17 and later kernels.  The solution provided by 
-> the e1000 developers was that it was in fact a change to the default tcp 
-> window scaling settings and that there was a router somewhere between my 
-> computer and its destination.
+On Sat, 19 Aug 2006, Manfred Spraul wrote:
 
-Are you looking for a traceroute-/mtr-like tool that sends specially
-crafted packets and finally comes up with a message like "the router
-between x and y is broken"?
+> What about:
+> 
+> if (unlikely(addr & (~(PAGE_SIZE-1))))
+>    slabp=virt_to_page(addr)->pagefield;
+> else
+>    slabp=addr & (~(PAGE_SIZE-1));
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Well this would not be working with the simple slab design that puts the 
+first element at the page border to simplify alignment.
+
+And as we have just seen virt to page is mostly an address 
+calculation in many configurations. I doubt that there would be a great 
+advantage. Todays processors biggest cause for latencies are 
+cacheline misses.. Some arithmetic with addresses does not seem to 
+be that important. Misaligning data in order to not put objects on such
+boundaries could be an issue.
+
+ > Modify the kmalloc caches slightly and use non-power-of-2 cache sizes. Move
+> the kmalloc(PAGE_SIZE) users to gfp.
+
+Power of 2 cache sizes make the object align neatly to cacheline 
+boundaries and make them fit tightly into a page.
+

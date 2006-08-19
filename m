@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWHSKcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWHSKsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbWHSKcO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 06:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWHSKcO
+	id S1750926AbWHSKsL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 06:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWHSKsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 06:32:14 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:15657 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964978AbWHSKcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 06:32:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dBNor8aVaaHmjmbqxaYZEBnCZos2MU4n0c/GChhXpdzt/v0hNEbQKkRpGq1bmf2uhYVM30/3vk4f4rzrj045TnzL87QzwMvJgHkVeL1QKnjUyJ6UsuyHz1bu2tGcnQVSWv6LHYbEhl2LYEskq8KZqvV9d3mN7SXEn6XxafFZ1ow=
-Message-ID: <6bffcb0e0608190332o445c5357tc7698e224de6f7a7@mail.gmail.com>
-Date: Sat, 19 Aug 2006 12:32:13 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b0943d9e0608190327h6ec3bb17wf32517af1fbf6d12@mail.gmail.com>
+	Sat, 19 Aug 2006 06:48:11 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:59312 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1750774AbWHSKsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 06:48:10 -0400
+Message-ID: <44E6EC68.9060801@dgreaves.com>
+Date: Sat, 19 Aug 2006 11:48:08 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: davids@webmaster.com
+Cc: alan@lxorguk.ukuu.org.uk,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: GPL Violation?
+References: <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
-	 <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
-	 <b0943d9e0608180846s4ed560b7ld4e3081bdc754454@mail.gmail.com>
-	 <6bffcb0e0608180942l12e342epd60dffbb5c5d4b3e@mail.gmail.com>
-	 <b0943d9e0608180957w60d22261k61b272c9b76505bd@mail.gmail.com>
-	 <6bffcb0e0608181438m3406de08q9a168d486127aef@mail.gmail.com>
-	 <b0943d9e0608181447t5503b24eyfea6f3903c2ba27d@mail.gmail.com>
-	 <6bffcb0e0608181549o3034398fob3763d3ce0869cfe@mail.gmail.com>
-	 <b0943d9e0608190327h6ec3bb17wf32517af1fbf6d12@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19/08/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-[snip]
-> Have you seen any crashes or lockdep reports with the latest kmemleak patches?
+David Schwartz wrote:
+>> Ar Gwe, 2006-08-18 am 02:51 -0700, ysgrifennodd David Schwartz:
+>> EXPORT_SYMBOL_GPL is clearly a rights management systems. Thats one of
+>> its little charms.
+> 
+> 	No, it is not. If it was, it would violate the GPL. The GPL prohibits any
+> restrictions not contained in the GPL, and the GPL doesn't say anything
+> about EXPORT_SYMBOL_GPL. To the contrary, the GPL prohibits restrictions on
+> use. So EXPORT_SYMBOL_GPL violates the GPL if you are not free to circumvent
+> or remove it.
+> 
+> 	We had this same discussion a few years ago, and my recollection was that
+> you agreed that EXPORT_SYMBOL_GPL could not be a license enforcement scheme.
+> Which term of the GPL do you think it enforces exactly?
 
-12 hours of uptime - without any problems :).
+I thought the EXPORT_SYMBOL_GPL had a role in rights _management_ insofar as it
+would shows that anyone circumventing it took a conscious act to do so. This may
+or may not be valuable in subsequent, possibly legal, discussions.
 
->
-> --
-> Catalin
->
+It's not a rights _enforcement_ scheme on it's own (presumably enforcement
+would ultimately involve men with big sticks - aka the legal system). It simply
+helps manage (GPL) rights.
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+David

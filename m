@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWHSM2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWHSMkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751739AbWHSM2N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 08:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751741AbWHSM2N
+	id S1751743AbWHSMkw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 08:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbWHSMkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 08:28:13 -0400
-Received: from www17.your-server.de ([213.133.104.17]:12300 "EHLO
-	www17.your-server.de") by vger.kernel.org with ESMTP
-	id S1751739AbWHSM2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 08:28:12 -0400
-Message-ID: <44E703D2.6050302@m3y3r.de>
-Date: Sat, 19 Aug 2006 14:28:02 +0200
-From: Thomas Meyer <thomas@m3y3r.de>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
+	Sat, 19 Aug 2006 08:40:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:17010 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751735AbWHSMkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 08:40:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=cO03lroY3jRX/nHkaGZKTnaTJkMsV1YAhD9ruiw1rCd021Kle1/G3Qa5s92IblmnsVSwH+mfbmBfUSAXDwIWEXcZoknoJu3OEuoiDVcanWJ6BfIFGAQYbckekTAPuZphOw3gClNBz6FBl+F3+8/+XZVF5zSqZW0zFE2ggzTsdHY=
+Message-ID: <ec9e7ff10608190540o5ac666bau1451d43e69e66417@mail.gmail.com>
+Date: Sat, 19 Aug 2006 20:40:50 +0800
+From: "Kun Niu" <haoniukun@gmail.com>
 To: linux-kernel@vger.kernel.org
-CC: greg@kroah.com, akpm@osdl.org
-Subject: [PATCH] x86: Fix dmi detection of MacBookPro and iMac
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: How can I enable NET_WIRELESS?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: thomas@m3y3r.de
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This commit: 
-http://kernel.org/git/?p=linux/kernel/git/gregkh/linux-2.6.git;a=commit;h=b64ef8afa58f397e1eaba2bd9ecaa6812064d464 
-contained a wrong DMI_MATCH.
+Dear all,
 
-Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
----
+I'm sorry for the silly questoin.
+My kernel version is 2.6.17
+But I've just installed the 802.11 stack on my Debian 3.1.
+But I got that the module can't find some external module:
+WARNING: /lib/modules/2.6.17-5/kernel/net/ieee80211/softmac/ieee80211softmac.ko
+needs unknown symbol wireless_send_event
+WARNING: /lib/modules/2.6.17-5/kernel/net/ieee80211/ieee80211.ko needs
+unknown symbol wireless_spy_update
+And I think that I'll have to install the NET_WIRELESS module.
+But I can't find it.
+When I look for wireless in menuconfig of the kernel, I found that
+NET_WIRELESS=n.
 
-The error can also be found in this broken out patch: 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/broken-out/add-force-of-use-mmconfig.patch
-Please change DMI_BIOS_VERSION into DMI_PRODUCT_NAME
+Would anyone be kind enough telling how to enable NET_WIRELESS?
 
-With kind regards
-Thomas
-
-diff --git a/drivers/video/imacfb.c b/drivers/video/imacfb.c
-index b485bec..a6a0ffd 100644
---- a/drivers/video/imacfb.c
-+++ b/drivers/video/imacfb.c
-@@ -71,10 +71,10 @@ static int set_system(struct dmi_system_
-  static struct dmi_system_id __initdata dmi_system_table[] = {
-  	{ set_system, "iMac4,1", {
-  	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
--	  DMI_MATCH(DMI_BIOS_VERSION,"iMac4,1") }, (void*)M_I17},
-+	  DMI_MATCH(DMI_PRODUCT_NAME,"iMac4,1") }, (void*)M_I17},
-  	{ set_system, "MacBookPro1,1", {
-  	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
--	  DMI_MATCH(DMI_BIOS_VERSION,"MacBookPro1,1") }, (void*)M_I17},
-+	  DMI_MATCH(DMI_PRODUCT_NAME,"MacBookPro1,1") }, (void*)M_I17},
-  	{ set_system, "MacBook1,1", {
-  	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
-  	  DMI_MATCH(DMI_PRODUCT_NAME,"MacBook1,1")}, (void *)M_MACBOOK},
-
+Thanks in advance.

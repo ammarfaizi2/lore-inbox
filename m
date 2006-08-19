@@ -1,52 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbWHSXKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbWHSXQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932557AbWHSXKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 19:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWHSXKK
+	id S932562AbWHSXQz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 19:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHSXQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 19:10:10 -0400
-Received: from secure.htb.at ([195.69.104.11]:17170 "EHLO pop3.htb.at")
-	by vger.kernel.org with ESMTP id S932557AbWHSXKI (ORCPT
+	Sat, 19 Aug 2006 19:16:55 -0400
+Received: from 1wt.eu ([62.212.114.60]:37392 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932562AbWHSXQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 19:10:08 -0400
-Date: Sun, 20 Aug 2006 01:10:03 +0200
-From: Richard Mittendorfer <delist@gmx.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Axel Kittenberger <axell@kittenberger.net>
-Subject: Re: Abnormal HTTP request termination.
-Message-Id: <20060820011003.0516411f.delist@gmx.net>
-In-Reply-To: <44E782D5.4080402@kittenberger.net>
-References: <44E782D5.4080402@kittenberger.net>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-X-Face: &0P^N,K:@}b8ykW@3d!=n}3D;*Cf{9KYT>>+gcM)XyIMRkBSDg|ur7Zen^BlzmJVr&!;7KT6\t+sHI69\fW(}.=PM+(`w_jnzZ.HbWb/KM"`795_k(&\Lje|'g\cm$4e%Zy*I)hJz-z0!}xkm@!>U0rO{>~[YZUs/=B{}R%#nZ8eBt'{,*>kTTKl_kj'vzrl5|'j5SBiFy#!Sj,p_zl;)q.lpSI\Er"]D`bZY@#+']kJW/YsqvRzi0GR!7ifpt$?]0TYcNs.*wC5OukokPm~R&mmW\q&DL@='khZEET;3ryo[0_mC^K~7,ZvHkj
+	Sat, 19 Aug 2006 19:16:54 -0400
+Date: Sun, 20 Aug 2006 01:16:47 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.34-pre1] fix x86_64 etc build failure due to memchr change
+Message-ID: <20060819231647.GA27115@1wt.eu>
+References: <200608192219.k7JMJ6DQ012098@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608192219.k7JMJ6DQ012098@harpo.it.uu.se>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Axel Kittenberger <axell@kittenberger.net> (Sat, 19 Aug 2006
-23:29:57 +0200):
-> Hello List
-
-Hoi,
- 
-> On Linux 2.6 (exact 2.6.15) issuing a wget at this location 
-> http://www.wohin-heute.at/highlights.php results in a truncated file. 
-> Truncated before "</hmtl>.
-> [...] 
-> Since thats not a really important site, this is an academic question 
-> after all :)
+On Sun, Aug 20, 2006 at 12:19:06AM +0200, Mikael Pettersson wrote:
+> 2.4.34-pre1 doesn't build on x86_64:
 > 
-> Has someone an idea, what may cause this network problem which seems
-> to  be limited to linux 2.6?
+> kernel/kernel.o(__ksymtab+0x1c10): multiple definition of `__ksymtab_memchr'
+> arch/x86_64/kernel/kernel.o(__ksymtab+0x3f0): first defined here
+> kernel/kernel.o(.kstrtab+0x3960): multiple definition of `__kstrtab_memchr'
+> arch/x86_64/kernel/kernel.o(.kstrtab+0x5fd): first defined here
+> ld: Warning: size of symbol `__kstrtab_memchr' changed from 7 in arch/x86_64/kernel/kernel.o to 17 in kernel/kernel.o
+> make: *** [vmlinux] Error 1
+> 
+> This is because the 'export memchr() which is used by smbfs and lp driver'
+> change in 2.4.34-pre1 added an EXPORT_SYMBOL of memchr to kernel/ksyms.c
+> without also removing the existing one in arch/x86_64/kernel/x8664_ksyms.c.
+> Alpha, ARM, ppc32, and SH also have EXPORTs of memchr so they probably
+> also broke.
+> 
+> This patch removes the EXPORTs of memchr under arch/, which fixes x86_64
+> and should fix the other architectures as well.
 
-Looks like it's /proc/s/n/ipv4/tcp_window_scaling. If it's turned off
-the site comes through here. IIRC this is a known issue and there where
-a few posts about that. You'll likely find them with keywords "tcp
-window scaling" in the archive.
+Mikael,
 
-> Greetings,
-> Axel Kittenberger
+I added that patch when I discovered that smbfs had unresolved symbols
+on sparc. I was not aware of those per-arch exports, and probably that
+I should have added such an export to sparc only instead of adding it
+to the whole kernel.
 
-sl ritch
+I will try to revert it first and only fix sparc, and if that does not
+work, then I will use your fix. But if I can touch only one arch, I'd
+feel more comfortable.
+
+Thanks for your report,
+Willy
+
+
+
+> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+> 
+> diff -rupN linux-2.4.34-pre1/arch/alpha/kernel/alpha_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/alpha/kernel/alpha_ksyms.c
+> --- linux-2.4.34-pre1/arch/alpha/kernel/alpha_ksyms.c	2003-06-14 13:30:18.000000000 +0200
+> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/alpha/kernel/alpha_ksyms.c	2006-08-20 00:10:15.000000000 +0200
+> @@ -268,7 +268,6 @@ EXPORT_SYMBOL_NOVERS(__remq);
+>  EXPORT_SYMBOL_NOVERS(__remqu);
+>  EXPORT_SYMBOL_NOVERS(memcpy);
+>  EXPORT_SYMBOL_NOVERS(memset);
+> -EXPORT_SYMBOL_NOVERS(memchr);
+>  
+>  EXPORT_SYMBOL(get_wchan);
+>  
+> diff -rupN linux-2.4.34-pre1/arch/arm/kernel/armksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/arm/kernel/armksyms.c
+> --- linux-2.4.34-pre1/arch/arm/kernel/armksyms.c	2003-08-25 20:07:40.000000000 +0200
+> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/arm/kernel/armksyms.c	2006-08-20 00:10:15.000000000 +0200
+> @@ -193,7 +193,6 @@ EXPORT_SYMBOL_NOVERS(memcpy);
+>  EXPORT_SYMBOL_NOVERS(memmove);
+>  EXPORT_SYMBOL_NOVERS(memcmp);
+>  EXPORT_SYMBOL_NOVERS(memscan);
+> -EXPORT_SYMBOL_NOVERS(memchr);
+>  EXPORT_SYMBOL_NOVERS(__memzero);
+>  
+>  	/* user mem (segment) */
+> diff -rupN linux-2.4.34-pre1/arch/ia64/kernel/ia64_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ia64/kernel/ia64_ksyms.c
+> --- linux-2.4.34-pre1/arch/ia64/kernel/ia64_ksyms.c	2004-04-14 20:22:20.000000000 +0200
+> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ia64/kernel/ia64_ksyms.c	2006-08-20 00:10:15.000000000 +0200
+> @@ -10,7 +10,6 @@ EXPORT_SYMBOL(pm_idle);
+>  #include <linux/string.h>
+>  
+>  EXPORT_SYMBOL_NOVERS(memset);
+> -EXPORT_SYMBOL(memchr);
+>  EXPORT_SYMBOL(memcmp);
+>  EXPORT_SYMBOL_NOVERS(memcpy);
+>  EXPORT_SYMBOL(memmove);
+> diff -rupN linux-2.4.34-pre1/arch/ppc/kernel/ppc_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ppc/kernel/ppc_ksyms.c
+> --- linux-2.4.34-pre1/arch/ppc/kernel/ppc_ksyms.c	2004-04-14 20:22:20.000000000 +0200
+> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ppc/kernel/ppc_ksyms.c	2006-08-20 00:10:15.000000000 +0200
+> @@ -300,7 +300,6 @@ EXPORT_SYMBOL_NOVERS(memset);
+>  EXPORT_SYMBOL_NOVERS(memmove);
+>  EXPORT_SYMBOL_NOVERS(memscan);
+>  EXPORT_SYMBOL_NOVERS(memcmp);
+> -EXPORT_SYMBOL_NOVERS(memchr);
+>  
+>  EXPORT_SYMBOL(abs);
+>  
+> diff -rupN linux-2.4.34-pre1/arch/sh/kernel/sh_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/sh/kernel/sh_ksyms.c
+> --- linux-2.4.34-pre1/arch/sh/kernel/sh_ksyms.c	2003-11-29 00:28:11.000000000 +0100
+> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/sh/kernel/sh_ksyms.c	2006-08-20 00:10:15.000000000 +0200
+> @@ -60,7 +60,6 @@ EXPORT_SYMBOL(pcibios_penalize_isa_irq);
+>  
+>  /* mem exports */
+>  EXPORT_SYMBOL(memscan);
+> -EXPORT_SYMBOL(memchr);
+>  EXPORT_SYMBOL(memcpy);
+>  EXPORT_SYMBOL(memcpy_fromio);
+>  EXPORT_SYMBOL(memcpy_toio);
+> diff -rupN linux-2.4.34-pre1/arch/x86_64/kernel/x8664_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/x86_64/kernel/x8664_ksyms.c
+> --- linux-2.4.34-pre1/arch/x86_64/kernel/x8664_ksyms.c	2004-11-17 18:36:41.000000000 +0100
+> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/x86_64/kernel/x8664_ksyms.c	2006-08-20 00:10:15.000000000 +0200
+> @@ -171,7 +171,6 @@ EXPORT_SYMBOL_NOVERS(strchr);
+>  EXPORT_SYMBOL_NOVERS(strcat);
+>  EXPORT_SYMBOL_NOVERS(strcmp);
+>  EXPORT_SYMBOL_NOVERS(strncat);
+> -EXPORT_SYMBOL_NOVERS(memchr);
+>  EXPORT_SYMBOL_NOVERS(strrchr);
+>  EXPORT_SYMBOL_NOVERS(strnlen);
+>  EXPORT_SYMBOL_NOVERS(memcmp);

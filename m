@@ -1,60 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWHSQEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWHSQQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751758AbWHSQEt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 12:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWHSQEt
+	id S1751761AbWHSQQt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 12:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWHSQQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 12:04:49 -0400
-Received: from smtp-vbr16.xs4all.nl ([194.109.24.36]:55057 "EHLO
-	smtp-vbr16.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1751758AbWHSQEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 12:04:48 -0400
-Message-ID: <44E7369D.2010707@xs4all.nl>
-Date: Sat, 19 Aug 2006 18:04:45 +0200
-From: Udo van den Heuvel <udovdh@xs4all.nl>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Mike Galbraith <efault@gmx.de>,
-       Folkert van Heusden <folkert@vanheusden.com>
-Subject: Re: And another Oops / BUG? (2.6.17.8 on VIA Epia CL6000)
-References: <44E29415.4040400@xs4all.nl> <1155713739.6011.30.camel@Homer.simpson.net>
-In-Reply-To: <1155713739.6011.30.camel@Homer.simpson.net>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=8300CC02
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Aug 2006 12:16:49 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:9890 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1751761AbWHSQQs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 12:16:48 -0400
+Date: Sun, 20 Aug 2006 00:40:47 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/4] sched_setscheduler: fix? policy checks
+Message-ID: <20060819204047.GA11410@oleg>
+References: <20060819193243.GA8648@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060819193243.GA8648@oleg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Wed, 2006-08-16 at 05:42 +0200, Udo van den Heuvel wrote:
->> Again my CL6000 Oopsed.
->>
->> How can I proceed to find the cause?
->>
-> (these oopsen would be a heck of a lot easier to look at if the
-> timestamp junk was stripped off)
+On 08/19, Oleg Nesterov wrote:
+>
+> I am not sure this patch is correct:
 
-Will try to do that next time.
+Surely it is not correct. Another attempt ...
 
-> The oops doesn't help much.  Once again, eip is in lala land, not the
-> kernel.
+[PATCH 4/4] sched_setscheduler: fix? policy checks
 
-Hmm. At least that is consistent, as is the named involvement and the
-rest of the effects.
+I am not sure this patch is correct: I can't understand what the current
+code does, and I don't know what it was supposed to do.
 
-> Given that you're the only person posting this kind of explosion, I
-> would cast a very skeptical glance toward my hardware.  I'd suggest
-> reverting to a known good kernel first, to verify that you really don't
-> have a hardware problem cropping up.
+The comment says:
 
-How long should I run a 2.6.16.* kernel to be sure enough it is not my
-hardware?
+		 * can't change policy, except between SCHED_NORMAL
+		 * and SCHED_BATCH:
 
-> After I did that, I'd enable stack check thingies under kernel hacking,
-> and if that didn't turn up anything, I'd try slab and page allocator
-> debugging options and hope to catch someone scribbling where they're not
-> supposed to.
+The code:
 
-OK, will try that.
+		if (((policy != SCHED_NORMAL && p->policy != SCHED_BATCH) &&
+			(policy != SCHED_BATCH && p->policy != SCHED_NORMAL)) &&
+
+But this is equivalent to:
+
+		if ( (is_rt_policy(policy) && has_rt_policy(p)) &&
+
+which means something different. We can't _decrease_ the current ->rt_priority
+with such a check (if rlim[RLIMIT_RTPRIO] == 0).
+
+
+Probably, it was supposed to be:
+
+		if (	!(policy == SCHED_NORMAL && p->policy == SCHED_BATCH)  &&
+			!(policy == SCHED_BATCH  && p->policy == SCHED_NORMAL)
+
+this matches the comment, but strange: it doesn't allow to _drop_ the
+realtime priority when rlim[RLIMIT_RTPRIO] == 0.
+
+
+I think the right check would be:
+
+		/* can't set/change rt policy */
+		if (is_rt_policy(policy) &&
+				policy != p->policy &&
+				!rlim_rtprio)
+			return -EPERM;
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.18-rc4/kernel/sched.c~4_policy	2006-08-19 22:03:26.000000000 +0400
++++ 2.6.18-rc4/kernel/sched.c	2006-08-20 00:37:05.000000000 +0400
+@@ -4079,27 +4079,25 @@ recheck:
+ 	 * Allow unprivileged RT tasks to decrease priority:
+ 	 */
+ 	if (!capable(CAP_SYS_NICE)) {
+-		unsigned long rlim_rtprio;
+-		unsigned long flags;
++		if (is_rt_policy(policy)) {
++			unsigned long rlim_rtprio;
++			unsigned long flags;
+ 
+-		if (!lock_task_sighand(p, &flags))
+-			return -ESRCH;
+-		rlim_rtprio = p->signal->rlim[RLIMIT_RTPRIO].rlim_cur;
+-		unlock_task_sighand(p, &flags);
++			if (!lock_task_sighand(p, &flags))
++				return -ESRCH;
++			rlim_rtprio = p->signal->rlim[RLIMIT_RTPRIO].rlim_cur;
++			unlock_task_sighand(p, &flags);
++
++			/* can't set/change the rt policy */
++			if (policy != p->policy && !rlim_rtprio)
++				return -EPERM;
++
++			/* can't increase priority */
++			if (param->sched_priority > p->rt_priority &&
++			    param->sched_priority > rlim_rtprio)
++				return -EPERM;
++		}
+ 
+-		/*
+-		 * can't change policy, except between SCHED_NORMAL
+-		 * and SCHED_BATCH:
+-		 */
+-		if (((policy != SCHED_NORMAL && p->policy != SCHED_BATCH) &&
+-			(policy != SCHED_BATCH && p->policy != SCHED_NORMAL)) &&
+-				!rlim_rtprio)
+-			return -EPERM;
+-		/* can't increase priority */
+-		if (is_rt_policy(policy) &&
+-		    param->sched_priority > p->rt_priority &&
+-		    param->sched_priority > rlim_rtprio)
+-			return -EPERM;
+ 		/* can't change other user's priorities */
+ 		if ((current->euid != p->euid) &&
+ 		    (current->euid != p->uid))
+

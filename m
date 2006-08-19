@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWHSFhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWHSGPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWHSFhA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 01:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWHSFhA
+	id S1751309AbWHSGPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 02:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHSGPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 01:37:00 -0400
-Received: from ozlabs.org ([203.10.76.45]:41141 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750763AbWHSFg7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 01:36:59 -0400
-Subject: Re: [2.6.19 PATCH 7/7] ehea: Makefile & Kconfig
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-Cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Klein <osstklei@de.ibm.com>, linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
-In-Reply-To: <200608181337.44153.ossthema@de.ibm.com>
-References: <200608181337.44153.ossthema@de.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-d/zVtJ0sXMaA9uYIOfCS"
-Date: Sat, 19 Aug 2006 15:25:57 +1000
-Message-Id: <1155965157.1388.1.camel@localhost.localdomain>
+	Sat, 19 Aug 2006 02:15:21 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:26828 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S1751309AbWHSGPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 02:15:21 -0400
+Date: Sat, 19 Aug 2006 08:15:08 +0200
+From: Pozsar Balazs <pozsy@uhulinux.hu>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: Prakash Punnoor <prakash@punnoor.de>, Jiri Benc <jbenc@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
+Message-ID: <20060819061507.GB8571@ojjektum.uhulinux.hu>
+References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu> <200608162002.06793.prakash@punnoor.de> <20060816195345.GA12868@ojjektum.uhulinux.hu> <20060819001640.GE20111@goober>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060819001640.GE20111@goober>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 18, 2006 at 05:16:41PM -0700, Valerie Henson wrote:
+> On Wed, Aug 16, 2006 at 09:53:45PM +0200, Pozsar Balazs wrote:
+> > On Wed, Aug 16, 2006 at 08:02:02PM +0200, Prakash Punnoor wrote:
+> > > Am Mittwoch 16 August 2006 19:43 schrieb Pozsar Balazs:
+> > > 
+> > > > So, just to make it clear: if you boot without cable plugged in, let
+> > > > the driver load, and then plug the cable in, do you have link?
+> > > > For me, it does not have link until I rmmod the module.
+> > > 
+> > > Same here.
+> > 
+> > The most weird thing is that, when I _rmmod_ the module, the link leds 
+> > will show a link, _before_ I even re-modprobe it! So somehow the removal 
+> > (or even an unbind via the sysfs interface) "resets" it.
+> 
+> Hey folks,
+> 
+> Added to my to-do list.  Let me know if you figure out anything else.
 
---=-d/zVtJ0sXMaA9uYIOfCS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Actually, I managed to fix it, here's the patch:
 
-On Fri, 2006-08-18 at 13:37 +0200, Jan-Bernd Themann wrote:
-> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>=20
->=20
->=20
->  drivers/net/Kconfig  |    6 ++++++
->  drivers/net/Makefile |    1 +
->  2 files changed, 7 insertions(+)
->=20
->=20
->=20
-> diff -Nurp -X dontdiff linux-2.6.18-rc4/drivers/net/Kconfig patched_kerne=
-l/drivers/net/Kconfig
-> --- linux-2.6.18-rc4/drivers/net/Kconfig	2006-08-06 11:20:11.000000000 -0=
-700
-> +++ patched_kernel/drivers/net/Kconfig	2006-08-08 03:00:49.526421944 -070=
-0
-> @@ -2277,6 +2277,12 @@ config CHELSIO_T1
->            To compile this driver as a module, choose M here: the module
->            will be called cxgb.
-> =20
-> +config EHEA
-> +        tristate "eHEA Ethernet support"
-> +        depends on IBMEBUS
-> +        ---help---
-> +          This driver supports the IBM pSeries ethernet adapter
-> +
+Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
 
-Please give it a more detailed description. I have a pSeries machine
-here with three NICs and none of them are eHEA.
+--- a/drivers/net/tulip/uli526x.c	2006-07-15 21:00:43.000000000 +0200
++++ a/drivers/net/tulip/uli526x.c	2006-08-18 15:41:00.000000000 +0200
+@@ -515,7 +515,8 @@
+ 	phy_reg_reset = phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id);
+ 	phy_reg_reset = (phy_reg_reset | 0x8000);
+ 	phy_write(db->ioaddr, db->phy_addr, 0, phy_reg_reset, db->chip_id);
+-	udelay(500);
++	while (phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id) & 0x8000)
++		udelay(500);
+ 
+ 	/* Process Phyxcer Media Mode */
+ 	uli526x_set_phyxcer(db);
 
-cheers
 
---=20
-Michael Ellerman
-IBM OzLabs
-
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---=-d/zVtJ0sXMaA9uYIOfCS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBE5qDldSjSd0sB4dIRAjdxAKCPxNLMPLzPoSlWprLmOr8tzBMOwQCfR8zd
-bJUO/0D0cZJTpGHNTepB/08=
-=eqF6
------END PGP SIGNATURE-----
-
---=-d/zVtJ0sXMaA9uYIOfCS--
-
+-- 
+pozsy

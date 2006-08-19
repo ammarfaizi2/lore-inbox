@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWHSNZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbWHSNr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWHSNZv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 09:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWHSNZv
+	id S1751747AbWHSNr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 09:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWHSNr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 09:25:51 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:46408 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751331AbWHSNZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 09:25:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AXbae7MhjaZ46byPkTzTBlFlXCkpmh6WBOACPuxsoPWcDx70NOGUZrzqcKykJNJmXv4tIOnjQgfWft8R5g6mwlLIC4GfAzFNtTzrWgCWj2VfOwyfHEJ6gQnIuO+h2lTgMuPqETxqis/lcsa8MOeieBdKPDT4SdXqlIcVMC5uUEY=
-Message-ID: <b0943d9e0608190625k1f25eb63t25ccfc84f7222f2@mail.gmail.com>
-Date: Sat, 19 Aug 2006 14:25:50 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Antonino A. Daplas" <adaplas@pol.net>
-Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
-Cc: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1155986453.14337.9.camel@daplas.org>
+	Sat, 19 Aug 2006 09:47:29 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:16859 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751402AbWHSNr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 09:47:28 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@ozlabs.org, michael@ellerman.id.au
+Subject: Re: [2.6.19 PATCH 4/7] ehea: ethtool interface
+Date: Sat, 19 Aug 2006 15:47:11 +0200
+User-Agent: KMail/1.9.1
+Cc: Andy Gay <andy@andynet.net>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Klein <osstklei@de.ibm.com>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+References: <200608181333.23031.ossthema@de.ibm.com> <1155970112.7302.434.camel@tahini.andynet.net> <1155976887.1388.17.camel@localhost.localdomain>
+In-Reply-To: <1155976887.1388.17.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060812215857.17709.79502.stgit@localhost.localdomain>
-	 <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
-	 <b0943d9e0608180846s4ed560b7ld4e3081bdc754454@mail.gmail.com>
-	 <6bffcb0e0608180942l12e342epd60dffbb5c5d4b3e@mail.gmail.com>
-	 <b0943d9e0608180957w60d22261k61b272c9b76505bd@mail.gmail.com>
-	 <6bffcb0e0608181438m3406de08q9a168d486127aef@mail.gmail.com>
-	 <b0943d9e0608181447t5503b24eyfea6f3903c2ba27d@mail.gmail.com>
-	 <6bffcb0e0608181549o3034398fob3763d3ce0869cfe@mail.gmail.com>
-	 <b0943d9e0608190307v5853f38dja21ad65e2c67840c@mail.gmail.com>
-	 <1155986453.14337.9.camel@daplas.org>
+Message-Id: <200608191547.12161.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19/08/06, Antonino A. Daplas <adaplas@pol.net> wrote:
-> On Sat, 2006-08-19 at 11:07 +0100, Catalin Marinas wrote:
-> > On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > > orphan pointer 0xc6110000 (size 12288):
-> > >   c017480e: <__kmalloc>
-> > >   c024dda4: <vc_resize>
-> > >   c020ed9c: <fbcon_startup>
-> > >   c0251028: <register_con_driver>
-> > >   c02511e0: <take_over_console>
-> > >   c020e21e: <fbcon_takeover>
-> > >   c0212b08: <fbcon_fb_registered>
-> > >   c0212ce1: <fbcon_event_notify>
->
-> On boot, vc->vc_screenbuf is allocated by alloc_bootmem() (vc->kmalloced
-> == 0), so yes, there's a leak in there . But I don't think we have a way
-> to deallocate this type of memory, so we just let it go.
+On Saturday 19 August 2006 10:41, Michael Ellerman wrote:
+> A lot of these have started appearing recently, which I think is due to
+> GCC becoming more vocal. Unfortunately many of them are false positives
+> caused by GCC not seeming to grok that this is ok:
+> 
+> void foo(int *x) { *x = 1; }
+> ...
+> int x;
+> foo(&x);
+> return x;
+> 
 
-It's not the leak caused by alloc_bootmem as kmemleak doesn't track
-this kind of allocations. The block allocated via kmalloc in
-vc_resize() is reported as unreferenced. However, I think that's a
-false positive because it looks like the vc_screenbuf pointer is
-stored in vc_cons[].d->vc_screenbuf which is allocated by
-alloc_bootmem in con_init() and kmemleak doesn't track the
-alloc_bootmem blocks. I'll fix kmemleak.
+It's more subtle than this, gcc only gets it wrong when multiple
+things come together, the most common one seems to be:
 
-Thanks.
+- it tries to inline foo()
+- foo has a path where it initializes *x and another one where it
+  doesn't
+- x is accessed after foo() returns, but only when foo indeed has
+  initialized it.
 
--- 
-Catalin
+The problem is that gcc now is more aggressive about inlining
+functions. It used to assume that all functions initialize their
+pointer arguments, now it does some more checking, but not enough,
+so there are lots of false positives. Every gcc-4.x release seems
+to fix some of these cases, but a few others remain.
+
+	Arnd <><

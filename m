@@ -1,69 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422770AbWHSUQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422774AbWHSUW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422770AbWHSUQo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 16:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422774AbWHSUQo
+	id S1422774AbWHSUW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 16:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422775AbWHSUW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 16:16:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:60069 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422770AbWHSUQn (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 16:16:43 -0400
-Date: Sat, 19 Aug 2006 21:16:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH] Reiser4 bug fixes
-Message-ID: <20060819201612.GB12853@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-References: <44BE947F.30507@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Aug 2006 16:22:26 -0400
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:16621 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1422774AbWHSUW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 16:22:26 -0400
+Date: Sat, 19 Aug 2006 16:17:01 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] block: fix queue bounce limit calculation
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>
+Message-ID: <200608191619_MC3-1-C8A4-9408@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44BE947F.30507@namesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 01:22:23PM -0700, Hans Reiser wrote:
-> Hopefully this will make reiser4 stable code again.  Or at least, a lot more stable than v3 (or other FSes) was when it went in....
-> 
-> 
-> Signed-off-by: Hans Reiser
-> 
-> From: Vladimir Saveliev <vs@namesys.com>
-> 
-> This patch contains 4 reiser4 bug fixes:
-> - missing long term lock unlock on read' error handling code path is added
-> - truncate_inode_pages is now called with embedded mapping. 
->   It is needed to deal properly with block device special files.
-> - copy_to_user might be called for more bytes than was prefaulted with fault_in_pages_writeable.
->   That caused undesirable major page faults.
-> - readdir bug similar to the previous one:
->   call to filldir might lead to deadlock due to major page fault.
-> 
-> Signed-off-by: Vladimir Saveliev <vs@namesys.com>
-> 
-> 
-> 
-> diff -puN fs/reiser4/super_ops.c~reiser4-one-line-fixes fs/reiser4/super_ops.c
-> --- linux-2.6.18-rc-mm2/fs/reiser4/super_ops.c~reiser4-one-line-fixes	2006-07-19 16:25:49.000000000 +0400
-> +++ linux-2.6.18-rc-mm2-vs/fs/reiser4/super_ops.c	2006-07-19 16:25:49.000000000 +0400
-> @@ -202,7 +202,7 @@ static void reiser4_delete_inode(struct 
->  			fplug->delete_object(inode);
->  	}
->  
-> -	truncate_inode_pages(inode->i_mapping, 0);
-> +	truncate_inode_pages(&inode->i_data, 0);
+In-Reply-To: <200608190612_MC3-1-C895-98A8@compuserve.com>
 
-Where do you reset i_mapping to be different from i_data?  It is a valid
-thing to do in theory (that's why we have those different fields), but in
-practice most usages I've seen are bogus.
+On Sat, 19 Aug 2006 06:11:34 -0400, Chuck Ebbert wrote:
 
-(And yes, this is not a personal attack again you, just a normal review)
+> Could this explain reported slowdown on x86_64 after limit was
+> changed in 2.6.16.7?
 
+Oops, I meant 2.6.17.7:
+
+| Date: Wed, 2 Aug 2006 13:20:02 -0700
+| From: "Robin H. Johnson" <robbat2@orbis-terrarum.net>
+| Subject: 2.6.17.7 leading to doubling system CPU usage?
+| To: linux-kernel@vger.kernel.org
+| Message-ID: <20060802202002.GH31144@curie-int.orbis-terrarum.net>
+
+And the patch only fixes the problem on my CDROM.  The system only has 512 MB
+of RAM, so DMA should always be enabled.  I applied the below debugging patch
+and got this (how do I find the dev for the unknown ones?):
+
+# dmesg | fgrep -v debounce | fgrep -B 2 bounce
+[   16.971945] Probing IDE interface ide0...
+[   17.260734] hda: IC25N060ATMR04-0, ATA DISK drive
+[   17.931625] isa bounce pool size: 16 pages
+[   17.931672] q = ffff81001da606a0, dma = 1, bounce_pfn = 122608, max = 122608
+[   17.931745] q = ffff81001da606a0, dma = 0, bounce_pfn = 1048575, max = 122608
+--
+[   17.932039] Probing IDE interface ide1...
+[   18.666664] hdc: MATSHITAUJ-840D, ATAPI CD/DVD-ROM drive
+[   19.002080] q = ffff81001da60050, dma = 1, bounce_pfn = 122608, max = 122608
+[   19.002142] q = ffff81001da60050, dma = 1, bounce_pfn = 122608, max = 122608
+--
+[   21.726613] KBC0 MSE0  P2P AUDO 
+[   21.726804] ACPI: (supports S0 S3 S4 S5)
+[   21.727335] q = ffff81001db23990, dma = 1, bounce_pfn = 122608, max = 122608 <= unknown dev
+--
+[   25.001150] EXT3 FS on hda7, internal journal
+[   25.001156] EXT3-fs: mounted filesystem with ordered data mode.
+[   25.620562] q = ffff81001db23340, dma = 1, bounce_pfn = 122608, max = 122608 <== unknown dev
+[   25.620587] q = ffff81001db23340, dma = 0, bounce_pfn = 1048575, max = 122608
+--
+[   25.676213] sd 0:0:0:0: Attached scsi disk sda
+[   25.692273] sd 0:0:0:0: Attached scsi generic sg0 type 0
+[   25.692372] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608  <== sda: 
+[   25.692396] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608     why 14 times???
+[   25.693374] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608
+[   25.693394] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   25.693485] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608
+[   25.693503] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   25.695692] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608
+[   25.695714] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   25.695997] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608
+[   25.696015] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   25.696316] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608
+[   25.696335] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   25.696416] q = ffff81001db22cf0, dma = 1, bounce_pfn = 122608, max = 122608
+[   25.696434] q = ffff81001db22cf0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   25.699613] usb-storage: device scan complete
+[   27.331383] eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+[   35.361254] q = ffff81001da606a0, dma = 0, bounce_pfn = 1048575, max = 122608 <== hda again ???
+[   35.361289] q = ffff81001da606a0, dma = 0, bounce_pfn = 1048575, max = 122608
+[   35.867099] q = ffff81001da60050, dma = 1, bounce_pfn = 122608, max = 122608 <== hdc again ???
+[   35.867136] q = ffff81001da60050, dma = 1, bounce_pfn = 122608, max = 122608
+
+
+--- 2.6.17.9-32.orig/block/ll_rw_blk.c
++++ 2.6.17.9-32/block/ll_rw_blk.c
+@@ -651,6 +651,15 @@ void blk_queue_bounce_limit(request_queu
+ 		q->bounce_gfp = GFP_NOIO | GFP_DMA;
+ 		q->bounce_pfn = bounce_pfn;
+ 	}
++
++	printk(KERN_ERR "q = %p, dma = %d, bounce_pfn = %lu, max = %lu\n",
++			q, dma, bounce_pfn,
++#if BITS_PER_LONG == 64
++			(unsigned long)(min_t(u64,0xffffffff,BLK_BOUNCE_HIGH) >> PAGE_SHIFT)
++#else
++			blk_max_low_pfn
++#endif
++			);
+ }
+ 
+ EXPORT_SYMBOL(blk_queue_bounce_limit);
+-- 
+Chuck

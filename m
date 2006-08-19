@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWHSTRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWHSTTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751774AbWHSTRl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 15:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWHSTRl
+	id S1751303AbWHSTTx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 15:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWHSTTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 15:17:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46559 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751774AbWHSTRk (ORCPT
+	Sat, 19 Aug 2006 15:19:53 -0400
+Received: from mail.gmx.de ([213.165.64.20]:48011 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751303AbWHSTTw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 15:17:40 -0400
-Date: Sat, 19 Aug 2006 12:17:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Andi Kleen <ak@muc.de>, mpm@selenic.com,
-       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
-       Dave Chinner <dgc@sgi.com>
-Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
-In-Reply-To: <44E75E56.60905@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0608191209370.4890@schroedinger.engr.sgi.com>
-References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com>
- <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com>
- <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com>
- <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608170922030.24204@schroedinger.engr.sgi.com>
- <44E6B8EA.2010100@colorfullife.com> <Pine.LNX.4.64.0608190941490.4872@schroedinger.engr.sgi.com>
- <44E75E56.60905@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Aug 2006 15:19:52 -0400
+X-Authenticated: #704063
+Subject: [Patch] Signdness issue in drivers/scsi/osst.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: osst@riede.org
+Content-Type: text/plain
+Date: Sat, 19 Aug 2006 21:19:48 +0200
+Message-Id: <1156015188.19657.7.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Aug 2006, Manfred Spraul wrote:
+Hi,
 
-> > And as we have just seen virt to page is mostly an address calculation in
-> > many configurations. I doubt that there would be a great advantage. Todays
-> > processors biggest cause for latencies are cacheline misses..
-> > 
-> It involves table walking on discontigmem archs. "slabp=addr &
-> (~(PAGE_SIZE-1));" means no pointer chasing, and the access touches the same
-> page, i.e. definitively no TLB miss.
+another signdness warning from gcc 4.1
 
-There is no table walking for discontigmem on ia64. Ia64 only creates page 
-table if it needs to satify the Linux kernels demands for such a thing. 
-And this is a kernel mapping. No page table involved.
+drivers/scsi/osst.c:5154: warning: comparison of unsigned expression < 0 is always false
 
-The current sparsemem approach also does not need table walking. It needs
-to do lookups in a table.
+The problem is that blk is defined as unsigned, but all usages of it
+are normal int cases. osst_get_frame_position() and osst_get_sector()
+return ints and can return negative values. If blk stays an unsigned int,
+the error check is useless.
 
-UP and SMP currently work cleanly.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-> > Power of 2 cache sizes make the object align neatly to cacheline boundaries
-> > and make them fit tightly into a page.
-> >  
-> IMHO not really an issue. 2kb-cache_line_size() also aligns perfectly.
-
-That would work and also be in line with the existing overhead of the 
-slabs.
-
-
+--- linux-2.6.18-rc4/drivers/scsi/osst.c.orig	2006-08-19 21:16:48.000000000 +0200
++++ linux-2.6.18-rc4/drivers/scsi/osst.c	2006-08-19 21:16:56.000000000 +0200
+@@ -4843,8 +4843,7 @@ static int os_scsi_tape_close(struct ino
+ static int osst_ioctl(struct inode * inode,struct file * file,
+ 	 unsigned int cmd_in, unsigned long arg)
+ {
+-	int		      i, cmd_nr, cmd_type, retval = 0;
+-	unsigned int	      blk;
++	int		      i, cmd_nr, cmd_type, blk, retval = 0;
+ 	struct st_modedef   * STm;
+ 	struct st_partstat  * STps;
+ 	struct osst_request * SRpnt = NULL;
 
 

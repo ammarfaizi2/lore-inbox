@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWHSS0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWHSSnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWHSS0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 14:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWHSS0W
+	id S1751768AbWHSSnL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 14:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbWHSSnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 14:26:22 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:5494 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751399AbWHSS0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 14:26:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=irOoxSJgWT1Zjg/BZNUGtrJGGp84wS7LS0OSeNjBrf+gli0FLzDgh1bibMZKhX38vTTkCo2qT67rqdsU6d+Pam9tZ4x/GhbAFizteS5Hu4WqeMOfROJxIEvj7iaWnEdlO3xXfgieNaJad53m7dJx5rdVoGhKxRXS/Zbv8Cwgcpc=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: mplayer-users@mplayerhq.hu
-Subject: Re: [MPlayer-users] Weird behaviour in ide-scsi driven dvd playback with 2.6.17.x
-Date: Sat, 19 Aug 2006 20:25:58 +0200
-User-Agent: KMail/1.8.2
-Cc: "Marcin 'Rambo' Roguski" <rambo@id.uw.edu.pl>,
-       linux-kernel@vger.kernel.org
-References: <20060819193408.10a5297a.rambo@id.uw.edu.pl>
-In-Reply-To: <20060819193408.10a5297a.rambo@id.uw.edu.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 19 Aug 2006 14:43:11 -0400
+Received: from bayc1-pasmtp06.bayc1.hotmail.com ([65.54.191.166]:55165 "EHLO
+	BAYC1-PASMTP06.CEZ.ICE") by vger.kernel.org with ESMTP
+	id S1751129AbWHSSnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 14:43:09 -0400
+Message-ID: <BAYC1-PASMTP06A1449AFED44B54CF60F4B9430@CEZ.ICE>
+X-Originating-IP: [69.156.47.89]
+X-Originating-Email: [johnmccuthan@sympatico.ca]
+Subject: Re: [PATCH 0/5] Forking ext4 filesystem and JBD2
+From: John McCutchan <john@johnmccutchan.com>
+Reply-To: john@johnmccutchan.com
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: cmm@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+       John McCutchan <ttb@tentacle.dhs.org>, Robert Love <rml@novell.com>
+In-Reply-To: <6bffcb0e0608100815q4b0b35b6mc2799181abd5786e@mail.gmail.com>
+References: <1155172597.3161.72.camel@localhost.localdomain>
+	 <6bffcb0e0608100702m1ad3925bw3e5f0e4804210fc9@mail.gmail.com>
+	 <6bffcb0e0608100815q4b0b35b6mc2799181abd5786e@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608192025.58331.vda.linux@googlemail.com>
+Date: Sat, 19 Aug 2006 14:42:50 -0400
+Message-Id: <1156012970.9346.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+X-OriginalArrivalTime: 19 Aug 2006 18:45:45.0203 (UTC) FILETIME=[ADFFCC30:01C6C3BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 19 August 2006 19:34, Marcin 'Rambo' Roguski wrote:
-> Because of USB camera requirements, I'm currently running double-kernel 
-> setup (2.4.32-old, 2.6.17.9-new), and ide-scsi driven CD-ROM/DVD drives.
+On Thu, 2006-10-08 at 17:15 +0200, Michal Piotrowski wrote:
+> On 10/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > Hi,
+> >
+> > On 10/08/06, Mingming Cao <cmm@us.ibm.com> wrote:
+> > > This series of patch forkes a new filesystem, ext4, from the current
+> > > ext3 filesystem, as the code base to work on, for the big features such
+> > > as extents and larger fs(48 bit blk number) support, per our discussion
+> > > on lkml a few weeks ago.
+> >
+> > It appears after a few minutes of running
+> >
+> > #! /bin/bash
+> > while true
+> > do
+> > sudo mount -o loop -t ext3dev /home/fs-farm/ext4.img /mnt/fs-farm/ext4/
+> > sudo umount /mnt/fs-farm/ext4/
+> > done
+> >
+> > BUG: warning at /usr/src/linux-work2/fs/inotify.c:171/set_dentry_child_flags()
+> >  [<c0104006>] show_trace_log_lvl+0x58/0x152
+> >  [<c01046ad>] show_trace+0xd/0x10
+> >  [<c0104775>] dump_stack+0x19/0x1b
+> >  [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
+> >  [<c018ab94>] remove_watch_no_event+0x56/0x64
+> >  [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
+> >  [<c018af1b>] inotify_rm_wd+0x75/0x93
+> >  [<c018b468>] sys_inotify_rm_watch+0x40/0x58
+> >  [<c0102f15>] sysenter_past_esp+0x56/0x8d
+> > DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+> > Leftover inexact backtrace:
+> >  [<c01046ad>] show_trace+0xd/0x10
+> >  [<c0104775>] dump_stack+0x19/0x1b
+> >  [<c018aa7f>] set_dentry_child_flags+0x5a/0x119
+> >  [<c018ab94>] remove_watch_no_event+0x56/0x64
+> >  [<c018ac62>] inotify_remove_watch_locked+0x12/0x34
+> >  [<c018af1b>] inotify_rm_wd+0x75/0x93
+> >  [<c018b468>] sys_inotify_rm_watch+0x40/0x58
+> >  [<c0102f15>] sysenter_past_esp+0x56/0x8d
+> > kjournald2 starting.  Commit interval 5 seconds
 > 
-> While on 2.4.32 mplayer (version doesn't matter happens with svn and 
-> pre8- libdvdread compiled as default) plays DVDs perfectly well, on 2.6.17.[6|9] I'm 
-> getting such messages from kernel while trying to open them:
-> 
-> Aug 19 18:06:33 beethoven kernel: Buffer I/O error on device sr1, logical block 4496
-> Aug 19 18:06:33 beethoven kernel: Buffer I/O error on device sr1, logical block 4497
-> Aug 19 18:06:33 beethoven kernel: Buffer I/O error on device sr1, logical block 4498
-> [...]
-> and so on...
-> 
-> The only workaround for now is to use ide-cd, and then it works like a charm, but I'd preffer "unified" setup (unless mplayer can use conditional statements in its config...
+> Definitely it's an inotify bug. I have checked this with other file systems.
 
-Sounds like kernel-side problem. ide-scsi says it have problem reding data
-from the media, whereas ide-cd does not have the problem.
+I just ran your loop of mounting/unmounting a fs for over an hour and I
+can't reproduce this.
 
-Does this happen while you just copy the file with cp?
-
-[adding linux-kernel@vger.kernel.org to CC:]
---
-vda
+-- 
+John McCutchan <john@johnmccutchan.com>

@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWHTPej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWHTPiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWHTPej (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 11:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWHTPej
+	id S1750826AbWHTPiR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 11:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWHTPiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 11:34:39 -0400
-Received: from mother.openwall.net ([195.42.179.200]:25792 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S1750806AbWHTPei
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 11:34:38 -0400
-Date: Sun, 20 Aug 2006 19:30:37 +0400
-From: Solar Designer <solar@openwall.com>
-To: Alex Riesen <fork0@users.sourceforge.net>,
-       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
-Message-ID: <20060820153037.GA20007@openwall.com>
-References: <20060820003840.GA17249@openwall.com> <20060820100706.GB6003@steel.home>
+	Sun, 20 Aug 2006 11:38:17 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13268 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750826AbWHTPiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 11:38:16 -0400
+Subject: Re: [PATCH 2.6.18-rc4] aoe [04/13]: zero copy write 1 of 2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Ed L. Cashin" <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+In-Reply-To: <f262a8dec6bec42dce9e5723ff332f5d@coraid.com>
+References: <E1GE8K3-0008Jn-00@kokone.coraid.com>
+	 <f262a8dec6bec42dce9e5723ff332f5d@coraid.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 19 Aug 2006 11:18:12 +0100
+Message-Id: <1155982692.4051.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060820100706.GB6003@steel.home>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 12:07:06PM +0200, Alex Riesen wrote:
-> Solar Designer, Sun, Aug 20, 2006 02:38:40 +0200:
-> > Attached is a trivial patch (extracted from 2.4.33-ow1) that makes
-> > set*uid() kill the current process rather than proceed with -EAGAIN when
-> > the kernel is running out of memory.  Apparently, alloc_uid() can't fail
-> > and return anyway due to properties of the allocator, in which case the
-> > patch does not change a thing.  But better safe than sorry.
-> 
-> Why not ENOMEM?
+Ar Gwe, 2006-08-18 am 13:39 -0400, ysgrifennodd Ed L. Cashin:
+> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-ENOMEM would not be any better than EAGAIN from the security standpoint.
+> +	skb->len = sizeof *h + sizeof *ah;
+> +	memset(h, 0, skb->len);
 
-The problem is that there are lots of privileged userspace programs that
-do not bother to check the return value from set*uid() calls (or
-otherwise check that the calls succeeded) before proceeding with work
-that is only safe to do with the *uid switched as intended.
+Never play with skb->len directly. Use skb_put/skb_trim
 
-Alexander
+

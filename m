@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbWHSJwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWHSKHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751693AbWHSJwS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 05:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbWHSJwS
+	id S1751466AbWHSKHI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 06:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWHSKHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 05:52:18 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:48653 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751692AbWHSJwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 05:52:17 -0400
-Date: Sat, 19 Aug 2006 10:52:10 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Vitaly Wool <vitalywool@gmail.com>
-Cc: jean-paul.saman@philips.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] UART driver for PNX8550/8950 revised
-Message-ID: <20060819095210.GD25767@flint.arm.linux.org.uk>
-Mail-Followup-To: Vitaly Wool <vitalywool@gmail.com>,
-	jean-paul.saman@philips.com, linux-kernel@vger.kernel.org
-References: <20060819122600.000017e6.vitalywool@gmail.com> <20060819090427.GB25767@flint.arm.linux.org.uk> <acd2a5930608190234y4b4bee8dqfc17d109f86d4318@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Aug 2006 06:07:08 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:65491 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751688AbWHSKHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 06:07:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JP40kBPfYQKYplZxAdTb8dKwCssUZX4o8Vum20EsTvaJFcxif4mATbFAXhqjrtsFLF0h9zqqC8EHqZLP/0aZZ2nd0JDbMTbm15cHMJlvLBCNrlKpmr89iuu3sWOpslJ+Gx/e+XaLj70vAL82A/HGQbcpq3wkEzv0dbG5dbzZ3lA=
+Message-ID: <b0943d9e0608190307v5853f38dja21ad65e2c67840c@mail.gmail.com>
+Date: Sat, 19 Aug 2006 11:07:04 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       "Antonino A. Daplas" <adaplas@pol.net>
+Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0608181549o3034398fob3763d3ce0869cfe@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <acd2a5930608190234y4b4bee8dqfc17d109f86d4318@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+	 <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
+	 <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
+	 <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
+	 <b0943d9e0608180846s4ed560b7ld4e3081bdc754454@mail.gmail.com>
+	 <6bffcb0e0608180942l12e342epd60dffbb5c5d4b3e@mail.gmail.com>
+	 <b0943d9e0608180957w60d22261k61b272c9b76505bd@mail.gmail.com>
+	 <6bffcb0e0608181438m3406de08q9a168d486127aef@mail.gmail.com>
+	 <b0943d9e0608181447t5503b24eyfea6f3903c2ba27d@mail.gmail.com>
+	 <6bffcb0e0608181549o3034398fob3763d3ce0869cfe@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 01:34:26PM +0400, Vitaly Wool wrote:
-> Hello Russell,
-> >serial_pnx8xxx.h just contains structure and register definitions for
-> >this driver - wouldn't it make more sense for it to be in drivers/serial
-> >along side this driver?
-> 
-> Well it's used in arch/mips/philips/... so I doubt it's a right thing
-> to move it to drivers/serial.
+On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> I just added your "Fix memory leak in vc_resize/vc_allocate" patch to
+> my series file.
+>
+> orphan pointer 0xc6110000 (size 12288):
+>   c017480e: <__kmalloc>
+>   c024dda4: <vc_resize>
+>   c020ed9c: <fbcon_startup>
+>   c0251028: <register_con_driver>
+>   c02511e0: <take_over_console>
+>   c020e21e: <fbcon_takeover>
+>   c0212b08: <fbcon_fb_registered>
+>   c0212ce1: <fbcon_event_notify>
+> orphan pointer 0xf55b0000 (size 8208):
+>   c017480e: <__kmalloc>
+>   c0211bb8: <fbcon_set_font>
+>   c0251b17: <con_font_set>
+>   c0251c7b: <con_font_op>
+>   c0249a97: <vt_ioctl>
+>   c024432e: <tty_ioctl>
+>   c0189fd1: <do_ioctl>
+>   c018a269: <vfs_ioctl>
 
-Okay, then it should stay where it is.
+The second one is probably a false positive as the stored pointer is
+different from the one returned by kmalloc (there is some padding).
+I'll add it to the kmemleak-false-positives patch.
 
-> >> +     /*
-> >> +      * Disable all interrupts, port and break condition.
-> >> +      */
-> >> +     serial_out(sport, PNX8XXX_IEN, 0);
-> >
-> >This comment's not correct - where is the break condition disabled?
-> >I thought it might be in the next serial_out() but it seems to be
-> >missing from there as well?
-> 
-> I don't think you're right here - break condition is also disabled
-> unsetting the corresponding bit in  IEN register for this particular
-> UART.
+The first one might be a real leak. Anotonino, any idea about this?
 
-Hmm, in that case why does break_ctl do this:
-
-+       lcr = serial_in(sport, PNX8XXX_LCR);
-+       if (break_state == -1)
-+               lcr |= PNX8XXX_UART_LCR_TXBREAK;
-+       else
-+               lcr &= ~PNX8XXX_UART_LCR_TXBREAK;
-+       serial_out(sport, PNX8XXX_LCR, lcr);
-
-which appears to imply that the bit for the break state is in the LCR.
-Moreover, there isn't a PNX8XXX_INT_* bit defined for break.  Confused.
+Thanks.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Catalin

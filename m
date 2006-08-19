@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422626AbWHSQ31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWHSQmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422626AbWHSQ31 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 12:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422686AbWHSQ31
+	id S932397AbWHSQmW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 12:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWHSQmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 12:29:27 -0400
-Received: from wx-out-0506.google.com ([66.249.82.236]:7560 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1422626AbWHSQ30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 12:29:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=IF+Q5UQXSUO+95pkDNvRW3ZQ2kgsnnCZICl8gRTsP2rcyHuJa6KFBEPAQ9yD+LkjRh6hMbLIbCveOle94974bharXIK590Kb+DN6WZZfhUnIkmkYZshOQPiCUasl/dMkXT+8kebOwyhtyFzvY+QyLmvz84JuT0uz17ntt98q1JI=
-From: Patrick McFarland <diablod3@gmail.com>
-To: David Greaves <david@dgreaves.com>
-Subject: Re: GPL Violation?
-Date: Sat, 19 Aug 2006 12:29:23 -0400
-User-Agent: KMail/1.9.1
-Cc: davids@webmaster.com, alan@lxorguk.ukuu.org.uk,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com> <44E6EC68.9060801@dgreaves.com>
-In-Reply-To: <44E6EC68.9060801@dgreaves.com>
+	Sat, 19 Aug 2006 12:42:22 -0400
+Received: from mail.charite.de ([160.45.207.131]:13525 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S932397AbWHSQmW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 12:42:22 -0400
+Date: Sat, 19 Aug 2006 18:42:18 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to find a sick router with 2.6.17+ and tcp_window_scaling enabled
+Message-ID: <20060819164218.GG9537@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <44E1F0CD.7000003@everytruckjob.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200608191229.24448.diablod3@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44E1F0CD.7000003@everytruckjob.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 19 August 2006 06:48, David Greaves wrote:
-> David Schwartz wrote:
-> It's not a rights _enforcement_ scheme on it's own (presumably enforcement
-> would ultimately involve men with big sticks - aka the legal system). It
-> simply helps manage (GPL) rights.
+* Mark Reidenbach <m.reidenbach@everytruckjob.com>:
+> I had made an earlier post concerning very poor network performance 
+> after upgrading to 2.6.17 and later kernels.  The solution provided by 
+> the e1000 developers was that it was in fact a change to the default tcp 
+> window scaling settings and that there was a router somewhere between my 
+> computer and its destination.
 
-Then how is it not a rights enforcement scheme? It helps me enforce the GPL 
-(see Helge Hafting's post: http://lkml.org/lkml/2006/8/19/50 for example 
-why).
+Are you looking for a traceroute-/mtr-like tool that sends specially
+crafted packets and finally comes up with a message like "the router
+between x and y is broken"?
 
 -- 
-Patrick McFarland || www.AdTerrasPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
-
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751691AbWHSKF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWHSKQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751691AbWHSKF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 06:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWHSKF5
+	id S1751696AbWHSKQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 06:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbWHSKQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 06:05:57 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:9374 "EHLO
-	mail.arcor.de") by vger.kernel.org with ESMTP id S1751292AbWHSKF5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 06:05:57 -0400
-Date: Sat, 19 Aug 2006 12:05:50 +0200
-From: Baurzhan Ismagulov <ibr@radix50.net>
-To: linux-kernel@vger.kernel.org
-Cc: msushchi@thermawave.com
-Subject: Re: Help: error 514 in select()
-Message-ID: <20060819100550.GA3238@radix50.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, msushchi@thermawave.com
-References: <s4e61722.051@smtp.thermawave.com>
-MIME-Version: 1.0
+	Sat, 19 Aug 2006 06:16:25 -0400
+Received: from 1wt.eu ([62.212.114.60]:34320 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751696AbWHSKQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 06:16:24 -0400
+Date: Sat, 19 Aug 2006 12:07:28 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.34-pre1 USB mass-storage burped...
+Message-ID: <20060819100728.GA25405@1wt.eu>
+References: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com> <20060819084724.GA2078@1wt.eu> <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s4e61722.051@smtp.thermawave.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Misha,
+On Sat, Aug 19, 2006 at 07:39:06PM +1000, Grant Coady wrote:
+> On Sat, 19 Aug 2006 10:47:24 +0200, Willy Tarreau <w@1wt.eu> wrote:
+> 
+> >Hi Grant,
+> >
+> >On Sat, Aug 19, 2006 at 06:41:50PM +1000, Grant Coady wrote:
+> ...
+> >Have you tried building over USB HDD for another kernel (at least 2.4.33) ?
+> 
+> No.
+> 
+> >If not, could you give it a try please ? I would like to know if this problem
+> >could have been introduced by the locking changes in 2.4.34-pre1.
+> 
+> Okay, reboot into 2.4.33 and run just the USB HDD test for you, NFS seems 
+> okay after 4 hours or so.  I'll leave the USB HDD kernel rebuild running 
+> overnight then...
 
-On Fri, Aug 18, 2006 at 07:37:50PM -0700, Misha Sushchik wrote:
-> I am writing to you because I found a post by you in a newsgroup that
-> described improper error reporting by select(), reporting error 514.
+much appreciated, thanks Grant !
 
-So if you don't mind, I'm taking this to linux-kernel, please answer to
-the list and Cc to me.
+Willy
 
-
-> We recently tried to upgrade our server from RedHat 7 to RHEL 4, with
-> kernel version 2.6.9. Our CORBA-based communication now is halted now
-> and then due to "unknown error 514" in select().
-
-include/linux/errno.h says user space should never see this error code,
-so this is a bug in your kernel. core_sys_select returns this code if a
-signal is pending for the current process. You have the following
-options:
-
-* Test with the latest kernel. 2.6.9 is almost two years old.
-
-* Ask RedHat to fix the problem in 2.6.9.
-
-* Fix the problem yourself.
-
-You may try applying something like the following to your current kernel
-in order to understand how to reproduce the problem (untested):
-
-diff -Naurp linux-2.6.orig/fs/select.c linux-2.6/fs/select.c
---- linux-2.6.orig/fs/select.c	2006-08-19 11:57:53.000000000 +0200
-+++ linux-2.6/fs/select.c	2006-08-19 11:57:43.000000000 +0200
-@@ -430,6 +430,8 @@ asmlinkage long sys_select(int n, fd_set
- 		}
- 	}
- 
-+	if (ret == -ERESTARTNOHAND)
-+		BUG();
- 	return ret;
- }
- 
-IIUC, this should print a backtrace every time the problem occurs.
-
-
-With kind regards,
-Baurzhan.

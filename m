@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWHSKPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWHSKTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751695AbWHSKPx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 06:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWHSKPx
+	id S1751703AbWHSKTY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 06:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWHSKTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 06:15:53 -0400
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:39834 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751688AbWHSKPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 06:15:52 -0400
-Date: Sat, 19 Aug 2006 06:11:34 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] block: fix queue bounce limit calculation
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>
-Message-ID: <200608190612_MC3-1-C895-98A8@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Sat, 19 Aug 2006 06:19:24 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:10210 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751697AbWHSKTX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 06:19:23 -0400
+Date: Sat, 19 Aug 2006 12:17:17 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jesse Huang <jesse@icplus.com.tw>
+Cc: penberg@cs.Helsinki.FI, akpm@osdl.org, dvrabel@cantab.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net
+Subject: Re: [PATCH 5/7] ip1000: Modify coding style of ipg_config_autoneg()
+Message-ID: <20060819101717.GA26267@electric-eye.fr.zoreil.com>
+References: <1155844061.5006.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1155844061.5006.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Queue bounce should start after the max page, not on it.
+Jesse Huang <jesse@icplus.com.tw> :
+> From: Jesse Huang <jesse@icplus.com.tw>
+> 
+> This is only coding style modify for ipg_config_autoneg(). Thanks for the
+> suggestion form Francois.
+> 
+> Change Logs:
+>     Modify coding style of ipg_config_autoneg()
+> 
+> ---
+> 
+>  drivers/net/ipg.c |   17 ++++++++++-------
+>  1 files changed, 10 insertions(+), 7 deletions(-)
+> 
+> 737498ca620437d8179e21be4d5220333066cbbd
+> diff --git a/drivers/net/ipg.c b/drivers/net/ipg.c
+> index f859107..be96f93 100644
+> --- a/drivers/net/ipg.c
+> +++ b/drivers/net/ipg.c
+> @@ -491,11 +491,13 @@ static int ipg_config_autoneg(struct net
+>  	int fullduplex;
+>  	int txflowcontrol;
+>  	int rxflowcontrol;
+> +	long MacCtrlValue;
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
----
+Mixed case variables are not exactly welcome.
 
-Could this explain reported slowdown on x86_64 after limit was
-changed in 2.6.16.7?
-
---- 2.6.17.9-64.orig/block/ll_rw_blk.c
-+++ 2.6.17.9-64/block/ll_rw_blk.c
-@@ -638,11 +638,11 @@ void blk_queue_bounce_limit(request_queu
- 	/* Assume anything <= 4GB can be handled by IOMMU.
- 	   Actually some IOMMUs can handle everything, but I don't
- 	   know of a way to test this here. */
--	if (bounce_pfn < (min_t(u64,0xffffffff,BLK_BOUNCE_HIGH) >> PAGE_SHIFT))
-+	if (bounce_pfn <= (min_t(u64,0xffffffff,BLK_BOUNCE_HIGH) >> PAGE_SHIFT))
- 		dma = 1;
- 	q->bounce_pfn = max_low_pfn;
- #else
--	if (bounce_pfn < blk_max_low_pfn)
-+	if (bounce_pfn <= blk_max_low_pfn)
- 		dma = 1;
- 	q->bounce_pfn = bounce_pfn;
- #endif
 -- 
-Chuck
+Ueimor

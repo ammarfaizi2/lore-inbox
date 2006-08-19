@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWHSLEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751722AbWHSLV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751710AbWHSLEI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 07:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751724AbWHSLEI
+	id S1751722AbWHSLV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 07:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751716AbWHSLV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 07:04:08 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:56456 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751710AbWHSLEE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 07:04:04 -0400
-Date: Sat, 19 Aug 2006 13:00:48 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 Spurious ACK/NAK on isa0060/serio0, 2.6.18-rc2 is fine
-Message-ID: <20060819110048.GB3190@aitel.hist.no>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060817221052.GA3025@aitel.hist.no> <20060817223434.GA3616@aitel.hist.no> <20060818215644.GA1893@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060818215644.GA1893@kroah.com>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sat, 19 Aug 2006 07:21:56 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:33214 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751721AbWHSLVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 07:21:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding:sender;
+        b=pw6Ed6CQATIXkgc1QUqouhYWyTeHqZkNZW19jFw9ZNcsXV0FIGvhvL4Uu9qNrQ6bmW/E4SjgNwUQQYyCqQ76mBIAVGs6K1vLe5vsCd/Dm8AEvb0CkQGRRCvKlgXyUpKnMXw1cjX+SLZgVgCWNK5lBAMBv70XZ1H8E9GvYKPg1bI=
+Subject: Re: [PATCH 2.6.18-rc4 00/10] Kernel memory leak detector 0.9
+From: "Antonino A. Daplas" <adaplas@pol.net>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0608190307v5853f38dja21ad65e2c67840c@mail.gmail.com>
+References: <20060812215857.17709.79502.stgit@localhost.localdomain>
+	 <b0943d9e0608180627g61007207read993387bf0c0b4@mail.gmail.com>
+	 <6bffcb0e0608180655j50332247m8ed393c37d570ee4@mail.gmail.com>
+	 <6bffcb0e0608180715v27015481vb7c603c4be356a21@mail.gmail.com>
+	 <b0943d9e0608180846s4ed560b7ld4e3081bdc754454@mail.gmail.com>
+	 <6bffcb0e0608180942l12e342epd60dffbb5c5d4b3e@mail.gmail.com>
+	 <b0943d9e0608180957w60d22261k61b272c9b76505bd@mail.gmail.com>
+	 <6bffcb0e0608181438m3406de08q9a168d486127aef@mail.gmail.com>
+	 <b0943d9e0608181447t5503b24eyfea6f3903c2ba27d@mail.gmail.com>
+	 <6bffcb0e0608181549o3034398fob3763d3ce0869cfe@mail.gmail.com>
+	 <b0943d9e0608190307v5853f38dja21ad65e2c67840c@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 19 Aug 2006 19:20:53 +0800
+Message-Id: <1155986453.14337.9.camel@daplas.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 02:56:44PM -0700, Greg KH wrote:
-> On Fri, Aug 18, 2006 at 12:34:34AM +0200, Helge Hafting wrote:
-> > On Fri, Aug 18, 2006 at 12:10:52AM +0200, Helge Hafting wrote:
-> > > So I tried 2.6.18-rc4-mm1 on my opteron. (Running 64-bit)
-> > > 
-> > > The kernel did not boot, but went into an infinite loop of
-> > > 
-> > > Spurious ACK on isa0060/serio0
-> > > over and over.  I have two keyboards, one attached the usual
-> > > way and another attached where a mouse usually goes.
-> > > This works fine with 2.6.18-rc2, but no longer now.
-> > > One keyboard is dead, and on the other, two of the
-> > > leds blink on and off.
-> > > 
-> > > Unplugging a keyboard changes the repeating message to
-> > > Spurious NAK ... instead.
-> > > 
-> > > Unplugging both keyboards stops the nonsense, but then - no keyboard.
-> > > 
-> > > This kernel also fails to mount root, a fact that is hard to see as
-> > > the stupid messages quickly scroll everything else away.
-> > > That might be something simple like the changed ATA config
-> > > or multithreaded pci probe.
-> > > 
-> > > There just cannot be any program "trying to access hw directly",
-> > > I don't get the root fs so I don't even have init running.
-> > >
-> > I got rid of the multithreaded PCI probe - and the root fs was
-> > recognised again (I have both SATA and SCSI, perhaps they
-> > were probed in wrong order)
+On Sat, 2006-08-19 at 11:07 +0100, Catalin Marinas wrote:
+> On 18/08/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > I just added your "Fix memory leak in vc_resize/vc_allocate" patch to
+> > my series file.
+> >
+> > orphan pointer 0xc6110000 (size 12288):
+> >   c017480e: <__kmalloc>
+> >   c024dda4: <vc_resize>
+> >   c020ed9c: <fbcon_startup>
+> >   c0251028: <register_con_driver>
+> >   c02511e0: <take_over_console>
+> >   c020e21e: <fbcon_takeover>
+> >   c0212b08: <fbcon_fb_registered>
+> >   c0212ce1: <fbcon_event_notify>
+> > orphan pointer 0xf55b0000 (size 8208):
+> >   c017480e: <__kmalloc>
+> >   c0211bb8: <fbcon_set_font>
+> >   c0251b17: <con_font_set>
+> >   c0251c7b: <con_font_op>
+> >   c0249a97: <vt_ioctl>
+> >   c024432e: <tty_ioctl>
+> >   c0189fd1: <do_ioctl>
+> >   c018a269: <vfs_ioctl>
 > 
-> Are you using the ata_piix driver by chance for your root partition?  If
-> so, the multi-thread stuff will not work unless you use the hack below.
->
-No, the root is on via sata. 
+> The second one is probably a false positive as the stored pointer is
+> different from the one returned by kmalloc (there is some padding).
+> I'll add it to the kmemleak-false-positives patch.
 
-> > Curiously enough, the keyboard trouble went away too.  Odd.
-> > Now posting from a working 2.6.18-rc4-mm1 (With the jiffies hotfix)
+Yes, I think it's triggered by the padding:
+
+	new_data += FONT_EXTRA_WORDS * sizeof(int);
+
+The free'ing in fbcon_do_set_font() takes into account the padding:
+
+	if (old_data && (--REFCOUNT(old_data) == 0))
+		kfree(old_data - FONT_EXTRA_WORDS * sizeof(int));
+
+
+> The first one might be a real leak. Anotonino, any idea about this?
 > 
-> The keyboard stuff is very odd, your keyboard should not be on the PCI
-> bus :(
 
-No, it is almost ordinary.  Almost, for I have another keyboard
-still connected to the ps2 mouse port, I used to have a two-user setup.
-I don't have any pci cards with keyboards connected.
+On boot, vc->vc_screenbuf is allocated by alloc_bootmem() (vc->kmalloced
+== 0), so yes, there's a leak in there . But I don't think we have a way
+to deallocate this type of memory, so we just let it go. 
 
-Helge Hafting
+Tony
+
+

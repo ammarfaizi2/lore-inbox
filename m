@@ -1,79 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWHSSEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWHSSOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751769AbWHSSEe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 14:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751768AbWHSSEe
+	id S1751468AbWHSSOs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 14:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWHSSOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 14:04:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:40749 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751766AbWHSSEd convert rfc822-to-8bit (ORCPT
+	Sat, 19 Aug 2006 14:14:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33450 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750749AbWHSSOr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 14:04:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=dQIjWCZH2JL/H6aQPS92wQv1ULImzuCUoXxSecvEc7ElB4IQwwb66xo2xCv/cu935VQ09Dvd00qIZ4UUGnrm/UvnonZGNmFU3Eax0irEOlgqqTnyXfFNr9w8ZERb2xeDmowQTc/3YV4ygbDp1W8M+g+getRs6HIn8oW3LtaTlK0=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-Subject: Re: mplayer + heavy io: why ionice doesn't help?
-Date: Sat, 19 Aug 2006 20:04:10 +0200
-User-Agent: KMail/1.8.2
-Cc: mplayer-users@mplayerhq.hu, linux-kernel@vger.kernel.org
-References: <200608181937.25295.vda.linux@googlemail.com> <44E6006C.2030406@tremplin-utc.net>
-In-Reply-To: <44E6006C.2030406@tremplin-utc.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608192004.10326.vda.linux@googlemail.com>
+	Sat, 19 Aug 2006 14:14:47 -0400
+Date: Sat, 19 Aug 2006 11:14:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
+       Martin Bligh <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bugme-new] [Bug 7027] New: CD Ripping speeds slow with 2.6.17
+Message-Id: <20060819111437.a88f71cd.akpm@osdl.org>
+In-Reply-To: <200608191800.k7JI0ML0015395@fire-2.osdl.org>
+References: <200608191800.k7JI0ML0015395@fire-2.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 August 2006 20:01, Eric Piel wrote:
-> 08/18/2006 07:37 PM, Denis Vlasenko wrote/a écrit:
-> > Hi,
-> > 
-> > I noticed that mplayer's video playback starts to skip
-> > if I do some serious copying or grepping on the disk
-> > with movie being played from.
-> > 
-> > nice helps, but does not eliminate the problem.
-> > I guessed that this is a problem with mplayer
-> > failing to read next portion of input data in time,
-> > so I used Jens's ionice.c from
-> > Documentation/block/ioprio.txt
-> > 
-> > I am using it this:
-> > 
-> > ionice -c1 -n0 -p<mplayer pid>
-> > 
-> > but so far I don't see any effect from using it.
-> > mplayer still skips.
-> > 
-> > Does anybody have an experience in this?
-> Hello
+On Sat, 19 Aug 2006 11:00:22 -0700
+bugme-daemon@bugzilla.kernel.org wrote:
+
+> http://bugzilla.kernel.org/show_bug.cgi?id=7027
 > 
-> IOnice only works with CFQ, have you checked that you are using the CFQ 
-> IO scheduler?
-> # cat /sys/block/hda/queue/scheduler   #put the name of YOUR harddisk
+>            Summary: CD Ripping speeds slow with 2.6.17
+>     Kernel Version: 2.6.17
+>             Status: NEW
+>           Severity: normal
+>              Owner: bzolnier@gmail.com
+>          Submitter: brnewber@gmail.com
 > 
-> In case it's not the default IO scheduler, you can change it with:
-> # echo cfq > /sys/block/hda/queue/scheduler
+> 
+> Most recent kernel where this bug did not occur: 2.6.16
+> Distribution: Gentoo
+> Hardware Environment: ASUS K8V mobo, AMD64 2200, 1GB RAM
+> Software Environment: Gentoo
+> Problem Description: Ever since 2.6.17 my cd ripping speeds with one particular
+> CD ripper/encoder (namely the one I wrote) have been slow. 
+> 
+> Using git bisect I tracked it down to this patch..
+> 
+> 9430d58e34ec3861e1ca72f8e49105b227aad327 is first bad commit
+> commit 9430d58e34ec3861e1ca72f8e49105b227aad327
+> Author: Mike Galbraith <efault@gmx.de>
+> Date:   Wed Mar 22 00:07:33 2006 -0800
+> 
+>     [PATCH] sched: remove sleep_avg multiplier
+> 
+>     Remove the sleep_avg multiplier.  This multiplier was necessary back when
+>     we had 10 seconds of dynamic range in sleep_avg, but now that we only have
+>     one second, it causes that one second to be compressed down to 100ms in
+>     some cases.  This is particularly noticeable when compiling a kernel in a
+>     slow NFS mount, and I believe it to be a very likely candidate for other
+>     recently reported network related interactivity problems.
+> 
+>     In testing, I can detect no negative impact of this removal.
+> 
+>     Signed-off-by: Mike Galbraith <efault@gmx.de>
+>     Acked-by: Ingo Molnar <mingo@elte.hu>
+>     Signed-off-by: Andrew Morton <akpm@osdl.org>
+>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+> :040000 040000 28d2d8f53ab7b5dd89e846f2dcc107ce88cb695f 780a13c0f8ba5465db79c668
+> 
+> I'm honestly not sure if my application is doing something it shouldn't or if
+> this is a legitimate kernel bug. Being totally at a loss I'm filing it here.I
+> just know that before the above patch I was ripping at about speeds of 9.0x and
+> now I rip at 1.2x.
+> 
 
-Thanks!
+sched problems...
 
-It helps. mplayer skips much less, but still some skipping is present.
-I experimented with forcing entire file to be present in the
-pagecache, and in this case mplayer almost never skips.
-
-Looks like mplayer have very little tolerance for reads
-randomly taking more time to read input stream.
-
-However, I then looked into the mplayer's source
-(I wondered why it doesn't do read buffering itself)...
-
-The code is, um, less than pretty.
---
-vda
+Martin, this might be the source of your `dvdrip' woes?

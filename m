@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWHSGPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWHSGS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWHSGPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 02:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHSGPV
+	id S1750892AbWHSGS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 02:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHSGS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 02:15:21 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:26828 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S1751309AbWHSGPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 02:15:21 -0400
-Date: Sat, 19 Aug 2006 08:15:08 +0200
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: Prakash Punnoor <prakash@punnoor.de>, Jiri Benc <jbenc@suse.cz>,
-       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
-Message-ID: <20060819061507.GB8571@ojjektum.uhulinux.hu>
-References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu> <200608162002.06793.prakash@punnoor.de> <20060816195345.GA12868@ojjektum.uhulinux.hu> <20060819001640.GE20111@goober>
+	Sat, 19 Aug 2006 02:18:29 -0400
+Received: from ozlabs.org ([203.10.76.45]:23225 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750892AbWHSGS2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 02:18:28 -0400
+Subject: Re: [2.6.19 PATCH 4/7] ehea: ethtool interface
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Thomas Klein <osstklei@de.ibm.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Christoph Raisch <raisch@de.ibm.com>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>
+In-Reply-To: <44E5DFA6.7040707@de.ibm.com>
+References: <200608181333.23031.ossthema@de.ibm.com>
+	 <20060818140506.GC5201@martell.zuzino.mipt.ru>
+	 <44E5DFA6.7040707@de.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NFcgwjM1giwsjnU4Nx34"
+Date: Sat, 19 Aug 2006 16:18:24 +1000
+Message-Id: <1155968305.1388.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060819001640.GE20111@goober>
-User-Agent: Mutt/1.5.7i
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 05:16:41PM -0700, Valerie Henson wrote:
-> On Wed, Aug 16, 2006 at 09:53:45PM +0200, Pozsar Balazs wrote:
-> > On Wed, Aug 16, 2006 at 08:02:02PM +0200, Prakash Punnoor wrote:
-> > > Am Mittwoch 16 August 2006 19:43 schrieb Pozsar Balazs:
-> > > 
-> > > > So, just to make it clear: if you boot without cable plugged in, let
-> > > > the driver load, and then plug the cable in, do you have link?
-> > > > For me, it does not have link until I rmmod the module.
-> > > 
-> > > Same here.
-> > 
-> > The most weird thing is that, when I _rmmod_ the module, the link leds 
-> > will show a link, _before_ I even re-modprobe it! So somehow the removal 
-> > (or even an unbind via the sysfs interface) "resets" it.
-> 
-> Hey folks,
-> 
-> Added to my to-do list.  Let me know if you figure out anything else.
 
-Actually, I managed to fix it, here's the patch:
+--=-NFcgwjM1giwsjnU4Nx34
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
+On Fri, 2006-08-18 at 17:41 +0200, Thomas Klein wrote:
+> Hi Alexey,
+>=20
+> first of all thanks a lot for the extensive review.
+>=20
+>=20
+> Alexey Dobriyan wrote:
+> >> +	u64 hret =3D H_HARDWARE;
+> >=20
+> > Useless assignment here and everywhere.
+> >=20
+>=20
+> Initializing returncodes to errorstate is a cheap way to prevent
+> accidentally returning (uninitalized) success returncodes which
+> can lead to catastrophic misbehaviour.
 
---- a/drivers/net/tulip/uli526x.c	2006-07-15 21:00:43.000000000 +0200
-+++ a/drivers/net/tulip/uli526x.c	2006-08-18 15:41:00.000000000 +0200
-@@ -515,7 +515,8 @@
- 	phy_reg_reset = phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id);
- 	phy_reg_reset = (phy_reg_reset | 0x8000);
- 	phy_write(db->ioaddr, db->phy_addr, 0, phy_reg_reset, db->chip_id);
--	udelay(500);
-+	while (phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id) & 0x8000)
-+		udelay(500);
- 
- 	/* Process Phyxcer Media Mode */
- 	uli526x_set_phyxcer(db);
+If you try to return an uninitialized value the compiler will warn you,
+you'll then look at the code and realise you missed a case, you might
+save yourself a bug. By unconditionally initialising you are lying to
+the compiler, and it can no longer help you.
 
+cheers
 
--- 
-pozsy
+--=20
+Michael Ellerman
+IBM OzLabs
+
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-NFcgwjM1giwsjnU4Nx34
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBE5q0wdSjSd0sB4dIRAl0lAKCckSJpdvVFn0urhSL2CWjX9M/E6wCfc8V6
+zPTSmq9+N6RQnWIopVsfV4U=
+=5H4K
+-----END PGP SIGNATURE-----
+
+--=-NFcgwjM1giwsjnU4Nx34--
+

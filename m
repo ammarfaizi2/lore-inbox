@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbWHSAKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWHSAP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751593AbWHSAKB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 20:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWHSAKB
+	id S1422657AbWHSAP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 20:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422658AbWHSAP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 20:10:01 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:3793 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751591AbWHSAKA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 20:10:00 -0400
-Date: Fri, 18 Aug 2006 17:09:45 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       mingo@redhat.com, apw@shadowen.org
-Subject: Re: [patch] sched: generic sched_group cpu power setup
-Message-Id: <20060818170945.43ced12b.pj@sgi.com>
-In-Reply-To: <20060818154230.A23214@unix-os.sc.intel.com>
-References: <20060815175525.A2333@unix-os.sc.intel.com>
-	<20060815212455.c9fe1e34.pj@sgi.com>
-	<20060816104551.A7305@unix-os.sc.intel.com>
-	<20060818142347.A22846@unix-os.sc.intel.com>
-	<20060818152954.1ef5aa34.pj@sgi.com>
-	<20060818154230.A23214@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Aug 2006 20:15:26 -0400
+Received: from boogie.lpds.sztaki.hu ([193.224.70.237]:13979 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1422657AbWHSAPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 20:15:25 -0400
+Date: Sat, 19 Aug 2006 02:15:23 +0200
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Seewer Philippe <philippe.seewer@bfh.ch>, Jeff Garzik <jeff@garzik.org>,
+       Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: /dev/sd*
+Message-ID: <20060819001523.GA6440@boogie.lpds.sztaki.hu>
+References: <1155160903.5729.263.camel@localhost.localdomain> <20060809221857.GG3691@stusta.de> <20060810123643.GC25187@boogie.lpds.sztaki.hu> <44DB289A.4060503@garzik.org> <44E3DFD6.4010504@PicturesInMotion.net> <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr> <44E42900.1030905@PicturesInMotion.net> <Pine.LNX.4.61.0608171120260.4252@yvahk01.tjqt.qr> <44E56804.1080906@bfh.ch> <44E5B672.1010407@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E5B672.1010407@tmr.com>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If any one has a better suggestion, I am open.
+On Fri, Aug 18, 2006 at 08:45:38AM -0400, Bill Davidsen wrote:
 
-I'm still trying to figure out what the hell it is ;).
+> For discussion I suggest /proc/ata/devices, a single flat file matching 
+> a name meaningful to open() with a vendor string and whatever other info 
+> is handy, like serial number and the like.
 
-Sorry ... as my teenage son would gladly tell you, I can be dense
-at times.
+Why just ATA? Let it contain all disk-like devices in the system, and
+add an extra field showing the transport method
+(IDE/USB/SCSI/SATA/whatever) the device is currently using.
 
-If all the CPUs in a system have the same computational capacity,
-then is it just the number of CPUs in a group (times a scale factor
-of 128, to simulate fixed point arithmetic with integers)?
+Hmm, /sys/block already contains all the kernel-internal device names,
+/sys/block/*/device already gives the physical location. We might just
+need a couple additional attributes (like "serial") for user
+convenience, and a little shell script that walks /sys/block and emits
+an unified device list?
 
-I presume "yes", from such code lines as:
+Alternatively, the shell scipt could use blktool to collect the data not
+already present under /sys/block, so there would be no need to modify
+the kernel at all. blktool could be modified to accept a path name under
+/sys/block as well as a device node, and print some more data the serial
+number when using the "id" command, but I think that's doable.
 
-  power = SCHED_LOAD_SCALE * cpus_weight(sd->groups->cpumask);
-
-If two CPUs, side by side, have the same computational capacity,
-but one consumes more electrical power (watts) than the other, do they
-have different cpu_power?
-
-I presume "no" - electrical power consumption does not affect this value
-(though some effort might be made to minimize electrical power consumption
-in these calculations, by letting some CPUs go idle if the job mix allows
-for that.)
-
-If I presumed correctly, then apparently what we're talking about here
-is computational capacity, as is typically measured in such units as
-MIPS, megaflops/sec or Drystones. In other words, what Andrew termed
-"computing power" when he fired the starter's pistol on this scrum.
-
-Is that what this is -- computational capacity, aka computing power
-(appropriately scaled for the convenience of the arithmetic)?
-
-And is the unit of measure just the number of CPUs in the group
-(times 128)?
-
-If the above is accurate, then the group structure member could almost
-be called "ncpus" (number of cpus in group), unscaled.  Perhaps you
-only need to scale the value for fixed point arithmetic while calculating
-what balancing to attempt.
-
-One more  detail, as you likely already noticed, if you rename
-"cpu_power" to not mention "power", then consider also the routine 
-init_numa_sched_groups_power(), the variables pwr_now, pwr_move and
-power, and the mentions of "power" in the comments.
+Gabor
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

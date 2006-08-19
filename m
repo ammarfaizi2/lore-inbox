@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751616AbWHSAtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751620AbWHSAt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751616AbWHSAtG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 20:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWHSAtF
+	id S1751620AbWHSAt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 20:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbWHSAt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 20:49:05 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:34701 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751616AbWHSAtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 20:49:04 -0400
-Subject: Re: 2.6.18-rc4-mm1 + hotfix -- Many processes use the sysctl
-	system call
-From: Lee Revell <rlrevell@joe-job.com>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Gabor Gombas <gombasg@sztaki.hu>, Mattia Dongili <malattia@linux.it>,
-       Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       "akpm@osdl.org" <akpm@osdl.org>
-In-Reply-To: <20060819024020.GD720@slug>
-References: <a44ae5cd0608171541tf2f125dl586f56da6f1b2a41@mail.gmail.com>
-	 <1155854702.8796.97.camel@mindpipe>
-	 <20060818144626.GA8236@inferi.kami.home>
-	 <1155918234.24907.35.camel@mindpipe>
-	 <20060819003037.GB6440@boogie.lpds.sztaki.hu>  <20060819024020.GD720@slug>
-Content-Type: text/plain
-Date: Fri, 18 Aug 2006 20:49:03 -0400
-Message-Id: <1155948543.2924.101.camel@mindpipe>
+	Fri, 18 Aug 2006 20:49:58 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:28546 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751613AbWHSAt5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 20:49:57 -0400
+Date: Fri, 18 Aug 2006 17:50:46 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Dipkanar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH] rcu: Fix sign bug making rcu_random always return the same sequence
+Message-ID: <20060819005045.GE1317@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1155947717.5337.9.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155947717.5337.9.camel@josh-work.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-19 at 02:40 +0000, Frederik Deweerdt wrote:
-> On Sat, Aug 19, 2006 at 02:30:37AM +0200, Gabor Gombas wrote:
-> > On Fri, Aug 18, 2006 at 12:23:54PM -0400, Lee Revell wrote:
-> > 
-> > > "fixed"?  Why is sysctl being removed in the middle of a stable kernel
-> > > series?!?
-> > 
-> > IMHO the stable series is 2.6.x.y nowadays. 2.6.z (without a fourth
-> > number) is more or less what used to be 2.<odd> previously.
-> Not to mention we're dealing with a -mm kernel...
+On Fri, Aug 18, 2006 at 05:35:17PM -0700, Josh Triplett wrote:
+> rcu_random uses a counter rrs_count to occasionally mix data from
+> get_random_bytes into the state of its pseudorandom generator.  However, the
+> rrs_counter gets declared as an unsigned long, and rcu_random checks for
+> --rrs_count < 0, so this code will never mix any real random data into the
+> state, and will thus always return the same sequence of random numbers.
 > 
+> Also, change the return value of rcu_random from long to unsigned long, to
+> avoid potential issues caused by the use of the % operator, which can return
+> negative values for negative left operands.
 
-Ah, OK - the debian-glibc thread the OP referred to began:
-
-"Starting with 2.6.18, the official kernels do not have the sysctl 
-syscall anymore (http://lkml.org/lkml/2006/7/15/54) or rather it has 
-been replaced by a dummy syscall that always fail and print a message 
-in the log, and thus the sysctl() function will not work anymore."
-
-However the referenced link is about an -mm kernel.
-
-Sorry for the noise.
-
-Lee
-
-
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Josh Triplett <josh@freedesktop.org>
+> ---
+>  kernel/rcutorture.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
+> index 8b09c95..ef6a124 100644
+> --- a/kernel/rcutorture.c
+> +++ b/kernel/rcutorture.c
+> @@ -146,7 +146,7 @@ rcu_torture_free(struct rcu_torture *p)
+>  
+>  struct rcu_random_state {
+>  	unsigned long rrs_state;
+> -	unsigned long rrs_count;
+> +	long rrs_count;
+>  };
+>  
+>  #define RCU_RANDOM_MULT 39916801  /* prime */
+> @@ -159,7 +159,7 @@ #define DEFINE_RCU_RANDOM(name) struct r
+>   * Crude but fast random-number generator.  Uses a linear congruential
+>   * generator, with occasional help from get_random_bytes().
+>   */
+> -static long
+> +static unsigned long
+>  rcu_random(struct rcu_random_state *rrsp)
+>  {
+>  	long refresh;
+> -- 
+> 1.4.1.1
+> 
+> 

@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWHRD5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWHRD6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWHRD5F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Aug 2006 23:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHRD5E
+	id S932361AbWHRD6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Aug 2006 23:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWHRD6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Aug 2006 23:57:04 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.4.197]:46254 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S932344AbWHRD5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Aug 2006 23:57:02 -0400
-Date: Thu, 17 Aug 2006 23:57:15 -0400
-From: Lee Trager <Lee@PicturesInMotion.net>
-Subject: Re: Merging libata PATA support into the base kernel
-In-reply-to: <44E53635.3080702@PicturesInMotion.net>
-To: Lee Trager <Lee@PicturesInMotion.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Jason Lunz <lunz@falooley.org>,
-       Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Stefan Seyfried <seife@suse.de>
-Message-id: <44E53A9B.6080701@PicturesInMotion.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-References: <1155144599.5729.226.camel@localhost.localdomain>
- <20060810122056.GP11829@suse.de> <20060810190222.GA12818@knob.reflex>
- <200608102140.36733.rjw@sisk.pl> <44E3E1E6.9090908@PicturesInMotion.net>
- <20060817091842.GC17899@elf.ucw.cz>
- <1155808348.15195.55.camel@localhost.localdomain>
- <20060817094512.GD17899@elf.ucw.cz>
- <1155815491.15195.75.camel@localhost.localdomain>
- <44E53635.3080702@PicturesInMotion.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060731)
+	Thu, 17 Aug 2006 23:58:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60101 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932344AbWHRD6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Aug 2006 23:58:14 -0400
+Message-ID: <44E68C4E.8070607@osdl.org>
+Date: Fri, 18 Aug 2006 20:58:06 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>, xavier.bestel@free.fr, 7eggert@gmx.de,
+       cate@debian.org, 7eggert@elstempel.de, shemminger@osdl.org,
+       mitch.a.williams@intel.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: bonding: cannot remove certain named devices
+References: <20060816133811.GA26471@nostromo.devel.redhat.com> <Pine.LNX.4.58.0608161636250.2044@be1.lrz> <1155799783.7566.5.camel@capoeira> <20060817.162340.74748342.davem@davemloft.net> <20060818022057.GA27076@nostromo.devel.redhat.com>
+In-Reply-To: <20060818022057.GA27076@nostromo.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Trager wrote:
-> Alan Cox wrote:
+Bill Nottingham wrote:
+> David Miller (davem@davemloft.net) said: 
 >   
->> Ar Iau, 2006-08-17 am 11:45 +0200, ysgrifennodd Pavel Machek:
->>   
+>> From: Xavier Bestel <xavier.bestel@free.fr>
+>> Date: Thu, 17 Aug 2006 09:29:43 +0200
+>>
 >>     
->>> This should not be it... it also happens on suspend-to-disk according
->>> to the report, and during swsusp we do normal boot so HPA should be
->>> initialized...?
->>>     
+>>> Why not simply retricting chars to isalnum() ones ?
 >>>       
->> The suspend to disk case I've not personally seen. The suspend to ram
->> one I have looked at and seen and verified the HPA was not reset.
+>> As Bill said that would block things like "-" and "_" which are fine.
 >>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->>   
+>> Bill also mentioned something about "breaking configs going back to
+>> 2.4.x" which is bogus because nothing broke when we started blocking
+>> "/" and "." and ".." in networking device names during the addition of
+>> sysfs support for net devices.
 >>     
-> Well how do we reset HPA? If someone could point me in the right
-> direction I could try to get it to work, although I've never really done
-> any kernel hacking before. Im not even sure what HPA is, Wikipedia has
-> nothing on it so I guess I'll google around.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
+> I was mainly referring to if we started to filter it out to isalnum() -
+> spaces/tab/CR etc. certainly could be filtered. (No idea what would
+> happen with unicode nbsp or other silly things.)
+>
+> Bill
 >   
-Ok I got it now. Anyway I tried disabling it in the BIOS(IBM called it
-the Predesktop Area) and I still get the same thing.
+How just restrictiting to !isspace()
+

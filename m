@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWHSJjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWHSJye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWHSJjM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 05:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWHSJjM
+	id S1751694AbWHSJye (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 05:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWHSJye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 05:39:12 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:35777 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751685AbWHSJjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 05:39:10 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.34-pre1 USB mass-storage burped...
-Date: Sat, 19 Aug 2006 19:39:06 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com>
-References: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com> <20060819084724.GA2078@1wt.eu>
-In-Reply-To: <20060819084724.GA2078@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
+	Sat, 19 Aug 2006 05:54:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50066 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751694AbWHSJyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 05:54:33 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>
+Subject: Re: [PATCH 4/7] proc: Make the generation of the self symlink table driven.
+References: <m1u04d98wa.fsf@ebiederm.dsl.xmission.com>
+	<1155665132774-git-send-email-ebiederm@xmission.com>
+	<20060819010656.e169c3b7.akpm@osdl.org>
+Date: Sat, 19 Aug 2006 03:54:09 -0600
+In-Reply-To: <20060819010656.e169c3b7.akpm@osdl.org> (Andrew Morton's message
+	of "Sat, 19 Aug 2006 01:06:56 -0700")
+Message-ID: <m1d5axuk3i.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Aug 2006 10:47:24 +0200, Willy Tarreau <w@1wt.eu> wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
->Hi Grant,
+> On Tue, 15 Aug 2006 12:05:27 -0600
+> "Eric W. Biederman" <ebiederm@xmission.com> wrote:
 >
->On Sat, Aug 19, 2006 at 06:41:50PM +1000, Grant Coady wrote:
-...
->Have you tried building over USB HDD for another kernel (at least 2.4.33) ?
+>> By not rolling our own inode we get a little more code reuse,
+>> and things get a little simpler and we don't have special
+>> cases to contend with later.
+>
+> On a standard FC5 install (which has selinux enabled) things get very ugly.
+>
+> udev: MAKEDEV: mkdir: file exists
+>
+> followed by a stream of udev errors of various sorts and then an infinite
+> loop of auditd complaints about klogd and "/" and tmpfs.  Nothing makes it
+> to logs because klogd itself is failing.
 
-No.
+Anyone know what I need to do to enable selinux so I can reproduce
+this.  The kernel thinks it's running but sestatus -v says it's
+disabled.
 
->If not, could you give it a try please ? I would like to know if this problem
->could have been introduced by the locking changes in 2.4.34-pre1.
+I have a recently installed FC5 system.
 
-Okay, reboot into 2.4.33 and run just the USB HDD test for you, NFS seems 
-okay after 4 hours or so.  I'll leave the USB HDD kernel rebuild running 
-overnight then...
-
-Grant.
+Eric

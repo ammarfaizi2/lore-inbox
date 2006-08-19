@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWHSJye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbWHSJwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWHSJye (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 05:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWHSJye
+	id S1751693AbWHSJwS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 05:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbWHSJwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 05:54:34 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50066 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751694AbWHSJyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 05:54:33 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <containers@lists.osdl.org>
-Subject: Re: [PATCH 4/7] proc: Make the generation of the self symlink table driven.
-References: <m1u04d98wa.fsf@ebiederm.dsl.xmission.com>
-	<1155665132774-git-send-email-ebiederm@xmission.com>
-	<20060819010656.e169c3b7.akpm@osdl.org>
-Date: Sat, 19 Aug 2006 03:54:09 -0600
-In-Reply-To: <20060819010656.e169c3b7.akpm@osdl.org> (Andrew Morton's message
-	of "Sat, 19 Aug 2006 01:06:56 -0700")
-Message-ID: <m1d5axuk3i.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 19 Aug 2006 05:52:18 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:48653 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751692AbWHSJwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 05:52:17 -0400
+Date: Sat, 19 Aug 2006 10:52:10 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Vitaly Wool <vitalywool@gmail.com>
+Cc: jean-paul.saman@philips.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] UART driver for PNX8550/8950 revised
+Message-ID: <20060819095210.GD25767@flint.arm.linux.org.uk>
+Mail-Followup-To: Vitaly Wool <vitalywool@gmail.com>,
+	jean-paul.saman@philips.com, linux-kernel@vger.kernel.org
+References: <20060819122600.000017e6.vitalywool@gmail.com> <20060819090427.GB25767@flint.arm.linux.org.uk> <acd2a5930608190234y4b4bee8dqfc17d109f86d4318@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <acd2a5930608190234y4b4bee8dqfc17d109f86d4318@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Sat, Aug 19, 2006 at 01:34:26PM +0400, Vitaly Wool wrote:
+> Hello Russell,
+> >serial_pnx8xxx.h just contains structure and register definitions for
+> >this driver - wouldn't it make more sense for it to be in drivers/serial
+> >along side this driver?
+> 
+> Well it's used in arch/mips/philips/... so I doubt it's a right thing
+> to move it to drivers/serial.
 
-> On Tue, 15 Aug 2006 12:05:27 -0600
-> "Eric W. Biederman" <ebiederm@xmission.com> wrote:
->
->> By not rolling our own inode we get a little more code reuse,
->> and things get a little simpler and we don't have special
->> cases to contend with later.
->
-> On a standard FC5 install (which has selinux enabled) things get very ugly.
->
-> udev: MAKEDEV: mkdir: file exists
->
-> followed by a stream of udev errors of various sorts and then an infinite
-> loop of auditd complaints about klogd and "/" and tmpfs.  Nothing makes it
-> to logs because klogd itself is failing.
+Okay, then it should stay where it is.
 
-Anyone know what I need to do to enable selinux so I can reproduce
-this.  The kernel thinks it's running but sestatus -v says it's
-disabled.
+> >> +     /*
+> >> +      * Disable all interrupts, port and break condition.
+> >> +      */
+> >> +     serial_out(sport, PNX8XXX_IEN, 0);
+> >
+> >This comment's not correct - where is the break condition disabled?
+> >I thought it might be in the next serial_out() but it seems to be
+> >missing from there as well?
+> 
+> I don't think you're right here - break condition is also disabled
+> unsetting the corresponding bit in  IEN register for this particular
+> UART.
 
-I have a recently installed FC5 system.
+Hmm, in that case why does break_ctl do this:
 
-Eric
++       lcr = serial_in(sport, PNX8XXX_LCR);
++       if (break_state == -1)
++               lcr |= PNX8XXX_UART_LCR_TXBREAK;
++       else
++               lcr &= ~PNX8XXX_UART_LCR_TXBREAK;
++       serial_out(sport, PNX8XXX_LCR, lcr);
+
+which appears to imply that the bit for the break state is in the LCR.
+Moreover, there isn't a PNX8XXX_INT_* bit defined for break.  Confused.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWHSFUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWHSFhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWHSFUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 01:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWHSFUt
+	id S1751382AbWHSFhA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 01:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWHSFhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 01:20:49 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:14419 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750702AbWHSFUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 01:20:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=IqyyeLy8LrYhPPD+XmI62lB7bK+15R3mdKzvUVD9YmDSGQXdotsFBG2Vwxd1IqbaULYBh6HBz/ioZlJjmciimva9rfVJEBsh4d5N2UNRH9yAq2CiUPPApLMFdzWseeVit25+J32nXqlJSmg3+f+biwRFm9Vr8TdFCkRiXecmY0A=
-Message-ID: <44E69FC7.2040406@gmail.com>
-Date: Fri, 18 Aug 2006 23:21:11 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor@insightbb.com>
-CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC-patch - make sysfs_create_group skip members with attr.mode
- == 0
-References: <44E4F2B1.30408@gmail.com> <20060818014922.GA2622@martell.zuzino.mipt.ru> <44E54137.8030805@gmail.com> <200608190019.01389.dtor@insightbb.com>
-In-Reply-To: <200608190019.01389.dtor@insightbb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Aug 2006 01:37:00 -0400
+Received: from ozlabs.org ([203.10.76.45]:41141 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750763AbWHSFg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 01:36:59 -0400
+Subject: Re: [2.6.19 PATCH 7/7] ehea: Makefile & Kconfig
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+Cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Klein <osstklei@de.ibm.com>, linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+In-Reply-To: <200608181337.44153.ossthema@de.ibm.com>
+References: <200608181337.44153.ossthema@de.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-d/zVtJ0sXMaA9uYIOfCS"
+Date: Sat, 19 Aug 2006 15:25:57 +1000
+Message-Id: <1155965157.1388.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Friday 18 August 2006 00:25, Jim Cromie wrote:
->   
->> With this patch, atts 4..N can be disabled at runtime,
->> by setting mode = 0.  Afterwards, when sysfs_group_create
->> is called, it creates attr-files *only* for those whose
->> mode != 0.  IOW - no attr-files for non-existent hardware.
->> Normally, mode is set usefully, and attr-files
->> are created as normal.
->>
->>     
-patch trimmed
->
-> Unfortunately this does not work too well if your box happen to have
-> 2 or more different chips served by the same driver as you fiddle with
-> the static array of attributes shared by all device instances.
->
->   
 
-Ack, yes.  Thats become clear over on lm-sensors.
-Kinda spoils the supposed generality..
+--=-d/zVtJ0sXMaA9uYIOfCS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-thanks
+On Fri, 2006-08-18 at 13:37 +0200, Jan-Bernd Themann wrote:
+> Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>=20
+>=20
+>=20
+>  drivers/net/Kconfig  |    6 ++++++
+>  drivers/net/Makefile |    1 +
+>  2 files changed, 7 insertions(+)
+>=20
+>=20
+>=20
+> diff -Nurp -X dontdiff linux-2.6.18-rc4/drivers/net/Kconfig patched_kerne=
+l/drivers/net/Kconfig
+> --- linux-2.6.18-rc4/drivers/net/Kconfig	2006-08-06 11:20:11.000000000 -0=
+700
+> +++ patched_kernel/drivers/net/Kconfig	2006-08-08 03:00:49.526421944 -070=
+0
+> @@ -2277,6 +2277,12 @@ config CHELSIO_T1
+>            To compile this driver as a module, choose M here: the module
+>            will be called cxgb.
+> =20
+> +config EHEA
+> +        tristate "eHEA Ethernet support"
+> +        depends on IBMEBUS
+> +        ---help---
+> +          This driver supports the IBM pSeries ethernet adapter
+> +
+
+Please give it a more detailed description. I have a pSeries machine
+here with three NICs and none of them are eHEA.
+
+cheers
+
+--=20
+Michael Ellerman
+IBM OzLabs
+
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-d/zVtJ0sXMaA9uYIOfCS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBE5qDldSjSd0sB4dIRAjdxAKCPxNLMPLzPoSlWprLmOr8tzBMOwQCfR8zd
+bJUO/0D0cZJTpGHNTepB/08=
+=eqF6
+-----END PGP SIGNATURE-----
+
+--=-d/zVtJ0sXMaA9uYIOfCS--
+

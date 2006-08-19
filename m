@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbWHSOxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWHSPIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751757AbWHSOxk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 10:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWHSOxk
+	id S1751759AbWHSPIc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 11:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWHSPIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 10:53:40 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43024 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751757AbWHSOxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 10:53:40 -0400
-Date: Sat, 19 Aug 2006 16:53:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Kun Niu <haoniukun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How can I enable NET_WIRELESS?
-Message-ID: <20060819145339.GI7813@stusta.de>
-References: <ec9e7ff10608190540o5ac666bau1451d43e69e66417@mail.gmail.com>
+	Sat, 19 Aug 2006 11:08:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52436 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751469AbWHSPIa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 11:08:30 -0400
+Message-ID: <44E728E2.4000804@redhat.com>
+Date: Sat, 19 Aug 2006 11:06:10 -0400
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ec9e7ff10608190540o5ac666bau1451d43e69e66417@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Andrew Morton <akpm@osdl.org>
+CC: Daniel Phillips <phillips@google.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       David Miller <davem@davemloft.net>, tgraf@suug.ch, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+References: <20060808211731.GR14627@postel.suug.ch>	<44DBED4C.6040604@redhat.com>	<44DFA225.1020508@google.com>	<20060813.165540.56347790.davem@davemloft.net>	<44DFD262.5060106@google.com>	<20060813185309.928472f9.akpm@osdl.org>	<1155530453.5696.98.camel@twins>	<20060813215853.0ed0e973.akpm@osdl.org>	<44E3E964.8010602@google.com>	<20060816225726.3622cab1.akpm@osdl.org>	<44E5015D.80606@google.com>	<20060817230556.7d16498e.akpm@osdl.org>	<44E62F7F.7010901@google.com>	<20060818153455.2a3f2bcb.akpm@osdl.org>	<44E650C1.80608@google.com> <20060818194435.25bacee0.akpm@osdl.org>
+In-Reply-To: <20060818194435.25bacee0.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 08:40:50PM +0800, Kun Niu wrote:
-> Dear all,
+Andrew Morton wrote:
+
+> - We expect that the lots-of-dirty-anon-memory-over-swap-over-network
+>   scenario might still cause deadlocks.  
 > 
-> I'm sorry for the silly questoin.
-> My kernel version is 2.6.17
-> But I've just installed the 802.11 stack on my Debian 3.1.
-> But I got that the module can't find some external module:
-> WARNING: 
-> /lib/modules/2.6.17-5/kernel/net/ieee80211/softmac/ieee80211softmac.ko
-> needs unknown symbol wireless_send_event
-> WARNING: /lib/modules/2.6.17-5/kernel/net/ieee80211/ieee80211.ko needs
-> unknown symbol wireless_spy_update
-> And I think that I'll have to install the NET_WIRELESS module.
-> But I can't find it.
-> When I look for wireless in menuconfig of the kernel, I found that
-> NET_WIRELESS=n.
+>   I assert that this can be solved by putting swap on local disks.  Peter
+>   asserts that this isn't acceptable due to disk unreliability.  I point
+>   out that local disk reliability can be increased via MD, all goes quiet.
 > 
-> Would anyone be kind enough telling how to enable NET_WIRELESS?
+>   A good exposition which helps us to understand whether and why a
+>   significant proportion of the target user base still wishes to do
+>   swap-over-network would be useful.
 
-Please send your .config .
+You cannot put disks in many models of blade servers.
 
-> Thanks in advance.
-
-cu
-Adrian
+At all.
 
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+What is important?  What you want to be true, or what is true?

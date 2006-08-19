@@ -1,149 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422778AbWHSVIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422783AbWHSVQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422778AbWHSVIj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 17:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422782AbWHSVIj
+	id S1422783AbWHSVQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 17:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422784AbWHSVQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 17:08:39 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:41 "EHLO
+	Sat, 19 Aug 2006 17:16:38 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:23858 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422778AbWHSVIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 17:08:38 -0400
+	id S1422783AbWHSVQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 17:16:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=piL0/sDBZ/DdqKxWXCUrhci0c0nuTbUPRn5HKsaFY5Y6x+pYM4EQaDw+MOHYgxPpU1Nmvrxd98KmDSu9ABos5uRP+vEo3pMHAKa8qfFimicTOPe9uPmDa7MtJt5llFOt28obOflC+OOwGI1/VBsj15HZA6zJ4uXF1+jYKTXoSXo=
-Date: Sat, 19 Aug 2006 23:08:21 +0000
+        b=OtbcHhLc/AA2di0Ljd+ceH0roeAx40fWyZOG8flQQZMpxhUAcYbcsq+5q9uv7fZZzvWd5LEJ2iuMEZxWEqe3AOvMvN+RjkkhhRxV4ctatpc9hIJVRpCwL3HLfT5g8k1ErZSpwoTT6JDZUC80/Fi2W/Ip48fa5gXVyfjoDoF3BMQ=
+Date: Sat, 19 Aug 2006 23:16:21 +0000
 From: Frederik Deweerdt <deweerdt@free.fr>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, airlied@linux.ie
-Subject: Re: 2.6.18-rc4-mm1 BUG, drm relatedy
-Message-ID: <20060819230821.GE720@slug>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060815130345.GA3817@slug>
+Subject: [mm patch] drm, minor fixes
+Message-ID: <20060819231621.GF720@slug>
+References: <20060813012454.f1d52189.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060815130345.GA3817@slug>
+In-Reply-To: <20060813012454.f1d52189.akpm@osdl.org>
 User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 15, 2006 at 01:25:56PM +0000, Frederik Deweerdt wrote:
-> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> > 
-> Hi,
+On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
 > 
-> There are two BUGs with 2.6.18-rc4-mm1 that seem related to (I did the
-> bisection[1]):
-> git-drm.patch
-> drm-build-fix.patch
-> drm-build-fixes-2.patch
-> allow-drm-detection-of-new-via-chipsets.patch
-> git-drm-build-fix.patch
-> 
-> Here's one of the BUGs (the second one is on the web site below).
-> [   40.276000] [drm:drm_unlock] *ERROR* Process 8914 using kernel context 0
-> [   41.024000] BUG: unable to handle kernel paging request at virtual address 6e756f73
-> [   41.024000]  printing eip:
-> [   41.024000] c01b5771
-> [   41.024000] *pde = 00000000
-> [   41.024000] Oops: 0000 [#1]
-> [   41.024000] 8K_STACKS PREEMPT 
-> [   41.024000] last sysfs file: /devices/pci0000:00/0000:00:1d.7/usb5/5-0:1.0/bInterfaceProtocol
-> [   41.024000] Modules linked in: snd_seq snd_seq_device ohci_hcd parport_pc parport pcspkr ipw2200 yenta_socket rsrc_nonstatic pcmcia_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd uhci_hcd usbcore cpufreq_stats cpufreq_powersave cpufreq_ondemand cpufreq_conservative speedstep_centrino freq_table processor ac battery i915 drm tg3 joydev tsdev
-> [   41.024000] CPU:    0
-> [   41.024000] EIP:    0060:[<c01b5771>]    Not tainted VLI
-> [   41.024000] EFLAGS: 00210246   (2.6.18-rc4-mm1-def01 #1) 
-> [   41.024000] EIP is at sysfs_lookup+0x65/0xb0
-> [   41.024000] eax: f3161e40   ebx: f316842c   ecx: f73f6280   edx: f316842c
-> [   41.024000] esi: 6e756f73   edi: f3161ec4   ebp: f6c35dfc   esp: f6c35de0
-> [   41.024000] ds: 007b   es: 007b   ss: 0068
-> [   41.024000] Process modprobe (pid: 8952, ti=f6c34000 task=f7d17550 task.ti=f6c34000)
-> [   41.024000] Stack: f316842c f3161e94 f31684bc 00000000 fffffff4 f73f72ec f3161e40 f6c35e1c 
-> [   41.024000]        c0184d42 f73f72ec f3161e40 00000000 ffffffff c03a6656 12fd28db f6c35e4c 
-> [   41.024000]        c0184e02 f6c35e30 f3161ee8 00000000 12fd28db 00000005 c03a6651 c038230e 
-> [   41.024000] Call Trace:
-> [   41.024000]  [<c0184d42>] __lookup_hash+0x9d/0xcc
-> [   41.024000]  [<c0184e02>] lookup_one_len+0x71/0x86
-> [   41.024000]  [<c01b51da>] create_dir+0x43/0x23f
-> [   41.024000]  [<c01b53fc>] sysfs_create_subdir+0x26/0x28
-> [   41.024000]  [<c01b6c56>] sysfs_create_group+0x77/0x97
-> [   41.024000]  [<c02903af>] dpm_sysfs_add+0x1e/0x20
-> [   41.024000]  [<c028f6b3>] device_pm_add+0x64/0x89
-> [   41.024000]  [<c028930a>] device_add+0x1d9/0x380
-> [   41.024000]  [<c02894cb>] device_register+0x1a/0x20
-> [   41.024000]  [<c0289811>] device_create+0xaa/0xc4
-> [   41.024000]  [<f8a0c472>] snd_register_device+0xcf/0x104 [snd]
-> [   41.024000]  [<f8abd0c2>] snd_sequencer_device_init+0x4e/0x7c [snd_seq]
-> [   41.024000]  [<f8abd02f>] alsa_seq_init+0x2f/0x51 [snd_seq]
-> [   41.024000]  [<c014186c>] sys_init_module+0x163/0x221
-> [   41.024000]  [<c0103135>] sysenter_past_esp+0x56/0x8d
-> [   41.024000]  [<b7fb0410>] 0xb7fb0410
-> [   41.024000]  [<c0104017>] show_trace_log_lvl+0x2f/0x45
-> [   41.024000]  [<c01040ee>] show_stack_log_lvl+0x98/0xb2
-> [   41.024000]  [<c0104351>] show_registers+0x1eb/0x289
-> [   41.024000]  [<c0104587>] die+0x134/0x241
-> [   41.024000]  [<c0385e80>] do_page_fault+0x395/0x620
-> [   41.024000]  [<c0384401>] error_code+0x39/0x40
-> [   41.024000]  [<c0184d42>] __lookup_hash+0x9d/0xcc
-> [   41.024000]  [<c0184e02>] lookup_one_len+0x71/0x86
-> [   41.024000]  [<c01b51da>] create_dir+0x43/0x23f
-> [   41.024000]  [<c01b53fc>] sysfs_create_subdir+0x26/0x28
-> [   41.024000]  [<c01b6c56>] sysfs_create_group+0x77/0x97
-> [   41.024000]  [<c02903af>] dpm_sysfs_add+0x1e/0x20
-> [   41.024000]  [<c028f6b3>] device_pm_add+0x64/0x89
-> [   41.024000]  [<c028930a>] device_add+0x1d9/0x380
-> [   41.024000]  [<c02894cb>] device_register+0x1a/0x20
-> [   41.024000]  [<c0289811>] device_create+0xaa/0xc4
-> [   41.024000]  [<f8a0c472>] snd_register_device+0xcf/0x104 [snd]
-> [   41.024000]  [<f8abd0c2>] snd_sequencer_device_init+0x4e/0x7c [snd_seq]
-> [   41.024000]  [<f8abd02f>] alsa_seq_init+0x2f/0x51 [snd_seq]
-> [   41.024000]  [<c014186c>] sys_init_module+0x163/0x221
-> [   41.024000]  [<c0103135>] sysenter_past_esp+0x56/0x8d
-> [   41.024000]  =======================
-> [   41.024000] Code: 42 fc 89 c3 8b 40 04 0f 18 00 90 3b 55 ec 75 e6 8b 45 f0 83 c4 10 5b 5e 5f 5d c3 89 1c 24 e8 27 e9 ff ff 89 c6 8b 45 0c 8b 78 48 <ac> ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 bd f6 
-> [   41.024000] EIP: [<c01b5771>] sysfs_lookup+0x65/0xb0 SS:ESP 0068:f6c35de0
-> [   41.024000]  
-> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
 > 
 Hi Andrew,
 
-I think that this definitely qualifies as a drm bug. Here are the tests
-that I did and that make me think so:
-- Removing the line 'Load  "dri"' from xorg.conf makes the oops
-  disappear.
-- The bisection I performed indicates that the problem comes from the
-  following set of patches:
-  git-drm.patch
-  drm-build-fix.patch
-  drm-build-fixes-2.patch
-  allow-drm-detection-of-new-via-chipsets.patch
-  git-drm-build-fix.patch
-- Appliying the attached patch makes the oops disapear too.
-
-Now, I don't know the drm code, and I'm not able to explain why the fix
-works... Any ideas?
+The following patch adds minor fixes to the drm code:
+- fix return values that are wrong (return E* instead of return -E*)
+- replaces an argument to a sizeof in drm_setversion to match the actual
+variable name
+- handle drm_set_busid() return value in drm_setversion
 
 Regards,
 Frederik
 
 Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-diff --git a/drivers/char/drm/drm_lock.c b/drivers/char/drm/drm_lock.c
-index f9e4530..a9e01b7 100644
---- a/drivers/char/drm/drm_lock.c
-+++ b/drivers/char/drm/drm_lock.c
-@@ -65,12 +65,6 @@ int drm_lock(struct inode *inode, struct
- 	if (copy_from_user(&lock, (drm_lock_t __user *) arg, sizeof(lock)))
+diff --git a/drivers/char/drm/i915_dma.c b/drivers/char/drm/i915_dma.c
+index d932f80..f9615b5 100644
+--- a/drivers/char/drm/i915_dma.c
++++ b/drivers/char/drm/i915_dma.c
+@@ -391,7 +391,7 @@ static int i915_emit_box(drm_device_t * 
+ 	RING_LOCALS;
+ 
+ 	if (DRM_COPY_FROM_USER_UNCHECKED(&box, &boxes[i], sizeof(box))) {
+-		return EFAULT;
++		return DRM_ERR(EFAULT);
+ 	}
+ 
+ 	if (box.y2 <= box.y1 || box.x2 <= box.x1 || box.y2 <= 0 || box.x2 <= 0) {
+diff --git a/drivers/char/drm/drm_ioctl.c b/drivers/char/drm/drm_ioctl.c
+index e158998..a93832f 100644
+--- a/drivers/char/drm/drm_ioctl.c
++++ b/drivers/char/drm/drm_ioctl.c
+@@ -141,12 +141,12 @@ static int drm_set_busid(drm_device_t * 
+ 	int len;
+ 
+ 	if (dev->unique != NULL)
+-		return EBUSY;
++		return -EBUSY;
+ 
+ 	dev->unique_len = 40;
+ 	dev->unique = drm_alloc(dev->unique_len + 1, DRM_MEM_DRIVER);
+ 	if (dev->unique == NULL)
+-		return ENOMEM;
++		return -ENOMEM;
+ 
+ 	len = snprintf(dev->unique, dev->unique_len, "pci:%04x:%02x:%02x.%d",
+ 		       drm_get_pci_domain(dev), dev->pdev->bus->number,
+@@ -160,7 +160,7 @@ static int drm_set_busid(drm_device_t * 
+ 	    drm_alloc(strlen(dev->driver->pci_driver.name) + dev->unique_len +
+ 		      2, DRM_MEM_DRIVER);
+ 	if (dev->devname == NULL)
+-		return ENOMEM;
++		return -ENOMEM;
+ 
+ 	sprintf(dev->devname, "%s@%s", dev->driver->pci_driver.name,
+ 		dev->unique);
+@@ -342,20 +342,22 @@ int drm_setversion(DRM_IOCTL_ARGS)
+ 	retv.drm_dd_major = dev->driver->major;
+ 	retv.drm_dd_minor = dev->driver->minor;
+ 
+-	if (copy_to_user(argp, &retv, sizeof(sv)))
++	if (copy_to_user(argp, &retv, sizeof(retv)))
  		return -EFAULT;
  
--	if (lock.context == DRM_KERNEL_CONTEXT) {
--		DRM_ERROR("Process %d using kernel context %d\n",
--			  current->pid, lock.context);
--		return -EINVAL;
--	}
--
- 	DRM_DEBUG("%d (pid %d) requests lock (0x%08x), flags = 0x%08x\n",
- 		  lock.context, current->pid,
- 		  dev->lock.hw_lock->lock, lock.flags);
+ 	if (sv.drm_di_major != -1) {
+ 		if (sv.drm_di_major != DRM_IF_MAJOR ||
+ 		    sv.drm_di_minor < 0 || sv.drm_di_minor > DRM_IF_MINOR)
+-			return EINVAL;
++			return -EINVAL;
+ 		if_version = DRM_IF_VERSION(sv.drm_di_major, sv.drm_di_minor);
+ 		dev->if_version = max(if_version, dev->if_version);
+ 		if (sv.drm_di_minor >= 1) {
+ 			/*
+ 			 * Version 1.1 includes tying of DRM to specific device
+ 			 */
+-			drm_set_busid(dev);
++			int ret = drm_set_busid(dev);
++			if (ret)
++				return ret;
+ 		}
+ 	}
+ 
+@@ -363,7 +365,7 @@ int drm_setversion(DRM_IOCTL_ARGS)
+ 		if (sv.drm_dd_major != dev->driver->major ||
+ 		    sv.drm_dd_minor < 0
+ 		    || sv.drm_dd_minor > dev->driver->minor)
+-			return EINVAL;
++			return -EINVAL;
+ 
+ 		if (dev->driver->set_version)
+ 			dev->driver->set_version(dev, &sv);

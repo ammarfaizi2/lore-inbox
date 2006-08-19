@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWHSKQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWHSKPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751696AbWHSKQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 06:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbWHSKQZ
+	id S1751695AbWHSKPx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 06:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWHSKPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 06:16:25 -0400
-Received: from 1wt.eu ([62.212.114.60]:34320 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751696AbWHSKQY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 06:16:24 -0400
-Date: Sat, 19 Aug 2006 12:07:28 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.34-pre1 USB mass-storage burped...
-Message-ID: <20060819100728.GA25405@1wt.eu>
-References: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com> <20060819084724.GA2078@1wt.eu> <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Aug 2006 06:15:53 -0400
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:39834 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751688AbWHSKPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 06:15:52 -0400
+Date: Sat, 19 Aug 2006 06:11:34 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] block: fix queue bounce limit calculation
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>
+Message-ID: <200608190612_MC3-1-C895-98A8@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 07:39:06PM +1000, Grant Coady wrote:
-> On Sat, 19 Aug 2006 10:47:24 +0200, Willy Tarreau <w@1wt.eu> wrote:
-> 
-> >Hi Grant,
-> >
-> >On Sat, Aug 19, 2006 at 06:41:50PM +1000, Grant Coady wrote:
-> ...
-> >Have you tried building over USB HDD for another kernel (at least 2.4.33) ?
-> 
-> No.
-> 
-> >If not, could you give it a try please ? I would like to know if this problem
-> >could have been introduced by the locking changes in 2.4.34-pre1.
-> 
-> Okay, reboot into 2.4.33 and run just the USB HDD test for you, NFS seems 
-> okay after 4 hours or so.  I'll leave the USB HDD kernel rebuild running 
-> overnight then...
+Queue bounce should start after the max page, not on it.
 
-much appreciated, thanks Grant !
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+---
 
-Willy
+Could this explain reported slowdown on x86_64 after limit was
+changed in 2.6.16.7?
 
+--- 2.6.17.9-64.orig/block/ll_rw_blk.c
++++ 2.6.17.9-64/block/ll_rw_blk.c
+@@ -638,11 +638,11 @@ void blk_queue_bounce_limit(request_queu
+ 	/* Assume anything <= 4GB can be handled by IOMMU.
+ 	   Actually some IOMMUs can handle everything, but I don't
+ 	   know of a way to test this here. */
+-	if (bounce_pfn < (min_t(u64,0xffffffff,BLK_BOUNCE_HIGH) >> PAGE_SHIFT))
++	if (bounce_pfn <= (min_t(u64,0xffffffff,BLK_BOUNCE_HIGH) >> PAGE_SHIFT))
+ 		dma = 1;
+ 	q->bounce_pfn = max_low_pfn;
+ #else
+-	if (bounce_pfn < blk_max_low_pfn)
++	if (bounce_pfn <= blk_max_low_pfn)
+ 		dma = 1;
+ 	q->bounce_pfn = bounce_pfn;
+ #endif
+-- 
+Chuck

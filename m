@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWHSGsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWHSHJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161064AbWHSGsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 02:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWHSGsk
+	id S1751465AbWHSHJe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 03:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWHSHJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 02:48:40 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:13714 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1030293AbWHSGsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 02:48:39 -0400
-Date: Sat, 19 Aug 2006 02:48:32 -0400
-From: Andy Gay <andy@andynet.net>
-Subject: Re: [2.6.19 PATCH 4/7] ehea: ethtool interface
-In-reply-to: <1155968305.1388.4.camel@localhost.localdomain>
-To: michael@ellerman.id.au
-Cc: Thomas Klein <osstklei@de.ibm.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Thomas Klein <tklein@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Christoph Raisch <raisch@de.ibm.com>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>
-Message-id: <1155970112.7302.434.camel@tahini.andynet.net>
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <200608181333.23031.ossthema@de.ibm.com>
-	<20060818140506.GC5201@martell.zuzino.mipt.ru>	<44E5DFA6.7040707@de.ibm.com>
-	<1155968305.1388.4.camel@localhost.localdomain>
+	Sat, 19 Aug 2006 03:09:34 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:37288 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1751067AbWHSHJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 03:09:34 -0400
+Message-ID: <44E6B8EA.2010100@colorfullife.com>
+Date: Sat, 19 Aug 2006 09:08:26 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Andi Kleen <ak@muc.de>, mpm@selenic.com,
+       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
+       Dave Chinner <dgc@sgi.com>
+Subject: Re: [MODSLAB 3/7] A Kmalloc subsystem
+References: <20060816022238.13379.24081.sendpatchset@schroedinger.engr.sgi.com> <20060816022253.13379.76984.sendpatchset@schroedinger.engr.sgi.com> <20060816094358.e7006276.ak@muc.de> <Pine.LNX.4.64.0608161718160.19789@schroedinger.engr.sgi.com> <44E3FC4F.2090506@colorfullife.com> <Pine.LNX.4.64.0608170922030.24204@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0608170922030.24204@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-19 at 16:18 +1000, Michael Ellerman wrote:
+Christoph Lameter wrote:
 
-> 
-> If you try to return an uninitialized value the compiler will warn you,
-> you'll then look at the code and realise you missed a case, you might
-> save yourself a bug. 
+>>If you have non-power-of-two caches, you could store the control data at
+>>(addr&(~PAGE_SIZE)) - the lookup would be much faster. I wrote a patch a few
+>>weeks ago, it's attached.
+>>    
+>>
+>
+>That would only work for slabs that use order 0 pages.
+>
+>  
+>
+Most slabs are order 0. Actually: there are only 6 slabs that are not 
+order 0 (excluding the kmalloc caches) on my system.
 
-You *should* look at the code :)
+What about:
 
-So should we be reporting these as bugs?
+if (unlikely(addr & (~(PAGE_SIZE-1))))
+    slabp=virt_to_page(addr)->pagefield;
+ else
+    slabp=addr & (~(PAGE_SIZE-1));
 
-andy@cx02:~/linux/linux-2.6.17.6$ script make.script
-Script started, file is make.script
-andy@cx02:~/linux/linux-2.6.17.6$ make
+Modify the kmalloc caches slightly and use non-power-of-2 cache sizes. 
+Move the kmalloc(PAGE_SIZE) users to gfp.
 
-...
+ From my system:
+good order 1 slab caches: (i.e.: forcing them to order 0 wastes some memory)
+    biovec-128
+    blkdev_queue
+    mqueue_inode_cache
+    RAWv6
+    UDPv6
+bogus order 1 caches: (i.e.: they could be order 0 without wasting memory)
+    biovec-(256)
 
-Script done, file is make.script
-andy@cx02:~/linux/linux-2.6.17.6$ fgrep warning make.script
-arch/i386/kernel/cpu/transmeta.c:12: warning: 'cpu_freq' may be used uninitialized in this function
-fs/bio.c:169: warning: 'idx' may be used uninitialized in this function
-fs/eventpoll.c:500: warning: 'fd' may be used uninitialized in this function
-fs/isofs/namei.c:162: warning: 'offset' may be used uninitialized in this function
-fs/isofs/namei.c:162: warning: 'block' may be used uninitialized in this function
-fs/nfsd/nfsctl.c:292: warning: 'maxsize' may be used uninitialized in this function
-fs/udf/balloc.c:751: warning: 'goal_eloc.logicalBlockNum' may be used uninitialized in this function
-fs/udf/super.c:1358: warning: 'ino.partitionReferenceNum' may be used uninitialized in this function
-fs/xfs/xfs_alloc_btree.c:611: warning: 'nkey.ar_startblock' may be used uninitialized in this function
-fs/xfs/xfs_alloc_btree.c:611: warning: 'nkey.ar_blockcount' may be used uninitialized in this function
-fs/xfs/xfs_bmap.c:2498: warning: 'rtx' is used uninitialized in this function
-fs/xfs/xfs_bmap_btree.c:753: warning: 'nkey.br_startoff' may be used uninitialized in this function
-fs/xfs/xfs_da_btree.c:151: warning: 'action' may be used uninitialized in this function
-fs/xfs/xfs_dir.c:363: warning: 'totallen' may be used uninitialized in this function
-fs/xfs/xfs_dir.c:363: warning: 'count' may be used uninitialized in this function
-fs/xfs/xfs_ialloc_btree.c:545: warning: 'nkey.ir_startino' may be used uninitialized in this function
-fs/xfs/xfs_inode.c:1958: warning: 'last_dip' may be used uninitialized in this function
-fs/xfs/xfs_inode.c:1960: warning: 'last_offset' may be used uninitialized in this function
-fs/xfs/xfs_log.c:1749: warning: 'iclog' may be used uninitialized in this function
-fs/xfs/xfs_log_recover.c:523: warning: 'first_blk' may be used uninitialized in this function
-ipc/msg.c:338: warning: 'setbuf.qbytes' may be used uninitialized in this function
-ipc/msg.c:338: warning: 'setbuf.uid' may be used uninitialized in this function
-ipc/msg.c:338: warning: 'setbuf.gid' may be used uninitialized in this function
-ipc/msg.c:338: warning: 'setbuf.mode' may be used uninitialized in this function
-ipc/sem.c:810: warning: 'setbuf.uid' may be used uninitialized in this function
-ipc/sem.c:810: warning: 'setbuf.gid' may be used uninitialized in this function
-ipc/sem.c:810: warning: 'setbuf.mode' may be used uninitialized in this function
-drivers/md/dm-table.c:431: warning: 'dev' may be used uninitialized in this function
-drivers/md/dm-ioctl.c:1388: warning: 'param' may be used uninitialized in this function
-net/sched/sch_cbq.c:409: warning: 'ret' may be used uninitialized in this function
-lib/zlib_inflate/inftrees.c:121: warning: 'r.base' may be used uninitialized in this function
-
-
+--
+    Manfred

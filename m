@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422695AbWHSQwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422711AbWHSQx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422695AbWHSQwo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 12:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422711AbWHSQwo
+	id S1422711AbWHSQx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 12:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbWHSQx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 12:52:44 -0400
-Received: from main.gmane.org ([80.91.229.2]:16801 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1422695AbWHSQwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 12:52:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
-Date: Sat, 19 Aug 2006 19:52:25 +0200
-Organization: Palacky University in Olomouc, experimental physics dep.
-Message-ID: <44E74FD9.7000507@flower.upol.cz>
-References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it> <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz> <1155821951.15195.85.camel@localhost.localdomain> <20060817132309.GX13639@csclub.uwaterloo.ca> <1155822530.15195.95.camel@localhost.localdomain> <20060817143633.GF13641@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 19 Aug 2006 12:53:57 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:54735 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1422712AbWHSQxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 12:53:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MPpNhi7EbZUCrBM8NlXaA2f1ykU48PqzhogTM9RlVp//eVvWBPnXlGOS11gPOaD25tXu3caLf7XCWI7Yh8h1vwpbm6Vgr56w2GEik8oWA7GJ2HFlYqOK4h/tOoVtgeSvqhnnB2QdYttKavp5AJxje7ujEXg7ksNJ6EVaVaoMAKY=
+Message-ID: <2c0942db0608190953r71ad8716vc2d11d9366894e40@mail.gmail.com>
+Date: Sat, 19 Aug 2006 09:53:54 -0700
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
+Cc: "Daniel Phillips" <phillips@google.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
+       "David Miller" <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, "Mike Christie" <michaelc@cs.wisc.edu>
+In-Reply-To: <20060818194435.25bacee0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: 7eggert@gmx.de, Dirk <noisyb@gmx.net>, linux-kernel@vger.kernel.org
-X-Gmane-NNTP-Posting-Host: 158.194.192.153
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <20060817143633.GF13641@csclub.uwaterloo.ca>
+Content-Disposition: inline
+References: <20060808211731.GR14627@postel.suug.ch>
+	 <20060813215853.0ed0e973.akpm@osdl.org> <44E3E964.8010602@google.com>
+	 <20060816225726.3622cab1.akpm@osdl.org> <44E5015D.80606@google.com>
+	 <20060817230556.7d16498e.akpm@osdl.org> <44E62F7F.7010901@google.com>
+	 <20060818153455.2a3f2bcb.akpm@osdl.org> <44E650C1.80608@google.com>
+	 <20060818194435.25bacee0.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> 
-> Hmm, so how does one tell hal to go to hell and leave the cdrom device
-> alone at all times (other than totally disabling hal).
-
-AFAIK many drivers allow multiple opening of device files. If programs do not
-honor any kind of locking (advisory, O_EXCL) use mandatory locking (DOS 2.0
-compatibility, no problems ;)
-
-> Who the heck wants all that stupid auto crap anyhow. :)
+On 8/18/06, Andrew Morton <akpm@osdl.org> wrote:
+>   I assert that this can be solved by putting swap on local disks.  Peter
+>   asserts that this isn't acceptable due to disk unreliability.  I point
+>   out that local disk reliability can be increased via MD, all goes quiet.
 >
-Yea. But see RH managers on its videos, happy about usb sticks being plugged
-and worked, he-he:
-<http://www.redhat.com/v/magazine/mov/005_BehindScenes_RHEL4.mov>.
+>   A good exposition which helps us to understand whether and why a
+>   significant proportion of the target user base still wishes to do
+>   swap-over-network would be useful.
 
-I've just installed debian-gnu and got all that
-cpufrequtils, powermgmt, acpiutils installed on amd64 laptop
-while i just need:
-,-
-|modprobe powernow-k8
-|modprobe cpufreq_ondemand
-|echo ondemand >scailing_governor
-`-
-Anyway long, almost 10 years, way to win95 and win98 is never ending ;D
+Adding a hard drive adds $low per system, another failure point, and
+more importantly ~3-10 Watts which then has to be paid for twice (once
+to power it, again to cool it). For a hundred seats, that's
+significant. For 500, it's ranging toward fully painful.
 
---
--o--=O`C  /. .\ (???)  (+)                                    /o o\
-  #oo'L O      o         |                                     o.
-<___=E M    ^--         |  (you're barking up the wrong tree) =--'
+I'm in the process of designing the next upgrade for a VoIP call
+center, and we want to go entirely diskless in the agent systems. We'd
+also rather not swap over the network, but 'swap is as swap does.'
 
+That said, it in no way invalidates using /proc/sys/vm/min_free_kbytes...
+
+Ray

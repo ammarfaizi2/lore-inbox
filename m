@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWHSEeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWHSEyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWHSEeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 00:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWHSEeP
+	id S1751214AbWHSEyy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 00:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWHSEyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 00:34:15 -0400
-Received: from gate.crashing.org ([63.228.1.57]:52197 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932086AbWHSEeO (ORCPT
+	Sat, 19 Aug 2006 00:54:54 -0400
+Received: from 1wt.eu ([62.212.114.60]:30224 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750702AbWHSEyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 00:34:14 -0400
-Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Jens.Osterkamp@de.ibm.com, jklewis@us.ibm.com, arnd@arndb.de
-In-Reply-To: <20060818234532.GA8644@austin.ibm.com>
-References: <20060818192356.GD26889@austin.ibm.com>
-	 <20060818.142513.29571851.davem@davemloft.net>
-	 <20060818224618.GN26889@austin.ibm.com>
-	 <20060818.155116.112621100.davem@davemloft.net>
-	 <20060818232942.GO26889@austin.ibm.com>
-	 <20060818234532.GA8644@austin.ibm.com>
-Content-Type: text/plain
-Date: Sat, 19 Aug 2006 14:33:42 +1000
-Message-Id: <1155962022.5803.68.camel@localhost.localdomain>
+	Sat, 19 Aug 2006 00:54:54 -0400
+Date: Sat, 19 Aug 2006 06:45:33 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andreas Steinmetz <ast@domdv.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, mtosatti@redhat.com,
+       Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+Message-ID: <20060819044533.GB24543@1wt.eu>
+References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de> <20060817090651.GP7813@stusta.de> <44E433DB.9090501@domdv.de> <20060818232501.GE7813@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060818232501.GE7813@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 18:45 -0500, Linas Vepstas wrote:
-> On Fri, Aug 18, 2006 at 06:29:42PM -0500, linas wrote:
+On Sat, Aug 19, 2006 at 01:25:01AM +0200, Adrian Bunk wrote:
+> On Thu, Aug 17, 2006 at 11:16:11AM +0200, Andreas Steinmetz wrote:
+> > Adrian Bunk wrote:
+> > > Can you send me the .config's you are using for 2.4 and 2.6 
+> > > (preferably for kernel.org kernels)?
+> > > 
 > > 
-> > I don't understand what you are saying. If I call the transmit 
-> > queue cleanup code from the poll() routine, nothing hapens, 
-> > because the kernel does not call the poll() routine often 
-> > enough. I've stated this several times.  
+> > I can send you only the current 2.4 config I use (not exactly vanilla).
 > 
-> OK, Arnd gave me a clue stick. I need to call the (misnamed)
-> netif_rx_schedule() from the tx interrupt in order to get 
-> this to work. That makes sense, and its easy, I'll send the 
-> revised patch.. well, not tonight, but shortly.
+> Thanks, but it didn't help me much since it needed some work getting it 
+> compiling with uClinux-2.4.31-uc0, and the next step of creating a 
+> functionally equivalent 2.6 kernel doesn't seem to be reasonably 
+> possible.
 
-You might not want to call it all the time though... You need some
-interrupt mitigation and thus a timer that calls netif_rx_schedule()
-might be of some use still...
+In his case, it is a very valid reason to stay on 2.4 right now, which
+was the original question IIRC.
 
-Ben.
+> My aim is to compare the size of the compiled objects for finding what 
+> causes size regressions in 2.6 compared to 2.4.
 
+Sometimes it will be compilers, but not by that much. Gcc3.[34] generally
+produce bigger code than 2.95 at -O2, but I don't think that people in the
+embedded world still use 2.95 much.
+
+Cheers,
+Willy
 

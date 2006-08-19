@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWHSAP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWHSAQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWHSAP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Aug 2006 20:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWHSAP6
+	id S1422659AbWHSAQy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Aug 2006 20:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422658AbWHSAQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Aug 2006 20:15:58 -0400
-Received: from xenotime.net ([66.160.160.81]:44232 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422663AbWHSAP5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Aug 2006 20:15:57 -0400
-Date: Fri, 18 Aug 2006 17:18:57 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Bjo Breiskoll" <bjo@nefkom.net>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
-       zanussi@us.ibm.com
-Subject: Re: Relay-Subsystem
-Message-Id: <20060818171857.6cd7e6c0.rdunlap@xenotime.net>
-In-Reply-To: <000501c6c321$58d1a830$03b2a8c0@bjoserver>
-References: <000501c6c321$58d1a830$03b2a8c0@bjoserver>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 18 Aug 2006 20:16:54 -0400
+Received: from mga05.intel.com ([192.55.52.89]:50597 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1422659AbWHSAQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Aug 2006 20:16:53 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.08,147,1154934000"; 
+   d="scan'208"; a="118344268:sNHT16760611"
+Date: Fri, 18 Aug 2006 17:16:41 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+Cc: Prakash Punnoor <prakash@punnoor.de>, Jiri Benc <jbenc@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
+Message-ID: <20060819001640.GE20111@goober>
+References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu> <200608162002.06793.prakash@punnoor.de> <20060816195345.GA12868@ojjektum.uhulinux.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060816195345.GA12868@ojjektum.uhulinux.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Aug 2006 01:52:21 +0200 Bjo Breiskoll wrote:
+On Wed, Aug 16, 2006 at 09:53:45PM +0200, Pozsar Balazs wrote:
+> On Wed, Aug 16, 2006 at 08:02:02PM +0200, Prakash Punnoor wrote:
+> > Am Mittwoch 16 August 2006 19:43 schrieb Pozsar Balazs:
+> > 
+> > > So, just to make it clear: if you boot without cable plugged in, let
+> > > the driver load, and then plug the cable in, do you have link?
+> > > For me, it does not have link until I rmmod the module.
+> > 
+> > Same here.
+> 
+> The most weird thing is that, when I _rmmod_ the module, the link leds 
+> will show a link, _before_ I even re-modprobe it! So somehow the removal 
+> (or even an unbind via the sysfs interface) "resets" it.
 
-> Is there an updated description about the new relay-subsystem
-> available? The old relayfs.h is gone and you made quite a few
-> changes. The whole examples-tarball from
-> http://sourceforge.net/projects/relayfs wont work. (And i need
-> blocking-relayfile IO.) :-)
+Hey folks,
 
-When I updated Documentation/filesystems/relayfs.txt recently,
-Jens advised me that it needs lots of work.  I was hoping that
-Tom Zanussi would get around to doing that.
-For a current working example, see block/blktrace.c.
+Added to my to-do list.  Let me know if you figure out anything else.
 
----
-~Randy
+-VAL

@@ -1,106 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbWHSWUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWHSXBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751571AbWHSWUB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 18:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWHSWUB
+	id S1751582AbWHSXBV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 19:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWHSXBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 18:20:01 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:9920 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1751559AbWHSWUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 18:20:00 -0400
-Date: Sun, 20 Aug 2006 00:19:06 +0200 (MEST)
-Message-Id: <200608192219.k7JMJ6DQ012098@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: wtarreau@hera.kernel.org
-Subject: [PATCH 2.4.34-pre1] fix x86_64 etc build failure due to memchr change
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
+	Sat, 19 Aug 2006 19:01:21 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:46599 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751568AbWHSXBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 19:01:21 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL Violation?
+Date: Sat, 19 Aug 2006 16:01:14 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEEJNOAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+In-Reply-To: <20060819113052.GC3190@aitel.hist.no>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sat, 19 Aug 2006 15:56:10 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sat, 19 Aug 2006 15:56:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.34-pre1 doesn't build on x86_64:
 
-kernel/kernel.o(__ksymtab+0x1c10): multiple definition of `__ksymtab_memchr'
-arch/x86_64/kernel/kernel.o(__ksymtab+0x3f0): first defined here
-kernel/kernel.o(.kstrtab+0x3960): multiple definition of `__kstrtab_memchr'
-arch/x86_64/kernel/kernel.o(.kstrtab+0x5fd): first defined here
-ld: Warning: size of symbol `__kstrtab_memchr' changed from 7 in arch/x86_64/kernel/kernel.o to 17 in kernel/kernel.o
-make: *** [vmlinux] Error 1
+> Now, if someone actually distributes a closed-source module that
+> circumvents EXPORT_SYMBOL_GPL, or relies on an accompagnying
+> open source patch that removes the mechanism, this happens:
 
-This is because the 'export memchr() which is used by smbfs and lp driver'
-change in 2.4.34-pre1 added an EXPORT_SYMBOL of memchr to kernel/ksyms.c
-without also removing the existing one in arch/x86_64/kernel/x8664_ksyms.c.
-Alpha, ARM, ppc32, and SH also have EXPORTs of memchr so they probably
-also broke.
+> 1. By doing this, they clearly showed that their module is outside the
+>    gray area of "allowed binary-only modules". They definitively
+>    made a "derived work" and distributed it.
 
-This patch removes the EXPORTs of memchr under arch/, which fixes x86_64
-and should fix the other architectures as well.
+	How do you figure? This seems to me to be an amazing leap with no rationale
+of any kind to justify it.
 
-Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+> 2. Anybody who received this module may now invoke the GPL
+>    (and the force of law, if necessary) to extract the
+>    module source code from the maker.  And then this source
+>    can be freely redistributed to all interested.
 
-diff -rupN linux-2.4.34-pre1/arch/alpha/kernel/alpha_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/alpha/kernel/alpha_ksyms.c
---- linux-2.4.34-pre1/arch/alpha/kernel/alpha_ksyms.c	2003-06-14 13:30:18.000000000 +0200
-+++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/alpha/kernel/alpha_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-@@ -268,7 +268,6 @@ EXPORT_SYMBOL_NOVERS(__remq);
- EXPORT_SYMBOL_NOVERS(__remqu);
- EXPORT_SYMBOL_NOVERS(memcpy);
- EXPORT_SYMBOL_NOVERS(memset);
--EXPORT_SYMBOL_NOVERS(memchr);
- 
- EXPORT_SYMBOL(get_wchan);
- 
-diff -rupN linux-2.4.34-pre1/arch/arm/kernel/armksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/arm/kernel/armksyms.c
---- linux-2.4.34-pre1/arch/arm/kernel/armksyms.c	2003-08-25 20:07:40.000000000 +0200
-+++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/arm/kernel/armksyms.c	2006-08-20 00:10:15.000000000 +0200
-@@ -193,7 +193,6 @@ EXPORT_SYMBOL_NOVERS(memcpy);
- EXPORT_SYMBOL_NOVERS(memmove);
- EXPORT_SYMBOL_NOVERS(memcmp);
- EXPORT_SYMBOL_NOVERS(memscan);
--EXPORT_SYMBOL_NOVERS(memchr);
- EXPORT_SYMBOL_NOVERS(__memzero);
- 
- 	/* user mem (segment) */
-diff -rupN linux-2.4.34-pre1/arch/ia64/kernel/ia64_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ia64/kernel/ia64_ksyms.c
---- linux-2.4.34-pre1/arch/ia64/kernel/ia64_ksyms.c	2004-04-14 20:22:20.000000000 +0200
-+++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ia64/kernel/ia64_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-@@ -10,7 +10,6 @@ EXPORT_SYMBOL(pm_idle);
- #include <linux/string.h>
- 
- EXPORT_SYMBOL_NOVERS(memset);
--EXPORT_SYMBOL(memchr);
- EXPORT_SYMBOL(memcmp);
- EXPORT_SYMBOL_NOVERS(memcpy);
- EXPORT_SYMBOL(memmove);
-diff -rupN linux-2.4.34-pre1/arch/ppc/kernel/ppc_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ppc/kernel/ppc_ksyms.c
---- linux-2.4.34-pre1/arch/ppc/kernel/ppc_ksyms.c	2004-04-14 20:22:20.000000000 +0200
-+++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ppc/kernel/ppc_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-@@ -300,7 +300,6 @@ EXPORT_SYMBOL_NOVERS(memset);
- EXPORT_SYMBOL_NOVERS(memmove);
- EXPORT_SYMBOL_NOVERS(memscan);
- EXPORT_SYMBOL_NOVERS(memcmp);
--EXPORT_SYMBOL_NOVERS(memchr);
- 
- EXPORT_SYMBOL(abs);
- 
-diff -rupN linux-2.4.34-pre1/arch/sh/kernel/sh_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/sh/kernel/sh_ksyms.c
---- linux-2.4.34-pre1/arch/sh/kernel/sh_ksyms.c	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/sh/kernel/sh_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-@@ -60,7 +60,6 @@ EXPORT_SYMBOL(pcibios_penalize_isa_irq);
- 
- /* mem exports */
- EXPORT_SYMBOL(memscan);
--EXPORT_SYMBOL(memchr);
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memcpy_fromio);
- EXPORT_SYMBOL(memcpy_toio);
-diff -rupN linux-2.4.34-pre1/arch/x86_64/kernel/x8664_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.4.34-pre1/arch/x86_64/kernel/x8664_ksyms.c	2004-11-17 18:36:41.000000000 +0100
-+++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/x86_64/kernel/x8664_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-@@ -171,7 +171,6 @@ EXPORT_SYMBOL_NOVERS(strchr);
- EXPORT_SYMBOL_NOVERS(strcat);
- EXPORT_SYMBOL_NOVERS(strcmp);
- EXPORT_SYMBOL_NOVERS(strncat);
--EXPORT_SYMBOL_NOVERS(memchr);
- EXPORT_SYMBOL_NOVERS(strrchr);
- EXPORT_SYMBOL_NOVERS(strnlen);
- EXPORT_SYMBOL_NOVERS(memcmp);
+	A trivial patch to the kernel just to remove a deliberate incompatibility
+isn't sufficient alone to change the status of the module. The patch to
+remove EXPORT_SYMBOL_GPL could even be developed by a completely different
+group of people from the kernel module, with no overlap of any kind, so it
+is absurd to say that the kernel patch somehow changes the status of the
+module.
+
+	To give you an analogy, suppose I made a closed-source filesystem for
+FreeBSD. Somebody made a patch to the Linux kernel to allow it to emulate
+the BSD filesystem interface well enough that with that patch, Linux can use
+my module. By any stretch of the imagination, can this Linux patch change
+the copyright status of my module, given that it was developed by different
+people?
+
+	Yes, the patch to modify the kernel is clearly a derivative work, but the
+module the patch is needed for is still not if it wasn't before.
+
+	In fact, any arguments you could make before, you can still make. But no
+new ones arise. For example, if you could argue that the kernel and the
+module were too tightly integrated in their design to be considered separate
+works or that the module includes too much of the kernel, you still can. But
+those are the arguments you'd need to make, and needing a kernel patch that
+is independent of the module (authorwise) doesn't strengthen any of them.
+
+> So the rights management system works really well - it provides an
+> enforceable "the price for using these symbols is your code".
+
+	It can't do that. The module must be GPL'd if and only if it's a derivative
+work of the Linux kernel. This has to do with whether it contains portions
+of the Linux kernel beyond what is covered by things like fair use and
+scenes a faire. How does EXPORT_SYMBOL_GPL change that?
+
+> The mechanism itself is not protected by laws like the DMCA, because
+> its removal is explicitly allowed.  The great thing is, protection
+> of the _content_ is not lost when this happens.
+
+	Huh?
+
+	I do agree with the point that you do need to explicitly act to circumvent
+EXPORT_MODULE_GPL and that pointing out that you did that may be helpful in
+subsequent legal fights that may arise. But I don't think anyone today can
+specify precisely how. (Perhaps if someone claimed they had no idea that
+they might be making their module a derivative work, that they must have
+known could affect a damage award.)
+
+	DS
+
+

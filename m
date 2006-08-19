@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWHSVaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751829AbWHSWIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWHSVaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 17:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWHSVaF
+	id S1751829AbWHSWIp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 18:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWHSWIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 17:30:05 -0400
-Received: from grace.univie.ac.at ([131.130.3.115]:2185 "EHLO
-	grace.univie.ac.at") by vger.kernel.org with ESMTP id S1751221AbWHSVaC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 17:30:02 -0400
-Message-ID: <44E782D5.4080402@kittenberger.net>
-Date: Sat, 19 Aug 2006 23:29:57 +0200
-From: Axel Kittenberger <axell@kittenberger.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Abnormal HTTP request termination.
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Sat, 19 Aug 2006 18:08:44 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:33759 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751558AbWHSWIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 18:08:44 -0400
+Subject: Re: [PATCH] limit recursion when flushing shost->starved_list
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andreas Herrmann <aherrman@de.ibm.com>
+Cc: Jens Axboe <axboe@suse.de>, James Bottomley <jejb@SteelEye.com>,
+       Linux SCSI <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060809153116.GA14043@lion28.ibm.com>
+References: <20060809153116.GA14043@lion28.ibm.com>
+Content-Type: text/plain
+Date: Sat, 19 Aug 2006 13:30:29 -0700
+Message-Id: <1156019429.3726.18.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List
+On Wed, 2006-08-09 at 17:31 +0200, Andreas Herrmann wrote:
+> Attached is a patch that should limit a possible recursion that can
+> lead to a stack overflow like follows:
 
-On Linux 2.6 (exact 2.6.15) issuing a wget at this location 
-http://www.wohin-heute.at/highlights.php results in a truncated file. 
-Truncated before "</hmtl>.
+Well, OK, initially I'll put this in scsi-misc, since I acknowledge its
+a problem.   However, it is one that block queue grouping should be able
+to get us out of ... and at that time, this code (and most of the
+starved list handling) should exit the scsi mid-layer.
 
-First we suspected our firewall, but this proofed not be unguilty it seems.
+James
 
-I now tried that address on a lot machines on a lot of locations, but as 
-it turns it will work everywhere except on Linux 2.6 machines.
 
-The URI will wget fine on:
-OpenBsd 3.9
-AIX 3
-Windows XP
-Linux 2.4.10
-
-Since thats not a really important site, this is an academic question 
-after all :)
-
-Has someone an idea, what may cause this network problem which seems to 
-be limited to linux 2.6?
-
-Greetings,
-Axel Kittenberger

@@ -1,129 +1,752 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbWHSXQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWHSX3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932562AbWHSXQz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 19:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWHSXQz
+	id S932571AbWHSX3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 19:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWHSX3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 19:16:55 -0400
-Received: from 1wt.eu ([62.212.114.60]:37392 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932562AbWHSXQy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 19:16:54 -0400
-Date: Sun, 20 Aug 2006 01:16:47 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.34-pre1] fix x86_64 etc build failure due to memchr change
-Message-ID: <20060819231647.GA27115@1wt.eu>
-References: <200608192219.k7JMJ6DQ012098@harpo.it.uu.se>
+	Sat, 19 Aug 2006 19:29:54 -0400
+Received: from mother.openwall.net ([195.42.179.200]:47757 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S932571AbWHSX3x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 19:29:53 -0400
+Date: Sun, 20 Aug 2006 03:25:56 +0400
+From: Solar Designer <solar@openwall.com>
+To: Willy Tarreau <wtarreau@hera.kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] introduce CONFIG_BINFMT_ELF_AOUT
+Message-ID: <20060819232556.GA16617@openwall.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
 Content-Disposition: inline
-In-Reply-To: <200608192219.k7JMJ6DQ012098@harpo.it.uu.se>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 12:19:06AM +0200, Mikael Pettersson wrote:
-> 2.4.34-pre1 doesn't build on x86_64:
-> 
-> kernel/kernel.o(__ksymtab+0x1c10): multiple definition of `__ksymtab_memchr'
-> arch/x86_64/kernel/kernel.o(__ksymtab+0x3f0): first defined here
-> kernel/kernel.o(.kstrtab+0x3960): multiple definition of `__kstrtab_memchr'
-> arch/x86_64/kernel/kernel.o(.kstrtab+0x5fd): first defined here
-> ld: Warning: size of symbol `__kstrtab_memchr' changed from 7 in arch/x86_64/kernel/kernel.o to 17 in kernel/kernel.o
-> make: *** [vmlinux] Error 1
-> 
-> This is because the 'export memchr() which is used by smbfs and lp driver'
-> change in 2.4.34-pre1 added an EXPORT_SYMBOL of memchr to kernel/ksyms.c
-> without also removing the existing one in arch/x86_64/kernel/x8664_ksyms.c.
-> Alpha, ARM, ppc32, and SH also have EXPORTs of memchr so they probably
-> also broke.
-> 
-> This patch removes the EXPORTs of memchr under arch/, which fixes x86_64
-> and should fix the other architectures as well.
 
-Mikael,
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I added that patch when I discovered that smbfs had unresolved symbols
-on sparc. I was not aware of those per-arch exports, and probably that
-I should have added such an export to sparc only instead of adding it
-to the whole kernel.
+Willy,
 
-I will try to revert it first and only fix sparc, and if that does not
-work, then I will use your fix. But if I can touch only one arch, I'd
-feel more comfortable.
+I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
+into 2.4.34-pre.  (2.6 kernels could benefit from the same change, too.)
 
-Thanks for your report,
-Willy
+The patch adds a new compile-time option to control the support for
+"ELF binaries with a.out format interpreters or a.out libraries".
+Without this patch, such support is enabled on every system that enables
+the support for ELF binaries - although 99% (100%?) of systems don't
+need this hybrid functionality.  Moreover, this functionality poses a
+security risk - as proven in practice:
 
+	http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
 
+This uselib() vulnerability did not affect default kernel builds with
+the -ow patch specifically due to separation of the unneeded/risky code
+into CONFIG_BINFMT_ELF_AOUT and having this option disabled by default.
+(Yes, this change in -ow patches pre-dates the discovery of the uselib()
+vulnerability.)
 
-> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
-> 
-> diff -rupN linux-2.4.34-pre1/arch/alpha/kernel/alpha_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/alpha/kernel/alpha_ksyms.c
-> --- linux-2.4.34-pre1/arch/alpha/kernel/alpha_ksyms.c	2003-06-14 13:30:18.000000000 +0200
-> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/alpha/kernel/alpha_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-> @@ -268,7 +268,6 @@ EXPORT_SYMBOL_NOVERS(__remq);
->  EXPORT_SYMBOL_NOVERS(__remqu);
->  EXPORT_SYMBOL_NOVERS(memcpy);
->  EXPORT_SYMBOL_NOVERS(memset);
-> -EXPORT_SYMBOL_NOVERS(memchr);
->  
->  EXPORT_SYMBOL(get_wchan);
->  
-> diff -rupN linux-2.4.34-pre1/arch/arm/kernel/armksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/arm/kernel/armksyms.c
-> --- linux-2.4.34-pre1/arch/arm/kernel/armksyms.c	2003-08-25 20:07:40.000000000 +0200
-> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/arm/kernel/armksyms.c	2006-08-20 00:10:15.000000000 +0200
-> @@ -193,7 +193,6 @@ EXPORT_SYMBOL_NOVERS(memcpy);
->  EXPORT_SYMBOL_NOVERS(memmove);
->  EXPORT_SYMBOL_NOVERS(memcmp);
->  EXPORT_SYMBOL_NOVERS(memscan);
-> -EXPORT_SYMBOL_NOVERS(memchr);
->  EXPORT_SYMBOL_NOVERS(__memzero);
->  
->  	/* user mem (segment) */
-> diff -rupN linux-2.4.34-pre1/arch/ia64/kernel/ia64_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ia64/kernel/ia64_ksyms.c
-> --- linux-2.4.34-pre1/arch/ia64/kernel/ia64_ksyms.c	2004-04-14 20:22:20.000000000 +0200
-> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ia64/kernel/ia64_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-> @@ -10,7 +10,6 @@ EXPORT_SYMBOL(pm_idle);
->  #include <linux/string.h>
->  
->  EXPORT_SYMBOL_NOVERS(memset);
-> -EXPORT_SYMBOL(memchr);
->  EXPORT_SYMBOL(memcmp);
->  EXPORT_SYMBOL_NOVERS(memcpy);
->  EXPORT_SYMBOL(memmove);
-> diff -rupN linux-2.4.34-pre1/arch/ppc/kernel/ppc_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ppc/kernel/ppc_ksyms.c
-> --- linux-2.4.34-pre1/arch/ppc/kernel/ppc_ksyms.c	2004-04-14 20:22:20.000000000 +0200
-> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/ppc/kernel/ppc_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-> @@ -300,7 +300,6 @@ EXPORT_SYMBOL_NOVERS(memset);
->  EXPORT_SYMBOL_NOVERS(memmove);
->  EXPORT_SYMBOL_NOVERS(memscan);
->  EXPORT_SYMBOL_NOVERS(memcmp);
-> -EXPORT_SYMBOL_NOVERS(memchr);
->  
->  EXPORT_SYMBOL(abs);
->  
-> diff -rupN linux-2.4.34-pre1/arch/sh/kernel/sh_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/sh/kernel/sh_ksyms.c
-> --- linux-2.4.34-pre1/arch/sh/kernel/sh_ksyms.c	2003-11-29 00:28:11.000000000 +0100
-> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/sh/kernel/sh_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-> @@ -60,7 +60,6 @@ EXPORT_SYMBOL(pcibios_penalize_isa_irq);
->  
->  /* mem exports */
->  EXPORT_SYMBOL(memscan);
-> -EXPORT_SYMBOL(memchr);
->  EXPORT_SYMBOL(memcpy);
->  EXPORT_SYMBOL(memcpy_fromio);
->  EXPORT_SYMBOL(memcpy_toio);
-> diff -rupN linux-2.4.34-pre1/arch/x86_64/kernel/x8664_ksyms.c linux-2.4.34-pre1.kill-arch-memchr-exports/arch/x86_64/kernel/x8664_ksyms.c
-> --- linux-2.4.34-pre1/arch/x86_64/kernel/x8664_ksyms.c	2004-11-17 18:36:41.000000000 +0100
-> +++ linux-2.4.34-pre1.kill-arch-memchr-exports/arch/x86_64/kernel/x8664_ksyms.c	2006-08-20 00:10:15.000000000 +0200
-> @@ -171,7 +171,6 @@ EXPORT_SYMBOL_NOVERS(strchr);
->  EXPORT_SYMBOL_NOVERS(strcat);
->  EXPORT_SYMBOL_NOVERS(strcmp);
->  EXPORT_SYMBOL_NOVERS(strncat);
-> -EXPORT_SYMBOL_NOVERS(memchr);
->  EXPORT_SYMBOL_NOVERS(strrchr);
->  EXPORT_SYMBOL_NOVERS(strnlen);
->  EXPORT_SYMBOL_NOVERS(memcmp);
+The patch also changes CONFIG_BINFMT_AOUT to be disabled by default on
+archs that had it default to enabled.  The a.out support is similarly
+risky and not audited/hardened with the same scrutiny that the ELF
+support has received.
+
+Thanks,
+
+Alexander
+
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.33-ow1-CONFIG_BINFMT_ELF_AOUT.diff"
+
+diff -urpPX nopatch linux-2.4.33/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.33/Documentation/Configure.help	Sat Aug 12 08:48:38 2006
++++ linux/Documentation/Configure.help	Sat Aug 12 08:51:47 2006
+@@ -4690,6 +4690,12 @@ CONFIG_BINFMT_ELF
+   ld.so (check the file <file:Documentation/Changes> for location and
+   latest version).
+ 
++ELF binaries with a.out format interpreters or a.out libraries
++CONFIG_BINFMT_ELF_AOUT
++  The kernel may support ELF executables which use an a.out format
++  interpreter (dynamic linker) and/or a.out shared libraries, in
++  addition to the usual ELF-ELF setups. You shouldn't need this.
++
+ Kernel support for a.out binaries
+ CONFIG_BINFMT_AOUT
+   A.out (Assembler.OUTput) is a set of formats for libraries and
+@@ -4703,13 +4709,11 @@ CONFIG_BINFMT_AOUT
+   warrant removing support. However its removal is a good idea if you
+   wish to ensure that absolutely none of your programs will use this
+   older executable format. If you don't know what to answer at this
+-  point then answer Y. If someone told you "You need a kernel with
++  point then answer N. If someone told you "You need a kernel with
+   QMAGIC support" then you'll have to say Y here. You may answer M to
+   compile a.out support as a module and later load the module when you
+   want to use a program or library in a.out format. The module will be
+-  called binfmt_aout.o. Saying M or N here is dangerous though,
+-  because some crucial programs on your system might still be in A.OUT
+-  format.
++  called binfmt_aout.o.
+ 
+ OSF/1 v4 readv/writev compatibility
+ CONFIG_OSF4_COMPAT
+diff -urpPX nopatch linux-2.4.33/arch/alpha/config.in linux/arch/alpha/config.in
+--- linux-2.4.33/arch/alpha/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/alpha/config.in	Sat Aug 12 08:51:47 2006
+@@ -315,6 +315,9 @@ if [ "$CONFIG_BINFMT_AOUT" != "n" ]; the
+ fi
+ 
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ tristate 'Kernel support for Linux/Intel ELF binaries' CONFIG_BINFMT_EM86
+ source drivers/parport/Config.in
+diff -urpPX nopatch linux-2.4.33/arch/alpha/defconfig linux/arch/alpha/defconfig
+--- linux-2.4.33/arch/alpha/defconfig	Wed Feb 18 16:36:30 2004
++++ linux/arch/alpha/defconfig	Sat Aug 12 08:51:47 2006
+@@ -72,6 +72,7 @@ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+ # CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ # CONFIG_BINFMT_EM86 is not set
+ 
+diff -urpPX nopatch linux-2.4.33/arch/arm/config.in linux/arch/arm/config.in
+--- linux-2.4.33/arch/arm/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/arm/config.in	Sat Aug 12 08:51:47 2006
+@@ -499,6 +499,9 @@ choice 'Kernel core (/proc/kcore) format
+ 	 A.OUT		CONFIG_KCORE_AOUT" ELF
+ tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ dep_bool 'Power Management support (experimental)' CONFIG_PM $CONFIG_EXPERIMENTAL
+ dep_tristate 'RISC OS personality' CONFIG_ARTHUR $CONFIG_CPU_32
+diff -urpPX nopatch linux-2.4.33/arch/arm/defconfig linux/arch/arm/defconfig
+--- linux-2.4.33/arch/arm/defconfig	Wed Feb 18 16:36:30 2004
++++ linux/arch/arm/defconfig	Sat Aug 12 08:51:47 2006
+@@ -83,8 +83,9 @@ CONFIG_SYSCTL=y
+ CONFIG_NWFPE=y
+ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+-CONFIG_BINFMT_AOUT=y
++# CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ # CONFIG_PM is not set
+ # CONFIG_ARTHUR is not set
+diff -urpPX nopatch linux-2.4.33/arch/cris/config.in linux/arch/cris/config.in
+--- linux-2.4.33/arch/cris/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/cris/config.in	Sat Aug 12 08:51:47 2006
+@@ -31,6 +31,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
+ bool 'Sysctl support' CONFIG_SYSCTL
+ 
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ 
+ string 'Kernel command line' CONFIG_ETRAX_CMDLINE "root=/dev/mtdblock3"
+ 
+diff -urpPX nopatch linux-2.4.33/arch/cris/defconfig linux/arch/cris/defconfig
+--- linux-2.4.33/arch/cris/defconfig	Wed Feb 18 16:36:30 2004
++++ linux/arch/cris/defconfig	Sat Aug 12 08:51:47 2006
+@@ -18,6 +18,7 @@ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ # CONFIG_SYSCTL is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_ETRAX_KGDB is not set
+ # CONFIG_ETRAX_WATCHDOG is not set
+ 
+diff -urpPX nopatch linux-2.4.33/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.4.33/arch/i386/config.in	Sat Aug 12 08:48:37 2006
++++ linux/arch/i386/config.in	Sat Aug 12 08:51:47 2006
+@@ -329,6 +329,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ fi
+ tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ bool 'Select task to kill on out of memory condition' CONFIG_OOM_KILLER
+ 
+diff -urpPX nopatch linux-2.4.33/arch/i386/defconfig linux/arch/i386/defconfig
+--- linux-2.4.33/arch/i386/defconfig	Wed Jan 19 17:09:25 2005
++++ linux/arch/i386/defconfig	Sat Aug 12 08:51:47 2006
+@@ -115,9 +115,10 @@ CONFIG_SYSVIPC=y
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+-CONFIG_BINFMT_AOUT=y
++# CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
+-CONFIG_BINFMT_MISC=y
++# CONFIG_BINFMT_ELF_AOUT is not set
++# CONFIG_BINFMT_MISC is not set
+ # CONFIG_OOM_KILLER is not set
+ CONFIG_PM=y
+ # CONFIG_APM is not set
+diff -urpPX nopatch linux-2.4.33/arch/ia64/config.in linux/arch/ia64/config.in
+--- linux-2.4.33/arch/ia64/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/ia64/config.in	Sat Aug 12 08:51:47 2006
+@@ -124,6 +124,9 @@ bool 'System V IPC' CONFIG_SYSVIPC
+ bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
+ bool 'Sysctl support' CONFIG_SYSCTL
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ 
+ if [ "$CONFIG_IA64_HP_SIM" = "n" ]; then
+diff -urpPX nopatch linux-2.4.33/arch/ia64/defconfig linux/arch/ia64/defconfig
+--- linux-2.4.33/arch/ia64/defconfig	Mon Apr  4 05:42:19 2005
++++ linux/arch/ia64/defconfig	Sat Aug 12 08:51:47 2006
+@@ -60,6 +60,7 @@ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ CONFIG_ACPI=y
+ CONFIG_ACPI_EFI=y
+diff -urpPX nopatch linux-2.4.33/arch/m68k/config.in linux/arch/m68k/config.in
+--- linux-2.4.33/arch/m68k/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/m68k/config.in	Sat Aug 12 08:51:47 2006
+@@ -99,6 +99,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ fi
+ tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ 
+ if [ "$CONFIG_AMIGA" = "y" ]; then
+diff -urpPX nopatch linux-2.4.33/arch/m68k/defconfig linux/arch/m68k/defconfig
+--- linux-2.4.33/arch/m68k/defconfig	Wed Feb 18 16:36:30 2004
++++ linux/arch/m68k/defconfig	Sat Aug 12 08:51:47 2006
+@@ -44,8 +44,9 @@ CONFIG_SYSVIPC=y
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+-CONFIG_BINFMT_AOUT=y
++# CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ CONFIG_ZORRO=y
+ # CONFIG_AMIGA_PCMCIA is not set
+diff -urpPX nopatch linux-2.4.33/arch/mips/config-shared.in linux/arch/mips/config-shared.in
+--- linux-2.4.33/arch/mips/config-shared.in	Wed Jan 19 17:09:27 2005
++++ linux/arch/mips/config-shared.in	Sat Aug 12 08:51:47 2006
+@@ -845,6 +845,9 @@ define_bool CONFIG_KCORE_ELF y
+ define_bool CONFIG_KCORE_AOUT n
+ define_bool CONFIG_BINFMT_AOUT n
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ dep_bool 'Kernel support for Linux/MIPS 32-bit binary compatibility' CONFIG_MIPS32_COMPAT $CONFIG_MIPS64
+ dep_bool 'Kernel support for o32 binaries' CONFIG_MIPS32_O32 $CONFIG_MIPS32_COMPAT
+ dep_bool 'Kernel support for n32 binaries' CONFIG_MIPS32_N32 $CONFIG_MIPS32_COMPAT
+diff -urpPX nopatch linux-2.4.33/arch/mips/defconfig linux/arch/mips/defconfig
+--- linux-2.4.33/arch/mips/defconfig	Wed Jan 19 17:09:27 2005
++++ linux/arch/mips/defconfig	Sat Aug 12 08:51:47 2006
+@@ -143,6 +143,7 @@ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+ # CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_MIPS32_COMPAT is not set
+ # CONFIG_MIPS32_O32 is not set
+ # CONFIG_MIPS32_N32 is not set
+diff -urpPX nopatch linux-2.4.33/arch/mips/kernel/irixelf.c linux/arch/mips/kernel/irixelf.c
+--- linux-2.4.33/arch/mips/kernel/irixelf.c	Wed Jan 19 17:09:29 2005
++++ linux/arch/mips/kernel/irixelf.c	Sat Aug 12 08:51:47 2006
+@@ -8,6 +8,7 @@
+  * Copyright 1993, 1994: Eric Youngdale (ericy@cais.com).
+  */
+ 
++#include <linux/config.h>
+ #include <linux/module.h>
+ 
+ #include <linux/fs.h>
+@@ -48,7 +49,12 @@ static int irix_core_dump(long signr, st
+ extern int dump_fpu (elf_fpregset_t *);
+ 
+ static struct linux_binfmt irix_format = {
+-	NULL, THIS_MODULE, load_irix_binary, load_irix_library,
++	NULL, THIS_MODULE, load_irix_binary,
++#ifdef CONFIG_BINFMT_ELF_AOUT
++	load_irix_library,
++#else
++	NULL,
++#endif
+ 	irix_core_dump, PAGE_SIZE
+ };
+ 
+@@ -794,6 +800,7 @@ out_free_ph:
+ 	goto out;
+ }
+ 
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ /* This is really simpleminded and specialized - we are loading an
+  * a.out library that is given an ELF header.
+  */
+@@ -873,6 +880,7 @@ static int load_irix_library(struct file
+ 	kfree(elf_phdata);
+ 	return 0;
+ }
++#endif
+ 
+ /* Called through irix_syssgi() to map an elf image given an FD,
+  * a phdr ptr USER_PHDRP in userspace, and a count CNT telling how many
+diff -urpPX nopatch linux-2.4.33/arch/mips64/defconfig linux/arch/mips64/defconfig
+--- linux-2.4.33/arch/mips64/defconfig	Wed Jan 19 17:09:30 2005
++++ linux/arch/mips64/defconfig	Sat Aug 12 08:51:47 2006
+@@ -147,6 +147,7 @@ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+ # CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ CONFIG_MIPS32_COMPAT=y
+ CONFIG_MIPS32_O32=y
+ # CONFIG_MIPS32_N32 is not set
+diff -urpPX nopatch linux-2.4.33/arch/parisc/config.in linux/arch/parisc/config.in
+--- linux-2.4.33/arch/parisc/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/parisc/config.in	Sat Aug 12 08:51:47 2006
+@@ -89,6 +89,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
+ bool 'Sysctl support' CONFIG_SYSCTL
+ define_bool CONFIG_KCORE_ELF y
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for SOM binaries' CONFIG_BINFMT_SOM
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ 
+diff -urpPX nopatch linux-2.4.33/arch/parisc/defconfig linux/arch/parisc/defconfig
+--- linux-2.4.33/arch/parisc/defconfig	Wed Feb 18 16:36:30 2004
++++ linux/arch/parisc/defconfig	Sat Aug 12 08:51:47 2006
+@@ -56,6 +56,7 @@ CONFIG_SYSVIPC=y
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ CONFIG_BINFMT_SOM=y
+ # CONFIG_BINFMT_MISC is not set
+ # CONFIG_PM is not set
+diff -urpPX nopatch linux-2.4.33/arch/ppc/config.in linux/arch/ppc/config.in
+--- linux-2.4.33/arch/ppc/config.in	Sun Aug  8 03:26:04 2004
++++ linux/arch/ppc/config.in	Sat Aug 12 08:51:47 2006
+@@ -384,6 +384,7 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ fi
+ define_bool CONFIG_BINFMT_ELF y
+ define_bool CONFIG_KERNEL_ELF y
++bool 'ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ bool 'Select task to kill on out of memory condition' CONFIG_OOM_KILLER
+ 
+diff -urpPX nopatch linux-2.4.33/arch/ppc/defconfig linux/arch/ppc/defconfig
+--- linux-2.4.33/arch/ppc/defconfig	Wed Jan 19 17:09:36 2005
++++ linux/arch/ppc/defconfig	Sat Aug 12 08:51:47 2006
+@@ -59,7 +59,8 @@ CONFIG_SYSVIPC=y
+ CONFIG_KCORE_ELF=y
+ CONFIG_BINFMT_ELF=y
+ CONFIG_KERNEL_ELF=y
+-CONFIG_BINFMT_MISC=m
++# CONFIG_BINFMT_ELF_AOUT is not set
++# CONFIG_BINFMT_MISC is not set
+ # CONFIG_OOM_KILLER is not set
+ CONFIG_PCI_NAMES=y
+ CONFIG_HOTPLUG=y
+diff -urpPX nopatch linux-2.4.33/arch/ppc64/config.in linux/arch/ppc64/config.in
+--- linux-2.4.33/arch/ppc64/config.in	Wed Feb 18 16:36:30 2004
++++ linux/arch/ppc64/config.in	Sat Aug 12 08:51:47 2006
+@@ -82,6 +82,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ fi
+ 
+ bool 'Kernel support for 64 bit ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ 
+ tristate 'Kernel support for 32 bit ELF binaries' CONFIG_BINFMT_ELF32
+ 
+diff -urpPX nopatch linux-2.4.33/arch/ppc64/defconfig linux/arch/ppc64/defconfig
+--- linux-2.4.33/arch/ppc64/defconfig	Wed Nov 17 14:54:21 2004
++++ linux/arch/ppc64/defconfig	Sat Aug 12 08:51:47 2006
+@@ -56,6 +56,7 @@ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_KCORE_ELF=y
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ CONFIG_BINFMT_ELF32=y
+ # CONFIG_BINFMT_MISC is not set
+ CONFIG_PCI_NAMES=y
+diff -urpPX nopatch linux-2.4.33/arch/s390/config.in linux/arch/s390/config.in
+--- linux-2.4.33/arch/s390/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/s390/config.in	Sat Aug 12 08:51:47 2006
+@@ -58,6 +58,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
+ bool 'Sysctl support' CONFIG_SYSCTL
+ define_bool CONFIG_KCORE_ELF y
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ bool 'Show crashed user process info' CONFIG_PROCESS_DEBUG
+ bool 'Pseudo page fault support' CONFIG_PFAULT
+diff -urpPX nopatch linux-2.4.33/arch/s390/defconfig linux/arch/s390/defconfig
+--- linux-2.4.33/arch/s390/defconfig	Wed Jan 19 17:09:37 2005
++++ linux/arch/s390/defconfig	Sat Aug 12 08:51:47 2006
+@@ -46,6 +46,7 @@ CONFIG_SYSVIPC=y
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ # CONFIG_PROCESS_DEBUG is not set
+ CONFIG_PFAULT=y
+diff -urpPX nopatch linux-2.4.33/arch/s390x/config.in linux/arch/s390x/config.in
+--- linux-2.4.33/arch/s390x/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/s390x/config.in	Sat Aug 12 08:51:47 2006
+@@ -61,6 +61,9 @@ bool 'BSD Process Accounting' CONFIG_BSD
+ bool 'Sysctl support' CONFIG_SYSCTL
+ define_bool CONFIG_KCORE_ELF y
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ bool 'Show crashed user process info' CONFIG_PROCESS_DEBUG
+ bool 'Pseudo page fault support' CONFIG_PFAULT
+diff -urpPX nopatch linux-2.4.33/arch/s390x/defconfig linux/arch/s390x/defconfig
+--- linux-2.4.33/arch/s390x/defconfig	Wed Nov 17 14:54:21 2004
++++ linux/arch/s390x/defconfig	Sat Aug 12 08:51:47 2006
+@@ -47,6 +47,7 @@ CONFIG_SYSVIPC=y
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ # CONFIG_PROCESS_DEBUG is not set
+ CONFIG_PFAULT=y
+diff -urpPX nopatch linux-2.4.33/arch/sh/config.in linux/arch/sh/config.in
+--- linux-2.4.33/arch/sh/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/sh/config.in	Sat Aug 12 08:51:47 2006
+@@ -283,6 +283,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ 	 A.OUT		CONFIG_KCORE_AOUT" ELF
+ fi
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ 
+ bool 'Select task to kill on out of memory condition' CONFIG_OOM_KILLER
+diff -urpPX nopatch linux-2.4.33/arch/sh/defconfig linux/arch/sh/defconfig
+--- linux-2.4.33/arch/sh/defconfig	Wed Feb 18 16:36:30 2004
++++ linux/arch/sh/defconfig	Sat Aug 12 08:51:47 2006
+@@ -48,6 +48,7 @@ CONFIG_CF_ENABLER=y
+ CONFIG_KCORE_ELF=y
+ # CONFIG_KCORE_AOUT is not set
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ 
+ #
+diff -urpPX nopatch linux-2.4.33/arch/sparc/config.in linux/arch/sparc/config.in
+--- linux-2.4.33/arch/sparc/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/sparc/config.in	Sat Aug 12 08:51:47 2006
+@@ -74,6 +74,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ fi
+ tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ bool 'SunOS binary emulation' CONFIG_SUNOS_EMUL
+ bool 'Select task to kill on out of memory condition' CONFIG_OOM_KILLER
+diff -urpPX nopatch linux-2.4.33/arch/sparc/defconfig linux/arch/sparc/defconfig
+--- linux-2.4.33/arch/sparc/defconfig	Wed Apr 14 17:05:27 2004
++++ linux/arch/sparc/defconfig	Sat Aug 12 08:51:47 2006
+@@ -49,9 +49,10 @@ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+-CONFIG_BINFMT_AOUT=y
++# CONFIG_BINFMT_AOUT is not set
+ CONFIG_BINFMT_ELF=y
+-CONFIG_BINFMT_MISC=m
++# CONFIG_BINFMT_ELF_AOUT is not set
++# CONFIG_BINFMT_MISC is not set
+ CONFIG_SUNOS_EMUL=y
+ # CONFIG_OOM_KILLER is not set
+ 
+diff -urpPX nopatch linux-2.4.33/arch/sparc64/config.in linux/arch/sparc64/config.in
+--- linux-2.4.33/arch/sparc64/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/sparc64/config.in	Sat Aug 12 08:51:47 2006
+@@ -79,6 +79,9 @@ if [ "$CONFIG_SPARC32_COMPAT" != "n" ]; 
+    bool '  Kernel support for 32-bit (ie. SunOS) a.out binaries' CONFIG_BINFMT_AOUT32
+ fi
+ bool 'Kernel support for 64-bit ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ bool 'SunOS binary emulation' CONFIG_SUNOS_EMUL
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+diff -urpPX nopatch linux-2.4.33/arch/sparc64/defconfig linux/arch/sparc64/defconfig
+--- linux-2.4.33/arch/sparc64/defconfig	Wed Jan 19 17:09:38 2005
++++ linux/arch/sparc64/defconfig	Sat Aug 12 08:51:47 2006
+@@ -70,7 +70,8 @@ CONFIG_SPARC32_COMPAT=y
+ CONFIG_BINFMT_ELF32=y
+ # CONFIG_BINFMT_AOUT32 is not set
+ CONFIG_BINFMT_ELF=y
+-CONFIG_BINFMT_MISC=m
++# CONFIG_BINFMT_ELF_AOUT is not set
++# CONFIG_BINFMT_MISC is not set
+ # CONFIG_SUNOS_EMUL is not set
+ CONFIG_SOLARIS_EMUL=m
+ # CONFIG_OOM_KILLER is not set
+diff -urpPX nopatch linux-2.4.33/arch/x86_64/config.in linux/arch/x86_64/config.in
+--- linux-2.4.33/arch/x86_64/config.in	Wed Nov 17 14:54:21 2004
++++ linux/arch/x86_64/config.in	Sat Aug 12 08:51:47 2006
+@@ -118,6 +118,9 @@ if [ "$CONFIG_PROC_FS" = "y" ]; then
+ fi
+ #tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
+ bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
++if [ "$CONFIG_BINFMT_ELF" != "n" ]; then
++   bool '  ELF binaries with a.out format interpreters or a.out libraries' CONFIG_BINFMT_ELF_AOUT
++fi
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ 
+ bool 'Power Management support' CONFIG_PM
+diff -urpPX nopatch linux-2.4.33/arch/x86_64/defconfig linux/arch/x86_64/defconfig
+--- linux-2.4.33/arch/x86_64/defconfig	Wed Apr 14 17:05:28 2004
++++ linux/arch/x86_64/defconfig	Sat Aug 12 08:51:47 2006
+@@ -67,6 +67,7 @@ CONFIG_SYSVIPC=y
+ CONFIG_SYSCTL=y
+ CONFIG_KCORE_ELF=y
+ CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_ELF_AOUT is not set
+ # CONFIG_BINFMT_MISC is not set
+ CONFIG_PM=y
+ CONFIG_IA32_EMULATION=y
+diff -urpPX nopatch linux-2.4.33/fs/binfmt_elf.c linux/fs/binfmt_elf.c
+--- linux-2.4.33/fs/binfmt_elf.c	Sat Aug 12 08:48:39 2006
++++ linux/fs/binfmt_elf.c	Sat Aug 12 08:51:47 2006
+@@ -9,6 +9,7 @@
+  * Copyright 1993, 1994: Eric Youngdale (ericy@cais.com).
+  */
+ 
++#include <linux/config.h>
+ #include <linux/module.h>
+ 
+ #include <linux/fs.h>
+@@ -43,7 +44,9 @@
+ #include <linux/elf.h>
+ 
+ static int load_elf_binary(struct linux_binprm * bprm, struct pt_regs * regs);
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ static int load_elf_library(struct file*);
++#endif
+ static unsigned long elf_map (struct file *, unsigned long, struct elf_phdr *, int, int);
+ extern int dump_fpu (struct pt_regs *, elf_fpregset_t *);
+ extern void dump_thread(struct pt_regs *, struct user *);
+@@ -73,8 +76,14 @@ static int elf_core_dump(long signr, str
+ #define ELF_PAGEOFFSET(_v) ((_v) & (ELF_MIN_ALIGN-1))
+ #define ELF_PAGEALIGN(_v) (((_v) + ELF_MIN_ALIGN - 1) & ~(ELF_MIN_ALIGN - 1))
+ 
+-static struct linux_binfmt elf_format = {
+-	NULL, THIS_MODULE, load_elf_binary, load_elf_library, elf_core_dump, ELF_EXEC_PAGESIZE
++struct linux_binfmt elf_format = {
++	NULL, THIS_MODULE, load_elf_binary,
++#ifdef CONFIG_BINFMT_ELF_AOUT
++	load_elf_library,
++#else
++	NULL,
++#endif
++	elf_core_dump, ELF_EXEC_PAGESIZE
+ };
+ 
+ #define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
+@@ -404,6 +417,7 @@ out:
+ 	return error;
+ }
+ 
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ static unsigned long load_aout_interp(struct exec * interp_ex,
+ 			     struct file * interpreter)
+ {
+@@ -451,6 +465,7 @@ static unsigned long load_aout_interp(st
+ out:
+ 	return elf_entry;
+ }
++#endif
+ 
+ /*
+  * These are the functions used to load ELF style executables and shared
+@@ -458,7 +473,9 @@ out:
+  */
+ 
+ #define INTERPRETER_NONE 0
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ #define INTERPRETER_AOUT 1
++#endif
+ #define INTERPRETER_ELF 2
+ 
+ 
+@@ -482,7 +499,9 @@ static int load_elf_binary(struct linux_
+ 	struct elfhdr elf_ex;
+ 	struct elfhdr interp_elf_ex;
+   	struct exec interp_ex;
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 	char passed_fileno[6];
++#endif
+ 	struct files_struct *files;
+ 	
+ 	/* Get the exec-header */
+@@ -612,6 +631,7 @@ static int load_elf_binary(struct linux_
+ 
+ 	/* Some simple consistency checks for the interpreter */
+ 	if (elf_interpreter) {
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 		interpreter_type = INTERPRETER_ELF | INTERPRETER_AOUT;
+ 
+ 		/* Now figure out which format our binary is */
+@@ -619,6 +639,9 @@ static int load_elf_binary(struct linux_
+ 		    (N_MAGIC(interp_ex) != ZMAGIC) &&
+ 		    (N_MAGIC(interp_ex) != QMAGIC))
+ 			interpreter_type = INTERPRETER_ELF;
++#else
++		interpreter_type = INTERPRETER_ELF;
++#endif
+ 
+ 		if (memcmp(interp_elf_ex.e_ident, ELFMAG, SELFMAG) != 0)
+ 			interpreter_type &= ~INTERPRETER_ELF;
+@@ -627,6 +650,7 @@ static int load_elf_binary(struct linux_
+ 		if (!interpreter_type)
+ 			goto out_free_dentry;
+ 
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 		/* Make sure only one type was selected */
+ 		if ((interpreter_type & INTERPRETER_ELF) &&
+ 		     interpreter_type != INTERPRETER_ELF) {
+@@ -634,6 +658,7 @@ static int load_elf_binary(struct linux_
+ 			// printk(KERN_WARNING "ELF: Ambiguous type, using ELF\n");
+ 			interpreter_type = INTERPRETER_ELF;
+ 		}
++#endif
+ 		/* Verify the interpreter has a valid arch */
+ 		if ((interpreter_type == INTERPRETER_ELF) &&
+ 		    !elf_check_arch(&interp_elf_ex))
+@@ -651,6 +676,7 @@ static int load_elf_binary(struct linux_
+ 	/* OK, we are done with that, now set up the arg stuff,
+ 	   and then start this sucker up */
+ 
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 	if (!bprm->sh_bang) {
+ 		char * passed_p;
+ 
+@@ -666,6 +692,7 @@ static int load_elf_binary(struct linux_
+ 		  }
+ 		}
+ 	}
++#endif
+ 
+ 	/* Flush all traces of the currently running executable */
+ 	retval = flush_old_exec(bprm);
+@@ -814,10 +844,12 @@ static int load_elf_binary(struct linux_
+ 	padzero(elf_bss);
+ 
+ 	if (elf_interpreter) {
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 		if (interpreter_type == INTERPRETER_AOUT)
+ 			elf_entry = load_aout_interp(&interp_ex,
+ 						     interpreter);
+ 		else
++#endif
+ 			elf_entry = load_elf_interp(&interp_elf_ex,
+ 						    interpreter,
+ 						    &interp_load_addr);
+@@ -837,7 +869,9 @@ static int load_elf_binary(struct linux_
+ 
+ 	kfree(elf_phdata);
+ 
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 	if (interpreter_type != INTERPRETER_AOUT)
++#endif
+ 		sys_close(elf_exec_fileno);
+ 
+ 	set_binfmt(&elf_format);
+@@ -851,10 +885,14 @@ static int load_elf_binary(struct linux_
+ 			&elf_ex,
+ 			load_addr, load_bias,
+ 			interp_load_addr,
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ 			(interpreter_type == INTERPRETER_AOUT ? 0 : 1));
+ 	/* N.B. passed_fileno might not be initialized? */
+ 	if (interpreter_type == INTERPRETER_AOUT)
+ 		current->mm->arg_start += strlen(passed_fileno) + 1;
++#else
++			1);
++#endif
+ 	current->mm->start_brk = current->mm->brk = elf_brk;
+ 	current->mm->end_code = end_code;
+ 	current->mm->start_code = start_code;
+@@ -925,9 +963,9 @@ out_free_ph:
+ 	goto out;
+ }
+ 
++#ifdef CONFIG_BINFMT_ELF_AOUT
+ /* This is really simpleminded and specialized - we are loading an
+    a.out library that is given an ELF header. */
+-
+ static int load_elf_library(struct file *file)
+ {
+ 	struct elf_phdr *elf_phdata;
+@@ -1004,6 +1043,7 @@ out_free_ph:
+ out:
+ 	return error;
+ }
++#endif
+ 
+ /*
+  * Note that some platforms still use traditional core dumps and not
+diff -urpPX nopatch linux-2.4.33/fs/exec.c linux/fs/exec.c
+--- linux-2.4.33/fs/exec.c	Wed Jan 19 17:10:10 2005
++++ linux/fs/exec.c	Sat Aug 12 08:51:47 2006
+@@ -109,6 +109,7 @@ static inline void put_binfmt(struct lin
+  */
+ asmlinkage long sys_uselib(const char * library)
+ {
++#if defined(CONFIG_BINFMT_AOUT) || defined(CONFIG_BINFMT_ELF_AOUT)
+ 	struct file * file;
+ 	struct nameidata nd;
+ 	int error;
+@@ -155,6 +156,9 @@ out:
+ exit:
+ 	path_release(&nd);
+ 	goto out;
++#else
++	return -ENOSYS;
++#endif
+ }
+ 
+ /*
+
+--opJtzjQTFsWo+cga--

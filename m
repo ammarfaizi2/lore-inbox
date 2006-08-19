@@ -1,99 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWHSIlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWHSIr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbWHSIlv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 04:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWHSIlv
+	id S1751638AbWHSIr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 04:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWHSIr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 04:41:51 -0400
-Received: from ozlabs.org ([203.10.76.45]:24001 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750876AbWHSIlu (ORCPT
+	Sat, 19 Aug 2006 04:47:29 -0400
+Received: from 1wt.eu ([62.212.114.60]:33808 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751486AbWHSIr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 04:41:50 -0400
-Subject: Re: [2.6.19 PATCH 4/7] ehea: ethtool interface
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Andy Gay <andy@andynet.net>
-Cc: Thomas Klein <osstklei@de.ibm.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Thomas Klein <tklein@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Christoph Raisch <raisch@de.ibm.com>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>
-In-Reply-To: <1155970112.7302.434.camel@tahini.andynet.net>
-References: <200608181333.23031.ossthema@de.ibm.com>
-	 <20060818140506.GC5201@martell.zuzino.mipt.ru>
-	 <44E5DFA6.7040707@de.ibm.com>
-	 <1155968305.1388.4.camel@localhost.localdomain>
-	 <1155970112.7302.434.camel@tahini.andynet.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-km1jr+c+vrMYyrWp/uHS"
-Date: Sat, 19 Aug 2006 18:41:27 +1000
-Message-Id: <1155976887.1388.17.camel@localhost.localdomain>
+	Sat, 19 Aug 2006 04:47:28 -0400
+Date: Sat, 19 Aug 2006 10:47:24 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.34-pre1 USB mass-storage burped...
+Message-ID: <20060819084724.GA2078@1wt.eu>
+References: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Grant,
 
---=-km1jr+c+vrMYyrWp/uHS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sat, Aug 19, 2006 at 06:41:50PM +1000, Grant Coady wrote:
+> Hi there,
+> 
+> Running NFS testing (continuous kernel build + untar, diff against previous) 
+> over two NFS mounts.  Also running continuous kernel build to USB HDD:
+> 
+> No datestamp on rebuild start, sorry -- about 6 or 7 builds from end of 
+> log roughly matches logged events' datestamp, only 1 of 25 builds has 
+> the error:
+> 
+> /bin/sh: line 1: 29947 Bus error               /mnt/hd/linux-2.4.33/scripts/mkdep -D__KERNEL__ -I/mnt/hd/linux-2.4.33/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe
+> -mpreferred-stack-boundary=2 -march=athlon -nostdinc -iwithprefix include -- amdtp.c amdtp.h cmp.c cmp.h csr.c csr.h dma.c dma.h dv1394-private.h dv1394.c dv1394.h eth1394.c eth1394.h highlevel.c highlevel.h hosts.c hosts.h ieee1394-ioctl.h
+> ieee1394.h ieee1394_core.c ieee1394_core.h ieee1394_hotplug.h ieee1394_transactions.c ieee1394_transactions.h ieee1394_types.h iso.c iso.h nodemgr.c nodemgr.h ohci1394.c ohci1394.h pcilynx.c pcilynx.h raw1394-private.h raw1394.c raw1394.h sbp2.c
+> sbp2.h video1394.c video1394.h >.depend
+> make[4]: *** [fastdep] Error 135
+> make[3]: *** [_sfdep_ieee1394] Error 2
+> make[2]: *** [fastdep] Error 2
+> make[1]: *** [_sfdep_drivers] Error 2
+> make: *** [dep-files] Error 2
+> 
+> /var/log/messages:
+> Aug 19 14:04:26 sempro kernel: Initializing USB Mass Storage driver...
+> Aug 19 14:04:26 sempro kernel: usb.c: registered new driver usb-storage
+> Aug 19 14:04:26 sempro kernel: scsi2 : SCSI emulation for USB Mass Storage devices
+> Aug 19 14:04:26 sempro kernel:  sdc: sdc1 sdc2 sdc3
+> Aug 19 14:04:26 sempro kernel: USB Mass Storage support registered.
+> Aug 19 14:09:34 sempro sshd[31910]: Accepted publickey for grant from 192.168.1.31 port 1940 ssh2
+> Aug 19 14:24:23 sempro -- MARK --
+> Aug 19 14:44:23 sempro -- MARK --
+> Aug 19 15:04:23 sempro -- MARK --
+> Aug 19 15:24:23 sempro -- MARK --
+> Aug 19 15:44:23 sempro -- MARK --
+> Aug 19 16:04:23 sempro -- MARK --
+> Aug 19 16:24:23 sempro -- MARK --
+> Aug 19 16:44:23 sempro -- MARK --
+> Aug 19 17:04:23 sempro -- MARK --
+> Aug 19 17:08:54 sempro kernel: usb.c: USB disconnect on device 00:10.4-5 address 4
+> Aug 19 17:08:54 sempro kernel: hub.c: new USB device 00:10.4-5, assigned address 5
+> Aug 19 17:08:54 sempro kernel: Product: USB TO IDE
+> Aug 19 17:24:23 sempro -- MARK --
+> 
+> /var/log/syslog:
+> Aug 19 17:08:54 sempro kernel: SCSI disk error : host 2 channel 0 id 0 lun 0 return code = 70000
+> Aug 19 17:08:54 sempro kernel:  I/O error: dev 08:22, sector 238536
+> Aug 19 17:08:54 sempro kernel: SCSI disk error : host 2 channel 0 id 0 lun 0 return code = 70000
+> Aug 19 17:08:54 sempro kernel:  I/O error: dev 08:22, sector 345840
+> Aug 19 17:08:54 sempro kernel: SCSI disk error : host 2 channel 0 id 0 lun 0 return code = 70000
+> Aug 19 17:08:54 sempro kernel:  I/O error: dev 08:22, sector 345848
+> Aug 19 17:08:54 sempro kernel: SCSI disk error : host 2 channel 0 id 0 lun 0 return code = 70000
+> Aug 19 17:08:54 sempro kernel:  I/O error: dev 08:22, sector 345840
+> Aug 19 17:08:54 sempro kernel: SCSI disk error : host 2 channel 0 id 0 lun 0 return code = 70000
+> Aug 19 17:08:54 sempro kernel:  I/O error: dev 08:22, sector 345840
+> 
+> I'll leave the test running overnight, unless I smell smoke ;)
+> 
+> Test boxen dmesg + comment stripped config:
+>   <http://bugsplatter.mine.nu/test/boxen/peetoo/2.4.xx/> NFS server
+>   <http://bugsplatter.mine.nu/test/boxen/sempro/2.4.xx/> NFS client and build host
+> 
+> Both running 2.4.34-pre1 for this test.  
+> 
+> Recent kernel rebuild testing over NFS produced no errors:
+> grant@sempro:~$ grep Error /home/public/kbuildtest-2.4.log-2.4.33-final
+> grant@sempro:~$ grep Error /home/public/kbuildtest-2.4.log-2.6.17.8-tcp
+> grant@sempro:~$ grep Error /home/public/kbuildtest-2.4.log-2.6.17.8-udp
+> grant@sempro:~$ grep Error /home/public/kbuildtest-2.4.log  <<== current test
 
-On Sat, 2006-08-19 at 02:48 -0400, Andy Gay wrote:
-> On Sat, 2006-08-19 at 16:18 +1000, Michael Ellerman wrote:
->=20
-> >=20
-> > If you try to return an uninitialized value the compiler will warn you,
-> > you'll then look at the code and realise you missed a case, you might
-> > save yourself a bug.=20
->=20
-> You *should* look at the code :)
->=20
-> So should we be reporting these as bugs?
+Have you tried building over USB HDD for another kernel (at least 2.4.33) ?
+If not, could you give it a try please ? I would like to know if this problem
+could have been introduced by the locking changes in 2.4.34-pre1.
 
-No you're better off sending patches ;)
-
-A lot of these have started appearing recently, which I think is due to
-GCC becoming more vocal. Unfortunately many of them are false positives
-caused by GCC not seeming to grok that this is ok:
-
-void foo(int *x) { *x =3D 1; }
-...
-int x;
-foo(&x);
-return x;
-
-It's a pity because it creates noise, but still it's beside the point.
-
-New code going into the kernel should be 100% warning free, and so if
-the eHEA guys had missed an error case they'd spot the warning before
-they submitted it.
-
-Doing the initialise-to-some-value "trick" means you only spot the bug
-via testing.
-
-cheers
-
---=20
-Michael Ellerman
-IBM OzLabs
-
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---=-km1jr+c+vrMYyrWp/uHS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBE5s63dSjSd0sB4dIRAs4JAKC8Wh4R1q7mYXxSHT8QL6amzEHJOgCgh/Rj
-Dp8bX8YxxoUmTyO2MgNtSbU=
-=AFky
------END PGP SIGNATURE-----
-
---=-km1jr+c+vrMYyrWp/uHS--
+Thanks in advance,
+Willy
 

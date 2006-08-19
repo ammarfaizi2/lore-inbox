@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWHSXJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbWHSXKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWHSXJx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 19:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWHSXJx
+	id S932557AbWHSXKK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 19:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWHSXKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 19:09:53 -0400
-Received: from mother.openwall.net ([195.42.179.200]:27277 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S932557AbWHSXJw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 19:09:52 -0400
-Date: Sun, 20 Aug 2006 03:05:32 +0400
-From: Solar Designer <solar@openwall.com>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH] getsockopt() early argument sanity checking
-Message-ID: <20060819230532.GA16442@openwall.com>
+	Sat, 19 Aug 2006 19:10:10 -0400
+Received: from secure.htb.at ([195.69.104.11]:17170 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S932557AbWHSXKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 19:10:08 -0400
+Date: Sun, 20 Aug 2006 01:10:03 +0200
+From: Richard Mittendorfer <delist@gmx.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Axel Kittenberger <axell@kittenberger.net>
+Subject: Re: Abnormal HTTP request termination.
+Message-Id: <20060820011003.0516411f.delist@gmx.net>
+In-Reply-To: <44E782D5.4080402@kittenberger.net>
+References: <44E782D5.4080402@kittenberger.net>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+X-Face: &0P^N,K:@}b8ykW@3d!=n}3D;*Cf{9KYT>>+gcM)XyIMRkBSDg|ur7Zen^BlzmJVr&!;7KT6\t+sHI69\fW(}.=PM+(`w_jnzZ.HbWb/KM"`795_k(&\Lje|'g\cm$4e%Zy*I)hJz-z0!}xkm@!>U0rO{>~[YZUs/=B{}R%#nZ8eBt'{,*>kTTKl_kj'vzrl5|'j5SBiFy#!Sj,p_zl;)q.lpSI\Er"]D`bZY@#+']kJW/YsqvRzi0GR!7ifpt$?]0TYcNs.*wC5OukokPm~R&mmW\q&DL@='khZEET;3ryo[0_mC^K~7,ZvHkj
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Also sprach Axel Kittenberger <axell@kittenberger.net> (Sat, 19 Aug 2006
+23:29:57 +0200):
+> Hello List
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Willy,
-
-I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
-into 2.4.34-pre.
-
-(2.6 kernels could benefit from the same change, too, but at the moment
-I am dealing with proper submission of generic changes like this that
-are a part of 2.4.33-ow1.)
-
-The patch makes getsockopt(2) sanity-check the value pointed to by
-the optlen argument early on.  This is a security hardening measure
-intended to prevent exploitation of certain potential vulnerabilities in
-socket type specific getsockopt() code on UP systems.
-
-This change has been a part of -ow patches for some years.
-
-Thanks,
-
--- 
-Alexander Peslyak <solar at openwall.com>
-GPG key ID: B35D3598  fp: 6429 0D7E F130 C13E C929  6447 73C3 A290 B35D 3598
-http://www.openwall.com - bringing security into open computing environments
-
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.33-ow1-getsockopt-early-arg-sanity.diff"
-
-diff -urpPX nopatch linux-2.4.33/net/socket.c linux/net/socket.c
---- linux-2.4.33/net/socket.c	Wed Jan 19 17:10:14 2005
-+++ linux/net/socket.c	Sat Aug 12 08:51:47 2006
-@@ -1307,10 +1307,18 @@ asmlinkage long sys_setsockopt(int fd, i
- asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
- {
- 	int err;
-+	int len;
- 	struct socket *sock;
+Hoi,
  
- 	if ((sock = sockfd_lookup(fd, &err))!=NULL)
- 	{
-+		/* XXX: insufficient for SMP, but should be redundant anyway */
-+		if (get_user(len, optlen))
-+			err = -EFAULT;
-+		else
-+		if (len < 0)
-+			err = -EINVAL;
-+		else
- 		if (level == SOL_SOCKET)
- 			err=sock_getsockopt(sock,level,optname,optval,optlen);
- 		else
+> On Linux 2.6 (exact 2.6.15) issuing a wget at this location 
+> http://www.wohin-heute.at/highlights.php results in a truncated file. 
+> Truncated before "</hmtl>.
+> [...] 
+> Since thats not a really important site, this is an academic question 
+> after all :)
+> 
+> Has someone an idea, what may cause this network problem which seems
+> to  be limited to linux 2.6?
 
---82I3+IH0IqGh5yIs--
+Looks like it's /proc/s/n/ipv4/tcp_window_scaling. If it's turned off
+the site comes through here. IIRC this is a known issue and there where
+a few posts about that. You'll likely find them with keywords "tcp
+window scaling" in the archive.
+
+> Greetings,
+> Axel Kittenberger
+
+sl ritch

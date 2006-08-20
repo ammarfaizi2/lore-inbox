@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWHTOcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWHTOgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWHTOcA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 10:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWHTOcA
+	id S1750804AbWHTOgf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 10:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWHTOgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 10:32:00 -0400
-Received: from host147-107.pool871.interbusiness.it ([87.1.107.147]:42658 "EHLO
-	memento.home.lan") by vger.kernel.org with ESMTP id S1750803AbWHTOb7
+	Sun, 20 Aug 2006 10:36:35 -0400
+Received: from mother.openwall.net ([195.42.179.200]:64959 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S1750804AbWHTOge
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 10:31:59 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] x86_64: fix linking on 32-bit system
-Date: Sun, 20 Aug 2006 16:31:17 +0200
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+	Sun, 20 Aug 2006 10:36:34 -0400
+Date: Sun, 20 Aug 2006 18:32:35 +0400
+From: Solar Designer <solar@openwall.com>
+To: Willy Tarreau <w@1wt.eu>
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060820143117.6622.22777.stgit@memento.home.lan>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+Subject: Re: [PATCH] loop.c: kernel_thread() retval check
+Message-ID: <20060820143235.GA19543@openwall.com>
+References: <20060819234629.GA16814@openwall.com> <20060820072148.GB306@1wt.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060820072148.GB306@1wt.eu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+On Sun, Aug 20, 2006 at 09:21:48AM +0200, Willy Tarreau wrote:
+> I still remembered this problem being discussed, and finally found
+> the thread :
+> 
+>   http://lkml.org/lkml/2003/11/14/55
 
-When compiling a 64-bit kernel on an Ubuntu 6.06 32bit system (whose GCC is also
-a cross-compiler for x86_64) I've seen that head.o is compiled as a 64-bit file
-(while it should not) and ld complaining about this during linking:
+I was not aware that this had been discussed before.  Bernhard (in the
+old LKML posting above) seems to imply that having kernel_thread()
+itself not fail on ptrace would be a sufficient fix, which I don't agree
+with.  There may be other reasons for kernel_thread() to fail, such as
+the kernel running out of resources; with OpenVZ, kernel_thread() is not
+allowed from within VEs.
 
-ld: warning: i386:x86-64 architecture of input file
-`arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
+> In fact, no code was proposed and 2.6 got fixed later, then stopped
+> using kernel_thread() so nearly nobody might have noticed it :
+> 
+>   http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=3e88c17d404c5787afd5bd1763380317f5ccbf84;hp=22e6c1b39c648850438decd491f62d311800c7db
 
-I've verified that removing -m64 from compilation flags to turn
-"-m64 -traditional -m32" into "-traditional -m32" fixes the issue.
+I'm afraid that this does not properly clean things up on error.  I just
+had a look at linux-2.6.17.9/drivers/block/loop.c - it still uses
+kernel_thread() and has the same "goto out_putf" on error return from
+kernel_thread(), which appears to not clean things up.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- arch/x86_64/boot/compressed/Makefile |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/arch/x86_64/boot/compressed/Makefile b/arch/x86_64/boot/compressed/Makefile
-index f89d96f..c6bfd23 100644
---- a/arch/x86_64/boot/compressed/Makefile
-+++ b/arch/x86_64/boot/compressed/Makefile
-@@ -7,7 +7,9 @@ # Note all the files here are compiled/l
- #
- 
- targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
--EXTRA_AFLAGS	:= -traditional -m32
-+EXTRA_AFLAGS	:= -traditional
-+#Gcc on Ubuntu 6.06 does not cope well with -m64 -m32 - it uses -m64.
-+AFLAGS		:= $(subst -m64,-m32,$(AFLAGS))
- 
- # cannot use EXTRA_CFLAGS because base CFLAGS contains -mkernel which conflicts with
- # -m32
+Alexander

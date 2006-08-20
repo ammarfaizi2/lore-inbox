@@ -1,55 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWHTPyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWHTQEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWHTPyf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 11:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWHTPyf
+	id S1750828AbWHTQEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWHTQEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 11:54:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9119 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750823AbWHTPyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 11:54:35 -0400
-Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
-From: Arjan van de Ven <arjan@infradead.org>
-To: Solar Designer <solar@openwall.com>
-Cc: Alex Riesen <fork0@users.sourceforge.net>,
-       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060820153037.GA20007@openwall.com>
-References: <20060820003840.GA17249@openwall.com>
-	 <20060820100706.GB6003@steel.home>  <20060820153037.GA20007@openwall.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 20 Aug 2006 17:53:22 +0200
-Message-Id: <1156089203.23756.46.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 20 Aug 2006 12:04:13 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:13539 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750828AbWHTQEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 12:04:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=SETkgfmkvU9zf1QFH4tYABIhN32cwm5vShp2sRA/IPl9Ztcs4ylhHYi0PVnQYFksJfZH61WReaOdm+kPuda+2BVs8DYwqR17jUFz30tigxHY38wGFq1BdkGPKulxAGY4sfBLK1R6T/qFFQp1Qh2J7l9uAS97/Jd7uOnLb6HCz2k=
+Message-ID: <44E88821.8080001@gmail.com>
+Date: Sun, 20 Aug 2006 18:04:49 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.18-rc4-mm2
+References: <20060819220008.843d2f64.akpm@osdl.org>
+In-Reply-To: <20060819220008.843d2f64.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-20 at 19:30 +0400, Solar Designer wrote:
-> On Sun, Aug 20, 2006 at 12:07:06PM +0200, Alex Riesen wrote:
-> > Solar Designer, Sun, Aug 20, 2006 02:38:40 +0200:
-> > > Attached is a trivial patch (extracted from 2.4.33-ow1) that makes
-> > > set*uid() kill the current process rather than proceed with -EAGAIN when
-> > > the kernel is running out of memory.  Apparently, alloc_uid() can't fail
-> > > and return anyway due to properties of the allocator, in which case the
-> > > patch does not change a thing.  But better safe than sorry.
-> > 
-> > Why not ENOMEM?
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm2/
 > 
-> ENOMEM would not be any better than EAGAIN from the security standpoint.
-> 
-> The problem is that there are lots of privileged userspace programs that
-> do not bother to check the return value from set*uid() calls (or
-> otherwise check that the calls succeeded) before proceeding with work
-> that is only safe to do with the *uid switched as intended.
 
-sounds like a good argument to get the setuid functions marked
-__must_check in glibc...
+System hangs on this
+
+Aug 20 17:47:47 euridica kernel: BUG: MAX_STACK_TRACE_ENTRIES too low!
+Aug 20 17:47:47 euridica kernel: turning off the locking correctness validator.
+Aug 20 17:47:47 euridica kernel:  [<c01041b5>] dump_trace+0x64/0x1b2
+Aug 20 17:47:47 euridica kernel:  [<c0104315>] show_trace_log_lvl+0x12/0x25
+Aug 20 17:47:47 euridica kernel:  [<c0104985>] show_trace+0xd/0x10
+Aug 20 17:47:47 euridica kernel:  [<c0104a4d>] dump_stack+0x19/0x1b
+Aug 20 17:47:47 euridica kernel:  [<c013878b>] save_trace+0xd0/0xdd
+Aug 20 17:47:47 euridica kernel:  [<c01387f4>] add_lock_to_list+0x5c/0x7a
+Aug 20 17:47:47 euridica kernel:  [<c013a93d>] __lock_acquire+0x9f3/0xaef
+Aug 20 17:47:47 euridica kernel:  [<c013ada3>] lock_acquire+0x71/0x91
+Aug 20 17:47:47 euridica kernel:  [<c02f87b9>] _spin_lock_irqsave+0x2c/0x3c
+Aug 20 17:47:47 euridica kernel:  [<c01d2b8a>] avc_has_perm_noaudit+0x23b/0x487
+Aug 20 17:47:47 euridica kernel:  [<c01d3a5c>] avc_has_perm+0x22/0x45
+Aug 20 17:47:48 euridica kernel:  [<c01d3d58>] ipc_has_perm+0x58/0x60
+Aug 20 17:47:48 euridica kernel:  [<c01d3d96>] selinux_ipc_permission+0x36/0x39
+Aug 20 17:47:48 euridica kernel:  [<c01c7ad6>] ipcperms+0xd7/0xe0
+Aug 20 17:47:48 euridica kernel:  [<c01ca6c0>] do_shmat+0x29b/0x2b2
+Aug 20 17:47:49 euridica kernel:  [<c0107c96>] sys_ipc+0xe8/0x143
+Aug 20 17:47:49 euridica kernel:  [<c01031b5>] sysenter_past_esp+0x56/0x8d
+Aug 20 17:47:49 euridica kernel: DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Aug 20 17:47:49 euridica kernel:
+Aug 20 17:47:49 euridica kernel: Leftover inexact backtrace:
+Aug 20 17:47:49 euridica kernel:
+Aug 20 17:47:50 euridica kernel:  [<c0104315>] show_trace_log_lvl+0x12/0x25
+Aug 20 17:47:50 euridica kernel:  [<c0104985>] show_trace+0xd/0x10
+Aug 20 17:47:50 euridica kernel:  [<c0104a4d>] dump_stack+0x19/0x1b
+Aug 20 17:47:50 euridica kernel:  [<c013878b>] save_trace+0xd0/0xdd
+Aug 20 17:47:50 euridica kernel:  [<c01387f4>] add_lock_to_list+0x5c/0x7a
+Aug 20 17:47:50 euridica kernel:  [<c013a93d>] __lock_acquire+0x9f3/0xaef
+Aug 20 17:47:50 euridica kernel:  [<c013ada3>] lock_acquire+0x71/0x91
+Aug 20 17:47:50 euridica kernel:  [<c02f87b9>] _spin_lock_irqsave+0x2c/0x3c
+Aug 20 17:47:50 euridica kernel:  [<c01d2b8a>] avc_has_perm_noaudit+0x23b/0x487
+Aug 20 17:47:51 euridica kernel:  [<c01d3a5c>] avc_has_perm+0x22/0x45
+Aug 20 17:47:51 euridica kernel:  [<c01d3d58>] ipc_has_perm+0x58/0x60
+Aug 20 17:47:51 euridica kernel:  [<c01d3d96>] selinux_ipc_permission+0x36/0x39
+Aug 20 17:47:52 euridica kernel:  [<c01c7ad6>] ipcperms+0xd7/0xe0
+
+When I build kernel with gcc 3.4.6 everything works fine.
+
+gcc-3.4 -v
+Reading specs from /usr/local/bin/../lib/gcc/i686-pc-linux-gnu/3.4.6/specs
+Configured with: ./configure --prefix=/usr/local/ --disable-nls --enable-shared --enable-languages=c --program-suffix=-3.4
+Thread model: posix
+gcc version 3.4.6
+
+gcc -v
+Using built-in specs.
+Target: i386-redhat-linux
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-libgcj-multifile --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre --with-cpu=generic --host=i386-redhat-linux
+Thread model: posix
+gcc version 4.1.1 20060525 (Red Hat 4.1.1-1)
+
+Here is a config file http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm2/mm-config
+
+Regards,
+Michal
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)
 

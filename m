@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWHTBet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWHTBg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751633AbWHTBet (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 21:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWHTBes
+	id S932313AbWHTBg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 21:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWHTBg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 21:34:48 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:21584 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751633AbWHTBer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 21:34:47 -0400
+	Sat, 19 Aug 2006 21:36:58 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:8890 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932365AbWHTBg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 21:36:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j3O3x1WBEbZPl2B+mupWhkfI5RBSq/UGmmOqwpfsGUJsAf6vmN4R1rcNhmHQ+beXP0daBWoZNU3aVDBZl0u5EOPlEJRUoS8s2eltQ76B82ZxTkzn7HARl0pdAyLH9SSVeJ9785Z94L1F0DbQvKRMkGASyJ8uPwbQSMF95qepnQU=
-Message-ID: <625fc13d0608191834r19ce12e5raccbae011d67c25e@mail.gmail.com>
-Date: Sat, 19 Aug 2006 20:34:46 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Richard Purdie" <rpurdie@rpsys.net>
-Subject: Re: 2.6.18-rc4 jffs2 problems
-Cc: linux-mtd <linux-mtd@lists.infradead.org>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, "Greg KH" <greg@kroah.com>,
-       "David Woodhouse" <dwmw2@infradead.org>
-In-Reply-To: <1155852587.5530.30.camel@localhost.localdomain>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=uSyo7HmIqji6dsujypRho9Rqa3oml0JmjZVVYJ34bGez+KaCUFob9nbTSJl5TV/sZOC7Zr38mSHuHguIMO8mdw/glT0hB3eYqoIk0XiACV9XFZJRb8i/9ai5T8HMWZY5GWGI0CATDls4sDwlqfhz4p3Cs92mnS2d5i0QZspenN8=
+Message-ID: <4ae3c140608191836we4603c0qa61d5631161a482d@mail.gmail.com>
+Date: Sat, 19 Aug 2006 21:36:57 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Where does NFS client associate the file handle received from server with inode?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1154976111.17725.8.camel@localhost.localdomain>
-	 <1155852587.5530.30.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/17/06, Richard Purdie <rpurdie@rpsys.net> wrote:
-> Read the return value before we release the nand device otherwise the
-> value can become corrupted by another user of chip->ops, ultimately
-> resulting in filesystem corruption.
->
+I ran into a problem:
 
-We have multiple confirmations that this patch fixes the issue
-reported.  I agree it should go in 2.6.18.
+I extend several fields to file handle, and change compose_fh() to
+initialize some value into the file handle. I think the client side
+should be able to associate the file handle with inode and used them
+properly afterwards.  However, I found a problem:
 
-Greg, can you add this to your tree?
+Say I have a program 'postmark" in /tmp, and my current directory is /
 
+If I do '/tmp/postmark', getattr() funciton will not use the right
+file handle with extension. Instead, it seems to use a file handle
+excluding my extension
 
-> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+but if I change to '/tmp', do 'ls -al' first, then I do 'postmark',
+getattr() will use the right file handle.
 
-Acked-by: Josh Boyer <jwboyer@gmail.com>
+So I think maybe I need to change NFS client to associate the extened
+file handle with inode . But I don't know where NFS client does this.
+Can someone give me a help?
 
-josh
+Many thanks!
+
+-x

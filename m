@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWHTPK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWHTPWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWHTPK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 11:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWHTPK5
+	id S1750729AbWHTPWY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 11:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWHTPWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 11:10:57 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28939 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750708AbWHTPK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 11:10:56 -0400
-Date: Sun, 20 Aug 2006 17:10:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Maciej Rutecki <maciej.rutecki@gmail.com>,
-       David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc4-mm2: AFS_FSCACHE=n compile error
-Message-ID: <20060820151056.GL7813@stusta.de>
-References: <20060819220008.843d2f64.akpm@osdl.org> <44E86282.9020406@gmail.com>
+	Sun, 20 Aug 2006 11:22:24 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:50139 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1750729AbWHTPWX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 11:22:23 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][CHAR] Return better error codes if drivers/char/raw.c module init fails
+Date: Sun, 20 Aug 2006 17:22:45 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+References: <200608180918.30483.eike-kernel@sf-tec.de> <20060818162743.f97ff431.akpm@osdl.org>
+In-Reply-To: <20060818162743.f97ff431.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44E86282.9020406@gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: multipart/signed;
+  boundary="nextPart1288915.yfDmmHoooU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200608201722.45401.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 03:24:18PM +0200, Maciej Rutecki wrote:
-> Andrew Morton napisał(a):
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm2/
-> 
-> Error while compile ("make all" command):
-> 
-> CC [M]  fs/afs/file.o
-> fs/afs/file.c: In function 'afs_file_releasepage':
-> fs/afs/file.c:332: error: 'struct afs_vnode' has no member named 'cache'
-> make[2]: *** [fs/afs/file.o] Błąd 1
-> make[1]: *** [fs/afs] Błąd 2
-> make: *** [fs] Błąd 2
-> 
-> I download sources 2 times, and I have this error.
+--nextPart1288915.yfDmmHoooU
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-David, fs-cache-make-kafs-use-fs-cache-12.patch breaks 
-CONFIG_AFS_FSCACHE=n builds.
+Andrew Morton wrote:
+> On Fri, 18 Aug 2006 09:18:30 +0200
+>
+> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+> > Currently this module just returns 1 if anything on module init fails.
+> > Store the error code of the different function calls and return their
+> > error on problems.
+> >
+> > I'm not sure if this doesn't need even more cleanup, for example
+> > kobj_put() is called only in one error case.
+>
+> You seem to be using kmail in funky-confuse-sylpheed mode.  Inlined patch=
+es
+> in plain-text emails are preferred, please.
 
-cu
-Adrian
+Sorry, I left the "sign mail" activated by accident. gpg-agent had the=20
+password still cached, otherwise I would have seen that.
 
--- 
+Eike
 
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
+--nextPart1288915.yfDmmHoooU
+Content-Type: application/pgp-signature
 
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
+iD8DBQBE6H5FXKSJPmm5/E4RApMcAJ438e2bJAh+5gYtVqNsbHZMtfx0fACfRIwH
+qHCvnwjfpft1+syR6ENSJb8=
+=bPr1
+-----END PGP SIGNATURE-----
+
+--nextPart1288915.yfDmmHoooU--

@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWHTNh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWHTNrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWHTNh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 09:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWHTNh1
+	id S1750785AbWHTNrv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 09:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWHTNru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 09:37:27 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:53668 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750784AbWHTNh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 09:37:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=M9yXY7iM0e+VGbq4WUk/kQ4tJErKhlZ87Bsy8gpGu6KjEata02S7MgeyyUl4BBiPCYMNpG3tSiKlgdQ+A55MenzJR6waVOD75gFPN7OX7H3C1XJguB55Al91OMeVmmNTbE0jEQDAIJ+heCfLIh/t3pPp2UCIi0rVlWA2CJBPr0g=
-Date: Sun, 20 Aug 2006 22:37:20 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: [PATCH] file: kill unnecessary includes in fs/file.c
-Message-ID: <20060820133720.GO6371@htj.dyndns.org>
+	Sun, 20 Aug 2006 09:47:50 -0400
+Received: from mail.gmx.net ([213.165.64.20]:28053 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750785AbWHTNru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 09:47:50 -0400
+X-Authenticated: #5039886
+Date: Sun, 20 Aug 2006 15:47:45 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Return real errno from execve in ____call_usermodehelper
+Message-ID: <20060820134745.GA11843@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org
+References: <20060819073031.GA25711@atjola.homenet> <20060819011428.05ec2ae4.akpm@osdl.org> <20060819084233.GA25767@flint.arm.linux.org.uk> <200608201501.29296.arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200608201501.29296.arnd@arndb.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kill unnecessary mm.h, time.h and bitops.h includes in fs/file.c.
+On 2006.08.20 15:01:28 +0200, Arnd Bergmann wrote:
+> On Saturday 19 August 2006 10:42, Russell King wrote:
+> > Maybe what we should be thinking of doing is changing execve() calls
+> > to kernel_execve() which returns the error code.
+> > 
+> > This way, architectures are free to implement execve() whatever way
+> > they wish - and if they're concerned about using errno, that's their
+> > own implementation specific detail.
+> 
+> Sounds good, it means we could finally kill __KERNEL_SYSCALLS__ along
+> with lib/errno.c.
+> 
+> I guess a fallback for those that haven't yet done kernel_execve could be
+> 
+> #ifdef CONFIG_ARCH_KERNEL_EXECVE
+> extern int kernel_execve(const char *filename,
+> 		char *const argv[], char *const envp[]);
+> #else
+> static inline int kernel_execve(const char *filename,
+> 		char *const argv[], char *const envp[]);
+> {
+> 	int errno;
+> 	mm_segment_t old_fs = get_fs();
+> 	set_fs(KERNEL_DS);
+> 	/* the kernel syscall macro modifies errno */
+> 	execve(filename, argv, envp);
+> 	set_fs(old_fs);
+> 	return errno;
+> }
+> #endif
+> 
+> With that in place, we can remove the global errno right away, and the
+> kernel syscalls for any architecture that implements its own kernel_execve.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
----
- fs/file.c |    3 ---
- 1 file changed, 3 deletions(-)
+How is execve() supposed to use the local errno? The kernel syscall
+macro only "creates" a function, so you still need a global errno for
+that code, don't you?
 
-Index: work/fs/file.c
-===================================================================
---- work.orig/fs/file.c
-+++ work/fs/file.c
-@@ -7,12 +7,9 @@
-  */
- 
- #include <linux/fs.h>
--#include <linux/mm.h>
--#include <linux/time.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/file.h>
--#include <linux/bitops.h>
- #include <linux/interrupt.h>
- #include <linux/spinlock.h>
- #include <linux/rcupdate.h>
+And I (because I'm clueless ;) wonder about the calls to set_fs(), why
+do we need them? The current code does not seem to do them. Or is there
+something special about kernel_execve that I'm missing? cscope and grep
+didn't tell anything and Google had only a few useless results for
+kernel_execve.
+
+Björn

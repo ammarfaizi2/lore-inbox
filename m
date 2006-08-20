@@ -1,95 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751618AbWHTAnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWHTAmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751618AbWHTAnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 20:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWHTAnn
+	id S1751605AbWHTAmh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 20:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbWHTAmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 20:43:43 -0400
-Received: from 1wt.eu ([62.212.114.60]:39184 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751345AbWHTAnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 20:43:42 -0400
-Date: Sun, 20 Aug 2006 02:43:07 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Solar Designer <solar@openwall.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] getsockopt() early argument sanity checking
-Message-ID: <20060820004307.GD27115@1wt.eu>
-References: <20060819230532.GA16442@openwall.com> <20060819234806.GB27115@1wt.eu> <200608200205.20876.mb@bu3sch.de>
+	Sat, 19 Aug 2006 20:42:37 -0400
+Received: from mother.openwall.net ([195.42.179.200]:22670 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S1751345AbWHTAmg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 20:42:36 -0400
+Date: Sun, 20 Aug 2006 04:38:40 +0400
+From: Solar Designer <solar@openwall.com>
+To: Willy Tarreau <wtarreau@hera.kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
+Message-ID: <20060820003840.GA17249@openwall.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="ibTvN161/egqYuK8"
 Content-Disposition: inline
-In-Reply-To: <200608200205.20876.mb@bu3sch.de>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 02:05:20AM +0200, Michael Buesch wrote:
-> On Sunday 20 August 2006 01:48, Willy Tarreau wrote:
-> > On Sun, Aug 20, 2006 at 03:05:32AM +0400, Solar Designer wrote:
-> > > Willy,
-> > > 
-> > > I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
-> > > into 2.4.34-pre.
-> > > 
-> > > (2.6 kernels could benefit from the same change, too, but at the moment
-> > > I am dealing with proper submission of generic changes like this that
-> > > are a part of 2.4.33-ow1.)
-> > > 
-> > > The patch makes getsockopt(2) sanity-check the value pointed to by
-> > > the optlen argument early on.  This is a security hardening measure
-> > > intended to prevent exploitation of certain potential vulnerabilities in
-> > > socket type specific getsockopt() code on UP systems.
-> > > 
-> > > This change has been a part of -ow patches for some years.
-> > 
-> > looks valid to me, merged.
-> 
-> Not to me. It heavily violates codingstyle and screws brains
-                ^^^^^^^
-little exageration detected here.
 
-> with the non-indented else branches.
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-while they surprized me first, they make the *patch* more readable
-by clearly showing what has been inserted and where. However, I have
-joined the lines for the merge.
+Willy and all,
 
-> Learn about goto.
+Attached is a trivial patch (extracted from 2.4.33-ow1) that makes
+set*uid() kill the current process rather than proceed with -EAGAIN when
+the kernel is running out of memory.  Apparently, alloc_uid() can't fail
+and return anyway due to properties of the allocator, in which case the
+patch does not change a thing.  But better safe than sorry.
 
-definitely not here. The if() expressions are all one-liners. Adding
-a goto would mean two instructions, to which you add 2 braces. It will
-not make the code more readable. Patch below is OK. If you have a hard
-time understanding it, then it's because it's bedtime for you too :-)
+As you're probably aware, 2.6 kernels are affected to a greater extent,
+where set*uid() may also fail on trying to exceed RLIMIT_NPROC.  That
+needs to be fixed, too.
 
-Regards,
-Willy
+Opinions are welcome.
 
+Thanks,
 
-diff --git a/net/socket.c b/net/socket.c
-index ac45b13..910ef88 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1307,11 +1307,17 @@ asmlinkage long sys_setsockopt(int fd, i
- asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
- {
- 	int err;
-+	int len;
- 	struct socket *sock;
+Alexander
+
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.33-ow1-set_user.diff"
+
+diff -urpPX nopatch linux-2.4.33/kernel/sys.c linux/kernel/sys.c
+--- linux-2.4.33/kernel/sys.c	Fri Nov 28 21:26:21 2003
++++ linux/kernel/sys.c	Wed Aug 16 05:19:21 2006
+@@ -514,8 +514,10 @@ static int set_user(uid_t new_ruid, int 
+ 	struct user_struct *new_user;
  
- 	if ((sock = sockfd_lookup(fd, &err))!=NULL)
- 	{
--		if (level == SOL_SOCKET)
-+		/* XXX: insufficient for SMP, but should be redundant anyway */
-+		if (get_user(len, optlen))
-+			err = -EFAULT;
-+		else if (len < 0)
-+			err = -EINVAL;
-+		else if (level == SOL_SOCKET)
- 			err=sock_getsockopt(sock,level,optname,optval,optlen);
- 		else
- 			err=sock->ops->getsockopt(sock, level, optname, optval, optlen);
--- 
-1.4.1
+ 	new_user = alloc_uid(new_ruid);
+-	if (!new_user)
++	if (!new_user) {
++		force_sig(SIGSEGV, current);
+ 		return -EAGAIN;
++	}
+ 	switch_uid(new_user);
+ 
+ 	if(dumpclear)
 
+--ibTvN161/egqYuK8--

@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWHTSis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWHTSi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWHTSis (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 14:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWHTSis
+	id S1751141AbWHTSi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 14:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWHTSiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 14:38:48 -0400
-Received: from ns2.suse.de ([195.135.220.15]:31671 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750901AbWHTSis (ORCPT
+	Sun, 20 Aug 2006 14:38:55 -0400
+Received: from ns1.suse.de ([195.135.220.2]:4304 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751134AbWHTSiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 14:38:48 -0400
+	Sun, 20 Aug 2006 14:38:54 -0400
 From: Andi Kleen <ak@suse.de>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: Re: [PATCH] x86_64: fix linking on 32-bit system
-Date: Sun, 20 Aug 2006 20:30:48 +0200
+To: Solar Designer <solar@openwall.com>
+Subject: Re: [PATCH] getsockopt() early argument sanity checking
+Date: Sun, 20 Aug 2006 20:38:34 +0200
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060820143117.6622.22777.stgit@memento.home.lan>
-In-Reply-To: <20060820143117.6622.22777.stgit@memento.home.lan>
+Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <20060819230532.GA16442@openwall.com> <200608201034.43588.ak@suse.de> <20060820161602.GA20163@openwall.com>
+In-Reply-To: <20060820161602.GA20163@openwall.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608202030.48791.ak@suse.de>
+Message-Id: <200608202038.34842.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 August 2006 16:31, Paolo 'Blaisorblade' Giarrusso wrote:
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+On Sunday 20 August 2006 18:16, Solar Designer wrote:
+> On Sun, Aug 20, 2006 at 10:34:43AM +0200, Andi Kleen wrote:
+> > In general I don't think it makes sense to submit stuff for 2.4 
+> > that isn't in 2.6.
 > 
-> When compiling a 64-bit kernel on an Ubuntu 6.06 32bit system (whose GCC is also
-> a cross-compiler for x86_64) I've seen that head.o is compiled as a 64-bit file
-> (while it should not) and ld complaining about this during linking:
-> 
-> ld: warning: i386:x86-64 architecture of input file
-> `arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
-> 
-> I've verified that removing -m64 from compilation flags to turn
-> "-m64 -traditional -m32" into "-traditional -m32" fixes the issue.
+> In general I agree, however right now I had the choice between
+> submitting these changes for 2.4 first and not submitting them at all
+> (at least for some months more).  I chose the former.
 
-Applied thanks, but I removed the comment because it's on more
-than just Ubuntu 32bit.
+If there is really a length checking bug it shouldn't be that hard to fix it 
+in both.
 
-AFAIK the warning is harmless, but you're the first to submit a real
-patch to fix it.
+
+> We're on UP.  sys_getsockopt() does get_user() (due to the patch) and
+> makes sure that the passed *optlen is sane.  Even if this get_user()
+> sleeps, the value it returns in "len" is what's currently in memory at
+> the time of the get_user() return (correct?)  Then an underlying
+> *getsockopt() function does another get_user() on optlen (same address),
+> without doing any other user-space data accesses or anything else that
+> could sleep first.  Is it possible that this second get_user()
+> invocation would sleep?  I think not since it's the same address that
+> we've just read a value from, we did not leave kernel space, and we're
+> on UP (so no other processor could have changed the mapping).  So the
+> patch appears to be sufficient for this special case (which is not
+> unlikely).
+> 
+> Of course, it is possible that I am wrong about some of the above;
+> please correct me if so.
+
+Nah you're right (except on a preemptible kernel which 2.4 isn't unpatched)
+However if there is any other user access before the second get_user 
+the race could happen again even on UP.
+
 -Andi

@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWHTV67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWHTWFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWHTV67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 17:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWHTV67
+	id S1751195AbWHTWFx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 18:05:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWHTWFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 17:58:59 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:56787 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1751196AbWHTV67 (ORCPT
+	Sun, 20 Aug 2006 18:05:53 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:24530 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751195AbWHTWFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 17:58:59 -0400
-Date: Sun, 20 Aug 2006 14:48:57 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stephane Eranian <eranian@hpl.hp.com>, ak@suse.de
-Subject: [PATCH] x86-64 add missing PMU MSR definitions
-Message-ID: <20060820214856.GD27542@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Sun, 20 Aug 2006 18:05:53 -0400
+Date: Mon, 21 Aug 2006 00:05:38 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Patrick McFarland <diablod3@gmail.com>,
+       Anonymous User <anonymouslinuxuser@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation?
+Message-ID: <20060820220538.GA10011@opteron.random>
+References: <40d80630608162248y498cb970r97a14c582fd663e1@mail.gmail.com> <200608170242.40969.diablod3@gmail.com> <1155807431.22871.157.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Md/poaVZ8hnGTzuv"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
+In-Reply-To: <1155807431.22871.157.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 17, 2006 at 10:37:11AM +0100, David Woodhouse wrote:
+> But _even_ if GregKH, Arjan and all of IBM's lawyers are wrong and we
 
---Md/poaVZ8hnGTzuv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I agree about the rest and I'm certainly not trying to make life easy
+to the binary only drivers, but for completeness I'd like to add that
+IBM at some point released binary only drivers for some virtual device
+on s390. I think they're all GPL by now, but my point remains that
+even IBM must have thought they could legally ship binary only drivers
+in the past (like everybody else did until recently after all).
 
-Hello,
-
-Here is a patch to add a couple of missing MSR definitions related
-to Performance monitoring for EM64T. A separate patch contains the
-i386 equivalent.
-
-Changelog:
-        - add MSR definitions for IA32_PEBS_ENABLE and PEBS_MATRIX_VERT
-
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
-
--- 
--Stephane
-
---Md/poaVZ8hnGTzuv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="msr-x86_64.diff"
-
---- linux-2.6.17.8.orig/include/asm-x86_64/msr.h	2006-08-06 21:18:54.000000000 -0700
-+++ linux-2.6.17.8/include/asm-x86_64/msr.h	2006-08-20 14:40:52.000000000 -0700
-@@ -396,4 +396,7 @@ static inline unsigned int cpuid_edx(uns
- #define MSR_P4_U2L_ESCR0 		0x3b0
- #define MSR_P4_U2L_ESCR1 		0x3b1
- 
-+#define MSR_IA32_PEBS_ENABLE		0x3f1
-+#define MSR_PEBS_MATRIX_VERT		0x3f2
-+
- #endif
-
---Md/poaVZ8hnGTzuv--
+My only worry is what's the legal status of the vsyscall if the only
+thing that matters is the COPYING file and not its generally agreed
+interpretation.

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWHTPWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWHTPZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWHTPWY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 11:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWHTPWY
+	id S1750818AbWHTPZF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 11:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWHTPZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 11:22:24 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:50139 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1750729AbWHTPWX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 11:22:23 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][CHAR] Return better error codes if drivers/char/raw.c module init fails
-Date: Sun, 20 Aug 2006 17:22:45 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-References: <200608180918.30483.eike-kernel@sf-tec.de> <20060818162743.f97ff431.akpm@osdl.org>
-In-Reply-To: <20060818162743.f97ff431.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1288915.yfDmmHoooU";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sun, 20 Aug 2006 11:25:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14569 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750812AbWHTPZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 11:25:03 -0400
+Subject: Re: [PATCH] ext2: avoid needless discard of preallocated blocks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ron Yorston <rmy@tigress.co.uk>
+Cc: Val Henson <val.henson@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <200608201148.k7KBm8XA005948@tiffany.internal.tigress.co.uk>
+References: <200608171945.k7HJjaLk029781@tiffany.internal.tigress.co.uk>
+	 <20060819224603.bf687be2.akpm@osdl.org>
+	 <200608201148.k7KBm8XA005948@tiffany.internal.tigress.co.uk>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 20 Aug 2006 17:24:59 +0200
+Message-Id: <1156087499.23756.39.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200608201722.45401.eike-kernel@sf-tec.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1288915.yfDmmHoooU
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 2006-08-20 at 12:48 +0100, Ron Yorston wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >Been there, done that.  The problem was that hanging onto the preallocation
+> >will cause separate files to have up-to-seven-block gaps between them.  So
+> >if you put a large number of small files in the same directory, the time to
+> >read them all back is quite significantly impacted: they cover a lot more
+> >disk.
+> 
+> The preallocation is only held while the file is open, so there will only
+> be gaps between files that are open simultaneously.  If they're created
+> sequentially there will be no gap.
+> 
+> This issue exists even with the current code.
+> 
+> The patch will have a small effect.  With the current code an open file
+> will lose its preallocation when some other process touches the inode.
+> In that case a subsequently created file will follow without a gap.  As
+> soon as the open file is written to, though, it gets a new preallocation.
+> -
 
-Andrew Morton wrote:
-> On Fri, 18 Aug 2006 09:18:30 +0200
->
-> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> > Currently this module just returns 1 if anything on module init fails.
-> > Store the error code of the different function calls and return their
-> > error on problems.
-> >
-> > I'm not sure if this doesn't need even more cleanup, for example
-> > kobj_put() is called only in one error case.
->
-> You seem to be using kmail in funky-confuse-sylpheed mode.  Inlined patch=
-es
-> in plain-text emails are preferred, please.
+maybe porting the reservation code to ext2 (as Val has done) is a nicer
+long term solution..
 
-Sorry, I left the "sign mail" activated by accident. gpg-agent had the=20
-password still cached, otherwise I would have seen that.
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 
-Eike
-
---nextPart1288915.yfDmmHoooU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBE6H5FXKSJPmm5/E4RApMcAJ438e2bJAh+5gYtVqNsbHZMtfx0fACfRIwH
-qHCvnwjfpft1+syR6ENSJb8=
-=bPr1
------END PGP SIGNATURE-----
-
---nextPart1288915.yfDmmHoooU--

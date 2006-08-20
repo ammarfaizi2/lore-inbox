@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWHTSWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWHTSZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWHTSWU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 14:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWHTSWU
+	id S1751121AbWHTSZo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 14:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWHTSZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 14:22:20 -0400
-Received: from 1wt.eu ([62.212.114.60]:55568 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751120AbWHTSWT (ORCPT
+	Sun, 20 Aug 2006 14:25:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16875 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751121AbWHTSZn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 14:22:19 -0400
-Date: Sun, 20 Aug 2006 20:21:38 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Solar Designer <solar@openwall.com>,
-       Alex Riesen <fork0@users.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
-Message-ID: <20060820182137.GO602@1wt.eu>
-References: <20060820003840.GA17249@openwall.com> <20060820100706.GB6003@steel.home> <20060820153037.GA20007@openwall.com> <1156097013.4051.14.camel@localhost.localdomain> <20060820181025.GN602@1wt.eu> <1156099006.4051.43.camel@localhost.localdomain>
+	Sun, 20 Aug 2006 14:25:43 -0400
+Date: Sun, 20 Aug 2006 11:25:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+       =?ISO-8859-1?B?Qmr2cm4=?= Steinbrink <B.Steinbrink@gmx.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] introduce kernel_execve function to replace
+ __KERNEL_SYSCALLS__
+Message-Id: <20060820112523.f14fc6dc.akpm@osdl.org>
+In-Reply-To: <200608201237.13194.chase.venters@clientec.com>
+References: <20060819073031.GA25711@atjola.homenet>
+	<20060820134745.GA11843@atjola.homenet>
+	<200608201913.39989.arnd@arndb.de>
+	<200608201237.13194.chase.venters@clientec.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156099006.4051.43.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 07:36:46PM +0100, Alan Cox wrote:
-> Ar Sul, 2006-08-20 am 20:10 +0200, ysgrifennodd Willy Tarreau:
-> > So I think that while it's bad code in userland, a misunderstood kernel
-> > semantic caught the developpers. We can at least make the kernel help them.
-> 
-> Yeah we could. But unfortunately a competence test with the inability to
-> write C code isn't part of the Unix spec.
+On Sun, 20 Aug 2006 12:36:49 -0500
+Chase Venters <chase.venters@clientec.com> wrote:
 
-I know but those programs sometimes ship with distros. How many distros do
-not ship with either Xfree86 nor Xorg ?
+> Unless 'errno' has some significant reason to live on in the kernel, I think 
+> it would be better to kill it and write kernel syscall macros that don't muck 
+> with it.
 
-> You can help them enormously using the gcc extensions so gcc warns about
-> any unchecked set*uid call, rather than redesigning expected behaviour
-> to cause obscure random kills that won't even be noticed/explained.
-
-Arjan proposed to add a __must_check on the set*uid() function in glibc.
-I think that if killing the program is what makes you nervous, we could
-at least print a warning in the kernel logs so that the admin of a machine
-being abused has a chance to detect what's going on. Would you accept
-something like this ?
-
-Willy
-
+We have been working in that direction.  It's certainly something we'd like
+to kill off.

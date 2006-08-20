@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751740AbWHTWav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWHTWb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751740AbWHTWav (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 18:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWHTWav
+	id S1751745AbWHTWb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 18:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWHTWb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 18:30:51 -0400
-Received: from ns2.suse.de ([195.135.220.15]:15574 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751736AbWHTWau (ORCPT
+	Sun, 20 Aug 2006 18:31:29 -0400
+Received: from sandeen.net ([209.173.210.139]:58720 "EHLO sandeen.net")
+	by vger.kernel.org with ESMTP id S1751744AbWHTWb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 18:30:50 -0400
-Date: Mon, 21 Aug 2006 00:30:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Josh Boyer <jwboyer@gmail.com>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060820223046.GB10011@opteron.random>
-References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060806004634.GB6455@opteron.random> <20060806045234.GA28849@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060806045234.GA28849@kroah.com>
+	Sun, 20 Aug 2006 18:31:28 -0400
+Message-ID: <44E8E2BF.7020000@sandeen.net>
+Date: Sun, 20 Aug 2006 17:31:27 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: ext2-devel@lists.sourceforge.net, Neil Brown <neilb@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CVE-2006-3468: which patch to use?
+References: <20060820192750.GR7813@stusta.de>
+In-Reply-To: <20060820192750.GR7813@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 05, 2006 at 09:52:34PM -0700, Greg KH wrote:
-> Greg didn't "elect" anyone, Adrian volunteered to maintain something
-> that had been dropped by the -stable developers and no one else was
-> going to maintain.
+Adrian Bunk wrote:
+> While going through patches for 2.6.16.x, I stumbled over the following 
+> regarding the "NFS export of ext2/ext3" security vulnerabilities (the 
+> ext3 one is  CVE-2006-3468, I don't whether there's a number for the 
+> ext2 one):
+> 
+> There are three patches available:
+> have-ext2-reject-file-handles-with-bad-inode-numbers-early.patch
+> have-ext3-reject-file-handles-with-bad-inode-numbers-early.patch
+> ext3-avoid-triggering-ext3_error-on-bad-nfs-file-handle.patch
+> 
+> The first two patches are except for a s/ext2/ext3/ identical.
+> 
+> The two ext3 patches fix the same issue in slightly different ways.
+> 
+> It seems there was already some agreement that the first of the two ext3 
+> patches should be preferred due to being more the same as the ext2 patch
+> (see [1] and followups).
+> 
+> But the only patch that is applied in 2.6.18-rc4 (and in 2.6.17.9) is 
+> the ext3 patch that is _not_ identical to the ext2 one.
+> 
+> Is it the correct solution to revert this ext3 patch in both 2.6.18-rc 
+> and 2.6.17 and to apply the other two patches?
+> 
+> cu
+> Adrian
+> 
+> BTW: I've attached all three patches.
+> 
+> [1] http://lkml.org/lkml/2006/8/4/192
 
-Did you ever call for a maintainer list of volunteers?
+IMO the first two should be used; i.e. those that add ext[23]_get_dentry().
 
-To me an official 2.6.16-stable in the hands of the only guy who
-proposed himself as maintainer, sounds worse than no stable tree at
-all. People won't know anymore if to run Greg's 2.6.18-stable or
-2.6.16-stable.
-
-If a 2.6-real-stable tree has to happen because 2.6-stable is not
-really stable/trustable enough, then give it up with your
-2.6.18-stable and start doing 2.7 and leave 2.6 in the hands of
-somebody else.
-
-An official kernel needs a critical mass to have a value, it's simply
-a wasted effort to open yet another official tree that will actually
-fragment the "production" userbase even more.
-
-If 2.6.18-stable is sustainable with the current model, with the
-distro folks being the only ones forking off a real-stable tree, then
-you should drop 2.6.16-stable. If instead it's 2.6.18-stable that is
-not good enough for production usage and people really needs
-2.6.16-stable, you should open 2.7, and not fragment the userbase like
-this.
-
-I think it would be great to have the users choosing their preferred
-maintainer to end the era of maintainers being decided by other
-maintainers like you actually did. A simple website on kernel.org can
-achieve it, where users can registers for voting and the maintainers
-willing to maintain 2.6-stable can registers themself too. That's at
-least less random than the current status if what you said above is
-true and if 2.6.16-stable is meant to reach any critical mass.
+-Eric

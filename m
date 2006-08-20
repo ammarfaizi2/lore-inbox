@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWHTW6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWHTW6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751783AbWHTW6S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 18:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWHTW6S
+	id S1751785AbWHTW6g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 18:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWHTW6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 18:58:18 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30426 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751783AbWHTW6R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 18:58:17 -0400
-From: Neil Brown <neilb@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Date: Mon, 21 Aug 2006 08:58:10 +1000
+	Sun, 20 Aug 2006 18:58:36 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:10909 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751786AbWHTW6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 18:58:35 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: 2.4.34-pre1 USB mass-storage burped...
+Date: Mon, 21 Aug 2006 08:58:29 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <6kohe2tuvg9mr1adfpj05k9jvkca1arhe9@4ax.com>
+References: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com> <20060819084724.GA2078@1wt.eu> <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com> <20060819100728.GA25405@1wt.eu>
+In-Reply-To: <20060819100728.GA25405@1wt.eu>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17640.59650.383208.804821@cse.unsw.edu.au>
-Cc: ext2-devel@lists.sourceforge.net, Eric Sandeen <sandeen@sandeen.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CVE-2006-3468: which patch to use?
-In-Reply-To: message from Adrian Bunk on Sunday August 20
-References: <20060820192750.GR7813@stusta.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday August 20, bunk@stusta.de wrote:
-> While going through patches for 2.6.16.x, I stumbled over the following 
-> regarding the "NFS export of ext2/ext3" security vulnerabilities (the 
-> ext3 one is  CVE-2006-3468, I don't whether there's a number for the 
-> ext2 one):
-> 
-> There are three patches available:
-> have-ext2-reject-file-handles-with-bad-inode-numbers-early.patch
-> have-ext3-reject-file-handles-with-bad-inode-numbers-early.patch
-> ext3-avoid-triggering-ext3_error-on-bad-nfs-file-handle.patch
-> 
-> The first two patches are except for a s/ext2/ext3/ identical.
-> 
-> The two ext3 patches fix the same issue in slightly different ways.
-> 
-> It seems there was already some agreement that the first of the two ext3 
-> patches should be preferred due to being more the same as the ext2 patch
-> (see [1] and followups).
-> 
-> But the only patch that is applied in 2.6.18-rc4 (and in 2.6.17.9) is 
-> the ext3 patch that is _not_ identical to the ext2 one.
-> 
-> Is it the correct solution to revert this ext3 patch in both 2.6.18-rc 
-> and 2.6.17 and to apply the other two patches?
+On Sat, 19 Aug 2006 12:07:28 +0200, Willy Tarreau <w@1wt.eu> wrote:
 
-There is no point in reverting the ext3 patch.  It is a good and
-proper patch to have.
-Apply the ext2 patch is definitely a good idea.
-Applying the other ext3 patch is also a good idea.
+>On Sat, Aug 19, 2006 at 07:39:06PM +1000, Grant Coady wrote:
+>> On Sat, 19 Aug 2006 10:47:24 +0200, Willy Tarreau <w@1wt.eu> wrote:
+>> 
+>> >Hi Grant,
+>> >
+>> >On Sat, Aug 19, 2006 at 06:41:50PM +1000, Grant Coady wrote:
+>> ...
+>> >Have you tried building over USB HDD for another kernel (at least 2.4.33) ?
+>> 
+>> No.
 
-NeilBrown
+Testing kernel rebuilds on a USB-HDD connected mass-storage, follow up 
+to 2.4.34-pre1 'burped' report:
+
+2.4.33: >100 rebuilds without error
+
+2.4.34-pre1: 163 rebuilds without error, maybe I kicked the USB-HDD 
+(it's on the floor ;) other day?  
+
+Report other day seems to be a once off glitch, been running overnight at 
+about 6 mins per rebuild from 'make mrproper' over USB2.0 link from Via 
+chipset to Genesys GL811 USB <-> ATA/ATAPI bridge.
+
+grant@sempro:~$ /sbin/lspci |grep USB
+00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+
+HDD is ten year old 815MB Toshiba MK1926FCV that throws a little fit if 
+picked up while in operation.  It just did when I turned it over to 
+see the part number.  No kernel build error this time though ;)
+
+Grant.

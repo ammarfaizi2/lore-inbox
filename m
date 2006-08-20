@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWHTGgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWHTGpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWHTGgI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 02:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWHTGgH
+	id S932386AbWHTGpE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 02:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWHTGpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 02:36:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47500 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751667AbWHTGgG (ORCPT
+	Sun, 20 Aug 2006 02:45:04 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38589 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751667AbWHTGpC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 02:36:06 -0400
-Date: Sat, 19 Aug 2006 23:35:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-Message-Id: <20060819233557.671a8ec6.akpm@osdl.org>
-In-Reply-To: <20060820013121.GA18401@fieldses.org>
-References: <20060820013121.GA18401@fieldses.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 20 Aug 2006 02:45:02 -0400
+X-Authenticated: #14349625
+Subject: Re: And another Oops / BUG? (2.6.17.8 on VIA Epia CL6000)
+From: Mike Galbraith <efault@gmx.de>
+To: Udo van den Heuvel <udovdh@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, Folkert van Heusden <folkert@vanheusden.com>
+In-Reply-To: <44E7369D.2010707@xs4all.nl>
+References: <44E29415.4040400@xs4all.nl>
+	 <1155713739.6011.30.camel@Homer.simpson.net>  <44E7369D.2010707@xs4all.nl>
+Content-Type: text/plain
+Date: Sun, 20 Aug 2006 08:53:20 +0000
+Message-Id: <1156064000.6690.69.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Aug 2006 21:31:21 -0400
-"J. Bruce Fields" <bfields@fieldses.org> wrote:
-
-> As of 2.6.18-rc3, one of my test machines stopped booting.  I'm not
-> seeing the whole OOPS (I could probably set up a serial console if
-> necessary), but it ends in something like:
+On Sat, 2006-08-19 at 18:04 +0200, Udo van den Heuvel wrote:
+> Mike Galbraith wrote:
+> > Given that you're the only person posting this kind of explosion, I
+> > would cast a very skeptical glance toward my hardware.  I'd suggest
+> > reverting to a known good kernel first, to verify that you really don't
+> > have a hardware problem cropping up.
 > 
-> trace_hardirqs_on
-> idesci_pc_intr
-> ide_intr
-> handle_IRQ_event
-> __do_IRQ
-> do_IRQ
-> common_interrupt
-> default_idle
-> apm_cpu_idle
-> cpu_idle
-> rest_init
-> start_kernel
-> 0xc0100199
-> DWARF2 unwinder stuck at 0xc0100199
-> Leftover inexact backtrace:
->  =======================
->  BUG: unable to handle kernel paging request at virtual address 0000b034
->  printing eip:
-> c0103712
-> *pde = 00000000
-> Recursive die() failure, output suppressed
->  <0>Kernel panic - not syncing: Fatal exception in interrupt
-> 
-> Bisecting, it looks like this starts happening after c97d20a...,
-> "[PATCH] i386: Do backtrace fallback too", though it's a little tricky
-> since the compile is broken near there for a little while.
-> 
-> Kernel config appended; let me know if anything else would be useful.
+> How long should I run a 2.6.16.* kernel to be sure enough it is not my
+> hardware?
 
-I think there were some unwinder fixes post-2.6.18-rc3.
+Hard to say.  I'd run it at least twice as long as your longest
+explosion free interval.
 
-We need to work out what's causing this oops asap, please.  Testing
-2.6.8-r4-git1 (which should be available within the day) would be useful,
-please.  If it crashes, it'll be serial console time.  
+	-Mike
+

@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWHTTCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWHTTDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWHTTCg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 15:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWHTTCg
+	id S1751155AbWHTTDt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 15:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWHTTDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 15:02:36 -0400
-Received: from 1wt.eu ([62.212.114.60]:56592 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751154AbWHTTCg (ORCPT
+	Sun, 20 Aug 2006 15:03:49 -0400
+Received: from mail.gmx.net ([213.165.64.20]:10467 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751155AbWHTTDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 15:02:36 -0400
-Date: Sun, 20 Aug 2006 21:01:51 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Solar Designer <solar@openwall.com>,
-       Alex Riesen <fork0@users.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
-Message-ID: <20060820190151.GP602@1wt.eu>
-References: <20060820003840.GA17249@openwall.com> <20060820100706.GB6003@steel.home> <20060820153037.GA20007@openwall.com> <1156097013.4051.14.camel@localhost.localdomain> <20060820181025.GN602@1wt.eu> <1156099006.4051.43.camel@localhost.localdomain> <20060820182137.GO602@1wt.eu> <1156099979.4051.45.camel@localhost.localdomain>
+	Sun, 20 Aug 2006 15:03:49 -0400
+X-Authenticated: #704063
+Subject: [PATCH] Signdness issue in drivers/video/intelfb/intelfbdrv.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 20 Aug 2006 21:03:45 +0200
+Message-Id: <1156100625.3687.6.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156099979.4051.45.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 07:52:59PM +0100, Alan Cox wrote:
-> Ar Sul, 2006-08-20 am 20:21 +0200, ysgrifennodd Willy Tarreau:
-> > Arjan proposed to add a __must_check on the set*uid() function in glibc.
-> > I think that if killing the program is what makes you nervous, we could
-> > at least print a warning in the kernel logs so that the admin of a machine
-> > being abused has a chance to detect what's going on. Would you accept
-> > something like this ?
-> 
-> That ratelimited doesn't sound unreasonable - you want to know its
-> happening whatever the cause. You could do it with the kernel or with
-> the audit daemon I guess.
+hi,
 
-Alan,
+another gcc 4.1 signess warning:
 
-2.4 has no printk_ratelimit() function and I'm not sure it's worth adding
-one for only this user. One could argue that once it's implemented, we can
-uncomment some other warnings that are currently disabled due to lack of
-ratelimit.
+drivers/video/intelfb/intelfbdrv.c:419: warning: comparison of unsigned expression < 0 is always false
 
-In this special case (set*uid), the only reason we might fail is because
-kmem_cache_alloc(uid_cachep, SLAB_KERNEL) would return NULL. Do you think
-it could intentionnally be tricked into failing, or that under OOM we might
-bother about the excess of messages ?
+since dinfo->mtrr_reg is of the type u32, the error check dinfo->mtrr_reg < 0
+is useless. This patch introduces a helper variable, which catches possible
+negative error values returned by mtrr_add()
 
-If so I can backport the printk_ratelimit() function, I would just like an
-advice on this.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-Thanks,
-Willy
+--- linux-2.6.18-rc4/drivers/video/intelfb/intelfbdrv.c.orig	2006-08-20 20:46:11.000000000 +0200
++++ linux-2.6.18-rc4/drivers/video/intelfb/intelfbdrv.c	2006-08-20 20:47:14.000000000 +0200
+@@ -414,12 +414,13 @@ module_exit(intelfb_exit);
+ #ifdef CONFIG_MTRR
+ static inline void __devinit set_mtrr(struct intelfb_info *dinfo)
+ {
+-	dinfo->mtrr_reg = mtrr_add(dinfo->aperture.physical,
++	int mtrr_reg = mtrr_add(dinfo->aperture.physical,
+ 				   dinfo->aperture.size, MTRR_TYPE_WRCOMB, 1);
+-	if (dinfo->mtrr_reg < 0) {
++	if (mtrr_reg < 0) {
+ 		ERR_MSG("unable to set MTRR\n");
+ 		return;
+ 	}
++	dinfo->mtrr_reg = mtrr_reg;
+ 	dinfo->has_mtrr = 1;
+ }
+ static inline void unset_mtrr(struct intelfb_info *dinfo)
+
 

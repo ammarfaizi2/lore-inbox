@@ -1,168 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWHTIEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWHTIEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751634AbWHTIEH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 04:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWHTIEH
+	id S932500AbWHTIEk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 04:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWHTIEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 04:04:07 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:32903 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751634AbWHTIEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 04:04:05 -0400
-Message-ID: <44E81770.8080408@bigpond.net.au>
-Date: Sun, 20 Aug 2006 18:04:00 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ingo Molnar <mingo@elte.hu>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Regression with hyper threading scheduling
-References: <20060819223910.fef3bdea.akpm@osdl.org>
-In-Reply-To: <20060819223910.fef3bdea.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.128.202] using ID pwil3058@bigpond.net.au at Sun, 20 Aug 2006 08:04:01 +0000
+	Sun, 20 Aug 2006 04:04:40 -0400
+Received: from 1wt.eu ([62.212.114.60]:42512 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932500AbWHTIEi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 04:04:38 -0400
+Date: Sun, 20 Aug 2006 10:04:03 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Solar Designer <solar@openwall.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cit_encrypt_iv/cit_decrypt_iv for ECB mode
+Message-ID: <20060820080403.GA602@1wt.eu>
+References: <20060820002346.GA16995@openwall.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060820002346.GA16995@openwall.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> fyi..  (if replying, please be sure to do it on-list)
-> 
-> Begin forwarded message:
-> 
-> Date: Thu, 17 Aug 2006 13:40:42 +0200
-> From: Wolfgang Erig <Wolfgang.Erig@gmx.de>
-> To: linux-kernel@vger.kernel.org
-> Cc: andreas.friedrich@fujitsu-siemens.com
-> Subject: Regression with hyper threading scheduling
-> 
-> 
-> Hello kernel hacker,
-> 
-> I have a regression with Hyper-Threading in my box.
-> 
-> If I try e.g. 'while true; do ((ii+=1)); done' on two xterms
->    - with 2.6.8 both CPUs are running (looking at gkrellm or /proc/stat)
->    - with 2.6.15/2.6.17 etc. only one CPU is running, sometimes CPU0, sometimes CPU1
-> 
-> Any idea? If you need more info, let me know,
-> Wolfgang
-> 
-> 
-> Kernel 2.6.8.1: Hyper-Threading works:
-> ======================================
-> uname -a
-> Linux oak 2.6.8.1 #1 SMP Wed May 10 13:24:21 CEST 2006 i686 GNU/Linux
-> 
-> cat /proc/stat
-> cpu  22709 4502 2543 1008491 2881 92 1475
-> cpu0 12800 2428 1426 501276 1859 92 1472
-> cpu1 9909 2074 1117 507215 1021 0 2
-> intr 5909520 5214423 7297 0 2 2 0 2 1 0 0 0 0 92935 0 7422 13 0 224861 42603 0 0 0 319959 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-> ctxt 6553093
-> btime 1155801409
-> processes 2525
-> procs_running 3
-> procs_blocked 0
-> 
-> Kernel 2.6.17.8 etc.: Hyper-Threading does not work:
-> ====================================================
-> uname -a
-> Linux oak 2.6.17.8 #2 SMP PREEMPT Thu Aug 17 11:40:04 CEST 2006 i686 GNU/Linux
-> 
-> cat /proc/stat
-> cpu  5049 0 744 137292 3113 18 3 0
-> cpu0 36 0 53 72732 282 18 1 0
-> cpu1 5012 0 690 64560 2831 0 2 0
-> intr 221093 182798 880 0 3 4 0 3 1 0 0 0 0 28863 0 6718 12 1811 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-> ctxt 458461
-> btime 1155807757
-> processes 3203
-> procs_running 1
-> procs_blocked 0
-> 
-> Some HW-Infos:
-> ==============
-> lshw
->     description: Mini Tower Computer
->     product: SCENIC P / SCENICO P
->     vendor: FUJITSU SIEMENS
->     version: SCEP
->     serial: YBEM738326
->     width: 32 bits
->     capabilities: smbios-2.31 dmi-2.31
->     configuration: boot=normal chassis=mini-tower uuid=FA48F283-A977-D811-A847-912FD384AB1D
->   *-core
->        description: Motherboard
->        product: D1561
->        vendor: FUJITSU SIEMENS
->        physical id: 0
->        version: S26361-D1561
->        slot: Serial-1
->      *-firmware
->           description: BIOS
->           vendor: FUJITSU SIEMENS // Phoenix Technologies Ltd.
->           physical id: 0
->           version: 5.00 R2.14.1561.01 (11/25/2004)
->           size: 109KB
->           capacity: 448KB
->           capabilities: pci pnp apm upgrade shadowing escd cdboot bootselect int13floppynec int13floppytoshiba int13floppy360 int13floppy1200 int13floppy720 int13floppy2880 int5printscreen int9keyboard int14serial int17printer int10video acpi usb agp ls120boot zipboot biosbootspecification
->      *-cpu
->           description: CPU
->           product: Intel(R) Pentium(R) 4 CPU 2.60GHz
->           vendor: Intel Corp.
->           physical id: 4
->           bus info: cpu@0
->           version: 15.2.9
->           slot: CPU
->           size: 2600MHz
->           capacity: 2600MHz
->           width: 32 bits
->           clock: 800MHz
->           capabilities: fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
->           configuration: id=1
->         *-cache:0
->              description: L1 cache
->              physical id: 5
->              slot: L1 Cache
->              size: 8KB
->              capacity: 32KB
->              capabilities: burst synchronous internal write-through data
->         *-cache:1
->              description: L2 cache
->              physical id: 6
->              slot: L2 Cache
->              size: 512KB
->              capacity: 1MB
->              capabilities: burst internal write-back unified
->         *-cache:2 DISABLED
->              description: L3 cache
->              physical id: 7
->              slot: L3 Cache
->              capacity: 16MB
->              capabilities: internal write-back unified
->         *-logicalcpu:0
->              description: Logical CPU
->              physical id: 1.1
->              width: 32 bits
->              capabilities: logical
->         *-logicalcpu:1
->              description: Logical CPU
->              physical id: 1.2
->              width: 32 bits
->   ...
+Hi Alexander,
 
-I'm unable to reproduce this problem with 2.6.18-rc4 on my HT system. 
-I'm using top with the "last processor" field enabled to observe (rather 
-than the methods described) and the two bash shells are both getting 
-100% and are each firmly affixed to different CPUs.
+On Sun, Aug 20, 2006 at 04:23:46AM +0400, Solar Designer wrote:
+> Willy and all,
+> 
+> Attached is a patch (extracted from 2.4.33-ow1) that works around an
+> unfortunate problem with patch-cryptoloop-jari-2.4.22.0 (and its other
+> revisions).  I am not sure whether the problem should be worked around
+> in the main Linux kernel like that, but this is what I did in -ow
+> patches for now.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+You definitely provide interesting cases :-)
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+
+> Basically, crypto/cipher.c: crypto_init_cipher_ops() in Linux 2.4 (I did
+> not check 2.6 for this) did not initialize cit_encrypt_iv/cit_decrypt_iv
+> for ECB mode at all.  While IV makes no sense for ECB mode, I would
+> think that a safer approach would be to initialize those pointers to
+> nocrypt_iv.
+
+That's what I thought after reading the code too. BTW, 2.6 does not
+initialize the pointers either.
+
+
+> patch-cryptoloop-jari-2.4.22.0 calls cit_encrypt_iv/cit_decrypt_iv
+> directly, ignoring their return value.  Thus, when these pointers are
+> not initialized (as they are not in vanilla Linux 2.4.33) and we request
+> ECB mode encryption via cryptoloop (a bad idea, but anyway), the kernel
+> most likely Oopses.  When these pointers are initialized to nocrypt_iv
+> (due to a "correct" patch), there's no Oops, but the kernel leaks
+> uninitialized memory contents via the loop device (that's because
+> patch-cryptoloop-jari-2.4.22.0 ignores the -ENOSYS returns).  Neither
+> behavior is any good.
+
+Indeed, that's bad too.
+
+> The attached patch actually defines ecb_encrypt_iv() and
+> ecb_decrypt_iv() functions that perform ECB encryption/decryption
+> ignoring the IV, yet return -ENOSYS (just like nocrypt_iv would).
+> The result is no more Oopses and no infoleaks either.
+
+Can the cryptoloop patch use CRYPTO_TFM_MODE_CFB or CRYPTO_TFM_MODE_CTR
+and so be redirected to nocrypt() which will leave uninitialized memory
+too ?
+
+> (Yes, I understand that ECB mode should be avoided and that this
+> cryptoloop patch does not address watermarking.  But the security of
+> block device encryption offered by cryptoloop is irrelevant to the
+> point that I am making.)
+> 
+> Opinions are welcome.
+
+I wonder whether we shouldn't consider that those functions must at
+least clear the memory area that was submitted to them, such as
+proposed below. It would also fix the problem for potential other
+users. I don't think we need to check whether dst is valid given
+the small amount of tests performed in crypt().
+
+Opinions are welcome too.
+Willy
+
+
+diff --git a/crypto/cipher.c b/crypto/cipher.c
+index 6ab56eb..cdf650b 100644
+--- a/crypto/cipher.c
++++ b/crypto/cipher.c
+@@ -202,6 +202,9 @@ static int nocrypt(struct crypto_tfm *tf
+                    struct scatterlist *src,
+ 		   unsigned int nbytes)
+ {
++	/* do not leak uninitialized data in the return buffer */
++	if (nbytes)
++		memset(dst, 0, nbytes);
+ 	return -ENOSYS;
+ }
+ 
+@@ -210,6 +213,9 @@ static int nocrypt_iv(struct crypto_tfm 
+                       struct scatterlist *src,
+                       unsigned int nbytes, u8 *iv)
+ {
++	/* do not leak uninitialized data in the return buffer */
++	if (nbytes)
++		memset(dst, 0, nbytes);
+ 	return -ENOSYS;
+ }
+ 
+@@ -235,6 +241,8 @@ int crypto_init_cipher_ops(struct crypto
+ 	case CRYPTO_TFM_MODE_ECB:
+ 		ops->cit_encrypt = ecb_encrypt;
+ 		ops->cit_decrypt = ecb_decrypt;
++		ops->cit_encrypt_iv = nocrypt_iv;
++		ops->cit_decrypt_iv = nocrypt_iv;
+ 		break;
+ 		
+ 	case CRYPTO_TFM_MODE_CBC:
+
+

@@ -1,122 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWHTA1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751618AbWHTAnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751599AbWHTA1u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 20:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751605AbWHTA1u
+	id S1751618AbWHTAnn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 20:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWHTAnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 20:27:50 -0400
-Received: from mother.openwall.net ([195.42.179.200]:14222 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S1751598AbWHTA1t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 20:27:49 -0400
-Date: Sun, 20 Aug 2006 04:23:46 +0400
-From: Solar Designer <solar@openwall.com>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cit_encrypt_iv/cit_decrypt_iv for ECB mode
-Message-ID: <20060820002346.GA16995@openwall.com>
+	Sat, 19 Aug 2006 20:43:43 -0400
+Received: from 1wt.eu ([62.212.114.60]:39184 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751345AbWHTAnm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 20:43:42 -0400
+Date: Sun, 20 Aug 2006 02:43:07 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Solar Designer <solar@openwall.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] getsockopt() early argument sanity checking
+Message-ID: <20060820004307.GD27115@1wt.eu>
+References: <20060819230532.GA16442@openwall.com> <20060819234806.GB27115@1wt.eu> <200608200205.20876.mb@bu3sch.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200608200205.20876.mb@bu3sch.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 20, 2006 at 02:05:20AM +0200, Michael Buesch wrote:
+> On Sunday 20 August 2006 01:48, Willy Tarreau wrote:
+> > On Sun, Aug 20, 2006 at 03:05:32AM +0400, Solar Designer wrote:
+> > > Willy,
+> > > 
+> > > I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
+> > > into 2.4.34-pre.
+> > > 
+> > > (2.6 kernels could benefit from the same change, too, but at the moment
+> > > I am dealing with proper submission of generic changes like this that
+> > > are a part of 2.4.33-ow1.)
+> > > 
+> > > The patch makes getsockopt(2) sanity-check the value pointed to by
+> > > the optlen argument early on.  This is a security hardening measure
+> > > intended to prevent exploitation of certain potential vulnerabilities in
+> > > socket type specific getsockopt() code on UP systems.
+> > > 
+> > > This change has been a part of -ow patches for some years.
+> > 
+> > looks valid to me, merged.
+> 
+> Not to me. It heavily violates codingstyle and screws brains
+                ^^^^^^^
+little exageration detected here.
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> with the non-indented else branches.
 
-Willy and all,
+while they surprized me first, they make the *patch* more readable
+by clearly showing what has been inserted and where. However, I have
+joined the lines for the merge.
 
-Attached is a patch (extracted from 2.4.33-ow1) that works around an
-unfortunate problem with patch-cryptoloop-jari-2.4.22.0 (and its other
-revisions).  I am not sure whether the problem should be worked around
-in the main Linux kernel like that, but this is what I did in -ow
-patches for now.
+> Learn about goto.
 
-Basically, crypto/cipher.c: crypto_init_cipher_ops() in Linux 2.4 (I did
-not check 2.6 for this) did not initialize cit_encrypt_iv/cit_decrypt_iv
-for ECB mode at all.  While IV makes no sense for ECB mode, I would
-think that a safer approach would be to initialize those pointers to
-nocrypt_iv.
+definitely not here. The if() expressions are all one-liners. Adding
+a goto would mean two instructions, to which you add 2 braces. It will
+not make the code more readable. Patch below is OK. If you have a hard
+time understanding it, then it's because it's bedtime for you too :-)
 
-patch-cryptoloop-jari-2.4.22.0 calls cit_encrypt_iv/cit_decrypt_iv
-directly, ignoring their return value.  Thus, when these pointers are
-not initialized (as they are not in vanilla Linux 2.4.33) and we request
-ECB mode encryption via cryptoloop (a bad idea, but anyway), the kernel
-most likely Oopses.  When these pointers are initialized to nocrypt_iv
-(due to a "correct" patch), there's no Oops, but the kernel leaks
-uninitialized memory contents via the loop device (that's because
-patch-cryptoloop-jari-2.4.22.0 ignores the -ENOSYS returns).  Neither
-behavior is any good.
+Regards,
+Willy
 
-The attached patch actually defines ecb_encrypt_iv() and
-ecb_decrypt_iv() functions that perform ECB encryption/decryption
-ignoring the IV, yet return -ENOSYS (just like nocrypt_iv would).
-The result is no more Oopses and no infoleaks either.
 
-(Yes, I understand that ECB mode should be avoided and that this
-cryptoloop patch does not address watermarking.  But the security of
-block device encryption offered by cryptoloop is irrelevant to the
-point that I am making.)
-
-Opinions are welcome.
-
-Thanks,
-
-Alexander
-
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.33-ow1-crypto-ECB-Oops.diff"
-
-diff -urpPX nopatch linux-2.4.33/crypto/cipher.c linux/crypto/cipher.c
---- linux-2.4.33/crypto/cipher.c	Sun Aug  8 03:26:04 2004
-+++ linux/crypto/cipher.c	Sun Aug 13 20:33:57 2006
-@@ -147,6 +147,15 @@ static int ecb_encrypt(struct crypto_tfm
- 	             ecb_process, 1, NULL);
- }
+diff --git a/net/socket.c b/net/socket.c
+index ac45b13..910ef88 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1307,11 +1307,17 @@ asmlinkage long sys_setsockopt(int fd, i
+ asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
+ {
+ 	int err;
++	int len;
+ 	struct socket *sock;
  
-+static int ecb_encrypt_iv(struct crypto_tfm *tfm,
-+			  struct scatterlist *dst,
-+			  struct scatterlist *src,
-+			  unsigned int nbytes, u8 *iv)
-+{
-+	ecb_encrypt(tfm, dst, src, nbytes);
-+	return -ENOSYS;
-+}
-+
- static int ecb_decrypt(struct crypto_tfm *tfm,
-                        struct scatterlist *dst,
-                        struct scatterlist *src,
-@@ -157,6 +166,15 @@ static int ecb_decrypt(struct crypto_tfm
- 	             ecb_process, 1, NULL);
- }
- 
-+static int ecb_decrypt_iv(struct crypto_tfm *tfm,
-+			  struct scatterlist *dst,
-+			  struct scatterlist *src,
-+			  unsigned int nbytes, u8 *iv)
-+{
-+	ecb_decrypt(tfm, dst, src, nbytes);
-+	return -ENOSYS;
-+}
-+
- static int cbc_encrypt(struct crypto_tfm *tfm,
-                        struct scatterlist *dst,
-                        struct scatterlist *src,
-@@ -235,6 +253,11 @@ int crypto_init_cipher_ops(struct crypto
- 	case CRYPTO_TFM_MODE_ECB:
- 		ops->cit_encrypt = ecb_encrypt;
- 		ops->cit_decrypt = ecb_decrypt;
-+/* These should have been nocrypt_iv, but patch-cryptoloop-jari-2.4.22.0
-+ * (and its other revisions) directly calls the *_iv() functions even in
-+ * ECB mode and ignores their return value. */
-+		ops->cit_encrypt_iv = ecb_encrypt_iv;
-+		ops->cit_decrypt_iv = ecb_decrypt_iv;
- 		break;
- 		
- 	case CRYPTO_TFM_MODE_CBC:
+ 	if ((sock = sockfd_lookup(fd, &err))!=NULL)
+ 	{
+-		if (level == SOL_SOCKET)
++		/* XXX: insufficient for SMP, but should be redundant anyway */
++		if (get_user(len, optlen))
++			err = -EFAULT;
++		else if (len < 0)
++			err = -EINVAL;
++		else if (level == SOL_SOCKET)
+ 			err=sock_getsockopt(sock,level,optname,optval,optlen);
+ 		else
+ 			err=sock->ops->getsockopt(sock, level, optname, optval, optlen);
+-- 
+1.4.1
 
---IS0zKkzwUGydFO0o--

@@ -1,96 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWHTTTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWHTTYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWHTTTd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 15:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWHTTTd
+	id S1751167AbWHTTYU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 15:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWHTTYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 15:19:33 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:15338 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1751161AbWHTTTc (ORCPT
+	Sun, 20 Aug 2006 15:24:20 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:5612 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751167AbWHTTYU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 15:19:32 -0400
-Date: Sun, 20 Aug 2006 21:19:30 +0200
-From: Petr Vandrovec <petr@vandrovec.name>
-To: video4linux-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Possible deadlock in videobuf_dma_init_user
-Message-ID: <20060820191930.GA21729@platan.vc.cvut.cz>
+	Sun, 20 Aug 2006 15:24:20 -0400
+Date: Sun, 20 Aug 2006 21:24:05 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: thunder7@xs4all.nl
+cc: Helge Hafting <helgehaf@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed, bisect finished
+In-Reply-To: <20060820175128.GA4217@amd64.of.nowhere>
+Message-ID: <Pine.LNX.4.64.0608202120180.6761@scrub.home>
+References: <20060813012454.f1d52189.akpm@osdl.org> <200608181134.02427.ak@suse.de>
+ <44E588AB.3050900@aitel.hist.no> <200608181255.46999.ak@suse.de>
+ <20060819105031.GA3190@aitel.hist.no> <Pine.LNX.4.64.0608201859130.6762@scrub.home>
+ <20060820175128.GA4217@amd64.of.nowhere>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  my kernel is a bit unhappy with lock ordering between mm->mmap_sem 
-and videobuf_queue->lock.
-					Thanks,
-						Petr Vandrovec
+Hi,
 
+On Sun, 20 Aug 2006, thunder7@xs4all.nl wrote:
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
--------------------------------------------------------
-mythbackend/8289 is trying to acquire lock:
- (&mm->mmap_sem){----}, at: [<ffffffff881d2ad5>] videobuf_dma_init_user+0xd5/0x190 [video_buf]
+> The interesting part:
+> 
+> 3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
+> 3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
+> 3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
+> 3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
+> 3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
+> 3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
 
-but task is already holding lock:
- (&q->lock#2){--..}, at: [<ffffffff81072905>] mutex_lock+0x25/0x30
+Thanks for testing, it's a silly sign problem. gcc turned the divide into 
+an unsigned one.
 
-which lock already depends on the new lock.
+bye, Roman
 
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-the existing dependency chain (in reverse order) is:
+---
+ kernel/time/ntp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--> #1 (&q->lock#2){--..}:
-       [<ffffffff810bacbe>] lock_acquire+0x4e/0x70
-       [<ffffffff81072746>] __mutex_lock_slowpath+0xd6/0x270
-       [<ffffffff81072904>] mutex_lock+0x24/0x30
-       [<ffffffff881d192b>] videobuf_mmap_mapper+0x1b/0x290 [video_buf]
-       [<ffffffff881dc9bc>] bttv_mmap+0x5c/0x70 [bttv]
-       [<ffffffff8100e927>] do_mmap_pgoff+0x4f7/0x7d0
-       [<ffffffff810924eb>] sys32_mmap2+0xbb/0xf0
-       [<ffffffff8106f69f>] cstar_do_call+0x1a/0x6f
-
--> #0 (&mm->mmap_sem){----}:
-       [<ffffffff810bacbe>] lock_acquire+0x4e/0x70
-       [<ffffffff810b74c8>] down_read+0x38/0x50
-       [<ffffffff881d2ad4>] videobuf_dma_init_user+0xd4/0x190 [video_buf]
-       [<ffffffff881d2eab>] videobuf_iolock+0xab/0x120 [video_buf]
-       [<ffffffff881dc8b8>] bttv_prepare_buffer+0x158/0x1c0 [bttv]
-       [<ffffffff881de8ce>] bttv_do_ioctl+0xbfe/0x20e0 [bttv]
-       [<ffffffff88175f98>] video_usercopy+0x188/0x250 [videodev]
-       [<ffffffff881dca7b>] bttv_ioctl+0x3b/0x50 [bttv]
-       [<ffffffff881bd064>] native_ioctl+0x64/0x90 [compat_ioctl32]
-       [<ffffffff881bebfc>] v4l_compat_ioctl32+0x1b6c/0x1c2c [compat_ioctl32]
-       [<ffffffff8110906a>] compat_sys_ioctl+0xfa/0x330
-       [<ffffffff8106f69f>] cstar_do_call+0x1a/0x6f
-
-other info that might help us debug this:
-
-1 lock held by mythbackend/8289:
- #0:  (&q->lock#2){--..}, at: [<ffffffff81072905>] mutex_lock+0x25/0x30
-
-stack backtrace:
-
-Call Trace:
- [<ffffffff8107bd05>] show_trace+0xb5/0x3a0
- [<ffffffff8107c005>] dump_stack+0x15/0x20
- [<ffffffff810b8ed2>] print_circular_bug_tail+0x72/0x80
- [<ffffffff810ba93e>] __lock_acquire+0x9ae/0xce0
- [<ffffffff810bacbf>] lock_acquire+0x4f/0x70
- [<ffffffff810b74c9>] down_read+0x39/0x50
- [<ffffffff881d2ad5>] :video_buf:videobuf_dma_init_user+0xd5/0x190
- [<ffffffff881d2eac>] :video_buf:videobuf_iolock+0xac/0x120
- [<ffffffff881dc8b9>] :bttv:bttv_prepare_buffer+0x159/0x1c0
- [<ffffffff881de8cf>] :bttv:bttv_do_ioctl+0xbff/0x20e0
- [<ffffffff88175f99>] :videodev:video_usercopy+0x189/0x250
- [<ffffffff881dca7c>] :bttv:bttv_ioctl+0x3c/0x50
- [<ffffffff881bd065>] :compat_ioctl32:native_ioctl+0x65/0x90
- [<ffffffff881bebfd>] :compat_ioctl32:v4l_compat_ioctl32+0x1b6d/0x1c2c
- [<ffffffff8110906b>] compat_sys_ioctl+0xfb/0x330
- [<ffffffff8106f6a0>] cstar_do_call+0x1b/0x6f
- [<00000000ffffe405>]
-
-
+Index: linux-2.6-mm/kernel/time/ntp.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/time/ntp.c
++++ linux-2.6-mm/kernel/time/ntp.c
+@@ -41,7 +41,7 @@ static long time_reftime;		/* time at la
+ long time_adjust;
+ 
+ #define CLOCK_TICK_OVERFLOW	(LATCH * HZ - CLOCK_TICK_RATE)
+-#define CLOCK_TICK_ADJUST	(((s64)CLOCK_TICK_OVERFLOW * NSEC_PER_SEC) / CLOCK_TICK_RATE)
++#define CLOCK_TICK_ADJUST	(((s64)CLOCK_TICK_OVERFLOW * NSEC_PER_SEC) / (s64)CLOCK_TICK_RATE)
+ 
+ static void ntp_update_frequency(void)
+ {

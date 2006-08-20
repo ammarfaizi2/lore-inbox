@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751794AbWHTXNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751795AbWHTXPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751794AbWHTXNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 19:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWHTXNv
+	id S1751795AbWHTXPL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 19:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWHTXPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 19:13:51 -0400
-Received: from ns.suse.de ([195.135.220.2]:61069 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751794AbWHTXNu (ORCPT
+	Sun, 20 Aug 2006 19:15:11 -0400
+Received: from ns2.suse.de ([195.135.220.15]:54750 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751795AbWHTXPJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 19:13:50 -0400
-From: Andi Kleen <ak@suse.de>
-To: eranian@hpl.hp.com
-Subject: Re: [PATCH] x86-64 add missing PMU MSR definitions
-Date: Mon, 21 Aug 2006 01:13:44 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060820214856.GD27542@frankl.hpl.hp.com>
-In-Reply-To: <20060820214856.GD27542@frankl.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Aug 2006 19:15:09 -0400
+Date: Mon, 21 Aug 2006 01:15:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Sean <seanlkml@sympatico.ca>
+Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
+       Josh Boyer <jwboyer@gmail.com>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+Message-ID: <20060820231510.GD10011@opteron.random>
+References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060806004634.GB6455@opteron.random> <20060806045234.GA28849@kroah.com> <20060820223046.GB10011@opteron.random> <20060820185123.e84fafaf.seanlkml@sympatico.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608210113.44984.ak@suse.de>
+In-Reply-To: <20060820185123.e84fafaf.seanlkml@sympatico.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 August 2006 23:48, Stephane Eranian wrote:
-> Hello,
-> 
-> Here is a patch to add a couple of missing MSR definitions related
-> to Performance monitoring for EM64T. A separate patch contains the
-> i386 equivalent.
-> 
-> Changelog:
->         - add MSR definitions for IA32_PEBS_ENABLE and PEBS_MATRIX_VERT
+On Sun, Aug 20, 2006 at 06:51:23PM -0400, Sean wrote:
+> There's no need for a vote.  Users already vote for a maintainer when
+> they decide to use a paticular kernel tree.
+>
+> No user is forced to follow a particular maintainer.  And anyone can step
+> up and declare that they are also offering a maintained tree.
 
+I never said that 2.6.16-stable is going to succeed, all I'm saying is
+that all testing done on it will be a wasted effort, that's why there
+are no infinite competing trees. So one would hope that an official
+maintainer isn't choosed by random.
 
-The names seem somewhat mixed up.
+> And this situation is already self correcting; if no users follow, it's
 
-I think I would prefer P4 and no IA32 prefixes for all of them.
-(or does Core2 still have PEBS?)
-
--Andi
+The real ironic thing, is that the only feedback he has to know if
+users follow or not, is KLive. Which I'm going to shutdown anyway if
+nothing changes w.r.t. 2.6.16-stable since I'm not out to fight with
+anyone, I don't even have a degree in statistics, so it's up to the
+thousands getting a degree in statistics every year to argue with the
+-stable maintainers, certainly not me.

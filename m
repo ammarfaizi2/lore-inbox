@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWHTMGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWHTNBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWHTMGP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 08:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWHTMGP
+	id S1750764AbWHTNBo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 09:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWHTNBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 08:06:15 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:3556 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1750741AbWHTMGP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 08:06:15 -0400
-Date: Sun, 20 Aug 2006 20:30:16 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] uninline ioprio_best()
-Message-ID: <20060820163016.GA4152@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Aug 2006 09:01:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:24281 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750764AbWHTNBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 09:01:43 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] Return real errno from execve in ____call_usermodehelper
+Date: Sun, 20 Aug 2006 15:01:28 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>,
+       =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+References: <20060819073031.GA25711@atjola.homenet> <20060819011428.05ec2ae4.akpm@osdl.org> <20060819084233.GA25767@flint.arm.linux.org.uk>
+In-Reply-To: <20060819084233.GA25767@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200608201501.29296.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Saves 376 bytes (5 callers) for me.
+On Saturday 19 August 2006 10:42, Russell King wrote:
+> Maybe what we should be thinking of doing is changing execve() calls
+> to kernel_execve() which returns the error code.
+> 
+> This way, architectures are free to implement execve() whatever way
+> they wish - and if they're concerned about using errno, that's their
+> own implementation specific detail.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Sounds good, it means we could finally kill __KERNEL_SYSCALLS__ along
+with lib/errno.c.
 
---- 2.6.18-rc4/include/linux/ioprio.h~4_best	2006-07-16 01:53:08.000000000 +0400
-+++ 2.6.18-rc4/include/linux/ioprio.h	2006-08-20 20:17:37.000000000 +0400
-@@ -59,27 +59,6 @@ static inline int task_nice_ioprio(struc
- /*
-  * For inheritance, return the highest of the two given priorities
-  */
--static inline int ioprio_best(unsigned short aprio, unsigned short bprio)
--{
--	unsigned short aclass = IOPRIO_PRIO_CLASS(aprio);
--	unsigned short bclass = IOPRIO_PRIO_CLASS(bprio);
--
--	if (!ioprio_valid(aprio))
--		return bprio;
--	if (!ioprio_valid(bprio))
--		return aprio;
--
--	if (aclass == IOPRIO_CLASS_NONE)
--		aclass = IOPRIO_CLASS_BE;
--	if (bclass == IOPRIO_CLASS_NONE)
--		bclass = IOPRIO_CLASS_BE;
--
--	if (aclass == bclass)
--		return min(aprio, bprio);
--	if (aclass > bclass)
--		return bprio;
--	else
--		return aprio;
--}
-+extern int ioprio_best(unsigned short aprio, unsigned short bprio);
- 
- #endif
---- 2.6.18-rc4/fs/ioprio.c~4_best	2006-08-20 19:57:14.000000000 +0400
-+++ 2.6.18-rc4/fs/ioprio.c	2006-08-20 20:16:39.000000000 +0400
-@@ -140,6 +140,29 @@ out:
- 	return ret;
- }
- 
-+int ioprio_best(unsigned short aprio, unsigned short bprio)
-+{
-+	unsigned short aclass = IOPRIO_PRIO_CLASS(aprio);
-+	unsigned short bclass = IOPRIO_PRIO_CLASS(bprio);
-+
-+	if (!ioprio_valid(aprio))
-+		return bprio;
-+	if (!ioprio_valid(bprio))
-+		return aprio;
-+
-+	if (aclass == IOPRIO_CLASS_NONE)
-+		aclass = IOPRIO_CLASS_BE;
-+	if (bclass == IOPRIO_CLASS_NONE)
-+		bclass = IOPRIO_CLASS_BE;
-+
-+	if (aclass == bclass)
-+		return min(aprio, bprio);
-+	if (aclass > bclass)
-+		return bprio;
-+	else
-+		return aprio;
-+}
-+
- asmlinkage long sys_ioprio_get(int which, int who)
- {
- 	struct task_struct *g, *p;
+I guess a fallback for those that haven't yet done kernel_execve could be
 
+#ifdef CONFIG_ARCH_KERNEL_EXECVE
+extern int kernel_execve(const char *filename,
+		char *const argv[], char *const envp[]);
+#else
+static inline int kernel_execve(const char *filename,
+		char *const argv[], char *const envp[]);
+{
+	int errno;
+	mm_segment_t old_fs = get_fs();
+	set_fs(KERNEL_DS);
+	/* the kernel syscall macro modifies errno */
+	execve(filename, argv, envp);
+	set_fs(old_fs);
+	return errno;
+}
+#endif
+
+With that in place, we can remove the global errno right away, and the
+kernel syscalls for any architecture that implements its own kernel_execve.
+
+	Arnd <><

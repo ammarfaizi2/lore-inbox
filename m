@@ -1,88 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbWHSXv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWHTAG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751595AbWHSXv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 19:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWHSXvZ
+	id S1751100AbWHTAG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 20:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWHTAG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 19:51:25 -0400
-Received: from mother.openwall.net ([195.42.179.200]:61837 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S1751365AbWHSXvZ
+	Sat, 19 Aug 2006 20:06:29 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:16103
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751072AbWHTAG3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 19:51:25 -0400
-Date: Sun, 20 Aug 2006 03:46:29 +0400
-From: Solar Designer <solar@openwall.com>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop.c: kernel_thread() retval check
-Message-ID: <20060819234629.GA16814@openwall.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="yrj/dFKFPuw6o+aM"
+	Sat, 19 Aug 2006 20:06:29 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Willy Tarreau <w@1wt.eu>
+Subject: Re: [PATCH] getsockopt() early argument sanity checking
+Date: Sun, 20 Aug 2006 02:05:20 +0200
+User-Agent: KMail/1.9.1
+References: <20060819230532.GA16442@openwall.com> <20060819234806.GB27115@1wt.eu>
+In-Reply-To: <20060819234806.GB27115@1wt.eu>
+Cc: Solar Designer <solar@openwall.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200608200205.20876.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 20 August 2006 01:48, Willy Tarreau wrote:
+> On Sun, Aug 20, 2006 at 03:05:32AM +0400, Solar Designer wrote:
+> > Willy,
+> > 
+> > I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
+> > into 2.4.34-pre.
+> > 
+> > (2.6 kernels could benefit from the same change, too, but at the moment
+> > I am dealing with proper submission of generic changes like this that
+> > are a part of 2.4.33-ow1.)
+> > 
+> > The patch makes getsockopt(2) sanity-check the value pointed to by
+> > the optlen argument early on.  This is a security hardening measure
+> > intended to prevent exploitation of certain potential vulnerabilities in
+> > socket type specific getsockopt() code on UP systems.
+> > 
+> > This change has been a part of -ow patches for some years.
+> 
+> looks valid to me, merged.
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Not to me. It heavily violates codingstyle and screws brains
+with the non-indented else branches. Learn about goto.
 
-Willy,
+> Thanks Alexander !
+> Willy
+> 
+> 
+> > Thanks,
+> > 
+> > -- 
+> > Alexander Peslyak <solar at openwall.com>
+> > GPG key ID: B35D3598  fp: 6429 0D7E F130 C13E C929  6447 73C3 A290 B35D 3598
+> > http://www.openwall.com - bringing security into open computing environments
+> 
+> > diff -urpPX nopatch linux-2.4.33/net/socket.c linux/net/socket.c
+> > --- linux-2.4.33/net/socket.c	Wed Jan 19 17:10:14 2005
+> > +++ linux/net/socket.c	Sat Aug 12 08:51:47 2006
+> > @@ -1307,10 +1307,18 @@ asmlinkage long sys_setsockopt(int fd, i
+> >  asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
+> >  {
+> >  	int err;
+> > +	int len;
+> >  	struct socket *sock;
+> >  
+> >  	if ((sock = sockfd_lookup(fd, &err))!=NULL)
+> >  	{
+> > +		/* XXX: insufficient for SMP, but should be redundant anyway */
+> > +		if (get_user(len, optlen))
+> > +			err = -EFAULT;
+> > +		else
+> > +		if (len < 0)
+> > +			err = -EINVAL;
+> > +		else
+> >  		if (level == SOL_SOCKET)
+> >  			err=sock_getsockopt(sock,level,optname,optval,optlen);
+> >  		else
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
-into 2.4.34-pre.  (Last time I checked, 2.6 needed an equivalent fix,
-but I haven't produced one yet.)
-
-Basically, the code in drivers/block/loop.c did not check the return
-value from kernel_thread().  If kernel_thread() would fail, the code
-would misbehave (IIRC, the invoking process would become unkillable).
-
-An easy way to trigger the bug was to run losetup under strace (as
-root), and this is also how I tested the error path added with this
-patch.
-
-This change has been a part of publicly released -ow patches for 8+
-months.
-
-There are more instances of kernel_thread() calls that do not check the
-return value; some of the remaining ones might need to be fixed, too.
-
-Thanks,
-
-Alexander
-
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.33-ow1-loop-kernel_thread-check.diff"
-
-diff -urpPX nopatch linux-2.4.33/drivers/block/loop.c linux/drivers/block/loop.c
---- linux-2.4.33/drivers/block/loop.c	Fri Jun  3 04:26:42 2005
-+++ linux/drivers/block/loop.c	Sat Aug 12 08:51:47 2006
-@@ -693,12 +693,23 @@ static int loop_set_fd(struct loop_devic
- 	set_blocksize(dev, bs);
- 
- 	lo->lo_bh = lo->lo_bhtail = NULL;
--	kernel_thread(loop_thread, lo, CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
--	down(&lo->lo_sem);
-+	error = kernel_thread(loop_thread, lo,
-+	    CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
-+	if (error < 0)
-+		goto out_clr;
-+	down(&lo->lo_sem); /* wait for the thread to start */
- 
- 	fput(file);
- 	return 0;
- 
-+ out_clr:
-+	lo->lo_backing_file = NULL;
-+	lo->lo_device = 0;
-+	lo->lo_flags = 0;
-+	loop_sizes[lo->lo_number] = 0;
-+	inode->i_mapping->gfp_mask = lo->old_gfp_mask;
-+	lo->lo_state = Lo_unbound;
-+	fput(file); /* yes, have to do it twice */
-  out_putf:
- 	fput(file);
-  out:
-
---yrj/dFKFPuw6o+aM--
+-- 
+Greetings Michael.

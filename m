@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWHTW6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWHTXAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751786AbWHTW6s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 18:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWHTW6r
+	id S1751788AbWHTXAK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 19:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWHTXAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 18:58:47 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:8708 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751784AbWHTW6q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 18:58:46 -0400
-Date: Mon, 21 Aug 2006 08:58:30 +1000
-To: Solar Designer <solar@openwall.com>
-Cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-Subject: Re: [PATCH] cit_encrypt_iv/cit_decrypt_iv for ECB mode
-Message-ID: <20060820225830.GA31693@gondor.apana.org.au>
-References: <20060820002346.GA16995@openwall.com> <20060820080403.GA602@1wt.eu> <20060820144908.GA19602@openwall.com>
-Mime-Version: 1.0
+	Sun, 20 Aug 2006 19:00:09 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65295 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751789AbWHTXAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 19:00:06 -0400
+Date: Mon, 21 Aug 2006 01:00:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: chas@cmf.nrl.navy.mil
+Cc: linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/atm/: proper prototypes
+Message-ID: <20060820230006.GW7813@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060820144908.GA19602@openwall.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 06:49:08PM +0400, Solar Designer wrote:
-> 
-> Can we maybe define working but IV-ignoring functions for ECB (like I
-> did), but use memory-clearing nocrypt*() for CFB and CTR (as long as
-> these are not supported)?  Of course, all of these will return -ENOSYS.
+This patch adds proper prototypes in net/atm/mpc.h for two global 
+functions in net/atm/mpoa_proc.c
 
-In cryptodev-2.6, with block ciphers you can no longer select CFB/CTR
-until someone writes support for them so this is no longer an issue.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-For 2.4, I don't really mind either way what nocrypt does.
+---
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+ net/atm/mpc.c |    5 -----
+ net/atm/mpc.h |    3 +++
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+--- linux-2.6.18-rc4-mm2/net/atm/mpc.h.old	2006-08-20 23:24:37.000000000 +0200
++++ linux-2.6.18-rc4-mm2/net/atm/mpc.h	2006-08-20 23:25:13.000000000 +0200
+@@ -50,4 +50,7 @@
+ struct seq_file;
+ void atm_mpoa_disp_qos(struct seq_file *m);
+ 
++int mpc_proc_init(void);
++void mpc_proc_clean(void);
++
+ #endif /* _MPC_H_ */
+--- linux-2.6.18-rc4-mm2/net/atm/mpc.c.old	2006-08-20 23:25:26.000000000 +0200
++++ linux-2.6.18-rc4-mm2/net/atm/mpc.c	2006-08-20 23:25:49.000000000 +0200
+@@ -98,11 +98,6 @@
+ 	0
+ };
+ 
+-#ifdef CONFIG_PROC_FS
+-extern int mpc_proc_init(void);
+-extern void mpc_proc_clean(void);
+-#endif
+-
+ struct mpoa_client *mpcs = NULL; /* FIXME */
+ static struct atm_mpoa_qos *qos_head = NULL;
+ static DEFINE_TIMER(mpc_timer, NULL, 0, 0);
+

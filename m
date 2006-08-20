@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWHTXzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWHTXyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWHTXzP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 19:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWHTXzO
+	id S932103AbWHTXyj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 19:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWHTXyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 19:55:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18129 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932109AbWHTXzM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 19:55:12 -0400
-Date: Sun, 20 Aug 2006 16:51:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, Michal Ludvig <michal@logix.cz>
-Subject: Re: [-mm patch] CRYPTO_DEV_PADLOCK_AES must select CRYPTO_BLKCIPHER
-Message-Id: <20060820165150.bdb9e4cc.akpm@osdl.org>
-In-Reply-To: <20060820230415.GB31693@gondor.apana.org.au>
-References: <20060819220008.843d2f64.akpm@osdl.org>
-	<20060820160928.GN7813@stusta.de>
-	<20060820230415.GB31693@gondor.apana.org.au>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Aug 2006 19:54:39 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55312 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932103AbWHTXyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 19:54:38 -0400
+Date: Mon, 21 Aug 2006 01:54:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: rth@twiddle.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Alpha: replacing "extern inline"
+Message-ID: <20060820235438.GY7813@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 09:04:15 +1000
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+I want to get rid of all "extern inline" in the kernel.
 
-> > --- linux-2.6.18-rc4-mm2/drivers/crypto/Kconfig.old	2006-08-20 17:28:46.000000000 +0200
-> > +++ linux-2.6.18-rc4-mm2/drivers/crypto/Kconfig	2006-08-20 17:44:56.000000000 +0200
-> > @@ -16,6 +16,7 @@
-> >  config CRYPTO_DEV_PADLOCK_AES
-> >  	bool "Support for AES in VIA PadLock"
-> >  	depends on CRYPTO_DEV_PADLOCK
-> > +	select CRYPTO_BLKCIPHER
-> >  	default y
-> >  	help
-> >  	  Use VIA PadLock for AES algorithm.
-> 
-> Andrew, there is definitely something screwed up.
+Why?
+"extern inline" generates a warning with -Wmissing-prototypes and I'm 
+currently working on getting the kernel cleaned up for adding this to 
+the CFLAGS since it will help us to avoid a nasty class of runtime 
+errors.
 
-Things are a bit messy at present - some git trees are based off Greg's
-tree and some are based off Linus's and git is pretty hopeless at pulling
-usable diffs in these complex situations.
+"extern inline" was required at the times when 
+__attribute__((always_inline)) wasn't avalable.
 
-So yes, it's quite possible that the above is a merging problem.
+Nowadays, we use "static inline", and if there are places that really 
+need a forced inline, we use "static __always_inline".
+
+Can someone tell me which of the Alpha "static inline"'s need for some 
+reason an __always_inline?
+
+And a related question:
+Does the never defined __IO_EXTERN_INLINE still have any purpose?
+
+cu
+Adrian
+
+-- 
+
+    Gentoo kernels are 42 times more popular than SUSE kernels among
+    KLive users  (a service by SUSE contractor Andrea Arcangeli that
+    gathers data about kernels from many users worldwide).
+
+       There are three kinds of lies: Lies, Damn Lies, and Statistics.
+                                                    Benjamin Disraeli
+

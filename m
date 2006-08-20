@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWHTVup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWHTVzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWHTVup (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 17:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWHTVup
+	id S1751434AbWHTVzw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 17:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWHTVzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 17:50:45 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:63616 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751193AbWHTVup
+	Sun, 20 Aug 2006 17:55:52 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:29183 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751434AbWHTVzv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 17:50:45 -0400
-Date: Sun, 20 Aug 2006 23:47:27 +0200
-To: thunder7@xs4all.nl
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@suse.de>,
-       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 - time moving at 3x speed, fix confirmed
-Message-ID: <20060820214727.GA4157@aitel.hist.no>
-References: <20060813012454.f1d52189.akpm@osdl.org> <200608181134.02427.ak@suse.de> <44E588AB.3050900@aitel.hist.no> <200608181255.46999.ak@suse.de> <20060819105031.GA3190@aitel.hist.no> <Pine.LNX.4.64.0608201859130.6762@scrub.home> <20060820175128.GA4217@amd64.of.nowhere> <Pine.LNX.4.64.0608202120180.6761@scrub.home> <20060820194244.GA3997@amd64.of.nowhere>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Aug 2006 17:55:51 -0400
+Date: Sun, 20 Aug 2006 14:45:53 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: Stephane Eranian <eranian@hpl.hp.com>
+Subject: [PATCH] i386 add missing PMU MSR definitions
+Message-ID: <20060820214553.GC27542@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="/9DWx/yDrRhgMJTb"
 Content-Disposition: inline
-In-Reply-To: <20060820194244.GA3997@amd64.of.nowhere>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 09:42:44PM +0200, thunder7@xs4all.nl wrote:
-> From: Roman Zippel <zippel@linux-m68k.org>
-> Date: Sun, Aug 20, 2006 at 09:24:05PM +0200
-> > 
-> > Thanks for testing, it's a silly sign problem. gcc turned the divide into 
-> > an unsigned one.
-> > 
-> > bye, Roman
-> > 
-> > Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-I can confirm that 2.6.18-rc4-mm2 with this fix keeps time correctly.
-2.6.18-rc4-mm2 without it has the 3x time problem, and 
-produce the following debug output:
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
-u: 3538559.870999, 0.0000
-time.c: Using 3.579545 MHz WALL PM GTOD PIT/TSC timer.
-time.c: Detected 1804.120 MHz processor.
-.
-.
-.
-3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
-u: 3538559.870999, 0.0000
-3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
-u: 3538559.870999, 0.0000
-3b9aca0000000000,d2ea237f00000000,d2ea237f00000000,35fe7fdef9db22
-u: 3538559.870999, 0.0000
+Hello,
 
-Helge Hafting
+Here is a patch to add a couple of missing MSR definitions related
+to Performance monitoring (on P4/Xeon). A separate patch is to follow
+for the X86-64 equivalent.
+
+Changelog:
+	- add MSR definitions for IA32_PEBS_ENABLE and PEBS_MATRIX_VERT
+
+signed-off-by: stephane eranian <eranian@hpl.hp.com>
+
+-- 
+-Stephane
+
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="msr-i386.diff"
+
+--- linux-2.6.17.8.orig/include/asm-i386/msr.h	2006-08-06 21:18:54.000000000 -0700
++++ linux-2.6.17.8/include/asm-i386/msr.h	2006-08-20 14:38:35.000000000 -0700
+@@ -225,6 +225,9 @@ static inline void wrmsrl (unsigned long
+ #define MSR_P4_U2L_ESCR0 		0x3b0
+ #define MSR_P4_U2L_ESCR1 		0x3b1
+ 
++#define MSR_IA32_PEBS_ENABLE		0x3f1
++#define MSR_PEBS_MATRIX_VERT		0x3f2
++
+ /* AMD Defined MSRs */
+ #define MSR_K6_EFER			0xC0000080
+ #define MSR_K6_STAR			0xC0000081
+
+--/9DWx/yDrRhgMJTb--

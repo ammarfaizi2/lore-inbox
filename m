@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWHTLMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWHTLUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWHTLMw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 07:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWHTLMw
+	id S1750740AbWHTLUd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 07:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWHTLUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 07:12:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40350 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750737AbWHTLMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 07:12:51 -0400
-Subject: Re: Complaint about return code convention in queue_work() etc.
-From: Ingo Molnar <mingo@redhat.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       Kai Petzke <wpp@marie.physik.tu-berlin.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, mingo@elte.hu
-In-Reply-To: <Pine.LNX.4.44L0.0608181730510.5732-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0608181730510.5732-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Sun, 20 Aug 2006 13:06:21 +0200
-Message-Id: <1156071981.19017.60.camel@earth>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Aug 2006 07:20:33 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:19473 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750740AbWHTLUc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 07:20:32 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: w@1wt.eu (Willy Tarreau)
+Subject: Re: [PATCH] cit_encrypt_iv/cit_decrypt_iv for ECB mode
+Cc: solar@openwall.com, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Organization: Core
+In-Reply-To: <20060820080403.GA602@1wt.eu>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1GElLd-0006HN-00@gondolin.me.apana.org.au>
+Date: Sun, 20 Aug 2006 21:20:09 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 17:39 -0400, Alan Stern wrote:
->         Why do the damn things return 0 for error and 1 for success???
->         Why don't they use negative error codes for failure, like 
->         everything else in the kernel?!!
+Willy Tarreau <w@1wt.eu> wrote:
 > 
-> I've tripped over this at least twice, and on each occasion spent a
-> considerable length of time trying to track down the problem. 
+> That's what I thought after reading the code too. BTW, 2.6 does not
+> initialize the pointers either.
 
-yeah, lets just flip the logic over, but combined with a rename so that
-we dont surprise not-yet-in-tree code [and documentation/books].
-queue_work() -> add_work() or something like that.
+This has been changed in the cryptodev-2.6 tree:
 
-	Ingo
+http://www.kernel.org/git/?p=linux/kernel/git/herbert/cryptodev-2.6.git;a=commitdiff;h=310d6a0c14eda153869adaf74e69dbd1a1256e7f
 
+[CRYPTO] cipher: Removed special IV checks for ECB
+
+This patch makes IV operations on ECB fail through nocrypt_iv rather than
+calling BUG().  This is needed to generalise CBC/ECB using the template
+mechanism.
+
+In fact with the new block cipher type calling the IV-specific
+functions on ECB will work in the same way as the IV-less functions.
+This makes sense because the IV length is simply zero.
+ 
+> I wonder whether we shouldn't consider that those functions must at
+> least clear the memory area that was submitted to them, such as
+> proposed below. It would also fix the problem for potential other
+> users. I don't think we need to check whether dst is valid given
+> the small amount of tests performed in crypt().
+
+If the user is ignoring the error value here then you're in serious
+trouble anyway since they've just lost all their data.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

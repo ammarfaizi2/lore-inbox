@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWHTQRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWHTQSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWHTQRx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 12:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWHTQRx
+	id S1750899AbWHTQSV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWHTQSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 12:17:53 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:39067 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750854AbWHTQRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 12:17:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rwvdD1gz/vT4tPny9A/T5oBUmLxwCoB100nfWLXg2OhWb1aEEnGS0y3SNyx1UIs0pfaiDQUqB8XV5iy2QYu4oa80k5n/jI5N3BrOvSxHn8JdWrNKLkGBnq6tix89ih0ytYlo76XdX1/NMJd7T7hAP39b8GCu9j9XebVuNuJkLq8=
-Message-ID: <18d709710608200917o4c062d6ewd216580a1022ad0f@mail.gmail.com>
-Date: Sun, 20 Aug 2006 13:17:51 -0300
-From: "Julio Auto" <mindvortex@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.17.9 Incorrect string length checking in param_set_copystring()
-In-Reply-To: <18d709710608200747k3323b23cq70eb52fdb9032554@mail.gmail.com>
+	Sun, 20 Aug 2006 12:18:20 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:40172 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1750896AbWHTQSU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 12:18:20 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] PCI: add ICH7/8 ACPI/GPIO io resource quirks
+Date: Sun, 20 Aug 2006 18:17:58 +0200
+User-Agent: KMail/1.7.2
+Cc: "linux-pci" <linux-pci@atrey.karlin.mff.cuni.cz>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <18d709710608200747k3323b23cq70eb52fdb9032554@mail.gmail.com>
+Message-Id: <200608201817.59355.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 1378;
+	Body=4 Fuz1=4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As for 2.6.17.9, linux/include/linux/moduleparam.h suggests the user
-> of module_param_string() to set the maxlen parameter to
-> strlen(string), ie. '\0' excluded.
+( on top of pci-fix-ich6-quirks.patch )
 
-Actually, sizeof(string), not strlen(string). Senseless typo here.
-Sorry, my bad. :)
+[PATCH] PCI: add ICH7/8 ACPI/GPIO io resource quirks
 
-Cheers,
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
 
-    Julio Auto
+--- a/drivers/pci/quirks.c	2006-08-20 16:00:07.000000000 +0200
++++ b/drivers/pci/quirks.c	2006-08-20 16:59:26.000000000 +0200
+@@ -440,6 +440,12 @@
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_0, quirk_ich6_lpc_acpi );
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1, quirk_ich6_lpc_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH7_0, quirk_ich6_lpc_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH7_1, quirk_ich6_lpc_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH7_31, quirk_ich6_lpc_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH8_0, quirk_ich6_lpc_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH8_2, quirk_ich6_lpc_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH8_3, quirk_ich6_lpc_acpi );
+ 
+ /*
+  * VIA ACPI: One IO region pointed to by longword at

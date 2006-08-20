@@ -1,94 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWHTAG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751597AbWHTARN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWHTAG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 20:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWHTAG3
+	id S1751597AbWHTARN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 20:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWHTARN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 20:06:29 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:16103
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751072AbWHTAG3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 20:06:29 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: [PATCH] getsockopt() early argument sanity checking
-Date: Sun, 20 Aug 2006 02:05:20 +0200
-User-Agent: KMail/1.9.1
-References: <20060819230532.GA16442@openwall.com> <20060819234806.GB27115@1wt.eu>
-In-Reply-To: <20060819234806.GB27115@1wt.eu>
-Cc: Solar Designer <solar@openwall.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Aug 2006 20:17:13 -0400
+Received: from 1wt.eu ([62.212.114.60]:38416 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751596AbWHTARM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Aug 2006 20:17:12 -0400
+Date: Sun, 20 Aug 2006 02:16:37 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Solar Designer <solar@openwall.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce CONFIG_BINFMT_ELF_AOUT
+Message-ID: <20060820001637.GC27115@1wt.eu>
+References: <20060819232556.GA16617@openwall.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200608200205.20876.mb@bu3sch.de>
+In-Reply-To: <20060819232556.GA16617@openwall.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 August 2006 01:48, Willy Tarreau wrote:
-> On Sun, Aug 20, 2006 at 03:05:32AM +0400, Solar Designer wrote:
-> > Willy,
-> > 
-> > I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
-> > into 2.4.34-pre.
-> > 
-> > (2.6 kernels could benefit from the same change, too, but at the moment
-> > I am dealing with proper submission of generic changes like this that
-> > are a part of 2.4.33-ow1.)
-> > 
-> > The patch makes getsockopt(2) sanity-check the value pointed to by
-> > the optlen argument early on.  This is a security hardening measure
-> > intended to prevent exploitation of certain potential vulnerabilities in
-> > socket type specific getsockopt() code on UP systems.
-> > 
-> > This change has been a part of -ow patches for some years.
+On Sun, Aug 20, 2006 at 03:25:56AM +0400, Solar Designer wrote:
+> Willy,
 > 
-> looks valid to me, merged.
+> I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
+> into 2.4.34-pre.  (2.6 kernels could benefit from the same change, too.)
+> 
+> The patch adds a new compile-time option to control the support for
+> "ELF binaries with a.out format interpreters or a.out libraries".
+> Without this patch, such support is enabled on every system that enables
+> the support for ELF binaries - although 99% (100%?) of systems don't
+> need this hybrid functionality.
 
-Not to me. It heavily violates codingstyle and screws brains
-with the non-indented else branches. Learn about goto.
+I remember having used this patch in a not-so-distant past without any
+side effect. Also, 2.4 now mostly runs on servers with a well known
+userland, so I believe that being able to disable ELF_AOUT may serve
+some users who either want to harden their system or simply reduce its
+footprint.
 
-> Thanks Alexander !
-> Willy
+> Moreover, this functionality poses a
+> security risk - as proven in practice:
 > 
+> 	http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
 > 
-> > Thanks,
-> > 
-> > -- 
-> > Alexander Peslyak <solar at openwall.com>
-> > GPG key ID: B35D3598  fp: 6429 0D7E F130 C13E C929  6447 73C3 A290 B35D 3598
-> > http://www.openwall.com - bringing security into open computing environments
-> 
-> > diff -urpPX nopatch linux-2.4.33/net/socket.c linux/net/socket.c
-> > --- linux-2.4.33/net/socket.c	Wed Jan 19 17:10:14 2005
-> > +++ linux/net/socket.c	Sat Aug 12 08:51:47 2006
-> > @@ -1307,10 +1307,18 @@ asmlinkage long sys_setsockopt(int fd, i
-> >  asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
-> >  {
-> >  	int err;
-> > +	int len;
-> >  	struct socket *sock;
-> >  
-> >  	if ((sock = sockfd_lookup(fd, &err))!=NULL)
-> >  	{
-> > +		/* XXX: insufficient for SMP, but should be redundant anyway */
-> > +		if (get_user(len, optlen))
-> > +			err = -EFAULT;
-> > +		else
-> > +		if (len < 0)
-> > +			err = -EINVAL;
-> > +		else
-> >  		if (level == SOL_SOCKET)
-> >  			err=sock_getsockopt(sock,level,optname,optval,optlen);
-> >  		else
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> This uselib() vulnerability did not affect default kernel builds with
+> the -ow patch specifically due to separation of the unneeded/risky code
+> into CONFIG_BINFMT_ELF_AOUT and having this option disabled by default.
+> (Yes, this change in -ow patches pre-dates the discovery of the uselib()
+> vulnerability.)
 
--- 
-Greetings Michael.
+I remember about it (the vuln), I even used it as a PoC.
+
+> The patch also changes CONFIG_BINFMT_AOUT to be disabled by default on
+> archs that had it default to enabled.
+
+However, I don't agree with this part in mainline. While I'm happy to
+let the user disable useless/dangerous/untested features, there are
+people who build kernels by appending just a few lines to default configs.
+I don't want to change their default settings without them noticing this,
+even if there's virtually no risk of breaking anything. Same goes for
+BINFMT_MISC which got disabled by default in your patch.
+
+A general thumb rule is to allow people to hold the 'Enter' key pressed
+during make oldconfig and get identical features as before. This is really
+important to maintain the rate of wrong bug reports very low.
+
+> The a.out support is similarly risky and not audited/hardened with the
+> same scrutiny that the ELF support has received.
+
+I know and agree with you on this matter. Most people compiling 2.4 for
+servers right now most probably do not enable support for a.out already.
+
+So to resume, what I can propose you is :
+  - you split the defconfig changes from the rest and let them in a
+    state compatible with 2.4.33 features, which even implies setting
+    CONFIG_BINFMT_ELF_AOUT to 'y', even if this sounds gross to you.
+  - I merge the changes to support the new option
+  - you just have to maintain the patch for the defconfig files in owl.
+
+I can also do the split myself if you don't have time, but this work
+will get less priority then (since my time is finite too).
+
+Also, you spoke about 2.6. I would like that you keep a list of the
+patches from your tree that get merged into 2.4 and which should be
+proposed to 2.6. Maybe you'll only propose them when you work on 2.6-owl,
+but I would like to ensure that those enhancements don't get lost once
+they are in 2.4 mainline.
+
+> Thanks,
+> 
+> Alexander
+
+Thanks,
+Willy
+

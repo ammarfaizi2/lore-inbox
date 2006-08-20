@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWHTJhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWHTKEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbWHTJhc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 05:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWHTJhc
+	id S1750712AbWHTKEE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 06:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWHTKEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 05:37:32 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:24251 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751720AbWHTJhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 05:37:32 -0400
-Subject: Re: [mm patch] drm, minor fixes
-From: Arjan van de Ven <arjan@infradead.org>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       airlied@linux.ie
-In-Reply-To: <20060819231621.GF720@slug>
-References: <20060813012454.f1d52189.akpm@osdl.org>
-	 <20060819231621.GF720@slug>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 20 Aug 2006 11:37:06 +0200
-Message-Id: <1156066626.23756.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 20 Aug 2006 06:04:04 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:50420 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750701AbWHTKEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 06:04:01 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 2/6]: powerpc/cell spidernet low watermark patch.
+Date: Sun, 20 Aug 2006 12:03:14 +0200
+User-Agent: KMail/1.9.1
+Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       ens Osterkamp <Jens.Osterkamp@de.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com> <200608190109.15129.arnd@arndb.de> <1156055509.5803.77.camel@localhost.localdomain>
+In-Reply-To: <1156055509.5803.77.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200608201203.15645.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-19 at 23:16 +0000, Frederik Deweerdt wrote:
-> On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
+On Sunday 20 August 2006 08:31, Benjamin Herrenschmidt wrote:
+> > card->low_watermark->next->dmac_cmd_status |= SPIDER_NET_DESCR_TXDESFLG;
+> > mb();
+> > card->low_watermark->dmac_cmd_status &= ~SPIDER_NET_DESCR_TXDESFLG;
+> > card->low_watermark = card->low_watermark->next;
 > > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> > 
-> Hi Andrew,
+> > when we queue another frame for TX.
 > 
-> The following patch adds minor fixes to the drm code:
-> - fix return values that are wrong (return E* instead of return -E*)
+> I would have expected those to be racy vs. the hardware... what if the
+> hardware is updating dmac_cmd_status just as your are trying to and the
+> bit out of it ?
 
-are you sure the callers of these don't wrap it inside a DRM_ERR()
-macro ?
+Right, that doesn't work. It is the only bit we use in that byte though,
+so maybe it can be done with a single byte write.
 
-
-
-- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+	Arnd <><

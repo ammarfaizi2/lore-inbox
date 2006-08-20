@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWHTWOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWHTWOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751630AbWHTWOz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 18:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWHTWOz
+	id S1751637AbWHTWOq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 18:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWHTWOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 18:14:55 -0400
-Received: from main.gmane.org ([80.91.229.2]:20917 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751630AbWHTWOy (ORCPT
+	Sun, 20 Aug 2006 18:14:46 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:63926 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751630AbWHTWOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 18:14:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Bug Report 2.6.17.8
-Date: Mon, 21 Aug 2006 01:14:40 +0200
-Organization: Palacky University in Olomouc, experimental physics dep.
-Message-ID: <44E8ECE0.1080100@flower.upol.cz>
-References: <20060820134022.c1d676d6.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 158.194.192.153
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <20060820134022.c1d676d6.skraw@ithnet.com>
+	Sun, 20 Aug 2006 18:14:45 -0400
+Date: Mon, 21 Aug 2006 00:06:51 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: Ingo Molnar <mingo@redhat.com>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Jeff Garzik <jeff@garzik.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Complaint about return code convention in queue_work() etc.
+In-Reply-To: <Pine.LNX.4.44L0.0608201246310.17959-100000@netrider.rowland.org>
+Message-ID: <Pine.LNX.4.61.0608210005090.32565@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.44L0.0608201246310.17959-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-> Hello,
-> 
-> in case of additional questions feel free to ask. 
-> 
-,-
-|uname -a
-|cat /proc/mounts || mount
-`-
-But no. Keep it to yourself!
+>> >Mixing up these two sorts of representations is a fertile source of
+>> >difficult-to-find bugs.  If the C language included a strong distinction
+>> >between integers and booleans then the compiler would find these mistakes
+>> >for us... but it doesn't.
+>> 
+>> Recently introduced "bool".
+>
+>I haven't seen the new definition of "bool", but it can't possibly provide 
+>a strong distinction between integers and booleans.  That is, if x is 
+>declared as an integer rather than as a bool, the compiler won't complain 
+>about "if (x) ...".
+
+Only Java will get you this distinction. I would be comfortable with a 
+feature where conditionals (like if() and ?:) enforce a bool showing 
+up in C/C++, but it's not easy to get into the mainline gcc.
 
 
-kernel:  <c0149797> slab_destroy+0x21/0x4e  <c0176e09> dquot_drop+0x5b/0x68
-kernel:  <c01983d4> reiserfs_dquot_drop+0x37/0x74  <c01cedb6> memmove+0x20/0x26
-kernel:  <c0162571> clear_inode+0x13d/0x13f  <c016258e> dispose_list+0x1b/0xaa
-
-... reiserfs.
-
+Jan Engelhardt
 -- 
--o--=O`C  /. .\ (???)  (+)                                    /o o\
-  #oo'L O      o         |                                     o.
-<___=E M    ^--         |  (you're barking up the wrong tree) =--'
-

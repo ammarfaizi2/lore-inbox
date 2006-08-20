@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWHTKYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWHTK3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWHTKYt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 06:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWHTKYt
+	id S1750720AbWHTK3U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 06:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWHTK3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 06:24:49 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:16056 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1750700AbWHTKYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 06:24:49 -0400
-Date: Sun, 20 Aug 2006 12:24:04 +0200 (MEST)
-Message-Id: <200608201024.k7KAO4i5023339@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: w@1wt.eu
-Subject: Re: [PATCH 2.4.34-pre1] fix x86_64 etc build failure due to memchr change
-Cc: ak@suse.de, davem@davemloft.net, linux-kernel@vger.kernel.org
+	Sun, 20 Aug 2006 06:29:20 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:21727 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S1750720AbWHTK3T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 06:29:19 -0400
+Date: Sun, 20 Aug 2006 18:53:21 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] copy_process: cosmetic ->ioprio tweak
+Message-ID: <20060820145321.GA775@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Aug 2006 03:31:09 +0200, Willy Tarreau wrote:
->On Sun, Aug 20, 2006 at 12:19:06AM +0200, Mikael Pettersson wrote:
->> 2.4.34-pre1 doesn't build on x86_64:
->> 
->> kernel/kernel.o(__ksymtab+0x1c10): multiple definition of `__ksymtab_memchr'
->> arch/x86_64/kernel/kernel.o(__ksymtab+0x3f0): first defined here
->> kernel/kernel.o(.kstrtab+0x3960): multiple definition of `__kstrtab_memchr'
->> arch/x86_64/kernel/kernel.o(.kstrtab+0x5fd): first defined here
->> ld: Warning: size of symbol `__kstrtab_memchr' changed from 7 in arch/x86_64/kernel/kernel.o to 17 in kernel/kernel.o
->> make: *** [vmlinux] Error 1
->> 
->> This is because the 'export memchr() which is used by smbfs and lp driver'
->> change in 2.4.34-pre1 added an EXPORT_SYMBOL of memchr to kernel/ksyms.c
->> without also removing the existing one in arch/x86_64/kernel/x8664_ksyms.c.
->> Alpha, ARM, ppc32, and SH also have EXPORTs of memchr so they probably
->> also broke.
->> 
->> This patch removes the EXPORTs of memchr under arch/, which fixes x86_64
->> and should fix the other architectures as well.
->
->OK Mikael,
->
->I have fixed sparc and sparc64 instead, and it's OK now without having to
->export memchr() in kernel/ksyms.c. So the fix is shorter and more logical.
->It brings non-sparc architectures to their state before my wrong fix. However,
->sparc needs to export memchr() for smbfs and lp.
+copy_process:
+// holds tasklist_lock + ->siglock
+       /*
+        * inherit ioprio
+        */
+       p->ioprio = current->ioprio;
 
-Works for me. Tested on i386, x86_64, and ppc32. I'll try to test on sparc64
-later today.
+Why? ->ioprio was already copied in dup_task_struct(). I guess this is needed
+to ensure that the child can't escape sys_ioprio_set(IOPRIO_WHO_{PGRP,USER}),
+yes?
 
-/Mikael
+In that case we don't need ->siglock held, and the comment should be updated.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.18-rc4/kernel/fork.c~1_fork	2006-08-19 17:50:56.000000000 +0400
++++ 2.6.18-rc4/kernel/fork.c	2006-08-20 18:18:47.000000000 +0400
+@@ -1138,7 +1138,6 @@ static struct task_struct *copy_process(
+ 
+ 	/* Our parent execution domain becomes current domain
+ 	   These must match for thread signalling to apply */
+-	   
+ 	p->parent_exec_id = p->self_exec_id;
+ 
+ 	/* ok, now we should be set up.. */
+@@ -1161,6 +1160,9 @@ static struct task_struct *copy_process(
+ 	/* Need tasklist lock for parent etc handling! */
+ 	write_lock_irq(&tasklist_lock);
+ 
++	/* for sys_ioprio_set(IOPRIO_WHO_PGRP) */
++	p->ioprio = current->ioprio;
++
+ 	/*
+ 	 * The task hasn't been attached yet, so its cpus_allowed mask will
+ 	 * not be changed, nor will its assigned CPU.
+@@ -1220,11 +1222,6 @@ static struct task_struct *copy_process(
+ 		}
+ 	}
+ 
+-	/*
+-	 * inherit ioprio
+-	 */
+-	p->ioprio = current->ioprio;
+-
+ 	if (likely(p->pid)) {
+ 		add_parent(p);
+ 		if (unlikely(p->ptrace & PT_PTRACED))
+

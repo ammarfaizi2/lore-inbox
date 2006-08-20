@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWHTI6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751717AbWHTJDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751684AbWHTI6b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 04:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWHTI6b
+	id S1751717AbWHTJDV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 05:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751718AbWHTJDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 04:58:31 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:30960 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751683AbWHTI6b (ORCPT
+	Sun, 20 Aug 2006 05:03:21 -0400
+Received: from mail.gmx.de ([213.165.64.20]:62369 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751715AbWHTJDU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 04:58:31 -0400
-Date: Sun, 20 Aug 2006 10:50:01 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-cc: Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH] paravirt.h
-In-Reply-To: <44E67B6E.10706@goop.org>
-Message-ID: <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be>
-References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org>
- <20060819012133.GH7813@stusta.de> <44E67B6E.10706@goop.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Aug 2006 05:03:20 -0400
+X-Authenticated: #14349625
+Subject: Re: [Bugme-new] [Bug 7027] New: CD Ripping speeds slow with 2.6.17
+From: Mike Galbraith <efault@gmx.de>
+To: brnewber@gmail.com
+Cc: Ingo Molnar <mingo@elte.hu>, Martin Bligh <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1156068220.6034.1.camel@Homer.simpson.net>
+References: <200608191800.k7JI0ML0015395@fire-2.osdl.org>
+	 <20060819111437.a88f71cd.akpm@osdl.org>
+	 <1156062478.6690.65.camel@Homer.simpson.net>
+	 <1156068220.6034.1.camel@Homer.simpson.net>
+Content-Type: text/plain
+Date: Sun, 20 Aug 2006 11:11:40 +0000
+Message-Id: <1156072300.5052.7.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Aug 2006, Jeremy Fitzhardinge wrote:
-> Adrian Bunk wrote:
-> > These are Linux specific operations.
-> > 
-> > Without an _GPL you are in the grey area where courts have to decide whether
-> > a module using this would be a derived work according to copyright law in
-> > $country_of_the_court and therefore has to be GPL.
-> > 
-> > With the _GPL, everything is clear without any lawyers involved.
-> >   
+On Sun, 2006-08-20 at 10:03 +0000, Mike Galbraith wrote:
+> On Sun, 2006-08-20 at 08:27 +0000, Mike Galbraith wrote:
 > 
-> Hardly.  The _GPL is a hint as to the intent of the author, but it is no more
-> than a hint.
+> > I'm skeptical.  Is the source for this application available?  I'd like
+> > to see this problem.
 > 
-> My intent here (and I think the intent of the other authors) is not to cause
-> breakage of things which currently work, so the _GPL is not appropriate for
-> that reason.  Paravirt_ops is a restatement of many interfaces which already
-> exist in Linux in a non-_GPL form, so making the structure _GPL is effectively
+> (never mind.  saw your other post, found source)
 
-My copy of linux-2.6.18-rc4/COPYING doesn't mention anything about these
-`non-_GPL' interfaces. It does mention `normal system calls', but AFAIK symbols
-exported to modules are not syscalls.
+Hm.  I can't get better than 1.4x rip speed out of it with a stock SuSE
+10.1 kernel (2.6.16).  It's also using truckloads of cpu, whereas the CD
+rippers that came with this distro use a percent or two.
 
-> relicensing them.
+	-Mike
 
-That's a pretty strong statement...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWHTQFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWHTQJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWHTQFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 12:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWHTQFk
+	id S1750851AbWHTQJc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbWHTQJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 12:05:40 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:50550 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750835AbWHTQFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 12:05:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=neEp2JJLjZh59k1YV/ah45n+DsfJDxqpCtZ63JeKks5oSFj3FYQhinvgi1pVOB5LGFBWrd5YLtDV5+Trcr4LddtADDygIX2IERGmiUANq1dlQ94437hHaXeC5+lIy1y6lXth+L26fd+Gq6hmEYZpQVKu/G+wchXo6Kn+/m4PLac=
-Message-ID: <18d709710608200905j37ba1cb3vbb027fea88801c5c@mail.gmail.com>
-Date: Sun, 20 Aug 2006 13:05:39 -0300
-From: "Julio Auto" <mindvortex@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: On the definition of the module_param_string macro
+	Sun, 20 Aug 2006 12:09:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62219 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750844AbWHTQJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 12:09:31 -0400
+Date: Sun, 20 Aug 2006 18:09:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Michal Ludvig <michal@logix.cz>
+Subject: [-mm patch] CRYPTO_DEV_PADLOCK_AES must select CRYPTO_BLKCIPHER
+Message-ID: <20060820160928.GN7813@stusta.de>
+References: <20060819220008.843d2f64.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060819220008.843d2f64.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.6.17.9, the definition of the module_param_string macro
-receives 4 parameters (see linux/include/linux/moduleparam.h:87):
+On Sat, Aug 19, 2006 at 10:00:08PM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc4-mm1:
+>...
+>  git-cryptodev.patch
+> 
+>  git trees
+>...
 
-#define module_param_string(name, string, len, perm) ...
+This patch fixes the following compile error:
 
-allowing the name of the parameter (fed to the macro as 'name'), as it
-will be in the .modinfo section, to be different from the actual name
-of the variable (fed to the macro as 'string').
-To me, it looks inconsistent. If, on the other hand, it was supposed
-to be a 'feature', the it looks plain useless (otherwise, the same
-rule should apply to other module_param* macros).
-So, I would suggest that the definition changes to:
+<--  snip  -->
 
-#define module_param_string(name, len, perm) ...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `cbc_aes_decrypt':
+padlock-aes.c:(.text+0x6c63a): undefined reference to `blkcipher_walk_virt'
+padlock-aes.c:(.text+0x6c66f): undefined reference to `blkcipher_walk_done'
+drivers/built-in.o: In function `ecb_aes_decrypt':
+padlock-aes.c:(.text+0x6c6af): undefined reference to `blkcipher_walk_virt'
+padlock-aes.c:(.text+0x6c6de): undefined reference to `blkcipher_walk_done'
+drivers/built-in.o: In function `ecb_aes_encrypt':
+padlock-aes.c:(.text+0x6c768): undefined reference to `blkcipher_walk_virt'
+padlock-aes.c:(.text+0x6c794): undefined reference to `blkcipher_walk_done'
+drivers/built-in.o: In function `cbc_aes_encrypt':
+padlock-aes.c:(.text+0x6c7d5): undefined reference to `blkcipher_walk_virt'
+padlock-aes.c:(.text+0x6c821): undefined reference to `blkcipher_walk_done'
+drivers/built-in.o:(.data+0xcfa8): undefined reference to `crypto_blkcipher_type'
+drivers/built-in.o:(.data+0xd088): undefined reference to `crypto_blkcipher_type'
+make[1]: *** [.tmp_vmlinux1] Error 1
 
-where it would behave like a current use of 'module_param_string(name,
-name, len, perm);'
+<--  snip  -->
+ 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I understand that such changes in the API of modules may cause some
-trouble, but it doesn't cost a thing to look at this one as a possible
-improvement for the future.
+---
 
-Cheers,
+BTW: The Kconfig+Makefile parts for padlock-sha seem to be missing.
 
-    Julio Auto
+--- linux-2.6.18-rc4-mm2/drivers/crypto/Kconfig.old	2006-08-20 17:28:46.000000000 +0200
++++ linux-2.6.18-rc4-mm2/drivers/crypto/Kconfig	2006-08-20 17:44:56.000000000 +0200
+@@ -16,6 +16,7 @@
+ config CRYPTO_DEV_PADLOCK_AES
+ 	bool "Support for AES in VIA PadLock"
+ 	depends on CRYPTO_DEV_PADLOCK
++	select CRYPTO_BLKCIPHER
+ 	default y
+ 	help
+ 	  Use VIA PadLock for AES algorithm.
+

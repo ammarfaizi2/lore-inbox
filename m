@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751790AbWHTW7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWHTW6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751790AbWHTW7T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 18:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWHTW7T
+	id S1751786AbWHTW6s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 18:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWHTW6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 18:59:19 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64015 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750783AbWHTW7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 18:59:15 -0400
-Date: Mon, 21 Aug 2006 00:59:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/video/console/: make 3 functions static
-Message-ID: <20060820225914.GU7813@stusta.de>
-MIME-Version: 1.0
+	Sun, 20 Aug 2006 18:58:47 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:8708 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751784AbWHTW6q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 18:58:46 -0400
+Date: Mon, 21 Aug 2006 08:58:30 +1000
+To: Solar Designer <solar@openwall.com>
+Cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [PATCH] cit_encrypt_iv/cit_decrypt_iv for ECB mode
+Message-ID: <20060820225830.GA31693@gondor.apana.org.au>
+References: <20060820002346.GA16995@openwall.com> <20060820080403.GA602@1wt.eu> <20060820144908.GA19602@openwall.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060820144908.GA19602@openwall.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes three needlessly global functions static.
+On Sun, Aug 20, 2006 at 06:49:08PM +0400, Solar Designer wrote:
+> 
+> Can we maybe define working but IV-ignoring functions for ECB (like I
+> did), but use memory-clearing nocrypt*() for CFB and CTR (as long as
+> these are not supported)?  Of course, all of these will return -ENOSYS.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+In cryptodev-2.6, with block ciphers you can no longer select CFB/CTR
+until someone writes support for them so this is no longer an issue.
 
----
+For 2.4, I don't really mind either way what nocrypt does.
 
- drivers/video/console/fbcon_ccw.c |    2 +-
- drivers/video/console/fbcon_cw.c  |    2 +-
- drivers/video/console/fbcon_ud.c  |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
---- linux-2.6.18-rc4-mm2/drivers/video/console/fbcon_cw.c.old	2006-08-20 23:07:14.000000000 +0200
-+++ linux-2.6.18-rc4-mm2/drivers/video/console/fbcon_cw.c	2006-08-20 23:07:31.000000000 +0200
-@@ -375,7 +375,7 @@
- 	ops->cursor_reset = 0;
- }
- 
--int cw_update_start(struct fb_info *info)
-+static int cw_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	u32 vxres = GETVXRES(ops->p->scrollmode, info);
---- linux-2.6.18-rc4-mm2/drivers/video/console/fbcon_ccw.c.old	2006-08-20 23:07:58.000000000 +0200
-+++ linux-2.6.18-rc4-mm2/drivers/video/console/fbcon_ccw.c	2006-08-20 23:08:03.000000000 +0200
-@@ -391,7 +391,7 @@
- 	ops->cursor_reset = 0;
- }
- 
--int ccw_update_start(struct fb_info *info)
-+static int ccw_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	u32 yoffset;
---- linux-2.6.18-rc4-mm2/drivers/video/console/fbcon_ud.c.old	2006-08-20 23:08:31.000000000 +0200
-+++ linux-2.6.18-rc4-mm2/drivers/video/console/fbcon_ud.c	2006-08-20 23:08:45.000000000 +0200
-@@ -415,7 +415,7 @@
- 	ops->cursor_reset = 0;
- }
- 
--int ud_update_start(struct fb_info *info)
-+static int ud_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	int xoffset, yoffset;
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

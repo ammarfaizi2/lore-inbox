@@ -1,36 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWHTPiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWHTPz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWHTPiR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 11:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWHTPiR
+	id S1750819AbWHTPz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 11:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWHTPzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 11:38:17 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13268 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750826AbWHTPiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 11:38:16 -0400
-Subject: Re: [PATCH 2.6.18-rc4] aoe [04/13]: zero copy write 1 of 2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Ed L. Cashin" <ecashin@coraid.com>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-In-Reply-To: <f262a8dec6bec42dce9e5723ff332f5d@coraid.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com>
-	 <f262a8dec6bec42dce9e5723ff332f5d@coraid.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 19 Aug 2006 11:18:12 +0100
-Message-Id: <1155982692.4051.9.camel@localhost.localdomain>
+	Sun, 20 Aug 2006 11:55:25 -0400
+Received: from mother.openwall.net ([195.42.179.200]:61632 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S1750819AbWHTPzZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 11:55:25 -0400
+Date: Sun, 20 Aug 2006 19:51:22 +0400
+From: Solar Designer <solar@openwall.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Andrew Morton <akpm@osdl.org>, Ernie Petrides <petrides@redhat.com>
+Subject: Re: [PATCH] binfmt_elf.c : the BAD_ADDR macro again
+Message-ID: <20060820155122.GA20108@openwall.com>
+References: <20060820020417.GA17450@openwall.com> <20060820091515.GC602@1wt.eu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060820091515.GC602@1wt.eu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-08-18 am 13:39 -0400, ysgrifennodd Ed L. Cashin:
-> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+On Sun, Aug 20, 2006 at 11:15:15AM +0200, Willy Tarreau wrote:
+> The proper fix would then be :
+[...]
+> -#define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
+> +#define BAD_ADDR(x)	((unsigned long)(x) >= TASK_SIZE)
+[...]
+> -	    if (k > TASK_SIZE || eppnt->p_filesz > eppnt->p_memsz ||
+> +	    if (BAD_ADDR(k) || eppnt->p_filesz > eppnt->p_memsz ||
+[...]
+> -		if (k > TASK_SIZE || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
+> +		if (BAD_ADDR(k) || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
 
-> +	skb->len = sizeof *h + sizeof *ah;
-> +	memset(h, 0, skb->len);
+Looks OK to me.
 
-Never play with skb->len directly. Use skb_put/skb_trim
+> And even then, I'm not happy with this test :
+> 
+>    TASK_SIZE - elf_ppnt->p_memsz < k
+> 
+> because it means that we only raise the error when
+> 
+>    k + elf_ppnt->p_memsz > TASK_SIZE
+> 
+> I really think that we want to check this instead :
+> 
+>    k + elf_ppnt->p_memsz >= TASK_SIZE
+> 
+> Otherwise we leave a window where this is undetected :
+> 
+>    load_addr + eppnt->p_vaddr == TASK_SIZE - eppnt->p_memsz
+> 
+> This will later lead to last_bss getting readjusted to TASK_SIZE, which I
+> don't think is expected at all :
+> 
+>             k = load_addr + eppnt->p_memsz + eppnt->p_vaddr;
+>             if (k > last_bss)
+>                 last_bss = k;
+> 
+> Then I think we should change this at both places :
+> 
+> - 		    TASK_SIZE - elf_ppnt->p_memsz < k) {
+> +		    BAD_ADDR(k + elf_ppnt->p_memsz)) {
 
+I am not sure about these re-arrangements - I'd need to review them in
+full context to make sure that we don't inadvertently change things as
+it relates to behavior on integer overflows, which I presently do not
+have the time for.  I'll trust that you do such a review with integer
+overflows and variable type differences (size, signedness) in mind now
+that I've mentioned this potential danger. ;-)  Alternatively, you can
+simply change the comparisons from < to <= and from > to >= rather than
+use the BAD_ADDR() macro.
 
+Thanks,
+
+Alexander

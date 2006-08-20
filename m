@@ -1,255 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWHTRrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWHTRse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWHTRrb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 13:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWHTRra
+	id S1751066AbWHTRse (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 13:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWHTRsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 13:47:30 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:17567 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751070AbWHTRr1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 13:47:27 -0400
-Date: Sun, 20 Aug 2006 23:16:13 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
-       Balbir Singh <balbir@in.ibm.com>, sekharan@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
-       matthltc@us.ibm.com, dipankar@in.ibm.com
-Subject: [PATCH 5/7] CPU controller V1 - Extend smpnice to be task-group aware
-Message-ID: <20060820174613.GF13917@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060820174015.GA13917@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Aug 2006 13:48:33 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:2762 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751066AbWHTRsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 13:48:32 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: [RFC v2] HOWTO use NAPI to reduce TX interrupts
+Date: Sun, 20 Aug 2006 19:48:19 +0200
+User-Agent: KMail/1.9.1
+Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       David Miller <davem@davemloft.net>,
+       Linas Vepstas <linas@austin.ibm.com>
+References: <20060818220700.GG26889@austin.ibm.com> <44E7BB7F.7030204@osdl.org> <200608191325.19557.arnd@arndb.de>
+In-Reply-To: <200608191325.19557.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060820174015.GA13917@in.ibm.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200608201948.20596.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A recent discussion about the spidernet driver resulted in the dicovery
+that network drivers are supposed to use NAPI for both their receive and
+transmit paths, but this is documented nowhere.
 
-This patch extends the smpnice mechanism to be aware of task-groups and the
-quota given to each task-group.
+In order to help the next person writing a NAPI based driver, I wrote
+down what I found missing about this.
 
-Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Please tell me if anything in here is still wrong or could use better
+wording.
 
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
- kernel/sched.c |  127 +++++++++++++++++++++++++++++++++++++++++++--------------
- 1 files changed, 96 insertions(+), 31 deletions(-)
+---
+This is the second version of my mini howto, after a few comments
+I got from Stephen Hemminger and  Avuton Olrich.
 
-diff -puN kernel/sched.c~cpu_ctlr_smp_nice kernel/sched.c
---- linux-2.6.18-rc3/kernel/sched.c~cpu_ctlr_smp_nice	2006-08-20 22:03:42.000000000 +0530
-+++ linux-2.6.18-rc3-root/kernel/sched.c	2006-08-20 22:03:42.000000000 +0530
-@@ -874,6 +874,25 @@ static inline int __normal_prio(struct t
- #define RTPRIO_TO_LOAD_WEIGHT(rp) \
- 	(PRIO_TO_LOAD_WEIGHT(MAX_RT_PRIO) + LOAD_WEIGHT(rp))
+Index: linux-cg/Documentation/networking/NAPI_HOWTO.txt
+===================================================================
+--- linux-cg.orig/Documentation/networking/NAPI_HOWTO.txt	2006-08-20 16:51:12.000000000 +0200
++++ linux-cg/Documentation/networking/NAPI_HOWTO.txt	2006-08-20 19:42:20.000000000 +0200
+@@ -1,11 +1,6 @@
+-HISTORY:
+-February 16/2002 -- revision 0.2.1:
+-COR typo corrected
+-February 10/2002 -- revision 0.2:
+-some spell checking ;->
+-January 12/2002 -- revision 0.1
+-This is still work in progress so may change.
+-To keep up to date please watch this space.
++Note: this document could use a serious cleanup by a good writer.
++It would be nice to split out the reference parts into a kerneldoc
++document and turn the rest into a tutorial.
  
-+#ifdef CONFIG_CPUMETER
-+
-+static inline int cpu_quota(struct task_grp *tg)
-+{
-+	int val;
-+
-+	if (tg->ticks == -1)
-+		val = 100;
-+	else
-+		val = (tg->ticks * 100) / (5 * HZ);
-+
-+	return val;
-+}
-+
-+#define TASK_GROUP_QUOTA(p)    cpu_quota(task_grp(p)) / 100
-+#else
-+#define TASK_GROUP_QUOTA(p)    1
-+#endif
-+
- static void set_load_weight(struct task_struct *p)
- {
- 	if (has_rt_policy(p)) {
-@@ -887,9 +906,11 @@ static void set_load_weight(struct task_
- 			p->load_weight = 0;
- 		else
- #endif
--			p->load_weight = RTPRIO_TO_LOAD_WEIGHT(p->rt_priority);
-+			p->load_weight = RTPRIO_TO_LOAD_WEIGHT(p->rt_priority)
-+						* TASK_GROUP_QUOTA(p);
- 	} else
--		p->load_weight = PRIO_TO_LOAD_WEIGHT(p->static_prio);
-+		p->load_weight = PRIO_TO_LOAD_WEIGHT(p->static_prio)
-+						* TASK_GROUP_QUOTA(p);
- }
+ Introduction to NAPI
+ ====================
+@@ -738,6 +733,64 @@
+ root         3  0.2  0.0     0     0  ?  RWN Aug 15 602:00 (ksoftirqd_CPU0)
+ root       232  0.0  7.9 41400 40884  ?  S   Aug 15  74:12 gated 
  
- static inline void
-@@ -2209,7 +2230,8 @@ int can_migrate_task(struct task_struct 
- 	return 1;
- }
- 
--#define rq_best_prio(rq) min((rq)->curr->prio, (rq)->expired->best_static_prio)
-+#define rq_best_prio(rq) min((rq)->active->best_dyn_prio, \
-+			     (rq)->expired->best_static_prio)
- 
- /*
-  * move_tasks tries to move up to max_nr_move tasks and max_load_move weighted
-@@ -2218,17 +2240,17 @@ int can_migrate_task(struct task_struct 
-  *
-  * Called with both runqueues locked.
-  */
--static int move_tasks(struct rq *this_rq, int this_cpu, struct rq *busiest,
--		      unsigned long max_nr_move, unsigned long max_load_move,
--		      struct sched_domain *sd, enum idle_type idle,
--		      int *all_pinned)
-+static int __move_tasks(struct task_grp_rq *this_rq, int this_cpu,
-+			struct task_grp_rq *busiest, unsigned long max_nr_move,
-+			unsigned long max_load_move, struct sched_domain *sd,
-+			enum idle_type idle, int *all_pinned, long *load_moved)
- {
- 	int idx, pulled = 0, pinned = 0, this_best_prio, best_prio,
--	    best_prio_seen, skip_for_load;
-+	    best_prio_seen = 0, skip_for_load;
- 	struct prio_array *array, *dst_array;
- 	struct list_head *head, *curr;
- 	struct task_struct *tmp;
--	long rem_load_move;
-+	long rem_load_move = 0;
- 
- 	if (max_nr_move == 0 || max_load_move == 0)
- 		goto out;
-@@ -2237,14 +2259,6 @@ static int move_tasks(struct rq *this_rq
- 	pinned = 1;
- 	this_best_prio = rq_best_prio(this_rq);
- 	best_prio = rq_best_prio(busiest);
--	/*
--	 * Enable handling of the case where there is more than one task
--	 * with the best priority.   If the current running task is one
--	 * of those with prio==best_prio we know it won't be moved
--	 * and therefore it's safe to override the skip (based on load) of
--	 * any task we find with that prio.
--	 */
--	best_prio_seen = best_prio == busiest->curr->prio;
- 
- 	/*
- 	 * We first consider expired tasks. Those will likely not be
-@@ -2293,7 +2307,7 @@ skip_queue:
- 	if (skip_for_load && idx < this_best_prio)
- 		skip_for_load = !best_prio_seen && idx == best_prio;
- 	if (skip_for_load ||
--	    !can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
-+	    !can_migrate_task(tmp, task_rq(tmp), this_cpu, sd, idle, &pinned)) {
- 
- 		best_prio_seen |= idx == best_prio;
- 		if (curr != head)
-@@ -2307,7 +2321,8 @@ skip_queue:
- 		schedstat_inc(sd, lb_hot_gained[idle]);
- #endif
- 
--	pull_task(busiest, array, tmp, this_rq, dst_array, this_cpu);
-+	pull_task(task_rq(tmp), array, tmp, cpu_rq(this_cpu), dst_array,
-+		       						this_cpu);
- 	pulled++;
- 	rem_load_move -= tmp->load_weight;
- 
-@@ -2333,9 +2348,70 @@ out:
- 
- 	if (all_pinned)
- 		*all_pinned = pinned;
-+	*load_moved = max_load_move - rem_load_move;
- 	return pulled;
- }
- 
-+static int move_tasks(struct rq *this_rq, int this_cpu, struct rq *busiest,
-+		      unsigned long max_nr_move, unsigned long max_load_move,
-+		      struct sched_domain *sd, enum idle_type idle,
-+		      int *all_pinned)
-+{
-+	int idx;
-+	long load_moved;
-+	unsigned long total_nr_moved = 0, nr_moved;
-+	struct prio_array *array;
-+	struct task_grp_rq *busy_q, *this_q;
-+	struct list_head *head, *curr;
 +
-+	if (busiest->expired->nr_active)
-+		array = busiest->expired;
-+	else
-+		array = busiest->active;
++APPENDIX 4: Using NAPI for TX skb cleanup
++=========================================
 +
-+new_array:
-+	/* Start searching at priority 0: */
-+	idx = 0;
-+skip_bitmap:
-+	if (!idx)
-+		idx = sched_find_first_bit(array->bitmap);
-+	else
-+		idx = find_next_bit(array->bitmap, MAX_PRIO, idx);
-+	if (idx >= MAX_PRIO) {
-+		if (array == busiest->expired && busiest->active->nr_active) {
-+			array = busiest->active;
-+			goto new_array;
-+		}
-+		goto out;
-+	}
++While most of the discussion is focused on optimizing the receive path, in
++most drivers it is also beneficial to free TX buffers from the dev->poll()
++function. Many devices trigger an interrupt for each packet that has been
++sent out to notify the driver that it can free the skb. This results in
++a large amount of interrupt processing that we want to avoid. It is also
++suboptimal to free skbs in a hardirq context, because dev_kfree_skb_irq()
++needs to schedule a softirq to do the actual work. Calling dev_kfree_skb()
++from dev->poll() directly avoids these extra softirq schedules.
 +
-+	head = array->queue + idx;
-+	curr = head->prev;
-+skip_queue:
-+	busy_q = list_entry(curr, struct task_grp_rq, list);
-+	this_q = busy_q->tg->rq[this_cpu];
++The simplistic approach of setting a long kernel timer to clean up
++descriptors results in poor throughput because a user process that tries
++to send out a lot of data then blocks on its socket send buffer, while
++the driver never frees up the skbs in that buffer until the timeout.
 +
-+	curr = curr->prev;
++Trying the cleanup every time that hard_start_xmit() is entered provides
++relatively good throughput, but typically causes extra processing overhead
++because of mmio accesses and/or spinlocks, so you normally want to batch
++skb reclaim.
 +
-+	nr_moved = __move_tasks(this_q, this_cpu, busy_q, max_nr_move,
-+			max_load_move, sd, idle, all_pinned, &load_moved);
++In order to get optimal throughput on transmit, the sent skbs need to be
++cleaned up before the chip runs out of data to transmit, so relying on
++an end of queue interrupt means that in the window between the interrupt
++and the time that new user packets have arrived in the adapter, there is
++no outgoing data on the wire, even if user data is available.  It may
++also be bad to defer freeing skbs too long because they may consume a
++significant amount of memory.
 +
-+	total_nr_moved += nr_moved;
-+	max_nr_move -= nr_moved;
-+	max_load_move -= load_moved;
++Experience shows that combination of events that trigger skb reclaim
++works best. These events include:
++- new packets coming in through hard_start_xmit()
++- packets coming in from the network through dev->poll()
++- time has passed since the first packet was send over the wire
++  but has not been reclaimed (tx_coalesce_usecs)
++- a number of packets have been sent (tx_max_coalesced_frames)
 +
-+	BUG_ON(max_load_move < 0);
-+	BUG_ON(max_nr_move < 0);
++We can avoid expensive locking between these by using the poll() function
++as the only place to call skb reclaim. This also means that in the
++interrupt handler, we always call netif_rx_schedule() for any interrupt,
++including those for tx or e.g. PHY handling.  This is particularly
++helpful if reading the IRQ status does an auto mask operation.
 +
-+	if (curr != head)
-+		goto skip_queue;
-+	idx++;
-+	goto skip_bitmap;
++Depending on the actual hardware, slightly different methods for coalesced
++tx interrupts may be used:
++- a timer that starts with the successful transmission of a packet
++  may need to be replaced with a timer that is started at when a packet
++  is submitted to the adapter.
++- instead of an interrupt that is triggered after a fixed number
++  of transmitted packets, it may be possible to mark a specific packet
++  so it generates an interrupt after processing.
++- If the adapter knows about the number of packets that have been
++  queued, a low-watermark interrupt may be used that fires when the
++  number drops below a user-defined value.
 +
-+out:
-+	return total_nr_moved;
-+}
 +
- /*
-  * find_busiest_group finds and returns the busiest CPU group within the
-  * domain. It calculates and returns the amount of weighted load which
-@@ -7196,18 +7272,6 @@ void sched_assign_quota(struct task_grp 
- 	recalc_dontcare(tg_root);
- }
+ --------------------------------------------------------------------
  
--static inline int cpu_quota(struct task_grp *tg)
--{
--	int val;
--
--	if (tg->ticks == -1)
--		val = 100;
--	else
--		val = (tg->ticks * 100) / (5 * HZ);
--
--	return val;
--}
--
- /* Return assigned quota for this group */
- int sched_get_quota(struct task_grp *tg)
- {
-@@ -7273,6 +7337,7 @@ void sched_post_move_task(struct task_st
- {
- 	struct rq *rq = task_rq(tsk);
- 
-+	set_load_weight(tsk);
- 	__activate_task(tsk, rq);
- 
- 	task_rq_unlock(rq, &irq_flags);
-
-_
--- 
-Regards,
-vatsa
+ relevant sites:
+@@ -764,3 +817,4 @@
+ Manfred Spraul <manfred@colorfullife.com>
+ Donald Becker <becker@scyld.com>
+ Jeff Garzik <jgarzik@pobox.com>
++Arnd Bergmann <arnd@arndb.de>

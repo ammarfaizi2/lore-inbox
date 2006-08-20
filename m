@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWHTQwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWHTQ6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWHTQwo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 12:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWHTQwo
+	id S1750945AbWHTQ6J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWHTQ6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 12:52:44 -0400
-Received: from mother.openwall.net ([195.42.179.200]:32449 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S1750945AbWHTQwn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 12:52:43 -0400
-Date: Sun, 20 Aug 2006 20:48:41 +0400
-From: Solar Designer <solar@openwall.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alex Riesen <fork0@users.sourceforge.net>,
-       Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
-Message-ID: <20060820164841.GA20433@openwall.com>
-References: <20060820003840.GA17249@openwall.com> <20060820100706.GB6003@steel.home> <20060820153037.GA20007@openwall.com> <1156089203.23756.46.camel@laptopd505.fenrus.org> <44E88DC3.7000708@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E88DC3.7000708@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 20 Aug 2006 12:58:09 -0400
+Received: from mx2.rowland.org ([192.131.102.7]:29964 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1750945AbWHTQ6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 12:58:08 -0400
+Date: Sun, 20 Aug 2006 12:58:06 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Ingo Molnar <mingo@redhat.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Alexey Dobriyan <adobriyan@gmail.com>, Jeff Garzik <jeff@garzik.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Complaint about return code convention in queue_work() etc.
+In-Reply-To: <Pine.LNX.4.61.0608201024330.9707@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.44L0.0608201246310.17959-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Arjan van de Ven wrote:
-> > sounds like a good argument to get the setuid functions marked
-> > __must_check in glibc...
+On Sun, 20 Aug 2006, Jan Engelhardt wrote:
 
-I agree.
+> >Mixing up these two sorts of representations is a fertile source of
+> >difficult-to-find bugs.  If the C language included a strong distinction
+> >between integers and booleans then the compiler would find these mistakes
+> >for us... but it doesn't.
+> 
+> Recently introduced "bool".
 
-On Sun, Aug 20, 2006 at 09:28:51AM -0700, Ulrich Drepper wrote:
-> There are too many false positives.  E.g., in a SUID binaries switching
-> back from a non-root UID to root will not fail.  Very common.
+I haven't seen the new definition of "bool", but it can't possibly provide 
+a strong distinction between integers and booleans.  That is, if x is 
+declared as an integer rather than as a bool, the compiler won't complain 
+about "if (x) ...".
 
-I wouldn't call those false positives.  They're warnings of poorly
-written code that might fail with further changes to the kernel or with
-custom security modules, or on another Unix-like platform.
 
-Of course, the kernel or security modules must not change the semantics
-arbitrarily yet expect old apps to work, however expecting that apps
-honor return value from set*[ug]id() would be reasonable.  (The only
-reason why it is not is that there are so many broken apps out there and
-more are being developed.)
+On Sun, 20 Aug 2006, Ingo Molnar wrote:
 
-Alexander
+> yeah, lets just flip the logic over, but combined with a rename so that
+> we dont surprise not-yet-in-tree code [and documentation/books].
+> queue_work() -> add_work() or something like that.
+
+How about add_work_to_q() instead of queue_work() and add_work() instead
+of schedule_work()?
+
+Alan Stern
+

@@ -1,66 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWHTQ0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWHTQ3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWHTQ0f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 12:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWHTQ0f
+	id S1750878AbWHTQ3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWHTQ3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 12:26:35 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:22152 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1750831AbWHTQ0f
+	Sun, 20 Aug 2006 12:29:49 -0400
+Received: from mother.openwall.net ([195.42.179.200]:16065 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S1750762AbWHTQ3s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 12:26:35 -0400
-Date: Mon, 21 Aug 2006 00:50:34 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sys_ioprio_set: don't disable irqs
-Message-ID: <20060820205034.GA5755@oleg>
-References: <20060820204345.GA5750@oleg>
+	Sun, 20 Aug 2006 12:29:48 -0400
+Date: Sun, 20 Aug 2006 20:25:50 +0400
+From: Solar Designer <solar@openwall.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
+Message-ID: <20060820162550.GB20249@openwall.com>
+References: <20060820003840.GA17249@openwall.com> <87veonqtp8.fsf@mid.deneb.enyo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060820204345.GA5750@oleg>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <87veonqtp8.fsf@mid.deneb.enyo.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Question: why do we need to disable irqs in exit_io_context() ?
-Why do we need ->alloc_lock to clear io_context->task ?
+On Sun, Aug 20, 2006 at 06:04:51PM +0200, Florian Weimer wrote:
+> Distributors have already begun to patch userland to check for error
+> returns.  Arguably, this is the correct approach, but I fear it takes
+> far too long to fix all callers.
 
-In other words, could you explain why the patch below is not correct.
+My opinion is that both userland apps need to (be patched to) check for
+error returns from set*[ug]id() and the kernel must not let these calls
+fail-and-return when the caller is appropriately privileged.
 
-Thanks,
-
-Oleg.
-
---- 2.6.18-rc4/block/ll_rw_blk.c~6_exit	2006-08-20 19:30:10.000000000 +0400
-+++ 2.6.18-rc4/block/ll_rw_blk.c	2006-08-20 22:34:46.000000000 +0400
-@@ -3580,25 +3580,22 @@ EXPORT_SYMBOL(put_io_context);
- /* Called by the exitting task */
- void exit_io_context(void)
- {
--	unsigned long flags;
- 	struct io_context *ioc;
- 	struct cfq_io_context *cic;
- 
--	local_irq_save(flags);
- 	task_lock(current);
- 	ioc = current->io_context;
- 	current->io_context = NULL;
--	ioc->task = NULL;
- 	task_unlock(current);
--	local_irq_restore(flags);
- 
-+	ioc->task = NULL;
- 	if (ioc->aic && ioc->aic->exit)
- 		ioc->aic->exit(ioc->aic);
- 	if (ioc->cic_root.rb_node != NULL) {
- 		cic = rb_entry(rb_first(&ioc->cic_root), struct cfq_io_context, rb_node);
- 		cic->exit(ioc);
- 	}
-- 
-+
- 	put_io_context(ioc);
- }
- 
-
+Alexander

@@ -1,123 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWHTIEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWHTI0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWHTIEk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 04:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWHTIEk
+	id S1751483AbWHTI0h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 04:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWHTI0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 04:04:40 -0400
-Received: from 1wt.eu ([62.212.114.60]:42512 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932500AbWHTIEi (ORCPT
+	Sun, 20 Aug 2006 04:26:37 -0400
+Received: from 1wt.eu ([62.212.114.60]:43024 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751483AbWHTI0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 04:04:38 -0400
-Date: Sun, 20 Aug 2006 10:04:03 +0200
+	Sun, 20 Aug 2006 04:26:37 -0400
+Date: Sun, 20 Aug 2006 10:26:02 +0200
 From: Willy Tarreau <w@1wt.eu>
 To: Solar Designer <solar@openwall.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cit_encrypt_iv/cit_decrypt_iv for ECB mode
-Message-ID: <20060820080403.GA602@1wt.eu>
-References: <20060820002346.GA16995@openwall.com>
+Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
+Message-ID: <20060820082602.GB602@1wt.eu>
+References: <20060820003840.GA17249@openwall.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060820002346.GA16995@openwall.com>
+In-Reply-To: <20060820003840.GA17249@openwall.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexander,
-
-On Sun, Aug 20, 2006 at 04:23:46AM +0400, Solar Designer wrote:
+On Sun, Aug 20, 2006 at 04:38:40AM +0400, Solar Designer wrote:
 > Willy and all,
 > 
-> Attached is a patch (extracted from 2.4.33-ow1) that works around an
-> unfortunate problem with patch-cryptoloop-jari-2.4.22.0 (and its other
-> revisions).  I am not sure whether the problem should be worked around
-> in the main Linux kernel like that, but this is what I did in -ow
-> patches for now.
+> Attached is a trivial patch (extracted from 2.4.33-ow1) that makes
+> set*uid() kill the current process rather than proceed with -EAGAIN when
+> the kernel is running out of memory.  Apparently, alloc_uid() can't fail
+> and return anyway due to properties of the allocator, in which case the
+> patch does not change a thing.  But better safe than sorry.
 
-You definitely provide interesting cases :-)
+Whether it can fail or not, alloc_uid()'s author intent was to report its
+problems via NULL :
 
+                new = kmem_cache_alloc(uid_cachep, SLAB_KERNEL);
+                if (!new)
+                        return NULL;
 
-> Basically, crypto/cipher.c: crypto_init_cipher_ops() in Linux 2.4 (I did
-> not check 2.6 for this) did not initialize cit_encrypt_iv/cit_decrypt_iv
-> for ECB mode at all.  While IV makes no sense for ECB mode, I would
-> think that a safer approach would be to initialize those pointers to
-> nocrypt_iv.
+So your change to set_user() are consistent with this design choice.
+Now, chosing to kill the process whe the kernel runs out of memory
+seems consistent with what will happen a few milliseconds later to
+other processes anyway.
 
-That's what I thought after reading the code too. BTW, 2.6 does not
-initialize the pointers either.
+I'm just wondering why you return a SIGSEGV. When the kernel kills
+tasks on OOM conditions, it sends either SIGTERM or SIGKILL, as we
+can see here in mm/oom_kill.c:__oom_kill_task() :
 
+        p->flags |= PF_MEMALLOC | PF_MEMDIE;
+        /* This process has hardware access, be more careful. */
+        if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
+                force_sig(SIGTERM, p);
+        } else {
+                force_sig(SIGKILL, p);
+        }
 
-> patch-cryptoloop-jari-2.4.22.0 calls cit_encrypt_iv/cit_decrypt_iv
-> directly, ignoring their return value.  Thus, when these pointers are
-> not initialized (as they are not in vanilla Linux 2.4.33) and we request
-> ECB mode encryption via cryptoloop (a bad idea, but anyway), the kernel
-> most likely Oopses.  When these pointers are initialized to nocrypt_iv
-> (due to a "correct" patch), there's no Oops, but the kernel leaks
-> uninitialized memory contents via the loop device (that's because
-> patch-cryptoloop-jari-2.4.22.0 ignores the -ENOSYS returns).  Neither
-> behavior is any good.
+Shouldn't we simply re-use the same code ? (not the function, I would not
+like to get OOM messages outside the OOM killer).
 
-Indeed, that's bad too.
+> As you're probably aware, 2.6 kernels are affected to a greater extent,
+> where set*uid() may also fail on trying to exceed RLIMIT_NPROC.  That
+> needs to be fixed, too.
 
-> The attached patch actually defines ecb_encrypt_iv() and
-> ecb_decrypt_iv() functions that perform ECB encryption/decryption
-> ignoring the IV, yet return -ENOSYS (just like nocrypt_iv would).
-> The result is no more Oopses and no infoleaks either.
+I've followed the thread a little bit but am not aware of all the details.
 
-Can the cryptoloop patch use CRYPTO_TFM_MODE_CFB or CRYPTO_TFM_MODE_CTR
-and so be redirected to nocrypt() which will leave uninitialized memory
-too ?
-
-> (Yes, I understand that ECB mode should be avoided and that this
-> cryptoloop patch does not address watermarking.  But the security of
-> block device encryption offered by cryptoloop is irrelevant to the
-> point that I am making.)
-> 
 > Opinions are welcome.
+> 
+> Thanks,
+> 
+> Alexander
 
-I wonder whether we shouldn't consider that those functions must at
-least clear the memory area that was submitted to them, such as
-proposed below. It would also fix the problem for potential other
-users. I don't think we need to check whether dst is valid given
-the small amount of tests performed in crypt().
-
-Opinions are welcome too.
+What do you (and others) think about this ?
 Willy
 
 
-diff --git a/crypto/cipher.c b/crypto/cipher.c
-index 6ab56eb..cdf650b 100644
---- a/crypto/cipher.c
-+++ b/crypto/cipher.c
-@@ -202,6 +202,9 @@ static int nocrypt(struct crypto_tfm *tf
-                    struct scatterlist *src,
- 		   unsigned int nbytes)
- {
-+	/* do not leak uninitialized data in the return buffer */
-+	if (nbytes)
-+		memset(dst, 0, nbytes);
- 	return -ENOSYS;
- }
- 
-@@ -210,6 +213,9 @@ static int nocrypt_iv(struct crypto_tfm 
-                       struct scatterlist *src,
-                       unsigned int nbytes, u8 *iv)
- {
-+	/* do not leak uninitialized data in the return buffer */
-+	if (nbytes)
-+		memset(dst, 0, nbytes);
- 	return -ENOSYS;
- }
- 
-@@ -235,6 +241,8 @@ int crypto_init_cipher_ops(struct crypto
- 	case CRYPTO_TFM_MODE_ECB:
- 		ops->cit_encrypt = ecb_encrypt;
- 		ops->cit_decrypt = ecb_decrypt;
-+		ops->cit_encrypt_iv = nocrypt_iv;
-+		ops->cit_decrypt_iv = nocrypt_iv;
- 		break;
- 		
- 	case CRYPTO_TFM_MODE_CBC:
-
+> diff -urpPX nopatch linux-2.4.33/kernel/sys.c linux/kernel/sys.c
+> --- linux-2.4.33/kernel/sys.c	Fri Nov 28 21:26:21 2003
+> +++ linux/kernel/sys.c	Wed Aug 16 05:19:21 2006
+> @@ -514,8 +514,10 @@ static int set_user(uid_t new_ruid, int 
+>  	struct user_struct *new_user;
+>  
+>  	new_user = alloc_uid(new_ruid);
+> -	if (!new_user)
+> +	if (!new_user) {
+> +		force_sig(SIGSEGV, current);
+>  		return -EAGAIN;
+> +	}
+>  	switch_uid(new_user);
+>  
+>  	if(dumpclear)
 

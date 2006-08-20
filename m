@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWHTIeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWHTIie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751701AbWHTIeu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 04:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbWHTIeu
+	id S1751492AbWHTIie (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 04:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWHTIie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 04:34:50 -0400
-Received: from mx1.suse.de ([195.135.220.2]:41945 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751311AbWHTIet (ORCPT
+	Sun, 20 Aug 2006 04:38:34 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:17075 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751492AbWHTIid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 04:34:49 -0400
-From: Andi Kleen <ak@suse.de>
-To: Solar Designer <solar@openwall.com>
-Subject: Re: [PATCH] getsockopt() early argument sanity checking
-Date: Sun, 20 Aug 2006 10:34:43 +0200
-User-Agent: KMail/1.9.3
-Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <20060819230532.GA16442@openwall.com>
-In-Reply-To: <20060819230532.GA16442@openwall.com>
+	Sun, 20 Aug 2006 04:38:33 -0400
+Date: Sun, 20 Aug 2006 10:27:49 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: Alexey Dobriyan <adobriyan@gmail.com>, Jeff Garzik <jeff@garzik.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Complaint about return code convention in queue_work() etc.
+In-Reply-To: <Pine.LNX.4.44L0.0608191050170.30951-100000@netrider.rowland.org>
+Message-ID: <Pine.LNX.4.61.0608201024330.9707@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.44L0.0608191050170.30951-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608201034.43588.ak@suse.de>
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1279926190-1156062469=:9707"
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 August 2006 01:05, Solar Designer wrote:
-> I propose the attached patch (extracted from 2.4.33-ow1) for inclusion
-> into 2.4.34-pre.
-> 
-> (2.6 kernels could benefit from the same change, too, but at the moment
-> I am dealing with proper submission of generic changes like this that
-> are a part of 2.4.33-ow1.)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-In general I don't think it makes sense to submit stuff for 2.4 
-that isn't in 2.6.
+--1283855629-1279926190-1156062469=:9707
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-> 
-> The patch makes getsockopt(2) sanity-check the value pointed to by
-> the optlen argument early on.  This is a security hardening measure
-> intended to prevent exploitation of certain potential vulnerabilities in
-> socket type specific getsockopt() code on UP systems.
+>> > >I'd like to lodge a bitter complaint about the return codes used by
+>> > >queue_work() and related functions:
+>> > >
+>> > >	Why do the damn things return 0 for error and 1 for success???
+>> > >	Why don't they use negative error codes for failure, like
+>> > >	everything else in the kernel?!!
+>> >
+>> > It's a standard programming idiom:  return false (0) for failure, true
+>> > (non-zero) for success.  Boolean.
+>> 
+>> There are at least 3 idioms:
+>> 
+>> 1) return 0 on success, -E on fail¹.
+>> 2) return 1 on YES, 0 on NO.
+>> 3) return valid pointer on OK, NULL on fail.
 
-It's not only insufficient on SMP, but even on UP where a thread
-can sleep in get_user and another one can run in this time.
+I wrote something up some time ago,
+http://svn.sourceforge.net/viewvc/vitalnix/trunk/src/doc/extra-aee.php?revision=1
 
-Doing a check that is inherently racy everywhere doesn't seem like
-a security improvement to me. If there is really a length checking bug somewhere 
-it needs to be fixed in a race-free way. If not then there is no need
-for a change.
+>Functions can return values of many different kinds, and one of the most
+>common is a value indicating whether the function succeeded or failed.  
+>Such a value can be represented as a "status" integer (0 = success, -Exxx
+>= failure) or a "succeeded" boolean (1 = success, 0 = failure).
+>
+>Mixing up these two sorts of representations is a fertile source of
+>difficult-to-find bugs.  If the C language included a strong distinction
+>between integers and booleans then the compiler would find these mistakes
+>for us... but it doesn't.
 
--Andi
+Recently introduced "bool".
+
+
+
+Jan Engelhardt
+-- 
+--1283855629-1279926190-1156062469=:9707--

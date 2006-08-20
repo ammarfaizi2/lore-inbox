@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWHTUjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWHTUlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWHTUjT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 16:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWHTUjT
+	id S1751211AbWHTUlP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 16:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWHTUlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 16:39:19 -0400
-Received: from mail.gmx.net ([213.165.64.20]:50856 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751118AbWHTUjS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 16:39:18 -0400
-X-Authenticated: #704063
-Subject: Re: [Patch] Signedness issue in drivers/net/phy/phy_device.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: Dave Jones <davej@redhat.com>
-Cc: Richard Knutsson <ricknu-0@student.ltu.se>, linux-kernel@vger.kernel.org,
-       drzeus-sdhci@drzeus.cx
-In-Reply-To: <20060820191643.GA2608@redhat.com>
-References: <1156008815.18192.3.camel@alice>
-	 <44E7E112.3010500@student.ltu.se> <20060820183600.GA3431@alice>
-	 <20060820191643.GA2608@redhat.com>
-Content-Type: text/plain
-Date: Sun, 20 Aug 2006 22:39:08 +0200
-Message-Id: <1156106348.5150.1.camel@alice>
+	Sun, 20 Aug 2006 16:41:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6586 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751211AbWHTUlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 16:41:12 -0400
+Subject: Re: [PATCH] introduce kernel_execve function to replace
+	__KERNEL_SYSCALLS__
+From: Arjan van de Ven <arjan@infradead.org>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: Chase Venters <chase.venters@clientec.com>, Andrew Morton <akpm@osdl.org>,
+       Arnd Bergmann <arnd@arndb.de>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+In-Reply-To: <20060820203604.GD11843@atjola.homenet>
+References: <20060819073031.GA25711@atjola.homenet>
+	 <200608201237.13194.chase.venters@clientec.com>
+	 <20060820112523.f14fc6dc.akpm@osdl.org>
+	 <200608201333.02951.chase.venters@clientec.com>
+	 <20060820194552.GB11843@atjola.homenet>
+	 <1156103446.23756.60.camel@laptopd505.fenrus.org>
+	 <20060820201118.GC11843@atjola.homenet>
+	 <1156105229.23756.65.camel@laptopd505.fenrus.org>
+	 <20060820203604.GD11843@atjola.homenet>
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel International BV
+Date: Sun, 20 Aug 2006 22:40:41 +0200
+Message-Id: <1156106442.23756.71.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-20 at 15:16 -0400, Dave Jones wrote:
-> On Sun, Aug 20, 2006 at 08:36:00PM +0200, Eric Sesterhenn / Snakebyte wrote:
->  > * Richard Knutsson (ricknu-0@student.ltu.se) wrote:
->  > > Eric Sesterhenn wrote:
->  > hi,
->  > 
->  > > Would it not be preferable to use a 's32' instead of an 'int'? After 
->  > > all, it seem 'val' needs to be 32 bits.
->  > 
->  > not sure, but wouldnt this collide with platforms where an int is 64
->  > Bits?
+On Sun, 2006-08-20 at 22:36 +0200, Björn Steinbrink wrote:
+> On 2006.08.20 22:20:28 +0200, Arjan van de Ven wrote:
+> > On Sun, 2006-08-20 at 22:11 +0200, Björn Steinbrink wrote:
+> > > On 2006.08.20 21:50:46 +0200, Arjan van de Ven wrote:
+> > > > \
+> > > > > Could we rename __syscall_return to IS_SYS_ERR (or whatever) and force
+> > > > > kernel syscall users to do the check? That way we could eliminate errno
+> > > > 
+> > > > s/users/user/ .. there's one left that should die out soon ;)
+> > > > 
+> > > 
+> > > Only one in unistd.h, but throughout the kernel there are quite a few
+> > > unless I'm missing something here:
+> > > doener@atjola:~/src/kernel/linux-2.6$ grep \ _syscall * -R | \
+> > > > grep -v define\\\|undef\\\|clobber | wc -l
+> > > 116
+> > > 
+> > > Are these just going to be replaced by calls to sys_whatever?
+> > 
+> > they're not the users of this, they're the definitions... ;)
 > 
-> None of the 64-bit Linux ports use ILP64.
+> Well, I assume that if some code defines a syscall, it will actually use
+> it. Of course I meant to ask if the users of those definitions are going
+> to just call sys_whatever.
+> For example check_host_supports_tls in arch/um/os-Linux/sys-i386/tls.c
+> which even uses the global errno (although in that case the whole
+> else part could probably be just removed).
 
-Here is an updated patch.
+um uses glibc, and is thus special.. lets ignore that ;)
+(really, it's an entire different beast in this regard)
 
-while checking gcc 4.1 -Wextra warnings, I stumbled across the following
-two warnings:
-
-drivers/net/phy/phy_device.c:528: warning: comparison of unsigned expression < 0 is always false
-drivers/net/phy/phy_device.c:546: warning: comparison of unsigned expression < 0 is always false
-
-Since phy_read() returns an integer and can return negative values, as proposed
-by Richard Knutsson this patch changes val to s32. Currently it is an u32, so the < 0 check
-always fails.
-
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.18-rc4/drivers/net/phy/phy_device.c.orig	2006-08-20 22:05:26.000000000 +0200
-+++ linux-2.6.18-rc4/drivers/net/phy/phy_device.c	2006-08-20 22:05:42.000000000 +0200
-@@ -513,7 +513,7 @@ EXPORT_SYMBOL(genphy_read_status);
- 
- static int genphy_config_init(struct phy_device *phydev)
- {
--	u32 val;
-+	s32 val;
- 	u32 features;
- 
- 	/* For now, I'll claim that the generic driver supports
-
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

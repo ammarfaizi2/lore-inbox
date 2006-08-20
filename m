@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWHTIie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWHTI6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWHTIie (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 04:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWHTIie
+	id S1751684AbWHTI6b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 04:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWHTI6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 04:38:34 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:17075 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751492AbWHTIid (ORCPT
+	Sun, 20 Aug 2006 04:58:31 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:30960 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751683AbWHTI6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 04:38:33 -0400
-Date: Sun, 20 Aug 2006 10:27:49 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Alexey Dobriyan <adobriyan@gmail.com>, Jeff Garzik <jeff@garzik.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Complaint about return code convention in queue_work() etc.
-In-Reply-To: <Pine.LNX.4.44L0.0608191050170.30951-100000@netrider.rowland.org>
-Message-ID: <Pine.LNX.4.61.0608201024330.9707@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.44L0.0608191050170.30951-100000@netrider.rowland.org>
+	Sun, 20 Aug 2006 04:58:31 -0400
+Date: Sun, 20 Aug 2006 10:50:01 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+cc: Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH] paravirt.h
+In-Reply-To: <44E67B6E.10706@goop.org>
+Message-ID: <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be>
+References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org>
+ <20060819012133.GH7813@stusta.de> <44E67B6E.10706@goop.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1279926190-1156062469=:9707"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, 19 Aug 2006, Jeremy Fitzhardinge wrote:
+> Adrian Bunk wrote:
+> > These are Linux specific operations.
+> > 
+> > Without an _GPL you are in the grey area where courts have to decide whether
+> > a module using this would be a derived work according to copyright law in
+> > $country_of_the_court and therefore has to be GPL.
+> > 
+> > With the _GPL, everything is clear without any lawyers involved.
+> >   
+> 
+> Hardly.  The _GPL is a hint as to the intent of the author, but it is no more
+> than a hint.
+> 
+> My intent here (and I think the intent of the other authors) is not to cause
+> breakage of things which currently work, so the _GPL is not appropriate for
+> that reason.  Paravirt_ops is a restatement of many interfaces which already
+> exist in Linux in a non-_GPL form, so making the structure _GPL is effectively
 
---1283855629-1279926190-1156062469=:9707
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+My copy of linux-2.6.18-rc4/COPYING doesn't mention anything about these
+`non-_GPL' interfaces. It does mention `normal system calls', but AFAIK symbols
+exported to modules are not syscalls.
 
->> > >I'd like to lodge a bitter complaint about the return codes used by
->> > >queue_work() and related functions:
->> > >
->> > >	Why do the damn things return 0 for error and 1 for success???
->> > >	Why don't they use negative error codes for failure, like
->> > >	everything else in the kernel?!!
->> >
->> > It's a standard programming idiom:  return false (0) for failure, true
->> > (non-zero) for success.  Boolean.
->> 
->> There are at least 3 idioms:
->> 
->> 1) return 0 on success, -E on fail¹.
->> 2) return 1 on YES, 0 on NO.
->> 3) return valid pointer on OK, NULL on fail.
+> relicensing them.
 
-I wrote something up some time ago,
-http://svn.sourceforge.net/viewvc/vitalnix/trunk/src/doc/extra-aee.php?revision=1
+That's a pretty strong statement...
 
->Functions can return values of many different kinds, and one of the most
->common is a value indicating whether the function succeeded or failed.  
->Such a value can be represented as a "status" integer (0 = success, -Exxx
->= failure) or a "succeeded" boolean (1 = success, 0 = failure).
->
->Mixing up these two sorts of representations is a fertile source of
->difficult-to-find bugs.  If the C language included a strong distinction
->between integers and booleans then the compiler would find these mistakes
->for us... but it doesn't.
+Gr{oetje,eeting}s,
 
-Recently introduced "bool".
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-Jan Engelhardt
--- 
---1283855629-1279926190-1156062469=:9707--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

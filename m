@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWHTKRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWHTKYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWHTKRY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 06:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWHTKRY
+	id S1750700AbWHTKYt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 06:24:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWHTKYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 06:17:24 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:55758 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750711AbWHTKRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 06:17:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=Nx6fxkU8tCKLoqdkxKYFGha/rX6/r84LNN4tiPLhVwkSbQwhxg8KfTaTWcpHldDqLpJc5Bpo34lrVvWJxYQuiHxNScG+ScDiE9tudzFdzJmBdmMabpDfdlEhXoNbw2+lHb+663p6VUfLsB2hFacQLJzBB6WuWhx02WnvIcqVZEo=
-Date: Sun, 20 Aug 2006 12:17:06 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       airlied@linux.ie
-Subject: Re: [mm patch] drm, minor fixes
-Message-ID: <20060820121706.GG720@slug>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060819231621.GF720@slug> <1156066626.23756.3.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156066626.23756.3.camel@laptopd505.fenrus.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Sun, 20 Aug 2006 06:24:49 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:16056 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1750700AbWHTKYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 06:24:49 -0400
+Date: Sun, 20 Aug 2006 12:24:04 +0200 (MEST)
+Message-Id: <200608201024.k7KAO4i5023339@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: w@1wt.eu
+Subject: Re: [PATCH 2.4.34-pre1] fix x86_64 etc build failure due to memchr change
+Cc: ak@suse.de, davem@davemloft.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 11:37:06AM +0200, Arjan van de Ven wrote:
-> On Sat, 2006-08-19 at 23:16 +0000, Frederik Deweerdt wrote:
-> > On Sun, Aug 13, 2006 at 01:24:54AM -0700, Andrew Morton wrote:
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm1/
-> > > 
-> > Hi Andrew,
-> > 
-> > The following patch adds minor fixes to the drm code:
-> > - fix return values that are wrong (return E* instead of return -E*)
-> 
-> are you sure the callers of these don't wrap it inside a DRM_ERR()
-> macro ?
-I changed the values when:
-- I've checked what seemed right, getting back to the system call.
-  drm_ioctl(), through a call to func().
-  That's the case for:
-  - the EFAULT value in i915_emit_box
-  - two EINVAL values in drm_setversion
-- the return value wasn't used. That was the case for
-  drm_set_busid return values, I felt having returned values negative
-  from the start was more consistent.
+On Sun, 20 Aug 2006 03:31:09 +0200, Willy Tarreau wrote:
+>On Sun, Aug 20, 2006 at 12:19:06AM +0200, Mikael Pettersson wrote:
+>> 2.4.34-pre1 doesn't build on x86_64:
+>> 
+>> kernel/kernel.o(__ksymtab+0x1c10): multiple definition of `__ksymtab_memchr'
+>> arch/x86_64/kernel/kernel.o(__ksymtab+0x3f0): first defined here
+>> kernel/kernel.o(.kstrtab+0x3960): multiple definition of `__kstrtab_memchr'
+>> arch/x86_64/kernel/kernel.o(.kstrtab+0x5fd): first defined here
+>> ld: Warning: size of symbol `__kstrtab_memchr' changed from 7 in arch/x86_64/kernel/kernel.o to 17 in kernel/kernel.o
+>> make: *** [vmlinux] Error 1
+>> 
+>> This is because the 'export memchr() which is used by smbfs and lp driver'
+>> change in 2.4.34-pre1 added an EXPORT_SYMBOL of memchr to kernel/ksyms.c
+>> without also removing the existing one in arch/x86_64/kernel/x8664_ksyms.c.
+>> Alpha, ARM, ppc32, and SH also have EXPORTs of memchr so they probably
+>> also broke.
+>> 
+>> This patch removes the EXPORTs of memchr under arch/, which fixes x86_64
+>> and should fix the other architectures as well.
+>
+>OK Mikael,
+>
+>I have fixed sparc and sparc64 instead, and it's OK now without having to
+>export memchr() in kernel/ksyms.c. So the fix is shorter and more logical.
+>It brings non-sparc architectures to their state before my wrong fix. However,
+>sparc needs to export memchr() for smbfs and lp.
 
-Is there a particular change that looked suspicious to you?
-Thanks,
-Frederik
+Works for me. Tested on i386, x86_64, and ppc32. I'll try to test on sparc64
+later today.
+
+/Mikael

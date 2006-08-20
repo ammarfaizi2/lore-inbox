@@ -1,97 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWHTQTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWHTQUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWHTQTr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 12:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWHTQTr
+	id S1750862AbWHTQUG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWHTQUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 12:19:47 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:48519 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S1750860AbWHTQTr
+	Sun, 20 Aug 2006 12:20:05 -0400
+Received: from mother.openwall.net ([195.42.179.200]:8129 "HELO
+	mother.openwall.net") by vger.kernel.org with SMTP id S1750862AbWHTQUD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 12:19:47 -0400
-Date: Mon, 21 Aug 2006 00:43:45 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] sys_ioprio_set: don't disable irqs
-Message-ID: <20060820204345.GA5750@oleg>
+	Sun, 20 Aug 2006 12:20:03 -0400
+Date: Sun, 20 Aug 2006 20:16:02 +0400
+From: Solar Designer <solar@openwall.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] getsockopt() early argument sanity checking
+Message-ID: <20060820161602.GA20163@openwall.com>
+References: <20060819230532.GA16442@openwall.com> <200608201034.43588.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200608201034.43588.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is not good to disable interrupts while traversing all tasks in the
-system. As I see it, sys_ioprio_get() doesn't need to cli() at all,
-sys_ioprio_set() does it for cfq_ioc_set_ioprio() which can do it itself.
+On Sun, Aug 20, 2006 at 10:34:43AM +0200, Andi Kleen wrote:
+> In general I don't think it makes sense to submit stuff for 2.4 
+> that isn't in 2.6.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+In general I agree, however right now I had the choice between
+submitting these changes for 2.4 first and not submitting them at all
+(at least for some months more).  I chose the former.
 
---- 2.6.18-rc4/block/cfq-iosched.c~5_setpr	2006-08-09 22:00:44.000000000 +0400
-+++ 2.6.18-rc4/block/cfq-iosched.c	2006-08-20 21:23:25.000000000 +0400
-@@ -1421,14 +1421,14 @@ static inline void changed_ioprio(struct
- }
- 
- /*
-- * callback from sys_ioprio_set, irqs are disabled
-+ * callback from sys_ioprio_set.
-  */
- static int cfq_ioc_set_ioprio(struct io_context *ioc, unsigned int ioprio)
- {
- 	struct cfq_io_context *cic;
- 	struct rb_node *n;
- 
--	spin_lock(&cfq_exit_lock);
-+	spin_lock_irq(&cfq_exit_lock);
- 
- 	n = rb_first(&ioc->cic_root);
- 	while (n != NULL) {
-@@ -1438,7 +1438,7 @@ static int cfq_ioc_set_ioprio(struct io_
- 		n = rb_next(n);
- 	}
- 
--	spin_unlock(&cfq_exit_lock);
-+	spin_unlock_irq(&cfq_exit_lock);
- 
- 	return 0;
- }
---- 2.6.18-rc4/fs/ioprio.c~5_setpr	2006-08-20 20:16:39.000000000 +0400
-+++ 2.6.18-rc4/fs/ioprio.c	2006-08-20 21:21:26.000000000 +0400
-@@ -81,7 +81,7 @@ asmlinkage long sys_ioprio_set(int which
- 	}
- 
- 	ret = -ESRCH;
--	read_lock_irq(&tasklist_lock);
-+	read_lock(&tasklist_lock);
- 	switch (which) {
- 		case IOPRIO_WHO_PROCESS:
- 			if (!who)
-@@ -124,7 +124,7 @@ free_uid:
- 			ret = -EINVAL;
- 	}
- 
--	read_unlock_irq(&tasklist_lock);
-+	read_unlock(&tasklist_lock);
- 	return ret;
- }
- 
-@@ -170,7 +170,7 @@ asmlinkage long sys_ioprio_get(int which
- 	int ret = -ESRCH;
- 	int tmpio;
- 
--	read_lock_irq(&tasklist_lock);
-+	read_lock(&tasklist_lock);
- 	switch (which) {
- 		case IOPRIO_WHO_PROCESS:
- 			if (!who)
-@@ -221,7 +221,7 @@ asmlinkage long sys_ioprio_get(int which
- 			ret = -EINVAL;
- 	}
- 
--	read_unlock_irq(&tasklist_lock);
-+	read_unlock(&tasklist_lock);
- 	return ret;
- }
- 
+> > The patch makes getsockopt(2) sanity-check the value pointed to by
+> > the optlen argument early on.  This is a security hardening measure
+> > intended to prevent exploitation of certain potential vulnerabilities in
+> > socket type specific getsockopt() code on UP systems.
+> 
+> It's not only insufficient on SMP, but even on UP where a thread
+> can sleep in get_user and another one can run in this time.
 
+Good point.  However, what about this special case? -
+
+We're on UP.  sys_getsockopt() does get_user() (due to the patch) and
+makes sure that the passed *optlen is sane.  Even if this get_user()
+sleeps, the value it returns in "len" is what's currently in memory at
+the time of the get_user() return (correct?)  Then an underlying
+*getsockopt() function does another get_user() on optlen (same address),
+without doing any other user-space data accesses or anything else that
+could sleep first.  Is it possible that this second get_user()
+invocation would sleep?  I think not since it's the same address that
+we've just read a value from, we did not leave kernel space, and we're
+on UP (so no other processor could have changed the mapping).  So the
+patch appears to be sufficient for this special case (which is not
+unlikely).
+
+Of course, it is possible that I am wrong about some of the above;
+please correct me if so.
+
+> If there is really a length checking bug somewhere it needs to be
+> fixed in a race-free way.
+
+Indeed, all known bugs need to be fixed properly.
+
+Thanks,
+
+Alexander

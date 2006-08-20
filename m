@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWHTUku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWHTUnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWHTUku (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 16:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWHTUku
+	id S1751280AbWHTUnf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 16:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWHTUnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 16:40:50 -0400
-Received: from lug-owl.de ([195.71.106.12]:46555 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751210AbWHTUkt (ORCPT
+	Sun, 20 Aug 2006 16:43:35 -0400
+Received: from 1wt.eu ([62.212.114.60]:60176 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751280AbWHTUne (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 16:40:49 -0400
-Date: Sun, 20 Aug 2006 22:40:48 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH -mm] kill wall_jiffies
-Message-ID: <20060820204048.GC7417@lug-owl.de>
-Mail-Followup-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20060821.000405.75184823.anemo@mba.ocn.ne.jp>
+	Sun, 20 Aug 2006 16:43:34 -0400
+Date: Sun, 20 Aug 2006 22:43:28 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 2.4.34-pre1] gcc4 fix for UP sparc64
+Message-ID: <20060820204328.GV602@1wt.eu>
+References: <200608202018.k7KKIAl4006428@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060821.000405.75184823.anemo@mba.ocn.ne.jp>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200608202018.k7KKIAl4006428@harpo.it.uu.se>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 20, 2006 at 10:18:10PM +0200, Mikael Pettersson wrote:
+> This patch fixes an invalid-lvalue error when compiling a
+> 2.4.34-pre1 kernel on sparc64 with gcc-4.1.1. The kernel
+> must be configured with CONFIG_SMP=n for the error to trigger.
 
---yVhtmJPUSI46BTXb
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's a fact that I only checked with SMP.
 
-On Mon, 2006-08-21 00:04:05 +0900, Atsushi Nemoto <anemo@mba.ocn.ne.jp> wro=
-te:
-> With 2.6.18-rc4-mm2, now wall_jiffies will always be the same as jiffies.
-> So we can kill wall_jiffies completely.
+> (I didn't save the error message, sorry.)
 
-Please Cc: this to linux-arch@vger.kernel.org
+No problem, it's self explained.
 
-MfG, JBG
+> A kernel compiled with gcc-4.1.1 boots fine on my Ultra5
+> and can rebuild itself, and generally seems no less solid
+> than the 2.4.33 I compiled with gcc-3.4.6.
+> 
+> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
 
---=20
-      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
-Signature of:  The real problem with C++ for kernel modules is: the languag=
-e just sucks.
-the second  :                                            -- Linus Torvalds
+Thanks Mikael,
 
---yVhtmJPUSI46BTXb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I'm queueing it in my gcc4 tree.
+Davem CC'd.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Willy
 
-iD8DBQFE6MjPHb1edYOZ4bsRAhOLAJ9DvWpYQNXPS3nhsbvJatMxuiKVEgCfXQMs
-CTtRyZqlptf9YmLtu+EGFhA=
-=2xlK
------END PGP SIGNATURE-----
+> --- linux-2.4.34-pre1/arch/sparc64/mm/init.c.~1~	2004-11-17 18:36:41.000000000 +0100
+> +++ linux-2.4.34-pre1/arch/sparc64/mm/init.c	2006-08-20 20:52:20.000000000 +0200
+> @@ -95,7 +95,7 @@ int do_check_pgt_cache(int low, int high
+>                                  if (page2)
+>                                          page2->next_hash = page->next_hash;
+>                                  else
+> -                                        (struct page *)pgd_quicklist = page->next_hash;
+> +                                        pgd_quicklist = (unsigned long *)page->next_hash;
+>                                  page->next_hash = NULL;
+>                                  page->pprev_hash = NULL;
+>                                  pgd_cache_size -= 2;
 
---yVhtmJPUSI46BTXb--

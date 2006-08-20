@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWHTOnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWHTOrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWHTOnw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 10:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWHTOnw
+	id S1750797AbWHTOrb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 10:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWHTOra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 10:43:52 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:7109 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750807AbWHTOnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 10:43:51 -0400
-Subject: Re: mplayer + heavy io: why ionice doesn't help?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Denis Vlasenko <vda.linux@googlemail.com>,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, mplayer-users@mplayerhq.hu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0608201021340.9707@yvahk01.tjqt.qr>
-References: <200608181937.25295.vda.linux@googlemail.com>
-	 <44E6006C.2030406@tremplin-utc.net>
-	 <200608192004.10326.vda.linux@googlemail.com>
-	 <Pine.LNX.4.61.0608201021340.9707@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sun, 20 Aug 2006 10:43:45 -0400
-Message-Id: <1156085026.10565.39.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 20 Aug 2006 10:47:30 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:55171 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750797AbWHTOra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 10:47:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iDZhnjp689hcvtBD4M8nWZ2sI3p+VvVQMLnqh77+axEZ+z9gf4aH6jQ9DUPnjmVWrmrJMZ0BrgRytKQOnO6QcH95WqNQFZGlbB+Ssma+J4lFvzxR5pnNiJf7BnLzGLb6pFyAzG01sXqmhO48/VkTmLQG8CW596K0lIy/2bcyEdc=
+Message-ID: <18d709710608200747k3323b23cq70eb52fdb9032554@mail.gmail.com>
+Date: Sun, 20 Aug 2006 07:47:29 -0700
+From: "Julio Auto" <mindvortex@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.17.9 Incorrect string length checking in param_set_copystring()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-20 at 10:22 +0200, Jan Engelhardt wrote:
-> >
-> >It helps. mplayer skips much less, but still some skipping is present.
-> 
-> Try with -ao alsa, then it should skip less, or at least, if it skip, skip 
-> back so that less audio is lost.
-> When playing audio-only files, it is always wise to specify e.g. -cache 320
-> which proved to be a good value for my workloads.
-> 
+As for 2.6.17.9, linux/include/linux/moduleparam.h suggests the user
+of module_param_string() to set the maxlen parameter to
+strlen(string), ie. '\0' excluded. However the function that actually
+sets the string (param_set_copystring()), doesn't accept inputs with
+maxlen-1 characters, reporting that the supplied string should fit
+maxlen-1 chars.
+See patch below.
+Cheers,
 
-Only with the very latest versions of mplayer does ALSA work at all.
-It's unusable here because it resets the auduio stream on each underrun
-rather than simply ignoring them.
+    Julio Auto
 
-Lee
+--- linux-2.6.17.9/kernel/params.c.old  2006-08-19 20:48:30.000000000 -0700
++++ linux-2.6.17.9/kernel/params.c      2006-08-19 20:49:15.000000000 -0700
+@@ -351,9 +351,9 @@ int param_set_copystring(const char *val
+ {
+        struct kparam_string *kps = kp->arg;
 
+-       if (strlen(val)+1 > kps->maxlen) {
++       if (strlen(val) > kps->maxlen) {
+                printk(KERN_ERR "%s: string doesn't fit in %u chars.\n",
+-                      kp->name, kps->maxlen-1);
++                      kp->name, kps->maxlen);
+                return -ENOSPC;
+        }
+        strcpy(kps->string, val);

@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWHTDbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbWHTEFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751643AbWHTDbN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 23:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbWHTDbN
+	id S1751646AbWHTEFG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 00:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWHTEFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 23:31:13 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:20647 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751641AbWHTDbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 23:31:12 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org, mtosatti@redhat.com
-Subject: Re: Linux 2.4.33.1
-Date: Sun, 20 Aug 2006 13:31:06 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <nklfe2pa091vb1idddjbfrvplk5jddcfam@4ax.com>
-References: <20060819141355.GA6302@hera.kernel.org>
-In-Reply-To: <20060819141355.GA6302@hera.kernel.org>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 20 Aug 2006 00:05:06 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:15341 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751646AbWHTEFF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 00:05:05 -0400
+Message-ID: <44E7E112.3010500@student.ltu.se>
+Date: Sun, 20 Aug 2006 06:12:02 +0200
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Eric Sesterhenn <snakebyte@gmx.de>
+CC: linux-kernel@vger.kernel.org, drzeus-sdhci@drzeus.cx
+Subject: Re: [Patch] Signedness issue in drivers/net/phy/phy_device.c
+References: <1156008815.18192.3.camel@alice>
+In-Reply-To: <1156008815.18192.3.camel@alice>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Aug 2006 14:13:55 +0000, Willy Tarreau <wtarreau@hera.kernel.org> wrote:
+Eric Sesterhenn wrote:
 
->Hi !
+>hi,
+>  
 >
->As there were a few security fixes pending and 2.4.34-pre1 has not
->received enough validation, I've released 2.4.33.1 ...
+hello
 
-Needed this to not confuse existing slackware-10.2 startup script:
+>while checking gcc 4.1 -Wextra warnings, I stumbled across the following
+>two warnings:
+>
+>drivers/net/phy/phy_device.c:528: warning: comparison of unsigned expression < 0 is always false
+>drivers/net/phy/phy_device.c:546: warning: comparison of unsigned expression < 0 is always false
+>
+>Since phy_read() returns an integer and can return negative values, it
+>seems to me the best way to get proper error handling working again
+>is to make val an int. Currently it is an u32, so the < 0 check
+>always fails.
+>
+>Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+>
+>--- linux-2.6.18-rc4/drivers/net/phy/phy_device.c.orig	2006-08-19 18:22:56.000000000 +0200
+>+++ linux-2.6.18-rc4/drivers/net/phy/phy_device.c	2006-08-19 18:24:49.000000000 +0200
+>@@ -513,7 +513,7 @@ EXPORT_SYMBOL(genphy_read_status);
+> 
+> static int genphy_config_init(struct phy_device *phydev)
+> {
+>-	u32 val;
+>+	int val;
+>  
+>
+Would it not be preferable to use a 's32' instead of an 'int'? After 
+all, it seem 'val' needs to be 32 bits.
 
---- linux-2.4.33.1/Makefile     2006-08-20 08:33:27.000000000 +1000
-+++ linux-2.4.33-1/Makefile     2006-08-20 12:50:28.000000000 +1000
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 4
- SUBLEVEL = 33
--EXTRAVERSION = .1
-+EXTRAVERSION = -1
-
- KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-
-Looks like 2.6 like stable naming convention not gonna fly for 2.4?
-
-Grant.
+Just a thought
+/Richard

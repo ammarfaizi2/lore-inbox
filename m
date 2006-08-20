@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWHTCUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWHTDUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWHTCUI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Aug 2006 22:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWHTCUI
+	id S1751473AbWHTDUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Aug 2006 23:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWHTDUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Aug 2006 22:20:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20656 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932445AbWHTCUG (ORCPT
+	Sat, 19 Aug 2006 23:20:46 -0400
+Received: from relay02.pair.com ([209.68.5.16]:61701 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1751473AbWHTDUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Aug 2006 22:20:06 -0400
-Date: Sat, 19 Aug 2006 22:19:35 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [CPUFREQ] acpi-cpufreq: Ignore failure from acpi_cpufreq_early_init_acpi
-Message-ID: <20060820021935.GA21026@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Aug 2006 23:20:45 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Subject: Re: GPL Violation?
+Date: Sat, 19 Aug 2006 22:20:19 -0500
+User-Agent: KMail/1.9.4
+Cc: David Schwartz <davids@webmaster.com>, alan@lxorguk.ukuu.org.uk,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <1155919950.30279.8.camel@localhost.localdomain> <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com> <20060819113052.GC3190@aitel.hist.no>
+In-Reply-To: <20060819113052.GC3190@aitel.hist.no>
+Organization: Clientec, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200608192220.42456.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ignore the return value of early_init_acpi(), as it can give false error
-messages. If there is something really wrong, then register_driver will fail
-cleanly with EINVAL later.
+On Saturday 19 August 2006 06:30, Helge Hafting wrote:
+> Now, if someone actually distributes a closed-source module that
+> circumvents EXPORT_SYMBOL_GPL, or relies on an accompagnying
+> open source patch that removes the mechanism, this happens:
+>
+> 1. By doing this, they clearly showed that their module is outside the
+>    gray area of "allowed binary-only modules". They definitively
+>    made a "derived work" and distributed it.
+>
+> 2. Anybody who received this module may now invoke the GPL
+>    (and the force of law, if necessary) to extract the
+>    module source code from the maker.  And then this source
+>    can be freely redistributed to all interested.
 
-[ background: modprobe acpi-cpufreq on systems not capable of speed-scaling
-  started failing with 'invalid argument', where previously it would only
-  ever -ENODEV
+Actually, you can't just force the vendor to open up all of their source code. 
+The GPL isn't a contract - it's a license. If a vendor makes a derived work 
+from the Linux kernel and does not GPL-license said derived work, they are 
+indeed violating copyright as the license the GPL provides no longer supports 
+their ability to redistribute.
 
-  I'm not 100% happy with the solution. It'd be better to handle
-  failure properly, but this is a low-impact change for 2.6.18
-  We can always revisit doing this better in .19   --davej.]
+However, the court decides what happens to the vendor. The court might force 
+the vendor to open up their code, but to my knowledge this would be breaking 
+brand new ground. I think it is more likely that the plaintiff could be 
+awarded monetary damages and the defendant enjoined from further 
+redistribution.
 
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Signed-off-by: Dave Jones <davej@redhat.com>
+The charge is not "violating the GPL" (since the GPL is not a contract) -- 
+it's distributing copyrighted materials without a license. See Eben Moglen's 
+discussion on this subject for more details.
 
-Index: linux-2.6.18-rc4/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-===================================================================
---- linux-2.6.18-rc4.orig/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-+++ linux-2.6.18-rc4/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-@@ -567,16 +567,11 @@ static struct cpufreq_driver acpi_cpufre
- static int __init
- acpi_cpufreq_init (void)
- {
--	int                     result = 0;
--
- 	dprintk("acpi_cpufreq_init\n");
- 
--	result = acpi_cpufreq_early_init_acpi();
-+	acpi_cpufreq_early_init_acpi();
- 
--	if (!result)
-- 		result = cpufreq_register_driver(&acpi_cpufreq_driver);
--	
--	return (result);
-+ 	return cpufreq_register_driver(&acpi_cpufreq_driver);
- }
- 
--- 
-http://www.codemonkey.org.uk
+Thanks,
+Chase

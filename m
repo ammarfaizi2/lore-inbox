@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWHTXEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWHTXHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751793AbWHTXEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 19:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWHTXEp
+	id S1751789AbWHTXHg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 19:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWHTXHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 19:04:45 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:27652 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751773AbWHTXEo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 19:04:44 -0400
-Date: Mon, 21 Aug 2006 09:04:15 +1000
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, Michal Ludvig <michal@logix.cz>
-Subject: Re: [-mm patch] CRYPTO_DEV_PADLOCK_AES must select CRYPTO_BLKCIPHER
-Message-ID: <20060820230415.GB31693@gondor.apana.org.au>
-References: <20060819220008.843d2f64.akpm@osdl.org> <20060820160928.GN7813@stusta.de>
+	Sun, 20 Aug 2006 19:07:36 -0400
+Received: from 1wt.eu ([62.212.114.60]:65296 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751789AbWHTXHf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 19:07:35 -0400
+Date: Mon, 21 Aug 2006 01:07:22 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: 2.4.34-pre1 USB mass-storage burped...
+Message-ID: <20060820230722.GG602@1wt.eu>
+References: <9aide2d3ano7v3853kgfhhpbgarmns4t2f@4ax.com> <20060819084724.GA2078@1wt.eu> <78mde2t57okmmnaeslpcen9884mu0v3epb@4ax.com> <20060819100728.GA25405@1wt.eu> <6kohe2tuvg9mr1adfpj05k9jvkca1arhe9@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060820160928.GN7813@stusta.de>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <6kohe2tuvg9mr1adfpj05k9jvkca1arhe9@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 06:09:28PM +0200, Adrian Bunk wrote:
+On Mon, Aug 21, 2006 at 08:58:29AM +1000, Grant Coady wrote:
+> On Sat, 19 Aug 2006 12:07:28 +0200, Willy Tarreau <w@1wt.eu> wrote:
 > 
-> BTW: The Kconfig+Makefile parts for padlock-sha seem to be missing.
+> >On Sat, Aug 19, 2006 at 07:39:06PM +1000, Grant Coady wrote:
+> >> On Sat, 19 Aug 2006 10:47:24 +0200, Willy Tarreau <w@1wt.eu> wrote:
+> >> 
+> >> >Hi Grant,
+> >> >
+> >> >On Sat, Aug 19, 2006 at 06:41:50PM +1000, Grant Coady wrote:
+> >> ...
+> >> >Have you tried building over USB HDD for another kernel (at least 2.4.33) ?
+> >> 
+> >> No.
+> 
+> Testing kernel rebuilds on a USB-HDD connected mass-storage, follow up 
+> to 2.4.34-pre1 'burped' report:
+> 
+> 2.4.33: >100 rebuilds without error
+> 
+> 2.4.34-pre1: 163 rebuilds without error, maybe I kicked the USB-HDD 
+> (it's on the floor ;) other day?  
+> 
+> Report other day seems to be a once off glitch, been running overnight at 
+> about 6 mins per rebuild from 'make mrproper' over USB2.0 link from Via 
+> chipset to Genesys GL811 USB <-> ATA/ATAPI bridge.
+> 
+> grant@sempro:~$ /sbin/lspci |grep USB
+> 00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+> 00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+> 00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+> 00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+> 
+> HDD is ten year old 815MB Toshiba MK1926FCV that throws a little fit if 
+> picked up while in operation.  It just did when I turned it over to 
+> see the part number.  No kernel build error this time though ;)
+> 
+> Grant.
 
-Thanks Adrian.
-
-> --- linux-2.6.18-rc4-mm2/drivers/crypto/Kconfig.old	2006-08-20 17:28:46.000000000 +0200
-> +++ linux-2.6.18-rc4-mm2/drivers/crypto/Kconfig	2006-08-20 17:44:56.000000000 +0200
-> @@ -16,6 +16,7 @@
->  config CRYPTO_DEV_PADLOCK_AES
->  	bool "Support for AES in VIA PadLock"
->  	depends on CRYPTO_DEV_PADLOCK
-> +	select CRYPTO_BLKCIPHER
->  	default y
->  	help
->  	  Use VIA PadLock for AES algorithm.
-
-Andrew, there is definitely something screwed up.  If you look at
-my tree this patch is already in the top changeset that was
-supposedly picked up by yout pull:
-
-GIT aabffae140135096195f6fb04d165bb204517db2 git+ssh://master.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
-
-commit aabffae140135096195f6fb04d165bb204517db2
-Author: Herbert Xu <herbert@gondor.apana.org.au>
-Date:   Tue Aug 15 22:49:54 2006 +1000
-
-    [CRYPTO] Kconfig: Added missing selects on BLKCIPHER
-    
-    Since padlock-aes and aes-s390/des-s390 now use the block cipher interface,
-    they need to select the BLKCIPHER Kconfig option.
-    
-    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-Indeed, the s390 bits are there.  However, the padlock bits have
-gong missing.  Perhaps there was a problem when it was merged with
-the geode tree? This could explain why the Makefile bits for padlock
-went missing too.
+Perfect,
+Thanks Grant for your tests. I feel more comfortable now that we don't have
+to suspect a problem introduced by Pete's fix.
 
 Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Willy
+

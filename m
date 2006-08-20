@@ -1,32 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWHTQF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWHTQFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWHTQF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 12:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWHTQFZ
+	id S1750837AbWHTQFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 12:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWHTQFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 12:05:25 -0400
-Received: from mail.enyo.de ([212.9.189.167]:18183 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S1750825AbWHTQFZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 12:05:25 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Solar Designer <solar@openwall.com>
-Cc: Willy Tarreau <wtarreau@hera.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
-References: <20060820003840.GA17249@openwall.com>
-Date: Sun, 20 Aug 2006 18:04:51 +0200
-In-Reply-To: <20060820003840.GA17249@openwall.com> (Solar Designer's message
-	of "Sun, 20 Aug 2006 04:38:40 +0400")
-Message-ID: <87veonqtp8.fsf@mid.deneb.enyo.de>
+	Sun, 20 Aug 2006 12:05:40 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:50550 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750835AbWHTQFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 12:05:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=neEp2JJLjZh59k1YV/ah45n+DsfJDxqpCtZ63JeKks5oSFj3FYQhinvgi1pVOB5LGFBWrd5YLtDV5+Trcr4LddtADDygIX2IERGmiUANq1dlQ94437hHaXeC5+lIy1y6lXth+L26fd+Gq6hmEYZpQVKu/G+wchXo6Kn+/m4PLac=
+Message-ID: <18d709710608200905j37ba1cb3vbb027fea88801c5c@mail.gmail.com>
+Date: Sun, 20 Aug 2006 13:05:39 -0300
+From: "Julio Auto" <mindvortex@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: On the definition of the module_param_string macro
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Solar Designer:
+In kernel 2.6.17.9, the definition of the module_param_string macro
+receives 4 parameters (see linux/include/linux/moduleparam.h:87):
 
-> Opinions are welcome.
+#define module_param_string(name, string, len, perm) ...
 
-Distributors have already begun to patch userland to check for error
-returns.  Arguably, this is the correct approach, but I fear it takes
-far too long to fix all callers.
+allowing the name of the parameter (fed to the macro as 'name'), as it
+will be in the .modinfo section, to be different from the actual name
+of the variable (fed to the macro as 'string').
+To me, it looks inconsistent. If, on the other hand, it was supposed
+to be a 'feature', the it looks plain useless (otherwise, the same
+rule should apply to other module_param* macros).
+So, I would suggest that the definition changes to:
+
+#define module_param_string(name, len, perm) ...
+
+where it would behave like a current use of 'module_param_string(name,
+name, len, perm);'
+
+I understand that such changes in the API of modules may cause some
+trouble, but it doesn't cost a thing to look at this one as a possible
+improvement for the future.
+
+Cheers,
+
+    Julio Auto

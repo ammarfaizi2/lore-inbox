@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWHTS6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWHTS5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWHTS6a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 14:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWHTS6a
+	id S1751146AbWHTS5J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 14:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWHTS5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 14:58:30 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:32953 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1751152AbWHTS63 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 14:58:29 -0400
-Message-ID: <44E8B08E.20507@colorfullife.com>
-Date: Sun, 20 Aug 2006 20:57:18 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Sun, 20 Aug 2006 14:57:09 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:17827 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751146AbWHTS5I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 14:57:08 -0400
+Message-ID: <44E8B05A.1090105@us.ibm.com>
+Date: Sun, 20 Aug 2006 13:56:26 -0500
+From: Brian King <brking@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>,
-       Solar Designer <solar@openwall.com>
-Subject: Re: [PATCH] getsockopt() early argument sanity checking
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Eric Sesterhenn <snakebyte@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Signedness issue in drivers/scsi/ipr.c
+References: <1156014835.19657.3.camel@alice>
+In-Reply-To: <1156014835.19657.3.camel@alice>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan wrote:
+Eric Sesterhenn wrote:
+> hi,
+> 
+> gcc 4.1 with some extra warnings show the following:
+> 
+> drivers/scsi/ipr.c:6361: warning: comparison of unsigned expression < 0 is always false
+> drivers/scsi/ipr.c:6385: warning: comparison of unsigned expression < 0 is always false
+> drivers/scsi/ipr.c:6415: warning: comparison of unsigned expression < 0 is always false
 
->> We're on UP.  sys_getsockopt() does get_user() (due to the patch) and
->> makes sure that the passed *optlen is sane.  Even if this get_user()
->> sleeps, the value it returns in "len" is what's currently in memory at
->> the time of the get_user() return (correct?)  Then an underlying
->> *getsockopt() function does another get_user() on optlen (same address),
->> without doing any other user-space data accesses or anything else that
->> could sleep first.  Is it possible that this second get_user()
->> invocation would sleep?  I think not since it's the same address that
->> we've just read a value from, we did not leave kernel space, and we're
->> on UP (so no other processor could have changed the mapping).  So the
->> patch appears to be sufficient for this special case (which is not
->> unlikely).
->
->this reasoning goes out the window with kernel preemption of course ;)
+Acked-by: Brian King <brking@us.ibm.com>
+
+> 
+> The problem is that rc is of the type u32, which can never be smaller than zero,
+> therefore all three error handling checks get useless. This patch changes it to
+> a normal int, because all usages / all functions it get used with expect an int.
+> 
+> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> 
+> --- linux-2.6.18-rc4/drivers/scsi/ipr.c.orig	2006-08-19 21:10:18.000000000 +0200
+> +++ linux-2.6.18-rc4/drivers/scsi/ipr.c	2006-08-19 21:10:25.000000000 +0200
+> @@ -6324,7 +6324,7 @@ static int __devinit ipr_probe_ioa(struc
+>  	struct Scsi_Host *host;
+>  	unsigned long ipr_regs_pci;
+>  	void __iomem *ipr_regs;
+> -	u32 rc = PCIBIOS_SUCCESSFUL;
+> +	int rc = PCIBIOS_SUCCESSFUL;
+>  	volatile u32 mask, uproc;
 >  
->
-Or O_DIRECT? I'm not sure what's easier to time, a kernel preemption or 
-a DMA to the user address.
-
---
-    Manfred
+>  	ENTER;
+> 
+> 
 

@@ -1,92 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWHTGTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWHTGck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWHTGTn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 02:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWHTGTn
+	id S1751665AbWHTGck (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 02:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWHTGck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 02:19:43 -0400
-Received: from mail.gmx.de ([213.165.64.20]:27867 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751459AbWHTGTm (ORCPT
+	Sun, 20 Aug 2006 02:32:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:9352 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750759AbWHTGcj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 02:19:42 -0400
-X-Authenticated: #14349625
-Subject: Re: [Bugme-new] [Bug 7027] New: CD Ripping speeds slow with 2.6.17
-From: Mike Galbraith <efault@gmx.de>
-To: brnewber@gmail.com
-Cc: Ingo Molnar <mingo@elte.hu>, Martin Bligh <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060819111437.a88f71cd.akpm@osdl.org>
-References: <200608191800.k7JI0ML0015395@fire-2.osdl.org>
-	 <20060819111437.a88f71cd.akpm@osdl.org>
+	Sun, 20 Aug 2006 02:32:39 -0400
+Subject: Re: [PATCH 2/6]: powerpc/cell spidernet low watermark patch.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       ens Osterkamp <Jens.Osterkamp@de.ibm.com>
+In-Reply-To: <200608190109.15129.arnd@arndb.de>
+References: <20060818220700.GG26889@austin.ibm.com>
+	 <20060818222146.GI26889@austin.ibm.com>  <200608190109.15129.arnd@arndb.de>
 Content-Type: text/plain
-Date: Sun, 20 Aug 2006 08:27:58 +0000
-Message-Id: <1156062478.6690.65.camel@Homer.simpson.net>
+Date: Sun, 20 Aug 2006 16:31:49 +1000
+Message-Id: <1156055509.5803.77.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-08-19 at 11:14 -0700, Andrew Morton wrote:
-> On Sat, 19 Aug 2006 11:00:22 -0700
-> bugme-daemon@bugzilla.kernel.org wrote:
+
+> card->low_watermark->next->dmac_cmd_status |= SPIDER_NET_DESCR_TXDESFLG;
+> mb();
+> card->low_watermark->dmac_cmd_status &= ~SPIDER_NET_DESCR_TXDESFLG;
+> card->low_watermark = card->low_watermark->next;
 > 
-> > http://bugzilla.kernel.org/show_bug.cgi?id=7027
-> > 
-> >            Summary: CD Ripping speeds slow with 2.6.17
-> >     Kernel Version: 2.6.17
-> >             Status: NEW
-> >           Severity: normal
-> >              Owner: bzolnier@gmail.com
-> >          Submitter: brnewber@gmail.com
-> > 
-> > 
-> > Most recent kernel where this bug did not occur: 2.6.16
-> > Distribution: Gentoo
-> > Hardware Environment: ASUS K8V mobo, AMD64 2200, 1GB RAM
-> > Software Environment: Gentoo
-> > Problem Description: Ever since 2.6.17 my cd ripping speeds with one particular
-> > CD ripper/encoder (namely the one I wrote) have been slow. 
-> > 
-> > Using git bisect I tracked it down to this patch..
-> > 
-> > 9430d58e34ec3861e1ca72f8e49105b227aad327 is first bad commit
-> > commit 9430d58e34ec3861e1ca72f8e49105b227aad327
-> > Author: Mike Galbraith <efault@gmx.de>
-> > Date:   Wed Mar 22 00:07:33 2006 -0800
-> > 
-> >     [PATCH] sched: remove sleep_avg multiplier
-> > 
-> >     Remove the sleep_avg multiplier.  This multiplier was necessary back when
-> >     we had 10 seconds of dynamic range in sleep_avg, but now that we only have
-> >     one second, it causes that one second to be compressed down to 100ms in
-> >     some cases.  This is particularly noticeable when compiling a kernel in a
-> >     slow NFS mount, and I believe it to be a very likely candidate for other
-> >     recently reported network related interactivity problems.
-> > 
-> >     In testing, I can detect no negative impact of this removal.
-> > 
-> >     Signed-off-by: Mike Galbraith <efault@gmx.de>
-> >     Acked-by: Ingo Molnar <mingo@elte.hu>
-> >     Signed-off-by: Andrew Morton <akpm@osdl.org>
-> >     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> > 
-> > :040000 040000 28d2d8f53ab7b5dd89e846f2dcc107ce88cb695f 780a13c0f8ba5465db79c668
-> > 
-> > I'm honestly not sure if my application is doing something it shouldn't or if
-> > this is a legitimate kernel bug. Being totally at a loss I'm filing it here.I
-> > just know that before the above patch I was ripping at about speeds of 9.0x and
-> > now I rip at 1.2x.
+> when we queue another frame for TX.
 
-It's pretty difficult imagining this patch being responsible for an IO
-regression.  The scheduling advantages for applications which sleep even
-a little is still absolutely massive.
-  
-> sched problems...
+I would have expected those to be racy vs. the hardware... what if the
+hardware is updating dmac_cmd_status just as your are trying to and the
+bit out of it ?
 
-I'm skeptical.  Is the source for this application available?  I'd like
-to see this problem.
+Ben
 
-	-Mike
 

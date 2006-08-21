@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWHUXFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWHUXNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWHUXFl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 19:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWHUXFl
+	id S1751297AbWHUXNX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 19:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWHUXNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 19:05:41 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:63209 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751282AbWHUXFk convert rfc822-to-8bit (ORCPT
+	Mon, 21 Aug 2006 19:13:23 -0400
+Received: from mx2.suse.de ([195.135.220.15]:63977 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751297AbWHUXNW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 19:05:40 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Vernon Mauery <vernux@us.ibm.com>
-Subject: Re: Looking for a reliable USB network card
-Date: Tue, 22 Aug 2006 01:06:03 +0200
-User-Agent: KMail/1.9.1
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20060821212358.GB1558@cip.informatik.uni-erlangen.de> <200608211543.36019.vernux@us.ibm.com>
-In-Reply-To: <200608211543.36019.vernux@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608220106.04192.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+	Mon, 21 Aug 2006 19:13:22 -0400
+Date: Tue, 22 Aug 2006 01:13:20 +0200
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [2.6 patch] re-add -ffreestanding
+Message-Id: <20060822011320.a3491337.ak@suse.de>
+In-Reply-To: <20060821225837.GT11651@stusta.de>
+References: <20060821212154.GO11651@stusta.de>
+	<20060821232444.9a347714.ak@suse.de>
+	<20060821214636.GP11651@stusta.de>
+	<20060822000903.441acb64.ak@suse.de>
+	<20060821222412.GS11651@stusta.de>
+	<20060822002728.c023bf85.ak@suse.de>
+	<20060821225837.GT11651@stusta.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Tuesday 22 August 2006 00:43 schrieb Vernon Mauery:
-> On Monday 21 August 2006 14:23, Thomas Glanzmann wrote:
-> > Hello,
-> > since I have problems with my sky2 network card on my mac mini, I am
-> > looking for a cheap but reliable usb network card which is available in
-> > Germany. Anyone?
->
-> http://www.qbik.ch/usb/devices/showdevcat.php?id=16
->
-> This should give you an idea of which devices are supported.  From there,
-> you should be able to find something in Germany.
 
-Be aware of the DeLOCK adapter that is currently popular in some
-retail stores. I just submitted a driver for it, but the hardware
-itself seems to be relatively unreliable. When it works, you get decent
-speed, but it seems to confuse the network stack and BIOS sometimes.
+> What's the problem with adding -ffreestanding and stating explicitely 
+> which functions we want to be handled be builtins, and which functions 
+> we don't want to be handled by builtins?
 
-	Arnd <><
+Take a look at lib/string.c and think about it a bit.
+
+-Andi

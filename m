@@ -1,47 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWHUUlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWHUUlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWHUUlU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 16:41:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWHUUlT
+	id S1750930AbWHUUlE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 16:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWHUUlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 16:41:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24704 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751003AbWHUUlR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 16:41:17 -0400
-Date: Mon, 21 Aug 2006 13:40:53 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc-dev@ozlabs.org, akpm@osdl.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       David Miller <davem@davemloft.net>,
-       Linas Vepstas <linas@austin.ibm.com>, Jonathan Corbet <corbet@lwn.net>
-Subject: NAPI documentation
-Message-ID: <20060821134053.7225987b@dxpl.pdx.osdl.net>
-In-Reply-To: <200608201948.20596.arnd@arndb.de>
-References: <20060818220700.GG26889@austin.ibm.com>
-	<44E7BB7F.7030204@osdl.org>
-	<200608191325.19557.arnd@arndb.de>
-	<200608201948.20596.arnd@arndb.de>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 16:41:04 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:61709 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750930AbWHUUlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 16:41:02 -0400
+Date: Mon, 21 Aug 2006 22:41:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/wd33c93.c: cleanups
+Message-ID: <20060821204102.GM11651@stusta.de>
+References: <20060821104357.GH11651@stusta.de> <20060821105344.GA28759@infradead.org> <20060821192215.GL11651@stusta.de> <20060821192548.GD11266@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821192548.GD11266@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I took this opportunity to get a start on improving NAPI documentation.
-I mashed together the short text about NAPI (with permission) from lwn.net
-and the existing NAPI-HOWTO, to make a page on the Linux net wiki.
+On Mon, Aug 21, 2006 at 08:25:48PM +0100, Russell King wrote:
+> On Mon, Aug 21, 2006 at 09:22:15PM +0200, Adrian Bunk wrote:
+> > On Mon, Aug 21, 2006 at 11:53:44AM +0100, Christoph Hellwig wrote:
+> > > On Mon, Aug 21, 2006 at 12:43:57PM +0200, Adrian Bunk wrote:
+> > > > This patch contains the following cleanups:
+> > > > - #include <linux/irq.h> for getting the prototypes of
+> > > >   {dis,en}able_irq()
+> > > 
+> > > nothing outside of arch code must ever include <linux/irq.h>
+> > 
+> > Why?
+> > It sounds rather strange that non-arch code should use asm headers.
+> 
+> Still the wrong header.  <linux/interrupt.h> is what you're looking for.
+> 
+> $ grep '\(en\|dis\)able_irq' include/linux/interrupt.h
+> extern void disable_irq_nosync(unsigned int irq);
+> extern void disable_irq(unsigned int irq);
+> extern void enable_irq(unsigned int irq);
+> static inline void disable_irq_nosync_lockdep(unsigned int irq)
+>         disable_irq_nosync(irq);
+> static inline void disable_irq_lockdep(unsigned int irq)
+>         disable_irq(irq);
+> static inline void enable_irq_lockdep(unsigned int irq)
+>         enable_irq(irq);
+> static inline int enable_irq_wake(unsigned int irq)
+> static inline int disable_irq_wake(unsigned int irq)
+> #  define disable_irq_nosync_lockdep(irq)       disable_irq_nosync(irq)
+> #  define disable_irq_lockdep(irq)              disable_irq(irq)
+> #  define enable_irq_lockdep(irq)               enable_irq(irq)
 
-I took the liberty of removing some of the bits that were out of date, or referred
-to old Becker code. It still needs lots of editing to be presentable.
+Unfortunately, it isn't:
 
-Please edit and improve
-	http://linux-net.osdl.org/index.php/NAPI
+<--  snip  -->
 
-When the page is in good shape, I will de-wiki it to place in kernel doc tree.
+...
+#ifdef CONFIG_GENERIC_HARDIRQS
+extern void disable_irq_nosync(unsigned int irq);
+extern void disable_irq(unsigned int irq);
+extern void enable_irq(unsigned int irq);
+...
+
+<--  snip  -->
+
+> Russell King
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

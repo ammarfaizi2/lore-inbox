@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWHUCaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751804AbWHUCaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751805AbWHUCaY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 22:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWHUCaY
+	id S1751804AbWHUCaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 22:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751805AbWHUCaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 22:30:24 -0400
-Received: from smtp-relay.dca.net ([216.158.48.66]:28383 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S1751805AbWHUCaX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 22:30:23 -0400
-Date: Sun, 20 Aug 2006 22:30:17 -0400
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Frodo Looijaard <frodol@dds.nl>,
-       Philip Edelbrock <phil@netroedge.com>,
-       Mark Studebaker <mdsxyz123@yahoo.com>, lm-sensors@lm-sensors.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [lm-sensors] [RFC][PATCH] hwmon:fix sparse warnings + error handling
-Message-ID: <20060821023017.GA30017@jupiter.solarsys.private>
-References: <44E8C9AE.3060307@gmail.com>
-Mime-Version: 1.0
+	Sun, 20 Aug 2006 22:30:22 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:12683 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751804AbWHUCaW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 22:30:22 -0400
+From: Neil Brown <neilb@suse.de>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Date: Mon, 21 Aug 2006 12:29:46 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E8C9AE.3060307@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17641.6810.964679.839075@cse.unsw.edu.au>
+Cc: Linux NFS mailing list <nfs@lists.sourceforge.net>,
+       David Greaves <david@dgreaves.com>, linux-kernel@vger.kernel.org,
+       Martin Filip <bugtraq@smoula.net>
+Subject: Re: [NFS] NFS and partitioned md
+In-Reply-To: message from Frank van Maarseveen on Thursday July 20
+References: <1151355145.4460.16.camel@archon.smoula-in.net>
+	<17568.31894.207153.563590@cse.unsw.edu.au>
+	<1151432312.11996.32.camel@reaver.netbox-in.cz>
+	<17571.19699.980491.970386@cse.unsw.edu.au>
+	<44BD2A29.8060405@dgreaves.com>
+	<1153253099.26360.3.camel@archon.smoula-in.net>
+	<17598.52873.335796.13969@cse.unsw.edu.au>
+	<20060720090736.GB1408@janus>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, Michal:
-
-* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> [2006-08-20 22:44:30 +0200]:
-> This patch fixes 56 sparse "ignoring return value of 'device_create_file'" warnings. It also adds error handling.
+On Thursday July 20, frankvm@frankvm.com wrote:
+> On Thu, Jul 20, 2006 at 10:30:01AM +1000, Neil Brown wrote:
+> > On Tuesday July 18, bugtraq@smoula.net wrote:
+> > > Hi,
+> > > 
+> > > my solution was to use fsid parameter for exports... maybe some other
+> > > mechanism for selecting fsids could be created instead of fsid = device
+> > > minor
+> > 
+> > Yes.  Better management of fsid is on my wishlist for nfs-utils.
+> > Unfortunately I haven't had any really clever ideas yet.
 > 
-> w83627hf.c |   96 ++++++++++++++++++++++++++++++++++++++++++++++++++-----------
-> 1 file changed, 80 insertions(+), 16 deletions(-)
+> I'd like to "virtualize" exports such that it is possible to transplant
+> disks/partitions from one machine into another without having to bother
+> with device numbering. One step in that direction is to derive the fsid
+> from an IP address. The server machine needs an additional IP address
+> for every export entry. This IP address is determined by deriving
+> a hostname from the last pathname component of the export entry and
+> resolving it. E.g. something like:
+> 
+> /etc/exports:
+> 	/exported/path/name	*(rw,sync,no_root_squash,no_subtree_check,fsid="nfs-%s")
+> 
+> This would set the fsid to the IP address of host "nfs-name".
 
-Thanks for doing this... but Andrew please don't apply it.  The sensors project
-people are working on these even now, and we already have a patch for the
-w83627hf driver...
+(I'm catching up on only mail - seems I missed this...)
 
-http://lists.lm-sensors.org/pipermail/lm-sensors/2006-August/017204.html
+I think that is very specific to your particular setup, but there
+certainly is bits of a possibly usable idea in there.
 
-Jean Delvare (hwmon maintainer) should be sending these up the chain soon.
+As the fsid is limited in size, we really need some sort of lookup
+table somewhere to make between fsid and some arbitrary name for the
+filesystem.
+You are suggesting using the DNS for this lookup.  
+Maybe that make sense..... maybe.
 
-Michal: if you're interested in fixing any of the rest of them, please take
-a look at the patch above to see the mechanism we intend to use.  It actually
-makes the drivers *smaller* than they were.
+My leaning is to make it somebody-elses-problem by enabling a
+call-out.
 
-Regards,
+i.e. we declare a program that will be used for mapping between fsid
+and mount point.
 
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+So: when parsing /etc/exports, if we find "fsid=??", we run the
+program passing the path get an fsid.
+When we get a filehandle with an unknown fsid, we pass it to the
+program which will return a pathname (possible auto-mounting something
+or whatever).
 
+You could quite easily make a script that does the mapping you
+require.
+
+Maybe one day...
+
+NeilBrown

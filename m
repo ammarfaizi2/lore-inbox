@@ -1,69 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWHUUcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWHUUga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWHUUcm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 16:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWHUUcm
+	id S1750983AbWHUUga (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 16:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWHUUga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 16:32:42 -0400
-Received: from xenotime.net ([66.160.160.81]:11938 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750972AbWHUUcl (ORCPT
+	Mon, 21 Aug 2006 16:36:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45536 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750982AbWHUUg3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 16:32:41 -0400
-Date: Mon, 21 Aug 2006 13:35:47 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Henne <henne@nachtwindheim.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jgarzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] [DOCBOOK] fix segfault in docproc.c
-Message-Id: <20060821133547.dbb9ee4c.rdunlap@xenotime.net>
-In-Reply-To: <44E9FCB5.4050101@nachtwindheim.de>
-References: <44E9FCB5.4050101@nachtwindheim.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 16:36:29 -0400
+Message-Id: <200608212035.k7LKZlCQ007334@pasta.boston.redhat.com>
+To: Willy Tarreau <w@1wt.eu>
+cc: Solar Designer <solar@openwall.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_elf.c : the BAD_ADDR macro again
+In-Reply-To: Your message of "Sun, 20 Aug 2006 18:23:52 +0200."
+             <20060820162352.GJ602@1wt.eu>
+Date: Mon, 21 Aug 2006 16:35:47 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 20:34:29 +0200 Henne wrote:
+On Sunday, 20-Aug-2006 at 18:23 +0200, Willy Tarreau wrote:
 
-> From: Henrik Kretzschmar <henne@nachtwindheim.de>
-> 
-> Adds a missing exit, if the file that should be parsed couldn't be opened.
-> Without it crashes with a segfault, cause the filedescriptor is accessed even if the file could not be opened.
-> This error happens on 2.6.18-rc4-mm[12] when executing make xmldocs.
-> 
-> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> On Sun, Aug 20, 2006 at 07:51:22PM +0400, Solar Designer wrote:
+> > On Sun, Aug 20, 2006 at 11:15:15AM +0200, Willy Tarreau wrote:
+> > > The proper fix would then be :
+> > [...]
+> > > -#define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
+> > > +#define BAD_ADDR(x)	((unsigned long)(x) >= TASK_SIZE)
+> > [...]
+> > > -	    if (k > TASK_SIZE || eppnt->p_filesz > eppnt->p_memsz ||
+> > > +	    if (BAD_ADDR(k) || eppnt->p_filesz > eppnt->p_memsz ||
+> > [...]
+> > > -		if (k > TASK_SIZE || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
+> > > +		if (BAD_ADDR(k) || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
+> > 
+> > Looks OK to me.
 
-Thanks.
-
-Acked-by: Randy Dunlap <rdunlap@xenotime.net>
-
-Could you also update Documentation/DocBook/libata.tmpl to use
-drivers/ata/ instead of drivers/scsi/ on the !I and !E lines?
-
-
-> ---
-> 
-> --- linux-2.6.18-rc4/scripts/basic/docproc.c	2006-06-18 03:49:35.000000000 +0200
-> +++ linux/scripts/basic/docproc.c	2006-08-18 22:19:48.000000000 +0200
-> @@ -177,6 +177,7 @@
->  		{
->  			fprintf(stderr, "docproc: ");
->  			perror(real_filename);
-> +			exit(1);
->  		}
->  		while(fgets(line, MAXLINESZ, fp)) {
->  			char *p;
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+These are all correct.
 
 
----
-~Randy
+
+> > > And even then, I'm not happy with this test :
+> > > 
+> > >    TASK_SIZE - elf_ppnt->p_memsz < k
+> > > 
+> > > because it means that we only raise the error when
+> > > 
+> > >    k + elf_ppnt->p_memsz > TASK_SIZE
+> > > 
+> > > I really think that we want to check this instead :
+> > > 
+> > >    k + elf_ppnt->p_memsz >= TASK_SIZE
+> > > 
+> > > Otherwise we leave a window where this is undetected :
+> > > 
+> > >    load_addr + eppnt->p_vaddr == TASK_SIZE - eppnt->p_memsz
+
+The reason I did not propose changing these is because these are
+end-point checks (as opposed to starting address checks).  I think
+that the following "equals" condition is conceptually valid:
+
+	(starting-address + region-size == TASK_SIZE)
+
+
+
+> > > This will later lead to last_bss getting readjusted to TASK_SIZE, which I
+> > > don't think is expected at all :
+> > > 
+> > >             k = load_addr + eppnt->p_memsz + eppnt->p_vaddr;
+> > >             if (k > last_bss)
+> > >                 last_bss = k;
+
+This is an interesting case, but I think the error checking works okay.
+
+After the ELF phdr loop, the resulting "last_bss" is used as follows:
+
+	/* Map the last of the bss segment */
+	if (last_bss > elf_bss) {
+		down_write(&current->mm->mmap_sem);
+		error = do_brk(elf_bss, last_bss - elf_bss);
+		up_write(&current->mm->mmap_sem);
+		if (BAD_ADDR(error))
+			goto out_close;
+	}
+
+The variable "last_bss" is used to compute the size argument in the
+call to do_brk().  If the section extends beyond TASK_SIZE, then do_brk()
+will return -EINVAL.  If the do_brk() call succeeds but "elf_bss" is itself
+exactly at TASK_SIZE, then the BAD_ADDR() call above will catch it.
+
+
+
+> [...]   But before this, I'd like to get comments from
+> the people who discussed the subject recently.
+
+Thus, I think that both 2.4.33 and 2.6.<latest> are okay without any
+further changes.
+
+
+
+Cheers.  -ernie

@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422679AbWHUQqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422697AbWHUQtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422679AbWHUQqj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 12:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422697AbWHUQqj
+	id S1422697AbWHUQtP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 12:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422699AbWHUQtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 12:46:39 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:30147 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422679AbWHUQqi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 12:46:38 -0400
-Date: Mon, 21 Aug 2006 22:15:53 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-Subject: Re: [PATCH 0/7] CPU controller - V1
-Message-ID: <20060821164553.GA21130@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060820174015.GA13917@in.ibm.com> <1156156960.7772.38.camel@Homer.simpson.net> <20060821124830.GB14291@in.ibm.com> <1156180241.6582.69.camel@Homer.simpson.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1156180241.6582.69.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.11
+	Mon, 21 Aug 2006 12:49:14 -0400
+Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:31674 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1422697AbWHUQtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 12:49:14 -0400
+From: Daniel Drake <dsd@gentoo.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Cc: ferdy@gentoo.org
+Cc: rth@twiddle.net
+Cc: ink@jurassic.park.msu.ru
+Subject: [PATCH] alpha: Fix ALPHA_EV56 dependencies typo
+Message-Id: <20060821165004.912097B409F@zog.reactivated.net>
+Date: Mon, 21 Aug 2006 17:50:04 +0100 (BST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 05:10:41PM +0000, Mike Galbraith wrote:
-> I must be missing something.  If current and awakening tasks have
-> separate runqueues, task_rq(awakening)->curr != current.  We won't look
-> at current->prio, so won't resched(current).
+From: Fernando J. Pereda <ferdy@gentoo.org>
 
-Ok ..we have two types of runqueues here:
+There appears to be a typo in the EV56 config option. NORITAKE and PRIMO are
+different kinds of machines so it sounds silly that you need to set _both_ to
+be able to set a variation of either.
 
-1. struct task_grp_rq
-	per-task-group-per-cpu runqueue, which holds ready-to-run tasks 
-	belonging to the group in active and expired arrays.
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
 
-2. struct rq
-	per-cpu runqueue, which holds ready-to-run task-groups in active and 
-	expired arrays. This structure also holds some members like
-	curr, nr_running etc which more or less have the same significance as 
-	the current runqueue members.
-
-task_rq(tsk) still extracts "struct rq", while
-task_grp(tsk)->rq[task_cpu(tsk)] extracts "struct task_grp_rq".
-
-Hence task_rq(awakening)->curr == current, which should be sufficient to 
-resched(current), although I think there is a bug in current code 
-(irrespective of these patches):
-
-try_to_wake_up() :
-	
-	...
-
-        if (!sync || cpu != this_cpu) {
-                if (TASK_PREEMPTS_CURR(p, rq))
-                        resched_task(rq->curr);
-        }
-        success = 1;
-
-	...
-
-TASK_PREEMPTS_CURR() is examined and resched_task() is called only if 
-(cpu != this_cpu). What about the case (cpu == this_cpu) - who will
-call resched_task() on current? I had expected the back-end of interrupt
-handling to do that, but didnt find any code to do so.
-
--- 
-Regards,
-vatsa
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 213c785..2b36afd 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -381,7 +381,7 @@ config ALPHA_EV56
+ 
+ config ALPHA_EV56
+ 	prompt "EV56 CPU (speed >= 333MHz)?"
+-	depends on ALPHA_NORITAKE && ALPHA_PRIMO
++	depends on ALPHA_NORITAKE || ALPHA_PRIMO
+ 
+ config ALPHA_EV56
+ 	prompt "EV56 CPU (speed >= 400MHz)?"

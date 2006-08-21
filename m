@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWHUDd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWHUDiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWHUDd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 23:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWHUDd6
+	id S932551AbWHUDiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 23:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbWHUDiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 23:33:58 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:10376 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932306AbWHUDd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 23:33:56 -0400
-Subject: Re: [PATCH 0/2] Add SATA support to libsas/aic94xx
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-In-Reply-To: <44DBE93F.1040005@us.ibm.com>
-References: <44DBE93F.1040005@us.ibm.com>
-Content-Type: text/plain
-Date: Sun, 20 Aug 2006 22:33:53 -0500
-Message-Id: <1156131233.3567.21.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Aug 2006 23:38:11 -0400
+Received: from msr8.hinet.net ([168.95.4.108]:46485 "EHLO msr8.hinet.net")
+	by vger.kernel.org with ESMTP id S932551AbWHUDiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 23:38:09 -0400
+Message-ID: <006101c6c4d3$2e224820$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
+References: <1155841712.4532.19.camel@localhost.localdomain> <44E48281.1060504@pobox.com> <02ea01c6c28d$20943940$4964a8c0@icplus.com.tw> <44E5A0B9.9090502@pobox.com>
+Subject: Re: [PATCH 5/6] IP100A correct init and close step
+Date: Mon, 21 Aug 2006 11:37:51 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-10 at 19:19 -0700, Darrick J. Wong wrote:
-> These patches are based off 2.6.18-rc4 + jejb's scsi-misc, scsi-rc and
-> aic94xx git trees + Brian King's libata SAS patches.
-> 
-> Questions/comments?  Thanks in advance for feedback,
+Hi Jeff:
 
-Well, thanks to the generosity of Google, I too now have a SATA device.
-What I find is that your patches work perfectly for a directly attached
-SATA device.  However, they don't seem to work at all for a SATA device
-attached to an expander.  It looks like the SATA expander discovery
-process isn't working correctly (it also looks like the expander I have
-has to be specially programmed ... the SATA device shows a flashing
-orange light until the fusion sas card discovers it; with aic94xx it
-always shows a flashing orange light, even after discovery).
+(3)Yes, This is a bug, I will correct it. Thanks.
 
-I'll try to find time next week to dig into the discovery process.
+(4)This will halt TxDMA and RxDMA, after that will let reseting safely.
+Should I add description in source code or in change log?
 
-James
+Thanks!
+
+Jesse
+
+----- Original Message ----- 
+From: "Jeff Garzik" <jgarzik@pobox.com>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
+<akpm@osdl.org>
+Sent: Friday, August 18, 2006 7:12 PM
+Subject: Re: [PATCH 5/6] IP100A correct init and close step
+
+
+Jesse Huang wrote:
+> Hi Jeff:
+> (1)Should I change to :
+> spin_lock_irqsave(&np->lock,flags);
+> reset_tx(dev);
+> spin_lock_irqrestore(&np->lock,flags);
+>
+> (2)I will remove date and author information out of source code comment.
+
+Correct.
+
+Also:
+
+(3) Use iowrite16(), not writew().  I just noticed this bug.
+iowrite16() will work for both MMIO and IO cycles, writew() only works
+for MMIO.
+
+(4) We need a description of why this change is needed.  What does
+writing 0x500 to DMACtrl actually do?  Why do we need to do this?
+
+Jeff
+
 
 

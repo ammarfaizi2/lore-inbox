@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWHUSYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWHUSZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWHUSYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHUSYq
+	id S932117AbWHUSZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWHUSZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:24:46 -0400
-Received: from mail.gmx.net ([213.165.64.20]:53973 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751187AbWHUSYp (ORCPT
+	Mon, 21 Aug 2006 14:25:55 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38785 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932117AbWHUSZz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:24:45 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 0/7] CPU controller - V1
-From: Mike Galbraith <efault@gmx.de>
-To: vatsa@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-In-Reply-To: <20060821164553.GA21130@in.ibm.com>
-References: <20060820174015.GA13917@in.ibm.com>
-	 <1156156960.7772.38.camel@Homer.simpson.net>
-	 <20060821124830.GB14291@in.ibm.com>
-	 <1156180241.6582.69.camel@Homer.simpson.net>
-	 <20060821164553.GA21130@in.ibm.com>
-Content-Type: text/plain
-Date: Mon, 21 Aug 2006 20:33:08 +0000
-Message-Id: <1156192388.6665.29.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 21 Aug 2006 14:25:55 -0400
+Date: Mon, 21 Aug 2006 11:24:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: stable@kernel.org, bunk@stusta.de, maks@sternwelten.at,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] [PATCH] [SERIAL] icom: select FW_LOADER
+Message-ID: <20060821182408.GD17295@kroah.com>
+References: <20060816175350.GA9888@aepfle.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060816175350.GA9888@aepfle.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 22:15 +0530, Srivatsa Vaddagiri wrote:
-
-> Hence task_rq(awakening)->curr == current, which should be sufficient to 
-
-Ah, ok.  Thanks.  I should have read more of the code instead of
-pondering the text.
-
-> resched(current), although I think there is a bug in current code 
-> (irrespective of these patches):
+On Wed, Aug 16, 2006 at 07:53:50PM +0200, Olaf Hering wrote:
 > 
-> try_to_wake_up() :
-> 	
-> 	...
+> The icom driver uses request_firmware()
+> and thus needs to select FW_LOADER.
 > 
->         if (!sync || cpu != this_cpu) {
->                 if (TASK_PREEMPTS_CURR(p, rq))
->                         resched_task(rq->curr);
->         }
->         success = 1;
-> 
-> 	...
-> 
-> TASK_PREEMPTS_CURR() is examined and resched_task() is called only if 
-> (cpu != this_cpu). What about the case (cpu == this_cpu) - who will
-> call resched_task() on current? I had expected the back-end of interrupt
-> handling to do that, but didnt find any code to do so.
+> Signed-off-by: maximilian attems <maks@sternwelten.at>
+> Signed-off-by: Olaf Hering <olh@suse.de>
 
-Looks ok to me.  Everything except sync && cpu == this_cpu checks.
+Queued to -stable, thanks.
 
-	-Mike
-
+greg k-h

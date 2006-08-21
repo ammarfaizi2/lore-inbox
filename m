@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWHUS13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWHUSe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWHUS13 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWHUS13
+	id S1750702AbWHUSe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWHUSe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:27:29 -0400
-Received: from ns2.suse.de ([195.135.220.15]:49592 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932126AbWHUS13 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:27:29 -0400
-Date: Mon, 21 Aug 2006 11:25:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Jean Delvare <khali@linux-fr.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>, stable@kernel.org
-Subject: Re: [PATCH] PCI: fix ICH6 quirks
-Message-ID: <20060821182542.GF17295@kroah.com>
-References: <200608181650.41869.daniel.ritz-ml@swissonline.ch>
+	Mon, 21 Aug 2006 14:34:28 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:5043 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1750702AbWHUSe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 14:34:28 -0400
+Message-ID: <44E9FCB5.4050101@nachtwindheim.de>
+Date: Mon, 21 Aug 2006 20:34:29 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608181650.41869.daniel.ritz-ml@swissonline.ch>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [DOCBOOK] fix segfault in docproc.c
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 04:50:40PM +0200, Daniel Ritz wrote:
-> [PATCH] PCI: fix ICH6 quirks
-> 
-> - add the ICH6(R) LPC to the ICH6 ACPI quirks. currently only the ICH6-M is
->   handled. [ PCI_DEVICE_ID_INTEL_ICH6_1 is the ICH6-M LPC, ICH6_0 is the ICH6(R) ]
-> - remove the wrong quirk calling asus_hides_smbus_lpc() for ICH6. the register
->   modified in asus_hides_smbus_lpc() has a different meaning in ICH6.
-> 
-> Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-> Cc: Jean Delvare <khali@linux-fr.org>
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-Queued to -stable, thanks.
+Adds a missing exit, if the file that should be parsed couldn't be opened.
+Without it crashes with a segfault, cause the filedescriptor is accessed even if the file could not be opened.
+This error happens on 2.6.18-rc4-mm[12] when executing make xmldocs.
 
-greg k-h
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+---
+
+--- linux-2.6.18-rc4/scripts/basic/docproc.c	2006-06-18 03:49:35.000000000 +0200
++++ linux/scripts/basic/docproc.c	2006-08-18 22:19:48.000000000 +0200
+@@ -177,6 +177,7 @@
+ 		{
+ 			fprintf(stderr, "docproc: ");
+ 			perror(real_filename);
++			exit(1);
+ 		}
+ 		while(fgets(line, MAXLINESZ, fp)) {
+ 			char *p;
+
+

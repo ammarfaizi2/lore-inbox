@@ -1,116 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWHUStz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWHUSxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWHUStz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWHUStl
+	id S1750838AbWHUSxP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWHUSxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:49:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:17085 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750792AbWHUStU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:49:20 -0400
-Date: Mon, 21 Aug 2006 11:47:45 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@davemloft.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 16/20] Fix ipv4 routing locking bug
-Message-ID: <20060821184745.GR21938@kroah.com>
-References: <20060821183818.155091391@quad.kroah.org>
+	Mon, 21 Aug 2006 14:53:11 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:28610 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750824AbWHUSwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 14:52:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KBL/OxBkIKYmnvZsfOzVW91Ojo//FYbIUGfRhBPiHIGZokIr8z8S6AZHK2wv6EjKWr3/Nzy+RoC5c2XQN0bnT/oAkTinzfiTMbrE6aR/H9aDrvV6YWH181q+1OaOEW2Szb9G68EY6oyeMvg9Kvzf7NhbqyC2LdLoGdXLMnsnh50=
+Message-ID: <a762e240608211152x5d4f11f0wd26f7e3d75d38e0a@mail.gmail.com>
+Date: Mon, 21 Aug 2006 11:52:39 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Mel Gorman" <mel@csn.ul.ie>
+Subject: Re: [PATCH 0/6] Sizing zones and holes in an architecture independent manner V9
+Cc: akpm@osdl.org, tony.luck@intel.com, linux-mm@kvack.org, ak@suse.de,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+In-Reply-To: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-ipv4-routing-locking-bug.patch"
-In-Reply-To: <20060821184527.GA21938@kroah.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+On 8/21/06, Mel Gorman <mel@csn.ul.ie> wrote:
+> This is V9 of the patchset to size zones and memory holes in an
+> architecture-independent manner. It booted successfully on 5 different
+> machines (arches were x86, x86_64, ppc64 and ia64) in a number of different
+> configurations and successfully built a kernel. If it fails on any machine,
+> booting with loglevel=8 and the console log should tell me what went wrong.
+>
 
-------------------
+I am wondering why this new api didn't cleanup the pfn_to_nid code
+path as well. Arches are left to still keep another set of
+nid-start-end info around. We are sending info like
 
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+add_active_range(unsigned int nid, unsigned long start_pfn, unsigned
+long end_pfn)
 
-[IPV4]: severe locking bug in fib_semantics.c
+With this info making a common pnf_to_nid seems to be of intrest so we
+don't have to keep redundant information in both generic and arch
+specific data structures.
 
-Found in 2.4 by Yixin Pan <yxpan@hotmail.com>.
+Are you intending the hot-add memory code path to call add_active_range or ???
 
-> When I read fib_semantics.c of Linux-2.4.32, write_lock(&fib_info_lock) =
-> is used in fib_release_info() instead of write_lock_bh(&fib_info_lock).  =
-> Is the following case possible: a BH interrupts fib_release_info() while =
-> holding the write lock, and calls ip_check_fib_default() which calls =
-> read_lock(&fib_info_lock), and spin forever.
-
-Signed-off-by: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- net/ipv4/fib_semantics.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---- linux-2.6.17.9.orig/net/ipv4/fib_semantics.c
-+++ linux-2.6.17.9/net/ipv4/fib_semantics.c
-@@ -160,7 +160,7 @@ void free_fib_info(struct fib_info *fi)
- 
- void fib_release_info(struct fib_info *fi)
- {
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	if (fi && --fi->fib_treeref == 0) {
- 		hlist_del(&fi->fib_hash);
- 		if (fi->fib_prefsrc)
-@@ -173,7 +173,7 @@ void fib_release_info(struct fib_info *f
- 		fi->fib_dead = 1;
- 		fib_info_put(fi);
- 	}
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- }
- 
- static __inline__ int nh_comp(const struct fib_info *fi, const struct fib_info *ofi)
-@@ -599,7 +599,7 @@ static void fib_hash_move(struct hlist_h
- 	unsigned int old_size = fib_hash_size;
- 	unsigned int i, bytes;
- 
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	old_info_hash = fib_info_hash;
- 	old_laddrhash = fib_info_laddrhash;
- 	fib_hash_size = new_size;
-@@ -640,7 +640,7 @@ static void fib_hash_move(struct hlist_h
- 	}
- 	fib_info_laddrhash = new_laddrhash;
- 
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- 
- 	bytes = old_size * sizeof(struct hlist_head *);
- 	fib_hash_free(old_info_hash, bytes);
-@@ -822,7 +822,7 @@ link_it:
- 
- 	fi->fib_treeref++;
- 	atomic_inc(&fi->fib_clntref);
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	hlist_add_head(&fi->fib_hash,
- 		       &fib_info_hash[fib_info_hashfn(fi)]);
- 	if (fi->fib_prefsrc) {
-@@ -841,7 +841,7 @@ link_it:
- 		head = &fib_info_devhash[hash];
- 		hlist_add_head(&nh->nh_hash, head);
- 	} endfor_nexthops(fi)
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- 	return fi;
- 
- err_inval:
-
---
+Thanks,
+  Keith

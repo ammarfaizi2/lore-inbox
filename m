@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWHUWxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWHUW6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbWHUWxB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 18:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWHUWxB
+	id S1751289AbWHUW6x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 18:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWHUW6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 18:53:01 -0400
-Received: from hera.kernel.org ([140.211.167.34]:14568 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751272AbWHUWxA (ORCPT
+	Mon, 21 Aug 2006 18:58:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1203 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751297AbWHUW6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 18:53:00 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Maciej Rutecki <maciej.rutecki@gmail.com>, linux-acpi@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm2
-Date: Mon, 21 Aug 2006 18:54:45 -0400
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060819220008.843d2f64.akpm@osdl.org> <44E97AF9.2040009@gmail.com>
-In-Reply-To: <44E97AF9.2040009@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 21 Aug 2006 18:58:51 -0400
+Date: Mon, 21 Aug 2006 15:58:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lennart Poettering <mzxreary@0pointer.de>
+Cc: len.brown@intel.com, rubini@vision.unipv.it, pavel@suse.cz,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] misc,acpi,backlight: MSI S270 Laptop support, third try
+Message-Id: <20060821155831.daa8425e.akpm@osdl.org>
+In-Reply-To: <20060820225209.GA5453@curacao>
+References: <20060820225209.GA5453@curacao>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608211854.46030.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 August 2006 05:20, Maciej Rutecki wrote:
+On Mon, 21 Aug 2006 00:52:09 +0200
+Lennart Poettering <mzxreary@0pointer.de> wrote:
 
-> I have this entry in dmesg:
-> 
-> [   23.701949] ACPI Error (utglobal-0125): Unknown exception code:
-> 0xFFFFFFEA [20060707]
-> [   23.702181] ACPI Error (utglobal-0125): Unknown exception code:
-> 0xFFFFFFEA [20060707]
-> [   23.705646]   got res [dd000000:dd00ffff] bus [dd000000:dd00ffff]
-> flags 7202 for BAR 6 of 0000:01:00.0
+> +static ssize_t store_auto_brightness(
+> +        struct device *dev,
+> +        struct device_attribute *attr,
+> +        const char *buf, size_t count) {
+> +        
+> +        int enable, ret;
 
-Apparently the "got res" part is normal -- or normal for pr_debug():
+Please follow the usual kernel coding style, which would yield something like:
 
-pci_update_resource(struct pci_dev *dev, struct resource *res, int resno)
+static ssize_t store_auto_brightness(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
 {
-        struct pci_bus_region region;
-        u32 new, check, mask;
-        int reg;
+        int enable, ret;
 
-        /* Ignore resources for unimplemented BARs and unused resource slots
-           for 64 bit BARs. */
-        if (!res->flags)
-                return;
+(affects entire patch).
 
-        pcibios_resource_to_bus(dev, &region, res);
+And please also prepare and maintain a standalone changelog.  The one you have here
+is full of references to some long-gone email.  Think: "how will my changelog look
+when it is in the main git tree".
 
-        pr_debug("  got res [%llx:%llx] bus [%lx:%lx] flags %lx for "
-                 "BAR %d of %s\n", (unsigned long long)res->start,
-                 (unsigned long long)res->end,
-                 region.start, region.end, res->flags, resno, pci_name(dev));
+Thanks.

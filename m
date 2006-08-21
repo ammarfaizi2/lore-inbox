@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422699AbWHUQv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422728AbWHURb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422699AbWHUQv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 12:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422703AbWHUQv7
+	id S1422728AbWHURb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 13:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbWHURb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 12:51:59 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34059 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422699AbWHUQv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 12:51:58 -0400
-Date: Mon, 21 Aug 2006 18:51:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm2: m68k nsproxy compile breakage
-Message-ID: <20060821165158.GK11651@stusta.de>
-References: <20060819220008.843d2f64.akpm@osdl.org> <20060821020843.GG11651@stusta.de> <20060821144649.GA5573@sergelap.austin.ibm.com>
-MIME-Version: 1.0
+	Mon, 21 Aug 2006 13:31:59 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:50072 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S965056AbWHURb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 13:31:58 -0400
+Date: Mon, 21 Aug 2006 13:31:55 -0400
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: linux-kernel@vger.kernel.org, 7eggert@gmx.de, Dirk <noisyb@gmx.net>
+Subject: Re: PATCH/FIX for drivers/cdrom/cdrom.c
+Message-ID: <20060821173155.GG13641@csclub.uwaterloo.ca>
+References: <6Kxns-7AV-13@gated-at.bofh.it> <6Kytd-1g2-31@gated-at.bofh.it> <6KyCQ-1w7-25@gated-at.bofh.it> <E1GDgyZ-0000jV-MV@be1.lrz> <1155821951.15195.85.camel@localhost.localdomain> <20060817132309.GX13639@csclub.uwaterloo.ca> <1155822530.15195.95.camel@localhost.localdomain> <20060817143633.GF13641@csclub.uwaterloo.ca> <44E74FD9.7000507@flower.upol.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060821144649.GA5573@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <44E74FD9.7000507@flower.upol.cz>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 09:46:49AM -0500, Serge E. Hallyn wrote:
-> Quoting Adrian Bunk (bunk@stusta.de):
-> > namespaces-utsname-implement-utsname-namespaces.patch causes the 
-> > following compile error on m68k:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      .tmp_vmlinux1
-> > arch/m68k/kernel/built-in.o: In function `sys_call_table':
-> > (.data+0x91c): undefined reference to `init_nsproxy'
-> > 
-> > <--  snip  -->
-> > 
-> > Is there a reason why struct init_nsproxy can't reside in 
-> > kernel/nsproxy.c?
+On Sat, Aug 19, 2006 at 07:52:25PM +0200, Oleg Verych wrote:
+> AFAIK many drivers allow multiple opening of device files. If programs do 
+> not
+> honor any kind of locking (advisory, O_EXCL) use mandatory locking (DOS 2.0
+> compatibility, no problems ;)
 > 
-> Apparently not.  The following patch compiles and boots fine on s390.
->...
+> Yea. But see RH managers on its videos, happy about usb sticks being plugged
+> and worked, he-he:
+> <http://www.redhat.com/v/magazine/mov/005_BehindScenes_RHEL4.mov>.
+> 
+> I've just installed debian-gnu and got all that
+> cpufrequtils, powermgmt, acpiutils installed on amd64 laptop
+> while i just need:
+> ,-
+> |modprobe powernow-k8
+> |modprobe cpufreq_ondemand
+> |echo ondemand >scailing_governor
+> `-
+> Anyway long, almost 10 years, way to win95 and win98 is never ending ;D
 
-Thanks, I can confirm it fixes this compile error on m68k.
+Don't worry, NT4 didn't do that either, you had to wait for windows 2000
+before you got a decent kernel and all the power management and hotplug
+stuff.
 
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+--
+Len Sorensen

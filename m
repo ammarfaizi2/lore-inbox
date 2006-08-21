@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWHUWJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWHUWLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWHUWJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 18:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWHUWJH
+	id S1751250AbWHUWLP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 18:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWHUWLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 18:09:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45279 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751241AbWHUWJF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 18:09:05 -0400
-Date: Tue, 22 Aug 2006 00:09:03 +0200
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [2.6 patch] re-add -ffreestanding
-Message-Id: <20060822000903.441acb64.ak@suse.de>
-In-Reply-To: <20060821214636.GP11651@stusta.de>
-References: <20060821212154.GO11651@stusta.de>
-	<20060821232444.9a347714.ak@suse.de>
-	<20060821214636.GP11651@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 21 Aug 2006 18:11:15 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:11209 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751245AbWHUWLN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 18:11:13 -0400
+Date: Tue, 22 Aug 2006 00:07:35 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Henne <henne@nachtwindheim.de>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linker error on via-velocity driver
+Message-ID: <20060821220735.GA12622@electric-eye.fr.zoreil.com>
+References: <44EA14BF.5090102@nachtwindheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44EA14BF.5090102@nachtwindheim.de>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 23:46:36 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+Henne <henne@nachtwindheim.de> :
+[...]
+> I found a bug in the via-velocity driver, but I cant find a maintainer
+> for that, so I write to the lists.
+> This driver depends on CONFIG_INET (tcp/ip) if CONFIG_PM is enabled.
+> This is tested on i386 and x86_64.
+> I'm not familiar with network stuff but I don't believe a device should
+> depend on a protocol.
 
-> On Mon, Aug 21, 2006 at 11:24:44PM +0200, Andi Kleen wrote:
-> > On Mon, 21 Aug 2006 23:21:54 +0200
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > I got the following compile error with gcc 4.1.1 when trying to compile 
-> > > kernel 2.6.18-rc4-mm2 for m68k:
-> > 
-> > I object to this change. -ffreestanding shouldn't be forced on everybody
-> 
-> Why?
+See the comment on top of velocity_get_ip() related to wol and arp.
 
-Because -ffreestanding does the the wrong thing(tm) for the x86-64 
-string implementation (which I plan to extend at some point to i386
-too BTW). Don't argue with it -- what counts is not the name,
-but the semantics.
+How does it behave with the patch below:
 
--Andi
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 3918990..30f21b6 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -2173,6 +2173,7 @@ config VIA_VELOCITY
+ 	select CRC32
+ 	select CRC_CCITT
+ 	select MII
++	select INET if PM
+ 	help
+ 	  If you have a VIA "Velocity" based network card say Y here.
+ 
+
+-- 
+Ueimor

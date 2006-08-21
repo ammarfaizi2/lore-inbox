@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWHUSyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWHUSxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWHUSyx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWHUSs3
+	id S1750800AbWHUSxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWHUStD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:48:29 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:51388 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750742AbWHUSsV (ORCPT
+	Mon, 21 Aug 2006 14:49:03 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:5053 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750770AbWHUSs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:48:21 -0400
-Date: Mon, 21 Aug 2006 11:46:47 -0700
+	Mon, 21 Aug 2006 14:48:57 -0400
+Date: Mon, 21 Aug 2006 11:47:23 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,14 +17,14 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Kylene Hall <kjhall@us.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 09/20] tpm: interrupt clear fix
-Message-ID: <20060821184647.GJ21938@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Adrian Bunk <bunk@stusta.de>,
+       Patrick McHardy <kaber@trash.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 14/20] : ip_tables: fix table locking in ipt_do_table
+Message-ID: <20060821184723.GO21938@kroah.com>
 References: <20060821183818.155091391@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="tpm-interrupt-clear-fix.patch"
+Content-Disposition: inline; filename="ip_tables-fix-table-locking-in-ipt_do_table.patch"
 In-Reply-To: <20060821184527.GA21938@kroah.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,27 +33,58 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Kylene Jo Hall <kjhall@us.ibm.com>
+From: Patrick McHardy <kaber@trash.net>
 
-Under stress testing I found that the interrupt is not always cleared.
-This is a bug and this patch should go into 2.6.18 and 2.6.17.x.
+[NETFILTER]: ip_tables: fix table locking in ipt_do_table
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+table->private might change because of ruleset changes, don't use it without
+holding the lock.
+
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/char/tpm/tpm_tis.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/netfilter/arp_tables.c |    3 ++-
+ net/ipv4/netfilter/ip_tables.c  |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- linux-2.6.17.8.orig/drivers/char/tpm/tpm_tis.c
-+++ linux-2.6.17.8/drivers/char/tpm/tpm_tis.c
-@@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
- 	iowrite32(interrupt,
- 		  chip->vendor.iobase +
- 		  TPM_INT_STATUS(chip->vendor.locality));
-+	ioread32(chip->vendor.iobase + TPM_INT_STATUS(chip->vendor.locality));
- 	return IRQ_HANDLED;
- }
+--- linux-2.6.17.9.orig/net/ipv4/netfilter/arp_tables.c
++++ linux-2.6.17.9/net/ipv4/netfilter/arp_tables.c
+@@ -237,7 +237,7 @@ unsigned int arpt_do_table(struct sk_buf
+ 	struct arpt_entry *e, *back;
+ 	const char *indev, *outdev;
+ 	void *table_base;
+-	struct xt_table_info *private = table->private;
++	struct xt_table_info *private;
+ 
+ 	/* ARP header, plus 2 device addresses, plus 2 IP addresses.  */
+ 	if (!pskb_may_pull((*pskb), (sizeof(struct arphdr) +
+@@ -249,6 +249,7 @@ unsigned int arpt_do_table(struct sk_buf
+ 	outdev = out ? out->name : nulldevname;
+ 
+ 	read_lock_bh(&table->lock);
++	private = table->private;
+ 	table_base = (void *)private->entries[smp_processor_id()];
+ 	e = get_entry(table_base, private->hook_entry[hook]);
+ 	back = get_entry(table_base, private->underflow[hook]);
+--- linux-2.6.17.9.orig/net/ipv4/netfilter/ip_tables.c
++++ linux-2.6.17.9/net/ipv4/netfilter/ip_tables.c
+@@ -231,7 +231,7 @@ ipt_do_table(struct sk_buff **pskb,
+ 	const char *indev, *outdev;
+ 	void *table_base;
+ 	struct ipt_entry *e, *back;
+-	struct xt_table_info *private = table->private;
++	struct xt_table_info *private;
+ 
+ 	/* Initialization */
+ 	ip = (*pskb)->nh.iph;
+@@ -248,6 +248,7 @@ ipt_do_table(struct sk_buff **pskb,
+ 
+ 	read_lock_bh(&table->lock);
+ 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
++	private = table->private;
+ 	table_base = (void *)private->entries[smp_processor_id()];
+ 	e = get_entry(table_base, private->hook_entry[hook]);
  
 
 --

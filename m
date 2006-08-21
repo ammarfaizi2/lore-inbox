@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWHUGZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWHUGVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWHUGZX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 02:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWHUGZX
+	id S964991AbWHUGVL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 02:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWHUGVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 02:25:23 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:35204 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964993AbWHUGZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 02:25:22 -0400
-Date: Mon, 21 Aug 2006 08:17:26 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lee Trager <Lee@PicturesInMotion.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Seewer Philippe <philippe.seewer@bfh.ch>, Jeff Garzik <jeff@garzik.org>,
-       Gabor Gombas <gombasg@sztaki.hu>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: /dev/sd*
-In-Reply-To: <44E94CE0.8010006@PicturesInMotion.net>
-Message-ID: <Pine.LNX.4.61.0608210816400.11370@yvahk01.tjqt.qr>
-References: <1155144599.5729.226.camel@localhost.localdomain>
- <20060809212124.GC3691@stusta.de> <1155160903.5729.263.camel@localhost.localdomain>
- <20060809221857.GG3691@stusta.de> <20060810123643.GC25187@boogie.lpds.sztaki.hu>
- <44DB289A.4060503@garzik.org> <44E3DFD6.4010504@PicturesInMotion.net>
- <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr> <44E42900.1030905@PicturesInMotion.net>
- <Pine.LNX.4.61.0608171120260.4252@yvahk01.tjqt.qr> <44E56804.1080906@bfh.ch>
- <Pine.LNX.4.61.0608181050490.27740@yvahk01.tjqt.qr>
- <1155913072.28764.3.camel@localhost.localdomain>
- <Pine.LNX.4.61.0608181748280.11320@yvahk01.tjqt.qr>
- <1155920541.30279.11.camel@localhost.localdomain> <44E94CE0.8010006@PicturesInMotion.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 21 Aug 2006 02:21:10 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59268
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964991AbWHUGVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 02:21:09 -0400
+Date: Sun, 20 Aug 2006 23:21:21 -0700 (PDT)
+Message-Id: <20060820.232121.59475829.davem@davemloft.net>
+To: alan@lxorguk.ukuu.org.uk
+Cc: andrea@suse.de, greg@kroah.com, bunk@stusta.de, jwboyer@gmail.com,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1156115102.4051.79.camel@localhost.localdomain>
+References: <20060806045234.GA28849@kroah.com>
+	<20060820223046.GB10011@opteron.random>
+	<1156115102.4051.79.camel@localhost.localdomain>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Whatever udev does currently seems good:
->>>
->>> 17:48 shanghai:~ > ls /dev/disk/by-id/*
->>> /dev/disk/by-id/ata-DIAMOND_250G_2B5400_030400026
->>> /dev/disk/by-id/ata-DIAMOND_250G_2B5400_030400026-part1
->>> /dev/disk/by-id/usb-0_USB_DRIVE_0000000000004287
->>> /dev/disk/by-id/usb-0_USB_DRIVE_0000000000004287-part1
->>
->> I wouldn't try that on a typical "non technical user", at least except
->> for Halloween 8)
->>
->Why not make libata use /dev/disk by default and have a kernel option
->for legacy naming(ide disks are hda, sata are sda etc)?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 21 Aug 2006 00:05:02 +0100
 
-The kernel does not really know about device names.
-It is all udev that manages it. Or the user, in case he can manage to get fixed
-device numbers.
+> Ar Llu, 2006-08-21 am 00:30 +0200, ysgrifennodd Andrea Arcangeli:
+> > To me an official 2.6.16-stable in the hands of the only guy who
+> > proposed himself as maintainer, sounds worse than no stable tree at
+> > all. 
+> 
+> 2.6.16-stable is in the hands of someone that Greg (2.6.17-stable, ex
+> 2.6.16-stable, 2.6 head temporary chief maintainer) thinks is a good
+> person to do the job. That sounds to me quite sensible selection
+> criteria, and Adrian is certainly up to the job.
 
+Totally agreed.
 
-Jan Engelhardt
--- 
+This voting idea is absolute nonsense.
+
+There is a tree of trust, and responsibilities like this are
+simply handed down.

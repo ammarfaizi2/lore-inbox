@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWHUQpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWHUQqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbWHUQpx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 12:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWHUQpx
+	id S965001AbWHUQqg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 12:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWHUQqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 12:45:53 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:53392 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S964987AbWHUQpw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 12:45:52 -0400
-Date: Mon, 21 Aug 2006 12:45:50 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-Message-ID: <20060821164550.GB3678@fieldses.org>
-References: <20060820013121.GA18401@fieldses.org> <200608201026.54530.ak@suse.de> <20060821155431.GA3678@fieldses.org> <200608211803.28867.ak@suse.de>
+	Mon, 21 Aug 2006 12:46:35 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:50378 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S964990AbWHUQqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 12:46:35 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       lm-sensors@lm-sensors.org
+Subject: Re: [lm-sensors] [RFC][PATCH] hwmon:fix sparse warnings + error handling
+Date: Tue, 22 Aug 2006 02:46:27 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <tkoje25hlbjo1ui9i9v86fpdl6h4sfjnpq@4ax.com>
+References: <44E8C9AE.3060307@gmail.com> <20060821023017.GA30017@jupiter.solarsys.private> <20060821111127.fe93bc0a.khali@linux-fr.org>
+In-Reply-To: <20060821111127.fe93bc0a.khali@linux-fr.org>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608211803.28867.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 06:03:28PM +0200, Andi Kleen wrote:
-> On Monday 21 August 2006 17:54, J. Bruce Fields wrote:
-> > On Sun, Aug 20, 2006 at 10:26:54AM +0200, Andi Kleen wrote:
-> > > 
-> > > > DWARF2 unwinder stuck at 0xc0100199
-> > > > Leftover inexact backtrace:
-> > > >  =======================
-> > > >  BUG: unable to handle kernel paging request at virtual address 0000b034
-> > > 
-> > > This is already fixed in mainline.
-> > 
-> > I'm seeing the same behavior on Linus's latest as of this morning
-> > (2.6.18-rc4-gef7d1b24).  Is there something else I should be testing?
-> 
-> The stuck is expected, but the unable to handle paging request should be 
-> fixed. If not then it's a different problem than what I'm thinking,
-> but it looks very similar.
+On Mon, 21 Aug 2006 11:11:27 +0200, Jean Delvare <khali@linux-fr.org> wrote:
 
-OK, so any suggestions for what I should try?
-
-My most recent panic on boot ended with:
-
-DWARF2 unwinder tack at 0xc0100199
-Leftover inexact backtrace:
- =======================
-BUG: unable to handle kernel paging requets at virtual address 0000b034
- printing eip:
-c0103712
-*pde = 00000000
-Recursive die() failure, output suppressed
- <0>Kernel panic - not syncing: Fatal exception in interrupt
-
-Taking a look at an "objdump -d vmlinux", that c0103712 is in
-show_trace_log_lvl():
-
+>Mark, Michal,
+>
+>> Thanks for doing this... but Andrew please don't apply it.  The sensors project
+>> people are working on these even now, and we already have a patch for the
+>> w83627hf driver...
+>> 
+>> http://lists.lm-sensors.org/pipermail/lm-sensors/2006-August/017204.html
+>> 
+>> Jean Delvare (hwmon maintainer) should be sending these up the chain soon.
+>> 
+>> Michal: if you're interested in fixing any of the rest of them, please take
+>> a look at the patch above to see the mechanism we intend to use.  It actually
+>> makes the drivers *smaller* than they were.
+>
+>The size change really depends on the driver. For older drivers with
+>individual file registration (sometimes hidden behind macros) the
+>driver size will indeed shrink, but for newer drivers with loop-based
+>file registration, this would be a slight increase in size. Not that it
+>really matters anyway, what matters is that we handle errors and file
+>deletion properly from now on.
+>
+>Michal, if you go on working on this (and this is welcome), please
+>follow what Mark did, as this is what we agreed was the best approach.
+>Here is a quick status summary for drivers/hwmon:
+>
 ...
-c01036f9:	e8 a2 33 01 00       	call   c0116aa0 <printk>
-c01036fe:	53                   	push   %ebx
-c01036ff:	68 4c 20 5a c0       	push   $0xc05a204c
-c0103704:	e8 67 41 03 00       	call   c0137870 <__print_symbol>
-c0103709:	8b 06                	mov    (%esi),%eax
-c010370b:	83 c4 10             	add    $0x10,%esp
-c010370e:	39 c6                	cmp    %eax,%esi
-c0103710:	75 ce                	jne    c01036e0 <show_trace_log_lvl+0x60>
--->c0103712:	8b 4f 34             	mov    0x34(%edi),%ecx
-c0103715:	85 c9                	test   %ecx,%ecx
-c0103717:	74 14                	je     c010372d <show_trace_log_lvl+0xad>
-c0103719:	89 cb                	mov    %ecx,%ebx
-c010371b:	8b 4d 08             	mov    0x8(%ebp),%ecx
-c010371e:	51                   	push   %ecx
-c010371f:	68 06 aa 59 c0       	push   $0xc059aa06
-c0103724:	e8 77 33 01 00       	call   c0116aa0 <printk>
-...
+> o adm9240
 
-It looks like that's the deference of context on line 221:
-		stack = (unsigned long*)context->previous_esp;
+Somebody else is welcome to do this one, my last patch was dropped.
 
-So "context" was 0000b000?? OK, I don't know this code at all, so I'm
-probably not going to figure out anything useful here.
-
---b.
+Grant.

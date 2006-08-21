@@ -1,119 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWHUJL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbWHUJSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWHUJL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 05:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWHUJL3
+	id S1751726AbWHUJSD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 05:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWHUJSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 05:11:29 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:62732 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751400AbWHUJL3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 05:11:29 -0400
-Date: Mon, 21 Aug 2006 11:11:27 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [RFC][PATCH] hwmon:fix sparse warnings + error
- handling
-Message-Id: <20060821111127.fe93bc0a.khali@linux-fr.org>
-In-Reply-To: <20060821023017.GA30017@jupiter.solarsys.private>
-References: <44E8C9AE.3060307@gmail.com>
-	<20060821023017.GA30017@jupiter.solarsys.private>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Mon, 21 Aug 2006 05:18:03 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:21918 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751726AbWHUJSB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 05:18:01 -0400
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+From: Magnus Damm <magnus@valinux.co.jp>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph@sc8-sf-spam2-b.sourceforge.net, Rik van Riel <riel@redhat.com>,
+       Linux@sc8-sf-spam2-b.sourceforge.net, ckrm-tech@lists.sourceforge.net,
+       Dave Hansen <haveblue@us.ibm.com>, List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <200608211103.45175.ak@suse.de>
+References: <44E33893.6020700@sw.ru> <200608210948.40870.ak@suse.de>
+	 <1156149773.21411.58.camel@localhost>  <200608211103.45175.ak@suse.de>
+Content-Type: text/plain
+Date: Mon, 21 Aug 2006 18:18:24 +0900
+Message-Id: <1156151904.21411.71.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark, Michal,
-
-> Thanks for doing this... but Andrew please don't apply it.  The sensors project
-> people are working on these even now, and we already have a patch for the
-> w83627hf driver...
+On Mon, 2006-08-21 at 11:03 +0200, Andi Kleen wrote:
+> On Monday 21 August 2006 10:42, Magnus Damm wrote:
 > 
-> http://lists.lm-sensors.org/pipermail/lm-sensors/2006-August/017204.html
+> > No problem. The second URL pointed to a x86_64 version where I tried to
+> > break out code to make some kind of generic NUMA emulation layer. At
+> > that time no one seemed interested in that strategy as a simple resource
+> > control solution so I gave that up.
+> > 
+> > For x86_64 I think it's only worth mucking around with the code if
+> > people believe that it is the right way to go for in-kernel resource
+> > control.
 > 
-> Jean Delvare (hwmon maintainer) should be sending these up the chain soon.
+> Does it by chance fix the existing code? Andrew has been complaining
+> (and I could reproduce) that numa=fake=16 makes it triple fault at boot.
+> The theory was that it didn't like empty nodes which can happen this way.
+> I unfortunately didn't have time to look into it closely so far.
+
+The code does rearrange how the boundaries are calculated, and it may
+happen to fix that specific problem. I'll try to find some time later
+this week to have a look at it.
+
+> > The x86_64 patches above include code to divide each real NUMA node into
+> > several smaller emulated nodes, but that is kind of pointless if people
+> > only use it for non-resource control purposes, ie just to play with
+> > CPUSETS and NUMA on non-NUMA hardware. For simple purposes like that I
+> > think the existing NUMA emulation code for x86_64 works perfectly well.
+> > 
+> > I still think that i386 users would benefit from NUMA emulation though.
+> > If you want me to up-port the i386-specific code just let me know.
 > 
-> Michal: if you're interested in fixing any of the rest of them, please take
-> a look at the patch above to see the mechanism we intend to use.  It actually
-> makes the drivers *smaller* than they were.
+> I personally have my doubts about 32bit NUMA -- it will always have
+> ZONE_NORMAL only on a single node, which limits it very much. 
+> But ok I guess it might be useful to somebody.
 
-The size change really depends on the driver. For older drivers with
-individual file registration (sometimes hidden behind macros) the
-driver size will indeed shrink, but for newer drivers with loop-based
-file registration, this would be a slight increase in size. Not that it
-really matters anyway, what matters is that we handle errors and file
-deletion properly from now on.
+Very true. I was mainly thinking about the i386 code as a simple way for
+people to play with NUMA and CPUSETS.
 
-Michal, if you go on working on this (and this is welcome), please
-follow what Mark did, as this is what we agreed was the best approach.
-Here is a quick status summary for drivers/hwmon:
+/ magnus
 
-Done by Mark M. Hoffman:
- o asb100
- o lm75
- o lm78
- o smsc47b397
- o w83627hf
-
-Done by Jim Cromie:
- o pc87360
-
-Will be done by David Hubbard:
- o w83627ehf
-
-Will be done by me:
- o f71805f
- o it87
- o lm63
- o lm83
- o lm90
-
-This leaves the following list:
- o abituguru
- o adm1021
- o adm1025
- o adm1026
- o adm1031
- o adm9240
- o atxp1
- o ds1621
- o fscher
- o fscpos
- o gl518sm
- o gl520sm
- o lm77
- o lm80
- o lm85
- o lm87
- o lm92
- o max1619
- o sis5595
- o smsc47m1
- o smsc47m192
- o via686a
- o vt8231
- o w83781d
- o w83791d
- o w83792d
- o w83l785ts
-
-Almost 1000 warnings for drivers/hwmon alone... OTOH I wonder how
-device_create_file and friends qualified for __must_check given that
-nothing wrong can happen if they fail, from the kernel's point of view.
-The files are not created and that's about it.
-
-If you are going to fix some of the drivers listed above, please
-advertise on the lm-sensors list so that your work is not duplicated.
-
-As a side note, I have patches ready for everything under drivers/i2c
-already, I sent them on the i2c list last week and will push them soon
-now.
-
-Thanks,
--- 
-Jean Delvare

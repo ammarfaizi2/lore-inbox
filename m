@@ -1,267 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWHUNrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWHUNtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbWHUNrE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWHUNrE
+	id S1030467AbWHUNtW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbWHUNtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:47:04 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:3026 "EHLO calculon.skynet.ie")
-	by vger.kernel.org with ESMTP id S1030473AbWHUNrA (ORCPT
+	Mon, 21 Aug 2006 09:49:22 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:19770 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030467AbWHUNtV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:47:00 -0400
-From: Mel Gorman <mel@csn.ul.ie>
-To: akpm@osdl.org
-Cc: Mel Gorman <mel@csn.ul.ie>, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
-       linux-mm@kvack.org
-Message-Id: <20060821134658.22179.79853.sendpatchset@skynet.skynet.ie>
-In-Reply-To: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
-References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 5/6] Have ia64 use add_active_range() and free_area_init_nodes
-Date: Mon, 21 Aug 2006 14:46:58 +0100 (IST)
+	Mon, 21 Aug 2006 09:49:21 -0400
+Date: Mon, 21 Aug 2006 15:51:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Neil Brown <neilb@suse.de>
+Cc: David Chinner <dgc@sgi.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow  writeback.
+Message-ID: <20060821135132.GG4290@suse.de>
+References: <20060815230050.GB51703024@melbourne.sgi.com> <17635.60378.733953.956807@cse.unsw.edu.au> <20060816231448.cc71fde7.akpm@osdl.org> <20060818001102.GW51703024@melbourne.sgi.com> <20060817232942.c35b1371.akpm@osdl.org> <20060818070314.GE798@suse.de> <p73hd0998is.fsf@verdi.suse.de> <17640.65491.458305.525471@cse.unsw.edu.au> <20060821031505.GQ51703024@melbourne.sgi.com> <17641.24478.496091.79901@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17641.24478.496091.79901@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 21 2006, Neil Brown wrote:
+> Jens:  Was it s SuSE kernel or a mainline kernel on which you
+>    experienced this slowdown with an external USB drive?
 
-Size zones and holes in an architecture independent manner for ia64.
+Note that this was on the old days, on 2.4 kernels. It was (and still
+is) a generic 2.4 problem, which is quite apparent when you have larger
+slow devices. Larger, because then you can have a lot of dirty memory in
+flight for that device. The case I most often saw reported was on
+DVD-RAM atapi or scsi devices, which write at 3-400kb/sec. An external
+usb hard drive over usb 1.x would be almost as bad, I suppose.
 
+I haven't heard any complaints for 2.6 in this area for a long time.
 
- arch/ia64/Kconfig          |    3 ++
- arch/ia64/mm/contig.c      |   60 ++++++----------------------------------
- arch/ia64/mm/discontig.c   |   44 ++++++-----------------------
- arch/ia64/mm/init.c        |   12 ++++++++
- include/asm-ia64/meminit.h |    1 
- 5 files changed, 34 insertions(+), 86 deletions(-)
+> Then we just need to deal with the case where the some of the queue
+> limits of all devices exceeds the dirty threshold....
+> Maybe writeout queues need to auto-adjust their queue length when some
+> system-wide situation is detected.... sounds messy.
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-Signed-off-by: Bob Picco <bob.picco@hp.com>
+Queue length is a little tricky, so it's basically controlled by two
+parameters - nr_requests and max_sectors_kb. Most SATA drives can do
+32MiB requests, so in theory a system that sets max_sectors_kb to
+max_hw_sectors_kb and retains a default nr_requests of 128, can see up
+to 32 * (128 * 3) / 2 == 6144MiB per disk in flight. Auch. By default we
+only allow 512KiB per requests, which brings us to a more reasonable
+96MiB per disk.
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/Kconfig linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/Kconfig
---- linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/Kconfig	2006-08-21 09:23:50.000000000 +0100
-+++ linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/Kconfig	2006-08-21 10:17:10.000000000 +0100
-@@ -352,6 +352,9 @@ config NODES_SHIFT
- 	  MAX_NUMNODES will be 2^(This value).
- 	  If in doubt, use the default.
- 
-+config ARCH_POPULATES_NODE_MAP
-+	def_bool y
-+
- # VIRTUAL_MEM_MAP and FLAT_NODE_MEM_MAP are functionally equivalent.
- # VIRTUAL_MEM_MAP has been retained for historical reasons.
- config VIRTUAL_MEM_MAP
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/mm/contig.c linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/mm/contig.c
---- linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/mm/contig.c	2006-08-06 19:20:11.000000000 +0100
-+++ linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/mm/contig.c	2006-08-21 10:17:10.000000000 +0100
-@@ -26,7 +26,6 @@
- #include <asm/mca.h>
- 
- #ifdef CONFIG_VIRTUAL_MEM_MAP
--static unsigned long num_dma_physpages;
- static unsigned long max_gap;
- #endif
- 
-@@ -218,18 +217,6 @@ count_pages (u64 start, u64 end, void *a
- 	return 0;
- }
- 
--#ifdef CONFIG_VIRTUAL_MEM_MAP
--static int
--count_dma_pages (u64 start, u64 end, void *arg)
--{
--	unsigned long *count = arg;
--
--	if (start < MAX_DMA_ADDRESS)
--		*count += (min(end, MAX_DMA_ADDRESS) - start) >> PAGE_SHIFT;
--	return 0;
--}
--#endif
--
- /*
-  * Set up the page tables.
-  */
-@@ -238,45 +225,22 @@ void __init
- paging_init (void)
- {
- 	unsigned long max_dma;
--	unsigned long zones_size[MAX_NR_ZONES];
--#ifdef CONFIG_VIRTUAL_MEM_MAP
--	unsigned long zholes_size[MAX_NR_ZONES];
--#endif
--
--	/* initialize mem_map[] */
--
--	memset(zones_size, 0, sizeof(zones_size));
-+	unsigned long nid = 0;
-+	unsigned long max_zone_pfns[MAX_NR_ZONES];
- 
- 	num_physpages = 0;
- 	efi_memmap_walk(count_pages, &num_physpages);
- 
- 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
-+	max_zone_pfns[ZONE_DMA] = max_dma;
-+	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- 
- #ifdef CONFIG_VIRTUAL_MEM_MAP
--	memset(zholes_size, 0, sizeof(zholes_size));
--
--	num_dma_physpages = 0;
--	efi_memmap_walk(count_dma_pages, &num_dma_physpages);
--
--	if (max_low_pfn < max_dma) {
--		zones_size[ZONE_DMA] = max_low_pfn;
--		zholes_size[ZONE_DMA] = max_low_pfn - num_dma_physpages;
--	} else {
--		zones_size[ZONE_DMA] = max_dma;
--		zholes_size[ZONE_DMA] = max_dma - num_dma_physpages;
--		if (num_physpages > num_dma_physpages) {
--			zones_size[ZONE_NORMAL] = max_low_pfn - max_dma;
--			zholes_size[ZONE_NORMAL] =
--				((max_low_pfn - max_dma) -
--				 (num_physpages - num_dma_physpages));
--		}
--	}
--
-+	efi_memmap_walk(register_active_ranges, &nid);
- 	efi_memmap_walk(find_largest_hole, (u64 *)&max_gap);
- 	if (max_gap < LARGE_GAP) {
- 		vmem_map = (struct page *) 0;
--		free_area_init_node(0, NODE_DATA(0), zones_size, 0,
--				    zholes_size);
-+		free_area_init_nodes(max_zone_pfns);
- 	} else {
- 		unsigned long map_size;
- 
-@@ -289,19 +253,13 @@ paging_init (void)
- 		efi_memmap_walk(create_mem_map_page_table, NULL);
- 
- 		NODE_DATA(0)->node_mem_map = vmem_map;
--		free_area_init_node(0, NODE_DATA(0), zones_size,
--				    0, zholes_size);
-+		free_area_init_nodes(max_zone_pfns);
- 
- 		printk("Virtual mem_map starts at 0x%p\n", mem_map);
- 	}
- #else /* !CONFIG_VIRTUAL_MEM_MAP */
--	if (max_low_pfn < max_dma)
--		zones_size[ZONE_DMA] = max_low_pfn;
--	else {
--		zones_size[ZONE_DMA] = max_dma;
--		zones_size[ZONE_NORMAL] = max_low_pfn - max_dma;
--	}
--	free_area_init(zones_size);
-+	add_active_range(0, 0, max_low_pfn);
-+	free_area_init_nodes(max_zone_pfns);
- #endif /* !CONFIG_VIRTUAL_MEM_MAP */
- 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
- }
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/mm/discontig.c linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/mm/discontig.c
---- linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/mm/discontig.c	2006-08-06 19:20:11.000000000 +0100
-+++ linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/mm/discontig.c	2006-08-21 10:17:10.000000000 +0100
-@@ -654,6 +654,7 @@ static __init int count_node_pages(unsig
- {
- 	unsigned long end = start + len;
- 
-+	add_active_range(node, start >> PAGE_SHIFT, end >> PAGE_SHIFT);
- 	mem_data[node].num_physpages += len >> PAGE_SHIFT;
- 	if (start <= __pa(MAX_DMA_ADDRESS))
- 		mem_data[node].num_dma_physpages +=
-@@ -678,10 +679,10 @@ static __init int count_node_pages(unsig
- void __init paging_init(void)
- {
- 	unsigned long max_dma;
--	unsigned long zones_size[MAX_NR_ZONES];
--	unsigned long zholes_size[MAX_NR_ZONES];
- 	unsigned long pfn_offset = 0;
-+	unsigned long max_pfn = 0;
- 	int node;
-+	unsigned long max_zone_pfns[MAX_NR_ZONES];
- 
- 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
- 
-@@ -698,47 +699,20 @@ void __init paging_init(void)
- #endif
- 
- 	for_each_online_node(node) {
--		memset(zones_size, 0, sizeof(zones_size));
--		memset(zholes_size, 0, sizeof(zholes_size));
--
- 		num_physpages += mem_data[node].num_physpages;
--
--		if (mem_data[node].min_pfn >= max_dma) {
--			/* All of this node's memory is above ZONE_DMA */
--			zones_size[ZONE_NORMAL] = mem_data[node].max_pfn -
--				mem_data[node].min_pfn;
--			zholes_size[ZONE_NORMAL] = mem_data[node].max_pfn -
--				mem_data[node].min_pfn -
--				mem_data[node].num_physpages;
--		} else if (mem_data[node].max_pfn < max_dma) {
--			/* All of this node's memory is in ZONE_DMA */
--			zones_size[ZONE_DMA] = mem_data[node].max_pfn -
--				mem_data[node].min_pfn;
--			zholes_size[ZONE_DMA] = mem_data[node].max_pfn -
--				mem_data[node].min_pfn -
--				mem_data[node].num_dma_physpages;
--		} else {
--			/* This node has memory in both zones */
--			zones_size[ZONE_DMA] = max_dma -
--				mem_data[node].min_pfn;
--			zholes_size[ZONE_DMA] = zones_size[ZONE_DMA] -
--				mem_data[node].num_dma_physpages;
--			zones_size[ZONE_NORMAL] = mem_data[node].max_pfn -
--				max_dma;
--			zholes_size[ZONE_NORMAL] = zones_size[ZONE_NORMAL] -
--				(mem_data[node].num_physpages -
--				 mem_data[node].num_dma_physpages);
--		}
--
- 		pfn_offset = mem_data[node].min_pfn;
- 
- #ifdef CONFIG_VIRTUAL_MEM_MAP
- 		NODE_DATA(node)->node_mem_map = vmem_map + pfn_offset;
- #endif
--		free_area_init_node(node, NODE_DATA(node), zones_size,
--				    pfn_offset, zholes_size);
-+		if (mem_data[node].max_pfn > max_pfn)
-+			max_pfn = mem_data[node].max_pfn;
- 	}
- 
-+	max_zone_pfns[ZONE_DMA] = max_dma;
-+	max_zone_pfns[ZONE_NORMAL] = max_pfn;
-+	free_area_init_nodes(max_zone_pfns);
-+
- 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
- }
- 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/mm/init.c linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/mm/init.c
---- linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/arch/ia64/mm/init.c	2006-08-06 19:20:11.000000000 +0100
-+++ linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/arch/ia64/mm/init.c	2006-08-21 10:17:10.000000000 +0100
-@@ -593,6 +593,18 @@ find_largest_hole (u64 start, u64 end, v
- 	last_end = end;
- 	return 0;
- }
-+
-+int __init
-+register_active_ranges(u64 start, u64 end, void *nid)
-+{
-+	BUG_ON(nid == NULL);
-+	BUG_ON(*(unsigned long *)nid >= MAX_NUMNODES);
-+
-+	add_active_range(*(unsigned long *)nid,
-+				__pa(start) >> PAGE_SHIFT,
-+				__pa(end) >> PAGE_SHIFT);
-+	return 0;
-+}
- #endif /* CONFIG_VIRTUAL_MEM_MAP */
- 
- static int __init
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/include/asm-ia64/meminit.h linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/include/asm-ia64/meminit.h
---- linux-2.6.18-rc4-mm2-104-x86_64_use_init_nodes/include/asm-ia64/meminit.h	2006-08-21 09:23:52.000000000 +0100
-+++ linux-2.6.18-rc4-mm2-105-ia64_use_init_nodes/include/asm-ia64/meminit.h	2006-08-21 10:17:10.000000000 +0100
-@@ -56,6 +56,7 @@ extern void efi_memmap_init(unsigned lon
-   extern unsigned long vmalloc_end;
-   extern struct page *vmem_map;
-   extern int find_largest_hole (u64 start, u64 end, void *arg);
-+  extern int register_active_ranges (u64 start, u64 end, void *arg);
-   extern int create_mem_map_page_table (u64 start, u64 end, void *arg);
-   extern int vmemmap_find_next_valid_pfn(int, int);
- #else
+But these numbers are in no way tied to the hardware. It may be totally
+reasonable to have 3GiB of dirty data on one system, and it may be
+totally unreasonable to have 96MiB of dirty data on another. I've always
+thought that assuming any kind of reliable throttling at the queue level
+is broken and that the vm should handle this completely.
+
+-- 
+Jens Axboe
+

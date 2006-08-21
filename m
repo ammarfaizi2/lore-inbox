@@ -1,58 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWHUFii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWHUFkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965058AbWHUFii (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 01:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWHUFii
+	id S932606AbWHUFkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 01:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWHUFkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 01:38:38 -0400
-Received: from rune.pobox.com ([208.210.124.79]:27532 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S932603AbWHUFih (ORCPT
+	Mon, 21 Aug 2006 01:40:42 -0400
+Received: from msr3.hinet.net ([168.95.4.103]:18648 "EHLO msr3.hinet.net")
+	by vger.kernel.org with ESMTP id S932604AbWHUFkl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 01:38:37 -0400
-Date: Mon, 21 Aug 2006 00:38:33 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Yao Fei Zhu <walkinair@cn.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:463
-Message-ID: <20060821053833.GA9828@localdomain>
-References: <44E942ED.9010502@cn.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44E942ED.9010502@cn.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 21 Aug 2006 01:40:41 -0400
+Message-ID: <008e01c6c4e4$4fd05a00$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
+References: <1155841636.4532.16.camel@localhost.localdomain> <44E5A276.3050708@pobox.com>
+Subject: Re: [PATCH 4/6] IP100A Change search phy addr start form 0
+Date: Mon, 21 Aug 2006 13:40:29 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Jeff:
 
-Yao Fei Zhu wrote:
-> Hi, all
-> 
-> Online and offline cpus in 2.6.18-rc4/PPC64 will trigger Call Trace
-> like this,
-> 
-> [root@blade11 ~]# echo 0 > /sys/devices/system/cpu/cpu0/online
-> [root@blade11 ~]# dmesg -c
-> BUG: sleeping function called from invalid context at 
-> arch/powerpc/kernel/rtas.c:463
-> in_atomic():0, irqs_disabled():1
-> Call Trace:
-> [C0000000725EB9C0] [C00000000000FB70] .show_stack+0x68/0x1b0 (unreliable)
-> [C0000000725EBA60] [C000000000053EB4] .__might_sleep+0xd8/0xf4
-> [C0000000725EBAE0] [C00000000001D5D8] .rtas_busy_delay+0x20/0x5c
-> [C0000000725EBB70] [C00000000001DC00] .rtas_set_indicator+0x6c/0xcc
-> [C0000000725EBC10] [C000000000049130] .xics_migrate_irqs_away+0x6c/0x20c
-> [C0000000725EBCD0] [C000000000048EEC] .pSeries_cpu_disable+0x98/0xb4
-> [C0000000725EBD50] [C000000000029A24] .__cpu_disable+0x44/0x58
-> [C0000000725EBDC0] [C000000000082030] .take_cpu_down+0x10/0x38
-> [C0000000725EBE40] [C000000000090000] .do_stop+0x16c/0x20c
-> [C0000000725EBEE0] [C000000000078EBC] .kthread+0x128/0x178
-> [C0000000725EBF90] [C0000000000271DC] .kernel_thread+0x4c/0x68
+In IP100A, phy address is 0. Because IP100A is a single chip, the in
+chip phy address is 0. so, we must search phy address for 0.
+
+Jesse
+----- Original Message ----- 
+From: "Jeff Garzik" <jgarzik@pobox.com>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
+<akpm@osdl.org>
+Sent: Friday, August 18, 2006 7:20 PM
+Subject: Re: [PATCH 4/6] IP100A Change search phy addr start form 0
 
 
-The fix for this was committed to Linus's tree after 2.6.18-rc4; look for
+Jesse Huang wrote:
+> From: Jesse Huang <jesse@icplus.com.tw>
+>
+> Change search phy addr start form 0
+>
+> Change Logs:
+>     Change search phy addr start form 0
+>
+> ---
+>
+>  drivers/net/sundance.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+>
+> 212cd4ffa21a57300eae4254bf02e5b33b96f544
+> diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
+> index 2bde1b3..f63871a 100755
+> --- a/drivers/net/sundance.c
+> +++ b/drivers/net/sundance.c
+> @@ -21,7 +21,7 @@
+>  */
+>
+>  #define DRV_NAME "sundance"
+> -#define DRV_VERSION "1.01+LK1.13"
+> +#define DRV_VERSION "1.01+LK1.14"
+>  #define DRV_RELDATE "04-Aug-2006"
+>
+>
+> @@ -559,8 +559,9 @@ #endif
+>  /*
+>  * It seems some phys doesn't deal well with address 0 being accessed
+>  * first, so leave address zero to the end of the loop (32 & 31).
+> + * for IP100A the phy should start from 0
+>  */
+> - for (phy = 1; phy <= 32 && phy_idx < MII_CNT; phy++) {
+> + for (phy = 0; phy <= 32 && phy_idx < MII_CNT; phy++) {
+>  int phyx = phy & 0x1f;
+>  int mii_status = mdio_read(dev, phyx, MII_BMSR);
+>  if (mii_status != 0xffff  &&  mii_status != 0x0000) {
 
-[POWERPC] Fix might-sleep warning on removing cpus
+For IP100A, is the phy built into the chip?
 
-in the change history.
+For a standard DP83840[A] phy, phy #0 is a "ghost" which mirrors another
+phy.  For this reason, we scan phy #0 last.
+
+Does the above code not work?
+
+Jeff
+
+

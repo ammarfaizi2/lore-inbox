@@ -1,146 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWHUTE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWHUTJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWHUTE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 15:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWHUTE3
+	id S1750778AbWHUTJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 15:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWHUTJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 15:04:29 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42141 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750734AbWHUTE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 15:04:28 -0400
-Subject: [PATCH] libata : Add 40pin "short" cable support, honour drive
-	side speed detection
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jgarzik@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 21 Aug 2006 20:23:49 +0100
-Message-Id: <1156188229.18887.56.camel@localhost.localdomain>
+	Mon, 21 Aug 2006 15:09:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33927
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750778AbWHUTJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 15:09:24 -0400
+Date: Mon, 21 Aug 2006 12:09:38 -0700 (PDT)
+Message-Id: <20060821.120938.74556467.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: bernd@firmix.at, hch@infradead.org, linux-kernel@vger.kernel.org,
+       drepper@redhat.com, akpm@osdl.org, netdev@vger.kernel.org,
+       zach.brown@oracle.com
+Subject: Re: [take9 1/2] kevent: Core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060821130121.GA2602@2ka.mipt.ru>
+References: <20060821111335.GA8608@2ka.mipt.ru>
+	<1156164805.17936.132.camel@tara.firmix.at>
+	<20060821130121.GA2602@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Mon, 21 Aug 2006 17:01:21 +0400
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc4-mm2/drivers/ata/ata_piix.c linux-2.6.18-rc4-mm2/drivers/ata/ata_piix.c
---- linux.vanilla-2.6.18-rc4-mm2/drivers/ata/ata_piix.c	2006-08-21 14:18:52.000000000 +0100
-+++ linux-2.6.18-rc4-mm2/drivers/ata/ata_piix.c	2006-08-21 14:21:45.000000000 +0100
-@@ -93,7 +93,7 @@
- #include <linux/libata.h>
- 
- #define DRV_NAME	"ata_piix"
--#define DRV_VERSION	"2.00ac6"
-+#define DRV_VERSION	"2.00ac7"
- 
- enum {
- 	PIIX_IOCFG		= 0x54, /* IDE I/O configuration register */
-@@ -560,6 +560,23 @@
- MODULE_DEVICE_TABLE(pci, piix_pci_tbl);
- MODULE_VERSION(DRV_VERSION);
- 
-+struct ich_laptop {
-+	u16 device;
-+	u16 subvendor;
-+	u16 subdevice;
-+};
-+
-+/*
-+ *	List of laptops that use short cables rather than 80 wire
-+ */
-+
-+static const struct ich_laptop ich_laptop[] = {
-+	/* devid, subvendor, subdev */
-+	{ 0x27DF, 0x0005, 0x0280 },	/* ICH7 on Acer 5602WLMi */
-+	/* end marker */
-+	{ 0, }
-+};
-+
- /**
-  *	piix_pata_cbl_detect - Probe host controller cable detect info
-  *	@ap: Port for which cable detect info is desired
-@@ -574,11 +591,21 @@
- static void ich_pata_cbl_detect(struct ata_port *ap)
- {
- 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
-+	const struct ich_laptop *lap = &ich_laptop[0];
- 	u8 tmp, mask;
- 
- 	/* no 80c support in host controller? */
- 	if ((ap->udma_mask & ~ATA_UDMA_MASK_40C) == 0)
- 		goto cbl40;
-+		
-+	/* Check for specials - Acer Aspire 5602WLMi */
-+	while (lap->device) {
-+		if (lap->device == pdev->device && 
-+		    lap->subvendor == pdev->subsystem_vendor &&
-+		    lap->subdevice == pdev->subsystem_device)
-+		    	return ATA_CBL_PATA40_SHORT;
-+		lap++;
-+	}
- 
- 	/* check BIOS cable detect results */
- 	mask = ap->port_no == 0 ? PIIX_80C_PRI : PIIX_80C_SEC;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc4-mm2/drivers/ata/libata-core.c linux-2.6.18-rc4-mm2/drivers/ata/libata-core.c
---- linux.vanilla-2.6.18-rc4-mm2/drivers/ata/libata-core.c	2006-08-21 14:18:52.000000000 +0100
-+++ linux-2.6.18-rc4-mm2/drivers/ata/libata-core.c	2006-08-16 14:26:29.000000000 +0100
-@@ -3092,6 +3092,13 @@
- 	 */
- 	if (ap->cbl == ATA_CBL_PATA40)
- 		xfer_mask &= ~(0xF8 << ATA_SHIFT_UDMA);
-+	/* Apply drive side cable rule. Unknown or 80 pin cables reported
-+	 * host side are checked drive side as well. Cases where we know a
-+	 * 40wire cable is used safely for 80 are not checked here.
-+	 */
-+        if (ata_drive_40wire(dev->id) && (ap->cbl == ATA_CBL_PATA_UNK || ap->cbl == ATA_CBL_PATA80))
-+		xfer_mask &= ~(0xF8 << ATA_SHIFT_UDMA);
-+        	
- 
- 	xfer_mask &= ata_pack_xfermask(dev->pio_mask,
- 				       dev->mwdma_mask, dev->udma_mask);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc4-mm2/drivers/ata/pata_ali.c linux-2.6.18-rc4-mm2/drivers/ata/pata_ali.c
---- linux.vanilla-2.6.18-rc4-mm2/drivers/ata/pata_ali.c	2006-08-21 14:18:52.000000000 +0100
-+++ linux-2.6.18-rc4-mm2/drivers/ata/pata_ali.c	2006-08-16 14:27:10.000000000 +0100
-@@ -78,7 +78,7 @@
- 	   implement the detect logic */
- 
- 	if (ali_cable_override(pdev))
--		return ATA_CBL_PATA80;
-+		return ATA_CBL_PATA40_SHORT;
- 
- 	/* Host view cable detect 0x4A bit 0 primary bit 1 secondary
- 	   Bit set for 40 pin */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc4-mm2/include/linux/ata.h linux-2.6.18-rc4-mm2/include/linux/ata.h
---- linux.vanilla-2.6.18-rc4-mm2/include/linux/ata.h	2006-08-21 14:18:57.000000000 +0100
-+++ linux-2.6.18-rc4-mm2/include/linux/ata.h	2006-08-16 15:55:39.000000000 +0100
-@@ -200,8 +200,9 @@
- 	ATA_CBL_NONE		= 0,
- 	ATA_CBL_PATA40		= 1,
- 	ATA_CBL_PATA80		= 2,
--	ATA_CBL_PATA_UNK	= 3,
--	ATA_CBL_SATA		= 4,
-+	ATA_CBL_PATA40_SHORT	= 3,		/* 40 wire cable to high UDMA spec */
-+	ATA_CBL_PATA_UNK	= 4,
-+	ATA_CBL_SATA		= 5,
- 
- 	/* SATA Status and Control Registers */
- 	SCR_STATUS		= 0,
-@@ -342,6 +343,15 @@
- 	return 0;
- }
- 
-+static inline int ata_drive_40wire(const u16 *dev_id)
-+{
-+	if (ata_id_major_version(dev_id) >= 5 && ata_id_is_sata(dev_id))
-+		return 0;	/* SATA */
-+	if (dev_id[93] & 0x4000)
-+		return 0;	/* 80 wire */
-+	return 1;
-+}
-+
- static inline int atapi_cdb_len(const u16 *dev_id)
- {
- 	u16 tmp = dev_id[0] & 0x3;
+> Actually I completely do not care about define or enums, it is really
+> silly dispute, I just do not want to rewrite bunch of code _again_ and
+> then _again_ when someone decide that defines are better.
 
+I totally agree.
+
+What in the world is wrong with you people arguing over stuff like
+this?
+
+If the goal is to discourage Evgeniy and his work, you might just
+get your wish if you keep up with this silly coding style and
+enumeration crap!
+
+I can't even stand to read these kevent threads any longer, the
+sanity in them has long gone out the window.

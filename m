@@ -1,143 +1,735 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWHUNpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbWHUNpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbWHUNpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWHUNpV
+	id S1030461AbWHUNpl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWHUNpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:45:21 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:42193 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1030459AbWHUNpU
+	Mon, 21 Aug 2006 09:45:41 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:47313 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1030461AbWHUNpj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:45:20 -0400
+	Mon, 21 Aug 2006 09:45:39 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: akpm@osdl.org
-Cc: Mel Gorman <mel@csn.ul.ie>, tony.luck@intel.com, linux-mm@kvack.org,
-       ak@suse.de, bob.picco@hp.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Message-Id: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 0/6] Sizing zones and holes in an architecture independent manner V9
-Date: Mon, 21 Aug 2006 14:45:18 +0100 (IST)
+Cc: Mel Gorman <mel@csn.ul.ie>, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
+       linux-mm@kvack.org
+Message-Id: <20060821134538.22179.67746.sendpatchset@skynet.skynet.ie>
+In-Reply-To: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
+References: <20060821134518.22179.46355.sendpatchset@skynet.skynet.ie>
+Subject: [PATCH 1/6] Introduce mechanism for registering active regions of memory
+Date: Mon, 21 Aug 2006 14:45:38 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is V9 of the patchset to size zones and memory holes in an
-architecture-independent manner. It booted successfully on 5 different
-machines (arches were x86, x86_64, ppc64 and ia64) in a number of different
-configurations and successfully built a kernel. If it fails on any machine,
-booting with loglevel=8 and the console log should tell me what went wrong.
 
-Changelog since V8
-o Rebase to 2.6.17-rc4-mm1
-o Make dma_reserve static
-o Use enumerated zone numbers
+This patch defines the structure to represent an active range of page
+frames within a node in an architecture independent manner. Architectures
+are expected to register active ranges of PFNs using add_active_range(nid,
+start_pfn, end_pfn) and call free_area_init_nodes() passing the PFNs of
+the end of each zone.
 
-Changelog since V7
-o Rebase to 2.6.17-mm6
-o Account for mem_map as a memory hole
-o Adjust mem_map when arch independent zone-sizing is used and PFN 0 is in
-  a memory hole not accounted for by ARCH_PFN_OFFSET
 
-Changelog since V6
-o MAX_ACTIVE_REGIONS is really maximum active regions, not MAX_ACTIVE_REGIONS-1
-o MAX_ACTIVE_REGIONS is 256 unless the architecture specifically asks for
-  a different number or MAX_NUMNODES is >= 32
-o nr_nodemap_entries tracks the number of entries rather than terminating with
-  end_pfn == 0
-o Add number of documentation-related comments. Functions exposed by headers
-  may potentially be picked up by kerneldoc
-o Changed misleading zone_present_pages_in_node() name to
-  zone_spanned_pages_in_node()
-o Be a bit more verbose to help debugging when things go wrong.
-o On x86_64, end_pfn_map now gets updated properly or ACPI tables get "lost"
-o Signoffs added to patches 1 and 5 by Bob Picco related to contributions,
-  fixes and reviews
+ include/linux/mm.h     |   47 +++
+ include/linux/mmzone.h |   10 
+ mm/page_alloc.c        |  552 ++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 584 insertions(+), 25 deletions(-)
 
-Changelog since V5
-o Add a missing #include to mm/mem_init.c
-o Drop the verbose debugging part of the set
-o Report active range registration when loglevel is set for KERN_DEBUG
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+Signed-off-by: Bob Picco <bob.picco@hp.com>
 
-Changelog since V4
-o Rebase to 2.6.17-rc3-mm1
-o Calculate holes on x86 with SRAT correctly
-
-Changelog since V3
-o Rebase to 2.6.17-rc2
-o Allow the active regions to be cleared. Needed by x86_64 when it decides
-  the SRAT table is bad half way through the registering of active regions
-o Fix for flatmem x86_64 machines booting
-
-Changelog since V2
-o Fix a bug where holes in lower zones get double counted
-o Catch the case where a new range is registered that is within an range
-o Catch the case where a zone boundary is within a hole
-o Use the EFI map for registering ranges on x86_64+numa
-o On IA64+NUMA, add the active ranges before rounding for granules
-o On x86_64, remove e820_hole_size and e820_bootmem_free and use
-  arch-independent equivalents
-o On x86_64, remove the map walk in e820_end_of_ram()
-o Rename memory_present_with_active_regions, name ambiguous
-o Add absent_pages_in_range() for arches to call
-
-Changelog since V1
-o Correctly convert virtual and physical addresses to PFNs on ia64
-o Correctly convert physical addresses to PFN on older ppc 
-o When add_active_range() is called with overlapping pfn ranges, merge them
-o When a zone boundary occurs within a memory hole, account correctly
-o Minor whitespace damage cleanup
-o Debugging patch temporarily included
-
-At a basic level, architectures define structures to record where active
-ranges of page frames are located. Once located, the code to calculate
-zone sizes and holes in each architecture is very similar.  Some of this
-zone and hole sizing code is difficult to read for no good reason. This
-set of patches eliminates the similar-looking architecture-specific code.
-
-The patches introduce a mechanism where architectures register where the
-active ranges of page frames are with add_active_range(). When all areas
-have been discovered, free_area_init_nodes() is called to initialise
-the pgdat and zones. The zone sizes and holes are then calculated in an
-architecture independent manner.
-
-Patch 1 introduces the mechanism for registering and initialising PFN ranges
-Patch 2 changes ppc to use the mechanism - 139 arch-specific LOC removed
-Patch 3 changes x86 to use the mechanism - 136 arch-specific LOC removed
-Patch 4 changes x86_64 to use the mechanism - 74 arch-specific LOC removed
-Patch 5 changes ia64 to use the mechanism - 52 arch-specific LOC removed
-Patch 6 accounts for mem_map as a memory hole as the pages are not reclaimable.
-	It adjusts the watermarks slightly
-
-Tony Luck has successfully tested for ia64 on Itanium with tiger_defconfig,
-gensparse_defconfig and defconfig. Bob Picco has also tested and debugged
-on IA64. Jack Steiner successfully boot tested on a mammoth SGI IA64-based
-machine. These were on patches against 2.6.17-rc1 and release 3 of these
-patches but there have been no ia64-changes since release 3.
-
-There are differences in the zone sizes for x86_64 as the arch-specific code
-for x86_64 accounts the kernel image and the starting mem_maps as memory
-holes but the architecture-independent code accounts the memory as present.
-
-The big benefit of this set of patches is a sizable reduction of
-architecture-specific code, some of which is very hairy. There should be a
-greater reduction when other architectures use the same mechanisms for
-zone and hole sizing but I lack the hardware to test on.
-
-Additional credit;
-	Dave Hansen for the initial suggestion and comments on early patches
-	Andy Whitcroft for reviewing early versions and catching numerous
-		errors
-	Tony Luck for testing and debugging on IA64
-	Bob Picco for fixing bugs related to pfn registration, reviewing a
-		number of patch revisions, providing a number of suggestions
-		on future direction and testing heavily
-	Jack Steiner and Robin Holt for testing on IA64 and clarifying
-		issues related to memory holes
-	Yasunori for testing on IA64
-	Andi Kleen for reviewing and feeding back about x86_64
-	Christian Kujau for providing valuable information related to ACPI
-		problems on x86_64 and testing potential fixes
--- 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-clean/include/linux/mm.h linux-2.6.18-rc4-mm2-101-add_free_area_init_nodes/include/linux/mm.h
+--- linux-2.6.18-rc4-mm2-clean/include/linux/mm.h	2006-08-21 09:23:52.000000000 +0100
++++ linux-2.6.18-rc4-mm2-101-add_free_area_init_nodes/include/linux/mm.h	2006-08-21 10:12:12.000000000 +0100
+@@ -974,6 +974,53 @@ extern void free_area_init(unsigned long
+ extern void free_area_init_node(int nid, pg_data_t *pgdat,
+ 	unsigned long * zones_size, unsigned long zone_start_pfn, 
+ 	unsigned long *zholes_size);
++#ifdef CONFIG_ARCH_POPULATES_NODE_MAP
++/*
++ * With CONFIG_ARCH_POPULATES_NODE_MAP set, an architecture may initialise its
++ * zones, allocate the backing mem_map and account for memory holes in a more
++ * architecture independent manner. This is a substitute for creating the
++ * zone_sizes[] and zholes_size[] arrays and passing them to
++ * free_area_init_node()
++ *
++ * An architecture is expected to register range of page frames backed by
++ * physical memory with add_active_range() before calling
++ * free_area_init_nodes() passing in the PFN each zone ends at. At a basic
++ * usage, an architecture is expected to do something like
++ *
++ * unsigned long max_zone_pfns[MAX_NR_ZONES] = {max_dma, max_normal_pfn,
++ * 							 max_highmem_pfn};
++ * for_each_valid_physical_page_range()
++ * 	add_active_range(node_id, start_pfn, end_pfn)
++ * free_area_init_nodes(max_zone_pfns);
++ *
++ * If the architecture guarantees that there are no holes in the ranges
++ * registered with add_active_range(), free_bootmem_active_regions()
++ * will call free_bootmem_node() for each registered physical page range.
++ * Similarly sparse_memory_present_with_active_regions() calls
++ * memory_present() for each range when SPARSEMEM is enabled.
++ *
++ * See mm/page_alloc.c for more information on each function exposed by
++ * CONFIG_ARCH_POPULATES_NODE_MAP
++ */
++extern void free_area_init_nodes(unsigned long *max_zone_pfn);
++extern void add_active_range(unsigned int nid, unsigned long start_pfn,
++					unsigned long end_pfn);
++extern void shrink_active_range(unsigned int nid, unsigned long old_end_pfn,
++						unsigned long new_end_pfn);
++extern void remove_all_active_ranges(void);
++extern unsigned long absent_pages_in_range(unsigned long start_pfn,
++						unsigned long end_pfn);
++extern void get_pfn_range_for_nid(unsigned int nid,
++			unsigned long *start_pfn, unsigned long *end_pfn);
++extern unsigned long find_min_pfn_with_active_regions(void);
++extern unsigned long find_max_pfn_with_active_regions(void);
++extern void free_bootmem_with_active_regions(int nid,
++						unsigned long max_low_pfn);
++extern void sparse_memory_present_with_active_regions(int nid);
++#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
++extern int early_pfn_to_nid(unsigned long pfn);
++#endif /* CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID */
++#endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
+ extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long);
+ extern void setup_per_zone_pages_min(void);
+ extern void mem_init(void);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-clean/include/linux/mmzone.h linux-2.6.18-rc4-mm2-101-add_free_area_init_nodes/include/linux/mmzone.h
+--- linux-2.6.18-rc4-mm2-clean/include/linux/mmzone.h	2006-08-21 09:23:52.000000000 +0100
++++ linux-2.6.18-rc4-mm2-101-add_free_area_init_nodes/include/linux/mmzone.h	2006-08-21 10:12:12.000000000 +0100
+@@ -307,6 +307,13 @@ struct zonelist {
+ 	struct zone *zones[MAX_NUMNODES * MAX_NR_ZONES + 1]; // NULL delimited
+ };
+ 
++#ifdef CONFIG_ARCH_POPULATES_NODE_MAP
++struct node_active_region {
++	unsigned long start_pfn;
++	unsigned long end_pfn;
++	int nid;
++};
++#endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
+ 
+ /*
+  * The pg_data_t structure is used in machines with CONFIG_DISCONTIGMEM
+@@ -519,7 +526,8 @@ extern struct zone *next_zone(struct zon
+ 
+ #endif
+ 
+-#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
++#if !defined(CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID) && \
++	!defined(CONFIG_ARCH_POPULATES_NODE_MAP)
+ #define early_pfn_to_nid(nid)  (0UL)
+ #endif
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-rc4-mm2-clean/mm/page_alloc.c linux-2.6.18-rc4-mm2-101-add_free_area_init_nodes/mm/page_alloc.c
+--- linux-2.6.18-rc4-mm2-clean/mm/page_alloc.c	2006-08-21 09:23:52.000000000 +0100
++++ linux-2.6.18-rc4-mm2-101-add_free_area_init_nodes/mm/page_alloc.c	2006-08-21 10:12:12.000000000 +0100
+@@ -37,6 +37,8 @@
+ #include <linux/vmalloc.h>
+ #include <linux/mempolicy.h>
+ #include <linux/stop_machine.h>
++#include <linux/sort.h>
++#include <linux/pfn.h>
+ 
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
+@@ -103,6 +105,33 @@ int min_free_kbytes = 1024;
+ unsigned long __meminitdata nr_kernel_pages;
+ unsigned long __meminitdata nr_all_pages;
+ 
++#ifdef CONFIG_ARCH_POPULATES_NODE_MAP
++  /*
++   * MAX_ACTIVE_REGIONS determines the maxmimum number of distinct
++   * ranges of memory (RAM) that may be registered with add_active_range().
++   * Ranges passed to add_active_range() will be merged if possible
++   * so the number of times add_active_range() can be called is
++   * related to the number of nodes and the number of holes
++   */
++  #ifdef CONFIG_MAX_ACTIVE_REGIONS
++    /* Allow an architecture to set MAX_ACTIVE_REGIONS to save memory */
++    #define MAX_ACTIVE_REGIONS CONFIG_MAX_ACTIVE_REGIONS
++  #else
++    #if MAX_NUMNODES >= 32
++      /* If there can be many nodes, allow up to 50 holes per node */
++      #define MAX_ACTIVE_REGIONS (MAX_NUMNODES*50)
++    #else
++      /* By default, allow up to 256 distinct regions */
++      #define MAX_ACTIVE_REGIONS 256
++    #endif
++  #endif
++
++  struct node_active_region __initdata early_node_map[MAX_ACTIVE_REGIONS];
++  int __initdata nr_nodemap_entries;
++  unsigned long __initdata arch_zone_lowest_possible_pfn[MAX_NR_ZONES];
++  unsigned long __initdata arch_zone_highest_possible_pfn[MAX_NR_ZONES];
++#endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
++
+ #ifdef CONFIG_DEBUG_VM
+ static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
+ {
+@@ -1731,25 +1760,6 @@ static inline unsigned long wait_table_b
+ 
+ #define LONG_ALIGN(x) (((x)+(sizeof(long))-1)&~((sizeof(long))-1))
+ 
+-static void __init calculate_zone_totalpages(struct pglist_data *pgdat,
+-		unsigned long *zones_size, unsigned long *zholes_size)
+-{
+-	unsigned long realtotalpages, totalpages = 0;
+-	enum zone_type i;
+-
+-	for (i = 0; i < MAX_NR_ZONES; i++)
+-		totalpages += zones_size[i];
+-	pgdat->node_spanned_pages = totalpages;
+-
+-	realtotalpages = totalpages;
+-	if (zholes_size)
+-		for (i = 0; i < MAX_NR_ZONES; i++)
+-			realtotalpages -= zholes_size[i];
+-	pgdat->node_present_pages = realtotalpages;
+-	printk(KERN_DEBUG "On node %d totalpages: %lu\n", pgdat->node_id, realtotalpages);
+-}
+-
+-
+ /*
+  * Initially all pages are reserved - free ones are freed
+  * up by free_all_bootmem() once the early boot process is
+@@ -2067,6 +2077,272 @@ __meminit int init_currently_empty_zone(
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_ARCH_POPULATES_NODE_MAP
++/*
++ * Basic iterator support. Return the first range of PFNs for a node
++ * Note: nid == MAX_NUMNODES returns first region regardless of node
++ */
++static int __init first_active_region_index_in_nid(int nid)
++{
++	int i;
++
++	for (i = 0; i < nr_nodemap_entries; i++)
++		if (nid == MAX_NUMNODES || early_node_map[i].nid == nid)
++			return i;
++
++	return -1;
++}
++
++/*
++ * Basic iterator support. Return the next active range of PFNs for a node
++ * Note: nid == MAX_NUMNODES returns next region regardles of node
++ */
++static int __init next_active_region_index_in_nid(int index, int nid)
++{
++	for (index = index + 1; index < nr_nodemap_entries; index++)
++		if (nid == MAX_NUMNODES || early_node_map[index].nid == nid)
++			return index;
++
++	return -1;
++}
++
++#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
++/*
++ * Required by SPARSEMEM. Given a PFN, return what node the PFN is on.
++ * Architectures may implement their own version but if add_active_range()
++ * was used and there are no special requirements, this is a convenient
++ * alternative
++ */
++int __init early_pfn_to_nid(unsigned long pfn)
++{
++	int i;
++
++	for (i = 0; i < nr_nodemap_entries; i++) {
++		unsigned long start_pfn = early_node_map[i].start_pfn;
++		unsigned long end_pfn = early_node_map[i].end_pfn;
++
++		if (start_pfn <= pfn && pfn < end_pfn)
++			return early_node_map[i].nid;
++	}
++
++	return 0;
++}
++#endif /* CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID */
++
++/* Basic iterator support to walk early_node_map[] */
++#define for_each_active_range_index_in_nid(i, nid) \
++	for (i = first_active_region_index_in_nid(nid); i != -1; \
++				i = next_active_region_index_in_nid(i, nid))
++
++/**
++ * free_bootmem_with_active_regions - Call free_bootmem_node for each active range
++ * @nid: The node to free memory on. If MAX_NUMNODES, all nodes are freed
++ * @max_low_pfn: The highest PFN that till be passed to free_bootmem_node
++ *
++ * If an architecture guarantees that all ranges registered with
++ * add_active_ranges() contain no holes and may be freed, this
++ * this function may be used instead of calling free_bootmem() manually.
++ */
++void __init free_bootmem_with_active_regions(int nid,
++						unsigned long max_low_pfn)
++{
++	int i;
++
++	for_each_active_range_index_in_nid(i, nid) {
++		unsigned long size_pages = 0;
++		unsigned long end_pfn = early_node_map[i].end_pfn;
++
++		if (early_node_map[i].start_pfn >= max_low_pfn)
++			continue;
++
++		if (end_pfn > max_low_pfn)
++			end_pfn = max_low_pfn;
++
++		size_pages = end_pfn - early_node_map[i].start_pfn;
++		free_bootmem_node(NODE_DATA(early_node_map[i].nid),
++				PFN_PHYS(early_node_map[i].start_pfn),
++				size_pages << PAGE_SHIFT);
++	}
++}
++
++/**
++ * sparse_memory_present_with_active_regions - Call memory_present for each active range
++ * @nid: The node to call memory_present for. If MAX_NUMNODES, all nodes will be used
++ *
++ * If an architecture guarantees that all ranges registered with
++ * add_active_ranges() contain no holes and may be freed, this
++ * this function may be used instead of calling memory_present() manually.
++ */
++void __init sparse_memory_present_with_active_regions(int nid)
++{
++	int i;
++
++	for_each_active_range_index_in_nid(i, nid)
++		memory_present(early_node_map[i].nid,
++				early_node_map[i].start_pfn,
++				early_node_map[i].end_pfn);
++}
++
++/**
++ * get_pfn_range_for_nid - Return the start and end page frames for a node
++ * @nid: The nid to return the range for. If MAX_NUMNODES, the min and max PFN are returned
++ * @start_pfn: Passed by reference. On return, it will have the node start_pfn
++ * @end_pfn: Passed by reference. On return, it will have the node end_pfn
++ *
++ * It returns the start and end page frame of a node based on information
++ * provided by an arch calling add_active_range(). If called for a node
++ * with no available memory, a warning is printed and the start and end
++ * PFNs will be 0
++ */
++void __init get_pfn_range_for_nid(unsigned int nid,
++			unsigned long *start_pfn, unsigned long *end_pfn)
++{
++	int i;
++	*start_pfn = -1UL;
++	*end_pfn = 0;
++
++	for_each_active_range_index_in_nid(i, nid) {
++		*start_pfn = min(*start_pfn, early_node_map[i].start_pfn);
++		*end_pfn = max(*end_pfn, early_node_map[i].end_pfn);
++	}
++
++	if (*start_pfn == -1UL) {
++		printk(KERN_WARNING "Node %u active with no memory\n", nid);
++		*start_pfn = 0;
++	}
++}
++
++/*
++ * Return the number of pages a zone spans in a node, including holes
++ * present_pages = zone_spanned_pages_in_node() - zone_absent_pages_in_node()
++ */
++unsigned long __init zone_spanned_pages_in_node(int nid,
++					unsigned long zone_type,
++					unsigned long *ignored)
++{
++	unsigned long node_start_pfn, node_end_pfn;
++	unsigned long zone_start_pfn, zone_end_pfn;
++
++	/* Get the start and end of the node and zone */
++	get_pfn_range_for_nid(nid, &node_start_pfn, &node_end_pfn);
++	zone_start_pfn = arch_zone_lowest_possible_pfn[zone_type];
++	zone_end_pfn = arch_zone_highest_possible_pfn[zone_type];
++
++	/* Check that this node has pages within the zone's required range */
++	if (zone_end_pfn < node_start_pfn || zone_start_pfn > node_end_pfn)
++		return 0;
++
++	/* Move the zone boundaries inside the node if necessary */
++	zone_end_pfn = min(zone_end_pfn, node_end_pfn);
++	zone_start_pfn = max(zone_start_pfn, node_start_pfn);
++
++	/* Return the spanned pages */
++	return zone_end_pfn - zone_start_pfn;
++}
++
++/*
++ * Return the number of holes in a range on a node. If nid is MAX_NUMNODES,
++ * then all holes in the requested range will be accounted for
++ */
++unsigned long __init __absent_pages_in_range(int nid,
++				unsigned long range_start_pfn,
++				unsigned long range_end_pfn)
++{
++	int i = 0;
++	unsigned long prev_end_pfn = 0, hole_pages = 0;
++	unsigned long start_pfn;
++
++	/* Find the end_pfn of the first active range of pfns in the node */
++	i = first_active_region_index_in_nid(nid);
++	if (i == -1)
++		return 0;
++
++	prev_end_pfn = early_node_map[i].start_pfn;
++
++	/* Find all holes for the zone within the node */
++	for (; i != -1; i = next_active_region_index_in_nid(i, nid)) {
++
++		/* No need to continue if prev_end_pfn is outside the zone */
++		if (prev_end_pfn >= range_end_pfn)
++			break;
++
++		/* Make sure the end of the zone is not within the hole */
++		start_pfn = min(early_node_map[i].start_pfn, range_end_pfn);
++		prev_end_pfn = max(prev_end_pfn, range_start_pfn);
++
++		/* Update the hole size cound and move on */
++		if (start_pfn > range_start_pfn) {
++			BUG_ON(prev_end_pfn > start_pfn);
++			hole_pages += start_pfn - prev_end_pfn;
++		}
++		prev_end_pfn = early_node_map[i].end_pfn;
++	}
++
++	return hole_pages;
++}
++
++/**
++ * absent_pages_in_range - Return number of page frames in holes within a range
++ * @start_pfn: The start PFN to start searching for holes
++ * @end_pfn: The end PFN to stop searching for holes
++ *
++ * It returns the number of pages frames in memory holes within a range
++ */
++unsigned long __init absent_pages_in_range(unsigned long start_pfn,
++							unsigned long end_pfn)
++{
++	return __absent_pages_in_range(MAX_NUMNODES, start_pfn, end_pfn);
++}
++
++/* Return the number of page frames in holes in a zone on a node */
++unsigned long __init zone_absent_pages_in_node(int nid,
++					unsigned long zone_type,
++					unsigned long *ignored)
++{
++	return __absent_pages_in_range(nid,
++				arch_zone_lowest_possible_pfn[zone_type],
++				arch_zone_highest_possible_pfn[zone_type]);
++}
++#else
++static inline unsigned long zone_spanned_pages_in_node(int nid,
++					unsigned long zone_type,
++					unsigned long *zones_size)
++{
++	return zones_size[zone_type];
++}
++
++static inline unsigned long zone_absent_pages_in_node(int nid,
++						unsigned long zone_type,
++						unsigned long *zholes_size)
++{
++	if (!zholes_size)
++		return 0;
++
++	return zholes_size[zone_type];
++}
++#endif
++
++static void __init calculate_node_totalpages(struct pglist_data *pgdat,
++		unsigned long *zones_size, unsigned long *zholes_size)
++{
++	unsigned long realtotalpages, totalpages = 0;
++	enum zone_type i;
++
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		totalpages += zone_spanned_pages_in_node(pgdat->node_id, i,
++								zones_size);
++	pgdat->node_spanned_pages = totalpages;
++
++	realtotalpages = totalpages;
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		realtotalpages -=
++			zone_absent_pages_in_node(pgdat->node_id, i,
++								zholes_size);
++	pgdat->node_present_pages = realtotalpages;
++	printk(KERN_DEBUG "On node %d totalpages: %lu\n", pgdat->node_id,
++							realtotalpages);
++}
++
+ /*
+  * Set up the zone data structures:
+  *   - mark all pages reserved
+@@ -2090,9 +2366,9 @@ static void __meminit free_area_init_cor
+ 		struct zone *zone = pgdat->node_zones + j;
+ 		unsigned long size, realsize;
+ 
+-		realsize = size = zones_size[j];
+-		if (zholes_size)
+-			realsize -= zholes_size[j];
++		size = zone_spanned_pages_in_node(nid, j, zones_size);
++		realsize = size - zone_absent_pages_in_node(nid, j,
++								zholes_size);
+ 
+ 		if (!is_highmem_idx(j))
+ 			nr_kernel_pages += realsize;
+@@ -2162,8 +2438,13 @@ static void __init alloc_node_mem_map(st
+ 	/*
+ 	 * With no DISCONTIG, the global mem_map is just set as node 0's
+ 	 */
+-	if (pgdat == NODE_DATA(0))
++	if (pgdat == NODE_DATA(0)) {
+ 		mem_map = NODE_DATA(0)->node_mem_map;
++#ifdef CONFIG_ARCH_POPULATES_NODE_MAP
++		if (page_to_pfn(mem_map) != pgdat->node_start_pfn)
++			mem_map -= pgdat->node_start_pfn;
++#endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
++	}
+ #endif
+ #endif /* CONFIG_FLAT_NODE_MEM_MAP */
+ }
+@@ -2174,13 +2455,236 @@ void __meminit free_area_init_node(int n
+ {
+ 	pgdat->node_id = nid;
+ 	pgdat->node_start_pfn = node_start_pfn;
+-	calculate_zone_totalpages(pgdat, zones_size, zholes_size);
++	calculate_node_totalpages(pgdat, zones_size, zholes_size);
+ 
+ 	alloc_node_mem_map(pgdat);
+ 
+ 	free_area_init_core(pgdat, zones_size, zholes_size);
+ }
+ 
++#ifdef CONFIG_ARCH_POPULATES_NODE_MAP
++/**
++ * add_active_range - Register a range of PFNs backed by physical memory
++ * @nid: The node ID the range resides on
++ * @start_pfn: The start PFN of the available physical memory
++ * @end_pfn: The end PFN of the available physical memory
++ *
++ * These ranges are stored in an early_node_map[] and later used by
++ * free_area_init_nodes() to calculate zone sizes and holes. If the
++ * range spans a memory hole, it is up to the architecture to ensure
++ * the memory is not freed by the bootmem allocator. If possible
++ * the range being registered will be merged with existing ranges.
++ */
++void __init add_active_range(unsigned int nid, unsigned long start_pfn,
++						unsigned long end_pfn)
++{
++	int i;
++
++	printk(KERN_DEBUG "Entering add_active_range(%d, %lu, %lu) "
++			  "%d entries of %d used\n",
++			  nid, start_pfn, end_pfn,
++			  nr_nodemap_entries, MAX_ACTIVE_REGIONS);
++
++	/* Merge with existing active regions if possible */
++	for (i = 0; i < nr_nodemap_entries; i++) {
++		if (early_node_map[i].nid != nid)
++			continue;
++
++		/* Skip if an existing region covers this new one */
++		if (start_pfn >= early_node_map[i].start_pfn &&
++				end_pfn <= early_node_map[i].end_pfn)
++			return;
++
++		/* Merge forward if suitable */
++		if (start_pfn <= early_node_map[i].end_pfn &&
++				end_pfn > early_node_map[i].end_pfn) {
++			early_node_map[i].end_pfn = end_pfn;
++			return;
++		}
++
++		/* Merge backward if suitable */
++		if (start_pfn < early_node_map[i].end_pfn &&
++				end_pfn >= early_node_map[i].start_pfn) {
++			early_node_map[i].start_pfn = start_pfn;
++			return;
++		}
++	}
++
++	/* Check that early_node_map is large enough */
++	if (i >= MAX_ACTIVE_REGIONS) {
++		printk(KERN_CRIT "More than %d memory regions, truncating\n",
++							MAX_ACTIVE_REGIONS);
++		return;
++	}
++
++	early_node_map[i].nid = nid;
++	early_node_map[i].start_pfn = start_pfn;
++	early_node_map[i].end_pfn = end_pfn;
++	nr_nodemap_entries = i + 1;
++}
++
++/**
++ * shrink_active_range - Shrink an existing registered range of PFNs
++ * @nid: The node id the range is on that should be shrunk
++ * @old_end_pfn: The old end PFN of the range
++ * @new_end_pfn: The new PFN of the range
++ *
++ * i386 with NUMA use alloc_remap() to store a node_mem_map on a local node.
++ * The map is kept at the end physical page range that has already been
++ * registered with add_active_range(). This function allows an arch to shrink
++ * an existing registered range.
++ */
++void __init shrink_active_range(unsigned int nid, unsigned long old_end_pfn,
++						unsigned long new_end_pfn)
++{
++	int i;
++
++	/* Find the old active region end and shrink */
++	for_each_active_range_index_in_nid(i, nid)
++		if (early_node_map[i].end_pfn == old_end_pfn) {
++			early_node_map[i].end_pfn = new_end_pfn;
++			break;
++		}
++}
++
++/**
++ * remove_all_active_ranges - Remove all currently registered regions
++ * During discovery, it may be found that a table like SRAT is invalid
++ * and an alternative discovery method must be used. This function removes
++ * all currently registered regions.
++ */
++void __init remove_all_active_ranges()
++{
++	memset(early_node_map, 0, sizeof(early_node_map));
++	nr_nodemap_entries = 0;
++}
++
++/* Compare two active node_active_regions */
++static int __init cmp_node_active_region(const void *a, const void *b)
++{
++	struct node_active_region *arange = (struct node_active_region *)a;
++	struct node_active_region *brange = (struct node_active_region *)b;
++
++	/* Done this way to avoid overflows */
++	if (arange->start_pfn > brange->start_pfn)
++		return 1;
++	if (arange->start_pfn < brange->start_pfn)
++		return -1;
++
++	return 0;
++}
++
++/* sort the node_map by start_pfn */
++static void __init sort_node_map(void)
++{
++	sort(early_node_map, (size_t)nr_nodemap_entries,
++			sizeof(struct node_active_region),
++			cmp_node_active_region, NULL);
++}
++
++/* Find the lowest pfn for a node. This depends on a sorted early_node_map */
++unsigned long __init find_min_pfn_for_node(unsigned long nid)
++{
++	int i;
++
++	/* Assuming a sorted map, the first range found has the starting pfn */
++	for_each_active_range_index_in_nid(i, nid)
++		return early_node_map[i].start_pfn;
++
++	printk(KERN_WARNING "Could not find start_pfn for node %lu\n", nid);
++	return 0;
++}
++
++/**
++ * find_min_pfn_with_active_regions - Find the minimum PFN registered
++ *
++ * It returns the minimum PFN based on information provided via
++ * add_active_range()
++ */
++unsigned long __init find_min_pfn_with_active_regions(void)
++{
++	return find_min_pfn_for_node(MAX_NUMNODES);
++}
++
++/**
++ * find_max_pfn_with_active_regions - Find the maximum PFN registered
++ *
++ * It returns the maximum PFN based on information provided via
++ * add_active_range()
++ */
++unsigned long __init find_max_pfn_with_active_regions(void)
++{
++	int i;
++	unsigned long max_pfn = 0;
++
++	for (i = 0; i < nr_nodemap_entries; i++)
++		max_pfn = max(max_pfn, early_node_map[i].end_pfn);
++
++	return max_pfn;
++}
++
++/**
++ * free_area_init_nodes - Initialise all pg_data_t and zone data
++ * @arch_max_dma_pfn: The maximum PFN usable for ZONE_DMA
++ * @arch_max_dma32_pfn: The maximum PFN usable for ZONE_DMA32
++ * @arch_max_low_pfn: The maximum PFN usable for ZONE_NORMAL
++ * @arch_max_high_pfn: The maximum PFN usable for ZONE_HIGHMEM
++ *
++ * This will call free_area_init_node() for each active node in the system.
++ * Using the page ranges provided by add_active_range(), the size of each
++ * zone in each node and their holes is calculated. If the maximum PFN
++ * between two adjacent zones match, it is assumed that the zone is empty.
++ * For example, if arch_max_dma_pfn == arch_max_dma32_pfn, it is assumed
++ * that arch_max_dma32_pfn has no pages. It is also assumed that a zone
++ * starts where the previous one ended. For example, ZONE_DMA32 starts
++ * at arch_max_dma_pfn.
++ */
++void __init free_area_init_nodes(unsigned long *max_zone_pfn)
++{
++	unsigned long nid;
++	enum zone_type i;
++
++	/* Record where the zone boundaries are */
++	memset(arch_zone_lowest_possible_pfn, 0,
++				sizeof(arch_zone_lowest_possible_pfn));
++	memset(arch_zone_highest_possible_pfn, 0,
++				sizeof(arch_zone_highest_possible_pfn));
++	arch_zone_lowest_possible_pfn[0] = find_min_pfn_with_active_regions();
++	arch_zone_highest_possible_pfn[0] = max_zone_pfn[0];
++	for (i = 1; i < MAX_NR_ZONES; i++) {
++		arch_zone_lowest_possible_pfn[i] =
++			arch_zone_highest_possible_pfn[i-1];
++		arch_zone_highest_possible_pfn[i] =
++			max(max_zone_pfn[i], arch_zone_lowest_possible_pfn[i]);
++	}
++
++	/* Regions in the early_node_map can be in any order */
++	sort_node_map();
++
++	/* Print out the zone ranges */
++	printk("Zone PFN ranges:\n");
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		printk("  %-8s %8lu -> %8lu\n",
++				zone_names[i],
++				arch_zone_lowest_possible_pfn[i],
++				arch_zone_highest_possible_pfn[i]);
++
++	/* Print out the early_node_map[] */
++	printk("early_node_map[%d] active PFN ranges\n", nr_nodemap_entries);
++	for (i = 0; i < nr_nodemap_entries; i++)
++		printk("  %3d: %8lu -> %8lu\n", early_node_map[i].nid,
++						early_node_map[i].start_pfn,
++						early_node_map[i].end_pfn);
++
++	/* Initialise every node */
++	for_each_online_node(nid) {
++		pg_data_t *pgdat = NODE_DATA(nid);
++		free_area_init_node(nid, pgdat, NULL,
++				find_min_pfn_for_node(nid), NULL);
++	}
++}
++#endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
++
+ #ifndef CONFIG_NEED_MULTIPLE_NODES
+ static bootmem_data_t contig_bootmem_data;
+ struct pglist_data contig_page_data = { .bdata = &contig_bootmem_data };

@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWHUVYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWHUVcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWHUVYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWHUVYW
+	id S1750707AbWHUVcd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWHUVcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:24:22 -0400
-Received: from ns2.suse.de ([195.135.220.15]:37336 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751147AbWHUVYI (ORCPT
+	Mon, 21 Aug 2006 17:32:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12438 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750707AbWHUVcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:24:08 -0400
-Date: Mon, 21 Aug 2006 23:24:04 +0200
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Jan Beulich <jbeulich@novell.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: 2.6.18-rc4-mm2: x86_64 compile error
-Message-Id: <20060821232404.4e6a83b2.ak@suse.de>
-In-Reply-To: <20060821212140.GN11651@stusta.de>
-References: <20060819220008.843d2f64.akpm@osdl.org>
-	<20060821212140.GN11651@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 21 Aug 2006 17:32:33 -0400
+Date: Mon, 21 Aug 2006 14:32:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] copy_process: cosmetic ->ioprio tweak
+Message-Id: <20060821143224.62018aba.akpm@osdl.org>
+In-Reply-To: <20060820145321.GA775@oleg>
+References: <20060820145321.GA775@oleg>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 23:21:40 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+On Sun, 20 Aug 2006 18:53:21 +0400
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-> On Sat, Aug 19, 2006 at 10:00:08PM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.18-rc4-mm1:
-> >...
-> > +x86_64-mm-fix-x86-cpuid-keys-used-in-alternative_smp.patch
-> >...
-> >  x86_64 tree updates
-> >...
+> copy_process:
+> // holds tasklist_lock + ->siglock
+>        /*
+>         * inherit ioprio
+>         */
+>        p->ioprio = current->ioprio;
 > 
-> This patch causes the following compile error (cross compiling from i386 
-> using gcc 4.1):
+> Why? ->ioprio was already copied in dup_task_struct().
 
-It should be already fixed in my tree
+It might just be a thinko.
 
--Andi
+> I guess this is needed
+> to ensure that the child can't escape sys_ioprio_set(IOPRIO_WHO_{PGRP,USER}),
+> yes?
+
+How could the child escape that if this assignment was not present?
+
+> In that case we don't need ->siglock held, and the comment should be updated.
+
+Surely.

@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWHUFkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWHUGDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWHUFkm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 01:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWHUFkm
+	id S932601AbWHUGDw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 02:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWHUGDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 01:40:42 -0400
-Received: from msr3.hinet.net ([168.95.4.103]:18648 "EHLO msr3.hinet.net")
-	by vger.kernel.org with ESMTP id S932604AbWHUFkl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 01:40:41 -0400
-Message-ID: <008e01c6c4e4$4fd05a00$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
-References: <1155841636.4532.16.camel@localhost.localdomain> <44E5A276.3050708@pobox.com>
-Subject: Re: [PATCH 4/6] IP100A Change search phy addr start form 0
-Date: Mon, 21 Aug 2006 13:40:29 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Mon, 21 Aug 2006 02:03:52 -0400
+Received: from mta3.srv.hcvlny.cv.net ([167.206.4.198]:62911 "EHLO
+	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S932601AbWHUGDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 02:03:51 -0400
+Date: Mon, 21 Aug 2006 02:04:16 -0400
+From: Lee Trager <Lee@PicturesInMotion.net>
+Subject: Re: /dev/sd*
+In-reply-to: <1155920541.30279.11.camel@localhost.localdomain>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Seewer Philippe <philippe.seewer@bfh.ch>, Jeff Garzik <jeff@garzik.org>,
+       Gabor Gombas <gombasg@sztaki.hu>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Message-id: <44E94CE0.8010006@PicturesInMotion.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+References: <1155144599.5729.226.camel@localhost.localdomain>
+ <20060809212124.GC3691@stusta.de>
+ <1155160903.5729.263.camel@localhost.localdomain>
+ <20060809221857.GG3691@stusta.de>
+ <20060810123643.GC25187@boogie.lpds.sztaki.hu> <44DB289A.4060503@garzik.org>
+ <44E3DFD6.4010504@PicturesInMotion.net>
+ <Pine.LNX.4.61.0608171000220.19847@yvahk01.tjqt.qr>
+ <44E42900.1030905@PicturesInMotion.net>
+ <Pine.LNX.4.61.0608171120260.4252@yvahk01.tjqt.qr> <44E56804.1080906@bfh.ch>
+ <Pine.LNX.4.61.0608181050490.27740@yvahk01.tjqt.qr>
+ <1155913072.28764.3.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0608181748280.11320@yvahk01.tjqt.qr>
+ <1155920541.30279.11.camel@localhost.localdomain>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060731)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff:
-
-In IP100A, phy address is 0. Because IP100A is a single chip, the in
-chip phy address is 0. so, we must search phy address for 0.
-
-Jesse
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<akpm@osdl.org>
-Sent: Friday, August 18, 2006 7:20 PM
-Subject: Re: [PATCH 4/6] IP100A Change search phy addr start form 0
-
-
-Jesse Huang wrote:
-> From: Jesse Huang <jesse@icplus.com.tw>
+Alan Cox wrote:
+> Ar Gwe, 2006-08-18 am 17:51 +0200, ysgrifennodd Jan Engelhardt:
+>   
+>> Whatever udev does currently seems good:
+>>
+>> 17:48 shanghai:~ > ls /dev/disk/by-id/*
+>> /dev/disk/by-id/ata-DIAMOND_250G_2B5400_030400026
+>> /dev/disk/by-id/ata-DIAMOND_250G_2B5400_030400026-part1
+>> /dev/disk/by-id/usb-0_USB_DRIVE_0000000000004287
+>> /dev/disk/by-id/usb-0_USB_DRIVE_0000000000004287-part1
+>>     
 >
-> Change search phy addr start form 0
+> I wouldn't try that on a typical "non technical user", at least except
+> for Halloween 8)
 >
-> Change Logs:
->     Change search phy addr start form 0
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
-> ---
->
->  drivers/net/sundance.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
->
-> 212cd4ffa21a57300eae4254bf02e5b33b96f544
-> diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
-> index 2bde1b3..f63871a 100755
-> --- a/drivers/net/sundance.c
-> +++ b/drivers/net/sundance.c
-> @@ -21,7 +21,7 @@
->  */
->
->  #define DRV_NAME "sundance"
-> -#define DRV_VERSION "1.01+LK1.13"
-> +#define DRV_VERSION "1.01+LK1.14"
->  #define DRV_RELDATE "04-Aug-2006"
->
->
-> @@ -559,8 +559,9 @@ #endif
->  /*
->  * It seems some phys doesn't deal well with address 0 being accessed
->  * first, so leave address zero to the end of the loop (32 & 31).
-> + * for IP100A the phy should start from 0
->  */
-> - for (phy = 1; phy <= 32 && phy_idx < MII_CNT; phy++) {
-> + for (phy = 0; phy <= 32 && phy_idx < MII_CNT; phy++) {
->  int phyx = phy & 0x1f;
->  int mii_status = mdio_read(dev, phyx, MII_BMSR);
->  if (mii_status != 0xffff  &&  mii_status != 0x0000) {
-
-For IP100A, is the phy built into the chip?
-
-For a standard DP83840[A] phy, phy #0 is a "ghost" which mirrors another
-phy.  For this reason, we scan phy #0 last.
-
-Does the above code not work?
-
-Jeff
-
-
+>   
+Why not make libata use /dev/disk by default and have a kernel option
+for legacy naming(ide disks are hda, sata are sda etc)?

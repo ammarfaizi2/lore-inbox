@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWHUPyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422685AbWHUQDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWHUPyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 11:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWHUPyd
+	id S1422685AbWHUQDl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 12:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422687AbWHUQDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 11:54:33 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:1497 "EHLO pickle.fieldses.org")
-	by vger.kernel.org with ESMTP id S932084AbWHUPyd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 11:54:33 -0400
-Date: Mon, 21 Aug 2006 11:54:31 -0400
-To: Andi Kleen <ak@suse.de>
+	Mon, 21 Aug 2006 12:03:41 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:65258 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422685AbWHUQDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 12:03:40 -0400
+Subject: Re: disabling dma/new ide interface 2.6.18-rc4-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bahadir Balban <bahadir.balban@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-Message-ID: <20060821155431.GA3678@fieldses.org>
-References: <20060820013121.GA18401@fieldses.org> <200608201026.54530.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608201026.54530.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <7ac1e90c0608210727m1c5375b9xb936168c877084c@mail.gmail.com>
+References: <7ac1e90c0608210727m1c5375b9xb936168c877084c@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 21 Aug 2006 17:24:52 +0100
+Message-Id: <1156177492.18887.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 10:26:54AM +0200, Andi Kleen wrote:
+Ar Llu, 2006-08-21 am 15:27 +0100, ysgrifennodd Bahadir Balban:
+> Hi,
 > 
-> > DWARF2 unwinder stuck at 0xc0100199
-> > Leftover inexact backtrace:
-> >  =======================
-> >  BUG: unable to handle kernel paging request at virtual address 0000b034
+> I am trying to implement a basic ide driver based on ata_generic.c.
+> Its a pio-only device.
 > 
-> This is already fixed in mainline.
+> How do I disable dma on the new interface? Changing ata_port_info fields?
 
-I'm seeing the same behavior on Linus's latest as of this morning
-(2.6.18-rc4-gef7d1b24).  Is there something else I should be testing?
+ata_generic.c assumes the BIOS set up the timings and the device follows
+PCI SFF. In those cases it already correctly handles PIO only
+controllers.
 
---b.
+If you are trying to write a driver for a non PCI motherboard device (Eg
+on an embedded board) then drivers/ata/pata_qdi.c may be a better
+example to follow as it sets up all the device ports by hand as a
+platform device.
+
+If you want PIO only then don't provide mwdma or udma mode masks in the
+ata_port_info.
+
+Alan
+

@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWHUATo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWHUAVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWHUATo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 20:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWHUATo
+	id S932121AbWHUAVn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 20:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWHUAVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 20:19:44 -0400
-Received: from 1wt.eu ([62.212.114.60]:2321 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1751207AbWHUATo (ORCPT
+	Sun, 20 Aug 2006 20:21:43 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:28393 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932121AbWHUAVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 20:19:44 -0400
-Date: Mon, 21 Aug 2006 02:05:00 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Sean <seanlkml@sympatico.ca>, Greg KH <greg@kroah.com>,
-       Adrian Bunk <bunk@stusta.de>, Josh Boyer <jwboyer@gmail.com>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
-Message-ID: <20060821000500.GO8776@1wt.eu>
-References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060806004634.GB6455@opteron.random> <20060806045234.GA28849@kroah.com> <20060820223046.GB10011@opteron.random> <20060820185123.e84fafaf.seanlkml@sympatico.ca> <20060820231510.GD10011@opteron.random>
-Mime-Version: 1.0
+	Sun, 20 Aug 2006 20:21:42 -0400
+From: Neil Brown <neilb@suse.de>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Date: Mon, 21 Aug 2006 10:21:27 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060820231510.GD10011@opteron.random>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Message-ID: <17640.64647.311004.869344@cse.unsw.edu.au>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@linux.intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG?] possible recursive locking detected (blkdev_open)
+In-Reply-To: message from Peter Zijlstra on Friday August 18
+References: <200608090757.32006.eike-kernel@sf-tec.de>
+	<1155897321.5696.374.camel@twins>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 01:15:10AM +0200, Andrea Arcangeli wrote:
-> On Sun, Aug 20, 2006 at 06:51:23PM -0400, Sean wrote:
-> > There's no need for a vote.  Users already vote for a maintainer when
-> > they decide to use a paticular kernel tree.
-> >
-> > No user is forced to follow a particular maintainer.  And anyone can step
-> > up and declare that they are also offering a maintained tree.
+On Friday August 18, a.p.zijlstra@chello.nl wrote:
 > 
-> I never said that 2.6.16-stable is going to succeed, all I'm saying is
-> that all testing done on it will be a wasted effort, that's why there
-> are no infinite competing trees.
-
-Andrea, I don't agree with you on this.
-If 2.6.16 succeeds, some people who currently cannot rely on 2.6 due
-to its code changing too fast will be able to make the move. Also, those
-who need a good reliability will be able to check in one year if they
-consider it reliable enough for their use, based on other user's feedback.
-
-Once those users depend on this kernel, they will probably send fixes
-back when they'll find a bug. Right now, many people using 2.6 just
-run it off the CD of their pet distro, and when something goes wrong,
-they decide the distro is broken and they change to anything else
-(which might have a different kernel version). Do not believe that
-everyone has enough knowledge to send valuable bug reports and/or
-fix bugs. Basically, you have them all reading this list on a somewhat
-regular basis.
-
-> So one would hope that an official
-> maintainer isn't choosed by random.
+> blkdev_open() calls
+>   do_open(bdev, ...,BD_MUTEX_NORMAL) and takes
+>     mutex_lock_nested(&bdev->bd_mutex, BD_MUTEX_NORMAL)
+>     
+> then something fails, and we're thrown to:
 > 
-> > And this situation is already self correcting; if no users follow, it's
+> out_first: where
+>     if (bdev != bdev->bd_contains)
+>       blkdev_put(bdev->bd_contains) which is
+>         __blkdev_put(bdev->bd_contains, BD_MUTEX_NORMAL) which does
+>           mutex_lock_nested(&bdev->bd_contains->bd_mutex, BD_MUTEX_NORMAL) <--- lockdep trigger
 > 
-> The real ironic thing, is that the only feedback he has to know if
-> users follow or not, is KLive. Which I'm going to shutdown anyway if
-> nothing changes w.r.t. 2.6.16-stable since I'm not out to fight with
-> anyone, I don't even have a degree in statistics, so it's up to the
-> thousands getting a degree in statistics every year to argue with the
-> -stable maintainers, certainly not me.
+> When going to out_first, dbev->bd_contains is either bdev or whole, and
+> since we take the branch it must be whole. So it seems to me the
+> following patch would be the right one:
 
-Well, you've been fighting over opinions. Both of you have been a bit
-rude with the other one. Adrian has finally removed his mocking (and
-IMHO childish) signature. Why don't you consider the problem solved
-and keep your project online ?
+Looks sensible to me.
 
-Willy
+> 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: NeilBrown <neilb@suse.de>
 
+NeilBrown
+
+> ---
+>  fs/block_dev.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6/fs/block_dev.c
+> ===================================================================
+> --- linux-2.6.orig/fs/block_dev.c
+> +++ linux-2.6/fs/block_dev.c
+> @@ -980,7 +980,7 @@ out_first:
+>  	bdev->bd_disk = NULL;
+>  	bdev->bd_inode->i_data.backing_dev_info = &default_backing_dev_info;
+>  	if (bdev != bdev->bd_contains)
+> -		blkdev_put(bdev->bd_contains);
+> +		__blkdev_put(bdev->bd_contains, BD_MUTEX_WHOLE);
+>  	bdev->bd_contains = NULL;
+>  	put_disk(disk);
+>  	module_put(owner);
+> 
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

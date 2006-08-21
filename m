@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWHUStk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWHUStS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWHUStk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWHUStT
+	id S1750760AbWHUStS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWHUStH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:49:19 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:13757 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750756AbWHUStN (ORCPT
+	Mon, 21 Aug 2006 14:49:07 -0400
+Received: from ns1.suse.de ([195.135.220.2]:43654 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750760AbWHUSsm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:49:13 -0400
-Date: Mon, 21 Aug 2006 11:47:38 -0700
+	Mon, 21 Aug 2006 14:48:42 -0400
+Date: Mon, 21 Aug 2006 11:47:02 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,16 +17,15 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@davemloft.net>,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, dev@openvz.org,
+       haveblue@us.ibm.com, dev@sw.ru, oleg@tv-sign.ru,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 16/20] Fix ipv4 routing locking bug
-Message-ID: <20060821184738.GQ21938@kroah.com>
+Subject: [patch 11/20] sys_getppid oopses on debug kernel
+Message-ID: <20060821184702.GL21938@kroah.com>
 References: <20060821183818.155091391@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-ipv4-routing-locking-bug.patch"
+Content-Disposition: inline; filename="sys_getppid-oopses-on-debug-kernel.patch"
 In-Reply-To: <20060821184527.GA21938@kroah.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,82 +34,81 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
+From: Kirill Korotaev <dev@sw.ru>
 
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+sys_getppid() optimization can access a freed memory.  On kernels with
+DEBUG_SLAB turned ON, this results in Oops.  As Dave Hansen noted, this
+optimization is also unsafe for memory hotplug.
 
-[IPV4]: severe locking bug in fib_semantics.c
+So this patch always takes the lock to be safe.
 
-Found in 2.4 by Yixin Pan <yxpan@hotmail.com>.
+[oleg@tv-sign.ru: simplifications]
 
-> When I read fib_semantics.c of Linux-2.4.32, write_lock(&fib_info_lock) =
-> is used in fib_release_info() instead of write_lock_bh(&fib_info_lock).  =
-> Is the following case possible: a BH interrupts fib_release_info() while =
-> holding the write lock, and calls ip_check_fib_default() which calls =
-> read_lock(&fib_info_lock), and spin forever.
-
-Signed-off-by: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kirill Korotaev <dev@openvz.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- net/ipv4/fib_semantics.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ kernel/timer.c |   41 +++++++----------------------------------
+ 1 file changed, 7 insertions(+), 34 deletions(-)
 
---- linux-2.6.17.9.orig/net/ipv4/fib_semantics.c
-+++ linux-2.6.17.9/net/ipv4/fib_semantics.c
-@@ -160,7 +160,7 @@ void free_fib_info(struct fib_info *fi)
- 
- void fib_release_info(struct fib_info *fi)
- {
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	if (fi && --fi->fib_treeref == 0) {
- 		hlist_del(&fi->fib_hash);
- 		if (fi->fib_prefsrc)
-@@ -173,7 +173,7 @@ void fib_release_info(struct fib_info *f
- 		fi->fib_dead = 1;
- 		fib_info_put(fi);
- 	}
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
+--- linux-2.6.17.9.orig/kernel/timer.c
++++ linux-2.6.17.9/kernel/timer.c
+@@ -975,46 +975,19 @@ asmlinkage long sys_getpid(void)
  }
  
- static __inline__ int nh_comp(const struct fib_info *fi, const struct fib_info *ofi)
-@@ -599,7 +599,7 @@ static void fib_hash_move(struct hlist_h
- 	unsigned int old_size = fib_hash_size;
- 	unsigned int i, bytes;
+ /*
+- * Accessing ->group_leader->real_parent is not SMP-safe, it could
+- * change from under us. However, rather than getting any lock
+- * we can use an optimistic algorithm: get the parent
+- * pid, and go back and check that the parent is still
+- * the same. If it has changed (which is extremely unlikely
+- * indeed), we just try again..
+- *
+- * NOTE! This depends on the fact that even if we _do_
+- * get an old value of "parent", we can happily dereference
+- * the pointer (it was and remains a dereferencable kernel pointer
+- * no matter what): we just can't necessarily trust the result
+- * until we know that the parent pointer is valid.
+- *
+- * NOTE2: ->group_leader never changes from under us.
++ * Accessing ->real_parent is not SMP-safe, it could
++ * change from under us. However, we can use a stale
++ * value of ->real_parent under rcu_read_lock(), see
++ * release_task()->call_rcu(delayed_put_task_struct).
+  */
+ asmlinkage long sys_getppid(void)
+ {
+ 	int pid;
+-	struct task_struct *me = current;
+-	struct task_struct *parent;
  
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	old_info_hash = fib_info_hash;
- 	old_laddrhash = fib_info_laddrhash;
- 	fib_hash_size = new_size;
-@@ -640,7 +640,7 @@ static void fib_hash_move(struct hlist_h
- 	}
- 	fib_info_laddrhash = new_laddrhash;
+-	parent = me->group_leader->real_parent;
+-	for (;;) {
+-		pid = parent->tgid;
+-#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+-{
+-		struct task_struct *old = parent;
++	rcu_read_lock();
++	pid = rcu_dereference(current->real_parent)->tgid;
++	rcu_read_unlock();
  
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
+-		/*
+-		 * Make sure we read the pid before re-reading the
+-		 * parent pointer:
+-		 */
+-		smp_rmb();
+-		parent = me->group_leader->real_parent;
+-		if (old != parent)
+-			continue;
+-}
+-#endif
+-		break;
+-	}
+ 	return pid;
+ }
  
- 	bytes = old_size * sizeof(struct hlist_head *);
- 	fib_hash_free(old_info_hash, bytes);
-@@ -822,7 +822,7 @@ link_it:
- 
- 	fi->fib_treeref++;
- 	atomic_inc(&fi->fib_clntref);
--	write_lock(&fib_info_lock);
-+	write_lock_bh(&fib_info_lock);
- 	hlist_add_head(&fi->fib_hash,
- 		       &fib_info_hash[fib_info_hashfn(fi)]);
- 	if (fi->fib_prefsrc) {
-@@ -841,7 +841,7 @@ link_it:
- 		head = &fib_info_devhash[hash];
- 		hlist_add_head(&nh->nh_hash, head);
- 	} endfor_nexthops(fi)
--	write_unlock(&fib_info_lock);
-+	write_unlock_bh(&fib_info_lock);
- 	return fi;
- 
- err_inval:
 
 --

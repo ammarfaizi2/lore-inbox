@@ -1,130 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWHUMDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbWHUMKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030402AbWHUMDf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWHUMDf
+	id S965071AbWHUMKP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWHUMKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:03:35 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:38909 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S965074AbWHUMDe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:03:34 -0400
-Message-ID: <44E9A114.6040605@de.ibm.com>
-Date: Mon, 21 Aug 2006 14:03:32 +0200
-From: Thomas Klein <osstklei@de.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Michael Neuling <mikey@neuling.org>
-CC: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
-       Thomas Klein <tklein@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
-Subject: Re: [2.6.19 PATCH 5/7] ehea: main header files
-References: <200608181334.57701.ossthema@de.ibm.com> <20060818180345.9660E67B64@ozlabs.org>
-In-Reply-To: <20060818180345.9660E67B64@ozlabs.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 08:10:14 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:52934 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S965069AbWHUMKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:10:12 -0400
+Date: Mon, 21 Aug 2006 16:09:34 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       tglx@linutronix.de
+Subject: Re: [take12 3/3] kevent: Timer notifications.
+Message-ID: <20060821120934.GA13399@2ka.mipt.ru>
+References: <11561555893621@2ka.mipt.ru> <1156155589287@2ka.mipt.ru> <20060821111239.GA30945@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060821111239.GA30945@infradead.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 21 Aug 2006 16:09:38 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Neuling wrote:
- >> +static inline void ehea_update_sqa(struct ehea_qp *qp, u16 nr_wqes)
- >> +{
- >> +    struct h_epa epa = qp->epas.kernel;
- >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_sqa),
- >> +                  EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
- >> +}
- >> +
- >> +static inline void ehea_update_rq3a(struct ehea_qp *qp, u16 nr_wqes)
- >> +{
- >> +    struct h_epa epa = qp->epas.kernel;
- >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq3a),
- >> +                  EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
- >> +}
- >> +
- >> +static inline void ehea_update_rq2a(struct ehea_qp *qp, u16 nr_wqes)
- >> +{
- >> +    struct h_epa epa = qp->epas.kernel;
- >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq2a),
- >> +                  EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
- >> +}
- >> +
- >> +static inline void ehea_update_rq1a(struct ehea_qp *qp, u16 nr_wqes)
- >> +{
- >> +    struct h_epa epa = qp->epas.kernel;
- >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq1a),
- >> +                  EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
- >> +}
- >> +
- >> +static inline void ehea_update_feca(struct ehea_cq *cq, u32 nr_cqes)
- >> +{
- >> +    struct h_epa epa = cq->epas.kernel;
- >> +    epa_store_acc(epa, CQTEMM_OFFSET(cqx_feca),
- >> +                  EHEA_BMASK_SET(CQX_FECADDER, nr_cqes));
- >> +}
- >> +
- >> +static inline void ehea_reset_cq_n1(struct ehea_cq *cq)
- >> +{
- >> +    struct h_epa epa = cq->epas.kernel;
- >> +    epa_store_cq(epa, cqx_n1,
- >> +                 EHEA_BMASK_SET(CQX_N1_GENERATE_COMP_EVENT, 1));
- >> +}
- >> +
- >> +static inline void ehea_reset_cq_ep(struct ehea_cq *my_cq)
- >> +{
- >> +    struct h_epa epa = my_cq->epas.kernel;
- >> +    epa_store_acc(epa, CQTEMM_OFFSET(cqx_ep),
- >> +                  EHEA_BMASK_SET(CQX_EP_EVENT_PENDING, 0));
- >> +}
- >
- > These are almost identical... I'm sure most (if not all) could be merged
- > into a single function or #define.
- >
- > Mikey
+On Mon, Aug 21, 2006 at 12:12:39PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> > +static int __init kevent_init_timer(void)
+> > +{
+> > +	struct kevent_callbacks tc = {
+> > +		.callback = &kevent_timer_callback, 
+> > +		.enqueue = &kevent_timer_enqueue, 
+> > +		.dequeue = &kevent_timer_dequeue};
+> 
+> I think this should be static, and the normal style to write it would be:
+> 
+> static struct kevent_callbacks tc = {
+> 	.callback	= kevent_timer_callback,
+> 	.enqueue	= kevent_timer_enqueue,
+> 	.dequeue	= kevent_timer_dequeue,
+> };
+> 
+> also please consider makring all the kevent_callbacks structs const
+> to avoid false cacheline sharing and accidental modification, similar
+> to what we did to various other operation vectors.
 
-Hi Mikey,
+Actually I do not think it should be static, since it is only used for
+initialization and it's members are copied into main structure.
 
-I gave it a try: ehea_reset_cq_n1() drops out because it calls epa_store_cq(),
-not epa_store_acc(). ehea_update_feca() and ehea_reset_cq_ep() require a
-different input parm as the others and replacing two inline functions by
-one inline function and two macros doesn't help neither the code nor does
-it improve readability.
-Finally we have ehea_update_sqa() and the 3 ehea_update_rqXa() functions which
-I replaced by an inline function and four macros. See the result below. It
-think understanding what this does is way more difficult than looking at the
-four inline functions we had before. Therefore I'd prefer leaving those inline
-functions as is.
-
-Regards
-Thomas
-
-
-#define ehea_update_sqa(qp, nr_wqes) \
-         ehea_update_qa(qp, nr_wqes, \
-                        QPTEMM_OFFSET(qpx_sqa), \
-                        EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
-
-#define ehea_update_rq1a(qp, nr_wqes) \
-         ehea_update_qa(qp, nr_wqes, \
-                        QPTEMM_OFFSET(qpx_rq1a), \
-                        EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
-
-#define ehea_update_rq2a(qp, nr_wqes) \
-         ehea_update_qa(qp, nr_wqes, \
-                        QPTEMM_OFFSET(qpx_rq2a), \
-                        EHEA_BMASK_SET(QPX_RQ2A_VALUE, nr_wqes));
-
-#define ehea_update_rq3a(qp, nr_wqes) \
-         ehea_update_qa(qp, nr_wqes, \
-                        QPTEMM_OFFSET(qpx_rq3a), \
-                        EHEA_BMASK_SET(QPX_RQ3A_VALUE, nr_wqes));
-
-static inline void ehea_update_qa(struct ehea_qp *qp, u16 nr_wqes,
-                                   u32 offset, u64 value)
-{
-         struct h_epa epa = qp->epas.kernel;
-         epa_store_acc(epa, offset, value);
-}
-
+-- 
+	Evgeniy Polyakov

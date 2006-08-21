@@ -1,97 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422681AbWHUPMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030536AbWHUPSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422681AbWHUPMc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 11:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422679AbWHUPMc
+	id S1030536AbWHUPSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 11:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbWHUPSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 11:12:32 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:14064 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1422681AbWHUPMb convert rfc822-to-8bit (ORCPT
+	Mon, 21 Aug 2006 11:18:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64933 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030536AbWHUPSJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 11:12:31 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] introduce kernel_execve function to replace __KERNEL_SYSCALLS__
-Date: Mon, 21 Aug 2006 17:12:17 +0200
-User-Agent: KMail/1.9.1
-Cc: =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-References: <20060819073031.GA25711@atjola.homenet> <200608201913.39989.arnd@arndb.de> <17641.30.670343.779791@cargo.ozlabs.ibm.com>
-In-Reply-To: <17641.30.670343.779791@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200608211712.17780.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+	Mon, 21 Aug 2006 11:18:09 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0608212112350.28902@raven.themaw.net> 
+References: <Pine.LNX.4.64.0608212112350.28902@raven.themaw.net>  <Pine.LNX.4.64.0608211932300.27275@raven.themaw.net> <Pine.LNX.4.64.0608202223220.29268@raven.themaw.net> <20060819094840.083026fd.akpm@osdl.org> <13319.1155744959@warthog.cambridge.redhat.com> <1155743399.5683.13.camel@localhost> <20060813133935.b0c728ec.akpm@osdl.org> <20060813012454.f1d52189.akpm@osdl.org> <5910.1155741329@warthog.cambridge.redhat.com> <2138.1155893924@warthog.cambridge.redhat.com> <3976.1156079732@warthog.cambridge.redhat.com> <30856.1156153373@warthog.cambridge.redhat.com> <323.1156162567@warthog.cambridge.redhat.com> 
+To: Ian Kent <raven@themaw.net>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list [try #2] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 21 Aug 2006 16:17:52 +0100
+Message-ID: <15387.1156173472@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 August 2006 02:36, Paul Mackerras wrote:
-> > Iit turned out most of the architectures that already implement
-> > their own execve() call instead of using the _syscall3 function
-> > for it end up passing the return value of sys_execve down, 
-> > instead of setting errno.
+Ian Kent <raven@themaw.net> wrote:
+
+> > But does it _matter_ that the thing is mounted or dismounted as a unit?  And
+> > if so, why?
 > 
-> I really don't like having an "errno" variable in the kernel.  What if
-> two processes are doing an execve concurrently?
+> Yes with autofs version 4, because of the nesting of mounts which also 
+> introduces issues with expiration.
 
-The point is that we have two different schemes in the kernel that
-conflict:
+The NFS client's automounting facilities handle automatic expiration and
+implicit recursive unmounting of xdev submounts.
 
-alpha, arm{,26}, ia64, parisc, powerpc and x86_64 pass the error
-code from execve, all others pass -1 and set the global errno.
+For example, on my test machine:
 
-So the caller does not really have a chance to get the correct error
-value at all. Bjoern's first patch changed one caller from looking
-at the return value to looking at errno in case of an error, which
-shifts the problem to other architectures.
+	[root@andromeda ~]# /root/mount warthog:/ /warthog -o fsc
+	[root@andromeda ~]# ls /warthog/warthog
+	[root@andromeda ~]# cat /proc/mounts 
+	...
+	warthog:/ /warthog nfs rw,vers=3,rsize=32768,wsize=32768,hard,fsc,proto=tcp,timeo=600,retrans=2,sec=sys,addr=warthog 0 0
+	warthog:/warthog /warthog/warthog nfs rw,vers=3,rsize=32768,wsize=32768,hard,fsc,proto=tcp,timeo=600,retrans=2,sec=sys,addr=warthog 0 0
+	[root@andromeda ~]# umount /warthog/
+	[root@andromeda ~]# 
 
-My patch makes the errno variable local to execve, which slightly
-helps, and makes it easier to get it right completely right
-by doing the same as powerpc or parisc.
+The "ls" command caused the client to mount warthog:/warthog off of the server
+onto /warthog/warthog automatically.  I was then able to just unmount
+/warthog, which took away /warthog/warthog also without me having to do
+anything special.
 
-Now, we could do a truely evil involving a nested function, like
+> In version 5 they are mounted and umounted on demand.
 
-#include <asm/bug.h>
-#include <asm/uaccess.h>
-#define __KERNEL_SYSCALLS__
-#include <linux/unistd.h>
-int kernel_execve(const char *filename, char *const argv[], char *const envp[])
-{
-	mm_segment_t fs = get_fs();
-	int errno;
-	int ret;
-	_syscall3(int,execve,const char *,file,char *const*,argv,char *const*,envp)
-	WARN_ON(segment_eq(fs, USER_DS));
-	ret = execve(filename, argv, envp);
-	if (ret)
-		ret = -errno;
-	return ret;
-}
+This should now be left to the NFS client.
 
-That would solve the problem of races on the errno variable,
-but set a bad example to other hackers.
+The NFS client now views each set of files with the same FSID as a separate
+collection of files, and accords each set its own superblock.  The superblocks
+thus created are automounted by the follow_link() op on the directory that's
+at the point of FSID-change.
 
-> Anyway, your patch returns the (positive) errno value here:
+Note!  This works for NFS2, NFS3 and NFS4.  NFS4 has an extra facility by
+which mounts can cross servers, but that uses more or less the same mechanism.
+
+> > > In v4 that are mounted and umounted as a unit to deal with the nesting.
+> > 
+> > Why does the automounter daemon have to do the mounting of submounts?
+> > What's wrong with having the kernel do it?  The one problem with having
+> > the kernel do it that I can see, is that the kernel doesn't update
+> > /etc/mtab.
 > 
-> > +     WARN_ON(segment_eq(fs, USER_DS));
-> > +     ret = execve(filename, (char **)argv, (char **)envp);
-> > +     if (ret)
-> > +             ret = errno;
-> > +
-> > +     return ret;
-> 
-> but here we are testing for a negative value to mean error:
-> 
-> > -     if (execve("/sbin/shutdown", argv, envp) < 0) {
-> > +     if (kernel_execve("/sbin/shutdown", argv, envp) < 0) {
+> v2 and v3 won't do the expire, will they?
 
-Yes, Chase Venters already noticed that bug. If obviously needs
-to be 'ret = -errno;'.
+Yes.  Automounting and auto-expiration both.
 
-	Arnd <><
+> Not updating the mtab will be a problem for me also and possibly for 
+> users that expect to see mounts in it.
+
+ln -sf /proc/mounts /etc/mtab
+
+> The "/net" functionality is a standard, expected automounter function.
+
+Whilst that may be true, it doesn't prohibit working with the NFS clients
+automounting capabilities.
+
+> > Note that rather than manually mounting the submounts, you could just open
+> > and close those directories as that should cause them to automount -
+> > though the xdev mountpoints will expire and become automatically unmounted
+> > after a certain period.
+> 
+> The xdev (assume you mean NFSv4 submounts) mounts will be the area I need 
+> to work on, for sure.
+
+I mean NFSv2, NFSv3 and NFSv4 submounts that cross FSID, but remain on the
+same server.
+
+> I don't quite understand the "open will cause the automount" for NFS 
+> version < 4.
+
+Opening the directory will cause its follow_link() op to be invoked, which
+will cause an automount if one hasn't already happened.  Obviously, if the
+automount has taken place, the lower directory won't be seen for the follow to
+take place.
+
+> The automounter calls mount(8) when it gets a packet from the 
+> autofs[4] kernel module due to an access.
+
+The automounter must mount the root of any tree, yes; but xdev subtrees should
+now be left to the NFS client to mount, which can be triggered by stat'ing the
+mountpoint - admittedly, if you can reach it without a security error.
+
+If you do get a security error, and attempt to build the directories anyway,
+you run the risk of constructing a false image of the remote share as you
+can't tell symlinks from directories, and run the risk of creating invalid
+dentries locally because you can't determine the attributes of the remote
+object.
+
+> I expect that I won't have to do much at all for xdev mounts except to be 
+> able to recoginize them and their owners so I can leave them alone. The 
+> expire function might be a bit interesting.
+
+They're self-expiring.  And, as I mentioned above, you only need to unmount
+the root to dispose of the entire tree.
+
+David

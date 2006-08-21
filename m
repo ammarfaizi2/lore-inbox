@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWHUCqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWHUCrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbWHUCqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 22:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWHUCqm
+	id S932522AbWHUCrc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 22:47:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWHUCrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 22:46:42 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:49062 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S932392AbWHUCql (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 22:46:41 -0400
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-From: Magnus Damm <magnus@valinux.co.jp>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrey Savochkin <saw@sw.ru>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, rohitseth@google.com,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Kirill Korotaev <dev@sw.ru>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1155912348.9274.83.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>
-	 <1155752277.22595.70.camel@galaxy.corp.google.com>
-	 <1155755069.24077.392.camel@localhost.localdomain>
-	 <1155756170.22595.109.camel@galaxy.corp.google.com>
-	 <44E45D6A.8000003@sw.ru> <20060817084033.f199d4c7.akpm@osdl.org>
-	 <20060818120809.B11407@castle.nmd.msu.ru>
-	 <1155912348.9274.83.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 21 Aug 2006 11:47:06 +0900
-Message-Id: <1156128426.21411.41.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Sun, 20 Aug 2006 22:47:32 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:42806 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932522AbWHUCrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 22:47:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pSDVtH09Zm7qqk6Q5hS/AQiNGvCR89CuFKbENnBoTHVstio57zQKuh40waknfFb8Ib03yxPoHDhH92d7R2h+8uV6nbfK4/5oL76Awj08cieTBdd14s63rJPymsScI7te2Yw4jCPJwepNG5vPZ0JKpWQiwAh+wtIMd0y4rkf4hIg=
+Message-ID: <18d709710608201947r59c83c92vfd3f2476b705053b@mail.gmail.com>
+Date: Sun, 20 Aug 2006 23:47:30 -0300
+From: "Julio Auto" <mindvortex@gmail.com>
+To: "Solar Designer" <solar@openwall.com>
+Subject: Re: [PATCH] loop.c: kernel_thread() retval check
+Cc: "Willy Tarreau" <w@1wt.eu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060821023217.GA23416@openwall.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060819234629.GA16814@openwall.com>
+	 <1156097717.4051.26.camel@localhost.localdomain>
+	 <20060820223442.GA21960@openwall.com>
+	 <1156115468.4051.80.camel@localhost.localdomain>
+	 <20060820225823.GD602@1wt.eu>
+	 <18d709710608201859o7f1c8075wab0e71cd85814967@mail.gmail.com>
+	 <20060821023217.GA23416@openwall.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 07:45 -0700, Dave Hansen wrote:
-> On Fri, 2006-08-18 at 12:08 +0400, Andrey Savochkin wrote:
-> > 
-> > A) Have separate memory management for each container,
-> >    with separate buddy allocator, lru lists, page replacement mechanism.
-> >    That implies a considerable overhead, and the main challenge there
-> >    is sharing of pages between these separate memory managers.
-> 
-> Hold on here for just a sec...
-> 
-> It is quite possible to do memory management aimed at one container
-> while that container's memory still participates in the main VM.  
-> 
-> There is overhead here, as the LRU scanning mechanisms get less
-> efficient, but I'd rather pay a penalty at LRU scanning time than divide
-> up the VM, or coarsely start failing allocations.
+On 8/20/06, Solar Designer <solar@openwall.com> wrote:
+> You need to make sure that the cleanup code added with the patch matches
+> the loop device initialization preceding the kernel_thread() call.  You
+> should not blindly take the cleanup code out of the 2.4 patch and apply
+> it to 2.6 - it might not be correct for 2.6.
 
-This could of course be solved with one LRU per container, which is how
-the CKRM memory controller implemented things about a year ago.
+Yes, I already had that in mind, but thanks for the worry, anyway.
 
-/ magnus
+> No.  But you won't be able to reproduce this with strace on 2.6 since
+> 2.6's kernel_thread() uses CLONE_UNTRACED instead of failing on ptrace.
+> You'll probably need to temporarily replace the kernel_thread() call in
+> loop.c with -EAGAIN to comfortably test your cleanup code without
+> forcing the system to run out of resources.
 
+Thanks for the tip. I'll see what I can do. :)
+
+Cheers,
+
+    Julio Auto

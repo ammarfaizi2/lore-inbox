@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWHUL0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWHUL0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbWHUL0h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 07:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbWHUL0g
+	id S1751873AbWHUL0y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 07:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWHUL0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 07:26:36 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:23160 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751021AbWHUL0g (ORCPT
+	Mon, 21 Aug 2006 07:26:53 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:55231 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751873AbWHUL0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 07:26:36 -0400
-Message-ID: <44E99904.80205@sw.ru>
-Date: Mon, 21 Aug 2006 15:29:08 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: rohitseth@google.com
-CC: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel	memory	accounting	(core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	<1155754029.9274.21.camel@localhost.localdomain>	<1155755729.22595.101.camel@galaxy.corp.google.com>	<1155758369.9274.26.camel@localhost.localdomain>	<1155774274.15195.3.camel@localhost.localdomain>	<1155824788.9274.32.camel@localhost.localdomain>	<1155835003.14617.45.camel@galaxy.corp.google.com>	<1155835401.9274.64.camel@localhost.localdomain>	<1155836198.14617.61.camel@galaxy.corp.google.com>	<44E58059.6020605@sw.ru> <1155922680.23242.7.camel@galaxy.corp.google.com>
-In-Reply-To: <1155922680.23242.7.camel@galaxy.corp.google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 07:26:52 -0400
+Date: Mon, 21 Aug 2006 15:26:10 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       tglx@linutronix.de
+Subject: Re: [take9 2/2] kevent: poll/select() notifications. Timer notifications.
+Message-ID: <20060821112609.GD8608@2ka.mipt.ru>
+References: <1155536496588@2ka.mipt.ru> <11555364962857@2ka.mipt.ru> <20060816133014.GB32499@infradead.org> <20060816134032.GB4314@2ka.mipt.ru> <20060818104120.GA20816@infradead.org> <20060818105934.GA11034@2ka.mipt.ru> <20060821110104.GC28759@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060821110104.GC28759@infradead.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 21 Aug 2006 15:26:11 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>in case of anon_vma, page->mapping can be the same
->>for 2 pages beloning to different containers.
->>
+On Mon, Aug 21, 2006 at 12:01:04PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> On Fri, Aug 18, 2006 at 02:59:34PM +0400, Evgeniy Polyakov wrote:
+> > > If there's a really good reason we can keep things separate, but
+> > > 
+> > >   "epoll and kevent_poll differs on some aspects"
+> > > 
+> > > is not one :)
+> > 
+> > kevent_poll uses hash table (actually it is kevent that uses table),
+> > locking is simpler and part of it is hidden in kevent core.
+> > Actually kevent_poll is just a container allocator for poll wait queue.
+> > So epoll does not differ (except hash/tree and locking,
+> > which is based on locks for pathes which are shared in kevent with those
+> > ones which can be called from irq/bh context) from kevent + kevent_poll.
+> > And since kevent_poll can be not selected while epoll is always there
+> > (until embedded config is turned on), I recommend to have them both.
+> > Or always turn kevent on :)
 > 
+> You mention a lot of implementation details that absoultely shouldn't
+> matter to the userspace interface.
 > 
-> In your experience, have you seen processes belonging to different
-> containers sharing the same anon_vma?  On a more general note, could you
-> please point me to a place that has the list of requirements for which
-> we are designing this solution.
+> I might not have explained enough what the point behind all this is, so
+> I'll try to explain it again:
 > 
+>  - the fate of aio, inotify, epoll, etc shows we badly need a generic
+>    event mechnism that unifies event based interfaces of various subsystem.
+>    Only having a single mechanisms allows things like unified event loops
+>    and gives application progreammers the chance to learn that one interface
+>    for real and get it right.
+>  - kevent looks like the right way to do this.  but to show it can really
+>    archive this it needs to show it can do the things the existing event
+>    systems can do at least as good.  reimplementing their user interfaces
+>    ontop of kevent is the best (or maybe only) way to show that.
+>    epoll is probably the easiest of the ones we have, so I'd suggest starting
+>    with it.  inotify will be a lot harder, but we'll need that aswell.
+>    the kevent inode hooks you had in your earlier patches will never ever
+>    get in.
 > 
->>>>nor is it ambiguous in any way.  It is very strict,
->>>>and very straightforward.
->>>
->>>What additional ambiguity you have when inode or task structures have
->>>the required information.
->>
->>inodes can belong to multiple containers and so do the pages.
->>
-> 
-> 
-> I'm still thinking that inodes should belong to one container (or may be
-> have it configurable based on some flag).
-this is not true for OpenVZ nor Linux-VServer.
+> Was this clear enough?
 
-Thanks,
-Kirill
+Sure, but if I say that it would sound like advertisement :)
+Some inotify notifications (inode create/remove) are implemented already
+in (dropped) FS notification patchset.
+
+-- 
+	Evgeniy Polyakov

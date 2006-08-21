@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWHUHza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWHUH51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030292AbWHUHza (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 03:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWHUHza
+	id S1030306AbWHUH51 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 03:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWHUH51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 03:55:30 -0400
-Received: from ausmtp06.au.ibm.com ([202.81.18.155]:2947 "EHLO
-	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1030292AbWHUHz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 03:55:29 -0400
-Date: Mon, 21 Aug 2006 13:28:18 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] file: kill unnecessary timer in fdtable_defer
-Message-ID: <20060821075818.GG5433@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060820131542.GN6371@htj.dyndns.org> <20060821043257.GD5433@in.ibm.com> <20060821051816.GP6371@htj.dyndns.org>
+	Mon, 21 Aug 2006 03:57:27 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:15655 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030300AbWHUH50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 03:57:26 -0400
+Date: Mon, 21 Aug 2006 09:59:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm2
+Message-ID: <20060821075936.GQ4290@suse.de>
+References: <20060819220008.843d2f64.akpm@osdl.org> <6bffcb0e0608200630h40d2b07v1db22d19753734be@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060821051816.GP6371@htj.dyndns.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <6bffcb0e0608200630h40d2b07v1db22d19753734be@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 02:18:16PM +0900, Tejun Heo wrote:
-> On Mon, Aug 21, 2006 at 10:02:57AM +0530, Dipankar Sarma wrote:
-> > > regardless of its return value.  0 return simply means that the work
-> > > was already pending and thus no further action was required.
-> > 
-> > Hmm.. Is this really true ? IIRC, schedule_work() checks pending
-> > work based on bit ops on work->pending and clear_bit() is not
-> > a memory barrier.
+On Sun, Aug 20 2006, Michal Piotrowski wrote:
+> On 20/08/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm2/
+> >
 > 
-> Those bitops are not memory barriers but they can define order between
-> them alright.  Once the execution order is correct, the rest of
+> 0kB Cache?
+> 
+> hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.20
+> hdd: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
+> 
+> It should be 2048kB
+> 
+> Aug 20 14:28:07 euridica kernel: hdc: ATAPI 48X DVD-ROM DVD-R CD-R/RW
+> drive, 2048kB Cache, UDMA(33)
+> Aug 20 14:28:07 euridica kernel: Uniform CD-ROM driver Revision: 3.20
+> Aug 20 14:28:07 euridica kernel: hdd: ATAPI 52X CD-ROM CD-R/RW drive,
+> 2048kB Cache, UDMA(33)
+> 
+> config & dmesg -> http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm2/
 
-Huh ? If they are not memory barriers, they how can you guranttee
-ordering on weakly ordered CPUs ?
+Does 2.6.18-rc4 correctly identify the cache size? If so, this smells
+like another out fall from the rq-cmd-type patch.
 
-
-> In workqueue, this is guaranteed by
-> 
-> 1. If pending bit is set, the work is guaranteed to be executed in
->    some future - it's on timer or queue.
-> 
-> 2. The queuer sets the pending bit *after* producing a job to be
->    done.
-> 
-> 3. The worker clears the pending *before* executing the job.
-> 
-> I sometimes find it easier to understand with a diagram which looks
-> like the following.  Time flows from top to bottom.
-> 
->           Queuer			  Worker
-> 
->         -------------
->        | produce job |
->        |             |             <--- clr pending --->
->         -------------                        |
->               |                              v
->               v                       --------------
->     <--- set pending --->            | consume jobs |
-> 				     |		    |
-> 				      --------------
-> 
-> Now move the queuer and worker up and down in your mind.  If 'set
-> pending' is higher than clr pending 'consume job' is guaranteed to see
-> the job queuer has produced whether pending is set or clear
-> beforehand.  If 'set pending' is lower than 'clr pending', it is
-> guaranteed to set pending and schedule worker.  The workqueue is
-> straight-forward expansion where there are N queuers and a repeating
-> consumer.
-
-Given that there is no smp_mb__after_clear_bit() after clearing
-work->pending, what prevents the worker thread from seeing
-the state of the deferred fd queue before setting the pending bit ?
-IOW, the queuer sees pending = 1 and ignores waking the
-worker thread, worker sees a stale state of the deferred fd queue
-ignoring the newly queued work. That should be possible on
-a cpu with weak memory ordering. Perhaps, we should fix
-__queue_work() to add the smp_mb__after_clear_bit() and
-make sure that we have a memory barrier after adding the
-deferred fds.
-
-Thanks
-Dipankar
-
+-- 
+Jens Axboe
 

@@ -1,99 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWHUVC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWHUVDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWHUVC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWHUVC1
+	id S1751102AbWHUVDc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWHUVDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:02:27 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12770 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751101AbWHUVC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:02:27 -0400
-Date: Mon, 21 Aug 2006 14:01:48 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: simon.derr@bull.net, nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: cpusets not cpu hotplug aware
-Message-Id: <20060821140148.435d15f3.pj@sgi.com>
-In-Reply-To: <20060821192133.GC8499@krispykreme>
-References: <20060821132709.GB8499@krispykreme>
-	<20060821104334.2faad899.pj@sgi.com>
-	<20060821192133.GC8499@krispykreme>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 17:03:32 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:178 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751102AbWHUVDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 17:03:31 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
+References: <20060821095328.3132.40575.sendpatchset@cherry.local>
+Date: Mon, 21 Aug 2006 15:02:58 -0600
+In-Reply-To: <20060821095328.3132.40575.sendpatchset@cherry.local> (Magnus
+	Damm's message of "Mon, 21 Aug 2006 18:54:16 +0900 (JST)")
+Message-ID: <m13bbpu7i5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton wrote:
+Magnus Damm <magnus@valinux.co.jp> writes:
 
-> Maybe the notifier is the right way to go, but it seems strange to
-> create two copies of cpu_online_map (with the associated possibiliy of
-> the two getting out of sync).
+> x86_64: Reload CS when startup_64 is used.
+>
+> The current x86_64 startup code never reloads CS during the early boot process
+> if the 64-bit function startup_64 is used as entry point. The 32-bit entry 
+> point startup_32 does the right thing and reloads CS, and this is what most 
+> people are using if they use bzImage.
+>
+> This patch fixes the case when the Linux kernel is booted into using kexec
+> under Xen. The Xen hypervisor is using large CS values which makes the x86_64
+> kernel fail - but only if vmlinux is booted, bzImage works well because it
+> is using the 32-bit entry point.
+>
+> The main question is if we require that the boot loader should setup CS
+> to some certain offset to be able to boot the kernel. The sane solution IMO
+> should be that the kernel requires that the loaded descriptors are correct, 
+> but that the exact offset within the GDT the boot loader is using should not 
+> matter. This is the way the i386 boot works if I understand things correctly.
 
-Every cpuset in the system, of which this top_cpuset is just the first,
-has a set of cpus and memory nodes on which tasks in that cpuset are
-allowed to operate.  It's not just top_cpuset that we need to understand
-how to relate to hotplug and unplug.
+What extra reload of cs does Xen introduce?
 
-I'll bet there is more hidden state in mm/mempolicy.c, for mbind()
-and set_mempolicy(), and in kernel/sched.c for the sched_setaffinity(),
-which was derived from what memory nodes or cpus were online.  For
-example, I see several fields in 'struct mempolicy' that contain
-node numbers in some form, and the 'cpus_allowed' field in the task
-struct that sched_setaffinity sets.
+I'm not really comfortable with a half virtualized case.
 
-How does hotplug and unplug interact with these various saved states?
-
-> Its up to the cpusets code to register a hotplug notifier to update the
-> top_cpuset maps.
-
-That, or user level code, when it adds or removes a cpu or a memory
-node, needs to be responsible for adding or removing that cpu or node
-to or from whichever cpusets are affected.
-
-For example, if you just added cpu 31, to a system that had been
-running on cpus 0 to 30, you can add cpu 31 to the top cpuset by
-doing:
-
-	mkdir /dev/cpuset		 	# if not already done
-	mount -t cpuset cpuset /dev/cpuset	# if not already done
-	/bin/echo 0-31 > /dev/cpsuet/cpus
-
-> If cpuset_cpus_allowed doesnt return the current online mask and we want
-> to schedule on a cpu that has been added since boot it looks like we
-> will fail.
-
-In general, on systems actually using cpusets, that -is- what should
-happen.  Just because a cpu was brought online doesn't mean it was
-intended to be allowed in any given tasks current cpuset.
-
-Granted, I would guess users of systems not using cpusets (but
-still have cpusets configured in their kernel, as is common in some
-distro kernels), would expect the behaviour you expected - bringing
-a cpu (or memory node) on or offline would make it available (or
-not) for something like a sched_setaffinity (or mbind/set_mempolicy)
-immediately, without having to invoke some magic cpuset voodoo.
-
-Offhand, this sounds to me like a choice of two modes of operation.
-
-    If you aren't actually using cpusets (so every task is in the
-    original top_cpuset) then you'd expect that cpuset to "get out
-    of the way", meaning top_cpuset (the only cpuset, in this case)
-    tracked whatever cpus and nodes were online at the moment.
-
-    If instead you start messing with cpusets (creating more than one
-    of them and moving tasks between them) then you'd expect cpusets
-    to be enforced, without automatically adding newly added cpus or
-    memory nodes to existing cpusets.  Only the user knows which
-    cpusets should get the added cpus or memory nodes in this case.
-
-I don't jump for joy over yet another modal state flag.  But I don't see
-a better alternative -- do you?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Eric

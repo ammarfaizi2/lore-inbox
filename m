@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWHUMKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbWHUMNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbWHUMKh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWHUMKh
+	id S1030409AbWHUMNz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWHUMNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:10:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35786 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964980AbWHUMKf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:10:35 -0400
-Message-ID: <44E9A272.3020202@redhat.com>
-Date: Mon, 21 Aug 2006 22:09:22 +1000
-From: Eugene Teo <eteo@redhat.com>
-Organization: Red Hat Asia-Pacific
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 21 Aug 2006 08:13:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:21898 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030409AbWHUMNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:13:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
+        b=kUsxcZWtuMMurufSjlPhw6F0evh8d7b+jReznpvVb5nHscSStBEloScDkCXsco1MtAx5I056TO2H48qc78WXj6nd/fjL7CQqkUT10Csmwg9iRdAECGmvtzQwzWEgViYO0sytxUryWPB3DMTAK5h2CANkWtKN8pK2KR775L+sRRY=
+Date: Mon, 21 Aug 2006 14:13:39 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: airlied@linux.ie
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [mm patch] drm, minor fixes
+Message-ID: <20060821141339.GD1919@slug>
 MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-CC: Michael Buesch <mb@bu3sch.de>, Solar Designer <solar@openwall.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] getsockopt() early argument sanity checking
-References: <20060819230532.GA16442@openwall.com> <20060819234806.GB27115@1wt.eu> <200608200205.20876.mb@bu3sch.de> <20060820004307.GD27115@1wt.eu>
-In-Reply-To: <20060820004307.GD27115@1wt.eu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Sun, Aug 20, 2006 at 02:05:20AM +0200, Michael Buesch wrote:
->> On Sunday 20 August 2006 01:48, Willy Tarreau wrote:
->>> On Sun, Aug 20, 2006 at 03:05:32AM +0400, Solar Designer wrote:
-[snipped]
-> diff --git a/net/socket.c b/net/socket.c
-> index ac45b13..910ef88 100644
-> --- a/net/socket.c
-> +++ b/net/socket.c
-> @@ -1307,11 +1307,17 @@ asmlinkage long sys_setsockopt(int fd, i
->  asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
->  {
->  	int err;
-> +	int len;
-        ^^^^^^^^
+(Sorry, I forgot to CCs.)
+On Mon, Aug 21, 2006 at 12:22:42PM +0100, Dave Airlie wrote:
+> >>
+> >>are you sure the callers of these don't wrap it inside a DRM_ERR()
+> >>macro ?
+> >I changed the values when:
+> >- I've checked what seemed right, getting back to the system call.
+> > drm_ioctl(), through a call to func().
+> > That's the case for:
+> > - the EFAULT value in i915_emit_box
+> > - two EINVAL values in drm_setversion
+> >- the return value wasn't used. That was the case for
+> > drm_set_busid return values, I felt having returned values negative
+> > from the start was more consistent.
+> >
+> >Is there a particular change that looked suspicious to you?
+> 
+> [...], however I doubt any of the codepaths are causing a major problem [...]
+I agree, I just corrected those because I happen to stumble upon them.
+I've tried a kernel with those corrections alone, and it didn't changed
+anything on the oopses.
 
->  	struct socket *sock;
->  
->  	if ((sock = sockfd_lookup(fd, &err))!=NULL)
->  	{
-> -		if (level == SOL_SOCKET)
-> +		/* XXX: insufficient for SMP, but should be redundant anyway */
-> +		if (get_user(len, optlen))
-> +			err = -EFAULT;
-> +		else if (len < 0)
-                ^^^^^^^^^^^^^^^^^
+Regards,
+Frederik
 
-s/else//
-
-> +			err = -EINVAL;
-> +		else if (level == SOL_SOCKET)
-
-s/else//
-
->  			err=sock_getsockopt(sock,level,optname,optval,optlen);
->  		else
->  			err=sock->ops->getsockopt(sock, level, optname, optval, optlen);
-
-These checks are already in getsockopt(). Duplicated code?
-
-Eugene
--- 
-eteo redhat.com  ph: +65 6490 4142  http://www.kernel.org/~eugeneteo
-gpg fingerprint:  47B9 90F6 AE4A 9C51 37E0  D6E1 EA84 C6A2 58DF 8823

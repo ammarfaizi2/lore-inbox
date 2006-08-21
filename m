@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751877AbWHUN1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751648AbWHUN3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751877AbWHUN1z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWHUN1z
+	id S1751648AbWHUN3j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWHUN3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:27:55 -0400
-Received: from roadrunner-base.egenera.com ([63.160.166.46]:4234 "EHLO
-	roadrunner-base.egenera.com") by vger.kernel.org with ESMTP
-	id S1751875AbWHUN1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:27:54 -0400
-Date: Mon, 21 Aug 2006 09:27:17 -0400
-From: "Philip R. Auld" <pauld@egenera.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Phillips <phillips@google.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, riel@redhat.com, tgraf@suug.ch,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: Re: [RFC][PATCH 2/9] deadlock prevention core
-Message-ID: <20060821132717.GD26589@vienna.egenera.com>
-References: <1155530453.5696.98.camel@twins> <20060813215853.0ed0e973.akpm@osdl.org> <44E3E964.8010602@google.com> <20060816225726.3622cab1.akpm@osdl.org> <44E5015D.80606@google.com> <20060817230556.7d16498e.akpm@osdl.org> <44E62F7F.7010901@google.com> <20060818153455.2a3f2bcb.akpm@osdl.org> <44E650C1.80608@google.com> <20060818194435.25bacee0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Aug 2006 09:29:39 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:6776 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751875AbWHUN3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 09:29:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JIj6yfrVskdw73n0St1WYR/R0Fv9EGIEqhuf3g9rK6Pbyv8tN/BGb1IZQJnTSqIsOQza2DXShZsbRtP+Zu/pmeIp/ksklMNPQWjPFuph3FTaE3XK58NAowkf3rEFXJjEjyBGupRzmR0aCwLj74DYWDdtQFCJO4Bokbx6mZp3ZKk=
+Message-ID: <aec7e5c30608210629r4f2cf5dlfb1ad7d6cc95745d@mail.gmail.com>
+Date: Mon, 21 Aug 2006 22:29:36 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [Fastboot] [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
+Cc: "Magnus Damm" <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ebiederm@xmission.com
+In-Reply-To: <200608211219.09042.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060818194435.25bacee0.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+References: <20060821095328.3132.40575.sendpatchset@cherry.local>
+	 <200608211219.09042.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On 8/21/06, Andi Kleen <ak@suse.de> wrote:
+>
+> >
+> > +     /* Reload CS with a value that is within our GDT. We need to do this
+> > +      * if we were loaded by a 64 bit bootloader that happened to use a
+> > +      * CS that is larger than the GDT limit. This is true if we came here
+> > +      * from kexec running under Xen.
+> > +      */
+> > +     movq    %rsp, %rdx
+> > +     movq    $__KERNEL_DS, %rax
+> > +     pushq   %rax /* SS */
+> > +     pushq   %rdx /* RSP */
+> > +     movq    $__KERNEL_CS, %rax
+> > +     movq    $cs_reloaded, %rdx
+> > +     pushq   %rax /* CS */
+> > +     pushq   %rdx /* RIP */
+> > +     lretq
+>
+> Can't you just use a normal far jump? That might be simpler.
 
-Rumor has it that on Fri, Aug 18, 2006 at 07:44:35PM -0700 Andrew Morton said:
-> On Fri, 18 Aug 2006 16:44:01 -0700
-> Daniel Phillips <phillips@google.com> wrote:
-> 
-> - We expect that the lots-of-dirty-anon-memory-over-swap-over-network
->   scenario might still cause deadlocks.  
-> 
->   I assert that this can be solved by putting swap on local disks.  Peter
->   asserts that this isn't acceptable due to disk unreliability.  I point
->   out that local disk reliability can be increased via MD, all goes quiet.
+I couldn't find a far jump that took a 64-bit address to jump to. But
+I guess that the kernel will be loaded in the lowest 4G regardless so
+I guess 32-bit pointers are ok, right? That will make it simpler for
+sure.
 
-Putting swap on local disks really messes up the concept of stateless 
-servers. I suppose you can do some sort of swap encryption, but
-otherwise you need to scrub the swap partition on boot if you
-re-purpose the hardware. You also then need to do hardware
-configuration to make sure the local disks are all setup the 
-same way across all server platforms so the common images can 
-boot. 
+What do you think about reloading CS? Is it the right thing to do, or
+is it correct as it is today where we depend on that CS == _KERNEL_CS?
+I need to fix kexec-tools regardless, but maybe it is a good idea to
+make the 64-bit kernel boot a bit robust too.
 
-Please don't require a hardware solution to a software problem.
+Thanks,
 
-> 
->   A good exposition which helps us to understand whether and why a
->   significant proportion of the target user base still wishes to do
->   swap-over-network would be useful.
-> 
-
-I can't claim to represent a significant proportion of the target 
-user base. However, stateless hardware is a powerful and useful
-model. 
-
-
-Cheers,
-
-Phil
-
--- 
-Philip R. Auld, Ph.D.  	        	       Egenera, Inc.    
-Software Architect                            165 Forest St.
-(508) 858-2628                            Marlboro, MA 01752
+/ magnus

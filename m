@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWHUH51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWHUIBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030306AbWHUH51 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 03:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWHUH51
+	id S1030305AbWHUIBV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 04:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWHUIBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 03:57:27 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:15655 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1030300AbWHUH50 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 03:57:26 -0400
-Date: Mon, 21 Aug 2006 09:59:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm2
-Message-ID: <20060821075936.GQ4290@suse.de>
-References: <20060819220008.843d2f64.akpm@osdl.org> <6bffcb0e0608200630h40d2b07v1db22d19753734be@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bffcb0e0608200630h40d2b07v1db22d19753734be@mail.gmail.com>
+	Mon, 21 Aug 2006 04:01:21 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:16006 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1030305AbWHUIBU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 04:01:20 -0400
+Message-ID: <44E9678A.7050704@aitel.hist.no>
+Date: Mon, 21 Aug 2006 09:58:02 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Chase Venters <chase.venters@clientec.com>
+CC: Helge Hafting <helgehaf@aitel.hist.no>,
+       David Schwartz <davids@webmaster.com>, alan@lxorguk.ukuu.org.uk,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: GPL Violation?
+References: <1155919950.30279.8.camel@localhost.localdomain> <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com> <20060819113052.GC3190@aitel.hist.no> <200608192220.42456.chase.venters@clientec.com>
+In-Reply-To: <200608192220.42456.chase.venters@clientec.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20 2006, Michal Piotrowski wrote:
-> On 20/08/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc4/2.6.18-rc4-mm2/
-> >
-> 
-> 0kB Cache?
-> 
-> hdc: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.20
-> hdd: ATAPI CD-ROM drive, 0kB Cache, UDMA(33)
-> 
-> It should be 2048kB
-> 
-> Aug 20 14:28:07 euridica kernel: hdc: ATAPI 48X DVD-ROM DVD-R CD-R/RW
-> drive, 2048kB Cache, UDMA(33)
-> Aug 20 14:28:07 euridica kernel: Uniform CD-ROM driver Revision: 3.20
-> Aug 20 14:28:07 euridica kernel: hdd: ATAPI 52X CD-ROM CD-R/RW drive,
-> 2048kB Cache, UDMA(33)
-> 
-> config & dmesg -> http://www.stardust.webpages.pl/files/mm/2.6.18-rc4-mm2/
+Chase Venters wrote:
+> On Saturday 19 August 2006 06:30, Helge Hafting wrote:
+>   
+>> Now, if someone actually distributes a closed-source module that
+>> circumvents EXPORT_SYMBOL_GPL, or relies on an accompagnying
+>> open source patch that removes the mechanism, this happens:
+>>
+>> 1. By doing this, they clearly showed that their module is outside the
+>>    gray area of "allowed binary-only modules". They definitively
+>>    made a "derived work" and distributed it.
+>>
+>> 2. Anybody who received this module may now invoke the GPL
+>>    (and the force of law, if necessary) to extract the
+>>    module source code from the maker.  And then this source
+>>    can be freely redistributed to all interested.
+>>     
+>
+> Actually, you can't just force the vendor to open up all of their source code.
+Not all their source of course, just the source for the derived work.
+I.e. we'll get their driver, but not anything else they might have.
+>  
+> The GPL isn't a contract - it's a license. If a vendor makes a derived work 
+> from the Linux kernel and does not GPL-license said derived work, they are 
+> indeed violating copyright as the license the GPL provides no longer supports 
+> their ability to redistribute.
+>
+> However, the court decides what happens to the vendor. The court might force 
+> the vendor to open up their code, but to my knowledge this would be breaking 
+> brand new ground. I think it is more likely that the plaintiff could be 
+> awarded monetary damages and the defendant enjoined from further 
+> redistribution.
+>   
+Yes the GPL is a licence. By using the code, they have accepted
+the licence.  If I use a copy of windows, I'll be forced to pay.
+The reason courts usually award monetary damages is that
+money is what almost everybody wants.  Commercial software,
+books, CDs, DVSs are all traded for money, so copying one
+means you must pay the copyright holder's loss.
 
-Does 2.6.18-rc4 correctly identify the cache size? If so, this smells
-like another out fall from the rq-cmd-type patch.
+The GPL should work exactly the same way: You distribute
+software derived from GPL software, you pay the usual price.
+But the usual price for GPLed software is not money,
+the usual price is the derived source.
 
--- 
-Jens Axboe
+That is what IBM pays when porting linux to their processors,
+that is what various hardware vendors pay when they make an
+open driver based on small changes to existing drivers.
+And that is how I believe a vendor should be forced to pay,
+should he have the nerve to distribute a driver that blatantly
+works around the EXPORT_SYMBOL_GPL mechanism.
+> The charge is not "violating the GPL" (since the GPL is not a contract) -- 
+> it's distributing copyrighted materials without a license. See Eben Moglen's 
+> discussion on this subject for more details.
+>   
+Interesting text.  Seems the FSF takes a 'nicer' approach, and that
+works well enough.  Still, if someone tries to be difficult, I hope
+they'll be forced to pay the usual price - which isn't money.
+It'd be hard to set a price anyway, given that GPL software
+isn't usually sold.  The price of having a professional programmer
+developing the same driver perhaps?
 
+
+Helge Hafting

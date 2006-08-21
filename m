@@ -1,106 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWHUUm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWHUUs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWHUUm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 16:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWHUUm7
+	id S1751055AbWHUUs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 16:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWHUUs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 16:42:59 -0400
-Received: from rune.pobox.com ([208.210.124.79]:54465 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1751044AbWHUUm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 16:42:59 -0400
-Date: Mon, 21 Aug 2006 15:42:51 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: Paul Jackson <pj@sgi.com>, simon.derr@bull.net,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] cpuset code prevents binding tasks to new cpus
-Message-ID: <20060821204251.GB9828@localdomain>
-References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com> <20060821192133.GC8499@krispykreme>
+	Mon, 21 Aug 2006 16:48:26 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:54234 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751055AbWHUUs0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 16:48:26 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH 3/7] UBC: ub context and inheritance
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <44E98BA5.8010605@sw.ru>
+References: <44E33893.6020700@sw.ru> <44E33C04.50803@sw.ru>
+	 <1155931423.26155.74.camel@linuxchandra>  <44E98BA5.8010605@sw.ru>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 21 Aug 2006 13:48:21 -0700
+Message-Id: <1156193301.6479.14.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821192133.GC8499@krispykreme>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-> 
-> Hi,
-> 
-> > Your query confuses me, about 4 different ways ...
+On Mon, 2006-08-21 at 14:32 +0400, Kirill Korotaev wrote:
+> Chandra Seetharaman wrote:
+> > On Wed, 2006-08-16 at 19:38 +0400, Kirill Korotaev wrote:
 > > 
-> > 1) What does sched_setaffinity have to do with this part of cpusets?
+> >>Contains code responsible for setting UB on task,
+> >>it's inheriting and setting host context in interrupts.
+> >>
+> >>Task references three beancounters:
+> >>  1. exec_ub  current context. all resources are
+> >>              charged to this beancounter.
+> >>  2. task_ub  beancounter to which task_struct is
+> >>              charged itself.
+> > 
+> > 
+> > I do not see why task_ub is needed ? i do not see it being used
+> > anywhere.
+> it is used to charge task itself. will be heavily used in next patch set
+> adding "numproc" UBC parameter.
+
+Well, from your other responses it sounded like you are including
+code/data structure/functionality only when they are used. So, I wasn't
+clear if this is missed out on cleanup or really part of UBC.
+
+Besides, if this is needed only for a specific controller, shouldn't the
+controller worry about maintaining it ?
+
 > 
-> long sched_setaffinity(pid_t pid, cpumask_t new_mask)
-> {
-> ...
-> 	cpus_allowed = cpuset_cpus_allowed(p);
-> 	cpus_and(new_mask, new_mask, cpus_allowed);
-> 	retval = set_cpus_allowed(p, new_mask);
+> >>  3. fork_sub beancounter which is inherited by
+> >>              task's children on fork
+> > 
+> > 
+> >>From other emails it looks like renaming fork/exec to be real/effective
+> > will be easier to understand.
+> there is no "real". exec_ub is effective indeed,
+> but fork_sub is the one to inherit on fork().
+
+IMO, fork_cb/exec_cb doesn't convey the real meaning of the usage.
 > 
-> If cpuset_cpus_allowed doesnt return the current online mask and we want
-> to schedule on a cpu that has been added since boot it looks like we
-> will fail.
+> Kirill
 > 
-> > 2) What did you mean by "statically assigned"?  At boot, whatever cpus
-> >    and memory nodes are online are copied to the top_cpuset's settings.
-> >    As Simon suggests, it would be up to the hotplug/hotunplug folks to
-> >    update these top_cpuset settings, as cpus and nodes come and go.
 > 
-> Its up to the cpusets code to register a hotplug notifier to update the
-> top_cpuset maps.
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+-- 
 
-I think a notifier is overkill, the top_cpuset mask should just be a
-copy of cpu_possible_map, which doesn't change after boot so we don't
-have to worry about keeping it in sync.  cpuset_cpus_allowed already
-guarantees online cpus in the returned mask.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-
-> > 3) I don't understand what you thought was suspicious here.
-> > 4) I don't understand what you expected to see instead here.
-> 
-> If the top level cpuset pointed to cpu_online_map instead of a boot time
-> copy we wouldnt need any hotplug gunk in the cpusets code.
-> 
-> Maybe the notifier is the right way to go, but it seems strange to
-> create two copies of cpu_online_map (with the associated possibiliy of
-> the two getting out of sync).
-
-Agreed.
-
-Here's a patch:
-
-We have this code in sched_setaffinity:
-
-	cpus_allowed = cpuset_cpus_allowed(p);
-	cpus_and(new_mask, new_mask, cpus_allowed);
-	retval = set_cpus_allowed(p, new_mask);
-
-In the default case (the task belongs to the default toplevel cpuset),
-cpuset_cpus_allowed always returns a copy of whatever cpu_online_map
-was at boot.  When a new cpu is added to the system, the user is
-unable to bind tasks to the new cpu -- in the code above we wind up
-passing an empty cpumask to set_cpus_allowed and get -EINVAL.
-
-Since cpuset_cpus_allowed already ensures that the cpumask it returns
-reflects only online cpus, setting the default cpuset's cpus_allowed
-mask to cpu_possible_map (which never changes) ensures correct
-behavior.
-
-
-Signed-off-by: Nathan Lynch <ntl@pobox.com>
-
---- cpuhp-sched_setaffinity.orig/kernel/cpuset.c
-+++ cpuhp-sched_setaffinity/kernel/cpuset.c
-@@ -2041,7 +2041,7 @@ out:
- 
- void __init cpuset_init_smp(void)
- {
--	top_cpuset.cpus_allowed = cpu_online_map;
-+	top_cpuset.cpus_allowed = cpu_possible_map;
- 	top_cpuset.mems_allowed = node_online_map;
- }
- 
 

@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWHUWcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWHUWcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWHUWcM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 18:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWHUWcM
+	id S1751264AbWHUWcW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 18:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWHUWcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 18:32:12 -0400
-Received: from mga05.intel.com ([192.55.52.89]:57384 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751261AbWHUWcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 18:32:11 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.08,153,1154934000"; 
-   d="scan'208"; a="119223512:sNHT36663333"
-Date: Mon, 21 Aug 2006 15:19:10 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, mingo@redhat.com,
-       apw@shadowen.org
-Subject: Re: [patch] sched: generic sched_group cpu power setup
-Message-ID: <20060821151910.A21718@unix-os.sc.intel.com>
-References: <20060815175525.A2333@unix-os.sc.intel.com> <20060815212455.c9fe1e34.pj@sgi.com> <20060816104551.A7305@unix-os.sc.intel.com> <20060818142347.A22846@unix-os.sc.intel.com> <20060818152954.1ef5aa34.pj@sgi.com> <20060818154230.A23214@unix-os.sc.intel.com> <20060818170945.43ced12b.pj@sgi.com>
+	Mon, 21 Aug 2006 18:32:22 -0400
+Received: from mailfe02.tele2.fr ([212.247.154.44]:63195 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1751264AbWHUWcV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 18:32:21 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+X-Cloudmark-Score: 0.000000 []
+Date: Tue, 22 Aug 2006 00:32:03 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Cc: dave@mielke.cc
+Subject: [PATCH] vcsa attribute bits -> ioctl(VT_GETHIFONTMASK)
+Message-ID: <20060821223203.GD5383@bouh.residence.ens-lyon.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+	dave@mielke.cc
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060818170945.43ced12b.pj@sgi.com>; from pj@sgi.com on Fri, Aug 18, 2006 at 05:09:45PM -0700
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 18, 2006 at 05:09:45PM -0700, Paul Jackson wrote:
-> I'm still trying to figure out what the hell it is ;).
+Hi,
 
-Please refer to the code comments in my recent patch. And also the
-recent conversations between us about this. My OLS 2005 paper(CMP aware
-kernel scheduler) might also help and finally the source code kernel/sched.c
+When reading /dev/vcsa while a font with more than 256 characters is
+loaded, one of the attribute bits records the 9th bit of the character.
+But depending on the console driver (vgacon or fbcon for instance),
+that's bit 3 or bit 0.  And there is no way for userland to know that,
+thus no way for userland to safely grab the screen content.  So here is
+a (tested) patch.  I know 2.6.18 is very close now, but since this is a
+quite trivial patch, maybe it could find its way in as soon as now?
 
-> If all the CPUs in a system have the same computational capacity,
-> then is it just the number of CPUs in a group (times a scale factor
 
-No. It depends on the sched domain, its characteristics and depends
-on performance/power-savings policy.
+  Add a VT_GETHIFONTMASK ioctl for knowing which bit is the 9th bit for
+  VC text (vc_hi_font_mask field of the vc_data structure).
 
-> If two CPUs, side by side, have the same computational capacity,
-> but one consumes more electrical power (watts) than the other, do they
-> have different cpu_power?
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-No.
-
-> If I presumed correctly, then apparently what we're talking about here
-> is computational capacity, as is typically measured in such units as
-> MIPS, megaflops/sec or Drystones. In other words, what Andrew termed
-> "computing power" when he fired the starter's pistol on this scrum.
-> 
-> Is that what this is -- computational capacity, aka computing power
-> (appropriately scaled for the convenience of the arithmetic)?
-> 
-> And is the unit of measure just the number of CPUs in the group
-> (times 128)?
-
-No. That is the case only for some scenarios(for example when power
-savings is enabled..). In the default performance policy mode, domain
-characteristics will determine this value.
-
-thanks,
-suresh
+--- linux-2.6.17-orig/drivers/char/vt_ioctl.c	2006-03-20 06:53:29.000000000 +0100
++++ linux/drivers/char/vt_ioctl.c	2006-08-21 22:34:52.000000000 +0200
+@@ -1012,6 +1012,8 @@
+ 		   return -EPERM;
+ 		vt_dont_switch = 0;
+ 		return 0;
++	case VT_GETHIFONTMASK:
++		return put_user(vc->vc_hi_font_mask, (unsigned short __user *)arg);
+ 	default:
+ 		return -ENOIOCTLCMD;
+ 	}
+--- linux-2.6.17-orig/include/linux/vt.h	2006-03-20 06:53:29.000000000 +0100
++++ linux/include/linux/vt.h	2006-08-21 22:35:49.000000000 +0200
+@@ -50,5 +50,6 @@
+ #define VT_RESIZEX      0x560A  /* set kernel's idea of screensize + more */
+ #define VT_LOCKSWITCH   0x560B  /* disallow vt switching */
+ #define VT_UNLOCKSWITCH 0x560C  /* allow vt switching */
++#define VT_GETHIFONTMASK 0x560D  /* return hi font mask */
+ 
+ #endif /* _LINUX_VT_H */
+--- linux-2.6.17-orig/include/linux/compat_ioctl.h	2006-06-18 19:22:39.000000000 +0200
++++ linux/include/linux/compat_ioctl.h	2006-08-21 22:34:17.000000000 +0200
+@@ -216,6 +216,7 @@
+ COMPATIBLE_IOCTL(VT_RESIZEX)
+ COMPATIBLE_IOCTL(VT_LOCKSWITCH)
+ COMPATIBLE_IOCTL(VT_UNLOCKSWITCH)
++COMPATIBLE_IOCTL(VT_GETHIFONTMASK)
+ /* Little p (/dev/rtc, /dev/envctrl, etc.) */
+ COMPATIBLE_IOCTL(RTC_AIE_ON)
+ COMPATIBLE_IOCTL(RTC_AIE_OFF)

@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWHUG1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWHUGsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWHUG1W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 02:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWHUG1V
+	id S1030278AbWHUGsD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 02:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWHUGsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 02:27:21 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:51805 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1030217AbWHUG1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 02:27:20 -0400
-Date: Mon, 21 Aug 2006 08:29:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cfq_cic_link: fix? usage of wrong cfq_io_context
-Message-ID: <20060821062930.GJ4290@suse.de>
-References: <20060820210903.GA6123@oleg>
+	Mon, 21 Aug 2006 02:48:03 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:2211 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1030278AbWHUGsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 02:48:02 -0400
+Message-Id: <44E97353.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 21 Aug 2006 08:48:19 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
+References: <20060820013121.GA18401@fieldses.org>
+In-Reply-To: <20060820013121.GA18401@fieldses.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060820210903.GA6123@oleg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21 2006, Oleg Nesterov wrote:
-> Obviously, cfq_cic_link() shouldn't free a just allocated cfq_io_context ?
-> 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 2.6.18-rc4/block/cfq-iosched.c~7_set	2006-08-20 21:23:25.000000000 +0400
-> +++ 2.6.18-rc4/block/cfq-iosched.c	2006-08-21 00:53:27.000000000 +0400
-> @@ -1561,7 +1561,7 @@ restart:
->  		/* ->key must be copied to avoid race with cfq_exit_queue() */
->  		k = __cic->key;
->  		if (unlikely(!k)) {
-> -			cfq_drop_dead_cic(ioc, cic);
-> +			cfq_drop_dead_cic(ioc, __cic);
->  			goto restart;
->  		}
+>>> "J. Bruce Fields" <bfields@fieldses.org> 20.08.06 03:31 >>>
+>As of 2.6.18-rc3, one of my test machines stopped booting.  I'm not
+>seeing the whole OOPS (I could probably set up a serial console if
+>necessary), but it ends in something like:
+>
+>trace_hardirqs_on
+>idesci_pc_intr
+>ide_intr
+>handle_IRQ_event
+>__do_IRQ
+>do_IRQ
+>common_interrupt
+>default_idle
+>apm_cpu_idle
+>cpu_idle
+>rest_init
+>start_kernel
+>0xc0100199
+>DWARF2 unwinder stuck at 0xc0100199
+>Leftover inexact backtrace:
+> =======================
+> BUG: unable to handle kernel paging request at virtual address 0000b034
+> printing eip:
+>c0103712
+>*pde = 00000000
+>Recursive die() failure, output suppressed
+> <0>Kernel panic - not syncing: Fatal exception in interrupt
+>
+>Bisecting, it looks like this starts happening after c97d20a...,
+>"[PATCH] i386: Do backtrace fallback too", though it's a little tricky
+>since the compile is broken near there for a little while.
+>
+>Kernel config appended; let me know if anything else would be useful.
 
-Yep, that's a typo. Applied.
+The 'stuck' unwinder issue at hand already has a fix, though planned to
+be merged for 2.6.19 only. The crash after switching to the legacy
+stack trace code is bad, though, but has little to do with the unwinder
+additions/changes. The way that code reads the stack is just
+inappropriate in contexts where things must be expected to be broken.
 
--- 
-Jens Axboe
+Finally, there is no visible correlation between the original problem (in
+or from trace_hardirqs_on) and the unwinder - once that problem is
+fixed, you're not likely to see the recursive die failure anymore either.
 
+Jan

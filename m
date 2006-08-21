@@ -1,35 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWHUVYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWHUVYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWHUVYs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWHUVYs
+	id S1751144AbWHUVYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWHUVYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:24:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42200 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751147AbWHUVYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:24:47 -0400
-Date: Mon, 21 Aug 2006 23:24:44 +0200
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [2.6 patch] re-add -ffreestanding
-Message-Id: <20060821232444.9a347714.ak@suse.de>
-In-Reply-To: <20060821212154.GO11651@stusta.de>
-References: <20060821212154.GO11651@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 17:24:00 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:34977 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S1751144AbWHUVX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 17:23:59 -0400
+Date: Mon, 21 Aug 2006 23:23:58 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Looking for a reliable USB network card
+Message-ID: <20060821212358.GB1558@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11-2006-07-11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 23:21:54 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+Hello,
+since I have problems with my sky2 network card on my mac mini, I am
+looking for a cheap but reliable usb network card which is available in
+Germany. Anyone?
 
-> I got the following compile error with gcc 4.1.1 when trying to compile 
-> kernel 2.6.18-rc4-mm2 for m68k:
-
-I object to this change. -ffreestanding shouldn't be forced on everybody
-
--Andi
+        Thomas

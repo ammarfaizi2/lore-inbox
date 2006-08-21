@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWHUSxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWHUStz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWHUSxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWHUStD
+	id S1750798AbWHUStz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWHUStl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:49:03 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:5053 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750770AbWHUSs5 (ORCPT
+	Mon, 21 Aug 2006 14:49:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:17085 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750792AbWHUStU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:48:57 -0400
-Date: Mon, 21 Aug 2006 11:47:23 -0700
+	Mon, 21 Aug 2006 14:49:20 -0400
+Date: Mon, 21 Aug 2006 11:47:45 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,14 +17,16 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Adrian Bunk <bunk@stusta.de>,
-       Patrick McHardy <kaber@trash.net>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 14/20] : ip_tables: fix table locking in ipt_do_table
-Message-ID: <20060821184723.GO21938@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       "David S. Miller" <davem@davemloft.net>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 16/20] Fix ipv4 routing locking bug
+Message-ID: <20060821184745.GR21938@kroah.com>
 References: <20060821183818.155091391@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="ip_tables-fix-table-locking-in-ipt_do_table.patch"
+Content-Disposition: inline; filename="fix-ipv4-routing-locking-bug.patch"
 In-Reply-To: <20060821184527.GA21938@kroah.com>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,58 +35,82 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Patrick McHardy <kaber@trash.net>
 
-[NETFILTER]: ip_tables: fix table locking in ipt_do_table
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 
-table->private might change because of ruleset changes, don't use it without
-holding the lock.
+[IPV4]: severe locking bug in fib_semantics.c
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
+Found in 2.4 by Yixin Pan <yxpan@hotmail.com>.
+
+> When I read fib_semantics.c of Linux-2.4.32, write_lock(&fib_info_lock) =
+> is used in fib_release_info() instead of write_lock_bh(&fib_info_lock).  =
+> Is the following case possible: a BH interrupts fib_release_info() while =
+> holding the write lock, and calls ip_check_fib_default() which calls =
+> read_lock(&fib_info_lock), and spin forever.
+
+Signed-off-by: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- net/ipv4/netfilter/arp_tables.c |    3 ++-
- net/ipv4/netfilter/ip_tables.c  |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/ipv4/fib_semantics.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- linux-2.6.17.9.orig/net/ipv4/netfilter/arp_tables.c
-+++ linux-2.6.17.9/net/ipv4/netfilter/arp_tables.c
-@@ -237,7 +237,7 @@ unsigned int arpt_do_table(struct sk_buf
- 	struct arpt_entry *e, *back;
- 	const char *indev, *outdev;
- 	void *table_base;
--	struct xt_table_info *private = table->private;
-+	struct xt_table_info *private;
+--- linux-2.6.17.9.orig/net/ipv4/fib_semantics.c
++++ linux-2.6.17.9/net/ipv4/fib_semantics.c
+@@ -160,7 +160,7 @@ void free_fib_info(struct fib_info *fi)
  
- 	/* ARP header, plus 2 device addresses, plus 2 IP addresses.  */
- 	if (!pskb_may_pull((*pskb), (sizeof(struct arphdr) +
-@@ -249,6 +249,7 @@ unsigned int arpt_do_table(struct sk_buf
- 	outdev = out ? out->name : nulldevname;
+ void fib_release_info(struct fib_info *fi)
+ {
+-	write_lock(&fib_info_lock);
++	write_lock_bh(&fib_info_lock);
+ 	if (fi && --fi->fib_treeref == 0) {
+ 		hlist_del(&fi->fib_hash);
+ 		if (fi->fib_prefsrc)
+@@ -173,7 +173,7 @@ void fib_release_info(struct fib_info *f
+ 		fi->fib_dead = 1;
+ 		fib_info_put(fi);
+ 	}
+-	write_unlock(&fib_info_lock);
++	write_unlock_bh(&fib_info_lock);
+ }
  
- 	read_lock_bh(&table->lock);
-+	private = table->private;
- 	table_base = (void *)private->entries[smp_processor_id()];
- 	e = get_entry(table_base, private->hook_entry[hook]);
- 	back = get_entry(table_base, private->underflow[hook]);
---- linux-2.6.17.9.orig/net/ipv4/netfilter/ip_tables.c
-+++ linux-2.6.17.9/net/ipv4/netfilter/ip_tables.c
-@@ -231,7 +231,7 @@ ipt_do_table(struct sk_buff **pskb,
- 	const char *indev, *outdev;
- 	void *table_base;
- 	struct ipt_entry *e, *back;
--	struct xt_table_info *private = table->private;
-+	struct xt_table_info *private;
+ static __inline__ int nh_comp(const struct fib_info *fi, const struct fib_info *ofi)
+@@ -599,7 +599,7 @@ static void fib_hash_move(struct hlist_h
+ 	unsigned int old_size = fib_hash_size;
+ 	unsigned int i, bytes;
  
- 	/* Initialization */
- 	ip = (*pskb)->nh.iph;
-@@ -248,6 +248,7 @@ ipt_do_table(struct sk_buff **pskb,
+-	write_lock(&fib_info_lock);
++	write_lock_bh(&fib_info_lock);
+ 	old_info_hash = fib_info_hash;
+ 	old_laddrhash = fib_info_laddrhash;
+ 	fib_hash_size = new_size;
+@@ -640,7 +640,7 @@ static void fib_hash_move(struct hlist_h
+ 	}
+ 	fib_info_laddrhash = new_laddrhash;
  
- 	read_lock_bh(&table->lock);
- 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
-+	private = table->private;
- 	table_base = (void *)private->entries[smp_processor_id()];
- 	e = get_entry(table_base, private->hook_entry[hook]);
+-	write_unlock(&fib_info_lock);
++	write_unlock_bh(&fib_info_lock);
  
+ 	bytes = old_size * sizeof(struct hlist_head *);
+ 	fib_hash_free(old_info_hash, bytes);
+@@ -822,7 +822,7 @@ link_it:
+ 
+ 	fi->fib_treeref++;
+ 	atomic_inc(&fi->fib_clntref);
+-	write_lock(&fib_info_lock);
++	write_lock_bh(&fib_info_lock);
+ 	hlist_add_head(&fi->fib_hash,
+ 		       &fib_info_hash[fib_info_hashfn(fi)]);
+ 	if (fi->fib_prefsrc) {
+@@ -841,7 +841,7 @@ link_it:
+ 		head = &fib_info_devhash[hash];
+ 		hlist_add_head(&nh->nh_hash, head);
+ 	} endfor_nexthops(fi)
+-	write_unlock(&fib_info_lock);
++	write_unlock_bh(&fib_info_lock);
+ 	return fi;
+ 
+ err_inval:
 
 --

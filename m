@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbWHUHsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWHUHti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbWHUHsx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 03:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWHUHsw
+	id S1030288AbWHUHti (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 03:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWHUHti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 03:48:52 -0400
-Received: from ns.suse.de ([195.135.220.2]:27354 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965065AbWHUHsw (ORCPT
+	Mon, 21 Aug 2006 03:49:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:5299 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030288AbWHUHth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 03:48:52 -0400
+	Mon, 21 Aug 2006 03:49:37 -0400
 From: Andi Kleen <ak@suse.de>
-To: David Chinner <dgc@sgi.com>
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow  writeback.
-Date: Mon, 21 Aug 2006 09:47:03 +0200
+To: Magnus Damm <magnus@valinux.co.jp>
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+Date: Mon, 21 Aug 2006 09:48:40 +0200
 User-Agent: KMail/1.9.3
-Cc: Neil Brown <neilb@suse.de>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <17633.2524.95912.960672@cse.unsw.edu.au> <17640.65491.458305.525471@cse.unsw.edu.au> <20060821031505.GQ51703024@melbourne.sgi.com>
-In-Reply-To: <20060821031505.GQ51703024@melbourne.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
+       Christoph@sc8-sf-spam2-b.sourceforge.net,
+       List <linux-kernel@vger.kernel.org>, Kirill Korotaev <dev@sw.ru>,
+       Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux@sc8-sf-spam2-b.sourceforge.net, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org
+References: <44E33893.6020700@sw.ru> <20060818094248.cdca152d.akpm@osdl.org> <1156127920.21411.32.camel@localhost>
+In-Reply-To: <1156127920.21411.32.camel@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608210947.03793.ak@suse.de>
+Message-Id: <200608210948.40870.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Ouch.  
-> > I suspect we are going to see more of this, as USB drive for backups
-> > is probably a very attractive option for many.
+> You may be looking for the NUMA emulation patches posted here:
 > 
-> I can't see how this would occur on a 2.6 kernel 
-
-I still got the traces to prove it:
-http://www.firstfloor.org/~andi/usb-loop-copy-stall-1
-
-e.g. notice the lynx which is stuck in a m/atime update. It was stalling
-for a quite long time.
-
+> http://marc.theaimsgroup.com/?l=linux-mm&m=112806587501884&w=2
 > 
+> There is a slightly updated x86_64 version here too:
+> 
+> http://marc.theaimsgroup.com/?l=linux-mm&m=113161386520342&w=2
+
+Hmm, I must have missed that version. Seems like a improvement. Best you
+resubmit it, although I'll probably only take it after the .19 merge
+
+
 -Andi

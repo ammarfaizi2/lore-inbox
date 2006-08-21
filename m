@@ -1,95 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWHUUP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWHUURY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWHUUP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 16:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWHUUP0
+	id S1750929AbWHUURY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 16:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWHUURY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 16:15:26 -0400
-Received: from ns1.soleranetworks.com ([70.103.108.67]:27282 "EHLO
-	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1750922AbWHUUP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 16:15:26 -0400
-Message-ID: <44EA1B74.3000702@wolfmountaingroup.com>
-Date: Mon, 21 Aug 2006 14:45:40 -0600
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
-X-Accept-Language: en-us, en
+	Mon, 21 Aug 2006 16:17:24 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:27111 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1750780AbWHUURX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 16:17:23 -0400
+Message-ID: <44EA14BF.5090102@nachtwindheim.de>
+Date: Mon, 21 Aug 2006 22:17:03 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-To: Hulin Thibaud <hulin.thibaud@wanadoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: ndiswrapper]
-References: <44E9D0FB.4000806@wanadoo.fr> <44E9DD89.4030106@wolfmountaingroup.com> <44E9DA18.1010602@wanadoo.fr> <44E9E6A9.2030803@wolfmountaingroup.com> <44EA1335.9000004@wanadoo.fr>
-In-Reply-To: <44EA1335.9000004@wanadoo.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Linker error on via-velocity driver
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hulin Thibaud wrote:
+Hi there!
 
-> That's not the kernel of my distrib (Ubuntu Dapper). That's my own 
-> kernel compiled with the option -binary. So, I installed manually the 
-> .deb from kernel.org to sources, image, and headers. Maybe there is a 
-> problem of links, to headers by example ?
+I found a bug in the via-velocity driver, but I cant find a maintainer for that, so I write to the lists.
+This driver depends on CONFIG_INET (tcp/ip) if CONFIG_PM is enabled.
+This is tested on i386 and x86_64.
+I'm not familiar with network stuff but I don't believe a device should depend on a protocol.
+If you are interested to fix it:
 
-Looks that way.  First thing it to get a stable kernel tree you can 
-build and boot from without ndiswrapper.  Next is check their makefiles 
-for ndiswrapper.
-I have never attempted to build it on Ubuntu, just Suse and RedHat so 
-there may be issues with this.
+make allnoconfig
+enable CONFIG_PCI
+enable CONFIG_NET
+enable CONFIG_NET_ETHERNET
+enable CONFIG_NET_PCI
+enable CONFIG_VIA_VELOCITY
+make
 
-Jeff
+That only happens when CONFIG_PM is enabled. If it's switched off it won't happen.
 
->
->
->
-> Jeff V. Merkey a écrit :
->
->> Hulin Thibaud wrote:
->>
->>> I rebuilt ndiswrapper 1.19 version. When I type make, I have these 
->>> errors :
->>>
->>> /usr/src/kernel-headers-2.6.17.060815.dell/Ach/i386/Makefile:383 
->>> /usr/src/kernel-headers-2.6.17.060815.dell/Ach/i386/Makefile.cpu : 
->>> No file or folder of this type
->>> Not rules to built the target
->>>
->>> (I traduce from french)
->>>
->>> Jeff V. Merkey a écrit :
->>>
->>>> Hulin Thibaud wrote:
->>>>
->>>>> Hi !
->>>>> I wanted to write at the kernel-net list, but that don't works.
->>>>> I updated my kernel and compiled it to 2.6.17, but now, ndiswrapper
->>>>> don't recognize my dongle Thomson XG-1500A.
->>>>> What can I do ?
->>>>> Thanks you very much,
->>>>> Thibaud.
->>>>>
->>>>>
->>>>> -
->>>>> To unsubscribe from this list: send the line "unsubscribe 
->>>>> linux-kernel" in
->>>>> the body of a message to majordomo@vger.kernel.org
->>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>>> Please read the FAQ at  http://www.tux.org/lkml/
->>>>>
->>>> Use the .19 ndiswrapper and try rebuilding.
->>>> Jeff
->>>>
->>>>
->>>
->>>
->> Sounds like the kernel includes and sources are not fully installed.  
->> Don't rely on stock kernels for any of the distros, go the the 
->> provider and get the kernel andall the header sources.
->>
->> Jeff
->>
->>
->
->
+Greets,
+Henne
 

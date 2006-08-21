@@ -1,87 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWHUWoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWHUWsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbWHUWoY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 18:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWHUWoX
+	id S1751265AbWHUWsw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 18:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWHUWsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 18:44:23 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:8359 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751263AbWHUWoX (ORCPT
+	Mon, 21 Aug 2006 18:48:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19631 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751265AbWHUWsw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 18:44:23 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Kirill Korotaev <dev@sw.ru>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1156198835.18887.87.camel@localhost.localdomain>
-References: <44E33893.6020700@sw.ru>
-	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
-	 <1156196721.6479.67.camel@linuxchandra>
-	 <1156198835.18887.87.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 21 Aug 2006 15:44:19 -0700
-Message-Id: <1156200259.6479.74.camel@linuxchandra>
+	Mon, 21 Aug 2006 18:48:52 -0400
+Date: Mon, 21 Aug 2006 15:48:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sys_ioprio_set: don't disable irqs
+Message-Id: <20060821154841.e6ea500a.akpm@osdl.org>
+In-Reply-To: <20060820205034.GA5755@oleg>
+References: <20060820204345.GA5750@oleg>
+	<20060820205034.GA5755@oleg>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 23:20 +0100, Alan Cox wrote:
-> Ar Llu, 2006-08-21 am 14:45 -0700, ysgrifennodd Chandra Seetharaman:
-> > As I mentioned UBC might be perfect for container resource management,
-> > but what I am talking for is resource management _without_ a container.
-> 
-> There isn't really a difference. UBC counts usage of things. It has to
-> know who to charge the thing to but its core concept of the luid isn't a
-> container, its more akin to the a departmental or project billing code.
+On Mon, 21 Aug 2006 00:50:34 +0400
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-I didn't say it is different. The way it is implemented now has some
-restrictions for generic resource management purposes (like ability to
-move task around), but they are not a problem for container type usage.
- 
-> 
-> > > 3. is it so BIG obstacle for UBC patch? These 3-lines hooks code which
-> > >    is not used?
-> 
-> Add them later when they prove to be needed. If IBM send a feature that
-> needs it then add them in that feature. Everyone is happy it is possible
-> to add that hook when needed.
+> Question: why do we need to disable irqs in exit_io_context() ?
 
-As I mentioned in my reply, I am ok with adding it later.
+iirc it was to prevent IRQ-context code from getting a hold on
+current->io_context and then playing around with it while it's getting
+freed.
 
+In practice, a preempt_disable() there would probably suffice (ie: if this
+CPU is running an ISR, it won't be running exit_io_context as well).  But
+local_irq_disable() is clearer, albeit more expensive.
+
+> Why do we need ->alloc_lock to clear io_context->task ?
+
+To prevent races against elv_unregister(), I guess.
+
+> In other words, could you explain why the patch below is not correct.
+> 
+> Thanks,
+> 
+> Oleg.
+> 
+> --- 2.6.18-rc4/block/ll_rw_blk.c~6_exit	2006-08-20 19:30:10.000000000 +0400
+> +++ 2.6.18-rc4/block/ll_rw_blk.c	2006-08-20 22:34:46.000000000 +0400
+> @@ -3580,25 +3580,22 @@ EXPORT_SYMBOL(put_io_context);
+>  /* Called by the exitting task */
+>  void exit_io_context(void)
+>  {
+> -	unsigned long flags;
+>  	struct io_context *ioc;
+>  	struct cfq_io_context *cic;
 >  
-> > In a non-container situation IMO it will be easier to manage/associate
-> > "gold", "silver", "bronze", "plastic" groups than 0, 11, 83 and 113.
-> 
-> User space issue. Doing that in kernel will lead to some limitations
-> later on and end up needing the user space anyway. Consider wanting to
-> keep the container name and properties in LDAP.
-> 
-> 
-> 
-> 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+> -	local_irq_save(flags);
+>  	task_lock(current);
+>  	ioc = current->io_context;
+>  	current->io_context = NULL;
+> -	ioc->task = NULL;
+>  	task_unlock(current);
+> -	local_irq_restore(flags);
+>  
+> +	ioc->task = NULL;
+>  	if (ioc->aic && ioc->aic->exit)
+>  		ioc->aic->exit(ioc->aic);
+>  	if (ioc->cic_root.rb_node != NULL) {
+>  		cic = rb_entry(rb_first(&ioc->cic_root), struct cfq_io_context, rb_node);
+>  		cic->exit(ioc);
+>  	}
+> - 
+> +
+>  	put_io_context(ioc);
+>  }
+>  

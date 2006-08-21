@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbWHUB5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWHUB7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751806AbWHUB5J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 21:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbWHUB5J
+	id S932526AbWHUB7o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 21:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWHUB7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 21:57:09 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:27277 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751803AbWHUB5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 21:57:07 -0400
-Date: Sun, 20 Aug 2006 21:55:17 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Bj?rn Steinbrink <B.Steinbrink@gmx.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] introduce kernel_execve function to replace __KERNEL_SYSCALLS__
-Message-ID: <20060821015517.GA22062@ccure.user-mode-linux.org>
-References: <20060819073031.GA25711@atjola.homenet> <200608201237.13194.chase.venters@clientec.com> <20060820112523.f14fc6dc.akpm@osdl.org> <200608201333.02951.chase.venters@clientec.com> <20060820194552.GB11843@atjola.homenet> <1156103446.23756.60.camel@laptopd505.fenrus.org> <20060820201118.GC11843@atjola.homenet> <1156105229.23756.65.camel@laptopd505.fenrus.org> <20060820203604.GD11843@atjola.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Aug 2006 21:59:44 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:7065 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932114AbWHUB7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 21:59:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OK+Z2SRKwW11kHzK5Dk6pViLXt66Rh8qLp6ACFrDQr4pUew3QEd2l8EdnlhjeF0QV9N9YSI2X0D2aX1iGx6DWZ5DUOr88SQQlHFVN5I4ou4Hpy9TjADH+eNLAy8z4U4xA3GgZow59EfmWdDVFkbJ0qNkq0Jyv3Z12BklpjS1K7Y=
+Message-ID: <18d709710608201859o7f1c8075wab0e71cd85814967@mail.gmail.com>
+Date: Sun, 20 Aug 2006 22:59:41 -0300
+From: "Julio Auto" <mindvortex@gmail.com>
+To: "Willy Tarreau" <w@1wt.eu>
+Subject: Re: [PATCH] loop.c: kernel_thread() retval check
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Solar Designer" <solar@openwall.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060820225823.GD602@1wt.eu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060820203604.GD11843@atjola.homenet>
-User-Agent: Mutt/1.4.2.1i
+References: <20060819234629.GA16814@openwall.com>
+	 <1156097717.4051.26.camel@localhost.localdomain>
+	 <20060820223442.GA21960@openwall.com>
+	 <1156115468.4051.80.camel@localhost.localdomain>
+	 <20060820225823.GD602@1wt.eu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 10:36:04PM +0200, Bj?rn Steinbrink wrote:
-> For example check_host_supports_tls in arch/um/os-Linux/sys-i386/tls.c
-> which even uses the global errno (although in that case the whole
-> else part could probably be just removed).
+On 8/20/06, Willy Tarreau <w@1wt.eu> wrote:
+> That's so true ! We're relying too much on our own time while many people
+> might be waiting for some little work to start taking a look at the kernel
+> internals !
+>
+> I think I will be starting to ask for forward porters for the fixed to 2.4
+> that need to be ported to 2.6 too.
 
-UML is different.  It uses errno extensively (as it must) on the glibc side
-of things.  On the kernel side, there are no uses of errno that I'm aware of.
+Well, actually I'd be glad to help. In fact, with this particular 2.4
+patch at hand, fixing 2.6 seems incredbly straight-forward (or am I
+getting ahead of myself?)
+However, I wasn't able to reproduce the bug in my system just by
+running losetup under strace. Maybe 2.6.15-1.2054_FC5 has it patched?
+If if no one can help me out with this I'll boot into a stock kernel
+later and try to trigger the bug again.
 
-				Jeff
+Cheers,
+
+    Julio Auto

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWHUNtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030486AbWHUNxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbWHUNtW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbWHUNtW
+	id S1030486AbWHUNxo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWHUNxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:49:22 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:19770 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1030467AbWHUNtV (ORCPT
+	Mon, 21 Aug 2006 09:53:44 -0400
+Received: from pat.uio.no ([129.240.10.4]:42748 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030471AbWHUNxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:49:21 -0400
-Date: Mon, 21 Aug 2006 15:51:32 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Neil Brown <neilb@suse.de>
-Cc: David Chinner <dgc@sgi.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow  writeback.
-Message-ID: <20060821135132.GG4290@suse.de>
-References: <20060815230050.GB51703024@melbourne.sgi.com> <17635.60378.733953.956807@cse.unsw.edu.au> <20060816231448.cc71fde7.akpm@osdl.org> <20060818001102.GW51703024@melbourne.sgi.com> <20060817232942.c35b1371.akpm@osdl.org> <20060818070314.GE798@suse.de> <p73hd0998is.fsf@verdi.suse.de> <17640.65491.458305.525471@cse.unsw.edu.au> <20060821031505.GQ51703024@melbourne.sgi.com> <17641.24478.496091.79901@cse.unsw.edu.au>
+	Mon, 21 Aug 2006 09:53:43 -0400
+Subject: Re: Where does NFS client associate the file handle received from
+	server with inode?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <4ae3c140608191836we4603c0qa61d5631161a482d@mail.gmail.com>
+References: <4ae3c140608191836we4603c0qa61d5631161a482d@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 21 Aug 2006 09:53:33 -0400
+Message-Id: <1156168413.5583.135.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17641.24478.496091.79901@cse.unsw.edu.au>
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-1.9, required 12,
+	autolearn=disabled, AWL 0.59, RCVD_IN_XBL 2.51,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21 2006, Neil Brown wrote:
-> Jens:  Was it s SuSE kernel or a mainline kernel on which you
->    experienced this slowdown with an external USB drive?
+On Sat, 2006-08-19 at 21:36 -0400, Xin Zhao wrote:
+> I ran into a problem:
+> 
+> I extend several fields to file handle, and change compose_fh() to
+> initialize some value into the file handle. I think the client side
+> should be able to associate the file handle with inode and used them
+> properly afterwards.  However, I found a problem:
+> 
+> Say I have a program 'postmark" in /tmp, and my current directory is /
+> 
+> If I do '/tmp/postmark', getattr() funciton will not use the right
+> file handle with extension. Instead, it seems to use a file handle
+> excluding my extension
+> 
+> but if I change to '/tmp', do 'ls -al' first, then I do 'postmark',
+> getattr() will use the right file handle.
+> 
+> So I think maybe I need to change NFS client to associate the extened
+> file handle with inode . But I don't know where NFS client does this.
+> Can someone give me a help?
 
-Note that this was on the old days, on 2.4 kernels. It was (and still
-is) a generic 2.4 problem, which is quite apparent when you have larger
-slow devices. Larger, because then you can have a lot of dirty memory in
-flight for that device. The case I most often saw reported was on
-DVD-RAM atapi or scsi devices, which write at 3-400kb/sec. An external
-usb hard drive over usb 1.x would be almost as bad, I suppose.
+Why are you changing the file handle? We should already be caching the
+correct one (i.e. the one that was sent to us by the server in the
+LOOKUP call) in the 'struct nfs_inode'.
 
-I haven't heard any complaints for 2.6 in this area for a long time.
-
-> Then we just need to deal with the case where the some of the queue
-> limits of all devices exceeds the dirty threshold....
-> Maybe writeout queues need to auto-adjust their queue length when some
-> system-wide situation is detected.... sounds messy.
-
-Queue length is a little tricky, so it's basically controlled by two
-parameters - nr_requests and max_sectors_kb. Most SATA drives can do
-32MiB requests, so in theory a system that sets max_sectors_kb to
-max_hw_sectors_kb and retains a default nr_requests of 128, can see up
-to 32 * (128 * 3) / 2 == 6144MiB per disk in flight. Auch. By default we
-only allow 512KiB per requests, which brings us to a more reasonable
-96MiB per disk.
-
-But these numbers are in no way tied to the hardware. It may be totally
-reasonable to have 3GiB of dirty data on one system, and it may be
-totally unreasonable to have 96MiB of dirty data on another. I've always
-thought that assuming any kind of reliable throttling at the queue level
-is broken and that the vm should handle this completely.
-
--- 
-Jens Axboe
+Cheers,
+  Trond
 

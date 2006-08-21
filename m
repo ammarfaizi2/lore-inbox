@@ -1,63 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWHUTWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWHUTYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWHUTWv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 15:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWHUTWv
+	id S1750859AbWHUTYM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 15:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWHUTYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 15:22:51 -0400
-Received: from ozlabs.org ([203.10.76.45]:35207 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750883AbWHUTWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 15:22:50 -0400
-Date: Tue, 22 Aug 2006 05:21:33 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: simon.derr@bull.net, nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: cpusets not cpu hotplug aware
-Message-ID: <20060821192133.GC8499@krispykreme>
-References: <20060821132709.GB8499@krispykreme> <20060821104334.2faad899.pj@sgi.com>
+	Mon, 21 Aug 2006 15:24:12 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:35766 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1750859AbWHUTYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 15:24:11 -0400
+Date: Mon, 21 Aug 2006 13:24:10 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Christoph Hellwig <hch@infradead.org>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/wd33c93.c: cleanups
+Message-ID: <20060821192410.GD24068@parisc-linux.org>
+References: <20060821104357.GH11651@stusta.de> <20060821105344.GA28759@infradead.org> <20060821192215.GL11651@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060821104334.2faad899.pj@sgi.com>
+In-Reply-To: <20060821192215.GL11651@stusta.de>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 21, 2006 at 09:22:15PM +0200, Adrian Bunk wrote:
+> It sounds rather strange that non-arch code should use asm headers.
 
-Hi,
-
-> Your query confuses me, about 4 different ways ...
-> 
-> 1) What does sched_setaffinity have to do with this part of cpusets?
-
-long sched_setaffinity(pid_t pid, cpumask_t new_mask)
-{
-...
-	cpus_allowed = cpuset_cpus_allowed(p);
-	cpus_and(new_mask, new_mask, cpus_allowed);
-	retval = set_cpus_allowed(p, new_mask);
-
-If cpuset_cpus_allowed doesnt return the current online mask and we want
-to schedule on a cpu that has been added since boot it looks like we
-will fail.
-
-> 2) What did you mean by "statically assigned"?  At boot, whatever cpus
->    and memory nodes are online are copied to the top_cpuset's settings.
->    As Simon suggests, it would be up to the hotplug/hotunplug folks to
->    update these top_cpuset settings, as cpus and nodes come and go.
-
-Its up to the cpusets code to register a hotplug notifier to update the
-top_cpuset maps.
-
-> 3) I don't understand what you thought was suspicious here.
-> 4) I don't understand what you expected to see instead here.
-
-If the top level cpuset pointed to cpu_online_map instead of a boot time
-copy we wouldnt need any hotplug gunk in the cpusets code.
-
-Maybe the notifier is the right way to go, but it seems strange to
-create two copies of cpu_online_map (with the associated possibiliy of
-the two getting out of sync).
-
-Anton
+It should get everything it needs from including <linux/interrupt.h>

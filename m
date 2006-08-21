@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWHUSe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWHUSgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWHUSe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 14:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWHUSe2
+	id S1750709AbWHUSgz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWHUSgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 14:34:28 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:5043 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP
-	id S1750702AbWHUSe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 14:34:28 -0400
-Message-ID: <44E9FCB5.4050101@nachtwindheim.de>
-Date: Mon, 21 Aug 2006 20:34:29 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [DOCBOOK] fix segfault in docproc.c
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 14:36:55 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:50604 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750709AbWHUSgy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 14:36:54 -0400
+Date: Tue, 22 Aug 2006 00:06:21 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 0/7] CPU controller - V1
+Message-ID: <20060821183621.GA24431@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <1156156960.7772.38.camel@Homer.simpson.net> <20060821124830.GB14291@in.ibm.com> <1156180241.6582.69.camel@Homer.simpson.net> <20060821164553.GA21130@in.ibm.com> <1156192388.6665.29.camel@Homer.simpson.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156192388.6665.29.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Mon, Aug 21, 2006 at 08:33:08PM +0000, Mike Galbraith wrote:
+> Looks ok to me.  Everything except sync && cpu == this_cpu checks.
 
-Adds a missing exit, if the file that should be parsed couldn't be opened.
-Without it crashes with a segfault, cause the filedescriptor is accessed even if the file could not be opened.
-This error happens on 2.6.18-rc4-mm[12] when executing make xmldocs.
+Hmm ..yes ..stupid of me. !sync will catch the case I had in mind.
 
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
----
-
---- linux-2.6.18-rc4/scripts/basic/docproc.c	2006-06-18 03:49:35.000000000 +0200
-+++ linux/scripts/basic/docproc.c	2006-08-18 22:19:48.000000000 +0200
-@@ -177,6 +177,7 @@
- 		{
- 			fprintf(stderr, "docproc: ");
- 			perror(real_filename);
-+			exit(1);
- 		}
- 		while(fgets(line, MAXLINESZ, fp)) {
- 			char *p;
-
-
+-- 
+Regards,
+vatsa

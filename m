@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWHUIjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbWHUImb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbWHUIjy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 04:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWHUIjy
+	id S1751601AbWHUImb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 04:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWHUImb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 04:39:54 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:5084 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751151AbWHUIjy (ORCPT
+	Mon, 21 Aug 2006 04:42:31 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:31651 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751534AbWHUImb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 04:39:54 -0400
-Date: Mon, 21 Aug 2006 10:39:03 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Julio Auto <mindvortex@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.17.9 Incorrect string length checking in
- param_set_copystring()
-In-Reply-To: <18d709710608200917o4c062d6ewd216580a1022ad0f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0608211038480.22414@yvahk01.tjqt.qr>
-References: <18d709710608200747k3323b23cq70eb52fdb9032554@mail.gmail.com>
- <18d709710608200917o4c062d6ewd216580a1022ad0f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 21 Aug 2006 04:42:31 -0400
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+From: Magnus Damm <magnus@valinux.co.jp>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph@sc8-sf-spam2-b.sourceforge.net, Rik van Riel <riel@redhat.com>,
+       Linux@sc8-sf-spam2-b.sourceforge.net, ckrm-tech@lists.sourceforge.net,
+       Dave Hansen <haveblue@us.ibm.com>, List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <200608210948.40870.ak@suse.de>
+References: <44E33893.6020700@sw.ru> <20060818094248.cdca152d.akpm@osdl.org>
+	 <1156127920.21411.32.camel@localhost>  <200608210948.40870.ak@suse.de>
+Content-Type: text/plain
+Date: Mon, 21 Aug 2006 17:42:53 +0900
+Message-Id: <1156149773.21411.58.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> As for 2.6.17.9, linux/include/linux/moduleparam.h suggests the user
->> of module_param_string() to set the maxlen parameter to
->> strlen(string), ie. '\0' excluded.
->
-> Actually, sizeof(string), not strlen(string). Senseless typo here.
-> Sorry, my bad. :)
+On Mon, 2006-08-21 at 09:48 +0200, Andi Kleen wrote:
+> > You may be looking for the NUMA emulation patches posted here:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-mm&m=112806587501884&w=2
+> > 
+> > There is a slightly updated x86_64 version here too:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-mm&m=113161386520342&w=2
+> 
+> Hmm, I must have missed that version. Seems like a improvement. Best you
+> resubmit it, although I'll probably only take it after the .19 merge
 
-With \0 excluded, you want strlen(string) or sizeof(string)-1.
+No problem. The second URL pointed to a x86_64 version where I tried to
+break out code to make some kind of generic NUMA emulation layer. At
+that time no one seemed interested in that strategy as a simple resource
+control solution so I gave that up.
 
+For x86_64 I think it's only worth mucking around with the code if
+people believe that it is the right way to go for in-kernel resource
+control.
 
-Jan Engelhardt
--- 
+The x86_64 patches above include code to divide each real NUMA node into
+several smaller emulated nodes, but that is kind of pointless if people
+only use it for non-resource control purposes, ie just to play with
+CPUSETS and NUMA on non-NUMA hardware. For simple purposes like that I
+think the existing NUMA emulation code for x86_64 works perfectly well.
+
+I still think that i386 users would benefit from NUMA emulation though.
+If you want me to up-port the i386-specific code just let me know.
+
+Thanks,
+
+/ magnus
+

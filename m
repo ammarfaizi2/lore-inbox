@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWHTXyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWHUAHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWHTXyj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 19:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWHTXyj
+	id S1750703AbWHUAHY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 20:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWHUAHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 19:54:39 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55312 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932103AbWHTXyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 19:54:38 -0400
-Date: Mon, 21 Aug 2006 01:54:38 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: rth@twiddle.net
+	Sun, 20 Aug 2006 20:07:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29907 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750703AbWHUAHX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 20:07:23 -0400
+Date: Sun, 20 Aug 2006 17:07:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Alpha: replacing "extern inline"
-Message-ID: <20060820235438.GY7813@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+Subject: Re: Bug Report 2.6.17.8
+Message-Id: <20060820170717.e6f98f23.akpm@osdl.org>
+In-Reply-To: <20060820134022.c1d676d6.skraw@ithnet.com>
+References: <20060820134022.c1d676d6.skraw@ithnet.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to get rid of all "extern inline" in the kernel.
+On Sun, 20 Aug 2006 13:40:22 +0200
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-Why?
-"extern inline" generates a warning with -Wmissing-prototypes and I'm 
-currently working on getting the kernel cleaned up for adding this to 
-the CFLAGS since it will help us to avoid a nasty class of runtime 
-errors.
+> Hello,
+> 
+> in case of additional questions feel free to ask. 
+> 
+> -- 
+> Regards,
+> Stephan
+> 
+> Aug 20 03:43:11 a01 kernel: BUG: unable to handle kernel paging request at virtual address 02000044
+> Aug 20 03:43:11 a01 kernel:  printing eip:
+> Aug 20 03:43:11 a01 kernel: c0176356
+> Aug 20 03:43:11 a01 kernel: *pde = 00000000
+> Aug 20 03:43:11 a01 kernel: Oops: 0000 [#1]
+> Aug 20 03:43:11 a01 kernel: Modules linked in: speedstep_lib freq_table ipv6 intel_agp agpgart hw_random nfs lockd sunrpc e100 mii e1000
+> Aug 20 03:43:11 a01 kernel: CPU:    0
+> Aug 20 03:43:11 a01 kernel: EIP:    0060:[dqput+14/338]    Not tainted VLI
+> Aug 20 03:43:11 a01 kernel: EIP:    0060:[<c0176356>]    Not tainted VLI
+> Aug 20 03:43:11 a01 kernel: EFLAGS: 00010206   (2.6.17.8 #1)
+> Aug 20 03:43:11 a01 kernel: EIP is at dqput+0xe/0x152
+> Aug 20 03:43:11 a01 kernel: eax: 02000000   ebx: 02000000   ecx: f5fd0c00   edx: 00000000
 
-"extern inline" was required at the times when 
-__attribute__((always_inline)) wasn't avalable.
-
-Nowadays, we use "static inline", and if there are places that really 
-need a forced inline, we use "static __always_inline".
-
-Can someone tell me which of the Alpha "static inline"'s need for some 
-reason an __always_inline?
-
-And a related question:
-Does the never defined __IO_EXTERN_INLINE still have any purpose?
-
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+Looks like a single-bit error.  Try running memtest86 for 24 hours?

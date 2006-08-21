@@ -1,128 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWHUOwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030519AbWHUO7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbWHUOwm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 10:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWHUOwm
+	id S1030519AbWHUO7s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 10:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbWHUO7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 10:52:42 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:17244 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030513AbWHUOwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 10:52:41 -0400
-Message-ID: <44E9C8B6.7030701@de.ibm.com>
-Date: Mon, 21 Aug 2006 16:52:38 +0200
-From: Thomas Klein <osstklei@de.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
-       Christoph Raisch <raisch@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
-References: <200608181329.02042.ossthema@de.ibm.com> <20060818144429.GF5201@martell.zuzino.mipt.ru>
-In-Reply-To: <20060818144429.GF5201@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 10:59:48 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:30358 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1030519AbWHUO7s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 10:59:48 -0400
+Message-Id: <200608211459.k7LExQON004366@laptop13.inf.utfsm.cl>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+cc: Chase Venters <chase.venters@clientec.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       David Schwartz <davids@webmaster.com>, alan@lxorguk.ukuu.org.uk,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: GPL Violation? 
+In-Reply-To: Message from Helge Hafting <helge.hafting@aitel.hist.no> 
+   of "Mon, 21 Aug 2006 09:58:02 +0200." <44E9678A.7050704@aitel.hist.no> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 21 Aug 2006 10:59:26 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 21 Aug 2006 10:59:26 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
- > On Fri, Aug 18, 2006 at 01:29:01PM +0200, Jan-Bernd Themann wrote:
- >> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_main.c
- >> +++ kernel/drivers/net/ehea/ehea_main.c
- >
- >> +static inline int ehea_refill_rq3_def(struct ehea_port_res *pr, int nr_of_wqes)
- >
- > This one looks too big to be inlined as well as other similalry named
- > functions.
+Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> Chase Venters wrote:
+> > On Saturday 19 August 2006 06:30, Helge Hafting wrote:
+> >
+> >> Now, if someone actually distributes a closed-source module that
+> >> circumvents EXPORT_SYMBOL_GPL, or relies on an accompagnying
+> >> open source patch that removes the mechanism, this happens:
+> >>
+> >> 1. By doing this, they clearly showed that their module is outside the
+> >>    gray area of "allowed binary-only modules". They definitively
+> >>    made a "derived work" and distributed it.
+> >>
+> >> 2. Anybody who received this module may now invoke the GPL
+> >>    (and the force of law, if necessary) to extract the
+> >>    module source code from the maker.  And then this source
+> >>    can be freely redistributed to all interested.
+> >>
 
-Agreed. Inlining avoided where possible.
+> > Actually, you can't just force the vendor to open up all of their
+> > source code.
 
- >> +static int ehea_clean_port_res(struct ehea_port *port, struct ehea_port_res *pr)
- >
- > Freeing/deallocating/cleaning functions usually return void. The fact
- > that you always return -EINVAL only reaffirmes my belief. ;-)
- >
+> Not all their source of course, just the source for the derived work.
 
-Fixed.
+Not even that.
 
- >> +static inline void write_swqe2_data(struct sk_buff *skb,
- >> +                                struct net_device *dev,
- >> +                                struct ehea_swqe *swqe,
- >> +                                u32 lkey)
- >
- > Way too big.
+> I.e. we'll get their driver, but not anything else they might have.
 
-Function split.
+You could perhaps get the driver.
 
- >> +static inline void ehea_xmit2(struct sk_buff *skb,
- >> +                          struct net_device *dev, struct ehea_swqe *swqe,
- >> +                          u32 lkey)
- >> +
- >> +static inline void ehea_xmit3(struct sk_buff *skb,
- >> +                          struct net_device *dev, struct ehea_swqe *swqe)
- >
- > Ditto.
+> >  The GPL isn't a contract - it's a license. If a vendor makes a
+> > derived work from the Linux kernel and does not GPL-license said
+> > derived work, they are indeed violating copyright as the license the
+> > GPL provides no longer supports their ability to redistribute.
+> >
+> > However, the court decides what happens to the vendor. The court
+> > might force the vendor to open up their code, but to my knowledge
+> > this would be breaking brand new ground. I think it is more likely
+> > that the plaintiff could be awarded monetary damages and the
+> > defendant enjoined from further redistribution.
 
-These functions are on a performance-critical path and they are called
-exactly once - so the object's size isn't affected and having them inline
-seems appropriate to me.
+> Yes the GPL is a licence. By using the code, they have accepted
+> the licence.
 
- >> +    if (grp)
- >> +            memset(cb1->vlan_filter, 0, sizeof(cb1->vlan_filter));
- >> +    else
- >> +            memset(cb1->vlan_filter, 1, sizeof(cb1->vlan_filter));
- >
- > Just to be sure, this should be 1 not 0xff?
- >
+No. GPL kicks in when they distribute code.
 
-Will be checked.
+>               If I use a copy of windows, I'll be forced to pay.
 
- >> +void ehea_clean_all_port_res(struct ehea_port *port)
- >> +{
- >> +    int ret;
- >> +    int i;
- >> +    for(i = 0; i < port->num_def_qps + port->num_tx_qps; i++)
- >> +            ehea_clean_port_res(port, &port->port_res[i]);
- >> +
- >> +    ret = ehea_destroy_eq(port->qp_eq);
- >> +}
- >
- > ret is entirely useless.
+Windows is under a different "license" (they try to make it a contract,
+which is another kettle of fish altogether, so don't go there).
 
-Correct. It's gone.
+> The reason courts usually award monetary damages is that
+> money is what almost everybody wants.
 
- >
- >> +int __init ehea_module_init(void)
- > static
- >
- >> +{
- >> +    int ret = -EINVAL;
- >> +
- >> +    printk("IBM eHEA Ethernet Device Driver (Release %s)\n", DRV_VERSION);
- >> +
- >> +    ret = ibmebus_register_driver(&ehea_driver);
- >> +    if (ret) {
- >> +            ehea_error("failed registering eHEA device driver on ebus");
- >> +            return -EINVAL;
- >> +    }
- >> +
- >> +    return 0;
- >> +}
- >
- > Pass ret to upper layer. Simplest way is:
- >
- >       static int __init ehea_module_init(void)
- >       {
- >               return ibmebus_register_driver(&ehea_driver);
- >       }
+They tell the offender to pay the owner for the actual damages they
+suffered, and perhaps a punishment on top. If Bad Corp distributes my code,
+which I don't make money off by virtue of distributing it GPLed, there are
+no damages that I could ask to be restituted to me. If I write a book and
+keep in to myself in my drawer, you grab a copy and publish it on the
+Internet, no judge will ask you to pay damages as if it was the loss of
+revenue for history's best selling bestseller.
 
-Agreed to pass ret to upper layer, but we want to keep the error message.
-Code modified accordingly.
-
-
-Regards
-Thomas
+In any case this is wildly off-topic here, so take your comments
+elsewhere. If you want to know what really happens here, talk to a lawyer
+or visit sites clueful on the matter and learn.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

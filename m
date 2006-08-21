@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWHUVw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWHUV4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWHUVw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWHUVw4
+	id S1751224AbWHUV4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWHUV4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:52:56 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28635 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751218AbWHUVwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:52:55 -0400
-Subject: Re: [Patch] Signedness issue in drivers/net/3c515.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
-In-Reply-To: <20060821140558.4cfee23c.akpm@osdl.org>
-References: <1156009077.18374.1.camel@alice>
-	 <20060821140558.4cfee23c.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 21 Aug 2006 23:13:25 +0100
-Message-Id: <1156198406.18887.81.camel@localhost.localdomain>
+	Mon, 21 Aug 2006 17:56:41 -0400
+Received: from are.twiddle.net ([64.81.246.98]:62688 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S1751224AbWHUV4k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 17:56:40 -0400
+Date: Mon, 21 Aug 2006 14:55:26 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alpha: replacing "extern inline"
+Message-ID: <20060821215526.GA22930@twiddle.net>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20060820235438.GY7813@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060820235438.GY7813@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-08-21 am 14:05 -0700, ysgrifennodd Andrew Morton:
-> 	/* Wait for the stall to complete. */
-> 	for (i = 20; i >= 0; i--)
-> 		if ((inw(ioaddr + EL3_STATUS) & CmdInProgress) == 0) 
-> 			break;
-> 
-> Your fix will convert this indefinit wait into a bounded one.  It might
-> cause the driver to malfunction.
+On Mon, Aug 21, 2006 at 01:54:38AM +0200, Adrian Bunk wrote:
+> Why?
 
-The change is correct. The docs guarantee it can't take that long.
+Because it inlines when it needs to, and does not generate
+out of line code when its address is taken.
 
+> Can someone tell me which of the Alpha "static inline"'s need for some 
+> reason an __always_inline?
+
+There shouldn't be any.
+
+> Does the never defined __IO_EXTERN_INLINE still have any purpose?
+
+It is defined.
+
+$ grep 'define __IO_EXTERN_INLINE' * | wc -l
+12
+
+
+r~

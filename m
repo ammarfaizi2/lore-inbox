@@ -1,131 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751857AbWHUKzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751861AbWHUK5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751857AbWHUKzf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 06:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWHUKzf
+	id S1751861AbWHUK5D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 06:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWHUK5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 06:55:35 -0400
-Received: from i59F55009.versanet.de ([89.245.80.9]:19466 "EHLO
-	max.erig.daheim") by vger.kernel.org with ESMTP id S1751857AbWHUKze
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 06:55:34 -0400
-Date: Mon, 21 Aug 2006 12:55:31 +0200
-From: Wolfgang Erig <Wolfgang.Erig@gmx.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Regression with hyper threading scheduling
-Message-ID: <20060821105531.GA6649@erig.dyndns.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20060819223910.fef3bdea.akpm@osdl.org> <44E81770.8080408@bigpond.net.au>
-MIME-Version: 1.0
+	Mon, 21 Aug 2006 06:57:03 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:49857 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751861AbWHUK5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 06:57:00 -0400
+Date: Mon, 21 Aug 2006 11:56:37 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take9 1/2] kevent: Core files.
+Message-ID: <20060821105637.GB28759@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	lkml <linux-kernel@vger.kernel.org>,
+	David Miller <davem@davemloft.net>,
+	Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
+References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru> <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru> <20060818104607.GB20816@infradead.org> <20060818112336.GB11034@2ka.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44E81770.8080408@bigpond.net.au>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060818112336.GB11034@2ka.mipt.ru>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 06:04:00PM +1000, Peter Williams wrote:
-> ...
-> >lshw
-> >    description: Mini Tower Computer
-> >    product: SCENIC P / SCENICO P
-> >    vendor: FUJITSU SIEMENS
-> >    version: SCEP
-> >    serial: YBEM738326
-> >    width: 32 bits
-> >    capabilities: smbios-2.31 dmi-2.31
-> >    configuration: boot=normal chassis=mini-tower 
-> >    uuid=FA48F283-A977-D811-A847-912FD384AB1D
-> >  *-core
-> >       description: Motherboard
-> >       product: D1561
-> >       vendor: FUJITSU SIEMENS
-> >       physical id: 0
-> >       version: S26361-D1561
-> >       slot: Serial-1
-> >     *-firmware
-> >          description: BIOS
-> >          vendor: FUJITSU SIEMENS // Phoenix Technologies Ltd.
-> >          physical id: 0
-> >          version: 5.00 R2.14.1561.01 (11/25/2004)
-> >          size: 109KB
-> >          capacity: 448KB
-> >          capabilities: pci pnp apm upgrade shadowing escd cdboot 
-> >          bootselect int13floppynec int13floppytoshiba int13floppy360 
-> >          int13floppy1200 int13floppy720 int13floppy2880 int5printscreen 
-> >          int9keyboard int14serial int17printer int10video acpi usb agp 
-> >          ls120boot zipboot biosbootspecification
-> >     *-cpu
-> >          description: CPU
-> >          product: Intel(R) Pentium(R) 4 CPU 2.60GHz
-> >          vendor: Intel Corp.
-> >          physical id: 4
-> >          bus info: cpu@0
-> >          version: 15.2.9
-> >          slot: CPU
-> >          size: 2600MHz
-> >          capacity: 2600MHz
-> >          width: 32 bits
-> >          clock: 800MHz
-> >          capabilities: fpu fpu_exception wp vme de pse tsc msr pae mce 
-> >          cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx 
-> >          fxsr sse sse2 ss ht tm pbe cid
-> >          configuration: id=1
->  ...
+On Fri, Aug 18, 2006 at 03:23:36PM +0400, Evgeniy Polyakov wrote:
+> > defines make some sense for userspace-visible ABIs because then people
+> > can test for features with ifdef.  It doesn't make any sense for constants
+> > that are used purely in-kernel.  For those enums make more sense because
+> > you can for example looks at the symbolic names with a debugger.
 > 
-> I'm unable to reproduce this problem with 2.6.18-rc4 on my HT system. 
-> I'm using top with the "last processor" field enabled to observe (rather 
-> than the methods described) and the two bash shells are both getting 
-> 100% and are each firmly affixed to different CPUs.
+> Enums are only usefull when value is increased with each new member by
+> one.
 
-We can see the problem only on the hardware above.
-Another (newer) system runs perfectly:
+No, they are not.  Please search the lkml archives, this came up multiple
+times.
 
-lshw
-    description: Mini Tower Computer
-    product: SCENIC P / SCENICO P
-    vendor: FUJITSU SIEMENS
-    version: SCEP2
-    serial: YBPB012753
-    width: 32 bits
-    capabilities: smbios-2.31 dmi-2.31
-    configuration: boot=normal chassis=mini-tower
-    uuid=F5585067-4E15-11D9-897B-0030057E3EC7
-  *-core
-       description: Motherboard
-       product: D1931
-       vendor: FUJITSU SIEMENS
-       physical id: 0
-       version: S26361-D1931
-       serial: 16105060
-       slot: Serial-1
-     *-firmware
-          description: BIOS
-          vendor: FUJITSU SIEMENS // Phoenix Technologies Ltd.
-          physical id: 0
-          version: 5.00 R1.08.1931 (12/03/2004)
-          size: 110KB
-          capacity: 448KB
-          capabilities: pci pnp apm upgrade shadowing escd cdboot
-	  bootselect int13floppynec int13floppytoshiba int13floppy360
-	  int13floppy1200 int13floppy720 int13floppy2880 int5printscreen
-	  int9keyboard int14serial int17printer int10video acpi usb agp
-	  ls120boot zipboot biosbootspecification
-     *-cpu
-          description: CPU
-          product: Intel(R) Pentium(R) 4 CPU 3.20GHz
-          vendor: Intel Corp.
-          physical id: 4
-          bus info: cpu@0
-          version: 15.4.1
-          serial: 0000-0F41-0000-0000-0000-0000
-          slot: CPU
-          size: 3200MHz
-          capacity: 3200MHz
-          width: 32 bits
-          clock: 800MHz
-          capabilities: fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx constant_tsc pni monitor ds_cpl cid xtpr
-          configuration: id=0
-       ...
+> There will be either several syscalls or multiplexer...
+> I prefer to have one syscall and a lot of multiplexers inside.
 
-Wolfgang
+To make life for everyone to detangle the mess hard.  Please at least
+try to follow existing design principles.
+
+> > > I created a char device in first releases and was forced to not use it
+> > > at all.
+> > 
+> > Do you have a reference to it?  In this case a char devices makes a lot of
+> > sense because you get a filedescriptor and have operations only defined on
+> > it.  In fact given that you have a multiplexer anyway there's really no
+> > point in adding a syscall for that aswell, you could rather use the existing
+> > and debugged ioctl() multiplexer.  Sure, it's still not what we consider
+> > nice, but better than adding even more odd multiplexer syscalls.
+> 
+> Somewhere in february.
+> Here is link to initial anounce which used ioctl and raw char device and
+> enums for all constants.
+> 
+> http://marc.theaimsgroup.com/?l=linux-netdev&m=113949344414464&w=2
+
+That thread only shows your patch but no comments to it.  Do you have
+an url for the complaint about this design?  And please include the author
+of it in the cc list of your reply so we can settle the arguments.

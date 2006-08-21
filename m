@@ -1,74 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWHUJxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751823AbWHUJ4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751813AbWHUJxH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 05:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWHUJxH
+	id S1751823AbWHUJ4y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 05:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbWHUJ4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 05:53:07 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:37830 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751813AbWHUJxG (ORCPT
+	Mon, 21 Aug 2006 05:56:54 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:32477 "EHLO
+	uganda.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S1751823AbWHUJ4w convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 05:53:06 -0400
-From: Magnus Damm <magnus@valinux.co.jp>
-To: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Cc: Magnus Damm <magnus@valinux.co.jp>, ebiederm@xmission.com, ak@suse.de
-Message-Id: <20060821095328.3132.40575.sendpatchset@cherry.local>
-Subject: [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
-Date: Mon, 21 Aug 2006 18:54:16 +0900 (JST)
+	Mon, 21 Aug 2006 05:56:52 -0400
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: [take12 0/3] kevent: Generic event handling mechanism.
+In-Reply-To: <12345678912345.GA1898@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 21 Aug 2006 14:19:47 +0400
+Message-Id: <11561555871530@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-x86_64: Reload CS when startup_64 is used.
 
-The current x86_64 startup code never reloads CS during the early boot process
-if the 64-bit function startup_64 is used as entry point. The 32-bit entry 
-point startup_32 does the right thing and reloads CS, and this is what most 
-people are using if they use bzImage.
+Generic event handling mechanism.
 
-This patch fixes the case when the Linux kernel is booted into using kexec
-under Xen. The Xen hypervisor is using large CS values which makes the x86_64
-kernel fail - but only if vmlinux is booted, bzImage works well because it
-is using the 32-bit entry point.
+Changes from 'take11' patchset:
+ * include missing headers into patchset
+ * some trivial code cleanups (use goto instead if if/else games and so on)
+ * some whitespace cleanups
+ * check for ready_callback() callback before main loop which should save us some ticks
 
-The main question is if we require that the boot loader should setup CS
-to some certain offset to be able to boot the kernel. The sane solution IMO
-should be that the kernel requires that the loaded descriptors are correct, 
-but that the exact offset within the GDT the boot loader is using should not 
-matter. This is the way the i386 boot works if I understand things correctly.
+Changes from 'take10' patchset:
+ * removed non-existent prototypes
+ * added helper function for kevent_registered_callbacks
+ * fixed 80 lines comments issues
+ * added shared between userspace and kernelspace header instead of embedd them in one
+ * core restructuring to remove forward declarations
+ * s o m e w h i t e s p a c e c o d y n g s t y l e c l e a n u p
+ * use vm_insert_page() instead of remap_pfn_range()
 
-Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
----
+Changes from 'take9' patchset:
+ * fixed ->nopage method
 
- Applies on top of 2.6.18-rc4
+Changes from 'take8' patchset:
+ * fixed mmap release bug
+ * use module_init() instead of late_initcall()
+ * use better structures for timer notifications
 
- head.S |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+Changes from 'take7' patchset:
+ * new mmap interface (not tested, waiting for other changes to be acked)
+	- use nopage() method to dynamically substitue pages
+	- allocate new page for events only when new added kevent requres it
+	- do not use ugly index dereferencing, use structure instead
+	- reduced amount of data in the ring (id and flags), 
+		maximum 12 pages on x86 per kevent fd
 
---- 0001/arch/x86_64/kernel/head.S
-+++ work/arch/x86_64/kernel/head.S	2006-08-21 18:22:57.000000000 +0900
-@@ -165,6 +165,25 @@ startup_64:
- 	 */
- 	lgdt	cpu_gdt_descr
- 
-+	/* Reload CS with a value that is within our GDT. We need to do this
-+	 * if we were loaded by a 64 bit bootloader that happened to use a 
-+	 * CS that is larger than the GDT limit. This is true if we came here
-+	 * from kexec running under Xen.
-+	 */
-+	movq	%rsp, %rdx
-+	movq	$__KERNEL_DS, %rax
-+	pushq	%rax /* SS */
-+	pushq	%rdx /* RSP */
-+	movq	$__KERNEL_CS, %rax
-+	movq	$cs_reloaded, %rdx
-+	pushq	%rax /* CS */
-+	pushq	%rdx /* RIP */
-+	lretq
-+	
-+cs_reloaded:			
-+	/* Setup the boot time stack again */
-+	movq init_rsp(%rip),%rsp
-+	
- 	/* 
- 	 * Setup up a dummy PDA. this is just for some early bootup code
- 	 * that does in_interrupt() 
+Changes from 'take6' patchset:
+ * a lot of comments!
+ * do not use list poisoning for detection of the fact, that entry is in the list
+ * return number of ready kevents even if copy*user() fails
+ * strict check for number of kevents in syscall
+ * use ARRAY_SIZE for array size calculation
+ * changed superblock magic number
+ * use SLAB_PANIC instead of direct panic() call
+ * changed -E* return values
+ * a lot of small cleanups and indent fixes
+
+Changes from 'take5' patchset:
+ * removed compilation warnings about unused wariables when lockdep is not turned on
+ * do not use internal socket structures, use appropriate (exported) wrappers instead
+ * removed default 1 second timeout
+ * removed AIO stuff from patchset
+
+Changes from 'take4' patchset:
+ * use miscdevice instead of chardevice
+ * comments fixes
+
+Changes from 'take3' patchset:
+ * removed serializing mutex from kevent_user_wait()
+ * moved storage list processing to RCU
+ * removed lockdep screaming - all storage locks are initialized in the same function, so it was learned 
+	to differentiate between various cases
+ * remove kevent from storage if is marked as broken after callback
+ * fixed a typo in mmaped buffer implementation which would end up in wrong index calcualtion 
+
+Changes from 'take2' patchset:
+ * split kevent_finish_user() to locked and unlocked variants
+ * do not use KEVENT_STAT ifdefs, use inline functions instead
+ * use array of callbacks of each type instead of each kevent callback initialization
+ * changed name of ukevent guarding lock
+ * use only one kevent lock in kevent_user for all hash buckets instead of per-bucket locks
+ * do not use kevent_user_ctl structure instead provide needed arguments as syscall parameters
+ * various indent cleanups
+ * added optimisation, which is aimed to help when a lot of kevents are being copied from userspace
+ * mapped buffer (initial) implementation (no userspace yet)
+
+Changes from 'take1' patchset:
+ - rebased against 2.6.18-git tree
+ - removed ioctl controlling
+ - added new syscall kevent_get_events(int fd, unsigned int min_nr, unsigned int max_nr,
+			unsigned int timeout, void __user *buf, unsigned flags)
+ - use old syscall kevent_ctl for creation/removing, modification and initial kevent 
+	initialization
+ - use mutuxes instead of semaphores
+ - added file descriptor check and return error if provided descriptor does not match
+	kevent file operations
+ - various indent fixes
+ - removed aio_sendfile() declarations.
+
+Thank you.
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+

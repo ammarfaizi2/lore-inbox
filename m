@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbWHUMmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751874AbWHUMl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965083AbWHUMmi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWHUMmh
+	id S1751874AbWHUMl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWHUMl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:42:37 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:24281 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S965090AbWHUMmg (ORCPT
+	Mon, 21 Aug 2006 08:41:59 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:47496 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751123AbWHUMl6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:42:36 -0400
-Date: Mon, 21 Aug 2006 21:06:38 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] sys_get_robust_list: don't take tasklist_lock
-Message-ID: <20060821170638.GA1646@oleg>
+	Mon, 21 Aug 2006 08:41:58 -0400
+Date: Mon, 21 Aug 2006 16:37:46 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: [take12 4/3] kevent: Comment cleanup.
+Message-ID: <20060821123746.GA15416@2ka.mipt.ru>
+References: <11561555893621@2ka.mipt.ru> <1156155589287@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1156155589287@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 21 Aug 2006 16:37:48 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-use rcu locks for find_task_by_pid().
+Remove file name from comments.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+dda1ae6fe306b485a91ebb5873eeee4bba06aebf
+diff --git a/kernel/kevent/kevent.c b/kernel/kevent/kevent.c
+index 2872aa2..02ecf30 100644
+--- a/kernel/kevent/kevent.c
++++ b/kernel/kevent/kevent.c
+@@ -1,6 +1,4 @@
+ /*
+- * 	kevent.c
+- * 
+  * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+  * All rights reserved.
+  * 
+diff --git a/kernel/kevent/kevent_poll.c b/kernel/kevent/kevent_poll.c
+index 75a75d1..0233a4d 100644
+--- a/kernel/kevent/kevent_poll.c
++++ b/kernel/kevent/kevent_poll.c
+@@ -1,6 +1,4 @@
+ /*
+- * 	kevent_poll.c
+- * 
+  * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+  * All rights reserved.
+  * 
+diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+index 5217cd1..08dfc55 100644
+--- a/kernel/kevent/kevent_timer.c
++++ b/kernel/kevent/kevent_timer.c
+@@ -1,6 +1,4 @@
+ /*
+- * 	kevent_timer.c
+- * 
+  * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+  * All rights reserved.
+  * 
 
---- 2.6.18-rc4/kernel/futex.c~3_sgrl	2006-08-21 20:41:15.000000000 +0400
-+++ 2.6.18-rc4/kernel/futex.c	2006-08-21 20:59:24.000000000 +0400
-@@ -1682,7 +1682,7 @@ sys_get_robust_list(int pid, struct robu
- 		struct task_struct *p;
- 
- 		ret = -ESRCH;
--		read_lock(&tasklist_lock);
-+		rcu_read_lock();
- 		p = find_task_by_pid(pid);
- 		if (!p)
- 			goto err_unlock;
-@@ -1691,7 +1691,7 @@ sys_get_robust_list(int pid, struct robu
- 				!capable(CAP_SYS_PTRACE))
- 			goto err_unlock;
- 		head = p->robust_list;
--		read_unlock(&tasklist_lock);
-+		rcu_read_unlock();
- 	}
- 
- 	if (put_user(sizeof(*head), len_ptr))
-@@ -1699,7 +1699,7 @@ sys_get_robust_list(int pid, struct robu
- 	return put_user(head, head_ptr);
- 
- err_unlock:
--	read_unlock(&tasklist_lock);
-+	rcu_read_unlock();
- 
- 	return ret;
- }
-
+-- 
+	Evgeniy Polyakov

@@ -1,78 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWHUKsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751854AbWHUKwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751844AbWHUKsf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 06:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWHUKsf
+	id S1751854AbWHUKwe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 06:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWHUKwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 06:48:35 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:35634 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751844AbWHUKse (ORCPT
+	Mon, 21 Aug 2006 06:52:33 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:12874 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751854AbWHUKwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 06:48:34 -0400
-Message-ID: <44E9901F.1030605@sw.ru>
-Date: Mon, 21 Aug 2006 14:51:11 +0400
+	Mon, 21 Aug 2006 06:52:33 -0400
+Message-ID: <44E9910D.9010402@sw.ru>
+Date: Mon, 21 Aug 2006 14:55:09 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
 To: sekharan@us.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
+CC: Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
        Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru> <1155932779.26155.87.camel@linuxchandra>
-In-Reply-To: <1155932779.26155.87.camel@linuxchandra>
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+References: <44E33893.6020700@sw.ru> <20060817110237.GA19127@in.ibm.com>	 <44E47547.8030702@sw.ru> <1155844543.26155.10.camel@linuxchandra>	 <44E5982C.80304@sw.ru> <1155927229.26155.28.camel@linuxchandra>
+In-Reply-To: <1155927229.26155.28.camel@linuxchandra>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Chandra Seetharaman wrote:
-> Kirill,
+> On Fri, 2006-08-18 at 14:36 +0400, Kirill Korotaev wrote:
 > 
-> IMO, a UBC with resource constraint(limit in this case) should behave no
-> different than a kernel with limited memory. i.e it should do
-> reclamation before it starts failing allocation requests. It could even
-> do it preemptively.
-first, please notice, that this thread is not about user memory.
-we can discuss it later when about to control user memory. And
-I still need to notice, that different models of user memory control
-can exist. With and without reclamation.
-
-> There is no guarantee support which is required for providing QoS.
-where? in UBC? in UBC _there_ are guarentees, even in regard to OOM killer.
-
-> Each controller modifying the infrastructure code doesn't look good. We
-> can have proper interfaces to add a new resource controller.
-controllers do not modify interfaces nor core. They just add
-themself to the list of resources and setup default limits.
-do you think it is worth creating infrastructure for these
-2 one-line-changes?
-
-> chandra
-> On Wed, 2006-08-16 at 19:40 +0400, Kirill Korotaev wrote:
+>>Chandra Seetharaman wrote:
+>>
+>>>On Thu, 2006-08-17 at 17:55 +0400, Kirill Korotaev wrote:
+>>>
+>>>
+>>>>>On Wed, Aug 16, 2006 at 07:24:03PM +0400, Kirill Korotaev wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>>>As the first step we want to propose for discussion
+>>>>>>the most complicated parts of resource management:
+>>>>>>kernel memory and virtual memory.
+>>>>>
+>>>>>Do you have any plans to post a CPU controller? Is that tied to UBC
+>>>>>interface as well?
+>>>>
+>>>>Not everything at once :) To tell the truth I think CPU controller
+>>>>is even more complicated than user memory accounting/limiting.
+>>>>
+>>>>No, fair CPU scheduler is not tied to UBC in any regard.
+>>>
+>>>
+>>>Not having the CPU controller on UBC doesn't sound good for the
+>>>infrastructure. IMHO, the infrastructure (for resource management) we
+>>>are going to have should be able to support different resource
+>>>controllers, without each controllers needing to have their own
+>>>infrastructure/interface etc.,
+>>
+>>1. nothing prevents fair cpu scheduler from using UBC infrastructure.
 > 
->>Introduce UB_KMEMSIZE resource which accounts kernel
->>objects allocated by task's request.
+> 
+> ok.
+> 
+> 
+>>   but currently we didn't start discussing it.
 >>
->>Reference to UB is kept on struct page or slab object.
->>For slabs each struct slab contains a set of pointers
->>corresponding objects are charged to.
+>>2. as was discussed with a number of people on summit we agreed that
+>>   it maybe more flexible to not merge all resource types into one set.
+>>   CPU scheduler is usefull by itself w/o memory management.
+>>   the same for disk I/O bandwidht which is controlled in CFQ by
+>>   a separate system call.
 >>
->>Allocation charge rules:
->> define1. Pages - if allocation is performed with __GFP_UBC flag - page
->>    is charged to current's exec_ub.
->> 2. Slabs - kmem_cache may be created with SLAB_UBC flag - in this
->>    case each allocation is charged. Caches used by kmalloc are
->>    created with SLAB_UBC | SLAB_UBC_NOCHARGE flags. In this case
->>    only __GFP_UBC allocations are charged.
+>>   it is also more logical to have them separate since they
+>>   operate in different terms. For example, for CPU it is
+>>   shares which are relative units, while for memory it is
+>>   absolute units in bytes.
+> 
+> 
+> We don't have to tie the units with the number. We can leave it to be
+> sorted out between the user and the controller writer.
+> 
+> Current implementation of resource groups does that.
+> 
+> 
+>>>>As we discussed before, it is valuable to have an ability to limit
+>>>>different resources separately (CPU, disk I/O, memory, etc.).
+>>>
+>>>Having ability to limit/control different resources separately not
+>>>necessarily mean we should have different infrastructure for each.
 >>
->>Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
->>Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+>>I'm not advocating to have a different infrastructure.
+>>It is not the topic I raise with this patch set.
 >>
-> <snip>
+>>
+>>>>For example, it can be possible to place some mission critical
+>>>>kernel threads (like kjournald) in a separate contanier.
+>>>
+>>>I don't understand the comment above (in this context).
+>>
+>>If you have a single container controlling all the resources, then
+>>placing kjournald into CPU container would require setting
+>>it's memory limits etc. And kjournald will start to be accounted separately,
+> 
+> 
+> Not necessarily. You could just set the CPU shares of the group and
+> leave the other resources as don't care.
+don't care IMHO doesn't mean "accounted and limited as container X".
+it sounds like "no limits" for me.
 
+>>while my intention is kjournald to be accounted as the host system.
+>>I only want to _guarentee_ some CPU to it.
+> I do not see any _guarantee_ support, only barrier(soft limit) and
+> limit. May be I overlooked. Can you tell me how guarantee is achieved
+> with UBC.
+we just provide additional parameters like oomguarpages, where barrier
+is a guarantee.
+
+Kirill

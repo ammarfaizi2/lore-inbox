@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWHUXhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWHUXsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWHUXhr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 19:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWHUXhr
+	id S1750736AbWHUXsN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 19:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWHUXsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 19:37:47 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1744
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751351AbWHUXhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 19:37:46 -0400
-Date: Mon, 21 Aug 2006 16:38:01 -0700 (PDT)
-Message-Id: <20060821.163801.15260979.davem@davemloft.net>
-To: hadi@cyberus.ca
-Cc: vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 800+ byte inlines in include/net/pkt_act.h
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1156163160.5126.47.camel@jzny2>
-References: <200608201933.10293.vda.linux@googlemail.com>
-	<1156163160.5126.47.camel@jzny2>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 19:48:13 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:30608 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1750736AbWHUXsM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 19:48:12 -0400
+Date: Tue, 22 Aug 2006 00:48:10 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc4-mm1 BUG, drm relatedy
+In-Reply-To: <20060821140848.GB1919@slug>
+Message-ID: <Pine.LNX.4.64.0608220047000.658@skynet.skynet.ie>
+References: <20060813012454.f1d52189.akpm@osdl.org> <20060815130345.GA3817@slug>
+ <20060819230821.GE720@slug> <Pine.LNX.4.64.0608211223030.16712@skynet.skynet.ie>
+ <20060821140848.GB1919@slug>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: jamal <hadi@cyberus.ca>
-Date: Mon, 21 Aug 2006 08:26:00 -0400
 
-> As per last discussion, either Patrick McHardy or myself are going
-> to work on it - at some point. Please be patient. The other
-> alternative is: you fix it and send patches.
+>> I've been busy lately so having trouble following this stuff in a timely manner, I think this is an error path which the
+>> userpsace code doesn't clean up properly, your patch is most definitely not correct..
+> I see. So this is most likely X's having trouble with the EFAULT on
+> unlock? I've gone through the 2.6.18-rc4-mm1 patches, and I couldn't
+> relate the updates and that new drm_unlock() error message. Any idea?
+>>
+>> if I had to guess I'd say you have an AGP machine + card but no AGP support driver loaded...
+> I've got CONFIG_AGP=y and CONFIG_AGP_INTEL=y, do I need some more
+> options? What's strange is that this worked perfectly with
+> 2.6.18-rc3-mm2...
 
-I'm working on it right now.  This code is really gross and needs
-to be fixed immediately.
 
-What I'll do is define a "struct tcf_common" and have the generic
-interfaces take that as well as a "struct tcf_hashinfo *" parameter to
-deal with the individual hash tables.
+Can you startup without X, do
+echo 1 > /sys/modules/drm/parameters/debug
 
-We define all of this templated stuff then don't even use it in
-act_police.c, we just duplicate everything!
+start X, and send me the dmesg output up to the oops?
 
-Absolutely unbelievable.
+Don't cc the list as I suspect it will be quite large..
+
+Dave.

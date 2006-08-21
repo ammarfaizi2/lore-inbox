@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbWHULbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWHULfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbWHULbg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 07:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWHULbg
+	id S965017AbWHULfg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 07:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWHULfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 07:31:36 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:6273 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S965068AbWHULbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 07:31:35 -0400
-Message-ID: <44E998AF.7040907@s5r6.in-berlin.de>
-Date: Mon, 21 Aug 2006 13:27:43 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+	Mon, 21 Aug 2006 07:35:36 -0400
+Received: from mail.dotsterhost.com ([72.5.54.21]:50908 "HELO
+	mail.dotsterhost.com") by vger.kernel.org with SMTP id S965066AbWHULfg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 07:35:36 -0400
+Date: Mon, 21 Aug 2006 19:35:24 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, aviro@redhat.com
+Subject: Re: [PATCH] NFS: Replace null dentries that appear in readdir's list
+ [try #2]
+In-Reply-To: <30856.1156153373@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0608211932300.27275@raven.themaw.net>
+References: <Pine.LNX.4.64.0608202223220.29268@raven.themaw.net> 
+ <20060819094840.083026fd.akpm@osdl.org> <13319.1155744959@warthog.cambridge.redhat.com>
+ <1155743399.5683.13.camel@localhost> <20060813133935.b0c728ec.akpm@osdl.org>
+ <20060813012454.f1d52189.akpm@osdl.org> <5910.1155741329@warthog.cambridge.redhat.com>
+ <2138.1155893924@warthog.cambridge.redhat.com> <3976.1156079732@warthog.cambridge.redhat.com>
+  <30856.1156153373@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: Chase Venters <chase.venters@clientec.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       David Schwartz <davids@webmaster.com>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation?
-References: <1155919950.30279.8.camel@localhost.localdomain> <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com> <20060819113052.GC3190@aitel.hist.no> <200608192220.42456.chase.venters@clientec.com> <44E9678A.7050704@aitel.hist.no>
-In-Reply-To: <44E9678A.7050704@aitel.hist.no>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-[...]
-> Yes the GPL is a licence. By using the code, they have accepted
-> the licence.  If I use a copy of windows, I'll be forced to pay.
-> The reason courts usually award monetary damages is that
-> money is what almost everybody wants.  Commercial software,
-> books, CDs, DVSs are all traded for money, so copying one
-> means you must pay the copyright holder's loss.
-> 
-> The GPL should work exactly the same way: You distribute
-> software derived from GPL software, you pay the usual price.
-> But the usual price for GPLed software is not money,
-> the usual price is the derived source.
-[...]
-> if someone tries to be difficult, I hope
-> they'll be forced to pay the usual price - which isn't money.
-> It'd be hard to set a price anyway, given that GPL software
-> isn't usually sold.  The price of having a professional programmer
-> developing the same driver perhaps?
+On Mon, 21 Aug 2006, David Howells wrote:
 
-There may also be damage due to unfair competition. But then the
-plaintiff probably had to be a competitor (or perhaps a body that is
-generally entitled to go against unfair competition, if such a body
-exists anywhere). The copyright holders of relevant parts of Linux may
-sometimes not be competitors to the violator.
--- 
-Stefan Richter
--=====-=-==- =--- =-=-=
-http://arcgraph.de/sr/
+> Ian Kent <raven@themaw.net> wrote:
+> 
+> > I guess I knew this would with the nfs v4 mounting.
+> 
+> And NFS2 and NFS3.  You just need a server that has two levels of export, one
+> under the other, for example:
+> 
+> 	[/etc/exports]
+> 	/               *(rw,async,fsid=0)
+> 	/usr/src        *(rw,async,nohide)
+
+That makes it a bit hard as the /net functionality that Andrew is using is 
+meant to mount all exports from the given server. In v4 that are mounted 
+and umounted as a unit to deal with the nesting.
+
+Ian
+

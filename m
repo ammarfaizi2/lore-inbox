@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWHURxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWHUSYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbWHURxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 13:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422808AbWHURxK
+	id S1751187AbWHUSYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 14:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWHUSYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 13:53:10 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37271 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422734AbWHURxJ (ORCPT
+	Mon, 21 Aug 2006 14:24:46 -0400
+Received: from mail.gmx.net ([213.165.64.20]:53973 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751187AbWHUSYp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 13:53:09 -0400
-Date: Mon, 21 Aug 2006 10:51:06 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: akpm@osdl.org, riel@redhat.com, Linux@sc8-sf-spam2-b.sourceforge.net,
-       ckrm-tech@lists.sourceforge.net, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, hch@infradead.org, saw@sw.ru,
-       devel@openvz.org, rohitseth@google.com, hugh@veritas.com,
-       Christoph@sc8-sf-spam2-b.sourceforge.net, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, xemul@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-Message-Id: <20060821105106.6688c92c.pj@sgi.com>
-In-Reply-To: <44E9B69D.9060109@sw.ru>
-References: <44E33893.6020700@sw.ru>
-	<44E33C3F.3010509@sw.ru>
-	<1155752277.22595.70.camel@galaxy.corp.google.com>
-	<1155755069.24077.392.camel@localhost.localdomain>
-	<1155756170.22595.109.camel@galaxy.corp.google.com>
-	<44E45D6A.8000003@sw.ru>
-	<20060817084033.f199d4c7.akpm@osdl.org>
-	<20060818120809.B11407@castle.nmd.msu.ru>
-	<1155912348.9274.83.camel@localhost.localdomain>
-	<20060818094248.cdca152d.akpm@osdl.org>
-	<44E9B69D.9060109@sw.ru>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Mon, 21 Aug 2006 14:24:45 -0400
+X-Authenticated: #14349625
+Subject: Re: [PATCH 0/7] CPU controller - V1
+From: Mike Galbraith <efault@gmx.de>
+To: vatsa@in.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+In-Reply-To: <20060821164553.GA21130@in.ibm.com>
+References: <20060820174015.GA13917@in.ibm.com>
+	 <1156156960.7772.38.camel@Homer.simpson.net>
+	 <20060821124830.GB14291@in.ibm.com>
+	 <1156180241.6582.69.camel@Homer.simpson.net>
+	 <20060821164553.GA21130@in.ibm.com>
+Content-Type: text/plain
+Date: Mon, 21 Aug 2006 20:33:08 +0000
+Message-Id: <1156192388.6665.29.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> this doesn't allow memory overcommitment, does it?
+On Mon, 2006-08-21 at 22:15 +0530, Srivatsa Vaddagiri wrote:
 
-Uh - no - I don't think so.  You can over commit
-the memory of a task in a small cpuset just as well
-as you can a task in a big cpuset or even one in the
-top cpuset covering the entire system.
+> Hence task_rq(awakening)->curr == current, which should be sufficient to 
 
-Perhaps I didn't understand your point.
+Ah, ok.  Thanks.  I should have read more of the code instead of
+pondering the text.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> resched(current), although I think there is a bug in current code 
+> (irrespective of these patches):
+> 
+> try_to_wake_up() :
+> 	
+> 	...
+> 
+>         if (!sync || cpu != this_cpu) {
+>                 if (TASK_PREEMPTS_CURR(p, rq))
+>                         resched_task(rq->curr);
+>         }
+>         success = 1;
+> 
+> 	...
+> 
+> TASK_PREEMPTS_CURR() is examined and resched_task() is called only if 
+> (cpu != this_cpu). What about the case (cpu == this_cpu) - who will
+> call resched_task() on current? I had expected the back-end of interrupt
+> handling to do that, but didnt find any code to do so.
+
+Looks ok to me.  Everything except sync && cpu == this_cpu checks.
+
+	-Mike
+

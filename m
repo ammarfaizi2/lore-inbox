@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWHUMzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWHUM7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030433AbWHUMzw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHUMzw
+	id S1030435AbWHUM7X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWHUM7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:55:52 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:61427 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932092AbWHUMzv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:55:51 -0400
-In-Reply-To: <1156164265.9855.196633.camel@hal.voltaire.com>
-Subject: Re: [openib-general] [PATCH 08/13] IB/ehca: qp
-To: Hal Rosenstock <halr@voltaire.com>
-Cc: Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Marcus Eder <MEDER@de.ibm.com>,
-       openib-general@openib.org, Roland Dreier <rolandd@cisco.com>
-X-Mailer: Lotus Notes Release 7.0 HF242 April 21, 2006
-Message-ID: <OFD6EEAEDC.E8A6DA73-ONC12571D1.0046AAD5-C12571D1.0047061E@de.ibm.com>
-From: Christoph Raisch <RAISCH@de.ibm.com>
-Date: Mon, 21 Aug 2006 14:59:39 +0200
-X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
- 21/08/2006 14:59:48
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Mon, 21 Aug 2006 08:59:23 -0400
+Received: from ns.firmix.at ([62.141.48.66]:51685 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932306AbWHUM7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:59:21 -0400
+Subject: Re: [take9 1/2] kevent: Core files.
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+In-Reply-To: <20060821111335.GA8608@2ka.mipt.ru>
+References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru>
+	 <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru>
+	 <20060818104607.GB20816@infradead.org> <20060818112336.GB11034@2ka.mipt.ru>
+	 <20060821105637.GB28759@infradead.org>  <20060821111335.GA8608@2ka.mipt.ru>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 21 Aug 2006 14:53:25 +0200
+Message-Id: <1156164805.17936.132.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.377 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-08-21 at 15:13 +0400, Evgeniy Polyakov wrote:
+[...]
+> And what is the difference between
 
->
-> I, for one, was hoping that the timer based transition to active for QP1
-> would have been resolved before being submitted. Any idea on the plan to
-> resolve this ?
->
-> -- Hal
->
->
->
-We're testing it. As I mentioned before, this requires a change in the
-system firmware. I personally don't think this will show up in firmware in
-time for 2.6.19 merge window.
-So unfortunately we still need that loop.
+As others already pointed out in this thread:
 
-Regards . . . Christoph R
+These are not seen by the C compiler.
+> #define A 1
+> #define B 2
+> #define C 4
+> and
 
+These are known by the C compiler and thus usable/viewable in a
+debugger.
+> enum {
+>  A = 1,
+>  B = 2,
+>  C = 4,
+> }
+> ?
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

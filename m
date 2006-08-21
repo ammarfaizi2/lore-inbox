@@ -1,71 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWHUMwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWHUMvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWHUMwc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWHUMwb
+	id S1030427AbWHUMvc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWHUMvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:52:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:19871 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030424AbWHUMwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:52:07 -0400
-Subject: Re: Polling for battery stauts and lost keypresses
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000608210534h28bda198l116ac2ce94c484ed@mail.gmail.com>
-References: <BAY114-F2C4913B499BE3113C8E9BFA4E0@phx.gbl>
-	 <d120d5000608141317p50540cd5x5e8ec409dc9343ef@mail.gmail.com>
-	 <gd60xm38im9j.a4xxz8tjb0qj$.dlg@40tude.net>
-	 <200608191150.47183.dtor@insightbb.com>
-	 <1156003338.2875.85.camel@laptopd505.fenrus.org>
-	 <d120d5000608210534h28bda198l116ac2ce94c484ed@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 21 Aug 2006 14:52:03 +0200
-Message-Id: <1156164723.23756.167.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 21 Aug 2006 08:51:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52458 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932092AbWHUMvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:51:31 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 1/4] NFS: Fix up warnings
+Date: Mon, 21 Aug 2006 13:50:22 +0100
+To: akpm@osdl.org, trond.myklebust@fys.uio.no, michal.k.k.piotrowski@gmail.com,
+       maciej.rutecki@gmail.com, bunk@stusta.de
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com
+Message-Id: <20060821125022.1437.2836.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 08:34 -0400, Dmitry Torokhov wrote:
-> On 8/19/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Sat, 2006-08-19 at 11:50 -0400, Dmitry Torokhov wrote:
-> > > On Wednesday 16 August 2006 03:31, Giuseppe Bilotta wrote:
-> > > > On Mon, 14 Aug 2006 16:17:01 -0400, Dmitry Torokhov wrote:
-> > > >
-> > > > > 2. Quite often there are OEM drivers that are tweaked to a specific
-> > > > > hardware and involve hardware-specific hacks.
-> > > >
-> > > > If I remember correctly (damn, I can't find a way to do a search on
-> > > > the LKML archives ...) there was someone working on Dell stuff, at
-> > > > least as far as fans and thermal sensors were concerned (based on the
-> > > > code from Massimo Dal Zotto) to integrate them with the kernel sensors
-> > > > framework. However, some of those patches where NACKed by someone from
-> > > > Dell because they were sort of "guessy" about the addresses to poke
-> > > > around to get the information, instead of using the data provided by
-> > > > the BIOS on where to look for them ... however, there hasn't been any
-> > > > news about that that stuff since ...
-> > > >
-> > >
-> > > As far as I remember that person from Dell was not ready to disclose
-> > > details of their SMBIOS :( so it naturally went nowhere.
-> >
-> > actually Dell did document their smbios ...
-> >
-> > http://linux.dell.com/libsmbios/main/index.html
-> >
-> > there was also a posting from Dell with details, but I assume that's
-> > included in their libsmbios...
-> >
-> 
-> I could not find any fan control or temperature monitoring references
-> there. Maybe I missed them.
-there was an lkml posting from a Dell guy with a full table, just that
-my google skills seem to be not successful at locating it right now.
+Fix up warnings from compiling on ppc64.
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
+ fs/nfs/client.c |   20 ++++++++++++++------
+ 1 files changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index dd4ff23..8620e14 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -839,7 +839,9 @@ struct nfs_server *nfs_create_server(con
+ 	}
+ 	memcpy(&server->fsid, &fattr.fsid, sizeof(server->fsid));
+ 
+-	dprintk("Server FSID: %llx:%llx\n", server->fsid.major, server->fsid.minor);
++	dprintk("Server FSID: %llx:%llx\n",
++		(unsigned long long) server->fsid.major,
++		(unsigned long long) server->fsid.minor);
+ 
+ 	BUG_ON(!server->nfs_client);
+ 	BUG_ON(!server->nfs_client->rpc_ops);
+@@ -1005,7 +1007,9 @@ struct nfs_server *nfs4_create_server(co
+ 	if (error < 0)
+ 		goto error;
+ 
+-	dprintk("Server FSID: %llx:%llx\n", server->fsid.major, server->fsid.minor);
++	dprintk("Server FSID: %llx:%llx\n",
++		(unsigned long long) server->fsid.major,
++		(unsigned long long) server->fsid.minor);
+ 	dprintk("Mount FH: %d\n", mntfh->size);
+ 
+ 	error = nfs_probe_fsinfo(server, mntfh, &fattr);
+@@ -1077,7 +1081,8 @@ struct nfs_server *nfs4_create_referral_
+ 		goto error;
+ 
+ 	dprintk("Referral FSID: %llx:%llx\n",
+-		server->fsid.major, server->fsid.minor);
++		(unsigned long long) server->fsid.major,
++		(unsigned long long) server->fsid.minor);
+ 
+ 	spin_lock(&nfs_client_lock);
+ 	list_add_tail(&server->client_link, &server->nfs_client->cl_superblocks);
+@@ -1109,7 +1114,8 @@ struct nfs_server *nfs_clone_server(stru
+ 	int error;
+ 
+ 	dprintk("--> nfs_clone_server(,%llx:%llx,)\n",
+-		fattr->fsid.major, fattr->fsid.minor);
++		(unsigned long long) fattr->fsid.major,
++		(unsigned long long) fattr->fsid.minor);
+ 
+ 	server = nfs_alloc_server();
+ 	if (!server)
+@@ -1134,7 +1140,8 @@ struct nfs_server *nfs_clone_server(stru
+ 		goto out_free_server;
+ 
+ 	dprintk("Cloned FSID: %llx:%llx\n",
+-		server->fsid.major, server->fsid.minor);
++		(unsigned long long) server->fsid.major,
++		(unsigned long long) server->fsid.minor);
+ 
+ 	error = nfs_start_lockd(server);
+ 	if (error < 0)
+@@ -1378,7 +1385,8 @@ static int nfs_volume_list_show(struct s
+ 		 MAJOR(server->s_dev), MINOR(server->s_dev));
+ 
+ 	snprintf(fsid, 17, "%llx:%llx",
+-		 server->fsid.major, server->fsid.minor);
++		 (unsigned long long) server->fsid.major,
++		 (unsigned long long) server->fsid.minor);
+ 
+ 	seq_printf(m, "v%d %02x%02x%02x%02x %4hx %-7s %-17s %s\n",
+ 		   clp->cl_nfsversion,

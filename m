@@ -1,97 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbWHUFSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbWHUFXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932600AbWHUFSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 01:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWHUFSY
+	id S932602AbWHUFXd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 01:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWHUFXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 01:18:24 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:15645 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932600AbWHUFSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 01:18:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=owIUO3t4DU/IIcbX+eK+0hCT+5Na8oqZysVfy2pyn92iP8D7WW9O8PyJF1pm+eUHbKUJw+kFamkW0jg/LWCFXIJiuLA9ywTxTIWU0YvbBfSZ8sI27UZ2w4D+mPxvKFfvgGwTcUntgwQKrnjVe9mfK0XatuFyg2Eb2WfFtiZJYC8=
-Date: Mon, 21 Aug 2006 14:18:16 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] file: kill unnecessary timer in fdtable_defer
-Message-ID: <20060821051816.GP6371@htj.dyndns.org>
-References: <20060820131542.GN6371@htj.dyndns.org> <20060821043257.GD5433@in.ibm.com>
+	Mon, 21 Aug 2006 01:23:33 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:34702 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932602AbWHUFXc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 01:23:32 -0400
+Message-ID: <44E942ED.9010502@cn.ibm.com>
+Date: Mon, 21 Aug 2006 13:21:49 +0800
+From: Yao Fei Zhu <walkinair@cn.ibm.com>
+Reply-To: walkinair@cn.ibm.com
+Organization: IBM
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821043257.GD5433@in.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: linux-kernel@vger.kernel.org
+Subject: BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:463
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 10:02:57AM +0530, Dipankar Sarma wrote:
-> On Sun, Aug 20, 2006 at 10:15:42PM +0900, Tejun Heo wrote:
-> > free_fdtable_rc() schedules timer to reschedule fddef->wq if
-> > schedule_work() on it returns 0.  However, schedule_work() guarantees
-> > that the target work is executed at least once after the scheduling
-> > regardless of its return value.  0 return simply means that the work
-> > was already pending and thus no further action was required.
-> 
-> Hmm.. Is this really true ? IIRC, schedule_work() checks pending
-> work based on bit ops on work->pending and clear_bit() is not
-> a memory barrier.
+Hi, all
 
-Those bitops are not memory barriers but they can define order between
-them alright.  Once the execution order is correct, the rest of
-synchronization is the caller's responsbility.  In fddef's case, it's
-achieved via fddef->lock.
+Online and offline cpus in 2.6.18-rc4/PPC64 will trigger Call Trace
+like this,
 
-> So, if I see work->pending = 1 in free_fdtable_work(), how do I know
-> that the work function is already executing and missed the new work
-> that I had queued ?
+[root@blade11 ~]# echo 0 > /sys/devices/system/cpu/cpu0/online
+[root@blade11 ~]# dmesg -c
+BUG: sleeping function called from invalid context at 
+arch/powerpc/kernel/rtas.c:463
+in_atomic():0, irqs_disabled():1
+Call Trace:
+[C0000000725EB9C0] [C00000000000FB70] .show_stack+0x68/0x1b0 (unreliable)
+[C0000000725EBA60] [C000000000053EB4] .__might_sleep+0xd8/0xf4
+[C0000000725EBAE0] [C00000000001D5D8] .rtas_busy_delay+0x20/0x5c
+[C0000000725EBB70] [C00000000001DC00] .rtas_set_indicator+0x6c/0xcc
+[C0000000725EBC10] [C000000000049130] .xics_migrate_irqs_away+0x6c/0x20c
+[C0000000725EBCD0] [C000000000048EEC] .pSeries_cpu_disable+0x98/0xb4
+[C0000000725EBD50] [C000000000029A24] .__cpu_disable+0x44/0x58
+[C0000000725EBDC0] [C000000000082030] .take_cpu_down+0x10/0x38
+[C0000000725EBE40] [C000000000090000] .do_stop+0x16c/0x20c
+[C0000000725EBEE0] [C000000000078EBC] .kthread+0x128/0x178
+[C0000000725EBF90] [C0000000000271DC] .kernel_thread+0x4c/0x68
+cpu 0 (hwid 0) Ready to die...
+[root@blade11 ~]# echo 1 > /sys/devices/system/cpu/cpu0/online
+[root@blade11 ~]# dmesg -c
+BUG: sleeping function called from invalid context at 
+arch/powerpc/kernel/rtas.c:463
+in_atomic():0, irqs_disabled():1
+Call Trace:
+[C000000000573BC0] [C00000000000FB70] .show_stack+0x68/0x1b0 (unreliable)
+[C000000000573C60] [C000000000053EB4] .__might_sleep+0xd8/0xf4
+[C000000000573CE0] [C00000000001D5D8] .rtas_busy_delay+0x20/0x5c
+[C000000000573D70] [C00000000001DC00] .rtas_set_indicator+0x6c/0xcc
+[C000000000573E10] [C000000000049320] .xics_setup_cpu+0x50/0x64
+[C000000000573E80] [C0000000000486A8] .smp_xics_setup_cpu+0x2c/0x9c
+[C000000000573F00] [C00000000002A4D4] .start_secondary+0x9c/0x168
+[C000000000573F90] [C0000000000083BC] .start_secondary_prolog+0xc/0x10
+Processor 0 found.
 
-This is classical edge-triggered event handling where each event
-doesn't require separate handling.  The producer produces one or more
-items at a time and the consumer consumes the whole queue on
-invocation.
 
-For example, when Pn indicates producing of item n and C indicates
-consuming.  The seqeunce "P0 C P1 C P2 C" and "P0 P1 P2 C" are
-effectively identical, so all that's required for correct operation
-(that is, full queue consumption) is that the consumer is run at least
-once after producing of the last item.
-
-In workqueue, this is guaranteed by
-
-1. If pending bit is set, the work is guaranteed to be executed in
-   some future - it's on timer or queue.
-
-2. The queuer sets the pending bit *after* producing a job to be
-   done.
-
-3. The worker clears the pending *before* executing the job.
-
-I sometimes find it easier to understand with a diagram which looks
-like the following.  Time flows from top to bottom.
-
-          Queuer			  Worker
-
-        -------------
-       | produce job |
-       |             |             <--- clr pending --->
-        -------------                        |
-              |                              v
-              v                       --------------
-    <--- set pending --->            | consume jobs |
-				     |		    |
-				      --------------
-
-Now move the queuer and worker up and down in your mind.  If 'set
-pending' is higher than clr pending 'consume job' is guaranteed to see
-the job queuer has produced whether pending is set or clear
-beforehand.  If 'set pending' is lower than 'clr pending', it is
-guaranteed to set pending and schedule worker.  The workqueue is
-straight-forward expansion where there are N queuers and a repeating
-consumer.
-
--- 
-tejun

@@ -1,83 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHUJIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWHUJL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWHUJIm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 05:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWHUJIm
+	id S1751400AbWHUJL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 05:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWHUJL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 05:08:42 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:21738 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750898AbWHUJIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 05:08:41 -0400
-Subject: [PATCH] [MTD] Protect chip->ops with correct locking - fix jffs2
-	corruption
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Josh Boyer <jwboyer@gmail.com>, Greg KH <greg@kroah.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       linux-mtd <linux-mtd@lists.infradead.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 21 Aug 2006 10:05:10 +0100
-Message-Id: <1156151110.5557.33.camel@localhost.localdomain>
+	Mon, 21 Aug 2006 05:11:29 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:62732 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751400AbWHUJL3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 05:11:29 -0400
+Date: Mon, 21 Aug 2006 11:11:27 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       lm-sensors@lm-sensors.org
+Subject: Re: [lm-sensors] [RFC][PATCH] hwmon:fix sparse warnings + error
+ handling
+Message-Id: <20060821111127.fe93bc0a.khali@linux-fr.org>
+In-Reply-To: <20060821023017.GA30017@jupiter.solarsys.private>
+References: <44E8C9AE.3060307@gmail.com>
+	<20060821023017.GA30017@jupiter.solarsys.private>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Read the return value before we release the nand device otherwise the
-value can become corrupted by another user of chip->ops, ultimately
-resulting in filesystem corruption.
+Mark, Michal,
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
-Acked-by: Josh Boyer <jwboyer@gmail.com>
-
----
-
-This fixes the jffs2 errors and filesystem corruption I reported. It
-should be applied for 2.6.18.
-
-On Sun, 2006-08-20 at 18:35 -0700, Greg KH wrote:
-> On Sat, Aug 19, 2006 at 08:34:46PM -0500, Josh Boyer wrote: 
-> > We have multiple confirmations that this patch fixes the issue
-> > reported.  I agree it should go in 2.6.18.
-> > 
-> > Greg, can you add this to your tree?
+> Thanks for doing this... but Andrew please don't apply it.  The sensors project
+> people are working on these even now, and we already have a patch for the
+> w83627hf driver...
 > 
-> Add what to what tree?  I need things to be a bit more specific
-> here :) 
+> http://lists.lm-sensors.org/pipermail/lm-sensors/2006-August/017204.html
+> 
+> Jean Delvare (hwmon maintainer) should be sending these up the chain soon.
+> 
+> Michal: if you're interested in fixing any of the rest of them, please take
+> a look at the patch above to see the mechanism we intend to use.  It actually
+> makes the drivers *smaller* than they were.
 
- drivers/mtd/nand/nand_base.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+The size change really depends on the driver. For older drivers with
+individual file registration (sometimes hidden behind macros) the
+driver size will indeed shrink, but for newer drivers with loop-based
+file registration, this would be a slight increase in size. Not that it
+really matters anyway, what matters is that we handle errors and file
+deletion properly from now on.
 
-Index: git/drivers/mtd/nand/nand_base.c
-===================================================================
---- git.orig/drivers/mtd/nand/nand_base.c	2006-08-17 22:46:19.000000000 +0100
-+++ git/drivers/mtd/nand/nand_base.c	2006-08-17 22:47:27.000000000 +0100
-@@ -1093,9 +1093,10 @@ static int nand_read(struct mtd_info *mt
- 
- 	ret = nand_do_read_ops(mtd, from, &chip->ops);
- 
-+	*retlen = chip->ops.retlen;
-+
- 	nand_release_device(mtd);
- 
--	*retlen = chip->ops.retlen;
- 	return ret;
- }
- 
-@@ -1691,9 +1692,10 @@ static int nand_write(struct mtd_info *m
- 
- 	ret = nand_do_write_ops(mtd, to, &chip->ops);
- 
-+	*retlen = chip->ops.retlen;
-+
- 	nand_release_device(mtd);
- 
--	*retlen = chip->ops.retlen;
- 	return ret;
- }
- 
+Michal, if you go on working on this (and this is welcome), please
+follow what Mark did, as this is what we agreed was the best approach.
+Here is a quick status summary for drivers/hwmon:
 
+Done by Mark M. Hoffman:
+ o asb100
+ o lm75
+ o lm78
+ o smsc47b397
+ o w83627hf
 
+Done by Jim Cromie:
+ o pc87360
+
+Will be done by David Hubbard:
+ o w83627ehf
+
+Will be done by me:
+ o f71805f
+ o it87
+ o lm63
+ o lm83
+ o lm90
+
+This leaves the following list:
+ o abituguru
+ o adm1021
+ o adm1025
+ o adm1026
+ o adm1031
+ o adm9240
+ o atxp1
+ o ds1621
+ o fscher
+ o fscpos
+ o gl518sm
+ o gl520sm
+ o lm77
+ o lm80
+ o lm85
+ o lm87
+ o lm92
+ o max1619
+ o sis5595
+ o smsc47m1
+ o smsc47m192
+ o via686a
+ o vt8231
+ o w83781d
+ o w83791d
+ o w83792d
+ o w83l785ts
+
+Almost 1000 warnings for drivers/hwmon alone... OTOH I wonder how
+device_create_file and friends qualified for __must_check given that
+nothing wrong can happen if they fail, from the kernel's point of view.
+The files are not created and that's about it.
+
+If you are going to fix some of the drivers listed above, please
+advertise on the lm-sensors list so that your work is not duplicated.
+
+As a side note, I have patches ready for everything under drivers/i2c
+already, I sent them on the i2c list last week and will push them soon
+now.
+
+Thanks,
+-- 
+Jean Delvare

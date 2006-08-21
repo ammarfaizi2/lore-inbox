@@ -1,124 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWHUNVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWHUNXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWHUNVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWHUNVb
+	id S1751776AbWHUNXF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWHUNXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:21:31 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:57628 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751409AbWHUNVa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:21:30 -0400
-Message-ID: <44E9B3F5.3010000@sw.ru>
-Date: Mon, 21 Aug 2006 17:24:05 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: sekharan@us.ibm.com
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-References: <44E33893.6020700@sw.ru> <1155929992.26155.60.camel@linuxchandra>
-In-Reply-To: <1155929992.26155.60.camel@linuxchandra>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 09:23:05 -0400
+Received: from p02c11o145.mxlogic.net ([208.65.145.68]:27852 "EHLO
+	p02c11o145.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1751776AbWHUNXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 09:23:03 -0400
+Date: Mon, 21 Aug 2006 16:22:22 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       Roland Dreier <rolandd@cisco.com>, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: restore missing PCI registers after reset
+Message-ID: <20060821132222.GM13693@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060726164246.GE9871@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726164246.GE9871@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 21 Aug 2006 13:28:49.0375 (UTC) FILETIME=[BC8236F0:01C6C525]
+X-Spam: [F=0.0100000000; S=0.010(2006081701)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman wrote:
-> Kirill,
+Quoting r. Greg KH <gregkh@suse.de>:
+> Subject: Re: restore missing PCI registers after reset
 > 
-> Here are some concerns I have (as of now) w.r.t using UBC for resource
-> management (in the context of resource groups).
+> On Wed, Jul 26, 2006 at 07:32:26PM +0300, Michael S. Tsirkin wrote:
+> > Quoting r. Greg KH <gregkh@suse.de>:
+> > > I think pci_restore_state() already restores the msi and msix state,
+> > > take a look at the latest kernel version :)
+> > 
+> > Yes, I know :)
+> > but I am not talking abotu MSI/MSI-X, I am talking about the following:
+> > > > >   PCI-X device: PCI-X command register
+> > > > >   PCI-X bridge: upstream and downstream split transaction registers
+> > > > >   PCI Express : PCI Express device control and link control registers
+> > 
+> > these register values include maxumum MTU for PCI express and other vital
+> > data.
 > 
-> - guarantee support is missing. I do not see any code to provide the
->   minimum amount of resource a group can get. It is important for 
->   providing QoS. (In a different email you did mention guarantee, i am
->   referring it here for completeness).
-I mentioned a couple of times that this is a limited core functionality
-in this patch set.
-guarantees are implementable as a separate UBC parameters.
+> Make up a patch that shows how you would save these in a generic way and
+> we can discuss it.  I know people have talked about saving the extended
+> PCI config space for devices that need it, so that might be all you
+> need to do here.
 
-> - Creation of a UBC and assignment of task to a UBC always happen in
->   the context of the task that is affected. I can understand it works in
->   OpenVZ environment, but IMO has issues if one wants it to be used for 
->   basic resource management
->    - application needs to be changed to use this feature.
->    - System administrator does not have the control to assign tasks to a
->      UBC. Application does by itself.
->    - Assignment of task to a UBC need to be transparent to the 
->      application.
-this is not 100% true.
-UBC itself doesn't prevent from changing context on the fly.
-But since this leads to part of resources to be charged to
-one UBC and another part to another UBC and so long and so
-forth, we believe that more clear and correct interface is 
-something like fork()/exec()-required-application.
+Like this?
 
-So you can always execute new applications in desired UB and
-NO application modification are required.
+--
 
+Restore PCI Express capability registers after PM event.
+This includes maxumum MTU for PCI express and other vital data.
 
-> - UBC is deleted when the last task (in that UBC) exits. For resource
->   management purposes, UBC should be deleted only when the administrator
->   deletes it.
-1. UBCs are freed when last _resource_ using it puts the last reference.
- not the task. And it is a BIG error IMHO to think that resource
- management should group tasks. No, it should group _objects_. Tasks
- are just the same objects like say sockets.
-2. this is easily changeable. You are the only who requested it so far.
-3. kernel does so for many other objects like users and no one complains :)
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 
-> - No ability to set resource specific configuration information.
-UBC model allows to _limit_ users. It is _core_.
-We want to do resource management step by step and send it patch by patch,
-while you are trying to solve everything at once.
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 9f79dd6..198b200 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -443,6 +443,52 @@ pci_power_t pci_choose_state(struct pci_
+ 
+ EXPORT_SYMBOL(pci_choose_state);
+ 
++static int __pci_save_pcie_state(struct pci_dev *dev)
++{
++	int pos, i = 0;
++	struct pci_cap_saved_state *save_state;
++	u16 *cap;
++
++	pos = pci_find_capability(dev, PCI_CAP_ID_EXP);
++	if (pos <= 0)
++		return 0;
++
++	save_state = kzalloc(sizeof(struct pci_cap_saved_state) + sizeof(u16) * 4,
++		GFP_KERNEL);
++	if (!save_state) {
++		printk(KERN_ERR "Out of memory in pci_save_pcie_state\n");
++		return -ENOMEM;
++	}
++	cap =  (u16 *)&save_state->data[0];
++
++	pci_read_config_word(dev, pos + PCI_EXP_DEVCTL, &cap[i++]);
++	pci_read_config_word(dev, pos + PCI_EXP_LNKCTL, &cap[i++]);
++	pci_read_config_word(dev, pos + PCI_EXP_SLTCTL, &cap[i++]);
++	pci_read_config_word(dev, pos + PCI_EXP_RTCTL, &cap[i++]);
++	pci_add_saved_cap(dev, save_state);
++	return 0;
++}
++
++static void __pci_restore_pcie_state(struct pci_dev *dev)
++{
++	int i = 0, pos;
++	struct pci_cap_saved_state *save_state;
++	u16 *cap;
++
++	save_state = pci_find_saved_cap(dev, PCI_CAP_ID_EXP);
++	pos = pci_find_capability(dev, PCI_CAP_ID_EXP);
++	if (!save_state || pos <= 0)
++		return;
++	cap = (u16 *)&save_state->data[0];
++
++	pci_write_config_word(dev, pos + PCI_EXP_DEVCTL, cap[i++]);
++	pci_write_config_word(dev, pos + PCI_EXP_LNKCTL, cap[i++]);
++	pci_write_config_word(dev, pos + PCI_EXP_SLTCTL, cap[i++]);
++	pci_write_config_word(dev, pos + PCI_EXP_RTCTL, cap[i++]);
++	pci_remove_saved_cap(save_state);
++	kfree(save_state);
++}
++
+ /**
+  * pci_save_state - save the PCI configuration space of a device before suspending
+  * @dev: - PCI device that we're dealing with
+@@ -458,6 +504,8 @@ pci_save_state(struct pci_dev *dev)
+ 		return i;
+ 	if ((i = pci_save_msix_state(dev)) != 0)
+ 		return i;
++	if ((i = __pci_save_pcie_state(dev)) != 0)
++		return i;
+ 	return 0;
+ }
+ 
+@@ -471,6 +519,9 @@ pci_restore_state(struct pci_dev *dev)
+ 	int i;
+ 	int val;
+ 
++	/* PCI Express register must be restored first */
++	__pci_restore_pcie_state(dev);
++
+ 	/*
+ 	 * The Base Address register should be programmed before the command
+ 	 * register(s)
 
-sys_open() for example doesn't allow to open sockets, does it?
-the same for UBC. They do what they are supposed to do.
-
-> - No ability to maintain resource specific data in the controller.
-it's false. fields can be added to user_beancounter struct easily.
-and that's what our controllers do.
-
-> - No ability to get the list of tasks belonging to a UBC.
-it is not true. it can be read from /proc or system calls interface,
-just like the way one finds all tasks belonging to one user :)
-
-BTW, what is so valueable in this feature?
-do you want to have interfaces to find kernel structures and even pages
-which belong to the container? tasks are just one type of objects...
-
-> - Doesn't inform the resource controllers when limits(shares) change.
-As was answered and noted by Alan Cox:
-1. no one defined what type of action should be done when limits change
-2. it is extendable _when_ needed. Do you want to introduce hooks just
-   to have them?
-3. is it so BIG obstacle for UBC patch? These 3-lines hooks code which
-   is not used?
-
-> - Doesn't inform the resource controllers when a task's UBC has changed.
-the same as above. we don't add functionality which is not used YET
-(and no one even knows HOW).
-
-> - Doesn't recalculate the resource usage when a task's UBC has changed. 
->   i.e doesn't uncharge the old UBC and charge new UBC.
-You probably missed my explanation, that most
-resources (except for the simplest one - numproc) can't be recharged
-easily. And  nothing in UBC code prevents such recharge to be added later
-if requested.
-
-> - For a system administrator name for identification of a UBC is 
->   better than a number (uid).
-Have you any problems with pids, uids, gids and signals?
-It is a question of interface. I don't mind in changing UBC interface even
-to configfs if someone really wants it.
-
-Thanks,
-Kirill
+-- 
+MST

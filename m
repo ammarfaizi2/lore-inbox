@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751649AbWHUNcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751880AbWHUNd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751649AbWHUNcv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWHUNcu
+	id S1751880AbWHUNd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWHUNd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:32:50 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:39442 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751649AbWHUNcu (ORCPT
+	Mon, 21 Aug 2006 09:33:27 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:24456 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751881AbWHUNd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:32:50 -0400
-Message-ID: <44E9B69D.9060109@sw.ru>
-Date: Mon, 21 Aug 2006 17:35:25 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Christoph@sc8-sf-spam2-b.sourceforge.net,
-       List <linux-kernel@vger.kernel.org>, Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux@sc8-sf-spam2-b.sourceforge.net, rohitseth@google.com,
-       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
-       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
-References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>	<1155752277.22595.70.camel@galaxy.corp.google.com>	<1155755069.24077.392.camel@localhost.localdomain>	<1155756170.22595.109.camel@galaxy.corp.google.com>	<44E45D6A.8000003@sw.ru> <20060817084033.f199d4c7.akpm@osdl.org>	<20060818120809.B11407@castle.nmd.msu.ru>	<1155912348.9274.83.camel@localhost.localdomain> <20060818094248.cdca152d.akpm@osdl.org>
-In-Reply-To: <20060818094248.cdca152d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 09:33:26 -0400
+Date: Mon, 21 Aug 2006 15:33:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Sean <seanlkml@sympatico.ca>, Greg KH <greg@kroah.com>,
+       Adrian Bunk <bunk@stusta.de>, Josh Boyer <jwboyer@gmail.com>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: Adrian Bunk is now taking over the 2.6.16-stable branch
+Message-ID: <20060821133335.GL10011@opteron.random>
+References: <20060803204921.GA10935@kroah.com> <625fc13d0608031943m7fb60d1dwb11092fb413f7fc3@mail.gmail.com> <20060804230017.GO25692@stusta.de> <20060806004634.GB6455@opteron.random> <20060806045234.GA28849@kroah.com> <20060820223046.GB10011@opteron.random> <20060820185123.e84fafaf.seanlkml@sympatico.ca> <20060820231510.GD10011@opteron.random> <20060821000500.GO8776@1wt.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821000500.GO8776@1wt.eu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> I have this mad idea that you can divide a 128GB machine up into 256 fake
-> NUMA nodes, then you use each "node" as a 512MB unit of memory allocation. 
-> So that 4.5GB job would be placed within an exclusive cpuset which has nine
-> "mems" (what are these called?) and voila: the job has a hard 4.5GB limit,
-> no kernel changes needed.
-this doesn't allow memory overcommitment, does it?
+On Mon, Aug 21, 2006 at 02:05:00AM +0200, Willy Tarreau wrote:
+> [..] Adrian has finally removed his mocking (and
+> IMHO childish) signature. Why don't you consider the problem solved
+> and keep your project online ?
 
-Kirill
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115611817104179&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115592383000732&w=2
+
+Here also a link sent to me from a KLive supporter:
+
+http://en.wikipedia.org/wiki/W._Edwards_Deming
+
+If I was to follow my emotions and my financial interest, KLive would
+be down already.

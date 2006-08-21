@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWHUIeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWHUIjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWHUIeR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 04:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWHUIeR
+	id S964975AbWHUIjy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 04:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWHUIjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 04:34:17 -0400
-Received: from mail.gmx.de ([213.165.64.20]:43716 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750793AbWHUIeQ (ORCPT
+	Mon, 21 Aug 2006 04:39:54 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:5084 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751151AbWHUIjy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 04:34:16 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 0/7] CPU controller - V1
-From: Mike Galbraith <efault@gmx.de>
-To: vatsa@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-In-Reply-To: <20060820174015.GA13917@in.ibm.com>
-References: <20060820174015.GA13917@in.ibm.com>
-Content-Type: text/plain
-Date: Mon, 21 Aug 2006 10:42:40 +0000
-Message-Id: <1156156960.7772.38.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 21 Aug 2006 04:39:54 -0400
+Date: Mon, 21 Aug 2006 10:39:03 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Julio Auto <mindvortex@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.17.9 Incorrect string length checking in
+ param_set_copystring()
+In-Reply-To: <18d709710608200917o4c062d6ewd216580a1022ad0f@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0608211038480.22414@yvahk01.tjqt.qr>
+References: <18d709710608200747k3323b23cq70eb52fdb9032554@mail.gmail.com>
+ <18d709710608200917o4c062d6ewd216580a1022ad0f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-08-20 at 23:10 +0530, Srivatsa Vaddagiri wrote:
-> Salient design points of this patch:
-> 
-> 	- Each task-group gets its own runqueue on every cpu.
-> 
-> 	- In addition, there is an active and expired array of
-> 	  task-groups themselves. Task-groups who have expired their
-> 	  quota are put into expired array.
-> 
-> 	- Task-groups have priorities. Priority of a task-group is the
-> 	  same as the priority of the highest-priority runnable task it
-> 	  has. This I feel will retain interactiveness of the system
-> 	  as it is today.
+>> As for 2.6.17.9, linux/include/linux/moduleparam.h suggests the user
+>> of module_param_string() to set the maxlen parameter to
+>> strlen(string), ie. '\0' excluded.
+>
+> Actually, sizeof(string), not strlen(string). Senseless typo here.
+> Sorry, my bad. :)
 
-WRT interactivity: Looking at try_to_wake_up(), it appears that wake-up
-of a high priority group-a task will not result in preemption of a lower
-priority current group-b task.  True?
+With \0 excluded, you want strlen(string) or sizeof(string)-1.
 
-	-Mike
 
+Jan Engelhardt
+-- 

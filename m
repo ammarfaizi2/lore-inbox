@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422668AbWHURfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422801AbWHURoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422668AbWHURfY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 13:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWHURfY
+	id S1422801AbWHURoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 13:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWHURoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 13:35:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:9665 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964990AbWHURfX (ORCPT
+	Mon, 21 Aug 2006 13:44:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26262 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1422801AbWHURoC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 13:35:23 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1155955116.2510.445.camel@stark>
-References: <44E33893.6020700@sw.ru>  <44E33BB6.3050504@sw.ru>
-	 <1155866328.2510.247.camel@stark>  <44E5A637.1020407@sw.ru>
-	 <1155955116.2510.445.camel@stark>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 21 Aug 2006 10:35:16 -0700
-Message-Id: <1156181716.6479.2.camel@linuxchandra>
+	Mon, 21 Aug 2006 13:44:02 -0400
+Date: Mon, 21 Aug 2006 10:43:34 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: simon.derr@bull.net, nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: cpusets not cpu hotplug aware
+Message-Id: <20060821104334.2faad899.pj@sgi.com>
+In-Reply-To: <20060821132709.GB8499@krispykreme>
+References: <20060821132709.GB8499@krispykreme>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-08-18 at 19:38 -0700, Matt Helsley wrote:
-
-<snip>
-
-> > > 
-> > >>+	for (p = ub; p != NULL; p = p->parent) {
-> > > 
-> > > 
-> > > Seems rather expensive to walk up the tree for every charge. Especially
-> > > if the administrator wants a fine degree of resource control and makes a
-> > > tall tree. This would be a problem especially when it comes to resources
-> > > that require frequent and fast allocation.
-> > in heirarchical accounting you always have to update all the nodes :/
-> > with flat UBC this doesn't introduce significant overhead.
+Anton wrote:
+> We have a bug report where sched_setaffinity fails for cpus that are
+> hotplug added after boot. Nathan found this suspicious piece of code:
 > 
-> Except that you eventually have to lock ub0. Seems that the cache line
-> for that spinlock could bounce quite a bit in such a hot path.
+> void __init cpuset_init_smp(void)
+> {
+>         top_cpuset.cpus_allowed = cpu_online_map;
+>         top_cpuset.mems_allowed = node_online_map;
+> }
 > 
-> Chandra, doesn't Resource Groups avoid walking more than 1 level up the
-> hierarchy in the "charge" paths?
+> Any reason we statically set the top level cpuset to the boot time cpu
+> online map?
 
-Yes, charging happens at one level only (except the case where the group
-is over its guarantee, it has to borrow from its parent, it will go up).
 
-<snip>
+Your query confuses me, about 4 different ways ...
+
+1) What does sched_setaffinity have to do with this part of cpusets?
+2) What did you mean by "statically assigned"?  At boot, whatever cpus
+   and memory nodes are online are copied to the top_cpuset's settings.
+   As Simon suggests, it would be up to the hotplug/hotunplug folks to
+   update these top_cpuset settings, as cpus and nodes come and go.
+3) I don't understand what you thought was suspicious here.
+4) I don't understand what you expected to see instead here.
+
 -- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

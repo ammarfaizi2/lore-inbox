@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWHUKn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWHUKpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751852AbWHUKn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 06:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWHUKn6
+	id S1751851AbWHUKpf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 06:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWHUKpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 06:43:58 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2823 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751853AbWHUKn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 06:43:57 -0400
-Date: Mon, 21 Aug 2006 12:43:57 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/wd33c93.c: cleanups
-Message-ID: <20060821104357.GH11651@stusta.de>
+	Mon, 21 Aug 2006 06:45:35 -0400
+Received: from ms-smtp-01.tampabay.rr.com ([65.32.5.131]:21653 "EHLO
+	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1751851AbWHUKpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 06:45:34 -0400
+Message-ID: <44E98ECB.3040603@cfl.rr.com>
+Date: Mon, 21 Aug 2006 06:45:31 -0400
+From: Mark Hounschell <dmarkh@cfl.rr.com>
+Reply-To: dmarkh@cfl.rr.com
+User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Luka Marinko <luka.marinko@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: question on pthreads
+References: <3420082f0608201046q53bb60b5u5ca8915e588ee9e3@mail.gmail.com> <ecakcv$m06$1@sea.gmane.org> <1156112486.10565.64.camel@mindpipe>
+In-Reply-To: <1156112486.10565.64.camel@mindpipe>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- #include <linux/irq.h> for getting the prototypes of
-  {dis,en}able_irq()
-- make the needlessly global wd33c93_setup() static
+Lee Revell wrote:
+> On Sun, 2006-08-20 at 21:32 +0000, Luka Marinko wrote:
+>> You can find nice manual here, and overview
+>> http://www.gnu.org/software/libc/manual/html_mono/libc.html
+>>
+> 
+> Unfortunately the NPTL documentation is FAR from complete - there are no
+> man pages at all, and some featured are completely undocumented.  For
+> example process-shared mutexes are supported, but the only way you'd
+> know is to look at the source.  The only docs I could find on how to use
+> them were old Solaris man pages.
+> 
+> Lee
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+glibc 2.4.31 has a man page for it.
 
---- linux-2.6.18-rc4-mm2/drivers/scsi/wd33c93.c.old	2006-08-21 03:16:42.000000000 +0200
-+++ linux-2.6.18-rc4-mm2/drivers/scsi/wd33c93.c	2006-08-21 03:17:10.000000000 +0200
-@@ -79,6 +79,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/blkdev.h>
-+#include <linux/irq.h>
- 
- #include <scsi/scsi.h>
- #include <scsi/scsi_cmnd.h>
-@@ -1710,7 +1711,7 @@
- static char setup_used[MAX_SETUP_ARGS];
- static int done_setup = 0;
- 
--int
-+static int
- wd33c93_setup(char *str)
- {
- 	int i;
+PTHREAD_MUTEXATTR_GETPSHARED(P)                                 POSIX
+Programmer's Manual                                PTHREAD_MUTEXATTR_GETPSHARED(P)
+
+
+
+NAME
+       pthread_mutexattr_getpshared, pthread_mutexattr_setpshared - get and set
+the process-shared attribute
+
+SYNOPSIS
+       #include <pthread.h>
+
+       int pthread_mutexattr_getpshared(const pthread_mutexattr_t *
+              restrict attr, int *restrict pshared);
+       int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr,
+              int pshared);
+
+Mark

@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWHUIye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWHUI4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWHUIye (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 04:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWHUIye
+	id S1750765AbWHUI4B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 04:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWHUI4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 04:54:34 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:14722 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750751AbWHUIye (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 04:54:34 -0400
-Message-ID: <44E9755F.8080405@sw.ru>
-Date: Mon, 21 Aug 2006 12:57:03 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory accounting	(core)
-References: <44E33893.6020700@sw.ru> <44E33C8A.6030705@sw.ru>	 <1155754029.9274.21.camel@localhost.localdomain>	<44E46FC4.2050002@sw.ru>	 <1155825379.9274.39.camel@localhost.localdomain>  <44E57689.9070209@sw.ru> <1155912188.9274.79.camel@localhost.localdomain>
-In-Reply-To: <1155912188.9274.79.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 04:56:01 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:38868 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S1750765AbWHUI4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 04:56:00 -0400
+Date: Mon, 21 Aug 2006 10:55:53 +0200
+From: Pozsar Balazs <pozsy@uhulinux.hu>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Bob Reinkemeyer <bigbob73@charter.net>, linux-kernel@vger.kernel.org
+Subject: Re: [bug] Mouse jumps randomly in x kernel 2.6.18
+Message-ID: <20060821085553.GA19425@ojjektum.uhulinux.hu>
+References: <44E37FD1.6020506@charter.net> <20060819203550.GA27549@ojjektum.uhulinux.hu> <44E8EED9.9050207@charter.net> <200608202152.04488.dtor@insightbb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200608202152.04488.dtor@insightbb.com>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Fri, 2006-08-18 at 12:12 +0400, Kirill Korotaev wrote:
+On Sun, Aug 20, 2006 at 09:52:03PM -0400, Dmitry Torokhov wrote:
+> On Sunday 20 August 2006 19:23, Bob Reinkemeyer wrote:
+> > just to be clear, is this all you want to revert, or do you want all 
+> > similar fuctions reverted?
+> > 
 > 
->>LDT takes from 1 to 16 pages. and is allocated by vmalloc.
->>do you propose to replace it with slab which can fail due to memory
->>fragmentation?
-> 
-> 
-> Nope.  ;)
-so what is your proposal then? Sorry, probably missed it due to lots of emails :)
+> Just the part Poszar quoted - we have a report from another user that
+> removing only 2nd part of the explorer 4.0 magic knock cures mouse
+> jumpiness.
 
->>the same applies to fdset, fdarray, ipc ids and iptables entries. 
-> 
-> 
-> The vmalloc area, along with all of those other structures _have_ other
-> data structures.  Now, it will take a wee bit more patching to directly
-> tag those thing with explicit container pointers (or accounting
-> references), but I would much prefer that, especially for the things
-> that are larger than a page.
-do you mean that you prefer adding a explicit pointer to the structures
-itself?
+Here's the patch to revert the superfluous initilization.
+Horizontal scrolling still works on my instellimouse 4.0 thanks to the 
+first (kept) part of the init seq, and it hopefully cures the jumpiness.
 
-> I worry that this approach was used instead of patching all of the
-> individual subsystems because this was easier to maintain as an
-> out-of-tree patch, and it isn't necessarily the best approach.
-:) if we were to optimize for patch size then we would select vserver
-approach and be happy...
+ps: I wonder how the windows driver manages not to go jumpy...
 
-Dave, we used to add UBC pointers on each data structure and then do
-a separate accounting in the places where objects are allocated.
-We spent a lot of time and investigation on how to make it better,
-because it was leading to often accounting errors, wrong error paths etc.
-The approach provided in this patchset proved to be much more efficient
-and more error prone. And it is much much more elegant!
 
-Thanks,
-Kirill
+Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
+
+--- a/drivers/input/mouse/psmouse-base.c	2006-08-21 10:46:20.000000000 +0200
++++ b/drivers/input/mouse/psmouse-base.c	2006-08-21 10:46:26.000000000 +0200
+@@ -485,13 +485,6 @@
+ 	param[0] =  40;
+ 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+ 
+-	param[0] = 200;
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+-	param[0] = 200;
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+-	param[0] =  60;
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+-
+ 	if (set_properties) {
+ 		set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 		set_bit(REL_WHEEL, psmouse->dev->relbit);
+
+
+-- 
+pozsy

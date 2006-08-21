@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWHUVEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWHUVGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWHUVEp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWHUVEp
+	id S1751104AbWHUVGM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWHUVGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:04:45 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:24555 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751103AbWHUVEo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:04:44 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44E9910D.9010402@sw.ru>
-References: <44E33893.6020700@sw.ru> <20060817110237.GA19127@in.ibm.com>
-	 <44E47547.8030702@sw.ru> <1155844543.26155.10.camel@linuxchandra>
-	 <44E5982C.80304@sw.ru> <1155927229.26155.28.camel@linuxchandra>
-	 <44E9910D.9010402@sw.ru>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 21 Aug 2006 14:04:33 -0700
-Message-Id: <1156194273.6479.31.camel@linuxchandra>
+	Mon, 21 Aug 2006 17:06:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16265 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751104AbWHUVGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 17:06:11 -0400
+Date: Mon, 21 Aug 2006 14:05:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Sesterhenn <snakebyte@gmx.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [Patch] Signedness issue in drivers/net/3c515.c
+Message-Id: <20060821140558.4cfee23c.akpm@osdl.org>
+In-Reply-To: <1156009077.18374.1.camel@alice>
+References: <1156009077.18374.1.camel@alice>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 14:55 +0400, Kirill Korotaev wrote:
-<snip>
+On Sat, 19 Aug 2006 19:37:57 +0200
+Eric Sesterhenn <snakebyte@gmx.de> wrote:
 
-> >>If you have a single container controlling all the resources, then
-> >>placing kjournald into CPU container would require setting
-> >>it's memory limits etc. And kjournald will start to be accounted separately,
-> > 
-> > 
-> > Not necessarily. You could just set the CPU shares of the group and
-> > leave the other resources as don't care.
-> don't care IMHO doesn't mean "accounted and limited as container X".
-> it sounds like "no limits" for me.
-
-Yes. But, it would provide the same functionality that you want (i.e
-limit only CPU and no other resources).
-
+> while playing with gcc 4.1 -Wextra warnings, I came across this one:
 > 
-> >>while my intention is kjournald to be accounted as the host system.
-> >>I only want to _guarentee_ some CPU to it.
-> > I do not see any _guarantee_ support, only barrier(soft limit) and
-> > limit. May be I overlooked. Can you tell me how guarantee is achieved
-> > with UBC.
-> we just provide additional parameters like oomguarpages, where barrier
-> is a guarantee.
-
-I take it that you are suggesting that the controller can use barrier as
-guarantee.
-
-I don't see how it will work. charge_beancounter() returns -ENOMEM even
-when the group is over its barrier (when queried with strict ==
-UB_BARRIER). 
-
-I have to see the oomguarpatches patches for understanding this, I
-suppose.
+> drivers/net/3c515.c:1027: warning: comparison of unsigned expression >= 0 is always true
 > 
-> Kirill
--- 
+> Since i is unsigned the >= 0 check in the for loop is always true,
+> so we might spin there forever unless the if condition triggers.
+> Since i is only used in this loop, this patch changes it to
+> an integer.
+> 
+> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> 
+> --- linux-2.6.18-rc4/drivers/net/3c515.c.orig	2006-08-19 19:35:04.000000000 +0200
+> +++ linux-2.6.18-rc4/drivers/net/3c515.c	2006-08-19 19:35:14.000000000 +0200
+> @@ -1003,7 +1003,8 @@ static int corkscrew_start_xmit(struct s
+>  		/* Calculate the next Tx descriptor entry. */
+>  		int entry = vp->cur_tx % TX_RING_SIZE;
+>  		struct boom_tx_desc *prev_entry;
+> -		unsigned long flags, i;
+> +		unsigned long flags;
+> +		int i;
+>  
+>  		if (vp->tx_full)	/* No room to transmit with */
+>  			return 1;
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Which affects this loop:
 
+	/* Wait for the stall to complete. */
+	for (i = 20; i >= 0; i--)
+		if ((inw(ioaddr + EL3_STATUS) & CmdInProgress) == 0) 
+			break;
+
+Your fix will convert this indefinit wait into a bounded one.  It might
+cause the driver to malfunction.
+
+Given that our pool of 3c515 testers is less than enormous, a more prudent
+change might be to remove `i' and simply formalise the existing behaviour
+into a while(1) loop.
 

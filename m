@@ -1,84 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWHUNCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWHUNDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030439AbWHUNCM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWHUNCL
+	id S1030451AbWHUNDy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWHUNDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:02:11 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:57804 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751165AbWHUNCJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:02:09 -0400
-Date: Mon, 21 Aug 2006 17:01:21 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take9 1/2] kevent: Core files.
-Message-ID: <20060821130121.GA2602@2ka.mipt.ru>
-References: <11555364962921@2ka.mipt.ru> <1155536496588@2ka.mipt.ru> <20060816134550.GA12345@infradead.org> <20060816135642.GD4314@2ka.mipt.ru> <20060818104607.GB20816@infradead.org> <20060818112336.GB11034@2ka.mipt.ru> <20060821105637.GB28759@infradead.org> <20060821111335.GA8608@2ka.mipt.ru> <1156164805.17936.132.camel@tara.firmix.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Mon, 21 Aug 2006 09:03:54 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:2241 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1030446AbWHUNDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 09:03:52 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
+Date: Mon, 21 Aug 2006 14:23:53 +0200
+User-Agent: KMail/1.8.2
+Cc: netdev@vger.kernel.org, Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <osstklei@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>
+References: <200608181329.02042.ossthema@de.ibm.com> <20060818144429.GF5201@martell.zuzino.mipt.ru>
+In-Reply-To: <20060818144429.GF5201@martell.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1156164805.17936.132.camel@tara.firmix.at>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 21 Aug 2006 17:01:24 +0400 (MSD)
+Message-Id: <200608211423.54250.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 02:53:25PM +0200, Bernd Petrovitsch (bernd@firmix.at) wrote:
-> On Mon, 2006-08-21 at 15:13 +0400, Evgeniy Polyakov wrote:
-> [...]
-> > And what is the difference between
+Hi
+
+On Friday 18 August 2006 16:44, Alexey Dobriyan wrote:
+> > +static int ehea_init_port_res(struct ehea_port *port, struct ehea_port_res *pr,
+> > +			      struct port_res_cfg *pr_cfg, int queue_token)
+> > +{
+> > +	int ret = -EINVAL;
+> > +	int max_rq_entries = 0;
+> > +	enum ehea_eq_type eq_type = EHEA_EQ;
+> > +	struct ehea_qp_init_attr *init_attr = NULL;
+> > +	struct ehea_adapter *adapter = port->adapter;
+> > +
+> > +	memset(pr, 0, sizeof(struct ehea_port_res));
+> > +
+> > +	pr->skb_arr_rq3 = NULL;
+> > +	pr->skb_arr_rq2 = NULL;
+> > +	pr->skb_arr_rq1 = NULL;
+> > +	pr->skb_arr_sq = NULL;
+> > +	pr->qp = NULL;
+> > +	pr->send_cq = NULL;
+> > +	pr->recv_cq = NULL;
+> > +	pr->send_eq = NULL;
+> > +	pr->recv_eq = NULL;
 > 
-> As others already pointed out in this thread:
+> After memset unneeded. ;-)
 > 
-> These are not seen by the C compiler.
-> > #define A 1
-> > #define B 2
-> > #define C 4
-> > and
-> 
-> These are known by the C compiler and thus usable/viewable in a
-> debugger.
-> > enum {
-> >  A = 1,
-> >  B = 2,
-> >  C = 4,
-> > }
-> > ?
 
-:) And I pointed quite a few other issues about enums vs. defines.
-According to this one - no one wants to watch enums in debugger.
+Is it valid (common in the kernel environment) to treat NULL as 0 after a memset
+and thus to forget about initialization?
 
-And, ugh:
-
-(gdb) list
-1       enum {
-2               A = 1,
-3               B = 2,
-4       };
-5
-6       int main()
-7       {
-8               printf("%x\n", A | B);
-9       }
-(gdb) bre 8
-Breakpoint 1 at 0x4004ac: file ./test.c, line 8.
-(gdb) r
-Starting program: /tmp/test 
-
-Breakpoint 1, main () at ./test.c:8
-8               printf("%x\n", A | B);
-(gdb) p A
-No symbol "A" in current context.
-
-
-Actually I completely do not care about define or enums, it is really
-silly dispute, I just do not want to rewrite bunch of code _again_ and
-then _again_ when someone decide that defines are better.
-
--- 
-	Evgeniy Polyakov
+Thanks,
+Jan-Bernd

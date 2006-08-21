@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWHUEaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWHUEhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWHUEaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 00:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWHUEaJ
+	id S964957AbWHUEhV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 00:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWHUEhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 00:30:09 -0400
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:53976 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S964861AbWHUEaH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 00:30:07 -0400
-Date: Mon, 21 Aug 2006 10:02:57 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] file: kill unnecessary timer in fdtable_defer
-Message-ID: <20060821043257.GD5433@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060820131542.GN6371@htj.dyndns.org>
-Mime-Version: 1.0
+	Mon, 21 Aug 2006 00:37:21 -0400
+Received: from ns.suse.de ([195.135.220.2]:39616 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964945AbWHUEhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 00:37:20 -0400
+Date: Sun, 20 Aug 2006 21:35:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Len Brown <lenb@kernel.org>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] ACPI for 2.6.18-rc4
+Message-ID: <20060821043548.GA10844@kroah.com>
+References: <200606230437.50845.len.brown@intel.com> <200608202302.35229.len.brown@intel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060820131542.GN6371@htj.dyndns.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200608202302.35229.len.brown@intel.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 10:15:42PM +0900, Tejun Heo wrote:
-> free_fdtable_rc() schedules timer to reschedule fddef->wq if
-> schedule_work() on it returns 0.  However, schedule_work() guarantees
-> that the target work is executed at least once after the scheduling
-> regardless of its return value.  0 return simply means that the work
-> was already pending and thus no further action was required.
+On Sun, Aug 20, 2006 at 11:02:34PM -0400, Len Brown wrote:
+> Hi Linus,
+> 
+> please pull from: 
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
+> 
+> This is a batch of low-risk patches that are appropriate for 2.6.18-final.
+> They have all been through -mm.
 
-Hmm.. Is this really true ? IIRC, schedule_work() checks pending
-work based on bit ops on work->pending and clear_bit() is not
-a memory barrier. So, if I see work->pending = 1 in free_fdtable_work(), how
-do I know that the work function is already executing and
-missed the new work that I had queued ?
+Pulled from, and pushed out.
 
+thanks,
 
-Thanks
-Dipankar
+greg k-h

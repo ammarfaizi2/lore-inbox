@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWHUKlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751848AbWHUKoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751847AbWHUKlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 06:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWHUKlJ
+	id S1751848AbWHUKoG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 06:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751851AbWHUKoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 06:41:09 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:27224 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750773AbWHUKlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 06:41:08 -0400
-Message-ID: <44E98E61.2030608@sw.ru>
-Date: Mon, 21 Aug 2006 14:43:45 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Mon, 21 Aug 2006 06:44:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3591 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751848AbWHUKoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 06:44:05 -0400
+Date: Mon, 21 Aug 2006 12:44:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: [2.6 patch] proper prototypes for some console functions
+Message-ID: <20060821104405.GI11651@stusta.de>
 MIME-Version: 1.0
-To: rohitseth@google.com
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Pavel Emelianov <xemul@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Rik van Riel <riel@redhat.com>, hugh@veritas.com,
-       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 5/7] UBC: kernel memory accounting (core)
-References: <44E33893.6020700@sw.ru>  <44E33C8A.6030705@sw.ru>	 <1155752693.22595.76.camel@galaxy.corp.google.com> <44E46ED3.7000201@sw.ru>	 <1155834136.14617.29.camel@galaxy.corp.google.com> <44E58A89.8040001@sw.ru> <1155920158.22899.8.camel@galaxy.corp.google.com>
-In-Reply-To: <1155920158.22899.8.camel@galaxy.corp.google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>1. reclaiming user resources is not that good idea as it looks to you.
->>such solutions end up with lots of resources spent on reclaim.
->>for user memory reclaims mean consumption of expensive disk I/O bandwidth
->>which reduces overall system throughput and influences other users.
->>
-> 
-> 
-> May be I'm overlooking something very obvious.  Please tell me, what
-> happens when a user hits a page fault and the page allocator is easily
-> able to give a page from its pcp list.  But container is over its limit
-> of physical memory.  In your patch there is no attempt by container
-> support to see if some of the user pages are easily reclaimable.  What
-> options a user will have to make sure some room is created.
-The patch set send doesn't control user memory!
-This topic is about kernel memory...
+This patch adds proper prototypes to header files for three console init 
+functions used on drivers/char/vt.c
 
->>2. kernel memory is mostly not reclaimable. can you reclaim vma structs or ipc ids?
-> 
-> 
-> I'm not arguing about that at all.  If people want to talk about
-> reclaiming kernel pages then that should be done independent of this
-> subject.
-Then why do you mess user pages accounting into this thread then?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Kirill
+---
+
+ drivers/char/vt.c          |    8 --------
+ include/linux/console.h    |    3 +++
+ include/linux/consolemap.h |    1 +
+ 3 files changed, 4 insertions(+), 8 deletions(-)
+
+--- linux-2.6.18-rc4-mm1/include/linux/consolemap.h.old	2006-08-14 00:30:56.000000000 +0200
++++ linux-2.6.18-rc4-mm1/include/linux/consolemap.h	2006-08-14 00:31:10.000000000 +0200
+@@ -13,3 +13,4 @@
+ extern unsigned char inverse_translate(struct vc_data *conp, int glyph);
+ extern unsigned short *set_translate(int m, struct vc_data *vc);
+ extern int conv_uni_to_pc(struct vc_data *conp, long ucs);
++void console_map_init(void);
+--- linux-2.6.18-rc4-mm1/include/linux/console.h.old	2006-08-14 00:31:33.000000000 +0200
++++ linux-2.6.18-rc4-mm1/include/linux/console.h	2006-08-14 00:32:42.000000000 +0200
+@@ -124,6 +124,9 @@
+ extern void suspend_console(void);
+ extern void resume_console(void);
+ 
++int mda_console_init(void);
++void prom_con_init(void);
++
+ /* Some debug stub to catch some of the obvious races in the VT code */
+ #if 1
+ #define WARN_CONSOLE_UNLOCKED()	WARN_ON(!is_console_locked() && !oops_in_progress)
+--- linux-2.6.18-rc4-mm1/drivers/char/vt.c.old	2006-08-14 00:29:47.000000000 +0200
++++ linux-2.6.18-rc4-mm1/drivers/char/vt.c	2006-08-14 00:30:01.000000000 +0200
+@@ -139,14 +139,6 @@
+ extern void vcs_make_sysfs(struct tty_struct *tty);
+ extern void vcs_remove_sysfs(struct tty_struct *tty);
+ 
+-extern void console_map_init(void);
+-#ifdef CONFIG_PROM_CONSOLE
+-extern void prom_con_init(void);
+-#endif
+-#ifdef CONFIG_MDA_CONSOLE
+-extern int mda_console_init(void);
+-#endif
+-
+ struct vc vc_cons [MAX_NR_CONSOLES];
+ 
+ #ifndef VT_SINGLE_DRIVER
 

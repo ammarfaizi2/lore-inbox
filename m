@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWHUDiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWHUD4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWHUDiL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 23:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbWHUDiL
+	id S932591AbWHUD4M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 23:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWHUD4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 23:38:11 -0400
-Received: from msr8.hinet.net ([168.95.4.108]:46485 "EHLO msr8.hinet.net")
-	by vger.kernel.org with ESMTP id S932551AbWHUDiJ (ORCPT
+	Sun, 20 Aug 2006 23:56:11 -0400
+Received: from nsvr.mlabs.com.my ([219.93.2.104]:40427 "EHLO nrg.cs.usm.my")
+	by vger.kernel.org with ESMTP id S932591AbWHUD4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 23:38:09 -0400
-Message-ID: <006101c6c4d3$2e224820$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
-References: <1155841712.4532.19.camel@localhost.localdomain> <44E48281.1060504@pobox.com> <02ea01c6c28d$20943940$4964a8c0@icplus.com.tw> <44E5A0B9.9090502@pobox.com>
-Subject: Re: [PATCH 5/6] IP100A correct init and close step
-Date: Mon, 21 Aug 2006 11:37:51 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Sun, 20 Aug 2006 23:56:10 -0400
+Message-ID: <59046.10.207.160.203.1156132556.squirrel@10.207.160.104>
+Date: Mon, 21 Aug 2006 11:55:56 +0800 (MYT)
+Subject: [Patch] dvb-core: Proper handling ULE SNDU length of 0
+From: "Ang Way Chuang" <wcang@nrg.cs.usm.my>
+To: "Hilmar Linder" <hlinder@cosy.sbg.ac.at>,
+       "Wolfram Stering" <wstering@cosy.sbg.ac.at>
+Cc: tcwan@cs.usm.my, chteh@nrg.cs.usm.my, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.6-4.fc2.1.legacy
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff:
 
-(3)Yes, This is a bug, I will correct it. Thanks.
+ULE (Unidirectional Lightweight Encapsulation RFC 4326) decapsulation code
+has a bug that allows an attacker to send a malformed ULE packet with SNDU
+length of 0 and bring down the receiving machine. This patch fix the bug and
+apply to kernel 2.6.17.8.
 
-(4)This will halt TxDMA and RxDMA, after that will let reseting safely.
-Should I add description in source code or in change log?
+Signed-off-by: Ang Way Chuang <wcang@nrg.cs.usm.my>
+---
 
-Thanks!
+diff -uprN linux-2.6.17.8/drivers/media/dvb/dvb-core/dvb_net.c linux-2.6.17.8-fix/drivers/media/dvb/dvb-core/dvb_net.c
+--- linux-2.6.17.8/drivers/media/dvb/dvb-core/dvb_net.c 2006-08-07 12:18:54.000000000 +0800
++++ linux-2.6.17.8-fix/drivers/media/dvb/dvb-core/dvb_net.c     2006-08-21 11:09:12.000000000 +0800
+@@ -492,7 +492,7 @@ static void dvb_net_ule( struct net_devi
+                                } else
+                                        priv->ule_dbit = 0;
 
-Jesse
-
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<akpm@osdl.org>
-Sent: Friday, August 18, 2006 7:12 PM
-Subject: Re: [PATCH 5/6] IP100A correct init and close step
-
-
-Jesse Huang wrote:
-> Hi Jeff:
-> (1)Should I change to :
-> spin_lock_irqsave(&np->lock,flags);
-> reset_tx(dev);
-> spin_lock_irqrestore(&np->lock,flags);
->
-> (2)I will remove date and author information out of source code comment.
-
-Correct.
-
-Also:
-
-(3) Use iowrite16(), not writew().  I just noticed this bug.
-iowrite16() will work for both MMIO and IO cycles, writew() only works
-for MMIO.
-
-(4) We need a description of why this change is needed.  What does
-writing 0x500 to DMACtrl actually do?  Why do we need to do this?
-
-Jeff
+-                               if (priv->ule_sndu_len > 32763) {
++                               if (priv->ule_sndu_len > 32763 || priv->ule_sndu_len < ((priv->ule_dbit) ? 4 : 4 + ETH_ALEN)) {
+                                        printk(KERN_WARNING "%lu: Invalid ULE SNDU length %u. "
+                                               "Resyncing.\n", priv->ts_count, priv->ule_sndu_len);
+                                        priv->ule_sndu_len = 0;
 
 
 

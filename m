@@ -1,170 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWHUMJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWHUMKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbWHUMJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbWHUMJH
+	id S1030393AbWHUMKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWHUMKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:09:07 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:19064 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030381AbWHUMJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:09:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=gxjSM/TvdUwVE6Km4CfZl+NcS7B7Kkqooeg1CB+vgUJwpuqCBNBDhNmMR04P1LHYC6C+f35Uu6cHoPk/xdl/keHXY8HrJm1LZh1v23N7m+PktZrzeVCKebFFAxYau/TPcGiuKg5mSar3JNc/erV/lsYC1sU5vRwvoVoeT1q6wKw=
-Date: Mon, 21 Aug 2006 14:08:48 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm1 BUG, drm relatedy
-Message-ID: <20060821140848.GB1919@slug>
-References: <20060813012454.f1d52189.akpm@osdl.org> <20060815130345.GA3817@slug> <20060819230821.GE720@slug> <Pine.LNX.4.64.0608211223030.16712@skynet.skynet.ie>
+	Mon, 21 Aug 2006 08:10:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35786 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964980AbWHUMKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:10:35 -0400
+Message-ID: <44E9A272.3020202@redhat.com>
+Date: Mon, 21 Aug 2006 22:09:22 +1000
+From: Eugene Teo <eteo@redhat.com>
+Organization: Red Hat Asia-Pacific
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608211223030.16712@skynet.skynet.ie>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Willy Tarreau <w@1wt.eu>
+CC: Michael Buesch <mb@bu3sch.de>, Solar Designer <solar@openwall.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] getsockopt() early argument sanity checking
+References: <20060819230532.GA16442@openwall.com> <20060819234806.GB27115@1wt.eu> <200608200205.20876.mb@bu3sch.de> <20060820004307.GD27115@1wt.eu>
+In-Reply-To: <20060820004307.GD27115@1wt.eu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 12:24:51PM +0100, Dave Airlie wrote:
-> 
-> >>[   40.276000] [drm:drm_unlock] *ERROR* Process 8914 using kernel context 0
-> 
-> Can you send me an lspci -v (or have you already??)
-The lspci output is available at http://fdeweerdt.free.fr/drm_bug,
-along with the .config, and dmesg.
-> 
-> I've been busy lately so having trouble following this stuff in a timely manner, I think this is an error path which the 
-> userpsace code doesn't clean up properly, your patch is most definitely not correct..
-I see. So this is most likely X's having trouble with the EFAULT on
-unlock? I've gone through the 2.6.18-rc4-mm1 patches, and I couldn't
-relate the updates and that new drm_unlock() error message. Any idea?
-> 
-> if I had to guess I'd say you have an AGP machine + card but no AGP support driver loaded...
-I've got CONFIG_AGP=y and CONFIG_AGP_INTEL=y, do I need some more
-options? What's strange is that this worked perfectly with
-2.6.18-rc3-mm2...
+Willy Tarreau wrote:
+> On Sun, Aug 20, 2006 at 02:05:20AM +0200, Michael Buesch wrote:
+>> On Sunday 20 August 2006 01:48, Willy Tarreau wrote:
+>>> On Sun, Aug 20, 2006 at 03:05:32AM +0400, Solar Designer wrote:
+[snipped]
+> diff --git a/net/socket.c b/net/socket.c
+> index ac45b13..910ef88 100644
+> --- a/net/socket.c
+> +++ b/net/socket.c
+> @@ -1307,11 +1307,17 @@ asmlinkage long sys_setsockopt(int fd, i
+>  asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
+>  {
+>  	int err;
+> +	int len;
+        ^^^^^^^^
 
-Thanks,
-Frederik
+>  	struct socket *sock;
+>  
+>  	if ((sock = sockfd_lookup(fd, &err))!=NULL)
+>  	{
+> -		if (level == SOL_SOCKET)
+> +		/* XXX: insufficient for SMP, but should be redundant anyway */
+> +		if (get_user(len, optlen))
+> +			err = -EFAULT;
+> +		else if (len < 0)
+                ^^^^^^^^^^^^^^^^^
 
-> 
-> Dave.
-> 
-> 
-> >>[   41.024000] BUG: unable to handle kernel paging request at virtual address 6e756f73
-> >>[   41.024000]  printing eip:
-> >>[   41.024000] c01b5771
-> >>[   41.024000] *pde = 00000000
-> >>[   41.024000] Oops: 0000 [#1]
-> >>[   41.024000] 8K_STACKS PREEMPT
-> >>[   41.024000] last sysfs file: /devices/pci0000:00/0000:00:1d.7/usb5/5-0:1.0/bInterfaceProtocol
-> >>[   41.024000] Modules linked in: snd_seq snd_seq_device ohci_hcd parport_pc parport pcspkr ipw2200 yenta_socket 
-> >>rsrc_nonstatic pcmcia_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd 
-> >>uhci_hcd usbcore cpufreq_stats cpufreq_powersave cpufreq_ondemand cpufreq_conservative speedstep_centrino freq_table 
-> >>processor ac battery i915 drm tg3 joydev tsdev
-> >>[   41.024000] CPU:    0
-> >>[   41.024000] EIP:    0060:[<c01b5771>]    Not tainted VLI
-> >>[   41.024000] EFLAGS: 00210246   (2.6.18-rc4-mm1-def01 #1)
-> >>[   41.024000] EIP is at sysfs_lookup+0x65/0xb0
-> >>[   41.024000] eax: f3161e40   ebx: f316842c   ecx: f73f6280   edx: f316842c
-> >>[   41.024000] esi: 6e756f73   edi: f3161ec4   ebp: f6c35dfc   esp: f6c35de0
-> >>[   41.024000] ds: 007b   es: 007b   ss: 0068
-> >>[   41.024000] Process modprobe (pid: 8952, ti=f6c34000 task=f7d17550 task.ti=f6c34000)
-> >>[   41.024000] Stack: f316842c f3161e94 f31684bc 00000000 fffffff4 f73f72ec f3161e40 f6c35e1c
-> >>[   41.024000]        c0184d42 f73f72ec f3161e40 00000000 ffffffff c03a6656 12fd28db f6c35e4c
-> >>[   41.024000]        c0184e02 f6c35e30 f3161ee8 00000000 12fd28db 00000005 c03a6651 c038230e
-> >>[   41.024000] Call Trace:
-> >>[   41.024000]  [<c0184d42>] __lookup_hash+0x9d/0xcc
-> >>[   41.024000]  [<c0184e02>] lookup_one_len+0x71/0x86
-> >>[   41.024000]  [<c01b51da>] create_dir+0x43/0x23f
-> >>[   41.024000]  [<c01b53fc>] sysfs_create_subdir+0x26/0x28
-> >>[   41.024000]  [<c01b6c56>] sysfs_create_group+0x77/0x97
-> >>[   41.024000]  [<c02903af>] dpm_sysfs_add+0x1e/0x20
-> >>[   41.024000]  [<c028f6b3>] device_pm_add+0x64/0x89
-> >>[   41.024000]  [<c028930a>] device_add+0x1d9/0x380
-> >>[   41.024000]  [<c02894cb>] device_register+0x1a/0x20
-> >>[   41.024000]  [<c0289811>] device_create+0xaa/0xc4
-> >>[   41.024000]  [<f8a0c472>] snd_register_device+0xcf/0x104 [snd]
-> >>[   41.024000]  [<f8abd0c2>] snd_sequencer_device_init+0x4e/0x7c [snd_seq]
-> >>[   41.024000]  [<f8abd02f>] alsa_seq_init+0x2f/0x51 [snd_seq]
-> >>[   41.024000]  [<c014186c>] sys_init_module+0x163/0x221
-> >>[   41.024000]  [<c0103135>] sysenter_past_esp+0x56/0x8d
-> >>[   41.024000]  [<b7fb0410>] 0xb7fb0410
-> >>[   41.024000]  [<c0104017>] show_trace_log_lvl+0x2f/0x45
-> >>[   41.024000]  [<c01040ee>] show_stack_log_lvl+0x98/0xb2
-> >>[   41.024000]  [<c0104351>] show_registers+0x1eb/0x289
-> >>[   41.024000]  [<c0104587>] die+0x134/0x241
-> >>[   41.024000]  [<c0385e80>] do_page_fault+0x395/0x620
-> >>[   41.024000]  [<c0384401>] error_code+0x39/0x40
-> >>[   41.024000]  [<c0184d42>] __lookup_hash+0x9d/0xcc
-> >>[   41.024000]  [<c0184e02>] lookup_one_len+0x71/0x86
-> >>[   41.024000]  [<c01b51da>] create_dir+0x43/0x23f
-> >>[   41.024000]  [<c01b53fc>] sysfs_create_subdir+0x26/0x28
-> >>[   41.024000]  [<c01b6c56>] sysfs_create_group+0x77/0x97
-> >>[   41.024000]  [<c02903af>] dpm_sysfs_add+0x1e/0x20
-> >>[   41.024000]  [<c028f6b3>] device_pm_add+0x64/0x89
-> >>[   41.024000]  [<c028930a>] device_add+0x1d9/0x380
-> >>[   41.024000]  [<c02894cb>] device_register+0x1a/0x20
-> >>[   41.024000]  [<c0289811>] device_create+0xaa/0xc4
-> >>[   41.024000]  [<f8a0c472>] snd_register_device+0xcf/0x104 [snd]
-> >>[   41.024000]  [<f8abd0c2>] snd_sequencer_device_init+0x4e/0x7c [snd_seq]
-> >>[   41.024000]  [<f8abd02f>] alsa_seq_init+0x2f/0x51 [snd_seq]
-> >>[   41.024000]  [<c014186c>] sys_init_module+0x163/0x221
-> >>[   41.024000]  [<c0103135>] sysenter_past_esp+0x56/0x8d
-> >>[   41.024000]  =======================
-> >>[   41.024000] Code: 42 fc 89 c3 8b 40 04 0f 18 00 90 3b 55 ec 75 e6 8b 45 f0 83 c4 10 5b 5e 5f 5d c3 89 1c 24 e8 27 e9 ff ff 
-> >>89 c6 8b 45 0c 8b 78 48 <ac> ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 bd f6
-> >>[   41.024000] EIP: [<c01b5771>] sysfs_lookup+0x65/0xb0 SS:ESP 0068:f6c35de0
-> >>[   41.024000]
-> >>
-> >>
-> >Hi Andrew,
-> >
-> >I think that this definitely qualifies as a drm bug. Here are the tests
-> >that I did and that make me think so:
-> >- Removing the line 'Load  "dri"' from xorg.conf makes the oops
-> > disappear.
-> >- The bisection I performed indicates that the problem comes from the
-> > following set of patches:
-> > git-drm.patch
-> > drm-build-fix.patch
-> > drm-build-fixes-2.patch
-> > allow-drm-detection-of-new-via-chipsets.patch
-> > git-drm-build-fix.patch
-> >- Appliying the attached patch makes the oops disapear too.
-> >
-> >Now, I don't know the drm code, and I'm not able to explain why the fix
-> >works... Any ideas?
-> >
-> >Regards,
-> >Frederik
-> >
-> >Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-> >diff --git a/drivers/char/drm/drm_lock.c b/drivers/char/drm/drm_lock.c
-> >index f9e4530..a9e01b7 100644
-> >--- a/drivers/char/drm/drm_lock.c
-> >+++ b/drivers/char/drm/drm_lock.c
-> >@@ -65,12 +65,6 @@ int drm_lock(struct inode *inode, struct
-> >	if (copy_from_user(&lock, (drm_lock_t __user *) arg, sizeof(lock)))
-> >		return -EFAULT;
-> >
-> >-	if (lock.context == DRM_KERNEL_CONTEXT) {
-> >-		DRM_ERROR("Process %d using kernel context %d\n",
-> >-			  current->pid, lock.context);
-> >-		return -EINVAL;
-> >-	}
-> >-
-> >	DRM_DEBUG("%d (pid %d) requests lock (0x%08x), flags = 0x%08x\n",
-> >		  lock.context, current->pid,
-> >		  dev->lock.hw_lock->lock, lock.flags);
-> >
-> 
-> -- 
-> David Airlie, Software Engineer
-> http://www.skynet.ie/~airlied / airlied at skynet.ie
-> Linux kernel - DRI, VAX / pam_smb / ILUG
-> 
-> 
+s/else//
+
+> +			err = -EINVAL;
+> +		else if (level == SOL_SOCKET)
+
+s/else//
+
+>  			err=sock_getsockopt(sock,level,optname,optval,optlen);
+>  		else
+>  			err=sock->ops->getsockopt(sock, level, optname, optval, optlen);
+
+These checks are already in getsockopt(). Duplicated code?
+
+Eugene
+-- 
+eteo redhat.com  ph: +65 6490 4142  http://www.kernel.org/~eugeneteo
+gpg fingerprint:  47B9 90F6 AE4A 9C51 37E0  D6E1 EA84 C6A2 58DF 8823

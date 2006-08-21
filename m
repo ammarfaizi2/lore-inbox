@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751898AbWHUOnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbWHUOra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751898AbWHUOnU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 10:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWHUOnT
+	id S1030516AbWHUOra (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 10:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030517AbWHUOra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 10:43:19 -0400
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:53702 "EHLO
-	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
-	id S1751898AbWHUOnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 10:43:19 -0400
-Date: Mon, 21 Aug 2006 10:42:22 -0400
-From: Kyle McMartin <kyle@mcmartin.ca>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: matthew@wil.cx, grundler@parisc-linux.org, kyle@parisc-linux.org,
-       linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] [2.6 patch] parisc: "extern inline" -> "static inline"
-Message-ID: <20060821144222.GC14544@athena.road.mcmartin.ca>
-References: <20060819171930.GJ7813@stusta.de>
-MIME-Version: 1.0
+	Mon, 21 Aug 2006 10:47:30 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:30648 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030516AbWHUOr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 10:47:29 -0400
+Date: Mon, 21 Aug 2006 10:46:57 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Magnus Damm <magnus.damm@gmail.com>, Magnus Damm <magnus@valinux.co.jp>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: Re: [Fastboot] [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
+Message-ID: <20060821144657.GE9549@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060821095328.3132.40575.sendpatchset@cherry.local> <aec7e5c30608210629r4f2cf5dlfb1ad7d6cc95745d@mail.gmail.com> <20060821141721.GA29498@in.ibm.com> <200608211624.11005.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060819171930.GJ7813@stusta.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <200608211624.11005.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 07:19:30PM +0200, Adrian Bunk wrote:
-> If there are places that really need a forced inline, __always_inline 
-> would be the correct solution.
+On Mon, Aug 21, 2006 at 04:24:10PM +0200, Andi Kleen wrote:
 > 
-
-ACK, Ok.
-
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > Given the idea of relocatable kernel is floating around I would prefer if
+> > we are not bounded by the restriction of loading a kernel in lowest 4G.
 > 
+> There is already other code that requires this. In fact i don't think it can
+> be above 40MB currently.
+>
 
-Acked-by: Kyle McMartin <kyle@parisc-linux.org>
+But I think Eric's prototype patches for relocatable kernel do get over
+this limitation (Hope I understood the code right). Assuming that relocatable
+kernel patches will be merged down the line, it would be nice not to be
+bound by 4G limitation.
+
+Thanks
+Vivek
+

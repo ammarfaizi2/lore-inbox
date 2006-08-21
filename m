@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWHUWcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWHUWfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWHUWcW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 18:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWHUWcW
+	id S1751254AbWHUWfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 18:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWHUWfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 18:32:22 -0400
-Received: from mailfe02.tele2.fr ([212.247.154.44]:63195 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1751264AbWHUWcV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 18:32:21 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Tue, 22 Aug 2006 00:32:03 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Cc: dave@mielke.cc
-Subject: [PATCH] vcsa attribute bits -> ioctl(VT_GETHIFONTMASK)
-Message-ID: <20060821223203.GD5383@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-	dave@mielke.cc
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Aug 2006 18:35:40 -0400
+Received: from mxsf09.cluster1.charter.net ([209.225.28.209]:21993 "EHLO
+	mxsf09.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751254AbWHUWfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 18:35:40 -0400
+From: Bob Reinkemeyer <bigbob73@charter.net>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [bug] Mouse jumps randomly in x kernel 2.6.18
+Date: Mon, 21 Aug 2006 17:35:35 -0500
+User-Agent: KMail/1.9.1
+References: <44E37FD1.6020506@charter.net> <44E8EED9.9050207@charter.net> <200608202152.04488.dtor@insightbb.com>
+In-Reply-To: <200608202152.04488.dtor@insightbb.com>
+Cc: pozsy@uhulinux.hu, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i-nntp
+Message-Id: <200608211735.36256.bigbob73@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 20 August 2006 20:52, you wrote:
+> On Sunday 20 August 2006 19:23, Bob Reinkemeyer wrote:
+> > just to be clear, is this all you want to revert, or do you want all
+> > similar fuctions reverted?
+>
+> Just the part Poszar quoted - we have a report from another user that
+> removing only 2nd part of the explorer 4.0 magic knock cures mouse
+> jumpiness.
 
-When reading /dev/vcsa while a font with more than 256 characters is
-loaded, one of the attribute bits records the 9th bit of the character.
-But depending on the console driver (vgacon or fbcon for instance),
-that's bit 3 or bit 0.  And there is no way for userland to know that,
-thus no way for userland to safely grab the screen content.  So here is
-a (tested) patch.  I know 2.6.18 is very close now, but since this is a
-quite trivial patch, maybe it could find its way in as soon as now?
-
-
-  Add a VT_GETHIFONTMASK ioctl for knowing which bit is the 9th bit for
-  VC text (vc_hi_font_mask field of the vc_data structure).
-
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-
---- linux-2.6.17-orig/drivers/char/vt_ioctl.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux/drivers/char/vt_ioctl.c	2006-08-21 22:34:52.000000000 +0200
-@@ -1012,6 +1012,8 @@
- 		   return -EPERM;
- 		vt_dont_switch = 0;
- 		return 0;
-+	case VT_GETHIFONTMASK:
-+		return put_user(vc->vc_hi_font_mask, (unsigned short __user *)arg);
- 	default:
- 		return -ENOIOCTLCMD;
- 	}
---- linux-2.6.17-orig/include/linux/vt.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux/include/linux/vt.h	2006-08-21 22:35:49.000000000 +0200
-@@ -50,5 +50,6 @@
- #define VT_RESIZEX      0x560A  /* set kernel's idea of screensize + more */
- #define VT_LOCKSWITCH   0x560B  /* disallow vt switching */
- #define VT_UNLOCKSWITCH 0x560C  /* allow vt switching */
-+#define VT_GETHIFONTMASK 0x560D  /* return hi font mask */
- 
- #endif /* _LINUX_VT_H */
---- linux-2.6.17-orig/include/linux/compat_ioctl.h	2006-06-18 19:22:39.000000000 +0200
-+++ linux/include/linux/compat_ioctl.h	2006-08-21 22:34:17.000000000 +0200
-@@ -216,6 +216,7 @@
- COMPATIBLE_IOCTL(VT_RESIZEX)
- COMPATIBLE_IOCTL(VT_LOCKSWITCH)
- COMPATIBLE_IOCTL(VT_UNLOCKSWITCH)
-+COMPATIBLE_IOCTL(VT_GETHIFONTMASK)
- /* Little p (/dev/rtc, /dev/envctrl, etc.) */
- COMPATIBLE_IOCTL(RTC_AIE_ON)
- COMPATIBLE_IOCTL(RTC_AIE_OFF)
+This worked as well.  Tested in vanilla, a ck based, and an mm based kernel.  
+worked well in all.
+>
+> > Pozsar Balazs wrote:
+> > > On Thu, Aug 17, 2006 at 09:38:50PM -0500, Bob Reinkemeyer wrote:
+> > >> Dmitry Torokhov wrote:
+> > >>> On 8/16/06, Bob Reinkemeyer <bigbob73@charter.net> wrote:
+> > >>>> I have an issue where my mouse jumps around the screen randomly in X
+> > >>>> only.  It works correctly in a vnc window.  The mouse is a Microsoft
+> > >>>> wireless optical intellimouse.  This was tested in 2.6.18-rc1-rc4
+> > >>>> and observed in all. my config for .18 can be found here...
+> > >>>> http://rafb.net/paste/results/5cyWFd48.html
+> > >>>>
+> > >>>> and for .17 here...
+> > >>>> http://rafb.net/paste/results/xdFUkU58.html
+> > >>>
+> > >>> Does it help if you revert this patch:
+> > >>>
+> > >>> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;
+> > >>>a=commit;h=b0c9ad8e0ff154f8c4730b8c4383f49b846c97c4
+> > >>
+> > >> that fixed it.  Thanks!
+> > >
+> > > Could you try only reverting this part please?
+> > >
+> > >    + param[0] = 200;
+> > >    + ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+> > >    + param[0] = 200;
+> > >    + ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+> > >    + param[0] = 60;
+> > >    + ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);

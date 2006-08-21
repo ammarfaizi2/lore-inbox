@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWHUVcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWHUVps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWHUVcd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWHUVcd
+	id S1751203AbWHUVps (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWHUVps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:32:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12438 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750707AbWHUVcd (ORCPT
+	Mon, 21 Aug 2006 17:45:48 -0400
+Received: from mx2.suse.de ([195.135.220.15]:28379 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751203AbWHUVpr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:32:33 -0400
-Date: Mon, 21 Aug 2006 14:32:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] copy_process: cosmetic ->ioprio tweak
-Message-Id: <20060821143224.62018aba.akpm@osdl.org>
-In-Reply-To: <20060820145321.GA775@oleg>
-References: <20060820145321.GA775@oleg>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 17:45:47 -0400
+Date: Mon, 21 Aug 2006 14:43:49 -0700
+From: Greg KH <gregkh@suse.de>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 00/20] 2.6.17-stable review
+Message-ID: <20060821214349.GA1885@suse.de>
+References: <20060821184527.GA21938@kroah.com> <20060821194616.GC12928@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060821194616.GC12928@redhat.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Aug 2006 18:53:21 +0400
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
-
-> copy_process:
-> // holds tasklist_lock + ->siglock
->        /*
->         * inherit ioprio
->         */
->        p->ioprio = current->ioprio;
+On Mon, Aug 21, 2006 at 03:46:16PM -0400, Dave Jones wrote:
+> On Mon, Aug 21, 2006 at 11:45:27AM -0700, Greg KH wrote:
+>  > This is the start of the stable review cycle for the next 2.6.17.y
+>  > release.  There are 20 patches in this series, all will be posted as
+>  > a response to this one.  If anyone has any issues with these being
+>  > applied, please let us know.  If anyone is a maintainer of the proper
+>  > subsystem, and wants to add a Signed-off-by: line to the patch, please
+>  > respond with it.
+>  > 
+>  > These patches are sent out with a number of different people on the Cc:
+>  > line.  If you wish to be a reviewer, please email stable@kernel.org to
+>  > add your name to the list.  If you want to be off the reviewer list,
+>  > also email us.
 > 
-> Why? ->ioprio was already copied in dup_task_struct().
+> Any chance of a 2.6.17.10-rc1 rollup patch again, like you did for .8?
 
-It might just be a thinko.
+Oops, forgot to do that, thanks for reminding me.  It can be found at:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/stable/patch-2.6.17.10-rc1.gz
 
-> I guess this is needed
-> to ensure that the child can't escape sys_ioprio_set(IOPRIO_WHO_{PGRP,USER}),
-> yes?
+And yes, it's not in the "main" v2.6 subdirectories, I'm not going to
+put it there anymore as it confuses too many scripts/people.
 
-How could the child escape that if this assignment was not present?
+thanks,
 
-> In that case we don't need ->siglock held, and the comment should be updated.
-
-Surely.
+greg k-h

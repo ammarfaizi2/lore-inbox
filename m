@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751819AbWHUJxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWHUJxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751819AbWHUJxf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 05:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWHUJxf
+	id S1751813AbWHUJxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 05:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWHUJxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 05:53:35 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:44179 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751818AbWHUJxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 05:53:33 -0400
-Message-ID: <44E9829B.7010503@de.ibm.com>
-Date: Mon, 21 Aug 2006 11:53:31 +0200
-From: Thomas Klein <osstklei@de.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Alexey Dobriyan <adobriyan@gmail.com>,
-       Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
-       Christoph Raisch <raisch@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Subject: Re: [2.6.19 PATCH 4/7] ehea: ethtool interface
-References: <200608181333.23031.ossthema@de.ibm.com>	<20060818140506.GC5201@martell.zuzino.mipt.ru>	<44E5DFA6.7040707@de.ibm.com> <20060818104547.5ad1352f@localhost.localdomain>
-In-Reply-To: <20060818104547.5ad1352f@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 05:53:07 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:37830 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751813AbWHUJxG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 05:53:06 -0400
+From: Magnus Damm <magnus@valinux.co.jp>
+To: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Cc: Magnus Damm <magnus@valinux.co.jp>, ebiederm@xmission.com, ak@suse.de
+Message-Id: <20060821095328.3132.40575.sendpatchset@cherry.local>
+Subject: [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
+Date: Mon, 21 Aug 2006 18:54:16 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Fri, 18 Aug 2006 17:41:26 +0200
-> Thomas Klein <osstklei@de.ibm.com> wrote:
-> 
->> Hi Alexey,
->>
->> first of all thanks a lot for the extensive review.
->>
->>
->> Alexey Dobriyan wrote:
->>>> +	u64 hret = H_HARDWARE;
->>> Useless assignment here and everywhere.
->>>
->> Initializing returncodes to errorstate is a cheap way to prevent
->> accidentally returning (uninitalized) success returncodes which
->> can lead to catastrophic misbehaviour.
-> 
-> That is old thinking. Current compilers do live/dead analysis
-> and tell you about this at compile time which is better than relying
-> on default behavior at runtime.
+x86_64: Reload CS when startup_64 is used.
 
-Understood. I reworked the returncode handling and removed the
-unnecessary initializations.
+The current x86_64 startup code never reloads CS during the early boot process
+if the 64-bit function startup_64 is used as entry point. The 32-bit entry 
+point startup_32 does the right thing and reloads CS, and this is what most 
+people are using if they use bzImage.
 
-Thanks for pointing this out.
+This patch fixes the case when the Linux kernel is booted into using kexec
+under Xen. The Xen hypervisor is using large CS values which makes the x86_64
+kernel fail - but only if vmlinux is booted, bzImage works well because it
+is using the 32-bit entry point.
 
-Thomas
+The main question is if we require that the boot loader should setup CS
+to some certain offset to be able to boot the kernel. The sane solution IMO
+should be that the kernel requires that the loaded descriptors are correct, 
+but that the exact offset within the GDT the boot loader is using should not 
+matter. This is the way the i386 boot works if I understand things correctly.
+
+Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+---
+
+ Applies on top of 2.6.18-rc4
+
+ head.S |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+--- 0001/arch/x86_64/kernel/head.S
++++ work/arch/x86_64/kernel/head.S	2006-08-21 18:22:57.000000000 +0900
+@@ -165,6 +165,25 @@ startup_64:
+ 	 */
+ 	lgdt	cpu_gdt_descr
+ 
++	/* Reload CS with a value that is within our GDT. We need to do this
++	 * if we were loaded by a 64 bit bootloader that happened to use a 
++	 * CS that is larger than the GDT limit. This is true if we came here
++	 * from kexec running under Xen.
++	 */
++	movq	%rsp, %rdx
++	movq	$__KERNEL_DS, %rax
++	pushq	%rax /* SS */
++	pushq	%rdx /* RSP */
++	movq	$__KERNEL_CS, %rax
++	movq	$cs_reloaded, %rdx
++	pushq	%rax /* CS */
++	pushq	%rdx /* RIP */
++	lretq
++	
++cs_reloaded:			
++	/* Setup the boot time stack again */
++	movq init_rsp(%rip),%rsp
++	
+ 	/* 
+ 	 * Setup up a dummy PDA. this is just for some early bootup code
+ 	 * that does in_interrupt() 

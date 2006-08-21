@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWHUXF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWHUXFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWHUXF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 19:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWHUXF5
+	id S1751282AbWHUXFl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 19:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWHUXFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 19:05:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58053 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751277AbWHUXFz (ORCPT
+	Mon, 21 Aug 2006 19:05:41 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:63209 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751282AbWHUXFk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 19:05:55 -0400
-Date: Mon, 21 Aug 2006 16:04:54 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: anton@samba.org, simon.derr@bull.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] cpuset code prevents binding tasks to new cpus
-Message-Id: <20060821160454.9e44427b.pj@sgi.com>
-In-Reply-To: <20060821204251.GB9828@localdomain>
-References: <20060821132709.GB8499@krispykreme>
-	<20060821104334.2faad899.pj@sgi.com>
-	<20060821192133.GC8499@krispykreme>
-	<20060821204251.GB9828@localdomain>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 19:05:40 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Vernon Mauery <vernux@us.ibm.com>
+Subject: Re: Looking for a reliable USB network card
+Date: Tue, 22 Aug 2006 01:06:03 +0200
+User-Agent: KMail/1.9.1
+Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20060821212358.GB1558@cip.informatik.uni-erlangen.de> <200608211543.36019.vernux@us.ibm.com>
+In-Reply-To: <200608211543.36019.vernux@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200608220106.04192.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan wrote:
-> -	top_cpuset.cpus_allowed = cpu_online_map;
-> +	top_cpuset.cpus_allowed = cpu_possible_map;
+Am Tuesday 22 August 2006 00:43 schrieb Vernon Mauery:
+> On Monday 21 August 2006 14:23, Thomas Glanzmann wrote:
+> > Hello,
+> > since I have problems with my sky2 network card on my mac mini, I am
+> > looking for a cheap but reliable usb network card which is available in
+> > Germany. Anyone?
+>
+> http://www.qbik.ch/usb/devices/showdevcat.php?id=16
+>
+> This should give you an idea of which devices are supported.  From there,
+> you should be able to find something in Germany.
 
-NAQ
+Be aware of the DeLOCK adapter that is currently popular in some
+retail stores. I just submitted a driver for it, but the hardware
+itself seems to be relatively unreliable. When it works, you get decent
+speed, but it seems to confuse the network stack and BIOS sometimes.
 
-While this seems sensible on systems not using cpusets (but still using
-kernels configured for cpusets), it is surprising on systems using
-cpusets, on which one expects the cpuset that a task is in to reflect
-the cpus that a task is allowed to use.
-
-A long time ago, this code actually had cpu_possible_map here, not
-cpu_online_map.  That was changed, in the patch:
-
-  http://lkml.org/lkml/2004/9/12/104
-  [Patch] cpusets interoperate with hotplug online maps
-
-Lets discuss this further.  See further my previous reply to Anton.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	Arnd <><

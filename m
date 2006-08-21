@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWHUI4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWHUJD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWHUI4B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 04:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWHUI4B
+	id S1750790AbWHUJD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 05:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWHUJD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 04:56:01 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:38868 "EHLO
+	Mon, 21 Aug 2006 05:03:56 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:42198 "EHLO
 	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S1750765AbWHUI4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 04:56:00 -0400
-Date: Mon, 21 Aug 2006 10:55:53 +0200
+	id S1750790AbWHUJDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 05:03:55 -0400
+Date: Mon, 21 Aug 2006 11:03:51 +0200
 From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Bob Reinkemeyer <bigbob73@charter.net>, linux-kernel@vger.kernel.org
-Subject: Re: [bug] Mouse jumps randomly in x kernel 2.6.18
-Message-ID: <20060821085553.GA19425@ojjektum.uhulinux.hu>
-References: <44E37FD1.6020506@charter.net> <20060819203550.GA27549@ojjektum.uhulinux.hu> <44E8EED9.9050207@charter.net> <200608202152.04488.dtor@insightbb.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Valerie Henson <val_henson@linux.intel.com>,
+       Prakash Punnoor <prakash@punnoor.de>, Jiri Benc <jbenc@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
+Message-ID: <20060821090351.GB19425@ojjektum.uhulinux.hu>
+References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu> <200608162002.06793.prakash@punnoor.de> <20060816195345.GA12868@ojjektum.uhulinux.hu> <20060819001640.GE20111@goober> <20060819061507.GB8571@ojjektum.uhulinux.hu> <44E721E1.2030203@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608202152.04488.dtor@insightbb.com>
+In-Reply-To: <44E721E1.2030203@pobox.com>
 User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 20, 2006 at 09:52:03PM -0400, Dmitry Torokhov wrote:
-> On Sunday 20 August 2006 19:23, Bob Reinkemeyer wrote:
-> > just to be clear, is this all you want to revert, or do you want all 
-> > similar fuctions reverted?
-> > 
+On Sat, Aug 19, 2006 at 10:36:17AM -0400, Jeff Garzik wrote:
+> Pozsar Balazs wrote:
+> >--- a/drivers/net/tulip/uli526x.c	2006-07-15 21:00:43.000000000 +0200
+> >+++ a/drivers/net/tulip/uli526x.c	2006-08-18 15:41:00.000000000 +0200
+> >@@ -515,7 +515,8 @@
+> > 	phy_reg_reset = phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id);
+> > 	phy_reg_reset = (phy_reg_reset | 0x8000);
+> > 	phy_write(db->ioaddr, db->phy_addr, 0, phy_reg_reset, db->chip_id);
+> >-	udelay(500);
+> >+	while (phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id) & 0x8000)
+> >+		udelay(500);
 > 
-> Just the part Poszar quoted - we have a report from another user that
-> removing only 2nd part of the explorer 4.0 magic knock cures mouse
-> jumpiness.
+> You never want an infinite loop in a driver.  If, for example, the 
+> hardware is wedged or removed, registers will return all 1's, leading 
+> this loop to never end.
 
-Here's the patch to revert the superfluous initilization.
-Horizontal scrolling still works on my instellimouse 4.0 thanks to the 
-first (kept) part of the init seq, and it hopefully cures the jumpiness.
-
-ps: I wonder how the windows driver manages not to go jumpy...
-
+Does this seem better?
 
 Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
 
---- a/drivers/input/mouse/psmouse-base.c	2006-08-21 10:46:20.000000000 +0200
-+++ b/drivers/input/mouse/psmouse-base.c	2006-08-21 10:46:26.000000000 +0200
-@@ -485,13 +485,6 @@
- 	param[0] =  40;
- 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
+Fix uli526x initialization
+
+
+--- a/drivers/net/tulip/uli526x.c	2006-08-21 10:57:43.000000000 +0200
++++ a/drivers/net/tulip/uli526x.c	2006-08-21 11:01:37.000000000 +0200
+@@ -486,6 +486,7 @@
+ 	u8	phy_tmp;
+ 	u16	phy_value;
+ 	u16 phy_reg_reset;
++	int resetwait = 10;
  
--	param[0] = 200;
--	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
--	param[0] = 200;
--	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
--	param[0] =  60;
--	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRATE);
--
- 	if (set_properties) {
- 		set_bit(BTN_MIDDLE, psmouse->dev->keybit);
- 		set_bit(REL_WHEEL, psmouse->dev->relbit);
+ 	ULI526X_DBUG(0, "uli526x_init()", 0);
+ 
+@@ -515,7 +516,11 @@
+ 	phy_reg_reset = phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id);
+ 	phy_reg_reset = (phy_reg_reset | 0x8000);
+ 	phy_write(db->ioaddr, db->phy_addr, 0, phy_reg_reset, db->chip_id);
+-	udelay(500);
++	while (resetwait-- > 0) {
++		if (!(phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id) & 0x8000))
++			break;
++		udelay(500);
++	}
+ 
+ 	/* Process Phyxcer Media Mode */
+ 	uli526x_set_phyxcer(db);
+
 
 
 -- 

@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751648AbWHUN3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751649AbWHUNcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751648AbWHUN3j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 09:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWHUN3j
+	id S1751649AbWHUNcv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 09:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWHUNcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 09:29:39 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:6776 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751875AbWHUN3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 09:29:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JIj6yfrVskdw73n0St1WYR/R0Fv9EGIEqhuf3g9rK6Pbyv8tN/BGb1IZQJnTSqIsOQza2DXShZsbRtP+Zu/pmeIp/ksklMNPQWjPFuph3FTaE3XK58NAowkf3rEFXJjEjyBGupRzmR0aCwLj74DYWDdtQFCJO4Bokbx6mZp3ZKk=
-Message-ID: <aec7e5c30608210629r4f2cf5dlfb1ad7d6cc95745d@mail.gmail.com>
-Date: Mon, 21 Aug 2006 22:29:36 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [Fastboot] [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
-Cc: "Magnus Damm" <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ebiederm@xmission.com
-In-Reply-To: <200608211219.09042.ak@suse.de>
+	Mon, 21 Aug 2006 09:32:50 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:39442 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751649AbWHUNcu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 09:32:50 -0400
+Message-ID: <44E9B69D.9060109@sw.ru>
+Date: Mon, 21 Aug 2006 17:35:25 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
+       ckrm-tech@lists.sourceforge.net,
+       Christoph@sc8-sf-spam2-b.sourceforge.net,
+       List <linux-kernel@vger.kernel.org>, Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux@sc8-sf-spam2-b.sourceforge.net, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Pavel Emelianov <xemul@openvz.org>, devel@openvz.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+References: <44E33893.6020700@sw.ru> <44E33C3F.3010509@sw.ru>	<1155752277.22595.70.camel@galaxy.corp.google.com>	<1155755069.24077.392.camel@localhost.localdomain>	<1155756170.22595.109.camel@galaxy.corp.google.com>	<44E45D6A.8000003@sw.ru> <20060817084033.f199d4c7.akpm@osdl.org>	<20060818120809.B11407@castle.nmd.msu.ru>	<1155912348.9274.83.camel@localhost.localdomain> <20060818094248.cdca152d.akpm@osdl.org>
+In-Reply-To: <20060818094248.cdca152d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060821095328.3132.40575.sendpatchset@cherry.local>
-	 <200608211219.09042.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/21/06, Andi Kleen <ak@suse.de> wrote:
->
-> >
-> > +     /* Reload CS with a value that is within our GDT. We need to do this
-> > +      * if we were loaded by a 64 bit bootloader that happened to use a
-> > +      * CS that is larger than the GDT limit. This is true if we came here
-> > +      * from kexec running under Xen.
-> > +      */
-> > +     movq    %rsp, %rdx
-> > +     movq    $__KERNEL_DS, %rax
-> > +     pushq   %rax /* SS */
-> > +     pushq   %rdx /* RSP */
-> > +     movq    $__KERNEL_CS, %rax
-> > +     movq    $cs_reloaded, %rdx
-> > +     pushq   %rax /* CS */
-> > +     pushq   %rdx /* RIP */
-> > +     lretq
->
-> Can't you just use a normal far jump? That might be simpler.
+Andrew Morton wrote:
+> I have this mad idea that you can divide a 128GB machine up into 256 fake
+> NUMA nodes, then you use each "node" as a 512MB unit of memory allocation. 
+> So that 4.5GB job would be placed within an exclusive cpuset which has nine
+> "mems" (what are these called?) and voila: the job has a hard 4.5GB limit,
+> no kernel changes needed.
+this doesn't allow memory overcommitment, does it?
 
-I couldn't find a far jump that took a 64-bit address to jump to. But
-I guess that the kernel will be loaded in the lowest 4G regardless so
-I guess 32-bit pointers are ok, right? That will make it simpler for
-sure.
-
-What do you think about reloading CS? Is it the right thing to do, or
-is it correct as it is today where we depend on that CS == _KERNEL_CS?
-I need to fix kexec-tools regardless, but maybe it is a good idea to
-make the 64-bit kernel boot a bit robust too.
-
-Thanks,
-
-/ magnus
+Kirill

@@ -1,129 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWHUMqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWHUMtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbWHUMqE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWHUMqD
+	id S932113AbWHUMtP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWHUMtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:46:03 -0400
-Received: from mailgw.voltaire.com ([193.47.165.252]:39808 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S965088AbWHUMqA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:46:00 -0400
-Subject: Re: [openib-general] [PATCH 08/13] IB/ehca: qp
-From: Hal Rosenstock <halr@voltaire.com>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       HNGUYEN@de.ibm.com, MEDER@de.ibm.com
-In-Reply-To: <20068171311.7Z4EtLP0ZYtya78R@cisco.com>
-References: <20068171311.7Z4EtLP0ZYtya78R@cisco.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1156164265.9855.196633.camel@hal.voltaire.com>
+	Mon, 21 Aug 2006 08:49:15 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:15255 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932092AbWHUMtO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:49:14 -0400
+Date: Mon, 21 Aug 2006 18:18:30 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
+Subject: Re: [PATCH 0/7] CPU controller - V1
+Message-ID: <20060821124830.GB14291@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060820174015.GA13917@in.ibm.com> <1156156960.7772.38.camel@Homer.simpson.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 21 Aug 2006 08:44:53 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1156156960.7772.38.camel@Homer.simpson.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-08-17 at 16:11, Roland Dreier wrote:
+On Mon, Aug 21, 2006 at 10:42:40AM +0000, Mike Galbraith wrote:
+> WRT interactivity: Looking at try_to_wake_up(), it appears that wake-up
+> of a high priority group-a task will not result in preemption of a lower
+> priority current group-b task.  True?
 
-[snip...]
+I dont think it is true. The definition of TASK_PREEMPTS_CURR() is
+unchanged with these patches. Also group priority is linked to the
+highest priority task it has. As a result, the high-priority group-a
+task should preempt the low priority group-b task.
 
-> diff --git a/drivers/infiniband/hw/ehca/ehca_sqp.c b/drivers/infiniband/hw/ehca/ehca_sqp.c
-> new file mode 100644
-> index 0000000..d2c5552
-> --- /dev/null
-> +++ b/drivers/infiniband/hw/ehca/ehca_sqp.c
-> @@ -0,0 +1,123 @@
-> +/*
-> + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
-> + *
-> + *  SQP functions
-> + *
-> + *  Authors: Khadija Souissi <souissi@de.ibm.com>
-> + *           Heiko J Schick <schickhj@de.ibm.com>
+This is unless group-a has currently run out of its bandwidth and is sitting in 
+the expired queue (which is something that the TASK_PREEMPTS_CURR()
+can be optimized to check for).
 
-[snip...]
-
-> +
-> +extern int ehca_create_aqp1(struct ehca_shca *shca, struct ehca_sport *sport);
-> +extern int ehca_destroy_aqp1(struct ehca_sport *sport);
-> +
-> +extern int ehca_port_act_time;
-> +
-> +/**
-> + * ehca_define_sqp - Defines special queue pair 1 (GSI QP). When special queue
-> + * pair is created successfully, the corresponding port gets active.
-> + *
-> + * Define Special Queue pair 0 (SMI QP) is still not supported.
-> + *
-> + * @qp_init_attr: Queue pair init attributes with port and queue pair type
-> + */
-> +
-> +u64 ehca_define_sqp(struct ehca_shca *shca,
-> +		    struct ehca_qp *ehca_qp,
-> +		    struct ib_qp_init_attr *qp_init_attr)
-> +{
-> +
-> +	u32 pma_qp_nr = 0;
-> +	u32 bma_qp_nr = 0;
-> +	u64 ret = H_SUCCESS;
-> +	u8 port = qp_init_attr->port_num;
-> +	int counter = 0;
-> +
-> +	EDEB_EN(7, "port=%x qp_type=%x",
-> +		port, qp_init_attr->qp_type);
-> +
-> +	shca->sport[port - 1].port_state = IB_PORT_DOWN;
-> +
-> +	switch (qp_init_attr->qp_type) {
-> +	case IB_QPT_SMI:
-> +		/* function not supported yet */
-> +		break;
-> +	case IB_QPT_GSI:
-> +		ret = hipz_h_define_aqp1(shca->ipz_hca_handle,
-> +					 ehca_qp->ipz_qp_handle,
-> +					 ehca_qp->galpas.kernel,
-> +					 (u32) qp_init_attr->port_num,
-> +					 &pma_qp_nr, &bma_qp_nr);
-> +
-> +		if (ret != H_SUCCESS) {
-> +			EDEB_ERR(4, "Can't define AQP1 for port %x. rc=%lx",
-> +				    port, ret);
-> +			goto ehca_define_aqp1;
-> +		}
-> +		break;
-> +	default:
-> +		ret = H_PARAMETER;
-> +		goto ehca_define_aqp1;
-> +	}
-> +
-> +	while ((shca->sport[port - 1].port_state != IB_PORT_ACTIVE) &&
-> +	       (counter < ehca_port_act_time)) {
-> +		EDEB(6, "... wait until port %x is active",
-> +			port);
-> +		msleep_interruptible(1000);
-> +		counter++;
-> +	}
-> +
-> +	if (counter == ehca_port_act_time) {
-> +		EDEB_ERR(4, "Port %x is not active.", port);
-> +		ret = H_HARDWARE;
-> +	}
-> +
-> +ehca_define_aqp1:
-> +	EDEB_EX(7, "ret=%lx", ret);
-> +
-> +	return ret;
-> +}
-
-I, for one, was hoping that the timer based transition to active for QP1
-would have been resolved before being submitted. Any idea on the plan to
-resolve this ?
-
--- Hal
-
-
-
+-- 
+Regards,
+vatsa

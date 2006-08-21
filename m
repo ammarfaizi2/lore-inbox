@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWHUEv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWHUFGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWHUEv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 00:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWHUEv5
+	id S965055AbWHUFGA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 01:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWHUFGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 00:51:57 -0400
-Received: from 1wt.eu ([62.212.114.60]:5649 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S965051AbWHUEv4 (ORCPT
+	Mon, 21 Aug 2006 01:06:00 -0400
+Received: from main.gmane.org ([80.91.229.2]:27825 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965055AbWHUFF7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 00:51:56 -0400
-Date: Mon, 21 Aug 2006 06:40:16 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Solar Designer <solar@openwall.com>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce CONFIG_BINFMT_ELF_AOUT
-Message-ID: <20060821044016.GA4804@1wt.eu>
-References: <20060819232556.GA16617@openwall.com> <20060820001637.GC27115@1wt.eu> <20060821010700.GA22806@openwall.com>
+	Mon, 21 Aug 2006 01:05:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kari Hurtta <hurtta+gmane@siilo.fmi.fi>
+Subject: Re: [PATCH] set*uid() must not fail-and-return on OOM/rlimits
+Date: 21 Aug 2006 08:05:41 +0300
+Message-ID: <5dirkmhe56.fsf@attruh.keh.iki.fi>
+References: <20060820003840.GA17249@openwall.com> <5dwt933ku5.fsf@attruh.keh.iki.fi> <1156097428.4051.21.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821010700.GA22806@openwall.com>
-User-Agent: Mutt/1.5.11
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cs181108174.pp.htv.fi
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 05:07:00AM +0400, Solar Designer wrote:
-> Willy,
-> 
-> On Sun, Aug 20, 2006 at 02:16:37AM +0200, Willy Tarreau wrote:
-> > Most people compiling 2.4 for
-> > servers right now most probably do not enable support for a.out already.
-> 
-> I'm afraid that most don't change the default, not being aware that this
-> is an unreasonable security risk.
-> 
-> >   - you split the defconfig changes from the rest and let them in a
-> >     state compatible with 2.4.33 features, which even implies setting
-> >     CONFIG_BINFMT_ELF_AOUT to 'y', even if this sounds gross to you.
-> >   - I merge the changes to support the new option
-> 
-> I can do that, but:
-> 
-> - it almost defeats the purpose of the patch since most people won't
-> know to change the defaults;
-> - Marcelo is of the opinion that it's "not 2.4 material at this point in
-> time".
-> 
-> Given the above, do you still want me to resubmit a reworked patch like
-> that?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Well, do not bother then.
-
-> >   - you just have to maintain the patch for the defconfig files in owl.
+> Ar Sul, 2006-08-20 am 10:52 +0300, ysgrifennodd Kari Hurtta:
+> > Perhaps stupid suggestion:
+> > 
+> > Should there be new signal for 'failure to drop privileges' ?
+> > ( perhaps SIGPRIV or is this name free )
+> > 
+> > By default signal terminates process.  
 > 
-> I submit these patches in hope that they will be useful for mainstream
-> kernels, not in an attempt to simplify maintenance of -ow patches.
+> Programs are allowed (and now and then do) intentionally let a setuid
+> fail. A custom selinux or audit rule might be appropriate but that kind
+> of hackery is not.
 
-I'm perfectly aware of this. You proposed me some of your patches which
-have proved useful in your tree, I agreed to review them but other people
-are more reluctant than me because those patches are prevention measures
-and don't fix anything. Well, end of the story. Keep them in -ow, and I
-will also push some of them in my own tree because I understand why they
-can help. That's just a matter of opinion.
+Commented code/patch used SIGKILL.  By allocating new signal programs
+_are_ allowed intentionally let a setuid fail.
 
-> Thanks,
-> 
-> Alexander
-
-Thanks,
-Willy
+/ Kari Hurtta
 

@@ -1,502 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWHUOrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWHUOwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422644AbWHUOrF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 10:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030516AbWHUOrF
+	id S1422660AbWHUOwm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 10:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWHUOwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 10:47:05 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:44723 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030513AbWHUOrD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 10:47:03 -0400
-Date: Mon, 21 Aug 2006 09:46:49 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm2: m68k nsproxy compile breakage
-Message-ID: <20060821144649.GA5573@sergelap.austin.ibm.com>
-References: <20060819220008.843d2f64.akpm@osdl.org> <20060821020843.GG11651@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060821020843.GG11651@stusta.de>
-User-Agent: Mutt/1.5.11
+	Mon, 21 Aug 2006 10:52:42 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:17244 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030513AbWHUOwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 10:52:41 -0400
+Message-ID: <44E9C8B6.7030701@de.ibm.com>
+Date: Mon, 21 Aug 2006 16:52:38 +0200
+From: Thomas Klein <osstklei@de.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev@vger.kernel.org,
+       Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [2.6.19 PATCH 1/7] ehea: interface to network stack
+References: <200608181329.02042.ossthema@de.ibm.com> <20060818144429.GF5201@martell.zuzino.mipt.ru>
+In-Reply-To: <20060818144429.GF5201@martell.zuzino.mipt.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Adrian Bunk (bunk@stusta.de):
-> namespaces-utsname-implement-utsname-namespaces.patch causes the 
-> following compile error on m68k:
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      .tmp_vmlinux1
-> arch/m68k/kernel/built-in.o: In function `sys_call_table':
-> (.data+0x91c): undefined reference to `init_nsproxy'
-> 
-> <--  snip  -->
-> 
-> Is there a reason why struct init_nsproxy can't reside in 
-> kernel/nsproxy.c?
+Alexey Dobriyan wrote:
+ > On Fri, Aug 18, 2006 at 01:29:01PM +0200, Jan-Bernd Themann wrote:
+ >> --- linux-2.6.18-rc4-orig/drivers/net/ehea/ehea_main.c
+ >> +++ kernel/drivers/net/ehea/ehea_main.c
+ >
+ >> +static inline int ehea_refill_rq3_def(struct ehea_port_res *pr, int nr_of_wqes)
+ >
+ > This one looks too big to be inlined as well as other similalry named
+ > functions.
 
-Apparently not.  The following patch compiles and boots fine on s390.
+Agreed. Inlining avoided where possible.
 
-(Ok, booted before I tweaked it, now I'm having some hardware error
-both with and without the patch...)
+ >> +static int ehea_clean_port_res(struct ehea_port *port, struct ehea_port_res *pr)
+ >
+ > Freeing/deallocating/cleaning functions usually return void. The fact
+ > that you always return -EINVAL only reaffirmes my belief. ;-)
+ >
 
-thanks,
--serge
+Fixed.
 
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: [PATCH] nsproxy: move init_nsproxy into kernel/nsproxy.c
+ >> +static inline void write_swqe2_data(struct sk_buff *skb,
+ >> +                                struct net_device *dev,
+ >> +                                struct ehea_swqe *swqe,
+ >> +                                u32 lkey)
+ >
+ > Way too big.
 
-Move the init_nsproxy definition out of arch/ into kernel/nsproxy.c.
-This avoids all arches having to be updated.  Compiles and boots on
-s390.
+Function split.
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+ >> +static inline void ehea_xmit2(struct sk_buff *skb,
+ >> +                          struct net_device *dev, struct ehea_swqe *swqe,
+ >> +                          u32 lkey)
+ >> +
+ >> +static inline void ehea_xmit3(struct sk_buff *skb,
+ >> +                          struct net_device *dev, struct ehea_swqe *swqe)
+ >
+ > Ditto.
 
----
+These functions are on a performance-critical path and they are called
+exactly once - so the object's size isn't affected and having them inline
+seems appropriate to me.
 
- arch/alpha/kernel/init_task.c     |    2 --
- arch/arm/kernel/init_task.c       |    2 --
- arch/arm26/kernel/init_task.c     |    2 --
- arch/frv/kernel/init_task.c       |    2 --
- arch/h8300/kernel/init_task.c     |    2 --
- arch/i386/kernel/init_task.c      |    2 --
- arch/ia64/kernel/init_task.c      |    2 --
- arch/m32r/kernel/init_task.c      |    2 --
- arch/m68knommu/kernel/init_task.c |    2 --
- arch/mips/kernel/init_task.c      |    2 --
- arch/parisc/kernel/init_task.c    |    2 --
- arch/powerpc/kernel/init_task.c   |    2 --
- arch/s390/kernel/init_task.c      |    2 --
- arch/sh/kernel/init_task.c        |    2 --
- arch/sh64/kernel/init_task.c      |    2 --
- arch/sparc/kernel/init_task.c     |    2 --
- arch/sparc64/kernel/init_task.c   |    2 --
- arch/um/kernel/init_task.c        |    2 --
- arch/v850/kernel/init_task.c      |    2 --
- arch/x86_64/kernel/init_task.c    |    2 --
- kernel/nsproxy.c                  |    3 +++
- 21 files changed, 3 insertions(+), 40 deletions(-)
+ >> +    if (grp)
+ >> +            memset(cb1->vlan_filter, 0, sizeof(cb1->vlan_filter));
+ >> +    else
+ >> +            memset(cb1->vlan_filter, 1, sizeof(cb1->vlan_filter));
+ >
+ > Just to be sure, this should be 1 not 0xff?
+ >
 
-452bc4e24639258f44ca75ab619b35d7e43fa42d
-diff --git a/arch/alpha/kernel/init_task.c b/arch/alpha/kernel/init_task.c
-index 83d0902..835d09a 100644
---- a/arch/alpha/kernel/init_task.c
-+++ b/arch/alpha/kernel/init_task.c
-@@ -5,7 +5,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- #include <asm/uaccess.h>
- 
- 
-@@ -14,7 +13,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- struct task_struct init_task = INIT_TASK(init_task);
- 
- EXPORT_SYMBOL(init_mm);
-diff --git a/arch/arm/kernel/init_task.c b/arch/arm/kernel/init_task.c
-index 80f5eeb..a00cca0 100644
---- a/arch/arm/kernel/init_task.c
-+++ b/arch/arm/kernel/init_task.c
-@@ -8,7 +8,6 @@
- #include <linux/init.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -18,7 +17,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/arm26/kernel/init_task.c b/arch/arm26/kernel/init_task.c
-index 678c7b5..4191565 100644
---- a/arch/arm26/kernel/init_task.c
-+++ b/arch/arm26/kernel/init_task.c
-@@ -11,7 +11,6 @@
- #include <linux/init.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -21,7 +20,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/frv/kernel/init_task.c b/arch/frv/kernel/init_task.c
-index 5ec2742..2299393 100644
---- a/arch/frv/kernel/init_task.c
-+++ b/arch/frv/kernel/init_task.c
-@@ -5,7 +5,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -16,7 +15,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/h8300/kernel/init_task.c b/arch/h8300/kernel/init_task.c
-index ef5755a..19272c2 100644
---- a/arch/h8300/kernel/init_task.c
-+++ b/arch/h8300/kernel/init_task.c
-@@ -8,7 +8,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -18,7 +17,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/i386/kernel/init_task.c b/arch/i386/kernel/init_task.c
-index bd97f69..cff95d1 100644
---- a/arch/i386/kernel/init_task.c
-+++ b/arch/i386/kernel/init_task.c
-@@ -5,7 +5,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -16,7 +15,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/ia64/kernel/init_task.c b/arch/ia64/kernel/init_task.c
-index 2d62471..b69c397 100644
---- a/arch/ia64/kernel/init_task.c
-+++ b/arch/ia64/kernel/init_task.c
-@@ -12,7 +12,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -22,7 +21,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/m32r/kernel/init_task.c b/arch/m32r/kernel/init_task.c
-index 0057475..9e508fd 100644
---- a/arch/m32r/kernel/init_task.c
-+++ b/arch/m32r/kernel/init_task.c
-@@ -7,7 +7,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -17,7 +16,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/m68knommu/kernel/init_task.c b/arch/m68knommu/kernel/init_task.c
-index b99fc6d..3897043 100644
---- a/arch/m68knommu/kernel/init_task.c
-+++ b/arch/m68knommu/kernel/init_task.c
-@@ -8,7 +8,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -18,7 +17,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/mips/kernel/init_task.c b/arch/mips/kernel/init_task.c
-index dfe47e6..aeda7f5 100644
---- a/arch/mips/kernel/init_task.c
-+++ b/arch/mips/kernel/init_task.c
-@@ -4,7 +4,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/thread_info.h>
- #include <asm/uaccess.h>
-@@ -15,7 +14,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/parisc/kernel/init_task.c b/arch/parisc/kernel/init_task.c
-index c0c43e2..8384bf9 100644
---- a/arch/parisc/kernel/init_task.c
-+++ b/arch/parisc/kernel/init_task.c
-@@ -28,7 +28,6 @@
- #include <linux/init.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -39,7 +38,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/powerpc/kernel/init_task.c b/arch/powerpc/kernel/init_task.c
-index e24ace6..941043a 100644
---- a/arch/powerpc/kernel/init_task.c
-+++ b/arch/powerpc/kernel/init_task.c
-@@ -5,7 +5,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- #include <asm/uaccess.h>
- 
- static struct fs_struct init_fs = INIT_FS;
-@@ -13,7 +12,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/s390/kernel/init_task.c b/arch/s390/kernel/init_task.c
-index 0918921..d73a740 100644
---- a/arch/s390/kernel/init_task.c
-+++ b/arch/s390/kernel/init_task.c
-@@ -11,7 +11,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -21,7 +20,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/sh/kernel/init_task.c b/arch/sh/kernel/init_task.c
-index 81caf0f..44053ea 100644
---- a/arch/sh/kernel/init_task.c
-+++ b/arch/sh/kernel/init_task.c
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -13,7 +12,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/sh64/kernel/init_task.c b/arch/sh64/kernel/init_task.c
-index 0c95f40..de2d07d 100644
---- a/arch/sh64/kernel/init_task.c
-+++ b/arch/sh64/kernel/init_task.c
-@@ -14,7 +14,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -24,7 +23,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- struct pt_regs fake_swapper_regs;
- 
-diff --git a/arch/sparc/kernel/init_task.c b/arch/sparc/kernel/init_task.c
-index a73926d..fc31de6 100644
---- a/arch/sparc/kernel/init_task.c
-+++ b/arch/sparc/kernel/init_task.c
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
-@@ -13,7 +12,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- struct task_struct init_task = INIT_TASK(init_task);
- 
- EXPORT_SYMBOL(init_mm);
-diff --git a/arch/sparc64/kernel/init_task.c b/arch/sparc64/kernel/init_task.c
-index f1e9a4b..329b38f 100644
---- a/arch/sparc64/kernel/init_task.c
-+++ b/arch/sparc64/kernel/init_task.c
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
-@@ -14,7 +13,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/um/kernel/init_task.c b/arch/um/kernel/init_task.c
-index be49948..8cde431 100644
---- a/arch/um/kernel/init_task.c
-+++ b/arch/um/kernel/init_task.c
-@@ -8,7 +8,6 @@
- #include "linux/sched.h"
- #include "linux/init_task.h"
- #include "linux/mqueue.h"
--#include "linux/nsproxy.h"
- #include "asm/uaccess.h"
- #include "asm/pgtable.h"
- #include "user_util.h"
-@@ -17,7 +16,6 @@
- 
- static struct fs_struct init_fs = INIT_FS;
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- static struct files_struct init_files = INIT_FILES;
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
-diff --git a/arch/v850/kernel/init_task.c b/arch/v850/kernel/init_task.c
-index 9d2de75..ed2f93c 100644
---- a/arch/v850/kernel/init_task.c
-+++ b/arch/v850/kernel/init_task.c
-@@ -16,7 +16,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -26,7 +25,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS (init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM (init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/arch/x86_64/kernel/init_task.c b/arch/x86_64/kernel/init_task.c
-index 1c87ea0..ce31d90 100644
---- a/arch/x86_64/kernel/init_task.c
-+++ b/arch/x86_64/kernel/init_task.c
-@@ -5,7 +5,6 @@
- #include <linux/init_task.h>
- #include <linux/fs.h>
- #include <linux/mqueue.h>
--#include <linux/nsproxy.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -16,7 +15,6 @@ static struct files_struct init_files = 
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
--struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- EXPORT_SYMBOL(init_mm);
- 
-diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
-index 3ae08e2..f6b3f71 100644
---- a/kernel/nsproxy.c
-+++ b/kernel/nsproxy.c
-@@ -18,6 +18,9 @@
- #include <linux/nsproxy.h>
- #include <linux/namespace.h>
- #include <linux/utsname.h>
-+#include <linux/init_task.h>
-+
-+struct nsproxy init_nsproxy = INIT_NSPROXY(init_nsproxy);
- 
- static inline void get_nsproxy(struct nsproxy *ns)
- {
--- 
-1.1.6
+Will be checked.
+
+ >> +void ehea_clean_all_port_res(struct ehea_port *port)
+ >> +{
+ >> +    int ret;
+ >> +    int i;
+ >> +    for(i = 0; i < port->num_def_qps + port->num_tx_qps; i++)
+ >> +            ehea_clean_port_res(port, &port->port_res[i]);
+ >> +
+ >> +    ret = ehea_destroy_eq(port->qp_eq);
+ >> +}
+ >
+ > ret is entirely useless.
+
+Correct. It's gone.
+
+ >
+ >> +int __init ehea_module_init(void)
+ > static
+ >
+ >> +{
+ >> +    int ret = -EINVAL;
+ >> +
+ >> +    printk("IBM eHEA Ethernet Device Driver (Release %s)\n", DRV_VERSION);
+ >> +
+ >> +    ret = ibmebus_register_driver(&ehea_driver);
+ >> +    if (ret) {
+ >> +            ehea_error("failed registering eHEA device driver on ebus");
+ >> +            return -EINVAL;
+ >> +    }
+ >> +
+ >> +    return 0;
+ >> +}
+ >
+ > Pass ret to upper layer. Simplest way is:
+ >
+ >       static int __init ehea_module_init(void)
+ >       {
+ >               return ibmebus_register_driver(&ehea_driver);
+ >       }
+
+Agreed to pass ret to upper layer, but we want to keep the error message.
+Code modified accordingly.
+
+
+Regards
+Thomas

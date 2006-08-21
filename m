@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWHUWCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWHUWE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWHUWCI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 18:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWHUWCI
+	id S1751236AbWHUWE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 18:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWHUWE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 18:02:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63690 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751228AbWHUWCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 18:02:06 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: sekharan@us.ibm.com
-Cc: Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1156196721.6479.67.camel@linuxchandra>
-References: <44E33893.6020700@sw.ru>
-	 <1155929992.26155.60.camel@linuxchandra>  <44E9B3F5.3010000@sw.ru>
-	 <1156196721.6479.67.camel@linuxchandra>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 21 Aug 2006 23:20:35 +0100
-Message-Id: <1156198835.18887.87.camel@localhost.localdomain>
+	Mon, 21 Aug 2006 18:04:56 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41446
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751231AbWHUWEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 18:04:55 -0400
+Date: Mon, 21 Aug 2006 15:05:09 -0700 (PDT)
+Message-Id: <20060821.150509.111198790.davem@davemloft.net>
+To: shemminger@osdl.org
+Cc: arnd@arndb.de, linuxppc-dev@ozlabs.org, akpm@osdl.org, jklewis@us.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+       Jens.Osterkamp@de.ibm.com, linas@austin.ibm.com, corbet@lwn.net
+Subject: Re: NAPI documentation
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060821134053.7225987b@dxpl.pdx.osdl.net>
+References: <200608191325.19557.arnd@arndb.de>
+	<200608201948.20596.arnd@arndb.de>
+	<20060821134053.7225987b@dxpl.pdx.osdl.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-08-21 am 14:45 -0700, ysgrifennodd Chandra Seetharaman:
-> As I mentioned UBC might be perfect for container resource management,
-> but what I am talking for is resource management _without_ a container.
+From: Stephen Hemminger <shemminger@osdl.org>
+Date: Mon, 21 Aug 2006 13:40:53 -0700
 
-There isn't really a difference. UBC counts usage of things. It has to
-know who to charge the thing to but its core concept of the luid isn't a
-container, its more akin to the a departmental or project billing code.
+> Please edit and improve
+> 	http://linux-net.osdl.org/index.php/NAPI
+> 
+> When the page is in good shape, I will de-wiki it to place in kernel doc tree.
 
-> > 3. is it so BIG obstacle for UBC patch? These 3-lines hooks code which
-> >    is not used?
+How do I edit the introduction paragraphs at the top?  I want to edit
+this sentence since it sounds awful:
 
-Add them later when they prove to be needed. If IBM send a feature that
-needs it then add them in that feature. Everyone is happy it is possible
-to add that hook when needed.
- 
-> In a non-container situation IMO it will be easier to manage/associate
-> "gold", "silver", "bronze", "plastic" groups than 0, 11, 83 and 113.
+	NAPI ("New API") is a modification to the packet process, ...
 
-User space issue. Doing that in kernel will lead to some limitations
-later on and end up needing the user space anyway. Consider wanting to
-keep the container name and properties in LDAP.
-
-
+I want to change "packet process" to something more descriptive
+and accurate.
 

@@ -1,103 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWHUXgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWHUXhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWHUXgx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 19:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWHUXgx
+	id S1751351AbWHUXhr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 19:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWHUXhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 19:36:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34025 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750710AbWHUXgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 19:36:52 -0400
-Message-Id: <200608212336.k7LNa1E8008716@pasta.boston.redhat.com>
-To: Willy Tarreau <w@1wt.eu>
-cc: Marcelo Tosatti <marcelo@kvack.org>, Solar Designer <solar@openwall.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_elf.c : the BAD_ADDR macro again
-In-Reply-To: Your message of "Mon, 21 Aug 2006 23:11:04 +0200."
-             <20060821211104.GA7790@1wt.eu>
-Date: Mon, 21 Aug 2006 19:36:01 -0400
-From: Ernie Petrides <petrides@redhat.com>
+	Mon, 21 Aug 2006 19:37:47 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1744
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751351AbWHUXhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 19:37:46 -0400
+Date: Mon, 21 Aug 2006 16:38:01 -0700 (PDT)
+Message-Id: <20060821.163801.15260979.davem@davemloft.net>
+To: hadi@cyberus.ca
+Cc: vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 800+ byte inlines in include/net/pkt_act.h
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1156163160.5126.47.camel@jzny2>
+References: <200608201933.10293.vda.linux@googlemail.com>
+	<1156163160.5126.47.camel@jzny2>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 21-Aug-2006 at 23:11 +0200, Willy Tarreau wrote:
+From: jamal <hadi@cyberus.ca>
+Date: Mon, 21 Aug 2006 08:26:00 -0400
 
-> > > [...]   But before this, I'd like to get comments from
-> > > the people who discussed the subject recently.
-> >
-> > Thus, I think that both 2.4.33 and 2.6.<latest> are okay without any
-> > further changes.
->
-> At least 2.4 needs the fix to use the correct BAD_ADDR (which is not
-> OK in 2.4.33 yet).
+> As per last discussion, either Patrick McHardy or myself are going
+> to work on it - at some point. Please be patient. The other
+> alternative is: you fix it and send patches.
 
-Ah, right.  (Sorry, I was verifying the change in a RHEL3 tree.)
+I'm working on it right now.  This code is really gross and needs
+to be fixed immediately.
 
-In that case, I support your patch as posted.  But the whole point of
-that investigation was to fix an exec() vulnerability with a bad ELF
-entry address.  This is addressed in the final hunk of the 2.4.33-based
-patch below, which includes the changes that you previously posted.
+What I'll do is define a "struct tcf_common" and have the generic
+interfaces take that as well as a "struct tcf_hashinfo *" parameter to
+deal with the individual hash tables.
 
-Cheers.  -ernie
+We define all of this templated stuff then don't even use it in
+act_police.c, we just duplicate everything!
 
-
-
-Signed-off-by: Ernie Petrides <petrides@redhat.com>
-
---- linux-2.4.33/fs/binfmt_elf.c.orig
-+++ linux-2.4.33/fs/binfmt_elf.c
-@@ -77,7 +77,7 @@ static struct linux_binfmt elf_format = 
- 	NULL, THIS_MODULE, load_elf_binary, load_elf_library, elf_core_dump, ELF_EXEC_PAGESIZE
- };
- 
--#define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
-+#define BAD_ADDR(x)	((unsigned long)(x) >= TASK_SIZE)
- 
- static int set_brk(unsigned long start, unsigned long end)
- {
-@@ -345,7 +345,7 @@ elf_type, total_size);
- 	     * <= p_memsize so it is only necessary to check p_memsz.
- 	     */
- 	    k = load_addr + eppnt->p_vaddr;
--	    if (k > TASK_SIZE || eppnt->p_filesz > eppnt->p_memsz ||
-+	    if (BAD_ADDR(k) || eppnt->p_filesz > eppnt->p_memsz ||
- 		eppnt->p_memsz > TASK_SIZE || TASK_SIZE - eppnt->p_memsz < k) {
- 	        error = -ENOMEM;
- 		goto out_close;
-@@ -772,7 +772,7 @@ static int load_elf_binary(struct linux_
- 		 * allowed task size. Note that p_filesz must always be
- 		 * <= p_memsz so it is only necessary to check p_memsz.
- 		 */
--		if (k > TASK_SIZE || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
-+		if (BAD_ADDR(k) || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
- 		    elf_ppnt->p_memsz > TASK_SIZE ||
- 		    TASK_SIZE - elf_ppnt->p_memsz < k) {
- 			/* set_brk can never work.  Avoid overflows.  */
-@@ -822,10 +822,9 @@ static int load_elf_binary(struct linux_
- 						    interpreter,
- 						    &interp_load_addr);
- 		if (BAD_ADDR(elf_entry)) {
--			printk(KERN_ERR "Unable to load interpreter %.128s\n",
--				elf_interpreter);
- 			force_sig(SIGSEGV, current);
--			retval = IS_ERR((void *)elf_entry) ? PTR_ERR((void *)elf_entry) : -ENOEXEC;
-+			retval = IS_ERR((void *)elf_entry) ?
-+					(int)elf_entry : -EINVAL;
- 			goto out_free_dentry;
- 		}
- 		reloc_func_desc = interp_load_addr;
-@@ -833,6 +832,12 @@ static int load_elf_binary(struct linux_
- 		allow_write_access(interpreter);
- 		fput(interpreter);
- 		kfree(elf_interpreter);
-+	} else {
-+		if (BAD_ADDR(elf_entry)) {
-+			force_sig(SIGSEGV, current);
-+			retval = -EINVAL;
-+			goto out_free_dentry;
-+		}
- 	}
- 
- 	kfree(elf_phdata);
+Absolutely unbelievable.

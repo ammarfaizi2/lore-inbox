@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWHUL1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbWHULbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbWHUL1n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 07:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWHUL1m
+	id S965068AbWHULbg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 07:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWHULbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 07:27:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63150 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964961AbWHUL1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 07:27:41 -0400
-Subject: Re: [take12 3/3] kevent: Timer notifications.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>, tglx@linutronix.de
-In-Reply-To: <20060821111848.GB8608@2ka.mipt.ru>
-References: <11561555893621@2ka.mipt.ru> <1156155589287@2ka.mipt.ru>
-	 <20060821111239.GA30945@infradead.org>  <20060821111848.GB8608@2ka.mipt.ru>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 21 Aug 2006 13:27:22 +0200
-Message-Id: <1156159642.23756.144.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 21 Aug 2006 07:31:36 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:6273 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S965068AbWHULbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 07:31:35 -0400
+Message-ID: <44E998AF.7040907@s5r6.in-berlin.de>
+Date: Mon, 21 Aug 2006 13:27:43 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+CC: Chase Venters <chase.venters@clientec.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       David Schwartz <davids@webmaster.com>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation?
+References: <1155919950.30279.8.camel@localhost.localdomain> <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com> <20060819113052.GC3190@aitel.hist.no> <200608192220.42456.chase.venters@clientec.com> <44E9678A.7050704@aitel.hist.no>
+In-Reply-To: <44E9678A.7050704@aitel.hist.no>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 15:18 +0400, Evgeniy Polyakov wrote:
-> ]> > +	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
-> > 
-> > When looking at the kevent_storage_init callers most need to do
-> > those lockdep_set_class class.  Shouldn't kevent_storage_init just
-> > get a "struct lock_class_key *" argument?
+Helge Hafting wrote:
+[...]
+> Yes the GPL is a licence. By using the code, they have accepted
+> the licence.  If I use a copy of windows, I'll be forced to pay.
+> The reason courts usually award monetary damages is that
+> money is what almost everybody wants.  Commercial software,
+> books, CDs, DVSs are all traded for money, so copying one
+> means you must pay the copyright holder's loss.
 > 
-> It will not work, since inode is used for both socket and inode
-> notifications (to save some space in struct sock), lockdep initalization
-> is performed on the highest level, so I put it alone.
+> The GPL should work exactly the same way: You distribute
+> software derived from GPL software, you pay the usual price.
+> But the usual price for GPLed software is not money,
+> the usual price is the derived source.
+[...]
+> if someone tries to be difficult, I hope
+> they'll be forced to pay the usual price - which isn't money.
+> It'd be hard to set a price anyway, given that GPL software
+> isn't usually sold.  The price of having a professional programmer
+> developing the same driver perhaps?
 
-Call me a cynic, but I'm always a bit sceptical about needing lockdep
-annotations like this... Can you explain why you need it in this case,
-including the proof that it's safe?
-
-
+There may also be damage due to unfair competition. But then the
+plaintiff probably had to be a competitor (or perhaps a body that is
+generally entitled to go against unfair competition, if such a body
+exists anywhere). The copyright holders of relevant parts of Linux may
+sometimes not be competitors to the violator.
+-- 
+Stefan Richter
+-=====-=-==- =--- =-=-=
+http://arcgraph.de/sr/

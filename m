@@ -1,93 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWHUUzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWHUVAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWHUUzt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 16:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWHUUzt
+	id S1751093AbWHUVAx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWHUVAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 16:55:49 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:6377 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751079AbWHUUzt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 16:55:49 -0400
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/7] UBC: kernel memory
-	accounting	(core)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Rik van Riel <riel@redhat.com>, ckrm-tech@lists.sourceforge.net,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
-       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <44E9901F.1030605@sw.ru>
-References: <44E33893.6020700@sw.ru> <44E33C8A.6030705@sw.ru>
-	 <1155932779.26155.87.camel@linuxchandra>  <44E9901F.1030605@sw.ru>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 21 Aug 2006 13:55:44 -0700
-Message-Id: <1156193744.6479.23.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 17:00:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46296 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751093AbWHUVAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 17:00:52 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: vgoyal@in.ibm.com, Magnus Damm <magnus.damm@gmail.com>,
+       Magnus Damm <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
+References: <20060821095328.3132.40575.sendpatchset@cherry.local>
+	<200608211624.11005.ak@suse.de> <20060821144657.GE9549@in.ibm.com>
+	<200608211704.03061.ak@suse.de>
+	<m1fyfpuabb.fsf@ebiederm.dsl.xmission.com>
+	<20060821221009.a43cfbf0.ak@suse.de>
+Date: Mon, 21 Aug 2006 15:00:06 -0600
+In-Reply-To: <20060821221009.a43cfbf0.ak@suse.de> (Andi Kleen's message of
+	"Mon, 21 Aug 2006 22:10:09 +0200")
+Message-ID: <m17j11u7mx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 14:51 +0400, Kirill Korotaev wrote:
-> Chandra Seetharaman wrote:
-> > Kirill,
-> > 
-> > IMO, a UBC with resource constraint(limit in this case) should behave no
-> > different than a kernel with limited memory. i.e it should do
-> > reclamation before it starts failing allocation requests. It could even
-> > do it preemptively.
-> first, please notice, that this thread is not about user memory.
-> we can discuss it later when about to control user memory. And
-> I still need to notice, that different models of user memory control
-> can exist. With and without reclamation.
-> 
-we can talk about it then :)
+Andi Kleen <ak@suse.de> writes:
 
-> > There is no guarantee support which is required for providing QoS.
-> where? in UBC? in UBC _there_ are guarentees, even in regard to OOM killer.
+>> I'm not certain I caught everything but as far as I know I did.
+>> Part of that was by having the code run at a fixed virtual address so
+>> we still live in the last 2GB of the virtual address space.
+>
+> You changed the -2GB (or rather -40MB unpatched) mapping to not necessarily 
+> be linear?
 
-I do not see it in the patches you have submitted. May be I overlooked.
-Can you please point me the code where guarantee is handled.
+I left it linear but I removed assumptions about which physical address it
+goes to.
 
-> 
-> > Each controller modifying the infrastructure code doesn't look good. We
-> > can have proper interfaces to add a new resource controller.
-> controllers do not modify interfaces nor core. They just add
-> themself to the list of resources and setup default limits.
-> do you think it is worth creating infrastructure for these
-> 2 one-line-changes?
+>  There are a couple of assumptions that it is, including at boot up
+> (it doubles as the 1:1 mapping then) and in change_page_attr() and in
+> suspend/resume.
 
-Yes, IMO, it is cleaner. 
+Yes.  Those all sound familiar.
 
-Think of the documentation that explains how to write a controller for
-UBC.
+I removed the doubling as the 1:1 physical mapping.
 
-With a proper interface it will read something like: One have to call
-register_controller(char *name) and on success it returns a unique id
-which is the id for the controller.
-
-			Vs
-
-With changing lines in the core code: One have to edit the file
-filename.c and add a macro to this of macros with an incremented value
-for their controller and add the name of their controller to the array
-named controller_names[].
-
-I think the first one is cleaner, what do you think ?
- 
-<snip>
-
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Eric

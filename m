@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWHUMkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWHUMma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965069AbWHUMkh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWHUMkh
+	id S965079AbWHUMma (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWHUMma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:40:37 -0400
-Received: from galaxy.agh.edu.pl ([149.156.96.9]:45492 "EHLO galaxy.agh.edu.pl")
-	by vger.kernel.org with ESMTP id S1751860AbWHUMkg (ORCPT
+	Mon, 21 Aug 2006 08:42:30 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:16089 "EHLO
+	screens.ru") by vger.kernel.org with ESMTP id S965083AbWHUMmT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:40:36 -0400
-Message-ID: <44E9A9C0.6000405@agh.edu.pl>
-Date: Mon, 21 Aug 2006 14:40:32 +0200
-From: Andrzej Szymanski <szymans@agh.edu.pl>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Strange write starvation on 2.6.17 (and other) kernels
-References: <44E0A69C.5030103@agh.edu.pl>	<ec19r7$uba$1@news.cistron.nl> <17641.3304.948174.971955@cse.unsw.edu.au>
-In-Reply-To: <17641.3304.948174.971955@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Aug 2006 08:42:19 -0400
+Date: Mon, 21 Aug 2006 21:06:21 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/3] futex_find_get_task: don't take tasklist_lock
+Message-ID: <20060821170621.GA1643@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Thursday August 17, miquels@cistron.nl wrote:
-> 
-> Can you report the contents of /proc/meminfo before, during, and after
-> the long pause?
-> I'm particularly interested in MemTotal, Dirty, and Writeback, but the
-> others are of interest too.
-> 
-> Thanks,
-> NeilBrown
+It is ok to do find_task_by_pid() + get_task_struct() under rcu_read_lock(),
+we cand drop tasklist_lock.
 
-I've prepared two logs, from different machines, the first one is on 
-software RAID5 (4 ATA disks) with deadline scheduler, the second on a 
-single ATA disk with CFQ scheduler. In the first case 10 writer threads 
-are sufficient to give large delays, in the second case I've run an 
-additional tar thread reading from the disk.
+Note that testing of ->exit_state is racy with or without tasklist anyway.
 
-The logs are here:
-http://galaxy.agh.edu.pl/~szymans/logs/
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Each writer starts with:
-Writing 200 MB to stdout without fsync
+--- 2.6.18-rc4/kernel/futex.c~2_ffgt	2006-08-21 20:32:48.000000000 +0400
++++ 2.6.18-rc4/kernel/futex.c	2006-08-21 20:41:15.000000000 +0400
+@@ -389,7 +389,7 @@ static struct task_struct * futex_find_g
+ {
+ 	struct task_struct *p;
+ 
+-	read_lock(&tasklist_lock);
++	rcu_read_lock();
+ 	p = find_task_by_pid(pid);
+ 	if (!p)
+ 		goto out_unlock;
+@@ -403,7 +403,7 @@ static struct task_struct * futex_find_g
+ 	}
+ 	get_task_struct(p);
+ out_unlock:
+-	read_unlock(&tasklist_lock);
++	rcu_read_unlock();
+ 
+ 	return p;
+ }
 
-than reports each write() that lasts > 3s along with pid:
-6582 - Delayed 4806 ms.
-
-And finishes with:
-Max write delay: 14968 ms.
-
-Andrzej.

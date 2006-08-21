@@ -1,61 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWHUMBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWHUMDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbWHUMBE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWHUMBE
+	id S1030402AbWHUMDf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWHUMDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:01:04 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:5067 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S965069AbWHUMBC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:01:02 -0400
-Date: Mon, 21 Aug 2006 15:59:47 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>, tglx@linutronix.de
-Subject: Re: [take12 3/3] kevent: Timer notifications.
-Message-ID: <20060821115947.GE8608@2ka.mipt.ru>
-References: <11561555893621@2ka.mipt.ru> <1156155589287@2ka.mipt.ru> <20060821111239.GA30945@infradead.org> <20060821111848.GB8608@2ka.mipt.ru> <1156159642.23756.144.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1156159642.23756.144.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 21 Aug 2006 15:59:48 +0400 (MSD)
+	Mon, 21 Aug 2006 08:03:35 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:38909 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S965074AbWHUMDe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:03:34 -0400
+Message-ID: <44E9A114.6040605@de.ibm.com>
+Date: Mon, 21 Aug 2006 14:03:32 +0200
+From: Thomas Klein <osstklei@de.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Michael Neuling <mikey@neuling.org>
+CC: Jan-Bernd Themann <ossthema@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+Subject: Re: [2.6.19 PATCH 5/7] ehea: main header files
+References: <200608181334.57701.ossthema@de.ibm.com> <20060818180345.9660E67B64@ozlabs.org>
+In-Reply-To: <20060818180345.9660E67B64@ozlabs.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 01:27:22PM +0200, Arjan van de Ven (arjan@infradead.org) wrote:
-> On Mon, 2006-08-21 at 15:18 +0400, Evgeniy Polyakov wrote:
-> > ]> > +	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
-> > > 
-> > > When looking at the kevent_storage_init callers most need to do
-> > > those lockdep_set_class class.  Shouldn't kevent_storage_init just
-> > > get a "struct lock_class_key *" argument?
-> > 
-> > It will not work, since inode is used for both socket and inode
-> > notifications (to save some space in struct sock), lockdep initalization
-> > is performed on the highest level, so I put it alone.
-> 
-> Call me a cynic, but I'm always a bit sceptical about needing lockdep
-> annotations like this... Can you explain why you need it in this case,
-> including the proof that it's safe?
+Michael Neuling wrote:
+ >> +static inline void ehea_update_sqa(struct ehea_qp *qp, u16 nr_wqes)
+ >> +{
+ >> +    struct h_epa epa = qp->epas.kernel;
+ >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_sqa),
+ >> +                  EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
+ >> +}
+ >> +
+ >> +static inline void ehea_update_rq3a(struct ehea_qp *qp, u16 nr_wqes)
+ >> +{
+ >> +    struct h_epa epa = qp->epas.kernel;
+ >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq3a),
+ >> +                  EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+ >> +}
+ >> +
+ >> +static inline void ehea_update_rq2a(struct ehea_qp *qp, u16 nr_wqes)
+ >> +{
+ >> +    struct h_epa epa = qp->epas.kernel;
+ >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq2a),
+ >> +                  EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+ >> +}
+ >> +
+ >> +static inline void ehea_update_rq1a(struct ehea_qp *qp, u16 nr_wqes)
+ >> +{
+ >> +    struct h_epa epa = qp->epas.kernel;
+ >> +    epa_store_acc(epa, QPTEMM_OFFSET(qpx_rq1a),
+ >> +                  EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+ >> +}
+ >> +
+ >> +static inline void ehea_update_feca(struct ehea_cq *cq, u32 nr_cqes)
+ >> +{
+ >> +    struct h_epa epa = cq->epas.kernel;
+ >> +    epa_store_acc(epa, CQTEMM_OFFSET(cqx_feca),
+ >> +                  EHEA_BMASK_SET(CQX_FECADDER, nr_cqes));
+ >> +}
+ >> +
+ >> +static inline void ehea_reset_cq_n1(struct ehea_cq *cq)
+ >> +{
+ >> +    struct h_epa epa = cq->epas.kernel;
+ >> +    epa_store_cq(epa, cqx_n1,
+ >> +                 EHEA_BMASK_SET(CQX_N1_GENERATE_COMP_EVENT, 1));
+ >> +}
+ >> +
+ >> +static inline void ehea_reset_cq_ep(struct ehea_cq *my_cq)
+ >> +{
+ >> +    struct h_epa epa = my_cq->epas.kernel;
+ >> +    epa_store_acc(epa, CQTEMM_OFFSET(cqx_ep),
+ >> +                  EHEA_BMASK_SET(CQX_EP_EVENT_PENDING, 0));
+ >> +}
+ >
+ > These are almost identical... I'm sure most (if not all) could be merged
+ > into a single function or #define.
+ >
+ > Mikey
 
-Ok, again :)
-Kevent uses meaning of storage of kevents without any special knowledge
-what is is (inode, socket, file, timer - anything), so it's
-initalization function among other things calls spin_lock_init().
-Lockdep inserts static variable just before real spinlock
-initialization, and since all locks are initialized in the same place,
-all of them get the same static magic.
-Later those locks are used in different context (for example inode
-notificatins only in process context, but socket can be called from BH
-context), since lockdep thinks they are the same, it screams.
-Obviously the same inode can not be used for sockets and files, so I
-added above lockdep initialization.
+Hi Mikey,
 
--- 
-	Evgeniy Polyakov
+I gave it a try: ehea_reset_cq_n1() drops out because it calls epa_store_cq(),
+not epa_store_acc(). ehea_update_feca() and ehea_reset_cq_ep() require a
+different input parm as the others and replacing two inline functions by
+one inline function and two macros doesn't help neither the code nor does
+it improve readability.
+Finally we have ehea_update_sqa() and the 3 ehea_update_rqXa() functions which
+I replaced by an inline function and four macros. See the result below. It
+think understanding what this does is way more difficult than looking at the
+four inline functions we had before. Therefore I'd prefer leaving those inline
+functions as is.
+
+Regards
+Thomas
+
+
+#define ehea_update_sqa(qp, nr_wqes) \
+         ehea_update_qa(qp, nr_wqes, \
+                        QPTEMM_OFFSET(qpx_sqa), \
+                        EHEA_BMASK_SET(QPX_SQA_VALUE, nr_wqes));
+
+#define ehea_update_rq1a(qp, nr_wqes) \
+         ehea_update_qa(qp, nr_wqes, \
+                        QPTEMM_OFFSET(qpx_rq1a), \
+                        EHEA_BMASK_SET(QPX_RQ1A_VALUE, nr_wqes));
+
+#define ehea_update_rq2a(qp, nr_wqes) \
+         ehea_update_qa(qp, nr_wqes, \
+                        QPTEMM_OFFSET(qpx_rq2a), \
+                        EHEA_BMASK_SET(QPX_RQ2A_VALUE, nr_wqes));
+
+#define ehea_update_rq3a(qp, nr_wqes) \
+         ehea_update_qa(qp, nr_wqes, \
+                        QPTEMM_OFFSET(qpx_rq3a), \
+                        EHEA_BMASK_SET(QPX_RQ3A_VALUE, nr_wqes));
+
+static inline void ehea_update_qa(struct ehea_qp *qp, u16 nr_wqes,
+                                   u32 offset, u64 value)
+{
+         struct h_epa epa = qp->epas.kernel;
+         epa_store_acc(epa, offset, value);
+}
+

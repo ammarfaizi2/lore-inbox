@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWHUAfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWHUAfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWHUAfl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Aug 2006 20:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWHUAfl
+	id S932336AbWHUAfv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Aug 2006 20:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWHUAfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Aug 2006 20:35:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:56219 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932328AbWHUAfk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Aug 2006 20:35:40 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andi Kleen <ak@suse.de>
-Date: Mon, 21 Aug 2006 10:35:31 +1000
+	Sun, 20 Aug 2006 20:35:51 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10769 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932366AbWHUAfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Aug 2006 20:35:50 -0400
+Date: Mon, 21 Aug 2006 02:35:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Andreas Steinmetz <ast@domdv.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, mtosatti@redhat.com,
+       Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: Linux 2.4.34-pre1
+Message-ID: <20060821003549.GC11651@stusta.de>
+References: <20060816223633.GA3421@hera.kernel.org> <20060816235459.GM7813@stusta.de> <20060817051616.GB13878@1wt.eu> <1155797331.4494.17.camel@laptopd505.fenrus.org> <44E42A4C.4040100@domdv.de> <20060817090651.GP7813@stusta.de> <44E433DB.9090501@domdv.de> <20060818232501.GE7813@stusta.de> <20060819044533.GB24543@1wt.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17640.65491.458305.525471@cse.unsw.edu.au>
-Cc: Jens Axboe <axboe@suse.de>, David Chinner <dgc@sgi.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: RFC - how to balance Dirty+Writeback in the face of slow  writeback.
-In-Reply-To: message from Andi Kleen on  August 18
-References: <17633.2524.95912.960672@cse.unsw.edu.au>
-	<20060815010611.7dc08fb1.akpm@osdl.org>
-	<20060815230050.GB51703024@melbourne.sgi.com>
-	<17635.60378.733953.956807@cse.unsw.edu.au>
-	<20060816231448.cc71fde7.akpm@osdl.org>
-	<20060818001102.GW51703024@melbourne.sgi.com>
-	<20060817232942.c35b1371.akpm@osdl.org>
-	<20060818070314.GE798@suse.de>
-	<p73hd0998is.fsf@verdi.suse.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20060819044533.GB24543@1wt.eu>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  August 18, ak@suse.de wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> > On Thu, Aug 17 2006, Andrew Morton wrote:
-> > > It seems that the many-writers-to-different-disks workloads don't happen
-> > > very often.  We know this because
-> > > 
-> > > a) The 2.4 performance is utterly awful, and I never saw anybody
-> > >    complain and
-> > 
-> > Talk to some of the people that used DVD-RAM devices (or other
-> > excruciatingly slow writers) on their system, and they would disagree
-> > violently :-)
-> 
-> I hit this recently while doing backups to a slow external USB disk.
-> The system was quite unusable (some commands blocked for over a minute)
+On Sat, Aug 19, 2006 at 06:45:33AM +0200, Willy Tarreau wrote:
+>...
+> Sometimes it will be compilers, but not by that much. Gcc3.[34] generally
+> produce bigger code than 2.95 at -O2, but I don't think that people in the
+> embedded world still use 2.95 much.
 
-Ouch.  
-I suspect we are going to see more of this, as USB drive for backups
-is probably a very attractive option for many.
+Comparing code size different gcc versions produce with -O2 is a bit 
+unfair, the size of -Os code is more important in this case.
 
-The 'obvious' solution would be to count dirty pages per backing_dev
-and rate limit writes based on this.
-But counting pages can be expensive.  I wonder if there might be some
-way to throttle the required writes without doing too much counting.
+> Cheers,
+> Willy
 
-Could we watch when the backing_dev is congested and use that?
-e.g.
- When Dirty+Writeback is between max_dirty/2 and max_dirty,
-  balance_dirty_pages waits until mapping->backing_dev_info
-    is not congested.
+cu
+Adrian
 
-That might slow things down, but it is hard to know if it would slow
-things down the right amount...
+-- 
 
-Given that large machines are likely to have lots of different
-backing_devs, maybe counting all the dirty pages per backing_dev
-wouldn't be too expensive?
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-NeilBrown

@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbWHUMoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbWHUMpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965080AbWHUMoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 08:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWHUMoQ
+	id S1030413AbWHUMpA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 08:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWHUMpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 08:44:16 -0400
-Received: from mtagate5.uk.ibm.com ([195.212.29.138]:56551 "EHLO
-	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP id S965080AbWHUMoO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 08:44:14 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-To: Nathan Lynch <ntl@pobox.com>
-Subject: Re: [PATCH 2/6] ehea: pHYP interface
-Date: Mon, 21 Aug 2006 14:04:15 +0200
-User-Agent: KMail/1.8.2
-Cc: netdev <netdev@vger.kernel.org>, Thomas Klein <tklein@de.ibm.com>,
-       linux-ppc <linuxppc-dev@ozlabs.org>,
-       Christoph Raisch <raisch@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Marcus Eder <meder@de.ibm.com>
-References: <44D99F1A.4080905@de.ibm.com> <20060811211915.GL3233@localdomain>
-In-Reply-To: <20060811211915.GL3233@localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 21 Aug 2006 08:45:00 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14755 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030424AbWHUMo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 08:44:59 -0400
+Subject: Re: GPL Violation?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Chase Venters <chase.venters@clientec.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <44E9678A.7050704@aitel.hist.no>
+References: <1155919950.30279.8.camel@localhost.localdomain>
+	 <MDEHLPKNGKAHNMBLJOLKEEBCNOAB.davids@webmaster.com>
+	 <20060819113052.GC3190@aitel.hist.no>
+	 <200608192220.42456.chase.venters@clientec.com>
+	 <44E9678A.7050704@aitel.hist.no>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608211404.16122.ossthema@de.ibm.com>
+Date: Mon, 21 Aug 2006 14:06:10 +0100
+Message-Id: <1156165570.18887.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan,
+Ar Llu, 2006-08-21 am 09:58 +0200, ysgrifennodd Helge Hafting: 
+> > brand new ground. I think it is more likely that the plaintiff could be 
+> > awarded monetary damages and the defendant enjoined from further 
+> > redistribution.
 
-sorry for the delayed answer.
+That is the history with gpl-violations.org, although almost everyone
+has settled out of court.
 
-On Friday 11 August 2006 23:19, Nathan Lynch wrote:
-> > +static inline long ehea_hcall_9arg_9ret(unsigned long opcode,
-> > +					unsigned long arg1,
-> > +					unsigned long arg2,
-> > +					unsigned long arg3,
-> > +					unsigned long arg4,
-> > +					unsigned long arg5,
-> > +					unsigned long arg6,
-> > +					unsigned long arg7,
-> > +					unsigned long arg8,
-> > +					unsigned long arg9,
-> > +					unsigned long *out1,
-> > +					unsigned long *out2,
-> > +					unsigned long *out3,
-> > +					unsigned long *out4,
-> > +					unsigned long *out5,
-> > +					unsigned long *out6,
-> > +					unsigned long *out7,
-> > +					unsigned long *out8,
-> > +					unsigned long *out9)
-> > +{
-> > +	long hret = H_SUCCESS;
-> > +	int i, sleep_msecs;
-> > +
-> > +	EDEB_EN(7, "opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx "
-> > +		"arg5=%lx arg6=%lx arg7=%lx arg8=%lx arg9=%lx",
-> > +		opcode, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
-> > +		arg8, arg9);
-> > +
-> > +
-> > +	for (i = 0; i < 5; i++) {
-> > +		hret = plpar_hcall_9arg_9ret(opcode,
-> > +					    arg1, arg2, arg3, arg4,
-> > +					    arg5, arg6, arg7, arg8,
-> > +					    arg9,
-> > +					    out1, out2, out3, out4,
-> > +					    out5, out6, out7, out8,
-> > +					    out9);
-> > +
-> > +		if (H_IS_LONG_BUSY(hret)) {
-> > +			sleep_msecs = get_longbusy_msecs(hret);
-> > +			msleep_interruptible(sleep_msecs);
-> > +			continue;
-> > +		}
-> 
-> Looping five times before giving up seems arbitrary and failure-prone
-> on busy systems.
+> The reason courts usually award monetary damages is that
+> money is what almost everybody wants.  Commercial software,
 
-This is the number we came up with after having talked to the H_CALL
-developers
+I've no idea about Norway but in the UK and US money is just a
+convenient shorthand for transferring and measuring the harm caused by
+the action in accordance with civil law rules on equity. In some
+countries large scale commercial copyright violation is also a criminal
+offence.
 
-> 
-> Is msleep_interruptible (as opposed to msleep) really appropriate?
-> 
-> Hope all the callers of this function are in non-atomic context (but I
-> wasn't able to find any callers?).
-That's our intention.
-We did not find a place where it is used in an atomic context. 
+> It'd be hard to set a price anyway, given that GPL software
+> isn't usually sold.  The price of having a professional programmer
+> developing the same driver perhaps?
 
-> 
-> And this function is too big to be inline.
-> 
-> 
+A good US lawyer would no doubt ask for the cost of developing an
+equivalent open source driver, reverse engineering, and lost
+opportunities caused by the time this will take, trebled for being
+intentional, and class action on behalf of all the rights-holders.
 
-Ok, function is no longer inline
+What a court would award is unknown, there is AFAIK no useful US caselaw
+on either class action copyright infringement suits or GPL violation
+penalties.
 
-
+Alan
 

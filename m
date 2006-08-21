@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWHUVDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWHUVEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWHUVDc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 17:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWHUVDc
+	id S1751103AbWHUVEp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 17:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWHUVEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 17:03:32 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:178 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751102AbWHUVDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 17:03:31 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
-References: <20060821095328.3132.40575.sendpatchset@cherry.local>
-Date: Mon, 21 Aug 2006 15:02:58 -0600
-In-Reply-To: <20060821095328.3132.40575.sendpatchset@cherry.local> (Magnus
-	Damm's message of "Mon, 21 Aug 2006 18:54:16 +0900 (JST)")
-Message-ID: <m13bbpu7i5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Aug 2006 17:04:45 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:24555 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751103AbWHUVEo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 17:04:44 -0400
+Subject: Re: [ckrm-tech] [RFC][PATCH] UBC: user resource beancounters
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, hugh@veritas.com,
+       Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <44E9910D.9010402@sw.ru>
+References: <44E33893.6020700@sw.ru> <20060817110237.GA19127@in.ibm.com>
+	 <44E47547.8030702@sw.ru> <1155844543.26155.10.camel@linuxchandra>
+	 <44E5982C.80304@sw.ru> <1155927229.26155.28.camel@linuxchandra>
+	 <44E9910D.9010402@sw.ru>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 21 Aug 2006 14:04:33 -0700
+Message-Id: <1156194273.6479.31.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Damm <magnus@valinux.co.jp> writes:
+On Mon, 2006-08-21 at 14:55 +0400, Kirill Korotaev wrote:
+<snip>
 
-> x86_64: Reload CS when startup_64 is used.
->
-> The current x86_64 startup code never reloads CS during the early boot process
-> if the 64-bit function startup_64 is used as entry point. The 32-bit entry 
-> point startup_32 does the right thing and reloads CS, and this is what most 
-> people are using if they use bzImage.
->
-> This patch fixes the case when the Linux kernel is booted into using kexec
-> under Xen. The Xen hypervisor is using large CS values which makes the x86_64
-> kernel fail - but only if vmlinux is booted, bzImage works well because it
-> is using the 32-bit entry point.
->
-> The main question is if we require that the boot loader should setup CS
-> to some certain offset to be able to boot the kernel. The sane solution IMO
-> should be that the kernel requires that the loaded descriptors are correct, 
-> but that the exact offset within the GDT the boot loader is using should not 
-> matter. This is the way the i386 boot works if I understand things correctly.
+> >>If you have a single container controlling all the resources, then
+> >>placing kjournald into CPU container would require setting
+> >>it's memory limits etc. And kjournald will start to be accounted separately,
+> > 
+> > 
+> > Not necessarily. You could just set the CPU shares of the group and
+> > leave the other resources as don't care.
+> don't care IMHO doesn't mean "accounted and limited as container X".
+> it sounds like "no limits" for me.
 
-What extra reload of cs does Xen introduce?
+Yes. But, it would provide the same functionality that you want (i.e
+limit only CPU and no other resources).
 
-I'm not really comfortable with a half virtualized case.
+> 
+> >>while my intention is kjournald to be accounted as the host system.
+> >>I only want to _guarentee_ some CPU to it.
+> > I do not see any _guarantee_ support, only barrier(soft limit) and
+> > limit. May be I overlooked. Can you tell me how guarantee is achieved
+> > with UBC.
+> we just provide additional parameters like oomguarpages, where barrier
+> is a guarantee.
 
-Eric
+I take it that you are suggesting that the controller can use barrier as
+guarantee.
+
+I don't see how it will work. charge_beancounter() returns -ENOMEM even
+when the group is over its barrier (when queried with strict ==
+UB_BARRIER). 
+
+I have to see the oomguarpatches patches for understanding this, I
+suppose.
+> 
+> Kirill
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

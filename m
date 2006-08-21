@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWHUJD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWHUJEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWHUJD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 05:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWHUJD4
+	id S1751043AbWHUJEP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 05:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWHUJEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 05:03:56 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:42198 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S1750790AbWHUJDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 05:03:55 -0400
-Date: Mon, 21 Aug 2006 11:03:51 +0200
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Valerie Henson <val_henson@linux.intel.com>,
-       Prakash Punnoor <prakash@punnoor.de>, Jiri Benc <jbenc@suse.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] Fixes for ULi5261 (tulip driver)
-Message-ID: <20060821090351.GB19425@ojjektum.uhulinux.hu>
-References: <20050427124911.6212670f@griffin.suse.cz> <20060816191139.5d13fda8@griffin.suse.cz> <20060816174329.GC17650@ojjektum.uhulinux.hu> <200608162002.06793.prakash@punnoor.de> <20060816195345.GA12868@ojjektum.uhulinux.hu> <20060819001640.GE20111@goober> <20060819061507.GB8571@ojjektum.uhulinux.hu> <44E721E1.2030203@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Aug 2006 05:04:15 -0400
+Received: from ns2.suse.de ([195.135.220.15]:34239 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750827AbWHUJEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 05:04:13 -0400
+From: Andi Kleen <ak@suse.de>
+To: Magnus Damm <magnus@valinux.co.jp>
+Subject: Re: [ckrm-tech] [PATCH 4/7] UBC: syscalls (user interface)
+Date: Mon, 21 Aug 2006 11:03:45 +0200
+User-Agent: KMail/1.9.3
+Cc: Christoph@sc8-sf-spam2-b.sourceforge.net, Rik van Riel <riel@redhat.com>,
+       Linux@sc8-sf-spam2-b.sourceforge.net, ckrm-tech@lists.sourceforge.net,
+       Dave Hansen <haveblue@us.ibm.com>, List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>, Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org, rohitseth@google.com,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Emelianov <xemul@openvz.org>
+References: <44E33893.6020700@sw.ru> <200608210948.40870.ak@suse.de> <1156149773.21411.58.camel@localhost>
+In-Reply-To: <1156149773.21411.58.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44E721E1.2030203@pobox.com>
-User-Agent: Mutt/1.5.7i
+Message-Id: <200608211103.45175.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 10:36:17AM -0400, Jeff Garzik wrote:
-> Pozsar Balazs wrote:
-> >--- a/drivers/net/tulip/uli526x.c	2006-07-15 21:00:43.000000000 +0200
-> >+++ a/drivers/net/tulip/uli526x.c	2006-08-18 15:41:00.000000000 +0200
-> >@@ -515,7 +515,8 @@
-> > 	phy_reg_reset = phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id);
-> > 	phy_reg_reset = (phy_reg_reset | 0x8000);
-> > 	phy_write(db->ioaddr, db->phy_addr, 0, phy_reg_reset, db->chip_id);
-> >-	udelay(500);
-> >+	while (phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id) & 0x8000)
-> >+		udelay(500);
+On Monday 21 August 2006 10:42, Magnus Damm wrote:
+
+> No problem. The second URL pointed to a x86_64 version where I tried to
+> break out code to make some kind of generic NUMA emulation layer. At
+> that time no one seemed interested in that strategy as a simple resource
+> control solution so I gave that up.
 > 
-> You never want an infinite loop in a driver.  If, for example, the 
-> hardware is wedged or removed, registers will return all 1's, leading 
-> this loop to never end.
+> For x86_64 I think it's only worth mucking around with the code if
+> people believe that it is the right way to go for in-kernel resource
+> control.
 
-Does this seem better?
+Does it by chance fix the existing code? Andrew has been complaining
+(and I could reproduce) that numa=fake=16 makes it triple fault at boot.
+The theory was that it didn't like empty nodes which can happen this way.
+I unfortunately didn't have time to look into it closely so far.
 
-Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
+> The x86_64 patches above include code to divide each real NUMA node into
+> several smaller emulated nodes, but that is kind of pointless if people
+> only use it for non-resource control purposes, ie just to play with
+> CPUSETS and NUMA on non-NUMA hardware. For simple purposes like that I
+> think the existing NUMA emulation code for x86_64 works perfectly well.
+> 
+> I still think that i386 users would benefit from NUMA emulation though.
+> If you want me to up-port the i386-specific code just let me know.
 
-Fix uli526x initialization
+I personally have my doubts about 32bit NUMA -- it will always have
+ZONE_NORMAL only on a single node, which limits it very much. 
+But ok I guess it might be useful to somebody.
 
-
---- a/drivers/net/tulip/uli526x.c	2006-08-21 10:57:43.000000000 +0200
-+++ a/drivers/net/tulip/uli526x.c	2006-08-21 11:01:37.000000000 +0200
-@@ -486,6 +486,7 @@
- 	u8	phy_tmp;
- 	u16	phy_value;
- 	u16 phy_reg_reset;
-+	int resetwait = 10;
+-Andi
  
- 	ULI526X_DBUG(0, "uli526x_init()", 0);
- 
-@@ -515,7 +516,11 @@
- 	phy_reg_reset = phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id);
- 	phy_reg_reset = (phy_reg_reset | 0x8000);
- 	phy_write(db->ioaddr, db->phy_addr, 0, phy_reg_reset, db->chip_id);
--	udelay(500);
-+	while (resetwait-- > 0) {
-+		if (!(phy_read(db->ioaddr, db->phy_addr, 0, db->chip_id) & 0x8000))
-+			break;
-+		udelay(500);
-+	}
- 
- 	/* Process Phyxcer Media Mode */
- 	uli526x_set_phyxcer(db);
-
-
-
--- 
-pozsy

@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWHUTzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWHUUC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWHUTzL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 15:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWHUTzL
+	id S1750912AbWHUUC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 16:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWHUUC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 15:55:11 -0400
-Received: from pat.uio.no ([129.240.10.4]:52463 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750909AbWHUTzK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 15:55:10 -0400
-Subject: Re: [NFS] 2.6.17.8 - do_vfs_lock: VFS is out of sync with lock
-	manager!
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Neil Brown <neilb@suse.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, nfs@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <17641.10665.116168.867041@cse.unsw.edu.au>
-References: <9a8748490608080739w2e14e5ceg44a7bf0a3b475704@mail.gmail.com>
-	 <17636.4462.975774.528003@cse.unsw.edu.au>
-	 <9a8748490608170258s32df0272r60c8c540e5871485@mail.gmail.com>
-	 <17641.10665.116168.867041@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Mon, 21 Aug 2006 15:54:58 -0400
-Message-Id: <1156190098.6158.109.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-1.941, required 12,
-	autolearn=disabled, AWL 0.55, RCVD_IN_XBL 2.51,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Mon, 21 Aug 2006 16:02:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50311 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750910AbWHUUC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 16:02:58 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: vgoyal@in.ibm.com, Magnus Damm <magnus.damm@gmail.com>,
+       Magnus Damm <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ebiederm@xmission.com
+Subject: Re: [Fastboot] [PATCH][RFC] x86_64: Reload CS when startup_64 is used.
+References: <20060821095328.3132.40575.sendpatchset@cherry.local>
+	<200608211624.11005.ak@suse.de> <20060821144657.GE9549@in.ibm.com>
+	<200608211704.03061.ak@suse.de>
+Date: Mon, 21 Aug 2006 14:02:16 -0600
+In-Reply-To: <200608211704.03061.ak@suse.de> (Andi Kleen's message of "Mon, 21
+	Aug 2006 17:04:03 +0200")
+Message-ID: <m1fyfpuabb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-08-21 at 13:34 +1000, Neil Brown wrote:
-> Looking in fs/nfs/file.c (at 2.6.18-rc4-mm1 if it matters, but 2.6.17
-> is much the same)
-> 
->  - do_vfs_lock is only called when the filesystem was mounted with
->     -o nolock  EXCEPT
->  - If a lock request to the server in interrupted (when mounted with
->      -o intr) then do_vfs_lock is called to try to get the lock
->     locally.  Normally equivalent code will be called inside
->     fs/lockd/clntproc.c when the server replies that the lock has been
->     gained.  In the case of an interrupt though this doesn't happen
->     but the lock may still have happened on the server.  So we record
->     locally that the lock was gained, to ensure that it gets unlocked
->     when the process exits.
-> 
-> As you don't have '-o nolocks' you must be hitting the second case.
-> The lock call to the server returns -EINTR or -ERESTARTSYS and
-> do_vfs_lock is called just-in-case.  
-> As this is a just-in-case call, it is quite possible that the lock is
-> held by some other process, so getting an error is entirely possible.
-> So printing the message in this case seems wrong.
-> 
-> On the other hand, printing the message in any other case seems wrong
-> too, as server locking is not being used, so there is nothing to get
-> out of sync with.
-> 
-> As a further complication, I don't think that in the just-in-case
-> situation that it should risk waiting for the lock.
-> Now maybe we can be sure there is a pending signal which will break
-> out of any wait (though I'm worried about -ERESTARTSYS - that doesn't
-> imply a signal does it?), but I would feel more comfortable if
-> FL_SLEEP were turned off in that path.
-> 
-> So: Trond:  Any obvious errors in the above?
-> Is the following patch ok?
+Andi Kleen <ak@suse.de> writes:
 
-Could we instead replace it with a dprintk() that returns the value of
-"res"? That will keep it useful for debugging purposes.
+> On Monday 21 August 2006 16:46, Vivek Goyal wrote:
+>> On Mon, Aug 21, 2006 at 04:24:10PM +0200, Andi Kleen wrote:
+>> > 
+>> > > Given the idea of relocatable kernel is floating around I would prefer if
+>> > > we are not bounded by the restriction of loading a kernel in lowest 4G.
+>> > 
+>> > There is already other code that requires this. In fact i don't think it can
+>> > be above 40MB currently.
+>> >
+>> 
+>> But I think Eric's prototype patches for relocatable kernel do get over
+>> this limitation (Hope I understood the code right). Assuming that relocatable
+>> kernel patches will be merged down the line, it would be nice not to be
+>> bound by 4G limitation.
+>
+> He may have fixed the 40MB issue, but I very much doubt he changed the 2GB
+> limitation because that would be a major change.
 
-Cheers,
-  Trond
+I'm not certain I caught everything but as far as I know I did.
+Part of that was by having the code run at a fixed virtual address so
+we still live in the last 2GB of the virtual address space.
 
+
+Eric

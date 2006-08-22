@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWHVQCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWHVQHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWHVQCx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 12:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWHVQCx
+	id S1751404AbWHVQHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 12:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWHVQHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 12:02:53 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:34445 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932076AbWHVQCu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 12:02:50 -0400
-Date: Tue, 22 Aug 2006 21:32:23 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-Message-ID: <20060822160223.GB12943@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net> <20060822101028.GB5052@in.ibm.com> <1156257674.4617.8.camel@Homer.simpson.net> <1156260209.6225.7.camel@Homer.simpson.net> <1156261506.6319.6.camel@Homer.simpson.net> <20060822135056.GB7125@in.ibm.com> <1156269931.4954.12.camel@Homer.simpson.net>
-Mime-Version: 1.0
+	Tue, 22 Aug 2006 12:07:42 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:16907 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751404AbWHVQHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 12:07:41 -0400
+Date: Tue, 22 Aug 2006 18:07:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] arch/um/sys-i386/setjmp.S: useless #ifdef _REGPARM's?
+Message-ID: <20060822160741.GB11651@stusta.de>
+References: <20060821215641.GQ11651@stusta.de> <20060822022012.GA7070@ccure.user-mode-linux.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1156269931.4954.12.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060822022012.GA7070@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 06:05:31PM +0000, Mike Galbraith wrote:
-> I just did echo "0-1" > cpus.
+On Mon, Aug 21, 2006 at 10:20:12PM -0400, Jeff Dike wrote:
+> On Mon, Aug 21, 2006 at 11:56:41PM +0200, Adrian Bunk wrote:
+> > arch/um/sys-i386/setjmp.S contains two #ifdef _REGPARM's.
+> > 
+> > Even if regparm was used in i386 uml (which isn't currently done (why?)),
+> > I don't see _REGPARM being defined anywhere.
+> 
+> setjmp.S was stolen from klibc, and I'd just as soon leave it alone and
+> not try to customize it for UML.  That file will disappear if/when klibc 
+> is in mainline, and I can just pull it in from usr.
 
-"cpus" here is the "cpus" file in "all" cpuset? 
+Ah, klibc defines _REGPARM if required.
 
-If so, that explains why tasks were stuck in cpu 1 (because child cpusets 
-arent updated currently with the new cpus setting - which by itself is a tricky 
-thing to accomplish under cpusets perhaps).
+> In general, there's no reason that regparam can't be used for UML.  However,
+> in the past (I don't know if it's still a problem) gcc miscompiled regparam
+> code in the presence of -pg.
+
+I didn't find a corresponding open bug in the gcc Bugzilla.
+
+Can someone verify whether it's still present, and if yes, open a gcc 
+bug?
+
+> As for why it's not, I don't see any occurences of regparam in include/linux
+> or include/asm-i386 either.
+
+It's set globally in arch/i386/Makefile:
+  cflags-$(CONFIG_REGPARM) += -mregparm=3
+
+That's not pulled by UML, but if there are no outstanding problems with 
+regparm, we could both enable it uncomditionally on i386 and enable it
+on UML/i386.
+
+> > Is this a bug waiting for happening when regparm will be used on uml or 
+> > do I miss anything?
+> 
+> Probably not.
+> 
+> 				Jeff
+
+cu
+Adrian
 
 -- 
-Regards,
-vatsa
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

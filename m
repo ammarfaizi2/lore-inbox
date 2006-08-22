@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWHVO7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWHVPBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWHVO7k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWHVO7k
+	id S932291AbWHVPBG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 11:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWHVPBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:59:40 -0400
-Received: from mx2.suse.de ([195.135.220.15]:61347 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932292AbWHVO7i (ORCPT
+	Tue, 22 Aug 2006 11:01:05 -0400
+Received: from ns1.suse.de ([195.135.220.2]:41603 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932291AbWHVPBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:59:38 -0400
+	Tue, 22 Aug 2006 11:01:03 -0400
 From: Andi Kleen <ak@suse.de>
-To: Ian Campbell <Ian.Campbell@xensource.com>
-Subject: Re: [PATCH 1 of 1] x86_64: Put .note.* sections into a PT_NOTE segment in vmlinux II
-Date: Tue, 22 Aug 2006 16:59:18 +0200
+To: Tim Hockin <thockin@google.com>
+Subject: Re: PCI MMCONFIG aperture size
+Date: Tue, 22 Aug 2006 17:00:44 +0200
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@xensource.com>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Virtualization <virtualization@lists.osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Christoph Lameter <clameter@sgi.com>
-References: <1156256777.5091.93.camel@localhost.localdomain>
-In-Reply-To: <1156256777.5091.93.camel@localhost.localdomain>
+Cc: matthew@wil.cx, greg@kroah.com,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@google.com>
+References: <20060822024237.GO16573@google.com> <200608220955.31620.ak@suse.de> <20060822145802.GR16573@google.com>
+In-Reply-To: <20060822145802.GR16573@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608221659.18896.ak@suse.de>
+Message-Id: <200608221700.44690.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 August 2006 16:26, Ian Campbell wrote:
-> This patch updates x86_64 linker script to pack any .note.* sections
-> into a PT_NOTE segment in the output file.
+On Tuesday 22 August 2006 16:58, Tim Hockin wrote:
+> On Tue, Aug 22, 2006 at 09:55:31AM +0200, Andi Kleen wrote:
+> > 
+> > > This says to me that (as long as the MCFG table has an End Bus Number of
+> > > 31) a 32 MB decode area (32 MB aligned, too) is valid.
+> > > 
+> > > Would something like the below patch be accepted?  It makes my system
+> > > work...
+> > 
+> > I already got a patch to remove the complete e820 validation code because
+> > it broke far more than it fixed. That should fix your problem too.
+> 
+> Great!  Coming in 2.6.18?
 
+Yes.
 
-Sorry I tried to apply it, but at least 2.6.18rc4 mainline (which my tree
-is based on) doesn't have a NOTES macro so it doesn't link
+> 
+> > > Also, why are we forcing 32 bit base addresses?  ACPI defines it to be a
+> > > 64 bit base...
+> > 
+> > Where do you think we do that?
+> 
+> Looking at 2.6.17, we always have u32 base_address and u32
+> base_reserved.  base_address is the only one ever referenced, that I can
+> see.  I guess I should grab 2.6.18 pre-releases and recheck.
 
-I dropped the NOTES addition for now, presumably it will need to be readded
-later.
+True. Please submit a patch.
 
 -Andi

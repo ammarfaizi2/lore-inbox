@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWHVMkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWHVMoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWHVMkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWHVMkV
+	id S932212AbWHVMoL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWHVMoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:40:21 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:24760 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932213AbWHVMkU (ORCPT
+	Tue, 22 Aug 2006 08:44:10 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:60949 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932212AbWHVMoJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:40:20 -0400
-Date: Tue, 22 Aug 2006 16:39:32 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [PATCH] kevent_user: remove non-chardev interface
-Message-ID: <20060822123932.GA27181@2ka.mipt.ru>
-References: <12345678912345.GA1898@2ka.mipt.ru> <11561555871530@2ka.mipt.ru> <20060822115459.GA10839@infradead.org> <20060822121709.GA4815@2ka.mipt.ru> <20060822122731.GA2994@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060822122731.GA2994@infradead.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 22 Aug 2006 16:39:36 +0400 (MSD)
+	Tue, 22 Aug 2006 08:44:09 -0400
+Message-ID: <44EAFCBA.10400@sw.ru>
+Date: Tue, 22 Aug 2006 16:46:50 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: vatsa@in.ibm.com
+CC: Matt Helsley <matthltc@us.ibm.com>, Rik van Riel <riel@redhat.com>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
+References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <1155866328.2510.247.camel@stark> <44E5A637.1020407@sw.ru> <1155955116.2510.445.camel@stark> <44E992B9.8080908@sw.ru> <20060822122329.GA7125@in.ibm.com>
+In-Reply-To: <20060822122329.GA7125@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 01:27:31PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
-> On Tue, Aug 22, 2006 at 04:17:10PM +0400, Evgeniy Polyakov wrote:
-> > I personally do not have objections against it, but it introduces
-> > additional complexies - one needs to open /dev/kevent and then perform
-> > syscalls on top of returuned file descriptor.
+Srivatsa Vaddagiri wrote:
+> On Mon, Aug 21, 2006 at 03:02:17PM +0400, Kirill Korotaev wrote:
 > 
-> it disalllows
+>>>Except that you eventually have to lock ub0. Seems that the cache line
+>>>for that spinlock could bounce quite a bit in such a hot path.
+>>
+>>do you mean by ub0 host system ub which we call ub0
+>>or you mean a top ub?
 > 
-> int fd = sys_kevent_ctl(<random>, KEVENT_CTL_INIT, <random>, <random>);
 > 
-> in favour of only
-> 
-> int fd = open("/dev/kevent", O_SOMETHING);
-> 
-> which doesn't seem like a problem, especially as I really badly hope
-> no one will use the syscalls but some library instead.
+> If this were used for pure resource management purpose (w/o containers)
+> then the top ub would be ub0 right? "How bad would the contention on the
+> ub0->lock be then" is I guess Matt's question.
+Probably we still misunderstand here each other.
+top ub can be any UB. it's children do account resources
+to the whole chain of UBs to the top parent.
 
-Yep, exactly about above open/kevent_ctl I'm talking.
-I still have a system which has ioctl() based kevent setup, and it
-works - I really do not want to rise another flamewar about which
-approach is better. If no one will complain until tomorrow I will commit
-it.
+i.e. ub0 is not a tree root.
 
-> In addition to that I'm researching whether there's a better way to
-> implement the other functionality instead of the two syscalls.  But I'd
-> rather let code speak, so wait for some patches from me on that.
+Kirill
 
-There were implementation with pure ioctl() and with one syscall for all
-oprations (and control block embedded in it), all were rejected in
-favour of two syscalls, so I'm waiting for your patches.
-
--- 
-	Evgeniy Polyakov

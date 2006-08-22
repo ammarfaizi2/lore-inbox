@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWHVJAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWHVJBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWHVJAP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 05:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWHVJAP
+	id S932149AbWHVJBL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 05:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWHVJBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 05:00:15 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:63655 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932140AbWHVJAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 05:00:13 -0400
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-From: Nicholas Miell <nmiell@comcast.net>
-To: David Miller <davem@davemloft.net>
-Cc: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       akpm@osdl.org, netdev@vger.kernel.org, zach.brown@oracle.com,
-       hch@infradead.org
-In-Reply-To: <20060822.012341.57449506.davem@davemloft.net>
-References: <1156230051.8055.27.camel@entropy>
-	 <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy>
-	 <20060822.012341.57449506.davem@davemloft.net>
-Content-Type: text/plain
-Date: Tue, 22 Aug 2006 01:59:51 -0700
-Message-Id: <1156237191.8055.59.camel@entropy>
+	Tue, 22 Aug 2006 05:01:11 -0400
+Received: from ns.suse.de ([195.135.220.2]:26021 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932149AbWHVJBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 05:01:09 -0400
+Date: Tue, 22 Aug 2006 11:01:06 +0200
+From: Andi Kleen <ak@suse.de>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Magnus Damm <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: Reload CS when startup_64 is used.
+Message-Id: <20060822110106.7582fcb9.ak@suse.de>
+In-Reply-To: <m1y7thqi7b.fsf_-_@ebiederm.dsl.xmission.com>
+References: <20060821095328.3132.40575.sendpatchset@cherry.local>
+	<1156208306.21411.85.camel@localhost>
+	<m1u045sagu.fsf@ebiederm.dsl.xmission.com>
+	<200608221003.12608.ak@suse.de>
+	<m1y7thqi7b.fsf_-_@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 01:23 -0700, David Miller wrote:
-> From: Nicholas Miell <nmiell@comcast.net>
-> Date: Tue, 22 Aug 2006 01:17:52 -0700
-> 
-> > Is any of this documented anywhere? I'd think that any new userspace
-> > interfaces should have man pages explaining their use and some example
-> > code before getting merged into the kernel to shake out any interface
-> > problems.
-> 
-> Get real.
-> 
-> Nobody made this requirement for things like splice() et al.
-> 
-> I think people are being mostly very unreasonable in the
-> demands they are making upon Evgeniy.  It will only serve
-> to discourage the one person who is doing work to solve
-> these problems.
+On Tue, 22 Aug 2006 02:37:44 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-splice() is a single synchronous function call, and it's signature still
-managed to change wildly during it's development.
+> 
+> In long mode the %cs is largely a relic.  However there are a few cases
+> like lret 
 
-In this brave new world of always stable kernel development, the time a
-new interface has for public testing before a new kernel release is
-drastically shorter than the old unstable development series, and if
-nobody is documenting how this stuff is supposed to work and
-demonstrating how it will be used, then mistakes are bound to slip
-through.
+You mean iret?
 
--- 
-Nicholas Miell <nmiell@comcast.net>
 
+> +	 * jump.  In addition we need to ensure %cs is set so we make this
+> +	 * a far return.	
+>  	 */
+>  	movq	initial_code(%rip),%rax
+> -	jmp	*%rax
+> +	pushq	$__KERNEL_CS
+> +	pushq	%rax
+> +	lretq
+
+Ok merged thanks
+
+-Andi

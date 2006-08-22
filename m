@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWHVLe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWHVLgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWHVLe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 07:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWHVLe5
+	id S932177AbWHVLgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 07:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWHVLgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 07:34:57 -0400
-Received: from smtp-relay.dca.net ([216.158.48.66]:35495 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S932176AbWHVLe4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 07:34:56 -0400
-Date: Tue, 22 Aug 2006 07:34:47 -0400
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [RFC][PATCH] hwmon:fix sparse warnings + error handling
-Message-ID: <20060822113447.GA28702@jupiter.solarsys.private>
-References: <44E8C9AE.3060307@gmail.com> <20060821100416.4d356328.khali@linux-fr.org> <200608212043.06256.dtor@insightbb.com>
+	Tue, 22 Aug 2006 07:36:50 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15850 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932177AbWHVLgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 07:36:49 -0400
+Date: Tue, 22 Aug 2006 20:39:54 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, ebiederm@xmission.com, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] ps command race fix take2 [4/4] proc_pid_readdir
+Message-Id: <20060822203954.9ca154cb.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <p733bbp81p9.fsf@verdi.suse.de>
+References: <20060822174302.e97f23d1.kamezawa.hiroyu@jp.fujitsu.com>
+	<p733bbp81p9.fsf@verdi.suse.de>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608212043.06256.dtor@insightbb.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry:
+On 22 Aug 2006 13:11:30 +0200
+Andi Kleen <ak@suse.de> wrote:
 
-* Dmitry Torokhov <dtor@insightbb.com> [2006-08-21 20:43:05 -0400]:
-> On Monday 21 August 2006 04:04, Jean Delvare wrote:
-> > > --- linux-work-clean/drivers/hwmon/w83627hf.c	2006-08-20 22:02:40.000000000 +0200
-> > > +++ linux-work/drivers/hwmon/w83627hf.c	2006-08-20 22:27:14.000000000 +0200
-> > > @@ -513,9 +513,21 @@ static DEVICE_ATTR(in0_max, S_IRUGO | S_
-> > > 
-> > >  #define device_create_file_in(client, offset) \
-> > >  do { \
-> > > -device_create_file(&client->dev, &dev_attr_in##offset##_input); \
-> > > -device_create_file(&client->dev, &dev_attr_in##offset##_min); \
-> > > -device_create_file(&client->dev, &dev_attr_in##offset##_max); \
-> > > +	err = device_create_file(&client->dev, &dev_attr_in##offset##_input); \
-> > > +	if (err) {\
-> > > +		hwmon_device_unregister(data->class_dev); \
-> > > +		return err; \
-> > > +	} \
-> > > +	err = device_create_file(&client->dev, &dev_attr_in##offset##_min); \
-> > > +	if (err) {\
-> > > +		hwmon_device_unregister(data->class_dev); \
-> > > +		return err; \
-> > > +	} \
-> > > +	err = device_create_file(&client->dev, &dev_attr_in##offset##_max); \
-> > > +	if (err) {\
-> > > +		hwmon_device_unregister(data->class_dev); \
-> > > +		return err; \
-> > > +	} \
-> > >  } while (0)
-> > 
-> > _Never_ use "return" in a macro. It's way too confusing for whoever will
-> > read the code later.
-> >
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
 > 
-> Also I believe it is good practice to remove created attributes explicitely
-> instead of relying on sysfs to do the cleanup - I beliee Greg was going to
-> remove it from sysfs at some point of time... 
+> > proc_pid_readdir() by list_token.
+> > 
+> > Remember 'where we are reading' by inserting a token in the list.
+> > It seems a bit complicated because of RCU but what we do is very simple.
+> > 
+> 
+> What happens when you have multiple readers at the same time? Can't
+> the tokens then be mixed up?
+> 
+multiple readers will insert their own token to a list. And list_next_rcu_skiptoken()
+skips all token (not-data). it's used by next_task().
 
-Yep: the patches that are floating on the lm-sensors mailing list do fix this
-also.  Again, see here:
 
-http://lists.lm-sensors.org/pipermail/lm-sensors/2006-August/017204.html
+> >+		/* this small kmalloc() can fail in rare case, but readdir()
+> >+		 * is not allowed to return ENOMEM. retrying is reasonable. */
+> 
+> Who disallows this? Such retry loops are normally discouraged 
+> because they can lead to deadlocks in OOM situations.
+> I think it would be better to just return ENOMEM.
+> 
 
-Regards,
+Hmm, to be honest, not disallowed. but not allowed. The apps don't expect
+readdir(3) failed with -ENOMEM. 
+But yes, ps command or ls /proc may be caught in the kernel for some time.
 
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+-Kame
 

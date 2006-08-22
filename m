@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWHVS7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWHVTJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWHVS7V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 14:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWHVS7V
+	id S1751163AbWHVTJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWHVTJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 14:59:21 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:12491 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S1750832AbWHVS7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 14:59:20 -0400
-Date: Tue, 22 Aug 2006 19:59:09 +0100
-From: Grant Wilson <grant.wilson@zen.co.uk>
-To: Len Brown <lenb@kernel.org>
-Cc: Maciej Rutecki <maciej.rutecki@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: 2.6.18-rc4-mm2
-Message-ID: <20060822185909.GA18812@tlg.swandive.local>
-References: <20060819220008.843d2f64.akpm@osdl.org> <20060821064411.20e61aa0.akpm@osdl.org> <44EA1585.8020303@gmail.com> <200608211922.10182.len.brown@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608211922.10182.len.brown@intel.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Originating-Pythagoras-IP: [82.71.45.175]
+	Tue, 22 Aug 2006 15:09:22 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52875 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751163AbWHVTJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:09:22 -0400
+Subject: Re: [PATCH] paravirt.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Zachary Amsden <zach@vmware.com>, Andi Kleen <ak@muc.de>,
+       virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1156271386.2976.102.camel@laptopd505.fenrus.org>
+References: <1155202505.18420.5.camel@localhost.localdomain>
+	 <44DB7596.6010503@goop.org>
+	 <1156254965.27114.17.camel@localhost.localdomain>
+	 <200608221544.26989.ak@muc.de>  <44EB3BF0.3040805@vmware.com>
+	 <1156271386.2976.102.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Aug 2006 20:30:04 +0100
+Message-Id: <1156275004.27114.34.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 21, 2006 at 07:22:09PM -0400, Len Brown wrote:
-> Please dump the stack so we can find the secretive caller to 
-> acpi_format_exception().
+Ar Maw, 2006-08-22 am 20:29 +0200, ysgrifennodd Arjan van de Ven:
+> > And it doesn't work for VMI or lhype, both of which might modify 
+> > paravirt_ops way later in the boot process, when loaded as a module.  
+> 
+> doesn't this then start to have the same issues that runtime patching
+> the system call table had?
 
-I get three of these when booting and the output from dump_stack
-is the same for each.  I've observed no problems as a result of
-these reported failures.  Here is the output from the first call
-of dump_stack:
+It has several I can see that are if anything worse
 
-Aug 22 19:39:33 tlg kernel: ACPI Error (utglobal-0125): Unknown exception code: 0xFFFFFFEA [20060707]
-Aug 22 19:39:33 tlg kernel: 
-Aug 22 19:39:33 tlg kernel: Call Trace:
-Aug 22 19:39:33 tlg kernel:  [<ffffffff80267cb8>] dump_trace+0xba/0x39e
-Aug 22 19:39:33 tlg kernel:  [<ffffffff80267fd8>] show_trace+0x3c/0x52
-Aug 22 19:39:33 tlg kernel:  [<ffffffff80268003>] dump_stack+0x15/0x17
-Aug 22 19:39:33 tlg kernel:  [<ffffffff803c8d10>] acpi_format_exception+0xc0/0xcb
-Aug 22 19:39:33 tlg kernel:  [<ffffffff803c54e5>] acpi_ut_status_exit+0x38/0x73
-Aug 22 19:39:33 tlg kernel:  [<ffffffff803c11a0>] acpi_walk_resources+0x12e/0x140
-Aug 22 19:39:33 tlg kernel:  [<ffffffff803d85e5>] acpi_motherboard_add+0x26/0x32
-Aug 22 19:39:33 tlg kernel:  [<ffffffff803d73d7>] acpi_bus_driver_init+0x3a/0x98
-Aug 22 19:39:33 tlg kernel:  [<ffffffff803d796c>] acpi_bus_register_driver+0xbd/0x144
-Aug 22 19:39:33 tlg kernel:  [<ffffffff807dcbd4>] acpi_motherboard_init+0x10/0x130
-Aug 22 19:39:33 tlg kernel:  [<ffffffff802668f1>] init+0x13b/0x313
-Aug 22 19:39:33 tlg kernel:  [<ffffffff8025dba8>] child_rip+0xa/0x12
-Aug 22 19:39:33 tlg kernel: DWARF2 unwinder stuck at child_rip+0xa/0x12
-Aug 22 19:39:33 tlg kernel: Leftover inexact backtrace:
-Aug 22 19:39:33 tlg kernel:  [<ffffffff802632ae>] _spin_unlock_irq+0x2b/0x53
-Aug 22 19:39:33 tlg kernel:  [<ffffffff8025d300>] restore_args+0x0/0x30
-Aug 22 19:39:33 tlg kernel:  [<ffffffff80215fed>] release_console_sem+0x4d/0x238
-Aug 22 19:39:33 tlg kernel:  [<ffffffff802667b6>] init+0x0/0x313
-Aug 22 19:39:33 tlg kernel:  [<ffffffff8025db9e>] child_rip+0x0/0x12
+- Stacked hypervisors stomping each others functions
+- Locking required to do updates: and remember our lock functions use
+methods in the array
+- If we boot patch inline code to get performance natively its almost
+impossible to then revert that.
 
-Cheers,
-Grant
 

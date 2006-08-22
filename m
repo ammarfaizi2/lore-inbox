@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWHVNvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWHVNxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWHVNvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWHVNvj
+	id S932257AbWHVNxf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWHVNxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:51:39 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:23211 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932256AbWHVNvh
+	Tue, 22 Aug 2006 09:53:35 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:15373 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932257AbWHVNxe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:51:37 -0400
-Date: Tue, 22 Aug 2006 19:20:56 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-Message-ID: <20060822135056.GB7125@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060820174015.GA13917@in.ibm.com> <20060820174839.GH13917@in.ibm.com> <1156245036.6482.16.camel@Homer.simpson.net> <20060822101028.GB5052@in.ibm.com> <1156257674.4617.8.camel@Homer.simpson.net> <1156260209.6225.7.camel@Homer.simpson.net> <1156261506.6319.6.camel@Homer.simpson.net>
-Mime-Version: 1.0
+	Tue, 22 Aug 2006 09:53:34 -0400
+Date: Tue, 22 Aug 2006 15:53:27 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Lockdep message on workqueue_mutex
+Message-ID: <20060822135327.GB29577@osiris.boeblingen.de.ibm.com>
+References: <20060822121042.GA29577@osiris.boeblingen.de.ibm.com> <1156250192.2976.47.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1156261506.6319.6.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1156250192.2976.47.camel@laptopd505.fenrus.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 03:45:05PM +0000, Mike Galbraith wrote:
-> > With only cpu 1 in the cpuset, it worked.
+On Tue, Aug 22, 2006 at 02:36:32PM +0200, Arjan van de Ven wrote:
+> On Tue, 2006-08-22 at 14:10 +0200, Heiko Carstens wrote:
+> > git commit 9b41ea7289a589993d3daabc61f999b4147872c4 causes the lockdep
+> > message below on cpu hotplug (git kernel of today).
+> > 
+> > We have:
+> > 
+> > cpu_down (takes cpu_add_remove_lock)
+> > [CPU_DOWN_PREPARE]
+> > blocking_notifier_call_chain (takes (cpu_chain).rwsem)
+> > workqueue_cpu_callback (takes workqueue_mutex)
+> > blocking_notifier_call_chain (releases (cpu_chain).rwsem)
+> > [CPU_DEAD]
+> > blocking_notifier_call_chain (takes (cpu_chain).rwsem)
+> >                               ^^^^^^^^^^^^^^^^^^^^^^^
+> > -> reverse locking order, since we still hold workqueue_mutex.
+> > 
+> > But since all of this is protected by the cpu_add_remove_lock this looks
+> > legal. Well, at least it's safe as long as no other cpu callback function
+> > does anything that will take the workqueue_mutex as well.
 > 
-> P.S.  since it worked, (and there are other tasks that I assigned on it,
-> kthreads for example, I only assigned the one shell), I figured I'd try
-> adding the other cpu and see what happened.  It let me hot add cpu 0,
-> but tasks continue to be run only on cpu 1.
+> so you're saying this locking is entirely redundant ? ;-)
 
-How did you add the other cpu? to the "all" cpuset? I don't think I am
-percolating the changes to "cpus" field of parent to child cpuset, which
-may explain why tasks continue to run on cpu0. Achieving this change
-atomically for all child cpusets again is something I don't know whether
-cpuset code can handle well.
-
--- 
-Regards,
-vatsa
+No, I'm just saying that I think that it currently cannot deadlock. But I
+think the workqueue cpu hotplug code should be changed, so that it doesn't
+return with the workqueue_mutex being held.

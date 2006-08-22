@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWHVURQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWHVUXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWHVURQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 16:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWHVURQ
+	id S1751249AbWHVUXn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 16:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWHVUXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 16:17:16 -0400
-Received: from ns.suse.de ([195.135.220.2]:59071 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750981AbWHVURP (ORCPT
+	Tue, 22 Aug 2006 16:23:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6539 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751249AbWHVUXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 16:17:15 -0400
-To: Zachary Amsden <zach@vmware.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] paravirt.h
-References: <1155202505.18420.5.camel@localhost.localdomain>
-	<44DB7596.6010503@goop.org>
-	<1156254965.27114.17.camel@localhost.localdomain>
-	<200608221544.26989.ak@muc.de> <44EB3BF0.3040805@vmware.com>
-	<1156271386.2976.102.camel@laptopd505.fenrus.org>
-	<1156275004.27114.34.camel@localhost.localdomain>
-	<44EB584A.5070505@vmware.com> <44EB5A76.9060402@vmware.com>
-From: Andi Kleen <ak@suse.de>
-Date: 22 Aug 2006 22:16:56 +0200
-In-Reply-To: <44EB5A76.9060402@vmware.com>
-Message-ID: <p73y7tg7cg7.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Aug 2006 16:23:42 -0400
+Message-Id: <200608222023.k7MKNHpH018036@pasta.boston.redhat.com>
+To: Solar Designer <solar@openwall.com>
+cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
+Subject: Re: printk()s of user-supplied strings (Re: [PATCH] binfmt_elf.c : the BAD_ADDR macro again)
+In-Reply-To: Your message of "Tue, 22 Aug 2006 07:07:55 +0400."
+             <20060822030755.GB830@openwall.com>
+Date: Tue, 22 Aug 2006 16:23:17 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden <zach@vmware.com> writes:
-> 
-> That is a really nasty problem.  You need a synchronization primitive
-> which guarantees a flat stack, so you can't do it in the interrupt
-> handler as I have tried to do.  I'll bang my head on it awhile.  In
-> the meantime, were there ever any solutions to the syscall patching
-> problem that might lend me a clue as to what to do (or not to do, or
-> impossible?).
+On Tuesday, 22-Aug-2006 at 7:7 +0400, Solar Designer wrote:
 
-stop_machine_run() solves the problem I think. It is currently not 
-exported though. I don't think there's anything in there that couldn't
-be reimplemented in a module, but then we could also just export it
-if there's a useful user.
+> On Mon, Aug 21, 2006 at 07:36:01PM -0400, Ernie Petrides wrote:
+> > -			printk(KERN_ERR "Unable to load interpreter %.128s\n",
+> > -				elf_interpreter);
+>
+> I'd rather have this message rate-limited, not dropped completely.
 
--Andi
+I consider any printk() that can be arbitrarily triggered by an
+unprivileged user to be inappropriate, rate-limited or not.  I
+recommend that it be removed entirely.
+
+
+> Another long-time concern that I had is that we've got some printk()s
+> of user-supplied string data.  What about embedded linefeeds - can this
+> be used to produce fake kernel messages with arbitrary log level (syslog
+> priority)?  It certainly seems so.
+>
+> Also, there are terminal controls...
+
+These are valid concerns.  Allowing the kernel to print user-fabricated
+strings is a terrible idea.
+
+
+Cheers.  -ernie

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWHVGc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWHVGhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWHVGc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 02:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWHVGc0
+	id S1751059AbWHVGhR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 02:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWHVGhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 02:32:26 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:51653 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750947AbWHVGcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 02:32:25 -0400
-Date: Tue, 22 Aug 2006 08:31:30 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Patrick McHardy <kaber@trash.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netfilter@lists.netfilter.org
-Subject: Re: ipt_MARK/xt_MARK usage problem
-In-Reply-To: <44EAA447.1080004@trash.net>
-Message-ID: <Pine.LNX.4.61.0608220830110.24532@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0608220815560.24532@yvahk01.tjqt.qr>
- <44EAA447.1080004@trash.net>
+	Tue, 22 Aug 2006 02:37:16 -0400
+Received: from sym.gdsz.cncnet.net ([210.22.14.246]:52348 "HELO
+	sym.gdsz.cncnet.net") by vger.kernel.org with SMTP id S1750959AbWHVGhP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 02:37:15 -0400
+Reply-To: "Ervin Dunlap" <awilliamsvpdy@thoseyellowtrucks.com>
+From: "Ervin" <awilliamsvpdy@thoseyellowtrucks.com>
+Message-ID: <5413452382.130412903378@thoseyellowtrucks.com>
+Date: Tue, 22 Aug 2006 02:46:39 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Don't get left behind! 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->No, its a bug in the iptables userspace version you're using, which
->makes it report any error as "Unknown error 4294967295". The
->error itself is that you're using MARK in the filter table.
->
->> Works without problems. Am I missing something?
->> How do I get MARK back to work in -t filter -- possibly without hacking in 
->> xt_MARK.c?
->
->You won't, its not supposed to work in the filter table.
 
-This worked in 2.6.16, where the ipt_mark_reg_v1 strucutre in xt_MARK.c did 
-not have a .table limiter. (It also worked in practice, i.e. packets got 
-marked like they should.) I do not see why this was changed.
+Hey bro, nice talking to you the other day!!! 
+*************************************************************************************************
+*  Thought you wou1d want to check this out,I got some for told
+*  myse1f cause they were on sa1e,you shou1d check out the s!te, I added the 1ink below. card
+*
+*  Stee1 Pa(kage: 10 Patches reg $79.95 N0vv $49.95 ! Free shipping to:! for
+*  Si1ver Pa(kage: 25 Patches reg $129.95, N0vv $99.95! Free shipping and free exercise manua1 inc1uded! by
+*  Go1d Pa(kage: 40 Patches reg $189.95, N0vv $149.95! Free shipping and free exercise manua1 inc1uded! chance
+*  P1atinum Pa(kage: 65 Patches reg $259.95, N0vv $199.95! Free shipping and free exercise manua1 inc1uded! form
+* 
+*
+*  
+I kn0vv l!ke 10 guys wh0 have already st0(ked up on these always. http://www.stranayavmiatina.com/ 
+*
+Talk to you soon zero!
+The best answer to answer to anger is silence.
+*************************************************************************************************
 
 
-Jan Engelhardt
--- 

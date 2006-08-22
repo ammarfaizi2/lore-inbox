@@ -1,117 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWHVMWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWHVMYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWHVMWj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWHVMWj
+	id S932207AbWHVMYN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 08:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWHVMYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:22:39 -0400
-Received: from ausmtp06.au.ibm.com ([202.81.18.155]:11490 "EHLO
-	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP id S932206AbWHVMWi
+	Tue, 22 Aug 2006 08:24:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:50592 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932207AbWHVMYM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:22:38 -0400
-Subject: Re: [patch] pi-futex: missing pi_waiters plist initialization
-From: Sharyathi Nagesh <sharyath@in.ibm.com>
-Reply-To: sharyath@in.ibm.com
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org
-Cc: zhuyaof@cn.ibm.com, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060724112112.GA16537@osiris.boeblingen.de.ibm.com>
-References: <20060724112112.GA16537@osiris.boeblingen.de.ibm.com>
-Content-Type: multipart/mixed; boundary="=-BlqFUO1v72sOgwkFB0LV"
-Organization: IBM
-Date: Tue, 22 Aug 2006 17:58:07 +0530
-Message-Id: <1156249687.14883.68.camel@localhost.localdomain>
+	Tue, 22 Aug 2006 08:24:12 -0400
+Date: Tue, 22 Aug 2006 17:53:29 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Matt Helsley <matthltc@us.ibm.com>, Rik van Riel <riel@redhat.com>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       hugh@veritas.com, Ingo Molnar <mingo@elte.hu>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [RFC][PATCH 2/7] UBC: core (structures, API)
+Message-ID: <20060822122329.GA7125@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <44E33893.6020700@sw.ru> <44E33BB6.3050504@sw.ru> <1155866328.2510.247.camel@stark> <44E5A637.1020407@sw.ru> <1155955116.2510.445.camel@stark> <44E992B9.8080908@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44E992B9.8080908@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 21, 2006 at 03:02:17PM +0400, Kirill Korotaev wrote:
+> > Except that you eventually have to lock ub0. Seems that the cache line
+> > for that spinlock could bounce quite a bit in such a hot path.
+> do you mean by ub0 host system ub which we call ub0
+> or you mean a top ub?
 
---=-BlqFUO1v72sOgwkFB0LV
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+If this were used for pure resource management purpose (w/o containers)
+then the top ub would be ub0 right? "How bad would the contention on the
+ub0->lock be then" is I guess Matt's question.
 
-On Mon, 2006-07-24 at 13:21 +0200, Heiko Carstens wrote:
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> 
-> Initialize init task's pi_waiters plist. Otherwise cpu hotplug of cpu 0
-> might crash, since rt_mutex_getprio() accesses an uninitialized list head.
-> 
-> call chain which led to crash:
-> 
-> take_cpu_down
-> sched_idle_next
-> __setscheduler
-> rt_mutex_getprio
-> 
-> Using PLIST_HEAD_INIT in the INIT_TASK macro doesn't work unfortunately, since
-> the pi_waiters member is only conditionally present.
-
-Hi 
-     I felt it would be more appropriate to put initialization of
-pi_waiters in fork_init function rather than in sched_init function as
-other init_task related initialization or happening in fork_init(). As
-well we have rt_mutex_init_task() function in fork.c which can be reused
-for initializing pi_waiters field of init_task. 
-    Please go through the patch and let me know of your opinion.
-Thanks 
-Sharyathi Nagesh
-
---=-BlqFUO1v72sOgwkFB0LV
-Content-Disposition: attachment; filename=pi_waiters.patch
-Content-Type: text/x-patch; name=pi_waiters.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: <sharyath@in.ibm.com>
-----
-
-
-Index: linux-2.6.18-rc4/kernel/fork.c
-===================================================================
---- linux-2.6.18-rc4.orig/kernel/fork.c	2006-08-06 23:50:11.000000000 +0530
-+++ linux-2.6.18-rc4/kernel/fork.c	2006-08-22 13:03:03.000000000 +0530
-@@ -122,6 +122,16 @@
- 		free_task(tsk);
- }
- 
-+
-+static inline void rt_mutex_init_task(struct task_struct *p)
-+{
-+#ifdef CONFIG_RT_MUTEXES
-+	spin_lock_init(&p->pi_lock);
-+	plist_head_init(&p->pi_waiters, &p->pi_lock);
-+	p->pi_blocked_on = NULL;
-+#endif
-+}
-+
- void __init fork_init(unsigned long mempages)
- {
- #ifndef __HAVE_ARCH_TASK_STRUCT_ALLOCATOR
-@@ -151,6 +161,7 @@
- 	init_task.signal->rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
- 	init_task.signal->rlim[RLIMIT_SIGPENDING] =
- 		init_task.signal->rlim[RLIMIT_NPROC];
-+	rt_mutex_init_task(&init_task);
- }
- 
- static struct task_struct *dup_task_struct(struct task_struct *orig)
-@@ -919,15 +930,6 @@
- 	return current->pid;
- }
- 
--static inline void rt_mutex_init_task(struct task_struct *p)
--{
--#ifdef CONFIG_RT_MUTEXES
--	spin_lock_init(&p->pi_lock);
--	plist_head_init(&p->pi_waiters, &p->pi_lock);
--	p->pi_blocked_on = NULL;
--#endif
--}
--
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
-
---=-BlqFUO1v72sOgwkFB0LV--
-
+-- 
+Regards,
+vatsa

@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWHVTaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWHVTjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWHVTaY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 15:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWHVTaX
+	id S1750721AbWHVTjB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 15:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWHVTjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 15:30:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:41938 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750701AbWHVTaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 15:30:21 -0400
-Subject: Re: [PATCH] paravirt.h
-From: Arjan van de Ven <arjan@infradead.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-       virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <44EB5A76.9060402@vmware.com>
-References: <1155202505.18420.5.camel@localhost.localdomain>
-	 <44DB7596.6010503@goop.org>
-	 <1156254965.27114.17.camel@localhost.localdomain>
-	 <200608221544.26989.ak@muc.de>  <44EB3BF0.3040805@vmware.com>
-	 <1156271386.2976.102.camel@laptopd505.fenrus.org>
-	 <1156275004.27114.34.camel@localhost.localdomain>
-	 <44EB584A.5070505@vmware.com>  <44EB5A76.9060402@vmware.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 22 Aug 2006 21:29:43 +0200
-Message-Id: <1156274983.2976.111.camel@laptopd505.fenrus.org>
+	Tue, 22 Aug 2006 15:39:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1925 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750721AbWHVTi7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 15:38:59 -0400
+Date: Tue, 22 Aug 2006 12:38:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Drynoff <pauldrynoff@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Can not boot linux-2.6.18-rc4-mm2
+Message-Id: <20060822123850.bdb09717.akpm@osdl.org>
+In-Reply-To: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>
+References: <20060822125118.12ba1ed4.pauldrynoff@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Aug 2006 12:51:18 +0400
+Paul Drynoff <pauldrynoff@gmail.com> wrote:
 
-> That is a really nasty problem.  You need a synchronization primitive 
-> which guarantees a flat stack, so you can't do it in the interrupt 
-> handler as I have tried to do.  I'll bang my head on it awhile.  In the 
-> meantime, were there ever any solutions to the syscall patching problem 
-> that might lend me a clue as to what to do (or not to do, or impossible?).
+> The almost the same config works fine with linux-2.6.18-rc4-mm1,
+> kernel compiled with debug info, but for some reason there is no
+> human readable trace. 
+> 
+> The kernel linux-2.6.18-rc4-mm2 + ntp-add-ntp_update_frequency-fix.patch
+> 
+> Any idea?
+> 
+> Here is log:
+> EXT3-fs: mounted filesystem with ordered data mode.
+> VFS: Mounted root (ext3 filesystem) readonly.
+> Freeing unused kernel memory: 500k freed
+> Write protecting the kernel read-only data: 860k
+> Failed to execute /linuxrc. Attempting defaults...
+> BUG: unable to handle kernel NULL pointer derefence at virtual adress 000000000
+> print eip
+> b7f106d0
+> Oops: 0000 [#1]
+> 8K_STACKS DEBUG_PAGEALLOC
+> last sysfs file: /block/hda/range
+> CPU: 0
+> EIP: 0073:[<b7f106d0>] Not tainted VLI
+> EFLAGS: 00000246 (2.6.18-rc4-mm2 #2)
+> EIP is at 0xb7f106d0
+> eax, ebx, edx, ecx, esi, edi, ebp: 0000000
+> esp: bf843680
+> ds, es, ss: 007b
+> Process init (pid: 1, ti=c1166000 task=c11615d0 task.ti=c1166000)
+> EIP: <b7f106d0>] 0xb7f106d0 SS:ESP 007b:bf83680
 
-yes we just disallowed it :)
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+I tried to reproduce this with qemu but wasn't able to work out in less
+than sixty seconds (== one attention-span) how to find and use a suitable
+userspace image.  Help.  Could you please suggest where such an image can
+be obtained and how it should be invoked to reproduce this?

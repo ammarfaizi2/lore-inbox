@@ -1,121 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWHVIhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWHVIiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWHVIhG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 04:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWHVIhG
+	id S1751365AbWHVIiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 04:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWHVIiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 04:37:06 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:3477 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751359AbWHVIhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 04:37:04 -0400
-Date: Tue, 22 Aug 2006 17:40:07 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com, pj@sgi.com,
-       saito.tadashi@soft.fujitsu.com
-Subject: [RFC][PATCH] ps command race fix take2 [2/4] change task_list
-Message-Id: <20060822174007.e3c7087b.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Tue, 22 Aug 2006 04:38:07 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:9195 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751360AbWHVIiF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 04:38:05 -0400
+Date: Tue, 22 Aug 2006 12:37:11 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Message-ID: <20060822083711.GA26183@2ka.mipt.ru>
+References: <11561555871530@2ka.mipt.ru> <1156230051.8055.27.camel@entropy> <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1156234672.8055.51.camel@entropy>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 22 Aug 2006 12:37:16 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes task->tasks from list_head to list_token.
+On Tue, Aug 22, 2006 at 01:17:52AM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
+> On Tue, 2006-08-22 at 11:24 +0400, Evgeniy Polyakov wrote:
+> > On Tue, Aug 22, 2006 at 12:00:51AM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
+> > > On Mon, 2006-08-21 at 14:19 +0400, Evgeniy Polyakov wrote:
+> > > > Generic event handling mechanism.
+> > > 
+> > > Since this is the sixth[1] event notification system that's getting
+> > > added to the kernel, could somebody please convince me that the
+> > > userspace API is right this time? (Evidently, the others weren't and are
+> > > now just backward compatibility bloat.)
+> > > 
+> > > Just looking at the proposed kevent API, it appears that the timer event
+> > > queuing mechanism can't be used for the queuing of POSIX.1b interval
+> > > timer events (i.e. via a SIGEV_KEVENT notification value in a struct
+> > > sigevent) because (being a very thin veneer over the internal kernel
+> > > timer system) you can't specify a clockid, the time value doesn't have
+> > > the flexibility of a struct itimerspec (no re-arm timeout or absolute
+> > > times), and there's no way to alter, disable or query a pending timer or
+> > > query a timer overrun count.
+> > > 
+> > > Overall, kevent timers appear to be inconvenient to use and limited
+> > > compared to POSIX interval timers (excepting the fact you can read their
+> > > expiry events out of a queue, of course).
+> >  
+> > Kevent timers are just trivial kevent user.
+> > But even as is it is not that bad solution.
+> > I, as user, do not want to know which timer is used  - I only need to
+> > get some signal when interval completed, especially I do not want to
+> > have some troubles when timer with given clockid has disappeared.
+> > Kevent timer can be trivially rearmed (acutally it is always rearmed 
+> > until one-shot flag is set).
+> > Of course it can be disabled by removing requested kevent.
+> > I can add possibility to alter timeout without removing kevent if there
+> > is strong requirement for that.
+> > 
+> 
+> Is any of this documented anywhere? I'd think that any new userspace
+> interfaces should have man pages explaining their use and some example
+> code before getting merged into the kernel to shake out any interface
+> problems.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Signed-Off-By: Tadashi Saito <shiba@mail2.accsnet.ne.jp>
+There are two excellent articles on lwn.net
+ 
+> > Timer notifications were designed not from committee point of view, when
+> > theoretical discussions end up in multi-megabyte documentation 99.9% of
+> > which can not be used without major brain surgery.
+> 
+> Do you have any technical objections to the POSIX.1b interval timer
+> design to back up your insults?
 
- include/linux/init_task.h |    3 ++-
- include/linux/sched.h     |   11 ++++++++---
- kernel/exit.c             |    2 +-
- kernel/fork.c             |    2 +-
- 4 files changed, 12 insertions(+), 6 deletions(-)
+POSIX timers can have any design, but do not force others to use the
+same.
 
-Index: linux-2.6.18-rc4/include/linux/sched.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/sched.h
-+++ linux-2.6.18-rc4/include/linux/sched.h
-@@ -74,6 +74,7 @@ struct sched_param {
- #include <linux/rcupdate.h>
- #include <linux/futex.h>
- #include <linux/rtmutex.h>
-+#include <linux/listtoken.h>
- 
- #include <linux/time.h>
- #include <linux/param.h>
-@@ -799,7 +800,7 @@ struct task_struct {
- 	struct sched_info sched_info;
- #endif
- 
--	struct list_head tasks;
-+	struct list_token tasks;
- 	/*
- 	 * ptrace_list/ptrace_children forms the list of my children
- 	 * that were stolen by a ptracer.
-@@ -1315,8 +1316,12 @@ extern void wait_task_inactive(struct ta
- #define remove_parent(p)	list_del_init(&(p)->sibling)
- #define add_parent(p)		list_add_tail(&(p)->sibling,&(p)->parent->children)
- 
--#define next_task(p)	list_entry(rcu_dereference((p)->tasks.next), struct task_struct, tasks)
--
-+static inline struct task_struct *next_task(struct task_struct *task)
-+{
-+	struct list_token *ent;
-+	ent = list_next_rcu_skiptoken(&task->tasks);
-+	return container_of(ent, struct task_struct, tasks);
-+}
- #define for_each_process(p) \
- 	for (p = &init_task ; (p = next_task(p)) != &init_task ; )
- 
-Index: linux-2.6.18-rc4/kernel/exit.c
-===================================================================
---- linux-2.6.18-rc4.orig/kernel/exit.c
-+++ linux-2.6.18-rc4/kernel/exit.c
-@@ -57,7 +57,7 @@ static void __unhash_process(struct task
- 		detach_pid(p, PIDTYPE_PGID);
- 		detach_pid(p, PIDTYPE_SID);
- 
--		list_del_rcu(&p->tasks);
-+		list_del_rcu_token(&p->tasks);
- 		__get_cpu_var(process_counts)--;
- 	}
- 	list_del_rcu(&p->thread_group);
-Index: linux-2.6.18-rc4/kernel/fork.c
-===================================================================
---- linux-2.6.18-rc4.orig/kernel/fork.c
-+++ linux-2.6.18-rc4/kernel/fork.c
-@@ -1237,7 +1237,7 @@ static struct task_struct *copy_process(
- 			attach_pid(p, PIDTYPE_PGID, process_group(p));
- 			attach_pid(p, PIDTYPE_SID, p->signal->session);
- 
--			list_add_tail_rcu(&p->tasks, &init_task.tasks);
-+			list_add_tail_rcu_token(&p->tasks, &init_task.tasks);
- 			__get_cpu_var(process_counts)++;
- 		}
- 		attach_pid(p, PIDTYPE_PID, p->pid);
-Index: linux-2.6.18-rc4/include/linux/init_task.h
-===================================================================
---- linux-2.6.18-rc4.orig/include/linux/init_task.h
-+++ linux-2.6.18-rc4/include/linux/init_task.h
-@@ -5,6 +5,7 @@
- #include <linux/rcupdate.h>
- #include <linux/irqflags.h>
- #include <linux/lockdep.h>
-+#include <linux/listtoken.h>
- 
- #define INIT_FDTABLE \
- {							\
-@@ -97,7 +98,7 @@ extern struct group_info init_groups;
- 	.run_list	= LIST_HEAD_INIT(tsk.run_list),			\
- 	.ioprio		= 0,						\
- 	.time_slice	= HZ,						\
--	.tasks		= LIST_HEAD_INIT(tsk.tasks),			\
-+	.tasks		= LIST_TOKEN_INIT(tsk.tasks),			\
- 	.ptrace_children= LIST_HEAD_INIT(tsk.ptrace_children),		\
- 	.ptrace_list	= LIST_HEAD_INIT(tsk.ptrace_list),		\
- 	.real_parent	= &tsk,						\
+> > I just implemented what I use, if you want more - say what you need.
+> 
+> I don't know what I need, I just know what POSIX already has, and your
 
+And I do know what I need, that is why I do it.
+
+> extensions don't appear to be compatible with that model and
+> deliberately designing something that has no hope of ever getting into
+> the POSIX standard or serving as the basis for whatever comes out of the
+> standard committee seems rather stupid. (Especially considering that
+> Linux's only viable competitor has already shipped a unified event
+> queuing API that does fit into the existing POSIX design.)
+
+I think I even know what it is :)
+
+> Ulrich Drepper is probably better able to speak on this than I am,
+> considering that he's involved with POSIX and is probably going to be
+> involved in the Linux libc work, whatever it may be.
+
+Feel free to use POSIX timers, but do not force others to it too.
+
+> >  
+> > > [1] Previously: select, poll, AIO, epoll, and inotify. Did I miss any?
+> > 
+> > Let me guess - kevent, which can do all above and a lot of other things?
+> > And you forget netlink-based notificators - netlink, rtnetlink,
+> > gennetlink, connector and tons of accounting application based on them,
+> > kobject, kobject_uevent.
+> > There also filessytem based ones - sysfs, procfs, debugfs, relayfs.
+> 
+> OK, so with literally a dozen different interfaces to queue events to
+> userspace, all of which are apparently inadequate and in need of
+> replacement by kevent, don't you want to slow down a bit and make sure
+> that the kevent API is correct before it becomes permanent and then just
+> has to be replaced *again* ?
+
+I only though that license issues remains unresolved in that
+linux-kernel@ flood, but not, I was wrong :)
+
+I will ask just one question, do _you_ propose anything here?
+ 
+> -- 
+> Nicholas Miell <nmiell@comcast.net>
+
+-- 
+	Evgeniy Polyakov

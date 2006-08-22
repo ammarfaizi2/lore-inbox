@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWHVKhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWHVKkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWHVKhS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 06:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWHVKhS
+	id S932160AbWHVKkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 06:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWHVKkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 06:37:18 -0400
-Received: from ns1.suse.de ([195.135.220.2]:18104 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932158AbWHVKhQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 06:37:16 -0400
-Date: Tue, 22 Aug 2006 12:37:13 +0200
-From: Andi Kleen <ak@suse.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [2.6 patch] re-add -ffreestanding
-Message-Id: <20060822123713.78a5bcaf.ak@suse.de>
-In-Reply-To: <C1CE9D4F-FBE2-4C4B-BCE9-49DF817E790C@mac.com>
-References: <20060821212154.GO11651@stusta.de>
-	<20060821232444.9a347714.ak@suse.de>
-	<20060821214636.GP11651@stusta.de>
-	<20060822000903.441acb64.ak@suse.de>
-	<20060821222412.GS11651@stusta.de>
-	<20060822002728.c023bf85.ak@suse.de>
-	<20060821225837.GT11651@stusta.de>
-	<20060822011320.a3491337.ak@suse.de>
-	<C1CE9D4F-FBE2-4C4B-BCE9-49DF817E790C@mac.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 22 Aug 2006 06:40:06 -0400
+Received: from p02c11o146.mxlogic.net ([208.65.145.69]:32979 "EHLO
+	p02c11o146.mxlogic.net") by vger.kernel.org with ESMTP
+	id S932160AbWHVKkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 06:40:05 -0400
+Date: Tue, 22 Aug 2006 13:37:31 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: pavel@suse.cz, linux-pm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: T60 not coming out of suspend to RAM
+Message-ID: <20060822103731.GC13782@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 22 Aug 2006 10:43:57.0406 (UTC) FILETIME=[DED947E0:01C6C5D7]
+X-Spam: [F=0.0100000000; S=0.010(2006081701)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2006 23:37:31 -0400
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
+Hi!
+I'm running Linus' git tree on my thinkpad T60.
+It generally seems to work fine after suspend to disk.
+However, the system does not come out of suspend to ram,
+with screen staying blank. I'm looking for hints for debugging this.
 
-> On Aug 21, 2006, at 19:13:20, Andi Kleen wrote:
-> >> What's the problem with adding -ffreestanding and stating  
-> >> explicitely which functions we want to be handled be builtins, and  
-> >> which functions we don't want to be handled by builtins?
-> >
-> > Take a look at lib/string.c and think about it a bit.
-> 
-> So why can't lib/string.c explicitly say __builtin_foo() instead of  
-> foo() where we mean the former? 
+If I set suspend/resume event tracing, I see this in dmesg
+after reboot:
 
-Because gcc when using builtins sometimes decides to call the 
-out of line version (usually when it can't figure out the alignment
-and generic alignment code would be too large to inline). And it will
-always call str/memfoo not __builtin_str/memfoo
+dmesg -s 1000000 | grep 'hash matches'
+  hash matches drivers/base/power/resume.c:42
+  hash matches device serio2
 
--Andi
+serio2 seems to be the psmouse device:
+ls /sys/bus/serio/drivers/psmouse/
+bind bind_mode description serio0 serio2 unbind
+
+Does this mean the mouse driver blocks the resume?
+
+I've rebuilt psmouse as a module, unloaded it before suspend, and now
+I see the same behaviour but after reboot:
+dmesg -s 1000000 | grep 'hash matches'
+  hash matches drivers/base/power/resume.c:42
+  hash matches device i2c-9191
+
+Which is somewhat weird because
+ls /sys/bus/i2c/devices
+does not list any i2c devices
+
+I could continue disabling stuff - but I am looking in the
+correct place even? How do you debug resume issues?
+
+Thanks,
+
+-- 
+MST

@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWHVNPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWHVNSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWHVNPA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 09:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWHVNPA
+	id S932220AbWHVNSb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWHVNSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 09:15:00 -0400
-Received: from mail.gmx.de ([213.165.64.20]:18049 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932195AbWHVNO7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 09:14:59 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 7/7] CPU controller V1 - (temporary) cpuset interface
-From: Mike Galbraith <efault@gmx.de>
-To: vatsa@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@openvz.org>, Balbir Singh <balbir@in.ibm.com>,
-       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com
-In-Reply-To: <1156257674.4617.8.camel@Homer.simpson.net>
-References: <20060820174015.GA13917@in.ibm.com>
-	 <20060820174839.GH13917@in.ibm.com>
-	 <1156245036.6482.16.camel@Homer.simpson.net>
-	 <20060822101028.GB5052@in.ibm.com>
-	 <1156257674.4617.8.camel@Homer.simpson.net>
+	Tue, 22 Aug 2006 09:18:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54953 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932220AbWHVNSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 09:18:31 -0400
+Subject: Re: [RFC] kallsyms_lookup always requires buffers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Franck <vagabon.xyz@gmail.com>
+Cc: rusty@rustcorp.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <44EAFDCA.1080002@innova-card.com>
+References: <44EAFDCA.1080002@innova-card.com>
 Content-Type: text/plain
-Date: Tue, 22 Aug 2006 15:23:29 +0000
-Message-Id: <1156260209.6225.7.camel@Homer.simpson.net>
+Organization: Intel International BV
+Date: Tue, 22 Aug 2006 15:18:26 +0200
+Message-Id: <1156252706.2976.51.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-22 at 14:41 +0000, Mike Galbraith wrote:
-> On Tue, 2006-08-22 at 15:40 +0530, Srivatsa Vaddagiri wrote:
-> > On Tue, Aug 22, 2006 at 11:10:36AM +0000, Mike Galbraith wrote:
-> > > Doesn't seem to work here, but maybe I'm doing something wrong.
-> > > 
-> > > I set up cpuset "all" containing cpu 0-1 (all, 1.something cpus I have;)
-> > 
-> > You are assigning all the CPUs to the cpuset "all" and then making it an
-> > exclusive/metered cpuset?
-> 
-> Yeah.
-> 
-> > I dont think I am handling that case well (yet), primarily because usage of 
-> > remaining tasks (which are not in cpuset "all", "mikeg" & "root") is not 
-> > accounted/controlled. Note that those remaining tasks will be running on one of 
-> > the CPUs assigned to "all". What needs to happen is those remaining tasks need 
-> > to be moved to a separate group (and a runqueue), being given some left-over 
-> > CPU quota (which is left over from assignment of quota to mikeg and root), 
-> > which is not handled in the patches (yet). One of the reason why I havent 
-> > handled it yet is that there is no easy way to retrieve list of tasks attached 
-> > to a cpuset.
-> 
-> I try it with everything in either root or mikeg.
 
-That didn't work.
+> +}
+> +EXPORT_SYMBOL_GPL(kallsyms_lookup_gently);
 
-> > Can you try assigning (NUM_CPUS-1) cpus to "all" and give it a shot?
-> > Essentially you need to ensure that only tasks chosen by you are running in 
-> > cpus given to "all" and other child-cpusets under it.
 
-With only cpu 1 in the cpuset, it worked.
+Hi,
 
-	-Mike
+there don't seem to be modular users so please don't export it since
+that export just eats up useless space. (we have way too many of those
+already)
+
+(Also I suggest you submit at least one user with your patch but that's
+another matter)
+
+Greetings,
+   Arjan van de Ven
 

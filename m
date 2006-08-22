@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWHVAaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWHVAcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWHVAaE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 20:30:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWHVAaE
+	id S1751342AbWHVAcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 20:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWHVAcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 20:30:04 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62609
+	Mon, 21 Aug 2006 20:32:11 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64657
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750942AbWHVAaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 20:30:01 -0400
-Date: Mon, 21 Aug 2006 17:30:16 -0700 (PDT)
-Message-Id: <20060821.173016.116359572.davem@davemloft.net>
-To: linas@austin.ibm.com
-Cc: benh@kernel.crashing.org, netdev@vger.kernel.org,
+	id S1751336AbWHVAcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 20:32:10 -0400
+Date: Mon, 21 Aug 2006 17:32:25 -0700 (PDT)
+Message-Id: <20060821.173225.68047257.davem@davemloft.net>
+To: rdreier@cisco.com
+Cc: linas@austin.ibm.com, arnd@arndb.de, shemminger@osdl.org, akpm@osdl.org,
+       netdev@vger.kernel.org, jklewis@us.ibm.com,
        linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Jens.Osterkamp@de.ibm.com, jklewis@us.ibm.com, arnd@arndb.de
-Subject: Re: [PATCH 2/4]: powerpc/cell spidernet low watermark patch.
+       Jens.Osterkamp@de.ibm.com, jgarzik@pobox.com
+Subject: Re: [RFC] HOWTO use NAPI to reduce TX interrupts
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060822001311.GK5427@austin.ibm.com>
-References: <20060818234532.GA8644@austin.ibm.com>
-	<1155962022.5803.68.camel@localhost.localdomain>
-	<20060822001311.GK5427@austin.ibm.com>
+In-Reply-To: <adaac5x3966.fsf@cisco.com>
+References: <20060821235244.GJ5427@austin.ibm.com>
+	<20060821.165616.107936004.davem@davemloft.net>
+	<adaac5x3966.fsf@cisco.com>
 X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -28,33 +29,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linas@austin.ibm.com (Linas Vepstas)
-Date: Mon, 21 Aug 2006 19:13:11 -0500
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 21 Aug 2006 17:29:05 -0700
 
-> @@ -1495,16 +1500,16 @@ spider_net_interrupt(int irq, void *ptr,
->  	if (!status_reg)
->  		return IRQ_NONE;
->  
-> -	if (status_reg & SPIDER_NET_RXINT ) {
-> +	if (status_reg & SPIDER_NET_RXINT) {
->  		spider_net_rx_irq_off(card);
->  		netif_rx_schedule(netdev);
->  	}
-> -	if (status_reg & SPIDER_NET_TXINT ) {
-> -		spider_net_cleanup_tx_ring(card);
-> -		netif_wake_queue(netdev);
-> -	}
->  
-> -	if (status_reg & SPIDER_NET_ERRINT )
-> +	/* Call rx_schedule from the tx interrupt, so that NAPI poll runs. */
-> +	if (status_reg & SPIDER_NET_TXINT)
-> +		netif_rx_schedule(netdev);
-> +
-> +	if (status_reg & SPIDER_NET_ERRINT)
+> This is a digression from spidernet, but what if a device is able to
+> generate separate MSIs for TX and RX?  Some people from IBM have
+> suggested that it is beneficial for throughput to handle TX work and
+> RX work for IP-over-InfiniBand in parallel on separate CPUs, and
+> handling everything through the ->poll() method would defeat this.
 
-This should be:
+The TX work is so incredibly cheap, relatively speaking, compared
+to the full input packet processing path that the RX side runs
+that I see no real benefit.
 
-	if ((status_reg & (SPIDET_NET_RXINT | SPIDET_NET_TXINT))) {
-		spider_net_rx_and_tx_irq_off(card);
-		netif_rx_schedule();
-	}
+In fact, you might even get better locality due to the way the
+locking can be performed if TX reclaim runs inside of ->poll()

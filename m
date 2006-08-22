@@ -1,61 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWHVWvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWHVWvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWHVWvY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 18:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWHVWvY
+	id S1750881AbWHVWvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 18:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWHVWvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 18:51:24 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:6371 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1750853AbWHVWvX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 18:51:23 -0400
-Date: Tue, 22 Aug 2006 17:21:50 -0400
-From: "Ed L. Cashin" <ecashin@coraid.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.18-rc4] aoe [04/13]: zero copy write 1 of 2
-Message-ID: <20060822212150.GQ6196@coraid.com>
-References: <E1GE8K3-0008Jn-00@kokone.coraid.com> <f262a8dec6bec42dce9e5723ff332f5d@coraid.com> <1155982692.4051.9.camel@localhost.localdomain>
+	Tue, 22 Aug 2006 18:51:13 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:31054 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750801AbWHVWvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 18:51:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XzQSnigxFjUouKVUyzBc6l4uEWv8xraM+gLtf97XdcAQMJ3YR9oaO/ceAB4GEXlZxJW36Ciwv2BAUUNQK/45D/dTX5w29TCiazyMEE4YmjYE9GqvSnvNbP7WcGsslCSyhXiy0AHfq3tBEjnxD7MN+IyPL86M0zJCcsHt1ss6QaA=
+Message-ID: <b3f268590608221551q5e6a1057hd1474ee8b9811f10@mail.gmail.com>
+Date: Wed, 23 Aug 2006 00:51:10 +0200
+From: "Jari Sundell" <sundell.software@gmail.com>
+To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
+Cc: "Nicholas Miell" <nmiell@comcast.net>, lkml <linux-kernel@vger.kernel.org>,
+       "David Miller" <davem@davemloft.net>,
+       "Ulrich Drepper" <drepper@redhat.com>, "Andrew Morton" <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, "Zach Brown" <zach.brown@oracle.com>,
+       "Christoph Hellwig" <hch@infradead.org>
+In-Reply-To: <20060822194706.GA3476@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1155982692.4051.9.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <11561555871530@2ka.mipt.ru> <1156230051.8055.27.camel@entropy>
+	 <20060822072448.GA5126@2ka.mipt.ru> <1156234672.8055.51.camel@entropy>
+	 <b3f268590608220957g43a16d6bmde8a542f8ad8710b@mail.gmail.com>
+	 <20060822180135.GA30142@2ka.mipt.ru>
+	 <b3f268590608221214l45bb6ad6meccfba99b89710a0@mail.gmail.com>
+	 <20060822194706.GA3476@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 19, 2006 at 11:18:12AM +0100, Alan Cox wrote:
-> Ar Gwe, 2006-08-18 am 13:39 -0400, ysgrifennodd Ed L. Cashin:
-> > Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
-> 
-> > +	skb->len = sizeof *h + sizeof *ah;
-> > +	memset(h, 0, skb->len);
-> 
-> Never play with skb->len directly. Use skb_put/skb_trim
+On 8/22/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> Word "polling" really confuses me here, but now I understand you.
+> Such approach actually has unresolved issues - consider for
+> example a situation when all provided events are ready immediately - what
+> should be returned (as far as I recall they are always added into kqueue in
+> BSDs before started to be checked, so old events will be returned
+> first)? And currently ready events can be read through mapped buffer
+> without any syscall at all.
+> And Linux syscall is much cheaper than BSD's one.
+> Consider (especially apped buffer)  that issues, it really does not cost
+> interface complexity.
 
-These are skbs pre-allocated by the aoe driver that will always have
-enough room to accomodate this much data, and we are really setting
-the packet header length.
+There's no reason I can see that kqueue's kevent should not be able to
+check an mmaped buffer as in your implementation, after having passed
+any filter changes to the kernel.
 
-To use skb_put here seems awkward.  We'd have to do things like shown
-below throughout the driver instead of just setting the length.  Is
-that what you'd like to see?
+I'm not sure if I read you correctly, but the situation where all
+events are ready immediately is not a problem. Only the delta is
+passed with the kevent call, so old events will still be first in the
+queue. And as long as the user doesn't randomize the order of the
+changelist and passes the changedlist with each kevent call, the
+resulting order in which changes are received will be no different
+from using individual system calls.
 
-diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c
---- 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c	2006-08-22 12:48:18.000000000 -0400
-+++ 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c	2006-08-22 17:03:23.000000000 -0400
-@@ -314,7 +315,9 @@ rexmit(struct aoedev *d, struct frame *f
- 		if (ah->aflags & AOEAFL_WRITE) {
- 			skb_fill_page_desc(skb, 0, virt_to_page(f->bufaddr),
- 				offset_in_page(f->bufaddr), DEFAULTBCNT);
--			skb->len = sizeof *h + sizeof *ah + DEFAULTBCNT;
-+			skb->data_len = 0;
-+			skb_trim(skb, 0);
-+			skb_put(skb, sizeof *h + sizeof *ah + DEFAULTBCNT);
- 			skb->data_len = DEFAULTBCNT;
- 		}
- 		if (++d->lostjumbo > (d->nframes << 1))
+If there's some very specific reason the user needs to retain the
+order in which events happen in the interval between adding it to the
+changelist and calling kevent, he may decide to call kevent
+immediately without asking for any events.
 
+> First of all, there are completely different types.
+> Design of the in-kernel part is very different too.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+The question I'm asking is not whet ever kqueue can fit this
+implementation, but rather if it is possible to make the
+implementation fit kqueue. I can't really see any fundemental
+differences, merely implementation details. Maybe I'm just unfamiliar
+with the requirements.
+
+> > BSD's kqueue:
+> >
+> > struct kevent {
+> >  uintptr_t ident;        /* identifier for this event */
+> >  short     filter;       /* filter for event */
+> >  u_short   flags;        /* action flags for kqueue */
+> >  u_int     fflags;       /* filter flag value */
+> >  intptr_t  data;         /* filter data value */
+> >  void      *udata;       /* opaque user data identifier */
+> > };
+>
+>
+> From your description there is a serious problem with arches which
+> supports different width of the pointer. I do not have sources of ny BSD
+> right now, but if it is really like you've described, it can not be used
+> in Linux at all.
+
+Are you referring to udata or data? I'll assume the latter as the
+former is more of a restriction on user-space. intptr_t is required to
+be safely convertible to a void*, so I don't see what the problem
+would be.
+
+> No way - timespec uses long.
+
+I must have missed that discussion. Please enlighten me in what regard
+using an opaque type with lower resolution is preferable to a type
+defined in POSIX for this sort of purpose. Considering the extra code
+I need to write to properly handle having just ms resolution, it
+better be something fundamentally broken. ;)
+
+Rakshasa

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWHVLSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWHVLUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWHVLSf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 07:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWHVLSf
+	id S932174AbWHVLUt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 07:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWHVLUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 07:18:35 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42759 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932166AbWHVLSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 07:18:35 -0400
-Date: Tue, 22 Aug 2006 13:18:35 +0200
-From: Adrian Bunk <bunk@stusta.de>
+	Tue, 22 Aug 2006 07:20:49 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:13794 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932174AbWHVLUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 07:20:48 -0400
+Date: Tue, 22 Aug 2006 20:23:50 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 To: Andi Kleen <ak@suse.de>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [2.6 patch] re-add -ffreestanding
-Message-ID: <20060822111835.GU11651@stusta.de>
-References: <20060821212154.GO11651@stusta.de> <20060821232444.9a347714.ak@suse.de> <20060821214636.GP11651@stusta.de> <20060822000903.441acb64.ak@suse.de> <20060821222412.GS11651@stusta.de> <20060822002728.c023bf85.ak@suse.de> <20060821225837.GT11651@stusta.de> <20060822011320.a3491337.ak@suse.de> <C1CE9D4F-FBE2-4C4B-BCE9-49DF817E790C@mac.com> <20060822123713.78a5bcaf.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060822123713.78a5bcaf.ak@suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+Cc: akpm@osdl.org, ebiederm@xmission.com, pj@sgi.com,
+       saito.tadashi@soft.fujitsu.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] ps command race fix take2 [1/4] list token
+Message-Id: <20060822202350.35be06fc.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <p73bqqd81xh.fsf@verdi.suse.de>
+References: <20060822173904.5f8f6e0f.kamezawa.hiroyu@jp.fujitsu.com>
+	<p73bqqd81xh.fsf@verdi.suse.de>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2006 at 12:37:13PM +0200, Andi Kleen wrote:
-> On Mon, 21 Aug 2006 23:37:31 -0400
-> Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> 
-> > On Aug 21, 2006, at 19:13:20, Andi Kleen wrote:
-> > >> What's the problem with adding -ffreestanding and stating  
-> > >> explicitely which functions we want to be handled be builtins, and  
-> > >> which functions we don't want to be handled by builtins?
-> > >
-> > > Take a look at lib/string.c and think about it a bit.
+On 22 Aug 2006 13:06:34 +0200
+Andi Kleen <ak@suse.de> wrote:
+
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
 > > 
-> > So why can't lib/string.c explicitly say __builtin_foo() instead of  
-> > foo() where we mean the former? 
+> > listtoken , a helper for walking a list by intermittent access.
+> > 
+> > When we walk a list intermittently and the list is being modified at the
+> > same time, it's hard to remember our position in it.
+> > 
+> > With this list token, a user can remember where he is reading by inserting
+> > a token in the list.
 > 
-> Because gcc when using builtins sometimes decides to call the 
-> out of line version (usually when it can't figure out the alignment
-> and generic alignment code would be too large to inline). And it will
-> always call str/memfoo not __builtin_str/memfoo
+> I think the header/code needs much more comments so that other people
+> can still make sense of it later. Even with the commit log it's not
+> quite clear how it works.
+> 
+Okay, make them more informative.
 
-IOW, we might in some cases require an out-of-line version of the 
-function?
+> Also locking needs to be explained. 
+Yes, with RCU. we need appropriate lock.
 
-I don't see in this case any problem created by using -ffreestanding and 
-the #define's.
+> I suppose only one user is allowed to use a token at one time?
+> 
+Yes, I expext that a user uses a token. But several tokens can be inserted to a list.
 
-> -Andi
+> But overall it's a good idea to have a generic facility like this.
+> I suppose it will be a more common problem in the future.
+> 
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Thanks,
+-Kame
 

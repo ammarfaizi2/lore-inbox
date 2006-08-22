@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWHVVel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWHVVgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWHVVel (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 17:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWHVVel
+	id S932156AbWHVVgW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 17:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWHVVgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 17:34:41 -0400
-Received: from xenotime.net ([66.160.160.81]:18655 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751300AbWHVVek (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 17:34:40 -0400
-Date: Tue, 22 Aug 2006 14:37:47 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take12 0/3] kevent: Generic event handling mechanism.
-Message-Id: <20060822143747.68acaf99.rdunlap@xenotime.net>
-In-Reply-To: <1156281182.2476.63.camel@entropy>
-References: <11561555871530@2ka.mipt.ru>
-	<1156230051.8055.27.camel@entropy>
-	<20060822072448.GA5126@2ka.mipt.ru>
-	<1156234672.8055.51.camel@entropy>
-	<20060822083711.GA26183@2ka.mipt.ru>
-	<1156238988.8055.78.camel@entropy>
-	<20060822100316.GA31820@2ka.mipt.ru>
-	<1156276658.2476.21.camel@entropy>
-	<20060822201646.GC3476@2ka.mipt.ru>
-	<1156281182.2476.63.camel@entropy>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Aug 2006 17:36:22 -0400
+Received: from mail01.hansenet.de ([213.191.73.61]:28669 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP
+	id S1751303AbWHVVgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 17:36:21 -0400
+From: Thomas Koeller <thomas.koeller@baslerweb.com>
+Organization: Basler AG
+To: "Bill Davidsen" <davidsen@tmr.com>
+Subject: Re: [PATCH] Image capturing driver for Basler eXcite smart camera
+Date: Tue, 22 Aug 2006 23:36:12 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-mips@linux-mips.org,
+       Thomas =?iso-8859-1?q?K=F6ller?= <thomas@koeller.dyndns.org>
+References: <200608102318.04512.thomas.koeller@baslerweb.com> <200608172230.30682.thomas.koeller@baslerweb.com> <44E5BE77.9040200@tmr.com>
+In-Reply-To: <44E5BE77.9040200@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608222336.12137.thomas.koeller@baslerweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Aug 2006 14:13:02 -0700 Nicholas Miell wrote:
+On Friday 18 August 2006 15:19, Bill Davidsen wrote:
+>
+> Don't take it personally, just write working code people can patch in.
+> When your code has the features you mentioned it will be highly useful
+> and hopefully ported to many devices. I guess security monitoring is an
+> "industrial image processing application," which interests me. At the
+> moment I would call it an impressive proof of concept, but you have many
+> useful ideas for its future.
 
-> On Wed, 2006-08-23 at 00:16 +0400, Evgeniy Polyakov wrote:
-> > On Tue, Aug 22, 2006 at 12:57:38PM -0700, Nicholas Miell (nmiell@comcast.net) wrote:
-> > > On Tue, 2006-08-22 at 14:03 +0400, Evgeniy Polyakov wrote:
-> > > Of course, since you already know how all this stuff is supposed to
-> > > work, you could maybe write it down somewhere?
-> > 
-> > I will write documantation, but as you can see some interfaces are
-> > changed.
-> 
-> Thanks; rapidly changing interfaces need good documentation even more
-> than stable interfaces simply because reverse engineering the intended
-> API from a changing implementation becomes even more difficult.
+I am not offended at all, I certainly agree with Pavel's opinion of 'do
+not invent new interfaces needlessly'. But this is a use case significantly
+different from what the v4l2 api is aimed at.
 
-OK, I don't quite get it.
-Can you be precise about what you would like?
+As I wrote earlier, if it were not for other reasons, then changing the
+API is not an option because the software already ships. I can place the
+driver somewhere else in the kernel tree. I can fix any issues that
+someone may find with it. I certainly cannot replace it with something
+entirely different. If it is rejected, my only option is to submit the
+rest of the code, without the capturing driver (the platform is already
+in the kernel tree). Some may feel that a camera that cannot capture
+images is somewhat pointless, though...
 
-a.  good documentation
-b.  a POSIX API
-c.  a Windows-compatible API
-d.  other?
+Of course, everyone is free to write a v4l2 driver, but will likely
+find that the hardware is not very suitable as a streaming video
+device. At least, it would be a very expensive one...
 
-and we won't make you use any of this code.
+Thomas
 
----
-~Randy
+-- 
+Thomas Koeller, Software Development
+
+Basler Vision Technologies
+An der Strusbek 60-62
+22926 Ahrensburg
+Germany
+
+Tel +49 (4102) 463-390
+Fax +49 (4102) 463-46390
+
+mailto:thomas.koeller@baslerweb.com
+http://www.baslerweb.com

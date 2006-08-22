@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWHVOzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWHVO6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWHVOzv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWHVOzv
+	id S932157AbWHVO6d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWHVO6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:55:51 -0400
-Received: from mxsf32.cluster1.charter.net ([209.225.28.156]:31644 "EHLO
-	mxsf32.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932285AbWHVOzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:55:51 -0400
-X-IronPort-AV: i="4.08,156,1154923200"; 
-   d="scan'208"; a="582288587:sNHT2370928090"
-MIME-Version: 1.0
+	Tue, 22 Aug 2006 10:58:33 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:7149 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932157AbWHVO6c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:58:32 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:date:from:to:cc:subject:message-id:references:
+	mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+	b=eCYbZfXfbQrCwZerd0d0eTaM8iDqKIKSLIeSatcII203ALHDKNloQ9tDTkf7POQZ9
+	hVNKoW+H3K0bK6PdndBbA==
+Date: Tue, 22 Aug 2006 07:58:02 -0700
+From: Tim Hockin <thockin@google.com>
+To: Andi Kleen <ak@suse.de>
+Cc: matthew@wil.cx, greg@kroah.com,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@google.com>
+Subject: Re: PCI MMCONFIG aperture size
+Message-ID: <20060822145802.GR16573@google.com>
+References: <20060822024237.GO16573@google.com> <200608220955.31620.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17643.6779.897374.233638@stoffel.org>
-Date: Tue, 22 Aug 2006 10:53:47 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: John Stoffel <john@stoffel.org>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [patch 00/20] 2.6.17-stable review
-In-Reply-To: <CEC585A0-09D8-44E9-ABEA-58B65D2A1CA7@mac.com>
-References: <20060821184527.GA21938@kroah.com>
-	<20060821194616.GC12928@redhat.com>
-	<20060821214349.GA1885@suse.de>
-	<17643.2921.654137.143271@stoffel.org>
-	<CEC585A0-09D8-44E9-ABEA-58B65D2A1CA7@mac.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <200608220955.31620.ak@suse.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kyle" == Kyle Moffett <mrmacman_g4@mac.com> writes:
+On Tue, Aug 22, 2006 at 09:55:31AM +0200, Andi Kleen wrote:
+> 
+> > This says to me that (as long as the MCFG table has an End Bus Number of
+> > 31) a 32 MB decode area (32 MB aligned, too) is valid.
+> > 
+> > Would something like the below patch be accepted?  It makes my system
+> > work...
+> 
+> I already got a patch to remove the complete e820 validation code because
+> it broke far more than it fixed. That should fix your problem too.
 
-Kyle> On Aug 22, 2006, at 09:49:29, John Stoffel wrote:
->> "Greg" == Greg KH <gregkh@suse.de> writes:
->>> On Mon, Aug 21, 2006 at 03:46:16PM -0400, Dave Jones wrote:
->>>> Any chance of a 2.6.17.10-rc1 rollup patch again, like you did  
->>>> for .8?
->> 
->>> Oops, forgot to do that, thanks for reminding me.  It can be found  
->>> at:
->>> http://www.kernel.org/pub/linux/kernel/people/gregkh/stable/ 
->>> patch-2.6.17.10-rc1.gz
->> 
->>> And yes, it's not in the "main" v2.6 subdirectories, I'm not going  
->>> to put it there anymore as it confuses too many scripts/people.
->> 
->> So what if they're confused?  If they're official releases, blessed  
->> with holy penguin pee, then shouldn't they be in the standard  
->> release area?
+Great!  Coming in 2.6.18?
 
-Kyle> Well, except for the fact that the pre-stable RC patches are
-Kyle> neither "official" nor "releases".  They're just a combo rollup
-Kyle> patch of all of the proposed stable patches before they've been
-Kyle> batch reviewed on the LKML. (IOW: just for ease of testing)
+> > Also, why are we forcing 32 bit base addresses?  ACPI defines it to be a
+> > 64 bit base...
+> 
+> Where do you think we do that?
 
-Doh.  Never mind, excuse the egg on my face please...
+Looking at 2.6.17, we always have u32 base_address and u32
+base_reserved.  base_address is the only one ever referenced, that I can
+see.  I guess I should grab 2.6.18 pre-releases and recheck.
 
-John
+Thanks

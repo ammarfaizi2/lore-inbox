@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWHVIBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWHVIAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWHVIBb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 04:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWHVIBb
+	id S1751034AbWHVIAu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 04:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWHVIAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 04:01:31 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:34223 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1751275AbWHVIBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 04:01:30 -0400
-Message-Id: <44EAD613.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Tue, 22 Aug 2006 10:01:55 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: boot failure, "DWARF2 unwinder stuck at 0xc0100199"
-References: <20060820013121.GA18401@fieldses.org>
- <44E97353.76E4.0078.0@novell.com>
- <20060821094718.79c9a31a.rdunlap@xenotime.net>
- <20060821212043.332fdd0f.akpm@osdl.org>
-In-Reply-To: <20060821212043.332fdd0f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Aug 2006 04:00:50 -0400
+Received: from mail.gmx.net ([213.165.64.20]:5862 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750713AbWHVIAt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 04:00:49 -0400
+X-Authenticated: #5039886
+Date: Tue, 22 Aug 2006 10:00:46 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Paul Mackerras <paulus@samba.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] introduce kernel_execve function to replace __KERNEL_SYSCALLS__
+Message-ID: <20060822080046.GA22572@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Arnd Bergmann <arnd@arndb.de>, Paul Mackerras <paulus@samba.org>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20060819073031.GA25711@atjola.homenet> <200608201913.39989.arnd@arndb.de> <17641.30.670343.779791@cargo.ozlabs.ibm.com> <200608211712.17780.arnd@arndb.de> <1156231742.21752.101.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1156231742.21752.101.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Andrew Morton <akpm@osdl.org> 22.08.06 06:20 >>>
->On Mon, 21 Aug 2006 09:47:18 -0700
->"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
->> > The 'stuck' unwinder issue at hand already has a fix, though planned to
->> > be merged for 2.6.19 only. The crash after switching to the legacy
->> > stack trace code is bad, though, but has little to do with the unwinder
->> > additions/changes. The way that code reads the stack is just
->> > inappropriate in contexts where things must be expected to be broken.
->> 
->> "merged for 2.6.19" meaning:
->> - in (before) 2.6.19, or
->> - after 2.6.19 is released
->> 
->> If "after," then it will likely need to be added to -stable also,
->> so it might as well go in "before" 2.6.19 is released.
->
->Precisely.
+On 2006.08.22 17:29:02 +1000, Benjamin Herrenschmidt wrote:
+> On Mon, 2006-08-21 at 17:12 +0200, Arnd Bergmann wrote:
+> > On Monday 21 August 2006 02:36, Paul Mackerras wrote:
+> > > > Iit turned out most of the architectures that already implement
+> > > > their own execve() call instead of using the _syscall3 function
+> > > > for it end up passing the return value of sys_execve down, 
+> > > > instead of setting errno.
+> > > 
+> > > I really don't like having an "errno" variable in the kernel.  What if
+> > > two processes are doing an execve concurrently?
+> > 
+> > The point is that we have two different schemes in the kernel that
+> > conflict:
+> > 
+> > alpha, arm{,26}, ia64, parisc, powerpc and x86_64 pass the error
+> > code from execve, all others pass -1 and set the global errno.
+> 
+> All other need to be fixed then... having an errno is just plain wrong.
 
-My understanding of 'for' is that Andi will send to Linus after in the 2.6.19
-merge window.
+I'm working on a patch loosely based on Arnd's that changes the
+in-kernel syscall macros to directly return the error codes. Once
+kernel_execve is implemented for each arch, only um should remain as a
+user and I found only two calls there that care about the exact
+non-zero return value, both are simple to adapt.
+That should allow to get rid of errno completely. If someone knows a
+reason why this is destined to fail (maybe syscalls returning char?!),
+please let me know before I waste too much time on it ;)
 
->Guys, this unwinder change has been quite problematic.  We really cannot
->let this badness out into 2.6.18 - it degrades our ability to debug every
->subsystem in the entire kernel.  Would marking it CONFIG_BROKEN get us back
->to 2.6.17 behaviour?
-
-I'd prefer pushing into 2.6.18 some of the patches currently scheduled for
-2.6.19 over marking it CONFIG_BROKEN. But that's clearly not my decision.
-
-Jan
+Björn

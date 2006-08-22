@@ -1,43 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWHVGih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWHVGl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWHVGih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 02:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWHVGih
+	id S1751301AbWHVGl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 02:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWHVGl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 02:38:37 -0400
-Received: from stinky.trash.net ([213.144.137.162]:1009 "EHLO stinky.trash.net")
-	by vger.kernel.org with ESMTP id S1751051AbWHVGig (ORCPT
+	Tue, 22 Aug 2006 02:41:29 -0400
+Received: from msr46.hinet.net ([168.95.4.146]:32501 "EHLO msr46.hinet.net")
+	by vger.kernel.org with ESMTP id S1751078AbWHVGl2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 02:38:36 -0400
-Message-ID: <44EAA669.7050604@trash.net>
-Date: Tue, 22 Aug 2006 08:38:33 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netfilter@lists.netfilter.org
-Subject: Re: ipt_MARK/xt_MARK usage problem
-References: <Pine.LNX.4.61.0608220815560.24532@yvahk01.tjqt.qr> <44EAA447.1080004@trash.net> <Pine.LNX.4.61.0608220830110.24532@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0608220830110.24532@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Tue, 22 Aug 2006 02:41:28 -0400
+Subject: [PATCH 1/4] IP100A: Fix TX Pause bug (reset_tx, intr_handler)
+From: Jesse Huang <jesse@icplus.com.tw>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com, jesse@icplus.com.tw
+Content-Type: text/plain
+Date: Tue, 22 Aug 2006 14:28:43 -0400
+Message-Id: <1156271323.4662.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>How do I get MARK back to work in -t filter -- possibly without hacking in 
->>>xt_MARK.c?
->>
->>You won't, its not supposed to work in the filter table.
-> 
-> 
-> This worked in 2.6.16, where the ipt_mark_reg_v1 strucutre in xt_MARK.c did 
-> not have a .table limiter. (It also worked in practice, i.e. packets got 
-> marked like they should.) I do not see why this was changed.
+From: Jesse Huang <jesse@icplus.com.tw>
+
+Change Logs:
+   - Fix TX Pause bug (reset_tx, intr_handler)
+
+Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
+
+---
+
+ sundance.c |   53 ++++++++++++++++++++++++++++++-----------------------
+ 1 files changed, 30 insertions(+), 23 deletions(-)
+
+ba5de849a1160e56f83456ea059ea600029dfb43
+diff --git a/sundance.c b/sundance.c
+index ac17377..0ef8f19 100755
+--- a/sundance.c
++++ b/sundance.c
+@@ -21,8 +21,8 @@
+ */
+ 
+ #define DRV_NAME	"sundance"
+-#define DRV_VERSION	"1.1"
+-#define DRV_RELDATE	"27-Jun-2006"
++#define DRV_VERSION	"1.2"
++#define DRV_RELDATE	"03-Aug-2006"
+ 
+ 
+ /* The user-configurable values.
+@@ -262,8 +262,6 @@ enum alta_offsets {
+ 	ASICCtrl = 0x30,
+ 	EEData = 0x34,
+ 	EECtrl = 0x36,
+-	TxStartThresh = 0x3c,
+-	RxEarlyThresh = 0x3e,
+ 	FlashAddr = 0x40,
+ 	FlashData = 0x44,
+ 	TxStatus = 0x46,
+@@ -1084,6 +1082,8 @@ reset_tx (struct net_device *dev)
+ 	}
+ 	/* free all tx skbuff */
+ 	for (i = 0; i < TX_RING_SIZE; i++) {
++		np->tx_ring[i].next_desc = 0;
++		
+ 		skb = np->tx_skbuff[i];
+ 		if (skb) {
+ 			pci_unmap_single(np->pci_dev, 
+@@ -1099,6 +1099,10 @@ reset_tx (struct net_device *dev)
+ 	}
+ 	np->cur_tx = np->dirty_tx = 0;
+ 	np->cur_task = 0;
++	
++	np->last_tx=0;
++	iowrite8(127, ioaddr + TxDMAPollPeriod);	
++	
+ 	iowrite16 (StatsEnable | RxEnable | TxEnable, ioaddr + MACCtrl1);
+ 	return 0;
+ }
+@@ -1156,29 +1160,29 @@ static irqreturn_t intr_handler(int irq,
+ 						np->stats.tx_fifo_errors++;
+ 					if (tx_status & 0x02)
+ 						np->stats.tx_window_errors++;
+-					/*
+-					** This reset has been verified on
+-					** DFE-580TX boards ! phdm@macqel.be.
+-					*/
+-					if (tx_status & 0x10) {	/* TxUnderrun */
+-						unsigned short txthreshold;
+-
+-						txthreshold = ioread16 (ioaddr + TxStartThresh);
+-						/* Restart Tx FIFO and transmitter */
+-						sundance_reset(dev, (NetworkReset|FIFOReset|TxReset) << 16);
+-						iowrite16 (txthreshold, ioaddr + TxStartThresh);
+-						/* No need to reset the Tx pointer here */
++
++					/* FIFO ERROR need to be reset tx */
++					if (tx_status & 0x10) {	/* Reset the Tx. */
++						spin_lock(&np->lock);
++						reset_tx(dev);
++						spin_unlock(&np->lock);
++					}
++					if (tx_status & 0x1e) {
++					/* need to make sure tx enabled */
++						int i = 10;
++						do {
++							iowrite16 (ioread16(ioaddr + MACCtrl1) | TxEnable, ioaddr + MACCtrl1);
++							if (ioread16(ioaddr + MACCtrl1) & TxEnabled)
++								break;
++							mdelay(1);
++						} while (--i);
+ 					}
+-					/* Restart the Tx. */
+-					iowrite16 (TxEnable, ioaddr + MACCtrl1);
+ 				}
+-				/* Yup, this is a documentation bug.  It cost me *hours*. */
++				
+ 				iowrite16 (0, ioaddr + TxStatus);
+-				if (tx_cnt < 0) {
+-					iowrite32(5000, ioaddr + DownCounter);
+-					break;
+-				}
+ 				tx_status = ioread16 (ioaddr + TxStatus);
++				if (tx_cnt < 0)
++					break;
+ 			}
+ 			hw_frame_id = (tx_status >> 8) & 0xff;
+ 		} else 	{
+@@ -1244,6 +1248,9 @@ static irqreturn_t intr_handler(int irq,
+ 	if (netif_msg_intr(np))
+ 		printk(KERN_DEBUG "%s: exiting interrupt, status=%#4.4x.\n",
+ 			   dev->name, ioread16(ioaddr + IntrStatus));
++			   
++	iowrite32(5000, ioaddr + DownCounter); 
++				   
+ 	return IRQ_RETVAL(handled);
+ }
+ 
+-- 
+1.3.GIT
 
 
-That is not true, all versions of the mark target starting in 2.4 had
-the same check in the checkentry function.
+

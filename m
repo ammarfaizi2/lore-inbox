@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWHVAN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWHVAO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWHVAN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Aug 2006 20:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWHVAN6
+	id S1750850AbWHVAO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Aug 2006 20:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWHVAO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Aug 2006 20:13:58 -0400
-Received: from wx-out-0506.google.com ([66.249.82.228]:23454 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750850AbWHVAN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Aug 2006 20:13:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cIWeIQA4N5IQP8lthOoxg4S5WpZR/ULomDXu0JQ8m3AzUYaE6dszaav7JtEv8+jVanKpfgxaOPdqFq+oSeOQNixtjIzxOnRFFSjPJ1Gn17lG5OIOSpSnHldj2IAN4mkSoOG/Ctr8I5MsGPd983f+td2T53PXFHrhnU5EmRB9Bnw=
-Message-ID: <21d7e9970608211713m7e554884l3a0e93b9ed4274f0@mail.gmail.com>
-Date: Tue, 22 Aug 2006 10:13:56 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Jean Delvare" <khali@linux-fr.org>
-Subject: Re: [PATCH] intelfbhw.c: intelfbhw_get_p1p2 defined but not used
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Sylvain Meyer" <sylvain.meyer@worldonline.fr>,
-       "Parag Warudkar" <kernel-stuff@comcast.net>,
-       linux-kernel@vger.kernel.org, "Antonino Daplas" <adaplas@pol.net>
-In-Reply-To: <20060730125033.efb0d87e.khali@linux-fr.org>
+	Mon, 21 Aug 2006 20:14:28 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:31889 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1750850AbWHVAO1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Aug 2006 20:14:27 -0400
+Date: Tue, 22 Aug 2006 01:14:25 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: Christian Merkle <mail@christian-merkle.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       sylvain.meyer@worldonline.fr, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] intelfb: update doc and Kconfig (supported devices)
+In-Reply-To: <44E64B05.3050205@christian-merkle.de>
+Message-ID: <Pine.LNX.4.64.0608220114090.658@skynet.skynet.ie>
+References: <44E64B05.3050205@christian-merkle.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0607060154130.2027@gentoo.warudkars.net>
-	 <20060730125033.efb0d87e.khali@linux-fr.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > Patch against 2.6.18-rc1.
->
-> Can we please have this patch merged in Linus' tree now?
->
 
-I've put this in my intelfb tree....
+> According to drivers/video/intelfb/intelfb.h, the intelfb driver
+> supportes the following devices:
+> 830M/845G/852GM/855GM/865G/915G/915GM/945G/945GM. So the description in
+> drivers/video/Kconfig and the documentation in
+> Documentation/fb/intelfb.txt is outdated.
+>
+> Signed-off-by: Christian Merkle <mail@christian-merkle.de>
+
+Applied to intelfb tree...
 
 Dave.

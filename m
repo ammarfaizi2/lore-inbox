@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWHVODE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWHVOId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWHVODE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 10:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHVODE
+	id S932169AbWHVOId (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 10:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWHVOId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 10:03:04 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:51350 "EHLO
-	screens.ru") by vger.kernel.org with ESMTP id S932253AbWHVODC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 10:03:02 -0400
-Date: Tue, 22 Aug 2006 22:27:07 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] copy_process: cosmetic ->ioprio tweak
-Message-ID: <20060822182707.GA469@oleg>
-References: <20060820145321.GA775@oleg> <20060821143224.62018aba.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 22 Aug 2006 10:08:33 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56585 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932169AbWHVOIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Aug 2006 10:08:32 -0400
+Date: Tue, 22 Aug 2006 16:08:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH] paravirt.h
+Message-ID: <20060822140832.GW11651@stusta.de>
+References: <1155202505.18420.5.camel@localhost.localdomain> <44DB7596.6010503@goop.org> <20060819012133.GH7813@stusta.de> <44E67B6E.10706@goop.org> <Pine.LNX.4.62.0608201047520.4809@pademelon.sonytel.be> <44EAFEE3.8080700@goop.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060821143224.62018aba.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <44EAFEE3.8080700@goop.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08/21, Andrew Morton wrote:
->
-> On Sun, 20 Aug 2006 18:53:21 +0400
-> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+On Tue, Aug 22, 2006 at 05:56:03AM -0700, Jeremy Fitzhardinge wrote:
+> Geert Uytterhoeven wrote:
+> >>relicensing them.
+> >>    
+> >
+> >That's a pretty strong statement...
+> >  
 > 
-> > copy_process:
-> > // holds tasklist_lock + ->siglock
-> >        /*
-> >         * inherit ioprio
-> >         */
-> >        p->ioprio = current->ioprio;
-> > 
-> > Why? ->ioprio was already copied in dup_task_struct().
-> 
-> It might just be a thinko.
-> 
-> > I guess this is needed
-> > to ensure that the child can't escape sys_ioprio_set(IOPRIO_WHO_{PGRP,USER}),
-> > yes?
-> 
-> How could the child escape that if this assignment was not present?
+> Well, I'm not making any kind of legal statement.  I'm just pointing out 
+> that from a technical perspective, there's a large visible functional 
+> change from before if we use EXPORT_SYMBOL_GPL(paravirt_ops) vs 
+> EXPORT_SYMBOL(paravirt_ops).  Given that the whole point of paravirt_ops 
+> is to minimize visible changes, this seems counterproductive.
 
-It is possible that sys_ioprio_set(IOPRIO_WHO_PGRP) was called after
-copy_process() already did dup_task_struct(), but before it takes
-tasklist_lock. Documentation/block/ioprio.txt doesn't say should
-ioprio_set() be "atomic" or not. If not, we can kill this line, and
-(more importantly) drop tasklist_lock in fs/ioprio.c
+It only affects kernels with the new functionality PARAVIRT=y, not 
+kernels with the same functionality as today.
 
-Oleg.
+The alternative is to keep the EXPORT_SYMBOL_GPL(paravirt_ops) and make 
+the functions using it out of line functions.
+
+>    J
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

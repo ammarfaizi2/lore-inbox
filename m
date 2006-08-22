@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWHVM7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWHVNDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWHVM7U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Aug 2006 08:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWHVM7U
+	id S932219AbWHVNDm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Aug 2006 09:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWHVNDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Aug 2006 08:59:20 -0400
-Received: from khc.piap.pl ([195.187.100.11]:12518 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932071AbWHVM7U (ORCPT
+	Tue, 22 Aug 2006 09:03:42 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:24580 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932219AbWHVNDl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Aug 2006 08:59:20 -0400
-To: Jeff Garzik <jeff@garzik.org>
-Cc: David Miller <davem@davemloft.net>, <netdev@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH][REPOST] WAN: fix C101 card carrier handling
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 22 Aug 2006 14:59:17 +0200
-Message-ID: <m3k651udsq.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Tue, 22 Aug 2006 09:03:41 -0400
+Date: Tue, 22 Aug 2006 15:05:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] elv_unregister: fix possible crash on module unload
+Message-ID: <20060822130556.GJ4290@suse.de>
+References: <20060820204345.GA5750@oleg> <20060820205034.GA5755@oleg> <20060821154841.e6ea500a.akpm@osdl.org> <20060822172213.GA401@oleg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060822172213.GA401@oleg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 22 2006, Oleg Nesterov wrote:
+> An exiting task or process which didn't do I/O yet have no io context,
+> elv_unregister() should check it is not NULL.
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- 2.6.18-rc4/block/elevator.c~8_crash	2006-07-16 01:53:08.000000000 +0400
+> +++ 2.6.18-rc4/block/elevator.c	2006-08-22 21:13:06.000000000 +0400
+> @@ -765,7 +765,8 @@ void elv_unregister(struct elevator_type
+>  		read_lock(&tasklist_lock);
+>  		do_each_thread(g, p) {
+>  			task_lock(p);
+> -			e->ops.trim(p->io_context);
+> +			if (p->io_context)
+> +				e->ops.trim(p->io_context);
+>  			task_unlock(p);
+>  		} while_each_thread(g, p);
+>  		read_unlock(&tasklist_lock);
 
-One of my recent changes broke C101 carrier handling, this patch
-fixes it. Also fixes an old TX underrun checking bug.
+Good catch, applied. Thanks! I wonder why this hasn't been seen on
+switching io schedulers, which makes me a little suspicious. Did you see
+it trigger?
 
-2.6.18 material. Please apply.
-Thanks.
+-- 
+Jens Axboe
 
-Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
-
-diff --git a/drivers/net/wan/c101.c b/drivers/net/wan/c101.c
-index 435e91e..6b63b35 100644
---- a/drivers/net/wan/c101.c
-+++ b/drivers/net/wan/c101.c
-@@ -118,7 +118,7 @@ #include "hd6457x.c"
- 
- static inline void set_carrier(port_t *port)
- {
--	if (!sca_in(MSCI1_OFFSET + ST3, port) & ST3_DCD)
-+	if (!(sca_in(MSCI1_OFFSET + ST3, port) & ST3_DCD))
- 		netif_carrier_on(port_to_dev(port));
- 	else
- 		netif_carrier_off(port_to_dev(port));
-@@ -127,10 +127,10 @@ static inline void set_carrier(port_t *p
- 
- static void sca_msci_intr(port_t *port)
- {
--	u8 stat = sca_in(MSCI1_OFFSET + ST1, port); /* read MSCI ST1 status */
-+	u8 stat = sca_in(MSCI0_OFFSET + ST1, port); /* read MSCI ST1 status */
- 
--	/* Reset MSCI TX underrun status bit */
--	sca_out(stat & ST1_UDRN, MSCI0_OFFSET + ST1, port);
-+	/* Reset MSCI TX underrun and CDCD (ignored) status bit */
-+	sca_out(stat & (ST1_UDRN | ST1_CDCD), MSCI0_OFFSET + ST1, port);
- 
- 	if (stat & ST1_UDRN) {
- 		struct net_device_stats *stats = hdlc_stats(port_to_dev(port));
-@@ -138,6 +138,7 @@ static void sca_msci_intr(port_t *port)
- 		stats->tx_fifo_errors++;
- 	}
- 
-+	stat = sca_in(MSCI1_OFFSET + ST1, port); /* read MSCI1 ST1 status */
- 	/* Reset MSCI CDCD status bit - uses ch#2 DCD input */
- 	sca_out(stat & ST1_CDCD, MSCI1_OFFSET + ST1, port);
- 
